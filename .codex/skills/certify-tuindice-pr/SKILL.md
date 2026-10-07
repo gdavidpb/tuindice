@@ -1,154 +1,138 @@
 ---
 name: certify-tuindice-pr
-description: Certify TuIndice feature branches for production PRs. Use when Codex needs to prepare or verify a TuIndice feat/* branch before opening or updating a pull request against production, including local commit-bound Maestro E2E evidence, evidence manifest audits, GitHub status publication checks, iterative failure fixes, pushes, and ready-for-review PR creation.
+description: Certify TuIndice feature branches for production PRs. Use when a TuIndice feat/* branch must be prepared or verified before opening or updating a pull request against production: local commit-bound native E2E evidence (XCUITest on iOS, UI Automator on Android), evidence verdicts and stop conditions, GitHub status publication, fixing failures, pushing, and opening a ready-for-review PR.
 ---
 
 # Certify TuIndice PR
 
-## Core Workflow
+Read `references/certification-runbook.md` before paying for evidence or opening a PR. This file is organised by
+decision: what to do when something is the case.
 
-Use this skill for TuIndice app branches that need production PR certification.
-Read `references/certification-runbook.md` for the detailed runbook before running long E2E evidence or opening a PR.
+## What is certified
 
-1. Ensure the branch is `feat/*`, based on `production`, and not dirty.
-2. **Absorb pending certification feedback.** If `origin/chore/certification-feedback`
-exists, an earlier certification left process fixes waiting there — that branch existing is
-what marks feedback as pending. Merge it into this branch now, before the audit and before
-anything has been paid for, verify what it brings, and delete the remote branch once the
-merge is pushed. Report what was absorbed. If it does not belong in this branch, stop and
-say so rather than carrying it silently.
+- What is certified is the remote SHA: the commit the PR head points to. Evidence counts only when the tree is
+  clean, `HEAD == @{u}`, and a trusted `success` status `local-e2e/<platform>/local-certification-suite` naming
+  that platform's fingerprint exists on that SHA. Any change to the branch needs a push, and the evidence has to
+  match the pushed SHA.
+- Evidence is a full run of every scenario on each required platform, accumulated in a ledger per platform and
+  fingerprint. A scenario that is green for the fingerprint is never rerun.
+- The person who certifies launches the evidence (`git push`, then `./gradlew e2eEvidence`). An agent prepares,
+  diagnoses and reads; it launches evidence only when asked to.
 
-If the user asks you to edit this skill's own files (`SKILL.md`, the runbook, the scripts)
-*while* a certification is in progress — not just at the step-15 wrap-up — the same rule
-applies immediately: make the edit on `chore/certification-feedback` (branched fresh from
-`production`, or reusing/resetting a stale local one), never in the working tree of the
-branch currently being certified. `.claude/skills/certify-tuindice-pr/**` is a symlink into
-`.codex/skills/certify-tuindice-pr/**`, which is the tracked path `git status` will actually
-show — editing via either path lands on whatever branch is checked out, so check `git branch
---show-current` before editing, not after. Do not `git checkout` a different branch in this
-same working tree while a local Gradle/Maestro evidence run is still active in the
-background — switching branches mid-run changes the files a live process may still read;
-stash the edit, wait for the run to finish, then move it.
-
-3. Commit and push all intended changes before certifying. The certified SHA must exist on GitHub.
-4. **Run the pre-certification diff audit before any preflight or evidence work.** This gate
-is mandatory and is described in full in the runbook's Pre-Certification Diff Audit. Audit the
-whole diff against `production` for regressions and for test/harness weaknesses that would
-otherwise surface as expensive certification failures. Fix everything it finds, in one batch,
-*before* paying for preflight or evidence. Skipping it to "just start the run" is what makes
-certification take hours: every discovery made during evidence costs a full rotation.
-5. Run the non-mutating audit helper:
+## What the audit helper says
 
 ```bash
 python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
 ```
 
-If this reports a missing app version/build-number bump, stop and fix the bump
-before running E2E evidence. Evidence from a SHA that preflight will reject is
-not useful.
+Read-only. It checks branch, clean tree, upstream and version bump, then prints the verdict of each required
+platform from `python3 e2e/scripts/shared/e2e.py status --json` (also `./gradlew e2eStatus`). Exit 0: done. Exit 1:
+evidence still to produce. Exit 2: a stop condition holds.
 
-The audit also prints, per required platform/suite, whether passing E2E
-evidence already exists for the current content fingerprint: `current`
-(produced by HEAD), `reusable` (produced by an earlier commit with the same
-fingerprint; production preflight republishes its status onto the PR head via
-`E2E_REUSE_STATUS_BY_FINGERPRINT`), or `rerun` (no passing evidence for the
-fingerprint). Suites marked `current` or `reusable` need no local rerun.
+| Verdict | Condition | Do |
+|---|---|---|
+| `current` | A trusted success status naming the platform's fingerprint is on HEAD | Nothing |
+| `reusable` | The same status is on a commit preflight considers: the branch's commits since the merge-base with `production`, or that base itself | Nothing; preflight republishes it |
+| `unpublished` | No such status; the ledger is green for every in-scope scenario | Push if HEAD is not on GitHub, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>` |
+| `partial` | No such status; at least one scenario is green | `./gradlew e2eEvidence` (or the platform task); only the pending ones run |
+| `rerun` | No such status; nothing is green for this fingerprint | `./gradlew e2eEvidence` (or the platform task) |
+| `exhausted` | No such status; a scenario used all its attempts | Stop (below); a new run is refused with exit 7 |
 
-6. Run local PR preflight parity checks:
+The fingerprint of a platform covers: its app and KMP runtime sources, `mocks/`, the scenario catalog and runner
+sources, `e2e/scripts/shared` plus the platform's own scripts, its toolchain lock and the Gradle version catalog.
+It does not cover unit-test sources, version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**` or `*.md`.
+Never rerun because the SHA moved. Never rerun a platform that is `current` or `reusable`.
 
-```bash
-.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
-```
+## Workflow
 
-This resolves the same focused Android/iOS Gradle tasks as
-`preflight-production-pr.yml` for the current diff, including the iOS host flags
-used by `Run focused iOS checks`.
+1. Branch `feat/*` from `production`, tree clean, pushed.
+2. Run the pre-certification diff audit (runbook section 2) before paying for anything: every regression found
+   during evidence costs a full run.
+3. Run the audit helper. A missing version bump stops here.
+4. Run `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`: the focused Android and iOS
+   Gradle tasks of CI, plus the iOS UI test target build when CI will run it (`--dry-run` prints the commands).
+5. Diagnose what the branch changed: `python3 e2e/scripts/shared/e2e.py list --changed-since origin/production`, then
+   `python3 e2e/scripts/shared/e2e.py run --platform all --mode diagnose --scenario <ids>`. It needs no clean
+   tree and publishes nothing.
+6. Only when the helper says `partial` or `rerun`: `./gradlew e2eEvidence`, or `e2eEvidenceAndroid` /
+   `e2eEvidenceIos` for one platform.
+7. On a non-zero exit read the run's `summary.txt` and follow "Failure handling" and "Stop conditions".
+8. After the final push, rerun the helper: every required platform is `current` or `reusable`.
+9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
+10. Stop the devices: `bash e2e/scripts/android/device.sh stop` and `bash e2e/scripts/ios/device.sh stop`.
+11. Deliver the Spanish store-copy proposal in the session (runbook section 8), never in the PR body.
+12. Close with a short retrospective grounded in what happened; apply the maintenance rules below.
 
-7. Run local commit-bound evidence only when the audit reports `rerun` suites. **Evidence runs in parallel (both platforms in the same `e2eMaestroEvidenceLocal` invocation) by default — this is the standing policy, not a preference:**
+## Failure handling by class
 
-```bash
-./gradlew --continue --console=plain e2eMaestroEvidenceLocal
-```
+The class is in the `FAIL` line, `summary.txt` and the attempt's `classification.json`.
 
-Skip this step entirely when every required suite is `current` or `reusable`.
+| Class | Meaning | Do | Never |
+|---|---|---|---|
+| `typed_text_mismatch` | The field or the backend got text different from what the scenario typed; the message shows both | Reproduce with `--mode diagnose --scenario <id> --repeat 20`; fix the product or the driver, or report it | Call it load; retry; split the input; add guard characters |
+| `app_crash` | The app process died or stopped responding | Read `crash.txt`; fix | Retry |
+| `product_assertion` | The expected UI did not appear | Diagnose with `--trace` | Weaken the assertion |
+| `backend_mismatch` | The mock rejected the declared credential, had no stub, or saw another Bearer | Fix the mapping or the scenario's mock state | Change the product |
+| `timeout`, `tooling_error` | Runner or harness | Read `runner.log` and `result.json`; fix the harness | Raise timeouts first |
+| `environment` | Device or host not usable | Fix the machine (`./gradlew e2eEnvCheck`), rerun | Change code |
 
-Do not switch to sequential per-platform runs (`e2eMaestroEvidenceAndroid` /
-`e2eMaestroEvidenceIos` on separate ports) as a default or a time-saving
-habit. It is a diagnosed fallback only — see "Running Evidence" in the
-runbook for the exact symptom that justifies it and the requirement to
-report the switch explicitly.
+## Stop conditions
 
-8. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
-9. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
-10. After the final push, rerun the audit helper and confirm every required platform/suite is `current` or `reusable` for the final remote SHA.
-11. Open or update a non-draft PR against `production` with a title that does not mention Codex.
-12. Verify the PR head SHA matches the certified SHA.
-13. Stop the local test devices left running by evidence: `e2e/scripts/stop-devices.sh android ios`. If a later fix forces another evidence run after devices are stopped, boot them again first with `e2e/scripts/boot-devices.sh android ios`.
-14. Deliver in the session (never in the PR body) a Spanish store-copy proposal derived from the certified diff against `production`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 characters max). Both in end-user language describing external functionality only — no tests, CI, harness, refactors, or other internals. If the diff has no user-visible changes, say so and propose keeping the current store texts. See the runbook's Post-PR Wrap-up for the full rules.
-15. Close with a self meta-analysis of this certification run: concrete improvements to this skill's own scripts, runbook, or `SKILL.md`, grounded in what actually happened during the fix loop rather than generic advice. Present it as text in the session, then **apply whatever is mechanical onto `chore/certification-feedback`** — never onto the certified branch, whose diff is already certified. Push that branch so the next `feat/*` absorbs it at step 2. Recommendations that need a product or design decision stay as text for the user. See the runbook's Post-Certification Meta-Analysis for the full rules.
+Stop and report to the person who owns the branch on any of these:
 
-## Product Integrity Gate
+- the harness exits 5 or 7;
+- it exits 3 twice in the session;
+- the same scenario fails under two consecutive fingerprints (a fix did not fix it);
+- three evidence invocations for one platform in the session;
+- four hours of evidence wall time in the session.
 
-E2E and preflight fixes must not arbitrarily alter the product experience.
+The helper prints these counters. Raising `E2E_MAX_RETRIES`, invoking evidence again on the same fingerprint,
+forcing `E2E_PARALLEL`, rebooting devices or the host, and `E2E_ENV_OVERRIDE` are not remedies. Hand over: the
+`STOP` line and the `stop` block of the run's `manifest.json` (reason, scenario, class, diagnosis), the attempt
+artifacts in `build/e2e/runs/<runId>/scenarios/<id>/attempt-<n>/`, the class, and the helper output. Say that you
+are not trying again.
 
-- Prefer fixing tests, selectors, waits, fixtures, mock state, reset scripts, simulator/device state, or platform harnesses when the failure is test instability.
-- Change production UI, copy, layout, navigation, timing, gestures, or business behavior only when the failure exposes a real product regression or the user explicitly requests that product change.
-- If a certification fix touches user-visible product code, state the product rationale, compare it against the intended experience, and add/update focused product or UI coverage that protects the intended behavior.
-- Do not move, hide, resize, reorder, relabel, or weaken product surfaces merely to make Maestro or preflight pass.
-- If the only passing path requires changing the product experience and the rationale is not clear, stop and ask before committing or pushing that fix.
+## Host load
 
-## Iterative Correction Loop
+The harness measures load, disk, uptime, memory, competing processes and foreign devices, decides parallel or
+sequential from those numbers, and records them in the manifest. Do not record `uptime` by hand, do not infer load
+from symptoms, and do not choose the mode. A typed-text mismatch is never load.
 
-Treat failures as normal certification work. Iterate with cheap targeted
-diagnosis runs; pay for full commit-bound evidence once, on the final SHA.
+## Long branches
 
-Read the runbook's Inner-Loop Discipline before iterating: a green local run
-can be lying — `testAndroidHostTest` never compiles `iosTest`, a `| tail`
-pipeline reports its own exit code rather than the build's, and a test that
-still passes with its fix reverted is not coverage. It also lists what every
-delegation prompt must forbid.
+Certify in increments: at each milestone run `E2E_PUBLISH_GITHUB_STATUS=0 ./gradlew e2eEvidence` on a clean tree
+(nothing is published), so failures surface while the diff is small. The helper warns when HEAD is more than 20
+commits or 150 files past the last complete run. `run --platform all --mode diagnose --survey` lists every failing
+scenario in one pass without accumulating anything.
 
-1. Identify the failing platform, suite, and flow from Gradle output, `maestro.log`, and `junit.xml`.
-2. Decide whether the failure is product behavior, E2E coverage, or local environment.
-3. Reproduce and fix with diagnosis runs, which need no clean or pushed tree and publish nothing:
+## Product integrity gate
 
-```bash
-E2E_MAESTRO_SUITE=e2e/maestro/flows/<failing-flow-or-suite>.yaml ./gradlew --console=plain e2eMaestroAndroid   # or e2eMaestroIos
-```
+E2E and preflight fixes must not alter the product experience to please automation.
 
-Prefix with `E2E_MAESTRO_SURVEY_MODE=1` to report every failing case in one
-pass instead of stopping at the first. When a tap/assert fails against an
-element the hierarchy claims visible, run `e2e/scripts/make-probe.sh <flow>`
-and read the per-step screenshots before hypothesizing. Verify flow fixes on
-both platforms with `e2e/scripts/diagnose-suite.sh <suite> [--survey]` before
-committing them. For iOS Compose UI-test failures, reproduce at full-module
-granularity (`:module:iosSimulatorArm64Test` without `--tests`) before
-investigating: narrow filters shift the process cold-start onto a different
-test and manufacture phantom ComposeTimeoutExceptions. See the runbook's
-Diagnosis Runs doctrine for details.
+- Prefer fixing tests, scenarios, fixtures, mock state, drivers and harness when the failure is instability.
+- Change production UI, copy, layout, navigation, timing, gestures or behavior only for a real regression or an
+  explicit request; then state the product rationale and add focused coverage.
+- Never move, hide, resize, reorder, relabel or weaken surfaces to make a scenario pass. A change in how text is
+  typed, or a guard character, is a defect workaround and is not allowed.
+- If the only passing path changes the product and the rationale is unclear, stop and ask before committing.
 
-4. Fix product code or E2E fixtures/tests when the failure is real. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
-5. When every known failure is fixed, commit the batch, push it, and verify `HEAD == @{u}`.
-6. Rerun `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`. You may skip this rerun when the incremental diff since the last parity-passed commit only touches `e2e/maestro/**`, `mocks/**`, or documentation/skill files (none are Gradle inputs); parity must still pass for the final SHA before opening the PR.
-7. Rerun the audit helper and run `./gradlew --continue --console=plain e2eMaestroEvidenceLocal` only when it reports `rerun` suites.
-8. Repeat until the final pushed SHA has passing preflight parity and every required suite `current` or `reusable`.
+## Pull request rules
 
-Evidence validity follows the content fingerprint — the same rule production
-preflight enforces. Do not rerun evidence just because the SHA moved; rerun the
-suites whose fingerprint changed. Fingerprints are platform-scoped: an
-iOS-host-only fix keeps Android evidence reusable, and vice versa.
+- Base `production`, head the current `feat/*`, not draft, title without `Codex`.
+- Body: summary, verification commands, evidence outcome (certified SHA, platforms, verdicts), notable fix loops.
+- Prefer the GitHub connector when `gh auth status` fails; otherwise `gh pr create`.
 
-## Pull Request Rules
+## Maintaining this skill
 
-- Base branch: `production`.
-- Head branch: current `feat/*` branch.
-- Draft: false.
-- Title: concise product/change title, without `Codex`.
-- Body: include summary, verification commands, evidence outcome, and any notable failure/fix loop.
-- Prefer the GitHub connector when `gh auth status` is unavailable or stale; otherwise `gh pr create` is acceptable.
+- A learning becomes a harness check or classification rule with a test, a host test, or one row of a table here.
+  Incident narrative goes in the commit message. No sentence states a cause without a measured datum and source.
+- Edits to this skill and to `e2e/tools/**` leave the fingerprint alone; edits to `e2e/scripts/**` change it, so
+  batch them before the final evidence run or ship them in a follow-up PR.
+- Line budgets (`SKILL.md` 140, runbook 300, `e2e/scripts/{shared,android,ios}` 4,500) are checked by
+  `./gradlew verifyE2eHarness`; raising one needs its own commit stating why.
 
 ## Resources
 
-- `references/certification-runbook.md`: detailed TuIndice certification and PR procedure.
-- `scripts/inspect_certification_state.py`: local audit helper for branch/upstream/evidence manifests and fingerprint reusability.
-- `scripts/run_preflight_parity_checks.sh`: local reproduction of the PR focused preflight jobs.
+- `references/certification-runbook.md`: the procedure, the exit codes, the environment and the maintenance rules.
+- `scripts/inspect_certification_state.py`: branch, version, verdicts and session counters.
+- `scripts/run_preflight_parity_checks.sh`: local reproduction of the PR preflight jobs.

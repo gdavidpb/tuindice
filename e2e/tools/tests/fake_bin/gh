@@ -3,6 +3,9 @@
 #   E2E_FAKE_GH_LOG        file that receives one line per call (required)
 #   E2E_FAKE_GH_FAIL_FILE  while this file exists, the status POST fails
 #   E2E_FAKE_GH_AUTH_FAIL  when non-empty, `gh auth status` fails
+#   E2E_FAKE_GH_STATUSES_DIR  directory of <sha>.json: what `commits/<sha>/statuses` answers ([] when absent)
+#   E2E_FAKE_GH_OWNER      what `repos/{owner}/{repo}` answers (default "owner"; set but empty: nothing)
+#   E2E_FAKE_GH_UNREACHABLE  when non-empty, every GET fails
 set -euo pipefail
 
 printf '%s\n' "$*" >> "${E2E_FAKE_GH_LOG:?E2E_FAKE_GH_LOG is required}"
@@ -52,6 +55,27 @@ if [[ "${method}" == "POST" ]]; then
 		exit 1
 	fi
 	printf '{"state":"%s","context":"%s","description":"%s"}\n' "${state}" "${context}" "${description}"
+	exit 0
+fi
+
+if [[ -n "${E2E_FAKE_GH_UNREACHABLE:-}" ]]; then
+	printf 'could not resolve host\n' >&2
+	exit 1
+fi
+
+# Reads of the evidence verdict: the owner, and the statuses of a commit from $E2E_FAKE_GH_STATUSES_DIR/<sha>.json.
+if [[ "${endpoint}" == "repos/{owner}/{repo}" ]]; then
+	printf '%s\n' "${E2E_FAKE_GH_OWNER-owner}"
+	exit 0
+fi
+if [[ -n "${E2E_FAKE_GH_STATUSES_DIR:-}" && "${endpoint}" == */commits/*/statuses ]]; then
+	sha="${endpoint%/statuses}"
+	sha="${sha##*/}"
+	if [[ -f "${E2E_FAKE_GH_STATUSES_DIR}/${sha}.json" ]]; then
+		cat "${E2E_FAKE_GH_STATUSES_DIR}/${sha}.json"
+	else
+		printf '[]\n'
+	fi
 	exit 0
 fi
 

@@ -110,9 +110,11 @@ IOS_CI_SCRIPTS_TOUCHED="$(github_output_value ios_ci_scripts_touched "$GITHUB_OU
 HAS_RELEVANT_CHANGES="$(github_output_value has_relevant_changes "$GITHUB_OUTPUT_FILE")"
 APP_VERSION_CHANGED="$(github_output_value app_version_changed "$GITHUB_OUTPUT_FILE")"
 HAS_RELEASE_IMPACT="$(github_output_value has_release_impact "$GITHUB_OUTPUT_FILE")"
+IOS_UITEST_BUILD_REQUIRED="$(github_output_value ios_uitest_build_required "$GITHUB_OUTPUT_FILE")"
 
 info "Android preflight tasks: ${ANDROID_TASKS:-<none>}"
 info "iOS preflight tasks: ${IOS_TASKS:-<none>}"
+info "iOS UI test target build required: ${IOS_UITEST_BUILD_REQUIRED:-false}"
 
 if [[ "$HAS_RELEVANT_CHANGES" != "true" ]]; then
 	info "No deployable app changes were detected; preflight parity checks are not required."
@@ -150,6 +152,10 @@ if [[ "$DRY_RUN" == "true" ]]; then
 			-Pcompose.ios.resources.platform=iphoneos \
 			-Pcompose.ios.resources.archs=arm64 \
 			"${ios_task_array[@]}"
+	fi
+	if [[ "$IOS_UITEST_BUILD_REQUIRED" == "true" ]]; then
+		# Paridad con el job ios-uitest-preflight: construye la app y el bundle TuIndiceUITests.
+		print_command bash ./e2e/scripts/ios/build.sh --for-testing-only
 	fi
 	exit 0
 fi
@@ -228,6 +234,15 @@ if [[ -n "$IOS_TASKS" ]]; then
 				-Pcompose.ios.resources.platform=iphoneos \
 				-Pcompose.ios.resources.archs=arm64 \
 				"${ios_task_array[@]}"
+	)
+fi
+
+if [[ "$IOS_UITEST_BUILD_REQUIRED" == "true" ]]; then
+	# Paridad con el job ios-uitest-preflight, que corre aparte del host de iOS: sin las variables de
+	# dispositivo (iphoneos) del bloque anterior, que romperían una compilación para simulador.
+	(
+		sanitize_sensitive_environment
+		bash ./e2e/scripts/ios/build.sh --for-testing-only
 	)
 fi
 

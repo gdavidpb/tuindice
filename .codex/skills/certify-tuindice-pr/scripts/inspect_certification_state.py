@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
-"""Inspect TuIndice branch and local E2E certification evidence."""
+"""Inspect a TuIndice branch before and after local E2E evidence. Read-only.
+
+Git, scope and version checks live here. The evidence verdict (current, reusable, unpublished, partial, rerun,
+exhausted) comes from `e2e/scripts/shared/e2e.py status --json`; this script adds the session counters that the
+runbook's stop conditions need, read from the harness's run manifests and ledgers.
+
+Exit codes: 0 every check passed and every required platform is current or reusable; 1 something is not done yet;
+2 a stop condition holds: report to the person who owns the branch instead of trying again.
+"""
 
 from __future__ import annotations
 
+import datetime
+import glob
 import json
 import os
 import subprocess
@@ -13,6 +23,22 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+HARNESS = Path("e2e") / "scripts" / "shared" / "e2e.py"
+
+SAFE_VERDICTS = ("current", "reusable")
+MAX_EVIDENCE_INVOCATIONS = 3  # per platform, in one session
+MAX_EVIDENCE_HOURS = 4.0  # wall time of evidence, in one session
+MAX_ENVIRONMENT_EXITS = 2  # exit 3 runs, in one session
+MAX_DRIFT_COMMITS = 20  # HEAD past the last complete run: warn beyond this many commits...
+MAX_DRIFT_FILES = 150  # ...or this many files
+NEXT_ACTION = {
+    "unpublished": "git push if HEAD is not on GitHub, then: python3 e2e/scripts/shared/e2e.py publish --platform {platform}",
+    "partial": "./gradlew {task}   (only the pending scenarios run)",
+    "rerun": "./gradlew {task}",
+    "exhausted": "fix the cause; a new run is refused with exit 7 (python3 e2e/scripts/shared/e2e.py reset-scenario is "
+    "the owner's decision, once per scenario)",
+}
+TASKS = {"android": "e2eEvidenceAndroid", "ios": "e2eEvidenceIos"}
 
 
 @dataclass(frozen=True)
@@ -30,18 +56,10 @@ class CertificationScope:
     android_tasks: str = ""
     ios_tasks: str = ""
     ios_ci_scripts_touched: bool = False
+    ios_uitest_build_required: bool = False
     app_version_changed: bool = False
     has_release_impact: bool = False
     error: str = ""
-
-
-@dataclass(frozen=True)
-class SuiteReuse:
-    platform: str
-    suite: str
-    fingerprint: str
-    verdict: str  # "current" | "reusable" | "rerun"
-    detail: str
 
 
 def run_git(*args: str) -> GitResult:
@@ -82,11 +100,11 @@ def print_check(ok: bool, label: str, detail: str = "") -> None:
     print(f"[{prefix}] {label}{suffix}")
 
 
-def load_manifest(path: Path) -> tuple[dict[str, object] | None, str | None]:
+def load_json(path) -> dict | list | None:
     try:
-        return json.loads(path.read_text(encoding="utf-8")), None
-    except Exception as exc:  # noqa: BLE001 - surface any malformed manifest.
-        return None, str(exc)
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
 
 
 def parse_github_output(path: Path) -> dict[str, str]:
@@ -198,151 +216,242 @@ def detect_certification_scope(head: str) -> CertificationScope:
             android_tasks=values.get("android_tasks") or "",
             ios_tasks=values.get("ios_tasks") or "",
             ios_ci_scripts_touched=values.get("ios_ci_scripts_touched") == "true",
+            ios_uitest_build_required=values.get("ios_uitest_build_required") == "true",
             app_version_changed=values.get("app_version_changed") == "true",
             has_release_impact=values.get("has_release_impact") == "true",
         )
 
 
-def resolve_e2e_scope_pairs() -> tuple[list[tuple[str, str]], str | None]:
-    result = run_repo_script("e2e/scripts/resolve-e2e-scope.sh", "all")
+def required_platforms() -> tuple[list[str], str | None]:
+    """Platforms the diff requires evidence for: one `<platform>,<suite>,<reason>` line each."""
+    result = run_repo_script("e2e/scripts/shared/resolve-e2e-scope.sh", "all")
     if result.code != 0:
         return [], result.stderr or "resolve-e2e-scope failed"
-
-    pairs: list[tuple[str, str]] = []
+    platforms: list[str] = []
     for line in result.stdout.splitlines():
-        parts = line.strip().split(",")
-        if len(parts) >= 2 and parts[0] and parts[1]:
-            pair = (parts[0], parts[1])
-            if pair not in pairs:
-                pairs.append(pair)
-    return pairs, None
+        platform = line.split(",")[0].strip()
+        if platform and platform not in platforms:
+            platforms.append(platform)
+    return platforms, None
 
 
-def e2e_fingerprint(platform: str, suite: str, ref: str = "HEAD") -> str:
-    result = run_repo_script("e2e/scripts/e2e-fingerprint.sh", platform, suite, ref)
-    if result.code != 0:
-        return ""
-    return result.stdout
+def load_status() -> tuple[dict | None, str]:
+    """`e2e.py status --json`: the ledger and remote facts of each platform, with the verdict."""
+    try:
+        completed = subprocess.run(
+            [sys.executable, str(HARNESS), "status", "--json"],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=600,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        return None, str(exc)
+    if completed.returncode != 0:
+        return None, completed.stderr.strip() or f"status exited {completed.returncode}"
+    try:
+        return json.loads(completed.stdout), ""
+    except ValueError as exc:
+        return None, f"status did not print JSON: {exc}"
 
 
-def passing_manifest_for_fingerprint(
-    fingerprint: str, platform: str, suite: str
-) -> dict[str, object] | None:
-    manifest_path = (
-        REPO_ROOT
-        / "build"
-        / "e2e"
-        / "certifications"
-        / "by-fingerprint"
-        / fingerprint
-        / platform
-        / suite
-        / "manifest.json"
-    )
-    if not manifest_path.is_file():
-        return None
-
-    manifest, _ = load_manifest(manifest_path)
-    if manifest is None or manifest.get("statusCode") != 0:
-        return None
-    return manifest
+def state_root() -> Path:
+    configured = os.environ.get("E2E_STATE_ROOT") or "build/e2e"
+    path = Path(configured)
+    return path if path.is_absolute() else REPO_ROOT / path
 
 
-def preflight_reuse_candidates(head: str) -> set[str]:
-    """Commits preflight will actually consider when looking for reusable evidence.
-
-    It walks `rev-list HEAD ^base`, which excludes the base itself, so evidence
-    living on production — or on an already-merged branch — is invisible to it
-    no matter how well the fingerprint matches. Reporting such evidence as
-    reusable sends the operator into a preflight that then demands the rotation
-    they were told to skip.
-    """
+def branch_commits(head: str) -> set[str] | None:
+    """Commits of this branch since the merge-base with production; None when there is no base."""
     base = merge_base_for_e2e_scope(head)
     if not base:
-        return set()
-
+        return None
     result = run_git("rev-list", head, f"^{base}")
-    if result.code != 0:
-        return set()
-    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()} if result.code == 0 else None
 
 
-def suite_reuse_verdict(head: str, platform: str, suite: str) -> SuiteReuse:
-    fingerprint = e2e_fingerprint(platform, suite)
-    if not fingerprint:
-        return SuiteReuse(platform, suite, "", "rerun", "unable to compute fingerprint")
+def epoch(text: object) -> float:
+    try:
+        parsed = datetime.datetime.strptime(str(text), "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return 0.0
+    return parsed.replace(tzinfo=datetime.timezone.utc).timestamp()
 
-    manifest = passing_manifest_for_fingerprint(fingerprint, platform, suite)
-    covered_by = suite
-    if manifest is None and suite != "local-certification-suite":
-        aggregate_fingerprint = e2e_fingerprint(platform, "local-certification-suite")
-        if aggregate_fingerprint:
-            manifest = passing_manifest_for_fingerprint(
-                aggregate_fingerprint, platform, "local-certification-suite"
-            )
-            covered_by = "local-certification-suite"
 
-    if manifest is None:
-        return SuiteReuse(
-            platform, suite, fingerprint, "rerun", "no passing evidence for this fingerprint"
+def evidence_runs(root: Path, shas: set[str] | None, platform: str | None = None) -> list[dict]:
+    """Evidence invocations of this session, oldest first, from the run manifests.
+
+    A run counts when it did more than refuse a bad precondition: exit 2 and a run that found no evidence
+    required are not invocations. `shas` limits the session to this branch's commits (None: no limit).
+    """
+    runs = []
+    for path in glob.glob(str(root / "runs" / "*" / "manifest.json")):
+        data = load_json(path)
+        if not isinstance(data, dict) or data.get("mode") != "evidence":
+            continue
+        if platform and data.get("platform") != platform:
+            continue
+        if shas is not None and data.get("commitSha") not in shas:
+            continue
+        if data.get("exitCode") == 2 or data.get("outcome") == "not_required":
+            continue
+        toolchain = data.get("toolchain") or {}
+        runs.append(
+            {
+                "runId": data.get("runId", ""),
+                "platform": data.get("platform", ""),
+                "exitCode": data.get("exitCode"),
+                "start": epoch(data.get("startedAt")),
+                "seconds": float(data.get("durationSeconds") or 0),
+                "lockMatches": toolchain.get("lockMatches"),
+            }
         )
+    return sorted(runs, key=lambda run: run["start"])
 
-    commit_sha = str(manifest.get("commitSha", ""))
-    finished_at = str(manifest.get("finishedAt", ""))
-    if commit_sha == head:
-        return SuiteReuse(
-            platform, suite, fingerprint, "current", f"evidence produced by HEAD ({finished_at})"
+
+def evidence_hours(runs: list[dict]) -> float:
+    """Wall time covered by the runs; platforms that ran together are counted once."""
+    total, reach = 0.0, 0.0
+    for start, end in sorted((run["start"], run["start"] + run["seconds"]) for run in runs):
+        if end > reach:
+            total += end - max(start, reach)
+            reach = end
+    return total / 3600
+
+
+def repeated_failures(root: Path, platform: str, shas: set[str] | None) -> list[str]:
+    """Scenarios that failed under the two most recent fingerprints of the platform (and are green in neither)."""
+    ledgers = []
+    for path in glob.glob(str(root / "ledger" / platform / "*" / "ledger.json")):
+        data = load_json(path)
+        if not isinstance(data, dict):
+            continue
+        scenarios = data.get("scenarios") or {}
+        attempts = [a for entry in scenarios.values() for a in entry.get("attempts", [])]
+        if shas is not None and not any(a.get("sha") in shas for a in attempts):
+            continue
+        failing = {
+            scenario_id
+            for scenario_id, entry in scenarios.items()
+            if entry.get("status") != "passed"
+            and any(a.get("outcome") == "failed" and a.get("countsAgainstCap") for a in entry.get("attempts", []))
+        }
+        ledgers.append((str(data.get("createdAt", "")), failing))
+    ledgers.sort(key=lambda item: item[0])
+    return sorted(ledgers[-1][1] & ledgers[-2][1]) if len(ledgers) >= 2 else []
+
+
+def drift_since_last_complete_run(root: Path, platform: str, head: str) -> tuple[int, int] | None:
+    """(commits, files) between the last complete run of the platform and HEAD; None when there is none."""
+    index = load_json(root / "ledger" / platform / "index.json")
+    if not isinstance(index, list) or not index:
+        return None
+    last = max(index, key=lambda entry: str(entry.get("completedAt", "")))
+    sha = str(last.get("completeAtSha", ""))
+    if not sha or run_git("cat-file", "-e", f"{sha}^{{commit}}").code != 0:
+        return None
+    commits = run_git("rev-list", "--count", f"{sha}..{head}").stdout
+    files = run_git("diff", "--name-only", sha, head).stdout.splitlines()
+    return (int(commits) if commits.isdigit() else 0, len(files))
+
+
+def stop_reasons(verdict: str, runs: list[dict], repeated: list[str]) -> list[str]:
+    """Why the person certifying must stop and report for this platform (runbook section 5)."""
+    if verdict in SAFE_VERDICTS:
+        return []
+    reasons = []
+    if runs and runs[-1]["exitCode"] in (5, 7):
+        reasons.append(f"the last evidence run ({runs[-1]['runId']}) ended with exit {runs[-1]['exitCode']}")
+    if verdict == "exhausted" and not (runs and runs[-1]["exitCode"] == 7):
+        reasons.append("a scenario used all its attempts: any new run is refused with exit 7")
+    if repeated:
+        reasons.append(f"failed under two consecutive fingerprints: {', '.join(repeated)}")
+    if len(runs) >= MAX_EVIDENCE_INVOCATIONS:
+        reasons.append(f"{len(runs)} evidence invocations in this session without a complete result")
+    return reasons
+
+
+def session_stop_reasons(runs: list[dict], hours: float) -> list[str]:
+    reasons = []
+    environment = sum(1 for run in runs if run["exitCode"] == 3)
+    if environment >= MAX_ENVIRONMENT_EXITS:
+        reasons.append(f"{environment} evidence runs ended with exit 3 (environment)")
+    if hours >= MAX_EVIDENCE_HOURS:
+        reasons.append(f"{hours:.1f} h of evidence in this session (limit {MAX_EVIDENCE_HOURS:.0f} h)")
+    return reasons
+
+
+def describe_ids(items: list, limit: int = 6) -> str:
+    shown = ", ".join(items[:limit])
+    return shown + (f", ... (+{len(items) - limit})" if len(items) > limit else "")
+
+
+def report_platform(platform: str, info: dict, runs: list[dict], repeated: list[str], drift: tuple[int, int] | None) -> tuple[list[str], list[str]]:
+    """(lines, stop reasons) for one platform."""
+    if "error" in info:
+        return [f"[FAIL] {platform} - status could not be computed: {info['error']}"], []
+    verdict = info.get("verdict", "?")
+    evidence = info.get("evidence") or {}
+    green = f"green {len(info.get('green', []))}/{info.get('inScope', 0)}"
+    where = f"; evidence from {evidence['sha'][:7]} ({evidence['source']})" if evidence else ""
+    lines = [f"[{'PASS' if verdict in SAFE_VERDICTS else 'FAIL'}] {platform} fp={info.get('fingerprint', '')[:12]} "
+             f"verdict={verdict} - {green}{where}"]
+    remote = info.get("remote") or {}
+    if remote and not remote.get("reachable"):
+        lines.append("  GitHub could not be read: the verdict falls back to this machine's ledger records")
+    if remote.get("truncated"):
+        lines.append(f"  only {remote.get('checked')} candidate commits were asked about; older evidence is not seen")
+    if info.get("pending") and verdict != "exhausted":
+        lines.append(f"  pending: {describe_ids(info['pending'])}")
+    for failed in info.get("failed", []):
+        lines.append(f"  failed: {failed['id']} class={failed.get('class')} attempts={failed.get('attempts')}"
+                     f"{' EXHAUSTED' if failed.get('exhausted') else ''}: {failed.get('summary')}")
+    if verdict in NEXT_ACTION:
+        lines.append("  next: " + NEXT_ACTION[verdict].format(platform=platform, task=TASKS.get(platform, "e2eEvidence")))
+    if runs:
+        lock = runs[-1]["lockMatches"]
+        lines.append(f"  session: {len(runs)} evidence invocation(s) on {platform}; last exit {runs[-1]['exitCode']}"
+                     f"; toolchain lock {'matches' if lock else 'DIFFERS' if lock is False else 'not recorded'}")
+    if drift and (drift[0] > MAX_DRIFT_COMMITS or drift[1] > MAX_DRIFT_FILES):
+        lines.append(f"  WARN: HEAD is {drift[0]} commits and {drift[1]} files past the last complete run; on a long "
+                     "branch certify in increments (runbook section 6)")
+    reasons = stop_reasons(verdict, runs, repeated)
+    return lines, reasons
+
+
+def report_evidence(platforms: list[str], status: dict, head: str, shas: set[str] | None, root: Path) -> tuple[int, int]:
+    """Prints the verdict of each required platform; returns (failures, stop conditions)."""
+    failures, stops = 0, 0
+    all_runs = evidence_runs(root, shas)
+    unsafe = []
+    print("Evidence by platform (what counts is the remote SHA; the verdict reads GitHub, then the local ledger):")
+    for platform in platforms:
+        info = (status.get("platforms") or {}).get(platform) or {"error": "platform missing from status"}
+        runs = [run for run in all_runs if run["platform"] == platform]
+        lines, reasons = report_platform(
+            platform, info, runs, repeated_failures(root, platform, shas), drift_since_last_complete_run(root, platform, head)
         )
-
-    source = f"{commit_sha[:7]} ({finished_at})"
-    if covered_by != suite:
-        source += f", covered by {covered_by}"
-
-    if commit_sha not in preflight_reuse_candidates(head):
-        return SuiteReuse(
-            platform,
-            suite,
-            fingerprint,
-            "rerun",
-            f"local evidence from {source} matches the fingerprint, but {commit_sha[:7]} is not "
-            "on this branch, so preflight will not consider it and will require a rerun",
-        )
-
-    return SuiteReuse(
-        platform,
-        suite,
-        fingerprint,
-        "reusable",
-        f"passing evidence from {source}; preflight republishes its status by fingerprint",
-    )
-
-
-def report_fingerprint_reusability(head: str) -> tuple[list[SuiteReuse], bool]:
-    pairs, error = resolve_e2e_scope_pairs()
-    if error:
-        print_check(False, "E2E fingerprint reusability resolved", error)
-        return [], True
-
-    if not pairs:
-        print_check(True, "E2E fingerprint reusability resolved", "no suites in scope")
-        return [], False
-
-    print("Evidence reusability by fingerprint (HEAD):")
-    rows: list[SuiteReuse] = []
-    for platform, suite in pairs:
-        row = suite_reuse_verdict(head, platform, suite)
-        rows.append(row)
-        ok = row.verdict in ("current", "reusable")
-        fingerprint_label = row.fingerprint[:12] if row.fingerprint else "<unknown>"
-        print_check(ok, f"{platform}/{suite} fp={fingerprint_label}", f"{row.verdict}: {row.detail}")
-
-    rerun_rows = [row for row in rows if row.verdict == "rerun"]
-    if rerun_rows:
-        targets = ", ".join(f"{row.platform}/{row.suite}" for row in rerun_rows)
-        print(f"  E2E rerun required for: {targets}")
-    else:
-        print("  No local E2E rerun required: every required suite has passing evidence for its current fingerprint.")
-    return rows, False
+        print("\n".join(lines))
+        if lines[0].startswith("[FAIL]"):
+            failures += 1
+            unsafe.append(platform)
+        for reason in reasons:
+            print(f"  STOP: {reason}")
+            stops += 1
+    if unsafe:
+        reasons = session_stop_reasons(all_runs, evidence_hours(all_runs))
+        for reason in reasons:
+            print(f"STOP: {reason}")
+            stops += 1
+        print(f"Session so far: {len(all_runs)} evidence invocation(s), {evidence_hours(all_runs):.1f} h of evidence.")
+        if stops:
+            print("A stop condition holds: hand the diagnosis to the person who owns the branch; do not try again "
+                  "(raising retries, re-invoking, forcing sequential or rebooting are not remedies).")
+        elif len(unsafe) == 2:
+            print("  next, both platforms: ./gradlew e2eEvidence")
+    return failures, stops
 
 
 def main() -> int:
@@ -389,6 +498,7 @@ def main() -> int:
         print(f"  Android preflight tasks: {certification_scope.android_tasks or '<none>'}")
         print(f"  iOS preflight tasks: {certification_scope.ios_tasks or '<none>'}")
         print(f"  iOS CI scripts touched: {certification_scope.ios_ci_scripts_touched}")
+        print(f"  iOS UI tests target build required: {certification_scope.ios_uitest_build_required}")
 
     if certification_scope.missing_version_bump:
         print_check(
@@ -437,57 +547,24 @@ def main() -> int:
             else f"tag {tag_name} not found on {tag_source}",
         )
 
-    reuse_rows: list[SuiteReuse] = []
-    if certification_scope.requires_e2e:
-        print()
-        reuse_rows, reuse_error = report_fingerprint_reusability(head)
-        if reuse_error:
-            failures += 1
-
     print()
-    evidence_root = REPO_ROOT / "build" / "e2e" / "certifications" / head
-    manifests = sorted(evidence_root.glob("*/*/manifest.json"))
+    if certification_scope.requires_e2e is False:
+        print_check(True, "no E2E evidence required for HEAD", f"scope={certification_scope.e2e_scope}")
+        return 1 if failures else 0
 
-    if not manifests:
-        if certification_scope.requires_e2e is False:
-            print_check(True, "no E2E evidence required for HEAD", f"scope={certification_scope.e2e_scope}")
-            return 1 if failures else 0
-
-        if reuse_rows and all(row.verdict in ("current", "reusable") for row in reuse_rows):
-            print_check(
-                True,
-                "evidence reusable via fingerprint; local E2E rerun not required",
-                "preflight republishes fingerprint-matched statuses",
-            )
-            return 1 if failures else 0
-
-        print_check(False, "evidence manifests exist for HEAD", str(evidence_root))
+    platforms, error = required_platforms()
+    if error:
+        print_check(False, "required E2E platforms resolved", error)
+        return failures + 1
+    status, error = load_status()
+    if status is None:
+        print_check(False, "e2e.py status --json", error)
         return failures + 1
 
-    print(f"Evidence root: {evidence_root}")
-    for manifest_path in manifests:
-        manifest, error = load_manifest(manifest_path)
-        rel_path = manifest_path.relative_to(REPO_ROOT)
-        if manifest is None:
-            print_check(False, f"manifest parses: {rel_path}", error or "")
-            failures += 1
-            continue
-
-        commit_sha = str(manifest.get("commitSha", ""))
-        status_code = manifest.get("statusCode")
-        platform = manifest.get("platform") or manifest_path.parents[1].name
-        suite = manifest.get("suiteId") or manifest.get("suite") or manifest_path.parent.name
-
-        ok_commit = commit_sha == head
-        ok_status = status_code == 0
-        print_check(ok_commit and ok_status, f"{platform}/{suite}", str(rel_path))
-        if not ok_commit:
-            print(f"  commitSha mismatch: {commit_sha or '<missing>'}")
-            failures += 1
-        if not ok_status:
-            print(f"  statusCode is {status_code!r}")
-            failures += 1
-
+    evidence_failures, stops = report_evidence(platforms, status, head, branch_commits(head), state_root())
+    failures += evidence_failures
+    if stops:
+        return 2
     return 1 if failures else 0
 
 

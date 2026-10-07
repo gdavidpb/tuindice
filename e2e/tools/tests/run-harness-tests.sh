@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verifyE2eHarness: shell syntax, Python syntax and the unit tests of the E2E harness.
+# verifyE2eHarness: shell syntax, Python syntax, the unit tests of the E2E harness and its line budgets.
 # No devices, no network, no real gh/adb/xcrun; temporary state lives under a temp directory.
 set -euo pipefail
 
@@ -66,3 +66,6 @@ python3 -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v
 # The fingerprint covers what it must (verifier) and behaves as specified (its own tests).
 bash e2e/tools/verify/verify-e2e-fingerprint-coverage.sh
 bash e2e/tools/tests/test-fingerprint.sh
+
+# The harness, the skill and its runbook stay within the budgets of e2e/tools/verify/line-budgets.env.
+bash e2e/tools/verify/verify-line-budgets.sh

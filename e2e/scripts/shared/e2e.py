@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from harness import catalog as catalog_mod  # noqa: E402
 from harness import publish as publish_mod  # noqa: E402
-from harness import envcheck, parallel, report, runner  # noqa: E402
+from harness import envcheck, parallel, report, runner, verdict  # noqa: E402
 from harness.config import PLATFORMS, SUITE_ID, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
 from harness.gitstate import GitState  # noqa: E402
 from harness.ledger import Ledger, now  # noqa: E402
@@ -86,7 +86,19 @@ def has_failed_attempts(cfg, platform):
         return False
 
 
-def platform_status(cfg, platform):
+def failed_scenarios(ledger, ids, cap):
+    """Scenarios that are not green but have counted attempts: the class and summary of the last one."""
+    failed = []
+    for scenario_id in ids:
+        counted = ledger.counted(scenario_id)
+        if counted and not ledger.passed(scenario_id):
+            failed.append({"id": scenario_id, "class": counted[-1].get("failureClass"),
+                "summary": counted[-1].get("failureSummary"), "attempts": len(counted),
+                "exhausted": ledger.exhausted(scenario_id, cap)})
+    return failed
+
+
+def platform_status(cfg, platform, head, candidates, github):
     info = {"platform": platform}
     try:
         catalog, fingerprint, ledger = open_ledger(cfg, platform, lock=False, create=False)
@@ -97,9 +109,12 @@ def platform_status(cfg, platform):
             fingerprint=fingerprint, ledgerPresent=os.path.exists(os.path.join(ledger.directory, "ledger.json")),
             inScope=len(ids), quarantined=len(quarantined), green=[i for i in ids if ledger.passed(i)],
             pending=[i for i in ids if not ledger.passed(i)],
-            exhausted=[i for i in ids if ledger.exhausted(i, cap)],
+            exhausted=[i for i in ids if ledger.exhausted(i, cap)], failed=failed_scenarios(ledger, ids, cap),
             publications=ledger.data["publications"])
         info["complete"] = not info["pending"]
+        remote = github.find(platform, fingerprint, [head] + candidates)
+        info["verdict"], info["evidence"] = verdict.decide(info, head, candidates, remote)
+        info["remote"] = {key: remote[key] for key in ("reachable", "checked", "truncated")}
     except (UsageError, EnvironmentRefused) as error:
         info["error"] = str(error)
     return info
@@ -107,8 +122,10 @@ def platform_status(cfg, platform):
 
 def cmd_status(cfg, args):
     git = GitState(cfg.root)
-    data = {"head": git.sha, "branch": git.branch, "treeClean": git.tree_clean,
-        "platforms": {p: platform_status(cfg, p) for p in PLATFORMS}}
+    candidates, github = verdict.reuse_candidates(cfg.root, git.sha), verdict.Remote(cfg)
+    data = {"head": git.sha, "branch": git.branch, "upstream": git.upstream_sha, "treeClean": git.tree_clean,
+        "headEqualsUpstream": git.head_equals_upstream,
+        "platforms": {p: platform_status(cfg, p, git.sha, candidates, github) for p in PLATFORMS}}
     if args.json:
         print(json.dumps(data, indent=2, sort_keys=True))
         return 0
@@ -116,9 +133,9 @@ def cmd_status(cfg, args):
         if "error" in info:
             print("%s: %s" % (platform, info["error"]))
             continue
-        print("%s: fp %s; %d in scope; %d green; %d pending; %d exhausted; %d publications"
-            % (platform, info["fingerprint"][:12], info["inScope"], len(info["green"]), len(info["pending"]),
-                len(info["exhausted"]), len(info["publications"])))
+        print("%s: %s; fp %s; %d in scope; %d green; %d pending; %d exhausted; %d publications"
+            % (platform, info["verdict"], info["fingerprint"][:12], info["inScope"], len(info["green"]),
+                len(info["pending"]), len(info["exhausted"]), len(info["publications"])))
     return 0
 
 
