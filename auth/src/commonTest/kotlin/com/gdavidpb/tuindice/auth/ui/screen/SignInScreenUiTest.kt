@@ -1,6 +1,12 @@
 package com.gdavidpb.tuindice.auth.ui.screen
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -105,4 +111,44 @@ class SignInScreenUiTest {
 		assertEquals("12-3", latestUsbId)
 		assertEquals("1234", latestPassword)
 	}
+
+	// A failure that lands while the form is still sliding out brings the same `Idle` content back,
+	// so its fields must show the state's text and not a key the view model dropped meanwhile.
+	@Test
+	fun when_aKeyIsDroppedWhileSigningIn_then_theFieldsShowTheStateTextWhenBackToIdle() = runTuIndiceUiTest {
+		var state: SignIn.State by mutableStateOf(
+			SignIn.State.Idle(usbId = "12-34567", password = "a", isPasswordVisible = true)
+		)
+
+		setTuIndiceTestContent {
+			SignInScreen(
+				state = state,
+				onUsbIdChange = {},
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
+				onSignInClick = {},
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {}
+			)
+		}
+
+		mainClock.autoAdvance = false
+
+		// The view model is already in `LoggingIn` and drops these keys; the screen has not heard yet.
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("b")
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("9")
+		state = SignIn.State.LoggingIn(usbId = "12-34567", password = "a", messages = listOf("Validando"))
+		mainClock.advanceTimeBy(50)
+		state = SignIn.State.Idle(usbId = "12-34567", password = "a", isPasswordVisible = true)
+		mainClock.advanceTimeBy(50)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+		assertEquals("12-34567", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+	}
 }
+
+private fun SemanticsNodeInteraction.editableText() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.EditableText)?.text

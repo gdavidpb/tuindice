@@ -1,8 +1,15 @@
 package com.gdavidpb.tuindice.auth.ui.dialog
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
@@ -88,4 +95,48 @@ class UpdatePasswordDialogUiTest {
 		assertNodeDisabled(AuthUiTags.UpdatePasswordConfirmButton)
 		assertNodeDisabled(BaseUiTags.ConfirmationDialogNegativeButton)
 	}
+
+	// The sheet keeps the field enabled until the `Updating` state reaches it. A key typed in that
+	// window is dropped by the view model, so the field must come back showing the state's password.
+	@Test
+	fun when_aKeyIsDroppedAroundTheUpdate_then_theFieldShowsTheStatePasswordWhenBackToIdle() = runTuIndiceUiTest {
+		var state: UpdatePassword.State by mutableStateOf(
+			UpdatePassword.State.Idle(password = "", isPasswordVisible = true)
+		)
+
+		setTuIndiceTestContent {
+			UpdatePasswordDialog(
+				state = state,
+				titleText = "Actualizar clave",
+				confirmText = "Actualizar",
+				laterText = "Luego",
+				appNameText = "TuIndice",
+				messageText = "Debes actualizar la clave de TuIndice",
+				passwordLabelText = "Clave",
+				onPasswordChange = { password ->
+					val current = state
+
+					if (current is UpdatePassword.State.Idle) state = current.copy(password = password)
+				},
+				onPasswordVisibilityToggle = {},
+				onConfirmClick = {},
+				onDismissRequest = {}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("a")
+		waitForIdle()
+
+		// The view model already left `Idle` and drops this key; the sheet has not heard yet.
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("b")
+		runOnIdle { state = UpdatePassword.State.Updating(password = "a", isPasswordVisible = true) }
+		waitForIdle()
+		runOnIdle { state = UpdatePassword.State.Idle(password = "a", isPasswordVisible = true) }
+		waitForIdle()
+
+		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+	}
 }
+
+private fun SemanticsNodeInteraction.editableText() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.EditableText)?.text

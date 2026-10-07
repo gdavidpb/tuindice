@@ -62,9 +62,11 @@ internal const val MAX_REPORTED_TEXTS = 256
  *   keeps the previous text. [syncExternal] does nothing when the caller's text has not changed,
  *   so coming back to the same state does not realign them. It happens only while a screen is
  *   leaving its idle state (the password dialog until the `Updating` echo arrives, the sign-in
- *   form during its exit animation), lasts milliseconds, predates the holder, and every dropped
- *   key also publishes an `InvalidTransition` to analytics. If it ever matters, give the field a
- *   `resetKey` that changes when the screen enters and leaves the waiting state.
+ *   form during its exit animation). The sign-in and update-password fields close it with a
+ *   `resetKey` that changes when the screen enters and leaves the waiting state, which readopts the
+ *   state's text. What the key cannot see is a wait that starts and ends between two compositions
+ *   (the screen then never learns it happened); that residual only keeps a key the view model
+ *   dropped, and every dropped key also publishes an `InvalidTransition` to analytics.
  *
  * A5: the state-machine loop stays on `Dispatchers.Default`, so every key still travels to the
  * loop and back as an echo. After this holder nothing the user types waits for that echo: the

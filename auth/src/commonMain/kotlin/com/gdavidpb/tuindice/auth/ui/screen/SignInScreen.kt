@@ -85,7 +85,8 @@ fun SignInScreen(
 						useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
 						passwordLabelText = stringResource(Res.string.hint_password),
 						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
-						signInButtonText = stringResource(Res.string.button_sign_in)
+						signInButtonText = stringResource(Res.string.button_sign_in),
+						isWaiting = state is SignIn.State.LoggingIn
 					)
 
 				is SignIn.State.LoggingIn ->

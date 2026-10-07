@@ -345,6 +345,45 @@ class UsbIdTextFieldUiTest {
 
 		assertNodeHidden(AuthUiTags.IdentifierModeTogglePulse, useUnmergedTree = true)
 	}
+
+	@Test
+	fun when_theOwnerWaitsAndDropsAnEdit_then_theFieldShowsTheStateTextOnEnteringAndLeavingTheWait() = runTuIndiceUiTest {
+		val echoedUsbId = mutableStateOf("")
+		val isWaiting = mutableStateOf(false)
+		var viewModelWaiting = false
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = echoedUsbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				isWaiting = isWaiting.value,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					if (!viewModelWaiting) echoedUsbId.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("123")
+		waitForIdle()
+
+		viewModelWaiting = true
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("4")
+		runOnIdle { isWaiting.value = true }
+		waitForIdle()
+
+		assertEquals("12-3", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("5")
+		runOnIdle { isWaiting.value = false }
+		viewModelWaiting = false
+		waitForIdle()
+
+		assertEquals("12-3", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+	}
 }
 
 private fun SemanticsNodeInteraction.editableText() =

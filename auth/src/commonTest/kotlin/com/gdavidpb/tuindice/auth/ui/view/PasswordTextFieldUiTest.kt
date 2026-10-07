@@ -3,13 +3,17 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.TextRange
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -204,4 +208,80 @@ class PasswordTextFieldUiTest {
 		assertNodeDisabled(AuthUiTags.PasswordTextField)
 		assertNodeDisabled(AuthUiTags.PasswordToggle)
 	}
+
+	// A key typed while the owner is entering its wait is shown by the field, but the view model
+	// drops it. The field must show exactly the state's text on entering and on leaving the wait.
+	@Test
+	fun when_theOwnerWaitsAndDropsAnEdit_then_theFieldShowsTheStateTextOnEnteringAndLeavingTheWait() = runTuIndiceUiTest {
+		val echoedPassword = mutableStateOf("")
+		val isWaiting = mutableStateOf(false)
+		var viewModelWaiting = false
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				labelText = "Clave",
+				password = echoedPassword.value,
+				isPasswordVisible = true,
+				isWaiting = isWaiting.value,
+				onPasswordChange = { value ->
+					if (!viewModelWaiting) echoedPassword.value = value
+				},
+				onPasswordVisibilityToggle = {}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("a")
+		waitForIdle()
+
+		// The view model is already waiting and drops this key; the field has not heard yet.
+		viewModelWaiting = true
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("b")
+		runOnIdle { isWaiting.value = true }
+		waitForIdle()
+
+		// The wait reached the field after the key did: the field comes back to the state's text.
+		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+
+		// A key that sneaks in during the wait is dropped as well.
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("c")
+		runOnIdle { isWaiting.value = false }
+		viewModelWaiting = false
+		waitForIdle()
+
+		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+	}
+
+	// The normal flow must not change: typing, the echoes and a wait that drops nothing leave the
+	// text and the caret where the person put them.
+	@Test
+	fun when_theOwnerWaitsWithoutDroppingAnything_then_theFieldKeepsWhatWasTyped() = runTuIndiceUiTest {
+		val echoedPassword = mutableStateOf("")
+		val isWaiting = mutableStateOf(false)
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				labelText = "Clave",
+				password = echoedPassword.value,
+				isPasswordVisible = true,
+				isWaiting = isWaiting.value,
+				onPasswordChange = { value -> echoedPassword.value = value },
+				onPasswordVisibilityToggle = {}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("abc")
+		runOnIdle { isWaiting.value = true }
+		waitForIdle()
+		runOnIdle { isWaiting.value = false }
+		waitForIdle()
+
+		assertEquals("abc", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+		assertEquals(TextRange(3), onNodeWithTag(AuthUiTags.PasswordTextField).selectionRange())
+	}
 }
+
+private fun SemanticsNodeInteraction.editableText() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.EditableText)?.text
+
+private fun SemanticsNodeInteraction.selectionRange() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.TextSelectionRange)
