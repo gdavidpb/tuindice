@@ -9,7 +9,6 @@ package com.gdavidpb.tuindice.scenarios.catalog
 object MigrationProgress {
 	val pendingModules: Set<String> = setOf(
 		"auth",
-		"maincore",
 		"coachmarks",
 		"enrollmentproof",
 		"pensum",

@@ -17,7 +17,6 @@ class PlatformBranchBudget private constructor() {
 			"maincore-back-stack" to 1,
 			"maincore-browser-external-dialog" to 2,
 			"maincore-tab-stack-preservation" to 1,
-			"maincore-app-availability-notice" to 1,
 			"record-synthetic-term-lifecycle" to 1,
 			"record-synthetic-term-rejected" to 1,
 			"record-synthetic-term-search-states" to 3,

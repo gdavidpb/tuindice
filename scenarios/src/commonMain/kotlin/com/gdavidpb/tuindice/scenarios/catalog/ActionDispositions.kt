@@ -77,6 +77,12 @@ object ActionDispositions {
 			reason = "renderer callback"
 		),
 		ActionDisposition.PlatformEdge(
+			action = "maincore.Browser.ClickRetry",
+			reason =
+				"forcing a web view load failure needs host-level network manipulation; the retry UI is " +
+				"covered by BrowserScreenUiTest"
+		),
+		ActionDisposition.PlatformEdge(
 			action = "maincore.Browser.OpenExternalResource",
 			reason = "confirm/open handoff requires UI Automator/XCUITest host assertion"
 		),
