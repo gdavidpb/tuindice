@@ -303,8 +303,10 @@ private val recordSyntheticTermSearchStates = scenario(
 	tap(RecordUiTags.createSyntheticTermSubjectStatsButton(aa1001))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	// Coming back gives the search field its focus again: the keyboard covers half the list, and the scroll
-	// below swipes over the bar and the keyboard instead of over the results.
+	// Coming back gives the search field its focus again (the screen asks for it whenever the search tab is
+	// selected): the keyboard covers half the list, and the scroll below swipes over the bar and the keyboard
+	// instead of over the results. The field is on screen once that request has been made.
+	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Action)
 	finishTextEntry()
 	scrollUntilVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Scroll.ContentDown, Within.Wait)
 	waitVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Within.Assert)
