@@ -206,6 +206,24 @@ class PolicyTests(unittest.TestCase):
         survivors = [r for r in runs if self.state.exists("runs/" + r)]
         self.assertEqual(survivors, [runs[0], runs[2]] + runs[6:])
 
+    def test_only_the_latest_published_fingerprints_keep_protecting_their_runs(self):
+        runs = [self.state.run("ios") for _ in range(20)]
+        for index in range(7):  # seven published fingerprints, each naming one of the oldest runs; the oldest published is the oldest ledger
+            self.state.ledger("ios", ("pub%d" % index) * 8, [runs[index]], published=True, age_seconds=(7 - index) * 100)
+        self.state.retention("--apply")
+        survivors = [r for r in runs if self.state.exists("runs/" + r)]
+        self.assertEqual(survivors, runs[2:7] + runs[10:], "the 5 newest publications protect their run; the 2 oldest no longer do")
+
+    def test_a_retention_that_finds_another_one_running_answers_json_not_text(self):
+        lock = os.open(os.path.join(self.state.root, "retention.lock"), os.O_CREAT | os.O_RDWR)
+        self.addCleanup(os.close, lock)
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        done = self.state.retention("--apply", "--json")
+        self.assertEqual(done.returncode, 0)
+        self.assertTrue(done.summary["busy"])
+        self.assertEqual((done.summary["freedBytes"], done.summary["errors"]), (0, []))
+        self.assertIn("another retention holds", self.state.retention("--apply").stdout)
+
     def test_the_run_in_progress_is_not_touched_even_when_it_is_the_oldest(self):
         runs = [self.state.run("ios") for _ in range(12)]
         live = self.state.attempt(runs[0], passed=True, xcresult=5000)
@@ -479,6 +497,18 @@ class HarnessHookTests(unittest.TestCase):
         self.assertTrue(ws.manifest()["retention"]["ok"])
         self.assertTrue(os.path.exists(os.path.join(ws.run_dirs()[0], "scenarios", "fix-a", "attempt-1", "classification.json")),
             "the failing attempts of the run are whole")
+
+    def test_a_diagnostic_run_names_the_fingerprint_of_head_too(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        log = os.path.join(ws.dir, "retention-args.txt")
+        tool = os.path.join(ws.dir, "retention-tool.sh")
+        with open(tool, "w") as handle:
+            handle.write('#!/bin/sh\necho "$@" > "%s"\necho \'{"freedBytes": 0, "actions": 0, "errors": []}\'\n' % log)
+        os.chmod(tool, 0o755)
+        self.assertEqual(ws.diagnose("ios", E2E_RETENTION_CMD=tool).code, 0)
+        arguments = support.text(log).split()
+        self.assertEqual(arguments[arguments.index("--fingerprint") + 1], support.FP_A, "the failures of the evidence in progress stay")
+        self.assertEqual(ws.manifest()["fingerprint"], "diagnose", "the manifest still says it was a diagnosis")
 
     def test_the_hook_names_the_run_and_the_limits_it_passes(self):
         ws = Workspace(self, [scenario("fix-a")])

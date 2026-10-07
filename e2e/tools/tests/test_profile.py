@@ -96,6 +96,20 @@ class HarnessRunTests(unittest.TestCase):
         self.assertEqual(data["primitives"]["Tap"]["totalMs"], 21)
 
 
+    def test_a_repeated_run_gives_every_repetition_its_own_row_and_timings(self):
+        ws = support.Workspace(self, [support.scenario("fix-a")])
+        self.assertEqual(ws.diagnose("ios", "--repeat", "3").code, 0)
+        done = subprocess.run([sys.executable, PROFILE, "--state-root", ws.state, "--json", "--no-write"], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, universal_newlines=True, timeout=60)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        rows = json.loads(done.stdout)["attempts"]
+        self.assertEqual([(r["attempt"], r["repetition"]) for r in rows], [(1, 1), (1, 2), (1, 3)])
+        recorded = {a["attemptDir"]: a for a in ws.manifest()["attempts"]}
+        for row, directory in zip(rows, ("attempt-1", "attempt-1-r2", "attempt-1-r3")):
+            self.assertEqual(row["runnerMs"], recorded[directory]["runnerDurationMs"], "each row has the timings of its own repetition")
+            self.assertEqual(row["wallMs"], recorded[directory]["durationMs"])
+
+
 class PercentileTests(unittest.TestCase):
     def test_nearest_rank(self):
         self.assertEqual(profile.percentile([40, 10, 30, 20], 50), 20)

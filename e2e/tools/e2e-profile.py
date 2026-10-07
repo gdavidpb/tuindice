@@ -38,6 +38,7 @@ import sys
 RUN_SCHEMA = "tuindice-e2e-run/1"
 CONTAINERS = frozenset(("OnPlatform", "Group", "Retry", "IfVisible", "IfGone"))
 INVOCATION_THRESHOLD_MS = 40000
+ATTEMPT_DIR = re.compile(r"^attempt-(\d+)(?:-r(\d+))?$")
 STAMP = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?Z$")
 
 
@@ -109,8 +110,9 @@ def usage(message):
 # -- profiling one run ----------------------------------------------------------------------------
 
 def recorded_timings(manifest):
-    """{(scenario, attempt): (wall ms, runner ms)} from manifest.attempts; runs of older harnesses have none."""
-    return {(a.get("scenario"), a.get("n")): (a.get("durationMs"), a.get("runnerDurationMs"))
+    """{(scenario, attempt directory): (wall ms, runner ms)} from manifest.attempts. A `--repeat` run repeats (scenario, n) in
+    every repetition, so the directory (`attempt-1-r2`) is the key; a manifest without `attemptDir` is a single repetition."""
+    return {(a.get("scenario"), a.get("attemptDir") or "attempt-%s" % a.get("n")): (a.get("durationMs"), a.get("runnerDurationMs"))
         for a in manifest.get("attempts") or [] if isinstance(a, dict)}
 
 
@@ -123,17 +125,18 @@ def attempt_rows(run):
     for scenario in children(base):
         attempts = sorted(n for n in children(os.path.join(base, scenario)) if n.startswith("attempt-"))
         for name in attempts:
-            number = int(name.split("-", 1)[1]) if name.split("-", 1)[1].isdigit() else 0
+            named = ATTEMPT_DIR.match(name)
+            number, repetition = (int(named.group(1)), int(named.group(2) or 1)) if named else (0, 1)
             directory = os.path.join(base, scenario, name)
             result = read_json(os.path.join(directory, "result.json")) or {}
             klass = (read_json(os.path.join(directory, "classification.json")) or {}).get("class")
-            wall, runner = recorded.get((scenario, number), (None, None))
+            wall, runner = recorded.get((scenario, name), (None, None))
             if wall is None and name == attempts[-1]:
                 wall = last_wall.get(scenario)  # only the last attempt's wall time is in an older manifest
             start, end = parse_time(result.get("startedAt")), parse_time(result.get("finishedAt"))
             inside = int((end - start).total_seconds() * 1000) if start and end else None
             rows.append({
-                "scenario": scenario, "attempt": number, "outcome": result.get("outcome") or "no result", "failureClass": klass,
+                "scenario": scenario, "attempt": number, "repetition": repetition, "outcome": result.get("outcome") or "no result", "failureClass": klass,
                 "wallMs": wall, "runnerMs": runner, "inProcessMs": inside,
                 "invocationMs": runner - inside if runner is not None and inside is not None else None,
                 "harnessMs": wall - runner if wall is not None and runner is not None else None,
@@ -203,7 +206,7 @@ def render_profile(data):
         "  phases: " + (", ".join("%s %ss" % (k, v) for k, v in data["phases"].items()) or "-"),
         "", "Scenarios (one row per attempt)"]
     out += table(["scenario", "att", "outcome", "wall", "runner", "in-process", "invocation", "harness"],
-        [[a["scenario"], a["attempt"], a["failureClass"] or a["outcome"], seconds(a["wallMs"]), seconds(a["runnerMs"]),
+        [[a["scenario"], "%d%s" % (a["attempt"], "-r%d" % a["repetition"] if a["repetition"] > 1 else ""), a["failureClass"] or a["outcome"], seconds(a["wallMs"]), seconds(a["runnerMs"]),
             seconds(a["inProcessMs"]), seconds(a["invocationMs"]), seconds(a["harnessMs"])] for a in data["attempts"]])
     overhead = data["invocationOverhead"]
     if overhead:

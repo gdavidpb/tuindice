@@ -12,8 +12,8 @@ The policy (sizes are sums of file sizes; symbolic links are never followed):
   * a passing attempt keeps result.json, classification.json and the last 1 MB of runner.log;
   * a failing attempt keeps everything, up to 200 MB: past that attempt.xcresult goes first, then videos and
     screenshots, then the biggest remaining files; logs and the verdict files always stay;
-  * a platform keeps its last 10 runs; a run that the ledger of a published fingerprint (or the one given with
-    --fingerprint) names, or a run still going, is never deleted;
+  * a platform keeps its last 10 runs; a run that the ledger of one of its 5 latest published fingerprints (or the one
+    given with --fingerprint) names, or a run still going, is not deleted; an older publication stops protecting;
   * the managed content (runs, ledgers, profiles, certification manifests) is capped at 5 GB: the heavy files of the
     oldest failing attempts go first, then the oldest runs;
   * the last 20 ledgers of a platform stay; one with publications, in use or unreadable is never touched.
@@ -42,6 +42,7 @@ GB = 1024 * MB
 RUN_SCHEMA = "tuindice-e2e-run/1"
 KEEP_RUNS = 10
 KEEP_LEDGERS = 20
+KEEP_PUBLISHED_FINGERPRINTS = 5  # per platform: the runs of older published fingerprints are no longer protected
 FAILED_ATTEMPT_CAP_MB = 200
 RUNNER_LOG_TAIL = 1 * MB
 # A manifest that says "running" and was written less than this long ago belongs to a live run.
@@ -249,8 +250,11 @@ class Retention:
         for run in self.runs:
             if run.in_progress:
                 run.protected = "the run in progress"
+        newest = {}  # the published ledgers that still protect, newest first per platform
+        for ledger in sorted((l for l in ledgers if l["published"]), key=lambda l: -l["mtime"]):
+            newest.setdefault(ledger["platform"], []).append(ledger["fingerprint"])
         for ledger in ledgers:
-            if ledger["published"]:
+            if ledger["published"] and ledger["fingerprint"] in newest[ledger["platform"]][:KEEP_PUBLISHED_FINGERPRINTS]:
                 reason = "named by the ledger of published fingerprint %s" % ledger["fingerprint"][:12]
             elif self.opt.fingerprint and ledger["fingerprint"] == self.opt.fingerprint:
                 reason = "named by the ledger of fingerprint %s" % ledger["fingerprint"][:12]
@@ -562,7 +566,9 @@ def main(argv=None, env=None):
             lock = os.open(os.path.join(plan.root, "retention.lock"), os.O_CREAT | os.O_RDWR)
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)  # held until this process exits
         except OSError:
-            print("[retention] another retention holds %s: nothing done" % os.path.join(plan.root, "retention.lock"))
+            message = "another retention holds %s: nothing done" % os.path.join(plan.root, "retention.lock")
+            print(json.dumps({"mode": "apply", "busy": True, "note": message, "freedBytes": 0, "actions": 0, "errors": []}, indent=2)
+                if args.json else "[retention] " + message)
             return 0
     plan.build()
     errors = []
