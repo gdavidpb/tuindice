@@ -134,6 +134,48 @@ class LottieResourceAnimationViewUiTest {
 		assertEquals(1, readCount)
 	}
 
+	@Test
+	fun when_animationsAreDisabledInTheComposition_then_theViewDecidesNotToPlay() = runTuIndiceUiTest {
+		val decisions = mutableListOf<LottiePlayback>()
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				ObservedLottieResourceAnimationView(
+					readBytes = { Res.readBytes(ANIMATION_PATH) },
+					modifier = Modifier.size(96.dp),
+					testTag = AnimationTag,
+					iterations = 2,
+					onPlayback = { decisions += it }
+				)
+			}
+		}
+
+		waitForIdle()
+
+		assertEquals(LottiePlayback(isPlaying = false, iterations = 2), decisions.last())
+	}
+
+	@Test
+	fun when_animationsAreEnabledInTheComposition_then_theViewDecidesToPlay() = runTuIndiceUiTest {
+		val decisions = mutableListOf<LottiePlayback>()
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides true) {
+				ObservedLottieResourceAnimationView(
+					readBytes = { Res.readBytes(ANIMATION_PATH) },
+					modifier = Modifier.size(96.dp),
+					testTag = AnimationTag,
+					iterations = 2,
+					onPlayback = { decisions += it }
+				)
+			}
+		}
+
+		waitForIdle()
+
+		assertEquals(LottiePlayback(isPlaying = true, iterations = 2), decisions.last())
+	}
+
 	private companion object {
 		const val AnimationTag = "lottie_animation"
 		const val HostTag = "lottie_host"
