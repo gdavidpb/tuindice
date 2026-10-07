@@ -150,10 +150,11 @@ def classify(ev):
             % (_step_text(failure), failure.get("expected", ""), failure.get("actual", "")))
     if kind in ("SYSTEM_DIALOG", "BACKEND_UNAVAILABLE"):
         return Classification(ENVIRONMENT, where)
-    if kind == "APP_NOT_RUNNING":
+    if kind == "APP_NOT_RUNNING" and int(failure.get("stepIndex", -1)) < 0:
         # Before the first step there is no evidence of a crash: the emulator or simulator
-        # was not ready, which is environment. Later, the app went away under the scenario.
-        return Classification(ENVIRONMENT if int(failure.get("stepIndex", -1)) < 0 else CRASH, where)
+        # was not ready, which is environment. Later, a crash needs crash-probe evidence (the
+        # branch above); a driver that merely finds the app gone is a product assertion.
+        return Classification(ENVIRONMENT, where)
     journal = _journal_verdict(ev)
     if journal:
         return journal

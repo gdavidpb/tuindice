@@ -70,7 +70,12 @@ class RuleOrderTests(unittest.TestCase):
         self.assertEqual(cl.classify(evidence(result(kind="BACKEND_UNAVAILABLE"))).klass, cl.ENVIRONMENT)
         self.assertEqual(cl.classify(evidence(result(kind="DRIVER_ERROR"))).klass, cl.TOOLING)
         self.assertEqual(cl.classify(evidence(result(kind="APP_NOT_RUNNING", step=-1))).klass, cl.ENVIRONMENT)
-        self.assertEqual(cl.classify(evidence(result(kind="APP_NOT_RUNNING", step=4))).klass, cl.CRASH)
+        # Without crash-probe evidence a vanished app is a product assertion, never app_crash.
+        self.assertEqual(cl.classify(evidence(result(kind="APP_NOT_RUNNING", step=4))).klass, cl.PRODUCT)
+        self.assertEqual(cl.classify(evidence(result(kind="APP_NOT_RUNNING", step=0))).klass, cl.PRODUCT)
+        crashed = cl.classify(evidence(result(kind="APP_NOT_RUNNING", step=4), crash={"kind": "app_crash", "excerpt": "boom"}))
+        self.assertEqual(crashed.klass, cl.CRASH)
+        self.assertNotIn(cl.PRODUCT, cl.NON_RETRYABLE)
         typed = cl.classify(evidence(result(kind="TYPED_TEXT_MISMATCH")))
         self.assertEqual(typed.klass, cl.TYPED)
         self.assertIn("typed '123456' but the field held '12456'", typed.summary)

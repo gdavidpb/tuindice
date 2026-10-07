@@ -206,9 +206,16 @@ class BudgetAndProcessTests(unittest.TestCase):
         result = ws.evidence()
         self.assertEqual(result.code, 0, result.out)
         self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["failureClass"], "environment")
-        late = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:app-not-running-late"]}})
-        self.assertEqual(late.evidence().code, 5)
-        self.assertEqual(late.ledger()["scenarios"]["fix-a"]["attempts"][0]["failureClass"], "app_crash")
+
+    def test_app_not_running_later_needs_crash_evidence_to_be_a_crash(self):
+        # No crash-probe evidence: a retryable product_assertion, so the second attempt still runs.
+        gone = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:app-not-running-late", "pass"]}})
+        self.assertEqual(gone.evidence().code, 0)
+        self.assertEqual(gone.ledger()["scenarios"]["fix-a"]["attempts"][0]["failureClass"], "product_assertion")
+        # The same failure twice stops the scenario by the product_assertion policy, not by the crash one.
+        twice = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:app-not-running-late", "fail:app-not-running-late"]}})
+        self.assertEqual(twice.evidence().code, 5)
+        self.assertEqual(len(twice.ledger()["scenarios"]["fix-a"]["attempts"]), 2)
 
     def test_the_run_waits_for_the_load_to_drop(self):
         ws = Workspace(self, [scenario("fix-a")])
