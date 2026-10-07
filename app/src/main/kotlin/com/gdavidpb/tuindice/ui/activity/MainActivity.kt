@@ -23,6 +23,7 @@ private const val COMPACT_SCREEN_WIDTH_DP = 600
 
 open class MainActivity : ComponentActivity() {
 	private val systemAnimationsEnabled = mutableStateOf(true)
+	private var animatorScaleObserver: AnimatorScaleObserver? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -33,7 +34,7 @@ open class MainActivity : ComponentActivity() {
 		}
 
 		FileKit.init(this)
-		onBeforeContent()
+		onBeforeContent(isColdStart = savedInstanceState == null)
 		refreshSystemAnimations()
 
 		setContent {
@@ -55,14 +56,26 @@ open class MainActivity : ComponentActivity() {
 		}
 	}
 
-	override fun onResume() {
-		super.onResume()
+	override fun onStart() {
+		super.onStart()
 
-		// The animator duration scale lives in developer options and can change while the app is away.
+		// The animator duration scale lives in developer options: read what changed while the app
+		// was away, then follow it while the app is visible.
 		refreshSystemAnimations()
+
+		animatorScaleObserver = AnimatorScaleObserver(contentResolver, ::refreshSystemAnimations)
+			.also(AnimatorScaleObserver::start)
 	}
 
-	protected open fun onBeforeContent() = Unit
+	override fun onStop() {
+		animatorScaleObserver?.stop()
+		animatorScaleObserver = null
+
+		super.onStop()
+	}
+
+	/** [isColdStart] is false when the activity is recreated or restored after the process died. */
+	protected open fun onBeforeContent(isColdStart: Boolean) = Unit
 
 	/** Hosts that must run without looping animations (E2E) say so here. */
 	protected open fun areAnimationsForcedOff(): Boolean = false

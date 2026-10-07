@@ -9,8 +9,11 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
  * the keys from here; nothing else spells them. Release builds never read them: Android ships
  * the reader in the debug source set only and the iOS host reads launch arguments under `#if DEBUG`.
  *
- * Arguments are read on cold start only (`DebugMainActivity` is `singleInstance` and does not
- * handle `onNewIntent`). `MAIN_SECTION` only matters together with a seed and is ignored without one.
+ * The session seed and the availability notice are applied on cold start only (`DebugMainActivity`
+ * is `singleInstance` and does not handle `onNewIntent`): Android skips them when the activity is
+ * recreated or restored after the process died, because the seed clears the session and settings;
+ * iOS reads the arguments once per process. The Android extras are parsed every time and every
+ * one must be a string (`am start --es`). `MAIN_SECTION` only matters together with a seed and is ignored without one.
  */
 data class DebugLaunchArguments(
 	val apiBaseUrl: String?,

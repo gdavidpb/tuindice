@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.e2e.E2eSeedBridge
 class DebugMainActivity : MainActivity() {
 	private var launchArguments: DebugLaunchArguments? = null
 
-	override fun onBeforeContent() {
-		launchArguments = E2eSeedBridge.applyLaunchArguments(intent)
+	override fun onBeforeContent(isColdStart: Boolean) {
+		launchArguments = E2eSeedBridge.applyLaunchArguments(intent, isColdStart)
 	}
 
 	override fun areAnimationsForcedOff(): Boolean {
