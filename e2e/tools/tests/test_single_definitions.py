@@ -61,6 +61,19 @@ class SingleDefinitionTests(unittest.TestCase):
                 self.assertNotIn('["git"', read(harness, name), name)
         self.assertNotIn("def _git", read(harness, "verdict.py"))
 
+    def test_the_shell_helpers_of_the_adapters_live_only_in_lib_sh(self):
+        # C-23: fail, load_lock, read_build, log and emit_json are defined once, in e2e/scripts/shared/lib.sh.
+        lib = read(SHARED, "lib.sh")
+        for platform in ("android", "ios"):
+            directory = os.path.join(SHARED, "..", platform)
+            for name in sorted(os.listdir(directory)):
+                text = read(directory, name)
+                self.assertIn("shared/lib.sh", text, name)
+                for helper in ("fail", "load_lock", "read_build", "log", "emit_json"):
+                    self.assertNotRegex(text, r"(?m)^(function )?%s\(\)" % helper, "%s/%s defines %s again" % (platform, name, helper))
+        for helper in ("fail", "load_lock", "read_build", "log", "emit_json"):
+            self.assertRegex(lib, r"(?m)^%s\(\)" % helper)
+
     def test_the_detector_does_not_define_the_suite_again(self):
         self.assertNotIn("local-certification-suite", read(ROOT, ".github", "scripts", "detect-changed-app.sh"))
 
