@@ -138,6 +138,11 @@ object ActionDispositions {
 			action = "record.CreateSyntheticTerm.Observe",
 			reason = "screen bootstrap and local state observation"
 		),
+		ActionDisposition.Pending(
+			action = "record.CreateSyntheticTerm.RemoveSubject",
+			reason =
+				"the lifecycle scenario only checks that the remove button shows; no scenario presses it"
+		),
 		ActionDisposition.Internal(
 			action = "record.Record.ObserveRecord",
 			reason = "screen bootstrap"

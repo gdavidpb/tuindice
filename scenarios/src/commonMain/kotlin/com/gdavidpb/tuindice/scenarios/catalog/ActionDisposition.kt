@@ -11,4 +11,7 @@ sealed interface ActionDisposition {
 
 	/** It hands off to the OS (store, mail, picker); a scenario may cover the trigger but not the hand-off. */
 	data class PlatformEdge(override val action: String, override val reason: String) : ActionDisposition
+
+	/** A user action that no scenario fires yet: a visible debt, not coverage. */
+	data class Pending(override val action: String, override val reason: String) : ActionDisposition
 }
