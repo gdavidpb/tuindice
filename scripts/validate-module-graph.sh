@@ -51,7 +51,16 @@ actual_for() {
 
 status=0
 
-registered_modules=$(grep -oE '":[a-z]+"' "$ROOT_DIR/settings.gradle.kts" | tr -d '":' | sort)
+# Every quoted ":name" of settings.gradle.kts is a module. The graph, the E2E fingerprint and the change detector only
+# read lowercase letters (":[a-z]+"), so a module named otherwise would silently stay out of all three: refuse it.
+registered_tokens=$(grep -oE '":[^"]*"' "$ROOT_DIR/settings.gradle.kts" | tr -d '"' || true)
+for token in $registered_tokens; do
+	if [[ ! "$token" =~ ^:[a-z]+$ ]]; then
+		echo "FAIL [$token]: settings.gradle.kts includes a module the graph tooling cannot read (names must match :[a-z]+)"
+		status=1
+	fi
+done
+registered_modules=$(printf '%s\n' "$registered_tokens" | grep -E '^:[a-z]+$' | tr -d ':' | sort || true)
 
 for module in $registered_modules; do
 	expected=$(expected_for "$module")
@@ -63,6 +72,12 @@ for module in $registered_modules; do
 	fi
 
 	[[ "$expected" == "-" ]] && expected=""
+
+	unreadable_dependencies=$(grep -oE 'project\(":[^"]*"\)' "$ROOT_DIR/$module/build.gradle.kts" | grep -vE '^project\(":[a-z]+"\)$' || true)
+	if [[ -n "$unreadable_dependencies" ]]; then
+		echo "FAIL [$module]: depends on a project the graph tooling cannot read (names must match :[a-z]+): $unreadable_dependencies"
+		status=1
+	fi
 
 	actual=$(actual_for "$ROOT_DIR/$module/build.gradle.kts")
 

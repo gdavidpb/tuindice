@@ -29,10 +29,14 @@ if ! is_macos; then
 fi
 require_command xcodebuild
 
-derived_data="${E2E_TMP_ROOT:-${TMPDIR:-/tmp}/tuindice-e2e}/ios/derived-data"
+# Derived data belongs to one checkout: the hash of the repository root keeps a build or a parity run from another
+# worktree from replacing the binaries an evidence run is installing (the Swift sources also bake in their path).
+repo_hash="$(printf '%s' "${REPO_ROOT}" | shasum -a 256 | cut -c1-12)"
+ios_state="${E2E_TMP_ROOT:-${TMPDIR:-/tmp}/tuindice-e2e}/ios/${repo_hash}"
+derived_data="${ios_state}/derived-data"
 base_url="http://localhost:${port}"
 app="${derived_data}/Build/Products/Debug-iphonesimulator/TuIndiceHost.app"
-build_log="$(dirname "${derived_data}")/build.log"
+build_log="${ios_state}/build.log"
 destination="generic/platform=iOS Simulator"
 if [[ -n "${udid}" ]]; then
 	destination="platform=iOS Simulator,id=${udid}"

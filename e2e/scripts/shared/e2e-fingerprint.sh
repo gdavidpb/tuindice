@@ -149,6 +149,19 @@ if ! command -v shasum >/dev/null 2>&1; then
 	hash_command=(sha256sum)
 fi
 
+# A required path with nothing tracked under it means a rename left the fingerprint reading nothing for it: refuse
+# to hash (the coverage verifier says the same about the working tree; here it holds for any ref).
+tracked="$(git -C "${REPO_ROOT}" ls-tree -r --name-only "${GIT_REF}" -- "${required[@]}")"
+missing="$(awk -v required="${required[*]}" '
+	BEGIN { count = split(required, paths, " ") }
+	{ for (i = 1; i <= count; i++) if ($0 == paths[i] || index($0, paths[i] "/") == 1) seen[i] = 1 }
+	END { for (i = 1; i <= count; i++) if (!seen[i]) print paths[i] }
+' <<<"${tracked}")"
+if [[ -n "${missing}" ]]; then
+	printf 'The fingerprint requires paths that nothing tracks at %s:\n%s\n' "${GIT_REF}" "${missing}" >&2
+	exit 1
+fi
+
 {
 	printf 'tuindice-e2e-fingerprint-v5\n'
 	printf 'platform=%s\n' "${PLATFORM}"

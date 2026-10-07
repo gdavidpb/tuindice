@@ -46,6 +46,21 @@ commit_files() {
 	git -C "${REPO}" commit-tree "${tree}" -p "${base}" -m "test"
 }
 
+# commit_without <base> path ...: like commit_files, removing the paths instead of writing them.
+commit_without() {
+	local base="$1"
+	local index="${WORK}/index.$RANDOM$RANDOM"
+	local path tree
+	shift
+	GIT_INDEX_FILE="${index}" git -C "${REPO}" read-tree "${base}"
+	for path in "$@"; do
+		GIT_INDEX_FILE="${index}" git -C "${REPO}" update-index --force-remove "${path}"
+	done
+	tree="$(GIT_INDEX_FILE="${index}" git -C "${REPO}" write-tree)"
+	rm -f "${index}"
+	git -C "${REPO}" commit-tree "${tree}" -p "${base}" -m "test"
+}
+
 # expect_moves <label> <android yes|no> <ios yes|no> path[=content] ...
 expect_moves() {
 	local label="$1"
@@ -218,6 +233,16 @@ for path in settings.gradle.kts build.gradle.kts gradle.properties gradlew gradl
 	scenariokit/build.gradle.kts scenariokit/src/commonMain/K.kt scenarios/build.gradle.kts scenarios/src/commonMain/S.kt; do
 	expect_moves "shared ${path}" yes yes "${path}"
 done
+
+# --- a required path that nothing tracks makes the hash refuse, for the platform that requires it ---------------
+without_podfile="$(commit_without "${BASE}" iosApp/Podfile.lock)"
+if ! fp ios "${without_podfile}" >/dev/null 2>&1 && fp android "${without_podfile}" >/dev/null 2>&1; then
+	ok
+else
+	fail "a required pathspec that tracks nothing must stop the iOS hash (and leave Android's alone)"
+fi
+without_release="$(commit_without "${BASE}" app/src/release/R.kt)"
+if fp android "${without_release}" >/dev/null 2>&1; then ok; else fail "an optional pathspec that tracks nothing must not stop the hash"; fi
 
 # --- the source-set lists come from layout.env of the ref ----------------------------------------------------
 layout_base="$(git -C "${REPO}" show "${BASE}:e2e/scripts/shared/layout.env")"
