@@ -129,12 +129,12 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         let distance = hypot(end.x - start.x, end.y - start.y)
         let velocity = XCUIGestureVelocity(CGFloat(distance / seconds))
 
-        // The trailing hold removes fling inertia, so a swipe moves content by the drag only.
+        // The finger lifts at the speed of the drag, as on Android: the gesture may fling its content.
         resolver.coordinate(at: start, in: resolved).press(
             forDuration: 0.05,
             thenDragTo: resolver.coordinate(at: end, in: resolved),
             withVelocity: velocity,
-            thenHoldForDuration: 0.1
+            thenHoldForDuration: 0
         )
         return true
     }
@@ -219,7 +219,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     private func area(of q: Query?) -> (ResolvedElement?, CGRect)? {
         guard let q else { return (nil, resolver.screen) }
-        guard let (resolved, facts) = resolver.visibleFacts(q) else { return nil }
+        guard let (resolved, facts) = resolver.settledFacts(q) else { return nil }
         return (resolved, resolver.visiblePart(of: facts.frame))
     }
 

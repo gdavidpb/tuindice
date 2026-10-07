@@ -30,6 +30,8 @@ struct ElementFacts {
 /// that throw instead of asserting.
 final class ElementResolver {
     static let springboardId = "com.apple.springboard"
+    private static let settleTimeout = 2.0
+    private static let settlePoll = 0.1
 
     let app: XCUIApplication
     let springboard = XCUIApplication(bundleIdentifier: ElementResolver.springboardId)
@@ -80,6 +82,22 @@ final class ElementResolver {
         guard let resolved = find(q), let facts = facts(of: resolved) else { return nil }
         guard !facts.frame.isEmpty, screen.intersects(facts.frame) else { return nil }
         return (resolved, facts)
+    }
+
+    /// The element's facts once its frame has stopped moving, so a gesture lands on the element and not
+    /// on whatever is passing over its old place (a sheet sliding in, the form the keyboard pushes up).
+    /// The frame is read every [settlePoll] until two reads agree or [settleTimeout] passes; the last
+    /// read is then used as it is.
+    func settledFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
+        guard var last = visibleFacts(q) else { return nil }
+        let deadline = Date().addingTimeInterval(Self.settleTimeout)
+        while Date() < deadline {
+            Thread.sleep(forTimeInterval: Self.settlePoll)
+            guard let current = visibleFacts(q) else { return last }
+            if current.1.frame == last.1.frame { return current }
+            last = current
+        }
+        return last
     }
 
     /// The part of [frame] that is on screen.

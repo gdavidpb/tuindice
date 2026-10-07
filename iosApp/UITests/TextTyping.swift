@@ -6,6 +6,9 @@ import ScenarioKit
 /// `element.typeText` so XCTest's element-focus assertion cannot fire; before every call the
 /// keyboard is confirmed on screen, which is the condition `typeText` asserts.
 final class TextTyping {
+    private static let pasteTimeout = 5.0
+    private static let pollInterval = 0.1
+
     private let resolver: ElementResolver
     private let config: RunConfig
     private let tapper: (ResolvedElement, ElementFacts) -> Void
@@ -22,35 +25,40 @@ final class TextTyping {
         return typeInChunks(text)
     }
 
+    /// Pastes through the edit menu. The field is focused first and its place is read again afterwards:
+    /// the keyboard moves the form, so the place it had before the tap is another field's. The menu
+    /// item is the only one the long press shows on an empty field, so it is taken by position, not by
+    /// label. The permission alert of a cross-app paste may or may not appear, and comes after the tap:
+    /// it is looked for until the field holds text or [pasteTimeout] passes.
     func setText(_ q: Query, text: String) -> Bool {
-        guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+        guard focus(q), let (resolved, facts) = resolver.settledFacts(q) else { return false }
         UIPasteboard.general.string = text
-        tapper(resolved, facts)
         let target = resolver.visiblePart(of: facts.frame)
-        let point = CGPoint(x: target.midX, y: target.midY)
-        resolver.coordinate(at: point, in: resolved).press(forDuration: 1.0)
+        resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).press(forDuration: 1.0)
 
-        for label in ["Paste", "Pegar"] {
-            let item = app.menuItems[label]
-            if item.waitForExistence(timeout: 2) {
-                item.tap()
-                _ = SystemUi.acceptPasteAlert(springboard: resolver.springboard)
-                return true
-            }
-        }
+        let item = app.menuItems.firstMatch
+        guard item.waitForExistence(timeout: 2) else { return false }
+        item.tap()
+
+        let deadline = Date().addingTimeInterval(Self.pasteTimeout)
+        repeat {
+            if let (_, now) = resolver.visibleFacts(q), !now.typedText.isEmpty { return true }
+            _ = SystemUi.allowPaste(springboard: resolver.springboard)
+            Thread.sleep(forTimeInterval: Self.pollInterval)
+        } while Date() < deadline
         return false
     }
 
+    /// A triple tap selects the field's whole content wherever the first tap put the caret, and one
+    /// delete key removes the selection. No caret movement is needed: `typeText` cannot send arrow or
+    /// forward-delete keys (it types their glyphs as text), and the edit menu's "Select All" is a label
+    /// that depends on the language.
     func clearText(_ q: Query) -> Bool {
-        guard focus(q) else { return false }
-        guard let (_, facts) = resolver.visibleFacts(q) else { return false }
-        let count = facts.typedText.count
-        if count == 0 { return true }
+        guard focus(q), let (resolved, facts) = resolver.settledFacts(q) else { return false }
+        if facts.typedText.isEmpty { return true }
 
-        // The tap may have put the caret anywhere, so delete in both directions.
-        let backward = String(repeating: XCUIKeyboardKey.delete.rawValue, count: count)
-        let forward = String(repeating: XCUIKeyboardKey.forwardDelete.rawValue, count: count)
-        return typeInChunks(forward) && typeInChunks(backward)
+        resolved.element.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        return typeInChunks(XCUIKeyboardKey.delete.rawValue)
     }
 
     func finishTextEntry() -> Bool {
@@ -69,12 +77,13 @@ final class TextTyping {
     }
 
     private func focus(_ q: Query) -> Bool {
-        guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+        guard let (resolved, facts) = resolver.settledFacts(q) else { return false }
         tapper(resolved, facts)
         if waitForKeyboard() { return true }
 
         // One more tap: the first can land while the field is still taking focus.
-        tapper(resolved, facts)
+        guard let (again, place) = resolver.settledFacts(q) else { return false }
+        tapper(again, place)
         return waitForKeyboard()
     }
 

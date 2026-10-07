@@ -29,15 +29,15 @@ enum SystemUi {
         return ([title] + texts).filter { !$0.isEmpty }.joined(separator: " | ")
     }
 
-    /// Taps the first existing button of an "Allow Paste" style SpringBoard alert; true when one was tapped.
-    static func acceptPasteAlert(springboard: XCUIApplication) -> Bool {
+    /// Answers the "Allow Paste" SpringBoard alert by structure: it taps the button that is not the
+    /// refusal, whatever the language; true when one was tapped.
+    static func allowPaste(springboard: XCUIApplication) -> Bool {
         guard springboard.state == .runningForeground || springboard.state == .runningBackground else { return false }
-        for label in ["Allow Paste", "Permitir pegar"] {
-            let button = springboard.alerts.firstMatch.buttons[label]
-            if button.exists {
-                button.tap()
-                return true
-            }
+        let alert = springboard.alerts.firstMatch
+        guard alert.exists else { return false }
+        for button in alert.buttons.allElementsBoundByIndex where button.exists && !dismissLabels.contains(button.label) {
+            button.tap()
+            return true
         }
         return false
     }
