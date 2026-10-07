@@ -61,6 +61,13 @@ class CatalogShapeTest {
 	}
 
 	@Test
+	fun noScenarioCarriesItsOwnModuleAsATag() {
+		val repeated = scenarios.filter { it.module in it.tags }.map { it.id }
+
+		assertTrue(repeated.isEmpty(), "scenarios tagged with their own module, which the model already holds: $repeated")
+	}
+
+	@Test
 	fun aQuarantineHasAReasonAndAnIsoDate() {
 		scenarios.mapNotNull { scenario -> scenario.quarantine?.let { scenario.id to it } }.forEach { (id, quarantine) ->
 			assertTrue(quarantine.reason.isNotBlank(), "$id is quarantined without a reason")

@@ -8,8 +8,6 @@ import kotlin.time.Duration.Companion.seconds
 
 /** Fails on purpose to measure how a failure is reported; removed at the cut-over. */
 private val pocExpectedFailure = scenario("poc-expected-failure", "poc", Start.Clean().toLaunchSpec()) {
-	tags("poc")
-
 	waitVisible("poc_never_present", 2.seconds)
 }
 

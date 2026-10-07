@@ -118,7 +118,7 @@ private fun StepBuilder.typeNewPassword(password: String) {
 }
 
 private val authLoginSuccess = scenario("auth-login-success", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth", "smoke")
+	tags("smoke")
 	covers("auth.SignIn.SetUsbId", "auth.SignIn.SetPassword", "auth.SignIn.ClickSignIn")
 	account(E2eAccounts.Canonical.id)
 	signsIn()
@@ -129,7 +129,6 @@ private val authLoginSuccess = scenario("auth-login-success", "auth", Start.Clea
 }
 
 private val authLoginUsbEmail = scenario("auth-login-usb-email", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers(
 		"auth.SignIn.ToggleIdentifierMode",
 		"auth.SignIn.SetUsbId",
@@ -148,7 +147,6 @@ private val authLoginUsbEmail = scenario("auth-login-usb-email", "auth", Start.C
 }
 
 private val authLoginUsbEmailUsbid = scenario("auth-login-usb-email-usbid", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers(
 		"auth.SignIn.ToggleIdentifierMode",
 		"auth.SignIn.SetUsbId",
@@ -171,7 +169,6 @@ private val authLoginUsbEmailUsbid = scenario("auth-login-usb-email-usbid", "aut
 }
 
 private val authUsageDataConsent = scenario("auth-usage-data-consent", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers(
 		"auth.SignIn.SetUsageDataCollectionEnabled",
 		"auth.SignIn.SetUsbId",
@@ -190,7 +187,6 @@ private val authUsageDataConsent = scenario("auth-usage-data-consent", "auth", S
 }
 
 private val authLoginInvalid = scenario("auth-login-invalid", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers("auth.SignIn.SetUsbId", "auth.SignIn.SetPassword", "auth.SignIn.ClickSignIn")
 	account(E2eAccounts.Invalid.id)
 	signsIn()
@@ -205,7 +201,6 @@ private val authLoginInvalid = scenario("auth-login-invalid", "auth", Start.Clea
 }
 
 private val authLoginDisabled = scenario("auth-login-disabled", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers("auth.SignIn.SetUsbId", "auth.SignIn.SetPassword", "auth.SignIn.ClickSignIn")
 	account(E2eAccounts.Disabled.id)
 	signsIn()
@@ -226,7 +221,6 @@ private val authLoginRetryAfterUnavailable = scenario(
 	"auth",
 	Start.Clean().toLaunchSpec()
 ) {
-	tags("auth")
 	covers("auth.SignIn.SetUsbId", "auth.SignIn.SetPassword", "auth.SignIn.ClickSignIn")
 	account(E2eAccounts.ServiceUnavailableThenRetry.id)
 	signsIn()
@@ -245,7 +239,6 @@ private val authLoginRetryAfterUnavailable = scenario(
 }
 
 private val authLoginCancel = scenario("auth-login-cancel", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers("auth.SignIn.ClickCancelSignIn")
 	account(E2eAccounts.LoginCancel.id)
 	signsIn()
@@ -260,7 +253,6 @@ private val authLoginCancel = scenario("auth-login-cancel", "auth", Start.Clean(
 }
 
 private val authLoginOutdatedApp = scenario("auth-login-outdated-app", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers("auth.SignIn.SetUsbId", "auth.SignIn.SetPassword", "auth.SignIn.ClickSignIn")
 	account(E2eAccounts.OutdatedApp.id)
 	signsIn()
@@ -282,7 +274,6 @@ private val authLoginOutdatedApp = scenario("auth-login-outdated-app", "auth", S
 }
 
 private val authLoginPasswordToggle = scenario("auth-login-password-toggle", "auth", Start.Clean().toLaunchSpec()) {
-	tags("auth")
 	covers("auth.SignIn.SetPassword", "auth.SignIn.TogglePasswordVisibility")
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
@@ -301,7 +292,6 @@ private val authTermsPrivacyFromLogin = scenario(
 	"auth",
 	Start.Clean().toLaunchSpec()
 ) {
-	tags("auth")
 	covers("auth.SignIn.ClickTermsAndConditions", "auth.SignIn.ClickPrivacyPolicy")
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
@@ -330,7 +320,6 @@ private val authSessionInvalidated = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.SessionInvalidated).toLaunchSpec()
 ) {
-	tags("auth")
 	account(E2eAccounts.SessionInvalidated.id)
 
 	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Sync)
@@ -341,7 +330,6 @@ private val authUpdatePassword = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.UpdatePassword).toLaunchSpec()
 ) {
-	tags("auth")
 	covers(
 		"auth.UpdatePassword.SetPassword",
 		"auth.UpdatePassword.TogglePasswordVisibility",
@@ -393,7 +381,6 @@ private val authUpdatePasswordFailure = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.UpdatePasswordFailure).toLaunchSpec()
 ) {
-	tags("auth")
 	covers(
 		"auth.UpdatePassword.SetPassword",
 		"auth.UpdatePassword.ClickSignIn",
@@ -429,7 +416,6 @@ private val authSignOutCancel = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("auth")
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -445,7 +431,7 @@ private val authSignOut = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("auth", "smoke")
+	tags("smoke")
 	covers("auth.SignOut.ClickSignOut")
 	account(E2eAccounts.Canonical.id)
 
@@ -464,7 +450,6 @@ private val authPendingSignOut = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("auth")
 	covers("auth.SignOut.ClickSignOut", "auth.SignOut.ForceSignOut")
 	account(E2eAccounts.Canonical.id)
 
@@ -483,7 +468,6 @@ private val authPendingSignOutFlushSuccess = scenario(
 	"auth",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("auth")
 	covers("auth.SignOut.ClickSignOut")
 	account(E2eAccounts.Canonical.id)
 

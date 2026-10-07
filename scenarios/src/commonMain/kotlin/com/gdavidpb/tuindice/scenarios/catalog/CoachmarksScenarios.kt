@@ -30,7 +30,7 @@ private val coachmarksContextualSummary = scenario(
 	"coachmarks",
 	pendingCoachmarksStart.toLaunchSpec()
 ) {
-	tags("coachmarks", "smoke")
+	tags("smoke")
 	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
 	account(E2eAccounts.Canonical.id)
 
@@ -47,7 +47,6 @@ private val coachmarksProgressiveRecord = scenario(
 	"coachmarks",
 	pendingCoachmarksStart.toLaunchSpec()
 ) {
-	tags("coachmarks")
 	covers(
 		"wizard.CoachmarkOverlay.PrimaryActionClick",
 		"wizard.CoachmarkOverlay.PreviousActionClick"

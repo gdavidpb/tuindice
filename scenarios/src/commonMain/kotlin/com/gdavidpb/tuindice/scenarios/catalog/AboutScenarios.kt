@@ -70,7 +70,7 @@ private val aboutSmoke = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("about", "smoke")
+	tags("smoke")
 	covers("about.About.OpenPrivacyPolicy")
 	account(E2eAccounts.Canonical.id)
 
@@ -84,7 +84,6 @@ private val aboutInternalBrowserLinks = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("about")
 	covers(
 		"about.About.OpenTermsAndConditions",
 		"about.About.OpenPrivacyPolicy",
@@ -103,7 +102,6 @@ private val aboutExternalUrlLinks = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("about")
 	covers("about.About.OpenUrl")
 	account(E2eAccounts.Canonical.id)
 
@@ -126,7 +124,6 @@ private val aboutPlatformEdgeTriggers = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("about")
 	covers(
 		"about.About.ShareApp",
 		"about.About.RateOnStore",
@@ -162,7 +159,6 @@ private val aboutUsageDataConsent = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	tags("about")
 	covers("about.About.SetUsageDataCollectionEnabled")
 	account(E2eAccounts.Canonical.id)
 
