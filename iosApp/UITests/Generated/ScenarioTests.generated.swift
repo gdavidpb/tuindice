@@ -52,6 +52,7 @@ final class ConformanceScenarioTests: ScenarioTestCase {
     func test_conformance_text_query() { runScenario("conformance-text-query") }
     func test_conformance_type_readback() { runScenario("conformance-type-readback") }
     func test_conformance_type_replace() { runScenario("conformance-type-replace") }
+    func test_conformance_type_replace_after_back() { runScenario("conformance-type-replace-after-back") }
 }
 
 final class EnrollmentproofScenarioTests: ScenarioTestCase {

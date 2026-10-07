@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 
 /** `EvaluationType.TEST`, as the type chip tag spells it. */
@@ -42,14 +43,14 @@ private const val EVALUATION_DAY = 15
 private val cleanArguments = Start.Clean().toLaunchSpec().arguments
 
 /**
- * A fresh install shows the summary coachmark over the summary the first time it opens: confirm it if it is
- * there, then wait for the summary.
+ * A fresh install shows exactly one coachmark over the summary the first time it opens (the summary's own,
+ * see `eligibleCoachmarkIds`): wait for it, confirm it, wait for it to leave, then the summary.
  */
 private fun StepBuilder.reachSummaryAfterSignIn() {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
-	ifVisible(CoachmarkUiTags.Bubble) {
-		tap(CoachmarkUiTags.ConfirmButton)
-	}
+	waitVisible(CoachmarkUiTags.currentCoachmark(CoachmarkId.Summary), Within.Action)
+	tap(CoachmarkUiTags.ConfirmButton)
+	waitGone(CoachmarkUiTags.Bubble, Within.Action)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 }
 

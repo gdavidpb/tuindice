@@ -165,6 +165,9 @@ private val maincoreBrowserExternalDialog = scenario(
 		tapAtScreen(LINK_X, ANDROID_LINK_Y)
 	}
 	onPlatform(Platform.Ios) {
+		// The WebView is not in the iOS hierarchy; the browser's own loading bar goes away when the page
+		// has loaded, which is when its link can be tapped by coordinate.
+		waitGone(MaincoreUiTags.BrowserLoadingIndicator, Within.Wait)
 		tapAtScreen(LINK_X, IOS_LINK_Y)
 	}
 	waitVisible(BaseUiTags.ExternalResourceMessage, Within.Action)

@@ -49,6 +49,10 @@ private const val GRADE_AFTER = 5
 private const val OLDER_PENSUM_YEAR = 2018
 private const val SWIPE_MS = 600L
 
+// Two texts of the same length that share no letter, so a character left behind shows in the read-back.
+private const val SEARCH_BEFORE = "pr"
+private const val SEARCH_AFTER = "ma"
+
 private fun canonical() = Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 
 private fun clean() = Start.Clean().toLaunchSpec()
@@ -102,6 +106,37 @@ private val conformanceTypeReplace = scenario("conformance-type-replace", "confo
 	tap(AuthUiTags.UsbIdTextField)
 	enterText(AuthUiTags.UsbIdTextField, E2eAccounts.CanonicalEmail.usbIdDigits)
 	enterText(AuthUiTags.UsbIdTextField, "mail", replace = true)
+}
+
+/**
+ * Replacing text in a field that took its focus back on returning: the record search field is typed, its
+ * result opens a screen, and the way back leaves the field focused. Its content is replaced without the
+ * keyboard having been put away first.
+ */
+private val conformanceTypeReplaceAfterBack = scenario(
+	"conformance-type-replace-after-back",
+	"conformance",
+	canonical()
+) {
+	account(canonicalAccount.id)
+
+	val subject = E2eFixtures.SubjectEp1308.value
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarRecordItem, RecordUiTags.ContentContainer)
+	tap(RecordUiTags.CreateSyntheticTermFab)
+	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
+	tap(RecordUiTags.CreateSyntheticTermSearchTab)
+	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Action)
+	tap(RecordUiTags.CreateSyntheticTermSearchField)
+	enterText(RecordUiTags.CreateSyntheticTermSearchField, SEARCH_BEFORE, replace = true)
+	finishTextEntry()
+	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(subject), Within.Wait)
+	tap(RecordUiTags.createSyntheticTermSubjectStatsButton(subject))
+	waitVisible(SubjectsUiTags.Content, Within.Long)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Action)
+	tap(RecordUiTags.CreateSyntheticTermSearchField)
+	enterText(RecordUiTags.CreateSyntheticTermSearchField, SEARCH_AFTER, replace = true)
 }
 
 /** A secure field cannot be read back; typing in it is proven by what it enables. */
@@ -253,6 +288,7 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceLaunchClean,
 	conformanceTypeReadback,
 	conformanceTypeReplace,
+	conformanceTypeReplaceAfterBack,
 	conformanceSecureField,
 	conformanceEnabled,
 	conformanceTextQuery,

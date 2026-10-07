@@ -32,11 +32,11 @@ import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SHEET_SWIPE_MS = 600L
-private const val COACHMARK_BUBBLES = 4
 
 // The grade slider of an attempt: a tap near its end raises the grade, one further in lowers it.
 private const val SLIDER_HIGH_X = 0.95
@@ -116,13 +116,17 @@ private fun StepBuilder.submitTerm() {
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 }
 
-/** The coachmarks a sign-in leaves pending show one after the other; each one is dismissed if it is there. */
-private fun StepBuilder.dismissCoachmarks() {
-	repeat(COACHMARK_BUBBLES) {
-		ifVisible(CoachmarkUiTags.Bubble) {
-			tap(CoachmarkUiTags.ConfirmButton)
-		}
+/**
+ * A session that starts with every coachmark pending shows, per screen, the ones `eligibleCoachmarkIds` lists:
+ * the summary one coachmark, the record two (its step and its controls). Each is awaited, confirmed, and the
+ * bubble is awaited to leave, so the next tap never meets a bubble that is still on its way out.
+ */
+private fun StepBuilder.confirmCoachmarks(vararg ids: CoachmarkId) {
+	ids.forEach { id ->
+		waitVisible(CoachmarkUiTags.currentCoachmark(id), Within.Action)
+		tap(CoachmarkUiTags.ConfirmButton)
 	}
+	waitGone(CoachmarkUiTags.Bubble, Within.Action)
 }
 
 private val recordSmoke = scenario(
@@ -299,6 +303,9 @@ private val recordSyntheticTermSearchStates = scenario(
 	tap(RecordUiTags.createSyntheticTermSubjectStatsButton(aa1001))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	// Coming back gives the search field its focus again: the keyboard covers half the list, and the scroll
+	// below swipes over the bar and the keyboard instead of over the results.
+	finishTextEntry()
 	scrollUntilVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Scroll.ContentDown, Within.Wait)
 	waitVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Within.Assert)
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(aa1001), Within.Assert)
@@ -580,11 +587,11 @@ private val recordScheduleViewRemembered = scenario(
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 	signInThroughUi(E2eAccounts.AnnulledProvisional)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
-	dismissCoachmarks()
+	confirmCoachmarks(CoachmarkId.Summary)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
-	dismissCoachmarks()
+	confirmCoachmarks(CoachmarkId.Record, CoachmarkId.RecordControls)
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
 	tap(scheduleAction)
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
