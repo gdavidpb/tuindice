@@ -122,7 +122,8 @@ a scenario killed by its timeout is `timeout`; a missing, foreign or contradicti
 a `TYPED_TEXT_MISMATCH`, or a 401 on `/auth/v2/bootstrap` whose decoded `Authorization` differs from the account,
 is `typed_text_mismatch` ("typed X but the backend received Y"); the same 401 with the right credential, a request
 with no stub, or another Bearer is `backend_mismatch`; the rest is `product_assertion`. `APP_NOT_RUNNING` before
-the first step is `environment`; from the first step on it is `app_crash`.
+the first step is `environment`; from the first step on it is `app_crash` only when the crash probe found a crash
+or an ANR, otherwise `product_assertion`.
 
 Where the time went: `python3 e2e/tools/e2e-profile.py` (latest run per platform), `--compare 1` (against the
 previous run), `--last 5`. It prints per-scenario duration, per-primitive p50/p95 and the cost of one runner
