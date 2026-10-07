@@ -366,7 +366,8 @@ classify_changed_file() {
 		gradle/e2e-tasks.gradle.kts)
 			# The registration of the e2e*, verifyE2e* and related tasks, applied from the root build file. It sits
 			# outside the E2E fingerprint on purpose: editing a verification task cannot change what a scenario does,
-			# and verifyE2eContract (plus the task registration check of validate-ci-config.sh) re-runs it.
+			# and the contract checks re-run on it (the coverage verifier of verifyE2eHarness fails if the root file
+			# registers an E2E task or stops applying this script).
 			E2E_CONTRACT_TOUCHED=true
 			CI_CONFIG_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
