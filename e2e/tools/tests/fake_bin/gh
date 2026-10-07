@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Fake gh for the harness tests. It records every call and can be told to fail:
+#   E2E_FAKE_GH_LOG        file that receives one line per call (required)
+#   E2E_FAKE_GH_FAIL_FILE  while this file exists, the status POST fails
+#   E2E_FAKE_GH_AUTH_FAIL  when non-empty, `gh auth status` fails
+set -euo pipefail
+
+printf '%s\n' "$*" >> "${E2E_FAKE_GH_LOG:?E2E_FAKE_GH_LOG is required}"
+
+if [[ "${1:-}" == "auth" ]]; then
+	[[ -z "${E2E_FAKE_GH_AUTH_FAIL:-}" ]] || exit 1
+	exit 0
+fi
+
+if [[ "${1:-}" != "api" ]]; then
+	exit 64
+fi
+
+shift
+method="GET"
+endpoint=""
+state=""
+context=""
+description=""
+while (( $# > 0 )); do
+	case "$1" in
+		-X)
+			method="$2"
+			shift 2
+			;;
+		-f)
+			case "$2" in
+				state=*) state="${2#state=}" ;;
+				context=*) context="${2#context=}" ;;
+				description=*) description="${2#description=}" ;;
+			esac
+			shift 2
+			;;
+		--jq)
+			shift 2
+			;;
+		*)
+			endpoint="$1"
+			shift
+			;;
+	esac
+done
+
+if [[ "${method}" == "POST" ]]; then
+	if [[ -n "${E2E_FAKE_GH_FAIL_FILE:-}" && -e "${E2E_FAKE_GH_FAIL_FILE}" ]]; then
+		printf 'HTTP 502: bad gateway\n' >&2
+		exit 1
+	fi
+	printf '{"state":"%s","context":"%s","description":"%s"}\n' "${state}" "${context}" "${description}"
+	exit 0
+fi
+
+printf '%s\n' "${endpoint##*/}"

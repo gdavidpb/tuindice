@@ -1,0 +1,14 @@
+{
+  "requests": [
+    {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "request": {
+        "url": "/auth/v2/bootstrap",
+        "method": "POST",
+        "headers": {"Authorization": "Basic MTEtMTExMTE6cmVjb3JkcmV0cnktYXNz"}
+      },
+      "response": {"status": 401},
+      "wasMatched": true
+    }
+  ]
+}
