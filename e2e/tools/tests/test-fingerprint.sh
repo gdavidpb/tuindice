@@ -234,6 +234,22 @@ for path in settings.gradle.kts build.gradle.kts gradle.properties gradlew gradl
 	expect_moves "shared ${path}" yes yes "${path}"
 done
 
+# --- a path with a space and a non-ASCII character: read with -z, so core.quotePath does not matter ----------
+odd_path='iosApp/Sources/Café menú.swift'
+odd_a="$(commit_files "${BASE}" "${odd_path}=first")"
+odd_b="$(commit_files "${odd_a}" "${odd_path}=second")"
+if [[ "$(fp ios "${odd_a}")" != "${BASE_IOS}" && "$(fp ios "${odd_b}")" != "$(fp ios "${odd_a}")" && "$(fp android "${odd_a}")" == "${BASE_ANDROID}" ]]; then
+	ok
+else
+	fail "touching ${odd_path} must move the iOS fingerprint (and only it)"
+fi
+git -C "${REPO}" config core.quotePath true
+quoted_ios="$(fp ios "${odd_b}")"
+git -C "${REPO}" config core.quotePath false
+unquoted_ios="$(fp ios "${odd_b}")"
+git -C "${REPO}" config --unset core.quotePath
+if [[ "${quoted_ios}" == "${unquoted_ios}" ]]; then ok; else fail "the fingerprint depends on core.quotePath (${quoted_ios} vs ${unquoted_ios})"; fi
+
 # --- a required path that nothing tracks makes the hash refuse, for the platform that requires it ---------------
 without_podfile="$(commit_without "${BASE}" iosApp/Podfile.lock)"
 if ! fp ios "${without_podfile}" >/dev/null 2>&1 && fp android "${without_podfile}" >/dev/null 2>&1; then

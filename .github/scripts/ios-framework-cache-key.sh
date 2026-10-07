@@ -42,9 +42,9 @@ declare -a cache_inputs=(
 	"maincore/src"
 )
 
-git ls-files -- "${cache_inputs[@]}" \
-	| LC_ALL=C sort \
-	| while IFS= read -r file_path; do
+git ls-files -z -- "${cache_inputs[@]}" \
+	| LC_ALL=C sort -z \
+	| while IFS= read -r -d '' file_path; do
 		shasum -a 256 "$file_path"
 	done \
 	| shasum -a 256 \

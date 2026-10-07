@@ -312,7 +312,8 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
 			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
-			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			# The fingerprint of iOS reads the file whole, so a signing-only change still asks for iOS evidence (and only iOS).
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,ios-signing-config"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyAppVersionSync" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
@@ -826,5 +827,17 @@ run_rename_fixture "$HEAD_SHA" "$renamed_commit"
 assert_file_contains_line "$RENAME_CHANGED" "auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/data/model/BootstrapTokensResponse.kt" "changed files of a rename"
 assert_file_contains_line "$RENAME_SCOPE" "android,local-certification-suite,module-runtime" "E2E scope of a rename out of runtime"
 assert_file_contains_line "$RENAME_SCOPE" "ios,local-certification-suite,module-runtime" "E2E scope of a rename out of runtime"
+
+# D-18: a name with a space and a non-ASCII character is listed unquoted whatever core.quotePath says; quoted, it would
+# match no path pattern and ask for nothing.
+odd_source="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-odd-path.XXXXXX")"
+printf 'let x = 1\n' >"$odd_source"
+odd_commit="$(create_file_commit odd-path 'iosApp/Sources/TuIndiceHost/Café menú.swift' "$odd_source")"
+for quote_path in true false; do
+	GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.quotePath GIT_CONFIG_VALUE_0="$quote_path" run_rename_fixture "$HEAD_SHA" "$odd_commit"
+	assert_file_lines "$RENAME_CHANGED" "changed files with core.quotePath=${quote_path}" 'iosApp/Sources/TuIndiceHost/Café menú.swift'
+	assert_file_contains_line "$RENAME_SCOPE" "ios,local-certification-suite,ios-host-runtime" "E2E scope of a non-ASCII path with core.quotePath=${quote_path}"
+done
+rm -f "$odd_source"
 
 printf 'Detect changed app shell fixtures passed.\n'

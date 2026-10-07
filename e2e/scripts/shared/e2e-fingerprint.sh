@@ -4,7 +4,7 @@
 #   e2e-fingerprint.sh --print-pathspecs <android|ios> [git-ref]   prints required:<path> / optional:<path> / excluded:<prefix>
 #
 # The fingerprint is a pure function of the ref's git tree and of this script: it reads objects with
-# `git ls-tree`/`git show`, never the working tree (layout.env included: it is read from the ref), so a clean CI
+# `git ls-tree -z`/`git show`, never the working tree (layout.env included: it is read from the ref), so a clean CI
 # checkout and the local machine agree. What the working tree cannot supply (toolchain, device) is pinned by the
 # locks under e2e/toolchain, which are themselves inside the fingerprint.
 #
@@ -151,7 +151,9 @@ fi
 
 # A required path with nothing tracked under it means a rename left the fingerprint reading nothing for it: refuse
 # to hash (the coverage verifier says the same about the working tree; here it holds for any ref).
-tracked="$(git -C "${REPO_ROOT}" ls-tree -r --name-only "${GIT_REF}" -- "${required[@]}")"
+# -z wherever a path is listed: without it git quotes a name with non-ASCII characters according to core.quotePath,
+# and the same tree would hash differently on two machines.
+tracked="$(git -C "${REPO_ROOT}" ls-tree -r -z --name-only "${GIT_REF}" -- "${required[@]}" | tr '\0' '\n')"
 missing="$(awk -v required="${required[*]}" '
 	BEGIN { count = split(required, paths, " ") }
 	{ for (i = 1; i <= count; i++) if ($0 == paths[i] || index($0, paths[i] "/") == 1) seen[i] = 1 }
@@ -167,7 +169,7 @@ fi
 	printf 'platform=%s\n' "${PLATFORM}"
 	printf 'suite=%s\n' "${SUITE_ID}"
 	# Excluded entries are path prefixes (iosApp/scripts/ci- drops the ci-* scripts of that directory).
-	git -C "${REPO_ROOT}" ls-tree -r "${GIT_REF}" -- "${required[@]}" "${optional[@]}" | LC_ALL=C sort |
+	git -C "${REPO_ROOT}" ls-tree -r -z "${GIT_REF}" -- "${required[@]}" "${optional[@]}" | LC_ALL=C sort -z | tr '\0' '\n' |
 		awk -F'\t' -v excluded="${excluded[*]+"${excluded[*]}"}" '
 			BEGIN { count = split(excluded, prefixes, " ") }
 			{ for (i = 1; i <= count; i++) if (index($2, prefixes[i]) == 1) next; print }

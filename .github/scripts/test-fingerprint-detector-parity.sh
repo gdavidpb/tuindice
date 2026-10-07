@@ -103,6 +103,49 @@ while IFS=$'\t' read -r platform probe path; do
 	fi
 done <"$expectations"
 
+# A change that touches only signing keys of the two files below is classified apart from the rest of the file (release
+# configuration, not host runtime: no version bump). The fingerprint reads both files whole, so it moves anyway and the
+# detector must still ask for iOS evidence. The probes above run over an empty diff and cannot reach that branch, so
+# each file gets a real signing-only commit.
+signing_only_commit() {
+	local file="$1"
+	local expression="$2"
+	local temp index blob tree
+	temp="$(mktemp -d "${work_root}/signing.XXXXXX")"
+	index="${temp}/index"
+	git -C "$REPO_ROOT" show "HEAD:${file}" | sed -E "$expression" >"${temp}/content"
+	GIT_INDEX_FILE="$index" git -C "$REPO_ROOT" read-tree HEAD
+	blob="$(git -C "$REPO_ROOT" hash-object -w "${temp}/content")"
+	GIT_INDEX_FILE="$index" git -C "$REPO_ROOT" update-index --add --cacheinfo "100644,${blob},${file}"
+	tree="$(GIT_INDEX_FILE="$index" git -C "$REPO_ROOT" write-tree)"
+	GIT_AUTHOR_NAME="TuIndice CI Test" GIT_AUTHOR_EMAIL="tuindice-ci-test@example.invalid" \
+		GIT_COMMITTER_NAME="TuIndice CI Test" GIT_COMMITTER_EMAIL="tuindice-ci-test@example.invalid" \
+		git -C "$REPO_ROOT" commit-tree "$tree" -p HEAD -m "signing-only change of ${file}"
+}
+
+for entry in \
+	'iosApp/Config/Release.xcconfig|s/^TUINDICE_CODE_SIGN_STYLE = .*/TUINDICE_CODE_SIGN_STYLE = Manual/' \
+	'iosApp/TuIndiceHost.xcodeproj/project.pbxproj|s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/'; do
+	file="${entry%%|*}"
+	expression="${entry#*|}"
+	checked=$((checked + 1))
+	commit="$(signing_only_commit "$file" "$expression")"
+	if [[ "$(git -C "$REPO_ROOT" diff --name-only HEAD "$commit")" != "$file" ]]; then
+		printf 'The signing-only commit of %s changed nothing (the expression no longer matches the file).\n' "$file" >&2
+		failures=$((failures + 1))
+		continue
+	fi
+	state="${work_root}/signing-state.${checked}"
+	STATE_DIR="$state" bash "${SCRIPT_DIR}/detect-changed-app.sh" HEAD "$commit" >"${state}.log" 2>&1 || {
+		cat "${state}.log" >&2
+		exit 1
+	}
+	if ! grep -q '^ios,' "${state}/e2e-scope.csv"; then
+		printf 'The ios fingerprint reads %s but the detector asks for nothing when only its signing keys change.\n' "$file" >&2
+		failures=$((failures + 1))
+	fi
+done
+
 if (( failures > 0 )); then
 	printf 'test-fingerprint-detector-parity: %d of %d pathspecs diverge.\n' "$failures" "$checked" >&2
 	exit 1

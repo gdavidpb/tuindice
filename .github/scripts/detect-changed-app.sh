@@ -401,6 +401,9 @@ classify_changed_file() {
 		iosApp/Config/Release.xcconfig|iosApp/TuIndiceHost.xcodeproj/project.pbxproj)
 			if is_ios_signing_only_config_change "$file"; then
 				append_ios_signing_config_validation
+				# Release configuration, not host runtime (no version bump), but the fingerprint of iOS reads both files
+				# whole and cannot tell a signing key from any other line: if it moves, evidence is asked for.
+				append_e2e_scope ios "ios-signing-config"
 				return 0
 			fi
 

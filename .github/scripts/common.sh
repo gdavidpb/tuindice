@@ -137,14 +137,15 @@ changed_files_between_refs() {
 	local before_sha="$1"
 	local after_sha="$2"
 
+	# -z: git quotes a non-ASCII name according to core.quotePath, and a quoted name matches no path pattern of the detector.
 	if is_zero_sha "$before_sha"; then
 		info "Using single-commit diff because the previous SHA is empty."
-		git diff-tree --no-renames --no-commit-id --name-only -r "$after_sha"
+		git diff-tree --no-renames --no-commit-id --name-only -r -z "$after_sha" | tr '\0' '\n'
 	else
 		info "Detecting changes between ${before_sha} and ${after_sha}."
 		# --no-renames: a moved file is a deletion at its origin and an addition at its destination. Folding it
 		# into the destination hides the origin, so moving runtime sources into a test source set asked for nothing.
-		git diff --no-renames --name-only "$before_sha" "$after_sha"
+		git diff --no-renames --name-only -z "$before_sha" "$after_sha" | tr '\0' '\n'
 	fi
 }
 
