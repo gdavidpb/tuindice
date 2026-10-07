@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
@@ -39,11 +40,6 @@ import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SHEET_SWIPE_MS = 600L
-
-// The grade slider of an attempt: a tap near its end raises the grade, one further in lowers it.
-private const val SLIDER_HIGH_X = 0.95
-private const val SLIDER_LOW_X = 0.75
-private const val SLIDER_MIDDLE_Y = 0.5
 
 // The status and the action of a subject in the search results, as the tags of the rows name them: the
 // lowercase name of the enum the rows are built from, so a rename in the product breaks the compile.
@@ -57,8 +53,6 @@ private val ACTION_ADD = CreateTermSubjectCardAction.Add.name.lowercase()
 private val ACTION_REMOVE = CreateTermSubjectCardAction.Remove.name.lowercase()
 private const val ATTEMPT_APPROVED = "approved"
 private const val CLASH_DAY = 2
-private const val GRADE_BEFORE = 4
-private const val GRADE_AFTER = 5
 
 /** A search text that has no results; the other ones the scenarios type are fixtures the mocks answer. */
 private const val QUERY_NO_RESULTS = "zz"
@@ -210,11 +204,11 @@ private val recordAttemptOverrides = scenario(
 
 	openRecordTab()
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_BEFORE), Within.Action)
-	tapAt(RecordUiTags.attemptGradeSlider(primary), SLIDER_HIGH_X, SLIDER_MIDDLE_Y)
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_AFTER), Within.Action)
-	tapAt(RecordUiTags.attemptGradeSlider(primary), SLIDER_LOW_X, SLIDER_MIDDLE_Y)
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_BEFORE), Within.Action)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeBefore), Within.Action)
+	tapAt(RecordUiTags.attemptGradeSlider(primary), E2eInputs.SliderHighX, E2eInputs.SliderMiddleY)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeAfter), Within.Action)
+	tapAt(RecordUiTags.attemptGradeSlider(primary), E2eInputs.SliderLowX, E2eInputs.SliderMiddleY)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeBefore), Within.Action)
 	tap(RecordUiTags.termChip(E2eFixtures.SyntheticDegreeProjectTerm.value))
 	waitVisible(RecordUiTags.attemptStatusSelector(synthetic), Within.Action)
 	tap(RecordUiTags.attemptStatusSelector(synthetic))

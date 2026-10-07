@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
@@ -32,12 +33,6 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
-
-/** `EvaluationType.TEST`, as the type chip tag spells it. */
-private const val EVALUATION_TYPE_TEST = "test"
-
-/** A day of the month the date picker always offers. */
-private const val EVALUATION_DAY = 15
 
 /** The arguments of a clean launch, to start the app again the way the scenario started it. */
 private val cleanArguments = Start.Clean().toLaunchSpec().arguments
@@ -78,12 +73,12 @@ private fun StepBuilder.addPendingEvaluation(withDate: Boolean) {
 	tap(EvaluationsUiTags.EvaluationsAddFab)
 	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Wait)
 	tap(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value))
-	tap(EvaluationsUiTags.evaluationTypeChip(EVALUATION_TYPE_TEST))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 
 	if (withDate) {
 		tap(EvaluationsUiTags.EvaluationDateSelectButton)
 		waitVisible(EvaluationsUiTags.EvaluationCalendarContainer, Within.Action)
-		tap(EvaluationsUiTags.calendarDayCell(EVALUATION_DAY))
+		tap(EvaluationsUiTags.calendarDayCell(E2eInputs.CalendarDay))
 		tap(EvaluationsUiTags.EvaluationDateDialogAcceptButton)
 	}
 

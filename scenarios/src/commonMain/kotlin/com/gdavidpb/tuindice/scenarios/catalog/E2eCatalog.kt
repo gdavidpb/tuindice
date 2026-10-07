@@ -46,6 +46,7 @@ object E2eCatalog {
 		sessionId = account.session?.sessionId,
 		accessToken = account.session?.accessToken,
 		refreshToken = account.session?.refreshToken,
-		mockScenario = account.mockScenario
+		mockScenario = account.mockScenario,
+		backendIdentifier = account.backendIdentifier
 	)
 }

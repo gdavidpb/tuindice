@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -39,14 +40,6 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
-// The grade slider of an attempt: a tap near its end raises the grade, one further in lowers it.
-private const val SLIDER_HIGH_X = 0.95
-private const val SLIDER_LOW_X = 0.75
-private const val SLIDER_MIDDLE_Y = 0.5
-private const val GRADE_BEFORE = 4
-private const val GRADE_AFTER = 5
-
-private const val OLDER_PENSUM_YEAR = 2018
 private const val SWIPE_MS = 600L
 
 // Two texts of the same length that share no letter, so a character left behind shows in the read-back.
@@ -196,8 +189,8 @@ private val conformanceScrollHorizontal = scenario("conformance-scroll-horizonta
 	openTab(MaincoreUiTags.TuIndiceBottomBarPensumItem, PensumUiTags.PensumScreen)
 	tap(PensumUiTags.PensumContextSummary)
 	waitVisible(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	scrollUntilVisible(PensumUiTags.versionOption(OLDER_PENSUM_YEAR), Scroll.ContentForward, Within.Action)
-	tap(PensumUiTags.versionOption(OLDER_PENSUM_YEAR))
+	scrollUntilVisible(PensumUiTags.versionOption(E2eInputs.OlderPensumYear), Scroll.ContentForward, Within.Action)
+	tap(PensumUiTags.versionOption(E2eInputs.OlderPensumYear))
 }
 
 /** Tapping at a point of an element: the grade slider takes the grade from where it is tapped. */
@@ -208,11 +201,11 @@ private val conformanceTapAt = scenario("conformance-tap-at", "conformance", can
 
 	openTab(MaincoreUiTags.TuIndiceBottomBarRecordItem, RecordUiTags.ContentContainer)
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_BEFORE), Within.Action)
-	tapAt(RecordUiTags.attemptGradeSlider(primary), SLIDER_HIGH_X, SLIDER_MIDDLE_Y)
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_AFTER), Within.Action)
-	tapAt(RecordUiTags.attemptGradeSlider(primary), SLIDER_LOW_X, SLIDER_MIDDLE_Y)
-	waitVisible(RecordUiTags.attemptGradeValue(primary, GRADE_BEFORE), Within.Action)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeBefore), Within.Action)
+	tapAt(RecordUiTags.attemptGradeSlider(primary), E2eInputs.SliderHighX, E2eInputs.SliderMiddleY)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeAfter), Within.Action)
+	tapAt(RecordUiTags.attemptGradeSlider(primary), E2eInputs.SliderLowX, E2eInputs.SliderMiddleY)
+	waitVisible(RecordUiTags.attemptGradeValue(primary, E2eInputs.GradeBefore), Within.Action)
 }
 
 /** Double tap and swipe over a gesture surface: the pensum canvas keeps its sticky term header. */

@@ -16,12 +16,11 @@ import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
-
-private const val CALENDAR_DAY = 15
 
 private fun seeded(account: E2eAccount) = Start.Seeded(account).toLaunchSpec()
 
@@ -62,7 +61,7 @@ private fun StepBuilder.pickPreviousMonthDay() {
 	tap(EvaluationsUiTags.EvaluationDateSelectButton)
 	waitVisible(EvaluationsUiTags.EvaluationCalendarContainer, Within.Action)
 	tap(EvaluationsUiTags.EvaluationCalendarPreviousMonthButton)
-	tap(EvaluationsUiTags.calendarDayCell(CALENDAR_DAY))
+	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.CalendarDay))
 	tap(EvaluationsUiTags.EvaluationDateDialogAcceptButton)
 }
 
@@ -114,11 +113,11 @@ private val evaluationsFiltersAndForm = scenario(
 	tap(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value))
 	waitVisible(EvaluationsUiTags.EvaluationSubjectPickerRow, Within.Assert)
 	tap(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value))
-	tap(EvaluationsUiTags.evaluationTypeChip("test"))
-	waitVisible(EvaluationsUiTags.evaluationTypeChip("test"), Within.Assert)
-	tap(EvaluationsUiTags.evaluationTypeChip("test"))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
+	waitVisible(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest), Within.Assert)
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 	waitVisible(EvaluationsUiTags.EvaluationTypePickerRow, Within.Assert)
-	tap(EvaluationsUiTags.evaluationTypeChip("test"))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 	tap(EvaluationsUiTags.EvaluationDateSelectButton)
 	waitVisible(EvaluationsUiTags.EvaluationDateDialogTitle, Within.Action)
 	tap(EvaluationsUiTags.EvaluationDateDialogCancelButton)
@@ -198,7 +197,7 @@ private val evaluationsEditSubmit = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationMaxGradeChip, Within.Assert)
 	assertEnabled(EvaluationsUiTags.EvaluationDoneFab, false)
 	tap(EvaluationsUiTags.evaluationTypeChip("written_work"))
-	tap(EvaluationsUiTags.evaluationTypeChip("test"))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 	assertEnabled(EvaluationsUiTags.EvaluationDoneFab, true)
 	tap(EvaluationsUiTags.EvaluationDoneFab)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
@@ -252,7 +251,7 @@ private val evaluationsAddSubmit = scenario(
 	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
 	openAddForm()
 	tap(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value))
-	tap(EvaluationsUiTags.evaluationTypeChip("test"))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 	pickPreviousMonthDay()
 	waitGone(EvaluationsUiTags.EvaluationGradeChip, Within.Assert)
 	tap(EvaluationsUiTags.EvaluationMaxGradeChip)

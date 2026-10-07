@@ -63,7 +63,7 @@ fun sampleScenario(id: String = "auth-login-success", steps: List<Step> = allSte
 
 fun sampleCatalog(scenarios: List<Scenario> = listOf(sampleScenario())) = ScenarioCatalog(
 	accounts = listOf(
-		CatalogAccount("canonical", "11-11111", "123456", "sid", "access", "refresh", "login-token-lifecycle"),
+		CatalogAccount("canonical", "11-11111", "123456", "sid", "access", "refresh", "login-token-lifecycle", "11-11111"),
 		CatalogAccount("invalid", "00-00000", "bad-password", null, null, null, null)
 	),
 	scenarios = scenarios,

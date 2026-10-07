@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -26,8 +27,6 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
-private const val OLDER_PENSUM_YEAR = 2018
-private const val LONG_INTERNSHIP = "long_internship"
 private const val ZOOM_IN_TAPS = 4
 private const val SWIPE_MS = 600
 
@@ -44,9 +43,9 @@ private fun StepBuilder.openPensum(loaded: String = PensumUiTags.PensumScreen) {
 private fun StepBuilder.chooseLongInternship2018() {
 	tap(PensumUiTags.PensumContextSummary)
 	waitVisible(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	scrollUntilVisible(PensumUiTags.versionOption(OLDER_PENSUM_YEAR), Scroll.ContentForward, Within.Action)
-	tap(PensumUiTags.versionOption(OLDER_PENSUM_YEAR))
-	tap(PensumUiTags.modalityOption(LONG_INTERNSHIP))
+	scrollUntilVisible(PensumUiTags.versionOption(E2eInputs.OlderPensumYear), Scroll.ContentForward, Within.Action)
+	tap(PensumUiTags.versionOption(E2eInputs.OlderPensumYear))
+	tap(PensumUiTags.modalityOption(E2eInputs.LongInternship))
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 }
 

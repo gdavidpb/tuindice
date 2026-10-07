@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -108,6 +109,17 @@ class CatalogCodecTest {
 		assertEquals("true", scenario.getValue("signsIn").jsonPrimitive.content)
 		assertEquals("120", scenario.getValue("timeoutSeconds").jsonPrimitive.content)
 		assertEquals("2026-12-31", scenario.getValue("quarantine").jsonObject.getValue("until").jsonPrimitive.content)
+	}
+
+	@Test
+	fun encode_carriesTheBackendIdentifierOfEachAccountAndNullWhenThereIsNone() {
+		val accounts = Json.parseToJsonElement(CatalogCodec.encode(sampleCatalog())).jsonObject.getValue("accounts").jsonArray
+		val identifiers = accounts.associate {
+			it.jsonObject.getValue("id").jsonPrimitive.content to it.jsonObject["backendIdentifier"]
+		}
+
+		assertEquals("11-11111", identifiers.getValue("canonical")?.jsonPrimitive?.content)
+		assertEquals(JsonNull, identifiers.getValue("invalid"))
 	}
 
 	@Test
