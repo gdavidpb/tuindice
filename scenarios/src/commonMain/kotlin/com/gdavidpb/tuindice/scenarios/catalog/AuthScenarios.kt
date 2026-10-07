@@ -196,6 +196,7 @@ private val authLoginInvalid = scenario("auth-login-invalid", "auth", Start.Clea
 	signInThroughUi(E2eAccounts.Invalid)
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
 	waitVisible(BaseUiTags.SnackbarMessage, Within.Assert)
+	waitVisible(text(Copy.InvalidUsbIdCredentials), Within.Assert)
 	waitVisible(AuthUiTags.SignInRejectedMarker, Within.Assert)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
 }

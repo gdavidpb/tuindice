@@ -8,6 +8,7 @@ package com.gdavidpb.tuindice.scenarios.fixture
 object Copy {
 	// auth
 	const val UsbEmailHint = "Correo USB"
+	const val InvalidUsbIdCredentials = "Revisa tu USBID y contraseña"
 	const val SignInServiceUnavailable = "Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento."
 
 	// maincore
@@ -74,6 +75,7 @@ object Copy {
 	/** The binding of every constant above. */
 	val bindings: List<CopyBinding> = listOf(
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),
+		CopyBinding.Resource(InvalidUsbIdCredentials, "auth", "error_invalid_usb_id_credentials"),
 		CopyBinding.Resource(SignInServiceUnavailable, "auth", "sign_in_service_unavailable"),
 		CopyBinding.Resource(ExternalLinkDialogTitle, "maincore", "dialog_title_warning_external"),
 		CopyBinding.Supplied(NoticeTitle, "AVAILABILITY_NOTICE_TITLE launch argument"),
