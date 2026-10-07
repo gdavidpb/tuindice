@@ -7,7 +7,8 @@ import com.gdavidpb.tuindice.scenariokit.model.MockState
 
 /**
  * How a scenario begins. Every scenario declares its own start and none inherits one; animations are
- * always disabled and the network is available unless the scenario says otherwise.
+ * always disabled, the clock is frozen at [E2eFixtures.Now] and the network is available unless the
+ * scenario says otherwise.
  */
 sealed interface Start {
 	fun toLaunchSpec(): LaunchSpec
@@ -70,6 +71,7 @@ sealed interface Start {
 
 		fun baseArguments(network: Boolean): Map<String, String> = mapOf(
 			DebugLaunchArguments.DISABLE_ANIMATIONS to "true",
+			DebugLaunchArguments.NOW to E2eFixtures.Now,
 			DebugLaunchArguments.NETWORK_AVAILABLE to network.toString()
 		)
 	}

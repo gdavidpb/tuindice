@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -58,6 +60,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.koin.core.Koin
 import org.koin.dsl.module
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -461,6 +465,8 @@ class RecordStateMachineContractTest {
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			// The app binds it in the common module.
+			single<Clock> { Clock.System }
 		},
 		block = block
 	)

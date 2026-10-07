@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -12,11 +14,18 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
 import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.fixedClock
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class SyntheticTermCommandValidatorTest {
+	private fun validate(record: AcademicRecord, params: CreateSyntheticTermParams, clock: Clock = Clock.System) {
+		SyntheticTermCommandValidator.validate(record = record, params = params, clock = clock)
+	}
+
 	@Test
 	fun validate_passes_whenCreatingFutureTermWithUntakenSubjects() {
 		val record = record(
@@ -30,7 +39,7 @@ class SyntheticTermCommandValidatorTest {
 			)
 		)
 
-		SyntheticTermCommandValidator.validate(
+		validate(
 			record = record,
 			params = creationParams(
 				subjects = listOf(
@@ -53,7 +62,7 @@ class SyntheticTermCommandValidatorTest {
 		)
 
 		assertValidationError(SyntheticTermValidationError.TERM_ALREADY_EXISTS) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record,
 				params = creationParams(
 					period = SyntheticTermPeriodOption(
@@ -68,7 +77,7 @@ class SyntheticTermCommandValidatorTest {
 	@Test
 	fun validate_throwsUnsupportedPeriod_whenCreatingLongAcademicTerm() {
 		assertValidationError(SyntheticTermValidationError.UNSUPPORTED_PERIOD) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record(),
 				params = creationParams(
 					period = SyntheticTermPeriodOption(
@@ -83,7 +92,7 @@ class SyntheticTermCommandValidatorTest {
 	@Test
 	fun validate_throwsPeriodInPast_whenNewTermKeyIsBeforeCurrentPeriod() {
 		assertValidationError(SyntheticTermValidationError.PERIOD_IN_PAST) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record(),
 				params = creationParams(
 					period = SyntheticTermPeriodOption(
@@ -93,6 +102,43 @@ class SyntheticTermCommandValidatorTest {
 				)
 			)
 		}
+	}
+
+	// The check reads the clock it is given: the same period is valid in one term and in the past after it.
+	@Test
+	fun validate_readsTheClockItIsGiven_whenCheckingThatThePeriodIsNotInThePast() {
+		val september2026 = SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.SEP_DEC
+		)
+
+		validate(
+			record = record(),
+			params = creationParams(period = september2026),
+			clock = fixedClock("2026-10-15T12:00:00Z")
+		)
+		assertValidationError(SyntheticTermValidationError.PERIOD_IN_PAST) {
+			validate(
+				record = record(),
+				params = creationParams(period = september2026),
+				clock = fixedClock("2027-01-10T12:00:00Z")
+			)
+		}
+	}
+
+	@Test
+	fun validate_readsTheUniversityTimeZone_whenTheInstantIsPastMidnightInUtc() {
+		val december2026 = SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.SEP_DEC
+		)
+
+		// 2027-01-01T01:00Z is still 2026-12-31 in Caracas (UTC-4).
+		validate(
+			record = record(),
+			params = creationParams(period = december2026),
+			clock = fixedClock("2027-01-01T01:00:00Z")
+		)
 	}
 
 	@Test
@@ -107,7 +153,7 @@ class SyntheticTermCommandValidatorTest {
 		)
 
 		assertValidationError(SyntheticTermValidationError.TERM_MUST_BE_AFTER_LATEST) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record,
 				params = creationParams(
 					period = SyntheticTermPeriodOption(
@@ -124,7 +170,7 @@ class SyntheticTermCommandValidatorTest {
 		val record = record(academicTerm(id = "historical", periodYear = 2024))
 
 		assertValidationError(SyntheticTermValidationError.TERM_NOT_FOUND) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record,
 				params = creationParams(
 					editingTermId = "historical",
@@ -146,7 +192,7 @@ class SyntheticTermCommandValidatorTest {
 			academicTerm(id = "historical", periodYear = 2024)
 		)
 
-		SyntheticTermCommandValidator.validate(
+		validate(
 			record = record,
 			params = creationParams(
 				editingTermId = "syn-1",
@@ -173,7 +219,7 @@ class SyntheticTermCommandValidatorTest {
 			)
 		)
 
-		SyntheticTermCommandValidator.validate(
+		validate(
 			record = record,
 			params = creationParams(
 				editingTermId = "syn-1",
@@ -190,7 +236,7 @@ class SyntheticTermCommandValidatorTest {
 	@Test
 	fun validate_throwsDuplicateSubject_normalizingCaseAndWhitespace() {
 		assertValidationError(SyntheticTermValidationError.DUPLICATE_SUBJECT) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record(),
 				params = creationParams(
 					subjects = listOf(
@@ -216,7 +262,7 @@ class SyntheticTermCommandValidatorTest {
 		)
 
 		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_APPROVED) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record,
 				params = creationParams(subjects = listOf(syntheticSubject("ma1112")))
 			)
@@ -238,7 +284,7 @@ class SyntheticTermCommandValidatorTest {
 		)
 
 		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_PLANNED) {
-			SyntheticTermCommandValidator.validate(
+			validate(
 				record = record,
 				params = creationParams(subjects = listOf(syntheticSubject("MA1112")))
 			)

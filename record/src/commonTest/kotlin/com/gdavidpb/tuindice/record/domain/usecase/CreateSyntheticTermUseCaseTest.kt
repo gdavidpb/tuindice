@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
@@ -25,6 +27,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class CreateSyntheticTermUseCaseTest {
 	@Test
@@ -118,7 +122,8 @@ class CreateSyntheticTermUseCaseTest {
 		return CreateSyntheticTermUseCase(
 			repository = repository,
 			reportingRepository = RecordingReportingRepository(),
-			exceptionHandler = RecordExceptionHandler()
+			exceptionHandler = RecordExceptionHandler(),
+			clock = Clock.System
 		)
 	}
 }

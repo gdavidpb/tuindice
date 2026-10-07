@@ -63,8 +63,14 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.binds
 import org.koin.dsl.module
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 val commonModule = module {
+	// What "now" is for the dates the app shows (academic terms); debug builds rebind it to a clock the
+	// E2E launch arguments can freeze. Expiry, cooldowns and timers read the system time directly.
+	single<Clock> { Clock.System }
 	singleOf(::createSharedJson)
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }

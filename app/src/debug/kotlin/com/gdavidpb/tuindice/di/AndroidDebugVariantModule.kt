@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.debug.OverridableClock
 import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
@@ -30,8 +31,13 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 val androidDebugVariantModule = module {
+	single<Clock> { OverridableClock() }
+
 	single<AppStartupTask>(named("androidDebugUsageDataCollectionTask")) {
 		NoOpUsageDataCollectionDataSource
 	}

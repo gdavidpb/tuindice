@@ -13,18 +13,23 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExcept
 import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class CreateSyntheticTermUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: RecordExceptionHandler
+	override val exceptionHandler: RecordExceptionHandler,
+	private val clock: Clock
 ) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<String> {
 		val record = repository.getAcademicRecord()
 			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)
 		SyntheticTermCommandValidator.validate(
 			record = record,
-			params = params
+			params = params,
+			clock = clock
 		)
 
 		val termId = params.period.termKey

@@ -34,12 +34,15 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * Loads the graph the Android app starts with, on the host: the shared modules plus
@@ -51,6 +54,7 @@ import org.robolectric.annotation.Config
  * cannot load it, so the Firebase Analytics and Performance definitions, their two event
  * subscribers and the usage data `AppStartupTask` of a release build are not checked by anything.
  */
+@OptIn(ExperimentalTime::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = Application::class)
 class AndroidAppKoinSmokeTest {
@@ -107,6 +111,12 @@ class AndroidAppKoinSmokeTest {
 			BrowserViewModel::class,
 			RecordViewModel::class
 		).forEach { type -> get<Any>(type) }
+	}
+
+	// Release reads the system clock: nothing in the production graph can freeze it.
+	@Test
+	fun theClockOfTheProductionGraphIsTheSystemOne() = hostGraph.start {
+		assertSame(Clock.System, get<Clock>())
 	}
 
 	@Test

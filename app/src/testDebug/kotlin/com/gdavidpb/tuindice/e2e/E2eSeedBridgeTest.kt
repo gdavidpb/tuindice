@@ -8,11 +8,15 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class E2eSeedBridgeTest {
 	private class RecordingEffects : E2eSeedBridge.Effects {
 		val notices = mutableListOf<DebugLaunchArguments.AvailabilityNotice>()
 		val networks = mutableListOf<Boolean>()
+		val clocks = mutableListOf<Instant>()
 		val seeds = mutableListOf<DebugSessionSeed>()
 
 		override fun setAvailabilityNotice(notice: DebugLaunchArguments.AvailabilityNotice) {
@@ -21,6 +25,10 @@ class E2eSeedBridgeTest {
 
 		override fun setNetworkAvailable(forced: Boolean) {
 			networks += forced
+		}
+
+		override fun setFixedNow(instant: Instant) {
+			clocks += instant
 		}
 
 		override fun seedSession(seed: DebugSessionSeed) {
@@ -38,7 +46,8 @@ class E2eSeedBridgeTest {
 		DebugLaunchArguments.AVAILABILITY_NOTICE_TITLE to "Title",
 		DebugLaunchArguments.AVAILABILITY_NOTICE_MESSAGE to "Message",
 		DebugLaunchArguments.NETWORK_AVAILABLE to "false",
-		DebugLaunchArguments.DISABLE_ANIMATIONS to "true"
+		DebugLaunchArguments.DISABLE_ANIMATIONS to "true",
+		DebugLaunchArguments.NOW to "2026-10-15T12:00:00Z"
 	)
 
 	@Test
@@ -50,6 +59,7 @@ class E2eSeedBridgeTest {
 		assertEquals(1, effects.seeds.size)
 		assertEquals(1, effects.notices.size)
 		assertEquals(listOf(false), effects.networks)
+		assertEquals(listOf(Instant.parse("2026-10-15T12:00:00Z")), effects.clocks)
 	}
 
 	@Test
@@ -71,6 +81,7 @@ class E2eSeedBridgeTest {
 		assertTrue(arguments.animationsDisabled)
 		assertNotNull(arguments.sessionSeed)
 		assertEquals(listOf(false), effects.networks)
+		assertEquals(listOf(Instant.parse("2026-10-15T12:00:00Z")), effects.clocks)
 	}
 
 	@Test
@@ -81,6 +92,7 @@ class E2eSeedBridgeTest {
 
 		assertFalse(arguments.animationsDisabled)
 		assertTrue(effects.seeds.isEmpty() && effects.notices.isEmpty() && effects.networks.isEmpty())
+		assertTrue(effects.clocks.isEmpty())
 	}
 
 	@Test

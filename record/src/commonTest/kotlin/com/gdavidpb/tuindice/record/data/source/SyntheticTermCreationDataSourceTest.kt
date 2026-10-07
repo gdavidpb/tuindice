@@ -19,10 +19,12 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
+import com.gdavidpb.tuindice.record.testing.fixedClock
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
@@ -72,6 +74,32 @@ class SyntheticTermCreationDataSourceTest {
 		assertEquals(20, snapshot.periodOptions.size)
 		assertEquals(currentPeriod, snapshot.periodOptions.first())
 		assertEquals(currentPeriod, snapshot.selectedPeriod)
+	}
+
+	// The options start at the term the clock says it is, so a frozen clock fixes them whatever the day is.
+	@Test
+	fun observeSnapshot_startsPeriodOptionsAtTheTermOfTheClockItIsGiven() = runTest {
+		suspend fun firstOption(iso: String) = dataSource(
+			record = AcademicRecord(id = "record"),
+			pensumPayloadJson = pensumPayload(nodes = emptyList(), edges = emptyList()),
+			searchEntities = emptyList(),
+			clock = fixedClock(iso)
+		).observeSnapshot(
+			queryFlow = MutableStateFlow(""),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first().periodOptions.first()
+
+		assertEquals(
+			SyntheticTermPeriodOption(periodYear = 2026, periodCode = AcademicTermPeriod.SEP_DEC),
+			firstOption("2026-10-15T12:00:00Z")
+		)
+		assertEquals(
+			SyntheticTermPeriodOption(periodYear = 2027, periodCode = AcademicTermPeriod.JAN_MAR),
+			firstOption("2027-01-10T12:00:00Z")
+		)
 	}
 
 	@Test
@@ -645,7 +673,8 @@ class SyntheticTermCreationDataSourceTest {
 	private fun dataSource(
 		record: AcademicRecord,
 		pensumPayloadJson: String,
-		searchEntities: List<SubjectCatalogCacheEntity>
+		searchEntities: List<SubjectCatalogCacheEntity>,
+		clock: Clock = Clock.System
 	): SyntheticTermCreationDataSource {
 		val cacheKey = "2016-regular"
 		return SyntheticTermCreationDataSource(
@@ -671,7 +700,8 @@ class SyntheticTermCreationDataSourceTest {
 			ktorClient = HttpClient(MockEngine { respondOk() }),
 			json = Json {
 				ignoreUnknownKeys = true
-			}
+			},
+			clock = clock
 		)
 	}
 }

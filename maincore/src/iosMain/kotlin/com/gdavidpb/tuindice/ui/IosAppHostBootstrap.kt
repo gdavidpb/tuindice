@@ -4,6 +4,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
+import com.gdavidpb.tuindice.debug.freezeDebugClock
 import com.gdavidpb.tuindice.debug.seedDebugSession
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import com.gdavidpb.tuindice.di.startIosKoin
@@ -14,7 +15,9 @@ import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
 import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
 import platform.UIKit.UIViewController
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class IosAppHostBootstrap(
 	private val hostConfig: IosAppHostConfig
 ) {
@@ -49,6 +52,8 @@ class IosAppHostBootstrap(
 		debugAnimationsDisabled = arguments.animationsDisabled
 
 		val koin = startIfNeeded()
+
+		arguments.fixedNow?.let { instant -> koin.freezeDebugClock(instant) }
 
 		arguments.availabilityNotice?.let { notice ->
 			koin.setDebugAppAvailabilityNoticeOverride(

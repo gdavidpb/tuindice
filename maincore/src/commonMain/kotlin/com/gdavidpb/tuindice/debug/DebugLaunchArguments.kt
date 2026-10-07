@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.debug
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * The one definition of the `TUINDICE_E2E_*` launch arguments of the debug builds.
@@ -14,12 +16,16 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
  * recreated or restored after the process died, because the seed clears the session and settings;
  * iOS reads the arguments once per process. The Android extras are parsed every time and every
  * one must be a string (`am start --es`). `MAIN_SECTION` only matters together with a seed and is ignored without one.
+ * `NOW` freezes the clock the app reads for what it shows by date (see [OverridableClock]); it is
+ * applied on every launch, like the network override.
  */
+@OptIn(ExperimentalTime::class)
 data class DebugLaunchArguments(
 	val apiBaseUrl: String?,
 	val webBaseUrl: String?,
 	val networkAvailable: Boolean?,
 	val animationsDisabled: Boolean,
+	val fixedNow: Instant?,
 	val availabilityNotice: AvailabilityNotice?,
 	val sessionSeed: DebugSessionSeed?
 ) {
@@ -39,6 +45,9 @@ data class DebugLaunchArguments(
 		const val WEB_BASE_URL = "TUINDICE_E2E_WEB_BASE_URL"
 		const val NETWORK_AVAILABLE = "TUINDICE_E2E_NETWORK_AVAILABLE"
 		const val DISABLE_ANIMATIONS = "TUINDICE_E2E_DISABLE_ANIMATIONS"
+
+		/** An ISO-8601 instant with its offset (`2026-10-15T12:00:00Z`): what "now" is for the app. */
+		const val NOW = "TUINDICE_E2E_NOW"
 		const val AVAILABILITY_NOTICE_ENABLED = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
 		const val AVAILABILITY_NOTICE_TITLE = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
 		const val AVAILABILITY_NOTICE_MESSAGE = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
@@ -75,6 +84,7 @@ data class DebugLaunchArguments(
 			WEB_BASE_URL,
 			NETWORK_AVAILABLE,
 			DISABLE_ANIMATIONS,
+			NOW,
 			AVAILABILITY_NOTICE_ENABLED,
 			AVAILABILITY_NOTICE_TITLE,
 			AVAILABILITY_NOTICE_MESSAGE,
@@ -109,6 +119,7 @@ data class DebugLaunchArguments(
 				webBaseUrl = present[WEB_BASE_URL],
 				networkAvailable = present[NETWORK_AVAILABLE]?.let { parseBoolean(NETWORK_AVAILABLE, it) },
 				animationsDisabled = present[DISABLE_ANIMATIONS]?.let { parseBoolean(DISABLE_ANIMATIONS, it) } ?: false,
+				fixedNow = present[NOW]?.let(::parseInstant),
 				availabilityNotice = notice,
 				sessionSeed = parseSeed(present)
 			)
@@ -168,6 +179,14 @@ data class DebugLaunchArguments(
 				"true", "1", "yes" -> true
 				"false", "0", "no" -> false
 				else -> throw IllegalArgumentException("Unsupported boolean for $key: $value")
+			}
+		}
+
+		private fun parseInstant(value: String): Instant {
+			return try {
+				Instant.parse(value)
+			} catch (cause: IllegalArgumentException) {
+				throw IllegalArgumentException("Unsupported instant for $NOW: $value", cause)
 			}
 		}
 

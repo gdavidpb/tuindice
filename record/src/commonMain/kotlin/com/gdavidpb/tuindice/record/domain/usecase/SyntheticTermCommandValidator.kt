@@ -4,7 +4,6 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
@@ -13,16 +12,16 @@ import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationExce
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
+import com.gdavidpb.tuindice.record.domain.model.currentAcademicTermOrder
 import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 internal object SyntheticTermCommandValidator {
 	fun validate(
 		record: AcademicRecord,
-		params: CreateSyntheticTermParams
+		params: CreateSyntheticTermParams,
+		clock: Clock
 	) {
 		val editingTerm = params.editingTermId?.let { editingTermId ->
 			record.terms.firstOrNull { term -> term.id == editingTermId && term.kind.isSynthetic }
@@ -38,7 +37,8 @@ internal object SyntheticTermCommandValidator {
 		validatePeriod(
 			otherTerms = otherTerms,
 			period = params.period,
-			keepsSameTermKey = keepsSameTermKey
+			keepsSameTermKey = keepsSameTermKey,
+			clock = clock
 		)
 		validateSubjects(
 			otherTerms = otherTerms,
@@ -49,7 +49,8 @@ internal object SyntheticTermCommandValidator {
 	private fun validatePeriod(
 		otherTerms: List<AcademicTerm>,
 		period: SyntheticTermPeriodOption,
-		keepsSameTermKey: Boolean
+		keepsSameTermKey: Boolean,
+		clock: Clock
 	) {
 		if (!period.periodCode.supportsSyntheticPlanning) {
 			throw SyntheticTermValidationException(SyntheticTermValidationError.UNSUPPORTED_PERIOD)
@@ -57,7 +58,7 @@ internal object SyntheticTermCommandValidator {
 		if (otherTerms.any { term -> term.termKey == period.termKey }) {
 			throw SyntheticTermValidationException(SyntheticTermValidationError.TERM_ALREADY_EXISTS)
 		}
-		if (!keepsSameTermKey && period.termOrder < currentAcademicTermOrder()) {
+		if (!keepsSameTermKey && period.termOrder < clock.currentAcademicTermOrder()) {
 			throw SyntheticTermValidationException(SyntheticTermValidationError.PERIOD_IN_PAST)
 		}
 		if (!keepsSameTermKey && otherTerms.maxOfOrNull(AcademicTerm::termOrder)?.let { latestOrder ->
@@ -99,20 +100,4 @@ internal object SyntheticTermCommandValidator {
 				throw SyntheticTermValidationException(SyntheticTermValidationError.SUBJECT_ALREADY_PLANNED)
 		}
 	}
-
-	private fun currentAcademicTermOrder(): Int {
-		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
-		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
-	}
-
-	private fun periodForMonth(month: Int): AcademicTermPeriod {
-		return when (month) {
-			in 1..3 -> AcademicTermPeriod.JAN_MAR
-			in 4..6 -> AcademicTermPeriod.APR_JUL
-			in 7..8 -> AcademicTermPeriod.JUL_AUG
-			else -> AcademicTermPeriod.SEP_DEC
-		}
-	}
 }
-
-private const val AcademicCalendarTimeZoneId = "America/Caracas"

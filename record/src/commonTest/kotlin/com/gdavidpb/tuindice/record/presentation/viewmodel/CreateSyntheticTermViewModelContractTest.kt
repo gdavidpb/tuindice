@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
@@ -37,6 +39,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class CreateSyntheticTermViewModelContractTest {
 	@Test
@@ -416,12 +420,14 @@ class CreateSyntheticTermViewModelContractTest {
 				createSyntheticTermUseCase = CreateSyntheticTermUseCase(
 					repository = academicRecordRepository,
 					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
+					exceptionHandler = exceptionHandler,
+					clock = Clock.System
 				),
 				updateSyntheticTermUseCase = UpdateSyntheticTermUseCase(
 					repository = academicRecordRepository,
 					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
+					exceptionHandler = exceptionHandler,
+					clock = Clock.System
 				),
 				setSelectedTermUseCase = SetSelectedTermUseCase(
 					recordSelectionRepository = selectionRepository,

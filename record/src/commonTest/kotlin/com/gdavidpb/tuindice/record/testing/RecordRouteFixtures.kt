@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -30,6 +32,8 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 // What a route test needs of the screens behind the routes: the real view model over the real
 // machine and use cases, with only the repositories replaced by the doubles a test can drive.
@@ -211,12 +215,14 @@ private fun createSyntheticTermMachine(
 		createSyntheticTermUseCase = CreateSyntheticTermUseCase(
 			repository = academicRecordRepository,
 			reportingRepository = reportingRepository,
-			exceptionHandler = exceptionHandler
+			exceptionHandler = exceptionHandler,
+			clock = Clock.System
 		),
 		updateSyntheticTermUseCase = UpdateSyntheticTermUseCase(
 			repository = academicRecordRepository,
 			reportingRepository = reportingRepository,
-			exceptionHandler = exceptionHandler
+			exceptionHandler = exceptionHandler,
+			clock = Clock.System
 		),
 		setSelectedTermUseCase = SetSelectedTermUseCase(
 			recordSelectionRepository = RecordingRecordSelectionRepository(),

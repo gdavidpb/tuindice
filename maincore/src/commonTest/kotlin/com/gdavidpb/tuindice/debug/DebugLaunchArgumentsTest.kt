@@ -7,7 +7,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class DebugLaunchArgumentsTest {
 	private val identity = mapOf(
 		DebugLaunchArguments.SEED_SESSION_ID to "session-1",
@@ -27,6 +30,7 @@ class DebugLaunchArgumentsTest {
 				webBaseUrl = null,
 				networkAvailable = null,
 				animationsDisabled = false,
+				fixedNow = null,
 				availabilityNotice = null,
 				sessionSeed = null
 			),
@@ -66,6 +70,29 @@ class DebugLaunchArgumentsTest {
 			DebugLaunchArguments.AvailabilityNotice(enabled = true, title = "Title", message = "Message"),
 			arguments.availabilityNotice
 		)
+	}
+
+	@Test
+	fun now_isParsedAsAnInstantWithItsOffset() {
+		assertEquals(
+			Instant.parse("2026-10-15T12:00:00Z"),
+			parseNow("2026-10-15T12:00:00Z")
+		)
+		assertEquals(
+			Instant.parse("2026-10-15T16:00:00Z"),
+			parseNow(" 2026-10-15T12:00:00-04:00 ")
+		)
+		assertNull(parseNow("  "))
+		assertNull(DebugLaunchArguments.parse(emptyMap()).fixedNow)
+	}
+
+	@Test
+	fun now_failsWhenItIsNotAnInstant() {
+		listOf("2026-10-15", "12:00", "yesterday", "2026-13-40T00:00:00Z", "2026-10-15T12:00:00", "1760529600000").forEach { value ->
+			val failure = assertFailsWith<IllegalArgumentException>(value) { parseNow(value) }
+
+			assertTrue(DebugLaunchArguments.NOW in failure.message.orEmpty(), failure.message)
+		}
 	}
 
 	@Test
@@ -174,6 +201,7 @@ class DebugLaunchArgumentsTest {
 			DebugLaunchArguments.WEB_BASE_URL,
 			DebugLaunchArguments.NETWORK_AVAILABLE,
 			DebugLaunchArguments.DISABLE_ANIMATIONS,
+			DebugLaunchArguments.NOW,
 			DebugLaunchArguments.AVAILABILITY_NOTICE_ENABLED,
 			DebugLaunchArguments.AVAILABILITY_NOTICE_TITLE,
 			DebugLaunchArguments.AVAILABILITY_NOTICE_MESSAGE,
@@ -196,5 +224,9 @@ class DebugLaunchArgumentsTest {
 		return DebugLaunchArguments.parse(
 			mapOf(DebugLaunchArguments.NETWORK_AVAILABLE to value)
 		).networkAvailable
+	}
+
+	private fun parseNow(value: String): Instant? {
+		return DebugLaunchArguments.parse(mapOf(DebugLaunchArguments.NOW to value)).fixedNow
 	}
 }

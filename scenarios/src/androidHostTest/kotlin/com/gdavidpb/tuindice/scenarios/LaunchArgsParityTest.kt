@@ -27,6 +27,7 @@ class LaunchArgsParityTest {
 		"webBaseUrl" to (null to iosSwiftHost),
 		"networkAvailable" to (androidDebug to iosSwiftHost),
 		"animationsDisabled" to (androidDebug to iosKotlin),
+		"fixedNow" to (androidDebug to iosKotlin),
 		"availabilityNotice" to (androidDebug to iosKotlin),
 		"sessionSeed" to (androidDebug to iosKotlin)
 	)

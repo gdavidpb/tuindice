@@ -4,19 +4,25 @@ import android.content.Intent
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.DebugSessionSeed
+import com.gdavidpb.tuindice.debug.freezeDebugClock
 import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
 import com.gdavidpb.tuindice.debug.seedDebugSession
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
 import org.koin.core.context.GlobalContext
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 object E2eSeedBridge {
 	/** What the launch arguments change in the running app; the production one talks to Koin. */
 	internal interface Effects {
 		fun setAvailabilityNotice(notice: DebugLaunchArguments.AvailabilityNotice)
 
 		fun setNetworkAvailable(forced: Boolean)
+
+		fun setFixedNow(instant: Instant)
 
 		fun seedSession(seed: DebugSessionSeed)
 	}
@@ -40,6 +46,10 @@ object E2eSeedBridge {
 			network.forced = forced
 		}
 
+		override fun setFixedNow(instant: Instant) {
+			koin.freezeDebugClock(instant)
+		}
+
 		override fun seedSession(seed: DebugSessionSeed) {
 			runBlocking { koin.seedDebugSession(seed) }
 		}
@@ -52,8 +62,8 @@ object E2eSeedBridge {
 	 * The extras are always parsed. The session seed and the availability notice are applied only
 	 * on a cold start ([isColdStart]): the seed clears the session, the settings and the sync
 	 * status, so applying it again when the activity is recreated (configuration change, restore
-	 * after the process died) would wipe a scenario in progress. The network override is kept
-	 * in-process and idempotent, so it is applied every time.
+	 * after the process died) would wipe a scenario in progress. The network override and the
+	 * clock are kept in-process and idempotent, so they are applied every time.
 	 */
 	@JvmStatic
 	fun applyLaunchArguments(intent: Intent?, isColdStart: Boolean): DebugLaunchArguments {
@@ -75,6 +85,7 @@ object E2eSeedBridge {
 		}
 
 		arguments.networkAvailable?.let(effects::setNetworkAvailable)
+		arguments.fixedNow?.let(effects::setFixedNow)
 
 		if (isColdStart) {
 			arguments.sessionSeed?.let(effects::seedSession)

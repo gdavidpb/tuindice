@@ -6,14 +6,18 @@ import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenarios.fixture.Coachmarks
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
+import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /** The ways a scenario can begin: what each `Start` hands the app, read back the way the app reads it. */
+@OptIn(ExperimentalTime::class)
 class StartTest {
 	private val seedKeys = listOf(
 		DebugLaunchArguments.SEED_SESSION_ID,
@@ -33,6 +37,7 @@ class StartTest {
 		assertEquals(
 			mapOf(
 				DebugLaunchArguments.DISABLE_ANIMATIONS to "true",
+				DebugLaunchArguments.NOW to E2eFixtures.Now,
 				DebugLaunchArguments.NETWORK_AVAILABLE to "true"
 			),
 			spec.arguments
@@ -112,6 +117,16 @@ class StartTest {
 		specs.forEach { spec ->
 			assertTrue(spec.arguments.keys.all { it in DebugLaunchArguments.keys })
 			assertTrue(DebugLaunchArguments.SEED_STATE !in spec.arguments)
+		}
+	}
+
+	@Test
+	fun everyStartFreezesTheClockAtTheSameNamedInstant() {
+		val specs = listOf(Start.Clean(), Start.Clean(network = false), Start.Seeded(E2eAccounts.Canonical)).map { it.toLaunchSpec() }
+
+		specs.forEach { spec ->
+			assertEquals(E2eFixtures.Now, spec.arguments[DebugLaunchArguments.NOW])
+			assertEquals(Instant.parse(E2eFixtures.Now), DebugLaunchArguments.parse(spec.arguments).fixedNow)
 		}
 	}
 }

@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermPensumCacheRes
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermSubjectSearchResponse
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
+import com.gdavidpb.tuindice.record.domain.model.currentAcademicTermOrder
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail
@@ -47,8 +48,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -59,7 +58,8 @@ class SyntheticTermCreationDataSource(
 	private val pensumSelectionDao: PensumSelectionDao,
 	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
 	private val ktorClient: HttpClient,
-	private val json: Json
+	private val json: Json,
+	private val clock: Clock
 ) : SyntheticTermCreationRepository {
 	private val academicPensumStatusEngine = AcademicPensumStatusEngine()
 
@@ -241,7 +241,7 @@ class SyntheticTermCreationDataSource(
 			terms.filterNot { term -> term.id == editingTerm.id }
 		}
 		val maxExistingOrder = baselineTerms.maxOfOrNull(AcademicTerm::termOrder)
-		val currentOrder = currentAcademicTermOrder()
+		val currentOrder = clock.currentAcademicTermOrder()
 		val options = mutableListOf<SyntheticTermPeriodOption>()
 		var year = currentOrder / 10
 		var sequence = currentOrder % 10
@@ -276,20 +276,6 @@ class SyntheticTermCreationDataSource(
 
 		return (listOfNotNull(editingOption) + options)
 			.distinctBy(SyntheticTermPeriodOption::termKey)
-	}
-
-	private fun currentAcademicTermOrder(): Int {
-		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
-		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
-	}
-
-	private fun periodForMonth(month: Int): AcademicTermPeriod {
-		return when (month) {
-			in 1..3 -> AcademicTermPeriod.JAN_MAR
-			in 4..6 -> AcademicTermPeriod.APR_JUL
-			in 7..8 -> AcademicTermPeriod.JUL_AUG
-			else -> AcademicTermPeriod.SEP_DEC
-		}
 	}
 
 	private fun AcademicRecord.editorAvailabilityBySubjectCode(
@@ -702,5 +688,4 @@ private const val FuturePeriodCount = 20
 private const val SuggestedSubjectLimit = 8
 private const val NodeTypeCourse = "COURSE"
 private const val RULE_TYPE_EQUIVALENCE = "EQUIVALENCE"
-private const val AcademicCalendarTimeZoneId = "America/Caracas"
 private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

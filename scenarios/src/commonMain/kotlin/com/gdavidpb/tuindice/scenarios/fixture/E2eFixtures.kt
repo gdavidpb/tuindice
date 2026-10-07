@@ -25,10 +25,19 @@ object E2eFixtures {
 	 */
 	const val RejectedPassword = "000000"
 
+	/**
+	 * What "now" is for the app in every scenario (`DebugLaunchArguments.NOW`), so the dates the app derives from
+	 * the clock never depend on the day the run happens. It falls in the September - December 2026 term:
+	 * the first one the app offers when planning a term on top of the canonical record (whose latest
+	 * term is July - August 2026), which is what [NextTermKey] and `Copy.TermSepDec2026` name.
+	 * `E2eClockFixtureTest` checks both against this date.
+	 */
+	const val Now = "2026-10-15T12:00:00Z"
+
 	/** The term of the canonical record that is in progress. */
 	val CurrentTerm = E2eFixture("d377155d39da686f412622aaca9074cd", listOf(SYNC_SUCCESS))
 
-	/** The synthetic term the record creation flows add after the current one (`2026-SEP_DEC`). */
+	/** The synthetic term the record creation flows add after the latest one of the record (`2026-SEP_DEC`). */
 	val NextTermKey = E2eFixture.derived("2026-SEP_DEC", "term key the app builds from the period and the year")
 
 	val PrimaryAttempt = E2eFixture("e21f0d7e481d13d19f328d6818ce4d77", listOf(SYNC_SUCCESS))
