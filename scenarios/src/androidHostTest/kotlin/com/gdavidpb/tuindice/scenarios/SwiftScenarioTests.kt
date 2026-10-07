@@ -9,7 +9,8 @@ internal object SwiftScenarioTests {
 	const val HEADER = "// Generated from the scenario catalog by ./gradlew syncE2eArtifacts. Do not edit."
 
 	fun render(scenarios: List<Scenario>): String {
-		val classes = scenarios.filter { Platform.Ios in it.platforms }.groupBy { it.module }.toSortedMap().map { (module, ofModule) ->
+		val onIos = scenarios.filter { Platform.Ios in it.platforms }
+		val classes = onIos.groupBy { it.module }.toSortedMap().map { (module, ofModule) ->
 			val methods = ofModule.sortedBy { it.id }.joinToString("\n") { scenario ->
 				"    func ${ScenarioNaming.swiftMethodName(scenario.id)}() { runScenario(\"${scenario.id}\") }"
 			}
