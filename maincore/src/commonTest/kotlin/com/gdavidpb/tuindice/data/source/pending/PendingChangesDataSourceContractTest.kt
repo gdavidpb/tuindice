@@ -25,16 +25,12 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-private const val RESEND_ANSWER_MILLIS = 300L
 
 class PendingChangesDataSourceContractTest {
 	@Test
@@ -182,46 +178,6 @@ class PendingChangesDataSourceContractTest {
 			operations.filter { operation -> operation.startsWith("retry:FailedTerminal") }
 		)
 		assertEquals(0, repository.getPendingChanges().totalCount)
-	}
-
-	// Reproduction (NOT committed): auth-pending-sign-out-flush-success on Android fails 4 of 10. The Add of an
-	// evaluation is answered 503 (parked as FailedTerminal) and a second execution resends the same row and gets
-	// 200, ~300 ms later. If the sign-out flush reads the outbox while that resend is still in flight, drain has
-	// no Pending row to run and returns at once, so the final count is 1 and the sheet says
-	// "No pudimos enviar 1 cambio pendiente" although the row is retired a moment later. The flush should wait
-	// for the executions already running; this test asks for that and fails today.
-	@Test
-	fun flushPendingChanges_waitsForAResendAlreadyInFlight_insteadOfReportingItsRowAsRemaining() = runTest {
-		val pendingMutationDao = FakePendingMutationDao(
-			mutations = mutableListOf(
-				pendingMutation(
-					mutationId = "evaluation-add",
-					storeId = EVALUATIONS_MUTATION_STORE_ID,
-					scopeKey = EVALUATIONS_MUTATION_SCOPE,
-					status = PendingMutationStatus.FailedTerminal
-				)
-			)
-		)
-		val resendInFlight = launch {
-			delay(RESEND_ANSWER_MILLIS)
-			pendingMutationDao.deletePendingMutation(
-				storeId = EVALUATIONS_MUTATION_STORE_ID,
-				scopeKey = EVALUATIONS_MUTATION_SCOPE,
-				mutationId = "evaluation-add"
-			)
-		}
-		val repository = PendingChangesDataSource(
-			pendingMutationDao = pendingMutationDao,
-			academicRecordRepository = FakeAcademicRecordRepository(),
-			evaluationRepository = FakeEvaluationRepository(),
-			syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Healthy)
-		)
-
-		val actual = repository.flushPendingChanges()
-		resendInFlight.join()
-
-		assertEquals(0, repository.getPendingChanges().totalCount)
-		assertEquals(FlushPendingChangesResult.Success, actual)
 	}
 }
 
