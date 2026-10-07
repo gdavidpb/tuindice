@@ -180,6 +180,14 @@ class DeclaredCredentialTests(unittest.TestCase):
         mail = {"id": "mail", "usbId": "mail@usb.ve", "password": "123456", "accessToken": None}
         self.assertEqual(self.judge([request("/auth/v2/bootstrap", "mail:123456", status=401, matched=True)], account=mail).klass, cl.BACKEND)
 
+    def test_the_catalogs_backend_identifier_wins_over_the_local_part_rule(self):
+        # The backend knows the e-mail account as `mail1234` (no domain, not the local part): the catalog says so.
+        mail = {"id": "mail", "usbId": "mail@usb.ve", "password": "123456", "accessToken": None, "backendIdentifier": "mail1234"}
+        journal = [request("/auth/v2/bootstrap", "mail1234:123456", status=401, matched=True)]
+        self.assertEqual(self.judge(journal, account=mail).klass, cl.BACKEND)
+        without = dict(mail, backendIdentifier=None)
+        self.assertEqual(self.judge(journal, account=without).klass, cl.TYPED)
+
     def test_before_the_first_step_the_journal_is_the_previous_scenarios(self):
         stale = [request("/record/v5/terms", "55-55555:v123456")]
         driver = cl.classify(evidence(result(kind="DRIVER_ERROR", step=-1), account=self.UPDATE, journal=stale))
