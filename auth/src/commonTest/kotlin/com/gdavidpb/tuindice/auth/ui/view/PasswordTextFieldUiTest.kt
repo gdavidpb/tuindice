@@ -144,6 +144,10 @@ class PasswordTextFieldUiTest {
 
 		runOnIdle { echoedPassword.value = emittedPasswords[0] }
 		waitForIdle()
+
+		// The stale answer must not pull the field back: without this the echo of "ab" would hide it.
+		onNodeWithTag(AuthUiTags.PasswordTextField).assertTextContains("ab")
+
 		runOnIdle { echoedPassword.value = emittedPasswords[1] }
 		waitForIdle()
 

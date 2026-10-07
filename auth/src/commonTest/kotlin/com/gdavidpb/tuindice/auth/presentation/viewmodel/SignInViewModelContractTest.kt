@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import io.ktor.http.HttpStatusCode
@@ -147,6 +148,61 @@ class SignInViewModelContractTest {
 
 				viewModel.setPasswordAction("secret1234")
 				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun signInFailingOnTheWayToTheBackend_doesNotMarkTheLastAttemptAsRejected() = runTest {
+		val authRepository = RecordingAuthRepository(
+			throwable = serverResponseException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap")
+		)
+		val viewModel = SignInViewModel(
+			screenMachine = SignInMachine(
+				signInUseCase = SignInUseCase(
+					authRepository = authRepository,
+					authRetryWindowRepository = FakeAuthRetryWindowRepository(),
+					messagingRepository = RecordingMessagingRepository(),
+					syncRepository = FakeSyncRepository(),
+					credentialsRepository = FakeCredentialsRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					attestationRepository = FakeAttestationRepository(),
+					settingsRepository = FakeSettingsRepository(),
+					applicationRepository = RecordingApplicationRepository(),
+					reportingRepository = RecordingReportingRepository(),
+					paramsValidator = SignInParamsValidator(),
+					exceptionHandler = SignInExceptionHandler(
+						networkRepository = FakeNetworkRepository(isAvailable = true)
+					)
+				),
+				configRepository = FakeConfigRepository(),
+				appEnvironmentRepository = FakeAppEnvironmentRepository(),
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+			),
+			eventPublisher = NoOpEventPublisher
+		)
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				awaitItem()
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction("secret123")
+				viewModel.signInAction()
+
+				// The attempt reached the backend and came back to the form without a rejection.
+				val back = awaitUntilState<SignIn.State.Idle> { _ -> authRepository.bootstrapSignInCalls.isNotEmpty() }
+				assertEquals(false, back.lastAttemptFailed)
 
 				cancelAndIgnoreRemainingEvents()
 			}

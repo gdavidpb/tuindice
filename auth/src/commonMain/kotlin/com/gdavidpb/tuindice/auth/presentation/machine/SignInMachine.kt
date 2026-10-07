@@ -127,8 +127,7 @@ class SignInMachine(
 				password = state.password,
 				identifierMode = state.identifierMode,
 				usageDataCollectionEnabled = state.usageDataCollectionEnabled,
-				isServiceUnavailable = true,
-				lastAttemptFailed = true
+				isServiceUnavailable = true
 			)
 		}
 
@@ -162,7 +161,7 @@ class SignInMachine(
 			password = state.password,
 			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled,
-			lastAttemptFailed = true
+			lastAttemptFailed = error.isRejectedByBackend()
 		)
 	}
 

@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -16,10 +18,15 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import io.github.alexzhirkevich.compottie.Compottie
+import io.github.alexzhirkevich.compottie.LottieAnimationState
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import tuindice.base.generated.resources.Res
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class, ExperimentalResourceApi::class)
 class LottieResourceAnimationViewUiTest {
@@ -132,6 +139,40 @@ class LottieResourceAnimationViewUiTest {
 			.assertWidthIsEqualTo(96.dp)
 			.assertHeightIsEqualTo(96.dp)
 		assertEquals(1, readCount)
+	}
+
+	@Test
+	fun when_animationsAreDisabled_then_theAnimationStaysAtItsFirstFrame() = runTuIndiceUiTest {
+		val progress = playedProgress(animationsEnabled = false)
+
+		assertEquals(0f, progress, "the animation must not advance")
+	}
+
+	@Test
+	fun when_animationsAreEnabled_then_theAnimationAdvances() = runTuIndiceUiTest {
+		val progress = playedProgress(animationsEnabled = true)
+
+		assertTrue(progress > 0f, "the animation should have advanced, progress was $progress")
+	}
+
+	// Plays the real animation (it lasts longer than the time advanced) and reads where it got to.
+	private fun ComposeUiTest.playedProgress(animationsEnabled: Boolean): Float {
+		var state: LottieAnimationState? = null
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides animationsEnabled) {
+				val composition by rememberLottieComposition {
+					LottieCompositionSpec.JsonString(Res.readBytes(ANIMATION_PATH).decodeToString())
+				}
+
+				state = rememberLottieAnimationState(composition = composition, iterations = Compottie.IterateForever)
+			}
+		}
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { state?.composition != null }
+		advanceAnimationsBy(2_000)
+
+		return requireNotNull(state).progress
 	}
 
 	private companion object {

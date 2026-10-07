@@ -47,10 +47,7 @@ fun AnimatedPatternBackground(
 	val tileHeightPx = remember(tileHeight) { (tileHeight + 0.5f).toInt().coerceAtLeast(1) }
 	val backgroundColor = MaterialTheme.colorScheme.background.copy(alpha = alpha)
 
-	val animatedProgress by patternProgress(
-		animationsEnabled = LocalTuIndiceAnimationsEnabled.current,
-		durationMillis = durationMillis
-	)
+	val animatedProgress by currentPatternProgress(durationMillis = durationMillis)
 
 	Canvas(
 		modifier = Modifier
@@ -103,5 +100,14 @@ internal fun patternProgress(
 		animationSpec = infiniteRepeatable(
 			animation = tween(durationMillis = durationMillis, easing = LinearEasing)
 		)
+	)
+}
+
+/** [patternProgress] driven by the animations flag of the composition, as the background uses it. */
+@Composable
+internal fun currentPatternProgress(durationMillis: Int): State<Float> {
+	return patternProgress(
+		animationsEnabled = LocalTuIndiceAnimationsEnabled.current,
+		durationMillis = durationMillis
 	)
 }

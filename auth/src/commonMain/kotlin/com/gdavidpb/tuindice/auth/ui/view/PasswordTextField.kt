@@ -43,7 +43,7 @@ fun PasswordTextField(
 	val field = remember { EditableTextFieldState(password) }
 	val supportingText = remember { mutableStateOf(error) }
 
-	field.syncExternal(password)
+	field.syncExternal(password, resetKey = null)
 
 	LaunchedEffect(error) {
 		supportingText.value = error

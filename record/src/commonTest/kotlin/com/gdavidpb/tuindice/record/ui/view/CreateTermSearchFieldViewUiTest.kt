@@ -81,7 +81,7 @@ class CreateTermSearchFieldViewUiTest {
 		setTuIndiceTestContent {
 			val fieldState = remember { EditableTextFieldState(echoedQuery.value) }
 
-			fieldState.syncExternal(echoedQuery.value)
+			fieldState.syncExternal(echoedQuery.value, resetKey = null)
 
 			CreateTermSearchField(
 				fieldState = fieldState,
@@ -134,7 +134,7 @@ class CreateTermSearchFieldViewUiTest {
 
 		val fieldState = remember { EditableTextFieldState(initialQuery) }
 
-		fieldState.syncExternal(query.value)
+		fieldState.syncExternal(query.value, resetKey = null)
 
 		CreateTermSearchField(
 			fieldState = fieldState,

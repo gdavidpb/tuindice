@@ -39,10 +39,32 @@ internal const val MAX_REPORTED_TEXTS = 256
  * After a configuration change or process death the holder is rebuilt from the view model state.
  *
  * Call sites use `val field = remember { EditableTextFieldState(text, key) }` followed by
- * `field.syncExternal(text, key)`. Whoever owns the state syncs it, once per composition: a field
- * that receives the state only displays and edits it, and never syncs it with another text. If
- * the view model drops an edit, the field keeps showing what was typed until the screen is
- * recreated; that only happens while a screen is leaving its idle state.
+ * `field.syncExternal(text, key)`. The key has no default on purpose: a holder built with a key
+ * and synced without one would see a reset on every composition and adopt every text, which is
+ * the original defect by another road. A field without a reset input passes `resetKey = null`
+ * to both. Whoever owns the state syncs it, once per composition: a field that receives the state
+ * only displays and edits it, and never syncs it with another text.
+ *
+ * Limits of the design, none of them reachable today:
+ *
+ * - The view model must not normalise the text it echoes (trim, case, masks, filtering). Every
+ *   normalised echo is a text the field never reported, so it is adopted on top of what the user
+ *   typed after the edit it answers, which brings the lost keys back. Normalise in the field
+ *   (as `UsbIdMask` does, before [edit]) or not at all.
+ * - `externalText`, `resetKey` and the ledger are not snapshot state and are written while
+ *   composing. If a composition is discarded after [syncExternal], the write of [value] is rolled
+ *   back but `externalText` has already advanced, and the adoption is not repeated. So call
+ *   [syncExternal] only from the main composition of the screen or the field, never from the
+ *   content of a `LazyColumn` item or from a subcomposition (the editors in `record` hoist the
+ *   holder to the screen for that reason). Keeping those fields in snapshot state would close
+ *   the gap, and was left out because no call site can reach it.
+ * - If the view model drops an edit, the field keeps showing what was typed and the view model
+ *   keeps the previous text. [syncExternal] does nothing when the caller's text has not changed,
+ *   so coming back to the same state does not realign them. It happens only while a screen is
+ *   leaving its idle state (the password dialog until the `Updating` echo arrives, the sign-in
+ *   form during its exit animation), lasts milliseconds, predates the holder, and every dropped
+ *   key also publishes an `InvalidTransition` to analytics. If it ever matters, give the field a
+ *   `resetKey` that changes when the screen enters and leaves the waiting state.
  *
  * A5: the state-machine loop stays on `Dispatchers.Default`, so every key still travels to the
  * loop and back as an echo. After this holder nothing the user types waits for that echo: the
@@ -64,7 +86,7 @@ class EditableTextFieldState(initialText: String, initialResetKey: Any? = null) 
 	private var resetKey = initialResetKey
 	private val reportedTexts = LinkedHashSet<String>()
 
-	fun syncExternal(text: String, resetKey: Any? = null) {
+	fun syncExternal(text: String, resetKey: Any?) {
 		val resetRequested = resetKey != this.resetKey
 
 		this.resetKey = resetKey

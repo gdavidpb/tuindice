@@ -89,4 +89,39 @@ class UsbIdMaskTest {
 		assertEquals("98-76543", result.text)
 		assertEquals(TextRange(8), result.selection)
 	}
+
+	@Test
+	fun when_aDigitOtherThanTheLastIsDeleted_then_keepsTheDash() {
+		assertMasked(previous = "1|2-3", typed = "|2-3", expected = "|23-")
+		assertMasked(previous = "1|2-34", typed = "|2-34", expected = "|23-4")
+	}
+
+	@Test
+	fun when_theDashIsTheOnlyThingDeletedWithTwoDigits_then_dropsIt() {
+		assertMasked(previous = "12-|", typed = "12|", expected = "12|")
+	}
+
+	@Test
+	fun when_aDigitReplacesOnlyTheDashOfAFullField_then_theInsertionIsIgnored() {
+		val previous = TextFieldValue(text = "12-34567", selection = TextRange(2, 3))
+		val result = value("129|34567").toMaskedUsbId(previous = previous)
+
+		assertEquals("12-34567", result.text)
+		assertEquals(TextRange(2, 3), result.selection)
+	}
+
+	@Test
+	fun when_aDigitReplacesASelectionWithDigitsOfAFullField_then_itIsApplied() {
+		val previous = TextFieldValue(text = "12-34567", selection = TextRange(1, 4))
+		val result = value("19|4567").toMaskedUsbId(previous = previous)
+
+		assertEquals("19-4567", result.text)
+	}
+
+	@Test
+	fun when_digitsOfOtherScriptsAreTyped_then_ignoresThem() {
+		assertMasked(previous = "|", typed = "\u0661\u0662|", expected = "|")
+		assertMasked(previous = "12-|", typed = "12-\u0663|", expected = "12-|")
+		assertMasked(previous = "|", typed = "1\u06622\u0663|", expected = "12-|")
+	}
 }

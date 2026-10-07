@@ -208,7 +208,7 @@ class SubjectSearchTextFieldUiTest {
 	) {
 		val fieldState = remember { EditableTextFieldState(query) }
 
-		fieldState.syncExternal(query)
+		fieldState.syncExternal(query, resetKey = null)
 
 		SubjectSearchTextField(
 			fieldState = fieldState,

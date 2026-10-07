@@ -16,7 +16,7 @@ class EditableTextFieldStateTest {
 
 		field.type("a")
 		field.type("ab")
-		field.syncExternal("a")
+		field.syncExternal("a", resetKey = null)
 
 		assertEquals("ab", field.value.text)
 
@@ -42,7 +42,7 @@ class EditableTextFieldStateTest {
 			field.type("a")
 
 			echoes.forEach { echo ->
-				field.syncExternal(echo)
+				field.syncExternal(echo, resetKey = null)
 
 				assertEquals("a", field.value.text, "echo '$echo' of $echoes")
 			}
@@ -54,7 +54,7 @@ class EditableTextFieldStateTest {
 		val field = EditableTextFieldState("")
 
 		field.type("a")
-		field.syncExternal("restored")
+		field.syncExternal("restored", resetKey = null)
 
 		assertEquals("restored", field.value.text)
 		assertEquals(TextRange("restored".length), field.value.selection)
@@ -64,9 +64,9 @@ class EditableTextFieldStateTest {
 	fun unchangedCallerText_isNotReprocessedAfterALocalEdit() {
 		val field = EditableTextFieldState("")
 
-		field.syncExternal("x")
+		field.syncExternal("x", resetKey = null)
 		field.type("xy")
-		field.syncExternal("x")
+		field.syncExternal("x", resetKey = null)
 
 		assertEquals("xy", field.value.text)
 	}
@@ -77,8 +77,8 @@ class EditableTextFieldStateTest {
 
 		field.type("calculo")
 		field.type("calculo ")
-		field.syncExternal("calculo ")
-		field.syncExternal("calculo")
+		field.syncExternal("calculo ", resetKey = null)
+		field.syncExternal("calculo", resetKey = null)
 
 		assertEquals("calculo ", field.value.text)
 
@@ -100,6 +100,22 @@ class EditableTextFieldStateTest {
 	}
 
 	@Test
+	fun adoptingAnOutsideText_forgetsWhatWasReportedBefore() {
+		val field = EditableTextFieldState("")
+
+		field.type("a")
+		field.type("ab")
+		field.syncExternal("zzz", resetKey = null)
+
+		assertEquals("zzz", field.value.text)
+
+		// "a" was reported before the adoption: if the ledger survived it, this would be ignored.
+		field.syncExternal("a", resetKey = null)
+
+		assertEquals("a", field.value.text)
+	}
+
+	@Test
 	fun replace_isReportedLikeAnEdit() {
 		val field = EditableTextFieldState("")
 
@@ -108,11 +124,11 @@ class EditableTextFieldStateTest {
 		assertTrue(field.replace("b"))
 		assertEquals(TextRange(1), field.value.selection)
 
-		field.syncExternal("a")
+		field.syncExternal("a", resetKey = null)
 
 		assertEquals("b", field.value.text)
 
-		field.syncExternal("b")
+		field.syncExternal("b", resetKey = null)
 
 		assertEquals("b", field.value.text)
 		assertFalse(field.replace("b"))
@@ -135,15 +151,15 @@ class EditableTextFieldStateTest {
 
 		texts.forEach { field.type(it) }
 
-		field.syncExternal(texts.last())
+		field.syncExternal(texts.last(), resetKey = null)
 
 		assertEquals(texts.last(), field.value.text)
 
-		field.syncExternal(texts[1])
+		field.syncExternal(texts[1], resetKey = null)
 
 		assertEquals(texts.last(), field.value.text, "a recent text is still remembered")
 
-		field.syncExternal(texts.first())
+		field.syncExternal(texts.first(), resetKey = null)
 
 		assertEquals(texts.first(), field.value.text, "the oldest text was dropped from the ledger")
 	}

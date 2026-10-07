@@ -24,7 +24,6 @@ object BaseUiTags {
 	const val OutdatedAppUpdateButton = "base_outdated_app_update_button"
 	const val OutdatedAppAnimation = "base_outdated_app_animation"
 
-	const val DropdownMenuTextField = "base_dropdown_text_field"
 	const val DropdownMenuError = "base_dropdown_error"
 
 	const val TopAppBarActionsContainer = "base_top_app_bar_actions_container"

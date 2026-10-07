@@ -38,7 +38,7 @@ fun SubjectSearchScreen(
 	val focusManager = LocalFocusManager.current
 	val searchField = remember { EditableTextFieldState(state.query) }
 
-	searchField.syncExternal(state.query)
+	searchField.syncExternal(state.query, resetKey = null)
 
 	LaunchedEffect(Unit) {
 		focusRequester.requestFocus()

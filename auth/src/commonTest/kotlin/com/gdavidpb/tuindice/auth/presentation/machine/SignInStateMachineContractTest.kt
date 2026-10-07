@@ -19,6 +19,8 @@ import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -365,7 +367,7 @@ class SignInStateMachineContractTest {
 	// iOS can do (see SignInViewModelContractTest.signInRejected_marksTheLastAttemptAsFailed).
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun signInFailure_marksTheLastAttemptAsFailed() = runTest {
+	fun aServiceWait_isNotARejectionOfTheLastAttempt() = runTest {
 		val fixture = createFixture(
 			testScheduler = testScheduler,
 			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
@@ -385,65 +387,76 @@ class SignInStateMachineContractTest {
 				viewModel.setPasswordAction(PASSWORD)
 				viewModel.signInAction()
 
-				val failed = awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
-				assertEquals(VALID_USB_ID, failed.usbId)
-				assertEquals(PASSWORD, failed.password)
+				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
+				assertEquals(VALID_USB_ID, waiting.usbId)
+				assertEquals(PASSWORD, waiting.password)
+				assertEquals(false, waiting.lastAttemptFailed)
 
 				cancelAndIgnoreRemainingEvents()
 			}
 		} finally {
 			stateCollector.cancel()
+		}
+	}
+
+	// The marks are set by failSignIn, which only iOS can run; the rows that clear or keep them
+	// are plain table rows, so they are checked from a state that already carries the mark.
+	@Test
+	fun editingEitherField_orTheMode_clearsTheFailedMark() = runTest {
+		val machine = createFixture().viewModel.machine
+		val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, lastAttemptFailed = true)
+
+		val edits = listOf(
+			SignIn.Action.SetPassword(password = "${PASSWORD}x"),
+			SignIn.Action.SetUsbId(usbId = "20-26124"),
+			SignIn.Action.ToggleIdentifierMode
+		)
+
+		for (edit in edits) {
+			val after = assertIs<SignIn.State.Idle>(machine.nextState(rejected, edit))
+
+			assertEquals(false, after.lastAttemptFailed, "${edit::class.simpleName} must clear the mark")
 		}
 	}
 
 	@Test
-	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun editingEitherField_clearsTheFailedMark() = runTest {
-		val fixture = createFixture(
-			testScheduler = testScheduler,
-			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
-			serviceWaitMillis = 30_000L
-		)
-		val viewModel = fixture.viewModel
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
+	fun theWaitElapsing_keepsTheFailedMark_andReenablesSignIn() = runTest {
+		val machine = createFixture().viewModel.machine
+		val waiting = SignIn.State.Idle(isServiceUnavailable = true, lastAttemptFailed = true)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(waiting, SignInInternalEvent.ServiceWaitElapsed)
 		)
 
-		try {
-			viewModel.state.test {
-				awaitItem()
-
-				viewModel.setUsbIdAction(VALID_USB_ID)
-				viewModel.setPasswordAction(PASSWORD)
-				viewModel.signInAction()
-				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
-
-				viewModel.setPasswordAction("${PASSWORD}x")
-				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
-
-				viewModel.signInAction()
-				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
-
-				viewModel.setUsbIdAction("20-26124")
-				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
-
-				viewModel.signInAction()
-				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
-
-				viewModel.toggleIdentifierModeAction()
-				awaitUntilState<SignIn.State.Idle> { state ->
-					!state.lastAttemptFailed && state.identifierMode == SignInIdentifierMode.UsbEmail
-				}
-
-				cancelAndIgnoreRemainingEvents()
-			}
-		} finally {
-			stateCollector.cancel()
-		}
+		assertEquals(false, after.isServiceUnavailable)
+		assertEquals(true, after.lastAttemptFailed)
 	}
 
-	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	@Test
+	fun cancellingTheSignIn_returnsToIdleWithoutAMark() = runTest {
+		val machine = createFixture().viewModel.machine
+		val loggingIn = SignIn.State.LoggingIn(
+			usbId = VALID_USB_ID,
+			password = PASSWORD,
+			messages = emptyList()
+		)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(loggingIn, SignIn.Action.ClickCancelSignIn)
+		)
+
+		assertEquals(false, after.lastAttemptFailed)
+		assertEquals(VALID_USB_ID, after.usbId)
+	}
+
+	private suspend fun MachineDefinition<SignIn.State>.nextState(state: SignIn.State, event: Any): SignIn.State {
+		val result = process(state, event)
+
+		assertIs<TransitionResult.Transitioned<SignIn.State>>(result)
+
+		return result.toState
+	}
+
 	private fun createFixture(
 		testScheduler: TestCoroutineScheduler? = null,
 		signInThrowable: Throwable? = null,

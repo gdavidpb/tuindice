@@ -128,6 +128,10 @@ class SearchTextFieldUiTest {
 
 		runOnIdle { echoedQuery.value = reported[0] }
 		waitForIdle()
+
+		// The stale answer must not pull the field back: without this the echo of "ab" would hide it.
+		onNodeWithTag(FieldTag).assert(hasText("ab"))
+
 		runOnIdle { echoedQuery.value = reported[1] }
 		waitForIdle()
 
@@ -207,7 +211,7 @@ class SearchTextFieldUiTest {
 		val query = remember { mutableStateOf(initialQuery) }
 		val fieldState = remember { EditableTextFieldState(initialQuery) }
 
-		fieldState.syncExternal(query.value)
+		fieldState.syncExternal(query.value, resetKey = null)
 
 		SearchTextField(
 			fieldState = fieldState,
@@ -232,7 +236,7 @@ class SearchTextFieldUiTest {
 	) {
 		val fieldState = remember { EditableTextFieldState(echoedQuery) }
 
-		fieldState.syncExternal(echoedQuery)
+		fieldState.syncExternal(echoedQuery, resetKey = null)
 
 		SearchTextField(
 			fieldState = fieldState,

@@ -79,7 +79,7 @@ fun CreateSyntheticTermScreen(
 	val showApprovedSearchResults = remember { mutableStateOf(false) }
 	val searchField = remember { EditableTextFieldState(state.query) }
 
-	searchField.syncExternal(state.query)
+	searchField.syncExternal(state.query, resetKey = null)
 
 	val selectedSubjectCodes = remember(state.selectedSubjects) {
 		state.selectedSubjects.map(CreateTermSubjectItem::subjectCode).toSet()
