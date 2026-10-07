@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
@@ -7,7 +9,6 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlin.math.sign
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetEvaluationsUseCase(
@@ -28,12 +31,13 @@ class GetEvaluationsUseCase(
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	private val evaluationsSelectionRepository: EvaluationsSelectionRepository,
-	override val reportingRepository: ReportingRepository
+	override val reportingRepository: ReportingRepository,
+	private val clock: Clock
 ) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>() {
 
 	private val evaluationComparator =
 		Comparator<Evaluation> { a, b ->
-			val currentTime = currentTimeMillis()
+			val currentTime = clock.now().toEpochMilliseconds()
 
 			val aDate = a.date ?: 0
 			val bDate = b.date ?: 0

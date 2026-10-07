@@ -86,8 +86,8 @@ private fun LocalDateTime.toTimeText(): UiText {
 	return UiText.Resource(Res.string.date_time, listOf(hour12, minutes, UiText.Resource(period)))
 }
 
-fun Long.daysToNow() =
-	Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+fun Long.daysToNow(clock: Clock) =
+	clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 		.daysUntil(
 			other = Instant
 				.fromEpochMilliseconds(this)

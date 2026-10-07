@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -47,6 +49,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private const val PAST_EVALUATION_DATE = 1_780_545_600_000L
 private const val FUTURE_EVALUATION_DATE = 1_780_632_000_000L
@@ -319,7 +323,7 @@ class RecordingEvaluationRepository(
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		addCalls += add
 		addThrowable?.let { throw it }
-		evaluationsState.value += add.toEvaluation()
+		evaluationsState.value += add.toEvaluation(clock = Clock.System)
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
@@ -346,7 +350,8 @@ class RecordingEvaluationRepository(
 					state = computeEvaluationState(
 						scheduleMode = resolvedScheduleMode,
 						grade = update.grade,
-						date = resolvedDate
+						date = resolvedDate,
+						clock = Clock.System
 					)
 				)
 			} else {

@@ -100,7 +100,8 @@ val evaluationsModule = module {
 			evaluationsApiDataSource = get(),
 			settingsDataSource = get(),
 			mutationEngine = get(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)),
-			identifierRepository = get()
+			identifierRepository = get(),
+			clock = get()
 		)
 	}
 

@@ -53,8 +53,8 @@ fun LocalDate.toEvaluationEpochMillis(): Long {
 		.toEpochMilliseconds()
 }
 
-fun currentEvaluationLocalDate(): LocalDate {
-	return Clock.System.now()
+fun Clock.currentEvaluationLocalDate(): LocalDate {
+	return now()
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
 }

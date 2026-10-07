@@ -1,13 +1,18 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.testing.fixedClock
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
@@ -18,6 +23,7 @@ import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationDatePickerUiTest {
@@ -161,5 +167,23 @@ class EvaluationDatePickerUiTest {
 			committedDate.toEvaluationLocalDate(),
 			emittedDate.toEvaluationLocalDate()
 		)
+	}
+
+	// Without a committed date the dialog opens on the month of "today", and today is what the clock says.
+	@Test
+	fun when_noDateIsCommitted_then_dialogOpensOnTheMonthOfTheClockOfTheTree() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceClock provides fixedClock("2026-10-15T12:00:00Z")) {
+				EvaluationDatePicker(
+					selectedScheduleMode = EvaluationScheduleMode.DATED,
+					selectedDate = null,
+					onDateChange = {}
+				)
+			}
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationCalendarMonthLabel).assertTextEquals("octubre 2026")
 	}
 }

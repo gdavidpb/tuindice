@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSyncStatusText
@@ -27,7 +28,7 @@ fun SummaryRoute(
 	val sync = viewState.sync
 	// The state carries the instant and the text is described here: it says "today" or "yesterday"
 	// by the day it is rendered, not by the day the sync was observed.
-	val syncStatusText = sync.lastSuccessfulSyncAt.toSyncStatusText()
+	val syncStatusText = sync.lastSuccessfulSyncAt.toSyncStatusText(LocalTuIndiceClock.current)
 	val screenState = when (val currentState = viewState) {
 		is Summary.State.Content -> currentState.copy(syncStatusText = syncStatusText)
 		else -> currentState

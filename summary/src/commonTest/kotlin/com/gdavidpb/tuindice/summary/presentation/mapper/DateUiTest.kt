@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import androidx.compose.material3.Text
@@ -17,6 +19,8 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.test.Test
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 // The Spanish the sync line reads as, resolved the way the screen does it: asString() inside a
@@ -26,24 +30,24 @@ class DateUiTest {
 	@Test
 	fun when_thereHasBeenNoSync_then_lineReadsNever() = runTuIndiceUiTest {
 		assertResolvedTexts(
-			"Última sincronización: Nunca" to (null as Long?).toSyncStatusText(),
-			"Última sincronización: Nunca" to 0L.toSyncStatusText(),
-			"Nunca" to (null as Long?).formatSyncTimestamp()
+			"Última sincronización: Nunca" to (null as Long?).toSyncStatusText(Clock.System),
+			"Última sincronización: Nunca" to 0L.toSyncStatusText(Clock.System),
+			"Nunca" to (null as Long?).formatSyncTimestamp(Clock.System)
 		)
 	}
 
 	@Test
 	fun when_syncWasToday_then_lineReadsTodayAndTheTime() = runTuIndiceUiTest {
 		assertResolvedTexts(
-			"Última sincronización: Hoy, 03:05 p. m." to millisDaysAgo(0, hour = 15, minute = 5).toSyncStatusText(),
-			"Última sincronización: Hoy, 12:00 p. m." to millisDaysAgo(0, hour = 12, minute = 0).toSyncStatusText()
+			"Última sincronización: Hoy, 03:05 p. m." to millisDaysAgo(0, hour = 15, minute = 5).toSyncStatusText(Clock.System),
+			"Última sincronización: Hoy, 12:00 p. m." to millisDaysAgo(0, hour = 12, minute = 0).toSyncStatusText(Clock.System)
 		)
 	}
 
 	@Test
 	fun when_syncWasYesterday_then_lineReadsYesterdayAndTheTime() = runTuIndiceUiTest {
 		assertResolvedTexts(
-			"Última sincronización: Ayer, 09:07 a. m." to millisDaysAgo(1, hour = 9, minute = 7).toSyncStatusText()
+			"Última sincronización: Ayer, 09:07 a. m." to millisDaysAgo(1, hour = 9, minute = 7).toSyncStatusText(Clock.System)
 		)
 	}
 
@@ -52,7 +56,7 @@ class DateUiTest {
 		val threeDaysAgo = millisDaysAgo(3, hour = 15, minute = 5)
 
 		assertResolvedTexts(
-			"Última sincronización: ${threeDaysAgo.weekdayName()}, 03:05 p. m." to threeDaysAgo.toSyncStatusText()
+			"Última sincronización: ${threeDaysAgo.weekdayName()}, 03:05 p. m." to threeDaysAgo.toSyncStatusText(Clock.System)
 		)
 	}
 
@@ -63,7 +67,7 @@ class DateUiTest {
 		val day = date.day.toString().padStart(2, '0')
 
 		assertResolvedTexts(
-			"Última sincronización: $day de ${date.month.monthName()} ${date.year}" to aMonthAgo.toSyncStatusText()
+			"Última sincronización: $day de ${date.month.monthName()} ${date.year}" to aMonthAgo.toSyncStatusText(Clock.System)
 		)
 	}
 

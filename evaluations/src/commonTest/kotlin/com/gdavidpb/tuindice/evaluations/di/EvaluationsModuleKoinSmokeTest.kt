@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
@@ -22,6 +24,8 @@ import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsModuleKoinSmokeTest {
 	@Test
@@ -36,6 +40,7 @@ class EvaluationsModuleKoinSmokeTest {
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			single<Clock> { Clock.System }
 		}
 	) {
 		assertResolves(

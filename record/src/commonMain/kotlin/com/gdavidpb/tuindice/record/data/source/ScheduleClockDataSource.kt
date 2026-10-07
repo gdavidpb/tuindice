@@ -25,7 +25,7 @@ private const val DAYS_PER_WEEK = 7
  * can say what time it is; the app uses the device's.
  */
 class ScheduleClockDataSource(
-	private val clock: Clock = Clock.System,
+	private val clock: Clock,
 	// Asked on every tick: a traveller's schedule follows the device.
 	private val timeZone: () -> TimeZone = TimeZone::currentSystemDefault
 ) : ScheduleClockRepository {

@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.datetime.LocalDate
 
 fun defaultEvaluationsWeekNumber(
 	currentTerm: EvaluationTermDescriptor?,
-	currentDate: LocalDate = currentEvaluationLocalDate()
+	currentDate: LocalDate
 ): Int {
 	return currentTerm?.let { term ->
 		computeAcademicWeek(

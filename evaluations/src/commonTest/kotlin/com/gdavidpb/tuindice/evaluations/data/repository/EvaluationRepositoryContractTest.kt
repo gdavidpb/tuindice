@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.data.repository
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
@@ -28,6 +30,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationRepositoryContractTest {
@@ -41,7 +45,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -66,7 +71,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -86,7 +92,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -111,7 +118,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations(forceRemote = true)
@@ -134,7 +142,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		val onlyOrphans = repositoryWith(listOf(orphan)).updateEvaluations()
@@ -158,7 +167,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-1")
+			identifierRepository = FakeIdentifierRepository("mutation-1"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(
@@ -215,7 +225,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -270,7 +281,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
@@ -288,7 +300,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
@@ -309,7 +322,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -342,7 +356,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(equivalentAdd(reference = "reference-2"))
@@ -365,7 +380,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(
@@ -430,7 +446,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-3")
+			identifierRepository = FakeIdentifierRepository("mutation-3"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -464,7 +481,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-4")
+			identifierRepository = FakeIdentifierRepository("mutation-4"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))
@@ -490,7 +508,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-5")
+			identifierRepository = FakeIdentifierRepository("mutation-5"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
@@ -33,6 +35,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.fail
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class EvaluationsViewModelContractTest {
@@ -440,7 +444,8 @@ private fun createViewModel(
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -467,7 +472,8 @@ private fun createViewModel(
 					setSelectedWeekUseCase = SetSelectedWeekUseCase(
 						evaluationsSelectionRepository = selectionRepository,
 						reportingRepository = RecordingReportingRepository()
-					)
+					),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))

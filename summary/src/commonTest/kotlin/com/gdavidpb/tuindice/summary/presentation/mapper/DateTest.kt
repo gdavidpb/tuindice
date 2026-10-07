@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
@@ -16,14 +18,16 @@ import tuindice.summary.generated.resources.text_last_sync_never
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 // What the sync line describes: which style it picks by how many days ago the sync was. The
 // Spanish it reads as is asserted in DateUiTest.
 class DateTest {
 	@Test
 	fun formatSyncTimestamp_whenThereHasBeenNoSync_describesNever() {
-		assertEquals(UiText.Resource(Res.string.text_last_sync_never), (null as Long?).formatSyncTimestamp())
-		assertEquals(UiText.Resource(Res.string.text_last_sync_never), 0L.formatSyncTimestamp())
+		assertEquals(UiText.Resource(Res.string.text_last_sync_never), (null as Long?).formatSyncTimestamp(Clock.System))
+		assertEquals(UiText.Resource(Res.string.text_last_sync_never), 0L.formatSyncTimestamp(Clock.System))
 	}
 
 	@Test
@@ -33,11 +37,11 @@ class DateTest {
 
 		assertEquals(
 			UiText.Capitalized(today.formatDate(DateTextStyle.TODAY_TIME)),
-			today.formatSyncTimestamp()
+			today.formatSyncTimestamp(Clock.System)
 		)
 		assertEquals(
 			UiText.Capitalized(yesterday.formatDate(DateTextStyle.YESTERDAY_TIME)),
-			yesterday.formatSyncTimestamp()
+			yesterday.formatSyncTimestamp(Clock.System)
 		)
 	}
 
@@ -48,7 +52,7 @@ class DateTest {
 
 			assertEquals(
 				UiText.Capitalized(instant.formatDate(DateTextStyle.WEEKDAY_TIME)),
-				instant.formatSyncTimestamp(),
+				instant.formatSyncTimestamp(Clock.System),
 				"$daysAgo days ago"
 			)
 		}
@@ -63,7 +67,7 @@ class DateTest {
 
 			assertEquals(
 				UiText.Capitalized(instant.formatDate(DateTextStyle.DAY_MONTH_YEAR)),
-				instant.formatSyncTimestamp(),
+				instant.formatSyncTimestamp(Clock.System),
 				"$daysAgo days ago"
 			)
 		}
@@ -76,7 +80,7 @@ class DateTest {
 
 		assertEquals(
 			UiText.Capitalized(tomorrow.formatDate(DateTextStyle.DAY_MONTH_YEAR)),
-			tomorrow.formatSyncTimestamp()
+			tomorrow.formatSyncTimestamp(Clock.System)
 		)
 	}
 
@@ -85,16 +89,37 @@ class DateTest {
 		val today = millisDaysAgo(0)
 
 		assertEquals(
-			UiText.Resource(Res.string.text_last_sync, listOf(today.formatSyncTimestamp())),
-			today.toSyncStatusText()
+			UiText.Resource(Res.string.text_last_sync, listOf(today.formatSyncTimestamp(Clock.System))),
+			today.toSyncStatusText(Clock.System)
 		)
 		assertEquals(
 			UiText.Resource(
 				Res.string.text_last_sync,
 				listOf(UiText.Resource(Res.string.text_last_sync_never))
 			),
-			(null as Long?).toSyncStatusText()
+			(null as Long?).toSyncStatusText(Clock.System)
 		)
+	}
+
+	// "Today" and "yesterday" are told by the clock the caller hands over.
+	@Test
+	fun formatSyncTimestamp_countsTheDaysFromTheClockItIsGiven() {
+		val sync = Instant.parse("2026-10-14T15:00:00Z").toEpochMilliseconds()
+
+		assertEquals(
+			UiText.Capitalized(sync.formatDate(DateTextStyle.YESTERDAY_TIME)),
+			sync.formatSyncTimestamp(fixedClock("2026-10-15T15:00:00Z"))
+		)
+		assertEquals(
+			UiText.Capitalized(sync.formatDate(DateTextStyle.TODAY_TIME)),
+			sync.formatSyncTimestamp(fixedClock("2026-10-14T20:00:00Z"))
+		)
+	}
+
+	private fun fixedClock(iso: String) = object : Clock {
+		private val instant = Instant.parse(iso)
+
+		override fun now(): Instant = instant
 	}
 }
 

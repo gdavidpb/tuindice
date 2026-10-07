@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
@@ -41,6 +43,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdle
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -48,6 +51,8 @@ import tuindice.evaluations.generated.resources.evaluations_continuous_label
 import tuindice.evaluations.generated.resources.evaluations_week_label
 import tuindice.evaluations.generated.resources.snack_evaluation_removed
 import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsMachine(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
@@ -56,7 +61,8 @@ class EvaluationsMachine(
 	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
-	private val setSelectedWeekUseCase: SetSelectedWeekUseCase
+	private val setSelectedWeekUseCase: SetSelectedWeekUseCase,
+	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
@@ -320,7 +326,8 @@ class EvaluationsMachine(
 			currentTerm = displayContext.currentTerm,
 			evaluations = listedEvaluations,
 			weekLabelPattern = weekLabelPattern,
-			continuousLabel = continuousLabel
+			continuousLabel = continuousLabel,
+			currentDate = clock.currentEvaluationLocalDate()
 		)
 
 		// EFSM guard: la semana persistida (plegada en la observación) siembra el default
@@ -334,7 +341,8 @@ class EvaluationsMachine(
 			weekItems = weekItems,
 			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
-				evaluations = listedEvaluations
+				evaluations = listedEvaluations,
+				currentDate = clock.currentEvaluationLocalDate()
 			),
 			evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
 				evaluations = listedEvaluations,

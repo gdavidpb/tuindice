@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
@@ -12,6 +14,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationDateMappingTest {
 	@Test
@@ -54,7 +58,7 @@ class EvaluationDateMappingTest {
 	}
 
 	private fun localDateFromToday(days: Int): LocalDate {
-		return currentEvaluationLocalDate().plus(DatePeriod(days = days))
+		return Clock.System.currentEvaluationLocalDate().plus(DatePeriod(days = days))
 	}
 
 	private fun daysFromToday(days: Int): Long {

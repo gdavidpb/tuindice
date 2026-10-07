@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
@@ -42,6 +44,8 @@ import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsStateMachineContractTest {
 	@Test
@@ -162,7 +166,8 @@ class EvaluationsStateMachineContractTest {
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 				syncStatusRepository = RecordingSyncStatusRepository(),
 				evaluationsSelectionRepository = selectionRepository,
-				reportingRepository = reportingRepository
+				reportingRepository = reportingRepository,
+				clock = Clock.System
 			),
 			ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 				evaluationRepository = repository,
@@ -189,7 +194,8 @@ class EvaluationsStateMachineContractTest {
 			setSelectedWeekUseCase = SetSelectedWeekUseCase(
 				evaluationsSelectionRepository = selectionRepository,
 				reportingRepository = reportingRepository
-			)
+			),
+			clock = Clock.System
 		)
 
 		val weekKey = EvaluationsWeekKey.Academic(weekNumber = 1)
@@ -290,7 +296,8 @@ class EvaluationsStateMachineContractTest {
 				evaluationRepository = repository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = UpdateEvaluationExceptionHandler()
-			)
+			),
+			clock = Clock.System
 		)
 
 		val attempt = EditableAttemptDescriptor(
@@ -355,7 +362,8 @@ class EvaluationsStateMachineContractTest {
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
+					reportingRepository = reportingRepository,
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -382,7 +390,8 @@ class EvaluationsStateMachineContractTest {
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = reportingRepository
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -413,7 +422,8 @@ class EvaluationsStateMachineContractTest {
 					evaluationRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)

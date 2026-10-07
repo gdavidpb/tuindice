@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -27,6 +29,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class RecordModuleKoinSmokeTest {
 	@Test
@@ -40,6 +44,7 @@ class RecordModuleKoinSmokeTest {
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			single<Clock> { Clock.System }
 		}
 	) {
 		assertResolves(RecordViewModel::class)

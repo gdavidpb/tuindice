@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
@@ -20,6 +22,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsUseCaseContractTest {
 	@Test
@@ -47,7 +51,8 @@ class EvaluationsUseCaseContractTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -72,7 +77,8 @@ class EvaluationsUseCaseContractTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = reportingRepository
+			reportingRepository = reportingRepository,
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -98,7 +104,8 @@ class EvaluationsUseCaseContractTest {
 				initialReport = SyncReport.partialEnrollmentUnavailable()
 			),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -123,7 +130,8 @@ class EvaluationsUseCaseContractTest {
 			),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -141,7 +149,8 @@ class EvaluationsUseCaseContractTest {
 			),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -264,7 +273,8 @@ class EvaluationsUseCaseContractTest {
 				)
 			),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		var contentWithoutSituation: GetEvaluations? = null
@@ -302,7 +312,8 @@ class EvaluationsUseCaseContractTest {
 			),
 			syncStatusRepository = syncStatusRepository,
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 	}
 

@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -19,7 +18,7 @@ fun buildEvaluationsWeekItems(
 	evaluations: List<Evaluation>,
 	weekLabelPattern: String,
 	continuousLabel: String,
-	currentDate: LocalDate = currentEvaluationLocalDate()
+	currentDate: LocalDate
 ): List<EvaluationsWeekItem> {
 	val termStart = currentTerm?.academicTermStartDate() ?: currentDate
 	val evaluationDates = evaluations.mapNotNull { evaluation ->

@@ -145,7 +145,7 @@ val recordModule = module {
 	}
 	// Stateless: every schedule sheet gets its own ticker, which dies with it.
 	// Built by hand: its parameters are the device's clock and zone, defaults a test replaces.
-	factory<ScheduleClockRepository> { ScheduleClockDataSource() }
+	factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
 	single<AcademicRecordOutboxDataRepository> {

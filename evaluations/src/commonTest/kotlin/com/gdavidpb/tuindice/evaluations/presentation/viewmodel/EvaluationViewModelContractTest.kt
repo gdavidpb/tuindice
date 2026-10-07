@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
@@ -29,6 +31,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationViewModelContractTest {
 	@Test
@@ -198,7 +202,8 @@ class EvaluationViewModelContractTest {
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers

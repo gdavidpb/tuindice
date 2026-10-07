@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.route
 
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -41,6 +43,8 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlinx.coroutines.flow.flowOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * RTL and accessibility-semantics matrix for the Evaluations list screen.
@@ -188,7 +192,8 @@ class EvaluationsRtlA11yUiTest {
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -215,7 +220,8 @@ class EvaluationsRtlA11yUiTest {
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = RecordingReportingRepository()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)

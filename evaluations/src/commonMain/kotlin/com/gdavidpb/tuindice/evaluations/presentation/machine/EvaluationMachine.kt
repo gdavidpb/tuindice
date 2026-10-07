@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
@@ -27,12 +29,15 @@ import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.snack_evaluation_added
 import tuindice.evaluations.generated.resources.snack_evaluation_updated
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationMachine(
 	private val getAvailableAttemptsUseCase: GetAvailableAttemptsUseCase,
 	private val getEvaluationAndAvailableAttemptsUseCase: GetEvaluationAndAvailableAttemptsUseCase,
 	private val addEvaluationUseCase: AddEvaluationUseCase,
-	private val updateEvaluationUseCase: UpdateEvaluationUseCase
+	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
+	internal val clock: Clock
 ) : ScreenMachine<Evaluation.State, Evaluation.Effect> {
 	override fun initialState(): Evaluation.State = Evaluation.State.Loading
 
@@ -96,7 +101,7 @@ class EvaluationMachine(
 						}
 						val isOverdue = evaluation?.let { loadedEvaluation ->
 							loadedEvaluation.scheduleMode == EvaluationScheduleMode.DATED &&
-								loadedEvaluation.date.isDateInPast()
+								loadedEvaluation.date.isDateInPast(clock)
 						} ?: false
 
 						val content = Evaluation.State.Content(
