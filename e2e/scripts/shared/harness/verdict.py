@@ -12,28 +12,24 @@ from pathlib import Path
 
 from . import publish
 from .config import UsageError, shared_function
+from .gitstate import run_git
 
 VERDICTS = ("current", "reusable", "unpublished", "partial", "rerun", "exhausted")
 MAX_REMOTE_LOOKUPS = 100  # commits asked about; preflight's own fallback window is 50
 FALLBACK_WINDOW = 50
 
 
-def _git(root, *args):
-    result = subprocess.run(["git"] + list(args), cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-        universal_newlines=True)
-    return result.returncode, result.stdout.split()
-
-
 def reuse_candidates(root, head):
     """Commits preflight looks at for reusable evidence, newest first, HEAD excluded: `rev-list HEAD ^base` plus
     the base itself (preflight-production.sh includes it). Without a production ref: the last 50 commits."""
     code, refs = shared_function(root, "e2e_base_ref", root)
-    base = _git(root, "merge-base", refs[0], head) if code == 0 and refs and refs[0] else (1, [])
+    base = run_git(root, "merge-base", refs[0], head) if code == 0 and refs and refs[0] else (1, "")
     if base[0] == 0 and base[1]:
-        _, between = _git(root, "rev-list", head, "^" + base[1][0])
-        found = between + [base[1][0]]
+        _, between = run_git(root, "rev-list", head, "^" + base[1])
+        found = between.split() + [base[1]]
     else:
-        _, found = _git(root, "rev-list", "--max-count=%d" % FALLBACK_WINDOW, head)
+        _, listed = run_git(root, "rev-list", "--max-count=%d" % FALLBACK_WINDOW, head)
+        found = listed.split()
     ordered = []
     for sha in found:
         if sha != head and sha not in ordered:

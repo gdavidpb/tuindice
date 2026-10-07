@@ -62,8 +62,8 @@ class LineBudgetTests(unittest.TestCase):
         self.assertIn("E2E_SCRIPTS_MAX_LINES", self.limits)
         with open(SCRIPT) as handle:
             text = handle.read()
-        for number in ("4500", "140", "300"):
-            self.assertNotIn(number, text, "the verifier must read the budgets, not repeat them")
+        for key, value in self.limits.items():
+            self.assertNotIn(str(value), text, "the verifier must read %s, not repeat it" % key)
 
     def test_every_budget_exactly_at_its_limit_passes(self):
         code, out = self.verify()
