@@ -10,16 +10,23 @@ import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.describe
 
 /**
- * Scrolls until the target sits comfortably inside the screen: visible and with its
- * centre between 15 % and 80 % of the screen along the scrolling axis.
+ * Scrolls until the target is visible and either sits comfortably inside the screen (centre between
+ * 15 % and 80 % along the scrolling axis) or one more scroll no longer moves it: the end of the
+ * content, or an element that does not belong to the scrolling content (a floating button).
  */
 internal class ScrollEngine(private val driver: ScenarioDriver, private val poller: Poller) {
 	fun execute(step: Step.ScrollUntilVisible): StepResult {
 		var swipeRefused = false
+		var beforeSwipe: ElementBounds? = null
 		val inView = poller.until(step.timeoutMs, SCROLL_PAUSE_MS) {
+			val bounds = driver.bounds(step.q)
+			val placement = placement(step.q, step.direction, bounds, beforeSwipe)
 			when {
-				isInView(step.q, step.direction) -> true
-				swipeOnce(step.direction) -> false
+				placement == Placement.SETTLED -> true
+				swipeOnce(step.direction) -> {
+					beforeSwipe = bounds.takeIf { placement == Placement.OFF_CENTER }
+					false
+				}
 				else -> {
 					swipeRefused = true
 					true
@@ -36,15 +43,19 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 		}
 	}
 
-	private fun isInView(q: Query, direction: Scroll): Boolean {
-		val bounds = driver.bounds(q)
+	/** [previous] is where the element sat before the last swipe, when it was visible but off-centre. */
+	private fun placement(q: Query, direction: Scroll, bounds: ElementBounds?, previous: ElementBounds?): Placement {
 		val screen = driver.bounds(null)
 		return when {
-			!driver.isVisible(q) -> false
-			bounds == null || screen == null -> true
-			else -> isCentered(bounds, screen, direction)
+			!driver.isVisible(q) -> Placement.HIDDEN
+			bounds == null || screen == null -> Placement.SETTLED
+			isCentered(bounds, screen, direction) -> Placement.SETTLED
+			bounds == previous -> Placement.SETTLED
+			else -> Placement.OFF_CENTER
 		}
 	}
+
+	private enum class Placement { HIDDEN, OFF_CENTER, SETTLED }
 
 	private fun isCentered(bounds: ElementBounds, screen: ElementBounds, direction: Scroll): Boolean {
 		val vertical = direction == Scroll.ContentDown || direction == Scroll.ContentUp

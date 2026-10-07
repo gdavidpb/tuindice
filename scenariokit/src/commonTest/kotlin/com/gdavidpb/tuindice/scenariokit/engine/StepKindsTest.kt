@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.scenariokit.engine
 
+import com.gdavidpb.tuindice.scenariokit.driver.ElementBounds
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
@@ -240,6 +241,46 @@ class StepKindsTest {
 
 		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
 		assertEquals(1, fake.swipes)
+	}
+
+	@Test
+	fun scrollUntilVisible_passesWhenTheElementIsTheLastOneAndFurtherScrollingDoesNotMoveIt() {
+		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM))
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertTrue(fake.swipes in 1..2, "swipes were ${fake.swipes}")
+	}
+
+	@Test
+	fun scrollUntilVisible_passesForAFixedElementJustOutsideTheComfortZone() {
+		val fixed = ElementBounds(450.0, 1560.0, 550.0, 1670.0)
+		val fake = driver(button to FakeElement(bounds = fixed))
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertTrue(fake.swipes in 1..2, "swipes were ${fake.swipes}")
+	}
+
+	@Test
+	fun scrollUntilVisible_keepsScrollingWhileTheElementStillMovesAndStopsAtTheEnd() {
+		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM))
+		fake.onSwipe = { count ->
+			if (count <= 2) {
+				val current = fake.screen.getValue(button).bounds
+				fake.screen.getValue(button).bounds =
+					ElementBounds(current.left, current.top - 40, current.right, current.bottom - 40)
+			}
+		}
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertEquals(3, fake.swipes)
+	}
+
+	@Test
+	fun scrollUntilVisible_doesNotAcceptAnElementThatKeepsMovingNearTheEdge() {
+		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM, drift = 3.0))
+
+		assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.STEP_TIMEOUT)
+		assertTrue(fake.swipes in 1..20, "swipes were ${fake.swipes}")
 	}
 
 	@Test
