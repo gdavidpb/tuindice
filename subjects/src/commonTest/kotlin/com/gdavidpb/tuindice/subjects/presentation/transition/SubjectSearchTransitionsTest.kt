@@ -12,12 +12,12 @@ import com.gdavidpb.tuindice.subjects.presentation.mapper.toSubjectSearchResultI
 import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 /**
  * The table of the subject search machine, one row at a time and without the pipeline: every

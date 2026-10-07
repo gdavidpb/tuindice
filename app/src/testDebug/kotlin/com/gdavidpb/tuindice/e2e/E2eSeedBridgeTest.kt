@@ -42,7 +42,7 @@ class E2eSeedBridgeTest {
 	)
 
 	@Test
-	fun onAColdStart_theSeedAndTheNoticeAreApplied() {
+	fun onAColdStartTheSeedAndTheNoticeAreApplied() {
 		val effects = RecordingEffects()
 
 		E2eSeedBridge.applyLaunchArguments(seededExtras, isColdStart = true, effects = effects)
@@ -53,7 +53,7 @@ class E2eSeedBridgeTest {
 	}
 
 	@Test
-	fun whenTheActivityIsRecreated_theSeedAndTheNoticeAreNotApplied() {
+	fun whenTheActivityIsRecreatedTheSeedAndTheNoticeAreNotApplied() {
 		val effects = RecordingEffects()
 
 		E2eSeedBridge.applyLaunchArguments(seededExtras, isColdStart = false, effects = effects)
@@ -63,7 +63,7 @@ class E2eSeedBridgeTest {
 	}
 
 	@Test
-	fun whenTheActivityIsRecreated_theArgumentsAreStillParsedAndTheNetworkOverrideIsApplied() {
+	fun whenTheActivityIsRecreatedTheArgumentsAreStillParsedAndTheNetworkOverrideIsApplied() {
 		val effects = RecordingEffects()
 
 		val arguments = E2eSeedBridge.applyLaunchArguments(seededExtras, isColdStart = false, effects = effects)
@@ -74,7 +74,7 @@ class E2eSeedBridgeTest {
 	}
 
 	@Test
-	fun withoutArguments_nothingIsApplied() {
+	fun withoutArgumentsNothingIsApplied() {
 		val effects = RecordingEffects()
 
 		val arguments = E2eSeedBridge.applyLaunchArguments(emptyMap(), isColdStart = true, effects = effects)
@@ -84,14 +84,19 @@ class E2eSeedBridgeTest {
 	}
 
 	@Test
-	fun extrasOutsideThePrefix_areIgnored() {
-		val values = E2eSeedBridge.launchValues(mapOf("android.intent.extra.X" to 1, "TUINDICE_E2E_MAIN_SECTION" to "SUMMARY"))
+	fun extrasOutsideThePrefixAreIgnored() {
+		val values = E2eSeedBridge.launchValues(
+			mapOf(
+				"android.intent.extra.X" to 1,
+				"TUINDICE_E2E_MAIN_SECTION" to "SUMMARY"
+			)
+		)
 
 		assertEquals(mapOf("TUINDICE_E2E_MAIN_SECTION" to "SUMMARY"), values)
 	}
 
 	@Test
-	fun aNonStringExtra_failsNamingTheKeyAndTheType() {
+	fun aNonStringExtraFailsNamingTheKeyAndTheType() {
 		val error = assertThrows(IllegalArgumentException::class.java) {
 			E2eSeedBridge.applyLaunchArguments(
 				mapOf(DebugLaunchArguments.DISABLE_ANIMATIONS to true),
