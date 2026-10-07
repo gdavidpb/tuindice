@@ -26,10 +26,11 @@ the stop conditions; this file has the detail behind them.
   plus the platform's scripts, `e2e/toolchain/<platform>.lock`, the Gradle version catalog. Not covered: unit tests,
   version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**`, `e2e/platform/**`, `*.md`, root
   `build.gradle.kts`. Every fix under `e2e/scripts/**` invalidates the evidence of the platform it touches.
-- **Verdicts** (`current`, `reusable`, `unpublished`, `partial`, `rerun`, `exhausted`) are computed by
+- **Verdicts** (`current`, `reusable`, `incomplete`, `unpublished`, `partial`, `rerun`, `exhausted`) are computed by
   `e2e.py status`: GitHub first (HEAD, then the branch's commits since the merge-base with `production`, then the
   base itself; commits are asked about once and shared by both platforms, at most 100), the local ledger's
-  publication records only when GitHub cannot be read. Never rerun because the SHA moved.
+  publication records only when GitHub cannot be read. A lookup that fails is asked again; if it fails twice the
+  verdict is `incomplete` (`remote.incomplete` lists the commits): ask again, do not rerun. Never rerun because the SHA moved.
 
 ### Measured data
 

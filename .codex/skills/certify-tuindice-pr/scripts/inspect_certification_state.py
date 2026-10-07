@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Inspect a TuIndice branch before and after local E2E evidence. Read-only.
 
-Git, scope and version checks live here. The evidence verdict (current, reusable, unpublished, partial, rerun,
-exhausted) comes from `e2e/scripts/shared/e2e.py status --json`; this script adds the session counters that the
+Git, scope and version checks live here. The evidence verdict (current, reusable, incomplete, unpublished,
+partial, rerun, exhausted) comes from `e2e/scripts/shared/e2e.py status --json`; this script adds the session counters that the
 runbook's stop conditions need, read from the harness's run manifests and ledgers.
 
 Exit codes: 0 every check passed and every required platform is current or reusable; 1 something is not done yet;
@@ -35,6 +35,7 @@ MAX_ENVIRONMENT_EXITS = 2  # exit 3 runs, in one session
 MAX_DRIFT_COMMITS = 20  # HEAD past the last complete run: warn beyond this many commits...
 MAX_DRIFT_FILES = 150  # ...or this many files
 NEXT_ACTION = {
+    "incomplete": "ask GitHub again (python3 e2e/scripts/shared/e2e.py status); this is not missing evidence, so do not run {task}",
     "unpublished": "git push if HEAD is not on GitHub, then: python3 e2e/scripts/shared/e2e.py publish --platform {platform}",
     "partial": "./gradlew {task}   (only the pending scenarios run)",
     "rerun": "./gradlew {task}",
@@ -421,7 +422,10 @@ def report_platform(platform: str, info: dict, runs: list[dict], repeated: list[
     lines = [f"[{'PASS' if verdict in SAFE_VERDICTS else 'FAIL'}] {platform} fp={info.get('fingerprint', '')[:12]} "
              f"verdict={verdict} - {green}{where}"]
     remote = info.get("remote") or {}
-    if remote and not remote.get("reachable"):
+    if remote.get("incomplete"):
+        lines.append(f"  GitHub did not answer for {len(remote['incomplete'])} commit(s), even asked twice "
+                     f"({describe_ids([sha[:12] for sha in remote['incomplete']], 4)}): the evidence on them is neither present nor absent")
+    elif remote and not remote.get("reachable"):
         lines.append("  GitHub could not be read: the verdict falls back to this machine's ledger records")
     if remote.get("truncated"):
         lines.append(f"  only {remote.get('checked')} candidate commits were asked about; older evidence is not seen")

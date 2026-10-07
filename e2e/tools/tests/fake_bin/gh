@@ -8,6 +8,7 @@
 #   E2E_FAKE_GH_UNREACHABLE  when non-empty, every GET fails
 #   E2E_FAKE_GH_SLEEP      seconds the status POST takes before it answers (a gh that hangs)
 #   E2E_FAKE_GH_FAIL_SHAS  space-separated SHAs whose statuses query fails (HTTP 500)
+#   E2E_FAKE_GH_FAIL_ONCE_SHAS  space-separated SHAs whose statuses query fails the first time and answers afterwards
 #   E2E_FAKE_GH_MISSING_SHAS  space-separated SHAs GitHub does not know (HTTP 422, as for an unpushed commit)
 set -euo pipefail
 
@@ -79,6 +80,15 @@ if [[ "${endpoint}" == */commits/*/statuses ]]; then
 	sha="${sha##*/}"
 	case " ${E2E_FAKE_GH_FAIL_SHAS:-} " in
 		*" ${sha} "*) printf 'HTTP 500: server error\n' >&2; exit 1 ;;
+	esac
+	case " ${E2E_FAKE_GH_FAIL_ONCE_SHAS:-} " in
+		*" ${sha} "*)
+			if [[ ! -e "${E2E_FAKE_GH_LOG}.failed-${sha}" ]]; then
+				: > "${E2E_FAKE_GH_LOG}.failed-${sha}"
+				printf 'HTTP 502: bad gateway\n' >&2
+				exit 1
+			fi
+			;;
 	esac
 	case " ${E2E_FAKE_GH_MISSING_SHAS:-} " in
 		*" ${sha} "*) printf 'HTTP 422: No commit found for SHA: %s\n' "${sha}" >&2; exit 1 ;;

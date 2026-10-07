@@ -95,7 +95,7 @@ class VerdictTests(unittest.TestCase):
         info = self.status()
         self.assertEqual(info["verdict"], "unpublished")
         self.assertTrue(info["complete"])
-        self.assertEqual(info["remote"], {"reachable": True, "checked": 1, "truncated": False})
+        self.assertEqual(info["remote"], {"reachable": True, "checked": 1, "truncated": False, "incomplete": []})
 
     def test_a_trusted_status_naming_the_fingerprint_on_head_is_current(self):
         self.remote(head(self.ws), success())
@@ -221,13 +221,45 @@ class VerdictTests(unittest.TestCase):
         info = self.status(E2E_FAKE_GH_FAIL_SHAS=head(self.ws))
         self.assertEqual((info["verdict"], info["evidence"]), ("reusable", {"sha": first, "source": "remote"}))
 
-    def test_a_failed_query_for_the_candidate_that_holds_the_evidence_is_not_a_hit(self):
+    def test_a_failed_query_for_the_candidate_that_holds_the_evidence_is_incomplete_not_rerun(self):
+        first = commit(self.ws, "first")
+        self.remote(first, success())
+        second = commit(self.ws, "second")
+        info = self.status(E2E_FAKE_GH_FAIL_SHAS=first)
+        self.assertEqual((info["verdict"], info["evidence"]), ("incomplete", None))
+        self.assertEqual(info["remote"]["incomplete"], [first])
+        self.assertTrue(info["remote"]["reachable"])  # other commits did answer, and that is not enough to say "absent"
+        self.assertNotIn(second, info["remote"]["incomplete"])
+        text = self.ws.run("status", E2E_FAKE_GH_FAIL_SHAS=first)
+        self.assertIn("ios: incomplete;", text.out)
+        self.assertIn("GitHub did not answer for 1 commit(s) after asking twice: %s" % first[:12], text.out)
+
+    def test_a_failed_query_is_asked_once_more_and_only_then_given_up(self):
+        first = commit(self.ws, "first")
+        open(self.ws.gh_log, "w").close()
+        self.status(E2E_FAKE_GH_FAIL_SHAS=first)
+        with open(self.ws.gh_log) as handle:
+            asked = [line for line in handle.read().splitlines() if line.endswith("commits/%s/statuses" % first)]
+        self.assertEqual(len(asked), 2, "asked once and once more, not a third time")
+
+    def test_a_query_that_answers_on_the_second_try_is_a_normal_answer(self):
         first = commit(self.ws, "first")
         self.remote(first, success())
         commit(self.ws, "second")
+        info = self.status(E2E_FAKE_GH_FAIL_ONCE_SHAS=first)
+        self.assertEqual((info["verdict"], info["evidence"]), ("reusable", {"sha": first, "source": "remote"}))
+        self.assertEqual(info["remote"]["incomplete"], [])
+
+    def test_a_commit_github_does_not_know_is_not_incomplete(self):
+        self.green()
+        self.assertEqual(self.status(E2E_FAKE_GH_MISSING_SHAS=head(self.ws))["remote"]["incomplete"], [])
+
+    def test_a_hit_still_counts_when_another_lookup_failed(self):
+        first = commit(self.ws, "first")
+        second = commit(self.ws, "second")
+        self.remote(second, success())
         info = self.status(E2E_FAKE_GH_FAIL_SHAS=first)
-        self.assertEqual((info["verdict"], info["evidence"]), ("rerun", None))
-        self.assertTrue(info["remote"]["reachable"])  # other commits did answer
+        self.assertEqual((info["verdict"], info["evidence"]), ("current", {"sha": second, "source": "remote"}))
 
     def test_the_text_form_names_the_verdict(self):
         self.remote(head(self.ws), success())

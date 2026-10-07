@@ -116,7 +116,7 @@ def platform_status(cfg, platform, head, candidates, github):
         info["complete"] = not info["pending"]
         remote = github.find(platform, fingerprint, [head] + candidates)
         info["verdict"], info["evidence"] = verdict.decide(info, head, candidates, remote)
-        info["remote"] = {key: remote[key] for key in ("reachable", "checked", "truncated")}
+        info["remote"] = {key: remote[key] for key in ("reachable", "checked", "truncated", "incomplete")}
     except (UsageError, EnvironmentRefused) as error:
         info["error"] = str(error)
     return info
@@ -138,6 +138,9 @@ def cmd_status(cfg, args):
         print("%s: %s; fp %s; %d in scope; %d green; %d pending; %d exhausted; %d publications"
             % (platform, info["verdict"], info["fingerprint"][:12], info["inScope"], len(info["green"]),
                 len(info["pending"]), len(info["exhausted"]), len(info["publications"])))
+        if info["remote"]["incomplete"]:
+            print("  GitHub did not answer for %d commit(s) after asking twice: %s; the evidence on them is neither present nor "
+                "absent, ask again with `status`" % (len(info["remote"]["incomplete"]), " ".join(c[:12] for c in info["remote"]["incomplete"])))
         if info["remote"]["truncated"]:
             print("  note: the history was cut short, so evidence on older commits was not looked for")
     return 0

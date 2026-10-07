@@ -45,7 +45,7 @@ def write_json(path, data):
 def info(verdict, **extra):
     base = {"platform": "ios", "fingerprint": FP, "verdict": verdict, "inScope": 4, "green": ["a", "b"],
         "pending": ["c", "d"], "failed": [], "exhausted": [], "evidence": None,
-        "remote": {"reachable": True, "checked": 1, "truncated": False}}
+        "remote": {"reachable": True, "checked": 1, "truncated": False, "incomplete": []}}
     base.update(extra)
     return base
 
@@ -236,6 +236,17 @@ class ReportTests(SessionFixtureMixin, unittest.TestCase):
         self.assertIn("GitHub could not be read", "\n".join(lines))
         lines, _ = inspector.report_platform("ios", info("rerun", remote={"reachable": True, "checked": 100, "truncated": True}), [], [], None)
         self.assertIn("only 100 candidate commits", "\n".join(lines))
+
+    def test_an_incomplete_verdict_is_a_failure_that_says_github_did_not_answer_and_does_not_ask_for_a_run(self):
+        remote = {"reachable": True, "checked": 3, "truncated": False, "incomplete": ["a" * 40, "b" * 40]}
+        lines, reasons = inspector.report_platform("ios", info("incomplete", remote=remote), [], [], None)
+        text = "\n".join(lines)
+        self.assertTrue(lines[0].startswith("[FAIL]"), lines)
+        self.assertIn("GitHub did not answer for 2 commit(s), even asked twice (aaaaaaaaaaaa, bbbbbbbbbbbb)", text)
+        self.assertIn("neither present nor absent", text)
+        self.assertIn("do not run e2eEvidenceIos", text)
+        self.assertNotIn("falls back to this machine's ledger", text)
+        self.assertEqual(reasons, [])
 
     def test_the_drift_warning_appears_only_past_either_limit(self):
         quiet, _ = inspector.report_platform("ios", info("partial"), [], [], (20, 150))

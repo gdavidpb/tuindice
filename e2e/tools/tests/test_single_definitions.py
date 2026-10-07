@@ -53,6 +53,14 @@ class SingleDefinitionTests(unittest.TestCase):
         ws.git("update-ref", "refs/remotes/origin/production", second)
         self.assertEqual(catalog.default_base_ref(cfg), second)
 
+    def test_the_harness_runs_git_through_one_helper(self):
+        # C-23: gitstate.run_git is the only place that spawns git (config.py needs it to find the root, before it exists).
+        harness = os.path.join(SHARED, "harness")
+        for name in sorted(os.listdir(harness)):
+            if name.endswith(".py") and name not in ("gitstate.py", "config.py"):
+                self.assertNotIn('["git"', read(harness, name), name)
+        self.assertNotIn("def _git", read(harness, "verdict.py"))
+
     def test_the_detector_does_not_define_the_suite_again(self):
         self.assertNotIn("local-certification-suite", read(ROOT, ".github", "scripts", "detect-changed-app.sh"))
 
