@@ -26,10 +26,9 @@ class CreateSyntheticTermUseCase(
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<String> {
 		val record = repository.getAcademicRecord()
 			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)
-		SyntheticTermCommandValidator.validate(
+		SyntheticTermCommandValidator(clock).validate(
 			record = record,
-			params = params,
-			clock = clock
+			params = params
 		)
 
 		val termId = params.period.termKey

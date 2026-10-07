@@ -24,7 +24,6 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
-import com.gdavidpb.tuindice.record.testing.fixedClock
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
@@ -74,32 +73,6 @@ class SyntheticTermCreationDataSourceTest {
 		assertEquals(20, snapshot.periodOptions.size)
 		assertEquals(currentPeriod, snapshot.periodOptions.first())
 		assertEquals(currentPeriod, snapshot.selectedPeriod)
-	}
-
-	// The options start at the term the clock says it is, so a frozen clock fixes them whatever the day is.
-	@Test
-	fun observeSnapshot_startsPeriodOptionsAtTheTermOfTheClockItIsGiven() = runTest {
-		suspend fun firstOption(iso: String) = dataSource(
-			record = AcademicRecord(id = "record"),
-			pensumPayloadJson = pensumPayload(nodes = emptyList(), edges = emptyList()),
-			searchEntities = emptyList(),
-			clock = fixedClock(iso)
-		).observeSnapshot(
-			queryFlow = MutableStateFlow(""),
-			selectedSubjectsFlow = MutableStateFlow(emptyList()),
-			selectedPeriodKeyFlow = MutableStateFlow(null),
-			editingTermIdFlow = MutableStateFlow(null),
-			editingTermKeyFlow = MutableStateFlow(null)
-		).first().periodOptions.first()
-
-		assertEquals(
-			SyntheticTermPeriodOption(periodYear = 2026, periodCode = AcademicTermPeriod.SEP_DEC),
-			firstOption("2026-10-15T12:00:00Z")
-		)
-		assertEquals(
-			SyntheticTermPeriodOption(periodYear = 2027, periodCode = AcademicTermPeriod.JAN_MAR),
-			firstOption("2027-01-10T12:00:00Z")
-		)
 	}
 
 	@Test
@@ -673,40 +646,41 @@ class SyntheticTermCreationDataSourceTest {
 	private fun dataSource(
 		record: AcademicRecord,
 		pensumPayloadJson: String,
-		searchEntities: List<SubjectCatalogCacheEntity>,
-		clock: Clock = Clock.System
+		searchEntities: List<SubjectCatalogCacheEntity>
 	): SyntheticTermCreationDataSource {
 		val cacheKey = "2016-regular"
 		return SyntheticTermCreationDataSource(
 			academicRecordRepository = FakeAcademicRecordRepository(record),
-			pensumCacheDao = FakePensumCacheDao(
-				cache = PensumCacheEntity(
-					cacheKey = cacheKey,
-					year = 2016,
-					modalityId = "regular",
-					payloadJson = pensumPayloadJson,
-					updatedAt = 1L
-				)
+			caches = SyntheticTermCreationCaches(
+				pensumCacheDao = FakePensumCacheDao(
+					cache = PensumCacheEntity(
+						cacheKey = cacheKey,
+						year = 2016,
+						modalityId = "regular",
+						payloadJson = pensumPayloadJson,
+						updatedAt = 1L
+					)
+				),
+				pensumSelectionDao = FakePensumSelectionDao(
+					selection = PensumSelectionEntity(
+						year = 2016,
+						modalityId = "regular",
+						cacheKey = cacheKey,
+						updatedAt = 1L
+					)
+				),
+				subjectCatalogCacheDao = FakeSubjectCatalogCacheDao(searchEntities)
 			),
-			pensumSelectionDao = FakePensumSelectionDao(
-				selection = PensumSelectionEntity(
-					year = 2016,
-					modalityId = "regular",
-					cacheKey = cacheKey,
-					updatedAt = 1L
-				)
-			),
-			subjectCatalogCacheDao = FakeSubjectCatalogCacheDao(searchEntities),
 			ktorClient = HttpClient(MockEngine { respondOk() }),
 			json = Json {
 				ignoreUnknownKeys = true
 			},
-			clock = clock
+			clock = Clock.System
 		)
 	}
 }
 
-private class FakeAcademicRecordRepository(
+internal class FakeAcademicRecordRepository(
 	private val record: AcademicRecord
 ) : AcademicRecordRepository {
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = flowOf(record)
@@ -734,7 +708,7 @@ private class FakeAcademicRecordRepository(
 	override suspend fun deleteSyntheticTerm(termId: String) = Unit
 }
 
-private class FakePensumCacheDao(
+internal class FakePensumCacheDao(
 	private val cache: PensumCacheEntity
 ) : PensumCacheDao() {
 	override fun observePensum(cacheKey: String): Flow<PensumCacheEntity?> {
@@ -759,7 +733,7 @@ private class FakePensumCacheDao(
 	override suspend fun deleteAll(): Int = 0
 }
 
-private class FakePensumSelectionDao(
+internal class FakePensumSelectionDao(
 	private val selection: PensumSelectionEntity
 ) : PensumSelectionDao() {
 	override fun observeSelection(id: String): Flow<PensumSelectionEntity?> = flowOf(selection)
@@ -773,7 +747,7 @@ private class FakePensumSelectionDao(
 	override suspend fun deleteAll(): Int = 0
 }
 
-private class FakeSubjectCatalogCacheDao(
+internal class FakeSubjectCatalogCacheDao(
 	private val entities: List<SubjectCatalogCacheEntity>
 ) : SubjectCatalogCacheDao() {
 	override fun observeSearch(
@@ -894,7 +868,7 @@ private fun subjectCatalogEntity(
 	)
 }
 
-private fun pensumPayload(
+internal fun pensumPayload(
 	nodes: List<String>,
 	edges: List<String>
 ): String {
@@ -910,7 +884,7 @@ private fun pensumPayload(
 	)
 }
 
-private fun pensumResponsePayload(
+internal fun pensumResponsePayload(
 	selectedPensumId: String,
 	pensums: List<String>
 ): String {
@@ -922,7 +896,7 @@ private fun pensumResponsePayload(
 	""".trimIndent()
 }
 
-private fun pensumPayloadPensum(
+internal fun pensumPayloadPensum(
 	id: String,
 	nodes: List<String>,
 	edges: List<String>
@@ -936,7 +910,7 @@ private fun pensumPayloadPensum(
 	""".trimIndent()
 }
 
-private fun pensumNode(
+internal fun pensumNode(
 	id: String,
 	subjectCode: String,
 	name: String
@@ -952,7 +926,7 @@ private fun pensumNode(
 	""".trimIndent()
 }
 
-private fun pensumEdge(
+internal fun pensumEdge(
 	fromNodeId: String,
 	toNodeId: String,
 	relationshipType: String

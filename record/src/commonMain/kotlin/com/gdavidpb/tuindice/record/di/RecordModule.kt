@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.record.data.source.AcademicRecordOutboxDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.ScheduleClockDataSource
+import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationCaches
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -130,6 +131,7 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
+	singleOf(::SyntheticTermCreationCaches)
 	singleOf(::SyntheticTermCreationDataSource) { bind<SyntheticTermCreationRepository>() }
 	singleOf(::SyntheticTermLoadPreviewDataSource) { bind<SyntheticTermLoadPreviewRepository>() }
 

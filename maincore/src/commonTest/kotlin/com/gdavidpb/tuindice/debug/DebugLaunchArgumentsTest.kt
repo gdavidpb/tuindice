@@ -88,7 +88,16 @@ class DebugLaunchArgumentsTest {
 
 	@Test
 	fun now_failsWhenItIsNotAnInstant() {
-		listOf("2026-10-15", "12:00", "yesterday", "2026-13-40T00:00:00Z", "2026-10-15T12:00:00", "1760529600000").forEach { value ->
+		val notInstants = listOf(
+			"2026-10-15",
+			"12:00",
+			"yesterday",
+			"2026-13-40T00:00:00Z",
+			"2026-10-15T12:00:00",
+			"1760529600000"
+		)
+
+		notInstants.forEach { value ->
 			val failure = assertFailsWith<IllegalArgumentException>(value) { parseNow(value) }
 
 			assertTrue(DebugLaunchArguments.NOW in failure.message.orEmpty(), failure.message)

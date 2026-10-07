@@ -21,8 +21,14 @@ private const val DASH_INDEX = 2
  *   in place (the dash is not a character of the value).
  */
 internal fun TextFieldValue.toMaskedUsbId(previous: TextFieldValue): TextFieldValue {
-	if (isDeleteForwardOverDash(previous)) return previous.withoutDigitAfterDash()
+	return if (isDeleteForwardOverDash(previous)) {
+		previous.withoutDigitAfterDash()
+	} else {
+		maskEdit(previous)
+	}
+}
 
+private fun TextFieldValue.maskEdit(previous: TextFieldValue): TextFieldValue {
 	val allDigits = text.filter(Char::isUsbIdDigit)
 	val previousDigitCount = previous.text.count(Char::isUsbIdDigit)
 	val isInsertionIntoFullField = previousDigitCount >= USB_ID_MAX_DIGITS &&

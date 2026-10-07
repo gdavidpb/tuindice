@@ -28,10 +28,9 @@ class UpdateSyntheticTermUseCase(
 		val targetTermKey = requireNotNull(params.editingTermKey)
 		val record = repository.getAcademicRecord()
 			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)
-		SyntheticTermCommandValidator.validate(
+		SyntheticTermCommandValidator(clock).validate(
 			record = record,
-			params = params,
-			clock = clock
+			params = params
 		)
 
 		val keepsTermIdentity = params.period.termKey == targetTermKey

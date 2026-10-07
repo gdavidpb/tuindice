@@ -23,7 +23,7 @@ import kotlin.time.ExperimentalTime
 
 class SyntheticTermCommandValidatorTest {
 	private fun validate(record: AcademicRecord, params: CreateSyntheticTermParams, clock: Clock = Clock.System) {
-		SyntheticTermCommandValidator.validate(record = record, params = params, clock = clock)
+		SyntheticTermCommandValidator(clock).validate(record = record, params = params)
 	}
 
 	@Test

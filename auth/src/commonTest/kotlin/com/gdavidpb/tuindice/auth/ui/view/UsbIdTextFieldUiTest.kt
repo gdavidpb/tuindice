@@ -353,18 +353,19 @@ class UsbIdTextFieldUiTest {
 		var viewModelWaiting = false
 
 		setTuIndiceTestContent {
-			UsbIdTextField(
-				labelText = "USB ID",
-				placeholderText = "12-34567",
-				usbId = echoedUsbId.value,
-				toggleContentDescription = "Iniciar con correo USB",
-				showTogglePulse = false,
-				isWaiting = isWaiting.value,
-				onIdentifierModeToggle = {},
-				onUsbIdChange = { value ->
-					if (!viewModelWaiting) echoedUsbId.value = value
-				}
-			)
+			CompositionLocalProvider(LocalFormWaiting provides isWaiting.value) {
+				UsbIdTextField(
+					labelText = "USB ID",
+					placeholderText = "12-34567",
+					usbId = echoedUsbId.value,
+					toggleContentDescription = "Iniciar con correo USB",
+					showTogglePulse = false,
+					onIdentifierModeToggle = {},
+					onUsbIdChange = { value ->
+						if (!viewModelWaiting) echoedUsbId.value = value
+					}
+				)
+			}
 		}
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("123")

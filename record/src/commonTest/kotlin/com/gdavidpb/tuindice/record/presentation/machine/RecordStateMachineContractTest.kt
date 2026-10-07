@@ -60,12 +60,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.koin.core.Koin
 import org.koin.dsl.module
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 // The machines need twelve use cases between them, so instead of hand-building that
 // graph the tests boot the real Koin module with stubbed repositories and resolve the

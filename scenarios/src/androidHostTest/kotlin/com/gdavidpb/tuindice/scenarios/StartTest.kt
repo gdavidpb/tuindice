@@ -122,7 +122,11 @@ class StartTest {
 
 	@Test
 	fun everyStartFreezesTheClockAtTheSameNamedInstant() {
-		val specs = listOf(Start.Clean(), Start.Clean(network = false), Start.Seeded(E2eAccounts.Canonical)).map { it.toLaunchSpec() }
+		val specs = listOf(
+			Start.Clean(),
+			Start.Clean(network = false),
+			Start.Seeded(E2eAccounts.Canonical)
+		).map { it.toLaunchSpec() }
 
 		specs.forEach { spec ->
 			assertEquals(E2eFixtures.Now, spec.arguments[DebugLaunchArguments.NOW])

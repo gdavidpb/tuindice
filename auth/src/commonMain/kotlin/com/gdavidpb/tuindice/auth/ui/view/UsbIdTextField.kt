@@ -30,7 +30,6 @@ import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
 private val identifierModeTogglePulseSize = 32.dp
 
-/** [isWaiting]: see [PasswordTextField]. */
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
@@ -40,12 +39,12 @@ fun UsbIdTextField(
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 	toggleContentDescription: String,
 	showTogglePulse: Boolean,
-	isWaiting: Boolean = false,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onIdentifierModeToggle: () -> Unit,
 	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
+	val isWaiting = LocalFormWaiting.current
 	val field = remember { EditableTextFieldState(usbId, identifierMode to isWaiting) }
 	val supportingText = remember { mutableStateOf(error) }
 	val shouldShowTogglePulse =

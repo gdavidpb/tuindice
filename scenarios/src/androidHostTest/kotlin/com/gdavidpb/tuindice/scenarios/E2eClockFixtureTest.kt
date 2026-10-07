@@ -20,14 +20,18 @@ import kotlin.test.assertTrue
 class E2eClockFixtureTest {
 	private val universityZone = ZoneId.of("America/Caracas")
 	private val now = Instant.parse(E2eFixtures.Now).atZone(universityZone)
-	private val recordTerms = (MockJson.obj(RepoFiles.file("mocks/__files/sync/post-sync-success.json"))["record"] as JsonObject)
+	private val recordTerms = MockJson.obj(RepoFiles.file(CANONICAL_SYNC))
+		.let { sync -> sync["record"] as JsonObject }
 		.let { revision -> (revision["record"] as JsonObject).array("terms") }
 		.map { it as JsonObject }
 
 	@Test
 	fun theFrozenInstantFallsInTheSeptemberDecemberTermOf2026() {
-		assertEquals(2026, now.year)
-		assertTrue(now.monthValue in 9..12, "'${E2eFixtures.Now}' is month ${now.monthValue} in ${universityZone.id}")
+		assertEquals(YEAR, now.year)
+		assertTrue(
+			now.monthValue in SEPTEMBER..DECEMBER,
+			"'${E2eFixtures.Now}' is month ${now.monthValue} in ${universityZone.id}"
+		)
 	}
 
 	@Test
@@ -49,5 +53,12 @@ class E2eClockFixtureTest {
 		val years = recordTerms.map { term -> term.string("period_year")!!.toInt() }
 
 		assertTrue(years.max() <= now.year, "a term of the record is after ${now.year}")
+	}
+
+	private companion object {
+		const val CANONICAL_SYNC = "mocks/__files/sync/post-sync-success.json"
+		const val YEAR = 2026
+		const val SEPTEMBER = 9
+		const val DECEMBER = 12
 	}
 }

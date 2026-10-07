@@ -9,27 +9,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.view.AnimatedPatternBackground
+import com.gdavidpb.tuindice.auth.ui.view.LocalFormWaiting
 import com.gdavidpb.tuindice.auth.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.auth.ui.view.SignInLoggingInView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.a11y_use_usb_email
+import tuindice.auth.generated.resources.a11y_use_usb_id
 import tuindice.auth.generated.resources.background
 import tuindice.auth.generated.resources.button_cancel_sign_in
 import tuindice.auth.generated.resources.button_sign_in
 import tuindice.auth.generated.resources.hint_password
 import tuindice.auth.generated.resources.hint_usb_email
 import tuindice.auth.generated.resources.hint_usb_id
-import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.label_policies
+import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.link_privacy_policy
 import tuindice.auth.generated.resources.link_terms_and_conditions
 import tuindice.auth.generated.resources.placeholder_usb_email
 import tuindice.auth.generated.resources.placeholder_usb_id
-import tuindice.auth.generated.resources.a11y_use_usb_email
-import tuindice.auth.generated.resources.a11y_use_usb_id
 
 @Composable
 fun SignInScreen(
@@ -64,30 +66,31 @@ fun SignInScreen(
 		) { targetState ->
 			when (targetState) {
 				is SignIn.State.Idle ->
-					SignInIdleView(
-						state = targetState,
-						onUsbIdChange = onUsbIdChange,
-						onPasswordChange = onPasswordChange,
-						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
-						onIdentifierModeToggle = onIdentifierModeToggle,
-						onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange,
-						onSignInClick = onSignInClick,
-						onTermsAndConditionsClick = onTermsAndConditionsClick,
-						onPrivacyPolicyClick = onPrivacyPolicyClick,
-						termsAndConditionsText = stringResource(Res.string.link_terms_and_conditions),
-						privacyPolicyText = stringResource(Res.string.link_privacy_policy),
-						policiesText = stringResource(Res.string.label_policies),
-						usbIdLabelText = stringResource(Res.string.hint_usb_id),
-						usbEmailLabelText = stringResource(Res.string.hint_usb_email),
-						usbIdPlaceholderText = stringResource(Res.string.placeholder_usb_id),
-						usbEmailPlaceholderText = stringResource(Res.string.placeholder_usb_email),
-						useUsbEmailContentDescription = stringResource(Res.string.a11y_use_usb_email),
-						useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
-						passwordLabelText = stringResource(Res.string.hint_password),
-						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
-						signInButtonText = stringResource(Res.string.button_sign_in),
-						isWaiting = state is SignIn.State.LoggingIn
-					)
+					CompositionLocalProvider(LocalFormWaiting provides (state is SignIn.State.LoggingIn)) {
+						SignInIdleView(
+							state = targetState,
+							onUsbIdChange = onUsbIdChange,
+							onPasswordChange = onPasswordChange,
+							onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+							onIdentifierModeToggle = onIdentifierModeToggle,
+							onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange,
+							onSignInClick = onSignInClick,
+							onTermsAndConditionsClick = onTermsAndConditionsClick,
+							onPrivacyPolicyClick = onPrivacyPolicyClick,
+							termsAndConditionsText = stringResource(Res.string.link_terms_and_conditions),
+							privacyPolicyText = stringResource(Res.string.link_privacy_policy),
+							policiesText = stringResource(Res.string.label_policies),
+							usbIdLabelText = stringResource(Res.string.hint_usb_id),
+							usbEmailLabelText = stringResource(Res.string.hint_usb_email),
+							usbIdPlaceholderText = stringResource(Res.string.placeholder_usb_id),
+							usbEmailPlaceholderText = stringResource(Res.string.placeholder_usb_email),
+							useUsbEmailContentDescription = stringResource(Res.string.a11y_use_usb_email),
+							useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
+							passwordLabelText = stringResource(Res.string.hint_password),
+							usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
+							signInButtonText = stringResource(Res.string.button_sign_in)
+						)
+					}
 
 				is SignIn.State.LoggingIn ->
 					SignInLoggingInView(

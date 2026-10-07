@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -218,16 +219,17 @@ class PasswordTextFieldUiTest {
 		var viewModelWaiting = false
 
 		setTuIndiceTestContent {
-			PasswordTextField(
-				labelText = "Clave",
-				password = echoedPassword.value,
-				isPasswordVisible = true,
-				isWaiting = isWaiting.value,
-				onPasswordChange = { value ->
-					if (!viewModelWaiting) echoedPassword.value = value
-				},
-				onPasswordVisibilityToggle = {}
-			)
+			CompositionLocalProvider(LocalFormWaiting provides isWaiting.value) {
+				PasswordTextField(
+					labelText = "Clave",
+					password = echoedPassword.value,
+					isPasswordVisible = true,
+					onPasswordChange = { value ->
+						if (!viewModelWaiting) echoedPassword.value = value
+					},
+					onPasswordVisibilityToggle = {}
+				)
+			}
 		}
 
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("a")
@@ -259,14 +261,15 @@ class PasswordTextFieldUiTest {
 		val isWaiting = mutableStateOf(false)
 
 		setTuIndiceTestContent {
-			PasswordTextField(
-				labelText = "Clave",
-				password = echoedPassword.value,
-				isPasswordVisible = true,
-				isWaiting = isWaiting.value,
-				onPasswordChange = { value -> echoedPassword.value = value },
-				onPasswordVisibilityToggle = {}
-			)
+			CompositionLocalProvider(LocalFormWaiting provides isWaiting.value) {
+				PasswordTextField(
+					labelText = "Clave",
+					password = echoedPassword.value,
+					isPasswordVisible = true,
+					onPasswordChange = { value -> echoedPassword.value = value },
+					onPasswordVisibilityToggle = {}
+				)
+			}
 		}
 
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("abc")

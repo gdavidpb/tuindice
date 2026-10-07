@@ -20,15 +20,11 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermPensumCacheResponse
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermSubjectSearchResponse
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
-import com.gdavidpb.tuindice.record.domain.model.currentAcademicTermOrder
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail
@@ -48,15 +44,15 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class SyntheticTermCreationDataSource(
 	private val academicRecordRepository: AcademicRecordRepository,
-	private val pensumCacheDao: PensumCacheDao,
-	private val pensumSelectionDao: PensumSelectionDao,
-	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
+	private val caches: SyntheticTermCreationCaches,
 	private val ktorClient: HttpClient,
 	private val json: Json,
 	private val clock: Clock
@@ -180,7 +176,7 @@ class SyntheticTermCreationDataSource(
 			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
 
 		if (entities.isNotEmpty()) {
-			subjectCatalogCacheDao.upsertEntities(entities)
+			caches.subjectCatalogCacheDao.upsertEntities(entities)
 		}
 	}
 
@@ -192,13 +188,13 @@ class SyntheticTermCreationDataSource(
 
 	@OptIn(ExperimentalCoroutinesApi::class)
 	private fun observePensum(): Flow<CreateSyntheticTermPensumCacheResponse?> {
-		return pensumSelectionDao.observeSelection()
+		return caches.pensumSelectionDao.observeSelection()
 			.flatMapLatest { selection ->
 				val cacheKey = selection?.cacheKey
 				if (cacheKey == null) {
 					flowOf(null)
 				} else {
-					pensumCacheDao.observePensum(cacheKey)
+					caches.pensumCacheDao.observePensum(cacheKey)
 						.map { cache ->
 							cache?.payloadJson?.let { payload ->
 								runCatching {
@@ -221,7 +217,7 @@ class SyntheticTermCreationDataSource(
 				if (normalizedQuery.length < MinimumSearchQueryLength) {
 					flowOf(emptyList())
 				} else {
-					subjectCatalogCacheDao.observeSearch(
+					caches.subjectCatalogCacheDao.observeSearch(
 						normalizedQuery = normalizedQuery,
 						limit = SearchLimit
 					).map { entities ->
@@ -241,7 +237,7 @@ class SyntheticTermCreationDataSource(
 			terms.filterNot { term -> term.id == editingTerm.id }
 		}
 		val maxExistingOrder = baselineTerms.maxOfOrNull(AcademicTerm::termOrder)
-		val currentOrder = clock.currentAcademicTermOrder()
+		val currentOrder = currentAcademicTermOrder()
 		val options = mutableListOf<SyntheticTermPeriodOption>()
 		var year = currentOrder / 10
 		var sequence = currentOrder % 10
@@ -276,6 +272,20 @@ class SyntheticTermCreationDataSource(
 
 		return (listOfNotNull(editingOption) + options)
 			.distinctBy(SyntheticTermPeriodOption::termKey)
+	}
+
+	private fun currentAcademicTermOrder(): Int {
+		val dateTime = clock.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
+		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
+	}
+
+	private fun periodForMonth(month: Int): AcademicTermPeriod {
+		return when (month) {
+			in 1..3 -> AcademicTermPeriod.JAN_MAR
+			in 4..6 -> AcademicTermPeriod.APR_JUL
+			in 7..8 -> AcademicTermPeriod.JUL_AUG
+			else -> AcademicTermPeriod.SEP_DEC
+		}
 	}
 
 	private fun AcademicRecord.editorAvailabilityBySubjectCode(
@@ -688,4 +698,5 @@ private const val FuturePeriodCount = 20
 private const val SuggestedSubjectLimit = 8
 private const val NodeTypeCourse = "COURSE"
 private const val RULE_TYPE_EQUIVALENCE = "EQUIVALENCE"
+private const val AcademicCalendarTimeZoneId = "America/Caracas"
 private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

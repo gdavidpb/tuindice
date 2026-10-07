@@ -27,12 +27,6 @@ import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.a11y_hide_password
 import tuindice.auth.generated.resources.a11y_show_password
 
-/**
- * [isWaiting] is true while the owner of the state does not take edits (the view model is signing in
- * or updating and drops them). A key typed just before the wait reaches the screen, or while the
- * field is still enabled, is shown but dropped, so entering and leaving the wait readopts the
- * state's text; it changes nothing when no key was dropped.
- */
 @Composable
 fun PasswordTextField(
 	modifier: Modifier = Modifier,
@@ -40,13 +34,13 @@ fun PasswordTextField(
 	password: String,
 	isPasswordVisible: Boolean = false,
 	enabled: Boolean = true,
-	isWaiting: Boolean = false,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit = {},
 	error: String? = null,
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
+	val isWaiting = LocalFormWaiting.current
 	val field = remember { EditableTextFieldState(password, isWaiting) }
 	val supportingText = remember { mutableStateOf(error) }
 
