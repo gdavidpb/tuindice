@@ -275,6 +275,8 @@ private val authLoginPasswordToggle = scenario("auth-login-password-toggle", "au
 	enterSecureText(AuthUiTags.PasswordTextField, E2eAccounts.Canonical.password)
 	tap(AuthUiTags.KeyboardDismissArea)
 	tap(AuthUiTags.PasswordToggle)
+	// Visible, the field shows what was typed; a character the keyboard added or dropped shows here.
+	waitVisible(text(E2eAccounts.Canonical.password), Within.Assert)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
 	tap(AuthUiTags.PasswordToggle)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
