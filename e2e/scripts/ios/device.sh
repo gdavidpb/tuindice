@@ -4,7 +4,7 @@
 # Verbs (JSON on stdout, diagnostics on stderr, exit 3 when the environment is not right):
 #   toolchain  what the lock pins, read from Xcode and simctl (no simulator is created or booted)
 #   ensure     create the simulator from the lock if absent, boot it erased if it is shut down, reuse it if booted,
-#              apply the keyboard, language and hardware-keyboard settings and read them back
+#              apply the keyboard, language, active-keyboard-list and hardware-keyboard settings and read them back
 #   serial     the UDID of the simulator
 #   health     the simulator is booted
 #   recover    shut down, boot and apply the settings again
@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 source "${SCRIPT_DIR}/../shared/lib.sh"
 
 LOCK_FILE="${E2E_FAKE_LOCK_FILE:-${REPO_ROOT}/e2e/toolchain/ios.lock}"
-LOCK_KEYS=(XCODE_VERSION XCODE_BUILD IOS_RUNTIME_ID IOS_RUNTIME_BUILD IOS_DEVICE_TYPE_ID IOS_SIMULATOR_NAME IOS_LANGUAGE IOS_LOCALE)
+LOCK_KEYS=(XCODE_VERSION XCODE_BUILD IOS_RUNTIME_ID IOS_RUNTIME_BUILD IOS_DEVICE_TYPE_ID IOS_SIMULATOR_NAME IOS_LANGUAGE IOS_LOCALE IOS_KEYBOARDS)
 DATA_LIMIT_GB="${E2E_FAKE_IOS_DATA_LIMIT_GB:-10}" # above this the simulator is erased: testmanagerd diagnostics grow unbounded
 DEVICES_DIR="${E2E_FAKE_SIM_DEVICES_DIR:-${HOME}/Library/Developer/CoreSimulator/Devices}"
 HOST_DOMAIN="${E2E_FAKE_HOST_DOMAIN:-com.apple.iphonesimulator}" # the Simulator app's own preferences
@@ -49,7 +49,7 @@ pref_set() { # domain key type value...
 pref_get() { # domain key
 	local out
 	if out="$(xcrun simctl spawn "${UDID}" defaults read "$1" "$2" 2> /dev/null)"; then
-		printf '%s' "${out}" | tr -d ' \n()'
+		printf '%s' "${out}" | tr -d ' \n()"'
 	fi
 }
 
@@ -79,6 +79,8 @@ apply_settings() {
 	check_pref -g AppleLanguages "${IOS_LANGUAGE}" || return 1
 	pref_set -g AppleLocale -string "${IOS_LOCALE}" || return 1
 	check_pref -g AppleLocale "${IOS_LOCALE}" || return 1
+	pref_set -g AppleKeyboards -array "${IOS_KEYBOARDS}" || return 1
+	check_pref -g AppleKeyboards "${IOS_KEYBOARDS}" || return 1
 	defaults write "${HOST_DOMAIN}" DevicePreferences -dict-add "${UDID}" '<dict><key>ConnectHardwareKeyboard</key><false/></dict>' || return 1
 	hardware="$(defaults export "${HOST_DOMAIN}" - | plutil -extract "DevicePreferences.${UDID}.ConnectHardwareKeyboard" raw -o - -)" || return 1
 	[[ "${hardware}" == "false" ]] || { printf "ConnectHardwareKeyboard reads back '%s' for %s, expected false\n" "${hardware}" "${UDID}" >&2; return 1; }
@@ -124,7 +126,7 @@ cmd_toolchain() {
 	fi
 	emit_json "XCODE_VERSION=s:${version}" "XCODE_BUILD=s:${build}" "IOS_RUNTIME_ID=s:${runtime_id}" \
 		"IOS_RUNTIME_BUILD=s:${runtime_build}" "IOS_DEVICE_TYPE_ID=s:${type_id}" "IOS_SIMULATOR_NAME=${name}" \
-		"IOS_LANGUAGE=j:null" "IOS_LOCALE=j:null" "macOS=s:$(sw_vers -productVersion)"
+		"IOS_LANGUAGE=j:null" "IOS_LOCALE=j:null" "IOS_KEYBOARDS=j:null" "macOS=s:$(sw_vers -productVersion)"
 }
 
 cmd_ensure() {

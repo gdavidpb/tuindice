@@ -255,6 +255,23 @@ class IosDeviceTests(unittest.TestCase):
         self.assertEqual(done.json["settings"]["-g.AppleLanguages"], "es")
         self.assertEqual(done.json["settings"]["ConnectHardwareKeyboard"], "false")
 
+    def test_the_active_keyboards_are_pinned_from_the_lock_and_read_back(self):
+        box, done = self.ensure()
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(box.lock["IOS_KEYBOARDS"], "es_ES@sw=QWERTY;hw=Automatic", "the layout that goes with IOS_LANGUAGE=es")
+        self.assertEqual(done.json["settings"]["-g.AppleKeyboards"], box.lock["IOS_KEYBOARDS"])
+        self.assertTrue(any(c.startswith("simctl spawn FAKE-0000-0000-0000-000000000001 defaults write -g AppleKeyboards -array")
+            for c in box.calls(box.xcrun)))
+
+    def test_active_keyboards_that_do_not_read_back_exit_3(self):
+        box = Sandbox(self, "ios")
+        box.write("ignore", "-g AppleKeyboards\n", box.xcrun)
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("-g AppleKeyboards reads back ''", done.stderr)
+        self.assertIn("es_ES@sw=QWERTY;hw=Automatic", done.stderr)
+
     def test_a_shutdown_simulator_is_erased_and_booted_but_a_booted_one_is_reused(self):
         box, done = self.ensure("Shutdown")
         self.assertEqual(done.returncode, 0, done.stderr)

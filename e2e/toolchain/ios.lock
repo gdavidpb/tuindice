@@ -8,3 +8,5 @@ IOS_DEVICE_TYPE_ID=com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro
 IOS_SIMULATOR_NAME=TuIndice-E2E
 IOS_LANGUAGE=es
 IOS_LOCALE=es
+# The active keyboard list of the simulator (AppleKeyboards): the one layout that goes with IOS_LANGUAGE, no emoji or globe key.
+IOS_KEYBOARDS=es_ES@sw=QWERTY;hw=Automatic
