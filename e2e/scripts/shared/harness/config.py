@@ -7,7 +7,6 @@ import subprocess
 from pathlib import Path
 
 PLATFORMS = ("android", "ios")
-SUITE_ID = "local-certification-suite"
 EXIT_HARNESS_ERROR = 70  # a defect of the harness itself, not a verdict about the scenarios
 
 # The only env-check ids that can refuse a run, hence the only ones E2E_ENV_OVERRIDE accepts.
@@ -64,6 +63,31 @@ def parse_layout(path):
         key, _, value = line.partition("=")
         values[key.strip()] = value.strip()
     return values
+
+
+LAYOUT = Path(__file__).resolve().parent.parent / "layout.env"
+
+
+def shared_function(root, function, *args):
+    """(exit code, lines) of a function of the shared shell library (.github/scripts/common.sh), the one the status
+    context, the base ref, the trusted creators and the suite id live in: each has one definition, there."""
+    source = Path(root) / parse_layout(LAYOUT)["E2E_STATUS_CONTEXT_SOURCE"]
+    if not source.exists():
+        raise UsageError("%s does not exist" % source)
+    result = subprocess.run(["bash", "-c", 'source "$1"; shift; "$@"', "_", str(source), function] + [str(a) for a in args],
+        cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
+    return result.returncode, result.stdout.split("\n") if result.stdout else []
+
+
+def _suite_id():
+    """E2E_SUITE_ID of the shared library: the harness has no literal of its own."""
+    code, lines = shared_function(Path(__file__).resolve().parents[4], "eval", 'printf "%s" "$E2E_SUITE_ID"')
+    if code != 0 or not lines or not lines[0]:
+        raise UsageError("E2E_SUITE_ID is not defined in the shared shell library")
+    return lines[0]
+
+
+SUITE_ID = _suite_id()
 
 
 def find_repo_root(start=None):

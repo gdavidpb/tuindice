@@ -5,7 +5,7 @@ import hashlib
 import json
 import re
 
-from .config import PLATFORMS, UsageError
+from .config import PLATFORMS, UsageError, shared_function
 from .gitstate import run_git
 
 SCHEMA = "tuindice-e2e-catalog/1"
@@ -115,8 +115,9 @@ def changed_ids(config, catalog, ref):
 
 
 def default_base_ref(config):
-    for ref in ("origin/production", "production"):
-        code, base = run_git(config.root, "merge-base", "HEAD", ref)
-        if code == 0 and base:
-            return base
-    return None
+    """The merge base of HEAD with the base ref the shared library defines (e2e_base_ref: origin/production, else production)."""
+    code, refs = shared_function(config.root, "e2e_base_ref", config.root)
+    if code != 0 or not refs or not refs[0]:
+        return None
+    code, base = run_git(config.root, "merge-base", "HEAD", refs[0])
+    return base if code == 0 and base else None

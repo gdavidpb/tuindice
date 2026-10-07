@@ -11,12 +11,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import publish
-from .config import UsageError, parse_layout
+from .config import UsageError, shared_function
 
 VERDICTS = ("current", "reusable", "unpublished", "partial", "rerun", "exhausted")
 MAX_REMOTE_LOOKUPS = 100  # commits asked about; preflight's own fallback window is 50
 FALLBACK_WINDOW = 50
-LAYOUT = Path(__file__).resolve().parent.parent / "layout.env"
 
 
 def _git(root, *args):
@@ -25,21 +24,10 @@ def _git(root, *args):
     return result.returncode, result.stdout.split()
 
 
-def _shared(root, function, *args):
-    """(exit code, lines) of a function of the shared shell library, the one e2e_status_context lives in: the base
-    ref and the trusted creators have one definition there, for the preflight and for this verdict."""
-    source = Path(root) / parse_layout(LAYOUT)["E2E_STATUS_CONTEXT_SOURCE"]
-    if not source.exists():
-        raise UsageError("%s does not exist" % source)
-    result = subprocess.run(["bash", "-c", 'source "$1"; shift; "$@"', "_", str(source), function] + [str(a) for a in args],
-        cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
-    return result.returncode, result.stdout.split("\n") if result.stdout else []
-
-
 def reuse_candidates(root, head):
     """Commits preflight looks at for reusable evidence, newest first, HEAD excluded: `rev-list HEAD ^base` plus
     the base itself (preflight-production.sh includes it). Without a production ref: the last 50 commits."""
-    code, refs = _shared(root, "e2e_base_ref", root)
+    code, refs = shared_function(root, "e2e_base_ref", root)
     base = _git(root, "merge-base", refs[0], head) if code == 0 and refs and refs[0] else (1, [])
     if base[0] == 0 and base[1]:
         _, between = _git(root, "rev-list", head, "^" + base[1][0])
@@ -73,7 +61,7 @@ class Remote:
     def trusted(self):
         """Logins whose success status counts: e2e_trusted_status_creators of the shared library, which reads
         E2E_TRUSTED_STATUS_CREATORS exactly as the preflight does (default: the owner and the Actions bot)."""
-        code, lines = _shared(self.cfg.root, "e2e_trusted_status_creators", self.owner)
+        code, lines = shared_function(self.cfg.root, "e2e_trusted_status_creators", self.owner)
         logins = {line.strip() for line in lines if line.strip()}
         if code != 0 or not logins:
             raise UsageError("e2e_trusted_status_creators is not defined in the shared shell library")

@@ -5,9 +5,10 @@ import re
 import subprocess
 import unittest
 
-from support import SHARED
+from support import SHARED, Workspace, scenario
 
-from harness.config import SUITE_ID, parse_layout
+from harness import catalog
+from harness.config import SUITE_ID, Config, parse_layout
 
 ROOT = os.path.realpath(os.path.join(SHARED, "..", "..", ".."))
 COMMON = os.path.join(ROOT, ".github", "scripts", "common.sh")
@@ -19,6 +20,11 @@ def read(*parts):
         return handle.read()
 
 
+def head(ws):
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=ws.repo, stdout=subprocess.PIPE, universal_newlines=True,
+        check=True).stdout.strip()
+
+
 class SingleDefinitionTests(unittest.TestCase):
     def test_the_harness_suite_id_is_the_one_of_the_status_context(self):
         # D-13: common.sh defines the suite and the context; the harness' constant must not diverge from it, or the
@@ -26,6 +32,26 @@ class SingleDefinitionTests(unittest.TestCase):
         done = subprocess.run(["bash", "-c", 'source "$1"; e2e_status_context ios', "_", COMMON],
             stdout=subprocess.PIPE, universal_newlines=True, check=True)
         self.assertEqual(done.stdout.strip(), "local-e2e/ios/%s" % SUITE_ID)
+
+    def test_the_harness_does_not_write_the_suite_id_itself(self):
+        # The suite id is read from common.sh when the harness loads: no literal of it anywhere under harness/.
+        harness = os.path.join(SHARED, "harness")
+        for name in sorted(os.listdir(harness)):
+            if name.endswith(".py"):
+                self.assertNotIn("local-certification-suite", read(harness, name), name)
+
+    def test_the_default_base_ref_is_the_one_of_the_shared_library(self):
+        # The catalog's --changed-since default asks e2e_base_ref, as the verdict does: origin/production first.
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, {})
+        self.assertIsNone(catalog.default_base_ref(cfg))
+        first = head(ws)
+        ws.git("branch", "production")
+        subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "second"], cwd=ws.repo, check=True)
+        second = head(ws)
+        self.assertEqual(catalog.default_base_ref(cfg), first)
+        ws.git("update-ref", "refs/remotes/origin/production", second)
+        self.assertEqual(catalog.default_base_ref(cfg), second)
 
     def test_the_detector_does_not_define_the_suite_again(self):
         self.assertNotIn("local-certification-suite", read(ROOT, ".github", "scripts", "detect-changed-app.sh"))
