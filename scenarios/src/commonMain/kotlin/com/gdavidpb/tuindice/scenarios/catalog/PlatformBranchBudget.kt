@@ -10,10 +10,8 @@ class PlatformBranchBudget private constructor() {
 	companion object {
 		val perScenario: Map<String, Int> = mapOf(
 			"about-platform-edge-triggers" to 1,
-			"auth-login-outdated-app" to 1,
 			"auth-terms-privacy-from-login" to 4,
-			"auth-update-password-failure" to 2,
-			"auth-update-password" to 3,
+			"auth-update-password" to 1,
 			"maincore-back-stack" to 1,
 			"maincore-browser-external-dialog" to 2,
 			"maincore-tab-stack-preservation" to 1,
