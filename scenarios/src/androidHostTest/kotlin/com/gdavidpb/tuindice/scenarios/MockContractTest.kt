@@ -127,6 +127,90 @@ class MockContractTest {
 		)
 	}
 
+	@Test
+	fun theRecordRetryFailsTheReadOnceWhicheverComesFirstTheSyncOrTheRead() {
+		ordersOf(reads = 2).forEach { order ->
+			val replies = play(order, replay(RECORD_RETRY_SCENARIO), ::recordRetryRequest)
+
+			assertEquals(listOf(UNAVAILABLE, OK), replies.reads, "reads in order $order: ${replies.all}")
+			assertTrue(replies.syncs.all { it == UNAVAILABLE }, "a sync in order $order was not answered 503: ${replies.all}")
+		}
+	}
+
+	@Test
+	fun theSummaryRetryFailsTheUserReadAsManyTimesAsEachPlatformNeedsInEveryOrder() {
+		mapOf("iOS" to listOf(UNAVAILABLE, OK), "Android" to listOf(UNAVAILABLE, UNAVAILABLE, OK)).forEach { (platform, expected) ->
+			ordersOf(reads = expected.size).forEach { order ->
+				val replies = play(order, replay(SUMMARY_RETRY_SCENARIO)) { replay, event ->
+					summaryRetryRequest(replay, event, platform)
+				}
+
+				assertEquals(expected, replies.reads, "$platform reads in order $order: ${replies.all}")
+				assertTrue(replies.syncs.all { it == UNAVAILABLE }, "$platform sync in order $order was not 503: ${replies.all}")
+			}
+		}
+	}
+
+	@Test
+	fun withoutTheStubThatFailsTheReadFromTheStartTheReadFirstOrderGetsContent() {
+		val broken = play("GSG", replay(RECORD_RETRY_SCENARIO, without = "get-record-refresh-retry-unavailable-once-from-start.json"), ::recordRetryRequest)
+
+		assertEquals(OK, broken.reads.first(), "the replay should see the first read answered with content: ${broken.all}")
+	}
+
+	@Test
+	fun aStateWithoutASyncStubIsAnswered404SoTheReplayWouldCatchIt() {
+		val broken = play("SSGG", replay(RECORD_RETRY_SCENARIO, without = "post-sync-record-refresh-retry-unavailable-while-unavailable.json"), ::recordRetryRequest)
+
+		assertTrue(NOT_FOUND in broken.syncs, "the replay should see an unanswered sync: ${broken.all}")
+	}
+
+	/** The mappings of one WireMock scenario plus the ones with no scenario, as the server holds them. */
+	private fun replay(scenario: String, without: String? = null): MockReplay =
+		MockReplay(
+			mappingFiles.filter { it.name != without }.map { it.name to MockJson.obj(it) }
+				.filter { (_, mapping) -> mapping.string("scenarioName").let { it == null || it == scenario } }
+		)
+
+	/** Every placement of one sync among [reads] reads (before, between, after), and two syncs together. */
+	private fun ordersOf(reads: Int): List<String> {
+		val reading = "G".repeat(reads)
+		val single = (0..reads).map { reading.substring(0, it) + "S" + reading.substring(it) }
+
+		return single + listOf("SS$reading", reading.take(1) + "SS" + reading.drop(1))
+	}
+
+	private fun play(order: String, replay: MockReplay, request: (MockReplay, Char) -> MockReplay.Reply): Replies =
+		Replies(order.map { event -> event to request(replay, event) })
+
+	private fun recordRetryRequest(replay: MockReplay, event: Char): MockReplay.Reply {
+		val bearer = mapOf("Authorization" to "Bearer record.refresh.retry.mock.access")
+
+		return if (event == 'S') {
+			replay.send("POST", "/record/v5/sync", bearer, password = "record-retry-pass")
+		} else {
+			replay.send("GET", "/record/v5", bearer)
+		}
+	}
+
+	private fun summaryRetryRequest(replay: MockReplay, event: Char, platform: String): MockReplay.Reply {
+		val headers = mapOf(
+			"Authorization" to "Bearer summary.refresh.retry.mock.access",
+			"User-Agent" to "TuIndice/6.4.0 ($platform)"
+		)
+
+		return if (event == 'S') {
+			replay.send("POST", "/record/v5/sync", headers, password = "summary-retry-pass")
+		} else {
+			replay.send("GET", "/users/v1", headers)
+		}
+	}
+
+	private class Replies(val all: List<Pair<Char, MockReplay.Reply>>) {
+		val reads: List<Int> get() = all.filter { it.first == 'G' }.map { it.second.status }
+		val syncs: List<Int> get() = all.filter { it.first == 'S' }.map { it.second.status }
+	}
+
 	/** `isResetRequest` matches `pathSegments == listOf("a", "b", "reset")`; that is the path it serves. */
 	private fun resetPathOf(transformer: File): String? {
 		val body = Regex("""fun isResetRequest[\s\S]*?\n\s*\n""").find(transformer.readText())?.value
@@ -140,6 +224,11 @@ class MockContractTest {
 	private companion object {
 		const val MINIMUM_MAPPINGS = 100
 		const val SEMANTIC_DELAY_MS = 5000.0
+		const val RECORD_RETRY_SCENARIO = "record-refresh-retry"
+		const val SUMMARY_RETRY_SCENARIO = "summary-refresh-retry"
+		const val OK = 200
+		const val UNAVAILABLE = 503
+		const val NOT_FOUND = 404
 		const val UNAVAILABLE_BODY = "\"bodyFileName\": \"sync/post-sync-record-unavailable.json\""
 
 		private const val SYNC_RETRY = "sync/post-sync-summary-refresh-retry-unavailable"
@@ -191,7 +280,15 @@ class MockContractTest {
 			"$RECORD_RETRY-success.json" to "\"Authorization\"",
 			"$RECORD_RETRY-unavailable-once.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
 			"$RECORD_RETRY-unavailable-once.json" to "\"newScenarioState\": \"FirstFailure\"",
-			"$RECORD_RETRY-success.json" to "\"requiredScenarioState\": \"FirstFailure\""
+			"$RECORD_RETRY-success.json" to "\"requiredScenarioState\": \"FirstFailure\"",
+			// Order independence of the record retry: a seeded session reads the record before the sync can
+			// answer, so the first failure also starts from the initial state, and every state answers the sync.
+			"$RECORD_RETRY-unavailable-once-from-start.json" to "\"equalTo\": \"Bearer record.refresh.retry.mock.access\"",
+			"$RECORD_RETRY-unavailable-once-from-start.json" to "\"requiredScenarioState\": \"Started\"",
+			"$RECORD_RETRY-unavailable-once-from-start.json" to "\"newScenarioState\": \"FirstFailure\"",
+			"sync/post-sync-record-refresh-retry-unavailable-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
+			"sync/post-sync-record-refresh-retry-unavailable-after-failure.json" to "\"requiredScenarioState\": \"FirstFailure\"",
+			"$SYNC_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\""
 		)
 
 		val staleMappings: List<String> = listOf(
