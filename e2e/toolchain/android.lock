@@ -6,7 +6,7 @@ ANDROID_SYSTEM_IMAGE_REVISION=9
 ANDROID_API_LEVEL=37
 ANDROID_DEVICE_PROFILE=pixel_10_pro_xl
 ANDROID_LOCALE=es
-# Provisional emulator shape; confirm with a measurement before F16 closes.
-ANDROID_EMULATOR_MEMORY_MB=8192
-ANDROID_EMULATOR_CORES=6
+# Emulator shape, chosen by the owner: passed as boot flags and read back from inside the device by `ensure`.
+ANDROID_EMULATOR_MEMORY_MB=16384
+ANDROID_EMULATOR_CORES=8
 ANDROID_EMULATOR_HEADLESS=1

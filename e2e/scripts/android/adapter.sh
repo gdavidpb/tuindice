@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# Android adapter of the E2E harness (plan section 4.5). JSON on stdout, logs on stderr.
+#
+#   toolchain | ensure-device | health | recover | stop-device    delegated to device.sh
+#   build <port>                          build.sh; remembers the APKs for the verbs below
+#   install                               installs the app and the scenario runner
+#   enumerate                             the runner's tests, without running them
+#   reset-app                             pm clear of the app and the runner's output directory (never pm clear of the runner)
+#   run-scenario <id> <attemptDir> <port> exactly one instrumentation run; the verdict comes from result.json, not from adb
+#   crash-probe <sinceEpoch> <attemptDir> crash or ANR evidence in the device log
+#   collect-failure <attemptDir> <sinceEpoch>
+# Every adb call carries the serial of the pinned emulator.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+source "${SCRIPT_DIR}/../shared/lib.sh"
+source "${SCRIPT_DIR}/../shared/layout.env"
+
+DEVICE="${SCRIPT_DIR}/device.sh"
+TOOLS="${SCRIPT_DIR}/../shared/adapter_tools.py"
+WORK="${E2E_TMP_ROOT:-${TMPDIR:-/tmp}/tuindice-e2e}/android"
+BUILD_STATE="${WORK}/build.json"
+SUITE_CLASS="${E2E_ANDROID_TEST_PACKAGE}.ScenarioSuiteTest"
+TEST_OUTPUT_DIR="files/e2e"
+
+fail() {
+	printf '%s\n' "$*" >&2
+	exit 3
+}
+
+# Sets SERIAL, APP_ID, TEST_ID and the APK paths; the first needs the pinned emulator, the others need a build.
+resolve_device() {
+	SERIAL="$(bash "${DEVICE}" serial)"
+}
+
+read_build() {
+	[[ -f "${BUILD_STATE}" ]] || fail "No build is recorded in ${BUILD_STATE}; run the build verb first"
+	eval "$(python3 -c '
+import json, shlex, sys
+state = json.load(open(sys.argv[1]))
+for key, name in (("app", "APP_APK"), ("appId", "APP_ID"), ("test", "TEST_APK"), ("testId", "TEST_ID")):
+    print("%s=%s" % (name, shlex.quote(state[key])))' "${BUILD_STATE}")"
+}
+
+adb_s() {
+	adb -s "${SERIAL}" "$@"
+}
+
+wiremock_url() { # the WireMock URL as the emulator reaches it
+	if [[ "${E2E_ANDROID_TUNNEL:-host-alias}" == "reverse" ]]; then
+		printf 'http://localhost:%s\n' "$1"
+	else
+		printf 'http://10.0.2.2:%s\n' "$1"
+	fi
+}
+
+instrument() { # <extra am instrument args...>; the raw output goes to stdout
+	adb_s shell am instrument -w -r "$@" "${TEST_ID}/${E2E_ANDROID_TEST_RUNNER}"
+}
+
+cmd_build() {
+	mkdir -p "${WORK}"
+	bash "${SCRIPT_DIR}/build.sh" "${1:?build needs the WireMock port}" | tee "${BUILD_STATE}"
+}
+
+cmd_install() {
+	resolve_device
+	read_build
+	adb_s install -r -t "${APP_APK}" >&2
+	adb_s install -r -t "${TEST_APK}" >&2
+	emit_json "ok=j:true" "app=s:${APP_ID}" "test=s:${TEST_ID}"
+}
+
+cmd_enumerate() {
+	local listing="${WORK}/enumerate.log"
+	resolve_device
+	read_build
+	instrument -e log true -e class "${SUITE_CLASS}" > "${listing}"
+	python3 "${TOOLS}" instrument-tests "${listing}"
+}
+
+cmd_reset_app() {
+	local answer
+	resolve_device
+	read_build
+	answer="$(adb_s shell pm clear "${APP_ID}" | tr -d '\r')"
+	[[ "${answer}" == "Success" ]] || fail "pm clear ${APP_ID} answered '${answer}'"
+	# Only the runner's output directory is emptied: pm clear of the test package would erase result.json.
+	adb_s shell am force-stop "${TEST_ID}"
+	adb_s shell run-as "${TEST_ID}" rm -rf "${TEST_OUTPUT_DIR}" || fail "run-as ${TEST_ID} could not empty ${TEST_OUTPUT_DIR}"
+	adb_s logcat -b all -c
+	emit_json "ok=j:true"
+}
+
+stop_instrumentation() {
+	adb_s shell am force-stop "${TEST_ID}"
+	adb_s shell am force-stop "${APP_ID}"
+}
+
+# The scenario's files, from the runner's internal directory (readable through run-as because the APK is debuggable).
+pull_output() { # id dir
+	local names name
+	if ! names="$(adb_s exec-out run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}/$1" 2>&1 | tr -d '\r')"; then
+		printf '%s\n' "${names}" > "$2/pull.err"
+		return 0
+	fi
+	for name in ${names}; do
+		adb_s exec-out run-as "${TEST_ID}" cat "${TEST_OUTPUT_DIR}/$1/${name}" > "$2/${name}"
+	done
+}
+
+cmd_run_scenario() {
+	local id="${1:?id}" dir="${2:?attempt dir}" port="${3:?port}" pid status=0 args
+	resolve_device
+	read_build
+	mkdir -p "${dir}"
+	args=(-e class "${SUITE_CLASS}" -e scenario "${id}" -e wiremockUrl "$(wiremock_url "${port}")")
+	if [[ "${E2E_TRACE:-0}" == "1" ]]; then
+		args+=(-e e2eTrace true)
+	fi
+	instrument "${args[@]}" > "${dir}/runner.log" 2>&1 &
+	pid=$!
+	# The harness stops a hung run with SIGTERM: stop the on-device instrumentation too, or it outlives adb.
+	trap 'stop_instrumentation; kill "${pid}" 2> /dev/null || printf "adb already exited\n" >&2; exit 143' TERM INT
+	wait "${pid}" || status=$?
+	trap - TERM INT
+	log "am instrument exited ${status}; the verdict is read from result.json"
+	pull_output "${id}" "${dir}"
+	python3 "${TOOLS}" instrument-summary "${dir}/runner.log"
+}
+
+cmd_crash_probe() {
+	local since="${1:?since}" dir="${2:?attempt dir}" events="${WORK}/crash-probe.log"
+	resolve_device
+	read_build
+	adb_s logcat -b all -d -v epoch > "${events}"
+	python3 "${TOOLS}" logcat-crash "${events}" "${since}" "${APP_ID}" "${dir}/crash.txt"
+}
+
+cmd_collect_failure() {
+	local dir="${1:?attempt dir}"
+	resolve_device
+	adb_s logcat -b all -d -v threadtime -t 4000 > "${dir}/logcat.txt"
+	if ! compgen -G "${dir}/*.png" > /dev/null; then
+		adb_s exec-out screencap -p > "${dir}/fallback-screen.png"
+		if adb_s shell uiautomator dump /sdcard/e2e-window.xml > /dev/null 2>&1; then
+			adb_s exec-out cat /sdcard/e2e-window.xml > "${dir}/fallback-hierarchy.xml"
+		else
+			log "uiautomator dump failed; the fallback hierarchy is missing"
+		fi
+	fi
+	emit_json "ok=j:true"
+}
+
+case "${1:-}" in
+	toolchain | health | recover) bash "${DEVICE}" "$1" ;;
+	ensure-device) bash "${DEVICE}" ensure ;;
+	stop-device) bash "${DEVICE}" stop ;;
+	build) shift; cmd_build "$@" ;;
+	install) cmd_install ;;
+	enumerate) cmd_enumerate ;;
+	reset-app) cmd_reset_app ;;
+	run-scenario) shift; cmd_run_scenario "$@" ;;
+	crash-probe) shift; cmd_crash_probe "$@" ;;
+	collect-failure) shift; cmd_collect_failure "$@" ;;
+	*) printf 'Usage: %s toolchain|ensure-device|build|install|enumerate|health|reset-app|run-scenario|crash-probe|collect-failure|recover|stop-device\n' "$0" >&2; exit 64 ;;
+esac

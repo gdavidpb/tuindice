@@ -30,18 +30,6 @@ fail() {
 	exit 3
 }
 
-# emit_json key=s:string key=j:raw-json ...
-emit_json() {
-	python3 -c '
-import json, sys
-out = {}
-for item in sys.argv[1:]:
-    key, _, rest = item.partition("=")
-    kind, _, value = rest.partition(":")
-    out[key] = json.loads(value) if kind == "j" else value
-print(json.dumps(out))' "$@"
-}
-
 load_lock() {
 	local key line value
 	[[ -f "${LOCK_FILE}" ]] || { printf 'Missing lock %s\n' "${LOCK_FILE}" >&2; exit 2; }

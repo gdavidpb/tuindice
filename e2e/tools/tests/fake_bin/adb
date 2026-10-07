@@ -7,6 +7,12 @@
 #   offline_polls     after `reboot`, `devices` hides the emulator for this many calls
 #   ignore            "<namespace> <key>" lines whose `settings put` is silently ignored
 #   props/<name>      overrides a getprop value; nproc and meminfo_kb override those reads
+#   pmclear.answer    what `pm clear` prints (default Success)
+#   tests.list        scenario ids an `am instrument -e log true` listing reports
+#   instrument.mode   pass (default) | fail: what a scenario run prints; the exit status is always 0, as the real one is
+#   instrument.hang   exists: a scenario run never ends
+#   testfiles/<path>  what `exec-out run-as <pkg> ls|cat <path>` reads; `run-as <pkg> rm -rf <path>` removes it
+#   logcat.txt        what `logcat -d` prints; `logcat -c` empties it
 #   calls.log         one line per call
 set -euo pipefail
 
@@ -19,6 +25,36 @@ if [[ "${1:-}" == "-s" ]]; then
 fi
 verb="${1:-}"
 if (( $# > 0 )); then shift; fi
+
+fake_instrument() { # the arguments after `instrument`: -w -r -e key value ... <package>/<runner>
+	local listing=0 scenario=""
+	while (( $# > 0 )); do
+		case "$1" in
+			-e)
+				[[ "$2" == "log" ]] && listing=1
+				[[ "$2" == "scenario" ]] && scenario="$3"
+				shift 3
+				;;
+			*) shift ;;
+		esac
+	done
+	if (( listing )); then
+		local id
+		while read -r id; do
+			printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 1\n' "${id}"
+			printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 0\n' "${id}"
+		done < <(cat "${dir}/tests.list" 2> /dev/null || printf 'one\ntwo\n')
+		printf 'INSTRUMENTATION_CODE: -1\n'
+		return
+	fi
+	if [[ -f "${dir}/instrument.hang" ]]; then sleep 300; fi
+	printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 1\n' "${scenario}"
+	if [[ "$(cat "${dir}/instrument.mode" 2> /dev/null || echo pass)" == "fail" ]]; then
+		printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: -2\nINSTRUMENTATION_RESULT: stream=\nFAILURES!!!\nTests run: 1,  Failures: 1\nINSTRUMENTATION_CODE: -1\n' "${scenario}"
+	else
+		printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_RESULT: stream=\nOK (1 test)\nINSTRUMENTATION_CODE: -1\n' "${scenario}"
+	fi
+}
 
 prop() { # name default
 	if [[ -f "${dir}/props/$1" ]]; then cat "${dir}/props/$1"; else printf '%s\n' "$2"; fi
@@ -43,6 +79,30 @@ case "${verb}" in
 		if [[ "${1:-}" == "kill" ]]; then rm -f "${dir}/online"; fi
 		;;
 	reboot) echo 2 > "${dir}/offline_polls" ;;
+	install) echo Success ;;
+	exec-out)
+		case "${1:-}" in
+			run-as)
+				action="${3:-}"
+				path="${dir}/testfiles/${4:-}"
+				if [[ "${action}" == "ls" ]]; then
+					[[ -d "${path}" ]] || { echo "ls: ${4}: No such file or directory"; exit 1; }
+					ls -1 "${path}"
+				else
+					cat "${path}"
+				fi
+				;;
+			screencap) printf 'PNG' ;;
+			cat) echo "<hierarchy/>" ;;
+		esac
+		;;
+	logcat)
+		if [[ " $* " == *" -c "* ]]; then
+			: > "${dir}/logcat.txt"
+		elif [[ -f "${dir}/logcat.txt" ]]; then
+			cat "${dir}/logcat.txt"
+		fi
+		;;
 	reverse)
 		if [[ "${1:-}" == "--list" ]]; then
 			[[ ! -f "${dir}/reverse" ]] || cat "${dir}/reverse"
@@ -57,7 +117,7 @@ case "${verb}" in
 			getprop)
 				case "$1" in
 					sys.boot_completed) if [[ -f "${dir}/boot_completed" ]]; then cat "${dir}/boot_completed"; else echo 1; fi ;;
-					init.svc.bootanim) echo stopped ;;
+					init.svc.bootanim) prop bootanim stopped ;;
 					ro.build.version.sdk) prop sdk 37 ;;
 					persist.sys.locale) prop locale es-VE ;;
 					ro.product.locale) prop product_locale en-US ;;
@@ -71,7 +131,23 @@ case "${verb}" in
 					if [[ -f "${dir}/settings/$2.$3" ]]; then cat "${dir}/settings/$2.$3"; else echo null; fi
 				fi
 				;;
-			pm) echo "package:/system/framework/framework-res.apk" ;;
+			pm)
+				if [[ "${1:-}" == "clear" ]]; then
+					if [[ -f "${dir}/pmclear.answer" ]]; then cat "${dir}/pmclear.answer"; else echo Success; fi
+				else
+					echo "package:/system/framework/framework-res.apk"
+				fi
+				;;
+			am)
+				case "${1:-}" in
+					instrument) shift; fake_instrument "$@" ;;
+					force-stop) ;;
+				esac
+				;;
+			run-as)
+				if [[ "${2:-}" == "rm" ]]; then rm -rf "${dir}/testfiles/${4}"; fi
+				;;
+			uiautomator) echo "UI hierarchy dumped to: $2" ;;
 			dumpsys)
 				if [[ "$1" == "window" ]]; then
 					if [[ -f "${dir}/anr" ]]; then echo "Window #1 Application Not Responding: com.example"; else echo "Window #1"; fi
@@ -91,10 +167,10 @@ case "${verb}" in
 						echo "${first} 1.00 0.90 1/500 1234"
 						;;
 					/proc/uptime) echo "120.50 400.10" ;;
-					/proc/meminfo) printf 'MemTotal:       %s kB\n' "$(prop meminfo_kb 8000000)" ;;
+					/proc/meminfo) printf 'MemTotal:       %s kB\n' "$(prop meminfo_kb 16000000)" ;;
 				esac
 				;;
-			nproc) prop nproc 6 ;;
+			nproc) prop nproc 8 ;;
 		esac
 		;;
 	*) echo "fake adb: unsupported $verb" >&2; exit 64 ;;

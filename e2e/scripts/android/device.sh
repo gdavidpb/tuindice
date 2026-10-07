@@ -33,18 +33,6 @@ fail() {
 	exit 3
 }
 
-# emit_json key=s:string key=j:raw-json ...
-emit_json() {
-	python3 -c '
-import json, sys
-out = {}
-for item in sys.argv[1:]:
-    key, _, rest = item.partition("=")
-    kind, _, value = rest.partition(":")
-    out[key] = json.loads(value) if kind == "j" else value
-print(json.dumps(out))' "$@"
-}
-
 load_lock() {
 	local key line value
 	[[ -f "${LOCK_FILE}" ]] || { printf 'Missing lock %s\n' "${LOCK_FILE}" >&2; exit 2; }
@@ -147,8 +135,9 @@ boot_emulator() {
 # Readiness gate: boot completed, error dialogs hidden, then two consecutive good samples.
 readiness_gate() {
 	local deadline=$((SECONDS + GATE_TIMEOUT_SECONDS)) good=0 load
+	# With -no-boot-anim the bootanim service does not exist and its property stays unset: only "running" blocks.
 	until find_serial && [[ "$(adb_out getprop sys.boot_completed)" == "1" ]] &&
-		[[ "$(adb_out getprop init.svc.bootanim)" == "stopped" ]]; do
+		[[ "$(adb_out getprop init.svc.bootanim)" != "running" ]]; do
 		(( SECONDS < deadline )) || fail "The emulator did not finish booting within ${GATE_TIMEOUT_SECONDS}s"
 		sleep "${GATE_POLL_SECONDS}"
 	done

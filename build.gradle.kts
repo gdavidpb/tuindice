@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import java.time.Duration
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -427,6 +428,73 @@ tasks.register<Exec>("e2ePlatformIos") {
 	group = "verification"
 	description = "Runs iOS-only E2E edge suites when registered."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-ios.sh")
+}
+
+private val e2eHarnessScript = "${rootDir}/e2e/scripts/shared/e2e.py"
+private val e2eBudgetMinutes = providers.environmentVariable("E2E_BUDGET_MINUTES")
+	.map { it.toLongOrNull() ?: 120L }
+	.orElse(120L)
+
+private fun registerE2eRun(name: String, description: String, platform: String, mode: String, timeout: Provider<Duration>) {
+	tasks.register<Exec>(name) {
+		group = "verification"
+		this.description = description
+		this.timeout.set(timeout)
+		commandLine("python3", e2eHarnessScript, "run", "--platform", platform, "--mode", mode)
+	}
+}
+
+registerE2eRun(
+	"e2eAndroid", "Diagnostic E2E run on Android; E2E_SCENARIOS narrows it. Never produces evidence.",
+	"android", "diagnose", provider { Duration.ofMinutes(90) }
+)
+registerE2eRun(
+	"e2eIos", "Diagnostic E2E run on iOS; E2E_SCENARIOS narrows it. Never produces evidence.",
+	"ios", "diagnose", provider { Duration.ofMinutes(90) }
+)
+registerE2eRun(
+	"e2eEvidenceAndroid", "Local E2E evidence for Android: the whole catalog, accumulated per fingerprint, published as a status.",
+	"android", "evidence", e2eBudgetMinutes.map { Duration.ofMinutes(it + 30) }
+)
+registerE2eRun(
+	"e2eEvidenceIos", "Local E2E evidence for iOS: the whole catalog, accumulated per fingerprint, published as a status.",
+	"ios", "evidence", e2eBudgetMinutes.map { Duration.ofMinutes(it + 30) }
+)
+registerE2eRun(
+	"e2eEvidence", "Local E2E evidence for both platforms.",
+	"all", "evidence", e2eBudgetMinutes.map { Duration.ofMinutes(2 * it + 30) }
+)
+
+tasks.register<Exec>("e2eStatus") {
+	group = "verification"
+	description = "Prints, per platform, the E2E ledger of the current fingerprint."
+	timeout.set(Duration.ofMinutes(2))
+	commandLine("python3", e2eHarnessScript, "status")
+}
+
+tasks.register<Exec>("e2eEnvCheck") {
+	group = "verification"
+	description = "Measures the host against the E2E environment thresholds."
+	timeout.set(Duration.ofMinutes(1))
+	commandLine("python3", e2eHarnessScript, "env-check")
+}
+
+tasks.register<Exec>("verifyE2eHarness") {
+	group = "verification"
+	description = "Runs the E2E harness checks: shell and Python syntax and the harness unit tests."
+	timeout.set(Duration.ofMinutes(15))
+	commandLine("bash", "${rootDir}/e2e/tools/tests/run-harness-tests.sh")
+}
+
+tasks.register<Exec>("verifyIosUiTestsBuild") {
+	group = "verification"
+	description = "Builds the host app and the TuIndiceUITests bundle and checks that the app carries no ScenarioKit."
+
+	val isMacHost = System.getProperty("os.name").contains("Mac", ignoreCase = true)
+
+	onlyIf { isMacHost }
+	timeout.set(Duration.ofMinutes(40))
+	commandLine("bash", "${rootDir}/e2e/scripts/ios/build.sh", "--for-testing-only")
 }
 
 tasks.register<Exec>("verifyIosHostTypecheck") {

@@ -9,7 +9,7 @@ source "${SCRIPT_DIR}/common.sh"
 require_tool bash
 
 mktemp_portability_violations="$(
-	grep -R -n -E 'mktemp [^#]*XXXXXX[[:alnum:]_.-]+' .github/scripts e2e/scripts iosApp/scripts 2>/dev/null || true
+	grep -R -n -E 'mktemp [^#]*XXXXXX[[:alnum:]_.-]+' .github/scripts e2e/scripts e2e/tools testkit/e2e .codex/skills iosApp/scripts 2>/dev/null || true
 )"
 if [[ -n "$mktemp_portability_violations" ]]; then
 	printf '%s\n' "$mktemp_portability_violations" >&2
@@ -21,7 +21,16 @@ while IFS= read -r script_file; do
 	info "Checking shell syntax: ${script_file}"
 	bash -n "$script_file"
 done < <(
-	find .github/scripts e2e/scripts iosApp/scripts -name '*.sh' -type f 2>/dev/null | sort
+	find .github/scripts e2e/scripts e2e/tools testkit/e2e .codex/skills iosApp/scripts -name '*.sh' -type f 2>/dev/null | sort
+)
+
+while IFS= read -r python_file; do
+	[[ -n "$python_file" ]] || continue
+	info "Checking Python syntax: ${python_file}"
+	# compile() in memory: py_compile would write __pycache__ into the tree.
+	python3 -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' "$python_file"
+done < <(
+	find e2e .codex/skills -name '*.py' -type f 2>/dev/null | sort
 )
 
 while IFS= read -r workflow_file; do

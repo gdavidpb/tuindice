@@ -5,6 +5,18 @@ log() {
 	printf '[tuindice-e2e] %s\n' "$*" >&2
 }
 
+# emit_json key=s:string key=j:raw-json ...
+emit_json() {
+	python3 -c '
+import json, sys
+out = {}
+for item in sys.argv[1:]:
+    key, _, rest = item.partition("=")
+    kind, _, value = rest.partition(":")
+    out[key] = json.loads(value) if kind == "j" else value
+print(json.dumps(out))' "$@"
+}
+
 require_command() {
 	local command_name="$1"
 

@@ -3,6 +3,8 @@
 #   sim               "<udid> <state>" while the simulator exists (state: Shutdown|Booted)
 #   ignore            "<domain> <key>" lines whose `defaults write` is silently ignored
 #   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
+#   terminate.answer  with terminate.rc (default 3): `simctl terminate` fails with this message
+#   tests.list        identifiers the fake xcodebuild enumerates (with their trailing parentheses)
 #   calls.log         one line per call
 set -euo pipefail
 
@@ -44,7 +46,19 @@ case "${verb}" in
 	erase | bootstatus) ;;
 	boot) echo "${1} Booted" > "${dir}/sim" ;;
 	shutdown) echo "${1} Shutdown" > "${dir}/sim" ;;
+	terminate)
+		if [[ -f "${dir}/terminate.answer" ]]; then
+			cat "${dir}/terminate.answer" >&2
+			exit "$(cat "${dir}/terminate.rc" 2> /dev/null || echo 3)"
+		fi
+		;;
+	uninstall | install | keychain) ;;
+	io) echo "screenshot" > "${3}" ;;
 	spawn)
+		if [[ "${2:-}" == "log" ]]; then
+			echo "app log line"
+			exit 0
+		fi
 		id="$1"
 		[[ "$2" == "defaults" ]] || exit 64
 		action="$3"

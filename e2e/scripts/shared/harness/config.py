@@ -17,19 +17,21 @@ REFUSABLE_CHECKS = ("load", "disk")
 # process, xcodebuild start-up), added to the kill deadline.
 RUNNER_OVERHEAD_SECONDS = {"android": 30, "ios": 90}
 
-# Deadlines of the adapter verbs other than run-scenario, in seconds.
+# Deadlines of the adapter verbs other than run-scenario, in seconds. Fixed in F16 from measurements on the real
+# emulator and simulator (see the F16 report); a verb that is far under its deadline is on purpose: the deadline
+# only has to catch a hang, and the host load multiplies every time here.
 VERB_TIMEOUTS = {
-    "toolchain": 60,
-    "ensure-device": 600,
-    "build": 2400,
-    "install": 300,
-    "enumerate": 300,
-    "health": 180,  # the Android probe may wait up to 120 s for the emulator load to drop
-    "reset-app": 120,
-    "crash-probe": 60,
-    "collect-failure": 120,
-    "recover": 600,
-    "stop-device": 120,
+    "toolchain": 30,        # measured 0.3-1.0 s
+    "ensure-device": 420,   # Android cold boot gate 240 s + settings; iOS first creation + erased boot measured 67 s
+    "build": 1800,          # iOS cold derived data 92 s, warm 7-11 s; Android all cached 4 s; a clean Gradle build is not measured
+    "install": 120,         # measured 0.6-3 s
+    "enumerate": 120,       # measured 6-7 s
+    "health": 180,          # the Android probe may wait up to 120 s for the emulator load to drop; measured 0.2 s idle
+    "reset-app": 60,        # measured 0.5 s Android, 1.9 s iOS
+    "crash-probe": 30,      # measured 0.2 s Android, 1 s iOS
+    "collect-failure": 60,  # measured 3-4 s
+    "recover": 600,         # not measured: device.sh recover refuses on the Android locale mismatch
+    "stop-device": 120,     # measured 1.2 s Android, 3.5 s iOS
 }
 
 

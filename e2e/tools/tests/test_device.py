@@ -81,7 +81,7 @@ class AndroidDeviceTests(unittest.TestCase):
         done = box.run("ensure")
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(support.text(os.path.join(box.adb, "emulator.args")).strip(),
-            "-avd Pixel_10_Pro_XL -no-snapshot -no-boot-anim -no-audio -memory 8192 -cores 6 -no-window")
+            "-avd Pixel_10_Pro_XL -no-snapshot -no-boot-anim -no-audio -memory 16384 -cores 8 -no-window")
         self.assertTrue(done.json["bootedByHarness"])
         self.assertEqual(done.json["id"], "emulator-5554")
         self.assertEqual(done.json["settings"]["global.animator_duration_scale"], "0")
@@ -117,6 +117,20 @@ class AndroidDeviceTests(unittest.TestCase):
     def test_a_gate_that_never_opens_exits_3(self):
         box = Sandbox(self, "android")
         box.write("boot_completed", "0\n")
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("did not finish booting within 3s", done.stderr)
+
+    def test_the_gate_opens_when_the_boot_animation_service_does_not_exist(self):
+        # Measured on the real emulator: with -no-boot-anim the property init.svc.bootanim is never set.
+        box = Sandbox(self, "android")
+        box.write("props/bootanim", "")
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 0, done.stderr)
+
+    def test_a_running_boot_animation_keeps_the_gate_closed(self):
+        box = Sandbox(self, "android")
+        box.write("props/bootanim", "running\n")
         done = box.run("ensure")
         self.assertEqual(done.returncode, 3)
         self.assertIn("did not finish booting within 3s", done.stderr)

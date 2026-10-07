@@ -4,12 +4,14 @@
 #   2. xcodebuild lists the TuIndiceUITests target and scheme.
 #   3. Debug.xcconfig and Release.xcconfig never mention ScenarioKit.
 #   4. With a built app (APP=<path to TuIndiceHost.app> or --app <path>), the app binaries carry
-#      no ScenarioKit symbols or strings. Without one, this check is reported as skipped.
+#      no ScenarioKit symbols or strings. Without one, this check is reported as skipped, unless
+#      --require-app is given (the caller just built the app): then a missing app is a failure.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT="$ROOT_DIR/TuIndiceHost.xcodeproj"
 APP="${APP:-}"
+REQUIRE_APP=0
 status=0
 
 while [[ $# -gt 0 ]]; do
@@ -17,6 +19,10 @@ while [[ $# -gt 0 ]]; do
 		--app)
 			APP="${2:?--app needs a path}"
 			shift 2
+			;;
+		--require-app)
+			REQUIRE_APP=1
+			shift
 			;;
 		*)
 			echo "Unknown argument: $1" >&2
@@ -59,7 +65,9 @@ for config in Debug Release; do
 	fi
 done
 
-if [[ -z "$APP" ]]; then
+if [[ -z "$APP" && "$REQUIRE_APP" -eq 1 ]]; then
+	fail "--require-app was given but no built app (APP=... or --app ...)."
+elif [[ -z "$APP" ]]; then
 	echo "SKIP: no built app given (APP=... or --app ...); binary symbol check not run."
 elif [[ ! -d "$APP" ]]; then
 	fail "app bundle not found: $APP"
