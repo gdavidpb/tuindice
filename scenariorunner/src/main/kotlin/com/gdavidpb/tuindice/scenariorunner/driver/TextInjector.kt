@@ -14,7 +14,10 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		val events = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).getEvents(text.toCharArray())
 
 		return field != null && events != null && runCatching {
-			field.click()
+			// Clicks where the field is once it has stopped moving: right after a tap that opens the keyboard
+			// the form is still sliding up, and the position read a moment ago is a key of the keyboard.
+			val place = session.settledBounds(q) ?: return@runCatching false
+			session.device.click(place.centerX(), place.centerY())
 			events.all { session.instrumentation.uiAutomation.injectInputEvent(it, true) }
 		}.getOrDefault(false)
 	}

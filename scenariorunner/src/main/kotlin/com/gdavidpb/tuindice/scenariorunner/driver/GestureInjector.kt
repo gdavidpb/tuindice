@@ -9,8 +9,11 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 
 /** Touch input on computed pixels; fractions are of the target's (or the screen's) visible size. */
 internal class GestureInjector(private val session: DeviceSession) : Gestures {
-	override fun tap(q: Query): Boolean =
-		session.selectors.find(q)?.let { runCatching { it.click() }.isSuccess } ?: false
+	override fun tap(q: Query): Boolean {
+		val place = session.settledBounds(q) ?: return false
+
+		return runCatching { session.device.click(place.centerX(), place.centerY()) }.getOrDefault(false)
+	}
 
 	override fun tapAt(q: Query?, fx: Double, fy: Double): Boolean {
 		val box = area(q) ?: return false
@@ -62,7 +65,7 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		val bounds = if (q == null) {
 			Rect(0, 0, session.device.displayWidth, session.device.displayHeight)
 		} else {
-			session.selectors.find(q)?.let { runCatching { it.visibleBounds }.getOrNull() }
+			session.settledBounds(q)
 		}
 
 		return bounds?.let { Box(it.left, it.top, it.right, it.bottom) }
