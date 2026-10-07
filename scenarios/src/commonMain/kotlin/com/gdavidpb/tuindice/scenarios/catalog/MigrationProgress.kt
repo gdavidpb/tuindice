@@ -12,8 +12,7 @@ object MigrationProgress {
 		"enrollmentproof",
 		"pensum",
 		"subjects",
-		"evaluations",
-		"about"
+		"evaluations"
 	)
 
 	/** The coachmark overlay lives in the `wizard` module; its scenarios are the `coachmarks` ones. */
