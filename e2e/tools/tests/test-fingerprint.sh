@@ -83,9 +83,14 @@ done <<'LAYOUT'
 settings.gradle.kts
 build.gradle.kts
 gradle.properties
+gradlew
+gradlew.bat
 gradle/libs.versions.toml
+gradle/gradle-daemon-jvm.properties
 gradle/wrapper/gradle-wrapper.properties
+gradle/wrapper/gradle-wrapper.jar
 gradle/app-version.properties
+gradle/e2e-tasks.gradle.kts
 mocks/mappings/a.json
 e2e/catalog/scenarios.json
 e2e/scripts/shared/e2e.py
@@ -101,6 +106,8 @@ scenariokit/src/iosMain/K.kt
 scenariokit/src/commonTest/T.kt
 scenarios/build.gradle.kts
 scenarios/src/commonMain/S.kt
+scenarios/src/androidMain/S.kt
+scenarios/src/iosMain/S.kt
 scenarios/src/androidHostTest/T.kt
 scenariorunner/build.gradle.kts
 scenariorunner/src/main/R.kt
@@ -118,6 +125,7 @@ iosApp/Podfile.lock
 iosApp/Resources/r.txt
 iosApp/Sources/S.swift
 iosApp/scripts/s.sh
+iosApp/scripts/ci-build.sh
 iosApp/UITests/T.swift
 iosApp/TuIndiceHost.xcodeproj/project.pbxproj
 iosApp/TuIndiceHost.xcodeproj/xcshareddata/xcschemes/x.xcscheme
@@ -134,10 +142,14 @@ testkit/src/commonMain/T.kt
 testkit/e2e/validate-x.sh
 testkit/e2e/notes.md
 .github/scripts/x.sh
+.github/scripts/materialize-firebase-configs.sh
+.github/scripts/sync-app-version.sh
 .codex/skills/x.md
 docs/x.md
 README.md
 LAYOUT
+printf 'apply(from = "gradle/e2e-tasks.gradle.kts")\n' >"${REPO}/build.gradle.kts"
+cp "${REAL_ROOT}/e2e/scripts/shared/layout.env" "${REPO}/e2e/scripts/shared/layout.env"
 mkdir -p "${REPO}/e2e/toolchain"
 cp "${REAL_ROOT}/e2e/toolchain/android.lock" "${REAL_ROOT}/e2e/toolchain/ios.lock" "${REPO}/e2e/toolchain/"
 mkdir -p "${REPO}/scripts"
@@ -176,6 +188,8 @@ if [[ "$(fp android "${BASE}")" == "${BASE_ANDROID}" ]]; then ok; else fail "HEA
 printf 'uncommitted edit\n' >"${REPO}/app/src/main/A.kt"
 printf 'uncommitted edit\n' >"${REPO}/mocks/mappings/a.json"
 printf 'untracked\n' >"${REPO}/iosApp/Sources/Untracked.swift"
+# layout.env names the source sets: it is read from the ref too, not from the working tree.
+printf 'E2E_IOS_SOURCE_SETS=bogusMain\n' >"${REPO}/e2e/scripts/shared/layout.env"
 git -C "${REPO}" rm -q --cached e2e/catalog/scenarios.json
 # A module dropped from the graph on disk must not drop out of the fingerprint: the graph is read from the ref.
 grep -v '^security=' "${BASE_GRAPH_COPY}" >"${REPO}/scripts/module-graph.txt"
@@ -195,18 +209,31 @@ printf 'base mocks/mappings/a.json\n' >"${REPO}/mocks/mappings/a.json"
 rm -f "${REPO}/iosApp/Sources/Untracked.swift"
 git -C "${REPO}" add e2e/catalog/scenarios.json
 git -C "${REPO}" show "${BASE}:scripts/module-graph.txt" >"${REPO}/scripts/module-graph.txt"
+git -C "${REPO}" show "${BASE}:e2e/scripts/shared/layout.env" >"${REPO}/e2e/scripts/shared/layout.env"
 
 # --- shared group: both platforms move ----------------------------------------------------------------------
-for path in settings.gradle.kts gradle.properties gradle/libs.versions.toml gradle/wrapper/gradle-wrapper.properties \
+for path in settings.gradle.kts build.gradle.kts gradle.properties gradlew gradlew.bat gradle/libs.versions.toml \
+	gradle/gradle-daemon-jvm.properties gradle/wrapper/gradle-wrapper.properties gradle/wrapper/gradle-wrapper.jar \
 	mocks/mappings/a.json mocks/mappings/new.json e2e/catalog/scenarios.json e2e/scripts/shared/e2e.py e2e/scripts/shared/new.py \
 	scenariokit/build.gradle.kts scenariokit/src/commonMain/K.kt scenarios/build.gradle.kts scenarios/src/commonMain/S.kt; do
 	expect_moves "shared ${path}" yes yes "${path}"
 done
 
+# --- the source-set lists come from layout.env of the ref ----------------------------------------------------
+layout_base="$(git -C "${REPO}" show "${BASE}:e2e/scripts/shared/layout.env")"
+layout_commit="$(commit_files "${BASE}" "e2e/scripts/shared/layout.env=${layout_base}
+E2E_IOS_SOURCE_SETS=iosMain,customMain")"
+custom_commit="$(commit_files "${layout_commit}" "auth/src/customMain/X.kt=custom")"
+if [[ "$(fp ios "${custom_commit}")" != "$(fp ios "${layout_commit}")" && "$(fp android "${custom_commit}")" == "$(fp android "${layout_commit}")" ]]; then
+	ok
+else
+	fail "a source set listed in layout.env of the ref does not enter the fingerprint of its platform only"
+fi
+
 # --- Android group: only Android moves -----------------------------------------------------------------------
 for path in app/build.gradle.kts app/src/main/A.kt app/src/debug/D.kt app/src/release/R.kt e2e/scripts/android/adapter.sh \
 	e2e/scripts/android/new.sh e2e/toolchain/android.lock scenariorunner/build.gradle.kts scenariorunner/src/main/R.kt \
-	scenariokit/src/androidMain/K.kt; do
+	scenariokit/src/androidMain/K.kt scenarios/src/androidMain/S.kt scenariokit/src/androidMain/New.kt; do
 	expect_moves "android ${path}" yes no "${path}"
 done
 
@@ -215,7 +242,9 @@ for path in iosApp/Config/Debug.xcconfig iosApp/Config/Release.xcconfig iosApp/C
 	iosApp/Podfile.lock iosApp/Resources/r.txt iosApp/Sources/S.swift iosApp/scripts/s.sh iosApp/UITests/T.swift \
 	iosApp/UITests/Generated/G.swift iosApp/TuIndiceHost.xcodeproj/project.pbxproj \
 	iosApp/TuIndiceHost.xcodeproj/xcshareddata/xcschemes/x.xcscheme e2e/scripts/ios/adapter.sh e2e/toolchain/ios.lock \
-	scenariokit/src/iosMain/K.kt; do
+	scenariokit/src/iosMain/K.kt scenariokit/src/appleMain/K.kt scenariokit/src/iosSimulatorArm64Main/K.kt \
+	scenarios/src/iosMain/S.kt .github/scripts/materialize-firebase-configs.sh .github/scripts/sync-app-version.sh \
+	iosApp/scripts/new-tool.sh; do
 	expect_moves "ios ${path}" no yes "${path}"
 done
 
@@ -239,7 +268,8 @@ fi
 
 # --- excluded: neither platform moves ------------------------------------------------------------------------
 for path in e2e/tools/tests/t.py e2e/tools/verify/new.sh e2e/platform/android/README.md e2e/README.md README.md docs/x.md \
-	.github/scripts/x.sh .codex/skills/x.md build.gradle.kts gradle/app-version.properties iosApp/Config/Version.xcconfig \
+	.github/scripts/x.sh .codex/skills/x.md gradle/e2e-tasks.gradle.kts gradle/app-version.properties iosApp/Config/Version.xcconfig \
+	iosApp/scripts/ci-build.sh iosApp/scripts/ci-new.sh \
 	auth/src/commonTest/T.kt auth/src/androidHostTest/T.kt scenarios/src/androidHostTest/T.kt scenariokit/src/commonTest/T.kt \
 	app/src/test/T.kt testkit/build.gradle.kts testkit/src/commonMain/T.kt testkit/e2e/validate-x.sh testkit/e2e/notes.md; do
 	expect_moves "excluded ${path}" no no "${path}"
@@ -268,6 +298,13 @@ expect_line "ios pathspecs" "${ios_specs}" "required:iosApp/UITests"
 expect_line "ios pathspecs" "${ios_specs}" "required:iosApp/Config/UITests.xcconfig"
 expect_line "ios pathspecs" "${ios_specs}" "required:e2e/toolchain/ios.lock"
 expect_line "ios pathspecs" "${ios_specs}" "optional:auth/src/iosSimulatorArm64Main"
+expect_line "ios pathspecs" "${ios_specs}" "required:.github/scripts/sync-app-version.sh"
+expect_line "ios pathspecs" "${ios_specs}" "required:.github/scripts/materialize-firebase-configs.sh"
+expect_line "ios pathspecs" "${ios_specs}" "excluded:iosApp/scripts/ci-"
+expect_line "ios pathspecs" "${ios_specs}" "optional:scenarios/src/iosMain"
+expect_line "ios pathspecs" "${ios_specs}" "optional:scenariokit/src/appleMain"
+reject_line "android pathspecs" "${android_specs}" "excluded:iosApp/scripts/ci-"
+reject_line "android pathspecs" "${android_specs}" "required:.github/scripts/sync-app-version.sh"
 reject_line "ios pathspecs" "${ios_specs}" "required:app/src/main"
 reject_line "ios pathspecs" "${ios_specs}" "optional:auth/src/androidMain"
 reject_line "ios pathspecs" "${ios_specs}" "optional:scenarios/build.gradle.kts"
@@ -275,7 +312,10 @@ for specs in "${android_specs}" "${ios_specs}"; do
 	for line in required:mocks required:e2e/catalog required:e2e/scripts/shared required:scenariokit/src/commonMain required:scenarios/src/commonMain; do
 		expect_line "shared pathspecs" "${specs}" "${line}"
 	done
-	reject_line "pathspecs" "${specs}" "required:build.gradle.kts"
+	for line in required:build.gradle.kts required:gradlew required:gradle/wrapper required:gradle/gradle-daemon-jvm.properties; do
+		expect_line "shared pathspecs" "${specs}" "${line}"
+	done
+	reject_line "pathspecs" "${specs}" "required:gradle/e2e-tasks.gradle.kts"
 	reject_line "pathspecs" "${specs}" "required:e2e/tools"
 	reject_line "pathspecs" "${specs}" "optional:scenarios/src/commonTest"
 done
@@ -335,6 +375,17 @@ cp "${REPO}/scenariorunner/build.gradle.kts" "${WORK}/runner-build.keep"
 printf 'dependencies {\n\timplementation("androidx.test.uiautomator:uiautomator:2.4.0")\n}\n' >"${REPO}/scenariorunner/build.gradle.kts"
 expect_verifier "with an androidx.test version pinned in the runner" fail
 cp "${WORK}/runner-build.keep" "${REPO}/scenariorunner/build.gradle.kts"
+
+cp "${REPO}/build.gradle.kts" "${WORK}/root-build.keep"
+printf 'tasks.register<Exec>("e2eStatus") {\n}\n' >>"${REPO}/build.gradle.kts"
+expect_verifier "with an E2E task registered in the root build file" fail
+printf 'registerE2eRun("e2eIos", "d", "ios", "diagnose", t)\n' >"${REPO}/build.gradle.kts"
+expect_verifier "with the E2E task helper called from the root build file and no apply" fail
+printf 'tasks.register("verifySharedTests") {\n}\napply(from = "gradle/e2e-tasks.gradle.kts")\n' >"${REPO}/build.gradle.kts"
+expect_verifier "with a non-E2E task in the root build file" pass
+printf 'tasks.register("verifySharedTests") {\n}\n' >"${REPO}/build.gradle.kts"
+expect_verifier "with the root build file not applying the E2E tasks script" fail
+cp "${WORK}/root-build.keep" "${REPO}/build.gradle.kts"
 
 expect_verifier "after restoring the layout" pass
 

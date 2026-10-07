@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=.github/scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+e2e_load_source_sets
+
 BEFORE_SHA="${1:-${GIT_BEFORE_SHA:-}}"
 AFTER_SHA="${2:-${GIT_AFTER_SHA:-${GITHUB_SHA:-HEAD}}}"
 STATE_DIR="${STATE_DIR:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-changes.XXXXXX")}"
@@ -79,9 +81,6 @@ append_e2e_suite() {
 	fi
 }
 
-# Local E2E evidence is one suite per platform: the whole scenario catalog. A platform either needs it or not.
-E2E_SUITE_ID="local-certification-suite"
-
 append_e2e_scope() {
 	local platform="$1"
 	local reason="${2:-changed-runtime}"
@@ -136,7 +135,7 @@ is_app_test_source_file() {
 	local file="$1"
 
 	case "$file" in
-		app/src/test/*|app/src/androidTest/*)
+		app/src/test/*|app/src/test[A-Z]*/*|app/src/androidTest/*|app/src/androidTest[A-Z]*/*)
 			return 0
 			;;
 	esac
@@ -169,17 +168,10 @@ is_kmp_test_source_file() {
 	return 1
 }
 
+# A runtime source or build file of a KMP module is one the E2E fingerprint reads (the source-set lists live in
+# common.sh and feed the fingerprint script too).
 is_kmp_runtime_source_or_build_file() {
-	local module="$1"
-	local file="$2"
-
-	case "$file" in
-		"$module/build.gradle.kts"|"$module/src/commonMain/"*|"$module/src/androidMain/"*|"$module/src/iosMain/"*|"$module/src/appleMain/"*|"$module/src/nativeMain/"*|"$module/src/iosArm64Main/"*|"$module/src/iosSimulatorArm64Main/"*|"$module/src/iosX64Main/"*)
-			return 0
-			;;
-	esac
-
-	return 1
+	[[ "$(e2e_platform_for_kmp_file "$1" "$2")" != "none" ]]
 }
 
 append_ios_test_task() {
@@ -245,6 +237,15 @@ classify_changed_file() {
 		.DS_Store|*/.DS_Store)
 			return 0
 			;;
+		.github/scripts/materialize-firebase-configs.sh|.github/scripts/sync-app-version.sh)
+			# e2e/scripts/ios/build.sh runs both while building the app and the UI test bundle, so they are part of
+			# what an iOS scenario executes (the iOS fingerprint reads them) and of the UI test build job.
+			CI_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			IOS_UITEST_BUILD_REQUIRED=true
+			append_e2e_scope ios "e2e-ios-build-scripts"
+			return 0
+			;;
 		.github/workflows/*|.github/scripts/*|.github/actions/*)
 			CI_CONFIG_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
@@ -280,6 +281,7 @@ classify_changed_file() {
 		e2e/catalog/*)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
+			IOS_UITEST_BUILD_REQUIRED=true
 			append_e2e_scope all "e2e-catalog"
 			return 0
 			;;
@@ -298,6 +300,10 @@ classify_changed_file() {
 		e2e/scripts/ios/*|e2e/toolchain/ios.lock)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
+			# build.sh is what the ios-uitest-preflight job runs.
+			if [[ "$file" == "e2e/scripts/ios/build.sh" ]]; then
+				IOS_UITEST_BUILD_REQUIRED=true
+			fi
 			append_e2e_scope ios "e2e-harness-ios"
 			return 0
 			;;
@@ -357,6 +363,15 @@ classify_changed_file() {
 			append_e2e_scope ios "e2e-ios-uitests"
 			return 0
 			;;
+		gradle/e2e-tasks.gradle.kts)
+			# The registration of the e2e*, verifyE2e* and related tasks, applied from the root build file. It sits
+			# outside the E2E fingerprint on purpose: editing a verification task cannot change what a scenario does,
+			# and verifyE2eContract (plus the task registration check of validate-ci-config.sh) re-runs it.
+			E2E_CONTRACT_TOUCHED=true
+			CI_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		settings.gradle.kts|build.gradle.kts|gradle.properties|gradlew|gradlew.bat|gradle/*)
 			while IFS= read -r module; do
 				append_runtime_module "$module"
@@ -367,7 +382,13 @@ classify_changed_file() {
 			HAS_RELEASE_IMPACT=true
 			MODULE_GRAPH_TOUCHED=true
 			DETEKT_CONFIG_TOUCHED=true
-			append_e2e_scope all "root-build"
+			# Every file of this group is read by the fingerprint of both platforms (compiler arguments, classpath,
+			# Gradle distribution and daemon JVM); `gradle/*` files it does not read cannot change a scenario.
+			case "$file" in
+				settings.gradle.kts|build.gradle.kts|gradle.properties|gradlew|gradlew.bat|gradle/libs.versions.toml|gradle/gradle-daemon-jvm.properties|gradle/wrapper/*)
+					append_e2e_scope all "root-build"
+					;;
+			esac
 			return 0
 			;;
 		scripts/module-graph.txt|scripts/validate-module-graph.sh)
@@ -397,7 +418,8 @@ classify_changed_file() {
 			append_e2e_scope ios "ios-host-runtime"
 			return 0
 			;;
-		iosApp/scripts/build-kmp-framework.sh|iosApp/scripts/ci-build-ios-host.sh)
+		iosApp/scripts/ci-build-ios-host.sh)
+			# The ci-* scripts run in CI only; the E2E build never calls them, so the fingerprint leaves them out.
 			CI_CONFIG_TOUCHED=true
 			IOS_CI_SCRIPTS_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
@@ -411,10 +433,23 @@ classify_changed_file() {
 			append_ios_host_task "verifyIosHostTypecheck"
 			return 0
 			;;
-		iosApp/scripts/*)
+		iosApp/scripts/ci-*)
 			CI_CONFIG_TOUCHED=true
 			IOS_CI_SCRIPTS_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		iosApp/scripts/*)
+			# build-kmp-framework.sh, build-scenario-kit.sh, add-ui-test-target.rb, verify-ui-test-target.sh: how the
+			# framework and the UI test bundle are built, so they are in the iOS fingerprint and in the UI test build job.
+			CI_CONFIG_TOUCHED=true
+			IOS_CI_SCRIPTS_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			IOS_UITEST_BUILD_REQUIRED=true
+			if [[ "$file" == "iosApp/scripts/build-kmp-framework.sh" ]]; then
+				append_ios_host_task "verifyIosHostBuildDeviceRelease"
+			fi
+			append_e2e_scope ios "e2e-ios-build-scripts"
 			return 0
 			;;
 		iosApp/*)
@@ -433,6 +468,16 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
 			append_e2e_scope ios "ios-host-runtime"
+			return 0
+			;;
+		app/.gitignore|iosApp/.gitignore)
+			return 0
+			;;
+		app/proguard-rules.pro)
+			# Only the release build minifies: it ships (release impact and version bump) but no debug scenario sees it.
+			append_runtime_module app
+			HAS_RELEVANT_CHANGES=true
+			HAS_RELEASE_IMPACT=true
 			return 0
 			;;
 		app/*)
@@ -487,7 +532,12 @@ classify_changed_file() {
 		case "$top_level" in
 			scenariokit|scenarios)
 				E2E_CONTRACT_TOUCHED=true
-				append_e2e_scope "$(e2e_platform_for_kmp_file "$top_level" "$file")" "e2e-${top_level}"
+				e2e_platform="$(e2e_platform_for_kmp_file "$top_level" "$file")"
+				append_e2e_scope "$e2e_platform" "e2e-${top_level}"
+				# The iOS UI test bundle links ScenarioKit: the protocol its Swift driver implements.
+				if [[ "$top_level" == "scenariokit" && ( "$e2e_platform" == "all" || "$e2e_platform" == "ios" ) ]]; then
+					IOS_UITEST_BUILD_REQUIRED=true
+				fi
 				;;
 		esac
 	fi

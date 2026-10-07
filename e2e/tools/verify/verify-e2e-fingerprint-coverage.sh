@@ -6,7 +6,9 @@
 #   3. a `required:` pathspec has no tracked file (a rename left the fingerprint reading nothing);
 #   4. a tracked file under testkit/e2e is neither validate-*.sh, *.md, nor covered;
 #   5. a toolchain lock key is not read by harness/toolchain.py, or the reverse;
-#   6. the scenario runner pins an androidx.test version instead of using the version catalog.
+#   6. the scenario runner pins an androidx.test version instead of using the version catalog;
+#   7. the root build.gradle.kts (inside the fingerprint) registers an E2E task instead of leaving it to
+#      gradle/e2e-tasks.gradle.kts (outside it), or does not apply that script.
 # Pre-v5 files that the cut deletes are tolerated while they exist (legacy-until-f26.txt).
 #
 # Usage: e2e/tools/verify/verify-e2e-fingerprint-coverage.sh
@@ -62,6 +64,8 @@ all_specs=()
 required_specs=()
 for platform in android ios; do
 	while IFS= read -r line; do
+		# `excluded:` lines are prefixes the hash leaves out, not paths it reads.
+		[[ "${line}" != excluded:* ]] || continue
 		all_specs+=("${line#*:}")
 		if [[ "${line}" == required:* ]]; then
 			required_specs+=("${line#*:}")
@@ -142,6 +146,21 @@ fi
 runner_build="${REPO_ROOT}/${E2E_ANDROID_TEST_MODULE}/build.gradle.kts"
 if [[ -f "${runner_build}" ]] && grep -nE '"androidx\.test[^"]*:[^"]*:[0-9]' "${runner_build}" >&2; then
 	report "${E2E_ANDROID_TEST_MODULE}/build.gradle.kts hard-codes an androidx.test version; take it from gradle/libs.versions.toml, which the fingerprint reads."
+fi
+
+# 7. The E2E tasks live in the script outside the fingerprint; the root build file only applies it.
+root_build="${REPO_ROOT}/build.gradle.kts"
+tasks_script="gradle/e2e-tasks.gradle.kts"
+if [[ -f "${root_build}" ]]; then
+	if grep -nE '(tasks\.register(<[A-Za-z]+>)?\(|registerE2eRun\()[[:space:]]*"(e2e[A-Z]|verifyE2e|verifyScenarioContract|verifyLaunchArgumentContract|syncE2eArtifacts|verifyIosUiTestsBuild)' "${root_build}" >&2; then
+		report "build.gradle.kts registers an E2E task; move it to ${tasks_script}, which the fingerprint leaves out, so that editing a verification task does not invalidate evidence."
+	fi
+	if ! grep -qF "apply(from = \"${tasks_script}\")" "${root_build}"; then
+		report "build.gradle.kts does not apply ${tasks_script}; the E2E tasks would not be registered."
+	fi
+fi
+if [[ ! -f "${REPO_ROOT}/${tasks_script}" ]]; then
+	report "${tasks_script} does not exist."
 fi
 
 if [[ "${issues}" != "0" ]]; then

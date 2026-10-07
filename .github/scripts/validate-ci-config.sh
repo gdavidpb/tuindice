@@ -16,6 +16,13 @@ if [[ -n "$mktemp_portability_violations" ]]; then
 	die "mktemp templates must end in XXXXXX for macOS portability."
 fi
 
+# The iOS UI test job restores the Gradle entries that warm-ios-caches.yml publishes: both must use one cache identity.
+warm_cache_job="$(awk '/GRADLE_BUILD_ACTION_CACHE_KEY_JOB:/ { print $2; exit }' .github/workflows/warm-ios-caches.yml)"
+uitest_cache_job="$(awk '/^  ios-uitest-preflight:/ { in_job = 1 } in_job && /GRADLE_BUILD_ACTION_CACHE_KEY_JOB:/ { print $2; exit }' .github/workflows/preflight-production-pr.yml)"
+if [[ -z "$warm_cache_job" || "$warm_cache_job" != "$uitest_cache_job" ]]; then
+	die "ios-uitest-preflight must set GRADLE_BUILD_ACTION_CACHE_KEY_JOB to the identity warm-ios-caches.yml publishes (warm: '${warm_cache_job}', job: '${uitest_cache_job}')."
+fi
+
 while IFS= read -r script_file; do
 	[[ -n "$script_file" ]] || continue
 	info "Checking shell syntax: ${script_file}"
@@ -51,6 +58,7 @@ info "Validated iOS framework cache key hash."
 
 bash "${SCRIPT_DIR}/test-preflight-production.sh"
 bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
+bash "${SCRIPT_DIR}/test-fingerprint-detector-parity.sh"
 bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"
 bash "${SCRIPT_DIR}/test-appstore-connect-check.sh"
 bash "${SCRIPT_DIR}/test-production-release-artifact.sh"

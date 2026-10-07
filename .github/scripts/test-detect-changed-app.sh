@@ -426,6 +426,7 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
 		scenariokit-common)
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariokit" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
@@ -439,6 +440,7 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
 		scenariokit-android-source-set)
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-scenariokit" "E2E scope"
 			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenariokit" "E2E scope"
 			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
@@ -514,6 +516,62 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			# It builds the framework the E2E app links: iOS evidence and the UI test build job (D-3, D-9).
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,e2e-ios-build-scripts"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			;;
+		ios-build-script-uitest|ios-firebase-script|ios-sync-version-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,e2e-ios-build-scripts"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		ios-harness-build-sh)
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,e2e-harness-ios"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			;;
+		root-build-file)
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" \
+				"android,local-certification-suite,root-build" \
+				"ios,local-certification-suite,root-build"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "module_graph_touched=true" "GitHub output"
+			;;
+		e2e-tasks-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		gradle-unread-file)
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		app-proguard-rules)
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "app" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		app-test-debug-source)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "app" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		scenariokit-appledir-source-set)
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,e2e-scenariokit"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			;;
+		scenarios-ios-source-set)
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,e2e-scenarios"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			;;
 		ios-typecheck-script)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -559,10 +617,15 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "semgrep_required=false" "GitHub output"
-			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
 			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			# The catalog is what ScenarioKit and the XCUITest class list are built from; the harness and the mocks are not.
+			if [[ "$name" == "e2e-catalog" ]]; then
+				assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			else
+				assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
+			fi
 			;;
 		e2e-harness-android)
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
@@ -704,6 +767,23 @@ run_detector_fixture module-graph-config scripts/module-graph.txt
 run_detector_fixture module-build-file record/build.gradle.kts
 run_detector_fixture ios-build-script iosApp/scripts/build-kmp-framework.sh
 run_detector_fixture ios-typecheck-script iosApp/scripts/ci-typecheck-ios-host.sh
+run_detector_fixture ios-build-script-uitest iosApp/scripts/build-scenario-kit.sh
+run_detector_fixture ios-build-script-uitest iosApp/scripts/verify-ui-test-target.sh
+run_detector_fixture ios-build-script-uitest iosApp/scripts/add-ui-test-target.rb
+run_detector_fixture ios-firebase-script .github/scripts/materialize-firebase-configs.sh
+run_detector_fixture ios-sync-version-script .github/scripts/sync-app-version.sh
+run_detector_fixture ios-harness-build-sh e2e/scripts/ios/build.sh
+run_detector_fixture root-build-file build.gradle.kts
+run_detector_fixture root-build-file gradle/libs.versions.toml
+run_detector_fixture root-build-file gradle/gradle-daemon-jvm.properties
+run_detector_fixture root-build-file gradle/wrapper/gradle-wrapper.jar
+run_detector_fixture root-build-file gradlew
+run_detector_fixture e2e-tasks-script gradle/e2e-tasks.gradle.kts
+run_detector_fixture gradle-unread-file gradle/some-unread-file.txt
+run_detector_fixture app-proguard-rules app/proguard-rules.pro
+run_detector_fixture app-test-debug-source app/src/testDebug/kotlin/com/gdavidpb/tuindice/Sample.kt
+run_detector_fixture scenariokit-appledir-source-set scenariokit/src/appleMain/kotlin/com/gdavidpb/tuindice/scenariokit/Platform.apple.kt
+run_detector_fixture scenarios-ios-source-set scenarios/src/iosMain/kotlin/com/gdavidpb/tuindice/scenarios/Platform.ios.kt
 run_detector_fixture detekt-config config/detekt/detekt.yml
 run_detector_fixture detekt-baseline evaluations/detekt-baseline.xml
 run_detector_fixture semgrep-config config/semgrep/rules/layering.yaml

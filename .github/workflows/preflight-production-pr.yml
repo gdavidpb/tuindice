@@ -238,6 +238,10 @@ jobs:
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_uitest_build_required == 'true' }}
+    env:
+      # warm-ios-caches.yml publishes the simulator build entries under the ios-test-preflight identity; without this
+      # the job has its own cache key and links maincore and ScenarioKit from cold inside its 45 minutes.
+      GRADLE_BUILD_ACTION_CACHE_KEY_JOB: ios-test-preflight
 
     steps:
       - name: Check out repository
