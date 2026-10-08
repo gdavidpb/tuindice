@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -22,6 +23,11 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.FakeMutationEnvelopeStore
 import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -521,5 +527,111 @@ class EvaluationRepositoryContractTest {
 		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
 		assertEquals("mutation-5", pendingRemove.mutationId)
 		assertEquals(PendingMutationStatus.Pending, pendingRemove.status)
+	}
+
+	// A 503 is the service being away, not a verdict on the change: the add stays queued as
+	// Pending (with the reason) so the next drain sends it, instead of being parked for good.
+	@Test
+	fun addEvaluation_whenTheServiceAnswers503_keepsTheAddPendingForTheNextDrain() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		outage.releaseFirstAnswer()
+		runCurrent()
+
+		val queued = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
+		assertEquals(PendingMutationStatus.Pending, queued.status)
+		assertEquals(1, outage.addAttempts)
+	}
+
+	@Test
+	fun drainPendingMutations_afterA503_sendsTheAddAgainAndRetiresIt() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		outage.releaseFirstAnswer()
+		runCurrent()
+		repository.drainPendingMutations()
+
+		assertEquals(2, outage.addAttempts)
+		assertEquals(emptyList(), pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE))
+	}
+
+	// The drain of a sign-out flush arrives while the add is still in flight and about to be
+	// answered 503: it must wait for that send, send the add again, and leave nothing behind.
+	@Test
+	fun drainPendingMutations_whileAnAddEndsIn503_waitsResendsAndLeavesNothingPending() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		val flush = launch { repository.drainPendingMutations() }
+		runCurrent()
+		assertEquals(1, outage.addAttempts)
+		assertTrue(flush.isActive)
+
+		outage.releaseFirstAnswer()
+		flush.join()
+
+		assertEquals(2, outage.addAttempts)
+		assertEquals(emptyList(), pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE))
+	}
+
+	private fun repositoryOver(
+		api: EvaluationsApiDataRepository,
+		store: FakeMutationEnvelopeStore<String, EvaluationMutation>,
+		scope: kotlinx.coroutines.CoroutineScope
+	) = EvaluationDataSource(
+		databaseDataSource = FakeDatabaseDataSource(),
+		evaluationsApiDataSource = api,
+		settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+		mutationEngine = createEvaluationsMutationEngine(store = store, coroutineScope = scope),
+		identifierRepository = FakeIdentifierRepository("mutation-503"),
+		clock = Clock.System
+	)
+
+	private fun quizAdd() = EvaluationAdd(
+		reference = "reference-503",
+		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+		termId = DEFAULT_EVALUATION_SUBJECT.termId,
+		type = EvaluationType.QUIZ,
+		scheduleMode = EvaluationScheduleMode.DATED,
+		date = 1_900_000_000_000L,
+		grade = null,
+		maxGrade = 100.0
+	)
+
+	// The first add is held open and then answered 503; every later one succeeds.
+	private class OutageThenRecoveryApi(
+		private val healthy: FakeEvaluationsApiDataSource = FakeEvaluationsApiDataSource()
+	) : EvaluationsApiDataRepository by healthy {
+		private val firstAnswer = CompletableDeferred<Unit>()
+		var addAttempts = 0
+			private set
+
+		fun releaseFirstAnswer() {
+			firstAnswer.complete(Unit)
+		}
+
+		override suspend fun addEvaluation(
+			add: EvaluationMutation.Add,
+			mutationId: String
+		): EvaluationMutationAck.Add {
+			addAttempts += 1
+			if (addAttempts == 1) {
+				firstAnswer.await()
+				throw serverResponseException(HttpStatusCode.ServiceUnavailable)
+			}
+			return healthy.addEvaluation(add, mutationId)
+		}
 	}
 }
