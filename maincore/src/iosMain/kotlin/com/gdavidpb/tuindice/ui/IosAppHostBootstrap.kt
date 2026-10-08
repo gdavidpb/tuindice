@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.ui
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
-import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.freezeDebugClock
 import com.gdavidpb.tuindice.debug.seedDebugSession
@@ -16,7 +15,6 @@ import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
 import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
 import platform.UIKit.UIViewController
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -27,13 +25,12 @@ class IosAppHostBootstrap(
 	private var debugAnimationsDisabled = false
 
 	fun createRootViewController(): UIViewController {
-		val clock = startIfNeeded().get<Clock>()
+		startIfNeeded()
 
 		return ComposeUIViewController {
 			TuIndiceSharedTheme {
 				CompositionLocalProvider(
-					LocalTuIndiceAnimationsEnabled provides (rememberIosSystemAnimationsEnabled() && !debugAnimationsDisabled),
-					LocalTuIndiceClock provides clock
+					LocalTuIndiceAnimationsEnabled provides (rememberIosSystemAnimationsEnabled() && !debugAnimationsDisabled)
 				) {
 					TuIndiceAppHostRoute(
 						onConfirmExitClick = {}

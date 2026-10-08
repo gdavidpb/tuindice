@@ -9,24 +9,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
-import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.presentation.route.TuIndiceAppHostRoute
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
-import org.koin.core.context.GlobalContext
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 /** Below this width the app isn't laid out for landscape/multi-pane yet, so lock portrait. */
 private const val COMPACT_SCREEN_WIDTH_DP = 600
 
-@OptIn(ExperimentalTime::class)
 open class MainActivity : ComponentActivity() {
 	private val systemAnimationsEnabled = mutableStateOf(true)
 	private var animatorScaleObserver: AnimatorScaleObserver? = null
@@ -51,8 +45,7 @@ open class MainActivity : ComponentActivity() {
 			) {
 				TuIndiceTheme {
 					CompositionLocalProvider(
-						LocalTuIndiceAnimationsEnabled provides systemAnimationsEnabled.value,
-						LocalTuIndiceClock provides remember { GlobalContext.get().get<Clock>() }
+						LocalTuIndiceAnimationsEnabled provides systemAnimationsEnabled.value
 					) {
 						TuIndiceAppHostRoute(
 							onConfirmExitClick = ::finish

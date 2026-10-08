@@ -93,9 +93,52 @@ import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalTime::class)
 class TuIndiceAppHostRouteUiTest {
+	// The host gives every screen the clock Koin binds, so a debug build can freeze the "today" they read.
+	// A sync one minute before the frozen instant reads as today only if the screen is asked with that clock:
+	// with the system clock it would be a date years ahead of "now".
+	@Test
+	fun when_hostRouteRuns_then_screensReadTheClockKoinBinds() = runTuIndiceUiTest {
+		// Six in the morning in UTC is the same calendar day, a minute earlier, in every time zone.
+		val frozenNow = Instant.parse("2030-06-15T06:00:00Z")
+		val syncStatusRepository = FakeSyncStatusRepository(
+			initialLastSuccessfulSyncAt = (frozenNow - 1.minutes).toEpochMilliseconds()
+		)
+
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository, clock = FixedClock(frozenNow)))
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 10_000) {
+				onAllNodesWithText("Última sincronización: Hoy", substring = true)
+					.fetchSemanticsNodes()
+					.isNotEmpty()
+			}
+		} finally {
+			stopKoin()
+		}
+	}
+
 	@Test
 	fun when_hostRouteStarts_then_rendersNavHostAndTriggersReviewRequest() = runTuIndiceUiTest {
 		val reviewRepository = RecordingReviewRepository()
@@ -1085,8 +1128,10 @@ class TuIndiceAppHostRouteUiTest {
 
 	private fun hostRouteNavigationModule(
 		syncStatusRepository: SyncStatusRepository,
-		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
+		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository(),
+		clock: Clock = Clock.System
 	) = module {
+		single<Clock> { clock }
 		// Summary reads the sync through its own use case: it gets the very repositories the
 		// host and the auth module resolve, as it does in production.
 		factory {
@@ -1202,4 +1247,9 @@ private fun AppEvent.isDegradedSyncAction(): Boolean {
 	return name == EventNames.APP_ACTION &&
 			parameters[EventParameterKeys.SOURCE] == "main" &&
 			parameters[EventParameterKeys.ACTION] == "note_sync_unavailable"
+}
+
+@OptIn(ExperimentalTime::class)
+private class FixedClock(private val instant: Instant) : Clock {
+	override fun now(): Instant = instant
 }
