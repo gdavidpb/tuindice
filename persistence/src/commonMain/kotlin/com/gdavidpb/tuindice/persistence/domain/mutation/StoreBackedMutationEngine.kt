@@ -351,17 +351,23 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
 	): MutationEnvelope<ScopeKey, Command>? {
 		val queued = execution.mutation
-		val stored = outboxStore.getPendingMutation(queued.scopeKey, queued.mutationId) ?: return queued
+		val stored = outboxStore.getPendingMutation(queued.scopeKey, queued.mutationId)
 
-		if (stored.status != PendingMutationStatus.Pending) return null
+		return when {
+			stored == null -> queued
 
-		val precondition = execution.syncSpec.currentPrecondition(stored)
+			stored.status != PendingMutationStatus.Pending -> null
 
-		return if (precondition == stored.precondition) {
-			stored
-		} else {
-			stored.copy(precondition = precondition).also { aligned ->
-				outboxStore.savePendingMutation(aligned)
+			else -> {
+				val precondition = execution.syncSpec.currentPrecondition(stored)
+
+				if (precondition == stored.precondition) {
+					stored
+				} else {
+					stored.copy(precondition = precondition).also { aligned ->
+						outboxStore.savePendingMutation(aligned)
+					}
+				}
 			}
 		}
 	}
