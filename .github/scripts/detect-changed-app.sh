@@ -261,6 +261,14 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
+		.codex/skills/certify-tuindice-pr/*)
+			# The certification skill ships the tools the harness tests run (the preflight parity script, the
+			# verdict reader): they cannot change what a scenario does, but verifyE2eHarness tests them, so a
+			# change here must run the contract checks.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		AGENTS.md|README.md|LICENSE|docs/*|.codex/*)
 			return 0
 			;;
@@ -307,22 +315,17 @@ classify_changed_file() {
 			append_e2e_scope ios "e2e-harness-ios"
 			return 0
 			;;
-		e2e/tools/*|e2e/platform/*|e2e/*.md)
+		e2e/tools/*|e2e/platform/*|e2e/*.md|e2e/scripts/*)
 			# Verifiers, their tests and the platform notes sit outside the fingerprint:
 			# they cannot change what a scenario does, and verifyE2eContract re-runs them.
+			# A loose file directly under e2e/scripts (the specific groups above came first) is not read by
+			# the fingerprint either; the coverage verifier of verifyE2eHarness fails it.
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
-		e2e/maestro/*|e2e/scripts/*)
-			# Legacy Maestro flows and the pre-v5 scripts under e2e/scripts: the v5 fingerprint
-			# does not read them. verifyE2eContract still validates them until they are removed.
-			E2E_CONTRACT_TOUCHED=true
-			HAS_RELEVANT_CHANGES=true
-			return 0
-			;;
-		testkit/e2e/validate-*.sh|testkit/e2e/*.md)
-			# Validators and docs cannot change what a scenario does at runtime;
+		testkit/e2e/*.md)
+			# Documents cannot change what a scenario does at runtime;
 			# verifyE2eContract re-runs them on every preflight regardless, so
 			# requiring evidence here would force a rotation that could not
 			# have changed its outcome.
@@ -331,8 +334,7 @@ classify_changed_file() {
 			return 0
 			;;
 		testkit/e2e/*)
-			# Other files here are fixture contracts and legacy catalogs. They stay in scope
-			# as before; new files default to this branch.
+			# Anything here that is not a document is data a scenario could read: it stays in scope.
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			append_e2e_scope all "e2e-contract"

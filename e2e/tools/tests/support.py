@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import unittest
 
 TESTS = os.path.dirname(os.path.abspath(__file__))
 E2E_PY = os.path.join(TESTS, "..", "..", "scripts", "shared", "e2e.py")
@@ -15,6 +16,17 @@ FAKE_ADAPTER = os.path.join(TESTS, "fake_adapter.py")
 FAKE_GH = os.path.join(TESTS, "fake_bin", "gh")
 SHARED = os.path.join(TESTS, "..", "..", "scripts", "shared")
 sys.path.insert(0, SHARED)
+
+
+def requires_macos(reason):
+    """Skips a test off macOS, with the reason in the message. A test that needs a tool only a Mac has (`defaults`,
+    `xcrun`, the iOS build) must say so here instead of passing silently or failing on a Linux runner; the macOS job
+    runs them all (run-harness-tests.sh fails there if anything was skipped)."""
+    if not reason or not reason.strip():
+        raise ValueError("a macOS-only test needs a reason")
+    return unittest.skipUnless(sys.platform == "darwin", "macOS only: %s" % reason.strip())
+
+
 FP_A = "a" * 64
 FP_B = "b" * 64
 

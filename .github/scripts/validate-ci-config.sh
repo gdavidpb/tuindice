@@ -9,7 +9,7 @@ source "${SCRIPT_DIR}/common.sh"
 require_tool bash
 
 mktemp_portability_violations="$(
-	grep -R -n -E 'mktemp [^#]*XXXXXX[[:alnum:]_.-]+' .github/scripts e2e/scripts e2e/tools testkit/e2e .codex/skills iosApp/scripts 2>/dev/null || true
+	grep -R -n -E 'mktemp [^#]*XXXXXX[[:alnum:]_.-]+' .github/scripts e2e/scripts e2e/tools .codex/skills iosApp/scripts 2>/dev/null || true
 )"
 if [[ -n "$mktemp_portability_violations" ]]; then
 	printf '%s\n' "$mktemp_portability_violations" >&2
@@ -23,12 +23,22 @@ if [[ -z "$warm_cache_job" || "$warm_cache_job" != "$uitest_cache_job" ]]; then
 	die "ios-uitest-preflight must set GRADLE_BUILD_ACTION_CACHE_KEY_JOB to the identity warm-ios-caches.yml publishes (warm: '${warm_cache_job}', job: '${uitest_cache_job}')."
 fi
 
+# verifyE2eContract runs on Linux, where the harness tests that need macOS tools skip: the macOS job that runs them whole
+# must exist and the single required job must wait for it.
+preflight_workflow=".github/workflows/preflight-production-pr.yml"
+if ! awk '/^  e2e-harness-preflight:/ { in_job = 1; next } in_job && /^  [a-z]/ { in_job = 0 } in_job && /runs-on: macos/ { macos = 1 } in_job && /run-harness-tests\.sh/ { runs = 1 } END { exit !(macos && runs) }' "$preflight_workflow"; then
+	die "e2e-harness-preflight must run e2e/tools/tests/run-harness-tests.sh on a macOS runner."
+fi
+if ! awk '/^  preflight-production-pr:/ { in_job = 1; next } in_job && /^  [a-z]/ { in_job = 0 } in_job && /^      - e2e-harness-preflight$/ { found = 1 } END { exit !found }' "$preflight_workflow"; then
+	die "preflight-production-pr must wait for e2e-harness-preflight."
+fi
+
 while IFS= read -r script_file; do
 	[[ -n "$script_file" ]] || continue
 	info "Checking shell syntax: ${script_file}"
 	bash -n "$script_file"
 done < <(
-	find .github/scripts e2e/scripts e2e/tools testkit/e2e .codex/skills iosApp/scripts -name '*.sh' -type f 2>/dev/null | sort
+	find .github/scripts e2e/scripts e2e/tools .codex/skills iosApp/scripts -name '*.sh' -type f 2>/dev/null | sort
 )
 
 while IFS= read -r python_file; do

@@ -24,6 +24,7 @@ jobs:
       ios_host_tasks: ${{ steps.changes.outputs.ios_host_tasks }}
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
       ios_uitest_build_required: ${{ steps.changes.outputs.ios_uitest_build_required }}
+      e2e_contract_touched: ${{ steps.changes.outputs.e2e_contract_touched }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
       app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
       has_release_impact: ${{ steps.changes.outputs.has_release_impact }}
@@ -261,6 +262,28 @@ jobs:
           set -euo pipefail
           bash ./e2e/scripts/ios/build.sh --for-testing-only
 
+  # verifyE2eContract runs on the Linux Android job, where the harness tests that need macOS tools (top, xcrun,
+  # vm_stat, sysctl) are skipped with their reason printed. This job runs the same harness checks whole, on macOS.
+  e2e-harness-preflight:
+    name: E2E harness preflight (macOS)
+    runs-on: macos-26
+    timeout-minutes: 30
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.e2e_contract_touched == 'true' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Run the E2E harness checks without skips
+        run: |
+          set -euo pipefail
+          bash ./e2e/tools/tests/run-harness-tests.sh
+
   preflight-production-pr:
     name: preflight-production-pr
     runs-on: ubuntu-latest
@@ -270,6 +293,7 @@ jobs:
       - ios-test-preflight
       - ios-host-preflight
       - ios-uitest-preflight
+      - e2e-harness-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
@@ -280,16 +304,19 @@ jobs:
           ios_test_result="${{ needs.ios-test-preflight.result }}"
           ios_host_result="${{ needs.ios-host-preflight.result }}"
           ios_uitest_result="${{ needs.ios-uitest-preflight.result }}"
+          e2e_harness_result="${{ needs.e2e-harness-preflight.result }}"
           android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
           ios_test_tasks="${{ needs.shared-preflight.outputs.ios_test_tasks }}"
           ios_host_tasks="${{ needs.shared-preflight.outputs.ios_host_tasks }}"
           ios_ci_scripts_touched="${{ needs.shared-preflight.outputs.ios_ci_scripts_touched }}"
           ios_uitest_build_required="${{ needs.shared-preflight.outputs.ios_uitest_build_required }}"
+          e2e_contract_touched="${{ needs.shared-preflight.outputs.e2e_contract_touched }}"
           echo "Shared preflight result: ${shared_result}"
           echo "Android preflight result: ${android_result}"
           echo "iOS test preflight result: ${ios_test_result}"
           echo "iOS host preflight result: ${ios_host_result}"
           echo "iOS UI test preflight result: ${ios_uitest_result}"
+          echo "E2E harness preflight result: ${e2e_harness_result}"
           if [[ "${shared_result}" != "success" ]]; then
             exit 1
           fi
@@ -303,5 +330,8 @@ jobs:
             exit 1
           fi
           if [[ "${ios_uitest_build_required}" == "true" && "${ios_uitest_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ "${e2e_contract_touched}" == "true" && "${e2e_harness_result}" != "success" ]]; then
             exit 1
           fi

@@ -20,7 +20,6 @@ while IFS= read -r -d '' file; do
 done < <(
 	{
 		find e2e -type f \( -name '*.sh' -o -path '*/fake_bin/*' \) -print0
-		find testkit/e2e -maxdepth 1 -type f -name '*.sh' -print0
 		find .codex/skills -path '*/scripts/*' -type f -name '*.sh' -print0
 	} 2>/dev/null
 )
@@ -61,7 +60,27 @@ sys.exit(1 if failures else 0)
 PY
 done
 
-python3 -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v
+# Tests that need a tool only a Mac has skip elsewhere with their reason (support.requires_macos). Off macOS the
+# skips are counted and said out loud; on macOS (the CI job that runs this whole) any skip is a failure.
+unittest_log="$(mktemp "${TMPDIR:-/tmp}/e2e-harness-unittest.XXXXXX")"
+trap 'rm -f "${unittest_log}"' EXIT
+set +e
+python3 -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v 2>&1 | tee "${unittest_log}"
+unittest_status="${PIPESTATUS[0]}"
+set -e
+if (( unittest_status != 0 )); then
+	exit "${unittest_status}"
+fi
+skipped="$(awk '/ \.\.\. skipped /{ n++ } END { print n + 0 }' "${unittest_log}")"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+	if (( skipped > 0 )); then
+		printf 'On macOS no harness test may skip, but %d did (see the skipped lines above).\n' "${skipped}" >&2
+		exit 1
+	fi
+else
+	printf 'NOT RUN HERE: %d harness tests need macOS and were skipped with their reason (the lines above that say "skipped").\n' "${skipped}"
+	printf 'The macOS job (e2e-harness-preflight) runs them.\n'
+fi
 
 # The fingerprint covers what it must (verifier) and behaves as specified (its own tests).
 bash e2e/tools/verify/verify-e2e-fingerprint-coverage.sh

@@ -260,11 +260,20 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			;;
-		e2e-legacy)
+		e2e-loose-script)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		certification-skill)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			;;
 		skill-docs)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -752,8 +761,9 @@ ios_release_runtime_commit="$(
 )"
 
 run_detector_fixture e2e-runner e2e/tools/tests/support.py
-run_detector_fixture e2e-legacy e2e/scripts/common.sh
-run_detector_fixture skill-docs .codex/skills/certify-tuindice-pr/SKILL.md
+run_detector_fixture e2e-loose-script e2e/scripts/stray.sh
+run_detector_fixture certification-skill .codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
+run_detector_fixture skill-docs .codex/skills/implement-tuindice-module/SKILL.md
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
 run_detector_fixture scenarios-test-only scenarios/src/androidHostTest/kotlin/com/gdavidpb/tuindice/scenarios/CatalogShapeTest.kt
 run_detector_fixture scenarios-sources scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/E2eCatalog.kt

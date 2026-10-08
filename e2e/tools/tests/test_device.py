@@ -252,6 +252,7 @@ class IosDeviceTests(unittest.TestCase):
             box.write("sim", "FAKE-0000-0000-0000-000000000001 %s\n" % state, box.xcrun)
         return box, box.run("ensure", **env)
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_a_missing_simulator_is_created_from_the_lock_erased_booted_and_configured(self):
         box, done = self.ensure()
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -266,6 +267,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertEqual(done.json["settings"]["-g.AppleLanguages"], "es")
         self.assertEqual(done.json["settings"]["ConnectHardwareKeyboard"], "false")
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_the_active_keyboards_are_pinned_from_the_lock_and_read_back(self):
         box, done = self.ensure()
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -283,6 +285,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertIn("-g AppleKeyboards reads back ''", done.stderr)
         self.assertIn("es_ES@sw=QWERTY;hw=Automatic", done.stderr)
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_a_shutdown_simulator_is_erased_and_booted_but_a_booted_one_is_reused(self):
         box, done = self.ensure("Shutdown")
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -294,6 +297,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertEqual([c for c in box.calls(box.xcrun) if c.split()[1] in ("boot", "erase", "shutdown")], [],
             "a booted simulator must not be rebooted")
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_a_simulator_above_the_data_limit_is_erased_and_booted(self):
         box = Sandbox(self, "ios")
         box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
@@ -313,6 +317,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertEqual(done.returncode, 3)
         self.assertIn("-g KeyboardPrediction reads back ''", done.stderr)
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_a_booted_simulator_that_does_not_answer_gets_one_recovery_inside_ensure(self):
         box = Sandbox(self, "ios")
         box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
@@ -338,6 +343,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertIn("refused its settings again after one recovery", done.stderr)
         self.assertIn("-g KeyboardPrediction reads back ''", done.stderr)
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_a_healthy_simulator_is_not_recovered(self):
         box, done = self.ensure("Booted")
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -371,6 +377,7 @@ class IosDeviceTests(unittest.TestCase):
         self.assertIn("runtime com.apple.CoreSimulator.SimRuntime.iOS-99-0 is not installed", done.stderr)
         self.assertFalse([c for c in box.calls(box.xcrun) if "create" in c])
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
     def test_health_stop_and_recover(self):
         box = Sandbox(self, "ios")
         box.write("sim", "FAKE-0000-0000-0000-000000000001 Shutdown\n", box.xcrun)
