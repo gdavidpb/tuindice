@@ -98,6 +98,18 @@ fun Throwable.isRetryableLater(): Boolean = when {
 	else -> errorChain().any { throwable -> throwable is SessionRecoveryAttestationException }
 }
 
+/**
+ * The failure of a send that leaves a queued change waiting for the next attempt. A response from the
+ * server is decided by its status code alone ([isRetryableLater]): Ktor puts the response body in the
+ * exception message, so reading the message would turn a 400 or a 500 whose body mentions a timeout
+ * into an outage. What is not a response (a lost connection, a deadline, a refused attestation) is
+ * decided by [isConnection] or [isRetryableLater].
+ */
+fun Throwable.isTransient(): Boolean = when (this) {
+	is ResponseException -> isRetryableLater()
+	else -> isConnection() || isRetryableLater()
+}
+
 fun Throwable.isFailedDependency() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.FailedDependency
 	else -> false

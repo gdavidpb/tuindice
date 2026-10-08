@@ -102,6 +102,40 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 		}
 	}
 
+	// A response from the server is decided by its status code. Ktor puts the body in the exception message,
+	// so a 400 or a 500 whose body talks about a timeout must stay a verdict, and a 408 is not an outage.
+	@Test
+	fun resolveFailure_aResponseIsDecidedByItsCode_neverByWhatItsBodySays() = runTest {
+		val spec = specUnderTest()
+		val verdicts = listOf(
+			clientRequestException(HttpStatusCode.BadRequest, message = "date: time out of range"),
+			serverResponseException(HttpStatusCode.InternalServerError, message = "MongoTimeoutException: no primary"),
+			clientRequestException(HttpStatusCode.RequestTimeout)
+		)
+
+		verdicts.forEach { verdict ->
+			listOf(
+				upsertOverrideEnvelope(),
+				addSyntheticTermEnvelope(),
+				deleteSyntheticTermEnvelope()
+			).forEach { mutation ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = verdict)
+
+				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+			}
+		}
+	}
+
+	@Test
+	fun resolveFailure_aGatewayTimeout_defersEvenWhenItsBodyIsEmpty() = runTest {
+		val resolution = specUnderTest().resolveFailure(
+			mutation = upsertOverrideEnvelope(),
+			throwable = serverResponseException(HttpStatusCode.GatewayTimeout)
+		)
+
+		assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
+	}
+
 	// The safe refresh swallows failures on purpose, but a cancelled scope is not a failed
 	// refresh: swallowing it would resolve the mutation from inside a dead pass.
 	@Test
