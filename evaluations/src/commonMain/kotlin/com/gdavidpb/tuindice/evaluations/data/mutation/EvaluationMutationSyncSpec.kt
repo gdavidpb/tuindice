@@ -127,7 +127,8 @@ class EvaluationMutationSyncSpec(
 	): MutationFailureResolution<String, EvaluationMutation> {
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict -> {
-				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val snapshot = refreshRemoteSnapshotSafely()
+					.getOrElse { failure -> return failure.afterFailedRefresh() }
 				val remoteMatch = snapshot.evaluations.firstOrNull { evaluation ->
 					evaluation.referenceId == command.referenceId
 				}
@@ -145,7 +146,8 @@ class EvaluationMutationSyncSpec(
 
 			MutationFailureKind.PreconditionFailed,
 			MutationFailureKind.NotFound -> {
-				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val snapshot = refreshRemoteSnapshotSafely()
+					.getOrElse { failure -> return failure.afterFailedRefresh() }
 				val remoteMatch = snapshot.evaluations.firstOrNull { evaluation ->
 					evaluation.referenceId == command.referenceId
 				}
@@ -170,7 +172,8 @@ class EvaluationMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val snapshot = refreshRemoteSnapshotSafely()
+					.getOrElse { failure -> return failure.afterFailedRefresh() }
 				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
@@ -191,8 +194,8 @@ class EvaluationMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
+				refreshRemoteSnapshotSafely().onFailure { failure -> return failure.afterFailedRefresh() }
 				databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
-				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -208,7 +211,8 @@ class EvaluationMutationSyncSpec(
 	): MutationFailureResolution<String, EvaluationMutation> {
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict -> {
-				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val snapshot = refreshRemoteSnapshotSafely()
+					.getOrElse { failure -> return failure.afterFailedRefresh() }
 				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
@@ -225,7 +229,8 @@ class EvaluationMutationSyncSpec(
 			}
 
 			MutationFailureKind.PreconditionFailed -> {
-				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val snapshot = refreshRemoteSnapshotSafely()
+					.getOrElse { failure -> return failure.afterFailedRefresh() }
 				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
@@ -238,8 +243,8 @@ class EvaluationMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
+				refreshRemoteSnapshotSafely().onFailure { failure -> return failure.afterFailedRefresh() }
 				databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
-				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -268,9 +273,19 @@ class EvaluationMutationSyncSpec(
 			type == (command.type ?: type)
 	}
 
-	private suspend fun refreshRemoteSnapshotSafely(): RemoteEvaluationsSnapshot? {
+	/**
+	 * The refresh that resolves a 409, 412 or 404. Its failure is returned, not swallowed, because what
+	 * the row becomes depends on why it failed (see afterFailedRefresh); only a cancelled scope is
+	 * rethrown, since it is not a failed refresh.
+	 */
+	private suspend fun refreshRemoteSnapshotSafely(): Result<RemoteEvaluationsSnapshot> {
 		return runCatching { refreshRemoteSnapshot() }
 			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
-			.getOrNull()
 	}
+}
+
+// A refresh that fails because the service is away leaves the row Pending for the next drain, like the
+// send itself would; any other failure is a verdict and parks the row.
+private fun Throwable.afterFailedRefresh(): MutationFailureResolution<String, EvaluationMutation> {
+	return if (isTransient()) MutationFailureResolution.Defer() else MutationFailureResolution.Fail()
 }

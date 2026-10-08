@@ -222,6 +222,98 @@ class EvaluationMutationSyncSpecTest {
 			assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
 		}
 	}
+
+	// The refresh that resolves a 409, 412 or 404 can fail too. When it fails because the service is away the row
+	// goes out again with the next drain; parking it as FailedTerminal would lose a change nobody can see.
+	@Test
+	fun resolveFailure_whenTheRefreshThatResolvesItFailsTransiently_defersEveryKindOfMutation() = runTest {
+		listOf(409, 412, 404).forEach { status ->
+			evaluationMutations().forEach { command ->
+				val database = FakeDatabaseDataSource()
+				val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+					getEvaluationsThrowable = responseWithStatus(503)
+				)
+				val syncSpec = EvaluationMutationSyncSpec(
+					databaseDataSource = database,
+					evaluationsApiDataSource = evaluationsApiDataSource,
+					refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+				)
+
+				val resolution = syncSpec.resolveFailure(
+					mutation = evaluationEnvelope(command),
+					throwable = responseWithStatus(status)
+				)
+
+				assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
+				assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
+				assertEquals(emptyList(), database.removedEvaluations)
+			}
+		}
+	}
+
+	@Test
+	fun resolveFailure_whenTheRefreshThatResolvesItFailsForGood_failsEveryKindOfMutation() = runTest {
+		listOf(409, 412, 404).forEach { status ->
+			evaluationMutations().forEach { command ->
+				val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+					getEvaluationsThrowable = responseWithStatus(500)
+				)
+				val syncSpec = EvaluationMutationSyncSpec(
+					databaseDataSource = FakeDatabaseDataSource(),
+					evaluationsApiDataSource = evaluationsApiDataSource,
+					refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+				)
+
+				val resolution = syncSpec.resolveFailure(
+					mutation = evaluationEnvelope(command),
+					throwable = responseWithStatus(status)
+				)
+
+				assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+			}
+		}
+	}
+
+	@Test
+	fun resolveFailure_whenTheRefreshThatResolvesItFailsOffline_defers() = runTest {
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+			getEvaluationsThrowable = IllegalStateException("Could not connect to the server.")
+		)
+		val syncSpec = EvaluationMutationSyncSpec(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+		)
+
+		val resolution = syncSpec.resolveFailure(
+			mutation = evaluationEnvelope(evaluationMutations().first()),
+			throwable = responseWithStatus(409)
+		)
+
+		assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
+	}
+
+	// A 404 on an edit or a delete discards the local copy only once the refresh has worked.
+	@Test
+	fun resolveFailure_aNotFoundOnEditOrDelete_discardsTheLocalCopyOnlyAfterTheRefreshWorked() = runTest {
+		evaluationMutations().drop(1).forEach { command ->
+			val database = FakeDatabaseDataSource()
+			val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+			val syncSpec = EvaluationMutationSyncSpec(
+				databaseDataSource = database,
+				evaluationsApiDataSource = evaluationsApiDataSource,
+				refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+			)
+
+			val resolution = syncSpec.resolveFailure(
+				mutation = evaluationEnvelope(command),
+				throwable = responseWithStatus(404)
+			)
+
+			assertIs<MutationFailureResolution.Drop<String, EvaluationMutation>>(resolution)
+			assertEquals(listOf(DEFAULT_LOCAL_PENDING_EVALUATION.id), database.removedEvaluations)
+		}
+	}
 }
 
 private fun evaluationMutations(): List<EvaluationMutation> = listOf(
