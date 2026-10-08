@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * Every method answers true when the input was delivered. Whether the field then holds the right text is not the
  * driver's call: after `typeKeys` the interpreter polls [ElementProbe.readText] until two reads in a row show the
  * text, for up to [com.gdavidpb.tuindice.scenariokit.model.Timeouts.TextReread], and fails with both texts when they
- * differ (a secure field is judged by the length of what it shows). When the driver answers false the interpreter reads the
- * field too: part of the text in it is a corrupted typing, not a refusal. A refusal carries its reason in
+ * differ (a secure field is judged by the length of what it shows). When the driver answers false the interpreter
+ * reads the field too: part of the text in it is a corrupted typing, not a refusal. A refusal carries its reason in
  * [Diagnostics.lastRefusal]. A call that has no app to act on, or no field on screen, answers false.
  */
 interface TextEntry {
