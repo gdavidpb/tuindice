@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -22,6 +24,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
@@ -32,6 +36,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.performTextInputPerCharacter
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -389,6 +394,73 @@ class SignInIdleViewUiTest {
 		assertFalse(onNodeWithTag(AuthUiTags.UsbIdTextField).hasError(), "identifier must not be in error")
 	}
 
+	// The line under a field is reserved whether or not there is a message, so the form neither is tighter than it
+	// was nor jumps when the message comes and goes.
+	@Test
+	fun when_thereIsNoError_then_bothFieldsStillReserveTheLineUnderThem() = runTuIndiceUiTest {
+		var density: Density? = null
+
+		setTuIndiceTestContent {
+			density = LocalDensity.current
+
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234"))
+		}
+
+		val reserved = with(requireNotNull(density)) { (TextFieldDefaults.MinHeight + 16.dp).toPx() }
+
+		for (tag in listOf(AuthUiTags.UsbIdTextField, AuthUiTags.PasswordTextField)) {
+			val height = onNodeWithTag(tag).fetchSemanticsNode().size.height
+
+			assertTrue(height >= reserved, "$tag is $height px tall, less than the field plus its reserved line ($reserved)")
+		}
+	}
+
+	@Test
+	fun when_theCredentialsWereRejected_then_theFieldsDoNotChangeHeightAndTheFormDoesNotJump() = runTuIndiceUiTest {
+		var state by mutableStateOf(SignIn.State.Idle(usbId = "12-34567", password = "1234"))
+		var density: Density? = null
+
+		setTuIndiceTestContent {
+			density = LocalDensity.current
+
+			SignInView(state = state)
+		}
+
+		val identifierBefore = onNodeWithTag(AuthUiTags.UsbIdTextField).fetchSemanticsNode().boundsInRoot
+		val passwordBefore = onNodeWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNode().boundsInRoot
+
+		runOnIdle { state = state.copy(rejection = invalidCredentials) }
+		waitForIdle()
+
+		val identifierAfter = onNodeWithTag(AuthUiTags.UsbIdTextField).fetchSemanticsNode().boundsInRoot
+		val passwordAfter = onNodeWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNode().boundsInRoot
+		val tolerance = with(requireNotNull(density)) { 4.dp.toPx() }
+
+		assertTrue(
+			abs(identifierAfter.height - identifierBefore.height) <= tolerance,
+			"the identifier changed height: ${identifierBefore.height} -> ${identifierAfter.height}"
+		)
+		assertTrue(
+			abs(passwordAfter.height - passwordBefore.height) <= tolerance,
+			"the password changed height: ${passwordBefore.height} -> ${passwordAfter.height}"
+		)
+		assertTrue(
+			abs(passwordAfter.top - passwordBefore.top) <= tolerance,
+			"the form moved: ${passwordBefore.top} -> ${passwordAfter.top}"
+		)
+	}
+
+	// A field in error announces the reason of the rejection, not the default text of Material.
+	@Test
+	fun when_theCredentialsWereRejected_then_bothFieldsAnnounceTheMessageAsTheirError() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234", rejection = invalidCredentials))
+		}
+
+		assertEquals(invalidCredentials.message, onNodeWithTag(AuthUiTags.UsbIdTextField).errorDescription())
+		assertEquals(invalidCredentials.message, onNodeWithTag(AuthUiTags.PasswordTextField).errorDescription())
+	}
+
 	@Composable
 	private fun SignInView(
 		state: SignIn.State.Idle,
@@ -429,6 +501,9 @@ class SignInIdleViewUiTest {
 		)
 	}
 }
+
+private fun SemanticsNodeInteraction.errorDescription() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.Error)
 
 private fun SemanticsNodeInteraction.hasError() =
 	fetchSemanticsNode().config.contains(SemanticsProperties.Error)

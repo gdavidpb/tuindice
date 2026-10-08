@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -32,13 +33,17 @@ import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
 private val identifierModeTogglePulseSize = 32.dp
 
-/** [isWaiting], [error] and [isError]: see [PasswordTextField]. */
+/**
+ * [isWaiting], [error] and [isError]: see [PasswordTextField]. [errorDescription] is what a screen reader
+ * says when the field is in error without showing a message of its own under it.
+ */
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
 	labelText: String,
 	placeholderText: String,
 	error: String? = null,
+	errorDescription: String? = null,
 	isError: Boolean = false,
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 	toggleContentDescription: String,
@@ -58,7 +63,11 @@ fun UsbIdTextField(
 	OutlinedTextField(
 		modifier = modifier
 			.testTag(AuthUiTags.UsbIdTextField)
-			.semantics { contentType = ContentType.Username },
+			.semantics {
+				contentType = ContentType.Username
+
+				(error ?: errorDescription)?.let { description -> error(description) }
+			},
 		value = field.value,
 		onValueChange = { newValue ->
 			when {
@@ -84,7 +93,7 @@ fun UsbIdTextField(
 			}
 		},
 		isError = isError || error != null,
-		supportingText = error?.let { text -> { Text(text) } },
+		supportingText = { if (error != null) Text(error) },
 		label = { Text(text = labelText) },
 		placeholder = { Text(text = placeholderText) },
 		leadingIcon = {

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -58,7 +59,12 @@ fun PasswordTextField(
 	OutlinedTextField(
 		modifier = modifier
 			.testTag(AuthUiTags.PasswordTextField)
-			.semantics { contentType = ContentType.Password },
+			.semantics {
+				contentType = ContentType.Password
+
+				// The reason for the rejection, instead of the default text of Material ("Invalid input").
+				if (error != null) error(error)
+			},
 		value = field.value,
 		enabled = enabled,
 		onValueChange = { newValue ->
@@ -69,7 +75,9 @@ fun PasswordTextField(
 			}
 		},
 		isError = isError || error != null,
-		supportingText = error?.let { text -> { Text(modifier = errorModifier, text = text) } },
+		// Always present, with or without a message: the line under the field is reserved either way, so the
+		// form does not get tighter or jump when the message comes and goes.
+		supportingText = { if (error != null) Text(modifier = errorModifier, text = error) },
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(

@@ -140,8 +140,9 @@ fun SignInIdleView(
 			},
 			showTogglePulse = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
 			isWaiting = isWaiting,
-			// Wrong credentials mark both fields; the message is not repeated here.
+			// Wrong credentials mark both fields; the message is not repeated here, a screen reader gets it.
 			isError = rejection is SignIn.Rejection.InvalidCredentials,
+			errorDescription = (rejection as? SignIn.Rejection.InvalidCredentials)?.message,
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
 			onIdentifierModeToggle = onIdentifierModeToggle,
