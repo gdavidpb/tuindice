@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.enterSecureText
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
-import com.gdavidpb.tuindice.scenariokit.dsl.hideKeyboard
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
@@ -175,9 +174,8 @@ private val conformanceSubmitSearch = scenario("conformance-submit-search", "con
 }
 
 /**
- * The two ways of ending a text entry are not the same thing. The password sheet of an expired session sends
- * its request when the action of the keyboard is sent: the backend sees the credential the field holds.
- * [conformanceHideKeyboard] is the other half: the same field, the keyboard put away, nothing sent.
+ * Sending the IME action: the password sheet of an expired session sends its request when the action of the
+ * keyboard is sent, and the backend sees the credential the field holds.
  */
 private val conformanceSubmitTextEntry = scenario(
 	"conformance-submit-text-entry",
@@ -195,30 +193,6 @@ private val conformanceSubmitTextEntry = scenario(
 		"/auth/v1/token",
 		basicAuth = "${E2eAccounts.SessionInvalidated.backendIdentifier}:${E2eAccounts.SessionInvalidated.password}"
 	)
-}
-
-/**
- * Putting the keyboard away sends nothing to the field: right after it the password sheet is not loading (the
- * mock holds the reply of a reissue for half a second, so a request sent by the hide would still be in flight),
- * and still idle with its button enabled. That the keyboard is gone is the driver's own answer (it is true only once
- * the keyboard window has left; `AndroidDriverProbesTest` checks it on the device). Android only: iOS has no
- * action that hides a keyboard without the field's own (see `TextEntry.hideKeyboard`).
- */
-private val conformanceHideKeyboard = scenario(
-	"conformance-hide-keyboard",
-	"conformance",
-	Start.Seeded(E2eAccounts.SessionInvalidated).toLaunchSpec()
-) {
-	platforms(Platform.Android)
-	account(E2eAccounts.SessionInvalidated.id)
-
-	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Sync)
-	tap(AuthUiTags.PasswordTextField)
-	enterSecureText(AuthUiTags.PasswordTextField, E2eAccounts.SessionInvalidated.password)
-	hideKeyboard()
-	waitGone(AuthUiTags.UpdatePasswordConfirmLoading, Within.Now)
-	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert)
-	assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, true)
 }
 
 /**
@@ -355,7 +329,6 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceTextQuery,
 	conformanceSubmitSearch,
 	conformanceSubmitTextEntry,
-	conformanceHideKeyboard,
 	conformanceMockState,
 	conformanceScroll,
 	conformanceScrollHorizontal,

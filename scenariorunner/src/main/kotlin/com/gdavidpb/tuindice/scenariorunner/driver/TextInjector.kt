@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 /**
  * `typeKeys` clicks the field and injects key events, so the app sees the same input a keyboard would produce;
  * `clearText` assigns the empty text in one accessibility action; `submitTextEntry` injects the Enter key, which a
- * single-line field turns into its IME action, and `hideKeyboard` presses back while the keyboard window is up.
+ * single-line field turns into its IME action.
  * Text itself never reaches the driver log (it can be a password): only lengths and counts do.
  */
 internal class TextInjector(private val session: DeviceSession) : TextEntry {
@@ -102,29 +102,9 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		return sent
 	}
 
-	/**
-	 * True once no keyboard window is showing. Back is pressed only while one is: it closes the keyboard and nothing
-	 * else, where with no keyboard it would leave the screen the scenario is on.
-	 */
-	override fun hideKeyboard(): Boolean {
-		session.log.clearRefusal()
-		if (session.keyboard.frame() == null) return true
-
-		val pressed = KeyInjector(session).press(KeyEvent.KEYCODE_BACK)
-		val gone = pressed && session.poll(HIDE_TIMEOUT_MS) { session.keyboard.frame() == null }
-
-		if (!gone) {
-			val why = if (pressed) "the keyboard was still showing $HIDE_TIMEOUT_MS ms after back" else "back was not injected"
-			session.log.refuse("hideKeyboard: $why")
-		}
-
-		return gone
-	}
-
 	private fun readBack(q: Query): String? = session.selectors.find(q)?.let { runCatching { it.text }.getOrNull() }
 
 	private companion object {
-		const val HIDE_TIMEOUT_MS = 2_000L
 		const val READ_BACK_MS = 2_000L
 	}
 }

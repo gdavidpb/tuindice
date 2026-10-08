@@ -240,20 +240,13 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun submitTextEntryAndHideKeyboard_areTwoStepsThatFailOnTheirOwn() {
+	fun submitTextEntry_failsWhenTheDriverCannotSendTheAction() {
 		val fake = driver(field to FakeElement(text = "abc"))
 
-		assertPassed(fake.run(Step.SubmitTextEntry(), Step.HideKeyboard()))
-		assertEquals(listOf("submitTextEntry", "hideKeyboard"), fake.calls.filter { it in TEXT_ENTRY_ENDINGS })
+		assertPassed(fake.run(Step.SubmitTextEntry()))
 
 		fake.submitResult = false
 		assertFailed(fake.run(Step.SubmitTextEntry()), FailureKind.ASSERTION)
-		assertPassed(fake.run(Step.HideKeyboard()))
-
-		fake.submitResult = true
-		fake.hideResult = false
-		assertPassed(fake.run(Step.SubmitTextEntry()))
-		assertFailed(fake.run(Step.HideKeyboard()), FailureKind.ASSERTION)
 	}
 
 	@Test
@@ -272,7 +265,6 @@ class StepKindsTest {
 			enter("abc") to "typing into tag:field was refused",
 			enter("abc", replace = true) to "clearText tag:field was refused",
 			Step.SubmitTextEntry() to "the IME action could not be sent",
-			Step.HideKeyboard() to "the keyboard could not be hidden",
 			Step.ScrollUntilVisible(far, Scroll.ContentDown, 2_000) to "the driver refused the scroll swipe"
 		).forEach { (step, what) ->
 			val failure = assertFailed(fake.run(step), FailureKind.ASSERTION)
@@ -534,9 +526,5 @@ class StepKindsTest {
 
 		fake.foregroundResult = false
 		assertFailed(fake.run(Step.Foreground()), FailureKind.APP_NOT_RUNNING, stepIndex = 0)
-	}
-
-	private companion object {
-		val TEXT_ENTRY_ENDINGS = setOf("submitTextEntry", "hideKeyboard")
 	}
 }

@@ -27,7 +27,6 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.Back(site),
 	Step.EnterText(tag, "12-34567", "12-34567", false, true, site),
 	Step.SubmitTextEntry(site),
-	Step.HideKeyboard(site),
 	Step.WaitVisible(tag, 5_000, site),
 	Step.WaitGone(Query.System("Cancel"), 5_000, site),
 	Step.WaitAnyVisible(listOf(tag, Query.Text("Ok")), 5_000, site),

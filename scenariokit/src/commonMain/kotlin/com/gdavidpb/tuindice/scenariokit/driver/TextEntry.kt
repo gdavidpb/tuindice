@@ -40,13 +40,4 @@ interface TextEntry {
 	 * keyboard once its frame is still, and refuses when there is no keyboard or it has no action key (a number pad).
 	 */
 	fun submitTextEntry(): Boolean
-
-	/**
-	 * Puts the on-screen keyboard away without sending the field's action, true when none is showing afterwards.
-	 * Android presses back while the keyboard window is up. iOS has no such action: its keyboards have no hide key on a
-	 * phone, so it answers false while a keyboard is showing (and true when there is none) and says why through
-	 * [Diagnostics.lastRefusal]; a scenario that must clear the keyboard on iOS sends the field's action or touches
-	 * what the app itself dismisses the keyboard with.
-	 */
-	fun hideKeyboard(): Boolean
 }

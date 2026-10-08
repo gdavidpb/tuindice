@@ -184,13 +184,6 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         }
     }
 
-    func hideKeyboard() -> Bool {
-        traced("hideKeyboard") {
-            log.clearRefusal()
-            return typing.hideKeyboard()
-        }
-    }
-
     // MARK: BackendControl
 
     func http(method: String, path: String, body: String?, authorization: String?) -> HttpReply {

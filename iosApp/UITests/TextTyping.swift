@@ -87,14 +87,6 @@ final class TextTyping {
         return refuse("submitTextEntry: the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
     }
 
-    /// An iPhone keyboard has no key or gesture that closes it without the action of the field it serves, so there is
-    /// nothing honest to do while one is showing: the answer is false and says what to use instead.
-    func hideKeyboard() -> Bool {
-        guard resolver.isAppRunning else { return refuse("hideKeyboard: the app is not running") }
-        guard app.keyboards.firstMatch.exists else { return true }
-        return refuse("hideKeyboard: iOS has no action that hides the keyboard without the action of its field; send that action or touch what the app closes it with")
-    }
-
     private func refuse(_ reason: String) -> Bool {
         log.refuse("[driver] \(reason)")
         return false

@@ -62,15 +62,14 @@ class DslTest {
 	}
 
 	@Test
-	fun submitHideAndMockState_buildTheirOwnSteps() {
+	fun submitAndMockState_buildTheirOwnSteps() {
 		val built = scenario("a-b", "a", start) {
 			submitTextEntry()
-			hideKeyboard()
 			mockState("login-token-lifecycle", "Reissued")
 		}
 
 		assertEquals(
-			listOf("SubmitTextEntry", "HideKeyboard", "SetMockState"),
+			listOf("SubmitTextEntry", "SetMockState"),
 			built.steps.map { it::class.simpleName }
 		)
 		assertEquals(Step.SetMockState("login-token-lifecycle", "Reissued", built.steps.last().site), built.steps.last())

@@ -79,22 +79,6 @@ class AndroidDriverProbesTest {
 		assertTrue(driver.lastRefusal().orEmpty().contains("inside the on-screen keyboard"))
 	}
 
-	/** B-8: hiding the keyboard closes it, and with none showing it does nothing (back would leave the screen). */
-	@Test
-	fun hideKeyboardClosesTheKeyboardAndIsQuietWithoutOne() {
-		val driver = app.begin("hide")
-
-		assertTrue("nothing to hide at the start", driver.hideKeyboard())
-		assertTrue(driver.session.keyboard.frame() == null)
-		assertTrue(driver.tap(app.usbId))
-		assertTrue("the keyboard must show", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null })
-
-		assertTrue(driver.hideKeyboard())
-		assertTrue(driver.session.keyboard.frame() == null)
-		assertTrue("hiding is not leaving the screen", driver.waitVisible(app.screen, LONG_MS))
-		assertTrue(driver.hideKeyboard())
-	}
-
 	/** B-10 (b)/(c): a dead process is not revived by foreground(); a live one brought back logs each request. */
 	@Test
 	fun foregroundDoesNotReviveADeadAppAndLogsEachRequest() {

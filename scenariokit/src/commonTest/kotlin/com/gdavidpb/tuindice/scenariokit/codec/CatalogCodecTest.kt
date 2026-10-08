@@ -80,7 +80,7 @@ class CatalogCodecTest {
 		val text = CatalogCodec.encode(sampleCatalog())
 		assertTrue("\"type\": \"back\"" in text)
 
-		for (removed in listOf("retry", "ifGone", "settle", "clearText", "finishTextEntry")) {
+		for (removed in listOf("retry", "ifGone", "settle", "clearText", "finishTextEntry", "hideKeyboard")) {
 			assertFailsWith<SerializationException>(removed) {
 				CatalogCodec.decode(text.replace("\"type\": \"back\"", "\"type\": \"$removed\""))
 			}

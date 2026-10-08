@@ -11,9 +11,6 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 		is Step.SubmitTextEntry -> passIf(driver.submitTextEntry(), FailureKind.ASSERTION) {
 			driver.refused("the IME action could not be sent")
 		}
-		is Step.HideKeyboard -> passIf(driver.hideKeyboard(), FailureKind.ASSERTION) {
-			driver.refused("the keyboard could not be hidden")
-		}
 		else -> unhandled(step)
 	}
 

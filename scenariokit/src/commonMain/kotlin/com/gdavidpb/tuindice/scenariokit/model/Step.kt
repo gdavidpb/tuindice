@@ -76,11 +76,6 @@ sealed interface Step {
 	@SerialName("submitTextEntry")
 	data class SubmitTextEntry(override val site: Site? = null) : Step
 
-	/** Puts the on-screen keyboard away without sending anything to the field. */
-	@Serializable
-	@SerialName("hideKeyboard")
-	data class HideKeyboard(override val site: Site? = null) : Step
-
 	@Serializable
 	@SerialName("waitVisible")
 	data class WaitVisible(val q: Query, val timeoutMs: Long, override val site: Site? = null) : Step {

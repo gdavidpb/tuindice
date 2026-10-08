@@ -35,7 +35,6 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var backResult = true
 	var swipeResult = true
 	var submitResult = true
-	var hideResult = true
 
 	/** When set, every gesture and text call is refused with this reason: it answers false and [lastRefusal] says why. */
 	var refusal: String? = null
@@ -193,11 +192,6 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	override fun submitTextEntry(): Boolean {
 		enter("submitTextEntry")
 		return submitResult && refusal == null
-	}
-
-	override fun hideKeyboard(): Boolean {
-		enter("hideKeyboard")
-		return hideResult && refusal == null
 	}
 
 	override fun lastRefusal(): String? = refusal

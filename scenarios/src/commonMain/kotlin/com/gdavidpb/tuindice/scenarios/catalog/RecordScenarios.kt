@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
-import com.gdavidpb.tuindice.scenariokit.dsl.hideKeyboard
 import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
@@ -422,9 +421,7 @@ private val recordSyntheticTermLifecycle = scenario(
 	assertEnabled(RecordUiTags.CreateSyntheticTermSubmitButton, false)
 	waitVisible(subjectAction(ec5333, ACTION_REMOVE), Within.Assert)
 	tap(RecordUiTags.CreateSyntheticTermSearchTab)
-	onPlatform(Platform.Android) {
-		hideKeyboard()
-	}
+	submitTextEntry()
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)
@@ -483,9 +480,7 @@ private val recordSyntheticTermRejected = scenario(
 	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
 	waitVisible(text(Copy.EditTermButton), Within.Action)
 	tap(RecordUiTags.CreateSyntheticTermSearchTab)
-	onPlatform(Platform.Android) {
-		hideKeyboard()
-	}
+	submitTextEntry()
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)

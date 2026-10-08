@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.back
-import com.gdavidpb.tuindice.scenariokit.dsl.hideKeyboard
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
+import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.text
@@ -106,9 +106,7 @@ private val maincoreBackStack = scenario(
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 	waitVisible(PensumUiTags.PensumScreen, Within.Wait)
 	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
-	onPlatform(Platform.Android) {
-		hideKeyboard()
-	}
+	submitTextEntry()
 	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
 	waitVisible(MaincoreUiTags.TuIndiceTopBarBackButton, Within.Assert)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
