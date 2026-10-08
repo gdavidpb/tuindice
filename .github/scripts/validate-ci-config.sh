@@ -33,6 +33,14 @@ if ! awk '/^  preflight-production-pr:/ { in_job = 1; next } in_job && /^  [a-z]
 	die "preflight-production-pr must wait for e2e-harness-preflight."
 fi
 
+# The jobs run code of the pull request: statuses: write only where evidence is reused, and no token left in .git/config elsewhere.
+bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$preflight_workflow" --writer shared-preflight --credentials shared-preflight
+
+# Documents and skills run the vocabulary gate alone: the detector's output must reach a step of the shared job.
+if ! awk '/vocabulary_gate_required/ { outputs += 1 } /verify-e2e-vocabulary\.sh/ { runs = 1 } END { exit !(outputs >= 2 && runs) }' "$preflight_workflow"; then
+	die "shared-preflight must expose vocabulary_gate_required and run e2e/tools/verify/verify-e2e-vocabulary.sh when it is true."
+fi
+
 while IFS= read -r script_file; do
 	[[ -n "$script_file" ]] || continue
 	info "Checking shell syntax: ${script_file}"
@@ -67,6 +75,7 @@ fi
 info "Validated iOS framework cache key hash."
 
 bash "${SCRIPT_DIR}/test-preflight-production.sh"
+bash "${SCRIPT_DIR}/test-verify-workflow-permissions.sh"
 bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
 bash "${SCRIPT_DIR}/test-fingerprint-detector-parity.sh"
 bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"

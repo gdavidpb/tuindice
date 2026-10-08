@@ -9,15 +9,20 @@ concurrency:
   group: preflight-production-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# Every job runs code of the pull request (scripts, Gradle, tests). The token starts read-only; only shared-preflight
+# publishes and reads commit statuses (it reuses evidence), so only it may write them. The other jobs also leave the
+# token out of .git/config (persist-credentials: false). verify-workflow-permissions.sh enforces both.
 permissions:
   contents: read
-  statuses: write
 
 jobs:
   shared-preflight:
     name: Shared preflight
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: write
     outputs:
       android_tasks: ${{ steps.changes.outputs.android_tasks }}
       ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
@@ -106,6 +111,8 @@ jobs:
     name: Android preflight
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.android_tasks != '' }}
@@ -116,6 +123,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Java
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
@@ -158,6 +166,8 @@ jobs:
     name: iOS test preflight
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_test_tasks != '' }}
@@ -168,6 +178,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up iOS build environment
         uses: ./.github/actions/setup-ios-build
@@ -189,6 +200,8 @@ jobs:
     name: iOS host preflight
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && (needs.shared-preflight.outputs.ios_host_tasks != '' || needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true') }}
@@ -199,6 +212,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run iOS CI script smoke checks
         if: needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true'
@@ -249,6 +263,8 @@ jobs:
     name: iOS UI test target preflight
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_uitest_build_required == 'true' }}
@@ -263,6 +279,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up iOS build environment
         uses: ./.github/actions/setup-ios-build
@@ -281,6 +298,8 @@ jobs:
     name: E2E harness preflight (macOS)
     runs-on: macos-26
     timeout-minutes: 30
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.e2e_contract_touched == 'true' }}
@@ -291,6 +310,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run the E2E harness checks without skips
         run: |
@@ -300,6 +320,7 @@ jobs:
   preflight-production-pr:
     name: preflight-production-pr
     runs-on: ubuntu-latest
+    permissions: {}
     needs:
       - shared-preflight
       - android-preflight
