@@ -124,6 +124,35 @@ class InterruptionTests(unittest.TestCase):
         self.assertIsNotNone(manifest["finishedAt"])
         self.assertTrue(os.path.exists(os.path.join(ws.run_dirs()[-1], "junit.xml")))
 
+    def test_a_kill_during_the_retention_still_leaves_a_finalised_run_with_its_results(self):
+        # The retention may take 10 minutes; the results, the JUnit file and the manifest do not wait for it (dC-10).
+        ws = Workspace(self, [scenario("fix-a")])
+        tool, started = os.path.join(ws.dir, "retention-slow.sh"), os.path.join(ws.dir, "retention.pid")
+        with open(tool, "w") as handle:
+            handle.write("#!/bin/sh\necho $$ > '%s'\nexec sleep 60\n" % started)
+        os.chmod(tool, 0o755)
+
+        def reap():
+            try:
+                os.kill(int(text(started)), signal.SIGKILL)
+            except (OSError, ValueError):
+                pass
+        self.addCleanup(reap)
+        process = subprocess.Popen([sys.executable, support.E2E_PY, "run", "--platform", "ios", "--mode", "diagnose"], cwd=ws.repo,
+            env=dict(ws.env, E2E_RETENTION_CMD=tool), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.addCleanup(process.kill)
+        deadline = time.monotonic() + 60
+        while not os.path.exists(started) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertTrue(os.path.exists(started), "the retention never started")
+        process.kill()
+        process.communicate()
+        manifest = ws.manifest()
+        self.assertEqual((manifest["outcome"], manifest["exitCode"]), ("passed", 0))
+        self.assertIsNotNone(manifest["finishedAt"])
+        for name in ("junit.xml", "summary.txt"):
+            self.assertTrue(os.path.exists(os.path.join(ws.run_dirs()[-1], name)), name)
+
     def test_an_interruption_between_the_starts_of_platform_all_stops_the_child_already_running(self):
         cfg = Config(Path(os.getcwd()), dict(os.environ))
         child = subprocess.Popen(["sleep", "60"], start_new_session=True)
