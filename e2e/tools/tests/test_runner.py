@@ -479,7 +479,7 @@ class CollectFailureTests(unittest.TestCase):
 
 class TimeoutStepTests(unittest.TestCase):
     def test_a_hung_scenario_names_the_last_step_its_driver_logged(self):
-        ws = Workspace(self, [scenario("fix-a", 2)], {"behaviours": {"fix-a": [{"do": "hang", "driverlog": "ios-quiet.log"}]}})
+        ws = Workspace(self, [scenario("fix-a", 2)], {"behaviours": {"fix-a": [{"do": "hang", "collectDriverlog": "ios-quiet.log"}]}})
         result = ws.diagnose("ios")
         self.assertIn("class=timeout: scenario exceeded 2s; last completed step 0 WaitVisible(tag:auth_screen)", result.out)
 

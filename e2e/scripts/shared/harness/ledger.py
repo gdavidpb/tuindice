@@ -10,7 +10,7 @@ import fcntl
 import json
 import os
 
-from .config import EnvironmentRefused, UsageError
+from .config import ALLOW_SEAMS_KEY, EnvironmentRefused, UsageError
 
 SCHEMA = "tuindice-e2e-ledger/1"
 
@@ -101,7 +101,7 @@ class Ledger:
 
     def note_seams(self, seams):
         """Records the test seams a run used; a ledger that has any cannot be published (the harness tests' key apart)."""
-        self.data["seams"] = sorted((set(self.data["seams"]) | set(seams)) - {"E2E_TEST_ALLOW_SEAMS"})
+        self.data["seams"] = sorted((set(self.data["seams"]) | set(seams)) - {ALLOW_SEAMS_KEY})
 
     def release(self):
         if self.lock_fd is not None:

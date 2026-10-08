@@ -12,7 +12,7 @@ pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-no
 fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, pass-system-anr (passes, but the probe reports
 a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies),
 degraded-health (the health verb says the simulator stopped serving preferences). A behaviour object may carry "applog": the
-text collect-failure leaves in app.log of a failed attempt, "killWiremock" (true: the real fake WireMock dies while the scenario runs), and "driverlog": the fixture copied to driver.log by the run, and "resultExtra": fields added to a passing result.json.
+text collect-failure leaves in app.log of a failed attempt, "killWiremock" (true: the real fake WireMock dies while the scenario runs), and "driverlog": the fixture copied to driver.log by the run, "collectDriverlog": the one only collect-failure leaves, and "resultExtra": fields added to a passing result.json.
 `slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1;
 `mutate` maps "<platform>:<verb>" to "file" (an untracked file appears in the checkout) or "commit" (an empty commit lands).
 """
@@ -213,6 +213,8 @@ def main(argv):
         open(os.path.join(args[0], "collect-failure.txt"), "w").write("collected\n")
         if current.get("applog"):
             open(os.path.join(args[0], "app.log"), "w").write(current["applog"])
+        if current.get("collectDriverlog"):  # a fixture of fixtures/driver-logs that only collect-failure brings home
+            shutil.copy(os.path.join(HERE, "fixtures", "driver-logs", current["collectDriverlog"]), os.path.join(args[0], "driver.log"))
     elif verb == "ensure-device":
         emit({"id": "fake-1", "model": "Fake", "bootedAt": "2026-01-01T00:00:00Z", "bootedByHarness": True,
               "recoveredAtEnsure": bool(script.get("ensureRecovered")), "deviceTypeVerified": script.get("deviceTypeVerified", True), "dataDirGb": 0.1, "settings": {}})

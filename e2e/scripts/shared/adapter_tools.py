@@ -285,7 +285,7 @@ def xctest_tests(path):
 
 REPORT_TIME = re.compile(r'"captureTime"\s*:\s*"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)(?:\.\d+)? ([+-]\d{4})"|'
     r'^Date/Time:\s+(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)(?:\.\d+)? ([+-]\d{4})', re.M)
-# A report written this long after the attempt ended still belongs to it when its capture time is inside the attempt.
+# How often the wait for a crash report that lands late looks at the reports directory.
 IOS_CRASH_POLL_SECONDS = 1.0
 
 
