@@ -753,6 +753,8 @@ class PlatformRun:
             if s.id in self.failed_overall:
                 failed.append((s.id, self.failed_overall[s.id].get("failureClass")))
             elif not self.ledger.passed(s.id) and (self.ledger.counted(s.id) or (self.opts.survey and s.id in self.executed)):
+                if self._last_attempt(s) is None:
+                    continue  # cut before its attempt was recorded: it was not run, which is not a failure
                 failed.append((s.id, self._last_class(s)))  # a survey does not recover: what it could not measure is not a pass
         return failed
 

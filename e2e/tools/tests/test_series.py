@@ -45,6 +45,20 @@ class SeriesCountTests(unittest.TestCase):
         self.assertEqual(ws.manifest()["series"]["environmentAttempts"], 0)
 
 
+class JunitWriterTests(unittest.TestCase):
+    def test_a_result_without_class_or_summary_is_written_instead_of_breaking_the_report(self):
+        from harness import junit
+        import tempfile
+        path = os.path.join(tempfile.mkdtemp(), "junit.xml")
+        junit.write(path, "ios", [
+            {"id": "a", "status": "failed", "class": None, "summary": None, "seconds": 1.0},
+            {"id": "b", "status": "skipped", "summary": None, "seconds": 0.0}])
+        with open(path) as handle:
+            report = handle.read()
+        self.assertIn('type="unknown"', report)
+        self.assertIn('message="not run"', report)
+
+
 class CutSeriesTests(unittest.TestCase):
     """A `--repeat` series is cut by hand often; the run must still say what it measured and clean up (ΔC-1, ΔC-4, ΔC-10)."""
 
@@ -69,6 +83,28 @@ class CutSeriesTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(ws.dir, "tmp", "ios", "wiremock", "lock", "owner.json")),
             "the cleanup must have stopped WireMock")
         self.assertEqual((manifest["series"]["scenarioRuns"], manifest["series"]["failed"]), (1, 1))
+
+    def test_a_survey_series_cut_while_a_scenario_that_never_failed_runs_is_finalised_with_it_as_not_run(self):
+        ws = Workspace(self, [scenario("fix-a", 60)], {"behaviours": {"fix-a": ["pass", "hang"]}})
+        env = dict(ws.env, **real_wiremock())
+        process = subprocess.Popen([sys.executable, support.E2E_PY, "run", "--platform", "ios", "--mode", "diagnose", "--repeat", "3",
+            "--survey"], cwd=ws.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.addCleanup(process.kill)
+        pid_file = os.path.join(ws.fake, "ios", "hang.pid")
+        deadline = time.monotonic() + 30
+        while not os.path.exists(pid_file) and time.monotonic() < deadline:
+            time.sleep(0.1)
+        self.assertTrue(os.path.exists(pid_file), "the second repetition never hung")
+        time.sleep(0.3)
+        process.send_signal(signal.SIGTERM)
+        out, err = process.communicate(timeout=60)
+        manifest = ws.manifest()
+        self.assertEqual((manifest["outcome"], manifest["exitCode"]), ("interrupted", 143), out + err)
+        self.assertNotIn("internal error", out + err)
+        with open(os.path.join(ws.run_dirs()[-1], "junit.xml")) as handle:
+            report = handle.read()
+        self.assertIn('failures="0"', report)
+        self.assertIn('errors="0"', report)
 
     def test_a_scenario_with_no_attempt_in_the_cut_repetition_is_reported_with_the_attempt_that_failed(self):
         ws = Workspace(self, [scenario("fix-a")])

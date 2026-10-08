@@ -20,12 +20,12 @@ def write(path, platform, results):
             ET.SubElement(props, "property", {"name": "producedByRunId", "value": item["producedByRunId"]})
         if item["status"] == "skipped":
             counts["skipped"] += 1
-            ET.SubElement(case, "skipped", {"message": item.get("summary", "not run")})
+            ET.SubElement(case, "skipped", {"message": item.get("summary") or "not run"})
         elif item["status"] == "failed":
             tag = "failure" if item.get("class") in JUNIT_FAILURES else "error"
             counts["failures" if tag == "failure" else "errors"] += 1
-            node = ET.SubElement(case, tag, {"type": item.get("class", "unknown"), "message": item.get("summary", "")})
-            node.text = item.get("summary", "")
+            node = ET.SubElement(case, tag, {"type": item.get("class") or "unknown", "message": item.get("summary") or ""})
+            node.text = item.get("summary") or ""
     suite.set("tests", str(len(results)))
     suite.set("failures", str(counts["failures"]))
     suite.set("errors", str(counts["errors"]))
