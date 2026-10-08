@@ -641,6 +641,31 @@ class UsbIdTextFieldUiTest {
 		assertEquals("12-3", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
 	}
 
+	// The owner is waiting when the field is composed: a key is neither shown nor reported, before the wait ends.
+	@Test
+	fun when_theOwnerIsWaiting_then_aKeyIsNeitherShownNorReported() = runTuIndiceUiTest {
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = true,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = "12-3",
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> reported += value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("4")
+		waitForIdle()
+
+		assertEquals(emptyList(), reported)
+		assertEquals("12-3", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+	}
+
 	// Typing an @ in id mode switches to email mode by the answer of the owner, and that answer lags behind the
 	// keys: what is typed after the @ must not be lost to the switch.
 	@Test

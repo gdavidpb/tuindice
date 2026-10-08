@@ -242,10 +242,12 @@ class SignInScreenUiTest {
 		state = SignIn.State.LoggingIn(usbId = "12-34567", password = "abc", messages = listOf("Validando"))
 		mainClock.advanceTimeBy(50)
 		state = SignIn.State.Idle(usbId = "12-34567", password = "abc", isPasswordVisible = true)
-		runCatching { onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("d") }
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("d")
 		mainClock.advanceTimeBy(50)
 
-		assertEquals(reported ?: "abc", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+		// The screen was still waiting: the key was neither taken nor reported.
+		assertEquals(null, reported)
+		assertEquals("abc", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
 	}
 }
 

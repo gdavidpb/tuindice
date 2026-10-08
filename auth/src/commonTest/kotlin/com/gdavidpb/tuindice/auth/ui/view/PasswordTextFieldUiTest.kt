@@ -322,6 +322,29 @@ class PasswordTextFieldUiTest {
 		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
 	}
 
+	// The owner is waiting when the field is composed: a key is neither shown nor reported, before the wait ends.
+	@Test
+	fun when_theOwnerIsWaiting_then_aKeyIsNeitherShownNorReported() = runTuIndiceUiTest {
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				isWaiting = true,
+				labelText = "Clave",
+				password = "abc",
+				isPasswordVisible = true,
+				onPasswordChange = { value -> reported += value },
+				onPasswordVisibilityToggle = {}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("d")
+		waitForIdle()
+
+		assertEquals(emptyList(), reported)
+		assertEquals("abc", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+	}
+
 	// The normal flow must not change: typing, the echoes and a wait that drops nothing leave the
 	// text and the caret where the person put them.
 	@Test
