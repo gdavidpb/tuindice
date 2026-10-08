@@ -31,8 +31,12 @@ final class AuthScenarioTests: ScenarioTestCase {
 }
 
 final class CoachmarksScenarioTests: ScenarioTestCase {
+    func test_coachmarks_about() { runScenario("coachmarks-about") }
     func test_coachmarks_contextual_summary() { runScenario("coachmarks-contextual-summary") }
+    func test_coachmarks_evaluations() { runScenario("coachmarks-evaluations") }
+    func test_coachmarks_pensum_subjects() { runScenario("coachmarks-pensum-subjects") }
     func test_coachmarks_progressive_record() { runScenario("coachmarks-progressive-record") }
+    func test_coachmarks_synthetic_term() { runScenario("coachmarks-synthetic-term") }
 }
 
 final class ConformanceScenarioTests: ScenarioTestCase {
