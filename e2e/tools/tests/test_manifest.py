@@ -23,7 +23,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(manifest["scenarios"]["inScope"], 2)
         self.assertEqual((manifest["scenarios"]["passed"], manifest["scenarios"]["failed"]), (1, 1))
         self.assertEqual([p["name"] for p in manifest["phases"]],
-            ["toolchain", "env-check", "device", "wiremock", "build", "install", "enumerate", "scenarios"])
+            ["toolchain", "env-check", "device", "wiremock", "build", "install", "enumerate", "driver-contract", "scenarios"])
         self.assertIn("ncpu", manifest["host"])
         self.assertEqual(manifest["budget"]["minutes"], 120)
         self.assertEqual({r["id"]: r["status"] for r in manifest["results"]}, {"fix-a": "passed", "fix-b": "failed"})

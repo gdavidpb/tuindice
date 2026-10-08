@@ -10,7 +10,9 @@ The script maps scenario ids ("<platform>:<id>" wins over "<id>") to one behavio
 attempt; the last one repeats. A behaviour is a string or {"do": ..., "journal": ...}:
 pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-not-running-late,
 fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, pass-system-anr (passes, but the probe reports
-a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies).
+a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies),
+degraded-health (the health verb says the simulator stopped serving preferences). A behaviour object may carry "applog": the
+text collect-failure leaves in app.log of a failed attempt.
 `slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1;
 `mutate` maps "<platform>:<verb>" to "file" (an untracked file appears in the checkout) or "commit" (an empty commit lands).
 """
@@ -174,6 +176,9 @@ def main(argv):
         if current["do"] == "env":
             sys.stderr.write("fake device is not responding\n")
             sys.exit(3)
+        if current["do"] == "degraded-health":
+            sys.stderr.write("simulator degraded: fake preferences daemon stopped serving\n")
+            sys.exit(3)
         if current["do"] == "wiremock-down" and wiremock:
             open(os.path.join(wiremock, "down"), "w").close()
         if current["do"] == "wiremock-kill":
@@ -199,6 +204,8 @@ def main(argv):
         sys.exit(3 if script.get("recover_fails") else 0)
     elif verb == "collect-failure":
         open(os.path.join(args[0], "collect-failure.txt"), "w").write("collected\n")
+        if current.get("applog"):
+            open(os.path.join(args[0], "app.log"), "w").write(current["applog"])
     elif verb == "ensure-device":
         emit({"id": "fake-1", "model": "Fake", "bootedAt": "2026-01-01T00:00:00Z", "bootedByHarness": True,
               "dataDirGb": 0.1, "settings": {}})

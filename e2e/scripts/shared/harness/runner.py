@@ -26,6 +26,14 @@ RETENTION_SCRIPT = Path(__file__).resolve().parents[3] / "tools" / "e2e-retentio
 RETENTION_TIMEOUT_SECONDS = 600
 # A failed iOS attempt waits this long for the crash report of the app, which lands some seconds after the crash.
 CRASH_REPORT_WAIT_SECONDS = 15
+# The logs a failed attempt leaves are searched for the signs of a degraded simulator through their last bytes only.
+FAILURE_LOGS = ("app.log", "logcat.txt")
+FAILURE_LOG_TAIL_BYTES = 4 * 1024 * 1024
+# A simulator that degrades is recovered again only after this many green scenarios since the previous recovery; sooner than that
+# it is not a usable simulator and the run is exit 3.
+DEGRADATION_MIN_GREEN = 30
+# What the iOS health verb says when the simulator is booted but does not serve preferences.
+DEGRADED_HEALTH_TEXT = "simulator degraded"
 
 # HOOKS["toolchain"](run) compares the adapter's toolchain with the lock, HOOKS["env_check"](run) measures
 # the environment. Each raises EnvironmentRefused to refuse.
@@ -90,6 +98,10 @@ class PlatformRun:
         self.adapter = Adapter(config, platform)
         self.started = time.monotonic()
         self.recoveries = 0
+        self.health_degraded = False
+        self.boot_started = time.monotonic()  # the last time the device was started or recovered by this run, as far as it knows
+        self.greens_since_recovery = 0
+        self.attempts_since_recovery = 0
         self.load_waited = 0.0
         self.load_gate_spent = False
         self.ledger = None
@@ -329,6 +341,7 @@ class PlatformRun:
                         % (result.log, result.stderr.strip()[-300:] or result.returncode))
                 m.update(device=result.json)
                 self.device_booted = bool(result.json.get("bootedByHarness"))
+                self.boot_started = time.monotonic()
             with m.phase("wiremock"):
                 self.wiremock.start()
                 m.data["wiremock"]["log"] = "wiremock.log"
@@ -484,6 +497,8 @@ class PlatformRun:
                 "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
                 "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"]})
             self.executed.add(scenario.id)
+            self.attempts_since_recovery += 1
+            self.greens_since_recovery += 1 if verdict.passed else 0
             self.manifest.write()
             seconds = attempt["durationMs"] / 1000.0
             if attempt["unmatchedRequests"]["count"]:
@@ -522,6 +537,10 @@ class PlatformRun:
             log.retry(scenario, used + 1, allowed)
 
     def _recover(self, scenario, verdict):
+        if verdict.degraded:
+            self._note_degradation(scenario, verdict)
+            self.log.say("ENV   %s: the simulator degraded; recovering it and rerunning; this attempt does not count" % scenario.id)
+            return self._recover_device(scenario, verdict)
         if self.recoveries >= 1:
             text = "a second environment failure in this run (%s)" % verdict.summary
             self.log.stop(scenario, text)
@@ -538,13 +557,34 @@ class PlatformRun:
                     verdict.summary)
             return
         self.log.say("ENV   %s: recovering the device once and rerunning; this attempt does not count" % scenario.id)
+        self._recover_device(scenario, verdict)
+
+    def _note_degradation(self, scenario, verdict):
+        """Records a recovery caused by a degraded simulator, with the data that helps to find why the preferences daemon stops
+        answering. The first one is always allowed; another one only after DEGRADATION_MIN_GREEN green scenarios since the previous."""
+        record = self.manifest.data["deviceDegradation"]
+        if record["events"] and self.greens_since_recovery < DEGRADATION_MIN_GREEN:
+            text = "the simulator degraded again after %d green scenarios since the previous recovery (%d are needed); a simulator " \
+                "that degrades twice in a row is not usable (%s)" % (self.greens_since_recovery, DEGRADATION_MIN_GREEN, verdict.summary)
+            self.log.stop(scenario, text)
+            raise StopRun("environment_refused", 3, text, scenario.id, cl.ENVIRONMENT, verdict.summary)
+        record["events"].append({"at": now(), "scenario": scenario.id, "scenariosSincePrevious": self.greens_since_recovery,
+            "attemptsSincePrevious": self.attempts_since_recovery,
+            "minutesSincePrevious": round((time.monotonic() - self.boot_started) / 60, 1),
+            "previousIsHarnessBoot": not record["events"], "deviceBootedByHarness": self.device_booted, "summary": verdict.summary[:300]})
+        record["count"] = len(record["events"])
+
+    def _recover_device(self, scenario, verdict):
         recovered = self.adapter.call("recover")
         if not recovered.ok:
             raise StopRun("environment_refused", 3, "recover failed (full output in %s)" % recovered.log, scenario.id, cl.ENVIRONMENT,
                 verdict.summary)
+        self.greens_since_recovery = self.attempts_since_recovery = 0
+        self.boot_started = time.monotonic()
 
     def _pre_attempt(self, scenario, env):
         healthy = self.adapter.call("health", env=env)
+        self.health_degraded = not healthy.ok and DEGRADED_HEALTH_TEXT in healthy.stderr
         if not healthy.ok:
             return "health failed: %s" % (healthy.stderr.strip()[-200:] or "exit %d" % healthy.returncode)
         self.device_health = healthy.json
@@ -570,6 +610,7 @@ class PlatformRun:
         errors = []
         self.device_health = {}
         evidence.pre_failure = self._pre_attempt(scenario, env)
+        evidence.degraded_health = self.health_degraded
         if not evidence.pre_failure:
             result = self.adapter.call("run-scenario", scenario.id, adir, cfg.ports[p],
                 timeout=scenario.timeout + cfg.overhead_seconds(p), env=env)
@@ -589,6 +630,9 @@ class PlatformRun:
         verdict = cl.classify(evidence)
         if not verdict.passed:
             self.adapter.call("collect-failure", adir, since, env=env)
+            evidence.logs = {name: self._tail(os.path.join(adir, name)) for name in FAILURE_LOGS}
+            evidence.runner_log = evidence.runner_log[-FAILURE_LOG_TAIL_BYTES:]
+            verdict = cl.classify(evidence)  # again: the logs only exist now, and a degraded simulator is the environment's
             with open(os.path.join(adir, "classification.json"), "w") as handle:
                 json.dump({"class": verdict.klass, "summary": verdict.summary}, handle, indent=2)
         attempt = {
@@ -617,6 +661,17 @@ class PlatformRun:
         if not probe.ok or not probe.json.get("kind"):
             return ["crash-probe gave no answer (exit %s, %s); a crash would have gone unseen" % (probe.returncode, probe.log or "no output")]
         return []
+
+    @staticmethod
+    def _tail(path, limit=FAILURE_LOG_TAIL_BYTES):
+        """The last `limit` bytes of a file as text; empty when it does not exist."""
+        try:
+            with open(path, "rb") as handle:
+                handle.seek(0, os.SEEK_END)
+                handle.seek(max(0, handle.tell() - limit))
+                return handle.read().decode("utf-8", errors="replace")
+        except OSError:
+            return ""
 
     @staticmethod
     def _read(path):

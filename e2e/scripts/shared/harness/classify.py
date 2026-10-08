@@ -16,6 +16,13 @@ NON_RETRYABLE = (TYPED, CRASH)
 JUNIT_FAILURES = (PRODUCT, TYPED, BACKEND, CRASH)
 BOOTSTRAP_PATH = "/auth/v2/bootstrap"
 RUNNER_ERROR = re.compile(r"error:|Testing failed|INSTRUMENTATION_FAILED|Process crashed")
+# What a simulator that stopped serving accessibility and preferences (after hours of runs) writes in the logs of the app and of
+# the runner. Where it appears, the failure is the environment's, whatever the step looked like.
+DEGRADED_MARKERS = ("kAXErrorAPIDisabled", "Couldn't read values in CFPrefsPlistSource", "Couldn't write values for keys")
+DEGRADED_TEXT = "the simulator stopped serving accessibility/preferences"
+# Failures a degraded simulator is blamed for: the ones the product's own evidence does not decide (a crash report, the text
+# the backend received and the requests without a stub are facts about the product and stay as they are).
+DEGRADABLE = ("product_assertion", "timeout", "tooling_error")
 
 
 class Evidence:
@@ -32,14 +39,25 @@ class Evidence:
         self.native_ok = None
         self.tests_executed = None
         self.runner_log = ""
+        self.logs = {}               # name -> bounded text of the logs collected for a failed attempt (app.log, logcat.txt, ...)
+        self.degraded_health = False  # the health verb said the simulator stopped serving preferences
         self.journal = []
+
+    def degradation(self):
+        """(log name, marker) of the first log of the attempt that shows a degraded simulator, or None."""
+        for name, text in list(self.logs.items()) + [("runner.log", self.runner_log)]:
+            for marker in DEGRADED_MARKERS:
+                if marker in text:
+                    return name, marker
+        return None
 
 
 class Classification:
-    def __init__(self, klass, summary, note=None):
+    def __init__(self, klass, summary, note=None, degraded=False):
         self.klass = klass       # None means the attempt passed
         self.summary = summary
         self.note = note         # something worth keeping that did not change the verdict
+        self.degraded = degraded  # an environment failure caused by a simulator that stopped serving preferences
 
     @property
     def passed(self):
@@ -172,6 +190,10 @@ def classify(ev):
     """Returns a Classification; `klass is None` means the attempt passed. An ANR of another process only reclassifies an
     attempt that failed (and was not a crash or a typing defect); on a passing attempt it is noted and nothing more."""
     verdict = _verdict(ev)
+    found = ev.degradation() if verdict.klass in DEGRADABLE else None
+    if found:
+        return Classification(ENVIRONMENT, "%s (%s in %s); the attempt had failed as %s: %s"
+            % (DEGRADED_TEXT, found[1], found[0], verdict.klass, verdict.summary[:160]), degraded=True)
     anr = ev.crash.get("kind") == "system_anr"
     text = "system ANR: %s" % (ev.crash.get("excerpt") or "").strip()[:200]
     if anr and verdict.passed:
@@ -183,7 +205,7 @@ def classify(ev):
 
 def _verdict(ev):
     if ev.pre_failure:
-        return Classification(ENVIRONMENT, ev.pre_failure)
+        return Classification(ENVIRONMENT, ev.pre_failure, degraded=ev.degraded_health)
     if ev.crash.get("kind") in ("app_crash", "app_anr"):
         return Classification(CRASH, "%s: %s" % (ev.crash["kind"], (ev.crash.get("excerpt") or "").strip()[:200]))
     result = ev.result

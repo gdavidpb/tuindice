@@ -6,7 +6,7 @@
 #   ensure     create the simulator from the lock if absent, boot it erased if it is shut down, reuse it if booted,
 #              apply the keyboard, keyboard-first-use-sheet, language, active-keyboard-list and hardware-keyboard settings and read them back
 #   serial     the UDID of the simulator
-#   health     the simulator is booted
+#   health     the simulator is booted and still serves preferences (one `defaults read` of a key `ensure` pinned)
 #   recover    shut down, boot and apply the settings again
 #   stop       shut down only this simulator
 # A simulator that is already booted is never rebooted by `ensure`, except when its data directory outgrew the limit.
@@ -180,8 +180,14 @@ cmd_ensure() {
 }
 
 cmd_health() {
+	local locale
 	find_simulator || fail "The simulator ${IOS_SIMULATOR_NAME} does not exist"
 	[[ "${STATE}" == "Booted" ]] || fail "The simulator ${UDID} is '${STATE}', not Booted"
+	# After a couple of hours of runs the simulator's preferences daemon stops answering while the simulator stays Booted: the
+	# scenario would spend its whole timeout on a screen that cannot be read. One cheap read of a key `ensure` pinned says so first.
+	locale="$(pref_get -g AppleLocale)"
+	[[ "${locale}" == "${IOS_LOCALE}" ]] ||
+		fail "simulator degraded: ${UDID} stopped serving preferences (defaults read -g AppleLocale answered '${locale}', expected '${IOS_LOCALE}')"
 	emit_json "ok=j:true" "id=s:${UDID}"
 }
 

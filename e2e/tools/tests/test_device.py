@@ -383,6 +383,7 @@ class IosDeviceTests(unittest.TestCase):
         box.write("sim", "FAKE-0000-0000-0000-000000000001 Shutdown\n", box.xcrun)
         self.assertEqual(box.run("health").returncode, 3)
         box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("prefs/FAKE-0000-0000-0000-000000000001/-g/AppleLocale", "%s\n" % box.lock["IOS_LOCALE"], box.xcrun)
         self.assertEqual(box.run("health").returncode, 0)
         self.assertEqual(box.run("recover").returncode, 0)
         calls = box.calls(box.xcrun)
@@ -390,6 +391,23 @@ class IosDeviceTests(unittest.TestCase):
             calls.index("simctl boot FAKE-0000-0000-0000-000000000001"))
         self.assertEqual(box.run("stop").returncode, 0)
         self.assertEqual(box.run("health").returncode, 3)
+
+    def test_health_reads_a_preference_and_a_simulator_that_does_not_serve_it_is_degraded(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        done = box.run("health")  # booted, but `defaults read` answers nothing: the preferences daemon stopped serving
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("simulator degraded", done.stderr)
+        self.assertIn("AppleLocale", done.stderr)
+        self.assertIn("defaults read -g AppleLocale", "\n".join(box.calls(box.xcrun)))
+
+    def test_a_simulator_that_reads_back_another_locale_is_degraded_too(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("prefs/FAKE-0000-0000-0000-000000000001/-g/AppleLocale", "fr_FR\n", box.xcrun)
+        done = box.run("health")
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("simulator degraded", done.stderr)
 
     def test_toolchain_reports_the_installed_versions_without_creating_a_simulator(self):
         box = Sandbox(self, "ios")
