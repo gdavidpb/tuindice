@@ -6045,7 +6045,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 37
+                        "line": 36
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -6057,7 +6057,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 38
+                        "line": 37
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6069,7 +6069,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 39
+                        "line": 38
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6081,7 +6081,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 52
+                        "line": 51
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6093,7 +6093,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 53
+                        "line": 52
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6106,7 +6106,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 54
+                        "line": 53
                     },
                     "type": "tap"
                 },
@@ -6117,7 +6117,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 55
+                        "line": 54
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -6177,7 +6177,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 37
+                        "line": 36
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -6189,7 +6189,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 38
+                        "line": 37
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6201,7 +6201,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 39
+                        "line": 38
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6214,7 +6214,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 71
+                        "line": 70
                     },
                     "type": "tap"
                 },
@@ -6225,7 +6225,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 72
+                        "line": 71
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -6238,7 +6238,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 73
+                        "line": 72
                     },
                     "type": "tap"
                 },
@@ -6249,7 +6249,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 74
+                        "line": 73
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -6261,7 +6261,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 75
+                        "line": 74
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -6273,7 +6273,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 76
+                        "line": 75
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6285,7 +6285,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 77
+                        "line": 76
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6298,7 +6298,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 78
+                        "line": 77
                     },
                     "type": "tap"
                 },
@@ -6309,7 +6309,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 79
+                        "line": 78
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6321,7 +6321,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 80
+                        "line": 79
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -6334,7 +6334,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 81
+                        "line": 80
                     },
                     "type": "tap"
                 },
@@ -6345,7 +6345,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 82
+                        "line": 81
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6358,7 +6358,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 83
+                        "line": 82
                     },
                     "type": "tap"
                 },
@@ -6369,7 +6369,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 84
+                        "line": 83
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6382,7 +6382,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 85
+                        "line": 84
                     },
                     "type": "tap"
                 },
@@ -6393,7 +6393,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 86
+                        "line": 85
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -6450,7 +6450,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 98
+                        "line": 97
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -6535,7 +6535,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 100
+                        "line": 99
                     },
                     "type": "tap"
                 },
@@ -6546,7 +6546,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 101
+                        "line": 100
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6595,7 +6595,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 104
+                        "line": 103
                     },
                     "type": "tap"
                 },
@@ -6606,7 +6606,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 105
+                        "line": 104
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6618,7 +6618,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 106
+                        "line": 105
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -6630,7 +6630,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 107
+                        "line": 106
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -6687,7 +6687,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 119
+                        "line": 118
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -6772,7 +6772,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 121
+                        "line": 120
                     },
                     "type": "tap"
                 },
@@ -6783,7 +6783,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 122
+                        "line": 121
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -6832,7 +6832,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 124
+                        "line": 123
                     },
                     "type": "tap"
                 },
@@ -6843,7 +6843,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 125
+                        "line": 124
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -6900,7 +6900,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 137
+                        "line": 136
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -7078,7 +7078,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 142
+                        "line": 141
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -7091,7 +7091,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 143
+                        "line": 142
                     },
                     "type": "tap"
                 },
@@ -7102,7 +7102,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 144
+                        "line": 143
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -7151,7 +7151,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 146
+                        "line": 145
                     },
                     "type": "tap"
                 },
@@ -7162,7 +7162,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 147
+                        "line": 146
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -7175,7 +7175,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 148
+                        "line": 147
                     },
                     "type": "tap"
                 },
@@ -7186,7 +7186,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 149
+                        "line": 148
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -7243,7 +7243,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 161
+                        "line": 160
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -7327,7 +7327,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/CoachmarksScenarios.kt",
-                        "line": 163
+                        "line": 162
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
