@@ -23,7 +23,9 @@ class TestInputsDeclaredTest {
 		"presentation/machine/SubjectSearchMachine.kt" to "the minimum search length (SubjectSearchFixturesTest)",
 		"app/src/debug" to "the Android debug host (LaunchArgsParityTest)",
 		"maincore/src/iosMain" to "the iOS debug code (LaunchArgsParityTest)",
-		"iosApp/Sources/TuIndiceHost" to "the iOS Swift host (LaunchArgsParityTest)"
+		"iosApp/Sources/TuIndiceHost" to "the iOS Swift host (LaunchArgsParityTest)",
+		"scenariorunner/src/main" to "the Android driver and its probes (DriverSourcesTest)",
+		"iosApp/UITests" to "the iOS driver (DriverSourcesTest)"
 	)
 
 	@Test

@@ -61,7 +61,8 @@ tasks.withType<Test>().configureEach {
 		// the texts to, the contracts `ActionCoverageTest` lists the actions of, the product sources that
 		// `CoachmarkCoverageTest`, `SubjectSearchFixturesTest` and `E2eClockFixtureTest` read, and the debug hosts
 		// `LaunchArgsParityTest` compares (the iOS Swift host and the Android and iOS debug code are on no
-		// classpath of this module, so a change there would otherwise leave the task up to date).
+		// classpath of this module, so a change there would otherwise leave the task up to date), and the sources of the
+		// two drivers that `DriverSourcesTest` reads (their refusals and the tags of the Android probes).
 		inputs.files(
 			rootProject.fileTree(rootDir) {
 				include("*/src/commonMain/composeResources/values/strings.xml")
@@ -74,6 +75,8 @@ tasks.withType<Test>().configureEach {
 				include("app/src/debug/**/*.kt")
 				include("maincore/src/iosMain/**/*.kt")
 				include("iosApp/Sources/TuIndiceHost/**/*.swift")
+				include("scenariorunner/src/main/**/*.kt")
+				include("iosApp/UITests/*.swift")
 			}
 		).withPropertyName("repoFilesRead")
 		outputs.dir(layout.buildDirectory.dir("e2e/catalog"))
