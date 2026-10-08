@@ -24,7 +24,9 @@ private const val DAYS_PER_WEEK = 7
  * once a minute. It keeps nothing: every collector gets its own ticker, which stops with the screen
  * that was listening. The clock and the time zone come in so a test or a debug build can say what
  * time it is; the time zone is the device's unless told otherwise. A frozen clock does not move: the
- * ticker keeps waking up, at most once a minute, and the same value is not emitted twice.
+ * ticker keeps waking up, each time after the time left to the next minute of the instant it read (a minute
+ * at most, and as little as a few milliseconds when the clock is frozen just before a minute starts), and
+ * the same value is not emitted twice.
  */
 class ScheduleClockDataSource(
 	private val clock: Clock,
