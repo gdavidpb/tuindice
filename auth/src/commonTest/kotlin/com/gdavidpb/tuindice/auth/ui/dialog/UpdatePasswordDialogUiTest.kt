@@ -143,6 +143,7 @@ class UpdatePasswordDialogUiTest {
 
 		assertEquals("a", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
 	}
+
 	// The line under the field is reserved whether or not there is a message, so the dialog neither is tighter
 	// than it was nor jumps when the message comes and goes.
 	@Test

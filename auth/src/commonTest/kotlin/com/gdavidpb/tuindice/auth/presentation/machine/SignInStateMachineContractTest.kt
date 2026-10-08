@@ -363,8 +363,8 @@ class SignInStateMachineContractTest {
 		}
 	}
 
-	// Uses the wait branch of failSignIn: the other branch resolves a string resource, which only
-	// iOS can do (see SignInViewModelContractTest.signInRejected_marksTheLastAttemptAsFailed).
+	// Uses the wait branch of failSignIn: the other branch resolves a string resource, which only iOS can do
+	// (see SignInViewModelContractTest.signInRejected_keepsWhichVerdictItWas_withItsMessage_andSendsNoSnackbar).
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun aServiceWait_isNotARejectionOfTheLastAttempt() = runTest {
@@ -402,7 +402,7 @@ class SignInStateMachineContractTest {
 	// The marks are set by failSignIn, which only iOS can run; the rows that clear or keep them
 	// are plain table rows, so they are checked from a state that already carries the mark.
 	@Test
-	fun editingEitherField_orTheMode_clearsTheFailedMark() = runTest {
+	fun editingEitherField_orTheMode_clearsTheRejection() = runTest {
 		val machine = createFixture().viewModel.machine
 		val verdicts = listOf(
 			SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID"),
@@ -428,7 +428,7 @@ class SignInStateMachineContractTest {
 	}
 
 	@Test
-	fun theWaitElapsing_keepsTheFailedMark_andReenablesSignIn() = runTest {
+	fun theWaitElapsing_keepsTheRejection_andReenablesSignIn() = runTest {
 		val machine = createFixture().viewModel.machine
 		val verdict = SignIn.Rejection.AccountDisabled(message = "Cuenta inhabilitada")
 		val waiting = SignIn.State.Idle(isServiceUnavailable = true, rejection = verdict)
@@ -504,7 +504,7 @@ class SignInStateMachineContractTest {
 	}
 
 	@Test
-	fun theAutomaticSwitch_keepsThePassword_andClearsTheFailedMark() = runTest {
+	fun theAutomaticSwitch_keepsThePassword_andClearsTheRejection() = runTest {
 		val machine = createFixture().viewModel.machine
 		val rejected = SignIn.State.Idle(
 			password = PASSWORD,

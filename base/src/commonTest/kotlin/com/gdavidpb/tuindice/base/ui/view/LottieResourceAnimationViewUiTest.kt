@@ -160,7 +160,10 @@ class LottieResourceAnimationViewUiTest {
 
 	// Any opaque red pixel: the interior of the square is pure red, whatever the edges blend into.
 	private fun IntArray.hasTheSquare() = any { pixel ->
-		(pixel ushr 24) == OPAQUE && ((pixel shr 16) and OPAQUE) > 200 && ((pixel shr 8) and OPAQUE) < 50 && (pixel and OPAQUE) < 50
+		(pixel ushr 24) == OPAQUE &&
+			((pixel shr 16) and OPAQUE) > 200 &&
+			((pixel shr 8) and OPAQUE) < 50 &&
+			(pixel and OPAQUE) < 50
 	}
 
 	private fun ComposeUiTest.paintedFramesAround(animationsEnabled: Boolean): Pair<IntArray, IntArray> {

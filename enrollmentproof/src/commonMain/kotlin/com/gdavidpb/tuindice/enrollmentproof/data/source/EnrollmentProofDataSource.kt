@@ -65,7 +65,7 @@ class EnrollmentProofDataSource(
 		// saved copy; the same goes for a 409, which sends the user to update the password.
 		val isNotFound = failure.isNotFound()
 
-		if (isNotFound || !enrollmentProofExists || !failure.isTransient()) {
+		if (isNotFound || !enrollmentProofExists || !failure.allowsSavedCopy()) {
 			throw if (isNotFound) {
 				EnrollmentProofNotFoundException(
 					reason = enrollmentSyncDataSource.getNotFoundReason(),
@@ -79,7 +79,7 @@ class EnrollmentProofDataSource(
 		return false
 	}
 
-	private fun Throwable.isTransient(): Boolean {
+	private fun Throwable.allowsSavedCopy(): Boolean {
 		return isUnavailable() || isServerError() || isTimeout() || isConnection()
 	}
 }

@@ -54,4 +54,16 @@ class ExceptionTest {
 		assertFalse(responseWith(408, message = "request took too long").isRetryableLater())
 		assertFalse(IllegalStateException("timeout").isRetryableLater())
 	}
+
+	@Test
+	fun isTransient_forAResponse_isDecidedByItsStatus_neverByWhatItsBodySays() {
+		assertFalse(responseWith(400, message = "timeout").isTransient())
+		assertTrue(responseWith(504).isTransient())
+	}
+
+	@Test
+	fun isTransient_forWhatIsNotAResponse_isDecidedByTheKindOfFailure() {
+		assertTrue(IllegalStateException("timeout").isTransient())
+		assertFalse(IllegalStateException("the record is corrupt").isTransient())
+	}
 }
