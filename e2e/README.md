@@ -121,7 +121,8 @@ Before its first scenario an evidence run executes the `driver-contract` verb of
 driver's contract (Android also runs the on-device driver and typing probes, not the `typingSeries` measurement). A red
 contract, a missing verb or an answer the harness cannot read is exit 3 and no scenario runs; the manifest records the
 phase and `driverContract`. A simulator that stops serving preferences is `environment` (see the runbook).
-The manifest also counts what the drivers tolerated on their own as `tolerances: {key: n}` (empty when none).
+The manifest also counts what the drivers put up with as `tolerances: {key: n}` (only attempts that passed; empty when none)
+and what they refused as `refusals: {key: n}`.
 
 Evidence is produced by `./gradlew e2eEvidence` (or one platform) on a clean tree whose `HEAD` is pushed. The
 fingerprint depends on the git tree alone: app and runtime sources, `mocks/`, `e2e/catalog`, the driver sources, the
@@ -149,5 +150,5 @@ conditions and the environment thresholds are in `.codex/skills/certify-tuindice
 | `E2E_TMP_ROOT`, `E2E_STATE_ROOT` | Scratch directory and the `build/e2e` root. |
 | `E2E_ARTIFACTS_MAX_GB` | Cap of the retention (default 5). |
 
-`E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE` and `E2E_SCOPE_FILE` are test seams of the harness tests; evidence that
-is published refuses to run with any of them set.
+`E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE`, `E2E_SCOPE_FILE` and `E2E_FINGERPRINT_REPO_ROOT` are test seams of the
+harness tests; evidence refuses to run with any of them set, and `publish` refuses a ledger that recorded one.
