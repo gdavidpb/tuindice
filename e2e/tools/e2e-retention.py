@@ -5,7 +5,7 @@ By default this is a SIMULATION: it prints what it would delete and how much tha
 
   e2e-retention.py                          simulate the policy on the state root
   e2e-retention.py --apply                  carry the policy out (the harness runs this when a run ends)
-  e2e-retention.py --purge-legacy           also list the leftovers of the Maestro harness (still a simulation)
+  e2e-retention.py --purge-legacy           also list the leftovers of the pre-v5 harness (still a simulation)
   e2e-retention.py --purge-legacy --yes     delete those leftovers and carry the policy out (the owner's command)
 
 The policy (sizes are sums of file sizes; symbolic links are never followed):
@@ -431,7 +431,7 @@ class Retention:
             self.legacy_blocked = "a run is in progress: the legacy paths are left alone"
         elif self.opt.purge_legacy:
             for path, root in found:
-                self.add("delete-legacy", path, tree_size(path), "leftover of the Maestro harness", root=root)
+                self.add("delete-legacy", path, tree_size(path), "leftover of the pre-v5 harness", root=root)
         legacy = set(p for p, _root in found)
         for name in children(self.root):
             path = self.path(name)
@@ -461,7 +461,7 @@ def build_parser():
     parser.add_argument("--tmp-root", help="the harness temp root, never deleted (default: E2E_TMP_ROOT, else $TMPDIR/tuindice-e2e)")
     parser.add_argument("--dry-run", action="store_true", help="simulate: the default, accepted so scripts can say it")
     parser.add_argument("--apply", action="store_true", help="carry the policy out instead of simulating it")
-    parser.add_argument("--purge-legacy", action="store_true", help="include the leftovers of the Maestro harness")
+    parser.add_argument("--purge-legacy", action="store_true", help="include the leftovers of the pre-v5 harness")
     parser.add_argument("--yes", action="store_true", help="with --purge-legacy: really delete them (and carry the policy out)")
     parser.add_argument("--current-run", default="", help="id of the run in progress: never touched")
     parser.add_argument("--fingerprint", default="", help="fingerprint of HEAD: its ledger and the runs it names stay")
@@ -545,7 +545,7 @@ def report(plan, summary, verbose):
     if plan.legacy_blocked:
         print("[retention] LEGACY %s" % plan.legacy_blocked)
     elif not plan.opt.purge_legacy and plan.legacy_bytes:
-        print("[retention] LEGACY %s of Maestro leftovers stay: --purge-legacy lists them, --purge-legacy --yes deletes them"
+        print("[retention] LEGACY %s of pre-v5 leftovers stay: --purge-legacy lists them, --purge-legacy --yes deletes them"
             % human(plan.legacy_bytes))
     for error in summary["errors"]:
         print("[retention] ERROR %s" % error)

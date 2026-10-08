@@ -4,8 +4,8 @@ rules:
     severity: ERROR
     message: >-
       Los selectores E2E usan tags estables definidos en el objeto *UiTags del módulo,
-      no literales inline (testkit/e2e/selector-policy.md). Los flows Maestro y
-      critical-selectors.txt dependen de que el identificador tenga un único dueño.
+      no literales inline (testkit/e2e/selector-policy.md). Los escenarios E2E y el
+      catálogo de scenarios.json dependen de que el identificador tenga un único dueño.
     pattern-either:
       - pattern: $M.testTag("...")
       - pattern: testTag("...")

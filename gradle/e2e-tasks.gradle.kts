@@ -1,8 +1,8 @@
 import java.time.Duration
 
-// Registration of the E2E tasks: the e2e* runs, the verifyE2e* and scenario-contract verifiers, the launch-argument
-// contract, the catalog sync and the iOS UI test build. Applied from the root build file (apply(from = ...)) and kept
-// in a file of its own because the root build.gradle.kts is part of the E2E fingerprint (it sets the native compiler
+// Registration of the E2E tasks: the e2e* runs, the verifyE2e* verifiers (verifyE2eContract aggregates them), the
+// launch-argument contract, the catalog sync and the iOS UI test build. Applied from the root build file
+// (apply(from = ...)) and kept in a file of its own because the root build.gradle.kts is part of the E2E fingerprint (it sets the native compiler
 // arguments and the classpath) while editing a verification task cannot change what a scenario does: this file is
 // outside the fingerprint on purpose (e2e/scripts/shared/e2e-fingerprint.sh).
 
@@ -10,12 +10,6 @@ tasks.register<Exec>("verifyLaunchArgumentContract") {
 	group = "verification"
 	description = "Validates that debug launch arguments are declared once and never read in release builds."
 	commandLine("bash", "${rootDir}/scripts/verify-launch-argument-contract.sh")
-}
-
-tasks.register<Exec>("verifyE2eContract") {
-	group = "verification"
-	description = "Validates the local E2E flow catalog and critical selector coverage."
-	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
 }
 
 private val e2eCatalogJson = "e2e/catalog/scenarios.json"
@@ -47,76 +41,6 @@ tasks.register<Exec>("verifyE2eArtifactsFresh") {
 	description = "Fails when the versioned scenario catalog or the generated XCUITest list differ from the scenarios."
 	dependsOn(":scenarios:testAndroidHostTest")
 	commandLine("bash", "${rootDir}/scripts/verify-e2e-artifacts.sh")
-}
-
-tasks.register("verifyScenarioContract") {
-	group = "verification"
-	description = "Validates the scenario catalog, its fixtures and that the generated artifacts are committed fresh."
-	dependsOn(
-		":scenariokit:testAndroidHostTest",
-		":scenarios:testAndroidHostTest",
-		"verifyE2eArtifactsFresh"
-	)
-}
-
-tasks.register<Exec>("e2eMaestroAndroid") {
-	group = "verification"
-	description = "Builds the Android debug app and runs the local Maestro E2E certification suite against WireMock."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
-}
-
-tasks.register<Exec>("e2eMaestroIos") {
-	group = "verification"
-	description = "Builds the iOS debug host and runs the local Maestro E2E certification suite against WireMock."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
-}
-
-tasks.register<Exec>("e2eMaestroLocal") {
-	group = "verification"
-	description = "Runs the local Maestro E2E certification suite on every locally available platform."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceAndroid") {
-	group = "verification"
-	description = "Runs required Android Maestro E2E suites and writes/publishes commit-bound evidence logs and metadata."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "android")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceIos") {
-	group = "verification"
-	description = "Runs required iOS Maestro E2E suites and writes/publishes commit-bound evidence logs and metadata."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "ios")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceLocal") {
-	group = "verification"
-	description = "Runs required local Maestro E2E evidence on locally needed platforms and publishes passing statuses when possible."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence-local.sh")
-}
-
-tasks.register<Exec>("e2eMaestroProfileAndroid") {
-	group = "verification"
-	description = "Profiles Android Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
-	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "android")
-}
-
-tasks.register<Exec>("e2eMaestroProfileIos") {
-	group = "verification"
-	description = "Profiles iOS Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
-	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "ios")
-}
-
-tasks.register<Exec>("e2ePlatformAndroid") {
-	group = "verification"
-	description = "Runs Android-only E2E edge suites when registered."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-android.sh")
-}
-
-tasks.register<Exec>("e2ePlatformIos") {
-	group = "verification"
-	description = "Runs iOS-only E2E edge suites when registered."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-ios.sh")
 }
 
 private val e2eHarnessScript = "${rootDir}/e2e/scripts/shared/e2e.py"
@@ -191,4 +115,16 @@ tasks.register<Exec>("verifyIosUiTestsBuild") {
 	onlyIf { isMacHost }
 	timeout.set(Duration.ofMinutes(40))
 	commandLine("bash", "${rootDir}/e2e/scripts/ios/build.sh", "--for-testing-only")
+}
+
+tasks.register("verifyE2eContract") {
+	group = "verification"
+	description = "Aggregates the E2E contract: the kit and scenario host tests, the committed artifacts, the harness checks and the launch-argument contract."
+	dependsOn(
+		":scenariokit:testAndroidHostTest",
+		":scenarios:testAndroidHostTest",
+		"verifyE2eArtifactsFresh",
+		"verifyE2eHarness",
+		"verifyLaunchArgumentContract"
+	)
 }

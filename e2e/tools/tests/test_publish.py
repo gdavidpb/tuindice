@@ -52,9 +52,9 @@ class PublishTests(unittest.TestCase):
 
     def test_a_required_context_the_harness_cannot_publish_exits_2(self):
         ws = Workspace(self, [scenario("fix-a")])
-        result = publishing(ws, E2E_FAKE_SCOPE_SUITE="local-maestro-suite")
+        result = publishing(ws, E2E_FAKE_SCOPE_SUITE="local-legacy-suite")
         self.assertEqual(result.code, 2, result.out)
-        self.assertIn("requires the suite local-maestro-suite but this harness can only publish local-certification-suite", result.out)
+        self.assertIn("requires the suite local-legacy-suite but this harness can only publish local-certification-suite", result.out)
         self.assertEqual(ws.calls(), [])
         self.assertEqual(gh_posts(ws), [])
 

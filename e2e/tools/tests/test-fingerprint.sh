@@ -154,7 +154,6 @@ security/build.gradle.kts
 security/src/commonMain/A.kt
 testkit/build.gradle.kts
 testkit/src/commonMain/T.kt
-testkit/e2e/validate-x.sh
 testkit/e2e/notes.md
 .github/scripts/x.sh
 .github/scripts/materialize-firebase-configs.sh
@@ -312,7 +311,7 @@ for path in e2e/tools/tests/t.py e2e/tools/verify/new.sh e2e/platform/android/RE
 	.github/scripts/x.sh .codex/skills/x.md gradle/e2e-tasks.gradle.kts gradle/app-version.properties iosApp/Config/Version.xcconfig \
 	iosApp/scripts/ci-build.sh iosApp/scripts/ci-new.sh \
 	auth/src/commonTest/T.kt auth/src/androidHostTest/T.kt scenarios/src/androidHostTest/T.kt scenariokit/src/commonTest/T.kt \
-	app/src/test/T.kt testkit/build.gradle.kts testkit/src/commonMain/T.kt testkit/e2e/validate-x.sh testkit/e2e/notes.md; do
+	app/src/test/T.kt testkit/build.gradle.kts testkit/src/commonMain/T.kt testkit/e2e/notes.md; do
 	expect_moves "excluded ${path}" no no "${path}"
 done
 
@@ -397,6 +396,12 @@ git -C "${REPO}" add testkit/e2e/runtime-data.yaml
 expect_verifier "with an unread data file under testkit/e2e" fail
 git -C "${REPO}" rm -q --cached -f testkit/e2e/runtime-data.yaml
 rm -f "${REPO}/testkit/e2e/runtime-data.yaml"
+
+printf '#!/usr/bin/env bash\n' >"${REPO}/testkit/e2e/validate-x.sh"
+git -C "${REPO}" add testkit/e2e/validate-x.sh
+expect_verifier "with a validator script under testkit/e2e (only documents live there now)" fail
+git -C "${REPO}" rm -q --cached -f testkit/e2e/validate-x.sh
+rm -f "${REPO}/testkit/e2e/validate-x.sh"
 
 git -C "${REPO}" rm -q --cached -f scenariorunner/src/main/R.kt scenariorunner/build.gradle.kts
 expect_verifier "with a required pathspec that tracks nothing" fail

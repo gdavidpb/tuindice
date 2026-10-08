@@ -96,10 +96,21 @@ class SingleDefinitionTests(unittest.TestCase):
         root_build = read(ROOT, "build.gradle.kts")
         script = read(ROOT, "gradle", "e2e-tasks.gradle.kts")
         self.assertIn('apply(from = "gradle/e2e-tasks.gradle.kts")', root_build)
-        for name in ("e2eEvidenceAndroid", "e2eEvidenceIos", "e2eEvidence", "verifyE2eHarness", "verifyScenarioContract",
+        for name in ("e2eEvidenceAndroid", "e2eEvidenceIos", "e2eEvidence", "verifyE2eHarness",
                 "verifyLaunchArgumentContract", "syncE2eArtifacts", "verifyIosUiTestsBuild", "verifyE2eContract"):
             self.assertIn('"%s"' % name, script, name)
             self.assertNotIn('"%s"' % name, root_build, name)
+
+    def test_verify_e2e_contract_aggregates_the_checks_and_no_retired_task_remains(self):
+        # F26: the contract is the five checks below, and the Maestro/platform tasks and verifyScenarioContract are gone.
+        script = read(ROOT, "gradle", "e2e-tasks.gradle.kts")
+        start = script.index('tasks.register("verifyE2eContract")')
+        block = script[start:script.index("\n}\n", start)]
+        for dependency in (":scenariokit:testAndroidHostTest", ":scenarios:testAndroidHostTest", "verifyE2eArtifactsFresh",
+                "verifyE2eHarness", "verifyLaunchArgumentContract"):
+            self.assertIn('"%s"' % dependency, block, dependency)
+        for retired in ("e2eMaestro", "e2ePlatform", "verifyScenarioContract", "validate-e2e-contract"):
+            self.assertNotIn(retired, script, retired)
 
 
 if __name__ == "__main__":

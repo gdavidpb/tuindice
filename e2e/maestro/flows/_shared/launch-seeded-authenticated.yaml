@@ -1,4 +1,0 @@
-appId: com.gdavidpb.tuindice.debug
----
-- runFlow: ../_shared/launch-clean.yaml
-- runFlow: ../auth/login-summary-ready.yaml

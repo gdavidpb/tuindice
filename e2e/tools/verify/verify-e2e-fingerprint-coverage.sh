@@ -4,12 +4,11 @@
 #   1. a tracked file sits directly under e2e/scripts (the harness lives in shared/, android/ and ios/);
 #   2. a tracked file under e2e/ is neither inside a fingerprinted pathspec nor under e2e/tools, e2e/platform or e2e/README.md;
 #   3. a `required:` pathspec has no tracked file (a rename left the fingerprint reading nothing);
-#   4. a tracked file under testkit/e2e is neither validate-*.sh, *.md, nor covered;
+#   4. a tracked file under testkit/e2e is neither a document (*.md) nor covered;
 #   5. a toolchain lock key is not read by harness/toolchain.py, or the reverse;
 #   6. the scenario runner pins an androidx.test version instead of using the version catalog;
 #   7. the root build.gradle.kts (inside the fingerprint) registers an E2E task instead of leaving it to
 #      gradle/e2e-tasks.gradle.kts (outside it), or does not apply that script.
-# Pre-v5 files that the cut deletes are tolerated while they exist (legacy-until-f26.txt).
 #
 # Usage: e2e/tools/verify/verify-e2e-fingerprint-coverage.sh
 # Test seams: E2E_VERIFY_REPO_ROOT (the repository to check), E2E_VERIFY_FINGERPRINT_SCRIPT.
@@ -19,7 +18,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLS_REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 REPO_ROOT="${E2E_VERIFY_REPO_ROOT:-${TOOLS_REPO_ROOT}}"
 FINGERPRINT_SCRIPT="${E2E_VERIFY_FINGERPRINT_SCRIPT:-${TOOLS_REPO_ROOT}/e2e/scripts/shared/e2e-fingerprint.sh}"
-LEGACY_LIST="${SCRIPT_DIR}/legacy-until-f26.txt"
 # shellcheck source=e2e/scripts/shared/layout.env
 source "${TOOLS_REPO_ROOT}/e2e/scripts/shared/layout.env"
 
@@ -27,21 +25,6 @@ issues=0
 report() {
 	printf '%s\n' "$1" >&2
 	issues=1
-}
-
-is_legacy() {
-	local file="$1"
-	local entry
-	[[ -f "${LEGACY_LIST}" ]] || return 1
-	while IFS= read -r entry; do
-		[[ -n "${entry}" && "${entry}" != "#"* ]] || continue
-		if [[ "${entry}" == */ ]]; then
-			[[ "${file}" == "${entry}"* ]] && return 0
-		elif [[ "${file}" == "${entry}" ]]; then
-			return 0
-		fi
-	done <"${LEGACY_LIST}"
-	return 1
 }
 
 pathspecs() {
@@ -85,7 +68,7 @@ while IFS= read -r file; do
 	case "${file}" in
 		e2e/*)
 			# 1. Loose scripts directly under e2e/scripts.
-			if [[ "${file}" == e2e/scripts/* && "${file#e2e/scripts/}" != */* ]] && ! is_legacy "${file}"; then
+			if [[ "${file}" == e2e/scripts/* && "${file#e2e/scripts/}" != */* ]]; then
 				report "${file} sits directly under e2e/scripts; the harness lives in e2e/scripts/shared, android or ios."
 				continue
 			fi
@@ -93,17 +76,17 @@ while IFS= read -r file; do
 			case "${file}" in
 				e2e/tools/*|e2e/platform/*|e2e/README.md) continue ;;
 			esac
-			if ! covered_by "${file}" "${all_specs[@]}" && ! is_legacy "${file}"; then
+			if ! covered_by "${file}" "${all_specs[@]}"; then
 				report "${file} is not inside any fingerprinted pathspec and is not under e2e/tools, e2e/platform or e2e/README.md; a change to it would leave published evidence valid."
 			fi
 			;;
 		testkit/e2e/*)
 			# 4. Data under testkit/e2e that the fingerprint does not read.
 			case "${file}" in
-				testkit/e2e/validate-*.sh|*.md) continue ;;
+				*.md) continue ;;
 			esac
-			if ! covered_by "${file}" "${all_specs[@]}" && ! is_legacy "${file}"; then
-				report "${file} is neither a validator, a document nor read by the fingerprint."
+			if ! covered_by "${file}" "${all_specs[@]}"; then
+				report "${file} is neither a document nor read by the fingerprint."
 			fi
 			;;
 	esac
@@ -152,7 +135,7 @@ fi
 root_build="${REPO_ROOT}/build.gradle.kts"
 tasks_script="gradle/e2e-tasks.gradle.kts"
 if [[ -f "${root_build}" ]]; then
-	if grep -nE '(tasks\.register(<[A-Za-z]+>)?\(|registerE2eRun\()[[:space:]]*"(e2e[A-Z]|verifyE2e|verifyScenarioContract|verifyLaunchArgumentContract|syncE2eArtifacts|verifyIosUiTestsBuild)' "${root_build}" >&2; then
+	if grep -nE '(tasks\.register(<[A-Za-z]+>)?\(|registerE2eRun\()[[:space:]]*"(e2e[A-Z]|verifyE2e|verifyLaunchArgumentContract|syncE2eArtifacts|verifyIosUiTestsBuild)' "${root_build}" >&2; then
 		report "build.gradle.kts registers an E2E task; move it to ${tasks_script}, which the fingerprint leaves out, so that editing a verification task does not invalidate evidence."
 	fi
 	if ! grep -qF "apply(from = \"${tasks_script}\")" "${root_build}"; then
