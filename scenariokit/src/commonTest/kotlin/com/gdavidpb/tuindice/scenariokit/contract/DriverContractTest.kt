@@ -39,7 +39,7 @@ class DriverContractTest {
 		assertEquals(
 			listOf(
 				"launch", "present-element", "absent-element", "absent-wait-timing", "gone-wait-on-present",
-				"disabled-element", "text-entry", "foreground", "backend"
+				"disabled-element", "text-entry", "foreground", "backend", "terminated-app"
 			),
 			outcome.steps.map { it.primitive }
 		)
@@ -56,6 +56,31 @@ class DriverContractTest {
 
 		assertEquals("absent-element", failure.primitive)
 		assertContains(failure.message, "tap returned true")
+	}
+
+	@Test
+	fun aDriverThatTouchesAnAppThatIsGone_failsTheTerminatedAppProbe() {
+		val fake = conformant()
+		val blind = object : ScenarioDriver by fake {
+			override fun tap(q: Query) = fake.terminated || fake.tap(q)
+		}
+
+		val failure = assertNotNull(contract(blind, fake).failure)
+
+		assertEquals("terminated-app", failure.primitive)
+		assertContains(failure.message, "tap returned true with the app terminated")
+	}
+
+	@Test
+	fun aDriverThatReadsAGoneAppAsGone_failsTheTerminatedAppProbe() {
+		val fake = conformant()
+		val credulous = object : ScenarioDriver by fake {
+			override fun waitGone(q: Query, timeoutMs: Long) = fake.terminated || fake.waitGone(q, timeoutMs)
+		}
+
+		val failure = assertNotNull(contract(credulous, fake).failure)
+
+		assertContains(failure.message, "waitGone returned true although nothing can be read from a dead app")
 	}
 
 	@Test
@@ -121,10 +146,10 @@ class DriverContractTest {
 
 		val outcome = contract(impatient, fake)
 
-		assertEquals(9, outcome.steps.size)
+		assertEquals(10, outcome.steps.size)
 		val failed = outcome.steps.filter { it.outcome.wire == "failed" }.map { it.primitive }
-		assertEquals(listOf("absent-element", "text-entry"), failed)
-		assertContains(outcome.report, "2 of 9 checks")
+		assertEquals(listOf("absent-element", "text-entry", "terminated-app"), failed)
+		assertContains(outcome.report, "3 of 10 checks")
 		assertContains(assertNotNull(outcome.failure).message, "text-entry:")
 	}
 

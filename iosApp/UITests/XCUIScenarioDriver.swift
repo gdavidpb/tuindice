@@ -42,7 +42,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         environment[LaunchKeys.apiBaseUrl] = config.apiBaseUrl
         environment[LaunchKeys.webBaseUrl] = config.webBaseUrl
         app.launchEnvironment = environment
-        app.launch()
+        guard guarded("launch", log: log, { app.launch() }) else { return false }
 
         return app.wait(for: .runningForeground, timeout: Self.launchTimeout)
     }
@@ -107,8 +107,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
             guard let (resolved, area) = area(of: q, for: "tapAt") else { return false }
             let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
             guard !coveredByKeyboard(point, gesture: "tapAt \(q.map { "\($0)" } ?? "screen")") else { return false }
-            resolver.coordinate(at: point, in: resolved).tap()
-            return true
+            return guarded("tapAt", log: log) { resolver.coordinate(at: point, in: resolved).tap() }
         }
     }
 
@@ -120,8 +119,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
             let target = resolver.visiblePart(of: facts.frame)
             let point = CGPoint(x: target.midX, y: target.midY)
             guard !coveredByKeyboard(point, gesture: "doubleTap \(q)") else { return false }
-            resolver.coordinate(at: point, in: resolved).doubleTap()
-            return true
+            return guarded("doubleTap", log: log) { resolver.coordinate(at: point, in: resolved).doubleTap() }
         }
     }
 
@@ -146,13 +144,14 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         let velocity = XCUIGestureVelocity(CGFloat(distance / seconds))
 
         // The finger lifts at the speed of the drag, as on Android: the gesture may fling its content.
-        resolver.coordinate(at: start, in: resolved).press(
-            forDuration: 0.05,
-            thenDragTo: resolver.coordinate(at: end, in: resolved),
-            withVelocity: velocity,
-            thenHoldForDuration: 0
-        )
-        return true
+        return guarded("swipe", log: log) {
+            resolver.coordinate(at: start, in: resolved).press(
+                forDuration: 0.05,
+                thenDragTo: resolver.coordinate(at: end, in: resolved),
+                withVelocity: velocity,
+                thenHoldForDuration: 0
+            )
+        }
     }
 
     func pressBack() -> Bool {
@@ -255,8 +254,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private func tap(_ resolved: ResolvedElement, at point: CGPoint, gesture: String) -> Bool {
         guard resolver.isAppRunning else { return refuse("\(gesture): the app is not running") }
         guard !coveredByKeyboard(point, gesture: gesture) else { return false }
-        resolver.coordinate(at: point, in: resolved).tap()
-        return true
+        return guarded(gesture, log: log) { resolver.coordinate(at: point, in: resolved).tap() }
     }
 
     /// Whether the keyboard on screen covers [point]: a tap there would press a key and put a character in the field that has

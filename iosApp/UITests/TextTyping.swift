@@ -79,8 +79,9 @@ final class TextTyping {
             log.add("[driver] submitTextEntry: key '\(name)' frame \(frame.map { "\($0)" } ?? "unreadable") after \(reads) reads")
             guard let frame else { return refuse("submitTextEntry: the '\(name)' key never stopped moving or could not be read") }
             // A key of the keyboard is not tapped through the driver's guard, which refuses points under the keyboard.
-            resolver.coordinate(at: CGPoint(x: frame.midX, y: frame.midY), in: nil).tap()
-            return true
+            return guarded("submitTextEntry '\(name)' key", log: log) {
+                resolver.coordinate(at: CGPoint(x: frame.midX, y: frame.midY), in: nil).tap()
+            }
         }
         let offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label }
         return refuse("submitTextEntry: the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
@@ -138,7 +139,7 @@ final class TextTyping {
         while !rest.isEmpty {
             guard resolver.isAppRunning, app.keyboards.firstMatch.exists else { return false }
             let chunk = rest.prefix(Self.chunk)
-            app.typeText(String(chunk))
+            guard guarded("typeText", log: log, { app.typeText(String(chunk)) }) else { return false }
             rest = rest.dropFirst(chunk.count)
         }
         return true

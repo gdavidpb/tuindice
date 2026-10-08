@@ -60,6 +60,21 @@ else
 	puts "Target #{TARGET_NAME} already present."
 end
 
+# Files added to UITests/ after the target was created: every Swift or Objective-C source gets a reference in the group and
+# a place in the sources phase, every header only a reference. A file that is already referenced is left alone.
+group = project.main_group.children.find { |g| g.display_name == 'UITests' } or abort('missing UITests group')
+referenced = group.files.map(&:path)
+Dir[File.join(root, 'UITests', '*.{swift,m,h}')].sort.each do |file|
+	name = File.basename(file)
+	next if referenced.include?(name)
+
+	reference = group.new_file(name)
+	ui.add_file_references([reference]) unless name.end_with?('.h')
+	puts "Added #{name} to the UITests group."
+end
+
+project.save
+
 scheme_path = File.join(Xcodeproj::XCScheme.shared_data_dir(project.path), "#{TARGET_NAME}.xcscheme")
 if File.exist?(scheme_path)
 	puts "Scheme #{TARGET_NAME} already present."

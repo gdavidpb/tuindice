@@ -7,6 +7,7 @@ TEST_TARGET_NAME = TuIndiceHost
 SDKROOT = iphoneos
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SWIFT_VERSION = 5.9
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/UITests/TuIndiceUITests-Bridging-Header.h
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
 IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*] = 18.5
 ARCHS[sdk=iphonesimulator*] = arm64

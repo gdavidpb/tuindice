@@ -43,6 +43,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	/** False makes `typeKeys` answer false after writing what [typing] makes of the text, like a refused injection. */
 	var keysAccepted = true
+	var terminated = false
 	var throwOn: String? = null
 	var logThrows = false
 	var launchTakesMs = 0L
@@ -57,7 +58,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	private fun shown(q: Query): Boolean {
 		val el = element(q)
-		return el != null && el.visible && swipes >= el.hiddenUntilSwipes
+		return !terminated && el != null && el.visible && swipes >= el.hiddenUntilSwipes
 	}
 
 	override fun launch(spec: LaunchSpec): Boolean {
@@ -69,14 +70,17 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun foreground(): Boolean {
 		enter("foreground")
-		return foregroundResult
+		return foregroundResult && !terminated
 	}
 
-	override fun terminate() = enter("terminate")
+	override fun terminate() {
+		enter("terminate")
+		terminated = true
+	}
 
 	override fun isForeground(): Boolean {
 		enter("isForeground")
-		return inForeground
+		return inForeground && !terminated
 	}
 
 	override fun waitVisible(q: Query, timeoutMs: Long): Boolean {
@@ -99,9 +103,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun waitGone(q: Query, timeoutMs: Long): Boolean {
 		enter("waitGone")
-		if (!shown(q)) return true
-		time += timeoutMs.milliseconds
-		return false
+		val gone = !terminated && !shown(q)
+		if (!gone) time += timeoutMs.milliseconds
+		return gone
 	}
 
 	override fun isVisible(q: Query): Boolean {
@@ -160,7 +164,8 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun swipe(from: Query?, vector: SwipeVector, durationMs: Long): Boolean {
 		enter("swipe")
-		if (!swipeResult || refusal != null) return false
+		val startsOffScreen = from != null && !shown(from)
+		if (!swipeResult || refusal != null || startsOffScreen) return false
 		swipes++
 		onSwipe(swipes)
 		return true
@@ -173,7 +178,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun typeKeys(q: Query, text: String): Boolean {
 		enter("typeKeys")
-		val el = element(q)?.takeIf { refusal == null }
+		val el = element(q)?.takeIf { refusal == null && !terminated }
 		el?.let { it.text = typing(it.text.orEmpty() + text) }
 		return el != null && keysAccepted
 	}

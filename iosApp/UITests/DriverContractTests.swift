@@ -62,3 +62,33 @@ final class SettleWatchTests: XCTestCase {
         XCTAssertEqual(run([a, a, a], watch: SettleWatch(requiredEqualReads: 3, maxReads: 3, timeLimit: 100), step: 1).0, .settled)
     }
 }
+
+/// The Objective-C shim that keeps an XCTest exception from reaching the Kotlin frames of the interpreter. No device is involved.
+final class ObjCCatchTests: XCTestCase {
+    private func raise(_ reason: String) {
+        NSException(name: .invalidArgumentException, reason: reason, userInfo: nil).raise()
+    }
+
+    func test_a_block_that_returns_is_not_a_refusal() {
+        var reason: NSString?
+        XCTAssertTrue(TIObjCCatch({}, &reason))
+        XCTAssertNil(reason)
+    }
+
+    func test_an_exception_is_caught_and_its_reason_reported() {
+        var reason: NSString?
+        XCTAssertFalse(TIObjCCatch({ self.raise("the app died") }, &reason))
+        XCTAssertTrue((reason as String?)?.contains("the app died") ?? false, "reason was \(String(describing: reason))")
+    }
+
+    func test_guarded_answers_false_and_leaves_the_exception_as_the_refusal() {
+        let log = DriverLog(echo: false)
+        XCTAssertFalse(guarded("tap", log: log) { self.raise("boom") })
+        XCTAssertTrue(log.lastRefusal?.contains("boom") ?? false)
+        XCTAssertTrue(log.lines.last?.contains("XCTest raised an exception") ?? false)
+
+        log.clearRefusal()
+        XCTAssertTrue(guarded("tap", log: log) {})
+        XCTAssertNil(log.lastRefusal)
+    }
+}

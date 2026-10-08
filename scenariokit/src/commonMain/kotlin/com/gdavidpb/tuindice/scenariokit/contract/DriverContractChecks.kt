@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenariokit.contract
 
 import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
+import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
 import com.gdavidpb.tuindice.scenariokit.engine.Clocks
 import com.gdavidpb.tuindice.scenariokit.engine.Poller
 import com.gdavidpb.tuindice.scenariokit.model.Query
@@ -35,8 +36,33 @@ internal class DriverContractChecks(
 		DriverContractCheck("backend") {
 			val reply = driver.http("GET", "/__admin/scenarios", null, null)
 			problem(reply.isSuccess, "GET /__admin/scenarios answered ${reply.status}")
-		}
+		},
+		// Last: it ends the app, and nothing after it can use the screen.
+		DriverContractCheck("terminated-app", ::terminatedApp)
 	)
+
+	/**
+	 * With the app gone, nothing on it can be touched, typed into or read, and "gone" is not proven by a screen that
+	 * cannot be read. Every answer is false, and the runner must come back from each call alive: a touch dispatched to a
+	 * dead app is where an XCTest exception used to take the runner down.
+	 */
+	private fun terminatedApp(): String? {
+		driver.terminate()
+		val field = fixture.textFieldTag?.let { Query.Tag(it) }
+		return when {
+			driver.tap(present) -> "tap returned true with the app terminated"
+			driver.tapAt(present, HALF, HALF) -> "tapAt returned true with the app terminated"
+			driver.doubleTap(present) -> "doubleTap returned true with the app terminated"
+			driver.swipe(present, SwipeVector(HALF, HALF, 0.0, -SWIPE_TRAVEL), SWIPE_PROBE_MS) ->
+				"swipe returned true with the app terminated"
+			field != null && driver.typeKeys(field, fixture.textSample) -> "typeKeys returned true with the app terminated"
+			driver.isVisible(present) -> "isVisible is true with the app terminated"
+			driver.waitGone(present, GONE_WAIT_MS) -> "waitGone returned true although nothing can be read from a dead app"
+			driver.isForeground() -> "isForeground is true with the app terminated"
+			driver.foreground() -> "foreground returned true with the app terminated"
+			else -> null
+		}
+	}
 
 	private fun problem(holds: Boolean, message: String): String? = if (holds) null else message
 
@@ -104,5 +130,8 @@ internal class DriverContractChecks(
 		const val TIMING_PROBE_MS = 600L
 		const val TIMING_SLACK_MS = 5_000L
 		const val MIN_WAIT_SHARE = 0.8
+		const val HALF = 0.5
+		const val SWIPE_TRAVEL = 0.1
+		const val SWIPE_PROBE_MS = 300L
 	}
 }
