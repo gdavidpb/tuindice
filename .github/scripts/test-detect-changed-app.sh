@@ -503,8 +503,8 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
-			# The Android runner links the kit: a kit-only change must still build it.
-			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:assembleDebug" "Android tasks"
+			# A kit test source does not reach the runner: nothing to assemble.
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:assembleDebug" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" ":scenariorunner:compileKotlinIosSimulatorArm64" "iOS tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
