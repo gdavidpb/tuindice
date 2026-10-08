@@ -91,24 +91,35 @@ class Remote:
             if self.statuses[sha] is None and not unknown:
                 self.failed.add(sha)
 
-    def find(self, platform, fingerprint, shas):
-        """Looks for the trusted success status on `shas` (HEAD first, then the rest together). `reachable` is
-        False when GitHub could not be asked at all (no owner, or every lookup failed); one unpublished commit
-        answering 404 does not make it so. `incomplete` lists the commits looked at whose lookup failed twice."""
+    def find(self, platform, fingerprint, shas, creators=None):
+        """Looks for the trusted success status on `shas` (HEAD first, then the rest together). `creators` replaces the
+        trusted logins (publishing cites only the owner's statuses). Only statuses of those creators are looked at, and
+        the newest of them decides: a later status of anyone else does not hide the evidence. `reachable` is False when
+        GitHub could not be asked at all (no owner, or every lookup failed); one unpublished commit answering 404 does
+        not make it so. `incomplete` lists the commits looked at whose lookup failed twice; `ignored` the (sha, login)
+        pairs whose newest matching success was created by someone outside `creators`."""
         found = {"reachable": False, "sha": None, "checked": 0, "truncated": len(shas) > MAX_REMOTE_LOOKUPS,
-            "incomplete": []}
+            "incomplete": [], "ignored": []}
         if not self.owner:
             return found
-        trusted, context, marker = self.trusted(), publish.status_context(self.cfg, platform), "fp %s" % fingerprint[:12]
+        trusted = set(creators) if creators is not None else self.trusted()
+        context, marker = publish.status_context(self.cfg, platform), "fp %s" % fingerprint[:12]
+
+        def counts(status):
+            return status.get("state") == "success" and marker in (status.get("description") or "")
+
         for chunk in (shas[:1], shas[1:MAX_REMOTE_LOOKUPS]):
             self._load(chunk)
             for sha in chunk:
                 found["checked"] += 1
-                latest = next((s for s in self.statuses.get(sha) or [] if isinstance(s, dict) and s.get("context") == context), None)
-                if latest and latest.get("state") == "success" and (latest.get("creator") or {}).get("login") in trusted \
-                        and marker in (latest.get("description") or ""):
+                of_context = [s for s in self.statuses.get(sha) or [] if isinstance(s, dict) and s.get("context") == context]
+                latest = next((s for s in of_context if (s.get("creator") or {}).get("login") in trusted), None)
+                if latest and counts(latest):
                     found["sha"] = sha
                     break
+                outsider = next((s for s in of_context if (s.get("creator") or {}).get("login") not in trusted and counts(s)), None)
+                if outsider:
+                    found["ignored"].append((sha, (outsider.get("creator") or {}).get("login") or "an unknown login"))
             if found["sha"]:
                 break
         found["reachable"] = any(self.statuses.get(sha) is not None for sha in shas[:found["checked"]])
@@ -116,12 +127,14 @@ class Remote:
         return found
 
 
-def locate_evidence(cfg, platform, fingerprint, head):
+def locate_evidence(cfg, platform, fingerprint, head, owner_only=False):
     """(found, trusted): the remote lookup of trusted evidence for `fingerprint` on HEAD and then on the commits preflight
-    considers, and the logins that count as trusted (for the explanation when there is none). Reads only."""
+    considers, and the logins that count (for the explanation when there is none). Reads only. `owner_only` narrows the
+    logins to the repository owner whatever E2E_TRUSTED_STATUS_CREATORS says: what `publish` cites becomes the owner's."""
     remote = Remote(cfg)
-    found = remote.find(platform, fingerprint, [head] + reuse_candidates(cfg.root, head))
-    return found, (remote.trusted() if remote.owner else set())
+    creators = {remote.owner} if owner_only and remote.owner else None
+    found = remote.find(platform, fingerprint, [head] + reuse_candidates(cfg.root, head), creators)
+    return found, (creators if creators is not None else (remote.trusted() if remote.owner else set()))
 
 
 def decide(info, head, candidates, remote):

@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import catalog as catalog_mod  # noqa: E402
 from harness import publish as publish_mod  # noqa: E402
 from harness import envcheck, parallel, report, runner, verdict  # noqa: E402
-from harness.config import EXIT_HARNESS_ERROR, PLATFORMS, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
+from harness.config import EXIT_HARNESS_ERROR, PLATFORMS, SUITE_ID, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
 from harness.gitstate import GitState  # noqa: E402
 from harness.ledger import Ledger  # noqa: E402
 from harness.proc import Interrupted  # noqa: E402
@@ -42,9 +42,16 @@ def install_signal_handlers():
         signal.signal(getattr(signal, name), handler)
 
 
-def fingerprint_for(cfg, platform):
+def fingerprint_for(cfg, platform, ref="HEAD"):
+    """The fingerprint of `ref` (HEAD by default) from the same tool the runs use, so that a commit other than HEAD is
+    measured exactly as HEAD is."""
     holder = runner.PlatformRun(cfg, platform, runner.Options("evidence"))
-    return holder._fingerprint()
+    if ref == "HEAD":
+        return holder._fingerprint()
+    value = holder._tool("E2E_FINGERPRINT_CMD", "E2E_FINGERPRINT_SCRIPT", platform, SUITE_ID, ref).strip()
+    if not value or not all(c in "0123456789abcdef" for c in value) or len(value) < 12:
+        raise UsageError("the fingerprint command printed %r for %s" % (value[:80], ref[:12]))
+    return value
 
 
 def open_ledger(cfg, platform, lock, create):
@@ -161,21 +168,33 @@ def cmd_list(cfg, args):
 
 
 def publish_ancestor_evidence(cfg, platform, git, context, fingerprint, pending, log):
-    """The ledger is not complete for this fingerprint: if HEAD or an ancestor preflight considers already has a trusted
-    success status naming it, publish on HEAD a status that says where the evidence was produced. Anything else is a refusal."""
-    found, trusted = verdict.locate_evidence(cfg, platform, fingerprint, git.sha)
+    """The ledger is not complete for this fingerprint: if HEAD or an ancestor preflight considers already has a success
+    status of the repository owner naming it, publish on HEAD a status that says where the evidence was produced. Only the
+    owner's statuses are cited, whatever E2E_TRUSTED_STATUS_CREATORS says: what is published here becomes the owner's.
+    Anything else is a refusal."""
+    found, owners = verdict.locate_evidence(cfg, platform, fingerprint, git.sha, owner_only=True)
     refusal = "%d scenarios are not green for fp %s: %s" % (len(pending), fingerprint[:12], ", ".join(pending))
-    if found["incomplete"]:
-        raise UsageError("%s; GitHub did not answer for %s after asking twice, so no evidence on them can be cited"
-            % (refusal, " ".join(sha[:12] for sha in found["incomplete"])))
     if not found["sha"]:
+        if found["incomplete"]:
+            raise UsageError("%s; GitHub did not answer for %s after asking twice, so no evidence on them can be cited"
+                % (refusal, " ".join(sha[:12] for sha in found["incomplete"])))
         if not found["reachable"]:
             raise UsageError("%s; GitHub could not be read, so no evidence on an ancestor can be cited" % refusal)
-        raise UsageError("%s; none of the %d commits looked at (HEAD and those preflight considers) has a success status %s naming "
-            "that fingerprint created by %s" % (refusal, found["checked"], context, ", ".join(sorted(trusted)) or "a trusted login"))
+        looked = "HEAD and those preflight considers"
+        if found["truncated"]:
+            looked += ", the history was cut short and older commits were not looked at"
+        ignored = "".join("; the status on %s was created by %s and is not cited" % (sha[:12], login)
+            for sha, login in found["ignored"][:3])
+        raise UsageError("%s; none of the %d commits looked at (%s) has a success status %s naming that fingerprint created by %s%s"
+            % (refusal, found["checked"], looked, context, ", ".join(sorted(owners)) or "the repository owner", ignored))
     if found["sha"] == git.sha:
         log.say("status %s already on %s with fp %s; nothing to publish" % (context, git.sha7, fingerprint[:12]))
         return 0
+    cited = fingerprint_for(cfg, platform, found["sha"])
+    if cited[:12] != fingerprint[:12]:
+        raise UsageError("%s; the status on %s names fp %s but that commit measures fp %s now, so it is not cited"
+            % (refusal, found["sha"][:12], fingerprint[:12], cited[:12]))
+    git.require_unchanged("before publishing")
     text = publish_mod.reuse_description(platform, found["sha"], fingerprint)
     try:
         publish_mod.publish_success(cfg, platform, git.sha, context, text)
@@ -184,6 +203,18 @@ def publish_ancestor_evidence(cfg, platform, git, context, fingerprint, pending,
         return 6
     log.say("published %s citing the evidence on %s: %s" % (context, found["sha"][:7], text))
     return 0
+
+
+def owner_shows_evidence(cfg, platform, git, fingerprint):
+    """True when GitHub shows the owner's success status for `fingerprint` on HEAD, False when it was read and does not,
+    None when it could not be read (no answer for HEAD, or no owner): the ledger's record is then all there is."""
+    remote = verdict.Remote(cfg)
+    if not remote.owner:
+        return None
+    found = remote.find(platform, fingerprint, [git.sha], {remote.owner})
+    if found["sha"]:
+        return True
+    return False if found["reachable"] and not found["incomplete"] else None
 
 
 def cmd_publish(cfg, args):
@@ -201,8 +232,10 @@ def cmd_publish(cfg, args):
         if pending:
             return publish_ancestor_evidence(cfg, args.platform, git, context, fingerprint, pending, log)
         text = publish_mod.description(args.platform, runnable, quarantined, git.sha, fingerprint, ledger)
+        git.require_unchanged("before publishing")
         try:
-            if publish_mod.publish_once(cfg, args.platform, git, context, text, ledger, "publish", log) == "published":
+            if publish_mod.publish_once(cfg, args.platform, git, context, text, ledger, "publish", log,
+                    lambda: owner_shows_evidence(cfg, args.platform, git, fingerprint)) == "published":
                 log.say("published %s: %s" % (context, text))
         except publish_mod.PublishError as error:
             log.say("PUBLISH FAILED %s" % error)

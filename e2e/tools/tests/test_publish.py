@@ -5,7 +5,7 @@ import os
 import subprocess
 import unittest
 
-from support import FP_A, FP_B, Workspace, scenario, text
+from support import FAKE_GH, FP_A, FP_B, Workspace, scenario, text
 
 
 def gh_posts(ws):
@@ -207,6 +207,83 @@ class PublishFromAnAncestorTests(unittest.TestCase):
         self.assertEqual(unpushed.code, 2, unpushed.out)
         self.assertIn("HEAD == @{u}", unpushed.err)
         self.assertFalse(os.path.exists(self.ws.gh_log), "gh was called with HEAD ahead of its upstream")
+
+    def test_zd1_the_bot_in_the_local_variable_is_not_cited_and_the_refusal_names_who_created_the_status(self):
+        self.remote(self.evidence, trusted_status(creator="github-actions[bot]"))
+        result = self.publish(E2E_TRUSTED_STATUS_CREATORS="owner,github-actions[bot]")
+        self.assertEqual(result.code, 2, result.out + result.err)
+        self.assertEqual(gh_posts(self.ws), [], "a status of another identity was republished as the owner's")
+        self.assertIn("created by github-actions[bot] and is not cited", result.err)
+
+    def test_zd1_a_variable_that_leaves_the_owner_out_does_not_stop_the_owners_evidence(self):
+        self.remote(self.evidence, trusted_status())
+        result = self.publish(E2E_TRUSTED_STATUS_CREATORS="release-bot")
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(len(gh_posts(self.ws)), 1)
+
+    def test_zd8a_the_cited_commit_is_measured_again_and_must_still_name_the_fingerprint(self):
+        self.remote(self.evidence, trusted_status())
+        result = self.publish(E2E_FAKE_FP_OTHER=FP_B)
+        self.assertEqual(result.code, 2, result.out + result.err)
+        self.assertEqual(gh_posts(self.ws), [])
+        self.assertIn("measures fp %s now" % FP_B[:12], result.err)
+
+    def test_zd8b_evidence_found_on_an_older_commit_is_cited_although_the_lookup_of_head_failed(self):
+        self.remote(self.evidence, trusted_status())
+        result = self.publish(E2E_FAKE_GH_FAIL_SHAS=self.commit_sha())
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(len(gh_posts(self.ws)), 1)
+
+    def test_zd8c_a_search_cut_short_says_so(self):
+        for number in range(105):
+            self.commit("c%d" % number)
+        result = self.publish()
+        self.assertEqual(result.code, 2, result.out)
+        self.assertIn("the history was cut short", result.err)
+        self.assertEqual(gh_posts(self.ws), [])
+
+    def move_head_during_the_visibility_check(self):
+        """E2E_GH_CMD that commits once, when `publish` asks gh whether HEAD is visible: HEAD moves after the run read it."""
+        flag = os.path.join(self.ws.dir, "moved")
+        wrapper = os.path.join(self.ws.dir, "move-head-gh")
+        with open(wrapper, "w") as handle:
+            handle.write('#!/usr/bin/env bash\nif [[ "$*" == *"--jq .sha"* && ! -e "%s" ]]; then\n\t: > "%s"\n'
+                '\tgit -C "%s" commit -q --allow-empty -m moved\nfi\nexec "%s" "$@"\n' % (flag, flag, self.ws.repo, FAKE_GH))
+        return "bash " + wrapper
+
+    def test_zd8d_a_head_that_moves_before_the_post_publishes_nothing(self):
+        self.remote(self.evidence, trusted_status())
+        result = self.publish(E2E_GH_CMD=self.move_head_during_the_visibility_check())
+        self.assertEqual(result.code, 2, result.out + result.err)
+        self.assertEqual(gh_posts(self.ws), [])
+        self.assertIn("HEAD moved", result.err)
+
+    def test_zd8d_the_same_holds_when_the_ledger_is_complete(self):
+        self.assertEqual(self.ws.evidence().code, 0)
+        result = self.publish(E2E_GH_CMD=self.move_head_during_the_visibility_check())
+        self.assertEqual(result.code, 2, result.out + result.err)
+        self.assertEqual(gh_posts(self.ws), [])
+
+    def test_zd9_a_newer_status_of_someone_else_does_not_hide_the_owners_evidence(self):
+        self.remote(self.evidence, trusted_status(creator="stranger"), trusted_status())  # newest first
+        result = self.publish()
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(len(gh_posts(self.ws)), 1)
+
+    def test_zd9_a_publication_the_ledger_records_is_posted_again_when_head_does_not_show_it(self):
+        self.assertEqual(self.ws.evidence(E2E_PUBLISH_GITHUB_STATUS="auto").code, 0)
+        self.assertEqual(len(gh_posts(self.ws)), 1)
+        head = self.commit_sha()
+        self.remote(head, trusted_status(creator="stranger"))  # a later status of someone else covers it
+        result = self.publish()
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(len(gh_posts(self.ws)), 2, "the status that no longer shows on HEAD was not posted again")
+        self.assertEqual(len(self.ws.ledger()["publications"]), 1, "the record stays single")
+        self.remote(head, trusted_status())
+        again = self.publish()
+        self.assertEqual(again.code, 0, again.out + again.err)
+        self.assertEqual(len(gh_posts(self.ws)), 2, "GitHub shows the status: nothing to post")
+        self.assertIn("already published", again.out)
 
 
 if __name__ == "__main__":

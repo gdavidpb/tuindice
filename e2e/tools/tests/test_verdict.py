@@ -172,6 +172,13 @@ class VerdictTests(unittest.TestCase):
         self.remote(head(self.ws), success(), success(state="failure"))
         self.assertEqual(self.status()["verdict"], "current")
 
+    def test_zd9_a_newer_status_of_someone_untrusted_does_not_hide_the_owners(self):
+        self.remote(head(self.ws), success(creator="github-actions[bot]"), success())  # newest first
+        self.assertEqual(self.status()["verdict"], "current")
+        # the newest of the trusted ones still decides
+        self.remote(head(self.ws), success(creator="github-actions[bot]"), success(state="failure"), success())
+        self.assertEqual(self.status()["verdict"], "rerun")
+
     def test_the_two_platforms_have_their_own_verdicts(self):
         self.remote(head(self.ws), success())
         data = json.loads(self.ws.run("status", "--json").out)["platforms"]

@@ -49,12 +49,19 @@ def reuse_description(platform, evidence_sha, fingerprint):
     return ("Local E2E %s reused from %s fp %s." % (platform, evidence_sha[:7], fingerprint[:12]))[:140]
 
 
-def publish_once(config, platform, git, context, text, ledger, run_id, log):
+def publish_once(config, platform, git, context, text, ledger, run_id, log, remote_shows=None):
     """Posts the success status unless the ledger already holds it, and records it. Returns "already" or "published"; a status
-    GitHub did not take is a PublishError and the ledger stays as it was."""
+    GitHub did not take is a PublishError and the ledger stays as it was. `remote_shows` (publish) is asked before saying
+    "already": False means GitHub was read and HEAD does not show the status (a newer status of someone else covers it, or
+    it never landed), and then it is posted again; None means it could not be read, and the ledger is believed."""
     if ledger.publication(git.sha, context, text):
-        log.say("status %s already published for %s" % (context, git.sha7))
-        return "already"
+        if remote_shows is None or remote_shows() is not False:
+            log.say("status %s already published for %s" % (context, git.sha7))
+            return "already"
+        log.say("status %s is recorded as published for %s but GitHub does not show it on HEAD; publishing it again"
+            % (context, git.sha7))
+        publish_success(config, platform, git.sha, context, text)
+        return "published"
     publish_success(config, platform, git.sha, context, text)
     ledger.add_publication({"sha": git.sha, "context": context, "description": text, "publishedAt": now(), "runId": run_id})
     ledger.save()

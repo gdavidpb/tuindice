@@ -140,7 +140,8 @@ class Workspace:
             "E2E_FAKE_CALL_LOG": self.call_log, "E2E_FAKE_WIREMOCK_DIR": self.wiremock, "E2E_FAKE_OVERHEAD_SECONDS": "1", "E2E_FAKE_HOST_METRICS": self.metrics,
             "E2E_ADAPTER_ANDROID_CMD": "%s %s android" % (python, shlex.quote(FAKE_ADAPTER)),
             "E2E_ADAPTER_IOS_CMD": "%s %s ios" % (python, shlex.quote(FAKE_ADAPTER)),
-            "E2E_FINGERPRINT_CMD": "sh -c 'echo \"$E2E_FAKE_FP\"' _", "E2E_FAKE_FP": FP_A,
+            "E2E_FINGERPRINT_CMD": "sh -c 'if [ \"$3\" = HEAD ]; then echo \"$E2E_FAKE_FP\"; else echo \"${E2E_FAKE_FP_OTHER:-$E2E_FAKE_FP}\"; fi' _",
+            "E2E_FAKE_FP": FP_A,
             "E2E_SCOPE_CMD": "sh -c 'if [ -z \"$E2E_FAKE_SCOPE_EMPTY\" ]; then echo \"$1,${E2E_FAKE_SCOPE_SUITE:-"
                              "local-certification-suite},fixture\"; fi' _",
             "E2E_PUBLISH_GITHUB_STATUS": "0", "E2E_GH_CMD": FAKE_GH, "E2E_FAKE_GH_LOG": self.gh_log,
