@@ -63,20 +63,28 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		return if (reply.isSuccess) WireMockJson.number(WireMockJson.obj(reply.body), "count") else null
 	}
 
+	/**
+	 * The request did not arrive as expected. It is a typing fault only when the app sent the credential it was
+	 * given, wrongly: the most recent request to the route carries a Basic credential with the same identifier and
+	 * another password, or it is the only request the route has seen. Any other earlier request with another
+	 * credential says nothing about this step (the app may have retried with an older password and never sent the new
+	 * one), so the step times out and lists every credential the route saw, most recent first.
+	 */
 	private fun missingRequest(step: Step.ExpectRequest): StepResult {
 		val pattern = buildJsonObject {
 			put("method", step.method)
 			put("urlPath", step.path)
 		}
 		val reply = backend.http("POST", "/__admin/requests/find", pattern.toString(), null)
-		val last = WireMockJson.array(WireMockJson.obj(reply.body), "requests").firstOrNull()
-		val received = BasicAuth.decode(WireMockJson.header(WireMockJson.child(last, "headers"), "Authorization"))
+		val seen = WireMockJson.array(WireMockJson.obj(reply.body), "requests")
+			.map { BasicAuth.decode(WireMockJson.header(WireMockJson.child(it, "headers"), "Authorization")) }
+		val received = seen.firstOrNull()
 		return when {
-			last == null -> StepResult.Failed(
+			seen.isEmpty() -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,
 				"no ${step.target} request reached the backend within ${step.timeoutMs} ms"
 			)
-			step.basicAuth != null && received != step.basicAuth -> StepResult.Failed(
+			step.basicAuth != null && received != step.basicAuth && isTypingFault(step.basicAuth, seen) -> StepResult.Failed(
 				FailureKind.TYPED_TEXT_MISMATCH,
 				"typed \"${step.basicAuth}\" but the backend received \"${received ?: "no Basic credential"}\" on ${step.target}",
 				expected = step.basicAuth,
@@ -84,9 +92,16 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 			)
 			else -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,
-				"${step.target} reached the backend but not as expected within ${step.timeoutMs} ms"
+				"${step.target} did not reach the backend as expected within ${step.timeoutMs} ms; " +
+					"credentials it saw, most recent first: ${seen.joinToString { "\"${it ?: "no Basic credential"}\"" }}"
 			)
 		}
+	}
+
+	private fun isTypingFault(expected: String, seen: List<String?>): Boolean {
+		val latest = seen.first()
+		val sameIdentifier = latest != null && latest.substringBefore(':') == expected.substringBefore(':')
+		return seen.size == 1 || sameIdentifier
 	}
 
 	/** Last requests and mock scenarios out of `Started`; transport problems come back in [BackendSnapshot.error]. */

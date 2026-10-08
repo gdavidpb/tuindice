@@ -17,7 +17,9 @@ data class FakeElement(
 	/** Reads as disabled for this many enabled checks, then as enabled. */
 	var enabledAfterChecks: Int = 0,
 	/** Visible, but its bounds read as null: the driver cannot say where it is. */
-	var unreadableBounds: Boolean = false
+	var unreadableBounds: Boolean = false,
+	/** What the next reads of [text] answer, one per read; the last one repeats. Overrides [text] while it lasts. */
+	var scriptedReads: MutableList<String?>? = null
 ) {
 	var enabledChecks = 0
 

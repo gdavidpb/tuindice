@@ -65,6 +65,49 @@ class ExpectRequestTest {
 	}
 
 	@Test
+	fun expectRequest_whenTheLatestHasAnotherIdentifierAndOlderOnesAreTheOldPassword_isATimeoutListingWhatItSaw() {
+		val fake = FakeDriver()
+		fake.screen[go] = FakeElement()
+		fake.onTap[go] = {
+			fake.backend.appRequest("POST", bootstrap, 401, BasicAuth.header("11-11111:outdated"))
+			fake.backend.appRequest("POST", bootstrap, 401, BasicAuth.header("22-22222:123456"))
+		}
+
+		val failure = assertFailed(fake.run(Step.Tap(go), expect()), FailureKind.STEP_TIMEOUT)
+
+		assertContains(failure.message, "did not reach the backend as expected")
+		assertContains(failure.message, "\"22-22222:123456\", \"11-11111:outdated\"")
+	}
+
+	@Test
+	fun expectRequest_whenTheLatestKeepsTheIdentifierWithAnotherPasswordAfterOlderOnes_isATypedTextMismatch() {
+		val fake = FakeDriver()
+		fake.screen[go] = FakeElement()
+		fake.onTap[go] = {
+			fake.backend.appRequest("POST", bootstrap, 401, BasicAuth.header("11-11111:outdated"))
+			fake.backend.appRequest("POST", bootstrap, 401, BasicAuth.header("11-11111:12456"))
+		}
+
+		val failure = assertFailed(fake.run(Step.Tap(go), expect()), FailureKind.TYPED_TEXT_MISMATCH)
+
+		assertEquals("11-11111:12456", failure.actual)
+	}
+
+	@Test
+	fun expectRequest_whenAnOldRequestWithAnotherCredentialIsNotTheOnlyOne_theStepDoesNotBlameTheTyping() {
+		val fake = FakeDriver()
+		fake.screen[go] = FakeElement()
+		fake.onTap[go] = {
+			fake.backend.appRequest("POST", bootstrap, 401, BasicAuth.header("11-11111:outdated"))
+			fake.backend.appRequest("POST", bootstrap, 401, "Bearer token")
+		}
+
+		val failure = assertFailed(fake.run(Step.Tap(go), expect()), FailureKind.STEP_TIMEOUT)
+
+		assertContains(failure.message, "\"no Basic credential\", \"11-11111:outdated\"")
+	}
+
+	@Test
 	fun expectRequest_whenWireMockGoesDownMidScenario_isBackendUnavailable() {
 		val fake = FakeDriver()
 		fake.screen[go] = FakeElement()

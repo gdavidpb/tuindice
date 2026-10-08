@@ -157,12 +157,90 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun enterText_inASecureField_isNotReadBack() {
+	fun enterText_inASecureField_isJudgedByItsLength() {
 		val fake = driver(field to FakeElement(text = ""))
 		fake.typing = { "•".repeat(it.length) }
 
 		assertPassed(fake.run(enter("secret", secure = true)))
-		assertTrue("readText" !in fake.calls)
+		assertContains(fake.calls, "readText")
+	}
+
+	@Test
+	fun enterText_inASecureField_thatLostACharacter_isATypedTextMismatchWithoutTheText() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "•".repeat(it.length - 1) }
+
+		val failure = assertFailed(fake.run(enter("secret", secure = true)), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+
+		assertEquals("6 characters", failure.expected)
+		assertEquals("5 characters", failure.actual)
+		assertContains(failure.message, "typed 6 characters")
+		assertTrue("secret" !in failure.message)
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesAfterPartOfTheText_isATypedTextMismatchWithHowManyWentIn() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { it.take(3) }
+		fake.keysAccepted = false
+
+		val failure = assertFailed(fake.run(enter("abcdefg")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+
+		assertContains(failure.message, "3 of 7 characters went in")
+		assertEquals("abcdefg", failure.expected)
+		assertEquals("abc", failure.actual)
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesAndTheFieldIsEmpty_isAnAssertionNotACorruptedText() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "" }
+		fake.keysAccepted = false
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.ASSERTION, stepIndex = 0)
+
+		assertContains(failure.message, "was refused")
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesASecureFieldPartway_countsTheCharactersThatWentIn() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "•".repeat(4) }
+		fake.keysAccepted = false
+
+		val failure = assertFailed(fake.run(enter("secret", secure = true)), FailureKind.TYPED_TEXT_MISMATCH)
+
+		assertContains(failure.message, "4 of 6 characters went in")
+		assertTrue("secret" !in failure.message)
+	}
+
+	@Test
+	fun enterText_acceptsATextThatTheFieldShowsLate() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.screen.getValue(field).scriptedReads = mutableListOf("", "", "abc", "abc")
+
+		assertPassed(fake.run(enter("abc")))
+	}
+
+	@Test
+	fun enterText_doesNotAcceptATextThatChangesRightAfterItMatched() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.screen.getValue(field).scriptedReads = mutableListOf("abc", "abd")
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+
+		assertEquals("abd", failure.actual)
+	}
+
+	@Test
+	fun enterText_whenTheTextFlipsBetweenReads_failsSayingItDidNotHold() {
+		val fake = driver(field to FakeElement(text = ""))
+		// 16 reads fit in the 3 s window at 200 ms; the last one matches, but it is not preceded by a match.
+		fake.screen.getValue(field).scriptedReads = MutableList(16) { if (it % 2 == 0) "abd" else "abc" }
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH)
+
+		assertContains(failure.message, "did not hold as typed")
 	}
 
 	@Test

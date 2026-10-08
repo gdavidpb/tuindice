@@ -36,6 +36,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var swipeResult = true
 	var finishResult = true
 	var typing: (String) -> String = { it }
+
+	/** False makes `typeKeys` answer false after writing what [typing] makes of the text, like a refused injection. */
+	var keysAccepted = true
 	var throwOn: String? = null
 	var logThrows = false
 	var launchTakesMs = 0L
@@ -112,7 +115,10 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun readText(q: Query): String? {
 		enter("readText")
-		return if (shown(q)) element(q)?.text else null
+		if (!shown(q)) return null
+		val el = element(q) ?: return null
+		val script = el.scriptedReads ?: return el.text
+		return if (script.size > 1) script.removeAt(0) else script.firstOrNull()
 	}
 
 	override fun bounds(q: Query?): ElementBounds? {
@@ -161,7 +167,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		enter("typeKeys")
 		val el = element(q) ?: return false
 		el.text = typing(el.text.orEmpty() + text)
-		return true
+		return keysAccepted
 	}
 
 	override fun setText(q: Query, text: String): Boolean {

@@ -5,8 +5,10 @@ package com.gdavidpb.tuindice.scenariokit.model
  *
  * 1. a driver call throws -> [DRIVER_ERROR];
  * 2. `prepareBackend` fails -> [BACKEND_UNAVAILABLE];
- * 3. `EnterText` reads back a different text, or `ExpectRequest` finds the request
- *    with a different `Basic` credential -> [TYPED_TEXT_MISMATCH];
+ * 3. `EnterText` reads back a different text (also after the driver refused to type: the field then holds part of
+ *    it) or, for a secure field, a different number of characters; or `ExpectRequest` does not find its request and
+ *    the most recent one to that route carries the same identifier with another password, or is the only one
+ *    the route saw -> [TYPED_TEXT_MISMATCH];
  * 4. any other failed step while the driver reports a system dialog in front ->
  *    [SYSTEM_DIALOG]; or while the app is not in the foreground although the step
  *    needs it (not `Relaunch`, `Foreground`, `ExpectRequest` or a system query) ->
