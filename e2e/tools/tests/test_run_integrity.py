@@ -18,6 +18,7 @@ from support import FP_A, Workspace, expect_request, scenario, text
 import e2e
 from harness import parallel
 from harness.config import Config, UsageError
+from harness import gitstate
 from harness.gitstate import GitState
 from harness.ledger import Ledger
 from harness.manifest import Manifest
@@ -186,6 +187,31 @@ class CheckoutChangeTests(unittest.TestCase):
         with self.assertRaises(UsageError) as caught:
             run._publish()
         self.assertIn("not green", str(caught.exception))
+
+
+class GitStatusTests(unittest.TestCase):
+    """A `git status` that fails says nothing about the tree: an empty answer is not a clean one (dC-12)."""
+
+    @staticmethod
+    def failing_status():
+        real = gitstate.run_git
+        return mock.patch.object(gitstate, "run_git", lambda root, *args: (128, "") if args[0] == "status" else real(root, *args))
+
+    def test_the_checkout_is_not_read_as_clean_when_git_status_fails_at_the_start(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        with self.failing_status():
+            with self.assertRaises(UsageError) as caught:
+                GitState(ws.repo)
+        self.assertIn("git status failed", str(caught.exception))
+
+    def test_nor_when_it_is_read_again_during_the_run(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        git = GitState(ws.repo)
+        git.require_unchanged("before the test")
+        with self.failing_status():
+            with self.assertRaises(UsageError) as caught:
+                git.require_unchanged("after the build")
+        self.assertIn("git status failed", str(caught.exception))
 
 
 class CapTests(unittest.TestCase):

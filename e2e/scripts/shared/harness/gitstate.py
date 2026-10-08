@@ -14,6 +14,14 @@ def run_git(root, *args):
     return result.returncode, result.stdout.strip()
 
 
+def dirty_files(root):
+    """The changed and untracked files, one porcelain line each. A git that fails does not know: that is not a clean tree."""
+    code, porcelain = run_git(root, "status", "--porcelain", "--untracked-files=all")
+    if code != 0:
+        raise UsageError("git status failed (exit %d) in %s: the state of the checkout is not known" % (code, root))
+    return [line for line in porcelain.splitlines() if line]
+
+
 def run_gh(gh_command, root, *args, capture=False, timeout=60):
     """Runs gh; a missing binary or a hang is a usage error (exit 2), never a traceback."""
     try:
@@ -32,8 +40,7 @@ class GitState:
         _, self.branch = run_git(root, "rev-parse", "--abbrev-ref", "HEAD")
         code, upstream = run_git(root, "rev-parse", "--verify", "--quiet", "@{u}")
         self.upstream_sha = upstream if code == 0 else None
-        _, porcelain = run_git(root, "status", "--porcelain", "--untracked-files=all")
-        self.dirty_files = [line for line in porcelain.splitlines() if line]
+        self.dirty_files = dirty_files(root)
         self.tree_clean = not self.dirty_files
         self.head_equals_upstream = self.upstream_sha == self.sha
         _, self.user = run_git(root, "config", "user.name")
@@ -52,8 +59,7 @@ class GitState:
         """Evidence is produced from the checkout as it was when the run began: the commit and the clean tree are read
         again at `moment`, and a difference is a usage error (exit 2) so that nothing from the new tree is recorded."""
         _, sha = run_git(self.root, "rev-parse", "HEAD")
-        _, porcelain = run_git(self.root, "status", "--porcelain", "--untracked-files=all")
-        dirty = [line for line in porcelain.splitlines() if line]
+        dirty = dirty_files(self.root)
         if sha == self.sha and not dirty:
             return
         what = "HEAD moved from %s to %s" % (self.sha7, sha[:7]) if sha != self.sha \
