@@ -304,6 +304,7 @@ class IosAdapterTests(unittest.TestCase):
         attempt = os.path.join(self.box.dir, "s")
         os.makedirs(attempt)
         self.box.write("tests.list", "TuIndiceUITests/auth/test_auth_login_cancel()\n", self.box.xcrun)
+        self.box.write("prefs/%s/-g/AppleLocale" % UDID, "%s\n" % self.box.lock["IOS_LOCALE"], self.box.xcrun)  # what health reads
         for verb in (("install",), ("enumerate",), ("health",), ("reset-app",), ("run-scenario", "auth-login-cancel", attempt, "18627"),
                 ("collect-failure", attempt, "1")):
             self.assertEqual(self.box.run(*verb).returncode, 0, verb)
