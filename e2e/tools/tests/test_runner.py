@@ -457,6 +457,15 @@ class SignalTests(unittest.TestCase):
             os.kill(int(text(pid_file)), 0)
 
 
+class DeviceTypeTests(unittest.TestCase):
+    def test_a_device_whose_type_could_not_be_verified_is_said_in_the_log_not_only_in_the_manifest(self):
+        ws = Workspace(self, [scenario("fix-a")], {"deviceTypeVerified": False})
+        result = ws.diagnose("ios")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertIn("ENV   the device type was not verified", result.out)
+        self.assertNotIn("the device type was not verified", Workspace(self, [scenario("fix-a")]).diagnose("ios").out)
+
+
 class CollectFailureTests(unittest.TestCase):
     def test_a_collect_failure_that_fails_is_named_in_the_attempt_and_in_the_log(self):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:assertion"]}, "failVerbs": ["ios:collect-failure"]})

@@ -215,7 +215,7 @@ def main(argv):
             open(os.path.join(args[0], "app.log"), "w").write(current["applog"])
     elif verb == "ensure-device":
         emit({"id": "fake-1", "model": "Fake", "bootedAt": "2026-01-01T00:00:00Z", "bootedByHarness": True,
-              "recoveredAtEnsure": bool(script.get("ensureRecovered")), "dataDirGb": 0.1, "settings": {}})
+              "recoveredAtEnsure": bool(script.get("ensureRecovered")), "deviceTypeVerified": script.get("deviceTypeVerified", True), "dataDirGb": 0.1, "settings": {}})
     elif verb == "build":
         emit({"artifacts": ["fake-app", "fake-runner"]})
     elif verb == "toolchain":
