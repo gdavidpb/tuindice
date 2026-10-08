@@ -8,6 +8,9 @@ SDKROOT = iphoneos
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SWIFT_VERSION = 5.9
 SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/UITests/TuIndiceUITests-Bridging-Header.h
+// ObjCCatch.m (the shim that keeps an XCTest exception from reaching the Kotlin frames) is compiled by this target; its
+// blocks and the NSString out-parameter are only correct under ARC, so it is set here and not left to the project default.
+CLANG_ENABLE_OBJC_ARC = YES
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
 IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*] = 18.5
 ARCHS[sdk=iphonesimulator*] = arm64

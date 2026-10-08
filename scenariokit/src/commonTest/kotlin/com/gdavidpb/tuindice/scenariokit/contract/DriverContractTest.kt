@@ -76,6 +76,19 @@ class DriverContractTest {
 	}
 
 	@Test
+	fun aDriverThatCallsADeadAppRunning_failsTheTerminatedAppProbe() {
+		val fake = conformant()
+		val optimistic = object : ScenarioDriver by fake {
+			override fun isRunning() = true
+		}
+
+		val failure = assertNotNull(contract(optimistic, fake).failure)
+
+		assertEquals("terminated-app", failure.primitive)
+		assertContains(failure.message, "isRunning is true with the app terminated")
+	}
+
+	@Test
 	fun aDriverThatReadsAGoneAppAsGone_failsTheTerminatedAppProbe() {
 		val fake = conformant()
 		val credulous = object : ScenarioDriver by fake {

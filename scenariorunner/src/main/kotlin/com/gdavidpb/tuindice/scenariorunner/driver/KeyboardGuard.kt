@@ -11,14 +11,29 @@ import androidx.test.uiautomator.By
  * refused and the reason is written to the driver log.
  *
  * The window list of the accessibility service lags behind the window manager: a keyboard that is opening can
- * be missing from it for a while, and a missing keyboard must never read as "no keyboard". So the guard fails
- * closed: when no keyboard window is listed but a text field holds the input focus (a keyboard is showing or about
- * to), it waits up to [LISTING_WAIT_MS] for the window to be listed, and only a keyboard that never appears in that
- * time counts as hidden, which is written to the driver log.
+ * be missing from it for a while, and a missing keyboard must never read as "no keyboard". So when no keyboard
+ * window is listed but a text field holds the input focus (a keyboard is showing or about to), the guard asks the
+ * input method itself (`dumpsys input_method`, [InputMethodDump]), which does not lag:
+ *
+ * - it says the keyboard is hidden (a field keeps the focus after Back closed it): there is nothing to wait for and
+ *   the touch goes on at once;
+ * - it says the keyboard is shown: the guard waits up to [LISTING_WAIT_MS] for the window to be listed, and a window
+ *   that is still not listed then, with the input method still saying shown, is a refusal (the touch could press a
+ *   key);
+ * - it cannot be read: the guard has no other source, waits the same time and then takes the keyboard as hidden. That
+ *   is the one place where it lets a touch through on a guess, and it is written to the driver log and counted as a
+ *   tolerance (`keyboard-taken-as-hidden`).
+ *
+ * A window list that cannot be read at all is not "no keyboard" either: if the input method says the keyboard is
+ * shown the touch is refused; otherwise the touch goes on, written to the log and counted (`keyboard-unreadable`).
+ * Every touch refused by the guard is a `guard` refusal.
  */
 internal class KeyboardGuard(private val session: DeviceSession) {
 	/** What one read of the windows says: whether the read worked, and the keyboard window's bounds if it is listed. */
 	class Reading(val readable: Boolean, val frame: Rect?)
+
+	/** What the guard decided before looking at the point: the keyboard window it found, and whether it refuses. */
+	private class Verdict(val frame: Rect?, val refused: Boolean)
 
 	/** Bounds of the keyboard window, or null when no keyboard is listed (or the windows cannot be read). */
 	fun frame(): Rect? = read().frame
@@ -32,33 +47,57 @@ internal class KeyboardGuard(private val session: DeviceSession) {
 
 	/**
 	 * True when an editable field holds the focus, so a keyboard is showing or opening. It is read from the tree like
-	 * every other query: `findFocus(FOCUS_INPUT)` does not find a Compose field (measured: the focused field was in the
-	 * tree with `focused="true"` while `findFocus` answered nothing editable).
+	 * every other query: `findFocus(FOCUS_INPUT)` does not find a Compose field (measured: the focused field was in
+	 * the tree with `focused="true"` while `findFocus` answered nothing editable).
 	 */
 	fun textFieldHasFocus(): Boolean = runCatching {
 		session.device.hasObject(By.clazz(EDIT_TEXT).focused(true))
 	}.getOrDefault(false)
 
-	/** True, after logging why, when the point ([x], [y]) of [gesture] is inside the keyboard window. */
+	/** True, after logging why, when the touch of [gesture] at ([x], [y]) must not be made. */
 	fun covers(x: Int, y: Int, gesture: String): Boolean {
-		var reading = read()
-
-		if (reading.frame == null && textFieldHasFocus()) reading = awaitListing(gesture)
-
-		val keyboard = reading.frame
+		val reading = read()
+		val verdict = when {
+			!reading.readable -> unreadable(gesture)
+			reading.frame == null && textFieldHasFocus() -> focusedWithoutListedKeyboard(gesture)
+			else -> Verdict(reading.frame, false)
+		}
+		val keyboard = verdict.frame
 		val inside = keyboard != null && keyboard.contains(x, y)
 
 		if (inside) {
-			session.log.refuse("$gesture at ($x, $y) is inside the on-screen keyboard $keyboard; touch refused")
-			SystemClock.sleep(RECHECK_MS)
-			session.log.write("keyboard re-read $RECHECK_MS ms after that refusal: ${frame()}")
+			session.log.refuse("guard", "$gesture at ($x, $y) is inside the on-screen keyboard $keyboard; touch refused")
 		}
 
-		return inside
+		return inside || verdict.refused
 	}
 
-	/** Polls the window list for the keyboard of a focused field; the outcome is written to the driver log. */
-	private fun awaitListing(gesture: String): Reading {
+	/** The window list threw: the input method is the only other source. */
+	private fun unreadable(gesture: String): Verdict {
+		val shown = session.inputMethodShown()
+
+		if (shown == true) {
+			val why = "the windows could not be read and the input method says the keyboard is shown; touch refused"
+			session.log.refuse("guard", "$gesture: $why")
+			return Verdict(null, true)
+		}
+
+		val said = "input method says ${describe(shown)}"
+		session.log.write("guard: $gesture: the keyboard windows could not be read ($said); taken as hidden")
+
+		return Verdict(null, false)
+	}
+
+	/** A field has the focus and no keyboard window is listed: ask the input method whether one is on its way. */
+	private fun focusedWithoutListedKeyboard(gesture: String): Verdict {
+		val shown = session.inputMethodShown()
+
+		if (shown == false) {
+			val said = "a text field has the focus and the input method says the keyboard is hidden; not waited for"
+			session.log.write("guard: $gesture: $said")
+			return Verdict(null, false)
+		}
+
 		val began = SystemClock.uptimeMillis()
 		var reading = read()
 
@@ -68,16 +107,44 @@ internal class KeyboardGuard(private val session: DeviceSession) {
 		}
 
 		val waited = SystemClock.uptimeMillis() - began
-		val outcome = if (reading.frame != null) "listed after $waited ms" else "never listed in $waited ms, taken as hidden"
-		session.log.write("$gesture: a text field has the focus and no keyboard window was listed; the keyboard was $outcome")
+		val seen = "a text field has the focus, no keyboard window was listed and the input method says " +
+			describe(shown)
 
-		return reading
+		return when {
+			reading.frame != null -> {
+				session.log.write("guard: $gesture: $seen; the keyboard was listed after $waited ms")
+				Verdict(reading.frame, false)
+			}
+			shown == null -> {
+				session.log.write("guard: $gesture: $seen; the keyboard was never listed in $waited ms, taken as hidden")
+				Verdict(null, false)
+			}
+			else -> stillShown(gesture, waited)
+		}
+	}
+
+	/** The input method said shown and the window never came: refused unless the keyboard was hidden meanwhile. */
+	private fun stillShown(gesture: String, waited: Long): Verdict {
+		if (session.inputMethodShown() == false) {
+			session.log.write("guard: $gesture: the keyboard was hidden while it was waited for ($waited ms); not refused")
+			return Verdict(null, false)
+		}
+
+		val why = "the input method says the keyboard is shown but its window was not listed in $waited ms; touch refused"
+		session.log.refuse("guard", "$gesture: $why")
+
+		return Verdict(null, true)
+	}
+
+	private fun describe(shown: Boolean?) = when (shown) {
+		true -> "shown"
+		false -> "hidden"
+		null -> "nothing readable"
 	}
 
 	private companion object {
 		const val EDIT_TEXT = "android.widget.EditText"
 		const val LISTING_WAIT_MS = 1_500L
 		const val LISTING_POLL_MS = 100L
-		const val RECHECK_MS = 100L
 	}
 }

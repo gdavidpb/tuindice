@@ -65,6 +65,64 @@ final class SettleWatchTests: XCTestCase {
     func test_the_proof_of_stillness_wins_over_the_limits_on_the_same_read() {
         XCTAssertEqual(run([a, a, a], watch: SettleWatch(requiredEqualReads: 3, maxReads: 3, timeLimit: 100), step: 1).0, .settled)
     }
+
+    // The pure decisions of the driver live beside the rule of stillness because the verb that runs this class is the one that
+    // runs them (`PROBE_CLASSES` of `ios/adapter.sh`); none of them needs a device.
+
+    /// ZB-11/ΔB-9: "gone" needs positive evidence. Only a miss needs the tree read and the app still in front.
+    func test_absence_needs_a_tree_that_was_read_and_an_app_that_stayed_in_front() {
+        XCTAssertTrue(AbsenceRule.isAbsent(.nothing, treeRead: { true }, stillInForeground: { true }))
+        XCTAssertFalse(AbsenceRule.isAbsent(.nothing, treeRead: { false }, stillInForeground: { true }), "a tree that cannot be read proves nothing")
+        XCTAssertFalse(AbsenceRule.isAbsent(.nothing, treeRead: { true }, stillInForeground: { false }), "an app that left in the meantime proves nothing")
+        XCTAssertFalse(AbsenceRule.isAbsent(.unreadable, treeRead: { true }, stillInForeground: { true }), "an element that exists and cannot be read is not gone")
+        XCTAssertFalse(AbsenceRule.isAbsent(.onScreen, treeRead: { true }, stillInForeground: { true }))
+        XCTAssertTrue(AbsenceRule.isAbsent(.offScreen, treeRead: { false }, stillInForeground: { false }), "an element that exists off the screen is not shown")
+    }
+
+    func test_absence_reads_the_tree_only_after_a_miss() {
+        var reads = 0
+        _ = AbsenceRule.isAbsent(.onScreen, treeRead: { reads += 1; return true }, stillInForeground: { true })
+        _ = AbsenceRule.isAbsent(.offScreen, treeRead: { reads += 1; return true }, stillInForeground: { true })
+        _ = AbsenceRule.isAbsent(.unreadable, treeRead: { reads += 1; return true }, stillInForeground: { true })
+        XCTAssertEqual(reads, 0)
+    }
+
+    /// K-3/ZB-9: a Compose checkbox is a button with the `Selected` trait; a value that is present and unknown is no answer.
+    func test_a_checkbox_is_read_from_the_selected_trait_and_a_known_value() {
+        XCTAssertEqual(ToggleState.checked(value: nil, isSelected: true), true)
+        XCTAssertEqual(ToggleState.checked(value: nil, isSelected: false), false)
+        XCTAssertEqual(ToggleState.checked(value: "", isSelected: true), true, "an empty value is no value")
+        XCTAssertEqual(ToggleState.checked(value: "1", isSelected: false), true)
+        XCTAssertEqual(ToggleState.checked(value: "On", isSelected: false), true)
+        XCTAssertEqual(ToggleState.checked(value: "0", isSelected: true), false)
+        XCTAssertEqual(ToggleState.checked(value: "unchecked", isSelected: true), false)
+    }
+
+    /// The limit of the contract on iOS, fixed so nobody relies on the opposite: a button that is not a toggle has no `Selected`
+    /// trait and no value, so it reads exactly like a checkbox that is off. That is why a scenario that asserts a checked state
+    /// asserts both states of the same element.
+    func test_on_ios_unchecked_is_not_told_apart_from_not_being_a_toggle() {
+        XCTAssertTrue(ToggleState.holdsState(.button))
+        XCTAssertEqual(ToggleState.checked(value: nil, isSelected: false), false)
+    }
+
+    func test_a_value_the_driver_does_not_know_is_not_read_as_unchecked() {
+        XCTAssertNil(ToggleState.checked(value: "activado", isSelected: false))
+        XCTAssertNil(ToggleState.checked(value: "marcado", isSelected: true))
+    }
+
+    func test_only_a_switch_a_checkbox_a_toggle_or_a_button_can_hold_a_checked_state() {
+        for type in [XCUIElement.ElementType.switch, .checkBox, .toggle, .button] { XCTAssertTrue(ToggleState.holdsState(type)) }
+        for type in [XCUIElement.ElementType.staticText, .textField, .other, .image] { XCTAssertFalse(ToggleState.holdsState(type)) }
+    }
+
+    /// ZC-3: the line of a refusal begins with the primitive, and that word is what the harness counts.
+    func test_a_refusal_line_begins_with_the_primitive_that_was_refused() {
+        let log = DriverLog(echo: false)
+        log.refuse("tapAt", "the app is not running")
+        XCTAssertEqual(log.lines.last, "[refusal] tapAt the app is not running")
+        XCTAssertEqual(log.lastRefusal, "tapAt the app is not running")
+    }
 }
 
 /// The Objective-C shim that keeps an XCTest exception from reaching the Kotlin frames of the interpreter. No device is involved.
@@ -87,12 +145,13 @@ final class ObjCCatchTests: XCTestCase {
 
     func test_guarded_answers_false_and_leaves_the_exception_as_the_refusal() {
         let log = DriverLog(echo: false)
-        XCTAssertFalse(guarded("tap", log: log) { self.raise("boom") })
+        XCTAssertFalse(guarded("tap", "tap on a button", log: log) { self.raise("boom") })
         XCTAssertTrue(log.lastRefusal?.contains("boom") ?? false)
+        XCTAssertTrue(log.lines.last?.hasPrefix("[refusal] tap ") ?? false, "the line begins with the primitive: \(String(describing: log.lines.last))")
         XCTAssertTrue(log.lines.last?.contains("XCTest raised an exception") ?? false)
 
         log.clearRefusal()
-        XCTAssertTrue(guarded("tap", log: log) {})
+        XCTAssertTrue(guarded("tap", "tap on a button", log: log) {})
         XCTAssertNil(log.lastRefusal)
     }
 }
@@ -108,7 +167,7 @@ final class GuardedIncidentTests: XCTestCase {
         var answered = true
 
         XCTExpectFailure("a touch on an application that does not exist is an XCTest incident") {
-            answered = guarded("tap on a missing application", log: log) {
+            answered = guarded("tap", "tap on a missing application", log: log) {
                 missing.coordinate(withNormalizedOffset: .zero).tap()
             }
         }

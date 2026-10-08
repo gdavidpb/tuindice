@@ -78,6 +78,66 @@ struct SettleWatch {
     }
 }
 
+/// How the checked state of a toggle is read from what its snapshot says (K-3/ZB-9). It is pure.
+enum ToggleState {
+    /// The element types that can hold a checked state: a switch, a checkbox, a toggle and, because that is how Compose publishes
+    /// a `toggleable(role = Checkbox)`, a button.
+    static func holdsState(_ type: XCUIElement.ElementType) -> Bool {
+        type == .switch || type == .checkBox || type == .toggle || type == .button
+    }
+
+    /// A toggle that reports a value says it with "1"/"0"; the Compose ones report none and use the `Selected` trait. A value that
+    /// is present and is none of the known ones (a localized one, say) is not read as "unchecked": it answers nil, so an
+    /// assertion on it fails instead of passing by default.
+    static func checked(value: String?, isSelected: Bool) -> Bool? {
+        guard let value, !value.isEmpty else { return isSelected }
+        switch value.lowercased() {
+        case "1", "true", "on", "checked": return true
+        case "0", "false", "off", "unchecked": return false
+        default: return nil
+        }
+    }
+}
+
+/// What one look for an element found, reduced to what deciding that it is gone needs.
+enum Sighting: Equatable {
+    /// An element that meets the screen.
+    case onScreen
+    /// An element that exists but has an empty frame or one off the screen.
+    case offScreen
+    /// No element matched.
+    case nothing
+    /// An element exists and its snapshot could not be read.
+    case unreadable
+}
+
+/// Decides whether an element is gone, with positive evidence (B-1/ΔB-9). It is pure: the caller says what it saw and hands
+/// over the two reads that only a miss needs, so they are not paid for otherwise. It assumes the app was in the foreground when
+/// the look began; [stillInForeground] is the check after the tree was read.
+enum AbsenceRule {
+    static func isAbsent(_ sighting: Sighting, treeRead: () -> Bool, stillInForeground: () -> Bool) -> Bool {
+        switch sighting {
+        case .onScreen, .unreadable:
+            return false
+        case .offScreen:
+            return true
+        case .nothing:
+            // A miss proves nothing by itself: the tree must have been readable in this round and the app still in front.
+            return treeRead() && stillInForeground()
+        }
+    }
+}
+
+/// What the keyboard guard knows about the on-screen keyboard after one read.
+enum KeyboardReading {
+    /// No keyboard is on screen, or the app is not in front.
+    case none
+    /// The keyboard is on screen with this frame.
+    case frame(CGRect)
+    /// The keyboard exists but its snapshot failed: whether a touch would land on it is not known.
+    case unreadable
+}
+
 /// An element whose frame was watched until it was still, or the reason it was not.
 enum Placement {
     case settled(ResolvedElement, ElementFacts)
@@ -160,15 +220,13 @@ final class ElementResolver {
     /// prove nothing, and the caller keeps polling.
     func isAbsent(_ q: Query) -> Bool {
         guard isAppInForeground else { return false }
+        let sighting: Sighting
         switch lookupOutcome(q) {
-        case let .found(_, facts):
-            return facts.frame.isEmpty || !screen.intersects(facts.frame)
-        case .unreadable:
-            return false
-        case .absent:
-            guard (try? app.snapshot()) != nil else { return false }
-            return isAppInForeground
+        case let .found(_, facts): sighting = facts.frame.isEmpty || !screen.intersects(facts.frame) ? .offScreen : .onScreen
+        case .unreadable: sighting = .unreadable
+        case .absent: sighting = .nothing
         }
+        return AbsenceRule.isAbsent(sighting, treeRead: { (try? app.snapshot()) != nil }, stillInForeground: { isAppInForeground })
     }
 
     /// The element's facts once its frame is still, so a gesture lands on the element and not on whatever is passing over its
@@ -193,25 +251,26 @@ final class ElementResolver {
         }
     }
 
-    /// The settled element for [gesture], or nil after writing why the gesture is refused to the driver log.
-    func placed(_ q: Query, for gesture: String) -> (ResolvedElement, ElementFacts)? {
+    /// The settled element for [primitive], or nil after writing why that primitive is refused to the driver log.
+    func placed(_ q: Query, primitive: String) -> (ResolvedElement, ElementFacts)? {
         switch settle(q) {
         case let .settled(resolved, facts):
             return (resolved, facts)
         case let .moving(facts, reads, seconds):
-            log.refuse("[driver] \(gesture) \(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
+            log.refuse(primitive, "\(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
             return nil
         case let .gone(reads):
-            log.refuse("[driver] \(gesture) \(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")
+            log.refuse(primitive, "\(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")
             return nil
         }
     }
 
-    /// The frame of the on-screen keyboard, nil when there is none.
-    var keyboardFrame: CGRect? {
-        let keyboard = app.keyboards.firstMatch
-        guard isAppInForeground, keyboard.exists, let snapshot = try? keyboard.snapshot(), !snapshot.frame.isEmpty else { return nil }
-        return snapshot.frame
+    /// What the on-screen keyboard looks like now: a frame, nothing, or a keyboard that exists and could not be read.
+    var keyboard: KeyboardReading {
+        let element = app.keyboards.firstMatch
+        guard isAppInForeground, element.exists else { return .none }
+        guard let snapshot = try? element.snapshot() else { return .unreadable }
+        return snapshot.frame.isEmpty ? .none : .frame(snapshot.frame)
     }
 
     /// The part of [frame] that is on screen.

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -499,6 +500,27 @@ class StepKindsTest {
 	@Test
 	fun waitBackgrounded_failsWhileTheAppKeepsTheFront() {
 		assertFailed(driver().run(Step.WaitBackgrounded(1_000)), FailureKind.STEP_TIMEOUT)
+	}
+
+	@Test
+	fun waitBackgrounded_failsWithAppNotRunningWhenTheAppIsDead() {
+		val fake = driver()
+		fake.terminate()
+
+		val failure = assertNotNull(fake.run(Step.WaitBackgrounded(2_000)).failure)
+
+		assertEquals(FailureKind.APP_NOT_RUNNING, failure.kind)
+		assertContains(failure.message, "did not go to the background")
+	}
+
+	@Test
+	fun waitBackgrounded_failsWhenTheAppDiesAfterLeavingTheFront() {
+		val fake = driver()
+		var reads = 0
+		fake.inForeground = false
+		fake.runningScript = { ++reads < 3 }
+
+		assertFailed(fake.run(Step.WaitBackgrounded(2_000)), FailureKind.APP_NOT_RUNNING, stepIndex = 0)
 	}
 
 	@Test

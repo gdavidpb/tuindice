@@ -33,7 +33,7 @@ internal class FieldFocus(private val session: DeviceSession) {
 		val asked = node != null &&
 			runCatching { node.performAction(AccessibilityNodeInfo.ACTION_CLICK) }.getOrDefault(false)
 
-		if (!asked) session.log.refuse("typeKeys $q: the field did not take the focus click action")
+		if (!asked) session.log.refuse("typeKeys", "$q: the field did not take the focus click action")
 
 		var lastPair: Pair<Rect?, Rect?>? = null
 		var equal = 0
@@ -45,8 +45,11 @@ internal class FieldFocus(private val session: DeviceSession) {
 		}
 
 		if (asked && !ready) {
-			val state = "focus ${hasFocus(q)}, keyboard ${session.keyboard.frame() ?: "not listed"}, field ${lastPair?.first}"
-			session.log.refuse("typeKeys $q: not ready $WAIT_MS ms after the focus click action ($state)")
+			val focused = hasFocus(q)
+			val keyboard = session.keyboard.frame()
+			val hint = if (focused && keyboard == null) HARDWARE_KEYBOARD_HINT else ""
+			val state = "focus $focused, keyboard ${keyboard ?: "not listed"}, field ${lastPair?.first}$hint"
+			session.log.refuse("typeKeys", "$q: not ready $WAIT_MS ms after the focus click action ($state)")
 		}
 
 		return ready
@@ -55,5 +58,8 @@ internal class FieldFocus(private val session: DeviceSession) {
 	private companion object {
 		const val WAIT_MS = 3_000L
 		const val STABLE_READS = 3
+		const val HARDWARE_KEYBOARD_HINT =
+			"; the field has the focus and no keyboard came up: a device that reports a hardware keyboard " +
+				"may keep the soft one hidden (`hw.keyboard` of the AVD)"
 	}
 }

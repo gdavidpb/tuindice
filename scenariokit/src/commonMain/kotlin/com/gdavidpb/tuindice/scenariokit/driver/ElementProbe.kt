@@ -39,8 +39,15 @@ interface ElementProbe {
 	fun readText(q: Query): String?
 
 	/**
-	 * The checked state of the checkbox [q]: true or false for a `toggleable(role = Checkbox)` that is on screen, null
-	 * when it is absent or is not a checkbox. Android reads `checked` of a checkable node; iOS the value of the element.
+	 * The checked state of the checkbox [q]: true or false for a `toggleable` that is on screen, null when it is absent
+	 * or cannot be read. Android reads `checked` of a checkable node, and answers null for a node that is not checkable.
+	 * iOS reads a switch, a checkbox, a toggle or a button (that is how Compose publishes a
+	 * `toggleable(role = Checkbox)`): the element's value when it has one ("1", "0", "true", "false", "on", "off",
+	 * "checked", "unchecked"), otherwise its
+	 * `Selected` trait; a value that is present and none of those answers null, never "unchecked". The limit on iOS: an
+	 * element that is not a toggle at all but is a button also reads false, so there "unchecked" cannot be told from
+	 * "not a toggle". A scenario that asserts a checked state therefore asserts both states of the same element
+	 * (`assertChecked(x, true)` after the toggle and `assertChecked(x, false)` before it).
 	 */
 	fun isChecked(q: Query): Boolean?
 

@@ -22,8 +22,8 @@ interface TextEntry {
 	 * click action (never with a touch on a point that the opening keyboard could be covering), then waits up to 3 s
 	 * for the focus, a listed keyboard and bounds that read the same 3 times; iOS touches the field once (XCUITest does
 	 * not report the keyboard focus of a text field). Both read the field before and after the focus and, if it
-	 * changed, type nothing and refuse ("the focus touch changed the field"). Neither driver can prove the focus is on
-	 * the field it was asked for beyond that.
+	 * changed, type nothing and refuse ("the focus request changed the field" on Android, "the focus touch changed
+	 * the field" on iOS). Neither driver can prove the focus is on the field it was asked for beyond that.
 	 * Android injects the key events of the virtual keyboard, re-stamping each one just before it goes in, stops at
 	 * the first one the system refuses and logs how many entered; text the virtual keyboard cannot spell (accents) is
 	 * refused. iOS waits up to 2 s for the software keyboard after its touch (it does not touch again: a field that

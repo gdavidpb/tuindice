@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.scenariorunner
 
 import android.os.SystemClock
 import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
+import com.gdavidpb.tuindice.scenariorunner.driver.InputMethodDump
+import com.gdavidpb.tuindice.scenariorunner.driver.Presence
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -62,6 +64,58 @@ class AndroidDriverProbesTest {
 		assertFalse(driver.swipe(null, SwipeVector(MIDDLE, middle, 0.0, UP_SHORT), SWIPE_MS))
 		assertEquals(2, app.log("keyboard").lines().count { it.contains("is inside the on-screen keyboard") })
 		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
+	}
+
+	/**
+	 * ZB-5: a field that keeps the focus after Back closed its keyboard is not a keyboard to wait for. The input method
+	 * says it is hidden, so the next gesture goes on at once instead of paying the 1.5 s that a keyboard that is opening
+	 * is given to be listed. Red when the guard has no answer from the input method (its answer forced to unreadable),
+	 * which is the old wait.
+	 */
+	@Test
+	fun aFocusedFieldWithItsKeyboardClosedDoesNotMakeTheNextGestureWait() {
+		val driver = app.begin("closed-keyboard")
+		assertTrue(driver.tap(app.usbId))
+		assertTrue("the keyboard must show", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null })
+		assertTrue(driver.pressBack())
+		assertTrue("Back closes the keyboard", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() == null })
+		assertTrue("the field keeps the focus", driver.session.keyboard.textFieldHasFocus())
+		assertEquals("the input method says it is hidden", false, driver.session.inputMethodShown())
+
+		val began = SystemClock.uptimeMillis()
+		assertTrue(driver.tap(app.usbId))
+		val took = SystemClock.uptimeMillis() - began
+
+		assertTrue("the tap took $took ms: the guard waited for a keyboard that is closed", took < GUARD_WAIT_MS)
+		assertFalse(app.log("closed-keyboard").contains("never listed"))
+		assertTrue(app.log("closed-keyboard").contains("the input method says the keyboard is hidden; not waited for"))
+	}
+
+	/** ZB-5: the dump is read only when it says `mInputShown` exactly once, so an unreadable dump is never a verdict. */
+	@Test
+	fun theInputMethodDumpSaysShownOnlyWhenItSaysItExactlyOnce() {
+		val block = "    mVisibilityStateComputer:\n      mImeHiddenByDisplayPolicy=false\n" +
+			"      mInputShown=%s\n      mLastImeTargetWindow=x\n"
+
+		assertEquals(true, InputMethodDump.shown(block.format("true")))
+		assertEquals(false, InputMethodDump.shown(block.format("false")))
+		assertEquals("a format that dropped the field", null, InputMethodDump.shown("mImeWindowVis=3\n"))
+		assertEquals("an empty answer", null, InputMethodDump.shown(""))
+		assertEquals("a value that is not a boolean", null, InputMethodDump.shown(block.format("maybe")))
+		assertEquals("two fields disagree", null, InputMethodDump.shown(block.format("true") + block.format("false")))
+		assertEquals("a field of another name", null, InputMethodDump.shown("      mIsInputViewShown=true\n"))
+	}
+
+	/** ZB-11 (residue B-1): "gone" needs both reads of the pass to have worked; no other combination proves it. */
+	@Test
+	fun presenceIsAbsentOnlyWhenTheAppsWindowWasReadAndNothingMatched() {
+		assertEquals(Presence.PRESENT, Presence.of(matched = true, appWindowInTree = null))
+		assertEquals(Presence.PRESENT, Presence.of(matched = true, appWindowInTree = false))
+		assertEquals(Presence.ABSENT, Presence.of(matched = false, appWindowInTree = true))
+		assertEquals("alive and unreadable: no root for the app", Presence.UNREADABLE, Presence.of(false, false))
+		assertEquals("the second read threw", Presence.UNREADABLE, Presence.of(false, null))
+		assertEquals("the first read threw", Presence.UNREADABLE, Presence.of(null, null))
+		assertEquals("the first read threw, whatever the second says", Presence.UNREADABLE, Presence.of(null, true))
 	}
 
 	/** The reason a gesture or typing was refused is available to the interpreter, and each new call forgets it. */
@@ -128,6 +182,7 @@ class AndroidDriverProbesTest {
 		const val SHORT_MS = 500L
 		const val LONG_MS = 2_000L
 		const val QUICK_MS = 1_500L
+		const val GUARD_WAIT_MS = 1_200L
 		const val SWIPE_MS = 300L
 	}
 }

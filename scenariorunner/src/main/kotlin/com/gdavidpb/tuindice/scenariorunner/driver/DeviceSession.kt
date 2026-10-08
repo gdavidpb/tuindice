@@ -32,6 +32,12 @@ internal class DeviceSession {
 	/** The output of [command], or null when the shell call itself failed: an empty answer then proves nothing. */
 	fun shellOrNull(command: String): String? = runCatching { device.executeShellCommand(command) }.getOrNull()
 
+	/**
+	 * Whether the input method says the soft keyboard is shown ([InputMethodDump]); null when the dump cannot be read.
+	 * The dump is about a megabyte, so it is asked for only when the window list cannot settle the question.
+	 */
+	fun inputMethodShown(): Boolean? = shellOrNull("dumpsys input_method")?.let(InputMethodDump::shown)
+
 	/** True/false by `pidof`; null when the shell call failed and nothing is known about the process. */
 	fun appProcessRunning(): Boolean? = shellOrNull("pidof ${AppIdentity.ID}")?.isNotBlank()
 
@@ -49,12 +55,13 @@ internal class DeviceSession {
 	 * Visible bounds of [q] once they read the same [STABLE_READS] times in a row, [SETTLE_POLL_MS] apart (the rule
 	 * of the iOS driver: three equal reads, at most [MAX_READS] reads or [SETTLE_TIMEOUT_MS]), so a touch lands where
 	 * the element is and not where it was before the layout moved (the keyboard opening, a sheet settling).
-	 * Null when [q] is not on screen or its bounds never settle; in both cases the reason is written to the driver
-	 * log and the gesture is refused. Every gesture that aims at an element (tap, tapAt, doubleTap, swipe) takes its
-	 * point from here. When the bounds moved while they were watched, or the gesture is refused, the reads and their
-	 * times are written to the driver log, which is how the staleness of the reads is measured.
+	 * The bounds are null when [q] is not on screen or its bounds never settle, and [Settled.why] says which: the caller,
+	 * which knows the primitive it is, refuses the gesture with it. Every gesture that aims at an element (tap, tapAt,
+	 * doubleTap, swipe) takes its point from here. When the bounds moved while they were watched, or the gesture is
+	 * refused, the reads and their times are written to the driver log, which is how the staleness of the reads is
+	 * measured.
 	 */
-	fun settledBounds(q: Query): Rect? {
+	fun settledBounds(q: Query): Settled {
 		val began = SystemClock.uptimeMillis()
 		val reads = mutableListOf<Pair<Long, Rect?>>()
 		var last = visibleBounds(q)
@@ -70,16 +77,20 @@ internal class DeviceSession {
 		}
 
 		val settled = last != null && equalReads >= STABLE_READS
-		when {
-			last == null -> log.refuse("$q: not on screen when the gesture was about to be made; gesture refused")
-			!settled -> log.refuse("$q: bounds still moving after ${reads.size} reads (last $last); gesture refused")
+		val why = when {
+			last == null -> "$q: not on screen when the gesture was about to be made; gesture refused"
+			!settled -> "$q: bounds still moving after ${reads.size} reads (last $last); gesture refused"
+			else -> ""
 		}
 		if (reads.map { it.second }.distinct().size > 1 || !settled) {
 			log.write("settledBounds $q: ${reads.joinToString { (at, bounds) -> "+${at}ms $bounds" }}")
 		}
 
-		return last.takeIf { settled }
+		return Settled(last.takeIf { settled }, why)
 	}
+
+	/** The settled bounds of an element, or null with the reason the gesture that asked for them is refused. */
+	class Settled(val bounds: Rect?, val why: String)
 
 	private fun withinBudget(reads: Int, since: Long) =
 		reads < MAX_READS && SystemClock.uptimeMillis() - since < SETTLE_TIMEOUT_MS

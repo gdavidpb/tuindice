@@ -34,7 +34,29 @@ interface AppControl {
 	/**
 	 * Whether the app is the one in front right now. The interpreter asks it after a failed step to tell a screen
 	 * that did not show up from an app that left the foreground (`APP_NOT_RUNNING`), and the driver contract uses
-	 * it to check [foreground]. It is false for an app whose process is gone, on both platforms.
+	 * it to check [foreground]. It is false for an app whose process is gone, on both platforms. What "in front" means
+	 * differs, and `WaitBackgrounded` inherits it:
+	 *
+	 * - Android: the package of the active window is the app's. Anything else in front counts as "not in front": another
+	 *   app, a system dialog, the app switcher, the notification shade, and a screen whose root cannot be read (UI
+	 *   Automator 2.4.0 retries the root 6 times, up to about 7.75 s per call, before answering null).
+	 * - iOS: `XCUIApplication.state` is `runningForeground` and the app did not move to `runningBackground` in the
+	 *   0.3 s that `isForeground` gives XCTest to refresh the state (the cached value alone stayed in the foreground for
+	 *   up to 10 s with Safari in front). A system alert does not count as "not in front": the app stays in the
+	 *   foreground behind it. A state that went straight to `runningBackgroundSuspended` while the cache still said
+	 *   foreground would read as in front.
+	 *
+	 * Both are false for a dead app, so [isForeground] alone cannot tell a backgrounded app from a dead one:
+	 * [isRunning] does.
 	 */
 	fun isForeground(): Boolean
+
+	/**
+	 * Whether the process of the app exists, in front or not. False once the app is gone (it crashed, it was stopped);
+	 * true when the driver cannot tell, as it never takes an unreadable answer for a death (Android: `pidof` failed;
+	 * iOS: the state is unknown). `WaitBackgrounded` uses it so that an app that died does not pass as "went to the
+	 * background": it fails in its own step with `APP_NOT_RUNNING`. A suspended app (iOS `runningBackgroundSuspended`) is
+	 * running.
+	 */
+	fun isRunning(): Boolean
 }

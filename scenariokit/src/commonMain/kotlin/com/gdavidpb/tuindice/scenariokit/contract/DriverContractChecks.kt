@@ -37,7 +37,10 @@ internal class DriverContractChecks(
 		secure?.let { s -> DriverContractCheck("keyboard-guard") { texts.keyboardGuard(s) } },
 		secure?.let { s -> DriverContractCheck("submit-text-entry") { texts.submitTextEntry(s) } },
 		DriverContractCheck("foreground") {
-			problem(driver.foreground() && driver.isForeground(), "the app is not in the foreground after foreground()")
+			problem(
+				driver.foreground() && driver.isForeground() && driver.isRunning(),
+				"the app is not in the foreground and running after foreground()"
+			)
 		},
 		DriverContractCheck("backend") {
 			val reply = driver.http("GET", "/__admin/scenarios", null, null)
@@ -84,6 +87,7 @@ internal class DriverContractChecks(
 			driver.isVisible(present) -> "isVisible is true with the app terminated"
 			driver.waitGone(present, GONE_WAIT_MS) -> "waitGone returned true although nothing can be read from a dead app"
 			driver.isForeground() -> "isForeground is true with the app terminated"
+			driver.isRunning() -> "isRunning is true with the app terminated"
 			driver.foreground() -> "foreground returned true with the app terminated"
 			else -> null
 		}

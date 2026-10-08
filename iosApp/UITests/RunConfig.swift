@@ -104,10 +104,14 @@ final class DriverLog {
         if echo { print("[scenario] \(line)") }
     }
 
-    /// Writes [reason] as a line marked `[refusal]` (the harness counts them) and keeps it as the reason the gesture or text entry in progress was refused.
-    func refuse(_ reason: String) {
-        locked { refusal = reason }
-        add("[refusal] \(reason)")
+    /// The one funnel of every refusal: writes `[refusal] <primitive> <reason>` (the harness counts them by the first word, so it is always the
+    /// primitive that was refused: `tap`, `tapAt`, `doubleTap`, `swipe`, `typeKeys`, `clearText`, `submitTextEntry`, `pressBack`, `foreground`,
+    /// `scroll` or `guard` for the keyboard guard) and keeps the whole line as the reason the gesture or text entry in progress was refused.
+    /// A static test reads the sources and fails if a call does not name one of those primitives as a literal.
+    func refuse(_ primitive: String, _ reason: String) {
+        let line = "\(primitive) \(reason)"
+        locked { refusal = line }
+        add("[refusal] \(line)")
     }
 
     /// Forgets the last refusal: every gesture and text entry starts without one.

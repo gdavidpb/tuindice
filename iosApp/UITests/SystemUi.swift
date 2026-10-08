@@ -9,7 +9,7 @@ enum SystemUi {
         testCase.addUIInterruptionMonitor(withDescription: "System dialogs") { alert in
             for label in dismissLabels where alert.buttons[label].exists {
                 log.tolerate(.dismissedAlert, "'\(alert.label)' was dismissed with '\(label)'")
-                return guarded("dismiss alert", log: log) { alert.buttons[label].tap() }
+                return guarded("alert", "dismiss alert", log: log) { alert.buttons[label].tap() }
             }
             return false
         }

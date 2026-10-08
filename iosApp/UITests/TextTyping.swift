@@ -17,28 +17,30 @@ final class TextTyping {
 
     private let resolver: ElementResolver
     private let log: DriverLog
-    private let tapper: (ResolvedElement, CGPoint, String) -> Bool
+    /// Taps a point of the screen on behalf of a primitive (`typeKeys`, `clearText`) at a target; the driver's guarded tap.
+    private let tapper: (ResolvedElement, CGPoint, String, String) -> Bool
     private var app: XCUIApplication { resolver.app }
 
-    init(resolver: ElementResolver, log: DriverLog, tapper: @escaping (ResolvedElement, CGPoint, String) -> Bool) {
+    init(resolver: ElementResolver, log: DriverLog, tapper: @escaping (ResolvedElement, CGPoint, String, String) -> Bool) {
         self.resolver = resolver
         self.log = log
         self.tapper = tapper
     }
 
-    /// Characters the last `typeKeys` put in (see `TextEntry.keysInjected`).
+    /// Characters the last `typeKeys` put in (see `TextEntry.keysInjected`). `clearText` starts it again from zero: its own
+    /// deletions are counted, not the characters of the `typeKeys` before it.
     private(set) var injected = 0
 
     func typeKeys(_ q: Query, text: String) -> Bool {
         injected = 0
-        guard let before = resolver.visibleFacts(q)?.1.typedText else { return refuse("typeKeys \(q): the field is not on screen") }
-        guard focus(q) else { return false }
+        guard let before = resolver.visibleFacts(q)?.1.typedText else { return refuse("typeKeys", "\(q): the field is not on screen") }
+        guard focus(q, primitive: "typeKeys") else { return false }
         // The touch that focuses the field must not alter it: if it holds other text than before, nothing is typed.
         let now = resolver.visibleFacts(q)?.1.typedText
         guard now == before else {
-            return refuse("typeKeys \(q): the focus touch changed the field (it held \(before.count) characters and now holds \(now?.count ?? -1))")
+            return refuse("typeKeys", "\(q): the focus touch changed the field (it held \(before.count) characters and now holds \(now?.count ?? -1))")
         }
-        return typeInChunks(text)
+        return typeInChunks(text, primitive: "typeKeys")
     }
 
     /// Empties the field without a triple tap on the element: the field is focused, one tap near its right end puts the caret
@@ -49,17 +51,18 @@ final class TextTyping {
     /// The result is verified: the field is read again and the call answers `false` unless it is empty. Nothing is retried
     /// and there is no second strategy: a field that keeps text after one delete key per character is reported as it is.
     func clearText(_ q: Query) -> Bool {
-        guard focus(q), let (resolved, facts) = resolver.placed(q, for: "clearText") else { return false }
+        injected = 0
+        guard focus(q, primitive: "clearText"), let (resolved, facts) = resolver.placed(q, primitive: "clearText") else { return false }
         let held = facts.typedText
         if held.isEmpty { return true }
 
         let area = resolver.visiblePart(of: facts.frame)
         let end = CGPoint(x: area.minX + area.width * 0.75, y: area.midY)
-        guard tapper(resolved, end, "clearText \(q) (caret to the end)") else { return false }
-        guard typeInChunks(String(repeating: XCUIKeyboardKey.delete.rawValue, count: held.count)) else { return false }
+        guard tapper(resolved, end, "clearText", "\(q) (caret to the end)") else { return false }
+        guard typeInChunks(String(repeating: XCUIKeyboardKey.delete.rawValue, count: held.count), primitive: "clearText") else { return false }
         let left = typedTextAfterDeleting(q)
         if left?.isEmpty == true { return true }
-        return refuse("clearText \(q): the field is not empty after deleting; it reads back \(left.map { "\($0.count) characters" } ?? "nothing")")
+        return refuse("clearText", "\(q): the field is not empty after deleting; it reads back \(left.map { "\($0.count) characters" } ?? "nothing")")
     }
 
     /// What the field holds once the delete has been applied: read until two reads agree (the field
@@ -82,11 +85,11 @@ final class TextTyping {
     /// app does with the action, including whether the keyboard closes, is for the next step to wait for. A keyboard with
     /// no action key (a number pad) has nothing to press: that is a refusal that names the keys the keyboard does offer.
     func submitTextEntry() -> Bool {
-        guard resolver.isAppRunning else { return refuse("submitTextEntry: the app is not running") }
+        guard resolver.isAppRunning else { return refuse("submitTextEntry", "the app is not running") }
         let keyboard = app.keyboards.firstMatch
         // Right after a touch that opens the keyboard it may not be there yet: wait for it as a condition (Timeouts.Action).
         guard keyboard.waitForExistence(timeout: Self.submitWait) else {
-            return refuse("submitTextEntry: no keyboard showed within \(Self.submitWait) s, so there is no action key to press")
+            return refuse("submitTextEntry", "no keyboard showed within \(Self.submitWait) s, so there is no action key to press")
         }
 
         for name in Self.actionKeys {
@@ -94,19 +97,19 @@ final class TextTyping {
             guard key.exists else { continue }
             let (frame, reads) = settledFrame(of: key)
             log.add("[driver] submitTextEntry: key '\(name)' frame \(frame.map { "\($0)" } ?? "unreadable") after \(reads) reads")
-            guard let frame else { return refuse("submitTextEntry: the '\(name)' key never stopped moving or could not be read") }
+            guard let frame else { return refuse("submitTextEntry", "the '\(name)' key never stopped moving or could not be read") }
             // A key of the keyboard is not tapped through the driver's guard, which refuses points under the keyboard.
-            return guarded("submitTextEntry '\(name)' key", log: log) {
+            return guarded("submitTextEntry", "'\(name)' key", log: log) {
                 resolver.coordinate(at: CGPoint(x: frame.midX, y: frame.midY), in: nil).tap()
             }
         }
         var offered: [String] = []
-        _ = guarded("keyboard button labels", log: log) { offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label } }
-        return refuse("submitTextEntry: the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
+        _ = guarded("submitTextEntry", "keyboard button labels", log: log) { offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label } }
+        return refuse("submitTextEntry", "the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
     }
 
-    private func refuse(_ reason: String) -> Bool {
-        log.refuse("[driver] \(reason)")
+    private func refuse(_ primitive: String, _ reason: String) -> Bool {
+        log.refuse(primitive, reason)
         return false
     }
 
@@ -126,13 +129,13 @@ final class TextTyping {
     /// Taps the field once so that it takes the focus and waits for the keyboard. There is no second tap: with the frame settled
     /// before the tap (and the keyboard guard) it was never needed in 196 conformance runs (0 second taps), and a field that does
     /// not bring the keyboard up is reported, not tapped again.
-    private func focus(_ q: Query) -> Bool {
-        guard let (resolved, facts) = resolver.placed(q, for: "focus") else { return false }
+    private func focus(_ q: Query, primitive: String) -> Bool {
+        guard let (resolved, facts) = resolver.placed(q, primitive: primitive) else { return false }
         // XCUITest reports no keyboard focus for a text field (`hasFocus` read false with the keyboard up, measured in the
         // driver contract), so the field cannot be told apart from an unfocused one: it is touched once, as before.
-        guard tapper(resolved, center(of: facts), "focus \(q)") else { return false }
+        guard tapper(resolved, center(of: facts), primitive, "\(q) (focus)") else { return false }
         if waitForKeyboard() { return true }
-        log.refuse("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
+        log.refuse(primitive, "\(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
         return false
     }
 
@@ -146,13 +149,13 @@ final class TextTyping {
         return app.keyboards.firstMatch.waitForExistence(timeout: Self.keyboardTimeout)
     }
 
-    private func typeInChunks(_ text: String) -> Bool {
+    private func typeInChunks(_ text: String, primitive: String) -> Bool {
         var rest = Substring(text)
         while !rest.isEmpty {
-            guard resolver.isAppRunning else { return refuse("typeText: the app stopped running after \(injected) characters") }
-            guard app.keyboards.firstMatch.exists else { return refuse("typeText: the keyboard went away after \(injected) characters") }
+            guard resolver.isAppRunning else { return refuse(primitive, "typeText: the app stopped running after \(injected) characters") }
+            guard app.keyboards.firstMatch.exists else { return refuse(primitive, "typeText: the keyboard went away after \(injected) characters") }
             let chunk = rest.prefix(Self.chunk)
-            guard guarded("typeText", log: log, { app.typeText(String(chunk)) }) else { return false }
+            guard guarded(primitive, "typeText", log: log, { app.typeText(String(chunk)) }) else { return false }
             injected += chunk.count
             rest = rest.dropFirst(chunk.count)
         }

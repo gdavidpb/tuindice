@@ -23,14 +23,25 @@ internal class WaitSteps(
 		else -> unhandled(step)
 	}
 
-	/** The app is out of the foreground on [BACKGROUND_READS] reads in a row, one poll interval apart. */
+	/**
+	 * The app is out of the foreground on [BACKGROUND_READS] reads in a row, one poll interval apart. An app whose process
+	 * is gone is not out of the foreground, it is dead: the read that finds it so ends the step with `APP_NOT_RUNNING`.
+	 */
 	private fun waitBackgrounded(step: Step.WaitBackgrounded): StepResult {
 		var inARow = 0
-		val gone = poller.until(step.timeoutMs) {
-			inARow = if (driver.isForeground()) 0 else inARow + 1
-			inARow >= BACKGROUND_READS
+		var dead = false
+		val done = poller.until(step.timeoutMs) {
+			dead = !driver.isRunning()
+			inARow = if (dead || driver.isForeground()) 0 else inARow + 1
+			dead || inARow >= BACKGROUND_READS
 		}
-		return passIf(gone, FailureKind.STEP_TIMEOUT) { "the app was still in the foreground after ${step.timeoutMs} ms" }
+		return when {
+			dead -> StepResult.Failed(
+				FailureKind.APP_NOT_RUNNING,
+				"the app is not running, so it did not go to the background: it ended"
+			)
+			else -> passIf(done, FailureKind.STEP_TIMEOUT) { "the app was still in the foreground after ${step.timeoutMs} ms" }
+		}
 	}
 
 	/** Polls until the checkbox is on screen with the checked state the step asks for. */

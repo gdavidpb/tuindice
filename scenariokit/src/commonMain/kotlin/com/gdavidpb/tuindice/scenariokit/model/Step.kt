@@ -91,8 +91,14 @@ sealed interface Step {
 	}
 
 	/**
-	 * Waits until the app has left the foreground (another app or the home screen is in front, or the app is gone) and
-	 * has stayed out for a few reads in a row: for a step that sends the user out of the app (an external link).
+	 * Waits until the app has left the foreground and has stayed out for 3 reads in a row, one poll interval apart: for a
+	 * step that sends the user out of the app (an external link). "Left the foreground" is `AppControl.isForeground`,
+	 * which is not the same on both platforms: Android counts anything but the app's own window in front (another app,
+	 * a system dialog, the app switcher, the notification shade, an unreadable screen); iOS counts only the app's
+	 * state (`runningForeground` and no move to `runningBackground` within 0.3 s), so a system alert in front of the
+	 * app does not count. An app whose process is gone does NOT pass: the step fails with `APP_NOT_RUNNING` on the
+	 * read that finds it dead (`AppControl.isRunning`), so a link that crashes the app is not taken for one that
+	 * opened a browser.
 	 */
 	@Serializable
 	@SerialName("waitBackgrounded")

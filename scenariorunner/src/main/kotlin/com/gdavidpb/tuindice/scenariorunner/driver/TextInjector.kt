@@ -29,10 +29,15 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		session.log.clearRefusal()
 		injected = 0
 		val events = keyEventsFor(q, text)
-		val before = if (events != null) readBack(q) else null
+		val before = if (events != null) readBefore(q) else null
 
 		return events != null && before != null &&
 			focus.ensure(q) && unchangedByFocus(q, before) && enter(q, text, events)
+	}
+
+	/** What the field holds before anything is done to it; null, with the reason in the driver log, if unreadable. */
+	private fun readBefore(q: Query): String? = readBack(q).also {
+		if (it == null) session.log.refuse("typeKeys", "$q: the field's text could not be read before typing")
 	}
 
 	/** The key events that spell [text]; null, with the reason in the driver log, if [q] is absent or no key spells it. */
@@ -41,23 +46,23 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		val map = runCatching { KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD) }.getOrNull()
 		val events = if (onScreen && map != null) map.getEvents(text.toCharArray()) else null
 
-		if (!onScreen) session.log.refuse("typeKeys $q: the field is not on screen")
-		if (onScreen && map == null) session.log.refuse("typeKeys $q: the virtual keyboard could not be loaded")
+		if (!onScreen) session.log.refuse("typeKeys", "$q: the field is not on screen")
+		if (onScreen && map == null) session.log.refuse("typeKeys", "$q: the virtual keyboard could not be loaded")
 		if (onScreen && map != null && events == null) {
-			session.log.refuse("typeKeys $q: the virtual keyboard cannot produce key events for ${text.length} characters")
+			session.log.refuse("typeKeys", "$q: the virtual keyboard cannot produce key events for ${text.length} characters")
 		}
 
 		return events
 	}
 
-	/** The focus must not alter the field: if it holds other text than before, nothing is typed. */
+	/** Asking for the focus must not alter the field: if it holds other text than before, nothing is typed. */
 	private fun unchangedByFocus(q: Query, before: String): Boolean {
 		val now = readBack(q)
 		val unchanged = now == before
 
 		if (!unchanged) {
 			val held = "it held ${before.length} characters and now holds ${now?.length}"
-			session.log.refuse("typeKeys $q: the focus touch changed the field ($held)")
+			session.log.refuse("typeKeys", "$q: the focus request changed the field ($held)")
 		}
 
 		return unchanged
@@ -74,7 +79,7 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		if (result.entered != events.size) {
 			val took = "the system took ${result.entered} of ${events.size} key events for ${text.length} characters; " +
 				"the refused injection answered after ${result.refusedAfterMs} ms"
-			session.log.refuse("typeKeys $q: $took")
+			session.log.refuse("typeKeys", "$q: $took")
 		}
 
 		return result.entered == events.size
@@ -92,7 +97,7 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 
 		if (!assigned) {
 			val why = if (field == null) "the field is not on screen" else "the text could not be assigned"
-			session.log.refuse("clearText $q: $why")
+			session.log.refuse("clearText", "$q: $why")
 		}
 
 		val empty = assigned && session.poll(READ_BACK_MS) {
@@ -101,7 +106,7 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 
 		if (assigned && !empty) {
 			val left = readBack(q)?.length ?: "no text"
-			session.log.refuse("clearText $q: the field is not empty after clearing it; it reads back $left characters")
+			session.log.refuse("clearText", "$q: the field is not empty after clearing it; it reads back $left characters")
 		}
 
 		return empty
@@ -121,14 +126,14 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		if (!ready) {
 			val keyboard = session.keyboard.frame() ?: "not listed"
 			val reason = "no keyboard and focused text field within $SUBMIT_WAIT_MS ms (keyboard $keyboard)"
-			session.log.refuse("submitTextEntry: $reason")
+			session.log.refuse("submitTextEntry", reason)
 		}
 
 		val sent = ready && KeyInjector(session).press(KeyEvent.KEYCODE_ENTER)
 
 		if (ready) {
 			session.log.write("submitTextEntry: the Enter key ${if (sent) "was injected" else "was not injected"}")
-			if (!sent) session.log.refuse("submitTextEntry: the system did not take the Enter key")
+			if (!sent) session.log.refuse("submitTextEntry", "the system did not take the Enter key")
 		}
 
 		return sent

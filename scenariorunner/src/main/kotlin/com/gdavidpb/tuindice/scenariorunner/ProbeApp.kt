@@ -32,6 +32,7 @@ internal class ProbeApp {
 	companion object {
 		private const val LAUNCH_WAIT_MS = 60_000L
 		const val PASSWORD_SAMPLE = "abcdefghijklmnopqrstuvwxyz0123"
+		const val SHORT_SAMPLE = "abc"
 		const val SAMPLE_LENGTH = 30
 		const val SAMPLE_EVENTS = 60
 	}

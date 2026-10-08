@@ -19,13 +19,15 @@ internal class Selectors(private val device: UiDevice) {
 	 * the tree in the same pass, and no step of the read may throw. An exception, or a tree without the
 	 * app's window (the root is null while the emulator is frozen or the app is not in front), is UNREADABLE.
 	 */
-	fun presence(q: Query): Presence = runCatching {
-		when {
-			candidates(q).any { device.findObject(it) != null } -> Presence.PRESENT
-			device.hasObject(By.pkg(AppIdentity.ID)) -> Presence.ABSENT
-			else -> Presence.UNREADABLE
-		}
-	}.getOrDefault(Presence.UNREADABLE)
+	fun presence(q: Query): Presence {
+		val matched = runCatching { candidates(q).any { device.findObject(it) != null } }.getOrNull()
+		val windowInTree = if (matched == false) appWindowInTree() else null
+
+		return Presence.of(matched, windowInTree)
+	}
+
+	/** Whether the app's own window is in the tree; null when the read threw. */
+	private fun appWindowInTree(): Boolean? = runCatching { device.hasObject(By.pkg(AppIdentity.ID)) }.getOrNull()
 
 	private fun candidates(q: Query): List<BySelector> = when (q) {
 		is Query.Tag -> listOf(By.res(q.value))

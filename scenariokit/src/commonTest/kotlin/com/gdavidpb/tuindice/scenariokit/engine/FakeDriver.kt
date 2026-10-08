@@ -98,6 +98,14 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		return (foregroundScript?.invoke() ?: inForeground) && !terminated
 	}
 
+	/** When set, `isRunning` answers what it returns on each call instead of "not terminated". */
+	var runningScript: (() -> Boolean)? = null
+
+	override fun isRunning(): Boolean {
+		enter("isRunning")
+		return runningScript?.invoke() ?: !terminated
+	}
+
 	override fun waitVisible(q: Query, timeoutMs: Long): Boolean {
 		enter("waitVisible")
 		val el = element(q)

@@ -81,6 +81,9 @@ internal class AppLauncher(private val session: DeviceSession) : AppControl {
 
 	override fun isForeground(): Boolean = session.device.currentPackageName == AppIdentity.ID
 
+	/** False only when `pidof` proves the process is gone; a failed `pidof` is not a death. */
+	override fun isRunning(): Boolean = session.appProcessRunning() != false
+
 	/** True, after logging it, when the app's process is gone; an unreadable answer does not count as dead. */
 	private fun diedBefore(what: String): Boolean {
 		val running = session.appProcessRunning()

@@ -28,8 +28,8 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         resolver = ElementResolver(app: app, log: log)
         backend = HttpBackend(baseUrl: config.wiremockUrl)
         super.init()
-        typing = TextTyping(resolver: resolver, log: log) { [unowned self] resolved, point, gesture in
-            tap(resolved, at: point, gesture: gesture)
+        typing = TextTyping(resolver: resolver, log: log) { [unowned self] resolved, point, primitive, target in
+            tap(resolved, at: point, primitive: primitive, target: target)
         }
     }
 
@@ -38,13 +38,13 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func launch(spec: LaunchSpec) -> Bool { traced("launch") { launchApp(spec) } }
 
     private func launchApp(_ spec: LaunchSpec) -> Bool {
-        guard guarded("terminate before launch", log: log, { app.terminate() }) else { return false }
+        guard guarded("launch", "terminate before launch", log: log, { app.terminate() }) else { return false }
 
         var environment = spec.arguments
         environment[LaunchKeys.apiBaseUrl] = config.apiBaseUrl
         environment[LaunchKeys.webBaseUrl] = config.webBaseUrl
         app.launchEnvironment = environment
-        guard guarded("launch", log: log, { app.launch() }) else { return false }
+        guard guarded("launch", "launch", log: log, { app.launch() }) else { return false }
 
         return app.wait(for: .runningForeground, timeout: Self.launchTimeout)
     }
@@ -52,12 +52,12 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func foreground() -> Bool {
         traced("foreground") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("foreground: the app is not running (state \(app.state.rawValue)); it is not started again") }
-            guard guarded("activate", log: log, { app.activate() }) else { return false }
+            guard resolver.isAppRunning else { return refuse("foreground", "the app is not running (state \(app.state.rawValue)); it is not started again") }
+            guard guarded("foreground", "activate", log: log, { app.activate() }) else { return false }
             // Not `app.wait(for: .runningForeground)`: it answers at once when the cached state still says foreground, with the
             // home screen or another app in front (measured: 15-40 ms). The app is in front when it also passes `isForeground`.
             let front = poll(timeoutMs: Int64(Self.launchTimeout * 1000)) { self.isForeground() }
-            if !front { log.refuse("[driver] foreground: the app was not in the foreground \(Self.launchTimeout) s after activate") }
+            if !front { log.refuse("foreground", "the app was not in the foreground \(Self.launchTimeout) s after activate") }
             return front
         }
     }
@@ -73,7 +73,11 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         }
     }
 
-    func terminate() { traced("terminate") { _ = guarded("terminate", log: log) { app.terminate() } } }
+    /// False once the process is gone (`notRunning`); true when it is running in any way, suspended included, and when the
+    /// state is unknown, which is not a death (see `AppControl.isRunning`).
+    func isRunning() -> Bool { traced("isRunning") { app.state != .notRunning } }
+
+    func terminate() { traced("terminate") { _ = guarded("terminate", "terminate", log: log) { app.terminate() } } }
 
     // MARK: ElementProbe
 
@@ -101,16 +105,18 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         }
     }
 
+    /// A Compose `toggleable(role = Switch)` is published as a switch and a `toggleable(role = Checkbox)` as a `Button` with the
+    /// `Selected` trait when it is on. So a button answers too, and then "unchecked" cannot be told from "not a toggle at all": any
+    /// button without the trait reads `false`. That is why a scenario that asserts a checked state asserts both states of the same
+    /// element (the state before and the state after), and the contract probes the limit (`ToggleState`).
     func isChecked(q: Query) -> KotlinBoolean? {
         traced("isChecked") {
-            guard let (_, facts) = resolver.visibleFacts(q), facts.type == .switch || facts.type == .checkBox || facts.type == .toggle
-            else { return nil }
-            // A toggle that reports a value says it with "1"/"0"; the Compose ones report none and use the selected trait.
-            switch facts.value?.lowercased() {
-            case "1", "true", "on", "checked": return KotlinBoolean(bool: true)
-            case "0", "false", "off", "unchecked": return KotlinBoolean(bool: false)
-            default: return KotlinBoolean(bool: facts.isSelected)
+            guard let (_, facts) = resolver.visibleFacts(q), ToggleState.holdsState(facts.type) else { return nil }
+            guard let checked = ToggleState.checked(value: facts.value, isSelected: facts.isSelected) else {
+                log.add("[driver] isChecked \(q): the value '\(facts.value ?? "")' is not one the driver knows how to read; no answer")
+                return nil
             }
+            return KotlinBoolean(bool: checked)
         }
     }
 
@@ -127,32 +133,32 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func tap(q: Query) -> Bool {
         traced("tap") {
             log.clearRefusal()
-            guard let (resolved, facts) = resolver.placed(q, for: "tap") else { return false }
+            guard let (resolved, facts) = resolver.placed(q, primitive: "tap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
-            return tap(resolved, at: CGPoint(x: target.midX, y: target.midY), gesture: "tap \(q)")
+            return tap(resolved, at: CGPoint(x: target.midX, y: target.midY), primitive: "tap", target: "\(q)")
         }
     }
 
     func tapAt(q: Query?, fx: Double, fy: Double) -> Bool {
         traced("tapAt") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("tapAt: the app is not running") }
-            guard let (resolved, area) = area(of: q, for: "tapAt") else { return false }
+            guard resolver.isAppRunning else { return refuse("tapAt", "the app is not running") }
+            guard let (resolved, area) = area(of: q, primitive: "tapAt") else { return false }
             let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
             guard !coveredByKeyboard(point, gesture: "tapAt \(q.map { "\($0)" } ?? "screen")") else { return false }
-            return guarded("tapAt", log: log) { resolver.coordinate(at: point, in: resolved).tap() }
+            return guarded("tapAt", "tapAt", log: log) { resolver.coordinate(at: point, in: resolved).tap() }
         }
     }
 
     func doubleTap(q: Query) -> Bool {
         traced("doubleTap") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("doubleTap: the app is not running") }
-            guard let (resolved, facts) = resolver.placed(q, for: "doubleTap") else { return false }
+            guard resolver.isAppRunning else { return refuse("doubleTap", "the app is not running") }
+            guard let (resolved, facts) = resolver.placed(q, primitive: "doubleTap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
             let point = CGPoint(x: target.midX, y: target.midY)
             guard !coveredByKeyboard(point, gesture: "doubleTap \(q)") else { return false }
-            return guarded("doubleTap", log: log) { resolver.coordinate(at: point, in: resolved).doubleTap() }
+            return guarded("doubleTap", "doubleTap", log: log) { resolver.coordinate(at: point, in: resolved).doubleTap() }
         }
     }
 
@@ -164,8 +170,8 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     private func performSwipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
-        guard resolver.isAppRunning else { return refuse("swipe: the app is not running") }
-        guard let (resolved, area) = area(of: from, for: "swipe") else { return false }
+        guard resolver.isAppRunning else { return refuse("swipe", "the app is not running") }
+        guard let (resolved, area) = area(of: from, primitive: "swipe") else { return false }
         let screen = resolver.screen
         let start = CGPoint(x: area.minX + area.width * vector.fx, y: area.minY + area.height * vector.fy)
         let end = CGPoint(
@@ -178,7 +184,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         let velocity = XCUIGestureVelocity(CGFloat(distance / seconds))
 
         // The finger lifts at the speed of the drag, as on Android: the gesture may fling its content.
-        return guarded("swipe", log: log) {
+        return guarded("swipe", "swipe", log: log) {
             resolver.coordinate(at: start, in: resolved).press(
                 forDuration: 0.05,
                 thenDragTo: resolver.coordinate(at: end, in: resolved),
@@ -191,7 +197,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func pressBack() -> Bool {
         traced("pressBack") {
             log.clearRefusal()
-            return refuse("pressBack: iOS has no system back action")
+            return refuse("pressBack", "iOS has no system back action")
         }
     }
 
@@ -242,7 +248,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func captureFailure(scenarioId: String, stepIndex: Int32) {
         var image: XCUIScreenshot?
-        if guarded("screenshot", log: log, { image = XCUIScreen.main.screenshot() }), let image {
+        if guarded("captureFailure", "screenshot", log: log, { image = XCUIScreen.main.screenshot() }), let image {
             let screenshot = XCTAttachment(screenshot: image)
             screenshot.name = "\(scenarioId)-step\(stepIndex)-screenshot"
             screenshot.lifetime = .keepAlways
@@ -283,31 +289,42 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     /// A coordinate tap at [point] (the centre of the visible part for a plain tap): no hittability assertion, and no dependence on the
     /// synthetic child Compose adds under a tagged element. A point under the on-screen keyboard is not tapped.
-    private func tap(_ resolved: ResolvedElement, at point: CGPoint, gesture: String) -> Bool {
-        guard resolver.isAppRunning else { return refuse("\(gesture): the app is not running") }
-        guard !coveredByKeyboard(point, gesture: gesture) else { return false }
-        return guarded(gesture, log: log) { resolver.coordinate(at: point, in: resolved).tap() }
+    private func tap(_ resolved: ResolvedElement, at point: CGPoint, primitive: String, target: String) -> Bool {
+        guard resolver.isAppRunning else { return refuse(primitive, "\(target): the app is not running") }
+        guard !coveredByKeyboard(point, gesture: "\(primitive) \(target)") else { return false }
+        return guarded(primitive, target, log: log) { resolver.coordinate(at: point, in: resolved).tap() }
     }
 
-    /// Whether the keyboard on screen covers [point]: a tap there would press a key and put a character in the field that has
-    /// the focus. Says so in the driver log. (A key of the keyboard itself is not tapped through here: the driver's own paths
-    /// to it, `typeText` and the action key of `submitTextEntry`, do not use a point of the screen.)
+    /// Whether a tap at [point] must not be made because of the keyboard on screen: it would press a key and put a character in
+    /// the field that has the focus. Says so in the driver log, as a `guard` refusal. A keyboard that exists and cannot be read
+    /// refuses too: whether the point is under it is not known, and a touch that might press a key is not made on a guess. After
+    /// either refusal the keyboard is read once more and what it says goes to the log, so a refusal that came from a bad read
+    /// can be told from one that did not. (A key of the keyboard itself is not tapped through here: `typeText` types without a
+    /// point of the screen, and the action key of `submitTextEntry` is tapped by coordinate on purpose, outside this guard.)
     private func coveredByKeyboard(_ point: CGPoint, gesture: String) -> Bool {
-        guard let keyboard = resolver.keyboardFrame, keyboard.contains(point) else { return false }
-        log.refuse("[driver] \(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")
+        switch resolver.keyboard {
+        case .none:
+            return false
+        case let .frame(keyboard):
+            guard keyboard.contains(point) else { return false }
+            log.refuse("guard", "\(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")
+        case .unreadable:
+            log.refuse("guard", "\(gesture): a keyboard is on screen and could not be read, so it is not known whether the point \(point) is under it; tap refused")
+        }
+        log.add("[driver] guard: the keyboard read again after that refusal: \(resolver.keyboard)")
         return true
     }
 
-    /// Writes [reason] to the driver log as the reason of the call that is about to answer `false`, and answers it.
-    private func refuse(_ reason: String) -> Bool {
-        log.refuse("[driver] \(reason)")
+    /// Writes the refusal of [primitive] to the driver log as the reason of the call that is about to answer `false`, and answers it.
+    private func refuse(_ primitive: String, _ reason: String) -> Bool {
+        log.refuse(primitive, reason)
         return false
     }
 
     /// The place a gesture on [q] goes to: the whole screen without a query, otherwise the settled part of the element.
-    private func area(of q: Query?, for gesture: String) -> (ResolvedElement?, CGRect)? {
+    private func area(of q: Query?, primitive: String) -> (ResolvedElement?, CGRect)? {
         guard let q else { return (nil, resolver.screen) }
-        guard let (resolved, facts) = resolver.placed(q, for: gesture) else { return nil }
+        guard let (resolved, facts) = resolver.placed(q, primitive: primitive) else { return nil }
         return (resolved, resolver.visiblePart(of: facts.frame))
     }
 
