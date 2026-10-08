@@ -112,8 +112,8 @@ python3 e2e/scripts/shared/e2e.py run --platform all --mode evidence --dry-run
 - Budget: `E2E_BUDGET_MINUTES` (default 120, 10 to 240) per platform. When it runs out the greens are kept (exit
   4) and the next invocation continues. It counts as an invocation for the stop conditions.
 - Each platform publishes its own status when it is fully green, `HEAD == @{u}` and the commit is visible on
-  GitHub. `E2E_PUBLISH_GITHUB_STATUS=0` runs without publishing. A run that publishes for real rejects the test
-  variables (`E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE`, `E2E_SCOPE_FILE`) with exit 2.
+  GitHub. `E2E_PUBLISH_GITHUB_STATUS=0` runs without publishing. Every evidence run, publishing or not, rejects the test
+  variables (`E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE`, `E2E_SCOPE_FILE`, `E2E_FINGERPRINT_REPO_ROOT`) with exit 2.
 - One runner invocation per scenario; the host cleans app state between scenarios, the driver never does. WireMock
   has an ownership lock per platform and its log is kept inside the run directory.
 - Devices stay running afterwards. Stop them in the wrap-up (section 8).

@@ -216,6 +216,7 @@ class VocabularyGateTests(unittest.TestCase):
         with open(os.path.join(TESTS, "run-harness-tests.sh")) as handle:
             text = handle.read()
         self.assertIn("verify-e2e-vocabulary.sh", text)
+        self.assertIn("test-fingerprint-detector-parity.sh", text)
 
 
 if __name__ == "__main__":

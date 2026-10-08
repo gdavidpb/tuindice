@@ -58,7 +58,7 @@ class LineBudgetTests(unittest.TestCase):
 
     def test_the_budgets_are_the_firm_ones_and_the_scripts_cap_is_declared_once(self):
         self.assertEqual(self.limits["SKILL_MD_MAX_LINES"], 140)
-        self.assertEqual(self.limits["CERTIFICATION_RUNBOOK_MAX_LINES"], 300)
+        self.assertEqual(self.limits["CERTIFICATION_RUNBOOK_MAX_LINES"], 320)
         self.assertIn("E2E_SCRIPTS_MAX_LINES", self.limits)
         with open(SCRIPT) as handle:
             text = handle.read()

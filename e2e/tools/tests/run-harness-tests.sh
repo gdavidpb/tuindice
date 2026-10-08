@@ -92,6 +92,7 @@ fi
 # The fingerprint covers what it must (verifier) and behaves as specified (its own tests).
 bash e2e/tools/verify/verify-e2e-fingerprint-coverage.sh
 bash e2e/tools/tests/test-fingerprint.sh
+bash .github/scripts/test-fingerprint-detector-parity.sh
 
 # The harness, the skill and its runbook stay within the budgets of e2e/tools/verify/line-budgets.env.
 bash e2e/tools/verify/verify-line-budgets.sh

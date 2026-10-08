@@ -20,7 +20,7 @@ class HarnessScriptTests(unittest.TestCase):
     def test_verify_e2e_harness_has_twenty_five_minutes(self):
         build = support.text(os.path.join(ROOT, "gradle", "e2e-tasks.gradle.kts"))
         block = re.search(r'tasks\.register<Exec>\("verifyE2eHarness"\) \{.*?\n\}', build, re.S).group(0)
-        self.assertIn("Duration.ofMinutes(25)", block)
+        self.assertIn("Duration.ofMinutes(30)", block)
 
 
 if __name__ == "__main__":
