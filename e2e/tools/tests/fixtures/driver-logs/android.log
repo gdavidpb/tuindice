@@ -1,0 +1,8 @@
+10:00:01.100 [0] Launch -> passed (900 ms)
+10:00:01.900 foreground: 'com.android.chrome' is in front, request 1 to bring the app back
+10:00:02.400 foreground: 'com.android.chrome' is in front, request 2 to bring the app back
+10:00:03.000 foreground: in front after 2 requests; last other package 'com.android.chrome'
+10:00:09.000 tag:x: not on screen when the gesture was about to be made; gesture refused
+10:00:10.000 tag:y: bounds still moving after 2000 ms (last Rect(1, 2)); gesture refused
+10:00:11.000 Tap at (10, 20) is inside the on-screen keyboard Rect(0, 0); touch refused
+10:00:12.000 foreground: not in front after 20000 ms, 4 requests; front 'com.android.chrome'

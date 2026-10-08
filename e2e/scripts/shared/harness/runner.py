@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import catalog as catalog_mod
 from . import classify as cl
-from . import envcheck, hostlock, junit, proc, publish, report, toolchain
+from . import envcheck, hostlock, junit, proc, publish, report, toolchain, tolerances
 from .config import EXIT_HARNESS_ERROR, SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
 from .gitstate import GitState
 from .ledger import Ledger, now
@@ -491,11 +491,13 @@ class PlatformRun:
             self._require_unchanged("before recording the attempt of %s" % scenario.id)
             ledger.record_attempt(scenario.id, attempt)
             ledger.save()
+            self.manifest.data["tolerances"] = tolerances.merge(self.manifest.data["tolerances"], attempt["tolerances"])
             self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "attemptDir": attempt["attemptDir"],
                 "repetition": attempt["repetition"], "outcome": attempt["outcome"],
                 "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
                 "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
-                "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"]})
+                "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"],
+                "tolerances": attempt["tolerances"]})
             self.executed.add(scenario.id)
             self.attempts_since_recovery += 1
             self.greens_since_recovery += 1 if verdict.passed else 0
@@ -645,7 +647,7 @@ class PlatformRun:
             "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),
             "attemptDir": directory, "repetition": self.repetition + 1,
             "unmatchedRequests": cl.unmatched_summary(evidence.journal), "notes": [verdict.note] if verdict.note else [],
-            "probeErrors": errors,
+            "probeErrors": errors, "tolerances": tolerances.count_file(os.path.join(adir, "driver.log")),
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
         }
         return attempt, verdict
@@ -738,11 +740,12 @@ class PlatformRun:
             if s.id in failed:
                 last = self.ledger.counted(s.id)[-1] if self.ledger.counted(s.id) else entries[-1]
                 results.append({"id": s.id, "status": "failed", "class": failed[s.id], "summary": last["failureSummary"],
-                    "seconds": last["durationMs"] / 1000.0})
+                    "seconds": last["durationMs"] / 1000.0, "tolerances": last.get("tolerances", {})})
             elif self.ledger.passed(s.id):
                 won = [a for a in entries if a["outcome"] == "passed"][-1]
                 results.append({"id": s.id, "status": "passed", "seconds": won["durationMs"] / 1000.0,
-                    "producedByRunId": won["runId"] if won["runId"] != self.run_id else None, "producedBySha": won["sha"]})
+                    "producedByRunId": won["runId"] if won["runId"] != self.run_id else None, "producedBySha": won["sha"],
+                    "tolerances": won.get("tolerances", {})})
             else:
                 results.append({"id": s.id, "status": "skipped", "summary": "not run", "seconds": 0.0})
         for s in self.quarantined:
@@ -772,7 +775,8 @@ class PlatformRun:
             self.log.result(outcome, green, len(self.runnable), self._failed_list(), m.data["scenarios"]["notRun"],
                 code, self.fingerprint)
             report.write_summary(os.path.join(self.run_dir, "summary.txt"), [self.log.lines[-1]] + [
-                "%s %s %s" % (r["status"].upper(), r["id"], r.get("summary", "")) for r in results])
+                "%s %s %s" % (r["status"].upper(), r["id"], r.get("summary", "")) for r in results]
+                + ["tolerances: %s" % json.dumps(m.data["tolerances"], sort_keys=True)])
             if outcome == "passed" and self.evidence and not self.stop:
                 self.ledger.update_index(self.cfg.state_root, self.git.sha, time.monotonic() - self.started)
                 target = os.path.join(str(self.cfg.state_root), "certifications", self.git.sha, self.platform)
@@ -827,4 +831,5 @@ class PlatformRun:
     @staticmethod
     def _manifest_result(item):
         return {"id": item["id"], "status": item["status"], "durationMs": int(item["seconds"] * 1000),
-            "producedBySha": item.get("producedBySha"), "producedByRunId": item.get("producedByRunId"), "failureClasses": [item["class"]] if item.get("class") else []}
+            "producedBySha": item.get("producedBySha"), "producedByRunId": item.get("producedByRunId"), "failureClasses": [item["class"]] if item.get("class") else [],
+            "tolerances": item.get("tolerances", {})}

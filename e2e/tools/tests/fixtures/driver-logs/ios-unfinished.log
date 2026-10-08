@@ -1,0 +1,4 @@
+[0] WaitVisible tag:auth_screen -> passed (210 ms)
+[tolerance] dismissed-alert "Save Password?" dismissed by the interruption monitor
+[tolerance] allowed-paste Allow Paste answered
+[tolerance] allowed-paste Allow Paste answered
