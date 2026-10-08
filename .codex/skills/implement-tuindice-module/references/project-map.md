@@ -72,22 +72,32 @@ If an app-facing HTTP contract changes, update the relevant mock mappings and re
 
 ## Local E2E Map
 
-- `e2e/maestro/flows/`
-  - executable Maestro flows grouped by module, with `_shared/` for reusable setup, reset, login, and navigation helpers
+- `scenariokit/`
+  - the E2E step model, DSL, interpreter, driver contract and catalog codec; no project dependencies
+- `scenarios/`
+  - the E2E catalog: `catalog/<Module>Scenarios.kt`, `fixture/` (accounts, ids, texts, starts), `shared/` step groups, and the host tests that enforce the rules
+- `scenariorunner/`
+  - Android driver (UI Automator, out of process) and its instrumentation tests
+- `iosApp/UITests/`
+  - iOS driver (XCUITest) and the generated test list; `iosApp/scripts/{add-ui-test-target.rb,build-scenario-kit.sh,verify-ui-test-target.sh}` wire the target
+- `e2e/catalog/scenarios.json`
+  - generated, versioned catalog both drivers and the harness read
 - `e2e/scripts/`
-  - local build, reset, WireMock startup, and Maestro runner scripts for Android and iOS
-- `e2e/platform/android/`
-  - Android-only edge tests or instructions for Compose/Espresso/UI Automator cases Maestro cannot cover stably
-- `e2e/platform/ios/`
-  - iOS-only edge tests or instructions for XCUITest cases Maestro cannot cover stably
+  - the harness: `shared/` (Python orchestrator, fingerprint, layout), `android/` and `ios/` (adapter, device and build scripts)
+- `e2e/toolchain/`, `e2e/tools/`
+  - device/tool version locks; profile, retention, verifiers and harness tests
+- `e2e/platform/android/`, `e2e/platform/ios/`
+  - notes on platform edges no scenario can drive, with what covers them elsewhere
 - `testkit/e2e/`
-  - reusable E2E contract: flow catalog, selector policy, fixture contract, local runbook, critical selector list, and validator
+  - reusable QA policy: `selector-policy.md` and `fixture-contract.md`
+- `gradle/e2e-tasks.gradle.kts`
+  - registration of the `e2e*`, `verifyE2e*`, `syncE2eArtifacts`, `verifyLaunchArgumentContract` and `verifyIosUiTestsBuild` tasks
 
 Rules that matter:
 
-- Maestro is the default local E2E runner for app flows on Android and iOS.
-- Platform-specific UI tests are reserved for system/host/technology edges, not duplicate happy paths.
-- Update `testkit/e2e/flow-catalog.yaml` and the affected flow when a user-visible module flow changes.
+- Scenarios are the only way a user-visible behavior is covered end to end; the same scenario runs on both platforms unless it declares `onPlatform` branches (counted in `PlatformBranchBudget`) or `platforms(...)`.
+- Platform edges no scenario can drive are recorded as an `ActionDispositions` entry plus a note under `e2e/platform/`, not as a duplicated happy path.
+- Update the scenario, its `covers` and the fixtures when a user-visible module flow changes, then `./gradlew syncE2eArtifacts`.
 - Keep local E2E compatible with future Firebase Test Lab by producing stable artifacts from root scripts, but do not add `gcloud` commands in the local-only phase.
 
 ## KMP Build Conventions
@@ -238,16 +248,14 @@ Shared helpers:
 
 - `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/koin/KoinSmokeTestUtils.kt`
 - `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineRandomWalk.kt` (seeded model-based walks for machine contract tests)
-- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt` (Kotlin mirror of `testkit/e2e/fixture-contract.env`)
+- `scenarios/src/androidHostTest/kotlin/com/gdavidpb/tuindice/scenarios/` (the catalog, fixture and mock rules, run by `:scenarios:testAndroidHostTest`)
 
 E2E contract and local runners:
 
-- `./gradlew verifyE2eContract`
-- `./gradlew e2eMaestroAndroid`
-- `./gradlew e2eMaestroIos`
-- `./gradlew e2eMaestroLocal`
-- `./gradlew e2ePlatformAndroid`
-- `./gradlew e2ePlatformIos`
+- `./gradlew syncE2eArtifacts` and `./gradlew verifyE2eContract`
+- `./gradlew e2eAndroid` and `./gradlew e2eIos` (diagnostic runs; `E2E_SCENARIOS=<id>` narrows them)
+- `./gradlew e2eEvidence`, `e2eEvidenceAndroid`, `e2eEvidenceIos` (evidence, owned by the certification skill)
+- `./gradlew e2eStatus`, `e2eEnvCheck`, `verifyE2eHarness`, `verifyIosUiTestsBuild`
 
 Shared bootstrap smoke tests:
 

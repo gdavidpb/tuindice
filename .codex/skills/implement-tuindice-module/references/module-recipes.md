@@ -45,13 +45,12 @@ If the request does not fit one of those buckets, pause and explain why before i
    - create a dedicated `NavResult` type per flow instead of raw primitives, and register new destinations in the module's `TuIndiceNavContribution` plus the maincore serialization canary test
 8. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
 9. If the feature change affects a user-visible flow, presentation `Action`, selector, navigation path, platform hand-off, app startup/reset path, or mock-backed state, update local E2E in the same change:
-   - `testkit/e2e/flow-catalog.yaml`
-   - `testkit/e2e/mvi-action-catalog.yaml` when presentation `Action`s are added, removed, renamed, or reclassified
-   - `e2e/maestro/flows/<module>/`
-   - affected suite aggregators under `e2e/maestro/flows/suites/`
-   - `testkit/e2e/critical-selectors.txt` when selectors are added, renamed, or removed
-   - `mocks/`, `testkit/e2e/fixture-contract.env`, and `E2eFixtureContract.kt` when the covered backend contract or fixture state changes
-   - `e2e/platform/android/` or `e2e/platform/ios/` when the edge cannot be verified by Maestro
+   - `scenarios/.../catalog/<Module>Scenarios.kt` (scenarios, with the actions they fire in `covers`)
+   - `scenarios/.../catalog/ActionDispositions.kt` when presentation `Action`s are added, removed, renamed, or reclassified and no scenario fires them
+   - the module's `*UiTags` when selectors are added, renamed, or removed
+   - `mocks/` and `scenarios/.../fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`, `Copy.kt`) when the covered backend contract or fixture state changes
+   - `e2e/catalog/scenarios.json` and `iosApp/UITests/Generated/ScenarioTests.generated.swift` via `./gradlew syncE2eArtifacts`
+   - `e2e/platform/android/` or `e2e/platform/ios/` when the edge cannot be driven by a scenario
 
 ## 3. Create A New KMP Feature Module
 
@@ -110,12 +109,12 @@ If the request does not fit one of those buckets, pause and explain why before i
 14. Add `<Feature>ModuleKoinSmokeTest.kt` and resolve every public view model or entry point.
 15. Add focused contract or UI tests for non-trivial behavior.
 16. For any user-facing feature, add the initial local E2E artifact set before considering the module complete:
-   - a module entry in `testkit/e2e/flow-catalog.yaml`
-   - user/platform-edge action entries in `testkit/e2e/mvi-action-catalog.yaml`
-   - at least the smoke or primary happy-path Maestro flow under `e2e/maestro/flows/<module>/`
-   - a suite entry under `e2e/maestro/flows/suites/`
-   - stable selectors/test tags and critical selector entries where needed
-   - mock mappings, response bodies, fixture contract values, reset/run script changes, or platform-edge placeholders/tests when the flow depends on them
+   - the module's `*UiTags` object with stable test tags, and `implementation(project(":<module>"))` in `scenarios/build.gradle.kts` plus the module on the `scenarios=` line of `scripts/module-graph.txt`
+   - `catalog/<Module>Scenarios.kt` with `val <module>Scenarios: List<Scenario>` holding at least one scenario tagged `smoke`, and the entry `"<module>" to <module>Scenarios` in `E2eCatalog.byModule`
+   - every `presentation/contract` action covered by a scenario's `covers`, or listed in `ActionDispositions.all` with its reason (and the counts per kind updated in `ActionCoverageTest`)
+   - accounts, texts and ids in `scenarios/.../fixture/` and mock mappings under `mocks/` when the scenarios depend on them
+   - platform-edge notes under `e2e/platform/` when part of the feature cannot be driven by a scenario
+   - the regenerated `e2e/catalog/scenarios.json` and Swift test list (`./gradlew syncE2eArtifacts`)
 
 ## 4. Create Or Modify Shared Infrastructure Modules
 
@@ -165,23 +164,18 @@ When an iOS capability changes, keep the existing `IOSContext` / host-capability
 
 Use [e2e.md](e2e.md) as the detailed policy.
 
-1. Start from `testkit/e2e/flow-catalog.yaml` and identify the affected module flow.
-2. Prefer Maestro flows under `e2e/maestro/flows/<module>/` for app-level behavior.
-3. Use shared helpers from `e2e/maestro/flows/_shared/` for launch/reset/login/navigation instead of repeating setup in every flow.
-4. Update affected suite aggregators under `e2e/maestro/flows/suites/` whenever adding, removing, renaming, quarantining, or replacing active flows.
-5. Keep selectors stable:
-   - add or preserve `Modifier.testTag` for critical controls
-   - update `testkit/e2e/critical-selectors.txt` for selectors that must not disappear silently
-   - avoid selectors based only on mutable text unless the text itself is the assertion
-6. Keep the local backend deterministic:
-   - use WireMock scenarios and reset scripts for stateful flows
+1. Start from the scenarios of the module in `scenarios/.../catalog/<Module>Scenarios.kt` and identify the affected one.
+2. Prefer a scenario for app-level behavior: declare its own `Start`, reuse the step groups of `scenarios/.../shared/` (for example `signInThroughUi`) instead of repeating setup, and list it in `<module>Scenarios`.
+3. Keep selectors stable:
+   - add or preserve `Modifier.testTag` for critical controls and declare the constant in the module's `*UiTags`
+   - avoid selectors based only on mutable text unless the text itself is the assertion; a text query uses `Copy` or `E2eFixtures`
+4. Keep the local backend deterministic:
+   - use WireMock scenarios for stateful behavior and a reset path in `BackendEngine.resetPaths` for stateful transformers
    - update `mocks/mappings/` and `mocks/__files/` when the app-facing HTTP contract changes
-   - update `testkit/e2e/fixture-contract.env`, `E2eFixtureContract.kt`, catalog `fixture_state`, and reset/run scripts when fixture values or setup change
-7. Assign edge cases to platform-specific suites only when Maestro cannot observe the result stably:
-   - Android Compose internals or intents: Compose/Espresso
-   - Android system surfaces: UI Automator
-   - iOS host/system surfaces: XCUITest
-8. Validate with `./gradlew verifyE2eContract` first; run platform E2E only when the required local device/simulator and Maestro CLI are available.
+   - update `scenarios/.../fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`, `Copy.kt`) when accounts, ids or texts change
+5. Cover or disposition every presentation `Action`: `covers(...)` in a scenario that fires it, otherwise an `ActionDispositions` entry (`Internal`, `PlatformEdge`, `Pending`) with its reason.
+6. Assign edge cases to a platform-edge note (`e2e/platform/<platform>/`) only when a scenario cannot drive them: OS hand-offs, secure-storage states, system pickers.
+7. Regenerate and validate: `./gradlew syncE2eArtifacts verifyE2eContract` first; run the scenarios on the available emulator and simulator in diagnostic mode (`e2e.py run --mode diagnose --scenario <id>`).
 
 ## 7. Root-Level Files Commonly Forgotten
 
@@ -197,13 +191,10 @@ These files are easy to miss when adding or widening a module:
 - `maincore/.../ui/screen/TuIndiceNavDisplay.kt`
 - `maincore/.../BottomBarConfig.kt`
 - `maincore/.../TuIndiceScreen.kt`
-- `testkit/e2e/flow-catalog.yaml`
-- `testkit/e2e/mvi-action-catalog.yaml`
-- `testkit/e2e/critical-selectors.txt`
-- `testkit/e2e/fixture-contract.env`
-- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`
-- `e2e/maestro/flows/<module>/`
-- `e2e/maestro/flows/suites/`
+- `scenarios/build.gradle.kts` and `scripts/module-graph.txt` (the `scenarios=` line)
+- `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/` (`<Module>Scenarios.kt`, `E2eCatalog.kt`, `ActionDispositions.kt`)
+- `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/fixture/`
+- `e2e/catalog/scenarios.json` and `iosApp/UITests/Generated/ScenarioTests.generated.swift` (generated)
 - `e2e/platform/android/`
 - `e2e/platform/ios/`
 - `mocks/`
@@ -225,12 +216,12 @@ Use the smallest truthful set:
 - Shared UI or navigation change:
   - focused module tests
   - `verifyCommonUiGate` only when the change is broad enough to justify it
-- E2E contract, selector, catalog, or flow change:
-  - `verifyE2eContract`
+- E2E contract, selector, catalog, or scenario change:
+  - `syncE2eArtifacts`, then `verifyE2eContract`
 - Android local E2E change:
-  - `e2eMaestroAndroid` when Maestro CLI and a device/emulator are available
+  - `E2E_SCENARIOS=<id> ./gradlew e2eAndroid` when the emulator is available
 - iOS local E2E change:
-  - `e2eMaestroIos` when Maestro CLI and a booted simulator are available
+  - `E2E_SCENARIOS=<id> ./gradlew e2eIos` when the simulator is available
 - Root shared-module change:
   - `verifySharedCompilation`
   - `verifySharedTests` when relevant
