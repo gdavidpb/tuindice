@@ -90,6 +90,17 @@ class UsbIdMaskTest {
 		assertEquals(TextRange(8), result.selection)
 	}
 
+	// The rule: a long paste keeps the first seven digits, wherever it lands. With the field full and a part of
+	// it selected, a paste of more digits than the selection held pushes the last digits out.
+	@Test
+	fun when_aLongPasteReplacesAPartOfAFullField_then_keepsTheFirstSevenDigitsAndDropsTheLast() {
+		val previous = TextFieldValue(text = "12-34567", selection = TextRange(3, 5))
+		val result = value("12-999|567").toMaskedUsbId(previous = previous)
+
+		assertEquals("12-99956", result.text)
+		assertEquals(TextRange(6), result.selection)
+	}
+
 	@Test
 	fun when_aDigitOtherThanTheLastIsDeleted_then_keepsTheDash() {
 		assertMasked(previous = "1|2-3", typed = "|2-3", expected = "|23-")
