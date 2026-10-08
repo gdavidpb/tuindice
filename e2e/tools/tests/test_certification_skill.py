@@ -56,11 +56,11 @@ class SessionFixtureMixin:
         self.addCleanup(shutil.rmtree, str(self.root), True)
 
     def manifest(self, run_id, platform="ios", exit_code=0, start=0, seconds=600, sha=HEAD, mode="evidence",
-            outcome="passed", lock=True, fingerprint=FP):
+            outcome="passed", lock=True, fingerprint=FP, parent=None, reason=None):
         write_json(self.root / "runs" / run_id / "manifest.json", {
             "runId": run_id, "platform": platform, "mode": mode, "exitCode": exit_code, "outcome": outcome,
             "startedAt": stamp(start), "durationSeconds": seconds, "commitSha": sha, "fingerprint": fingerprint,
-            "toolchain": {"lockMatches": lock}})
+            "parentRunId": parent, "stop": {"reason": reason}, "toolchain": {"lockMatches": lock}})
 
     def ledger(self, platform, fingerprint, created, scenarios, sha=HEAD):
         data = {"platform": platform, "fingerprint": fingerprint, "createdAt": stamp(created), "scenarios": {}}
@@ -206,7 +206,7 @@ class StopConditionTests(unittest.TestCase):
 
     def test_two_environment_exits_or_four_hours_stop_the_session(self):
         self.assertEqual(inspector.session_stop_reasons([self.run_of(3), self.run_of(1)], 3.9), [])
-        self.assertEqual(len(inspector.session_stop_reasons([self.run_of(3), self.run_of(3)], 1.0)), 1)
+        self.assertEqual(len(inspector.session_stop_reasons([self.run_of(3, "r1"), self.run_of(3, "r2")], 1.0)), 1)
         self.assertEqual(len(inspector.session_stop_reasons([], 4.0)), 1)
 
 
@@ -296,8 +296,48 @@ class ReportTests(SessionFixtureMixin, unittest.TestCase):
         status = {"platforms": {"ios": info("rerun"), "android": info("rerun", platform="android")}}
         (_failures, stops), out = self.run_report(status, ("ios", "android"))
         self.assertEqual(stops, 2)
-        self.assertIn("2 evidence runs ended with exit 3", out)
+        self.assertIn("2 evidence invocations ended with exit 3", out)
         self.assertIn("h of evidence in this session", out)
+
+
+    def refused(self, run_id, platform, parent, start=0, reason="free disk is 9 GB"):
+        self.manifest(run_id, platform=platform, start=start, seconds=60, exit_code=3, outcome="environment_refused",
+            parent=parent, reason=reason)
+
+    def test_one_rejected_both_platforms_invocation_is_not_two_environment_exits(self):
+        # `e2eEvidence` starts a child per platform, and each child checks the environment: one refusal leaves two exit-3
+        # manifests under one parent. That is one invocation; the runbook allows one retry after fixing the machine.
+        self.refused("android-child", "android", parent="parent-1")
+        self.refused("ios-child", "ios", parent="parent-1")
+        status = {"platforms": {"ios": info("rerun"), "android": info("rerun", platform="android")}}
+        (_failures, stops), out = self.run_report(status, ("ios", "android"))
+        self.assertEqual(stops, 0)
+        self.assertNotIn("STOP", out)
+
+    def test_two_rejected_invocations_stop_and_say_why(self):
+        self.refused("android-1", "android", parent="parent-1")
+        self.refused("ios-1", "ios", parent="parent-1")
+        self.refused("android-2", "android", parent="parent-2", start=7200, reason="the driver contract failed: tap")
+        self.refused("ios-2", "ios", parent="parent-2", start=7200, reason="the driver contract failed: tap")
+        status = {"platforms": {"ios": info("rerun"), "android": info("rerun", platform="android")}}
+        (_failures, stops), out = self.run_report(status, ("ios", "android"))
+        self.assertEqual(stops, 1)
+        self.assertIn("2 evidence invocations ended with exit 3 (environment): ", out)
+        self.assertIn("free disk is 9 GB; the driver contract failed: tap", out)
+
+    def test_runs_without_a_parent_count_one_each(self):
+        self.refused("a1", "android", parent=None)
+        self.refused("a2", "android", parent=None, start=3600)
+        status = {"platforms": {"android": info("rerun", platform="android")}}
+        (_failures, stops), out = self.run_report(status, ("android",))
+        self.assertEqual(stops, 1)
+        self.assertIn("2 evidence invocations ended with exit 3", out)
+
+    def test_the_platform_line_names_the_refusal_of_the_last_exit_3(self):
+        self.refused("i1", "ios", parent=None, reason="the driver contract failed, so no scenario runs on this driver; failed probes: tap")
+        status = {"platforms": {"ios": info("rerun")}}
+        _result, out = self.run_report(status, ("ios",))
+        self.assertIn("last exit 3 (the driver contract failed, so no scenario runs on this driver; failed probes: tap)", out)
 
 
 class MainExitCodeTests(SessionFixtureMixin, unittest.TestCase):

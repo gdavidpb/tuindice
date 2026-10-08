@@ -314,6 +314,9 @@ def evidence_runs(root: Path, shas: set[str] | None, platform: str | None = None
         runs.append(
             {
                 "runId": data.get("runId", ""),
+                # One `e2eEvidence` invocation starts one run per platform, each pointing at the run that started it.
+                "parentRunId": data.get("parentRunId"),
+                "reason": (data.get("stop") or {}).get("reason") if isinstance(data.get("stop"), dict) else None,
                 "platform": data.get("platform", ""),
                 "exitCode": data.get("exitCode"),
                 "start": epoch(data.get("startedAt")),
@@ -396,11 +399,29 @@ def stop_reasons(verdict: str, runs: list[dict], repeated: list[str]) -> list[st
     return reasons
 
 
+def invocations(runs: list[dict]) -> int:
+    """How many `e2eEvidence*` invocations the runs came from: the runs of one `--platform all` share a parent."""
+    return len({run.get("parentRunId") or run["runId"] for run in runs})
+
+
+def refusal_detail(runs: list[dict], limit: int = 3) -> str:
+    """The reasons the manifests of the exit-3 runs give (the distinct ones, shortened), or "" when none says."""
+    seen: list[str] = []
+    for run in runs:
+        reason = " ".join(str(run.get("reason") or "").split())
+        if run["exitCode"] == 3 and reason and reason[:240] not in seen:
+            seen.append(reason[:240])
+    return "; ".join(seen[:limit])
+
+
 def session_stop_reasons(runs: list[dict], hours: float) -> list[str]:
     reasons = []
-    environment = sum(1 for run in runs if run["exitCode"] == 3)
+    # Invocations, not manifests: a rejected `--platform all` leaves one exit-3 run per platform under one parent.
+    refused = [run for run in runs if run["exitCode"] == 3]
+    environment = invocations(refused)
     if environment >= MAX_ENVIRONMENT_EXITS:
-        reasons.append(f"{environment} evidence runs ended with exit 3 (environment)")
+        detail = refusal_detail(refused)
+        reasons.append(f"{environment} evidence invocations ended with exit 3 (environment)" + (f": {detail}" if detail else ""))
     if hours >= MAX_EVIDENCE_HOURS:
         reasons.append(f"{hours:.1f} h of evidence in this session (limit {MAX_EVIDENCE_HOURS:.0f} h)")
     return reasons
@@ -438,8 +459,9 @@ def report_platform(platform: str, info: dict, runs: list[dict], repeated: list[
         lines.append("  next: " + NEXT_ACTION[verdict].format(platform=platform, task=TASKS.get(platform, "e2eEvidence")))
     if runs:
         lock = runs[-1]["lockMatches"]
+        why = refusal_detail(runs[-1:])
         lines.append(f"  session: {len(runs)} evidence invocation(s) on {platform}; last exit {runs[-1]['exitCode']}"
-                     f"; toolchain lock {'matches' if lock else 'DIFFERS' if lock is False else 'not recorded'}")
+                     f"{f' ({why})' if why else ''}; toolchain lock {'matches' if lock else 'DIFFERS' if lock is False else 'not recorded'}")
     if drift and (drift[0] > MAX_DRIFT_COMMITS or drift[1] > MAX_DRIFT_FILES):
         lines.append(f"  WARN: HEAD is {drift[0]} commits and {drift[1]} files past the last complete run; on a long "
                      "branch certify in increments (runbook section 6)")
@@ -473,7 +495,7 @@ def report_evidence(platforms: list[str], status: dict, head: str, shas: set[str
         for reason in reasons:
             print(f"STOP: {reason}")
             stops += 1
-        print(f"Session so far: {len(session)} evidence invocation(s), {evidence_hours(session):.1f} h of evidence.")
+        print(f"Session so far: {invocations(session)} evidence invocation(s), {evidence_hours(session):.1f} h of evidence.")
         if stops:
             print("A stop condition holds: hand the diagnosis to the person who owns the branch; do not try again "
                   "(raising retries, re-invoking, forcing sequential or rebooting are not remedies).")
