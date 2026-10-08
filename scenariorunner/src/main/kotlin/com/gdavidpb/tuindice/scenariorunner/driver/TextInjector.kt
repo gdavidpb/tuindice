@@ -1,63 +1,82 @@
 package com.gdavidpb.tuindice.scenariorunner.driver
 
-import android.graphics.Rect
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import com.gdavidpb.tuindice.scenariokit.driver.TextEntry
 import com.gdavidpb.tuindice.scenariokit.model.Query
 
 /**
- * `typeKeys` clicks the field and injects key events, so the app sees the same input a keyboard would produce;
- * `clearText` assigns the empty text in one accessibility action; `submitTextEntry` injects the Enter key, which a
- * single-line field turns into its IME action.
+ * `typeKeys` gives the field the focus and injects key events, so the app sees the same input a keyboard would
+ * produce; `clearText` assigns the empty text in one accessibility action; `submitTextEntry` injects the Enter key,
+ * which a single-line field turns into its IME action.
  * Text itself never reaches the driver log (it can be a password): only lengths and counts do.
+ *
+ * The focus is never given with a touch. A touch lands on a point read from the accessibility tree, and while the
+ * keyboard opens that point can be where a key of the keyboard is about to be (the "v" that went into the password
+ * field was exactly that), however steady the reads were. A field that already has the focus is left alone; one that
+ * has not is asked for it with the accessibility click action, which names the node and no point, so it cannot press a
+ * key of the keyboard whatever is in the way.
  */
 internal class TextInjector(private val session: DeviceSession) : TextEntry {
+	private val focus = FieldFocus(session)
+
+	@Volatile
+	private var injected = 0
+
+	override fun keysInjected(): Int = injected
+
 	override fun typeKeys(q: Query, text: String): Boolean {
 		session.log.clearRefusal()
+		injected = 0
 		val events = keyEventsFor(q, text)
-		// Clicks where the field is once it has stopped moving: right after a tap that opens the keyboard
-		// the form is still sliding up, and the position read a moment ago is a key of the keyboard.
-		val place = if (events != null) session.settledBounds(q) else null
+		val before = if (events != null) readBack(q) else null
 
-		return events != null && place != null && focus(q, place) && enter(q, text, events)
+		return events != null && before != null &&
+			focus.ensure(q) && unchangedByFocus(q, before) && enter(q, text, events)
 	}
 
 	/** The key events that spell [text]; null, with the reason in the driver log, if [q] is absent or no key spells it. */
 	private fun keyEventsFor(q: Query, text: String): Array<KeyEvent>? {
 		val onScreen = session.selectors.find(q) != null
-		val map = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD)
-		val events = if (onScreen) map.getEvents(text.toCharArray()) else null
+		val map = runCatching { KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD) }.getOrNull()
+		val events = if (onScreen && map != null) map.getEvents(text.toCharArray()) else null
 
 		if (!onScreen) session.log.refuse("typeKeys $q: the field is not on screen")
-		if (onScreen && events == null) {
+		if (onScreen && map == null) session.log.refuse("typeKeys $q: the virtual keyboard could not be loaded")
+		if (onScreen && map != null && events == null) {
 			session.log.refuse("typeKeys $q: the virtual keyboard cannot produce key events for ${text.length} characters")
 		}
 
 		return events
 	}
 
-	private fun focus(q: Query, place: Rect): Boolean {
-		val blocked = session.keyboard.covers(place.centerX(), place.centerY(), "typeKeys focus click on $q")
-		val clicked = !blocked &&
-			runCatching { session.device.click(place.centerX(), place.centerY()) }.getOrDefault(false)
+	/** The focus must not alter the field: if it holds other text than before, nothing is typed. */
+	private fun unchangedByFocus(q: Query, before: String): Boolean {
+		val now = readBack(q)
+		val unchanged = now == before
 
-		if (!blocked && !clicked) session.log.refuse("typeKeys $q: the focus click was not delivered")
+		if (!unchanged) {
+			val held = "it held ${before.length} characters and now holds ${now?.length}"
+			session.log.refuse("typeKeys $q: the focus touch changed the field ($held)")
+		}
 
-		return clicked
+		return unchanged
 	}
 
 	private fun enter(q: Query, text: String, events: Array<KeyEvent>): Boolean {
-		val entered = KeyInjector(session).inject(events)
+		val result = KeyInjector(session).inject(events)
+		injected = result.entered
 
-		session.log.write("typeKeys $q: $entered of ${events.size} key events injected for ${text.length} characters")
+		val counted = "${result.entered} of ${events.size} key events injected for ${text.length} characters"
+		session.log.write("typeKeys $q: $counted")
 
-		if (entered != events.size) {
-			val took = "the system took $entered of ${events.size} key events for ${text.length} characters"
+		if (result.entered != events.size) {
+			val took = "the system took ${result.entered} of ${events.size} key events for ${text.length} characters; " +
+				"the refused injection answered after ${result.refusedAfterMs} ms"
 			session.log.refuse("typeKeys $q: $took")
 		}
 
-		return entered == events.size
+		return result.entered == events.size
 	}
 
 	/**
@@ -88,16 +107,28 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	}
 
 	/**
-	 * Sends the Enter key to the focused window. A single-line Compose field performs its IME action on Enter, which
-	 * is what the action key of the keyboard does, whether or not the keyboard is showing. The answer says the key was
-	 * injected; what the app does with it is the next step's to wait for.
+	 * Sends the Enter key to the focused field, as the action key of its keyboard does. Right after a touch that
+	 * opens the keyboard the keyboard and the focus are not there yet, so it waits, as a condition, up to
+	 * [SUBMIT_WAIT_MS] (`Timeouts.Action`) for a keyboard window and a text field with the focus; when they do not come
+	 * it answers false with what it saw. A single-line Compose field performs its IME action on Enter. The answer says
+	 * the key was injected; what the app does with it is the next step's to wait for.
 	 */
 	override fun submitTextEntry(): Boolean {
 		session.log.clearRefusal()
-		val sent = KeyInjector(session).press(KeyEvent.KEYCODE_ENTER)
+		val ready = session.poll(SUBMIT_WAIT_MS) { session.keyboard.frame() != null && session.keyboard.textFieldHasFocus() }
 
-		session.log.write("submitTextEntry: the Enter key ${if (sent) "was injected" else "was not injected"}")
-		if (!sent) session.log.refuse("submitTextEntry: the system did not take the Enter key")
+		if (!ready) {
+			val keyboard = session.keyboard.frame() ?: "not listed"
+			val reason = "no keyboard and focused text field within $SUBMIT_WAIT_MS ms (keyboard $keyboard)"
+			session.log.refuse("submitTextEntry: $reason")
+		}
+
+		val sent = ready && KeyInjector(session).press(KeyEvent.KEYCODE_ENTER)
+
+		if (ready) {
+			session.log.write("submitTextEntry: the Enter key ${if (sent) "was injected" else "was not injected"}")
+			if (!sent) session.log.refuse("submitTextEntry: the system did not take the Enter key")
+		}
 
 		return sent
 	}
@@ -105,6 +136,7 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	private fun readBack(q: Query): String? = session.selectors.find(q)?.let { runCatching { it.text }.getOrNull() }
 
 	private companion object {
+		const val SUBMIT_WAIT_MS = 10_000L
 		const val READ_BACK_MS = 2_000L
 	}
 }

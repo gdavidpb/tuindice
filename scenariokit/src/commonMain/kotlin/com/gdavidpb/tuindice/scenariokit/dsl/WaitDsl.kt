@@ -17,8 +17,13 @@ fun StepBuilder.waitGone(tag: String, timeout: Duration = Timeouts.Wait.asDurati
 fun StepBuilder.waitGone(query: Query, timeout: Duration = Timeouts.Wait.asDuration()) =
 	add(Step.WaitGone(query, timeout.millis(), site()))
 
-fun StepBuilder.waitAnyVisible(vararg queries: Query, timeout: Duration = Timeouts.Wait.asDuration()) =
-	add(Step.WaitAnyVisible(queries.toList(), timeout.millis(), site()))
+/** Waits until the app has left the foreground (an external link, a system sheet that takes the front). */
+fun StepBuilder.waitBackgrounded(timeout: Duration = Timeouts.Wait.asDuration()) =
+	add(Step.WaitBackgrounded(timeout.millis(), site()))
+
+/** Waits until the checkbox with [tag] shows the state [checked]. */
+fun StepBuilder.assertChecked(tag: String, checked: Boolean, timeout: Duration = Timeouts.Assert.asDuration()) =
+	add(Step.AssertChecked(Query.Tag(tag), checked, timeout.millis(), site()))
 
 fun StepBuilder.assertEnabled(tag: String, enabled: Boolean = true, timeout: Duration = Timeouts.Assert.asDuration()) =
 	add(Step.AssertEnabled(Query.Tag(tag), enabled, timeout.millis(), site()))

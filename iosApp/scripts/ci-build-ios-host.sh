@@ -132,4 +132,6 @@ if [[ -n "$DERIVED_DATA_PATH" ]]; then
 		PRODUCTS_DIR="$CONFIGURATION_NAME-iphoneos"
 	fi
 	bash "$ROOT_DIR/scripts/verify-ui-test-target.sh" --app "$DERIVED_DATA_PATH/Build/Products/$PRODUCTS_DIR/TuIndiceHost.app" --require-app
+else
+	echo "[INFO] DERIVED_DATA_PATH is not set: the check that the built app carries no ScenarioKit is skipped." >&2
 fi

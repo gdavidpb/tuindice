@@ -18,8 +18,8 @@ private fun gestureQueries(step: Step): List<Query> = when (step) {
 private fun waitQueries(step: Step): List<Query> = when (step) {
 	is Step.WaitVisible -> listOf(step.q)
 	is Step.WaitGone -> listOf(step.q)
-	is Step.WaitAnyVisible -> step.queries
 	is Step.AssertEnabled -> listOf(step.q)
+	is Step.AssertChecked -> listOf(step.q)
 	is Step.ScrollUntilVisible -> listOf(step.q)
 	is Step.IfVisible -> listOf(step.q)
 	else -> emptyList()
@@ -29,8 +29,9 @@ private fun waitQueries(step: Step): List<Query> = when (step) {
 internal fun timeoutsOf(step: Step): List<Long> = when (step) {
 	is Step.WaitVisible -> listOf(step.timeoutMs)
 	is Step.WaitGone -> listOf(step.timeoutMs)
-	is Step.WaitAnyVisible -> listOf(step.timeoutMs)
+	is Step.WaitBackgrounded -> listOf(step.timeoutMs)
 	is Step.AssertEnabled -> listOf(step.timeoutMs)
+	is Step.AssertChecked -> listOf(step.timeoutMs)
 	is Step.ScrollUntilVisible -> listOf(step.timeoutMs)
 	is Step.IfVisible -> listOf(step.withinMs)
 	is Step.ExpectRequest -> listOf(step.timeoutMs)

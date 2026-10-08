@@ -14,10 +14,11 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 		else -> unhandled(step)
 	}
 
-	/** Waits for the field, optionally clears it, enters the text once and re-reads it. */
+	/** Waits for the field, empties it (or checks it is empty), enters the text once and re-reads it. */
 	private fun enterText(step: Step.EnterText): StepResult =
 		driver.awaitTarget(step.q)
 			?: clearBeforeTyping(step)
+			?: requireEmptyField(step)
 			?: type(step)
 			?: reread(step)
 			?: StepResult.Passed
@@ -29,82 +30,49 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 			null
 		}
 
-	private fun type(step: Step.EnterText): StepResult.Failed? {
-		val accepted = driver.typeKeys(step.q, step.text)
-		return if (accepted) null else refusedTyping(step, driver.refused("typing into ${step.target} was refused"))
-	}
-
 	/**
-	 * The driver answered false, and a refused typing can leave the field half written. A field that holds something
-	 * other than what was asked is corrupted text, which is never retried; an empty or unreadable one was simply not
-	 * typed into. A secure field is judged by its length alone, and the text of a secure field never reaches a message.
+	 * Without `replace` the text goes in after whatever the field holds, so a field that is not empty is a scenario
+	 * that does not know its start: it fails before a key is typed, and what the field would then show is not blamed
+	 * on the typing.
 	 */
-	private fun refusedTyping(step: Step.EnterText, message: String): StepResult.Failed {
-		val refused = StepResult.Failed(FailureKind.ASSERTION, message)
-		val held = driver.readText(step.q)?.takeIf { it.isNotEmpty() } ?: return refused
-		val wanted = step.expect ?: step.text
-		val entered = "${held.length} of ${wanted.length} characters went in"
-
-		return when {
-			step.secure && held.length == step.text.length -> refused
-			step.secure -> StepResult.Failed(
-				FailureKind.TYPED_TEXT_MISMATCH,
-				"$message; $entered",
-				expected = "${step.text.length} characters",
-				actual = "${held.length} characters"
-			)
-			held == wanted -> refused
-			else -> StepResult.Failed(
-				FailureKind.TYPED_TEXT_MISMATCH,
-				"$message; $entered and the field shows \"$held\" instead of \"$wanted\"",
-				expected = wanted,
-				actual = held
+	private fun requireEmptyField(step: Step.EnterText): StepResult.Failed? {
+		val held = if (step.replace) null else driver.readText(step.q)?.takeIf { it.isNotEmpty() }
+		return held?.let {
+			StepResult.Failed(
+				FailureKind.ASSERTION,
+				"the field ${step.target} was not empty before typing (it holds ${it.length} characters); nothing was typed"
 			)
 		}
 	}
 
+	private fun type(step: Step.EnterText): StepResult.Failed? {
+		val accepted = driver.typeKeys(step.q, step.text)
+		if (accepted) return null
+
+		return TypedTextFailures.refused(driver, step, driver.refused("typing into ${step.target} was refused"))
+	}
+
 	/**
-	 * The field is good when two reads in a row, [Timeouts.PollInterval] apart, show what was typed: the first
-	 * match alone would miss an echo of the keyboard that lands after it and overwrites the field. A secure field
-	 * cannot show its text, but it shows one character per typed character, so its length is what is compared.
+	 * The field is good when it shows what was typed and shows it again one [Timeouts.PollInterval] later: a first
+	 * match alone would miss an echo of the keyboard that lands after it and overwrites the field. The window
+	 * [Timeouts.TextReread] bounds the wait for the first match only; the confirming read always follows it, even
+	 * when the first match came on the last try. A secure field cannot show its text, but it shows one character per
+	 * typed character, so its length is what is compared.
 	 */
 	private fun reread(step: Step.EnterText): StepResult.Failed? {
 		val wanted = step.expect ?: step.text
 		var seen: String? = null
-		var matchesInARow = 0
-		val settled = poller.until(Timeouts.TextReread) {
+		val matched = poller.until(Timeouts.TextReread) {
 			seen = driver.readText(step.q)
-			matchesInARow = if (matches(step, seen, wanted)) matchesInARow + 1 else 0
-			matchesInARow >= CONSECUTIVE_READS
+			matches(step, seen, wanted)
 		}
-		return when {
-			settled -> null
-			seen == null -> StepResult.Failed(FailureKind.ASSERTION, "${step.target} could not be read back after typing")
-			step.secure -> StepResult.Failed(
-				FailureKind.TYPED_TEXT_MISMATCH,
-				"typed ${step.text.length} characters into ${step.target} but the field holds ${seen.orEmpty().length}",
-				expected = "${step.text.length} characters",
-				actual = "${seen.orEmpty().length} characters"
-			)
-			matches(step, seen, wanted) -> StepResult.Failed(
-				FailureKind.TYPED_TEXT_MISMATCH,
-				"the text of ${step.target} did not hold as typed: it changed between two reads",
-				expected = wanted,
-				actual = seen.orEmpty()
-			)
-			else -> StepResult.Failed(
-				FailureKind.TYPED_TEXT_MISMATCH,
-				"typed \"$wanted\" into ${step.target} but the field shows \"$seen\"",
-				expected = wanted,
-				actual = seen.orEmpty()
-			)
-		}
+		if (!matched) return TypedTextFailures.unmatched(step, seen, wanted)
+
+		driver.pause(Timeouts.PollInterval)
+		val confirmed = driver.readText(step.q)
+		return if (matches(step, confirmed, wanted)) null else TypedTextFailures.unheld(step, confirmed, wanted)
 	}
 
 	private fun matches(step: Step.EnterText, read: String?, wanted: String): Boolean =
 		if (step.secure) read?.length == step.text.length else read == wanted
-
-	private companion object {
-		const val CONSECUTIVE_READS = 2
-	}
 }

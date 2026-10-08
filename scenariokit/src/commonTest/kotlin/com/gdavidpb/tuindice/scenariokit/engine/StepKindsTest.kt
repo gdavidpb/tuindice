@@ -170,16 +170,81 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun enterText_whenTheDriverRefusesAfterPartOfTheText_isATypedTextMismatchWithHowManyWentIn() {
+	fun enterText_whenTheDriverStopsAfterTheBeginningOfTheText_isADriverErrorWithHowManyWentIn() {
 		val fake = driver(field to FakeElement(text = ""))
 		fake.typing = { it.take(3) }
+		fake.keysAccepted = false
+		fake.stopReason = "the system took 6 of 14 key events"
+
+		val failure = assertFailed(fake.run(enter("abcdefg")), FailureKind.DRIVER_ERROR, stepIndex = 0)
+
+		assertContains(failure.message, "the driver stopped after 3 of 7 characters: the system took 6 of 14 key events")
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesAndTheFieldHoldsOtherCharacters_isATypedTextMismatch() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "ab" + "v" }
 		fake.keysAccepted = false
 
 		val failure = assertFailed(fake.run(enter("abcdefg")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
 
-		assertContains(failure.message, "3 of 7 characters went in")
-		assertEquals("abcdefg", failure.expected)
-		assertEquals("abc", failure.actual)
+		assertEquals("abv", failure.actual)
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesAndTheFieldHoldsMoreThanWasAsked_isATypedTextMismatch() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { it + "v" }
+		fake.keysAccepted = false
+
+		assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesBeforeAnyKeyAndTheFieldChanged_isADriverErrorNotACorruptedText() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "v" }
+		fake.keysAccepted = false
+		fake.injectedOverride = 0
+		fake.stopReason = "the focus touch changed the field"
+
+		val failure = assertFailed(fake.run(enter("123456", secure = false)), FailureKind.DRIVER_ERROR, stepIndex = 0)
+
+		assertContains(failure.message, "no key was injected")
+		assertContains(failure.message, "the focus touch changed the field")
+	}
+
+	@Test
+	fun enterText_whenTheDriverStopsWithASystemDialogInFront_staysAnAssertionForTheRefiner() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { it.take(3) }
+		fake.keysAccepted = false
+		fake.dialog = "Allow notifications"
+
+		val failure = assertFailed(fake.run(enter("abcdefg")), FailureKind.SYSTEM_DIALOG, stepIndex = 0)
+
+		assertContains(failure.message, "Allow notifications")
+	}
+
+	@Test
+	fun enterText_whenTheDriverStopsWithTheAppOutOfTheForeground_becomesAppNotRunning() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { it.take(3) }
+		fake.keysAccepted = false
+		fake.inForeground = false
+
+		assertFailed(fake.run(enter("abcdefg")), FailureKind.APP_NOT_RUNNING, stepIndex = 0)
+	}
+
+	@Test
+	fun enterText_withoutReplace_onAFieldThatIsNotEmpty_failsWithoutTyping() {
+		val fake = driver(field to FakeElement(text = "old"))
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.ASSERTION, stepIndex = 0)
+
+		assertContains(failure.message, "was not empty before typing")
+		assertTrue("typeKeys" !in fake.calls)
 	}
 
 	@Test
@@ -194,15 +259,24 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun enterText_whenTheDriverRefusesASecureFieldPartway_countsTheCharactersThatWentIn() {
+	fun enterText_whenTheDriverStopsAPasswordPartway_isADriverErrorThatCountsTheCharactersWithoutTheText() {
 		val fake = driver(field to FakeElement(text = ""))
 		fake.typing = { "•".repeat(4) }
 		fake.keysAccepted = false
 
-		val failure = assertFailed(fake.run(enter("secret", secure = true)), FailureKind.TYPED_TEXT_MISMATCH)
+		val failure = assertFailed(fake.run(enter("secret", secure = true)), FailureKind.DRIVER_ERROR)
 
-		assertContains(failure.message, "4 of 6 characters went in")
+		assertContains(failure.message, "stopped after 4 of 6 characters")
 		assertTrue("secret" !in failure.message)
+	}
+
+	@Test
+	fun enterText_whenTheDriverRefusesAPasswordAndTheFieldHoldsMoreCharacters_isATypedTextMismatch() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "•".repeat(it.length + 1) }
+		fake.keysAccepted = false
+
+		assertFailed(fake.run(enter("secret", secure = true)), FailureKind.TYPED_TEXT_MISMATCH)
 	}
 
 	@Test
@@ -214,9 +288,32 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun enterText_acceptsAFirstMatchThatComesOnTheLastTryWhenTheConfirmingReadAgrees() {
+		val fake = driver(field to FakeElement(text = ""))
+		// 16 tries fit in the 3 s window at 200 ms: the first match is the 16th, and the confirmation follows it.
+		fake.screen.getValue(field).scriptedReads = MutableList<String?>(16) { "" }.apply { add("abc") }
+
+		assertPassed(fake.run(enter("abc")))
+	}
+
+	@Test
+	fun enterText_failsWhenTheFirstMatchComesOnTheLastTryAndTheConfirmingReadDiffers() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.screen.getValue(field).scriptedReads = MutableList<String?>(16) { "" }.apply {
+			add("abc")
+			add("abd")
+		}
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+
+		assertContains(failure.message, "changed between two reads")
+		assertEquals("abd", failure.actual)
+	}
+
+	@Test
 	fun enterText_doesNotAcceptATextThatChangesRightAfterItMatched() {
 		val fake = driver(field to FakeElement(text = ""))
-		fake.screen.getValue(field).scriptedReads = mutableListOf("abc", "abd")
+		fake.screen.getValue(field).scriptedReads = mutableListOf("", "abc", "abd")
 
 		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
 
@@ -226,8 +323,8 @@ class StepKindsTest {
 	@Test
 	fun enterText_whenTheTextFlipsBetweenReads_failsSayingItDidNotHold() {
 		val fake = driver(field to FakeElement(text = ""))
-		// 16 reads fit in the 3 s window at 200 ms; the last one matches, but it is not preceded by a match.
-		fake.screen.getValue(field).scriptedReads = MutableList(16) { if (it % 2 == 0) "abd" else "abc" }
+		// The text flips: it matches once and the confirming read does not.
+		fake.screen.getValue(field).scriptedReads = mutableListOf("", "abd", "abc", "abd", "abc")
 
 		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH)
 
@@ -359,11 +456,42 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun waitAnyVisible_passesWithAnyOfTheQueriesAndFailsWithNone() {
-		val other = Query.Tag("other")
+	fun waitBackgrounded_passesOnceTheAppHasStayedOutOfTheForeground() {
+		val fake = driver()
+		fake.inForeground = false
 
-		assertPassed(driver(other to FakeElement()).run(Step.WaitAnyVisible(listOf(button, other), 1_000)))
-		assertFailed(driver().run(Step.WaitAnyVisible(listOf(button, other), 1_000)), FailureKind.STEP_TIMEOUT)
+		assertPassed(fake.run(Step.WaitBackgrounded(2_000)))
+	}
+
+	@Test
+	fun waitBackgrounded_failsWhileTheAppKeepsTheFront() {
+		assertFailed(driver().run(Step.WaitBackgrounded(1_000)), FailureKind.STEP_TIMEOUT)
+	}
+
+	@Test
+	fun waitBackgrounded_doesNotCountAForegroundThatFlickers() {
+		val fake = driver()
+		var reads = 0
+		fake.foregroundScript = { reads++ % 2 == 0 }
+
+		assertFailed(fake.run(Step.WaitBackgrounded(2_000)), FailureKind.STEP_TIMEOUT)
+	}
+
+	@Test
+	fun assertChecked_checksTheCheckedStateInBothDirections() {
+		val on = driver(button to FakeElement(checked = true))
+		val off = driver(button to FakeElement(checked = false))
+
+		assertPassed(on.run(Step.AssertChecked(button, true, 1_000)))
+		assertPassed(off.run(Step.AssertChecked(button, false, 1_000)))
+		assertFailed(on.run(Step.AssertChecked(button, false, 1_000)), FailureKind.STEP_TIMEOUT)
+		assertFailed(off.run(Step.AssertChecked(button, true, 1_000)), FailureKind.STEP_TIMEOUT)
+	}
+
+	@Test
+	fun assertChecked_neverPassesForAnElementThatIsNotACheckbox() {
+		assertFailed(driver(button to FakeElement()).run(Step.AssertChecked(button, false, 1_000)), FailureKind.STEP_TIMEOUT)
+		assertFailed(driver().run(Step.AssertChecked(button, true, 1_000)), FailureKind.STEP_TIMEOUT)
 	}
 
 	@Test

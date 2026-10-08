@@ -64,16 +64,19 @@ end
 # a place in the sources phase, every header only a reference. A file that is already referenced is left alone.
 group = project.main_group.children.find { |g| g.display_name == 'UITests' } or abort('missing UITests group')
 referenced = group.files.map(&:path)
+added_files = false
 Dir[File.join(root, 'UITests', '*.{swift,m,h}')].sort.each do |file|
 	name = File.basename(file)
 	next if referenced.include?(name)
 
 	reference = group.new_file(name)
 	ui.add_file_references([reference]) unless name.end_with?('.h')
+	added_files = true
 	puts "Added #{name} to the UITests group."
 end
 
-project.save
+# Saving rewrites the whole project file in the form Xcodeproj gives it: only do it when something was added.
+project.save if added_files
 
 scheme_path = File.join(Xcodeproj::XCScheme.shared_data_dir(project.path), "#{TARGET_NAME}.xcscheme")
 if File.exist?(scheme_path)

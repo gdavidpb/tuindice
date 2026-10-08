@@ -35,6 +35,8 @@ internal class ElementProber(private val session: DeviceSession) : ElementProbe 
 
 	override fun readText(q: Query): String? = attempt(q) { it.text }
 
+	override fun isChecked(q: Query): Boolean? = attempt(q) { if (it.isCheckable) it.isChecked else null }
+
 	override fun bounds(q: Query?): ElementBounds? {
 		val rect = if (q == null) screen() else attempt(q) { it.visibleBounds }
 

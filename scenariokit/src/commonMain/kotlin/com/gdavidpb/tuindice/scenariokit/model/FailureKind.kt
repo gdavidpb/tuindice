@@ -11,10 +11,10 @@ package com.gdavidpb.tuindice.scenariokit.model
  *    the route saw -> [TYPED_TEXT_MISMATCH];
  * 4. any other failed step while the driver reports a system dialog in front ->
  *    [SYSTEM_DIALOG]; or while the app is not in the foreground although the step
- *    needs it (not `Relaunch`, `Foreground`, `ExpectRequest` or a system query) ->
+ *    needs it (not `Relaunch`, `Foreground`, `WaitBackgrounded`, `ExpectRequest` or a system query) ->
  *    [APP_NOT_RUNNING] (also a failed launch or foreground);
  * 5. a step that waited for its own target and the target never came (visible, gone,
- *    enabled, settled, scrolled into view, request received) -> [STEP_TIMEOUT];
+ *    enabled, checked, backgrounded, scrolled into view, request received) -> [STEP_TIMEOUT];
  * 6. everything else (disabled tap, a gesture the driver refused) -> [ASSERTION].
  */
 enum class FailureKind {

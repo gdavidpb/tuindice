@@ -29,7 +29,8 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.SubmitTextEntry(site),
 	Step.WaitVisible(tag, 5_000, site),
 	Step.WaitGone(Query.System("Cancel"), 5_000, site),
-	Step.WaitAnyVisible(listOf(tag, Query.Text("Ok")), 5_000, site),
+	Step.WaitBackgrounded(5_000, site),
+	Step.AssertChecked(tag, true, 5_000, site),
 	Step.AssertEnabled(tag, false, 5_000, site),
 	Step.Swipe(null, 0.5, 0.8, 0.0, -0.4, 400, site),
 	Step.ScrollUntilVisible(tag, Scroll.ContentDown, 20_000, site),
@@ -69,6 +70,8 @@ fun sampleCatalog(scenarios: List<Scenario> = listOf(sampleScenario())) = Scenar
 		absentTag = "absent",
 		disabledTag = "disabled",
 		textFieldTag = "field",
+		secureFieldTag = "secret",
+		secureSample = "abcdefghijklmnopqrstuvwxyz0123",
 		textSample = "ab1",
 		expectedText = "ab1"
 	)

@@ -46,39 +46,51 @@ internal class DeviceSession {
 	}
 
 	/**
-	 * Visible bounds of [q] once they read the same [STABLE_READS] times in a row, so a touch lands where the
-	 * element is and not where it was before the layout moved (the keyboard opening, a sheet settling).
-	 * Null when [q] is not on screen or its bounds keep changing for [SETTLE_TIMEOUT_MS]; in both cases the
-	 * reason is written to the driver log and the gesture is refused. Every gesture that aims at an element
-	 * (tap, tapAt, doubleTap, swipe, typeKeys) takes its point from here.
+	 * Visible bounds of [q] once they read the same [STABLE_READS] times in a row, [SETTLE_POLL_MS] apart (the rule
+	 * of the iOS driver: three equal reads, at most [MAX_READS] reads or [SETTLE_TIMEOUT_MS]), so a touch lands where
+	 * the element is and not where it was before the layout moved (the keyboard opening, a sheet settling).
+	 * Null when [q] is not on screen or its bounds never settle; in both cases the reason is written to the driver
+	 * log and the gesture is refused. Every gesture that aims at an element (tap, tapAt, doubleTap, swipe) takes its
+	 * point from here. When the bounds moved while they were watched, or the gesture is refused, the reads and their
+	 * times are written to the driver log, which is how the staleness of the reads is measured.
 	 */
 	fun settledBounds(q: Query): Rect? {
-		val deadline = SystemClock.uptimeMillis() + SETTLE_TIMEOUT_MS
+		val began = SystemClock.uptimeMillis()
+		val reads = mutableListOf<Pair<Long, Rect?>>()
 		var last = visibleBounds(q)
+		reads += 0L to last
 		var equalReads = 1
 
-		while (last != null && equalReads < STABLE_READS && SystemClock.uptimeMillis() < deadline) {
+		while (last != null && equalReads < STABLE_READS && withinBudget(reads.size, began)) {
 			SystemClock.sleep(SETTLE_POLL_MS)
 			val now = visibleBounds(q)
+			reads += (SystemClock.uptimeMillis() - began) to now
 			equalReads = if (now == last) equalReads + 1 else 1
 			last = now
 		}
 
+		val settled = last != null && equalReads >= STABLE_READS
 		when {
 			last == null -> log.refuse("$q: not on screen when the gesture was about to be made; gesture refused")
-			equalReads < STABLE_READS ->
-				log.refuse("$q: bounds still moving after $SETTLE_TIMEOUT_MS ms (last $last); gesture refused")
+			!settled -> log.refuse("$q: bounds still moving after ${reads.size} reads (last $last); gesture refused")
+		}
+		if (reads.map { it.second }.distinct().size > 1 || !settled) {
+			log.write("settledBounds $q: ${reads.joinToString { (at, bounds) -> "+${at}ms $bounds" }}")
 		}
 
-		return last.takeIf { equalReads >= STABLE_READS }
+		return last.takeIf { settled }
 	}
+
+	private fun withinBudget(reads: Int, since: Long) =
+		reads < MAX_READS && SystemClock.uptimeMillis() - since < SETTLE_TIMEOUT_MS
 
 	private fun visibleBounds(q: Query): Rect? = selectors.find(q)?.let { runCatching { it.visibleBounds }.getOrNull() }
 
 	private companion object {
 		const val POLL_MS = 100L
-		const val SETTLE_POLL_MS = 50L
-		const val SETTLE_TIMEOUT_MS = 5_000L
+		const val SETTLE_POLL_MS = 100L
+		const val SETTLE_TIMEOUT_MS = 8_000L
+		const val MAX_READS = 20
 		const val STABLE_READS = 3
 	}
 }

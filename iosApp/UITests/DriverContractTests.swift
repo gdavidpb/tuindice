@@ -6,6 +6,10 @@ import ScenarioKit
 final class DriverContractTests: ScenarioTestCase {
     func test_driver_contract() {
         let config = RunConfig.shared
+        // Like a scenario: the log is on disk line by line, so a contract run that hangs still leaves its `driver.log`.
+        if let outputDir = config.outputDir {
+            driverLog.open(at: URL(fileURLWithPath: outputDir).appendingPathComponent("driver-contract").appendingPathComponent("driver.log"))
+        }
         let driver = XCUIScenarioDriver(config: config, log: driverLog)
         let outcome = ScenarioRunner.shared.driverContract(catalogJson: config.catalogJson, driver: driver)
         report(outcome, driver: driver)

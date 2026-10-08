@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.scenariokit.contract
 import com.gdavidpb.tuindice.scenariokit.codec.CatalogCodec
 import com.gdavidpb.tuindice.scenariokit.codec.sampleCatalog
 import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
+import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
 import com.gdavidpb.tuindice.scenariokit.engine.FakeDriver
 import com.gdavidpb.tuindice.scenariokit.engine.FakeElement
 import com.gdavidpb.tuindice.scenariokit.engine.ScenarioRunner
@@ -21,6 +22,7 @@ class DriverContractTest {
 		screen[Query.Tag("present")] = FakeElement()
 		screen[Query.Tag("disabled")] = FakeElement(enabled = false)
 		screen[Query.Tag("field")] = FakeElement(text = "")
+		screen[Query.Tag("secret")] = FakeElement(text = "")
 	}
 
 	private fun contract(driver: ScenarioDriver, fake: FakeDriver) = ScenarioRunner.driverContractWith(
@@ -39,7 +41,9 @@ class DriverContractTest {
 		assertEquals(
 			listOf(
 				"launch", "present-element", "absent-element", "absent-wait-timing", "gone-wait-on-present",
-				"disabled-element", "text-entry", "foreground", "backend", "terminated-app"
+				"gone-wait-on-absent", "refusals-carry-a-reason", "disabled-element", "text-entry", "positive-gestures",
+				"long-secure-typing", "keyboard-guard", "submit-text-entry", "foreground", "backend", "back",
+				"terminated-app"
 			),
 			outcome.steps.map { it.primitive }
 		)
@@ -105,8 +109,92 @@ class DriverContractTest {
 		assertEquals("text-entry", failure.primitive)
 	}
 
+	@Test
+	fun aDriverThatLetsATouchThroughTheKeyboard_failsTheKeyboardGuardProbe() {
+		val fake = conformant()
+		val careless = object : ScenarioDriver by fake {
+			override fun tapAt(q: Query?, fx: Double, fy: Double) = true
+		}
+
+		val failure = assertNotNull(contract(careless, fake).failure)
+
+		assertContains(failure.message, "keyboard-guard: tapAt on the keyboard returned true")
+	}
+
+	@Test
+	fun aDriverThatSwipesFromTheKeyboard_failsTheKeyboardGuardProbe() {
+		val fake = conformant()
+		val careless = object : ScenarioDriver by fake {
+			override fun swipe(from: Query?, vector: SwipeVector, durationMs: Long) = true
+		}
+
+		val failure = assertNotNull(contract(careless, fake).failure)
+
+		assertContains(failure.message, "keyboard-guard: a swipe that starts on the keyboard returned true")
+	}
+
+	@Test
+	fun aDriverThatRefusesWithoutAReason_failsTheReasonProbe() {
+		val fake = conformant()
+		val mute = object : ScenarioDriver by fake {
+			override fun lastRefusal(): String? = null
+		}
+
+		val failure = assertNotNull(contract(mute, fake).failure)
+
+		assertContains(failure.message, "refusals-carry-a-reason: tap refused absent without a reason")
+	}
+
+	@Test
+	fun aDriverWhoseWaitGoneNeverSeesAnAbsentElement_failsTheGoneProbe() {
+		val fake = conformant()
+		val blind = object : ScenarioDriver by fake {
+			override fun waitGone(q: Query, timeoutMs: Long) = false
+		}
+
+		val failures = assertNotNull(contract(blind, fake).failure).message
+
+		assertContains(failures, "gone-wait-on-absent: waitGone returned false for absent")
+	}
+
+	@Test
+	fun aDriverWhoseGesturesNeverWork_failsThePositiveProbe() {
+		val fake = conformant()
+		val dead = object : ScenarioDriver by fake {
+			override fun tap(q: Query) = false
+		}
+
+		val failure = assertNotNull(contract(dead, fake).failure)
+
+		assertContains(failure.message, "positive-gestures: tap returned false for the text field")
+	}
+
+	@Test
+	fun aDriverThatDropsAKeyOfALongRun_failsTheLongTypingProbe() {
+		val fake = conformant().apply { typing = { if (it.length > 25) it.dropLast(1) else it } }
+
+		val failure = assertNotNull(contract(fake, fake).failure)
+
+		assertContains(failure.message, "long-secure-typing: typeKeys of 30 characters left 29")
+	}
+
+	@Test
+	fun aDriverWithoutSubmitOrBack_failsThoseProbes() {
+		val fake = conformant().apply {
+			submitResult = false
+			backResult = false
+		}
+
+		val failure = assertNotNull(contract(fake, fake).failure)
+
+		assertContains(failure.message, "submit-text-entry: submitTextEntry answered false")
+		assertContains(failure.message, "back: pressBack answered false on Android")
+	}
+
 	private fun masked(fake: FakeDriver) = object : ScenarioDriver by fake {
-		override fun readText(q: Query) = fake.readText(q)?.let { if (it.length > 2) it.take(2) + "-" + it.drop(2) else it }
+		override fun readText(q: Query) = fake.readText(q)?.let {
+			if (q == Query.Tag("field") && it.length > 2) it.take(2) + "-" + it.drop(2) else it
+		}
 	}
 
 	private fun maskedCatalog(expected: String) = CatalogCodec.encode(
@@ -146,10 +234,13 @@ class DriverContractTest {
 
 		val outcome = contract(impatient, fake)
 
-		assertEquals(10, outcome.steps.size)
+		assertEquals(17, outcome.steps.size)
 		val failed = outcome.steps.filter { it.outcome.wire == "failed" }.map { it.primitive }
-		assertEquals(listOf("absent-element", "text-entry", "terminated-app"), failed)
-		assertContains(outcome.report, "3 of 10 checks")
+		assertEquals(
+			listOf("absent-element", "refusals-carry-a-reason", "text-entry", "long-secure-typing", "terminated-app"),
+			failed
+		)
+		assertContains(outcome.report, "5 of 17 checks")
 		assertContains(assertNotNull(outcome.failure).message, "text-entry:")
 	}
 

@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.scenariokit.contract.DriverContractFixture
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 
 /**
- * The sign-in screen of a clean launch: a visible container, a disabled button and
- * the USB-ID field, which masks digits as `NN-NNNNN`.
+ * The sign-in screen of a clean launch: a visible container, a disabled button, the USB-ID field, which masks digits
+ * as `NN-NNNNN`, and the password field, which is secure.
  */
 object E2eContractFixture {
 	const val ABSENT_TAG = "driver_contract_never_present"
@@ -17,7 +17,10 @@ object E2eContractFixture {
 		absentTag = ABSENT_TAG,
 		disabledTag = AuthUiTags.SignInButton,
 		textFieldTag = AuthUiTags.UsbIdTextField,
-		textSample = "1234567",
-		expectedText = "12-34567"
+		secureFieldTag = AuthUiTags.PasswordTextField,
+		secureSample = "abcdefghijklmnopqrstuvwxyz0123",
+		// Not the placeholder of the field ("12-34567"), which a driver that read it instead of the text would match.
+		textSample = "7654321",
+		expectedText = "76-54321"
 	)
 }

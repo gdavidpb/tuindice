@@ -36,7 +36,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func launch(spec: LaunchSpec) -> Bool { traced("launch") { launchApp(spec) } }
 
     private func launchApp(_ spec: LaunchSpec) -> Bool {
-        app.terminate()
+        guard guarded("terminate before launch", log: log, { app.terminate() }) else { return false }
 
         var environment = spec.arguments
         environment[LaunchKeys.apiBaseUrl] = config.apiBaseUrl
@@ -49,15 +49,18 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func foreground() -> Bool {
         traced("foreground") {
-            guard resolver.isAppRunning else { return false }
-            app.activate()
-            return app.wait(for: .runningForeground, timeout: Self.launchTimeout)
+            log.clearRefusal()
+            guard resolver.isAppRunning else { return refuse("foreground: the app is not running (state \(app.state.rawValue)); it is not started again") }
+            guard guarded("activate", log: log, { app.activate() }) else { return false }
+            let front = app.wait(for: .runningForeground, timeout: Self.launchTimeout)
+            if !front { log.refuse("[driver] foreground: the app was not in the foreground \(Self.launchTimeout) s after activate") }
+            return front
         }
     }
 
     func isForeground() -> Bool { traced("isForeground") { app.state == .runningForeground } }
 
-    func terminate() { traced("terminate") { app.terminate() } }
+    func terminate() { traced("terminate") { _ = guarded("terminate", log: log) { app.terminate() } } }
 
     // MARK: ElementProbe
 
@@ -66,7 +69,11 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func waitGone(q: Query, timeoutMs: Int64) -> Bool {
-        traced("waitGone") { poll(timeoutMs: timeoutMs) { resolver.isAbsent(q) } }
+        traced("waitGone") {
+            let gone = poll(timeoutMs: timeoutMs) { resolver.isAbsent(q) }
+            if !gone { log.add("[driver] waitGone \(q): not gone after \(timeoutMs) ms (app state \(app.state.rawValue))") }
+            return gone
+        }
     }
 
     func isVisible(q: Query) -> Bool { traced("isVisible") { resolver.visibleFacts(q) != nil } }
@@ -78,6 +85,17 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
             guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
             if facts.isTextInput { return facts.typedText }
             return facts.value ?? facts.label
+        }
+    }
+
+    func isChecked(q: Query) -> KotlinBoolean? {
+        traced("isChecked") {
+            guard let (_, facts) = resolver.visibleFacts(q), let value = facts.value?.lowercased() else { return nil }
+            switch value {
+            case "1", "true", "on", "checked": return KotlinBoolean(bool: true)
+            case "0", "false", "off", "unchecked": return KotlinBoolean(bool: false)
+            default: return nil
+            }
         }
     }
 
@@ -139,6 +157,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
             x: min(max(start.x + screen.width * vector.dx, Self.edgeMargin), screen.width - Self.edgeMargin),
             y: min(max(start.y + screen.height * vector.dy, Self.edgeMargin), screen.height - Self.edgeMargin)
         )
+        guard !coveredByKeyboard(start, gesture: "swipe from \(from.map { "\($0)" } ?? "the screen")") else { return false }
         let seconds = max(Double(durationMs) / 1000.0, 0.05)
         let distance = hypot(end.x - start.x, end.y - start.y)
         let velocity = XCUIGestureVelocity(CGFloat(distance / seconds))
@@ -162,6 +181,8 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     // MARK: TextEntry
+
+    func keysInjected() -> Int32 { Int32(typing.injected) }
 
     func typeKeys(q: Query, text: String) -> Bool {
         traced("typeKeys") {
@@ -205,10 +226,13 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func captureFailure(scenarioId: String, stepIndex: Int32) {
-        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        screenshot.name = "\(scenarioId)-step\(stepIndex)-screenshot"
-        screenshot.lifetime = .keepAlways
-        failureAttachments.append(screenshot)
+        var image: XCUIScreenshot?
+        if guarded("screenshot", log: log, { image = XCUIScreen.main.screenshot() }), let image {
+            let screenshot = XCTAttachment(screenshot: image)
+            screenshot.name = "\(scenarioId)-step\(stepIndex)-screenshot"
+            screenshot.lifetime = .keepAlways
+            failureAttachments.append(screenshot)
+        }
 
         let hierarchy = XCTAttachment(string: resolver.isAppRunning ? app.debugDescription : "the app is not running")
         hierarchy.name = "\(scenarioId)-step\(stepIndex)-hierarchy"
@@ -252,7 +276,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     /// Whether the keyboard on screen covers [point]: a tap there would press a key and put a character in the field that has
     /// the focus. Says so in the driver log. (A key of the keyboard itself is not tapped through here: the driver's own paths
-    /// to it, `typeText` and the action key of `finishTextEntry`, do not use a point of the screen.)
+    /// to it, `typeText` and the action key of `submitTextEntry`, do not use a point of the screen.)
     private func coveredByKeyboard(_ point: CGPoint, gesture: String) -> Bool {
         guard let keyboard = resolver.keyboardFrame, keyboard.contains(point) else { return false }
         log.refuse("[driver] \(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")

@@ -9,9 +9,10 @@ import org.junit.Test
 
 /**
  * What the Android driver must do under the conditions the audit found, probed on the device. The app is driven
- * from its login screen (the contract fixture), so it must start cleared. The harness never runs this class (it
- * filters on the scenario suite): run it with `am instrument -w -e class <this class>`. Each probe is red without
- * the fix it names. Typing probes are in [AndroidTypingProbesTest].
+ * from its login screen (the contract fixture), so it must start cleared. The `driver-contract` verb of the harness
+ * runs this class after the contract; by hand, `am instrument -w -e class <this class>`. Each probe names the
+ * finding it guards; the ones that were red without their fix say so in their own KDoc. Typing probes are in
+ * [AndroidTypingProbesTest].
  */
 class AndroidDriverProbesTest {
 	private val app = ProbeApp()
@@ -42,6 +43,7 @@ class AndroidDriverProbesTest {
 		assertTrue(driver.session.poll(LONG_MS) { driver.readText(app.usbId) == app.fixture.expectedText })
 		assertTrue(driver.clearText(app.usbId))
 		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
+		assertTrue("the label is on screen, so refusing it proves something", driver.isVisible(app.label))
 		assertFalse("a label keeps its text", driver.clearText(app.label))
 		assertFalse("an absent field cannot be cleared", driver.clearText(app.never))
 	}

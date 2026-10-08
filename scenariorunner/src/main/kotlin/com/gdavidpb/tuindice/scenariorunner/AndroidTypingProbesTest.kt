@@ -17,6 +17,10 @@ class AndroidTypingProbesTest {
 
 		assertTrue(driver.typeKeys(app.password, ProbeApp.PASSWORD_SAMPLE))
 		assertTrue(
+			"the field holds all 30 characters",
+			driver.session.poll(READ_MS) { driver.readText(app.password)?.length == ProbeApp.SAMPLE_LENGTH }
+		)
+		assertTrue(
 			app.log("long-typing")
 				.contains("${ProbeApp.SAMPLE_EVENTS} of ${ProbeApp.SAMPLE_EVENTS} key events injected for 30 characters")
 		)

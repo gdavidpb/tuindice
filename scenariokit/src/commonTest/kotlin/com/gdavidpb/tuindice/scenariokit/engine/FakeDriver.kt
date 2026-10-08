@@ -31,6 +31,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var launchResults = ArrayDeque<Boolean>()
 	var foregroundResult = true
 	var inForeground = true
+
+	/** When set, `isForeground` answers what it returns on each call instead of [inForeground]. */
+	var foregroundScript: (() -> Boolean)? = null
 	var dialog: String? = null
 	var backResult = true
 	var swipeResult = true
@@ -42,7 +45,20 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	/** False makes `typeKeys` answer false after writing what [typing] makes of the text, like a refused injection. */
 	var keysAccepted = true
+
+	/** The reason `lastRefusal` gives when [refusal] is not set: why `typeKeys` stopped, with the keys it typed in. */
+	var stopReason: String? = null
+
+	/** What `keysInjected` answers; null means as many as the text has characters (zero when nothing was typed). */
+	var injectedOverride: Int? = null
+	private var injected = 0
 	var terminated = false
+
+	/** Why the last gesture or text call answered false on its own (the element was not on screen). */
+	private var reason: String? = null
+
+	/** Set by a successful `typeKeys`: the keyboard is up, and a touch that starts on it is refused. */
+	var keyboardOpen = false
 	var throwOn: String? = null
 	var logThrows = false
 	var launchTakesMs = 0L
@@ -79,7 +95,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun isForeground(): Boolean {
 		enter("isForeground")
-		return inForeground && !terminated
+		return (foregroundScript?.invoke() ?: inForeground) && !terminated
 	}
 
 	override fun waitVisible(q: Query, timeoutMs: Long): Boolean {
@@ -132,6 +148,11 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		}
 	}
 
+	override fun isChecked(q: Query): Boolean? {
+		enter("isChecked")
+		return element(q)?.takeIf { shown(q) }?.checked
+	}
+
 	override fun bounds(q: Query?): ElementBounds? {
 		enter("bounds")
 		return if (q == null) SCREEN else if (shown(q)) element(q)?.takeIf { !it.unreadableBounds }?.let(::drifted) else null
@@ -143,48 +164,72 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		return current
 	}
 
+	/** Starts a gesture: forgets the last reason and answers whether [q] can be aimed at. */
+	private fun aim(q: Query?, what: String): Boolean {
+		reason = null
+		val reachable = (q == null || shown(q)) && refusal == null
+		if (!reachable) reason = "$what: ${q ?: "the screen"} is not on screen; gesture refused"
+		return reachable
+	}
+
+	private fun underKeyboard(fy: Double, what: String): Boolean {
+		val covered = keyboardOpen && fy >= KEYBOARD_TOP
+		if (covered) reason = "$what starts inside the on-screen keyboard; touch refused"
+		return covered
+	}
+
 	override fun tap(q: Query): Boolean {
 		enter("tap")
 		taps += q
-		val reachable = shown(q) && refusal == null
+		val reachable = aim(q, "tap")
 		if (reachable) onTap[q]?.invoke()
 		return reachable
 	}
 
 	override fun tapAt(q: Query?, fx: Double, fy: Double): Boolean {
 		enter("tapAt")
-		return (q == null || shown(q)) && refusal == null
+		return aim(q, "tapAt") && !underKeyboard(fy, "tapAt")
 	}
 
 	override fun doubleTap(q: Query): Boolean {
 		enter("doubleTap")
-		return shown(q) && refusal == null
+		return aim(q, "doubleTap")
 	}
 
 	override fun swipe(from: Query?, vector: SwipeVector, durationMs: Long): Boolean {
 		enter("swipe")
-		val startsOffScreen = from != null && !shown(from)
-		if (!swipeResult || refusal != null || startsOffScreen) return false
-		swipes++
-		onSwipe(swipes)
-		return true
+		val allowed = aim(from, "swipe") && !underKeyboard(vector.fy, "swipe") && swipeResult
+		if (allowed) {
+			swipes++
+			onSwipe(swipes)
+		}
+		return allowed
 	}
 
 	override fun pressBack(): Boolean {
 		enter("pressBack")
-		return backResult && refusal == null
+		reason = if (platform == Platform.Ios) "pressBack: iOS has no system back action" else null
+		return backResult && refusal == null && platform == Platform.Android
 	}
 
 	override fun typeKeys(q: Query, text: String): Boolean {
 		enter("typeKeys")
-		val el = element(q)?.takeIf { refusal == null && !terminated }
+		reason = null
+		val el = element(q)?.takeIf { refusal == null && !terminated && shown(q) }
+		if (el == null) reason = "typeKeys $q: the field is not on screen"
+		keyboardOpen = keyboardOpen || el != null
 		el?.let { it.text = typing(it.text.orEmpty() + text) }
+		injected = if (el == null) 0 else text.length
 		return el != null && keysAccepted
 	}
 
+	override fun keysInjected(): Int = injectedOverride ?: injected
+
 	override fun clearText(q: Query): Boolean {
 		enter("clearText")
-		val el = element(q)?.takeIf { refusal == null }
+		reason = null
+		val el = element(q)?.takeIf { refusal == null && shown(q) }
+		if (el == null) reason = "clearText $q: the field is not on screen"
 		el?.text = ""
 		return el != null
 	}
@@ -194,7 +239,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		return submitResult && refusal == null
 	}
 
-	override fun lastRefusal(): String? = refusal
+	override fun lastRefusal(): String? = refusal ?: stopReason ?: reason
 
 	override fun http(method: String, path: String, body: String?, authorization: String?): HttpReply {
 		enter("http($method $path)")
@@ -222,6 +267,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	}
 
 	private companion object {
+		const val KEYBOARD_TOP = 0.6
 		val SCREEN = ElementBounds(0.0, 0.0, 1000.0, 2000.0)
 	}
 }

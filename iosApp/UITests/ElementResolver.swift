@@ -19,6 +19,8 @@ struct ElementFacts {
     let isEnabled: Bool
     let value: String?
     let label: String
+    /// Whether the element holds the focus (for a text field on iOS: the keyboard focus).
+    let hasFocus: Bool
 
     var isTextInput: Bool {
         type == .textField || type == .secureTextField || type == .textView || type == .searchField
@@ -114,12 +116,24 @@ final class ElementResolver {
     /// text counts only while the app is in the foreground (its tree stays readable behind Safari or a system sheet, and
     /// then it is not what the user sees); a system query may belong to SpringBoard.
     func lookup(_ q: Query) -> (ResolvedElement, ElementFacts)? {
+        if case let .found(resolved, facts) = lookupOutcome(q) { return (resolved, facts) }
+        return nil
+    }
+
+    /// What one look for [q] found: the element, nothing, or an element that exists but could not be read.
+    enum LookupOutcome {
+        case found(ResolvedElement, ElementFacts)
+        case absent
+        case unreadable
+    }
+
+    func lookupOutcome(_ q: Query) -> LookupOutcome {
         if let tag = q as? QueryTag {
-            guard isAppInForeground else { return nil }
+            guard isAppInForeground else { return .absent }
             return firstReadable(in: [app]) { $0.descendants(matching: .any).matching(identifier: tag.value).firstMatch }
         }
         if let text = q as? QueryText {
-            guard isAppInForeground else { return nil }
+            guard isAppInForeground else { return .absent }
             let operatorName = text.contains ? "CONTAINS" : "=="
             let predicate = NSPredicate(
                 format: "label \(operatorName) %@ OR value \(operatorName) %@ OR title \(operatorName) %@",
@@ -131,7 +145,7 @@ final class ElementResolver {
             let predicate = NSPredicate(format: "label == %@ OR identifier == %@", system.value, system.value)
             return firstReadable(in: [app, springboard]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
         }
-        return nil
+        return .absent
     }
 
     /// On screen: it exists, has a non-empty frame and that frame meets the screen.
@@ -146,11 +160,15 @@ final class ElementResolver {
     /// prove nothing, and the caller keeps polling.
     func isAbsent(_ q: Query) -> Bool {
         guard isAppInForeground else { return false }
-        if let (_, facts) = lookup(q) {
+        switch lookupOutcome(q) {
+        case let .found(_, facts):
             return facts.frame.isEmpty || !screen.intersects(facts.frame)
+        case .unreadable:
+            return false
+        case .absent:
+            guard (try? app.snapshot()) != nil else { return false }
+            return isAppInForeground
         }
-        guard (try? app.snapshot()) != nil else { return false }
-        return isAppInForeground
     }
 
     /// The element's facts once its frame is still, so a gesture lands on the element and not on whatever is passing over its
@@ -207,20 +225,26 @@ final class ElementResolver {
     private func firstReadable(
         in owners: [XCUIApplication],
         _ query: (XCUIApplication) -> XCUIElement
-    ) -> (ResolvedElement, ElementFacts)? {
+    ) -> LookupOutcome {
+        var unreadable = false
         for owner in owners {
             guard owner.state == .runningForeground || owner.state == .runningBackground else { continue }
             let element = query(owner)
-            guard element.exists, let snapshot = try? element.snapshot() else { continue }
+            guard element.exists else { continue }
+            guard let snapshot = try? element.snapshot() else {
+                unreadable = true
+                continue
+            }
             let facts = ElementFacts(
                 type: snapshot.elementType,
                 frame: snapshot.frame,
                 isEnabled: snapshot.isEnabled,
                 value: snapshot.value as? String,
-                label: snapshot.label
+                label: snapshot.label,
+                hasFocus: snapshot.hasFocus
             )
-            return (ResolvedElement(owner: owner, element: element), facts)
+            return .found(ResolvedElement(owner: owner, element: element), facts)
         }
-        return nil
+        return unreadable ? .unreadable : .absent
     }
 }

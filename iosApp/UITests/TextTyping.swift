@@ -11,6 +11,8 @@ final class TextTyping {
     private static let pollInterval = 0.1
     private static let rereadTimeout = 1.0
     private static let keyboardTimeout = 2.0
+    /// How long `submitTextEntry` waits for a keyboard: `Timeouts.Action`.
+    private static let submitWait = 10.0
     private static let actionKeys = ["Search", "Return", "Done", "Go", "Buscar", "Listo", "Ir"]
 
     private let resolver: ElementResolver
@@ -24,8 +26,18 @@ final class TextTyping {
         self.tapper = tapper
     }
 
+    /// Characters the last `typeKeys` put in (see `TextEntry.keysInjected`).
+    private(set) var injected = 0
+
     func typeKeys(_ q: Query, text: String) -> Bool {
+        injected = 0
+        guard let before = resolver.visibleFacts(q)?.1.typedText else { return refuse("typeKeys \(q): the field is not on screen") }
         guard focus(q) else { return false }
+        // The touch that focuses the field must not alter it: if it holds other text than before, nothing is typed.
+        let now = resolver.visibleFacts(q)?.1.typedText
+        guard now == before else {
+            return refuse("typeKeys \(q): the focus touch changed the field (it held \(before.count) characters and now holds \(now?.count ?? -1))")
+        }
         return typeInChunks(text)
     }
 
@@ -45,7 +57,9 @@ final class TextTyping {
         let end = CGPoint(x: area.minX + area.width * 0.75, y: area.midY)
         guard tapper(resolved, end, "clearText \(q) (caret to the end)") else { return false }
         guard typeInChunks(String(repeating: XCUIKeyboardKey.delete.rawValue, count: held.count)) else { return false }
-        return typedTextAfterDeleting(q)?.isEmpty ?? false
+        let left = typedTextAfterDeleting(q)
+        if left?.isEmpty == true { return true }
+        return refuse("clearText \(q): the field is not empty after deleting; it reads back \(left.map { "\($0.count) characters" } ?? "nothing")")
     }
 
     /// What the field holds once the delete has been applied: read until two reads agree (the field
@@ -70,7 +84,10 @@ final class TextTyping {
     func submitTextEntry() -> Bool {
         guard resolver.isAppRunning else { return refuse("submitTextEntry: the app is not running") }
         let keyboard = app.keyboards.firstMatch
-        guard keyboard.exists else { return refuse("submitTextEntry: no keyboard is showing, so there is no action key to press") }
+        // Right after a touch that opens the keyboard it may not be there yet: wait for it as a condition (Timeouts.Action).
+        guard keyboard.waitForExistence(timeout: Self.submitWait) else {
+            return refuse("submitTextEntry: no keyboard showed within \(Self.submitWait) s, so there is no action key to press")
+        }
 
         for name in Self.actionKeys {
             let key = keyboard.buttons[name]
@@ -83,7 +100,8 @@ final class TextTyping {
                 resolver.coordinate(at: CGPoint(x: frame.midX, y: frame.midY), in: nil).tap()
             }
         }
-        let offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label }
+        var offered: [String] = []
+        _ = guarded("keyboard button labels", log: log) { offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label } }
         return refuse("submitTextEntry: the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
     }
 
@@ -110,6 +128,9 @@ final class TextTyping {
     /// not bring the keyboard up is reported, not tapped again.
     private func focus(_ q: Query) -> Bool {
         guard let (resolved, facts) = resolver.placed(q, for: "focus") else { return false }
+        // A field that already has the focus, with its keyboard on screen, is not touched again.
+        log.add("[driver] focus \(q): hasFocus=\(facts.hasFocus) keyboard=\(resolver.keyboardFrame != nil)")
+        if facts.hasFocus && resolver.keyboardFrame != nil { return true }
         guard tapper(resolved, center(of: facts), "focus \(q)") else { return false }
         if waitForKeyboard() { return true }
         log.refuse("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
@@ -129,9 +150,11 @@ final class TextTyping {
     private func typeInChunks(_ text: String) -> Bool {
         var rest = Substring(text)
         while !rest.isEmpty {
-            guard resolver.isAppRunning, app.keyboards.firstMatch.exists else { return false }
+            guard resolver.isAppRunning else { return refuse("typeText: the app stopped running after \(injected) characters") }
+            guard app.keyboards.firstMatch.exists else { return refuse("typeText: the keyboard went away after \(injected) characters") }
             let chunk = rest.prefix(Self.chunk)
             guard guarded("typeText", log: log, { app.typeText(String(chunk)) }) else { return false }
+            injected += chunk.count
             rest = rest.dropFirst(chunk.count)
         }
         return true

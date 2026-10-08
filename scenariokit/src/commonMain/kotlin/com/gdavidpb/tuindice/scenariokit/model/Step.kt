@@ -88,17 +88,34 @@ sealed interface Step {
 		override val target: String get() = q.describe()
 	}
 
+	/**
+	 * Waits until the app has left the foreground (another app or the home screen is in front, or the app is gone) and
+	 * has stayed out for a few reads in a row: for a step that sends the user out of the app (an external link).
+	 */
 	@Serializable
-	@SerialName("waitAnyVisible")
-	data class WaitAnyVisible(val queries: List<Query>, val timeoutMs: Long, override val site: Site? = null) : Step {
-		override val target: String get() = queries.joinToString(" | ") { it.describe() }
-	}
+	@SerialName("waitBackgrounded")
+	data class WaitBackgrounded(val timeoutMs: Long, override val site: Site? = null) : Step
 
 	@Serializable
 	@SerialName("assertEnabled")
 	data class AssertEnabled(
 		val q: Query,
 		val enabled: Boolean,
+		val timeoutMs: Long,
+		override val site: Site? = null
+	) : Step {
+		override val target: String get() = q.describe()
+	}
+
+	/**
+	 * Polls until the checked state of the checkbox [q] (a `toggleable(role = Checkbox)`) is [checked]; a missing
+	 * element, or one that is not a checkbox, never satisfies either state.
+	 */
+	@Serializable
+	@SerialName("assertChecked")
+	data class AssertChecked(
+		val q: Query,
+		val checked: Boolean,
 		val timeoutMs: Long,
 		override val site: Site? = null
 	) : Step {

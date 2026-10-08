@@ -39,6 +39,12 @@ interface ElementProbe {
 	fun readText(q: Query): String?
 
 	/**
+	 * The checked state of the checkbox [q]: true or false for a `toggleable(role = Checkbox)` that is on screen, null
+	 * when it is absent or is not a checkbox. Android reads `checked` of a checkable node; iOS the value of the element.
+	 */
+	fun isChecked(q: Query): Boolean?
+
+	/**
 	 * The visible rectangle of [q], or of the whole screen when [q] is null; null when [q] is absent. Android
 	 * reports pixels and iOS points: callers compare two reads of the same driver, never values across platforms.
 	 */

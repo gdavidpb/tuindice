@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.scenariokit.contract
 import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
 import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
 import com.gdavidpb.tuindice.scenariokit.engine.Clocks
-import com.gdavidpb.tuindice.scenariokit.engine.Poller
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 
@@ -16,6 +15,11 @@ internal class DriverContractChecks(
 	private val present = Query.Tag(fixture.presentTag)
 	private val absent = Query.Tag(fixture.absentTag)
 
+	private val texts = TextContractChecks(driver, clocks, fixture)
+	private val gestures = GestureContractChecks(driver, fixture)
+	private val field = fixture.textFieldTag?.let { Query.Tag(it) }
+	private val secure = fixture.secureFieldTag?.takeIf { fixture.secureSample.isNotEmpty() }?.let { Query.Tag(it) }
+
 	fun all(): List<DriverContractCheck> = listOfNotNull(
 		DriverContractCheck("launch") { problem(driver.launch(fixture.start), "launch returned false") },
 		DriverContractCheck("present-element", ::presentElement),
@@ -24,12 +28,14 @@ internal class DriverContractChecks(
 		DriverContractCheck("gone-wait-on-present") {
 			problem(!driver.waitGone(present, GONE_WAIT_MS), "waitGone returned true for an element that is on screen")
 		},
-		fixture.disabledTag?.let { tag ->
-			DriverContractCheck("disabled-element") {
-				problem(!driver.isEnabled(Query.Tag(tag)), "isEnabled returned true for the disabled element")
-			}
-		},
-		fixture.textFieldTag?.let { tag -> DriverContractCheck("text-entry") { textEntry(Query.Tag(tag)) } },
+		DriverContractCheck("gone-wait-on-absent", ::goneWaitOnAbsent),
+		DriverContractCheck("refusals-carry-a-reason", gestures::refusalsCarryAReason),
+		fixture.disabledTag?.let { tag -> DriverContractCheck("disabled-element") { disabledElement(Query.Tag(tag)) } },
+		field?.let { f -> DriverContractCheck("text-entry") { texts.textEntry(f) } },
+		field?.let { f -> DriverContractCheck("positive-gestures") { gestures.positiveGestures(f) } },
+		secure?.let { s -> DriverContractCheck("long-secure-typing") { texts.longSecureTyping(s) } },
+		secure?.let { s -> DriverContractCheck("keyboard-guard") { texts.keyboardGuard(s) } },
+		secure?.let { s -> DriverContractCheck("submit-text-entry") { texts.submitTextEntry(s) } },
 		DriverContractCheck("foreground") {
 			problem(driver.foreground() && driver.isForeground(), "the app is not in the foreground after foreground()")
 		},
@@ -37,9 +43,28 @@ internal class DriverContractChecks(
 			val reply = driver.http("GET", "/__admin/scenarios", null, null)
 			problem(reply.isSuccess, "GET /__admin/scenarios answered ${reply.status}")
 		},
+		DriverContractCheck("back", gestures::back),
 		// Last: it ends the app, and nothing after it can use the screen.
 		DriverContractCheck("terminated-app", ::terminatedApp)
 	)
+
+	/** An absent element is gone at once: the answer is true and quick, on a screen that can be read. */
+	private fun goneWaitOnAbsent(): String? {
+		val mark = clocks.timeSource.markNow()
+		val gone = driver.waitGone(absent, GONE_ABSENT_WAIT_MS)
+		val elapsed = mark.elapsedNow().inWholeMilliseconds
+		return when {
+			!gone -> "waitGone returned false for ${fixture.absentTag}, which is not on screen"
+			elapsed > GONE_ABSENT_QUICK_MS -> "waitGone took $elapsed ms to see that ${fixture.absentTag} is not on screen"
+			else -> null
+		}
+	}
+
+	private fun disabledElement(disabled: Query): String? = when {
+		!driver.isVisible(disabled) -> "the disabled element is not on screen, so isEnabled proves nothing"
+		driver.isEnabled(disabled) -> "isEnabled returned true for the disabled element"
+		else -> null
+	}
 
 	/**
 	 * With the app gone, nothing on it can be touched, typed into or read, and "gone" is not proven by a screen that
@@ -97,38 +122,14 @@ internal class DriverContractChecks(
 		}
 	}
 
-	private fun textEntry(field: Query): String? {
-		val wanted = fixture.expectedText
-		val firstTyped = driver.typeKeys(field, fixture.textSample)
-		val afterFirst = settledText(field) { it == wanted }
-		val cleared = driver.clearText(field)
-		val afterClear = settledText(field) { it.isNullOrEmpty() }
-		val typed = driver.typeKeys(field, fixture.textSample)
-		val afterType = settledText(field) { it == wanted }
-		return when {
-			!firstTyped || afterFirst != wanted ->
-				"typeKeys of \"${fixture.textSample}\" left \"$afterFirst\" in the field, expected \"$wanted\""
-			!cleared || !afterClear.isNullOrEmpty() -> "clearText left \"$afterClear\" in the field, expected it empty"
-			!typed || afterType != wanted ->
-				"typeKeys of \"${fixture.textSample}\" left \"$afterType\" in the field, expected \"$wanted\" after clearing it"
-			else -> null
-		}
-	}
-
-	/** Reads the field like the interpreter does: for up to [Timeouts.TextReread], until [accepted] or the time is up. */
-	private fun settledText(field: Query, accepted: (String?) -> Boolean): String? {
-		var seen: String? = null
-		Poller(driver, clocks.timeSource).until(Timeouts.TextReread) {
-			seen = driver.readText(field)
-			accepted(seen)
-		}
-		return seen
-	}
-
 	private companion object {
 		const val GONE_WAIT_MS = 400L
 		const val TIMING_PROBE_MS = 600L
-		const val TIMING_SLACK_MS = 5_000L
+		const val TIMING_SLACK_MS = 1_500L
+		const val GONE_ABSENT_WAIT_MS = 2_000L
+		const val GONE_ABSENT_QUICK_MS = 1_500L
+		const val KEYBOARD_ROW = 0.9
+		const val KEYBOARD_PROBE_TEXT = "abc"
 		const val MIN_WAIT_SHARE = 0.8
 		const val HALF = 0.5
 		const val SWIPE_TRAVEL = 0.1

@@ -19,7 +19,9 @@ data class FakeElement(
 	/** Visible, but its bounds read as null: the driver cannot say where it is. */
 	var unreadableBounds: Boolean = false,
 	/** What the next reads of [text] answer, one per read; the last one repeats. Overrides [text] while it lasts. */
-	var scriptedReads: MutableList<String?>? = null
+	var scriptedReads: MutableList<String?>? = null,
+	/** The checked state of a checkbox; null for an element that is not one. */
+	var checked: Boolean? = null
 ) {
 	var enabledChecks = 0
 
