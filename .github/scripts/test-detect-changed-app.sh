@@ -314,6 +314,17 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
 			;;
+		e2e-shared-ci-library)
+			# ZD-4: the scripts of CI take info/die, the version readers and the trust list from this file, which lives under
+			# the fingerprint: a change to it runs the CI configuration checks (and their fixtures) as well as the contract.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-harness-shared" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-harness-shared" "E2E scope"
+			;;
 		ci-other-script)
 			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
 			assert_file_contains_line "$github_output_file" "e2e_contract_touched=false" "GitHub output"
@@ -517,6 +528,8 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenariokit" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
+			# ZD-14: a runtime change of the kit reaches the runner, so the runner is assembled (the loop of impacted modules gives it).
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:assembleDebug" "Android tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
 			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
@@ -842,6 +855,9 @@ run_detector_fixture skill-docs .codex/skills/implement-tuindice-module/SKILL.md
 run_detector_fixture docs-vocabulary docs/release-pipeline.md
 run_detector_fixture docs-vocabulary README.md
 run_detector_fixture docs-vocabulary AGENTS.md
+# ZD-11: the instructions for the assistants and the versioned .claude entries are documents the gate reads too.
+run_detector_fixture docs-vocabulary CLAUDE.md
+run_detector_fixture docs-vocabulary .claude/skills/certify-tuindice-pr/SKILL.md
 run_detector_fixture license-only LICENSE
 run_detector_fixture launch-contract-script scripts/verify-launch-argument-contract.sh
 run_detector_fixture launch-contract-script scripts/verify-e2e-artifacts.sh
@@ -894,6 +910,8 @@ run_detector_fixture ios-xcodeproj-scheme iosApp/TuIndiceHost.xcodeproj/xcshared
 run_detector_fixture ios-podfile iosApp/Podfile
 run_detector_fixture e2e-catalog e2e/catalog/scenarios.json
 run_detector_fixture e2e-harness-shared e2e/scripts/shared/e2e.py
+run_detector_fixture e2e-shared-ci-library e2e/scripts/shared/ci-common.sh
+run_detector_fixture e2e-shared-ci-library e2e/scripts/shared/layout.env
 run_detector_fixture e2e-harness-android "$(join_changed_paths e2e/scripts/android/adapter.sh e2e/toolchain/android.lock)"
 run_detector_fixture e2e-harness-ios "$(join_changed_paths e2e/scripts/ios/adapter.sh e2e/toolchain/ios.lock)"
 run_detector_fixture e2e-tools "$(join_changed_paths e2e/tools/tests/test_runner.py e2e/platform/android/README.md e2e/README.md)"

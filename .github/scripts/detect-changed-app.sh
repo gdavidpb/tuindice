@@ -271,9 +271,10 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
-		AGENTS.md|README.md|docs/*|.codex/*)
-			# Documents and skills cannot change what a scenario does, but they can bring back a word or a task name the
-			# E2E vocabulary gate retired; it runs alone (not the whole harness suite) for them.
+		AGENTS.md|CLAUDE.md|README.md|docs/*|.codex/*|.claude/*)
+			# Documents and skills (the instructions for the assistants and the versioned .claude entries included)
+			# cannot change what a scenario does, but they can bring back a word or a task name the E2E vocabulary gate
+			# retired; it runs alone (not the whole harness suite) for them.
 			VOCABULARY_GATE_REQUIRED=true
 			return 0
 			;;
@@ -306,6 +307,16 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			IOS_UITEST_BUILD_REQUIRED=true
 			append_e2e_scope all "e2e-catalog"
+			return 0
+			;;
+		e2e/scripts/shared/ci-common.sh|e2e/scripts/shared/layout.env|e2e/scripts/shared/e2e-fingerprint.sh)
+			# The scripts of CI take info/die, the version readers, the status context and the trust list from these files
+			# (common.sh loads ci-common.sh; the detector and the fingerprint read layout.env): they live under the
+			# fingerprint, so the E2E contract runs, and the CI configuration checks and their fixtures run too.
+			CI_CONFIG_TOUCHED=true
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_e2e_scope all "e2e-harness-shared"
 			return 0
 			;;
 		e2e/scripts/shared/*)
