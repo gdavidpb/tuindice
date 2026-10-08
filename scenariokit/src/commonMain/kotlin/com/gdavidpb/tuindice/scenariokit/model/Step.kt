@@ -170,6 +170,8 @@ sealed interface Step {
 		val path: String,
 		val basicAuth: String?,
 		val timeoutMs: Long,
+		/** When set, only a request the backend answered with this status counts. */
+		val status: Int? = null,
 		override val site: Site? = null
 	) : Step {
 		override val target: String get() = "$method $path"

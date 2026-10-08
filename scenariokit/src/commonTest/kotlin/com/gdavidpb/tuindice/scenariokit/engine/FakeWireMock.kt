@@ -70,7 +70,7 @@ class FakeWireMock {
 			it.method == pattern.getValue("method").let { m -> (m as JsonPrimitive).content } &&
 				it.url.substringBefore('?') == pattern.getValue("urlPath").let { p -> (p as JsonPrimitive).content } &&
 				(wanted == null || it.authorization == wanted)
-		}.asReversed()
+		}
 	}
 
 	private fun count(pattern: JsonObject) = HttpReply(
@@ -78,6 +78,7 @@ class FakeWireMock {
 		buildJsonObject { put("count", matching(pattern).size) }.toString()
 	)
 
+	/** Like WireMock 3.13.2: from the oldest matching request to the most recent. */
 	private fun find(pattern: JsonObject) = HttpReply(
 		OK,
 		buildJsonObject {

@@ -36,7 +36,7 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.IfVisible(tag, 1_500, listOf(Step.Tap(tag, true, site)), site),
 	Step.OnPlatform(Platform.Ios, listOf(Step.Back(site)), site),
 	Step.SetMockState("login-token-lifecycle", "Reissued", site),
-	Step.ExpectRequest("POST", "/auth/v2/bootstrap", "11-11111:123456", 20_000, site),
+	Step.ExpectRequest("POST", "/auth/v2/bootstrap", "11-11111:123456", 20_000, site = site),
 	Step.Group("sign in", listOf(Step.Tap(tag, true, site)), site)
 )
 

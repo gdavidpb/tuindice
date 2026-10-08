@@ -10,10 +10,14 @@ import kotlin.time.Duration
  */
 fun StepBuilder.mockState(scenario: String, state: String) = add(Step.SetMockState(scenario, state, site()))
 
-/** Waits for the app to send [method] [path], optionally with `Authorization: Basic` of [basicAuth]. */
+/**
+ * Waits for the app to send [method] [path], optionally with `Authorization: Basic` of [basicAuth] and only when the
+ * backend answered it with [status].
+ */
 fun StepBuilder.expectRequest(
 	method: String,
 	path: String,
 	basicAuth: String? = null,
+	status: Int? = null,
 	timeout: Duration = Timeouts.Wait.asDuration()
-) = add(Step.ExpectRequest(method, path, basicAuth, timeout.millis(), site()))
+) = add(Step.ExpectRequest(method, path, basicAuth, timeout.millis(), status, site()))

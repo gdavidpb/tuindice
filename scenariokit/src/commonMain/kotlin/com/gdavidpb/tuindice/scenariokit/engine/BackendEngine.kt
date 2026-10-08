@@ -36,12 +36,15 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 	private fun describeFailure(method: String, path: String, reply: HttpReply): String? =
 		if (reply.isSuccess) null else "$method $path answered ${reply.status}: ${reply.body.take(ERROR_BODY_LIMIT)}"
 
-	/** Waits for the request, and on timeout tells a wrong credential apart from a missing request. */
+	/**
+	 * Waits for the request (with the answer status the step asks for, if any), and on timeout tells a wrong
+	 * credential apart from a missing request.
+	 */
 	internal fun expectRequest(step: Step.ExpectRequest): StepResult {
 		val header = step.basicAuth?.let { BasicAuth.header(it) }
 		var transportDown = false
 		val arrived = poller.until(step.timeoutMs) {
-			val count = countMatching(step, header)
+			val count = if (step.status == null) countMatching(step, header) else countAnswered(step, header)
 			if (count == null) transportDown = true
 			count == null || count >= 1
 		}
@@ -52,6 +55,22 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 			)
 			arrived -> StepResult.Passed
 			else -> missingRequest(step)
+		}
+	}
+
+	/**
+	 * Requests to the route that the backend answered with the step's status. `find` returns requests alone, so this
+	 * reads the journal of serve events (`GET /__admin/requests`), which carries each response.
+	 */
+	private fun countAnswered(step: Step.ExpectRequest, header: String?): Int? {
+		val reply = backend.http("GET", "/__admin/requests", null, null)
+		if (!reply.isSuccess) return null
+		return WireMockJson.array(WireMockJson.obj(reply.body), "requests").count { event ->
+			val request = WireMockJson.child(event, "request")
+			WireMockJson.text(request, "method") == step.method &&
+				WireMockJson.text(request, "url")?.substringBefore('?') == step.path &&
+				WireMockJson.number(WireMockJson.child(event, "response"), "status") == step.status &&
+				(header == null || WireMockJson.header(WireMockJson.child(request, "headers"), "Authorization") == header)
 		}
 	}
 
@@ -73,6 +92,8 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 	 * another password, or it is the only request the route has seen. Any other earlier request with another
 	 * credential says nothing about this step (the app may have retried with an older password and never sent the new
 	 * one), so the step times out and lists every credential the route saw, most recent first.
+	 * `find` answers from the oldest request to the most recent (WireMock 3.13.2, proved by
+	 * `WireMockJournalOrderTest`), so the list is reversed on reading.
 	 */
 	private fun missingRequest(step: Step.ExpectRequest): StepResult {
 		val pattern = buildJsonObject {
@@ -82,6 +103,7 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		val reply = backend.http("POST", "/__admin/requests/find", pattern.toString(), null)
 		val seen = WireMockJson.array(WireMockJson.obj(reply.body), "requests")
 			.map { BasicAuth.decode(WireMockJson.header(WireMockJson.child(it, "headers"), "Authorization")) }
+			.asReversed()
 		val received = seen.firstOrNull()
 		return when {
 			seen.isEmpty() -> StepResult.Failed(
@@ -102,6 +124,7 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		}
 	}
 
+	/** [seen] is most recent first. */
 	private fun isTypingFault(expected: String, seen: List<String?>): Boolean {
 		val latest = seen.first()
 		val sameIdentifier = latest != null && latest.substringBefore(':') == expected.substringBefore(':')
