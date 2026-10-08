@@ -10,10 +10,9 @@ decision: what to do when something is the case.
 
 ## What is certified
 
-- What is certified is the remote SHA: the commit the PR head points to. Evidence counts only when the tree is
-  clean, `HEAD == @{u}`, and a trusted `success` status `local-e2e/<platform>/local-certification-suite` naming
-  that platform's fingerprint exists on that SHA. Any change to the branch needs a push, and the evidence has to
-  match the pushed SHA.
+- What is certified is the remote SHA: the commit the PR head points to. Evidence counts only when the tree is clean,
+  `HEAD == @{u}`, and a trusted `success` status `local-e2e/<platform>/local-certification-suite` naming that platform's
+  fingerprint exists on that SHA. Any change to the branch needs a push, and the evidence has to match the pushed SHA.
 - Evidence is a full run of every scenario on each required platform, accumulated in a ledger per platform and
   fingerprint. A scenario that is green for the fingerprint is never rerun.
 - The person who certifies launches the evidence (`git push`, then `./gradlew e2eEvidence`). An agent prepares,
