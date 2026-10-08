@@ -1,5 +1,10 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
+import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
@@ -9,14 +14,36 @@ import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.Coachmarks
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
+import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.openSubjectSearch
+import com.gdavidpb.tuindice.scenarios.shared.searchSubjectsFor
+import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 
 private val pendingCoachmarksStart = Start.Seeded(E2eAccounts.Canonical, coachmarks = Coachmarks.Pending)
+
+/** Starts on [section] with every coachmark pending, so the first screen the person sees is not the summary. */
+private fun pendingCoachmarksOn(section: MainSection) =
+	Start.Seeded(E2eAccounts.Canonical, section = section, coachmarks = Coachmarks.Pending).toLaunchSpec()
+
+/**
+ * The coachmarks one screen lists, in the order `eligibleCoachmarkIds` gives them: each is awaited, confirmed, and
+ * the next one is awaited only after the previous one has left, so a bubble can never answer for another. After the
+ * last one the bubble is gone and the screen underneath can be touched.
+ */
+private fun StepBuilder.confirmCoachmarkSequence(vararg ids: CoachmarkId) {
+	ids.forEachIndexed { index, id ->
+		waitVisible(CoachmarkUiTags.currentCoachmark(id), Within.Wait)
+		if (index > 0) waitGone(CoachmarkUiTags.currentCoachmark(ids[index - 1]), Within.Assert)
+		tap(CoachmarkUiTags.ConfirmButton)
+	}
+	waitGone(CoachmarkUiTags.Bubble, Within.Action)
+}
 
 /** The seeded summary with its coachmark up: the bubble anchored to the summary. */
 private fun StepBuilder.awaitSummaryCoachmark() {
@@ -72,8 +99,89 @@ private val coachmarksProgressiveRecord = scenario(
 	waitGone(CoachmarkUiTags.Bubble, Within.Action)
 }
 
+/** The record's two coachmarks, then the create-term screen the record opens, which has its own. */
+private val coachmarksSyntheticTerm = scenario(
+	"coachmarks-synthetic-term",
+	"coachmarks",
+	pendingCoachmarksOn(MainSection.RECORD)
+) {
+	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(RecordUiTags.ContentContainer, Within.Sync)
+	confirmCoachmarkSequence(CoachmarkId.Record, CoachmarkId.RecordControls)
+	tap(RecordUiTags.CreateSyntheticTermFab)
+	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
+	confirmCoachmarkSequence(CoachmarkId.SyntheticTerm)
+	// The screen opens with a period already chosen, so leaving it asks to discard.
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(RecordUiTags.DiscardSyntheticTermMessage, Within.Action)
+	tap(BaseUiTags.ConfirmationDialogPositiveButton)
+	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+}
+
+/** The evaluations list's two coachmarks, then the one of the editor the add button opens. */
+private val coachmarksEvaluations = scenario(
+	"coachmarks-evaluations",
+	"coachmarks",
+	pendingCoachmarksOn(MainSection.EVALUATIONS)
+) {
+	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Sync)
+	confirmCoachmarkSequence(CoachmarkId.Evaluations, CoachmarkId.EvaluationsTools)
+	tap(EvaluationsUiTags.EvaluationsAddFab)
+	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Wait)
+	confirmCoachmarkSequence(CoachmarkId.EvaluationEditor)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
+}
+
+/** The pensum's two coachmarks, the subject search's, and the one of a subject's statistics. */
+private val coachmarksPensumAndSubjects = scenario(
+	"coachmarks-pensum-subjects",
+	"coachmarks",
+	pendingCoachmarksOn(MainSection.PENSUM)
+) {
+	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(PensumUiTags.PensumScreen, Within.Sync)
+	confirmCoachmarkSequence(CoachmarkId.Pensum, CoachmarkId.PensumTools)
+	openSubjectSearch()
+	confirmCoachmarkSequence(CoachmarkId.SubjectSearch)
+	searchSubjectsFor("ci")
+	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
+	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
+	waitVisible(SubjectsUiTags.Content, Within.Long)
+	confirmCoachmarkSequence(CoachmarkId.SubjectDetail)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(PensumUiTags.PensumScreen, Within.Action)
+}
+
+/** The About screen's two coachmarks. */
+private val coachmarksAbout = scenario(
+	"coachmarks-about",
+	"coachmarks",
+	pendingCoachmarksOn(MainSection.ABOUT)
+) {
+	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(AboutUiTags.ContentContainer, Within.Sync)
+	confirmCoachmarkSequence(CoachmarkId.About, CoachmarkId.AboutActions)
+	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+}
+
 /** The scenarios of the `coachmarks` module; list every new one here. */
 val coachmarksScenarios: List<Scenario> = listOf(
 	coachmarksContextualSummary,
-	coachmarksProgressiveRecord
+	coachmarksProgressiveRecord,
+	coachmarksSyntheticTerm,
+	coachmarksEvaluations,
+	coachmarksPensumAndSubjects,
+	coachmarksAbout
 )

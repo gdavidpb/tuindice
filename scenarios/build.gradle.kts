@@ -64,6 +64,7 @@ tasks.withType<Test>().configureEach {
 			rootProject.fileTree(rootDir) {
 				include("*/src/commonMain/composeResources/values/strings.xml")
 				include("*/src/commonMain/kotlin/**/presentation/contract/*.kt")
+				include("wizard/src/commonMain/kotlin/**/mapper/CoachmarkSurface.kt")
 				include("*/build.gradle.kts")
 				include("app/src/debug/**/*.kt")
 				include("maincore/src/iosMain/**/*.kt")
