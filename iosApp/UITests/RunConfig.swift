@@ -104,10 +104,10 @@ final class DriverLog {
         if echo { print("[scenario] \(line)") }
     }
 
-    /// Writes [reason] like any line and keeps it as the reason the gesture or text entry in progress was refused.
+    /// Writes [reason] as a line marked `[refusal]` (the harness counts them) and keeps it as the reason the gesture or text entry in progress was refused.
     func refuse(_ reason: String) {
         locked { refusal = reason }
-        add(reason)
+        add("[refusal] \(reason)")
     }
 
     /// Forgets the last refusal: every gesture and text entry starts without one.

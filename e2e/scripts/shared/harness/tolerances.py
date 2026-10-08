@@ -2,8 +2,8 @@
 
 A tolerance is something the driver put up with and went on: iOS ends its log with `[tolerances] key=N ...` and writes a
 `[tolerance] <key> <detail>` line for each one; Android writes one line per time it brings the app back to the front. A refusal
-is the driver saying no to a gesture, a touch or a tap (it fails the step): both platforms write it with the same three phrases,
-and the summary line of iOS does not count it. A run that passed by way of a tolerance can then be told from one that did not."""
+is the driver saying no to a gesture, a touch, a tap, a typing, a deletion, a submit or a back (it fails the step): both platforms
+write every one through a single funnel that marks the line `[refusal] <reason>`, and the summary line of iOS does not count it. A run that passed by way of a tolerance can then be told from one that did not."""
 
 import re
 
@@ -17,7 +17,8 @@ ANDROID_LINES = (
     ("foreground-request", re.compile(r"foreground: .* request \d+ to bring the app back")),
     ("foreground-not-in-front", re.compile(r"foreground: not in front after")),
 )
-REFUSAL = re.compile(r"\b(gesture|touch|tap) refused")
+# The marker both drivers' refusal funnel writes (DriverLog.kt, RunConfig.swift); the iOS driver's own "[driver]" prefix is not the word.
+REFUSAL = re.compile(r"\[refusal\]\s+(?:\[driver\]\s+)?(\S+)")
 
 
 def count(text):
@@ -41,12 +42,12 @@ def count(text):
 
 
 def refusals(text):
-    """{'gesture-refused' | 'touch-refused' | 'tap-refused': n}: the lines are always read, a summary or not."""
+    """{'<first word of the reason>-refused': n}: the lines are always read, a summary or not."""
     counts = {}
     for line in text.splitlines():
         found = REFUSAL.search(line)
         if found:
-            key = "%s-refused" % found.group(1)
+            key = "%s-refused" % found.group(1).rstrip(":")
             counts[key] = counts.get(key, 0) + 1
     return counts
 

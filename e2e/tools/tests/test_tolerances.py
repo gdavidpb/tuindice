@@ -28,13 +28,19 @@ class CountTests(unittest.TestCase):
     def test_android_counts_the_requests_to_bring_the_app_back_and_the_failure_to_do_it(self):
         self.assertEqual(tolerances.count(fixture("android.log")), {"foreground-request": 2, "foreground-not-in-front": 1})
 
-    def test_a_refusal_is_not_a_tolerance_and_both_platforms_count_the_same_three_phrases(self):
-        self.assertEqual(tolerances.refusals(fixture("android.log")), {"gesture-refused": 2, "touch-refused": 1})
-        # iOS, whose log ends with a summary that does not mention them, and its keyboard guard ("tap refused").
-        self.assertEqual(tolerances.refusals(fixture("ios-refusal.log")), {"gesture-refused": 1, "tap-refused": 1})
+    def test_a_refusal_is_a_line_with_the_marker_counted_by_the_first_word_of_its_reason(self):
+        # Both drivers write every refusal through one funnel that adds the marker, whatever the reason says (typing, deleting,
+        # submitting, back, gestures); the iOS drivers' own "[driver]" prefix is not the word.
+        self.assertEqual(tolerances.refusals(fixture("android.log")),
+            {"tag:x-refused": 1, "tag:y-refused": 1, "Tap-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
+        self.assertEqual(tolerances.refusals(fixture("ios-refusal.log")),
+            {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1})
         self.assertEqual(tolerances.count(fixture("ios-refusal.log")), {"dismissed-alert": 1})
         self.assertEqual(tolerances.refusals(fixture("ios-unfinished.log")), {})
         self.assertEqual(tolerances.refusals(""), {})
+
+    def test_a_line_that_only_says_refused_without_the_marker_is_not_a_refusal(self):
+        self.assertEqual(tolerances.refusals("10:00:00.000 tag:x: not on screen; gesture refused\n[driver] Tap: tap refused\n"), {})
 
     def test_android_without_a_tolerance_is_empty_and_so_is_nothing(self):
         self.assertEqual(tolerances.count(fixture("android-quiet.log")), {})
@@ -55,7 +61,7 @@ class CountTests(unittest.TestCase):
     def test_a_file_that_does_not_exist_is_empty(self):
         self.assertEqual(tolerances.read("/nonexistent/driver.log"), ({}, {}))
         self.assertEqual(tolerances.read(os.path.join(LOGS, "ios-refusal.log")),
-            ({"dismissed-alert": 1}, {"gesture-refused": 1, "tap-refused": 1}))
+            ({"dismissed-alert": 1}, {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1}))
 
 
 class RunTests(unittest.TestCase):
@@ -87,9 +93,10 @@ class RunTests(unittest.TestCase):
         manifest = ws.manifest()
         self.assertEqual(manifest["tolerances"], {"dismissed-alert": 1}, "what a failed attempt put up with is not a tolerance")
         self.assertEqual([a["tolerances"] for a in manifest["attempts"]], [{}, {"dismissed-alert": 1}])
-        self.assertEqual(manifest["refusals"], {"gesture-refused": 2, "tap-refused": 2})
-        self.assertEqual([a["refusals"] for a in manifest["attempts"]], [{"gesture-refused": 1, "tap-refused": 1}] * 2)
-        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["refusals"], {"gesture-refused": 1, "tap-refused": 1})
+        each = {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1}
+        self.assertEqual(manifest["refusals"], {key: 2 * n for key, n in each.items()})
+        self.assertEqual([a["refusals"] for a in manifest["attempts"]], [each] * 2)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["refusals"], each)
         self.assertIn("refusals: %s" % json.dumps(manifest["refusals"], sort_keys=True), text(os.path.join(ws.run_dirs()[-1], "summary.txt")))
 
     def test_the_log_says_the_tolerances_of_the_run_when_there_are_any(self):
@@ -104,7 +111,8 @@ class RunTests(unittest.TestCase):
         self.assertEqual(ws.evidence("android").code, 0)
         manifest = ws.manifest()
         self.assertEqual(manifest["tolerances"], {"foreground-request": 2, "foreground-not-in-front": 1})
-        self.assertEqual(manifest["refusals"], {"gesture-refused": 2, "touch-refused": 1})
+        self.assertEqual(manifest["refusals"],
+            {"tag:x-refused": 1, "tag:y-refused": 1, "Tap-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
 
 
 if __name__ == "__main__":

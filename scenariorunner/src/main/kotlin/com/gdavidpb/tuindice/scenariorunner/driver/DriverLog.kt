@@ -37,10 +37,10 @@ internal class DriverLog {
 		}.onFailure { Log.w(TAG, "driver.log could not be written: $it") }
 	}
 
-	/** Writes [reason] like any line and keeps it as the reason the gesture or text entry in progress was refused. */
+	/** Writes [reason] as a line marked `[refusal]` (the harness counts them) and keeps it as the reason the gesture or text entry in progress was refused. */
 	fun refuse(reason: String) {
 		refusal = reason
-		write(reason)
+		write("[refusal] $reason")
 	}
 
 	/** Forgets the last refusal: every gesture and text entry starts without one. */
