@@ -1,6 +1,11 @@
 import XCTest
 import ScenarioKit
 
+/// The driver's clock for every deadline: it does not jump when the wall clock is adjusted.
+enum Monotonic {
+    static var now: Double { Double(DispatchTime.now().uptimeNanoseconds) / 1_000_000_000 }
+}
+
 /// An element found for a query, with the application whose coordinate space its frame uses.
 struct ResolvedElement {
     let owner: XCUIApplication
@@ -25,20 +30,73 @@ struct ElementFacts {
     var typedText: String { value ?? "" }
 }
 
+/// How watching an element's frame ended.
+enum FrameVerdict: Equatable {
+    /// The frame read the same on [SettleWatch.requiredEqualReads] reads in a row.
+    case settled
+    /// The element was gone at a read.
+    case vanished
+    /// The reads or the time ran out first.
+    case moving
+}
+
+/// Decides, read by read, whether a frame has stopped moving. It is pure: the caller feeds the frames it reads (`nil`
+/// when the element could not be read any more) with the time of each read, and stops at the first verdict.
+///
+/// The frame must read the same [requiredEqualReads] times in a row: the accessibility tree of a list that is still
+/// decelerating repeats a frame once or twice before the next one arrives, so two equal reads were seen to hold a tap on a
+/// button that was still moving (the tap landed on the place it had left). The wait is bounded by the number of reads
+/// and by time, whichever comes first; a slow machine does not shorten it to fewer reads than the rule needs, and an
+/// element that never stops is a verdict, not a position to use.
+struct SettleWatch {
+    let requiredEqualReads: Int
+    let maxReads: Int
+    let timeLimit: Double
+    private(set) var reads = 0
+    private var equalReads = 0
+    private var last: CGRect?
+    private var firstReadAt: Double?
+
+    init(requiredEqualReads: Int = 3, maxReads: Int = 20, timeLimit: Double = 8) {
+        self.requiredEqualReads = requiredEqualReads
+        self.maxReads = maxReads
+        self.timeLimit = timeLimit
+    }
+
+    /// The verdict after the read at [time], or nil when more reads are needed.
+    mutating func feed(_ frame: CGRect?, at time: Double) -> FrameVerdict? {
+        guard let frame else { return .vanished }
+        firstReadAt = firstReadAt ?? time
+        reads += 1
+        equalReads = last == frame ? equalReads + 1 : 1
+        last = frame
+        if equalReads >= requiredEqualReads { return .settled }
+        if reads >= maxReads || time - (firstReadAt ?? time) >= timeLimit { return .moving }
+        return nil
+    }
+}
+
+/// An element whose frame was watched until it was still, or the reason it was not.
+enum Placement {
+    case settled(ResolvedElement, ElementFacts)
+    case moving(ElementFacts, reads: Int, seconds: Double)
+    case gone(reads: Int)
+}
+
 /// Turns a ScenarioKit `Query` into an XCUITest element. Nothing here can raise an XCTest failure:
-/// every lookup is guarded by the application state and `exists`, and reads go through snapshots
-/// that throw instead of asserting.
+/// every lookup is guarded by the application state, and reads go through snapshots that throw
+/// instead of asserting.
 final class ElementResolver {
     static let springboardId = "com.apple.springboard"
-    private static let settleTimeout = 2.0
     private static let settlePoll = 0.1
-    private static let stableReads = 3
 
     let app: XCUIApplication
     let springboard = XCUIApplication(bundleIdentifier: ElementResolver.springboardId)
+    private let log: DriverLog
 
-    init(app: XCUIApplication) {
+    init(app: XCUIApplication, log: DriverLog) {
         self.app = app
+        self.log = log
     }
 
     var screen: CGRect { UIScreen.main.bounds }
@@ -47,70 +105,95 @@ final class ElementResolver {
         app.state == .runningForeground || app.state == .runningBackground
     }
 
-    /// The first element matching [q] that exists right now, or nil.
-    func find(_ q: Query) -> ResolvedElement? {
+    var isAppInForeground: Bool { app.state == .runningForeground }
+
+    /// The first element matching [q] that exists right now, with what its snapshot says; nil when there is none or when it
+    /// could not be read. `exists` comes before the snapshot on purpose: the snapshot of a missing element throws only after
+    /// about 2.2 s (measured), `exists` answers a miss in about 60 ms, and a miss is what every poll for an element that is not
+    /// there yet or not there any more does. A tag or a
+    /// text counts only while the app is in the foreground (its tree stays readable behind Safari or a system sheet, and
+    /// then it is not what the user sees); a system query may belong to SpringBoard.
+    func lookup(_ q: Query) -> (ResolvedElement, ElementFacts)? {
         if let tag = q as? QueryTag {
-            return firstExisting(in: [app]) { $0.descendants(matching: .any).matching(identifier: tag.value).firstMatch }
+            guard isAppInForeground else { return nil }
+            return firstReadable(in: [app]) { $0.descendants(matching: .any).matching(identifier: tag.value).firstMatch }
         }
         if let text = q as? QueryText {
+            guard isAppInForeground else { return nil }
             let operatorName = text.contains ? "CONTAINS" : "=="
             let predicate = NSPredicate(
                 format: "label \(operatorName) %@ OR value \(operatorName) %@ OR title \(operatorName) %@",
                 text.value, text.value, text.value
             )
-            return firstExisting(in: [app]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
+            return firstReadable(in: [app]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
         }
         if let system = q as? QuerySystem {
             let predicate = NSPredicate(format: "label == %@ OR identifier == %@", system.value, system.value)
-            return firstExisting(in: [app, springboard]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
+            return firstReadable(in: [app, springboard]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
         }
         return nil
     }
 
-    func facts(of resolved: ResolvedElement) -> ElementFacts? {
-        guard let snapshot = try? resolved.element.snapshot() else { return nil }
-        return ElementFacts(
-            type: snapshot.elementType,
-            frame: snapshot.frame,
-            isEnabled: snapshot.isEnabled,
-            value: snapshot.value as? String,
-            label: snapshot.label
-        )
-    }
-
     /// On screen: it exists, has a non-empty frame and that frame meets the screen.
     func visibleFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
-        guard let resolved = find(q), let facts = facts(of: resolved) else { return nil }
+        guard let (resolved, facts) = lookup(q) else { return nil }
         guard !facts.frame.isEmpty, screen.intersects(facts.frame) else { return nil }
         return (resolved, facts)
     }
 
-    /// The element's facts once its frame has stopped moving, so a gesture lands on the element and not
-    /// on whatever is passing over its old place (a sheet sliding in, the form the keyboard pushes up).
-    /// The frame is read every [settlePoll] until [stableReads] reads in a row agree or [settleTimeout] passes; the last
-    /// read is then used as it is.
-    func settledFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
-        guard let (resolved, facts, _) = settle(q) else { return nil }
-        return (resolved, facts)
+    /// Whether [q] is shown nowhere, with positive evidence: the app is in the foreground and its tree was read in this very
+    /// round. An app that is not in the foreground, a tree that cannot be read or an element that exists but cannot be read
+    /// prove nothing, and the caller keeps polling.
+    func isAbsent(_ q: Query) -> Bool {
+        guard isAppInForeground else { return false }
+        if let (_, facts) = lookup(q) {
+            return facts.frame.isEmpty || !screen.intersects(facts.frame)
+        }
+        guard (try? app.snapshot()) != nil else { return false }
+        return isAppInForeground
     }
 
-    /// Like [settledFacts], and says whether the frame stopped moving (`false`: the last read after
-    /// [settleTimeout], or the element vanished while it was being watched). The frame must read the same
-    /// [stableReads] times in a row: the accessibility tree of a list that is still decelerating repeats a
-    /// frame once or twice before the next one arrives, so two equal reads were seen to hold a tap on a
-    /// button that was still moving (the tap landed on the place it had left).
-    func settle(_ q: Query) -> (ResolvedElement, ElementFacts, Bool)? {
-        guard var last = visibleFacts(q) else { return nil }
-        var equalReads = 1
-        let deadline = Date().addingTimeInterval(Self.settleTimeout)
-        while Date() < deadline {
+    /// The element's facts once its frame is still, so a gesture lands on the element and not on whatever is passing over its
+    /// old place (a sheet sliding in, the form the keyboard pushes up). See [SettleWatch] for the rule. A frame that does not
+    /// settle, or an element that disappears while it is watched, is a [Placement] that says so: the caller refuses the gesture.
+    func settle(_ q: Query) -> Placement {
+        guard let first = visibleFacts(q) else { return .gone(reads: 0) }
+        var watch = SettleWatch()
+        let began = Monotonic.now
+        var last = first
+        var verdict = watch.feed(first.1.frame, at: began)
+        while verdict == nil {
             Thread.sleep(forTimeInterval: Self.settlePoll)
-            guard let current = visibleFacts(q) else { return (last.0, last.1, false) }
-            equalReads = current.1.frame == last.1.frame ? equalReads + 1 : 1
-            last = current
-            if equalReads >= Self.stableReads { return (current.0, current.1, true) }
+            let current = visibleFacts(q)
+            verdict = watch.feed(current?.1.frame, at: Monotonic.now)
+            if let current { last = current }
         }
-        return (last.0, last.1, false)
+        switch verdict! {
+        case .settled: return .settled(last.0, last.1)
+        case .vanished: return .gone(reads: watch.reads)
+        case .moving: return .moving(last.1, reads: watch.reads, seconds: Monotonic.now - began)
+        }
+    }
+
+    /// The settled element for [gesture], or nil after writing why the gesture is refused to the driver log.
+    func placed(_ q: Query, for gesture: String) -> (ResolvedElement, ElementFacts)? {
+        switch settle(q) {
+        case let .settled(resolved, facts):
+            return (resolved, facts)
+        case let .moving(facts, reads, seconds):
+            log.add("[driver] \(gesture) \(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
+            return nil
+        case let .gone(reads):
+            log.add("[driver] \(gesture) \(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")
+            return nil
+        }
+    }
+
+    /// The frame of the on-screen keyboard, nil when there is none.
+    var keyboardFrame: CGRect? {
+        let keyboard = app.keyboards.firstMatch
+        guard isAppInForeground, keyboard.exists, let snapshot = try? keyboard.snapshot(), !snapshot.frame.isEmpty else { return nil }
+        return snapshot.frame
     }
 
     /// The part of [frame] that is on screen.
@@ -121,14 +204,22 @@ final class ElementResolver {
         return owner.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: point.x, dy: point.y))
     }
 
-    private func firstExisting(
+    private func firstReadable(
         in owners: [XCUIApplication],
         _ query: (XCUIApplication) -> XCUIElement
-    ) -> ResolvedElement? {
+    ) -> (ResolvedElement, ElementFacts)? {
         for owner in owners {
             guard owner.state == .runningForeground || owner.state == .runningBackground else { continue }
             let element = query(owner)
-            if element.exists { return ResolvedElement(owner: owner, element: element) }
+            guard element.exists, let snapshot = try? element.snapshot() else { continue }
+            let facts = ElementFacts(
+                type: snapshot.elementType,
+                frame: snapshot.frame,
+                isEnabled: snapshot.isEnabled,
+                value: snapshot.value as? String,
+                label: snapshot.label
+            )
+            return (ResolvedElement(owner: owner, element: element), facts)
         }
         return nil
     }

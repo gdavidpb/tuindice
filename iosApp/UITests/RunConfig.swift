@@ -21,8 +21,6 @@ struct RunConfig {
     /// Host directory that receives `<id>/result.json`; nil attaches the result to the test instead.
     let outputDir: String?
     let trace: Bool
-    /// Characters per `typeText` call. A hook for measuring typing reliability, not a retry knob.
-    let typeChunk: Int
     let repoRoot: String
 
     var apiBaseUrl: String { wiremockUrl + "/" }
@@ -41,9 +39,83 @@ struct RunConfig {
         wiremockUrl = rawUrl.hasSuffix("/") ? String(rawUrl.dropLast()) : rawUrl
         outputDir = environment["E2E_OUTPUT_DIR"].flatMap { $0.isEmpty ? nil : $0 }
         trace = ["1", "true", "yes"].contains((environment["E2E_TRACE"] ?? "").lowercased())
-        typeChunk = environment["E2E_TYPE_CHUNK"].flatMap { Int($0) }.flatMap { $0 > 0 ? $0 : nil } ?? 4
         // <repo>/iosApp/UITests/RunConfig.swift
         repoRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().path
+    }
+}
+
+/// What the driver does on its own, besides what a step asks: the choices it makes and tolerates. Each one leaves a line in
+/// the driver log (always, not only with `E2E_TRACE`) and is counted, so a run that passed by way of a tolerance can be told
+/// from one that did not.
+final class DriverLog {
+    enum Tolerance: String, CaseIterable {
+        /// The keyboard did not show after the tap that focuses a field and the field was tapped once more.
+        case focusRetry = "focus-retry"
+        /// An alert that interrupted the app was dismissed by the interruption monitor.
+        case dismissedAlert = "dismissed-alert"
+        /// The "Allow Paste" alert of SpringBoard was answered.
+        case allowedPaste = "allowed-paste"
+    }
+
+    private let lock = NSLock()
+    private let echo: Bool
+    private var entries: [String] = []
+    private var counts: [Tolerance: Int] = [:]
+    private var file: FileHandle?
+
+    init(echo: Bool) {
+        self.echo = echo
+    }
+
+    var lines: [String] { locked { entries } }
+
+    /// The log as it is published: every line, then the count of each tolerance.
+    var text: String { (lines + [summary]).joined(separator: "\n") + "\n" }
+
+    var summary: String {
+        let snapshot = locked { counts }
+        let parts = Tolerance.allCases.map { kind in "\(kind.rawValue)=\(snapshot[kind] ?? 0)" }
+        return "[tolerances] " + parts.joined(separator: " ")
+    }
+
+    /// From now on each line is also appended to the file at [path], as it is written, so that it survives a run that hangs
+    /// and is killed. The lines written before are put in first.
+    func open(at path: URL) {
+        locked {
+            try? FileManager.default.createDirectory(at: path.deletingLastPathComponent(), withIntermediateDirectories: true)
+            guard FileManager.default.createFile(atPath: path.path, contents: Data((entries.joined(separator: "\n") + (entries.isEmpty ? "" : "\n")).utf8)),
+                  let handle = try? FileHandle(forWritingTo: path)
+            else { return }
+            _ = try? handle.seekToEnd()
+            file = handle
+        }
+    }
+
+    func close() {
+        locked {
+            try? file?.close()
+            file = nil
+        }
+    }
+
+    func add(_ line: String) {
+        locked {
+            entries.append(line)
+            if let data = (line + "\n").data(using: .utf8) { try? file?.write(contentsOf: data) }
+        }
+        if echo { print("[scenario] \(line)") }
+    }
+
+    /// Records that the driver tolerated [kind]: one line that says what, and one more in the count.
+    func tolerate(_ kind: Tolerance, _ detail: String) {
+        locked { counts[kind, default: 0] += 1 }
+        add("[tolerance] \(kind.rawValue) \(detail)")
+    }
+
+    private func locked<T>(_ body: () -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body()
     }
 }

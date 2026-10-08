@@ -3,7 +3,10 @@ import ScenarioKit
 
 /// ScenarioKit's driver contract on XCUITest. Every call is blocking, answers `false` or nil instead
 /// of failing, and never lets XCTest record an issue of its own: elements are looked up only while
-/// the app runs, only after `exists`, and read through snapshots.
+/// the app runs and read through snapshots, which throw when there is nothing to read.
+///
+/// A gesture goes only to an element whose frame is still and, when it is a tap, to a point the on-screen
+/// keyboard does not cover; otherwise it is refused with a line in the driver log that says which of the two.
 final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private static let pollInterval = 0.1
     private static let launchTimeout = 30.0
@@ -13,17 +16,18 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private let app = XCUIApplication()
     private let resolver: ElementResolver
     private let backend: HttpBackend
+    private let log: DriverLog
     private var typing: TextTyping!
     private(set) var failureAttachments: [XCTAttachment] = []
-    private(set) var logLines: [String] = []
 
-    init(config: RunConfig) {
+    init(config: RunConfig, log: DriverLog) {
         self.config = config
-        resolver = ElementResolver(app: app)
+        self.log = log
+        resolver = ElementResolver(app: app, log: log)
         backend = HttpBackend(baseUrl: config.wiremockUrl)
         super.init()
-        typing = TextTyping(resolver: resolver, config: config) { [unowned self] resolved, facts in
-            _ = tap(resolved, facts)
+        typing = TextTyping(resolver: resolver, log: log) { [unowned self] resolved, point, gesture in
+            tap(resolved, at: point, gesture: gesture)
         }
     }
 
@@ -62,7 +66,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func waitGone(q: Query, timeoutMs: Int64) -> Bool {
-        traced("waitGone") { poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) == nil } }
+        traced("waitGone") { poll(timeoutMs: timeoutMs) { resolver.isAbsent(q) } }
     }
 
     func isVisible(q: Query) -> Bool { traced("isVisible") { resolver.visibleFacts(q) != nil } }
@@ -89,16 +93,18 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func tap(q: Query) -> Bool {
         traced("tap") {
-            guard let (resolved, facts) = settledForGesture("tap", q) else { return false }
-            return tap(resolved, facts)
+            guard let (resolved, facts) = resolver.placed(q, for: "tap") else { return false }
+            let target = resolver.visiblePart(of: facts.frame)
+            return tap(resolved, at: CGPoint(x: target.midX, y: target.midY), gesture: "tap \(q)")
         }
     }
 
     func tapAt(q: Query?, fx: Double, fy: Double) -> Bool {
         traced("tapAt") {
             guard resolver.isAppRunning else { return false }
-            guard let (resolved, area) = area(of: q) else { return false }
+            guard let (resolved, area) = area(of: q, for: "tapAt") else { return false }
             let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
+            guard !coveredByKeyboard(point, gesture: "tapAt \(q.map { "\($0)" } ?? "screen")") else { return false }
             resolver.coordinate(at: point, in: resolved).tap()
             return true
         }
@@ -106,9 +112,11 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func doubleTap(q: Query) -> Bool {
         traced("doubleTap") {
-            guard let (resolved, facts) = settledForGesture("doubleTap", q) else { return false }
+            guard resolver.isAppRunning, let (resolved, facts) = resolver.placed(q, for: "doubleTap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
-            resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).doubleTap()
+            let point = CGPoint(x: target.midX, y: target.midY)
+            guard !coveredByKeyboard(point, gesture: "doubleTap \(q)") else { return false }
+            resolver.coordinate(at: point, in: resolved).doubleTap()
             return true
         }
     }
@@ -118,7 +126,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     private func performSwipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
-        guard resolver.isAppRunning, let (resolved, area) = area(of: from) else { return false }
+        guard resolver.isAppRunning, let (resolved, area) = area(of: from, for: "swipe") else { return false }
         let screen = resolver.screen
         let start = CGPoint(x: area.minX + area.width * vector.fx, y: area.minY + area.height * vector.fy)
         let end = CGPoint(
@@ -162,8 +170,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     var platform: Platform { Platform.ios }
 
     func log(line: String) {
-        logLines.append(line)
-        if config.trace { print("[scenario] \(line)") }
+        log.add(line)
     }
 
     func pause(ms: Int64) {
@@ -204,33 +211,32 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         let start = DispatchTime.now().uptimeNanoseconds
         let result = body()
         let micros = (DispatchTime.now().uptimeNanoseconds - start) / 1_000
-        logLines.append("[driver] \(name) \(micros)")
+        log.add("[driver] \(name) \(micros)")
         return result
     }
 
-    private func tap(_ resolved: ResolvedElement, _ facts: ElementFacts) -> Bool {
+    /// A coordinate tap at [point] (the centre of the visible part for a plain tap): no hittability assertion, and no dependence on the
+    /// synthetic child Compose adds under a tagged element. A point under the on-screen keyboard is not tapped.
+    private func tap(_ resolved: ResolvedElement, at point: CGPoint, gesture: String) -> Bool {
         guard resolver.isAppRunning else { return false }
-        // A coordinate tap at the centre of the visible part: no hittability assertion, and no
-        // dependence on the synthetic child Compose adds under a tagged element.
-        let target = resolver.visiblePart(of: facts.frame)
-        resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).tap()
+        guard !coveredByKeyboard(point, gesture: gesture) else { return false }
+        resolver.coordinate(at: point, in: resolved).tap()
         return true
     }
 
-    /// The element's facts once its frame is still. If it never stops within the settle timeout the
-    /// gesture still goes to the last position read, and that decision is written to the driver log
-    /// (always, not only with E2E_TRACE) so a miss can be traced to an element that kept moving.
-    private func settledForGesture(_ gesture: String, _ q: Query) -> (ResolvedElement, ElementFacts)? {
-        guard let (resolved, facts, settled) = resolver.settle(q) else { return nil }
-        if !settled {
-            logLines.append("[driver] \(gesture) \(q): frame still moving after the settle timeout; using the last position read \(facts.frame)")
-        }
-        return (resolved, facts)
+    /// Whether the keyboard on screen covers [point]: a tap there would press a key and put a character in the field that has
+    /// the focus. Says so in the driver log. (A key of the keyboard itself is not tapped through here: the driver's own paths
+    /// to it, `typeText` and the action key of `finishTextEntry`, do not use a point of the screen.)
+    private func coveredByKeyboard(_ point: CGPoint, gesture: String) -> Bool {
+        guard let keyboard = resolver.keyboardFrame, keyboard.contains(point) else { return false }
+        log.add("[driver] \(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")
+        return true
     }
 
-    private func area(of q: Query?) -> (ResolvedElement?, CGRect)? {
+    /// The place a gesture on [q] goes to: the whole screen without a query, otherwise the settled part of the element.
+    private func area(of q: Query?, for gesture: String) -> (ResolvedElement?, CGRect)? {
         guard let q else { return (nil, resolver.screen) }
-        guard let (resolved, facts) = resolver.settledFacts(q) else { return nil }
+        guard let (resolved, facts) = resolver.placed(q, for: gesture) else { return nil }
         return (resolved, resolver.visiblePart(of: facts.frame))
     }
 
@@ -238,12 +244,12 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         ElementBounds(left: Double(rect.minX), top: Double(rect.minY), right: Double(rect.maxX), bottom: Double(rect.maxY))
     }
 
-    /// Polls [check] until it holds or [timeoutMs] pass; always checks at least once.
+    /// Polls [check] until it holds or [timeoutMs] pass (on the monotonic clock); always checks at least once.
     private func poll(timeoutMs: Int64, _ check: () -> Bool) -> Bool {
-        let deadline = Date().addingTimeInterval(Double(max(timeoutMs, 0)) / 1000.0)
+        let deadline = Monotonic.now + Double(max(timeoutMs, 0)) / 1000.0
         repeat {
             if check() { return true }
-            if Date() >= deadline { return false }
+            if Monotonic.now >= deadline { return false }
             Thread.sleep(forTimeInterval: Self.pollInterval)
         } while true
     }

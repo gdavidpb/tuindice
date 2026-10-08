@@ -5,9 +5,10 @@ enum SystemUi {
     static let dismissLabels = ["Don't Allow", "No permitir", "Cancel", "Cancelar"]
 
     /// Registered once per test: taps the first known dismiss button of an alert that interrupts the app.
-    static func installInterruptionMonitor(on testCase: XCTestCase) {
+    static func installInterruptionMonitor(on testCase: XCTestCase, log: DriverLog) {
         testCase.addUIInterruptionMonitor(withDescription: "System dialogs") { alert in
             for label in dismissLabels where alert.buttons[label].exists {
+                log.tolerate(.dismissedAlert, "'\(alert.label)' was dismissed with '\(label)'")
                 alert.buttons[label].tap()
                 return true
             }
@@ -30,15 +31,16 @@ enum SystemUi {
     }
 
     /// Answers the "Allow Paste" SpringBoard alert by structure: it taps the button that is not the
-    /// refusal, whatever the language; true when one was tapped.
-    static func allowPaste(springboard: XCUIApplication) -> Bool {
-        guard springboard.state == .runningForeground || springboard.state == .runningBackground else { return false }
+    /// refusal, whatever the language; the label of the button that was tapped, or nil when none was.
+    static func allowPaste(springboard: XCUIApplication) -> String? {
+        guard springboard.state == .runningForeground || springboard.state == .runningBackground else { return nil }
         let alert = springboard.alerts.firstMatch
-        guard alert.exists else { return false }
+        guard alert.exists else { return nil }
         for button in alert.buttons.allElementsBoundByIndex where button.exists && !dismissLabels.contains(button.label) {
+            let label = button.label
             button.tap()
-            return true
+            return label
         }
-        return false
+        return nil
     }
 }

@@ -4,16 +4,22 @@ import ScenarioKit
 /// Base of the generated `*ScenarioTests` classes: runs one catalog scenario through the shared
 /// ScenarioKit interpreter and reports its outcome to XCTest.
 class ScenarioTestCase: XCTestCase {
+    /// The driver's log of this test: it goes to `driver.log` as it is written and is shared with the interruption monitor.
+    let driverLog = DriverLog(echo: RunConfig.shared.trace)
+
     override func setUp() {
         super.setUp()
         // A failure must never unwind through the Kotlin frames the interpreter is running on.
         continueAfterFailure = true
-        SystemUi.installInterruptionMonitor(on: self)
+        SystemUi.installInterruptionMonitor(on: self, log: driverLog)
     }
 
     func runScenario(_ id: String) {
         let config = RunConfig.shared
-        let driver = XCUIScenarioDriver(config: config)
+        if let outputDir = config.outputDir {
+            driverLog.open(at: URL(fileURLWithPath: outputDir).appendingPathComponent(id).appendingPathComponent("driver.log"))
+        }
+        let driver = XCUIScenarioDriver(config: config, log: driverLog)
         let catalogJson = config.catalogJson
         let start = DispatchTime.now().uptimeNanoseconds
         let outcome = ScenarioRunner.shared.run(catalogJson: catalogJson, scenarioId: id, driver: driver)
@@ -26,7 +32,8 @@ class ScenarioTestCase: XCTestCase {
 
     /// Writes `result.json`, attaches the logs and, on failure, records one issue pointing at the Kotlin step.
     func report(_ outcome: ScenarioOutcome, driver: XCUIScenarioDriver, file: StaticString = #filePath, line: UInt = #line) {
-        let driverLog = driver.logLines.joined(separator: "\n")
+        driverLog.close()
+        let driverLog = self.driverLog.text
         publishResult(outcome, driverLog: driverLog)
         attach("driver.log", driverLog)
         attach("report.txt", outcome.report)
