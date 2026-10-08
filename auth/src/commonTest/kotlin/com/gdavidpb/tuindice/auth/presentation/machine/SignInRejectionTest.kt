@@ -1,15 +1,12 @@
 package com.gdavidpb.tuindice.auth.presentation.machine
 
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
+import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SignInRejectionTest {
-	private val rejected = listOf(
-		SignInUseCaseError.InvalidCredentials,
-		SignInUseCaseError.AccountDisabled,
-		SignInUseCaseError.Untrusted
-	)
+	private val message = "the text for it"
 
 	private val notRejected = listOf(
 		SignInUseCaseError.Timeout,
@@ -26,16 +23,27 @@ class SignInRejectionTest {
 	)
 
 	@Test
-	fun theBackendVerdictsOnTheAccount_areRejections() {
-		rejected.forEach { error ->
-			assertEquals(true, error.isRejectedByBackend(), "$error")
-		}
+	fun eachBackendVerdictOnTheAccount_becomesItsOwnRejection_withTheMessage() {
+		assertEquals(
+			SignIn.Rejection.InvalidCredentials(message),
+			SignInUseCaseError.InvalidCredentials.toRejection(message)
+		)
+		assertEquals(
+			SignIn.Rejection.AccountDisabled(message),
+			SignInUseCaseError.AccountDisabled.toRejection(message)
+		)
+		assertEquals(
+			SignIn.Rejection.Untrusted(message),
+			SignInUseCaseError.Untrusted.toRejection(message)
+		)
 	}
 
 	@Test
-	fun failuresOnTheWayToTheBackend_areNotRejections() {
+	fun failuresOnTheWayToTheBackend_haveNoVerdict() {
 		notRejected.forEach { error ->
-			assertEquals(false, error.isRejectedByBackend(), "$error")
+			assertEquals(null, error.toRejection(message), "$error")
 		}
+
+		assertEquals(null, (null as SignInUseCaseError?).toRejection(message))
 	}
 }

@@ -11,8 +11,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
@@ -48,17 +46,14 @@ fun PasswordTextField(
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit = {},
 	error: String? = null,
+	errorModifier: Modifier = Modifier,
+	isError: Boolean = false,
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val field = remember { EditableTextFieldState(password, isWaiting) }
-	val supportingText = remember { mutableStateOf(error) }
 
 	field.syncExternal(password, isWaiting)
-
-	LaunchedEffect(error) {
-		supportingText.value = error
-	}
 
 	OutlinedTextField(
 		modifier = modifier
@@ -70,17 +65,11 @@ fun PasswordTextField(
 			// While the owner is busy the view model drops what it is told: a key taken now would be shown
 			// and lost, or kept by the field and unknown to the view model.
 			if (!isWaiting) {
-				supportingText.value = null
-
 				if (field.edit(newValue)) onPasswordChange(newValue.text)
 			}
 		},
-		isError = supportingText.value != null,
-		supportingText = {
-			val text = supportingText.value
-
-			if (text != null) Text(text)
-		},
+		isError = isError || error != null,
+		supportingText = error?.let { text -> { Text(modifier = errorModifier, text = text) } },
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(

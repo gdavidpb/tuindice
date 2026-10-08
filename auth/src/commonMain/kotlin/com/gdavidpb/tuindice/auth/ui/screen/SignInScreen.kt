@@ -101,10 +101,12 @@ fun SignInScreen(
 }
 
 // The form that slides out is the last `Idle` the screen composed, which can be behind what the view model
-// held when it started signing in. What it shows while leaving is what the sign-in took.
+// held when it started signing in. What it shows while leaving is what the sign-in took, and a new
+// attempt has no verdict yet.
 private fun SignIn.State.Idle.whileSigningIn(loggingIn: SignIn.State.LoggingIn) = copy(
 	usbId = loggingIn.usbId,
 	password = loggingIn.password,
 	identifierMode = loggingIn.identifierMode,
-	usageDataCollectionEnabled = loggingIn.usageDataCollectionEnabled
+	usageDataCollectionEnabled = loggingIn.usageDataCollectionEnabled,
+	rejection = null
 )

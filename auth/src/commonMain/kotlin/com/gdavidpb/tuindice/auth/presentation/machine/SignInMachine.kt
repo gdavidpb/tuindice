@@ -137,9 +137,12 @@ class SignInMachine(
 		)
 
 		when (error) {
+			// The screen itself keeps these verdicts (marked fields, or a message under the button), so
+			// the snackbar would only say it twice.
 			is SignInUseCaseError.InvalidCredentials,
 			is SignInUseCaseError.AccountDisabled,
-			is SignInUseCaseError.Untrusted,
+			is SignInUseCaseError.Untrusted -> Unit
+
 			is SignInUseCaseError.TooManyRequests ->
 				host.sendEffect(
 					SignIn.Effect.ShowSnackBar(
@@ -161,7 +164,7 @@ class SignInMachine(
 			password = state.password,
 			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled,
-			lastAttemptRejected = error.isRejectedByBackend()
+			rejection = error.toRejection(message = errorMessage)
 		)
 	}
 

@@ -179,6 +179,39 @@ class SignInScreenUiTest {
 		assertEquals("ab", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
 	}
 
+	// A new attempt has no verdict yet: the form that slides out does not keep showing the last rejection.
+	@Test
+	fun when_aNewAttemptStartsAfterARejection_then_theLeavingFormNoLongerShowsIt() = runTuIndiceUiTest {
+		var state: SignIn.State by mutableStateOf(
+			SignIn.State.Idle(
+				usbId = "12-34567",
+				password = "ab",
+				rejection = SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID y contraseña")
+			)
+		)
+
+		setTuIndiceTestContent {
+			SignInScreen(
+				state = state,
+				onUsbIdChange = {},
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
+				onSignInClick = {},
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {}
+			)
+		}
+
+		assertNodeVisible(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+
+		mainClock.autoAdvance = false
+		state = SignIn.State.LoggingIn(usbId = "12-34567", password = "ab", messages = listOf("Validando"))
+		mainClock.advanceTimeBy(50)
+
+		onNodeWithTag(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true).assertDoesNotExist()
+	}
+
 	// The failure brings the form back, but the screen has not composed it yet when the next key arrives. A key
 	// the field takes at that moment must not vanish when the screen catches up: what the field shows is what
 	// the view model was told.

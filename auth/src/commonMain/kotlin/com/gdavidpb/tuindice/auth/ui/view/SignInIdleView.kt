@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -83,6 +84,8 @@ fun SignInIdleView(
 		SignInIdentifierMode.UsbId -> state.usbId.isUsbId()
 		SignInIdentifierMode.UsbEmail -> state.usbId.isUsbEmail()
 	}
+	val rejection = state.rejection
+	val fixedRejection = rejection.takeIfFixedUnderTheButton()
 	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty() && !state.isServiceUnavailable
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
@@ -137,6 +140,8 @@ fun SignInIdleView(
 			},
 			showTogglePulse = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
 			isWaiting = isWaiting,
+			// Wrong credentials mark both fields; the message is not repeated here.
+			isError = rejection is SignIn.Rejection.InvalidCredentials,
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
 			onIdentifierModeToggle = onIdentifierModeToggle,
@@ -145,24 +150,27 @@ fun SignInIdleView(
 			)
 		)
 
-		RejectedMarkerBox(isRejected = state.lastAttemptRejected) {
-			PasswordTextField(
-				modifier = Modifier
-					.focusRequester(passwordFocusRequester)
-					.fillMaxWidth()
-					.padding(horizontal = 32.dp),
-				labelText = passwordLabelText,
-				password = state.password,
-				isPasswordVisible = state.isPasswordVisible,
-				isWaiting = isWaiting,
-				onPasswordChange = onPasswordChange,
-				onPasswordVisibilityToggle = onPasswordVisibilityToggle,
-				imeAction = ImeAction.Done,
-				keyboardActions = KeyboardActions(onDone = {
-					if (isSignInEnabled) onSignInClick()
-				})
-			)
-		}
+		PasswordTextField(
+			modifier = Modifier
+				.focusRequester(passwordFocusRequester)
+				.fillMaxWidth()
+				.padding(horizontal = 32.dp),
+			labelText = passwordLabelText,
+			password = state.password,
+			isPasswordVisible = state.isPasswordVisible,
+			isWaiting = isWaiting,
+			onPasswordChange = onPasswordChange,
+			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+			// Wrong credentials: the only message goes here, once, under the password.
+			error = (rejection as? SignIn.Rejection.InvalidCredentials)?.message,
+			errorModifier = Modifier
+				.testTag(AuthUiTags.SignInRejectedMarker)
+				.semantics { liveRegion = LiveRegionMode.Polite },
+			imeAction = ImeAction.Done,
+			keyboardActions = KeyboardActions(onDone = {
+				if (isSignInEnabled) onSignInClick()
+			})
+		)
 
 		// One toggleable row with a checkbox role: the screen reader announces the
 		// consent text and state together instead of a nameless box plus a label.
@@ -214,27 +222,21 @@ fun SignInIdleView(
 
 		// Animated so the form does not jump when the wait starts or ends, and a live region so a
 		// screen reader says why the button stopped responding.
-		AnimatedVisibility(
+		FixedMessage(
 			visible = state.isServiceUnavailable,
-			enter = fadeIn() + expandVertically(),
-			exit = fadeOut() + shrinkVertically()
-		) {
-			Text(
-				modifier = Modifier
-					.testTag(AuthUiTags.ServiceUnavailableMessage)
-					.semantics { liveRegion = LiveRegionMode.Polite }
-					.fillMaxWidth()
-					.padding(
-						start = TuIndiceSpacing.Wide,
-						end = TuIndiceSpacing.Wide,
-						bottom = TuIndiceSpacing.Screen
-					),
-				text = stringResource(Res.string.sign_in_service_unavailable),
-				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				textAlign = TextAlign.Center
-			)
-		}
+			text = stringResource(Res.string.sign_in_service_unavailable),
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			tag = AuthUiTags.ServiceUnavailableMessage
+		)
+
+		// A disabled account or an unverified device: nothing the person typed is wrong, so the fields
+		// stay as they are and the message stays here, in the color of an error, until they edit.
+		FixedMessage(
+			visible = fixedRejection != null,
+			text = fixedRejection?.message.orEmpty(),
+			color = MaterialTheme.colorScheme.error,
+			tag = AuthUiTags.SignInRejectedMarker
+		)
 
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally
@@ -274,23 +276,43 @@ fun SignInIdleView(
 	}
 }
 
-// Tag-only wrapper: no pixels, and the same measures as the bare content. It exists so a rejected
-// sign-in can be asserted by tag without any visible change.
 @Composable
-private fun RejectedMarkerBox(
-	isRejected: Boolean,
-	content: @Composable () -> Unit
+private fun FixedMessage(
+	visible: Boolean,
+	text: String,
+	color: Color,
+	tag: String
 ) {
-	Box(
-		modifier = Modifier
-			.fillMaxWidth()
-			.then(
-				when {
-					isRejected -> Modifier.testTag(AuthUiTags.SignInRejectedMarker)
-					else -> Modifier
-				}
-			)
+	AnimatedVisibility(
+		visible = visible,
+		enter = fadeIn() + expandVertically(),
+		exit = fadeOut() + shrinkVertically()
 	) {
-		content()
+		Text(
+			modifier = Modifier
+				.testTag(tag)
+				.semantics { liveRegion = LiveRegionMode.Polite }
+				.fillMaxWidth()
+				.padding(
+					start = TuIndiceSpacing.Wide,
+					end = TuIndiceSpacing.Wide,
+					bottom = TuIndiceSpacing.Screen
+				),
+			text = text,
+			style = MaterialTheme.typography.bodySmall,
+			color = color,
+			textAlign = TextAlign.Center
+		)
+	}
+}
+
+// A disabled account or an unverified device are shown under the button; wrong credentials are not.
+private fun SignIn.Rejection?.takeIfFixedUnderTheButton(): SignIn.Rejection? {
+	return when (this) {
+		is SignIn.Rejection.AccountDisabled,
+		is SignIn.Rejection.Untrusted -> this
+
+		is SignIn.Rejection.InvalidCredentials,
+		null -> null
 	}
 }

@@ -381,7 +381,7 @@ class SignInStateMachineContractTest {
 
 		try {
 			viewModel.state.test {
-				assertEquals(false, (awaitItem() as SignIn.State.Idle).lastAttemptRejected)
+				assertEquals(null, (awaitItem() as SignIn.State.Idle).rejection)
 
 				viewModel.setUsbIdAction(VALID_USB_ID)
 				viewModel.setPasswordAction(PASSWORD)
@@ -390,7 +390,7 @@ class SignInStateMachineContractTest {
 				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
 				assertEquals(VALID_USB_ID, waiting.usbId)
 				assertEquals(PASSWORD, waiting.password)
-				assertEquals(false, waiting.lastAttemptRejected)
+				assertEquals(null, waiting.rejection)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -404,7 +404,11 @@ class SignInStateMachineContractTest {
 	@Test
 	fun editingEitherField_orTheMode_clearsTheFailedMark() = runTest {
 		val machine = createFixture().viewModel.machine
-		val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, lastAttemptRejected = true)
+		val verdicts = listOf(
+			SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID"),
+			SignIn.Rejection.AccountDisabled(message = "Cuenta inhabilitada"),
+			SignIn.Rejection.Untrusted(message = "Dispositivo no verificado")
+		)
 
 		val edits = listOf(
 			SignIn.Action.SetPassword(password = "${PASSWORD}x"),
@@ -412,24 +416,29 @@ class SignInStateMachineContractTest {
 			SignIn.Action.ToggleIdentifierMode
 		)
 
-		for (edit in edits) {
-			val after = assertIs<SignIn.State.Idle>(machine.nextState(rejected, edit))
+		for (verdict in verdicts) {
+			val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, rejection = verdict)
 
-			assertEquals(false, after.lastAttemptRejected, "${edit::class.simpleName} must clear the mark")
+			for (edit in edits) {
+				val after = assertIs<SignIn.State.Idle>(machine.nextState(rejected, edit))
+
+				assertEquals(null, after.rejection, "${edit::class.simpleName} must clear ${verdict::class.simpleName}")
+			}
 		}
 	}
 
 	@Test
 	fun theWaitElapsing_keepsTheFailedMark_andReenablesSignIn() = runTest {
 		val machine = createFixture().viewModel.machine
-		val waiting = SignIn.State.Idle(isServiceUnavailable = true, lastAttemptRejected = true)
+		val verdict = SignIn.Rejection.AccountDisabled(message = "Cuenta inhabilitada")
+		val waiting = SignIn.State.Idle(isServiceUnavailable = true, rejection = verdict)
 
 		val after = assertIs<SignIn.State.Idle>(
 			machine.nextState(waiting, SignInInternalEvent.ServiceWaitElapsed)
 		)
 
 		assertEquals(false, after.isServiceUnavailable)
-		assertEquals(true, after.lastAttemptRejected)
+		assertEquals(verdict, after.rejection)
 	}
 
 	@Test
@@ -445,7 +454,7 @@ class SignInStateMachineContractTest {
 			machine.nextState(loggingIn, SignIn.Action.ClickCancelSignIn)
 		)
 
-		assertEquals(false, after.lastAttemptRejected)
+		assertEquals(null, after.rejection)
 		assertEquals(VALID_USB_ID, after.usbId)
 	}
 
@@ -497,7 +506,11 @@ class SignInStateMachineContractTest {
 	@Test
 	fun theAutomaticSwitch_keepsThePassword_andClearsTheFailedMark() = runTest {
 		val machine = createFixture().viewModel.machine
-		val rejected = SignIn.State.Idle(password = PASSWORD, isPasswordVisible = true, lastAttemptRejected = true)
+		val rejected = SignIn.State.Idle(
+			password = PASSWORD,
+			isPasswordVisible = true,
+			rejection = SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID")
+		)
 
 		val after = assertIs<SignIn.State.Idle>(
 			machine.nextState(rejected, SignIn.Action.SetUsbId(usbId = "mail@usb.ve"))
@@ -506,7 +519,7 @@ class SignInStateMachineContractTest {
 		assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode)
 		assertEquals(PASSWORD, after.password)
 		assertEquals(true, after.isPasswordVisible)
-		assertEquals(false, after.lastAttemptRejected)
+		assertEquals(null, after.rejection)
 	}
 
 	@Test

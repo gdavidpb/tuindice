@@ -14,8 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,13 +32,14 @@ import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
 private val identifierModeTogglePulseSize = 32.dp
 
-/** [isWaiting]: see [PasswordTextField]. */
+/** [isWaiting], [error] and [isError]: see [PasswordTextField]. */
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
 	labelText: String,
 	placeholderText: String,
 	error: String? = null,
+	isError: Boolean = false,
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 	toggleContentDescription: String,
 	showTogglePulse: Boolean,
@@ -51,15 +50,10 @@ fun UsbIdTextField(
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val field = remember { EditableTextFieldState(usbId, identifierMode to isWaiting) }
-	val supportingText = remember { mutableStateOf(error) }
 	val shouldShowTogglePulse =
 		showTogglePulse && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId
 
 	field.syncExternal(usbId, identifierMode to isWaiting)
-
-	LaunchedEffect(error) {
-		supportingText.value = error
-	}
 
 	OutlinedTextField(
 		modifier = modifier
@@ -84,18 +78,13 @@ fun UsbIdTextField(
 					}
 
 					if (field.edit(edited)) {
-						supportingText.value = null
 						onUsbIdChange(edited.text)
 					}
 				}
 			}
 		},
-		isError = supportingText.value != null,
-			supportingText = {
-				val text = supportingText.value
-
-				if (text != null) Text(text)
-			},
+		isError = isError || error != null,
+		supportingText = error?.let { text -> { Text(text) } },
 		label = { Text(text = labelText) },
 		placeholder = { Text(text = placeholderText) },
 		leadingIcon = {

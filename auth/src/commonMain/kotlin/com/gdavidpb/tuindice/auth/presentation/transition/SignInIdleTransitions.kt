@@ -25,11 +25,11 @@ internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 				else -> state.identifierMode
 			}
 
-			state.copy(usbId = action.usbId, identifierMode = nextMode, lastAttemptRejected = false)
+			state.copy(usbId = action.usbId, identifierMode = nextMode, rejection = null)
 		}
 
 		on<SignIn.Action.SetPassword> { state, action ->
-			state.copy(password = action.password, lastAttemptRejected = false)
+			state.copy(password = action.password, rejection = null)
 		}
 
 		on<SignIn.Action.TogglePasswordVisibility> { state, _ ->
@@ -49,7 +49,7 @@ internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 			state.copy(
 				usbId = nextUsbId,
 				identifierMode = nextMode,
-				lastAttemptRejected = false
+				rejection = null
 			)
 		}
 

@@ -21,11 +21,10 @@ object SignIn {
 			val usageDataCollectionEnabled: Boolean = false,
 			// The university's services asked for a wait: sign-in stays disabled until it elapses.
 			val isServiceUnavailable: Boolean = false,
-			// The backend rejected the last sign-in attempt (invalid credentials, disabled account,
-			// untrusted device) and nothing has been edited since. Not rendered: it only backs a test
-			// tag, so a rejected login is assertable without any visible change. A failure on the way
-			// (no connection, timeout, a wait asked by the service) is not a rejection.
-			val lastAttemptRejected: Boolean = false
+			// The backend rejected the last sign-in attempt and nothing has been edited since. It says
+			// which verdict it was, because each is shown differently. A failure on the way (no
+			// connection, timeout, a wait asked by the service) is not a rejection.
+			val rejection: Rejection? = null
 		) : State()
 
 		data class LoggingIn(
@@ -35,6 +34,19 @@ object SignIn {
 			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 			val usageDataCollectionEnabled: Boolean = false
 		) : State()
+	}
+
+	// The backend's verdict on the last attempt, with the message to show for it.
+	sealed class Rejection {
+		abstract val message: String
+
+		// Marks both fields and explains itself under the password.
+		data class InvalidCredentials(override val message: String) : Rejection()
+
+		// Terminal verdicts that point at support: fixed under the button, the fields stay as they are.
+		data class AccountDisabled(override val message: String) : Rejection()
+
+		data class Untrusted(override val message: String) : Rejection()
 	}
 
 	sealed class Action : ViewAction {

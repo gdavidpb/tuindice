@@ -27,7 +27,13 @@ import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.compose.resources.getString
+import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.error_account_disabled
+import tuindice.auth.generated.resources.error_invalid_usb_id_credentials
+import tuindice.auth.generated.resources.error_untrusted
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -99,70 +105,134 @@ class SignInViewModelContractTest {
 		}
 	}
 
+	// The verdict is kept with the text that explains it, and the snackbar no longer carries it.
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun signInRejected_marksTheLastAttemptAsFailed() = runTest {
-		val viewModel = SignInViewModel(
-			screenMachine = SignInMachine(
-				signInUseCase = SignInUseCase(
-					authRepository = RecordingAuthRepository(
-						throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v2/bootstrap")
-					),
-					authRetryWindowRepository = FakeAuthRetryWindowRepository(),
-					messagingRepository = RecordingMessagingRepository(),
-					syncRepository = FakeSyncRepository(),
-					credentialsRepository = FakeCredentialsRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					settingsRepository = FakeSettingsRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					reportingRepository = RecordingReportingRepository(),
-					paramsValidator = SignInParamsValidator(),
-					exceptionHandler = SignInExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				configRepository = FakeConfigRepository(),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
-			),
-			eventPublisher = NoOpEventPublisher
+	fun signInRejected_keepsWhichVerdictItWas_withItsMessage_andSendsNoSnackbar() = runTest {
+		val supportEmail = FakeConfigRepository().getContactEmail()
+
+		val cases = listOf(
+			clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v2/bootstrap") to
+				SignIn.Rejection.InvalidCredentials(getString(Res.string.error_invalid_usb_id_credentials)),
+			clientRequestException(HttpStatusCode.Locked, path = "/auth/v2/bootstrap") to
+				SignIn.Rejection.AccountDisabled(getString(Res.string.error_account_disabled, supportEmail)),
+			clientRequestException(HttpStatusCode.Forbidden, path = "/auth/v2/bootstrap") to
+				SignIn.Rejection.Untrusted(getString(Res.string.error_untrusted, supportEmail))
 		)
 
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
-		)
+		for ((throwable, expected) in cases) {
+			val viewModel = createViewModel(RecordingAuthRepository(throwable = throwable))
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
 
-		try {
-			viewModel.state.test {
-				awaitItem()
+			try {
+				viewModel.state.test {
+					awaitItem()
 
-				viewModel.setUsbIdAction(VALID_USB_ID)
-				viewModel.setPasswordAction("secret123")
-				viewModel.signInAction()
+					viewModel.setUsbIdAction(VALID_USB_ID)
+					viewModel.setPasswordAction("secret123")
+					viewModel.signInAction()
 
-				val rejected = awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptRejected }
-				assertEquals(VALID_USB_ID, rejected.usbId)
-				assertEquals("secret123", rejected.password)
+					val rejected = awaitUntilState<SignIn.State.Idle> { state -> state.rejection != null }
+					assertEquals(expected, rejected.rejection)
+					assertEquals(VALID_USB_ID, rejected.usbId)
+					assertEquals("secret123", rejected.password)
 
-				viewModel.setPasswordAction("secret1234")
-				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptRejected }
+					cancelAndIgnoreRemainingEvents()
+				}
 
-				cancelAndIgnoreRemainingEvents()
+				// The effect goes out before the state returns to the form: if one was sent, it is queued.
+				viewModel.effect.test {
+					expectNoEvents()
+					cancelAndIgnoreRemainingEvents()
+				}
+			} finally {
+				stateCollector.cancel()
 			}
-		} finally {
-			stateCollector.cancel()
 		}
 	}
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun signInFailingOnTheWayToTheBackend_doesNotMarkTheLastAttemptAsRejected() = runTest {
-		val authRepository = RecordingAuthRepository(
-			throwable = serverResponseException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap")
+	fun editingAfterARejection_clearsIt_whateverTheVerdict() = runTest {
+		val throwables = listOf(
+			clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v2/bootstrap"),
+			clientRequestException(HttpStatusCode.Locked, path = "/auth/v2/bootstrap"),
+			clientRequestException(HttpStatusCode.Forbidden, path = "/auth/v2/bootstrap")
 		)
-		val viewModel = SignInViewModel(
+
+		for (throwable in throwables) {
+			val viewModel = createViewModel(RecordingAuthRepository(throwable = throwable))
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.state.test {
+					awaitItem()
+
+					viewModel.setUsbIdAction(VALID_USB_ID)
+					viewModel.setPasswordAction("secret123")
+					viewModel.signInAction()
+					awaitUntilState<SignIn.State.Idle> { state -> state.rejection != null }
+
+					viewModel.setPasswordAction("secret1234")
+					awaitUntilState<SignIn.State.Idle> { state -> state.rejection == null }
+
+					cancelAndIgnoreRemainingEvents()
+				}
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
+	// Throttling and every failure on the way keep their snackbar and leave no fixed signal.
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun signInFailingWithoutAVerdict_keepsItsSnackbar_andLeavesNoRejection() = runTest {
+		val cases = listOf(
+			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v2/bootstrap") to
+				SignIn.Effect.ShowSnackBar::class,
+			serverResponseException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap") to
+				SignIn.Effect.ShowRetrySnackBar::class
+		)
+
+		for ((throwable, effectType) in cases) {
+			val authRepository = RecordingAuthRepository(throwable = throwable)
+			val viewModel = createViewModel(authRepository)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.effect.test {
+					viewModel.setUsbIdAction(VALID_USB_ID)
+					viewModel.setPasswordAction("secret123")
+					viewModel.signInAction()
+
+					assertEquals(effectType, awaitItem()::class)
+
+					// The attempt reached the backend and came back to the form without a verdict.
+					val back = viewModel.state.first { state ->
+						state is SignIn.State.Idle && authRepository.bootstrapSignInCalls.isNotEmpty()
+					}
+					assertEquals(null, (back as SignIn.State.Idle).rejection)
+
+					cancelAndIgnoreRemainingEvents()
+				}
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
+	private fun createViewModel(authRepository: RecordingAuthRepository): SignInViewModel {
+		return SignInViewModel(
 			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = authRepository,
@@ -186,29 +256,6 @@ class SignInViewModelContractTest {
 			),
 			eventPublisher = NoOpEventPublisher
 		)
-
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
-		)
-
-		try {
-			viewModel.state.test {
-				awaitItem()
-
-				viewModel.setUsbIdAction(VALID_USB_ID)
-				viewModel.setPasswordAction("secret123")
-				viewModel.signInAction()
-
-				// The attempt reached the backend and came back to the form without a rejection.
-				val back = awaitUntilState<SignIn.State.Idle> { _ -> authRepository.bootstrapSignInCalls.isNotEmpty() }
-				assertEquals(false, back.lastAttemptRejected)
-
-				cancelAndIgnoreRemainingEvents()
-			}
-		} finally {
-			stateCollector.cancel()
-		}
 	}
 
 	@Test

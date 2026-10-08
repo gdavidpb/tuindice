@@ -11,7 +11,8 @@ internal fun MachineDefinitionBuilder<UpdatePassword.State>.updatePasswordIdleTr
 ) {
 	from<UpdatePassword.State.Idle> {
 		on<UpdatePassword.Action.SetPassword> { state, action ->
-			state.copy(password = action.password)
+			// The message belongs to the password that was refused: editing it takes the message away.
+			state.copy(password = action.password, error = null)
 		}
 
 		on<UpdatePassword.Action.TogglePasswordVisibility> { state, _ ->
