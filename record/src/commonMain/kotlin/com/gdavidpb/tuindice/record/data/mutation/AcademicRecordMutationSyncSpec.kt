@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
-import com.gdavidpb.tuindice.base.utils.extension.isTransientServerFailure
+import com.gdavidpb.tuindice.base.utils.extension.isRetryableLater
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
@@ -130,11 +130,10 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, AcademicRecordMutation> {
-		// A lost connection or a transient server failure (408, 429, 502, 503, 504, or the wait the
-		// service asked for) says nothing about the change itself: the row stays Pending and the next
-		// drain sends it again. 500 and 501 stay out on purpose: they mean the server cannot handle
-		// that particular request, so retrying it unchanged would only repeat the refusal.
-		if (throwable.isConnection() || throwable.isTransientServerFailure()) {
+		// A lost connection, or a failure that says nothing about the change (see isRetryableLater:
+		// 426, 429, 502, 503, 504, the retry window, a refused attestation), leaves the row Pending so the
+		// next drain sends it again. 500 and the 4xx answers stay out: they are about the request itself.
+		if (throwable.isConnection() || throwable.isRetryableLater()) {
 			return MutationFailureResolution.Defer()
 		}
 
@@ -273,7 +272,7 @@ class AcademicRecordMutationSyncSpec(
 
 // runCatching: the refresh is a network read that fails during the same degraded windows that
 // break sends. Decisional callers Defer on null — evaluations Fails there, but in record Fail
-// parks the row as silent FailedTerminal, and after the connection/transient-failure preamble
+// parks the row as silent FailedTerminal, and after the connection/retry-later preamble
 // the remaining refresh failures are dominated by transient outages that self-heal on a later drain.
 // Reconciliation callers (NotFound) treat it as best-effort: the 404 already decided the
 // resolution, and a dropped envelope can transiently resurrect the stale local base state

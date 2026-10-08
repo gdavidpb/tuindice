@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
-import com.gdavidpb.tuindice.base.utils.extension.isTransientServerFailure
+import com.gdavidpb.tuindice.base.utils.extension.isRetryableLater
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
@@ -101,11 +101,10 @@ class EvaluationMutationSyncSpec(
 		mutation: MutationEnvelope<String, EvaluationMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, EvaluationMutation> {
-		// A lost connection or a transient server failure (408, 429, 502, 503, 504, or the wait the
-		// service asked for) says nothing about the change itself: the row stays Pending and the next
-		// drain sends it again. 500 and 501 stay out on purpose: they mean the server cannot handle
-		// that particular request, so retrying it unchanged would only repeat the refusal.
-		if (throwable.isConnection() || throwable.isTransientServerFailure()) {
+		// A lost connection, or a failure that says nothing about the change (see isRetryableLater:
+		// 426, 429, 502, 503, 504, the retry window, a refused attestation), leaves the row Pending so the
+		// next drain sends it again. 500 and the 4xx answers stay out: they are about the request itself.
+		if (throwable.isConnection() || throwable.isRetryableLater()) {
 			return MutationFailureResolution.Defer()
 		}
 

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
@@ -64,6 +65,7 @@ class KtorClientSessionHardeningTest {
 		}.exceptionOrNull()
 
 		assertNotNull(thrown)
+		assertTrue(thrown is SessionRecoveryAttestationException)
 		assertFalse(thrown.isAccessRejected())
 		assertFalse(sessionRepository.cleared)
 		assertEquals(0, sessionInvalidationRepository.invalidationCalls)

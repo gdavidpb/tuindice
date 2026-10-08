@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -334,10 +335,6 @@ class SessionRecoveryDataSource(
 private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
 	return isSessionSuperseded()
 }
-
-private class SessionRecoveryAttestationException(
-	cause: Throwable
-) : Exception("Attestation rejected during session recovery.", cause)
 
 private fun isStaleTokenAttempt(
 	attemptedAuthorizationAccessToken: String?,

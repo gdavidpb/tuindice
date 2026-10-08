@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
@@ -60,8 +61,9 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 			refreshCalls++
 			error("not reachable")
 		})
-		val unavailableErrors = listOf(408, 429, 502, 503, 504).map(::responseWithStatus) +
-			ServiceRetryWindowException(retryAfterMillis = 30_000L)
+		val unavailableErrors = listOf(426, 429, 502, 503, 504).map(::responseWithStatus) +
+			ServiceRetryWindowException(retryAfterMillis = 30_000L) +
+			SessionRecoveryAttestationException(responseWithStatus(403))
 
 		unavailableErrors.forEach { unavailable ->
 			listOf(
@@ -80,7 +82,7 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 		assertEquals(0, refreshCalls)
 	}
 
-	// 500 and 501 say the server cannot handle that particular request: a verdict, not an outage.
+	// These say something about the request itself (or the server cannot handle it): a verdict, not an outage.
 	@Test
 	fun resolveFailure_whenTheServerRejectsTheRequest_stillFailsTerminally() = runTest {
 		val spec = specUnderTest()
@@ -92,7 +94,7 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 			updateSyntheticTermEnvelope(),
 			deleteSyntheticTermEnvelope()
 		).forEach { mutation ->
-			listOf(400, 500, 501).map(::responseWithStatus).forEach { rejection ->
+			listOf(400, 401, 403, 423, 500).map(::responseWithStatus).forEach { rejection ->
 				val resolution = spec.resolveFailure(mutation = mutation, throwable = rejection)
 
 				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)

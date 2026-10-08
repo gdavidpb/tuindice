@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
@@ -124,8 +125,9 @@ class EvaluationMutationSyncSpecTest {
 	// change: the row stays Pending and goes out again with the next drain.
 	@Test
 	fun resolveFailure_whenTheServiceIsUnavailable_defersEveryKindOfMutation_withoutSnapshotRefresh() = runTest {
-		val unavailableErrors = listOf(408, 429, 502, 503, 504).map(::responseWithStatus) +
-			ServiceRetryWindowException(retryAfterMillis = 30_000L)
+		val unavailableErrors = listOf(426, 429, 502, 503, 504).map(::responseWithStatus) +
+			ServiceRetryWindowException(retryAfterMillis = 30_000L) +
+			SessionRecoveryAttestationException(responseWithStatus(403))
 
 		unavailableErrors.forEach { unavailable ->
 			evaluationMutations().forEach { command ->
@@ -149,10 +151,10 @@ class EvaluationMutationSyncSpecTest {
 		}
 	}
 
-	// 500 and 501 say the server cannot handle that particular request: a verdict, not an outage.
+	// These say something about the request itself (or the server cannot handle it): a verdict, not an outage.
 	@Test
 	fun resolveFailure_whenTheServerRejectsTheRequest_stillFailsTerminally() = runTest {
-		listOf(400, 500, 501).map(::responseWithStatus).forEach { rejection ->
+		listOf(400, 401, 403, 423, 500).map(::responseWithStatus).forEach { rejection ->
 			evaluationMutations().forEach { command ->
 				val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
 				val syncSpec = EvaluationMutationSyncSpec(

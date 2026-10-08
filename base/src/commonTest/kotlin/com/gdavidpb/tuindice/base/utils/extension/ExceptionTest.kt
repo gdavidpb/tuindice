@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
@@ -20,28 +21,37 @@ class ExceptionTest {
 	}
 
 	@Test
-	fun isTransientServerFailure_isTrueForTheTransientStatuses_whateverTheMessageSays() {
-		listOf(408, 429, 502, 503, 504).forEach { code ->
-			assertTrue(responseWith(code).isTransientServerFailure(), "status $code")
+	fun isRetryableLater_isTrueForTheStatusesThatDoNotSpeakAboutTheRequest_whateverTheMessageSays() {
+		listOf(426, 429, 502, 503, 504).forEach { code ->
+			assertTrue(responseWith(code).isRetryableLater(), "status $code")
 		}
 	}
 
 	@Test
-	fun isTransientServerFailure_isFalseForTheStatusesThatAreAVerdict() {
-		listOf(400, 401, 403, 404, 409, 412, 422, 500, 501).forEach { code ->
-			assertFalse(responseWith(code).isTransientServerFailure(), "status $code")
+	fun isRetryableLater_isFalseForTheStatusesThatAreAVerdict() {
+		listOf(400, 401, 403, 404, 408, 409, 412, 422, 423, 500, 501).forEach { code ->
+			assertFalse(responseWith(code).isRetryableLater(), "status $code")
 		}
 	}
 
 	@Test
-	fun isTransientServerFailure_isTrueForTheRetryWindow() {
-		assertTrue(ServiceRetryWindowException(retryAfterMillis = 1_000L).isTransientServerFailure())
+	fun isRetryableLater_isTrueForTheRetryWindow() {
+		assertTrue(ServiceRetryWindowException(retryAfterMillis = 1_000L).isRetryableLater())
 	}
 
 	@Test
-	fun isTransientServerFailure_decidesByStatus_notByTheTimeoutWordInTheMessage() {
-		assertTrue(responseWith(504, message = "upstream did not answer").isTransientServerFailure())
-		assertFalse(responseWith(500, message = "request timeout inside the handler").isTransientServerFailure())
-		assertFalse(IllegalStateException("timeout").isTransientServerFailure())
+	fun isRetryableLater_isTrueForAnAttestationRefusedDuringRecovery_alsoAsACause() {
+		val attestation = SessionRecoveryAttestationException(responseWith(403))
+
+		assertTrue(attestation.isRetryableLater())
+		assertTrue(IllegalStateException("refresh failed", attestation).isRetryableLater())
+	}
+
+	@Test
+	fun isRetryableLater_decidesByStatus_notByTheTimeoutWordInTheMessage() {
+		assertTrue(responseWith(504, message = "upstream did not answer").isRetryableLater())
+		assertFalse(responseWith(500, message = "request timeout inside the handler").isRetryableLater())
+		assertFalse(responseWith(408, message = "request took too long").isRetryableLater())
+		assertFalse(IllegalStateException("timeout").isRetryableLater())
 	}
 }
