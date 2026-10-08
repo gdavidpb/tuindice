@@ -63,6 +63,9 @@ E2E_SCENARIOS=auth-login-success ./gradlew e2eAndroid
 - `--survey` keeps going after failures and lists them all; `--repeat N` repeats the selection and prints the pass
   rate per scenario; `--trace` asks the runner for step traces; `--dry-run` prints the plan, the toolchain check and
   the environment check without building or booting anything.
+- `--driver-contract` also runs the driver contract (the `driver-contract` adapter verb) before the first scenario;
+  evidence always runs it. When environment failures mix with greens, a `--repeat` run prints a `SERIES` line with how
+  many scenario runs were valid and how many the environment took (the manifest keeps it in `series`).
 - `--platform all` prepares one platform at a time and, when the host has the capacity, runs both in parallel; the
   decision and its reason are recorded.
 - The harness boots the dedicated devices itself (the AVD and the `TuIndice-E2E` simulator named by the locks) and
@@ -113,6 +116,12 @@ Commit the two generated files with the scenario. The host tests in `scenarios/s
 action coverage, mock contract); their messages say what to fix.
 
 ## Evidence
+
+Before its first scenario an evidence run executes the `driver-contract` verb of the platform's adapter once: the
+driver's contract (Android also runs the on-device driver and typing probes, not the `typingSeries` measurement). A red
+contract, a missing verb or an answer the harness cannot read is exit 3 and no scenario runs; the manifest records the
+phase and `driverContract`. A simulator that stops serving preferences is `environment` (see the runbook).
+The manifest also counts what the drivers tolerated on their own as `tolerances: {key: n}` (empty when none).
 
 Evidence is produced by `./gradlew e2eEvidence` (or one platform) on a clean tree whose `HEAD` is pushed. The
 fingerprint depends on the git tree alone: app and runtime sources, `mocks/`, `e2e/catalog`, the driver sources, the

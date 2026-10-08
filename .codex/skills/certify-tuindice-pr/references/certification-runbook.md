@@ -129,7 +129,12 @@ a `TYPED_TEXT_MISMATCH`, or a 401 on `/auth/v2/bootstrap` whose decoded `Authori
 is `typed_text_mismatch` ("typed X but the backend received Y"); the same 401 with the right credential, a request
 with no stub, or another Bearer is `backend_mismatch`; the rest is `product_assertion`. `APP_NOT_RUNNING` before
 the first step is `environment`; from the first step on it is `app_crash` only when the crash probe found a crash
-or an ANR, otherwise `product_assertion`.
+or an ANR, otherwise `product_assertion`. A failed attempt whose app or runner log shows `kAXErrorAPIDisabled` or the
+CFPrefs read/write failures is `environment` ("the simulator stopped serving accessibility/preferences"), and iOS
+`health` fails with `simulator degraded` when the preferences are not served. Such a degradation is recovered the first
+time; another needs at least 30 green scenarios since the previous one, or the run is exit 3 (`deviceDegradation` in the
+manifest: count, and per event the time and the scenarios since the previous). The manifest also holds `tolerances`
+(what the drivers tolerated, `{key: n}`) and, for a `--repeat` series, `series` with the `SERIES` line's counts.
 
 Where the time went: `python3 e2e/tools/e2e-profile.py` (latest run per platform), `--compare 1` (against the
 previous run), `--last 5`. It prints per-scenario duration, per-primitive p50/p95 and the cost of one runner
@@ -145,7 +150,7 @@ leftovers of the previous harness and is the owner's command.
 | 0 | Green, and published when publishing was required | Open or update the PR |
 | 1 | Some scenarios failed; greens are kept | Read `summary.txt`, fix by class (`SKILL.md`), push, rerun the helper |
 | 2 | Misuse or a precondition that does not hold: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a test variable set while publishing, an `E2E_MAX_RETRIES` other than the ledger's, a selection that matches nothing. Some are found after the device is prepared or the build is done (including "the checkout changed during the run"), never after publishing | Fix what the message names; nothing is recorded or published from that point |
-| 3 | The environment was refused or could not be recovered | Fix the machine (section 6), rerun once. A second exit 3 in the session is a stop condition |
+| 3 | The environment was refused or could not be recovered, or the `driver-contract` gate failed (no scenario ran; the manifest's `driverContract.failed` names the probes) | Fix the machine (section 6) or the driver, rerun once. A second exit 3 in the session is a stop condition |
 | 4 | Budget exhausted; greens are kept | Rerun; it continues with the pending scenarios |
 | 5 | Stopped with a diagnosis: `typed_text_mismatch` or `app_crash` at the first attempt, or the same class twice for a scenario (`environment` included, under the same fingerprint) | Stop |
 | 6 | Green, but publishing failed | Fix `gh` or the push, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`; the ledger is intact |
