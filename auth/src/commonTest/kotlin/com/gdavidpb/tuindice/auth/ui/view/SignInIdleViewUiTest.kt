@@ -461,6 +461,31 @@ class SignInIdleViewUiTest {
 		assertEquals(invalidCredentials.message, onNodeWithTag(AuthUiTags.PasswordTextField).errorDescription())
 	}
 
+	// The message under the button leaves animated: while it goes it still reads what it said, it does not
+	// shrink to an empty line first.
+	@Test
+	fun when_theFixedRejectionIsCleared_then_theMessageKeepsItsTextWhileItLeavesAndIsGoneAfter() = runTuIndiceUiTest {
+		var state by mutableStateOf(SignIn.State.Idle(usbId = "12-34567", password = "1234", rejection = accountDisabled))
+
+		setTuIndiceTestContent {
+			SignInView(state = state)
+		}
+
+		onNodeWithTag(AuthUiTags.SignInRejectedMarker).assertTextEquals(accountDisabled.message)
+
+		mainClock.autoAdvance = false
+		state = state.copy(rejection = null)
+		mainClock.advanceTimeByFrame()
+		mainClock.advanceTimeByFrame()
+
+		onNodeWithTag(AuthUiTags.SignInRejectedMarker).assertTextEquals(accountDisabled.message)
+
+		mainClock.advanceTimeBy(2_000)
+		waitForIdle()
+
+		assertNodeHidden(AuthUiTags.SignInRejectedMarker)
+	}
+
 	@Composable
 	private fun SignInView(
 		state: SignIn.State.Idle,

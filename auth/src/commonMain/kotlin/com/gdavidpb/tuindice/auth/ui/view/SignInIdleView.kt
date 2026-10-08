@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -224,8 +223,7 @@ fun SignInIdleView(
 		// Animated so the form does not jump when the wait starts or ends, and a live region so a
 		// screen reader says why the button stopped responding.
 		FixedMessage(
-			visible = state.isServiceUnavailable,
-			text = stringResource(Res.string.sign_in_service_unavailable),
+			text = stringResource(Res.string.sign_in_service_unavailable).takeIf { state.isServiceUnavailable },
 			color = MaterialTheme.colorScheme.onSurfaceVariant,
 			tag = AuthUiTags.ServiceUnavailableMessage
 		)
@@ -233,8 +231,7 @@ fun SignInIdleView(
 		// A disabled account or an unverified device: nothing the person typed is wrong, so the fields
 		// stay as they are and the message stays here, in the color of an error, until they edit.
 		FixedMessage(
-			visible = fixedRejection != null,
-			text = fixedRejection?.message.orEmpty(),
+			text = fixedRejection?.message,
 			color = MaterialTheme.colorScheme.error,
 			tag = AuthUiTags.SignInRejectedMarker
 		)
@@ -277,33 +274,36 @@ fun SignInIdleView(
 	}
 }
 
+// [text] is null while there is nothing to say. The message that leaves keeps its own text for as long as it
+// takes to go, so the block does not collapse into an empty line first.
 @Composable
 private fun FixedMessage(
-	visible: Boolean,
-	text: String,
+	text: String?,
 	color: Color,
 	tag: String
 ) {
-	AnimatedVisibility(
-		visible = visible,
-		enter = fadeIn() + expandVertically(),
-		exit = fadeOut() + shrinkVertically()
-	) {
-		Text(
-			modifier = Modifier
-				.testTag(tag)
-				.semantics { liveRegion = LiveRegionMode.Polite }
-				.fillMaxWidth()
-				.padding(
-					start = TuIndiceSpacing.Wide,
-					end = TuIndiceSpacing.Wide,
-					bottom = TuIndiceSpacing.Screen
-				),
-			text = text,
-			style = MaterialTheme.typography.bodySmall,
-			color = color,
-			textAlign = TextAlign.Center
-		)
+	AnimatedContent(
+		targetState = text,
+		transitionSpec = { fadeIn() togetherWith fadeOut() },
+		label = "FixedMessage"
+	) { message ->
+		if (message != null) {
+			Text(
+				modifier = Modifier
+					.testTag(tag)
+					.semantics { liveRegion = LiveRegionMode.Polite }
+					.fillMaxWidth()
+					.padding(
+						start = TuIndiceSpacing.Wide,
+						end = TuIndiceSpacing.Wide,
+						bottom = TuIndiceSpacing.Screen
+					),
+				text = message,
+				style = MaterialTheme.typography.bodySmall,
+				color = color,
+				textAlign = TextAlign.Center
+			)
+		}
 	}
 }
 
