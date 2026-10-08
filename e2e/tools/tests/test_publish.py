@@ -1,10 +1,11 @@
 """Publication of the platform status and its single context."""
 
+import json
 import os
 import subprocess
 import unittest
 
-from support import FP_A, Workspace, scenario, text
+from support import FP_A, FP_B, Workspace, scenario, text
 
 
 def gh_posts(ws):
@@ -108,6 +109,104 @@ class PublishTests(unittest.TestCase):
         description = ws.ledger()["publications"][0]["description"]
         self.assertTrue(description.endswith(" retried 1. quarantined 1."), description)
         self.assertLessEqual(len(description), 140)
+
+
+CONTEXT = "local-e2e/ios/local-certification-suite"
+
+
+def trusted_status(fingerprint=FP_A, creator="owner", state="success"):
+    return {"context": CONTEXT, "state": state, "creator": {"login": creator},
+        "description": "Local E2E ios 3/3 passed for 1234567 fp %s." % fingerprint[:12]}
+
+
+class PublishFromAnAncestorTests(unittest.TestCase):
+    """`publish` without a complete ledger for the fingerprint: it cites the ancestor that holds trusted evidence for the
+    same fingerprint (option C: the workflow of a pull request never writes, so the owner does it from here)."""
+
+    def setUp(self):
+        self.ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")])
+        self.statuses = os.path.join(self.ws.dir, "statuses")
+        os.makedirs(self.statuses)
+        self.ws.env.update(E2E_FAKE_GH_STATUSES_DIR=self.statuses)
+        self.ws.git("branch", "production")
+        self.evidence = self.commit("evidence here")
+        self.commit("changed after the evidence")
+
+    def commit(self, message):
+        self.ws.git("commit", "-q", "--allow-empty", "-m", message)
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.ws.repo, stdout=subprocess.PIPE,
+            universal_newlines=True, check=True).stdout.strip()
+        self.ws.git("update-ref", "refs/remotes/origin/main", sha)  # pushed: HEAD == @{u}
+        return sha
+
+    def remote(self, sha, *statuses):
+        with open(os.path.join(self.statuses, sha + ".json"), "w") as handle:
+            json.dump(list(statuses), handle)
+
+    def publish(self, **env):
+        return self.ws.run("publish", "--platform", "ios", **env)
+
+    def test_the_trusted_ancestor_with_the_same_fingerprint_is_cited_on_head(self):
+        self.remote(self.evidence, trusted_status())
+        result = self.publish()
+        self.assertEqual(result.code, 0, result.out + result.err)
+        posts = gh_posts(self.ws)
+        self.assertEqual(len(posts), 1, posts)
+        head = self.commit_sha()
+        self.assertIn("statuses/%s" % head, posts[0])
+        self.assertIn("context=%s" % CONTEXT, posts[0])
+        self.assertIn("description=Local E2E ios reused from %s fp %s." % (self.evidence[:7], FP_A[:12]), posts[0])
+        self.assertEqual(self.ws.calls(), [], "publish never runs the adapter")
+
+    def commit_sha(self):
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.ws.repo, stdout=subprocess.PIPE,
+            universal_newlines=True, check=True).stdout.strip()
+
+    def test_a_head_that_already_has_the_evidence_is_not_published_again(self):
+        self.remote(self.commit_sha(), trusted_status())
+        result = self.publish()
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(gh_posts(self.ws), [])
+        self.assertIn("already", result.out)
+
+    def test_an_ancestor_with_another_fingerprint_is_not_cited(self):
+        self.remote(self.evidence, trusted_status(fingerprint=FP_B))
+        result = self.publish()
+        self.assertEqual(result.code, 2, result.out)
+        self.assertEqual(gh_posts(self.ws), [])
+        self.assertIn("2 scenarios are not green", result.err)
+        self.assertIn("naming that fingerprint", result.err)
+
+    def test_an_ancestor_created_by_someone_untrusted_is_not_cited(self):
+        for creator in ("stranger", "github-actions[bot]"):
+            self.remote(self.evidence, trusted_status(creator=creator))
+            result = self.publish()
+            self.assertEqual(result.code, 2, creator + result.out)
+            self.assertEqual(gh_posts(self.ws), [], creator)
+            self.assertIn("created by owner", result.err)
+
+    def test_a_failure_status_or_a_lookup_that_failed_cites_nothing(self):
+        self.remote(self.evidence, trusted_status(state="failure"))
+        self.assertEqual(self.publish().code, 2)
+        self.remote(self.evidence, trusted_status())
+        failed = self.publish(E2E_FAKE_GH_FAIL_SHAS=self.evidence)
+        self.assertEqual(failed.code, 2, failed.out)
+        self.assertIn("did not answer", failed.err)
+        self.assertEqual(gh_posts(self.ws), [])
+
+    def test_a_failed_precondition_never_reaches_gh(self):
+        self.remote(self.evidence, trusted_status())
+        with open(os.path.join(self.ws.repo, "stray.txt"), "w") as handle:
+            handle.write("x")
+        dirty = self.publish()
+        self.assertEqual(dirty.code, 2, dirty.out)
+        self.assertFalse(os.path.exists(self.ws.gh_log), "gh was called with a dirty tree")
+        os.remove(os.path.join(self.ws.repo, "stray.txt"))
+        self.ws.git("commit", "-q", "--allow-empty", "-m", "unpushed")
+        unpushed = self.publish()
+        self.assertEqual(unpushed.code, 2, unpushed.out)
+        self.assertIn("HEAD == @{u}", unpushed.err)
+        self.assertFalse(os.path.exists(self.ws.gh_log), "gh was called with HEAD ahead of its upstream")
 
 
 if __name__ == "__main__":

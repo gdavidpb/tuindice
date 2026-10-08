@@ -43,6 +43,12 @@ def description(platform, runnable, quarantined, sha, fingerprint, ledger):
     return text[:140]
 
 
+def reuse_description(platform, evidence_sha, fingerprint):
+    """The status text when the evidence is cited from an ancestor. It keeps `fp <first 12 of the fingerprint>`, which is
+    what the preflight and the verdict check, and names the commit the evidence was produced on."""
+    return ("Local E2E %s reused from %s fp %s." % (platform, evidence_sha[:7], fingerprint[:12]))[:140]
+
+
 def publish_once(config, platform, git, context, text, ledger, run_id, log):
     """Posts the success status unless the ledger already holds it, and records it. Returns "already" or "published"; a status
     GitHub did not take is a PublishError and the ledger stays as it was."""

@@ -116,6 +116,14 @@ class Remote:
         return found
 
 
+def locate_evidence(cfg, platform, fingerprint, head):
+    """(found, trusted): the remote lookup of trusted evidence for `fingerprint` on HEAD and then on the commits preflight
+    considers, and the logins that count as trusted (for the explanation when there is none). Reads only."""
+    remote = Remote(cfg)
+    found = remote.find(platform, fingerprint, [head] + reuse_candidates(cfg.root, head))
+    return found, (remote.trusted() if remote.owner else set())
+
+
 def decide(info, head, candidates, remote):
     """(verdict, evidence) from the ledger facts of one platform (`info`) and the remote lookup.
 

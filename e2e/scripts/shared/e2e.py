@@ -160,6 +160,32 @@ def cmd_list(cfg, args):
     return 0
 
 
+def publish_ancestor_evidence(cfg, platform, git, context, fingerprint, pending, log):
+    """The ledger is not complete for this fingerprint: if HEAD or an ancestor preflight considers already has a trusted
+    success status naming it, publish on HEAD a status that says where the evidence was produced. Anything else is a refusal."""
+    found, trusted = verdict.locate_evidence(cfg, platform, fingerprint, git.sha)
+    refusal = "%d scenarios are not green for fp %s: %s" % (len(pending), fingerprint[:12], ", ".join(pending))
+    if found["incomplete"]:
+        raise UsageError("%s; GitHub did not answer for %s after asking twice, so no evidence on them can be cited"
+            % (refusal, " ".join(sha[:12] for sha in found["incomplete"])))
+    if not found["sha"]:
+        if not found["reachable"]:
+            raise UsageError("%s; GitHub could not be read, so no evidence on an ancestor can be cited" % refusal)
+        raise UsageError("%s; none of the %d commits looked at (HEAD and those preflight considers) has a success status %s naming "
+            "that fingerprint created by %s" % (refusal, found["checked"], context, ", ".join(sorted(trusted)) or "a trusted login"))
+    if found["sha"] == git.sha:
+        log.say("status %s already on %s with fp %s; nothing to publish" % (context, git.sha7, fingerprint[:12]))
+        return 0
+    text = publish_mod.reuse_description(platform, found["sha"], fingerprint)
+    try:
+        publish_mod.publish_success(cfg, platform, git.sha, context, text)
+    except publish_mod.PublishError as error:
+        log.say("PUBLISH FAILED %s" % error)
+        return 6
+    log.say("published %s citing the evidence on %s: %s" % (context, found["sha"][:7], text))
+    return 0
+
+
 def cmd_publish(cfg, args):
     log = report.Log(args.platform)
     git = GitState(cfg.root)
@@ -171,9 +197,9 @@ def cmd_publish(cfg, args):
         git.require_publishable(publish_mod.gh_command(cfg))
         runnable, quarantined = catalog.in_scope(args.platform)
         pending = [s.id for s in runnable if not ledger.passed(s.id)]
-        if pending:
-            raise UsageError("%d scenarios are not green for fp %s: %s" % (len(pending), fingerprint[:12], ", ".join(pending)))
         context = publish_mod.status_context(cfg, args.platform)
+        if pending:
+            return publish_ancestor_evidence(cfg, args.platform, git, context, fingerprint, pending, log)
         text = publish_mod.description(args.platform, runnable, quarantined, git.sha, fingerprint, ledger)
         try:
             if publish_mod.publish_once(cfg, args.platform, git, context, text, ledger, "publish", log) == "published":
