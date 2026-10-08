@@ -14,16 +14,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CatalogTagsTest {
-	/** Tags no `*UiTags` declares, on purpose. */
-	private val exceptions = setOf("poc_never_present")
-
 	private val real = UiTagSources(RepoFiles.uiTagFiles().map { it.readText() })
 
 	@Test
 	fun everyTagIsAUiTagConstantOrFitsABuilderTemplate() {
 		assertTrue(real.hasTags, "no UiTags found")
 
-		val unknown = resolvedTags().filter { tag -> tag !in exceptions && !real.accepts(tag) }
+		val unknown = resolvedTags().filter { tag -> !real.accepts(tag) }
 
 		assertTrue(unknown.isEmpty(), "tags that no UiTags declares: ${unknown.sorted()}")
 	}
@@ -31,13 +28,6 @@ class CatalogTagsTest {
 	@Test
 	fun noBuilderTemplateLacksALiteralPrefix() {
 		assertTrue(real.degenerate.isEmpty(), "templates that would accept any tag: ${real.degenerate}")
-	}
-
-	@Test
-	fun theExceptionsAreStillUsed() {
-		val stale = exceptions - resolvedTags()
-
-		assertTrue(stale.isEmpty(), "exceptions no scenario uses: $stale")
 	}
 
 	@Test

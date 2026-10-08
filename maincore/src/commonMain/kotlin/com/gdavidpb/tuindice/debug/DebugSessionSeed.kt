@@ -15,17 +15,4 @@ data class DebugSessionSeed(
 	val password: String,
 	val coachmarksSeen: Boolean,
 	val mainSection: MainSection
-) {
-	companion object {
-		/** What the legacy `SEED_STATE` launch argument stands for. */
-		val Canonical = DebugSessionSeed(
-			sessionId = "auth-session-initial",
-			accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
-			refreshToken = "refresh.mock.token.value",
-			usbId = "11-11111",
-			password = "123456",
-			coachmarksSeen = true,
-			mainSection = MainSection.SUMMARY
-		)
-	}
-}
+)

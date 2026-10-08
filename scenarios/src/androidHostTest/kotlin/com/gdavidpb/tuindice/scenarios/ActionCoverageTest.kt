@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.scenarios
 import com.gdavidpb.tuindice.scenarios.catalog.ActionDisposition
 import com.gdavidpb.tuindice.scenarios.catalog.ActionDispositions
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
-import com.gdavidpb.tuindice.scenarios.catalog.MigrationProgress
+import com.gdavidpb.tuindice.scenarios.catalog.scenarioModuleOf
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 /**
  * Every MVI action a user can trigger is covered by a scenario, or dispositioned as internal or
- * platform-edge. Actions of a module still in `MigrationProgress.pendingModules` are not required yet.
+ * platform-edge.
  */
 class ActionCoverageTest {
 	private val contractActions: Set<String> = contractActions()
@@ -77,21 +77,18 @@ class ActionCoverageTest {
 	}
 
 	@Test
-	fun everyActionOfATranslatedModuleIsCoveredOrDispositioned() {
-		val uncovered = contractActions
-			.filter { MigrationProgress.scenarioModuleOf(it.substringBefore('.')) !in MigrationProgress.pendingModules }
-			.filter { it !in covered && it !in dispositioned }
+	fun everyActionIsCoveredOrDispositioned() {
+		val uncovered = contractActions.filter { it !in covered && it !in dispositioned }
 
 		assertTrue(uncovered.isEmpty(), "actions with no scenario and no disposition: ${uncovered.sorted()}")
 	}
 
 	@Test
-	fun pendingModulesAreScenarioModulesThatExist() {
+	fun everyActionModuleHasAScenarioModule() {
 		val modules = E2eCatalog.byModule.keys
 
-		assertTrue(MigrationProgress.pendingModules.all { it in modules }, "unknown pending module")
 		assertTrue(
-			contractActions.map { MigrationProgress.scenarioModuleOf(it.substringBefore('.')) }.toSet()
+			contractActions.map { scenarioModuleOf(it.substringBefore('.')) }.toSet()
 				.all { it in modules },
 			"an action module has no scenario module"
 		)

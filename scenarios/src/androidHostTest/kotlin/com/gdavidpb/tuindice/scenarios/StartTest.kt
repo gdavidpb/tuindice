@@ -110,13 +110,12 @@ class StartTest {
 	}
 
 	@Test
-	fun everyStartUsesOnlyDeclaredKeysAndNeverTheLegacySeed() {
+	fun everyStartUsesOnlyDeclaredKeys() {
 		val specs = listOf(Start.Clean().toLaunchSpec()) +
 			E2eAccounts.all.filter { it.session != null }.map { Start.Seeded(it).toLaunchSpec() }
 
 		specs.forEach { spec ->
 			assertTrue(spec.arguments.keys.all { it in DebugLaunchArguments.keys })
-			assertTrue(DebugLaunchArguments.SEED_STATE !in spec.arguments)
 		}
 	}
 

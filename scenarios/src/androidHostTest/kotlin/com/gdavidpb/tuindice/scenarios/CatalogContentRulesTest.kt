@@ -59,7 +59,7 @@ class CatalogContentRulesTest {
 
 	@Test
 	fun everyTimeoutIsOneOfTheKitNames() {
-		val offenders = CatalogRules.timeoutsOutsideNames(scenarios.filterNot { it.module == "poc" })
+		val offenders = CatalogRules.timeoutsOutsideNames(scenarios)
 
 		assertTrue(offenders.isEmpty(), "timeouts that are not Timeouts.*: $offenders")
 	}

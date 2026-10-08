@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
-import com.gdavidpb.tuindice.debug.DebugSessionSeed
 import com.gdavidpb.tuindice.scenarios.MockJson.string
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
@@ -84,18 +83,6 @@ class AccountSessionFixturesTest {
 			assertEquals(account.password, seed.password)
 			assertEquals(checkNotNull(account.session).accessToken, seed.accessToken)
 		}
-	}
-
-	@Test
-	fun theCanonicalSessionMatchesTheLegacySeed() {
-		val session = checkNotNull(E2eAccounts.Canonical.session)
-		val legacy = DebugSessionSeed.Canonical
-
-		assertEquals(legacy.sessionId, session.sessionId)
-		assertEquals(legacy.accessToken, session.accessToken)
-		assertEquals(legacy.refreshToken, session.refreshToken)
-		assertEquals(legacy.usbId, E2eAccounts.Canonical.usbIdFormatted)
-		assertEquals(legacy.password, E2eAccounts.Canonical.password)
 	}
 
 	@Test

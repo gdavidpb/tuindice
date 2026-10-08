@@ -26,6 +26,16 @@ class DebugSessionSeederTest {
 		syncStatusRepository = syncStatus
 	)
 
+	private val baseSeed = DebugSessionSeed(
+		sessionId = "session-1",
+		accessToken = "access-1",
+		refreshToken = "refresh-1",
+		usbId = "22-22222",
+		password = "secret-1",
+		coachmarksSeen = true,
+		mainSection = MainSection.SUMMARY
+	)
+
 	@Test
 	fun seed_storesTheSnapshotThePasswordAndTheDataOwner() = runTest {
 		val seed = DebugSessionSeed(
@@ -56,7 +66,7 @@ class DebugSessionSeederTest {
 
 	@Test
 	fun seed_marksEveryContextualCoachmarkWhenSeen() = runTest {
-		seeder.seed(DebugSessionSeed.Canonical.copy(coachmarksSeen = true))
+		seeder.seed(baseSeed.copy(coachmarksSeen = true))
 
 		assertEquals(
 			contextualCoachmarks().map { it.id.persistedId }.toSet(),
@@ -66,7 +76,7 @@ class DebugSessionSeederTest {
 
 	@Test
 	fun seed_leavesCoachmarksPendingWhenAsked() = runTest {
-		seeder.seed(DebugSessionSeed.Canonical.copy(coachmarksSeen = false))
+		seeder.seed(baseSeed.copy(coachmarksSeen = false))
 
 		assertTrue(settings.getSeenCoachmarkIds().isEmpty())
 	}
@@ -77,7 +87,7 @@ class DebugSessionSeederTest {
 		credentials.setPassword("stale-password")
 		syncStatus.emitSyncStatus(SyncStatus.Failed)
 
-		seeder.seed(DebugSessionSeed.Canonical.copy(coachmarksSeen = false))
+		seeder.seed(baseSeed.copy(coachmarksSeen = false))
 
 		assertTrue(session.cleared)
 		assertTrue(settings.cleared)
@@ -85,6 +95,6 @@ class DebugSessionSeederTest {
 		assertEquals(1, syncStatus.resetCalls)
 		assertTrue(settings.getSeenCoachmarkIds().isEmpty())
 		assertEquals(SyncStatus.Healthy, syncStatus.getSyncStatus())
-		assertEquals(listOf(DebugSessionSeed.Canonical.password), listOf(credentials.getPassword()))
+		assertEquals(listOf(baseSeed.password), listOf(credentials.getPassword()))
 	}
 }

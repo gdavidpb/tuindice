@@ -63,13 +63,8 @@ data class DebugLaunchArguments(
 		/** `seen` (default) or `pending`. */
 		const val SEED_COACHMARKS = "TUINDICE_E2E_SEED_COACHMARKS"
 
-		/** Legacy Maestro seed, `authenticatedCoachmarksSeen` or `authenticatedCoachmarksPending`. */
-		const val SEED_STATE = "TUINDICE_E2E_SEED_STATE"
-
 		const val COACHMARKS_SEEN = "seen"
 		const val COACHMARKS_PENDING = "pending"
-		const val LEGACY_STATE_COACHMARKS_SEEN = "authenticatedCoachmarksSeen"
-		const val LEGACY_STATE_COACHMARKS_PENDING = "authenticatedCoachmarksPending"
 
 		private val identityKeys = listOf(
 			SEED_SESSION_ID,
@@ -89,8 +84,7 @@ data class DebugLaunchArguments(
 			AVAILABILITY_NOTICE_TITLE,
 			AVAILABILITY_NOTICE_MESSAGE,
 			MAIN_SECTION,
-			SEED_COACHMARKS,
-			SEED_STATE
+			SEED_COACHMARKS
 		) + identityKeys
 
 		/**
@@ -126,32 +120,13 @@ data class DebugLaunchArguments(
 		}
 
 		private fun parseSeed(present: Map<String, String>): DebugSessionSeed? {
-			val explicitKeys = identityKeys + SEED_COACHMARKS
-			val hasExplicitSeed = explicitKeys.any { it in present }
-			val legacyState = present[SEED_STATE]
+			val hasSeed = (identityKeys + SEED_COACHMARKS).any { it in present }
 
-			require(legacyState == null || !hasExplicitSeed) {
-				"$SEED_STATE cannot be combined with explicit seed values."
-			}
+			if (!hasSeed) return null
 
 			val mainSection = present[MAIN_SECTION]?.let(::parseMainSection) ?: MainSection.SUMMARY
 
-			return when {
-				legacyState != null -> legacySeed(legacyState, mainSection)
-				hasExplicitSeed -> explicitSeed(present, mainSection)
-				else -> null
-			}
-		}
-
-		private fun legacySeed(state: String, mainSection: MainSection): DebugSessionSeed {
-			return DebugSessionSeed.Canonical.copy(
-				coachmarksSeen = when (state) {
-					LEGACY_STATE_COACHMARKS_SEEN -> true
-					LEGACY_STATE_COACHMARKS_PENDING -> false
-					else -> throw IllegalArgumentException("Unsupported $SEED_STATE: $state")
-				},
-				mainSection = mainSection
-			)
+			return explicitSeed(present, mainSection)
 		}
 
 		private fun explicitSeed(present: Map<String, String>, mainSection: MainSection): DebugSessionSeed {

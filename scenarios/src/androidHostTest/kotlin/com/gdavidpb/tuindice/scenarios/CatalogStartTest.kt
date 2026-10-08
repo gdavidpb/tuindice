@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
-import com.gdavidpb.tuindice.scenarios.catalog.MigrationProgress
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.shared.SIGN_IN_GROUP
@@ -42,8 +41,7 @@ class CatalogStartTest {
 		DebugLaunchArguments.SEED_USB_ID,
 		DebugLaunchArguments.SEED_PASSWORD,
 		DebugLaunchArguments.SEED_COACHMARKS,
-		DebugLaunchArguments.MAIN_SECTION,
-		DebugLaunchArguments.SEED_STATE
+		DebugLaunchArguments.MAIN_SECTION
 	)
 
 	@Test
@@ -67,13 +65,11 @@ class CatalogStartTest {
 	}
 
 	@Test
-	fun theAllowlistIsCompleteOnceTheModuleIsTranslated() {
+	fun theAllowlistIsComplete() {
 		val ids = scenarios.map { it.id }.toSet()
-		val missing = uiSignInAllowlist.filter { id ->
-			id.substringBefore('-') !in MigrationProgress.pendingModules && id !in ids
-		}
+		val missing = uiSignInAllowlist.filter { it !in ids }
 
-		assertTrue(missing.isEmpty(), "allowlisted scenarios missing from a translated module: $missing")
+		assertTrue(missing.isEmpty(), "allowlisted scenarios missing from the catalog: $missing")
 	}
 
 	@Test

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.scenariokit.codec.ScenarioNaming
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
-import com.gdavidpb.tuindice.scenarios.catalog.MigrationProgress
 import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,7 +19,7 @@ class CatalogShapeTest {
 		scenarios.forEach { scenario ->
 			assertTrue(idShape.matches(scenario.id), "'${scenario.id}' is not [a-z0-9-]+")
 			assertTrue(
-				scenario.id.startsWith("${scenario.module}-") || scenario.id.startsWith("poc-"),
+				scenario.id.startsWith("${scenario.module}-"),
 				"'${scenario.id}' does not start with its module '${scenario.module}'"
 			)
 		}
@@ -52,11 +51,10 @@ class CatalogShapeTest {
 	}
 
 	@Test
-	fun everyTranslatedModuleHasASmokeScenario() {
-		val translated = E2eCatalog.byModule.keys
-			.filter { it !in E2eCatalog.nonProductModules && it !in MigrationProgress.pendingModules }
+	fun everyProductModuleHasASmokeScenario() {
+		val product = E2eCatalog.byModule.keys.filter { it !in E2eCatalog.nonProductModules }
 
-		translated.forEach { module ->
+		product.forEach { module ->
 			assertTrue(scenarios.any { it.module == module && "smoke" in it.tags }, "module '$module' has no smoke scenario")
 		}
 	}

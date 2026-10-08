@@ -167,40 +167,14 @@ class DebugLaunchArgumentsTest {
 	}
 
 	@Test
-	fun legacySeedState_mapsToTheCanonicalSeed() {
-		val seen = DebugLaunchArguments.parse(
-			mapOf(DebugLaunchArguments.SEED_STATE to "authenticatedCoachmarksSeen")
-		).sessionSeed
-		val pending = DebugLaunchArguments.parse(
-			mapOf(
-				DebugLaunchArguments.SEED_STATE to "authenticatedCoachmarksPending",
-				DebugLaunchArguments.MAIN_SECTION to "PENSUM"
-			)
-		).sessionSeed
-
-		assertEquals(DebugSessionSeed.Canonical, seen)
-		assertEquals(
-			DebugSessionSeed.Canonical.copy(coachmarksSeen = false, mainSection = MainSection.PENSUM),
-			pending
-		)
+	fun theRetiredSeedStateKey_isUnknown() {
 		assertFailsWith<IllegalArgumentException> {
-			DebugLaunchArguments.parse(mapOf(DebugLaunchArguments.SEED_STATE to "other"))
-		}
-	}
-
-	@Test
-	fun legacySeedStateWithExplicitSeed_fails() {
-		assertFailsWith<IllegalArgumentException> {
-			DebugLaunchArguments.parse(identity + (DebugLaunchArguments.SEED_STATE to "authenticatedCoachmarksSeen"))
+			DebugLaunchArguments.parse(mapOf("TUINDICE_E2E_SEED_STATE" to "authenticatedCoachmarksSeen"))
 		}
 		assertFailsWith<IllegalArgumentException> {
-			DebugLaunchArguments.parse(
-				mapOf(
-					DebugLaunchArguments.SEED_STATE to "authenticatedCoachmarksSeen",
-					DebugLaunchArguments.SEED_COACHMARKS to "seen"
-				)
-			)
+			DebugLaunchArguments.parse(identity + ("TUINDICE_E2E_SEED_STATE" to "authenticatedCoachmarksSeen"))
 		}
+		assertTrue("TUINDICE_E2E_SEED_STATE" !in DebugLaunchArguments.keys)
 	}
 
 	@Test
@@ -220,8 +194,7 @@ class DebugLaunchArgumentsTest {
 			DebugLaunchArguments.SEED_REFRESH_TOKEN,
 			DebugLaunchArguments.SEED_USB_ID,
 			DebugLaunchArguments.SEED_PASSWORD,
-			DebugLaunchArguments.SEED_COACHMARKS,
-			DebugLaunchArguments.SEED_STATE
+			DebugLaunchArguments.SEED_COACHMARKS
 		)
 
 		assertEquals(declared.toSet(), DebugLaunchArguments.keys.toSet())
