@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
+import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.doubleTap
@@ -16,14 +17,17 @@ import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
+import com.gdavidpb.tuindice.scenariokit.dsl.relaunch
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
+import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
 import com.gdavidpb.tuindice.scenariokit.dsl.text
+import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
@@ -46,6 +50,9 @@ private const val SWIPE_MS = 600L
 // Two texts of the same length that share no letter, so a character left behind shows in the read-back.
 private const val SEARCH_BEFORE = "pr"
 private const val SEARCH_AFTER = "ma"
+
+// The usage-data switch of About before it is tapped: the app starts with the consent off.
+private const val CONSENT_BEFORE = false
 
 private fun canonical() = Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 
@@ -160,7 +167,7 @@ private val conformanceTextQuery = scenario("conformance-text-query", "conforman
 	waitVisible(text(Copy.UsbEmailHint), Within.Assert)
 }
 
-/** Submitting a search: the action of the search keyboard is sent, and the results are not hidden behind it. */
+/** Submitting a search: the text is typed, the action of the search keyboard is sent and the results show. */
 private val conformanceSubmitSearch = scenario("conformance-submit-search", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
@@ -171,6 +178,19 @@ private val conformanceSubmitSearch = scenario("conformance-submit-search", "con
 	enterText(SubjectsUiTags.SearchTextField, "ci")
 	submitTextEntry()
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
+}
+
+/**
+ * Sending the IME action right after a touch that opens a screen which focuses its own field: the keyboard is not up
+ * yet when the step starts, so the driver waits for it (and for the focus) instead of answering false.
+ */
+private val conformanceSubmitAfterOpen = scenario("conformance-submit-after-open", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarPensumItem, PensumUiTags.PensumScreen)
+	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
+	submitTextEntry()
+	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
 }
 
 /**
@@ -210,11 +230,19 @@ private val conformanceMockState = scenario(
 	waitVisible(BaseUiTags.ErrorViewContainer, Within.Sync)
 	mockState("summary-refresh-retry", "InitialSyncUnavailable")
 	tap(BaseUiTags.ErrorViewRetryButton)
+	// Only the first retry, made in this state, is answered 503 on the user route; waiting for that answer is the
+	// condition between the two taps, and it is what fails if the state step did not take effect.
+	expectRequest("GET", "/users/v1", status = 503)
 	tap(BaseUiTags.ErrorViewRetryButton)
+	expectRequest("GET", "/users/v1", status = 200)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
 }
 
-/** Vertical scrolling: a toggle far down the About list becomes reachable and tappable. */
+/**
+ * Vertical scrolling: a toggle far down the About list becomes reachable and tappable. On a tall screen the whole
+ * list fits and nothing needs scrolling, so this proves the step does not break, not that it moves the content (see
+ * the report of dB-3 about lists that overflow on every device).
+ */
 private val conformanceScroll = scenario("conformance-scroll", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
@@ -222,6 +250,36 @@ private val conformanceScroll = scenario("conformance-scroll", "conformance", ca
 	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.UsageDataConsentToggle)
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+}
+
+/** The usage-data switch of About reads its state and flips with a tap. */
+private val conformanceChecked = scenario("conformance-checked", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
+	assertChecked(AboutUiTags.UsageDataConsentToggle, CONSENT_BEFORE)
+	tap(AboutUiTags.UsageDataConsentToggle)
+	assertChecked(AboutUiTags.UsageDataConsentToggle, !CONSENT_BEFORE)
+}
+
+/** A relaunch restarts the app keeping its session: About, left open, is replaced by the summary of a fresh start. */
+private val conformanceRelaunch = scenario("conformance-relaunch", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	relaunch()
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	waitGone(AboutUiTags.ContentContainer, Within.Assert)
+}
+
+/** A tap that does not wait for the control to be enabled is made at once: the disabled sign-in button stays so. */
+private val conformanceTapDisabled = scenario("conformance-tap-disabled", "conformance", clean()) {
+	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
+	assertEnabled(AuthUiTags.SignInButton, false)
+	tap(tag(AuthUiTags.SignInButton), requireEnabled = false)
+	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
+	assertEnabled(AuthUiTags.SignInButton, false)
 }
 
 /** Horizontal scrolling: a version option off the edge of the pensum context dialog is brought into view. */
@@ -295,6 +353,7 @@ private val conformanceForeground = scenario("conformance-foreground", "conforma
 
 	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
 	tap(AboutUiTags.OpenCreativeCommons)
+	waitBackgrounded(Within.Action)
 	foreground()
 	waitVisible(AboutUiTags.ContentContainer, Within.Action)
 }
@@ -314,7 +373,7 @@ private val conformanceBackend = scenario("conformance-backend", "conformance", 
 	account(canonicalAccount.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	expectRequest("POST", "/record/v5/sync")
+	expectRequest("POST", "/record/v5/sync", status = 200)
 }
 
 /** The conformance scenarios, which hold the two drivers to the same behaviour; list every new one here. */
@@ -328,9 +387,13 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceEnabled,
 	conformanceTextQuery,
 	conformanceSubmitSearch,
+	conformanceSubmitAfterOpen,
 	conformanceSubmitTextEntry,
 	conformanceMockState,
 	conformanceScroll,
+	conformanceChecked,
+	conformanceRelaunch,
+	conformanceTapDisabled,
 	conformanceScrollHorizontal,
 	conformanceTapAt,
 	conformanceDoubleTapSwipe,
