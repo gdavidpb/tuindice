@@ -122,3 +122,14 @@ xcodebuild_args+=(
 )
 
 xcodebuild "${xcodebuild_args[@]}"
+
+# The app that was just built never carries ScenarioKit, in whichever configuration it was built: the UI-test build checks the
+# Debug app, and this is where the Release app (simulator or device) is checked.
+if [[ -n "$DERIVED_DATA_PATH" ]]; then
+	if [[ "$IOS_PLATFORM" == "simulator" ]]; then
+		PRODUCTS_DIR="$CONFIGURATION_NAME-iphonesimulator"
+	else
+		PRODUCTS_DIR="$CONFIGURATION_NAME-iphoneos"
+	fi
+	bash "$ROOT_DIR/scripts/verify-ui-test-target.sh" --app "$DERIVED_DATA_PATH/Build/Products/$PRODUCTS_DIR/TuIndiceHost.app" --require-app
+fi

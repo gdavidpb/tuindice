@@ -8,7 +8,8 @@
 #   reset-app                             terminate, uninstall, keychain reset, reinstall
 #   run-scenario <id> <attemptDir> <port> exactly one xcodebuild invocation; the verdict comes from result.json, not from xcodebuild
 #   crash-probe <sinceEpoch> <attemptDir> [<untilEpoch> [<waitSeconds>]]   the crash report of the app process captured between the two
-#                                         times on this simulator, polling up to <waitSeconds> for a report that lands late
+#                                         times on this simulator, polling up to <waitSeconds> for a report that lands late, and only
+#                                         when the attempt can have crashed (no readable result.json, or the scenario failed with APP_NOT_RUNNING)
 #   collect-failure <attemptDir> <sinceEpoch>   failed attempts only: the log store from the attempt on (capped), a fallback screenshot
 # Every simctl call and every xcodebuild destination carries the UDID of the dedicated simulator.
 set -euo pipefail
@@ -102,10 +103,31 @@ cmd_run_scenario() {
 	python3 "${TOOLS}" xctest-summary "${dir}/runner.log" "${status}"
 }
 
+# Whether the attempt can have left a crash report. A report lands seconds after the crash, but only an app that went away has
+# one: with no readable result (the runner died or was killed) or a scenario that failed because the app was not running the probe
+# waits for it; a scenario that failed with the app alive (a step timed out, an assertion) has nothing to wait for.
+app_may_have_crashed() { # <attempt dir>
+	python3 - "$1/result.json" << 'PY'
+import json
+import sys
+
+try:
+    result = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    sys.exit(0)
+failure = result.get("failure") if isinstance(result, dict) else None
+sys.exit(0 if not isinstance(result, dict) or (isinstance(failure, dict) and failure.get("kind") == "APP_NOT_RUNNING") else 1)
+PY
+}
+
 cmd_crash_probe() {
 	local since="${1:?since}" dir="${2:?attempt dir}" until_epoch="${3:-$(date +%s)}" wait_seconds="${4:-0}"
 	resolve_device
 	read_build_state
+	if [[ "${wait_seconds}" != "0" ]] && ! app_may_have_crashed "${dir}"; then
+		log "The scenario failed with the app alive; not waiting ${wait_seconds} s for a crash report."
+		wait_seconds=0
+	fi
 	python3 "${TOOLS}" ios-crash "${REPORTS_DIR}" "${since}" "${until_epoch}" "${EXECUTABLE}" "${dir}/crash.txt" "${UDID}" "${wait_seconds}"
 }
 

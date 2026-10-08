@@ -4,7 +4,7 @@
 # Verbs (JSON on stdout, diagnostics on stderr, exit 3 when the environment is not right):
 #   toolchain  what the lock pins, read from Xcode and simctl (no simulator is created or booted)
 #   ensure     create the simulator from the lock if absent, boot it erased if it is shut down, reuse it if booted,
-#              apply the keyboard, language, active-keyboard-list and hardware-keyboard settings and read them back
+#              apply the keyboard, keyboard-first-use-sheet, language, active-keyboard-list and hardware-keyboard settings and read them back
 #   serial     the UDID of the simulator
 #   health     the simulator is booted
 #   recover    shut down, boot and apply the settings again
@@ -24,6 +24,10 @@ HOST_DOMAIN="${E2E_FAKE_HOST_DOMAIN:-com.apple.iphonesimulator}" # the Simulator
 KEYBOARD_KEYS=(KeyboardAutocorrection KeyboardPrediction KeyboardShowPredictionBar KeyboardAutocapitalization
 	KeyboardCheckSpelling KeyboardPeriodShortcut)
 TEXT_KEYS=(NSAutomaticSpellingCorrectionEnabled NSAutomaticTextCompletionEnabled NSUseSpellCheckerForCompletions)
+# The first-use sheet of the keyboard ("Speed up your typing", QuickPath) appears once on a freshly erased simulator, covers the keys
+# and ends the first test that types; the flag the keyboard sets when the sheet has been seen is this one.
+KEYBOARD_INTRO_DOMAIN="com.apple.keyboard.preferences"
+KEYBOARD_INTRO_KEY="DidShowContinuousPathIntroduction"
 
 # simctl_query <simctl list kind> <python expression over `data`>: prints the value; fails when simctl itself fails
 simctl_query() {
@@ -75,6 +79,8 @@ apply_settings() {
 		pref_set -g "${key}" -bool false || return 1
 		check_pref -g "${key}" 0 || return 1
 	done
+	pref_set "${KEYBOARD_INTRO_DOMAIN}" "${KEYBOARD_INTRO_KEY}" -bool true || return 1
+	check_pref "${KEYBOARD_INTRO_DOMAIN}" "${KEYBOARD_INTRO_KEY}" 1 || return 1
 	pref_set -g AppleLanguages -array "${IOS_LANGUAGE}" || return 1
 	check_pref -g AppleLanguages "${IOS_LANGUAGE}" || return 1
 	pref_set -g AppleLocale -string "${IOS_LOCALE}" || return 1
