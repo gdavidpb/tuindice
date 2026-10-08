@@ -32,7 +32,7 @@ private const val SWIPE_MS = 600
 
 private fun seeded(account: E2eAccount) = Start.Seeded(account).toLaunchSpec()
 
-/** From the seeded summary to the pensum tab; [loaded] is what the flow waited for on arrival. */
+/** From the seeded summary to the pensum tab, waiting for [loaded] to show on arrival. */
 private fun StepBuilder.openPensum(loaded: String = PensumUiTags.PensumScreen) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)

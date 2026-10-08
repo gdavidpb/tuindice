@@ -257,7 +257,7 @@ private val conformanceForeground = scenario("conformance-foreground", "conforma
 	waitVisible(AboutUiTags.ContentContainer, Within.Action)
 }
 
-/** The system back action exists only on Android; iOS answers `false` to it, which `DriverContract` checks. */
+/** The system back action exists only on Android: the iOS driver always answers `false` to `pressBack`. */
 private val conformanceBack = scenario("conformance-back", "conformance", canonical()) {
 	platforms(Platform.Android)
 	account(canonicalAccount.id)

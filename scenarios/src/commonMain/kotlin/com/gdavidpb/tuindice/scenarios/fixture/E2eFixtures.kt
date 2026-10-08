@@ -14,13 +14,13 @@ object E2eFixtures {
 	private const val PENSUM_2019 = "mocks/__files/pensums/get-pensum-2019-degree_project.json"
 
 	/**
-	 * The new password the update flows type for `E2eAccounts.UpdatePassword`; the reissue mapping
+	 * The new password the update scenarios type for `E2eAccounts.UpdatePassword`; the reissue mapping
 	 * `auth-update-password-reissue-success.json` accepts it (`AccountFixturesTest` checks that).
 	 */
 	const val UpdatedPassword = "123456"
 
 	/**
-	 * The new password the failure flow types for `E2eAccounts.UpdatePasswordFailure`; the mapping
+	 * The new password the failure scenario types for `E2eAccounts.UpdatePasswordFailure`; the mapping
 	 * `auth-update-password-failure-reissue-unauthorized.json` answers it with 401.
 	 */
 	const val RejectedPassword = "000000"
@@ -37,7 +37,7 @@ object E2eFixtures {
 	/** The term of the canonical record that is in progress. */
 	val CurrentTerm = E2eFixture("d377155d39da686f412622aaca9074cd", listOf(SYNC_SUCCESS))
 
-	/** The synthetic term the record creation flows add after the latest one of the record (`2026-SEP_DEC`). */
+	/** The synthetic term the record creation scenarios add after the latest one of the record (`2026-SEP_DEC`). */
 	val NextTermKey = E2eFixture.derived("2026-SEP_DEC", "term key the app builds from the period and the year")
 
 	val PrimaryAttempt = E2eFixture("e21f0d7e481d13d19f328d6818ce4d77", listOf(SYNC_SUCCESS))
@@ -93,7 +93,7 @@ object E2eFixtures {
 		listOf("mocks/__files/pensums/get-pensum-2018-long_internship.json")
 	)
 
-	/** Search queries and the subjects the search mocks return for them (the record search flows type these). */
+	/** Search queries and the subjects the search mocks return for them (the record search scenarios type these). */
 	val recordSearches: List<SearchExpectation> = listOf(
 		SearchExpectation("ec", listOf(SubjectEc5333.value)),
 		SearchExpectation("ma", listOf(SubjectMa1112.value, SubjectMa1121.value)),

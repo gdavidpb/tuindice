@@ -26,7 +26,7 @@ import kotlin.time.Duration
 
 private fun canonical() = Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 
-/** From the seeded summary to the pensum tab, [loaded] being how long the flow waited for the pensum. */
+/** From the seeded summary to the pensum tab, waiting up to [loaded] for the pensum. */
 private fun StepBuilder.openPensum(loaded: Duration = Within.Long) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)

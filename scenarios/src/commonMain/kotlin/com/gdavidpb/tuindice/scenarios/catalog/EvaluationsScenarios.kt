@@ -24,7 +24,7 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 private fun seeded(account: E2eAccount) = Start.Seeded(account).toLaunchSpec()
 
-/** From the seeded summary to the evaluations tab, waiting for [content] the way each flow did. */
+/** From the seeded summary to the evaluations tab, waiting for [content] to show on arrival. */
 private fun StepBuilder.openEvaluations(content: String) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)

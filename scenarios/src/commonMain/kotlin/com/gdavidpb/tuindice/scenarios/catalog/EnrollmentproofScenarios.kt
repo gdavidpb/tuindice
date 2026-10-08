@@ -24,7 +24,7 @@ import kotlin.time.Duration
 
 private fun seeded(account: E2eAccount) = Start.Seeded(account).toLaunchSpec()
 
-/** From the seeded summary to the record tab; [within] is how long the flow waited for its content. */
+/** From the seeded summary to the record tab, waiting up to [within] for its content. */
 private fun StepBuilder.openRecord(within: Duration = Within.Long) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)

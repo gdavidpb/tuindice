@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * What the scenarios rely on in `mocks/`: protected endpoints demand a bearer, delays a flow waits on survive the
+ * What the scenarios rely on in `mocks/`: protected endpoints demand a bearer, delays a scenario waits on survive the
  * fast profile, the retry fixtures keep their matchers, and every stateful transformer can be reset by the
  * interpreter.
  */

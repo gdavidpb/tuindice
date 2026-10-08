@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 /**
  * The stateful retry fixtures answer the same whichever request reaches the server first. A seeded session reads
- * before its sync can answer (a login used to sync first), so each retry scenario is replayed against the
+ * before its sync can answer, and that order is not fixed, so each retry scenario is replayed against the
  * mapping files with the sync placed before, between and after the reads, and every request must get the
  * status the scenario waits for. The negative cases remove one stub and expect the replay to notice.
  */

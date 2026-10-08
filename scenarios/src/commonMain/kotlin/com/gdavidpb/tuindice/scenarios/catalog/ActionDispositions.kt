@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 /**
- * The actions no scenario has to cover, ported from the `internal` and `platform-edge` entries of the old
- * MVI action catalog. Every other action of every `presentation/contract` must be listed in some
- * scenario's `covers` (`ActionCoverageTest`).
+ * The actions no scenario has to cover, each with its reason: internal, platform edge or pending. Every other
+ * action of every `presentation/contract` must be listed in some scenario's `covers`
+ * (`ActionCoverageTest`).
  */
 object ActionDispositions {
 	val all: List<ActionDisposition> = listOf(
