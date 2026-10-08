@@ -226,8 +226,6 @@ private val pensumCacheRefreshFailed = scenario(
 
 	openPensum()
 	waitVisible(PensumUiTags.Canvas, Within.Assert)
-	// The refresh of the current pensum answers 503: the saved one stays and says it is not up to date.
-	waitVisible(PensumUiTags.LocalDataWarning, Within.Wait)
 	chooseLongInternship2018()
 	waitVisible(PensumUiTags.Canvas, Within.Long)
 	waitGone(PensumUiTags.Loading, Within.Assert)

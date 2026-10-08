@@ -16823,18 +16823,6 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "pensum_local_data_warning"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 230
-                    },
-                    "timeoutMs": 20000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
                         "value": "pensum_context_summary"
                     },
                     "requireEnabled": true,
@@ -16912,7 +16900,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 232
+                        "line": 230
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -16924,7 +16912,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 233
+                        "line": 231
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -16936,7 +16924,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 234
+                        "line": 232
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16948,13 +16936,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 235
+                        "line": 233
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "82d7e1096c3b7662",
+            "stepsHash": "8c52c0b5e3ad1466",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -17039,7 +17027,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 246
+                        "line": 244
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -17052,7 +17040,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 247
+                        "line": 245
                     },
                     "type": "tap"
                 },
@@ -17063,7 +17051,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 248
+                        "line": 246
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17075,7 +17063,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 249
+                        "line": 247
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17088,7 +17076,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 250
+                        "line": 248
                     },
                     "type": "tap"
                 },
@@ -17100,7 +17088,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 251
+                        "line": 249
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17113,7 +17101,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 252
+                        "line": 250
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"

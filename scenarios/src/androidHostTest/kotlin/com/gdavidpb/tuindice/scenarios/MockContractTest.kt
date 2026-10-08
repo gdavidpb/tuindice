@@ -185,6 +185,9 @@ class MockContractTest {
 			"$SYNC_RECORD_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
 			"$SYNC_RECORD_RETRY-after-failure.json" to "\"requiredScenarioState\": \"FirstFailure\"",
 			"$SYNC_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
+			// The proof retry asserts a new snackbar after the old one went, so the fast profile keeps the 3 s the
+			// answer takes: with the default 250 ms the new snackbar can be back before the old one is seen gone.
+			"enrollmentproof/enrollment-proof-enrollment-unavailable.json" to "\"fastDelayMilliseconds\": 3000",
 			// A 503 on a change leaves it pending and is sent again: the mock refuses the dated add until the
 			// scenario sets the state Available, and accepts it from then on.
 			"$PENDING_FLUSH-unavailable.json" to "\"requiredScenarioState\": \"Started\"",
