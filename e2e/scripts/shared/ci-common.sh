@@ -109,12 +109,14 @@ e2e_base_ref() {
 }
 
 # The logins whose `success` status counts as evidence: E2E_TRUSTED_STATUS_CREATORS (comma-separated) or, by
-# default, the repository owner (argument) and the Actions bot. One line each. The preflight and the harness's
-# verdict both ask this function; an empty variable (an unset repository variable in a workflow) keeps the default.
+# default, the repository owner (argument) alone. One line each. The Actions bot is not in the default: a workflow
+# of a branch publishes as the same identity, so only a variable the owner sets can make it count. The preflight
+# and the harness's verdict both ask this function; an empty variable (an unset repository variable in a workflow)
+# keeps the default.
 e2e_trusted_status_creators() {
 	local owner="${1:-}"
 
-	printf '%s\n' "${E2E_TRUSTED_STATUS_CREATORS:-${owner},github-actions[bot]}" | tr ',' '\n'
+	printf '%s\n' "${E2E_TRUSTED_STATUS_CREATORS:-${owner}}" | tr ',' '\n'
 }
 
 # Source sets of a KMP module that feed the E2E fingerprint of one platform. The lists live in

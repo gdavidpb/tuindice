@@ -139,9 +139,10 @@ class VerdictTests(unittest.TestCase):
             self.remote(sha, status)
             self.assertEqual(self.status()["verdict"], "rerun", status)
 
-    def test_the_bot_is_a_trusted_creator(self):
+    def test_the_bot_is_not_a_trusted_creator_unless_the_variable_says_so(self):
         self.remote(head(self.ws), success(creator="github-actions[bot]"))
-        self.assertEqual(self.status()["verdict"], "current")
+        self.assertEqual(self.status()["verdict"], "rerun")
+        self.assertEqual(self.status(E2E_TRUSTED_STATUS_CREATORS="owner,github-actions[bot]")["verdict"], "current")
 
     def test_the_trusted_creators_are_the_ones_the_preflight_reads(self):
         # D-7: E2E_TRUSTED_STATUS_CREATORS replaces the default list for the verdict exactly as for the preflight.

@@ -174,8 +174,11 @@ class BaseRefTests(unittest.TestCase):
                 env=dict(os.environ, **env), stdout=subprocess.PIPE, universal_newlines=True)
             return done.stdout.split()
 
-        self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS=""), ["owner", "github-actions[bot]"])
+        # The owner alone: the Actions bot cannot be told apart from a workflow of a branch, so it is trusted only when
+        # E2E_TRUSTED_STATUS_CREATORS says so.
+        self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS=""), ["owner"])
         self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS="a,b"), ["a", "b"])
+        self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS="owner,github-actions[bot]"), ["owner", "github-actions[bot]"])
 
 
 class ScopeChainTests(unittest.TestCase):

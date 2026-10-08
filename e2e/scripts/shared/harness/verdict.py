@@ -62,7 +62,7 @@ class Remote:
 
     def trusted(self):
         """Logins whose success status counts: e2e_trusted_status_creators of the shared library, which reads
-        E2E_TRUSTED_STATUS_CREATORS exactly as the preflight does (default: the owner and the Actions bot)."""
+        E2E_TRUSTED_STATUS_CREATORS exactly as the preflight does (default: the owner)."""
         code, lines = shared_function(self.cfg.root, "e2e_trusted_status_creators", self.owner)
         logins = {line.strip() for line in lines if line.strip()}
         if code != 0 or not logins:
