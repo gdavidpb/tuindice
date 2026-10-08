@@ -45,12 +45,13 @@ object CreateSyntheticTerm {
 
 		// Leaving only warns when something would be lost. Editing: any divergence from the loaded term.
 		// Creating: the form opens with the first period already chosen and no subjects, so only another
-		// period or at least one subject counts; the baseline is the initial draft the first snapshot sets.
+		// period or at least one subject counts.
 		val hasDiscardableDraft: Boolean
-			get() = when {
-				isEditing -> hasDraftChanges
-				initialDraft != null -> initialDraft != draft
-				else -> selectedSubjects.isNotEmpty()
+			get() = if (isEditing) {
+				hasDraftChanges
+			} else {
+				selectedSubjects.isNotEmpty() ||
+					selectedPeriod?.termKey != periodOptions.firstOrNull()?.termKey
 			}
 
 		val canSubmit: Boolean

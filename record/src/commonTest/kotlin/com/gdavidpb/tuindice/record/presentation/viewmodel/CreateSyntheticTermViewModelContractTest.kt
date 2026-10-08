@@ -535,6 +535,80 @@ class CreateSyntheticTermViewModelContractTest {
 		}
 	}
 
+	@Test
+	fun editForm_whenACreateSnapshotArrivesBeforeTheEditOne_isNotPoisonedAsChanged() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.viewModel.configureAction("synthetic-term")
+
+				// The observation answers before the seed of the edited term: a snapshot of the create form.
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				awaitUntilState<CreateSyntheticTerm.State> { state -> state.selectedPeriod == FirstPeriod }
+
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = listOf(DraftSubject),
+					editingTermId = "synthetic-term"
+				)
+				val loaded = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.isEditing && state.selectedSubjects.size == 1
+				}
+
+				assertEquals(false, loaded.canSubmit)
+				assertEquals(false, loaded.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun editForm_whenAnIntermediateSnapshotHasSubjectsButNoTermId_isNotPoisonedAsChanged() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.viewModel.configureAction("synthetic-term")
+
+				// The seed writes its flows one after another: subjects are in before the id is.
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = listOf(DraftSubject)
+				)
+				awaitUntilState<CreateSyntheticTerm.State> { state -> state.selectedSubjects.size == 1 }
+
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = listOf(DraftSubject),
+					editingTermId = "synthetic-term"
+				)
+				val loaded = awaitUntilState<CreateSyntheticTerm.State> { state -> state.isEditing }
+
+				assertEquals(false, loaded.canSubmit)
+				assertEquals(false, loaded.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	private fun createFixture(
 		record: AcademicRecord = AcademicRecord(id = "record")
 	): CreateSyntheticTermFixture {

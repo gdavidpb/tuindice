@@ -89,7 +89,15 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 				}
 			)
 
-			updatedState.withInitialDraft(event = event)
+			if (
+				state.initialDraft == null &&
+				event.editingTermId != null &&
+				event.selectedSubjects.isNotEmpty()
+			) {
+				updatedState.copy(initialDraft = updatedState.draft)
+			} else {
+				updatedState
+			}
 		}
 
 		on<CreateSyntheticTermInternalEvent.SearchCleared> { state, event ->
@@ -193,26 +201,6 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 				submitError = event.error
 			)
 		}
-	}
-}
-
-// The draft the student has to move away from for leaving to be worth a warning. Editing: the loaded term, once its
-// subjects have arrived. Creating: the form opens with a period already chosen and no subjects.
-private fun CreateSyntheticTerm.State.withInitialDraft(
-	event: CreateSyntheticTermInternalEvent.SnapshotObserved
-): CreateSyntheticTerm.State {
-	val period = event.selectedPeriod
-
-	return when {
-		initialDraft != null -> this
-		event.editingTermId != null -> if (event.selectedSubjects.isEmpty()) this else copy(initialDraft = draft)
-		period != null -> copy(
-			initialDraft = CreateSyntheticTerm.Draft(
-				periodKey = period.termKey,
-				subjectCodes = emptyList()
-			)
-		)
-		else -> this
 	}
 }
 
