@@ -52,21 +52,24 @@ class Evidence:
         self.backend_down = False    # the journal could not be read and WireMock does not answer: it died during the attempt
 
     def degradation(self):
-        """{marker: lines} over the logs of the attempt when one marker reaches its threshold (iOS only), else None."""
+        """({marker: lines of the log that has most}, {log: {marker: lines}}) when one marker reaches its threshold in a single
+        log (iOS only), else None. The logs are never added up: a same event could be written in two of them."""
         if self.platform != "ios":
             return None
-        texts = list(self.logs.values()) + [self.runner_log]
-        counts = {marker: sum(text.count(marker) for text in texts) for marker in DEGRADED_MARKERS}
-        return counts if any(counts[m] >= DEGRADED_MARKERS[m] for m in counts) else None
+        files = dict(self.logs, **{"runner_output": self.runner_log})
+        by_file = {name: {marker: text.count(marker) for marker in DEGRADED_MARKERS} for name, text in files.items()}
+        counts = {marker: max([found[marker] for found in by_file.values()] or [0]) for marker in DEGRADED_MARKERS}
+        return (counts, by_file) if any(counts[m] >= DEGRADED_MARKERS[m] for m in counts) else None
 
 
 class Classification:
-    def __init__(self, klass, summary, note=None, degraded=False, markers=None):
+    def __init__(self, klass, summary, note=None, degraded=False, markers=None, marker_files=None):
         self.klass = klass       # None means the attempt passed
         self.summary = summary
         self.note = note         # something worth keeping that did not change the verdict
         self.degraded = degraded  # an environment failure caused by a simulator that stopped serving preferences
-        self.markers = markers or {}  # the lines of each marker in the logs read, for the record
+        self.markers = markers or {}  # the lines of each marker in the log that has most, for the record
+        self.marker_files = marker_files or {}  # the same per log: {log: {marker: lines}}
 
     @property
     def passed(self):
@@ -223,9 +226,9 @@ def classify(ev):
             % (verdict.klass, verdict.summary[:160]))
     found = ev.degradation() if verdict.klass in DEGRADABLE else None
     if found:
-        counts = ", ".join("%s x%d" % item for item in sorted(found.items()))
-        return Classification(ENVIRONMENT, "%s (%s lines in the logs); the attempt had failed as %s: %s"
-            % (DEGRADED_TEXT, counts, verdict.klass, verdict.summary[:160]), degraded=True, markers=found)
+        counts = ", ".join("%s x%d" % item for item in sorted(found[0].items()))
+        return Classification(ENVIRONMENT, "%s (%s lines in a log); the attempt had failed as %s: %s"
+            % (DEGRADED_TEXT, counts, verdict.klass, verdict.summary[:160]), degraded=True, markers=found[0], marker_files=found[1])
     anr = ev.crash.get("kind") == "system_anr"
     text = "system ANR: %s" % (ev.crash.get("excerpt") or "").strip()[:200]
     if anr and verdict.passed:

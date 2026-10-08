@@ -34,9 +34,20 @@ class ClassificationTests(unittest.TestCase):
             verdict = cl.classify(evidence(result(), logs={name: text}))
             self.assertEqual((verdict.klass, verdict.degraded), (cl.ENVIRONMENT, True), (name, text))
 
-    def test_the_lines_of_the_logs_of_one_attempt_add_up(self):
-        verdict = cl.classify(evidence(result(), logs={"app.log": AX_LINE * 2}, runner_log=AX_LINE))
+    def test_the_lines_of_different_logs_are_never_added_up(self):
+        # The same event can be written in two logs: two here and two there is still four lines of one kind but no log at 3.
+        verdict = cl.classify(evidence(result(), logs={"app.log": AX_LINE * 2}, runner_log=AX_LINE * 2))
+        self.assertEqual((verdict.klass, verdict.degraded), (cl.PRODUCT, False))
+        verdict = cl.classify(evidence(result(), logs={"app.log": AX_LINE * 3}, runner_log=AX_LINE))
         self.assertEqual((verdict.klass, verdict.degraded), (cl.ENVIRONMENT, True))
+        self.assertEqual(verdict.marker_files["app.log"]["kAXErrorAPIDisabled"], 3)
+        self.assertEqual(verdict.marker_files["runner_output"]["kAXErrorAPIDisabled"], 1)
+
+    def test_the_prefs_marker_edge_is_nineteen_and_twenty_in_one_log_whatever_the_other_has(self):
+        split = cl.classify(evidence(result(), logs={"app.log": PREFS_READ_LINE * 19}, runner_log=PREFS_READ_LINE * 19))
+        self.assertEqual((split.klass, split.degraded), (cl.PRODUCT, False))
+        edge = cl.classify(evidence(result(), logs={"app.log": PREFS_READ_LINE * 20}, runner_log=PREFS_READ_LINE * 19))
+        self.assertEqual((edge.klass, edge.degraded), (cl.ENVIRONMENT, True))
 
     def test_the_write_marker_is_not_a_sign_of_degradation_however_often_it_appears(self):
         verdict = cl.classify(evidence(result(), logs={"app.log": PREFS_WRITE_LINE * 500}))
@@ -107,6 +118,7 @@ class RunTests(unittest.TestCase):
         self.assertEqual(events["events"][0]["scenario"], "fix-00")
         self.assertEqual(events["events"][0]["scenariosSincePrevious"], 0)
         self.assertEqual(events["events"][0]["markers"]["kAXErrorAPIDisabled"], 3)
+        self.assertEqual(events["events"][0]["markersByFile"]["app.log"]["kAXErrorAPIDisabled"], 3)
 
     def test_a_single_marker_line_is_a_failure_of_the_product_that_counts_and_recovers_nothing(self):
         ws = Workspace(self, numbered(2), {"behaviours": {"fix-00": [with_log(text=AX_LINE), "pass"]}})

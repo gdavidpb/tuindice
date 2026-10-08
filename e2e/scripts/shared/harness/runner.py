@@ -346,7 +346,7 @@ class PlatformRun:
                 self.boot_started = time.monotonic()
                 if result.json.get("recoveredAtEnsure") is True:  # a simulator that was up but refused its settings
                     self.log.say("ENV   the simulator refused its settings at ensure and was recovered; recorded as a degradation")
-                    self._degradation_event(None, "ensure recovered a booted simulator that did not accept its settings", {})
+                    self._degradation_event(None, "ensure recovered a booted simulator that did not accept its settings", {}, {})
             with m.phase("wiremock"):
                 self.wiremock.start()
                 m.data["wiremock"]["log"] = "wiremock.log"
@@ -615,15 +615,15 @@ class PlatformRun:
                 "that degrades twice in a row is not usable (%s)" % (self.greens_since_recovery, DEGRADATION_MIN_GREEN, verdict.summary)
             self.log.stop(scenario, text)
             raise StopRun("environment_refused", 3, text, scenario.id, cl.ENVIRONMENT, verdict.summary)
-        self._degradation_event(scenario.id, verdict.summary, verdict.markers)
+        self._degradation_event(scenario.id, verdict.summary, verdict.markers, verdict.marker_files)
 
-    def _degradation_event(self, scenario_id, summary, markers):
+    def _degradation_event(self, scenario_id, summary, markers, marker_files):
         record = self.manifest.data["deviceDegradation"]
         record["events"].append({"at": now(), "scenario": scenario_id, "scenariosSincePrevious": self.greens_since_recovery,
             "attemptsSincePrevious": self.attempts_since_recovery,
             "minutesSincePrevious": round((time.monotonic() - self.boot_started) / 60, 1),
             "previousIsHarnessBoot": not record["events"], "deviceBootedByHarness": self.device_booted, "summary": summary[:300],
-            "markers": markers})
+            "markers": markers, "markersByFile": marker_files})
         record["count"] = len(record["events"])
 
     def _recover_device(self, scenario, verdict):
