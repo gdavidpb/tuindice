@@ -9,7 +9,8 @@
 #   health     the simulator is booted and still serves preferences (one `defaults read` of a key `ensure` pinned)
 #   recover    shut down, boot and apply the settings again
 #   stop       shut down only this simulator
-# A simulator that is already booted is never rebooted by `ensure`, except when its data directory outgrew the limit.
+# A simulator that is already booted is never rebooted by `ensure`, except when its data directory outgrew the limit (it is erased)
+# or when it does not accept the settings (one shutdown and boot, reported as `recoveredAtEnsure`).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

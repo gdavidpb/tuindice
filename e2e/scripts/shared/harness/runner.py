@@ -14,7 +14,7 @@ from pathlib import Path
 from . import catalog as catalog_mod
 from . import classify as cl
 from . import envcheck, hostlock, junit, proc, publish, report, toolchain, tolerances
-from .config import EXIT_HARNESS_ERROR, SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
+from .config import DEGRADATION_MIN_GREEN, EXIT_HARNESS_ERROR, SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
 from .gitstate import GitState
 from .ledger import Ledger, now
 from .manifest import Manifest, make_run_dir, read_load
@@ -29,9 +29,6 @@ CRASH_REPORT_WAIT_SECONDS = 15
 # The logs a failed attempt leaves are searched for the signs of a degraded simulator through their last bytes only.
 FAILURE_LOGS = ("app.log", "logcat.txt")
 FAILURE_LOG_TAIL_BYTES = 4 * 1024 * 1024
-# A simulator that degrades is recovered again only after this many green scenarios since the previous recovery; sooner than that
-# it is not a usable simulator and the run is exit 3.
-DEGRADATION_MIN_GREEN = 30
 # What the iOS health verb says when the simulator is booted but does not serve preferences.
 DEGRADED_HEALTH_TEXT = "simulator degraded"
 

@@ -71,7 +71,7 @@ The class is in the `FAIL` line, `summary.txt` and the attempt's `classification
 |---|---|---|---|
 | `typed_text_mismatch` | The field or the backend got text different from what the scenario typed; the message shows both | Reproduce with `--mode diagnose --scenario <id> --repeat 20`; fix the product or the driver, or report it | Call it load; retry; split the input; add guard characters |
 | `app_crash` | The crash probe found a crash or an ANR of the app | Read `crash.txt`; fix | Retry |
-| `product_assertion` | The expected UI did not appear | Diagnose with `--trace` | Weaken the assertion |
+| `product_assertion` | The expected UI did not appear | Diagnose with `--trace` (iOS only) | Weaken the assertion |
 | `backend_mismatch` | The mock rejected the declared credential, had no stub, or saw another Bearer | Fix the mapping or the scenario's mock state | Change the product |
 | `timeout`, `tooling_error` | Runner or harness | Read `runner.log` and `result.json`; fix the harness | Raise timeouts first |
 | `environment` | Device or host not usable | Fix the machine (`./gradlew e2eEnvCheck`), rerun | Change code |

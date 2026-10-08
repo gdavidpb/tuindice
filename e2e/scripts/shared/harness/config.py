@@ -12,6 +12,10 @@ EXIT_HARNESS_ERROR = 70  # a defect of the harness itself, not a verdict about t
 # The only env-check ids that can refuse a run, hence the only ones E2E_ENV_OVERRIDE accepts.
 REFUSABLE_CHECKS = ("cpu", "disk")
 
+# A simulator that degrades is recovered again only after this many green scenarios since the previous recovery; sooner than that
+# it is not a usable simulator and the run is exit 3.
+DEGRADATION_MIN_GREEN = 30
+
 # Time the runner needs besides the scenario's own timeout (build of the test
 # process, xcodebuild start-up), added to the kill deadline.
 RUNNER_OVERHEAD_SECONDS = {"android": 30, "ios": 90}

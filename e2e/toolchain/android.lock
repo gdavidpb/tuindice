@@ -1,4 +1,4 @@
-# Android toolchain lock. Every key is strict: a difference exits 3 in evidence mode.
+# Android toolchain lock. Every key but ANDROID_EMULATOR_HEADLESS is strict: a difference exits 3 in evidence mode.
 # Changing a value is a deliberate commit and changes the Android fingerprint.
 ANDROID_AVD_NAME=Pixel_10_Pro_XL
 ANDROID_SYSTEM_IMAGE_DIR=system-images/android-37.1/google_apis_playstore_ps16k/arm64-v8a
@@ -6,7 +6,8 @@ ANDROID_SYSTEM_IMAGE_REVISION=9
 ANDROID_API_LEVEL=37
 ANDROID_DEVICE_PROFILE=pixel_10_pro_xl
 ANDROID_LOCALE=en
-# Emulator shape, chosen by the owner: passed as boot flags and read back from inside the device by `ensure`.
+# Emulator shape, chosen by the owner, passed as boot flags. Memory and cores are read back from inside the device by `ensure`;
+# headless only decides whether the window is shown when the harness boots the emulator, and nothing reads it back.
 ANDROID_EMULATOR_MEMORY_MB=16384
 ANDROID_EMULATOR_CORES=8
 ANDROID_EMULATOR_HEADLESS=1

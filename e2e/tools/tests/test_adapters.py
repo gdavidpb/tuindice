@@ -108,7 +108,8 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertTrue(call.endswith("%s/androidx.test.runner.AndroidJUnitRunner" % TEST_ID), call)
 
     def test_run_scenario_brings_back_the_driver_log_along_with_result_json(self):
-        # The runner appends driver.log line by line, so a run that hung or died still leaves it next to result.json.
+        # The runner appends driver.log line by line; a run that ends brings it home with result.json (a killed one gets it through
+        # collect-failure, which the next test covers).
         self.put_result()
         self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
         attempt = os.path.join(self.box.dir, "a")

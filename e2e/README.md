@@ -61,8 +61,8 @@ E2E_SCENARIOS=auth-login-success ./gradlew e2eAndroid
 
 - `--scenario` takes ids separated by commas; `--tag` selects a module's scenarios or a tag such as `smoke`.
 - `--survey` keeps going after failures and lists them all; `--repeat N` repeats the selection and prints the pass
-  rate per scenario; `--trace` asks the runner for step traces; `--dry-run` prints the plan, the toolchain check and
-  the environment check without building or booting anything.
+  rate per scenario; `--trace` asks the iOS runner for step traces (the Android runner has none today); `--dry-run`
+  prints the plan, the toolchain check and the environment check without building or booting anything.
 - `--driver-contract` also runs the driver contract (the `driver-contract` adapter verb) before the first scenario;
   evidence always runs it. When environment failures mix with greens, a `--repeat` run prints a `SERIES` line with how
   many scenario runs were valid and how many the environment took (the manifest keeps it in `series`).
