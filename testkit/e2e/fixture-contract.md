@@ -5,8 +5,8 @@ Local E2E scenarios use the WireMock state under `mocks/` as the QA backend.
 The accounts, tokens, texts and ids the scenarios use are Kotlin values in
 `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`,
 `Copy.kt`). Host tests in `scenarios/src/androidHostTest/` check them against the mappings (`AccountFixturesTest`,
-`AccountSessionFixturesTest`, `EntityFixturesTest`, `CopyTest`, `MockContractTest`, `RecordSearchFixturesTest`,
-`RetryOrderMocksTest`, `E2eClockFixtureTest`) and run in `verifyE2eContract`. This document keeps the semantics; the
+`AccountSessionFixturesTest`, `EntityFixturesTest`, `CopyTest`, `MockContractTest`, `MockRulesTest`,
+`PendingFlushMocksTest`, `RecordSearchFixturesTest`, `RetryOrderMocksTest`, `E2eClockFixtureTest`) and run in `verifyE2eContract`. This document keeps the semantics; the
 values live there.
 
 Rules:
@@ -25,6 +25,16 @@ Rules:
   canonical successful login tokens. An account without a session only signs in through the UI.
 - Protected backend fixtures must require a bearer `Authorization` header. Gateway-backed services use the session token to identify the user and scope, even when the endpoint also forwards a DST password in the JSON body.
 - Fixtures that answer a sign-in sync must match its real request shape: `/record/v5/sync` receives both the bearer session token and the password in the JSON body. The summary and record retry scenarios (`summary-refresh-retry`, `record-refresh-retry`) start seeded as a dedicated account whose sync answers 503, so the target machine has no usable content; the first read of the screen (`GET /users/v1`, `GET /record/v5`) also answers 503 whichever of the sync and the read reaches the server first (the `...-from-start` stubs and the 503 stubs of the intermediate states), and the retry button then succeeds. `RetryOrderMocksTest` replays every arrival order against the mapping files. The retry button exercises the machine-owned refresh action and transitions to content on success.
+- A mock that refuses what only some scenarios send (a 503 on a change that must stay pending, for example) is not
+  in the state every WireMock scenario starts in: a stub of a protected route that answers 400 or more in `Started`, or
+  in no state, answers every scenario that sends that request with a token it matches. The scenario that needs the
+  refusal puts the mock in a state of its own from its first step (`Start.Seeded(account, mockStates = ...)`; the
+  state is `Unavailable` for `evaluations-pending-sign-out` and `evaluations-pending-sign-out-flush-success`) and
+  nothing else enters that state. `MockRulesTest` fails a refusal in the default state that is not aimed at one
+  account (one exact token, the password of an account other than the canonical one in the body, or one resource in
+  the path), `CatalogStartTest` lists the scenarios that start with states besides their account's, and
+  `PendingFlushMocksTest` replays that the dated and undated adds of the other scenarios (`evaluations-add-submit`
+  among them) are accepted. The flush mock accepts the dated add from `Available` and moves to `Delivered`.
 - Do not call production services from local E2E.
 - If a scenario needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`, and declare any new account in `E2eAccounts.kt` with the mapping that accepts its credential.
 
@@ -68,9 +78,13 @@ PORT=8080 ./mocks/start-mock-enviroment.sh
 The harness starts WireMock itself, one instance per platform on its own port (`E2E_ANDROID_WIREMOCK_PORT`,
 `E2E_IOS_WIREMOCK_PORT`), and keeps its log inside the run directory. It passes
 `WIREMOCK_DELAY_PROFILE=fast` by default through `E2E_WIREMOCK_DELAY_PROFILE`; use `legacy` to preserve checked-in delays.
-A mapping whose behavior depends on its delay (cancel windows, reveal timers) pins its own value in
-`metadata.fastDelayMilliseconds`, and `MockContractTest` fails any mapping with a legacy delay of 5 seconds or more that
-lacks it.
+A mapping whose behavior depends on its delay (cancel windows, reveal timers, a loading state a scenario looks at)
+pins its own value in `metadata.fastDelayMilliseconds`; one that does not mind the collapse says so with the fast
+default, `250`. Without the marker the fast profile collapses the delay to 250 ms in silence, which is how a scenario
+that waits on it goes red on a mock nobody changed, so `MockRulesTest` fails any mapping whose legacy delay is at least
+`Timeouts.Probe` (1.5 s, the shortest delay a step can look at) and that lacks it. The reissue of the update-password
+scenario holds its answer for 5 s in both profiles so that the loading state of the sheet can be asserted after the
+request is seen.
 
 University states fixture contract:
 

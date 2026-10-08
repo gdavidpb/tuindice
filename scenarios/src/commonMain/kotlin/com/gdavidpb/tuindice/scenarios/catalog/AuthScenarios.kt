@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
@@ -32,8 +33,15 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 
-/** The mock scenario that answers 503 to the dated evaluation until it is set to [MOCK_AVAILABLE]. */
+/**
+ * The mock scenario that answers 503 to the dated evaluation while it is in [MOCK_UNAVAILABLE], the state the
+ * scenario starts it in, and accepts it from the moment the scenario sets it to [MOCK_AVAILABLE].
+ */
 private const val PENDING_FLUSH_MOCK = "evaluations-pending-sign-out-flush-success"
+
+/** The mock scenario that answers 503 to the undated evaluation while it is in [MOCK_UNAVAILABLE]. */
+private const val PENDING_SIGN_OUT_MOCK = "evaluations-pending-sign-out"
+private const val MOCK_UNAVAILABLE = "Unavailable"
 private const val MOCK_AVAILABLE = "Available"
 
 /** The arguments of a clean launch, to start the app again the way the scenario started it. */
@@ -426,14 +434,15 @@ private val authSignOut = scenario(
 }
 
 /**
- * Sign-out with a change the server cannot take now (its evaluations route answers 503): the change stays pending,
- * so the flush ends with it still pending and signing out anyway is offered. A 503 says nothing about the
- * change, so it is never treated as the server refusing it.
+ * Sign-out with a change the server cannot take now (its evaluations route answers 503 while the scenario's mock is
+ * in the state it starts in): the change stays pending, so the flush ends with it still pending and signing out
+ * anyway is offered. A 503 says nothing about the change, so it is never treated as the server refusing it.
  */
 private val authPendingSignOut = scenario(
 	"auth-pending-sign-out",
 	"auth",
-	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+	Start.Seeded(E2eAccounts.Canonical, mockStates = listOf(MockState(PENDING_SIGN_OUT_MOCK, MOCK_UNAVAILABLE)))
+		.toLaunchSpec()
 ) {
 	covers("auth.SignOut.ClickSignOut", "auth.SignOut.ForceSignOut")
 	account(E2eAccounts.Canonical.id)
@@ -452,13 +461,14 @@ private val authPendingSignOut = scenario(
 
 /**
  * Sign-out with a change that could not be sent because the server was unavailable: it stays pending, the sheet
- * says so, and once the server is back the confirmation sends it and signs out. The mock answers 503 to the
- * dated evaluation until the scenario sets its state to Available.
+ * says so, and once the server is back the confirmation sends it and signs out. The mock starts in the state in
+ * which it answers 503 to the dated evaluation, and only this scenario's own state change makes it accept it.
  */
 private val authPendingSignOutFlushSuccess = scenario(
 	"auth-pending-sign-out-flush-success",
 	"auth",
-	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+	Start.Seeded(E2eAccounts.Canonical, mockStates = listOf(MockState(PENDING_FLUSH_MOCK, MOCK_UNAVAILABLE)))
+		.toLaunchSpec()
 ) {
 	covers("auth.SignOut.ClickSignOut")
 	account(E2eAccounts.Canonical.id)

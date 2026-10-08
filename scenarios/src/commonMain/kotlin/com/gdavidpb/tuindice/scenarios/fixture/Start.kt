@@ -31,12 +31,18 @@ sealed interface Start {
 		}
 	}
 
-	/** A launch that is already signed in as [account], on [section]. */
+	/**
+	 * A launch that is already signed in as [account], on [section]. [mockStates] are the WireMock states the
+	 * scenario needs from its first step besides the account's own: a state other than the one every WireMock
+	 * scenario starts in is how a mock refuses only what this scenario sends (`CatalogStartTest` lists the
+	 * scenarios that do it, and `MockContractTest` forbids a refusal in the default state).
+	 */
 	data class Seeded(
 		val account: E2eAccount,
 		val section: MainSection = MainSection.SUMMARY,
 		val coachmarks: Coachmarks = Coachmarks.Seen,
-		val network: Boolean = true
+		val network: Boolean = true,
+		val mockStates: List<MockState> = emptyList()
 	) : Start {
 		private val session = requireNotNull(account.session) {
 			"Account '${account.id}' has no session; it only signs in through the UI"
@@ -61,7 +67,7 @@ sealed interface Start {
 				},
 				DebugLaunchArguments.MAIN_SECTION to section.name
 			),
-			mockStates = listOfNotNull(account.mockScenario?.let { MockState(it, TOKENS_ISSUED) })
+			mockStates = listOfNotNull(account.mockScenario?.let { MockState(it, TOKENS_ISSUED) }) + mockStates
 		)
 	}
 

@@ -1,7 +1,7 @@
 {
   "priority": 1,
   "scenarioName": "evaluations-pending-sign-out-flush-success",
-  "requiredScenarioState": "Started",
+  "requiredScenarioState": "Unavailable",
   "request": {
     "method": "POST",
     "urlPath": "/evaluations/v3",

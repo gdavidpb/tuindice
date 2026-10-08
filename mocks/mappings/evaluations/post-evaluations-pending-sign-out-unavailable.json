@@ -1,7 +1,7 @@
 {
   "priority": 1,
-  "scenarioName": "login-token-lifecycle",
-  "requiredScenarioState": "TokensIssued",
+  "scenarioName": "evaluations-pending-sign-out",
+  "requiredScenarioState": "Unavailable",
   "request": {
     "method": "POST",
     "urlPath": "/evaluations/v3",

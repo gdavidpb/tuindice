@@ -3,17 +3,15 @@ package com.gdavidpb.tuindice.scenarios
 import com.gdavidpb.tuindice.scenariokit.engine.BackendEngine
 import com.gdavidpb.tuindice.scenarios.MockJson.string
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.doubleOrNull
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * What the scenarios rely on in `mocks/`: protected endpoints demand a bearer, delays a scenario waits on survive the
- * fast profile, the retry fixtures keep their matchers, and every stateful transformer can be reset by the
- * interpreter.
+ * What the scenarios rely on in `mocks/`: protected endpoints demand a bearer, the retry fixtures keep their
+ * matchers, and every stateful transformer can be reset by the interpreter. How delays and refusals are written is
+ * `MockRules`, checked in `MockRulesTest`.
  */
 class MockContractTest {
 	private val protectedPath = Regex(
@@ -40,23 +38,6 @@ class MockContractTest {
 		}
 
 		assertTrue(offenders.isEmpty(), "protected mappings without a Bearer matcher: ${offenders.map { it.name }}")
-	}
-
-	@Test
-	fun semanticDelaysDeclareWhatTheFastProfileKeeps() {
-		val offenders = mappingFiles.filter { file ->
-			val mapping = MockJson.obj(file)
-			val delay = ((mapping["response"] as? JsonObject)?.get("fixedDelayMilliseconds") as? JsonPrimitive)?.doubleOrNull
-			val fast = (mapping["metadata"] as? JsonObject)?.get("fastDelayMilliseconds")
-
-			(delay != null && delay >= SEMANTIC_DELAY_MS && fast == null) ||
-				(fast != null && (fast as? JsonPrimitive)?.doubleOrNull == null)
-		}
-
-		assertTrue(
-			offenders.isEmpty(),
-			"delays >= ${SEMANTIC_DELAY_MS}ms need numeric metadata.fastDelayMilliseconds: ${offenders.map { it.name }}"
-		)
 	}
 
 	@Test
@@ -139,10 +120,8 @@ class MockContractTest {
 
 	private companion object {
 		const val MINIMUM_MAPPINGS = 100
-		const val SEMANTIC_DELAY_MS = 5000.0
 		const val UNAVAILABLE_BODY = "\"bodyFileName\": \"sync/post-sync-record-unavailable.json\""
 
-		private const val PENDING_FLUSH = "evaluations/post-evaluations-pending-sign-out-flush-success"
 		private const val SYNC_RECORD_RETRY = "sync/post-sync-record-refresh-retry-unavailable"
 		private const val SYNC_RETRY = "sync/post-sync-summary-refresh-retry-unavailable"
 		private const val SUMMARY_USER = "summary/get-user-refresh-retry"
@@ -187,13 +166,7 @@ class MockContractTest {
 			"$SYNC_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
 			// The proof retry asserts a new snackbar after the old one went, so the fast profile keeps the 3 s the
 			// answer takes: with the default 250 ms the new snackbar can be back before the old one is seen gone.
-			"enrollmentproof/enrollment-proof-enrollment-unavailable.json" to "\"fastDelayMilliseconds\": 3000",
-			// A 503 on a change leaves it pending and is sent again: the mock refuses the dated add until the
-			// scenario sets the state Available, and accepts it from then on.
-			"$PENDING_FLUSH-unavailable.json" to "\"requiredScenarioState\": \"Started\"",
-			"$PENDING_FLUSH-unavailable.json" to "\"status\": 503",
-			"$PENDING_FLUSH-success.json" to "\"requiredScenarioState\": \"Available\"",
-			"$PENDING_FLUSH-success.json" to "\"status\": 200"
+			"enrollmentproof/enrollment-proof-enrollment-unavailable.json" to "\"fastDelayMilliseconds\": 3000"
 		)
 
 		val staleMappings: List<String> = listOf(

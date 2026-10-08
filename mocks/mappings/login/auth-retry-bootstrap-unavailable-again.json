@@ -19,5 +19,8 @@
       "Retry-After": "10"
     },
     "fixedDelayMilliseconds": 1500
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
   }
 }

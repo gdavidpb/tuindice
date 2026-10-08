@@ -23,5 +23,8 @@
       "error": "enrollment proof not found"
     },
     "fixedDelayMilliseconds": 1500
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
   }
 }

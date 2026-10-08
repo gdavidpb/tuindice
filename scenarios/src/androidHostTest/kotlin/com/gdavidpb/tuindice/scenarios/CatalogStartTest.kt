@@ -87,7 +87,8 @@ class CatalogStartTest {
 				assertEquals(account.usbIdFormatted, arguments[DebugLaunchArguments.SEED_USB_ID], scenario.id)
 				assertEquals(account.password, arguments[DebugLaunchArguments.SEED_PASSWORD], scenario.id)
 				assertEquals(
-					listOfNotNull(account.mockScenario).map { it to "TokensIssued" },
+					listOfNotNull(account.mockScenario).map { it to "TokensIssued" } +
+						ExtraMockStatesAtStart.of(scenario.id),
 					scenario.start.mockStates.map { it.scenario to it.state },
 					scenario.id
 				)

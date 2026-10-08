@@ -13,6 +13,8 @@ import kotlinx.serialization.json.intOrNull
  * with `&&` in a JSON path), and the state of the mapping's scenario, which [setState] can also set;
  * the lowest priority wins (no priority means 5) and a tie between the best two is an error, because WireMock
  * would pick one of them by insertion order. A request no mapping answers gets 404, like the real server.
+ * What it does not understand it does not guess: a URL matcher other than `urlPath` that could answer the request,
+ * or a body pattern that is neither a password nor a comparison, fails the replay instead of silently not matching.
  */
 internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) {
 	private val states = mutableMapOf<String, String>()
@@ -71,11 +73,24 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 		val query = request["queryParameters"] as? JsonObject ?: JsonObject(emptyMap())
 
 		return request.string("method").equals(sent.method, ignoreCase = true) &&
-			request.string("urlPath") == sent.path &&
+			pathMatches(request, sent) &&
 			(scenario == null || required == null || (states[scenario] ?: STARTED) == required) &&
 			headers.all { (name, matcher) -> valueMatches(matcher as JsonObject, sent.headers[name]) } &&
 			query.all { (name, matcher) -> valueMatches(matcher as JsonObject, sent.query[name]) } &&
 			request.array("bodyPatterns").all { pattern -> bodyMatches(pattern as JsonObject, sent) }
+	}
+
+	/** `urlPath` is compared; any other URL matcher that could be the one answering stops the replay. */
+	private fun pathMatches(request: JsonObject, sent: Request): Boolean {
+		val pattern = request.string("urlPathPattern")
+		val other = OTHER_URL_MATCHERS.firstOrNull { it in request }
+
+		check(other == null) { "$other of a mapping for ${sent.method} is not understood by the replay" }
+		check(pattern == null || !Regex(pattern).matches(sent.path)) {
+			"urlPathPattern '$pattern' would answer ${sent.method} ${sent.path} and the replay does not apply it"
+		}
+
+		return pattern == null && request.string("urlPath") == sent.path
 	}
 
 	private fun valueMatches(matcher: JsonObject, value: String?): Boolean {
@@ -99,8 +114,14 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 			password == sent.body["password"]
 		} else {
 			val conditions = Regex("""@\.(\w+) (==|!=) (null|'[^']*'|[\w.]+)""").findAll(path).toList()
+			val leftovers = path.replace(Regex("""@\.(\w+) (==|!=) (null|'[^']*'|[\w.]+)"""), "")
+				.replace("&&", "").replace(Regex("""[\s$\[?()\]]"""), "")
 
-			conditions.isNotEmpty() && conditions.all { condition -> conditionHolds(condition.groupValues, sent.body) }
+			check(conditions.isNotEmpty() && leftovers.isEmpty()) {
+				"body pattern $pattern is neither a password nor comparisons joined with &&; the replay does not understand it"
+			}
+
+			conditions.all { condition -> conditionHolds(condition.groupValues, sent.body) }
 		}
 	}
 
@@ -121,6 +142,14 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 					.filter { (_, mapping) -> mapping.string("scenarioName").let { it == null || it in scenarios } }
 			)
 
+		/** Every mapping, for the replay of a start in which each WireMock scenario sits in its own start state. */
+		fun everything(without: String? = null): MockReplay =
+			MockReplay(
+				RepoFiles.allMappings.walkTopDown().filter { it.isFile && it.extension == "json" }
+					.filter { it.name != without }.sortedBy { it.path }.map { it.name to MockJson.obj(it) }.toList()
+			)
+
+		private val OTHER_URL_MATCHERS = listOf("url", "urlPattern", "urlPathTemplate")
 		private const val OK = 200
 		private const val NOT_FOUND = 404
 		private const val DEFAULT_PRIORITY = 5

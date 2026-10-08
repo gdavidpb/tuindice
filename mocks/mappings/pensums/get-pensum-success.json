@@ -16,5 +16,8 @@
     "bodyFileName": "pensums/get-pensum-success.json",
     "fixedDelayMilliseconds": 1800
   },
-  "priority": 10
+  "priority": 10,
+  "metadata": {
+    "fastDelayMilliseconds": 250
+  }
 }

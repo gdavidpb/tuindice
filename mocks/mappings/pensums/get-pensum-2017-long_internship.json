@@ -24,5 +24,8 @@
     "bodyFileName": "pensums/get-pensum-2017-long_internship.json",
     "fixedDelayMilliseconds": 1800
   },
-  "priority": 1
+  "priority": 1,
+  "metadata": {
+    "fastDelayMilliseconds": 250
+  }
 }
