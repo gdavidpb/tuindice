@@ -37,7 +37,7 @@ MAX_DRIFT_COMMITS = 20  # HEAD past the last complete run: warn beyond this many
 MAX_DRIFT_FILES = 150  # ...or this many files
 NEXT_ACTION = {
     "incomplete": "ask GitHub again (python3 e2e/scripts/shared/e2e.py status); this is not missing evidence, so do not run {task}",
-    "reusable": "python3 e2e/scripts/shared/e2e.py publish --platform {platform}   (cites the evidence on {evidence}; the workflow of a pull request does not republish it)",
+    "reusable": "python3 e2e/scripts/shared/e2e.py publish --platform {platform}   (puts the status on HEAD, citing the evidence on {evidence} when the local ledger is not complete; the workflow of a pull request does not republish it)",
     "unpublished": "git push if HEAD is not on GitHub, then: python3 e2e/scripts/shared/e2e.py publish --platform {platform}",
     "partial": "./gradlew {task}   (only the pending scenarios run)",
     "rerun": "./gradlew {task}",
@@ -126,7 +126,7 @@ def parse_github_output(path: Path) -> dict[str, str]:
 
 
 def merge_base_for_e2e_scope(head: str) -> str | None:
-    """Merge-base with the base branch; the base ref has one definition, e2e_base_ref in common.sh (origin first)."""
+    """Merge-base with the base branch; the base ref has one definition, e2e_base_ref in e2e/scripts/shared/ci-common.sh (origin first)."""
     completed = subprocess.run(
         ["bash", "-c", 'source .github/scripts/common.sh; e2e_base_ref "$1"', "_", str(REPO_ROOT)],
         cwd=REPO_ROOT,

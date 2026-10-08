@@ -155,6 +155,7 @@ conditions and the environment thresholds are in `.codex/skills/certify-tuindice
 | `E2E_WIREMOCK_DELAY_PROFILE` | `fast` (default) shortens fixture delays unless a mapping pins its own; `legacy` keeps the checked-in ones. |
 | `E2E_TMP_ROOT`, `E2E_STATE_ROOT` | Scratch directory and the `build/e2e` root. |
 | `E2E_ARTIFACTS_MAX_GB` | Cap of the retention (default 5). |
+| `E2E_TRUSTED_STATUS_CREATORS` | Comma-separated logins whose `success` status `status` counts as evidence (default: the repository owner; trimmed, empty entries dropped). `publish` ignores it: it cites only statuses the owner created. Do not list `github-actions[bot]`: any workflow of a branch publishes as it. |
 
 `E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE`, `E2E_SCOPE_FILE` and `E2E_FINGERPRINT_REPO_ROOT` are test seams of the
 harness tests; evidence refuses to run with any of them set, and `publish` refuses a ledger that recorded one.

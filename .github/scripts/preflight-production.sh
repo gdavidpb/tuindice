@@ -210,7 +210,8 @@ status_context_succeeded() {
 	return 1
 }
 
-# The suite is read out of the platform's one status context (common.sh); any other context is not evidence.
+# The suite is read out of the platform's one status context (e2e_status_context, defined in ci-common.sh); any other
+# context is not evidence.
 e2e_suite_from_context() {
 	local context="$1"
 	local platform="$2"

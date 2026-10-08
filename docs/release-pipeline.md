@@ -45,7 +45,7 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 `scripts/module-graph.txt` — la fuente única que también valida `./gradlew verifyModuleGraph` contra los
 `build.gradle.kts` reales:
 
-- Cambios en `docs/`, `README.md`, `AGENTS.md` y `.codex/` no disparan release ni tests de app; ejecutan solo la
+- Cambios en `docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/` y `.codex/` no disparan release ni tests de app; ejecutan solo la
   puerta de vocabulario E2E (`e2e/tools/verify/verify-e2e-vocabulary.sh`, paso del job compartido). El skill de
   certificación (`.codex/skills/certify-tuindice-pr/`) además corre `verifyE2eContract`, porque sus herramientas
   las prueban los tests del harness.
@@ -63,10 +63,10 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;
   cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; los demás `ci-*` solo disparan un smoke liviano en
-  macOS. El resto de `iosApp/scripts/*` (`build-scenario-kit.sh`, `verify-ui-test-target.sh`,
-  `add-ui-test-target.rb`) entra en la huella de iOS: exige la evidencia de iOS y el build del target de UI tests
-  (`ios-uitest-preflight`); lo mismo vale para `.github/scripts/sync-app-version.sh` y
-  `materialize-firebase-configs.sh`.
+  macOS. Todo `iosApp/scripts/*` que no es `ci-*` (`build-kmp-framework.sh`, `build-scenario-kit.sh`,
+  `verify-ui-test-target.sh`, `add-ui-test-target.rb`) entra además en la huella de iOS: exige la evidencia de iOS y
+  el build del target de UI tests (`ios-uitest-preflight`); lo mismo vale para `.github/scripts/sync-app-version.sh`
+  y `materialize-firebase-configs.sh`.
 - El detector separa las tareas iOS en `ios_test_tasks` (compilación y tests de simulador) e `ios_host_tasks`
   (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en cuatro jobs
   macOS: `ios-test-preflight` e `ios-host-preflight` en paralelo (así el wall-clock es el mayor de los dos y
@@ -152,7 +152,8 @@ rechaza) y `preflight-production.sh` no hace ningún POST.
 - **En el PR** (`GITHUB_EVENT_NAME=pull_request`) el status de confianza con el fingerprint debe estar en el `HEAD`
   del PR. Si solo está en un antecesor, el check falla y nombra el commit que tiene la evidencia y el comando exacto
   para publicarla en la cabeza.
-- **En el stage** (push a `production`) la evidencia se busca, sin republicarla, en los antecesores del SHA desplegado
+- **En el stage** (push a `production`; `deploy-production.sh` pasa `E2E_EVIDENCE_SCOPE=merged` al preflight, y sin esa
+  variable el script exige la cabeza aunque falte el evento) la evidencia se busca, sin republicarla, en los antecesores del SHA desplegado
   (merge commit) y en el head del PR asociado al commit (API de GitHub; squash o rebase). Por eso el check del PR exige
   el status en la cabeza final del PR: es el único commit del PR que el stage encuentra tras un squash.
 
@@ -284,8 +285,9 @@ E2E_TRUSTED_STATUS_CREATORS
 ```
 
 `preflight-production-pr.yml` y `stage-production-artifacts.yml` la pasan a `preflight-production.sh`; si no está
-definida, el único creator de confianza es el dueño del repo. Un valor que incluya `github-actions[bot]` reabre el
-camino por el que cualquier workflow de una rama puede publicar evidencia: no lo pongas.
+definida, el único creator de confianza es el dueño del repo. Se lee recortada y sin entradas vacías (`a, b` es `a` y `b`); el preflight imprime la lista efectiva en el resumen y
+avisa si incluye al bot. Un valor que incluya `github-actions[bot]` reabre el camino por el que cualquier workflow de
+una rama puede publicar evidencia: no lo pongas. `e2e.py publish` la ignora: solo cita estados creados por el dueño.
 
 Permisos sobrantes, anotados y sin cambiar: `statuses: write` en `stage-production-artifacts.yml` (nivel workflow) y
 en `deploy-production.yml` (nivel workflow) ya no lo usa ningún camino de evidencia (el preflight no publica y las

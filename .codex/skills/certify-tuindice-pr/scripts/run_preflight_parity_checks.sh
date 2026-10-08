@@ -21,7 +21,7 @@ resolve_merge_base() {
 	local ref
 	local merge_base
 
-	# The base ref has one definition (common.sh), shared with the scope resolver, the audit helper and the verdict.
+	# The base ref has one definition (e2e_base_ref in e2e/scripts/shared/ci-common.sh, loaded by common.sh), shared with the scope resolver, the audit helper and the verdict.
 	ref="$(e2e_base_ref "$REPO_ROOT")" || return 1
 	merge_base="$(git merge-base "$ref" "$head_sha" 2>/dev/null || true)"
 	[[ -n "$merge_base" ]] || return 1

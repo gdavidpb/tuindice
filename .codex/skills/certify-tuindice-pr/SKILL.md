@@ -31,7 +31,7 @@ evidence still to produce. Exit 2: a stop condition holds.
 | Verdict | Condition | Do |
 |---|---|---|
 | `current` | A trusted success status naming the platform's fingerprint is on HEAD | Nothing |
-| `reusable` | The same status is on a commit preflight considers (the branch's commits since the merge-base with `production`, or that base) | Push if needed, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`: it cites that commit on HEAD. The PR workflow never republishes it, so it is not done |
+| `reusable` | The same status is on a commit preflight considers (the branch's commits since the merge-base with `production`, or that base) | Push if needed, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`: it puts the status on HEAD (citing that commit when the local ledger is not complete). The PR workflow never republishes it, so it is not done |
 | `unpublished` | No such status; the ledger is green for every in-scope scenario | Push if HEAD is not on GitHub, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>` |
 | `partial` | No such status; at least one scenario is green | `./gradlew e2eEvidence` (or the platform task); only the pending ones run |
 | `rerun` | No such status; nothing is green for this fingerprint | `./gradlew e2eEvidence` (or the platform task) |

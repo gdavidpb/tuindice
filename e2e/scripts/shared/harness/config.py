@@ -75,8 +75,9 @@ LAYOUT = Path(__file__).resolve().parent.parent / "layout.env"
 
 
 def shared_function(root, function, *args):
-    """(exit code, lines) of a function of the shared shell library (.github/scripts/common.sh), the one the status
-    context, the base ref, the trusted creators and the suite id live in: each has one definition, there."""
+    """(exit code, lines) of a function of the shared shell library (.github/scripts/common.sh, which loads
+    e2e/scripts/shared/ci-common.sh): the status context, the base ref, the trusted creators and the suite id each have
+    one definition, in ci-common.sh."""
     source = Path(root) / parse_layout(LAYOUT)["E2E_STATUS_CONTEXT_SOURCE"]
     if not source.exists():
         raise UsageError("%s does not exist" % source)

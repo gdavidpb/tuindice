@@ -36,12 +36,13 @@ the stop conditions; this file has the detail behind them.
   base itself; commits are asked about once and shared by both platforms, at most 100), the local ledger's
   publication records only when GitHub cannot be read. A lookup that fails is asked again; if it fails twice the
   verdict is `incomplete` (`remote.incomplete` lists the commits): ask again, do not rerun. Never rerun because the SHA moved.
-  CI's window differs: the heads of the associated PRs, then the commits from the PR base to the head plus the base when
-  it is an ancestor of the head (an up-to-date PR), else the last 50 commits (`E2E_REUSE_MAX_COMMITS`). A branch not
-  updated with `production` and longer than 50 commits can be `reusable` here and still ask for evidence in CI.
+  In a PR, CI asks only for the status on the head, so `reusable` never passes there. The stage (after the merge) also
+  looks at the merged commits: the heads of the associated PRs, then the commits from the PR base to the head plus the
+  base when it is an ancestor of the head, else the last 50 commits (`E2E_REUSE_MAX_COMMITS`).
   `reusable` is not done: the PR check wants the status on the head. `e2e.py publish --platform <p>` (clean tree, `HEAD == @{u}`)
-  publishes it there: from a complete ledger as always, else citing the ancestor that holds it (`reused from <sha7> fp <fp12>`);
-  it refuses, without calling `gh` to write, when no trusted ancestor has the same fingerprint.
+  publishes it there: from a complete ledger as always, else citing the ancestor that holds it (`reused from <sha7> fp <fp12>`),
+  measured again for that fingerprint; only statuses created by the repository owner are cited, whatever
+  `E2E_TRUSTED_STATUS_CREATORS` says. It refuses, without calling `gh` to write, when no such ancestor has the same fingerprint.
 
 ### Measured data
 
@@ -167,7 +168,7 @@ leftovers of the previous harness and is the owner's command.
 |---|---|---|
 | 0 | Green, and published when publishing was required | Open or update the PR |
 | 1 | Some scenarios failed; greens are kept | Read `summary.txt`, fix by class (`SKILL.md`), push, rerun the helper |
-| 2 | Misuse or a precondition that does not hold: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a test variable set while publishing, an `E2E_MAX_RETRIES` other than the ledger's, a selection that matches nothing. Some are found after the device is prepared or the build is done (including "the checkout changed during the run"), never after publishing | Fix what the message names; nothing is recorded or published from that point |
+| 2 | Misuse or a precondition that does not hold: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a test variable set (every evidence run and every `publish` rejects them), an `E2E_MAX_RETRIES` other than the ledger's, a selection that matches nothing. Some are found after the device is prepared or the build is done (including "the checkout changed during the run"), never after publishing | Fix what the message names; nothing is recorded or published from that point |
 | 3 | The environment was refused or could not be recovered, or the `driver-contract` gate failed (no scenario ran; the manifest's `driverContract.failed` names the probes) | Fix the machine (section 6) or the driver, rerun once. A second exit 3 in the session is a stop condition |
 | 4 | Budget exhausted; greens are kept | Rerun; it continues with the pending scenarios |
 | 5 | Stopped with a diagnosis: `typed_text_mismatch` or `app_crash` at the first attempt, or the same class twice for a scenario (`environment` included, under the same fingerprint) | Stop |
