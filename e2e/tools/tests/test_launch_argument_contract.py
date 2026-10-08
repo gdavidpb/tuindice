@@ -71,6 +71,8 @@ class LaunchContractTests(unittest.TestCase):
             "alias of processInfo": "let info = ProcessInfo.processInfo",
             "a new ProcessInfo": "_ = ProcessInfo().environment",
             "CommandLine": "_ = CommandLine.arguments",
+            "CommandLine unsafeArgv": "_ = CommandLine.unsafeArgv",
+            "CommandLine argc": "_ = CommandLine.argc",
             "getenv": '_ = getenv("K")',
             "UserDefaults string": '_ = UserDefaults.standard.string(forKey: "K")',
             "UserDefaults bool": '_ = UserDefaults.standard.bool(forKey: "K")',
@@ -108,6 +110,19 @@ class LaunchContractTests(unittest.TestCase):
 
     def test_a_nested_frame_keeps_the_outer_debug(self):
         self.write(HOST, swift("        #if DEBUG\n        #if os(iOS)\n        _ = CommandLine.arguments\n        #endif\n        #endif"))
+        self.assertPasses()
+
+    def test_the_swift_host_names_the_launch_arguments_class_only_inside_if_debug(self):
+        named = "        let arguments = DebugLaunchArguments.companion.parse(values: [])"
+        self.write(HOST, swift("        #if DEBUG\n" + named + "\n        #endif"))
+        self.assertPasses()
+        self.write(HOST, swift(named))
+        self.assertFails("5", "DebugLaunchArguments named outside #if DEBUG")
+        self.write(HOST, swift("        #if !DEBUG\n" + named + "\n        #endif"))
+        self.assertFails("5")
+
+    def test_a_swift_name_that_merely_contains_the_class_name_is_not_the_class(self):
+        self.write(HOST, swift("        let applyDebugLaunchArgumentsLater = 1"))
         self.assertPasses()
 
     # -- rule 4: Kotlin for iOS --------------------------------------------------------------------------------------

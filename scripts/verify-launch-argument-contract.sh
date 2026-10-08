@@ -10,13 +10,14 @@
 # 2. Every TUINDICE_E2E_* literal in e2e/, testkit/e2e/, .codex/ and iosApp/UITests/
 #    is declared in the definition. No file is skipped for its size; binary files are not text.
 # 3. The iOS host reads the process environment, the process arguments and
-#    UserDefaults (ProcessInfo, CommandLine.arguments, getenv, reads of UserDefaults.standard)
-#    only inside an #if DEBUG block, so release builds take no input from launch.
+#    UserDefaults (ProcessInfo, CommandLine.arguments / unsafeArgv / argc, getenv, reads of
+#    UserDefaults.standard) only inside an #if DEBUG block, so release builds take no input from launch.
 #    A condition with `!` or `||` is not a DEBUG frame (`#if !DEBUG` is one only in its #else).
 # 4. Kotlin for iOS (iosMain and the other native source sets) never reads the process
 #    environment, arguments or user defaults: it has no #if, so the host passes the values in.
 # 5. The constants of DebugLaunchArguments are used only from debug sources, the iOS bootstrap
 #    that applies them, the :scenarios module and test source sets, never from code that ships.
+#    The Swift host names DebugLaunchArguments only inside an #if DEBUG block.
 #
 # Test seam: LAUNCH_CONTRACT_ROOT (the tree to check; default: the repository of this script).
 
@@ -28,7 +29,9 @@ IOS_HOST_DIR="${ROOT_DIR}/iosApp/Sources"
 KEY_PATTERN='TUINDICE_E2E_[A-Z_]+'
 # Reads of UserDefaults.standard (the argument domain is part of it), or any alias of it: writes such as the locale
 # defaults the host sets in every build are not launch input.
-SWIFT_LAUNCH_INPUT='ProcessInfo|CommandLine\.arguments|getenv\(|UserDefaults\.standard\.(string|bool|integer|double|float|object|array|dictionary|stringArray|data|url|value|dictionaryRepresentation)|UserDefaults\.standard([^.A-Za-z0-9_]|$)'
+SWIFT_LAUNCH_INPUT='ProcessInfo|CommandLine\.(arguments|unsafeArgv|argc)|getenv\(|UserDefaults\.standard\.(string|bool|integer|double|float|object|array|dictionary|stringArray|data|url|value|dictionaryRepresentation)|UserDefaults\.standard([^.A-Za-z0-9_]|$)'
+# The Kotlin class of the launch arguments, as the Swift host names it (awk has no \b).
+SWIFT_LAUNCH_ARGUMENTS_CLASS='(^|[^A-Za-z0-9_])DebugLaunchArguments([^A-Za-z0-9_]|$)'
 KOTLIN_LAUNCH_INPUT='NSProcessInfo|NSUserDefaults\.standardUserDefaults|platform\.posix\.getenv|[^A-Za-z_.]getenv\('
 
 [[ -f "$DEFINITION" ]] || {
@@ -110,43 +113,49 @@ for dir in e2e testkit/e2e .codex iosApp/UITests; do
 	done < <(list_sources "${ROOT_DIR}/${dir}")
 done
 
+# swift_unguarded_hits <pattern> <file>: the lines of a Swift file that match the pattern outside an #if DEBUG
+# frame. Fails when the file cannot be scanned.
+swift_unguarded_hits() {
+	LAUNCH_INPUT="$1" awk '
+	# Only a plain DEBUG condition (optionally `DEBUG && ...`) is a debug frame: a `!` or an `||` lets release in.
+	function isDebug(cond) {
+		if (cond ~ /!/ || cond ~ /\|\|/) return 0
+		return cond ~ /(^|[^A-Za-z0-9_])DEBUG([^A-Za-z0-9_]|$)/
+	}
+	/^[[:space:]]*#if[[:space:]]/ {
+		cond = $0
+		sub(/^[[:space:]]*#if[[:space:]]+/, "", cond)
+		depth++
+		frame[depth] = isDebug(cond)
+		alternate[depth] = (cond ~ /^!DEBUG[[:space:]]*(\/\/.*)?$/)
+		next
+	}
+	/^[[:space:]]*#elseif[[:space:]]/ {
+		cond = $0
+		sub(/^[[:space:]]*#elseif[[:space:]]+/, "", cond)
+		frame[depth] = isDebug(cond)
+		alternate[depth] = 0
+		next
+	}
+	/^[[:space:]]*#else/ {
+		frame[depth] = alternate[depth]
+		alternate[depth] = 0
+		next
+	}
+	/^[[:space:]]*#endif/ { depth--; next }
+	/^[[:space:]]*\/\// { next }
+	$0 ~ ENVIRON["LAUNCH_INPUT"] {
+		inDebug = 0
+		for (i = 1; i <= depth; i++) if (frame[i]) inDebug = 1
+		if (!inDebug) printf "%d:%s\n", NR, $0
+	}
+	' "$2"
+}
+
 # Rule 3: launch input reads in the iOS host need a DEBUG frame on the #if stack.
 while IFS= read -r file; do
 	hits=""
-	if ! hits=$(LAUNCH_INPUT="$SWIFT_LAUNCH_INPUT" awk '
-		# Only a plain DEBUG condition (optionally `DEBUG && ...`) is a debug frame: a `!` or an `||` lets release in.
-		function isDebug(cond) {
-			if (cond ~ /!/ || cond ~ /\|\|/) return 0
-			return cond ~ /(^|[^A-Za-z0-9_])DEBUG([^A-Za-z0-9_]|$)/
-		}
-		/^[[:space:]]*#if[[:space:]]/ {
-			cond = $0
-			sub(/^[[:space:]]*#if[[:space:]]+/, "", cond)
-			depth++
-			frame[depth] = isDebug(cond)
-			alternate[depth] = (cond ~ /^!DEBUG[[:space:]]*(\/\/.*)?$/)
-			next
-		}
-		/^[[:space:]]*#elseif[[:space:]]/ {
-			cond = $0
-			sub(/^[[:space:]]*#elseif[[:space:]]+/, "", cond)
-			frame[depth] = isDebug(cond)
-			alternate[depth] = 0
-			next
-		}
-		/^[[:space:]]*#else/ {
-			frame[depth] = alternate[depth]
-			alternate[depth] = 0
-			next
-		}
-		/^[[:space:]]*#endif/ { depth--; next }
-		/^[[:space:]]*\/\// { next }
-		$0 ~ ENVIRON["LAUNCH_INPUT"] {
-			inDebug = 0
-			for (i = 1; i <= depth; i++) if (frame[i]) inDebug = 1
-			if (!inDebug) printf "%d:%s\n", NR, $0
-		}
-	' "$file"); then
+	if ! hits=$(swift_unguarded_hits "$SWIFT_LAUNCH_INPUT" "$file"); then
 		echo "FAIL [rule 3]: cannot scan ${file#"$ROOT_DIR"/}"
 		status=1
 	elif [[ -n "$hits" ]]; then
@@ -174,6 +183,19 @@ while IFS= read -r file; do
 
 	report_matches 5 "DebugLaunchArguments used outside debug sources, the iOS bootstrap, :scenarios and tests" '\bDebugLaunchArguments\b' "$file"
 done < <(list_sources "$ROOT_DIR" -name '*.kt')
+
+# Rule 5, Swift side: the host names the class of the launch arguments only inside #if DEBUG.
+while IFS= read -r file; do
+	hits=""
+	if ! hits=$(swift_unguarded_hits "$SWIFT_LAUNCH_ARGUMENTS_CLASS" "$file"); then
+		echo "FAIL [rule 5]: cannot scan ${file#"$ROOT_DIR"/}"
+		status=1
+	elif [[ -n "$hits" ]]; then
+		echo "FAIL [rule 5]: DebugLaunchArguments named outside #if DEBUG: ${file#"$ROOT_DIR"/}"
+		echo "$hits" | sed 's/^/  /'
+		status=1
+	fi
+done < <(list_sources "$IOS_HOST_DIR" -name '*.swift')
 
 if [[ $status -eq 0 ]]; then
 	echo "OK: launch argument contract holds ($(echo "$declared_keys" | wc -l | tr -d ' ') keys declared)."
