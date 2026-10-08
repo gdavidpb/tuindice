@@ -50,8 +50,6 @@ struct RunConfig {
 /// from one that did not.
 final class DriverLog {
     enum Tolerance: String, CaseIterable {
-        /// The keyboard did not show after the tap that focuses a field and the field was tapped once more.
-        case focusRetry = "focus-retry"
         /// An alert that interrupted the app was dismissed by the interruption monitor.
         case dismissedAlert = "dismissed-alert"
         /// The "Allow Paste" alert of SpringBoard was answered.

@@ -124,17 +124,15 @@ final class TextTyping {
         return (verdict == .settled ? frame : nil, watch.reads)
     }
 
-    /// Taps the field so that it takes the focus and waits for the keyboard. If the keyboard does not show, the field is tapped
-    /// once more, and that is a tolerance: it is written to the driver log and counted.
+    /// Taps the field once so that it takes the focus and waits for the keyboard. There is no second tap: with the frame settled
+    /// before the tap (and the keyboard guard) it was never needed in 196 conformance runs (0 second taps), and a field that does
+    /// not bring the keyboard up is reported, not tapped again.
     private func focus(_ q: Query) -> Bool {
         guard let (resolved, facts) = resolver.placed(q, for: "focus") else { return false }
         guard tapper(resolved, center(of: facts), "focus \(q)") else { return false }
         if waitForKeyboard() { return true }
-
-        log.tolerate(.focusRetry, "\(q): no keyboard \(Self.keyboardTimeout) s after the focus tap; the field is tapped once more")
-        guard let (again, place) = resolver.placed(q, for: "focus (second tap)") else { return false }
-        guard tapper(again, center(of: place), "focus \(q) (second tap)") else { return false }
-        return waitForKeyboard()
+        log.add("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
+        return false
     }
 
     private func center(of facts: ElementFacts) -> CGPoint {
