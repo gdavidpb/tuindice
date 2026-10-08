@@ -69,7 +69,7 @@ def cmd_run(cfg, args):
         if rejected:
             raise UsageError("evidence mode runs the whole catalog; it rejects %s" % ", ".join(rejected))
         if args.survey:
-            raise UsageError("--survey is a diagnostic: it retries nothing and never stops, so it cannot produce evidence")
+            raise UsageError("--survey is a diagnostic: it retries nothing and does not stop for a scenario that fails (only an environment that cannot be recovered cuts it), so it cannot produce evidence")
     if not 1 <= args.repeat <= 50:
         raise UsageError("--repeat must be between 1 and 50")
     options = runner.Options(

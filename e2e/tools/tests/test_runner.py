@@ -216,6 +216,15 @@ class BudgetAndProcessTests(unittest.TestCase):
         self.assertIn("WireMock is not healthy", attempts[0]["failureSummary"])
         self.assertIn("WireMock is down; restarting it", result.out)
 
+    def test_a_survey_restarts_a_dead_wiremock_so_the_next_scenarios_are_measured_and_does_not_rerun_the_one_it_lost(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-a": ["wiremock-kill", "pass"]}})
+        result = ws.diagnose("ios", "--survey", **real_wiremock_env(ws))
+        self.assertIn("WireMock is down; restarting it", result.out)
+        self.assertIn("PASS  fix-b", result.out)
+        self.assertEqual(ws.executed(), ["fix-b"], "fix-a never got to run and the survey does not repeat it")
+        self.assertEqual(ws.calls("recover"), [])
+        self.assertEqual(result.code, 1, result.out)
+
     def test_a_wiremock_that_dies_during_the_scenario_makes_the_failed_attempt_the_environments(self):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "fail:assertion", "killWiremock": True}, "pass"]}})
         result = ws.evidence(**real_wiremock_env(ws))

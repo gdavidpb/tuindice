@@ -186,6 +186,15 @@ class RunTests(unittest.TestCase):
         self.assertEqual(events["events"][1]["scenariosSincePrevious"], 32, "fix-00 passed after its recovery, then 31 more")
         self.assertIn("at", events["events"][1])
 
+    def test_a_survey_is_cut_by_a_second_degradation_too_for_the_environment_not_for_a_failed_scenario(self):
+        behaviours = {"fix-00": [with_log(), "pass"], "fix-05": [with_log(), "pass"], "fix-02": ["fail:assertion"]}
+        ws = Workspace(self, numbered(8), {"behaviours": behaviours})
+        run = ws.diagnose("ios", "--survey")
+        self.assertEqual(run.code, 3, run.out)
+        self.assertIn("degraded again after", run.out)
+        self.assertIn("FAIL  fix-02", run.out, "a scenario that fails does not cut a survey, the second degradation does")
+        self.assertEqual(len(ws.calls("recover")), 1)
+
     def test_the_boundary_is_thirty_greens_exactly(self):
         # fix-00 degrades and then passes (1 green), fix-01..fix-29 pass: 30 greens since the recovery when fix-30 degrades.
         ws = Workspace(self, numbered(32), {"behaviours": {"fix-00": [with_log(), "pass"], "fix-30": [with_log(), "pass"]}})

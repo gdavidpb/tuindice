@@ -554,9 +554,11 @@ class PlatformRun:
                 return
             log.failed(scenario, attempt["n"], seconds, verdict.klass, verdict.summary)
             if verdict.klass == cl.ENVIRONMENT:
-                if self.opts.survey:  # the scenario is not measured again, but the next ones need a simulator that can be read
+                if self.opts.survey:  # the scenario is not measured again, but the next ones need a simulator and a WireMock that work
                     if verdict.degraded:
                         self._recover(scenario, verdict)
+                    elif not self.wiremock.health()[0]:
+                        self._restart_wiremock(scenario, verdict)
                     else:
                         log.say("ENV   %s: noted; the survey goes on" % scenario.id)
                     return
@@ -597,17 +599,21 @@ class PlatformRun:
             raise StopRun("environment_refused", 3, text, scenario.id, cl.ENVIRONMENT, verdict.summary)
         self.recoveries += 1
         if not self.wiremock.health()[0]:
-            # A dead WireMock is the harness's to restart; rebooting the device would find it dead again.
             self.log.say("ENV   %s: WireMock is down; restarting it (the device is not touched) and rerunning; this attempt does not count"
                 % scenario.id)
-            try:
-                self.wiremock.restart()
-            except EnvironmentRefused as error:
-                raise StopRun("environment_refused", 3, "WireMock could not be restarted: %s" % error, scenario.id, cl.ENVIRONMENT,
-                    verdict.summary)
-            return
+            return self._restart_wiremock(scenario, verdict)
         self.log.say("ENV   %s: recovering the device once and rerunning; this attempt does not count" % scenario.id)
         self._recover_device(scenario, verdict)
+
+    def _restart_wiremock(self, scenario, verdict):
+        """A dead WireMock is the harness's to restart; rebooting the device would find it dead again."""
+        if self.opts.survey:
+            self.log.say("ENV   %s: WireMock is down; restarting it so that the next scenarios are measured; this one is not rerun" % scenario.id)
+        try:
+            self.wiremock.restart()
+        except EnvironmentRefused as error:
+            raise StopRun("environment_refused", 3, "WireMock could not be restarted: %s" % error, scenario.id, cl.ENVIRONMENT,
+                verdict.summary)
 
     def _note_degradation(self, scenario, verdict):
         """Records a recovery caused by a degraded simulator, with the data that helps to find why the preferences daemon stops
@@ -757,7 +763,7 @@ class PlatformRun:
                 last = self._last_attempt(s)
                 if last is None:
                     continue  # cut before its attempt was recorded: it was not run, which is not a failure
-                failed.append((s.id, last.get("failureClass")))  # a survey does not recover: what it could not measure is not a pass
+                failed.append((s.id, last.get("failureClass")))  # a survey does not rerun it: what it could not measure is not a pass
         return failed
 
     def _publish(self):
