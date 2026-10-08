@@ -19,8 +19,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
@@ -58,7 +62,9 @@ fun UsbIdTextField(
 	}
 
 	OutlinedTextField(
-		modifier = modifier.testTag(AuthUiTags.UsbIdTextField),
+		modifier = modifier
+			.testTag(AuthUiTags.UsbIdTextField)
+			.semantics { contentType = ContentType.Username },
 		value = field.value,
 		onValueChange = { newValue ->
 			if (newValue.text == field.value.text) {
@@ -117,6 +123,7 @@ fun UsbIdTextField(
 			}
 		},
 		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.None,
 			autoCorrectEnabled = false,
 			imeAction = ImeAction.Next,
 			keyboardType = when (identifierMode) {

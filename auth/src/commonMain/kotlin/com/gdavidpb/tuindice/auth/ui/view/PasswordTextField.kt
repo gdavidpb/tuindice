@@ -15,8 +15,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -57,7 +61,9 @@ fun PasswordTextField(
 	}
 
 	OutlinedTextField(
-		modifier = modifier.testTag(AuthUiTags.PasswordTextField),
+		modifier = modifier
+			.testTag(AuthUiTags.PasswordTextField)
+			.semantics { contentType = ContentType.Password },
 		value = field.value,
 		enabled = enabled,
 		onValueChange = { newValue ->
@@ -102,6 +108,7 @@ fun PasswordTextField(
 			PasswordVisualTransformation()
 		},
 		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.None,
 			autoCorrectEnabled = false,
 			imeAction = imeAction,
 			keyboardType = KeyboardType.Password

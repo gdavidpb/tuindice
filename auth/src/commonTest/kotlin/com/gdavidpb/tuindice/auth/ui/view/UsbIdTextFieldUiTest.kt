@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -320,6 +321,173 @@ class UsbIdTextFieldUiTest {
 	}
 
 	@Test
+	fun when_theFieldIsInUsbIdMode_then_declaresTheUsernameContentType() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = {}
+			)
+		}
+
+		assertEquals(ContentType.Username, onNodeWithTag(AuthUiTags.UsbIdTextField).contentType())
+	}
+
+	@Test
+	fun when_theFieldIsInEmailMode_then_declaresTheUsernameContentType() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "Correo USB",
+				placeholderText = "correo@usb.ve",
+				identifierMode = SignInIdentifierMode.UsbEmail,
+				usbId = "",
+				toggleContentDescription = "Usar USBID",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = {}
+			)
+		}
+
+		assertEquals(ContentType.Username, onNodeWithTag(AuthUiTags.UsbIdTextField).contentType())
+	}
+
+	// Autofill hands the whole saved value over in one change, not key by key.
+	@Test
+	fun when_autofillDeliversTheWholeUsbIdAtOnce_then_theMaskIsAppliedAndTheCaretIsAtTheEnd() = runTuIndiceUiTest {
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> emittedUsbIds += value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("1234567")
+
+		assertEquals(listOf("12-34567"), emittedUsbIds)
+		assertEquals("12-34567", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(8), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillDeliversTheUsbIdWithItsDashAtOnce_then_keepsItAndTheCaretIsAtTheEnd() = runTuIndiceUiTest {
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> emittedUsbIds += value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("12-34567")
+
+		assertEquals(listOf("12-34567"), emittedUsbIds)
+		assertEquals("12-34567", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(8), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillDeliversTheWholeEmailAtOnce_then_keepsItIntact() = runTuIndiceUiTest {
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "Correo USB",
+				placeholderText = "correo@usb.ve",
+				identifierMode = SignInIdentifierMode.UsbEmail,
+				usbId = "",
+				toggleContentDescription = "Usar USBID",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> emittedUsbIds += value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("12-34567@usb.ve")
+
+		assertEquals(listOf("12-34567@usb.ve"), emittedUsbIds)
+		assertEquals("12-34567@usb.ve", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(15), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillFillsAFieldThatAlreadyHasText_then_theSavedValueReplacesIt() = runTuIndiceUiTest {
+		val usbId = mutableStateOf("12-34")
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = usbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					emittedUsbIds += value
+					usbId.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("9988776")
+
+		assertEquals(listOf("99-88776"), emittedUsbIds)
+		assertEquals("99-88776", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(8), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillFillsAFullFieldWithAnotherUsbId_then_theSavedValueReplacesIt() = runTuIndiceUiTest {
+		val usbId = mutableStateOf("12-34567")
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = usbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					emittedUsbIds += value
+					usbId.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("99-88776")
+
+		assertEquals(listOf("99-88776"), emittedUsbIds)
+		assertEquals("99-88776", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(8), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
 	fun when_showTogglePulseIsTrueAndFieldIsEmpty_then_pulseIsVisible() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
@@ -404,3 +572,6 @@ private fun SemanticsNodeInteraction.editableText() =
 
 private fun SemanticsNodeInteraction.selectionRange() =
 	fetchSemanticsNode().config.getOrNull(SemanticsProperties.TextSelectionRange)
+
+private fun SemanticsNodeInteraction.contentType() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.ContentType)

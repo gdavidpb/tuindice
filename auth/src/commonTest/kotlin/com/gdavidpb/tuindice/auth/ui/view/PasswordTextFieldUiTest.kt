@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextRange
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
@@ -44,6 +46,68 @@ class PasswordTextFieldUiTest {
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("abc123")
 
 		assertEquals("abc123", latestPassword)
+	}
+
+	@Test
+	fun when_thePasswordFieldIsComposed_then_declaresThePasswordContentType() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PasswordTextField(
+				isWaiting = false,
+				labelText = "Clave",
+				password = "",
+				onPasswordChange = {}
+			)
+		}
+
+		assertEquals(ContentType.Password, onNodeWithTag(AuthUiTags.PasswordTextField).contentType())
+	}
+
+	// Autofill hands the whole saved password over in one change, not key by key.
+	@Test
+	fun when_autofillDeliversTheWholePasswordAtOnce_then_keepsItIntactAndEmitsItOnce() = runTuIndiceUiTest {
+		val saved = "Cl4ve-Larga_2026!"
+		val emittedPasswords = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				isWaiting = false,
+				labelText = "Clave",
+				password = "",
+				isPasswordVisible = true,
+				onPasswordChange = { value -> emittedPasswords += value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextReplacement(saved)
+
+		assertEquals(listOf(saved), emittedPasswords)
+		assertEquals(saved, onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+		assertEquals(TextRange(saved.length), onNodeWithTag(AuthUiTags.PasswordTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillFillsAFieldThatAlreadyHasText_then_theSavedPasswordReplacesIt() = runTuIndiceUiTest {
+		val password = mutableStateOf("vieja")
+		val emittedPasswords = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				isWaiting = false,
+				labelText = "Clave",
+				password = password.value,
+				isPasswordVisible = true,
+				onPasswordChange = { value ->
+					emittedPasswords += value
+					password.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextReplacement("nueva-guardada")
+
+		assertEquals(listOf("nueva-guardada"), emittedPasswords)
+		assertEquals("nueva-guardada", onNodeWithTag(AuthUiTags.PasswordTextField).editableText())
+		assertEquals(TextRange(14), onNodeWithTag(AuthUiTags.PasswordTextField).selectionRange())
 	}
 
 	@Test
@@ -292,3 +356,6 @@ private fun SemanticsNodeInteraction.editableText() =
 
 private fun SemanticsNodeInteraction.selectionRange() =
 	fetchSemanticsNode().config.getOrNull(SemanticsProperties.TextSelectionRange)
+
+private fun SemanticsNodeInteraction.contentType() =
+	fetchSemanticsNode().config.getOrNull(SemanticsProperties.ContentType)
