@@ -94,21 +94,19 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(ExperimentalTestApi::class, ExperimentalTime::class)
 class TuIndiceAppHostRouteUiTest {
 	// The host gives every screen the clock Koin binds, so a debug build can freeze the "today" they read.
-	// A sync one minute before the frozen instant reads as today only if the screen is asked with that clock:
-	// with the system clock it would be a date years ahead of "now".
+	// A sync at the frozen instant reads as today only if the screen is asked with that clock: with the system
+	// clock it would be a date years ahead of "now". The same instant is "today" in every time zone.
 	@Test
 	fun when_hostRouteRuns_then_screensReadTheClockKoinBinds() = runTuIndiceUiTest {
-		// Six in the morning in UTC is the same calendar day, a minute earlier, in every time zone.
 		val frozenNow = Instant.parse("2030-06-15T06:00:00Z")
 		val syncStatusRepository = FakeSyncStatusRepository(
-			initialLastSuccessfulSyncAt = (frozenNow - 1.minutes).toEpochMilliseconds()
+			initialLastSuccessfulSyncAt = frozenNow.toEpochMilliseconds()
 		)
 
 		stopKoin()
