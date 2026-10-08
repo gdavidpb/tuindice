@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.scenariokit.codec
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
+import com.gdavidpb.tuindice.scenariokit.model.Step
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -80,11 +81,40 @@ class CatalogCodecTest {
 		val text = CatalogCodec.encode(sampleCatalog())
 		assertTrue("\"type\": \"back\"" in text)
 
-		for (removed in listOf("retry", "ifGone", "settle", "clearText", "finishTextEntry", "hideKeyboard")) {
+		val removedPrimitives = listOf(
+			"retry",
+			"ifGone",
+			"settle",
+			"clearText",
+			"finishTextEntry",
+			"hideKeyboard",
+			"waitAnyVisible"
+		)
+		for (removed in removedPrimitives) {
 			assertFailsWith<SerializationException>(removed) {
 				CatalogCodec.decode(text.replace("\"type\": \"back\"", "\"type\": \"$removed\""))
 			}
 		}
+	}
+
+	private fun expectRequestJson(step: Step.ExpectRequest): JsonObject =
+		scenarioJson(sampleCatalog(listOf(sampleScenario(steps = listOf(step)))))
+			.getValue("steps").jsonArray.single().jsonObject
+
+	@Test
+	fun encode_ofAnExpectRequestWithTheDefaultAtLeast_doesNotWriteIt() {
+		val step = expectRequestJson(Step.ExpectRequest("GET", "/users/v1", null, 1_000, 503))
+
+		assertTrue("atLeast" !in step.keys, step.keys.toString())
+	}
+
+	@Test
+	fun encode_ofAnExpectRequestWithAtLeast_writesItAndDecodesItBack() {
+		val expect = Step.ExpectRequest("GET", "/users/v1", null, 1_000, 503, atLeast = 2)
+		val text = CatalogCodec.encode(sampleCatalog(listOf(sampleScenario(steps = listOf(expect)))))
+
+		assertEquals("2", expectRequestJson(expect).getValue("atLeast").jsonPrimitive.content)
+		assertEquals(listOf<Step>(expect), CatalogCodec.decode(text).scenarios.single().steps)
 	}
 
 	@Test
