@@ -188,6 +188,7 @@ def profile_run(run):
         "runId": run.id, "platform": run.platform, "mode": manifest.get("mode"), "outcome": manifest.get("outcome"),
         "exitCode": manifest.get("exitCode"), "durationSeconds": manifest.get("durationSeconds"),
         "parallel": (manifest.get("parallel") or {}).get("decision"), "maxLoad1m": (manifest.get("load") or {}).get("max1m"),
+        "tolerances": manifest.get("tolerances") or {}, "refusals": manifest.get("refusals") or {},
         "phases": {p.get("name"): p.get("durationSeconds") for p in manifest.get("phases") or []},
         "scenarios": manifest.get("scenarios") or {}, "failuresByClass": failures,
         "attempts": [{k: v for k, v in row.items() if k != "steps"} for row in rows],
@@ -276,10 +277,12 @@ def compare_platform(runs, count):
 def render_compare(data):
     runs = data["runs"]
     out = ["Platform %s: latest run against %d before it" % (data["platform"], len(runs) - 1)]
-    out += table(["run", "mode", "parallel", "duration", "load1 max", "executed", "failed", "failures by class"],
+    out += table(["run", "mode", "parallel", "duration", "load1 max", "executed", "failed", "failures by class", "tolerances", "refusals"],
         [[r["runId"], r["mode"], r["parallel"] or "sequential", "%ss" % r["durationSeconds"], number(r["maxLoad1m"], "%.2f"),
             r["scenarios"].get("executed", "-"), r["scenarios"].get("failed", "-"),
-            ", ".join("%s=%d" % kv for kv in sorted(r["failuresByClass"].items())) or "-"] for r in runs])
+            ", ".join("%s=%d" % kv for kv in sorted(r["failuresByClass"].items())) or "-",
+            ", ".join("%s=%d" % kv for kv in sorted(r["tolerances"].items())) or "-",
+            ", ".join("%s=%d" % kv for kv in sorted(r["refusals"].items())) or "-"] for r in runs])
     if not data["enough"]:
         out.append("  only one %s run exists: there is nothing to compare it with" % data["platform"])
         return out

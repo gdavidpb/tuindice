@@ -104,7 +104,7 @@ class Manifest:
             "prepareLock": {"waitSeconds": 0.0, "waitedFor": None},
             "competingProcesses": {"start": [], "end": []},
             "envCheck": [], "toolchain": {"lockFile": None, "lockMatches": None, "actual": {}, "informational": {}, "libs": {}},
-            "tolerances": {},
+            "tolerances": {}, "refusals": {},
             "deviceDegradation": {"count": 0, "minGreenBetween": 30, "events": []},
             "driverContract": {"ran": False, "ok": None, "passed": [], "failed": [], "artifacts": None},
             "device": {}, "wiremock": {"port": config.ports[platform], "delayProfile": config.delay_profile},

@@ -1,20 +1,21 @@
-"""What the drivers tolerate on their own, counted from the driver.log of an attempt (B-7).
+"""What the drivers put up with and what they refuse, counted from the driver.log of an attempt (B-7).
 
-iOS ends its log with `[tolerances] key=N ...` and writes a `[tolerance] <key> <detail>` line for each one; Android writes one
-line per time it brings the app back to the front or refuses a gesture. A run that passed by way of a tolerance can then be told
-from one that did not."""
+A tolerance is something the driver put up with and went on: iOS ends its log with `[tolerances] key=N ...` and writes a
+`[tolerance] <key> <detail>` line for each one; Android writes one line per time it brings the app back to the front. A refusal
+is the driver saying no to a gesture, a touch or a tap (it fails the step): both platforms write it with the same three phrases,
+and the summary line of iOS does not count it. A run that passed by way of a tolerance can then be told from one that did not."""
 
 import re
 
 TAIL_BYTES = 4 * 1024 * 1024
 IOS_SUMMARY = re.compile(r"^\[tolerances\]((?:\s+[\w-]+=\d+)*)\s*$")
 IOS_LINE = re.compile(r"^\[tolerance\]\s+([\w-]+)")
-# (key, pattern) of the lines the Android driver writes (scenariorunner/driver: AppLauncher, DeviceSession, KeyboardGuard, GestureInjector).
+# (key, pattern) of the lines the Android driver writes (scenariorunner/driver: AppLauncher).
 ANDROID_LINES = (
     ("foreground-request", re.compile(r"foreground: .* request \d+ to bring the app back")),
     ("foreground-not-in-front", re.compile(r"foreground: not in front after")),
-    ("gesture-refused", re.compile(r"(?:gesture|touch) refused")),
 )
+REFUSAL = re.compile(r"\b(gesture|touch|tap) refused")
 
 
 def count(text):
@@ -37,15 +38,27 @@ def count(text):
     return {key: n for key, n in counts.items() if n}
 
 
-def count_file(path):
-    """count() of the last TAIL_BYTES of a file; a file that does not exist has none."""
+def refusals(text):
+    """{'gesture-refused' | 'touch-refused' | 'tap-refused': n}: the lines are always read, a summary or not."""
+    counts = {}
+    for line in text.splitlines():
+        found = REFUSAL.search(line)
+        if found:
+            key = "%s-refused" % found.group(1)
+            counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def read(path):
+    """(tolerances, refusals) of the last TAIL_BYTES of a driver log; a file that does not exist has none of either."""
     try:
         with open(path, "rb") as handle:
             handle.seek(0, 2)
             handle.seek(max(0, handle.tell() - TAIL_BYTES))
-            return count(handle.read().decode("utf-8", errors="replace"))
+            text = handle.read().decode("utf-8", errors="replace")
     except OSError:
-        return {}
+        return {}, {}
+    return count(text), refusals(text)
 
 
 def merge(*counts):

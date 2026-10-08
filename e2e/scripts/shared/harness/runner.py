@@ -527,12 +527,13 @@ class PlatformRun:
             ledger.record_attempt(scenario.id, attempt)
             ledger.save()
             self.manifest.data["tolerances"] = tolerances.merge(self.manifest.data["tolerances"], attempt["tolerances"])
+            self.manifest.data["refusals"] = tolerances.merge(self.manifest.data["refusals"], attempt["refusals"])
             self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "attemptDir": attempt["attemptDir"],
                 "repetition": attempt["repetition"], "outcome": attempt["outcome"],
                 "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
                 "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
                 "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"],
-                "tolerances": attempt["tolerances"], **self._timings(attempt)})
+                "tolerances": attempt["tolerances"], "refusals": attempt["refusals"], **self._timings(attempt)})
             self.executed.add(scenario.id)
             self.series[(self.repetition, scenario.id)] = "passed" if verdict.passed \
                 else "environment" if verdict.klass == cl.ENVIRONMENT else "failed"
@@ -688,6 +689,7 @@ class PlatformRun:
             verdict = cl.classify(evidence)  # again: the logs only exist now, and a degraded simulator is the environment's
             with open(os.path.join(adir, "classification.json"), "w") as handle:
                 json.dump({"class": verdict.klass, "summary": verdict.summary}, handle, indent=2)
+        tolerated, refused = tolerances.read(os.path.join(adir, "driver.log"))  # after collect-failure: a killed run's log is home
         attempt = {
             "runId": self.run_id, "sha": self.git.sha, "startedAt": started_at, "finishedAt": now(),
             "durationMs": int((time.monotonic() - began) * 1000), "runnerDurationMs": runner_ms,
@@ -698,7 +700,7 @@ class PlatformRun:
             "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),
             "attemptDir": directory, "repetition": self.repetition + 1,
             "unmatchedRequests": cl.unmatched_summary(evidence.journal), "notes": [verdict.note] if verdict.note else [],
-            "probeErrors": errors, "tolerances": tolerances.count_file(os.path.join(adir, "driver.log")),
+            "probeErrors": errors, "tolerances": tolerated if verdict.passed else {}, "refusals": refused,
             **self._timings(evidence.result),
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
         }
@@ -800,7 +802,7 @@ class PlatformRun:
                 # The attempt that failed: the one a repetition kept when the scenario failed in it, or the last of this one.
                 last = self.failed_overall.get(s.id) or self._last_attempt(s) or {}
                 results.append({"id": s.id, "status": "failed", "class": failed[s.id], "summary": last.get("failureSummary", ""),
-                    "seconds": last.get("durationMs", 0) / 1000.0, "tolerances": last.get("tolerances", {})})
+                    "seconds": last.get("durationMs", 0) / 1000.0, "tolerances": {}, "refusals": last.get("refusals", {})})
             elif self.ledger.passed(s.id):
                 won = [a for a in entries if a["outcome"] == "passed"][-1]
                 results.append({"id": s.id, "status": "passed", "seconds": won["durationMs"] / 1000.0,
@@ -855,11 +857,14 @@ class PlatformRun:
                     and any(a["outcome"] == "failed" for a in self.ledger.attempts(s.id))),
                 notRun=sum(1 for r in results if r["status"] == "skipped" and r["summary"] == "not run"))
             green = sum(1 for r in results if r["status"] == "passed")
+            if m.data["tolerances"]:
+                self.log.say("TOLERANCES %s" % " ".join("%s=%d" % item for item in sorted(m.data["tolerances"].items())))
             line = self.log.result(outcome, green, len(self.runnable), self._failed_list(), m.data["scenarios"]["notRun"],
                 code, self.fingerprint)
             report.write_summary(os.path.join(self.run_dir, "summary.txt"), [line] + [
                 "%s %s %s" % (r["status"].upper(), r["id"], r.get("summary", "")) for r in results]
-                + ["tolerances: %s" % json.dumps(m.data["tolerances"], sort_keys=True)])
+                + ["tolerances: %s" % json.dumps(m.data["tolerances"], sort_keys=True),
+                    "refusals: %s" % json.dumps(m.data["refusals"], sort_keys=True)])
             if outcome == "passed" and self.evidence and not self.stop:
                 self.ledger.update_index(self.cfg.state_root, self.git.sha, time.monotonic() - self.started)
         if self.env_checked and self.run_dir and not self.cfg.seam("E2E_FAKE_HOST_METRICS"):
@@ -910,4 +915,4 @@ class PlatformRun:
     def _manifest_result(item):
         return {"id": item["id"], "status": item["status"], "durationMs": int(item["seconds"] * 1000),
             "producedBySha": item.get("producedBySha"), "producedByRunId": item.get("producedByRunId"), "failureClasses": [item["class"]] if item.get("class") else [],
-            "tolerances": item.get("tolerances", {})}
+            "tolerances": item.get("tolerances", {}), "refusals": item.get("refusals", {})}

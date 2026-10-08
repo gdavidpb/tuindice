@@ -1,0 +1,6 @@
+[0] WaitVisible tag:auth_screen -> passed (210 ms)
+[driver] Tap tag:x: the element was gone after 3 reads of its frame; gesture refused
+[driver] Tap: the point (1, 2) is inside the keyboard on screen (0, 0, 10, 10); tap refused
+[tolerance] dismissed-alert "Save Password?" dismissed by the interruption monitor
+[1] Tap tag:auth_sign_in_button -> failed (120 ms)
+[tolerances] dismissed-alert=1

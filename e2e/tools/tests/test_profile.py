@@ -36,7 +36,7 @@ class Fixture:
         self.count = 0
 
     def run(self, platform="ios", mode="diagnose", seconds=100, load=1.5, attempts=(), parallel="sequential", record_attempts=True,
-            failed_classes=None):
+            failed_classes=None, tolerances=None, refusals=None):
         """`attempts`: (scenario, passed, seconds in process, steps, wall ms, runner ms) tuples, in execution order."""
         self.count += 1
         run_id = "20260101T%06dZ-%s-%s-abc1234" % (self.count, platform, mode)
@@ -59,7 +59,7 @@ class Fixture:
         manifest = {"schema": "tuindice-e2e-run/1", "runId": run_id, "mode": mode, "platform": platform, "outcome": "passed",
             "exitCode": 0, "durationSeconds": seconds, "parallel": {"decision": parallel}, "load": {"max1m": load},
             "phases": [{"name": "build", "durationSeconds": 6.5, "ok": True}], "scenarios": {"executed": len(results), "failed": 0},
-            "results": list(results.values())}
+            "results": list(results.values()), "tolerances": tolerances or {}, "refusals": refusals or {}}
         if record_attempts:
             manifest["attempts"] = recorded
         os.makedirs(path, exist_ok=True)
@@ -305,6 +305,18 @@ class CompareTests(unittest.TestCase):
         text = done.stdout
         for expected in (a, b, "parallel", "130s", "4.00", "product_assertion=1", "duration +30 s against the previous run", "slow"):
             self.assertIn(expected, text)
+
+    def test_the_comparison_shows_what_the_drivers_tolerated_and_refused_run_by_run(self):
+        self.fx.run("ios", attempts=[("a", True, 5, [], 10, 8)], tolerances={"dismissed-alert": 1})
+        self.fx.run("ios", attempts=[("a", True, 5, [], 10, 8)], tolerances={"dismissed-alert": 4, "foreground-request": 2},
+            refusals={"gesture-refused": 3})
+        done = self.fx.cli("--compare", "1", "--platform", "ios")
+        self.assertIn("dismissed-alert=4, foreground-request=2", done.stdout)
+        self.assertIn("gesture-refused=3", done.stdout)
+        self.assertIn("dismissed-alert=1", done.stdout)
+        data = self.fx.cli("--compare", "1", "--platform", "ios", "--json").json[0]["runs"]
+        self.assertEqual([r["tolerances"] for r in data], [{"dismissed-alert": 4, "foreground-request": 2}, {"dismissed-alert": 1}])
+        self.assertEqual([r["refusals"] for r in data], [{"gesture-refused": 3}, {}])
 
     def test_compare_without_a_number_is_one_and_n_reaches_n_runs_back(self):
         for _ in range(4):
