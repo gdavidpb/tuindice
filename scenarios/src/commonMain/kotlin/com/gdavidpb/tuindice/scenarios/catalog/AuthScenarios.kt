@@ -343,6 +343,8 @@ private val authUpdatePassword = scenario(
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	typeNewPassword(E2eFixtures.UpdatedPassword)
 	tap(AuthUiTags.PasswordToggle)
+	// Visible, the field shows what was typed; a character the keyboard added or dropped shows here.
+	waitVisible(text(E2eFixtures.UpdatedPassword), Within.Assert)
 	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert)
 	tap(AuthUiTags.PasswordToggle)
 	tap(AuthUiTags.UpdatePasswordConfirmButton)

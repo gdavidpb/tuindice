@@ -105,6 +105,17 @@ object E2eFixtures {
 		SearchExpectation("slot", listOf(SubjectCi5312.value, SubjectEg1511.value))
 	)
 
+	/**
+	 * The subject-search queries the subjects scenarios type and the subject each lists: the catalog mock serves `ci`,
+	 * the debug source of the subjects module the rest (`SubjectSearchFixturesTest` checks both).
+	 */
+	val SubjectSearchCi = SearchExpectation("ci", listOf(SubjectCi2511.value))
+	val SubjectSearchQa = SearchExpectation("qa", listOf(SubjectQa.value))
+	val SubjectSearchQb = SearchExpectation("qb", listOf(SubjectQb.value))
+	val SubjectSearchRx = SearchExpectation("rx", listOf(SubjectRx.value))
+	val subjectSearches: List<SearchExpectation> =
+		listOf(SubjectSearchCi, SubjectSearchQa, SubjectSearchQb, SubjectSearchRx)
+
 	/** Every fixture that names a mock file, for the tests that check them. */
 	val all: List<E2eFixture> = listOf(
 		CurrentTerm,

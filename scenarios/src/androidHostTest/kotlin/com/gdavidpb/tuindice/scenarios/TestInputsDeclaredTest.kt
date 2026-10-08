@@ -17,6 +17,10 @@ class TestInputsDeclaredTest {
 		"*UiTags.kt" to "the tags (CatalogTagsTest)",
 		"composeResources/values/strings.xml" to "the string resources (CopyTest)",
 		"presentation/contract" to "the action contracts (ActionCoverageTest)",
+		"mapper/CoachmarkSurface.kt" to "the screens' coachmarks (CoachmarkCoverageTest)",
+		"mapper/AcademicWeek.kt" to "the last week of the evaluations strip (E2eClockFixtureTest)",
+		"data/source/DebugSubjectScenarioResolver.kt" to "the debug subjects (SubjectSearchFixturesTest)",
+		"presentation/machine/SubjectSearchMachine.kt" to "the minimum search length (SubjectSearchFixturesTest)",
 		"app/src/debug" to "the Android debug host (LaunchArgsParityTest)",
 		"maincore/src/iosMain" to "the iOS debug code (LaunchArgsParityTest)",
 		"iosApp/Sources/TuIndiceHost" to "the iOS Swift host (LaunchArgsParityTest)"

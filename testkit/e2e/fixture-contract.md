@@ -6,8 +6,8 @@ The accounts, tokens, texts and ids the scenarios use are Kotlin values in
 `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`,
 `Copy.kt`). Host tests in `scenarios/src/androidHostTest/` check them against the mappings (`AccountFixturesTest`,
 `AccountSessionFixturesTest`, `EntityFixturesTest`, `CopyTest`, `MockContractTest`, `MockRulesTest`,
-`PendingFlushMocksTest`, `RecordSearchFixturesTest`, `RetryOrderMocksTest`, `E2eClockFixtureTest`) and run in `verifyE2eContract`. This document keeps the semantics; the
-values live there.
+`PendingFlushMocksTest`, `RecordSearchFixturesTest`, `SubjectSearchFixturesTest`, `RetryOrderMocksTest`,
+`E2eClockFixtureTest`) and run in `verifyE2eContract`. This document keeps the semantics; the values live there.
 
 Rules:
 
@@ -63,6 +63,17 @@ Record synthetic term search fixture contract:
 - The `ma` search covers historical outcomes: `MA1112` retired and `MA1121` failed are available/addable. The narrower `ma1111` search covers the approved historical case: `MA1111` is only visible after enabling the approved-subjects toggle.
 - The local login sync fixture `mocks/__files/sync/post-sync-success.json` must keep those same historical outcomes; `/record/v5` transformer state alone is not enough for sign-in-driven E2E.
 - `RecordSearchFixturesTest` validates the searched subjects against the WireMock subject-search fixture resolved for each query, and the historical outcomes the create-term search needs.
+
+Subject search and enum-named inputs:
+
+- The subjects scenarios type the queries of `E2eFixtures.subjectSearches`: the catalog mock lists `ci`, and the debug
+  source of the subjects module lists `qa`, `qb` and `rx`; `E2eInputs.SubjectQueryTooShort` is under the minimum length
+  the search takes and `E2eInputs.SubjectQueryNoMatch` matches no subject. `SubjectSearchFixturesTest` reads both
+  sources and fails a query that does not list its subject.
+- A tag the app builds from the name of an enum (the evaluation type chip, the status of an attempt, the status of a
+  search result) is built from that enum in `E2eInputs`, never typed again; `EnumNamedInputsTest` fails a literal.
+- The week the evaluations strip opens on is `E2eInputs.LastAcademicWeek`: the frozen clock is past the term's last
+  week and the strip clamps to it (`E2eClockFixtureTest`).
 
 Pensum equivalence fixture contract:
 

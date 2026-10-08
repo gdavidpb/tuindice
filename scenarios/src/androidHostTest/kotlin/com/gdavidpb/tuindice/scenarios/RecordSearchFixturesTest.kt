@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.scenarios.MockJson.string
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.intOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -18,7 +17,7 @@ class RecordSearchFixturesTest {
 	@Test
 	fun everySearchedSubjectIsInTheResultsTheMocksServeForTheQuery() {
 		E2eFixtures.recordSearches.forEach { search ->
-			val body = resolveSearchBody(search.query)
+			val body = SearchMocks.bodyFor(search.query)
 			val codes = body.root.array("results").mapNotNull { (it as? JsonObject)?.string("subject_code") }
 
 			search.subjectCodes.forEach { code ->
@@ -78,30 +77,6 @@ class RecordSearchFixturesTest {
 		)
 	}
 
-	private class ResolvedBody(val fileName: String, val root: JsonObject)
-
-	/** The search mock WireMock picks for [query]: lowest priority number among the matching GET stubs. */
-	private fun resolveSearchBody(query: String): ResolvedBody {
-		val candidates = RepoFiles.allMappings.resolve("subjects")
-			.listFiles { file -> file.name.startsWith("search-subjects-") }
-			.orEmpty()
-			.map { MockJson.obj(it) }
-			.filter { mapping ->
-				val request = mapping["request"] as JsonObject
-				val contains = ((request["queryParameters"] as? JsonObject)?.get("query") as? JsonObject)
-					?.string("contains")
-
-				request.string("method") == "GET" &&
-					request.string("urlPath") == "/subjects/v1/search" &&
-					(mapping["response"] as JsonObject).string("bodyFileName") != null &&
-					(contains == null || contains in query)
-			}
-		val best = candidates.minBy { (it["priority"] as? JsonPrimitive)?.intOrNull ?: DEFAULT_PRIORITY }
-		val bodyName = checkNotNull((best["response"] as JsonObject).string("bodyFileName"))
-
-		return ResolvedBody(bodyName, MockJson.obj(RepoFiles.file("mocks/__files/$bodyName")))
-	}
-
 	private fun outcomeOf(record: JsonObject, code: String): String? =
 		termsOf(record)
 			.flatMap { it.array("attempts").filterIsInstance<JsonObject>() }
@@ -125,8 +100,4 @@ class RecordSearchFixturesTest {
 
 	private fun termsOf(record: JsonObject): List<JsonObject> =
 		(((record["record"] as JsonObject)["record"]) as JsonObject).array("terms").filterIsInstance<JsonObject>()
-
-	private companion object {
-		const val DEFAULT_PRIORITY = 5
-	}
 }

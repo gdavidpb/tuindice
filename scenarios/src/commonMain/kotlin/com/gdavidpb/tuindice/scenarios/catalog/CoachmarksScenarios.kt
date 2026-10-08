@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
 import com.gdavidpb.tuindice.scenarios.shared.openSubjectSearch
 import com.gdavidpb.tuindice.scenarios.shared.searchSubjectsFor
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -30,20 +31,6 @@ private val pendingCoachmarksStart = Start.Seeded(E2eAccounts.Canonical, coachma
 /** Starts on [section] with every coachmark pending, so the first screen the person sees is not the summary. */
 private fun pendingCoachmarksOn(section: MainSection) =
 	Start.Seeded(E2eAccounts.Canonical, section = section, coachmarks = Coachmarks.Pending).toLaunchSpec()
-
-/**
- * The coachmarks one screen lists, in the order `eligibleCoachmarkIds` gives them: each is awaited, confirmed, and
- * the next one is awaited only after the previous one has left, so a bubble can never answer for another. After the
- * last one the bubble is gone and the screen underneath can be touched.
- */
-private fun StepBuilder.confirmCoachmarkSequence(vararg ids: CoachmarkId) {
-	ids.forEachIndexed { index, id ->
-		waitVisible(CoachmarkUiTags.currentCoachmark(id), Within.Wait)
-		if (index > 0) waitGone(CoachmarkUiTags.currentCoachmark(ids[index - 1]), Within.Assert)
-		tap(CoachmarkUiTags.ConfirmButton)
-	}
-	waitGone(CoachmarkUiTags.Bubble, Within.Action)
-}
 
 /** The seeded summary with its coachmark up: the bubble anchored to the summary. */
 private fun StepBuilder.awaitSummaryCoachmark() {
@@ -109,11 +96,13 @@ private val coachmarksSyntheticTerm = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(RecordUiTags.ContentContainer, Within.Sync)
-	confirmCoachmarkSequence(CoachmarkId.Record, CoachmarkId.RecordControls)
+	confirmCoachmarks(CoachmarkId.Record, CoachmarkId.RecordControls)
 	tap(RecordUiTags.CreateSyntheticTermFab)
 	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
-	confirmCoachmarkSequence(CoachmarkId.SyntheticTerm)
-	// The screen opens with a period already chosen, so leaving it asks to discard.
+	confirmCoachmarks(CoachmarkId.SyntheticTerm)
+	// Not a design this scenario fixes: the screen preselects a period, so leaving it untouched asks to discard,
+	// while `CreateSyntheticTerm.kt` says an untouched form is not worth the warning. Which of the two is meant is
+	// open with the owner; the scenario only follows what the screen does today.
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	waitVisible(RecordUiTags.DiscardSyntheticTermMessage, Within.Action)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
@@ -130,10 +119,10 @@ private val coachmarksEvaluations = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Sync)
-	confirmCoachmarkSequence(CoachmarkId.Evaluations, CoachmarkId.EvaluationsTools)
+	confirmCoachmarks(CoachmarkId.Evaluations, CoachmarkId.EvaluationsTools)
 	tap(EvaluationsUiTags.EvaluationsAddFab)
 	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Wait)
-	confirmCoachmarkSequence(CoachmarkId.EvaluationEditor)
+	confirmCoachmarks(CoachmarkId.EvaluationEditor)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 }
@@ -148,14 +137,14 @@ private val coachmarksPensumAndSubjects = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(PensumUiTags.PensumScreen, Within.Sync)
-	confirmCoachmarkSequence(CoachmarkId.Pensum, CoachmarkId.PensumTools)
+	confirmCoachmarks(CoachmarkId.Pensum, CoachmarkId.PensumTools)
 	openSubjectSearch()
-	confirmCoachmarkSequence(CoachmarkId.SubjectSearch)
-	searchSubjectsFor("ci")
+	confirmCoachmarks(CoachmarkId.SubjectSearch)
+	searchSubjectsFor(E2eFixtures.SubjectSearchCi.query)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
-	confirmCoachmarkSequence(CoachmarkId.SubjectDetail)
+	confirmCoachmarks(CoachmarkId.SubjectDetail)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
@@ -172,7 +161,7 @@ private val coachmarksAbout = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(AboutUiTags.ContentContainer, Within.Sync)
-	confirmCoachmarkSequence(CoachmarkId.About, CoachmarkId.AboutActions)
+	confirmCoachmarks(CoachmarkId.About, CoachmarkId.AboutActions)
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 }
 

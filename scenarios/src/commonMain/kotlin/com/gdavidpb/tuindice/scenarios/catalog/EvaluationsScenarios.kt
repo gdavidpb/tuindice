@@ -93,6 +93,7 @@ private val evaluationsFiltersAndForm = scenario(
 	seeded(E2eAccounts.Canonical)
 ) {
 	covers(
+		"evaluations.Evaluations.SelectWeek",
 		"evaluations.Evaluation.SetAttempt",
 		"evaluations.Evaluation.SetType",
 		"evaluations.Evaluation.SetDate",
@@ -103,10 +104,18 @@ private val evaluationsFiltersAndForm = scenario(
 	)
 	account(E2eAccounts.Canonical.id)
 
+	val lastWeek = E2eInputs.LastAcademicWeek
+
 	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
 	waitVisible(EvaluationsUiTags.EvaluationsWeekStrip, Within.Assert)
 	waitVisible(EvaluationsUiTags.EvaluationsList, Within.Assert)
 	waitVisible(EvaluationsUiTags.EvaluationStatusChip, Within.Assert)
+	// The frozen clock is past the term's last week, which is the one the strip opens on; picking the week before it
+	// moves the strip there and the last one leaves.
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(lastWeek), Within.Assert)
+	tap(EvaluationsUiTags.evaluationsWeekChip(lastWeek - 1))
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(lastWeek - 1), Within.Action)
+	waitGone(EvaluationsUiTags.evaluationsWeekPage(lastWeek), Within.Action)
 	openAddForm()
 	tap(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value))
 	waitVisible(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.PrimaryAttempt.value), Within.Assert)
@@ -196,7 +205,7 @@ private val evaluationsEditSubmit = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationDatePicker, Within.Assert)
 	waitVisible(EvaluationsUiTags.EvaluationMaxGradeChip, Within.Assert)
 	assertEnabled(EvaluationsUiTags.EvaluationDoneFab, false)
-	tap(EvaluationsUiTags.evaluationTypeChip("written_work"))
+	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeWrittenWork))
 	tap(EvaluationsUiTags.evaluationTypeChip(E2eInputs.EvaluationTypeTest))
 	assertEnabled(EvaluationsUiTags.EvaluationDoneFab, true)
 	tap(EvaluationsUiTags.EvaluationDoneFab)

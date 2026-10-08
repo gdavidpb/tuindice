@@ -19,6 +19,9 @@ dice lo que se encontró entonces y no lo que dicen hoy los escenarios.
   leer uno: `git ls-tree -r --name-only pre-corte-maestro | grep 'flows/auth/login-success.yaml'` da su ruta completa, y
   `git show pre-corte-maestro:<esa ruta>` su contenido. La columna «Flujo de origen» es la ruta bajo `flows/`. La
   etiqueta es local hasta que la persona dueña la suba; el SHA es el dato que sobrevive a un squash.
+- Los nombres y los conteos son los del momento de la migración: el paso que la tabla llama `finishTextEntry` se llama
+  hoy `submitTextEntry`, y el catálogo tiene 109 escenarios (89 de producto y 20 de conformidad), no 85. La tabla sigue
+  siendo la de los 85 de entonces.
 - Las notas con «heredado» describen una debilidad que el flujo ya tenía y el escenario conservó; las que dicen «después»
   agregan lo que se hizo tras la auditoría.
 
@@ -62,7 +65,7 @@ dice lo que se encontró entonces y no lo que dicen hoy los escenarios.
 | `record-term-selection` | `record/record-term-selection.yaml` | fiel | - |
 | `record-attempt-overrides` | `record/record-attempt-overrides.yaml` | fiel | sin `retryTapIfNoChange` |
 | `record-synthetic-term-search-empty` | `record/record-synthetic-term-search-empty.yaml` | afirma más | relectura de lo tecleado; condicional heredado del flujo |
-| `record-synthetic-term-search-states` | `record/record-synthetic-term-search-states.yaml` | afirma más | teclea y relee (el flujo pegaba); `finishTextEntry` al volver |
+| `record-synthetic-term-search-states` | `record/record-synthetic-term-search-states.yaml` | afirma más | teclea y relee (el flujo pegaba); `finishTextEntry` (hoy `submitTextEntry`) al volver |
 | `record-synthetic-term-discard` | `record/record-synthetic-term-discard.yaml` | fiel | dependía de la fecha del dispositivo (después, reloj fijo con `TUINDICE_E2E_NOW`) |
 | `record-synthetic-term-lifecycle` | `record/record-synthetic-term-lifecycle.yaml` | afirma más | relectura; sin los 5 `retry`; dependía de la fecha del dispositivo (después, reloj fijo) |
 | `record-synthetic-term-rejected` | `record/record-synthetic-term-rejected.yaml` | afirma más | relectura; sin `retry`; dependía de la fecha del dispositivo (después, reloj fijo) |
@@ -87,7 +90,7 @@ dice lo que se encontró entonces y no lo que dicen hoy los escenarios.
 | `pensum-current-absent` | `pensum/pensum-current-absent.yaml` | fiel | - |
 | `pensum-cache-refresh-failed` | `pensum/pensum-cache-refresh-failed.yaml` | distinto, sin perder aserciones | se borró la tautología del aviso de datos locales |
 | `pensum-equivalence-fulfilled` | `pensum/pensum-equivalence-fulfilled.yaml` | fiel | - |
-| `subjects-smoke` | `subjects/subjects-smoke.yaml` | distinto, y afirma más | relectura; `finishTextEntry` también en iOS |
+| `subjects-smoke` | `subjects/subjects-smoke.yaml` | distinto, y afirma más | relectura; `finishTextEntry` (hoy `submitTextEntry`) también en iOS |
 | `subjects-search-query-clear` | `subjects/subjects-search-query-clear.yaml` | distinto, y afirma más | ídem |
 | `subjects-search-failed-retry` | `subjects/subjects-search-failed-retry.yaml` | distinto, y afirma más | ídem |
 | `subjects-detail-tabs-tooltip` | `subjects/subjects-detail-tabs-tooltip.yaml` | distinto, y afirma más | ídem |

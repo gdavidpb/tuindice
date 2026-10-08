@@ -46,12 +46,6 @@ object ActionDispositions {
 				"its only trigger is the retry button of the failed list, and no scenario drives the " +
 				"evaluations list into that state"
 		),
-		ActionDisposition.Pending(
-			action = "evaluations.Evaluations.SelectWeek",
-			reason =
-				"no scenario taps a week of the strip; the scenarios that scroll the list only do it to " +
-				"reach a card, and none checks which week that leaves selected"
-		),
 		ActionDisposition.Internal(
 			action = "maincore.Browser.SetLoading",
 			reason = "renderer callback"
@@ -117,11 +111,6 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "record.CreateSyntheticTerm.Observe",
 			reason = "screen bootstrap and local state observation"
-		),
-		ActionDisposition.Pending(
-			action = "record.CreateSyntheticTerm.RemoveSubject",
-			reason =
-				"the lifecycle scenario only checks that the remove button shows; no scenario presses it"
 		),
 		ActionDisposition.Internal(
 			action = "record.Record.ObserveRecord",

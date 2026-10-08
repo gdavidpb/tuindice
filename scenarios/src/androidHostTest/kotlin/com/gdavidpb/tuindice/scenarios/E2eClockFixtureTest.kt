@@ -4,9 +4,14 @@ import com.gdavidpb.tuindice.scenarios.MockJson.array
 import com.gdavidpb.tuindice.scenarios.MockJson.string
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import kotlinx.serialization.json.JsonObject
+import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -55,7 +60,25 @@ class E2eClockFixtureTest {
 		assertTrue(years.max() <= now.year, "a term of the record is after ${now.year}")
 	}
 
+	@Test
+	fun theFrozenInstantIsPastTheTwelfthWeekOfTheCurrentTermSoTheEvaluationsStripOpensOnTheLast() {
+		val current = recordTerms.single { it.string("term_kind") == "current" }
+		val startMonth = checkNotNull(START_MONTH_OF[current.string("period_code")]) { "unknown period of the current term" }
+		val firstMonday = LocalDate.of(current.string("period_year")!!.toInt(), startMonth, 1)
+			.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+		val week = ChronoUnit.DAYS.between(firstMonday, now.toLocalDate()) / DAYS_PER_WEEK + 1
+		val lastWeek = Regex("MAX_ACADEMIC_WEEK = (\\d+)").find(RepoFiles.file(ACADEMIC_WEEK).readText())!!
+			.groupValues[1].toInt()
+
+		assertEquals(lastWeek, E2eInputs.LastAcademicWeek, "the last week of the strip")
+		assertTrue(week >= lastWeek, "the frozen instant is in week $week of the current term, short of the last ($lastWeek)")
+	}
+
 	private companion object {
+		const val ACADEMIC_WEEK =
+			"evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/AcademicWeek.kt"
+		const val DAYS_PER_WEEK = 7
+		val START_MONTH_OF = mapOf("JAN_MAR" to 1, "APR_JUL" to 4, "JUL_AUG" to 7, "SEP_DEC" to 9)
 		const val CANONICAL_SYNC = "mocks/__files/sync/post-sync-success.json"
 		const val YEAR = 2026
 		const val SEPTEMBER = 9

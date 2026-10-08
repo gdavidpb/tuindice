@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.openSubjectSearch
@@ -46,7 +47,7 @@ private val subjectsSmoke = scenario("subjects-smoke", "subjects", canonical()) 
 
 	openPensum(Within.Wait)
 	openSubjectSearch()
-	searchSubjectsFor("ci")
+	searchSubjectsFor(E2eFixtures.SubjectSearchCi.query)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	waitVisible(SubjectsUiTags.searchResultStatsButton(E2eFixtures.SubjectCi2511.value), Within.Assert)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
@@ -65,14 +66,17 @@ private val subjectsSearchQueryClear = scenario("subjects-search-query-clear", "
 	openSubjectSearch()
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
 	tap(SubjectsUiTags.SearchTextField)
-	enterText(SubjectsUiTags.SearchTextField, "c")
+	enterText(SubjectsUiTags.SearchTextField, E2eInputs.SubjectQueryTooShort)
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
 	waitGone(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi4325.value), Within.Assert)
 	tap(SubjectsUiTags.SearchClear)
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
-	searchSubjectsFor("ci")
+	searchSubjectsFor(E2eFixtures.SubjectSearchCi.query)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
-	waitVisible(SubjectsUiTags.searchResultStatus(E2eFixtures.SubjectCi2511.value, "approved"), Within.Assert)
+	waitVisible(
+		SubjectsUiTags.searchResultStatus(E2eFixtures.SubjectCi2511.value, E2eInputs.SearchStatusApproved),
+		Within.Assert
+	)
 	waitVisible(SubjectsUiTags.searchResultStatsButton(E2eFixtures.SubjectCi2511.value), Within.Assert)
 	tap(SubjectsUiTags.searchResultStatsButton(E2eFixtures.SubjectCi2511.value))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
@@ -81,7 +85,7 @@ private val subjectsSearchQueryClear = scenario("subjects-search-query-clear", "
 	tap(SubjectsUiTags.SearchClear)
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
 	waitGone(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Assert)
-	searchSubjectsFor("zzzznomatch")
+	searchSubjectsFor(E2eInputs.SubjectQueryNoMatch)
 	waitVisible(text(Copy.SubjectsSearchNoResults), Within.Wait)
 	waitVisible(SubjectsUiTags.SearchClear, Within.Assert)
 	tap(SubjectsUiTags.SearchClear)
@@ -96,7 +100,7 @@ private val subjectsSearchFailedRetry = scenario("subjects-search-failed-retry",
 
 	openPensum()
 	openSubjectSearch()
-	searchSubjectsFor("rx")
+	searchSubjectsFor(E2eFixtures.SubjectSearchRx.query)
 	waitVisible(SubjectsUiTags.SearchRetry, Within.Wait)
 	tap(SubjectsUiTags.SearchRetry)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectRx.value), Within.Wait)
@@ -110,7 +114,7 @@ private val subjectsDetailTabsTooltip = scenario("subjects-detail-tabs-tooltip",
 
 	openPensum()
 	openSubjectSearch()
-	searchSubjectsFor("ci")
+	searchSubjectsFor(E2eFixtures.SubjectSearchCi.query)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
@@ -137,7 +141,7 @@ private val subjectsDetailUnavailable = scenario("subjects-detail-unavailable", 
 
 	openPensum()
 	openSubjectSearch()
-	searchSubjectsFor("qa")
+	searchSubjectsFor(E2eFixtures.SubjectSearchQa.query)
 	openResultAndGoBack(E2eFixtures.SubjectQa.value, SubjectsUiTags.Unavailable)
 }
 
@@ -147,7 +151,7 @@ private val subjectsDetailFailedRetry = scenario("subjects-detail-failed-retry",
 
 	openPensum()
 	openSubjectSearch()
-	searchSubjectsFor("qb")
+	searchSubjectsFor(E2eFixtures.SubjectSearchQb.query)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectQb.value), Within.Wait)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectQb.value))
 	waitVisible(SubjectsUiTags.Failed, Within.Long)

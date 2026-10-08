@@ -23,6 +23,7 @@ kotlin {
 			dependencies {
 				implementation(project(":scenariokit"))
 				implementation(project(":about"))
+				implementation(project(":academiccore"))
 				implementation(project(":auth"))
 				implementation(project(":base"))
 				implementation(project(":enrollmentproof"))
@@ -57,7 +58,8 @@ tasks.withType<Test>().configureEach {
 			}
 		).withPropertyName("uiTags")
 		// The rest of what the tests read from outside this module: the string resources `CopyTest` binds
-		// the texts to, the contracts `ActionCoverageTest` lists the actions of, and the debug hosts
+		// the texts to, the contracts `ActionCoverageTest` lists the actions of, the product sources that
+		// `CoachmarkCoverageTest`, `SubjectSearchFixturesTest` and `E2eClockFixtureTest` read, and the debug hosts
 		// `LaunchArgsParityTest` compares (the iOS Swift host and the Android and iOS debug code are on no
 		// classpath of this module, so a change there would otherwise leave the task up to date).
 		inputs.files(
@@ -65,6 +67,9 @@ tasks.withType<Test>().configureEach {
 				include("*/src/commonMain/composeResources/values/strings.xml")
 				include("*/src/commonMain/kotlin/**/presentation/contract/*.kt")
 				include("wizard/src/commonMain/kotlin/**/mapper/CoachmarkSurface.kt")
+				include("evaluations/src/commonMain/kotlin/**/mapper/AcademicWeek.kt")
+				include("subjects/src/commonMain/kotlin/**/data/source/DebugSubjectScenarioResolver.kt")
+				include("subjects/src/commonMain/kotlin/**/presentation/machine/SubjectSearchMachine.kt")
 				include("*/build.gradle.kts")
 				include("app/src/debug/**/*.kt")
 				include("maincore/src/iosMain/**/*.kt")

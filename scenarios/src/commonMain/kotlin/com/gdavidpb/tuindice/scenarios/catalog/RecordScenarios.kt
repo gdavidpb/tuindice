@@ -28,12 +28,12 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
-import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SHEET_SWIPE_MS = 600L
@@ -48,7 +48,6 @@ private val STATUS_APPROVED = SyntheticTermSubjectAvailability.APPROVED.name.low
 private val STATUS_SLOT = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT.name.lowercase()
 private val ACTION_ADD = CreateTermSubjectCardAction.Add.name.lowercase()
 private val ACTION_REMOVE = CreateTermSubjectCardAction.Remove.name.lowercase()
-private const val ATTEMPT_APPROVED = "approved"
 private const val CLASH_DAY = 2
 
 /** A search text that has no results; the other ones the scenarios type are fixtures the mocks answer. */
@@ -108,19 +107,6 @@ private fun StepBuilder.submitTerm() {
 	tap(RecordUiTags.CreateSyntheticTermSubmitButton)
 	waitGone(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
-}
-
-/**
- * A session that starts with every coachmark pending shows, per screen, the ones `eligibleCoachmarkIds` lists:
- * the summary one coachmark, the record two (its step and its controls). Each is awaited, confirmed, and the
- * bubble is awaited to leave, so the next tap never meets a bubble that is still on its way out.
- */
-private fun StepBuilder.confirmCoachmarks(vararg ids: CoachmarkId) {
-	ids.forEach { id ->
-		waitVisible(CoachmarkUiTags.currentCoachmark(id), Within.Action)
-		tap(CoachmarkUiTags.ConfirmButton)
-	}
-	waitGone(CoachmarkUiTags.Bubble, Within.Action)
 }
 
 private val recordSmoke = scenario(
@@ -209,8 +195,8 @@ private val recordAttemptOverrides = scenario(
 	tap(RecordUiTags.termChip(E2eFixtures.SyntheticDegreeProjectTerm.value))
 	waitVisible(RecordUiTags.attemptStatusSelector(synthetic), Within.Action)
 	tap(RecordUiTags.attemptStatusSelector(synthetic))
-	tap(RecordUiTags.attemptStatusOption(synthetic, ATTEMPT_APPROVED))
-	waitVisible(RecordUiTags.attemptStatusValue(synthetic, ATTEMPT_APPROVED), Within.Action)
+	tap(RecordUiTags.attemptStatusOption(synthetic, E2eInputs.AttemptApproved))
+	waitVisible(RecordUiTags.attemptStatusValue(synthetic, E2eInputs.AttemptApproved), Within.Action)
 }
 
 private val recordSyntheticTermSearchEmpty = scenario(
@@ -379,6 +365,7 @@ private val recordSyntheticTermLifecycle = scenario(
 		"record.CreateSyntheticTerm.AddSubject",
 		"record.CreateSyntheticTerm.ConfigureTerm",
 		"record.CreateSyntheticTerm.CreateTerm",
+		"record.CreateSyntheticTerm.RemoveSubject",
 		"record.CreateSyntheticTerm.SelectAddSubjectTab",
 		"record.CreateSyntheticTerm.SelectPeriod",
 		"record.CreateSyntheticTerm.UpdateQuery",
@@ -402,6 +389,13 @@ private val recordSyntheticTermLifecycle = scenario(
 	tap(RecordUiTags.CreateSyntheticTermSearchClearButton)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Assert)
 	searchSubjects(queryEc)
+	addSubject(ec5333, Copy.TermSelectedOne)
+	assertEnabled(RecordUiTags.CreateSyntheticTermSubmitButton, true)
+	// Taking the subject off the selection leaves a term with none, which cannot be saved; adding it again can.
+	scrollUntilVisible(subjectAction(ec5333, ACTION_REMOVE), Scroll.ContentUp, Within.Wait)
+	tap(subjectAction(ec5333, ACTION_REMOVE))
+	waitGone(subjectAction(ec5333, ACTION_REMOVE), Within.Action)
+	assertEnabled(RecordUiTags.CreateSyntheticTermSubmitButton, false, Within.Action)
 	addSubject(ec5333, Copy.TermSelectedOne)
 	assertEnabled(RecordUiTags.CreateSyntheticTermSubmitButton, true)
 	submitTerm()

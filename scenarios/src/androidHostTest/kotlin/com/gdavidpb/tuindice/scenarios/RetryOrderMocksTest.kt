@@ -22,21 +22,12 @@ class RetryOrderMocksTest {
 	}
 
 	@Test
-	fun theSummaryRetryFailsTheUserReadAsManyTimesAsEachPlatformNeedsInEveryOrder() {
-		val expectedByPlatform = mapOf(
-			"iOS" to listOf(UNAVAILABLE, OK),
-			"Android" to listOf(UNAVAILABLE, OK)
-		)
+	fun theSummaryRetryFailsTheFirstUserReadAndServesTheSecondWhicheverComesFirstTheSyncOrTheRead() {
+		ordersOf(reads = 2).forEach { order ->
+			val replies = play(order, replay(SUMMARY_RETRY), ::summaryRetryRequest)
 
-		expectedByPlatform.forEach { (platform, expected) ->
-			ordersOf(reads = expected.size).forEach { order ->
-				val replies = play(order, replay(SUMMARY_RETRY)) { replay, event ->
-					summaryRetryRequest(replay, event, platform)
-				}
-
-				assertEquals(expected, replies.reads, "$platform reads in order $order: ${replies.all}")
-				assertTrue(replies.syncs.all { it == UNAVAILABLE }, "$platform sync in $order was not 503: ${replies.all}")
-			}
+			assertEquals(listOf(UNAVAILABLE, OK), replies.reads, "reads in order $order: ${replies.all}")
+			assertTrue(replies.syncs.all { it == UNAVAILABLE }, "a sync in order $order was not 503: ${replies.all}")
 		}
 	}
 
@@ -102,16 +93,13 @@ class RetryOrderMocksTest {
 		}
 	}
 
-	private fun summaryRetryRequest(replay: MockReplay, event: Char, platform: String): MockReplay.Reply {
-		val headers = mapOf(
-			"Authorization" to "Bearer summary.refresh.retry.mock.access",
-			"User-Agent" to "TuIndice/6.4.0 ($platform)"
-		)
+	private fun summaryRetryRequest(replay: MockReplay, event: Char): MockReplay.Reply {
+		val bearer = mapOf("Authorization" to "Bearer summary.refresh.retry.mock.access")
 
 		return if (event == 'S') {
-			replay.send("POST", "/record/v5/sync", headers, body = mapOf("password" to "summary-retry-pass"))
+			replay.send("POST", "/record/v5/sync", bearer, body = mapOf("password" to "summary-retry-pass"))
 		} else {
-			replay.send("GET", "/users/v1", headers)
+			replay.send("GET", "/users/v1", bearer)
 		}
 	}
 
