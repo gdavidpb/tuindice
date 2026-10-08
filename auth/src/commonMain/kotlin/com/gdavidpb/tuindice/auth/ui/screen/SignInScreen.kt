@@ -65,7 +65,7 @@ fun SignInScreen(
 			when (targetState) {
 				is SignIn.State.Idle ->
 					SignInIdleView(
-						state = targetState,
+						state = if (state is SignIn.State.LoggingIn) targetState.whileSigningIn(state) else targetState,
 						onUsbIdChange = onUsbIdChange,
 						onPasswordChange = onPasswordChange,
 						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
@@ -99,3 +99,12 @@ fun SignInScreen(
 		}
 	}
 }
+
+// The form that slides out is the last `Idle` the screen composed, which can be behind what the view model
+// held when it started signing in. What it shows while leaving is what the sign-in took.
+private fun SignIn.State.Idle.whileSigningIn(loggingIn: SignIn.State.LoggingIn) = copy(
+	usbId = loggingIn.usbId,
+	password = loggingIn.password,
+	identifierMode = loggingIn.identifierMode,
+	usageDataCollectionEnabled = loggingIn.usageDataCollectionEnabled
+)

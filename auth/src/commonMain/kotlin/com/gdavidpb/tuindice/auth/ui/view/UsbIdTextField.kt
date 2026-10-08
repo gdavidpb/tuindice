@@ -67,17 +67,22 @@ fun UsbIdTextField(
 			.semantics { contentType = ContentType.Username },
 		value = field.value,
 		onValueChange = { newValue ->
-			if (newValue.text == field.value.text) {
-				field.edit(newValue)
-			} else {
-				val edited = when (identifierMode) {
-					SignInIdentifierMode.UsbId -> newValue.toMaskedUsbId(previous = field.value)
-					SignInIdentifierMode.UsbEmail -> newValue
-				}
+			when {
+				// While the owner is busy the view model drops what it is told (see PasswordTextField).
+				isWaiting -> Unit
 
-				if (field.edit(edited)) {
-					supportingText.value = null
-					onUsbIdChange(edited.text)
+				newValue.text == field.value.text -> field.edit(newValue)
+
+				else -> {
+					val edited = when (identifierMode) {
+						SignInIdentifierMode.UsbId -> newValue.toMaskedUsbId(previous = field.value)
+						SignInIdentifierMode.UsbEmail -> newValue
+					}
+
+					if (field.edit(edited)) {
+						supportingText.value = null
+						onUsbIdChange(edited.text)
+					}
 				}
 			}
 		},

@@ -33,9 +33,9 @@ import tuindice.auth.generated.resources.a11y_show_password
 
 /**
  * [isWaiting] is true while the owner of the state is busy (signing in, updating the password) and the
- * view model drops the edits it receives. A key typed just before the wait reaches the screen is shown
- * but dropped, so the field readopts the state's text when the wait starts and when it ends. It changes
- * nothing when no key was dropped.
+ * view model drops the edits it receives. The field takes no edits then. A key typed just before the
+ * wait reaches the screen is shown but dropped, so the field readopts the state's text when the wait
+ * starts and when it ends. It changes nothing when no key was dropped.
  */
 @Composable
 fun PasswordTextField(
@@ -67,9 +67,13 @@ fun PasswordTextField(
 		value = field.value,
 		enabled = enabled,
 		onValueChange = { newValue ->
-			supportingText.value = null
+			// While the owner is busy the view model drops what it is told: a key taken now would be shown
+			// and lost, or kept by the field and unknown to the view model.
+			if (!isWaiting) {
+				supportingText.value = null
 
-			if (field.edit(newValue)) onPasswordChange(newValue.text)
+				if (field.edit(newValue)) onPasswordChange(newValue.text)
+			}
 		},
 		isError = supportingText.value != null,
 		supportingText = {
