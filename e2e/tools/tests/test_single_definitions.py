@@ -101,6 +101,44 @@ class SingleDefinitionTests(unittest.TestCase):
             self.assertIn('"%s"' % name, script, name)
             self.assertNotIn('"%s"' % name, root_build, name)
 
+    def fingerprint_files(self):
+        """Every versioned file some platform's fingerprint reads (the `excluded:` entries leave files out)."""
+        files, excluded = set(), []
+        listed = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT,
+            stdout=subprocess.PIPE, universal_newlines=True, check=True).stdout.splitlines()
+        for platform in ("android", "ios"):
+            done = subprocess.run(["bash", os.path.join(SHARED, "e2e-fingerprint.sh"), "--print-pathspecs", platform, "HEAD"],
+                cwd=ROOT, stdout=subprocess.PIPE, universal_newlines=True, check=True)
+            specs = [line.split(":", 1) for line in done.stdout.splitlines() if ":" in line]
+            excluded += [spec for kind, spec in specs if kind == "excluded"]
+            for path in listed:
+                if any(kind != "excluded" and (path == spec or path.startswith(spec.rstrip("/") + "/")) for kind, spec in specs):
+                    files.add(path)
+        return {path for path in files if not any(path.startswith(spec) for spec in excluded)}
+
+    def test_what_the_build_and_the_harness_execute_of_the_shared_library_lives_inside_the_fingerprint(self):
+        # D-4/ΔD-10: common.sh serves the CI scripts and is outside the fingerprint, yet the two scripts the iOS build runs
+        # and the harness source it. The functions they use are defined in e2e/scripts/shared/ci-common.sh, which
+        # common.sh loads; what stays in common.sh is only what no fingerprinted file executes.
+        library = os.path.join("e2e", "scripts", "shared", "ci-common.sh")
+        inside = self.fingerprint_files()
+        self.assertIn(library, inside)
+        self.assertIn('ci-common.sh', read(COMMON))
+        outside = set(re.findall(r"(?m)^([A-Za-z_][A-Za-z_0-9]*)\(\)", read(COMMON)))
+        self.assertTrue(outside)
+        self.assertEqual(sorted(name for name in outside if name.startswith("e2e_")), [])
+        users = [path for path in sorted(inside) if path.endswith(".sh") and re.search(r"(?m)^\s*source .*common\.sh", read(ROOT, path))]
+        self.assertIn(".github/scripts/sync-app-version.sh", users)
+        self.assertIn(".github/scripts/materialize-firebase-configs.sh", users)
+        for path in users:
+            leaked = sorted(name for name in outside if re.search(r"\b%s\b" % name, read(ROOT, path)))
+            self.assertEqual(leaked, [], "%s runs in the build but uses functions defined outside the fingerprint" % path)
+        for name in sorted(os.listdir(os.path.join(SHARED, "harness"))):
+            if name.endswith(".py"):
+                text = read(SHARED, "harness", name)
+                for function in re.findall(r"\be2e_[a-z_]+\b", text):
+                    self.assertIn("%s()" % function, read(ROOT, library), "%s names %s" % (name, function))
+
     def test_verify_e2e_contract_aggregates_the_checks_and_no_retired_task_remains(self):
         # F26: the contract is the five checks below, and the Maestro/platform tasks and verifyScenarioContract are gone.
         script = read(ROOT, "gradle", "e2e-tasks.gradle.kts")

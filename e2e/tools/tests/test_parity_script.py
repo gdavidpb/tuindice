@@ -26,9 +26,12 @@ class ParityScriptTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.dir, True)
         self.repo = os.path.join(self.dir, "repo")
         self.log = os.path.join(self.dir, "build.log")
-        for path in (os.path.join(self.repo, ".github", "scripts"), os.path.join(self.repo, "e2e", "scripts", "ios")):
+        for path in (os.path.join(self.repo, ".github", "scripts"), os.path.join(self.repo, "e2e", "scripts", "ios"),
+                os.path.join(self.repo, "e2e", "scripts", "shared")):
             os.makedirs(path)
         shutil.copy(COMMON, os.path.join(self.repo, ".github", "scripts", "common.sh"))
+        shutil.copy(os.path.join(ROOT, "e2e", "scripts", "shared", "ci-common.sh"),
+            os.path.join(self.repo, "e2e", "scripts", "shared", "ci-common.sh"))
         self.script(".github/scripts/detect-changed-app.sh", FAKE_DETECT)
         self.script(".github/scripts/verify-workflow-refs.sh", "#!/usr/bin/env bash\nexit 0\n")
         self.script("e2e/scripts/ios/build.sh", FAKE_BUILD)
@@ -100,6 +103,7 @@ class BaseRefTests(unittest.TestCase):
         for path in (".github/scripts", "e2e/scripts/shared"):
             os.makedirs(os.path.join(self.repo, path))
         shutil.copy(COMMON, os.path.join(self.repo, ".github", "scripts", "common.sh"))
+        shutil.copy(os.path.join(SHARED, "ci-common.sh"), os.path.join(self.repo, "e2e", "scripts", "shared"))
         shutil.copy(os.path.join(SHARED, "resolve-e2e-scope.sh"), os.path.join(self.repo, "e2e", "scripts", "shared"))
         with open(os.path.join(self.repo, ".github", "scripts", "detect-changed-app.sh"), "w") as handle:
             handle.write(FAKE_SCOPE_DETECT)
@@ -165,6 +169,7 @@ class ScopeChainTests(unittest.TestCase):
         self.repo = self.dir
         for source, target in ((".github/scripts/common.sh", ".github/scripts/common.sh"),
                 (".github/scripts/detect-changed-app.sh", ".github/scripts/detect-changed-app.sh"),
+                ("e2e/scripts/shared/ci-common.sh", "e2e/scripts/shared/ci-common.sh"),
                 ("e2e/scripts/shared/layout.env", "e2e/scripts/shared/layout.env"),
                 ("e2e/scripts/shared/resolve-e2e-scope.sh", "e2e/scripts/shared/resolve-e2e-scope.sh"),
                 ("scripts/module-graph.txt", "scripts/module-graph.txt"),

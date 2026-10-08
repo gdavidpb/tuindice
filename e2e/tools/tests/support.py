@@ -88,6 +88,9 @@ class Workspace:
         # The real library, not a stand-in: the status context has exactly one definition in the repository.
         shutil.copy(os.path.join(TESTS, "..", "..", "..", ".github", "scripts", "common.sh"),
             os.path.join(self.repo, ".github", "scripts", "common.sh"))
+        # common.sh loads the part of the library that lives under the fingerprint.
+        os.makedirs(os.path.join(self.repo, "e2e", "scripts", "shared"), exist_ok=True)
+        shutil.copy(os.path.join(SHARED, "ci-common.sh"), os.path.join(self.repo, "e2e", "scripts", "shared", "ci-common.sh"))
         shutil.copytree(os.path.join(TESTS, "..", "..", "toolchain"), os.path.join(self.repo, "e2e", "toolchain"))
         shutil.copytree(os.path.join(TESTS, "..", "..", "..", "gradle"), os.path.join(self.repo, "gradle"),
             ignore=shutil.ignore_patterns("wrapper", "*.jar"))
