@@ -1,24 +1,21 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
-import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
-import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
-import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
-import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
-import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.openSubjectSearch
+import com.gdavidpb.tuindice.scenarios.shared.searchSubjectsFor
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -31,20 +28,6 @@ private fun StepBuilder.openPensum(loaded: Duration = Within.Long) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 	waitVisible(PensumUiTags.PensumScreen, loaded)
-}
-
-/** Opens the subject search from the pensum top bar and focuses its field. */
-private fun StepBuilder.openSearch() {
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
-	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
-	onPlatform(Platform.Ios) { tap(SubjectsUiTags.SearchScreen) }
-}
-
-/** Types [query] in the search field and sends its search action: the keyboard goes, the results are not behind it. */
-private fun StepBuilder.searchFor(query: String) {
-	tap(SubjectsUiTags.SearchTextField)
-	enterText(SubjectsUiTags.SearchTextField, query)
-	submitTextEntry()
 }
 
 /** Taps the search result of [code] and returns to the search once [detail] has shown. */
@@ -62,8 +45,8 @@ private val subjectsSmoke = scenario("subjects-smoke", "subjects", canonical()) 
 	tags("smoke")
 
 	openPensum(Within.Wait)
-	openSearch()
-	searchFor("ci")
+	openSubjectSearch()
+	searchSubjectsFor("ci")
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	waitVisible(SubjectsUiTags.searchResultStatsButton(E2eFixtures.SubjectCi2511.value), Within.Assert)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
@@ -79,17 +62,15 @@ private val subjectsSearchQueryClear = scenario("subjects-search-query-clear", "
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
-	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
+	openSubjectSearch()
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
-	onPlatform(Platform.Ios) { tap(SubjectsUiTags.SearchScreen) }
 	tap(SubjectsUiTags.SearchTextField)
 	enterText(SubjectsUiTags.SearchTextField, "c")
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
 	waitGone(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi4325.value), Within.Assert)
 	tap(SubjectsUiTags.SearchClear)
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
-	searchFor("ci")
+	searchSubjectsFor("ci")
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	waitVisible(SubjectsUiTags.searchResultStatus(E2eFixtures.SubjectCi2511.value, "approved"), Within.Assert)
 	waitVisible(SubjectsUiTags.searchResultStatsButton(E2eFixtures.SubjectCi2511.value), Within.Assert)
@@ -100,7 +81,7 @@ private val subjectsSearchQueryClear = scenario("subjects-search-query-clear", "
 	tap(SubjectsUiTags.SearchClear)
 	waitVisible(SubjectsUiTags.SearchGuidance, Within.Assert)
 	waitGone(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Assert)
-	searchFor("zzzznomatch")
+	searchSubjectsFor("zzzznomatch")
 	waitVisible(text(Copy.SubjectsSearchNoResults), Within.Wait)
 	waitVisible(SubjectsUiTags.SearchClear, Within.Assert)
 	tap(SubjectsUiTags.SearchClear)
@@ -114,8 +95,8 @@ private val subjectsSearchFailedRetry = scenario("subjects-search-failed-retry",
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
-	openSearch()
-	searchFor("rx")
+	openSubjectSearch()
+	searchSubjectsFor("rx")
 	waitVisible(SubjectsUiTags.SearchRetry, Within.Wait)
 	tap(SubjectsUiTags.SearchRetry)
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectRx.value), Within.Wait)
@@ -128,8 +109,8 @@ private val subjectsDetailTabsTooltip = scenario("subjects-detail-tabs-tooltip",
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
-	openSearch()
-	searchFor("ci")
+	openSubjectSearch()
+	searchSubjectsFor("ci")
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
@@ -155,8 +136,8 @@ private val subjectsDetailUnavailable = scenario("subjects-detail-unavailable", 
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
-	openSearch()
-	searchFor("qa")
+	openSubjectSearch()
+	searchSubjectsFor("qa")
 	openResultAndGoBack(E2eFixtures.SubjectQa.value, SubjectsUiTags.Unavailable)
 }
 
@@ -165,8 +146,8 @@ private val subjectsDetailFailedRetry = scenario("subjects-detail-failed-retry",
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
-	openSearch()
-	searchFor("qb")
+	openSubjectSearch()
+	searchSubjectsFor("qb")
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectQb.value), Within.Wait)
 	tap(SubjectsUiTags.searchResult(E2eFixtures.SubjectQb.value))
 	waitVisible(SubjectsUiTags.Failed, Within.Long)

@@ -76,9 +76,11 @@ private val enrollmentproofErrorUnavailable = scenario(
 	openCurrentEnrollmentProof()
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
 	waitVisible(RecordUiTags.ContentContainer, Within.Assert)
-	// Retrying from the snackbar asks for the proof again from where the user is: the service is still
-	// down, so the snackbar comes back, and the record tab must still be the one on screen.
+	// Retrying from the snackbar asks for the proof again from where the user is: the first snackbar goes with
+	// the tap, and the service is still down, so a new one comes back (the mock holds its answer for 3 s, long
+	// enough to see the first one gone); the record tab must still be the one on screen.
 	tap(BaseUiTags.SnackbarActionButton)
+	waitGone(BaseUiTags.SnackbarContainer, Within.Action)
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
 	waitVisible(RecordUiTags.ContentContainer, Within.Assert)
 }

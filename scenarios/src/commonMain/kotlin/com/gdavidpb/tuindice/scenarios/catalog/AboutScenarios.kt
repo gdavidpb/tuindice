@@ -22,9 +22,6 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 /** The label of the iOS popover's dimmed area, which closes a share sheet. */
 private const val POPOVER_DISMISS_REGION = "PopoverDismissRegion"
 
-private const val SHEET_CANCEL = "Cancel"
-private const val SHEET_CLOSE = "Close"
-
 /** From the seeded summary: opens the About tab. */
 private fun StepBuilder.openAbout() {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -135,19 +132,12 @@ private val aboutPlatformEdgeTriggers = scenario(
 	openAbout()
 	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ShareApp)
-	ifVisible(system(SHEET_CANCEL)) {
-		tap(system(SHEET_CANCEL))
-	}
-	ifVisible(system(SHEET_CLOSE)) {
-		tap(system(SHEET_CLOSE))
-	}
+	// Android's chooser has no cancel or close button (it goes when the app is brought back); iOS's sheet is
+	// closed by the dimmed area around it, whatever the language of the device.
 	onPlatform(Platform.Ios) {
 		tap(system(POPOVER_DISMISS_REGION))
 	}
 	foreground()
-	ifVisible(MaincoreUiTags.BrowserContainer) {
-		tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	}
 	returnToAbout()
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore)
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper)

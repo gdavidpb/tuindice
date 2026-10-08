@@ -11,8 +11,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
-import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
-import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
@@ -22,7 +20,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
-import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
@@ -227,7 +224,12 @@ private val recordSyntheticTermSearchEmpty = scenario(
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openRecordTab()
+	// The suggestions come from the pensum the app has cached, which opening its tab fills.
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
+	waitVisible(PensumUiTags.Canvas, Within.Long)
+	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	openCreateTermScreen()
 	openSearchTab()
 	searchSubjects(QUERY_NO_RESULTS)
@@ -235,10 +237,8 @@ private val recordSyntheticTermSearchEmpty = scenario(
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)
 	waitVisible(text(Copy.RecordSearchNoResults), Within.Assert)
 	waitGone(RecordUiTags.createSyntheticTermSubject(E2eFixtures.SubjectEc5201.value), Within.Assert)
-	ifVisible(text(Copy.SearchSuggestedTitle)) {
-		waitVisible(text(Copy.SearchSuggestedTitle), Within.Assert)
-		waitVisible(RecordUiTags.createSyntheticTermSubject(E2eFixtures.SubjectMa1112.value), Within.Assert)
-	}
+	waitVisible(text(Copy.SearchSuggestedTitle), Within.Assert)
+	waitVisible(RecordUiTags.createSyntheticTermSubject(E2eFixtures.SubjectMa1112.value), Within.Assert)
 }
 
 private val recordSyntheticTermSearchStates = scenario(
@@ -276,21 +276,17 @@ private val recordSyntheticTermSearchStates = scenario(
 	searchSubjects(queryPr, replace = true)
 	waitVisible(RecordUiTags.createSyntheticTermSearchResult(0, ep1308), Within.Wait)
 	waitVisible(subjectStatus(ep1308, STATUS_ALREADY_PLANNED), Within.Assert)
-	onPlatform(Platform.Ios) {
-		tap(subjectStatus(ep1308, STATUS_ALREADY_PLANNED))
-		waitVisible(text(Copy.TooltipPlannedIn), Within.Assert)
-		tap(subjectStatus(ep1308, STATUS_ALREADY_PLANNED))
-	}
+	tap(subjectStatus(ep1308, STATUS_ALREADY_PLANNED))
+	waitVisible(text(Copy.TooltipPlannedIn), Within.Assert)
+	tap(subjectStatus(ep1308, STATUS_ALREADY_PLANNED))
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(ep1308), Within.Assert)
 	waitGone(subjectAction(ep1308, ACTION_ADD), Within.Assert)
 	scrollUntilVisible(RecordUiTags.createSyntheticTermSearchResult(1, ep2308), Scroll.ContentDown, Within.Wait)
 	waitVisible(subjectStatus(ep2308, STATUS_BLOCKED), Within.Assert)
 	waitVisible(text(Copy.SubjectStatusBlocked), Within.Assert)
-	onPlatform(Platform.Ios) {
-		tap(subjectStatus(ep2308, STATUS_BLOCKED))
-		waitVisible(text(Copy.TooltipMissingRequirements), Within.Assert)
-		tap(subjectStatus(ep2308, STATUS_BLOCKED))
-	}
+	tap(subjectStatus(ep2308, STATUS_BLOCKED))
+	waitVisible(text(Copy.TooltipMissingRequirements), Within.Assert)
+	tap(subjectStatus(ep2308, STATUS_BLOCKED))
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(ep2308), Within.Assert)
 	waitVisible(subjectAction(ep2308, ACTION_ADD), Within.Assert)
 	scrollUntilVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Scroll.ContentDown, Within.Wait)
@@ -333,10 +329,8 @@ private val recordSyntheticTermSearchStates = scenario(
 	scrollUntilVisible(subjectStatus(ma1111, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
 	waitVisible(subjectStatus(ma1111, STATUS_APPROVED), Within.Assert)
 	waitVisible(text(Copy.SubjectStatusApproved), Within.Assert)
-	onPlatform(Platform.Ios) {
-		tap(subjectStatus(ma1111, STATUS_APPROVED))
-		waitVisible(text(Copy.TooltipApprovedIn), Within.Assert)
-	}
+	tap(subjectStatus(ma1111, STATUS_APPROVED))
+	waitVisible(text(Copy.TooltipApprovedIn), Within.Assert)
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(ma1111), Within.Assert)
 	waitGone(subjectAction(ma1111, ACTION_ADD), Within.Assert)
 

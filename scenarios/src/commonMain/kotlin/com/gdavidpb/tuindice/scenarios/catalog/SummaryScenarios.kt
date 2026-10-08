@@ -67,6 +67,8 @@ private val summaryStatusDialog = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(SummaryUiTags.StatusIconButton)
 	waitVisible(SummaryUiTags.SyncStatusMessage, Within.Action)
+	// The sync of this account answers that the record service is unavailable, and the dialog says so by name.
+	waitVisible(text(Copy.RecordUnavailableSyncMessage), Within.Assert)
 	waitVisible(BaseUiTags.ConfirmationDialogPositiveButton, Within.Assert)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitGone(SummaryUiTags.SyncStatusMessage, Within.Action)

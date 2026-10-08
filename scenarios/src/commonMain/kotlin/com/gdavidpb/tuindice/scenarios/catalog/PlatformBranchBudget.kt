@@ -13,13 +13,6 @@ class PlatformBranchBudget private constructor() {
 			"auth-update-password" to 1,
 			"maincore-browser-external-dialog" to 2,
 			"maincore-tab-stack-preservation" to 1,
-			"record-synthetic-term-search-states" to 3,
-			"subjects-detail-failed-retry" to 1,
-			"subjects-detail-tabs-tooltip" to 1,
-			"subjects-detail-unavailable" to 1,
-			"subjects-search-failed-retry" to 1,
-			"subjects-search-query-clear" to 1,
-			"subjects-smoke" to 1,
 			"summary-profile-picture" to 2
 		)
 
