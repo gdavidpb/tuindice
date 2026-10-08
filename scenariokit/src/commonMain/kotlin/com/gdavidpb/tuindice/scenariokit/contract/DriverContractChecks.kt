@@ -128,8 +128,6 @@ internal class DriverContractChecks(
 		const val TIMING_SLACK_MS = 1_500L
 		const val GONE_ABSENT_WAIT_MS = 2_000L
 		const val GONE_ABSENT_QUICK_MS = 1_500L
-		const val KEYBOARD_ROW = 0.9
-		const val KEYBOARD_PROBE_TEXT = "abc"
 		const val MIN_WAIT_SHARE = 0.8
 		const val HALF = 0.5
 		const val SWIPE_TRAVEL = 0.1

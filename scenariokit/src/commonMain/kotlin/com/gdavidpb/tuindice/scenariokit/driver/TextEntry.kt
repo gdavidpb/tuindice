@@ -17,11 +17,13 @@ interface TextEntry {
 	/**
 	 * Types [text] as key events into [q]: the driver gives the field the focus first, so the app sees what a
 	 * keyboard would produce, and the text goes in at the caret (a scenario that wants an empty field first uses
-	 * `replace`, which clears it). Android leaves a field that already has the focus alone, asks one that has not with
-	 * the accessibility click action (never with a touch on a point that the opening keyboard could be covering) and
-	 * waits for its keyboard; iOS touches the field once (XCUITest does not report the keyboard focus of a text
-	 * field). Both read the field before and after the focus and, if it changed, type nothing and refuse ("the focus
-	 * touch changed the field"). Neither driver can prove the focus is on the field it was asked for beyond that.
+	 * `replace`, which clears it). Android leaves a field that already has the focus alone (it does not wait for a
+	 * keyboard then: the keys go to the window that has the focus) and asks one that has not with the accessibility
+	 * click action (never with a touch on a point that the opening keyboard could be covering), then waits up to 3 s
+	 * for the focus, a listed keyboard and bounds that read the same 3 times; iOS touches the field once (XCUITest does
+	 * not report the keyboard focus of a text field). Both read the field before and after the focus and, if it
+	 * changed, type nothing and refuse ("the focus touch changed the field"). Neither driver can prove the focus is on
+	 * the field it was asked for beyond that.
 	 * Android injects the key events of the virtual keyboard, re-stamping each one just before it goes in, stops at
 	 * the first one the system refuses and logs how many entered; text the virtual keyboard cannot spell (accents) is
 	 * refused. iOS waits up to 2 s for the software keyboard after its touch (it does not touch again: a field that
@@ -39,8 +41,9 @@ interface TextEntry {
 	/**
 	 * Empties [q] and answers true only when it was read back empty. Android assigns the empty text through an
 	 * accessibility action and reads the field for up to 2 s (a label cannot be emptied, so it answers false). iOS
-	 * focuses the field, touches near its right end so the caret is after the text, and presses one delete key per
-	 * character it holds, with no touch on the element and no second strategy, then reads it again.
+	 * focuses the field, touches it at 75 % of its visible width so the caret is after the text, and presses one delete
+	 * key per character it holds, with no second strategy, then reads it again. A text that reaches past that point
+	 * leaves the caret in the middle of it, so iOS answers false for it (the reason the secure sample is 25 characters).
 	 */
 	fun clearText(q: Query): Boolean
 
@@ -50,8 +53,9 @@ interface TextEntry {
 	 * does not close the keyboard by itself (the app does, or does not). True when the action was sent. Android
 	 * injects the Enter key, which a single-line field turns into its action; iOS presses the action key of the
 	 * keyboard once its frame is still, and refuses when it has no action key (a number pad). Both wait, as a condition
-	 * and up to `Timeouts.Action`, for a keyboard (and a text field with the focus) to be there, because the step can
-	 * come right after a touch that opens it, and answer false with the reason when none comes.
+	 * and up to `Timeouts.Action`, because the step can come right after a touch that opens the keyboard, and answer
+	 * false with the reason when what they wait for does not come: Android for a keyboard window and a text field with
+	 * the focus, iOS only for a keyboard (it cannot read the focus of a field).
 	 */
 	fun submitTextEntry(): Boolean
 }
