@@ -208,11 +208,31 @@ final class ElementResolver {
         return .absent
     }
 
-    /// On screen: it exists, has a non-empty frame and that frame meets the screen.
+    /// On screen: it exists, has a non-empty frame and that frame meets the screen. The foreground it needs is the cached state of
+    /// the app (see [visibleFactsInFront] for what a step that reports to the scenario must use).
     func visibleFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
         guard let (resolved, facts) = lookup(q) else { return nil }
         guard !facts.frame.isEmpty, screen.intersects(facts.frame) else { return nil }
         return (resolved, facts)
+    }
+
+    /// How long [isAppFrontNow] gives XCTest to say that the app went to the background (ZB-13). Measured on the simulator with
+    /// Safari opened over the app by a link: the cached state and the app's tree (which stays readable behind Safari) said "in front"
+    /// for about 2.5 s after Safari came up (10 s in earlier runs), and a wait of 0.3 s for the background state saw it about 0.7 s
+    /// before the cached state did, while waits of 0.1 s or less saw what the cached state saw.
+    static let freshProbe = 0.3
+
+    /// Whether the app is in front now, not as XCTest last cached it: the state, and a wait for the background state that makes XCTest
+    /// ask the system. It costs [freshProbe] when the app is in front, so it is asked once, when an answer is about to be given.
+    var isAppFrontNow: Bool { app.state == .runningForeground && !app.wait(for: .runningBackground, timeout: Self.freshProbe) }
+
+    /// [visibleFacts] for a step that reports to the scenario (a wait, a read): an element of the app counts as on screen only while the
+    /// app is in front now, because behind Safari or a system sheet its tree is still readable and is not what the user sees. A system
+    /// query may belong to SpringBoard and is not held to the app being in front. The fresh check is paid only when the element was found.
+    func visibleFactsInFront(_ q: Query) -> (ResolvedElement, ElementFacts)? {
+        guard let hit = visibleFacts(q) else { return nil }
+        if q is QuerySystem { return hit }
+        return isAppFrontNow ? hit : nil
     }
 
     /// Whether [q] is shown nowhere, with positive evidence: the app is in the foreground and its tree was read in this very
@@ -226,7 +246,7 @@ final class ElementResolver {
         case .unreadable: sighting = .unreadable
         case .absent: sighting = .nothing
         }
-        return AbsenceRule.isAbsent(sighting, treeRead: { (try? app.snapshot()) != nil }, stillInForeground: { isAppInForeground })
+        return AbsenceRule.isAbsent(sighting, treeRead: { (try? app.snapshot()) != nil }, stillInForeground: { isAppFrontNow })
     }
 
     /// The element's facts once its frame is still, so a gesture lands on the element and not on whatever is passing over its

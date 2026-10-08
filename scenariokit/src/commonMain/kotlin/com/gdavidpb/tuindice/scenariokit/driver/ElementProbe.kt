@@ -11,7 +11,9 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * text in any package; iOS: label or identifier in the app or in the springboard). The first match is used. An
  * element counts as present only when it is on screen: on iOS it must also have a non-empty frame that meets the
  * screen, and a tag or a text counts only while the app is in the foreground (its tree stays readable behind Safari
- * or a system sheet, and then it is not what the user sees).
+ * or a system sheet, and then it is not what the user sees). "In the foreground" is asked of the system when an
+ * element is found, not read from the state XCTest cached (that state and the tree kept saying "in front" for seconds
+ * with Safari on top); it costs 0.3 s on each hit of a wait or a read.
  */
 interface ElementProbe {
 	/** Polls [q] until it is visible or [timeoutMs] pass. It always looks once, so a timeout of 0 is a single check. */
