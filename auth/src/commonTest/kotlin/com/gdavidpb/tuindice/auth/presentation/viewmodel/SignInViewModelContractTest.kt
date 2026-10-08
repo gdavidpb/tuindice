@@ -142,12 +142,12 @@ class SignInViewModelContractTest {
 				viewModel.setPasswordAction("secret123")
 				viewModel.signInAction()
 
-				val rejected = awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
+				val rejected = awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptRejected }
 				assertEquals(VALID_USB_ID, rejected.usbId)
 				assertEquals("secret123", rejected.password)
 
 				viewModel.setPasswordAction("secret1234")
-				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
+				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptRejected }
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -202,7 +202,7 @@ class SignInViewModelContractTest {
 
 				// The attempt reached the backend and came back to the form without a rejection.
 				val back = awaitUntilState<SignIn.State.Idle> { _ -> authRepository.bootstrapSignInCalls.isNotEmpty() }
-				assertEquals(false, back.lastAttemptFailed)
+				assertEquals(false, back.lastAttemptRejected)
 
 				cancelAndIgnoreRemainingEvents()
 			}

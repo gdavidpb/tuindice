@@ -381,7 +381,7 @@ class SignInStateMachineContractTest {
 
 		try {
 			viewModel.state.test {
-				assertEquals(false, (awaitItem() as SignIn.State.Idle).lastAttemptFailed)
+				assertEquals(false, (awaitItem() as SignIn.State.Idle).lastAttemptRejected)
 
 				viewModel.setUsbIdAction(VALID_USB_ID)
 				viewModel.setPasswordAction(PASSWORD)
@@ -390,7 +390,7 @@ class SignInStateMachineContractTest {
 				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
 				assertEquals(VALID_USB_ID, waiting.usbId)
 				assertEquals(PASSWORD, waiting.password)
-				assertEquals(false, waiting.lastAttemptFailed)
+				assertEquals(false, waiting.lastAttemptRejected)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -404,7 +404,7 @@ class SignInStateMachineContractTest {
 	@Test
 	fun editingEitherField_orTheMode_clearsTheFailedMark() = runTest {
 		val machine = createFixture().viewModel.machine
-		val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, lastAttemptFailed = true)
+		val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, lastAttemptRejected = true)
 
 		val edits = listOf(
 			SignIn.Action.SetPassword(password = "${PASSWORD}x"),
@@ -415,21 +415,21 @@ class SignInStateMachineContractTest {
 		for (edit in edits) {
 			val after = assertIs<SignIn.State.Idle>(machine.nextState(rejected, edit))
 
-			assertEquals(false, after.lastAttemptFailed, "${edit::class.simpleName} must clear the mark")
+			assertEquals(false, after.lastAttemptRejected, "${edit::class.simpleName} must clear the mark")
 		}
 	}
 
 	@Test
 	fun theWaitElapsing_keepsTheFailedMark_andReenablesSignIn() = runTest {
 		val machine = createFixture().viewModel.machine
-		val waiting = SignIn.State.Idle(isServiceUnavailable = true, lastAttemptFailed = true)
+		val waiting = SignIn.State.Idle(isServiceUnavailable = true, lastAttemptRejected = true)
 
 		val after = assertIs<SignIn.State.Idle>(
 			machine.nextState(waiting, SignInInternalEvent.ServiceWaitElapsed)
 		)
 
 		assertEquals(false, after.isServiceUnavailable)
-		assertEquals(true, after.lastAttemptFailed)
+		assertEquals(true, after.lastAttemptRejected)
 	}
 
 	@Test
@@ -445,7 +445,7 @@ class SignInStateMachineContractTest {
 			machine.nextState(loggingIn, SignIn.Action.ClickCancelSignIn)
 		)
 
-		assertEquals(false, after.lastAttemptFailed)
+		assertEquals(false, after.lastAttemptRejected)
 		assertEquals(VALID_USB_ID, after.usbId)
 	}
 

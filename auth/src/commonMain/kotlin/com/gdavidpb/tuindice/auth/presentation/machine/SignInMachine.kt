@@ -161,7 +161,7 @@ class SignInMachine(
 			password = state.password,
 			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled,
-			lastAttemptFailed = error.isRejectedByBackend()
+			lastAttemptRejected = error.isRejectedByBackend()
 		)
 	}
 

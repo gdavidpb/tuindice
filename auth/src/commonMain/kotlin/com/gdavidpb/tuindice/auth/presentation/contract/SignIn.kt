@@ -25,7 +25,7 @@ object SignIn {
 			// untrusted device) and nothing has been edited since. Not rendered: it only backs a test
 			// tag, so a rejected login is assertable without any visible change. A failure on the way
 			// (no connection, timeout, a wait asked by the service) is not a rejection.
-			val lastAttemptFailed: Boolean = false
+			val lastAttemptRejected: Boolean = false
 		) : State()
 
 		data class LoggingIn(

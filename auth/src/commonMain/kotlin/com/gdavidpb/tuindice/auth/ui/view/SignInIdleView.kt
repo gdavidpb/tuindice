@@ -145,7 +145,7 @@ fun SignInIdleView(
 			)
 		)
 
-		RejectedMarkerBox(isRejected = state.lastAttemptFailed) {
+		RejectedMarkerBox(isRejected = state.lastAttemptRejected) {
 			PasswordTextField(
 				modifier = Modifier
 					.focusRequester(passwordFocusRequester)

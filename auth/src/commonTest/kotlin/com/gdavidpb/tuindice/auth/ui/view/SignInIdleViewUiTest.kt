@@ -221,7 +221,7 @@ class SignInIdleViewUiTest {
 	@Test
 	fun when_theLastAttemptFailed_then_theRejectedMarkerExists() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RejectedMarkerView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234", lastAttemptFailed = true))
+			RejectedMarkerView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234", lastAttemptRejected = true))
 		}
 
 		assertNodeVisible(AuthUiTags.SignInRejectedMarker)
