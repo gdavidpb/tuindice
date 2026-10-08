@@ -40,7 +40,7 @@ class FakeWireMock {
 		method == "POST" && path == "/__admin/scenarios/reset" -> ok { states.keys.forEach { states[it] = "Started" } }
 		method == "DELETE" && path == "/__admin/requests" -> ok { journal.clear() }
 		method == "PUT" && path.startsWith("/__admin/scenarios/") -> ok { setState(path, body) }
-		method == "GET" && path.startsWith("/__admin/requests") -> recent()
+		method == "GET" && path.startsWith("/__admin/requests") -> recent(path)
 		method == "GET" && path == "/__admin/scenarios" -> scenarios()
 		else -> HttpReply(OK, "{}")
 	}
@@ -91,12 +91,17 @@ class FakeWireMock {
 		}.toString()
 	)
 
-	private fun recent() = HttpReply(
-		OK,
-		buildJsonObject {
-			put("requests", buildJsonArray { journal.asReversed().take(RECENT_LIMIT).forEach { add(entry(it)) } })
-		}.toString()
-	)
+	/** Like WireMock: every request from the most recent, or the `limit` most recent when the query gives one. */
+	private fun recent(path: String): HttpReply {
+		val limit = path.substringAfter('?', "").split('&').firstOrNull { it.startsWith("limit=") }
+			?.removePrefix("limit=")?.toIntOrNull()
+		return HttpReply(
+			OK,
+			buildJsonObject {
+				put("requests", buildJsonArray { journal.asReversed().take(limit ?: journal.size).forEach { add(entry(it)) } })
+			}.toString()
+		)
+	}
 
 	private fun entry(request: AppRequest) = buildJsonObject {
 		putJsonObject("request") {
@@ -120,6 +125,5 @@ class FakeWireMock {
 	private companion object {
 		const val OK = 200
 		const val SERVICE_UNAVAILABLE = 503
-		const val RECENT_LIMIT = 5
 	}
 }

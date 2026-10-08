@@ -44,9 +44,9 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		val header = step.basicAuth?.let { BasicAuth.header(it) }
 		var transportDown = false
 		val arrived = poller.until(step.timeoutMs) {
-			val count = if (step.status == null) countMatching(step, header) else countAnswered(step, header)
+			val count = if (step.status == null) countMatching(step, header) else AnsweredStatuses.count(backend, step, header)
 			if (count == null) transportDown = true
-			count == null || count >= 1
+			count == null || count >= step.atLeast
 		}
 		return when {
 			transportDown -> StepResult.Failed(
@@ -55,22 +55,6 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 			)
 			arrived -> StepResult.Passed
 			else -> missingRequest(step)
-		}
-	}
-
-	/**
-	 * Requests to the route that the backend answered with the step's status. `find` returns requests alone, so this
-	 * reads the journal of serve events (`GET /__admin/requests`), which carries each response.
-	 */
-	private fun countAnswered(step: Step.ExpectRequest, header: String?): Int? {
-		val reply = backend.http("GET", "/__admin/requests", null, null)
-		if (!reply.isSuccess) return null
-		return WireMockJson.array(WireMockJson.obj(reply.body), "requests").count { event ->
-			val request = WireMockJson.child(event, "request")
-			WireMockJson.text(request, "method") == step.method &&
-				WireMockJson.text(request, "url")?.substringBefore('?') == step.path &&
-				WireMockJson.number(WireMockJson.child(event, "response"), "status") == step.status &&
-				(header == null || WireMockJson.header(WireMockJson.child(request, "headers"), "Authorization") == header)
 		}
 	}
 
@@ -108,13 +92,17 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		return when {
 			seen.isEmpty() -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,
-				"no ${step.target} request reached the backend within ${step.timeoutMs} ms"
+				"no ${step.method} ${step.path} request reached the backend within ${step.timeoutMs} ms"
 			)
 			step.basicAuth != null && received != step.basicAuth && isTypingFault(step.basicAuth, seen) -> StepResult.Failed(
 				FailureKind.TYPED_TEXT_MISMATCH,
 				"typed \"${step.basicAuth}\" but the backend received \"${received ?: "no Basic credential"}\" on ${step.target}",
 				expected = step.basicAuth,
 				actual = received.orEmpty()
+			)
+			step.status != null -> StepResult.Failed(
+				FailureKind.STEP_TIMEOUT,
+				AnsweredStatuses.describeMissing(backend, step, step.status)
 			)
 			else -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,

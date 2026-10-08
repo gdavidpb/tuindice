@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.scenariokit.model
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -180,6 +182,7 @@ sealed interface Step {
 		override val target: String get() = "$scenario = $state"
 	}
 
+	@OptIn(ExperimentalSerializationApi::class)
 	@Serializable
 	@SerialName("expectRequest")
 	data class ExpectRequest(
@@ -189,9 +192,22 @@ sealed interface Step {
 		val timeoutMs: Long,
 		/** When set, only a request the backend answered with this status counts. */
 		val status: Int? = null,
+		/**
+		 * How many matching requests the step needs. It counts the requests of the backend journal since the start of
+		 * the scenario (the journal is emptied only before the app launches), not since the step: a request the app
+		 * sent earlier counts, so a step that must see a new request asks for one more than were already there.
+		 * The default is not written, so the catalog and the hash of the scenarios that do not use it stay as they were.
+		 */
+		@EncodeDefault(EncodeDefault.Mode.NEVER)
+		val atLeast: Int = 1,
 		override val site: Site? = null
 	) : Step {
-		override val target: String get() = "$method $path"
+		override val target: String
+			get() = buildString {
+				append("$method $path")
+				status?.let { append(" answered $it") }
+				if (atLeast != 1) append(", at least $atLeast")
+			}
 	}
 
 	/** A named sub-scenario; shows up in logs. */
