@@ -1,6 +1,6 @@
 ---
 name: certify-tuindice-pr
-description: Certify TuIndice feature branches for production PRs. Use when a TuIndice feat/* branch must be prepared or verified before opening or updating a pull request against production: local commit-bound native E2E evidence (XCUITest on iOS, UI Automator on Android), evidence verdicts and stop conditions, GitHub status publication, fixing failures, pushing, and opening a ready-for-review PR.
+description: Certify TuIndice feature branches for production PRs. Use when a TuIndice feat/* branch must be prepared or verified before opening or updating a pull request against production: local commit-bound native E2E evidence (XCUITest on iOS, UI Automator on Android), evidence verdicts and stop conditions, GitHub status publication, fixing failures, pushing, and opening a ready-for-review PR. Also triggers on requests in Spanish such as «certificar», «certificación», «evidencia E2E» or «preflight», and on mentions of `e2eEvidence`.
 ---
 
 # Certify TuIndice PR
