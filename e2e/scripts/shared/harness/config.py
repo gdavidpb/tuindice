@@ -173,6 +173,14 @@ class Config:
         if found and self.env.get(ALLOW_SEAMS_KEY) != "1":
             raise UsageError("%s needs a real environment: unset the test seams %s" % (what, ", ".join(found)))
 
+    def require_clean_ledger(self, directory, recorded):
+        """Evidence starts only on a ledger whose runs used no test seam: its greens could come from a fake adapter. Only the
+        harness tests' key allows it. The environment has none to unset: the ledger is the thing to set aside."""
+        found = sorted(set(recorded) - {ALLOW_SEAMS_KEY})
+        if found and self.env.get(ALLOW_SEAMS_KEY) != "1":
+            raise UsageError("the ledger %s recorded runs with test seams (%s), so its greens may come from a fake; set it aside "
+                "(move that directory out of the state root) and run the evidence again" % (directory, ", ".join(found)))
+
     def root_script_dir(self):
         return Path(__file__).resolve().parent.parent
 

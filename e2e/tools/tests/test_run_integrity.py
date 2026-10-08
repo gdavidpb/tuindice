@@ -336,6 +336,36 @@ class SeamTests(unittest.TestCase):
         self.assertIn("E2E_ADAPTER_IOS_CMD", str(caught.exception))
         self.assertFalse(os.path.exists(ws.gh_log))
 
+    def test_a_ledger_that_recorded_seams_is_refused_without_the_key_and_the_message_says_where_it_is(self):
+        # Not "unset the seams": the environment has none, the ledger remembers them.
+        cfg = Config(Path("."), {"E2E_STATE_ROOT": "/s"})
+        with self.assertRaises(UsageError) as caught:
+            cfg.require_clean_ledger("/s/ledger/ios/abc", ["E2E_ADAPTER_IOS_CMD"])
+        message = str(caught.exception)
+        self.assertIn("/s/ledger/ios/abc", message)
+        self.assertIn("E2E_ADAPTER_IOS_CMD", message)
+        self.assertIn("set it aside", message)
+        self.assertNotIn("unset the test seams", message)
+        cfg.require_clean_ledger("/s/ledger/ios/abc", [])
+        Config(Path("."), {"E2E_TEST_ALLOW_SEAMS": "1"}).require_clean_ledger("/s/x", ["E2E_ADAPTER_IOS_CMD"])
+
+    def test_evidence_asks_the_ledger_about_its_seams_before_anything_runs(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        self.assertEqual(ws.evidence().code, 0)
+        calls = len(ws.calls())
+        cfg = Config(ws.repo, ws.env)
+        run = PlatformRun(cfg, "ios", Options("evidence"))
+        run.git, run.manifest = GitState(ws.repo), Manifest("", "x", "evidence", "ios", cfg, enabled=False)
+        with mock.patch.object(Config, "require_clean_ledger", side_effect=UsageError("sentinel")) as asked, \
+                mock.patch.object(PlatformRun, "_fingerprint", return_value=FP_A):
+            with self.assertRaises(UsageError) as caught:
+                run._pipeline()
+        self.assertEqual(str(caught.exception), "sentinel")
+        directory, recorded = asked.call_args[0]
+        self.assertEqual(directory, os.path.join(ws.state, "ledger", "ios", FP_A))
+        self.assertIn("E2E_ADAPTER_IOS_CMD", recorded)
+        self.assertEqual(len(ws.calls()), calls)
+
     def test_a_state_root_alone_is_not_a_seam_and_diagnosis_may_use_seams(self):
         ws = Workspace(self, [scenario("fix-a")])
         self.assertEqual(ws.diagnose("ios", E2E_TEST_ALLOW_SEAMS="").code, 0)

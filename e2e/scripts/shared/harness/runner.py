@@ -210,6 +210,7 @@ class PlatformRun:
         if self.evidence:
             self.ledger = Ledger.open(cfg.state_root, self.platform, self.fingerprint, self.catalog.sha256,
                 cfg.layout["E2E_FINGERPRINT_VERSION"], lock=not self.opts.dry_run, attempt_cap=cfg.attempt_cap)
+            cfg.require_clean_ledger(self.ledger.directory, self.ledger.data["seams"])
             if not self.opts.dry_run:
                 self.ledger.note_overrides(cfg.run_overrides())
                 self.ledger.note_seams(cfg.seams())
