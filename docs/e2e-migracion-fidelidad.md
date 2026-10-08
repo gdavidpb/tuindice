@@ -20,8 +20,8 @@ dice lo que se encontró entonces y no lo que dicen hoy los escenarios.
   `git show pre-corte-maestro:<esa ruta>` su contenido. La columna «Flujo de origen» es la ruta bajo `flows/`. La
   etiqueta es local hasta que la persona dueña la suba; el SHA es el dato que sobrevive a un squash.
 - Los nombres y los conteos son los del momento de la migración: el paso que la tabla llama `finishTextEntry` se llama
-  hoy `submitTextEntry`, y el catálogo tiene 109 escenarios (89 de producto y 20 de conformidad), no 85. La tabla sigue
-  siendo la de los 85 de entonces.
+  hoy `submitTextEntry`, y el catálogo vigente (`e2e/catalog/scenarios.json`) tiene más escenarios que esos 85 y cambia
+  con cada escenario nuevo. La tabla sigue siendo la de los 85 de entonces.
 - Las notas con «heredado» describen una debilidad que el flujo ya tenía y el escenario conservó; las que dicen «después»
   agregan lo que se hizo tras la auditoría.
 
