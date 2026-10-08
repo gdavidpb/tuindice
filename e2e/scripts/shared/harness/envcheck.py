@@ -13,7 +13,7 @@ from .config import PLATFORMS, EnvironmentRefused
 # Provisional thresholds; revise from `e2e-profile.py --compare`.
 LOAD_WARN = 0.50  # load1 / ncpu: informational only. macOS counts threads that wake for an instant, so it overstates contention.
 # Host CPU, measured as the idle percentage over a short window (`top -l 2 -n 0 -s 1`, about 1.6 s). Every CPU number is here.
-LOAD_MEASURE_RATIO = 1.0  # per-scenario gate: below this load1/ncpu the CPU is not even measured
+LOAD_MEASURE_RATIO = 0.7  # diagnosis: below this load1/ncpu the CPU is not even measured. Evidence measures before every scenario
 CPU_IDLE_WAIT_BELOW, CPU_IDLE_WAIT_UNTIL = 20, 35  # per-scenario gate: wait when idle < 20 % and until it reaches 35 %
 LOAD_WAIT_PER_SCENARIO_SECONDS, LOAD_WAIT_PER_RUN_SECONDS = 300, 900
 CPU_IDLE_WARN, CPU_IDLE_REFUSE = 35, 15  # env check: refusal needs both samples below CPU_IDLE_REFUSE

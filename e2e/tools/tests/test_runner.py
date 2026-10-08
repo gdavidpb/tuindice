@@ -266,13 +266,33 @@ class BudgetAndProcessTests(unittest.TestCase):
         self.assertEqual((manifest["attempts"][0]["cpuIdle"], manifest["attempts"][0]["load1"]), (70.0, 40.0))
         self.assertIn("deviceLoad1", manifest["attempts"][0])
 
-    def test_the_cpu_is_not_measured_below_the_load_threshold(self):
+    def test_a_diagnosis_does_not_measure_the_cpu_below_a_load_of_seven_tenths_per_core(self):
         ws = Workspace(self, [scenario("fix-a")])
-        write_metrics(ws.metrics, [0.5, 0.5, 0.5], 5.0)
+        write_metrics(ws.metrics, [2.4, 2.4, 2.4], 5.0)  # 0.6 per core
         result = ws.diagnose("ios")
         self.assertEqual(result.code, 0, result.out)
         self.assertNotIn("LOAD ", result.out)
         self.assertIsNone(ws.manifest()["attempts"][0]["cpuIdle"])
+
+    def test_a_diagnosis_measures_it_from_seven_tenths_on_where_the_old_filter_of_one_did_not(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        write_metrics(ws.metrics, [3.2, 3.2, 3.2], 70.0)  # 0.8 per core: eight busy threads of ten cores
+        self.assertEqual(ws.diagnose("ios").code, 0)
+        self.assertEqual(ws.manifest()["attempts"][0]["cpuIdle"], 70.0)
+
+    def test_evidence_measures_the_cpu_before_every_scenario_whatever_the_load(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")])
+        write_metrics(ws.metrics, [0.1, 0.1, 0.1], 70.0)
+        self.assertEqual(ws.evidence().code, 0)
+        self.assertEqual([a["cpuIdle"] for a in ws.manifest()["attempts"]], [70.0, 70.0])
+        self.assertEqual([a["cpuIdle"] for a in ws.ledger()["scenarios"]["fix-a"]["attempts"]], [70.0])
+
+    def test_evidence_on_a_busy_cpu_waits_even_when_the_load_per_core_is_low(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        write_metrics(ws.metrics, [0.4, 0.4, 0.4], 10.0)  # 0.1 per core, and still no room for the emulator
+        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2", E2E_ENV_OVERRIDE="cpu", E2E_FAKE_LOAD_WAIT_CAPS="1,1")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertIn("LOAD  load1/ncpu is 0.10 and the CPU is 10% idle; waiting for 35% idle", result.out)
 
     def test_the_run_waits_while_the_cpu_is_busy_and_resumes_at_35_percent(self):
         ws = Workspace(self, [scenario("fix-a")])

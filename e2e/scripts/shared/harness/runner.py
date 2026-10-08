@@ -467,13 +467,13 @@ class PlatformRun:
             raise StopRun("budget_exhausted", 4, text, scenario.id)
 
     def _wait_for_load(self, scenario):
-        """The host gate before a scenario, in two steps: load1/ncpu is the cheap filter and the CPU is measured only
-        above it; the run waits only while the CPU is busy, within a cap per scenario and one per run. When the run's cap is
+        """The host gate before a scenario, in two steps: load1/ncpu is the cheap filter of a diagnosis (the CPU is measured only
+        above it) and evidence skips the filter and measures every time; the run waits only while the CPU is busy, within a cap per scenario and one per run. When the run's cap is
         spent the gate says so once and the rest of the run starts without waiting. Returns (seconds waited, CPU idle percent)."""
         cfg, m = self.cfg, self.manifest
         load, ncpu = read_load(cfg)
         m.sample_load(load)
-        if load[0] / ncpu < envcheck.LOAD_MEASURE_RATIO:
+        if not self.evidence and load[0] / ncpu < envcheck.LOAD_MEASURE_RATIO:
             return 0, None
         idle = envcheck.cpu_idle(cfg)
         if idle is None or idle >= envcheck.CPU_IDLE_WAIT_BELOW:

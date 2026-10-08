@@ -62,6 +62,11 @@ class ThresholdTests(unittest.TestCase):
         self.assertEqual((result["disk"]["level"], result["disk"]["overridden"]), ("refuse", False))
 
 
+# Evidence measures the CPU before every scenario now, so a run on a busy fake CPU would wait for the real caps (5 and 15 minutes):
+# these tests are about the environment check, and give the load gate a few tenths of a second.
+QUICK_GATE = {"E2E_FAKE_LOAD_WAIT_CAPS": "0.3,0.3", "E2E_FAKE_LOAD_POLL_SECONDS": "0.1"}
+
+
 class EnvironmentRunTests(unittest.TestCase):
     def test_evidence_is_refused_with_a_busy_cpu_before_any_build_or_boot(self):
         ws = Workspace(self, [support.scenario("fix-a")])
@@ -77,9 +82,9 @@ class EnvironmentRunTests(unittest.TestCase):
     def test_a_burst_is_not_refused_because_the_second_sample_must_also_be_low(self):
         ws = Workspace(self, [support.scenario("fix-a")])
         ws.set_metrics(cpuIdle=[8.0, 60.0])
-        self.assertEqual(ws.evidence().code, 0)
+        self.assertEqual(ws.evidence(**QUICK_GATE).code, 0)
         ws.set_metrics(cpuIdle=[8.0, 20.0])  # both below 15 is the only refusal; 20 only warns
-        result = ws.evidence("android")
+        result = ws.evidence("android", **QUICK_GATE)
         self.assertEqual(result.code, 0, result.out)
         self.assertIn("ENV   WARN cpu=20.0", result.out)
         data = json.loads(ws.run("env-check", "--json").out)
@@ -114,7 +119,7 @@ class EnvironmentRunTests(unittest.TestCase):
     def test_the_override_lets_evidence_run_and_is_recorded_in_the_manifest(self):
         ws = Workspace(self, [support.scenario("fix-a")])
         ws.set_metrics(cpuIdle=[8.0, 10.0])
-        result = ws.evidence(E2E_ENV_OVERRIDE="cpu")
+        result = ws.evidence(E2E_ENV_OVERRIDE="cpu", **QUICK_GATE)
         self.assertEqual(result.code, 0, result.out)
         manifest = ws.manifest()
         self.assertEqual(manifest["overrides"]["env"], ["cpu"])
