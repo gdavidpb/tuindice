@@ -8,7 +8,6 @@ import ScenarioKit
 final class TextTyping {
     /// Characters per `typeText` call (F13 measured it: 4).
     private static let chunk = 4
-    private static let pasteTimeout = 5.0
     private static let pollInterval = 0.1
     private static let rereadTimeout = 1.0
     private static let keyboardTimeout = 2.0
@@ -28,32 +27,6 @@ final class TextTyping {
     func typeKeys(_ q: Query, text: String) -> Bool {
         guard focus(q) else { return false }
         return typeInChunks(text)
-    }
-
-    /// Pastes through the edit menu. The field is focused first and its place is read again afterwards:
-    /// the keyboard moves the form, so the place it had before the tap is another field's. The menu
-    /// item is the only one the long press shows on an empty field, so it is taken by position, not by
-    /// label. The permission alert of a cross-app paste may or may not appear, and comes after the tap:
-    /// it is looked for until the field holds text or [pasteTimeout] passes.
-    func setText(_ q: Query, text: String) -> Bool {
-        guard focus(q), let (resolved, facts) = resolver.placed(q, for: "setText") else { return false }
-        UIPasteboard.general.string = text
-        let target = resolver.visiblePart(of: facts.frame)
-        resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).press(forDuration: 1.0)
-
-        let item = app.menuItems.firstMatch
-        guard item.waitForExistence(timeout: 2) else { return false }
-        item.tap()
-
-        let deadline = Monotonic.now + Self.pasteTimeout
-        repeat {
-            if let (_, now) = resolver.visibleFacts(q), !now.typedText.isEmpty { return true }
-            if let answered = SystemUi.allowPaste(springboard: resolver.springboard) {
-                log.tolerate(.allowedPaste, "the SpringBoard alert was answered with '\(answered)'")
-            }
-            Thread.sleep(forTimeInterval: Self.pollInterval)
-        } while Monotonic.now < deadline
-        return false
     }
 
     /// Empties the field without a triple tap on the element: the field is focused, one tap near its right end puts the caret

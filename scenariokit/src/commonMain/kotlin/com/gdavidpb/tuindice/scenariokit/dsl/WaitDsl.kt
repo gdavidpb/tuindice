@@ -22,7 +22,3 @@ fun StepBuilder.waitAnyVisible(vararg queries: Query, timeout: Duration = Timeou
 
 fun StepBuilder.assertEnabled(tag: String, enabled: Boolean = true, timeout: Duration = Timeouts.Assert.asDuration()) =
 	add(Step.AssertEnabled(Query.Tag(tag), enabled, timeout.millis(), site()))
-
-/** Waits for the element (the screen when [tag] is null) to stop moving; use before gestures by position. */
-fun StepBuilder.settle(tag: String? = null, timeout: Duration = Timeouts.Action.asDuration()) =
-	add(Step.Settle(tag?.let { Query.Tag(it) }, timeout.millis(), site()))

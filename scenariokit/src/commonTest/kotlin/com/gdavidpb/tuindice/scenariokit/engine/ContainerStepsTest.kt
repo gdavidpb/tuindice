@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.StepOutcome
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -49,17 +48,6 @@ class ContainerStepsTest {
 	}
 
 	@Test
-	fun ifGone_neverFailsAndRunsOnlyWhenTheElementIsGone() {
-		val gone = driver(button to FakeElement())
-		val staying = driver(banner to FakeElement(), button to FakeElement())
-
-		assertPassed(gone.run(Step.IfGone(banner, 1_500, listOf(tapButton))))
-		assertEquals(listOf(button), gone.taps)
-		assertPassed(staying.run(Step.IfGone(banner, 1_500, listOf(tapButton))))
-		assertTrue(staying.taps.isEmpty())
-	}
-
-	@Test
 	fun onPlatform_runsOnlyOnTheMatchingPlatform() {
 		val android = driver(button to FakeElement())
 		val ios = driver(button to FakeElement(), platform = Platform.Ios)
@@ -79,42 +67,5 @@ class ContainerStepsTest {
 		assertPassed(outcome)
 		assertEquals(listOf("Group", "Tap"), outcome.steps.map { it.primitive })
 		assertEquals("sign in", outcome.steps.first().target)
-	}
-
-	@Test
-	fun retry_isBoundedByTheCapEvenWhenAskedForMore() {
-		val fake = driver(button to FakeElement(enabled = false))
-
-		val outcome = fake.run(Step.Retry(maxAttempts = 99, reason = "flaky", steps = listOf(tapButton)))
-
-		assertFailed(outcome, FailureKind.ASSERTION)
-		assertEquals(Step.Retry.MAX_ATTEMPTS, outcome.steps.count { it.primitive == "Tap" })
-	}
-
-	@Test
-	fun retry_stopsAtTheFirstSuccess() {
-		// Disabled through the whole first tap budget (one check plus one per poll), enabled for the second attempt.
-		val firstAttemptChecks = (Timeouts.Action / Timeouts.PollInterval).toInt() + 1
-		val fake = driver(button to FakeElement(enabled = false, enabledAfterChecks = firstAttemptChecks))
-
-		val outcome = fake.run(Step.Retry(3, "flaky", listOf(tapButton)))
-
-		assertPassed(outcome)
-		val tapOutcomes = outcome.steps.filter { it.primitive == "Tap" }.map { it.outcome }
-		assertEquals(listOf(StepOutcome.Failed, StepOutcome.Passed), tapOutcomes)
-		assertEquals(listOf(button), fake.taps)
-	}
-
-	@Test
-	fun retry_doesNotRepeatATypedTextMismatch() {
-		val field = Query.Tag("field")
-		val fake = driver(field to FakeElement(text = ""))
-		fake.typing = { it.drop(1) }
-		val enter = Step.EnterText(field, "abc", null, false, true, TextEntryMode.Keys)
-
-		val outcome = fake.run(Step.Retry(3, "flaky", listOf(enter)))
-
-		assertFailed(outcome, FailureKind.TYPED_TEXT_MISMATCH)
-		assertEquals(1, fake.calls.count { it == "typeKeys" })
 	}
 }

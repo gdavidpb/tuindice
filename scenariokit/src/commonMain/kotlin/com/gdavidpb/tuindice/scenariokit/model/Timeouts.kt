@@ -5,15 +5,15 @@ package com.gdavidpb.tuindice.scenariokit.model
  * A wait is for a condition and ends as soon as it holds, so a longer name only costs time when the step fails.
  */
 object Timeouts {
-	/** The default window of `ifVisible` and `ifGone`: a quick look at whether something is there, never a wait. */
+	/** The default window of `ifVisible`: a quick look at whether something is there, never a wait. */
 	const val Probe = 1_500L
 
 	/** The default of `assertEnabled`: something that must already be true or be about to be. */
 	const val Assert = 5_000L
 
 	/**
-	 * The default of `settle`, and the budget each gesture gives its target to be visible (a `tap` also gives it to
-	 * become enabled, in the same budget). Android's `foreground()` bounds its wait by it too.
+	 * The budget each gesture gives its target to be visible (a `tap` also gives it to become enabled, in the same
+	 * budget). Android's `foreground()` bounds its wait by it too.
 	 */
 	const val Action = 10_000L
 
@@ -31,7 +31,4 @@ object Timeouts {
 
 	/** The pause between two checks of a polling wait. */
 	const val PollInterval = 200L
-
-	/** The pause between the two bounds reads of `settle`. */
-	const val SettleInterval = 150L
 }

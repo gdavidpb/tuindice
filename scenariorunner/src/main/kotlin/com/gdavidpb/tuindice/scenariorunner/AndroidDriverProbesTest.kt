@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.scenariorunner
 
 import android.os.SystemClock
 import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
-import com.gdavidpb.tuindice.scenariorunner.driver.TextInjector
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -16,18 +15,6 @@ import org.junit.Test
  */
 class AndroidDriverProbesTest {
 	private val app = ProbeApp()
-
-	@Test
-	fun setTextJudgesWhatAFieldMayHold() {
-		assertTrue(TextInjector.leftAsAssigned(read = "", before = "abc", text = ""))
-		assertTrue(TextInjector.leftAsAssigned(read = null, before = "abc", text = ""))
-		assertFalse(TextInjector.leftAsAssigned(read = "abc", before = "abc", text = ""))
-		assertTrue(TextInjector.leftAsAssigned(read = "12-34567", before = "", text = "1234567"))
-		assertTrue(TextInjector.leftAsAssigned(read = "abc", before = "abc", text = "abc"))
-		assertFalse(TextInjector.leftAsAssigned(read = "", before = "", text = "1234567"))
-		assertFalse(TextInjector.leftAsAssigned(read = null, before = null, text = "1234567"))
-		assertFalse(TextInjector.leftAsAssigned(read = "old", before = "old", text = "new"))
-	}
 
 	/** B-1: with the app gone the screen cannot be read, and "cannot read" must not be "gone". */
 	@Test
@@ -48,11 +35,11 @@ class AndroidDriverProbesTest {
 
 	/** B-9: a clear that did not clear is false; a label cannot be emptied, so the old unchecked `true` was wrong. */
 	@Test
-	fun clearTextAndSetTextAreCheckedAgainstTheField() {
+	fun clearTextIsCheckedAgainstTheField() {
 		val driver = app.begin("clear")
 
-		assertTrue(driver.setText(app.usbId, app.fixture.textSample))
-		assertEquals(app.fixture.expectedText, driver.readText(app.usbId))
+		assertTrue(driver.typeKeys(app.usbId, app.fixture.textSample))
+		assertTrue(driver.session.poll(LONG_MS) { driver.readText(app.usbId) == app.fixture.expectedText })
 		assertTrue(driver.clearText(app.usbId))
 		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
 		assertFalse("a label keeps its text", driver.clearText(app.label))

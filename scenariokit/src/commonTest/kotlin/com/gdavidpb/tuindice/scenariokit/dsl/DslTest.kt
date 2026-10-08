@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -49,18 +48,18 @@ class DslTest {
 	}
 
 	@Test
-	fun textHelpers_pickTheEntryMode() {
+	fun textHelpers_markSecureFieldsAndReplacement() {
 		val built = scenario("a-b", "a", start) {
 			enterSecureText("pw", "123456")
-			setText("f", "v")
+			enterText("f", "v", replace = true)
 		}
 
-		val (secure, atomic) = built.steps.map { it as Step.EnterText }
+		val (secure, replacing) = built.steps.map { it as Step.EnterText }
 
 		assertEquals(true, secure.secure)
-		assertEquals(TextEntryMode.Keys, secure.mode)
-		assertEquals(TextEntryMode.Set, atomic.mode)
-		assertEquals(true, atomic.replace)
+		assertEquals(false, secure.replace)
+		assertEquals(false, replacing.secure)
+		assertEquals(true, replacing.replace)
 	}
 
 	@Test
@@ -72,43 +71,33 @@ class DslTest {
 				tap("a")
 				tap("b")
 			}
-			retry(2, "animation") { tap("c") }
 		}
 
 		val ifVisible = built.steps[0]
 		val onPlatform = built.steps[1]
 		val group = built.steps[2]
-		val retry = built.steps[3]
 		assertIs<Step.IfVisible>(ifVisible)
 		assertEquals(Query.Tag("banner"), ifVisible.q)
 		assertEquals(1_500L, ifVisible.withinMs)
 		assertEquals(1, ifVisible.steps.size)
 		assertEquals(Platform.Android, (onPlatform as Step.OnPlatform).platform)
 		assertEquals(2, (group as Step.Group).steps.size)
-		assertEquals(2, (retry as Step.Retry).maxAttempts)
 	}
 
 	@Test
 	fun conditionalBlocks_acceptAnyQueryKind() {
 		val built = scenario("a-b", "a", start) {
 			ifVisible(Query.System("Cancel"), within = 2.seconds) { tap(Query.System("Cancel")) }
-			ifGone(Query.Text("Cargando")) { back() }
+			ifVisible(Query.Text("Cargando")) { back() }
 		}
 
-		val (visible, gone) = built.steps
-		assertIs<Step.IfVisible>(visible)
-		assertIs<Step.IfGone>(gone)
-		assertEquals(Query.System("Cancel"), visible.q)
-		assertEquals(2_000L, visible.withinMs)
-		assertEquals(Query.Text("Cargando"), gone.q)
-		assertEquals(1_500L, gone.withinMs)
-	}
-
-	@Test
-	fun retry_rejectsMoreThanThreeAttemptsAndMissingReasons() {
-		assertFailsWith<IllegalArgumentException> { scenario("a-b", "a", start) { retry(4, "why") { back() } } }
-		assertFailsWith<IllegalArgumentException> { scenario("a-b", "a", start) { retry(0, "why") { back() } } }
-		assertFailsWith<IllegalArgumentException> { scenario("a-b", "a", start) { retry(2, " ") { back() } } }
+		val (system, text) = built.steps
+		assertIs<Step.IfVisible>(system)
+		assertIs<Step.IfVisible>(text)
+		assertEquals(Query.System("Cancel"), system.q)
+		assertEquals(2_000L, system.withinMs)
+		assertEquals(Query.Text("Cargando"), text.q)
+		assertEquals(1_500L, text.withinMs)
 	}
 
 	@Test

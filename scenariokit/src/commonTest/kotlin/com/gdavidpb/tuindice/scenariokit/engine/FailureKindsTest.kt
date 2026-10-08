@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.scenariokit.engine
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -33,7 +32,7 @@ class FailureKindsTest {
 		}
 
 		assertFailed(
-			fake.run(Step.EnterText(field, "abc", null, false, false, TextEntryMode.Keys)),
+			fake.run(Step.EnterText(field, "abc", null, false, false)),
 			FailureKind.TYPED_TEXT_MISMATCH
 		)
 	}
@@ -94,7 +93,7 @@ class FailureKindsTest {
 		}
 
 		assertFailed(
-			fake.run(Step.EnterText(field, "abc", null, false, false, TextEntryMode.Keys)),
+			fake.run(Step.EnterText(field, "abc", null, false, false)),
 			FailureKind.TYPED_TEXT_MISMATCH
 		)
 	}

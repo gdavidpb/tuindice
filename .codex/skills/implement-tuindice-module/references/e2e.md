@@ -17,7 +17,7 @@
 - `scenariokit/`: step model, DSL (`scenario(...) { tap(...); waitVisible(...) }`), interpreter, driver contract and codec.
   No project dependencies.
 - `scenarios/src/commonMain/.../scenarios/`: `catalog/` (one `<Module>Scenarios.kt` per module, `E2eCatalog.kt`,
-  `ActionDispositions.kt`, `PlatformBranchBudget.kt`, `RetryAllowlist.kt`), `fixture/` (`E2eAccounts.kt`,
+  `ActionDispositions.kt`, `PlatformBranchBudget.kt`), `fixture/` (`E2eAccounts.kt`,
   `E2eFixtures.kt`, `Copy.kt`, `Start.kt`) and `shared/` (`SignInSteps.kt` and other step groups).
 - `scenarios/src/androidHostTest/`: the rules, as host tests (`CatalogShapeTest`, `ModuleCatalogTest`, `CatalogTagsTest`,
   `CatalogStartTest`, `CatalogRulesTest`, `CatalogContentRulesTest`, `CatalogBudgetTest`, `ActionCoverageTest`,

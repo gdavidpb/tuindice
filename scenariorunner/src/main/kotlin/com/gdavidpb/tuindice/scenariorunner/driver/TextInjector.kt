@@ -7,9 +7,9 @@ import com.gdavidpb.tuindice.scenariokit.driver.TextEntry
 import com.gdavidpb.tuindice.scenariokit.model.Query
 
 /**
- * `setText` assigns in one accessibility action; `typeKeys` clicks the field and injects
- * key events, so the app sees the same input a keyboard would produce. Text itself never
- * reaches the driver log (it can be a password): only lengths and counts do.
+ * `typeKeys` clicks the field and injects key events, so the app sees the same input a keyboard would produce;
+ * `clearText` assigns the empty text in one accessibility action. Text itself never reaches the driver log
+ * (it can be a password): only lengths and counts do.
  */
 internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	override fun typeKeys(q: Query, text: String): Boolean {
@@ -54,42 +54,29 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	}
 
 	/**
-	 * Assigns [text] and reads the field back. An empty [text] must leave it empty. A non-empty one must leave
-	 * it non-empty and different from what it held, or equal to [text]: the app may transform what it is given
-	 * (the USB-ID mask turns `1234567` into `12-34567`), so the exact value is the interpreter's to judge.
+	 * Empties the field with an accessibility action and reads it back: the answer is true only when the field then
+	 * reads empty (or has no text at all). `UiObject2.setText` does not throw when the action fails, so the read-back
+	 * is the only proof; a label, which cannot be emptied, answers false.
 	 */
-	override fun setText(q: Query, text: String): Boolean {
-		val before = readBack(q)
-		val assigned = assign(q, text)
-		val held = assigned && session.poll(READ_BACK_MS) {
-			session.selectors.find(q) != null && leftAsAssigned(readBack(q), before, text)
-		}
-
-		if (assigned && !held) {
-			val now = readBack(q)?.length ?: "no text"
-			session.log.write("setText $q: assigned ${text.length} characters, the field reads back $now")
-		}
-
-		return held
-	}
-
-	private fun assign(q: Query, text: String): Boolean {
-		val field = session.selectors.find(q)
-		val done = field != null && runCatching { field.text = text }.isSuccess
-
-		val why = if (field == null) "the field is not on screen" else "the text could not be assigned"
-
-		if (!done) session.log.write("setText $q: $why")
-
-		return done
-	}
-
 	override fun clearText(q: Query): Boolean {
-		val cleared = setText(q, "")
+		val field = session.selectors.find(q)
+		val assigned = field != null && runCatching { field.text = "" }.isSuccess
 
-		if (!cleared) session.log.write("clearText $q: the field is not empty after clearing it")
+		if (!assigned) {
+			val why = if (field == null) "the field is not on screen" else "the text could not be assigned"
+			session.log.write("clearText $q: $why")
+		}
 
-		return cleared
+		val empty = assigned && session.poll(READ_BACK_MS) {
+			session.selectors.find(q) != null && readBack(q).isNullOrEmpty()
+		}
+
+		if (assigned && !empty) {
+			val left = readBack(q)?.length ?: "no text"
+			session.log.write("clearText $q: the field is not empty after clearing it; it reads back $left characters")
+		}
+
+		return empty
 	}
 
 	override fun finishTextEntry(): Boolean {
@@ -107,11 +94,5 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	internal companion object {
 		private const val HIDE_TIMEOUT_MS = 2_000L
 		private const val READ_BACK_MS = 2_000L
-
-		/** What a field read must look like after `setText(text)`; [before] is the read made before assigning. */
-		fun leftAsAssigned(read: String?, before: String?, text: String): Boolean = when {
-			text.isEmpty() -> read.isNullOrEmpty()
-			else -> !read.isNullOrEmpty() && (read == text || read != before)
-		}
 	}
 }

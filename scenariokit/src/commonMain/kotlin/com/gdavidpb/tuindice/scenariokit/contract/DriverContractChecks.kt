@@ -73,19 +73,19 @@ internal class DriverContractChecks(
 
 	private fun textEntry(field: Query): String? {
 		val wanted = fixture.expectedText
-		val atomic = driver.setText(field, fixture.textSample)
-		val afterSet = settledText(field) { it == wanted }
+		val firstTyped = driver.typeKeys(field, fixture.textSample)
+		val afterFirst = settledText(field) { it == wanted }
 		val cleared = driver.clearText(field)
 		val afterClear = settledText(field) { it.isNullOrEmpty() }
 		val typed = driver.typeKeys(field, fixture.textSample)
 		val afterType = settledText(field) { it == wanted }
 		driver.finishTextEntry()
 		return when {
-			!atomic || afterSet != wanted ->
-				"setText of \"${fixture.textSample}\" left \"$afterSet\" in the field, expected \"$wanted\""
+			!firstTyped || afterFirst != wanted ->
+				"typeKeys of \"${fixture.textSample}\" left \"$afterFirst\" in the field, expected \"$wanted\""
 			!cleared || !afterClear.isNullOrEmpty() -> "clearText left \"$afterClear\" in the field, expected it empty"
 			!typed || afterType != wanted ->
-				"typeKeys of \"${fixture.textSample}\" left \"$afterType\" in the field, expected \"$wanted\""
+				"typeKeys of \"${fixture.textSample}\" left \"$afterType\" in the field, expected \"$wanted\" after clearing it"
 			else -> null
 		}
 	}

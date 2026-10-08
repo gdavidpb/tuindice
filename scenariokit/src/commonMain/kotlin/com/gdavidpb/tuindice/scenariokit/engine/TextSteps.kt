@@ -3,14 +3,11 @@ package com.gdavidpb.tuindice.scenariokit.engine
 import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 
 internal class TextSteps(private val driver: ScenarioDriver, private val poller: Poller) {
 	fun execute(step: Step): StepResult = when (step) {
 		is Step.EnterText -> enterText(step)
-		is Step.ClearText -> driver.awaitTarget(step.q)
-			?: passIf(driver.clearText(step.q), FailureKind.ASSERTION) { "clearText ${step.target} was refused" }
 		is Step.FinishTextEntry -> passIf(
 			driver.finishTextEntry(),
 			FailureKind.ASSERTION
@@ -34,10 +31,7 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 		}
 
 	private fun type(step: Step.EnterText): StepResult.Failed? {
-		val accepted = when (step.mode) {
-			TextEntryMode.Keys -> driver.typeKeys(step.q, step.text)
-			TextEntryMode.Set -> driver.setText(step.q, step.text)
-		}
+		val accepted = driver.typeKeys(step.q, step.text)
 		return if (accepted) null else refusedTyping(step)
 	}
 

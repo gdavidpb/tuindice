@@ -34,9 +34,9 @@ internal class StepRunner(
 
 	private fun dispatch(step: Step): StepResult = when (step) {
 		is Step.Tap, is Step.TapAt, is Step.DoubleTap, is Step.Back, is Step.Swipe -> gestures.execute(step)
-		is Step.EnterText, is Step.ClearText, is Step.FinishTextEntry -> text.execute(step)
+		is Step.EnterText, is Step.FinishTextEntry -> text.execute(step)
 		is Step.WaitVisible, is Step.WaitGone, is Step.WaitAnyVisible, is Step.AssertEnabled,
-		is Step.Settle, is Step.ScrollUntilVisible -> waits.execute(step)
+		is Step.ScrollUntilVisible -> waits.execute(step)
 		is Step.Relaunch, is Step.Foreground -> app.execute(step)
 		is Step.ExpectRequest -> backend.expectRequest(step)
 		is Step.Container -> containers.execute(step)

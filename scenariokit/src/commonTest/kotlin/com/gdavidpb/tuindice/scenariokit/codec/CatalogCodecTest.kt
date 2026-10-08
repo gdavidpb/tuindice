@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.scenariokit.codec
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -72,6 +73,18 @@ class CatalogCodecTest {
 		val text = CatalogCodec.encode(sampleCatalog())
 
 		assertEquals(text, CatalogCodec.encode(CatalogCodec.decode(text)))
+	}
+
+	@Test
+	fun decode_rejectsThePrimitivesThatNoPlatformConformsTo() {
+		val text = CatalogCodec.encode(sampleCatalog())
+		assertTrue("\"type\": \"back\"" in text)
+
+		for (removed in listOf("retry", "ifGone", "settle", "clearText")) {
+			assertFailsWith<SerializationException>(removed) {
+				CatalogCodec.decode(text.replace("\"type\": \"back\"", "\"type\": \"$removed\""))
+			}
+		}
 	}
 
 	@Test

@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.StepOutcome
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -25,9 +24,8 @@ class StepKindsTest {
 		text: String,
 		expect: String? = null,
 		secure: Boolean = false,
-		replace: Boolean = false,
-		mode: TextEntryMode = TextEntryMode.Keys
-	) = Step.EnterText(field, text, expect, secure, replace, mode)
+		replace: Boolean = false
+	) = Step.EnterText(field, text, expect, secure, replace)
 
 	@Test
 	fun tap_onAnEnabledElement_passesAndTapsIt() {
@@ -123,16 +121,6 @@ class StepKindsTest {
 
 		assertTrue(fake.calls.indexOf("clearText") < fake.calls.indexOf("typeKeys"))
 		assertEquals("new", fake.screen.getValue(field).text)
-	}
-
-	@Test
-	fun enterText_inSetMode_assignsAtomically() {
-		val fake = driver(field to FakeElement(text = ""))
-
-		assertPassed(fake.run(enter("value", mode = TextEntryMode.Set)))
-
-		assertContains(fake.calls, "setText")
-		assertTrue("typeKeys" !in fake.calls)
 	}
 
 	@Test
@@ -249,15 +237,13 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun clearTextAndFinishTextEntry_failWhenRefused() {
+	fun finishTextEntry_failsWhenRefused() {
 		val fake = driver(field to FakeElement(text = "abc"))
 
-		assertPassed(fake.run(Step.ClearText(field), Step.FinishTextEntry()))
-		assertEquals("", fake.screen.getValue(field).text)
+		assertPassed(fake.run(Step.FinishTextEntry()))
 
 		fake.finishResult = false
 		assertFailed(fake.run(Step.FinishTextEntry()), FailureKind.ASSERTION)
-		assertFailed(driver().run(Step.ClearText(field)), FailureKind.STEP_TIMEOUT)
 	}
 
 	@Test
@@ -418,13 +404,6 @@ class StepKindsTest {
 		val fake = driver().apply { swipeResult = false }
 
 		assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.ASSERTION)
-	}
-
-	@Test
-	fun settle_passesOnAStillElementAndTimesOutOnAMovingOne() {
-		assertPassed(driver(button to FakeElement()).run(Step.Settle(button, 2_000)))
-		assertPassed(driver().run(Step.Settle(null, 2_000)))
-		assertFailed(driver(button to FakeElement(drift = 3.0)).run(Step.Settle(button, 2_000)), FailureKind.STEP_TIMEOUT)
 	}
 
 	@Test

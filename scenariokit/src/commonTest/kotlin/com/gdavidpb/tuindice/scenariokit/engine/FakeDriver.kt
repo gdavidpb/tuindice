@@ -170,13 +170,6 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		return keysAccepted
 	}
 
-	override fun setText(q: Query, text: String): Boolean {
-		enter("setText")
-		val el = element(q) ?: return false
-		el.text = text
-		return true
-	}
-
 	override fun clearText(q: Query): Boolean {
 		enter("clearText")
 		val el = element(q) ?: return false

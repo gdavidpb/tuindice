@@ -153,8 +153,6 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func typeKeys(q: Query, text: String) -> Bool { traced("typeKeys") { typing.typeKeys(q, text: text) } }
 
-    func setText(q: Query, text: String) -> Bool { traced("setText") { typing.setText(q, text: text) } }
-
     func clearText(q: Query) -> Bool { traced("clearText") { typing.clearText(q) } }
 
     func finishTextEntry() -> Bool { traced("finishTextEntry") { typing.finishTextEntry() } }

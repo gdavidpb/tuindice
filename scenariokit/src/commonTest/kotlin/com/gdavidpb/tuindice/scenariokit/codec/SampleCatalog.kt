@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Site
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 
 val SAMPLE_SITE = Site("scenarios/src/commonMain/kotlin/Sample.kt", 10)
 
@@ -26,8 +25,7 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.TapAt(tag, 0.5, 0.25, site),
 	Step.DoubleTap(Query.Text("Save", contains = true), site),
 	Step.Back(site),
-	Step.EnterText(tag, "12-34567", "12-34567", false, true, TextEntryMode.Keys, site),
-	Step.ClearText(tag, site),
+	Step.EnterText(tag, "12-34567", "12-34567", false, true, site),
 	Step.FinishTextEntry(site),
 	Step.WaitVisible(tag, 5_000, site),
 	Step.WaitGone(Query.System("Cancel"), 5_000, site),
@@ -35,11 +33,8 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.AssertEnabled(tag, false, 5_000, site),
 	Step.Swipe(null, 0.5, 0.8, 0.0, -0.4, 400, site),
 	Step.ScrollUntilVisible(tag, Scroll.ContentDown, 20_000, site),
-	Step.Settle(null, 10_000, site),
 	Step.IfVisible(tag, 1_500, listOf(Step.Tap(tag, true, site)), site),
-	Step.IfGone(tag, 1_500, listOf(Step.Back(site)), site),
 	Step.OnPlatform(Platform.Ios, listOf(Step.Back(site)), site),
-	Step.Retry(2, "flaky animation", listOf(Step.Tap(tag, true, site)), site),
 	Step.ExpectRequest("POST", "/auth/v2/bootstrap", "11-11111:123456", 20_000, site),
 	Step.Group("sign in", listOf(Step.Tap(tag, true, site)), site)
 )

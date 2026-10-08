@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
@@ -44,7 +43,6 @@ class SharedStepsTest {
 			assertEquals("1111111", it.text)
 			assertEquals("11-11111", it.expect)
 			assertEquals(false, it.secure)
-			assertEquals(TextEntryMode.Keys, it.mode)
 		}
 		assertEquals(Query.Tag(AuthUiTags.PasswordTextField), assertIs<Step.Tap>(tapPassword).q)
 		assertIs<Step.EnterText>(typePassword).also {

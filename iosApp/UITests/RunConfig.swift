@@ -52,8 +52,6 @@ final class DriverLog {
     enum Tolerance: String, CaseIterable {
         /// An alert that interrupted the app was dismissed by the interruption monitor.
         case dismissedAlert = "dismissed-alert"
-        /// The "Allow Paste" alert of SpringBoard was answered.
-        case allowedPaste = "allowed-paste"
     }
 
     private let lock = NSLock()

@@ -63,15 +63,8 @@ sealed interface Step {
 		val expect: String?,
 		val secure: Boolean,
 		val replace: Boolean,
-		val mode: TextEntryMode,
 		override val site: Site? = null
 	) : Step {
-		override val target: String get() = q.describe()
-	}
-
-	@Serializable
-	@SerialName("clearText")
-	data class ClearText(val q: Query, override val site: Site? = null) : Step {
 		override val target: String get() = q.describe()
 	}
 
@@ -134,29 +127,10 @@ sealed interface Step {
 		override val target: String get() = q.describe()
 	}
 
-	/** Waits until the element (or the screen) stops moving. */
-	@Serializable
-	@SerialName("settle")
-	data class Settle(val q: Query?, val timeoutMs: Long, override val site: Site? = null) : Step {
-		override val target: String get() = q?.describe() ?: "screen"
-	}
-
 	/** Runs [steps] when [q] shows up within [withinMs]; never fails by itself. */
 	@Serializable
 	@SerialName("ifVisible")
 	data class IfVisible(
-		val q: Query,
-		val withinMs: Long,
-		override val steps: List<Step>,
-		override val site: Site? = null
-	) : Container {
-		override val target: String get() = q.describe()
-	}
-
-	/** Runs [steps] when [q] is gone within [withinMs]; never fails by itself. */
-	@Serializable
-	@SerialName("ifGone")
-	data class IfGone(
 		val q: Query,
 		val withinMs: Long,
 		override val steps: List<Step>,
@@ -173,22 +147,6 @@ sealed interface Step {
 		override val site: Site? = null
 	) : Container {
 		override val target: String get() = platform.name
-	}
-
-	/** Re-runs [steps] after an assertion or timeout, at most [MAX_ATTEMPTS] times in all. */
-	@Serializable
-	@SerialName("retry")
-	data class Retry(
-		val maxAttempts: Int,
-		val reason: String,
-		override val steps: List<Step>,
-		override val site: Site? = null
-	) : Container {
-		override val target: String get() = reason
-
-		companion object {
-			const val MAX_ATTEMPTS = 3
-		}
 	}
 
 	@Serializable

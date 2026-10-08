@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.ScenarioOutcome
 import com.gdavidpb.tuindice.scenariokit.model.Site
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -106,7 +105,7 @@ class ResultJsonTest {
 		kinds[FailureKind.TYPED_TEXT_MISMATCH] = FakeDriver().apply {
 			screen[field] = FakeElement(text = "")
 			typing = { "" }
-		}.run(Step.EnterText(field, "a", "ab", false, false, TextEntryMode.Keys))
+		}.run(Step.EnterText(field, "a", "ab", false, false))
 		kinds[FailureKind.DRIVER_ERROR] = FakeDriver().apply { throwOn = "pressBack" }.run(Step.Back())
 		kinds[FailureKind.APP_NOT_RUNNING] = FakeDriver().apply { inForeground = false }.run(Step.Tap(button))
 		kinds[FailureKind.SYSTEM_DIALOG] = FakeDriver().apply { dialog = "ANR" }.run(Step.Tap(button))
@@ -126,7 +125,7 @@ class ResultJsonTest {
 			typing = { it.replace("2", "") }
 		}
 
-		val failure = failureOf(fake.run(Step.EnterText(field, "1234567", "12-34567", false, false, TextEntryMode.Keys)))
+		val failure = failureOf(fake.run(Step.EnterText(field, "1234567", "12-34567", false, false)))
 
 		assertEquals("12-34567", failure.getValue("expected").jsonPrimitive.content)
 		assertEquals("134567", failure.getValue("actual").jsonPrimitive.content)
