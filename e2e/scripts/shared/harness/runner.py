@@ -99,6 +99,8 @@ class PlatformRun:
         self.started = time.monotonic()
         self.recoveries = 0
         self.health_degraded = False
+        self.series = {}  # (repetition, scenario id) -> how its last attempt ended: passed | failed | environment
+        self.environment_attempts = 0
         self.boot_started = time.monotonic()  # the last time the device was started or recovered by this run, as far as it knows
         self.greens_since_recovery = 0
         self.attempts_since_recovery = 0
@@ -416,6 +418,30 @@ class PlatformRun:
                     self.failed_overall[s.id] = self._last_class(s)
         if not self.evidence and self.opts.repeat > 1:
             self.log.say("REPEAT %d runs: %d scenarios failed in at least one" % (self.opts.repeat, len(self.failed_overall)))
+            self._series_summary()
+
+    def _series_summary(self):
+        """Environment failures are not a signal about the product: the series says how many of its runs were valid, so that
+        '92 of 111' is not read as a failure rate."""
+        ends = list(self.series.values())
+        counts = {kind: ends.count(kind) for kind in ("passed", "failed", "environment")}
+        valid = counts["passed"] + counts["failed"]
+        self.manifest.data["series"] = {"repetitions": self.opts.repeat, "scenarioRuns": len(ends), "valid": valid, **counts,
+            "environmentAttempts": self.environment_attempts}
+        if self.environment_attempts:
+            self.log.say("SERIES %d repetitions, %d scenario runs: %d valid (%d passed, %d failed), %d lost to the environment; %s"
+                % (self.opts.repeat, len(ends), valid, counts["passed"], counts["failed"], counts["environment"],
+                    self._rerun_text(self.environment_attempts, counts["environment"])))
+
+    @staticmethod
+    def _rerun_text(attempts, lost):
+        rerun = attempts - lost
+        parts = []
+        if rerun:
+            parts.append("%d environment attempt%s %s rerun" % (rerun, "" if rerun == 1 else "s", "was" if rerun == 1 else "were"))
+        if lost:
+            parts.append("%d environment attempt%s %s not rerun" % (lost, "" if lost == 1 else "s", "was" if lost == 1 else "were"))
+        return "; ".join(parts)
 
     def _last_class(self, scenario):
         """The class of the last counted attempt; a scenario that only had environment failures has no counted one."""
@@ -499,6 +525,9 @@ class PlatformRun:
                 "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"],
                 "tolerances": attempt["tolerances"]})
             self.executed.add(scenario.id)
+            self.series[(self.repetition, scenario.id)] = "passed" if verdict.passed \
+                else "environment" if verdict.klass == cl.ENVIRONMENT else "failed"
+            self.environment_attempts += 1 if verdict.klass == cl.ENVIRONMENT else 0
             self.attempts_since_recovery += 1
             self.greens_since_recovery += 1 if verdict.passed else 0
             self.manifest.write()
