@@ -112,6 +112,8 @@ class PlatformRun:
         self.fingerprint = options.mode if not self.evidence else None
         self.context = None
         self.failed_overall = {}
+        self.passed_overall = {}  # scenario id -> the attempt that passed, in the last repetition that finished it green
+        self.repetitions_done = 0
         self.repetition = 0
         self.executed = set()
         self.stop = None
@@ -422,19 +424,23 @@ class PlatformRun:
             for s in pending:
                 if not self.ledger.passed(s.id):
                     self.failed_overall[s.id] = self._last_attempt(s) or {}
+                else:
+                    self.passed_overall[s.id] = [a for a in self.ledger.attempts(s.id) if a["outcome"] == "passed"][-1]
+            self.repetitions_done += 1
 
     def _series_summary(self):
         """Environment failures are not a signal about the product: the series says how many of its runs were valid, so that
         '92 of 111' is not read as a failure rate. Written at the end of the run, whatever cut it."""
-        self.log.say("REPEAT %d runs: %d scenarios failed in at least one" % (self.opts.repeat, len(self.failed_overall)))
+        done = self.repetitions_done if self.repetitions_done == self.opts.repeat else "%d of %d" % (self.repetitions_done, self.opts.repeat)
+        self.log.say("REPEAT %s runs: %d scenarios failed in at least one" % (done, len(self._failed_list())))
         ends = list(self.series.values())
         counts = {kind: ends.count(kind) for kind in ("passed", "failed", "environment")}
         valid = counts["passed"] + counts["failed"]
-        self.manifest.data["series"] = {"repetitions": self.opts.repeat, "scenarioRuns": len(ends), "valid": valid, **counts,
-            "environmentAttempts": self.environment_attempts}
+        self.manifest.data["series"] = {"repetitions": self.opts.repeat, "repetitionsCompleted": self.repetitions_done,
+            "scenarioRuns": len(ends), "valid": valid, **counts, "environmentAttempts": self.environment_attempts}
         if self.environment_attempts:
-            self.log.say("SERIES %d repetitions, %d scenario runs: %d valid (%d passed, %d failed), %d lost to the environment; %s"
-                % (self.opts.repeat, len(ends), valid, counts["passed"], counts["failed"], counts["environment"],
+            self.log.say("SERIES %s repetitions, %d scenario runs: %d valid (%d passed, %d failed), %d lost to the environment; %s"
+                % (done, len(ends), valid, counts["passed"], counts["failed"], counts["environment"],
                     self._rerun_text(self.environment_attempts, counts["environment"])))
 
     @staticmethod
@@ -788,8 +794,9 @@ class PlatformRun:
                 last = self.failed_overall.get(s.id) or self._last_attempt(s) or {}
                 results.append({"id": s.id, "status": "failed", "class": failed[s.id], "summary": last.get("failureSummary", ""),
                     "seconds": last.get("durationMs", 0) / 1000.0, "tolerances": {}, "refusals": last.get("refusals", {})})
-            elif self.ledger.passed(s.id):
-                won = [a for a in entries if a["outcome"] == "passed"][-1]
+            elif self.ledger.passed(s.id) or s.id in self.passed_overall:
+                # Passed in this repetition, or in an earlier one when the cut came before this scenario's turn.
+                won = ([a for a in entries if a["outcome"] == "passed"] or [self.passed_overall.get(s.id)])[-1]
                 results.append({"id": s.id, "status": "passed", "seconds": won["durationMs"] / 1000.0,
                     "producedByRunId": won["runId"] if won["runId"] != self.run_id else None, "producedBySha": won["sha"],
                     "tolerances": won.get("tolerances", {})})
