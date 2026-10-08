@@ -432,6 +432,78 @@ class UsbIdTextFieldUiTest {
 	}
 
 	@Test
+	fun when_autofillDeliversAnEmailInUsbIdMode_then_theEmailIsKeptWithTheCaretAtTheEnd() = runTuIndiceUiTest {
+		val usbId = mutableStateOf("")
+		val identifierMode = mutableStateOf(SignInIdentifierMode.UsbId)
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				identifierMode = identifierMode.value,
+				usbId = usbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					emittedUsbIds += value
+					// What the sign-in machine does with an identifier that has an @.
+					if (identifierMode.value == SignInIdentifierMode.UsbId && '@' in value) {
+						identifierMode.value = SignInIdentifierMode.UsbEmail
+					}
+					usbId.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("mail@usb.ve")
+		waitForIdle()
+
+		assertEquals(listOf("mail@usb.ve"), emittedUsbIds)
+		assertEquals(SignInIdentifierMode.UsbEmail, identifierMode.value)
+		assertEquals("mail@usb.ve", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(11), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
+	fun when_autofillDeliversAnEmailWithDigitsInUsbIdMode_then_theWholeEmailIsEmittedAndKept() = runTuIndiceUiTest {
+		val usbId = mutableStateOf("")
+		val identifierMode = mutableStateOf(SignInIdentifierMode.UsbId)
+		val emittedUsbIds = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				identifierMode = identifierMode.value,
+				usbId = usbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					emittedUsbIds += value
+					// What the sign-in machine does with an identifier that has an @.
+					if (identifierMode.value == SignInIdentifierMode.UsbId && '@' in value) {
+						identifierMode.value = SignInIdentifierMode.UsbEmail
+					}
+					usbId.value = value
+				}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("12-34567@usb.ve")
+		waitForIdle()
+
+		assertEquals(listOf("12-34567@usb.ve"), emittedUsbIds)
+		assertEquals(SignInIdentifierMode.UsbEmail, identifierMode.value)
+		assertEquals("12-34567@usb.ve", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+		assertEquals(TextRange(15), onNodeWithTag(AuthUiTags.UsbIdTextField).selectionRange())
+	}
+
+	@Test
 	fun when_autofillFillsAFieldThatAlreadyHasText_then_theSavedValueReplacesIt() = runTuIndiceUiTest {
 		val usbId = mutableStateOf("12-34")
 		val emittedUsbIds = mutableListOf<String>()

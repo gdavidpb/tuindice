@@ -449,6 +449,87 @@ class SignInStateMachineContractTest {
 		assertEquals(VALID_USB_ID, after.usbId)
 	}
 
+	// The system autofill and a paste hand the identifier over in one change. A text with an @ can
+	// only be an email, so the field leaves the USB ID mode and keeps what it was given.
+	@Test
+	fun anIdentifierWithAnAt_inUsbIdMode_switchesToEmailModeKeepingTheText() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		for (identifier in listOf("mail@usb.ve", "12-34567@usb.ve", "@")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun anIdentifierWithoutAnAt_inUsbIdMode_staysInUsbIdMode() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		for (identifier in listOf("", "1234567", "12-34567", "12-3")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbId, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun inEmailMode_anyIdentifierKeepsTheMode() = runTest {
+		val machine = createFixture().viewModel.machine
+		val email = SignIn.State.Idle(identifierMode = SignInIdentifierMode.UsbEmail)
+
+		for (identifier in listOf("", "mail", "12-34567", "mail@usb.ve")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(email, SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun theAutomaticSwitch_keepsThePassword_andClearsTheFailedMark() = runTest {
+		val machine = createFixture().viewModel.machine
+		val rejected = SignIn.State.Idle(password = PASSWORD, isPasswordVisible = true, lastAttemptRejected = true)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(rejected, SignIn.Action.SetUsbId(usbId = "mail@usb.ve"))
+		)
+
+		assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode)
+		assertEquals(PASSWORD, after.password)
+		assertEquals(true, after.isPasswordVisible)
+		assertEquals(false, after.lastAttemptRejected)
+	}
+
+	@Test
+	fun togglingByHand_stillClearsAnEmailThatIsNotAUsbId() = runTest {
+		val machine = createFixture().viewModel.machine
+		val email = SignIn.State.Idle(usbId = "mail@usb.ve", identifierMode = SignInIdentifierMode.UsbEmail)
+
+		val after = assertIs<SignIn.State.Idle>(machine.nextState(email, SignIn.Action.ToggleIdentifierMode))
+
+		assertEquals(SignInIdentifierMode.UsbId, after.identifierMode)
+		assertEquals("", after.usbId)
+	}
+
+	@Test
+	fun anIdentifierChangeWhileLoggingIn_isIgnored() = runTest {
+		val machine = createFixture().viewModel.machine
+		val loggingIn = SignIn.State.LoggingIn(usbId = VALID_USB_ID, password = PASSWORD, messages = emptyList())
+
+		val result = machine.process(loggingIn, SignIn.Action.SetUsbId(usbId = "mail@usb.ve"))
+
+		assertIs<TransitionResult.Rejected<SignIn.State>>(result)
+	}
+
 	private suspend fun MachineDefinition<SignIn.State>.nextState(state: SignIn.State, event: Any): SignIn.State {
 		val result = process(state, event)
 

@@ -74,9 +74,13 @@ fun UsbIdTextField(
 				newValue.text == field.value.text -> field.edit(newValue)
 
 				else -> {
-					val edited = when (identifierMode) {
-						SignInIdentifierMode.UsbId -> newValue.toMaskedUsbId(previous = field.value)
-						SignInIdentifierMode.UsbEmail -> newValue
+					// An @ means an email (autofill, paste): the mask would discard it, so it goes
+					// through whole and the owner switches the mode, which this field then adopts.
+					val edited = when {
+						identifierMode == SignInIdentifierMode.UsbId && '@' !in newValue.text ->
+							newValue.toMaskedUsbId(previous = field.value)
+
+						else -> newValue
 					}
 
 					if (field.edit(edited)) {

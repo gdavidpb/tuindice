@@ -8,13 +8,24 @@ import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
+private const val EMAIL_SEPARATOR = '@'
+
 internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 	machine: SignInMachine,
 	host: MachineHost<SignIn.Effect>
 ) {
 	from<SignIn.State.Idle> {
 		on<SignIn.Action.SetUsbId> { state, action ->
-			state.copy(usbId = action.usbId, lastAttemptRejected = false)
+			// An @ can only belong to an email: autofill and paste hand the whole identifier over at once,
+			// so the mode follows the text instead of the mask discarding it.
+			val nextMode = when {
+				state.identifierMode == SignInIdentifierMode.UsbId && EMAIL_SEPARATOR in action.usbId ->
+					SignInIdentifierMode.UsbEmail
+
+				else -> state.identifierMode
+			}
+
+			state.copy(usbId = action.usbId, identifierMode = nextMode, lastAttemptRejected = false)
 		}
 
 		on<SignIn.Action.SetPassword> { state, action ->

@@ -2,12 +2,15 @@ package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -203,6 +206,46 @@ class SignInRouteUiTest {
 
 		assertEquals("mail", fixture.authRepository.bootstrapSignInCalls.single().usbId)
 		assertEquals("1234", fixture.authRepository.bootstrapSignInCalls.single().password)
+	}
+
+	// Autofill hands a saved email over in one change while the field is still in USB ID mode.
+	@Test
+	fun when_autofillDeliversAnEmailInUsbIdMode_then_theModeBecomesEmailAndSignInUsesTheEmail() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+		var summaryNavigations = 0
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("mail@usb.ve")
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("1234")
+		waitForIdle()
+
+		runOnIdle {
+			val state = assertIs<SignIn.State.Idle>(fixture.viewModel.state.value)
+			assertEquals(SignInIdentifierMode.UsbEmail, state.identifierMode)
+			assertEquals("mail@usb.ve", state.usbId)
+			assertEquals("1234", state.password)
+		}
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("mail@usb.ve")
+		assertNodeEnabled(AuthUiTags.SignInButton)
+
+		onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			summaryNavigations > 0 &&
+				fixture.authRepository.bootstrapSignInCalls.isNotEmpty()
+		}
+
+		assertEquals("mail", fixture.authRepository.bootstrapSignInCalls.single().usbId)
 	}
 
 	@Test
