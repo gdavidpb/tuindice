@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-08 13:24:49 -0300_
+_Generated automatically on 2026-10-08 15:43:39 -0300_
 
 ## Summary by module
 
@@ -47,16 +47,16 @@ _Generated automatically on 2026-10-08 13:24:49 -0300_
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/SignOutDialog.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/SignOutDialogUiTest.kt` | 3 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/SignOutDialogActions.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/SignOutDialogActionsUiTest.kt` | 4 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordContentDialog.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordContentDialogUiTest.kt` | 3 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordDialog.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordDialogUiTest.kt` | 4 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordDialog.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/dialog/UpdatePasswordDialogUiTest.kt` | 6 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/screen/SignInScreen.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/screen/SignInScreenUiTest.kt` | 8 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/AnimatedPatternBackground.kt` | 3 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/AnimatedPatternBackgroundUiTest.kt` | 6 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkText.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkTextUiTest.kt` | 2 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextFieldUiTest.kt` | 12 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextFieldUiTest.kt` | 13 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperText.kt` | 2 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperTextUiTest.kt` | 3 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleView.kt` | 2 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleViewUiTest.kt` | 11 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleView.kt` | 2 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleViewUiTest.kt` | 15 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInViewUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleViewUiTest.kt` | 3 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextFieldUiTest.kt` | 23 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextFieldUiTest.kt` | 25 | PASS threshold (2) |
 
 ### `base`
 
