@@ -269,7 +269,9 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			}
 
 			// An earlier row of this pass may have moved the revision the rest expect, so the
-			// stored copy is the one to run, not the one read when the pass began.
+			// stored copy is the one to run, not the one read when the pass began. This filter is
+			// only a shortcut: the row may change while the execution waits for the scope's lock,
+			// so the status is checked again inside it (see alignedMutation).
 			val mutation = outboxStore.getPendingMutation(scopeKey, queued.mutationId)
 				?.takeIf { stored -> stored.status == PendingMutationStatus.Pending }
 				?: return@forEach
@@ -317,6 +319,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
 	): UpdaterResult {
 		var currentMutation = alignedMutation(execution)
+			?: return UpdaterResult.Success.Untyped(Unit)
 		var rebaseAttempts = 0
 
 		while (true) {
@@ -339,12 +342,19 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 
 	// Runs inside the scope's execution lock, so whatever the mutations ahead of this one
 	// confirmed is already stored: the row (not the copy captured when it was queued) is the
-	// truth, and the spec may know a newer revision still.
+	// truth, and the spec may know a newer revision still. The row is also the truth about whether
+	// it may be sent at all: an execution that waited for the lock (a drain that saw the row
+	// Pending) finds the state the execution ahead of it left, and only a Pending row is sent.
+	// One that ended Failed or FailedTerminal stays as it was; returns null then, so the waiting
+	// execution touches neither the row nor its version.
 	private suspend fun alignedMutation(
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
-	): MutationEnvelope<ScopeKey, Command> {
+	): MutationEnvelope<ScopeKey, Command>? {
 		val queued = execution.mutation
 		val stored = outboxStore.getPendingMutation(queued.scopeKey, queued.mutationId) ?: return queued
+
+		if (stored.status != PendingMutationStatus.Pending) return null
+
 		val precondition = execution.syncSpec.currentPrecondition(stored)
 
 		return if (precondition == stored.precondition) {

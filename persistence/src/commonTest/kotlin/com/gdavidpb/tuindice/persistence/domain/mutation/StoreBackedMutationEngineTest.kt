@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.serialization.Serializable
@@ -715,6 +716,101 @@ class StoreBackedMutationEngineTest {
 
 		assertTrue(snapshotVersion != engine.currentMutationVersion())
 	}
+
+	@Test
+	fun drain_whenTheRunningExecutionLeavesTheRowFailedTerminal_doesNotSendItAgain() = runTest {
+		val outcome = drainBehindAnExecutionThatEnds(
+			scope = this,
+			resolution = { MutationFailureResolution.Fail() }
+		)
+
+		assertEquals(1, outcome.sendCount)
+		assertEquals(PendingMutationStatus.FailedTerminal, outcome.storedStatus)
+	}
+
+	@Test
+	fun drain_whenTheRunningExecutionLeavesTheRowFailed_doesNotSendItAgain() = runTest {
+		val outcome = drainBehindAnExecutionThatEnds(
+			scope = this,
+			// A rebase that changes nothing is exhausted at once: the row is parked as Failed.
+			resolution = { mutation -> MutationFailureResolution.Retry(mutation) }
+		)
+
+		assertEquals(1, outcome.sendCount)
+		assertEquals(PendingMutationStatus.Failed, outcome.storedStatus)
+	}
+
+	@Test
+	fun drain_whenTheRunningExecutionDefersTheRow_sendsItOnceMore() = runTest {
+		val outcome = drainBehindAnExecutionThatEnds(
+			scope = this,
+			resolution = { MutationFailureResolution.Defer() }
+		)
+
+		assertEquals(2, outcome.sendCount)
+		assertEquals(null, outcome.storedStatus)
+	}
+}
+
+private class DrainBehindExecutionOutcome(
+	val sendCount: Int,
+	val storedStatus: PendingMutationStatus?
+)
+
+// A row is being sent (its first send is held open); a drain that already saw it Pending queues
+// behind the scope's lock; the first send then fails and is resolved with [resolution]. The second
+// send, if any, succeeds. Returns how many sends happened and the row's status afterwards.
+private suspend fun drainBehindAnExecutionThatEnds(
+	scope: TestScope,
+	resolution: (MutationEnvelope<String, TestMutation>) -> MutationFailureResolution<String, TestMutation>
+): DrainBehindExecutionOutcome {
+	val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+	val engine = createEngine(store, scope)
+	val firstSendStarted = CompletableDeferred<Unit>()
+	val releaseFirstSend = CompletableDeferred<Unit>()
+	var sendCount = 0
+	val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+		override val maxRebaseAttempts: Int = 3
+
+		override suspend fun send(
+			mutation: MutationEnvelope<String, TestMutation>
+		): TestAck {
+			sendCount += 1
+			if (sendCount == 1) {
+				firstSendStarted.complete(Unit)
+				releaseFirstSend.await()
+				throw TestTerminalFailure()
+			}
+			return TestAck(mutation.mutationId, mutation.command.value)
+		}
+
+		override suspend fun confirm(
+			mutation: MutationEnvelope<String, TestMutation>,
+			ack: TestAck
+		) = Unit
+
+		override suspend fun resolveFailure(
+			mutation: MutationEnvelope<String, TestMutation>,
+			throwable: Throwable
+		): MutationFailureResolution<String, TestMutation> = resolution(mutation)
+	}
+	val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+
+	val submitJob = scope.launch {
+		engine.submit(mutation, syncSpec, propagateTerminalErrors = false)
+	}
+	firstSendStarted.await()
+	val drainJob = scope.launch { engine.drain(scopeKey = "record", syncSpec = syncSpec) }
+	scope.testScheduler.runCurrent()
+
+	releaseFirstSend.complete(Unit)
+	submitJob.join()
+	drainJob.join()
+
+	return DrainBehindExecutionOutcome(
+		sendCount = sendCount,
+		storedStatus = engine.getMutations("record").singleOrNull()?.status
+	)
 }
 
 private fun createEngine(
