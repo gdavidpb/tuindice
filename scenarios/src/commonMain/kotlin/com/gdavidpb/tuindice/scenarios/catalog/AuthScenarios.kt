@@ -365,9 +365,10 @@ private val authUpdatePassword = scenario(
 	}
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 	// The reissue moved the mock to the state in which the pending change is accepted: the flush that follows the
-	// update sends it, the server accepts it, and signing out never offers "sign out anyway".
-	expectRequest("POST", "/evaluations/v3", status = 200, timeout = Within.Sync)
+	// update sends it, the server accepts it, and signing out never offers "sign out anyway". The sign-in screen
+	// only comes back after that flush, so by then the accepted resend is already in the journal.
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Sync)
+	expectRequest("POST", "/evaluations/v3", status = 200)
 	waitGone(AuthUiTags.SignOutSecondaryButton, Within.Assert)
 }
 
