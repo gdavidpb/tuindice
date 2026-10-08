@@ -16,6 +16,8 @@ NON_RETRYABLE = (TYPED, CRASH)
 JUNIT_FAILURES = (PRODUCT, TYPED, BACKEND, CRASH)
 BOOTSTRAP_PATH = "/auth/v2/bootstrap"
 RUNNER_ERROR = re.compile(r"error:|Testing failed|INSTRUMENTATION_FAILED|Process crashed")
+# A step line of driver.log, both platforms: `[3] Tap tag:x -> passed (120 ms)`, with a clock prefix on Android.
+DRIVER_STEP = re.compile(r"^(?:\d\d:\d\d:\d\d\.\d+\s+)?\[(-?\d+)\]\s+(\S+)(?:\s+(.*?))?\s+->\s+(\w+)")
 # What an iOS simulator that stopped serving accessibility and preferences (after hours of runs) writes in the logs of the app and
 # of the runner, with the number of lines it takes to say so: measured, a healthy attempt has none of either and a degraded one
 # about 1050 and 111, while a single line of the second kind can have another cause. "Couldn't write values for keys" is not
@@ -43,6 +45,7 @@ class Evidence:
         self.native_ok = None
         self.tests_executed = None
         self.runner_log = ""
+        self.driver_log = ""         # driver.log of the attempt: the only witness of how far a runner that was killed got
         self.logs = {}               # name -> bounded text of the logs collected for a failed attempt (app.log, logcat.txt, ...)
         self.degraded_health = False  # the health verb said the simulator stopped serving preferences
         self.journal = []
@@ -67,6 +70,15 @@ class Classification:
     @property
     def passed(self):
         return self.klass is None
+
+
+def _last_logged_step(log):
+    """What a killed runner got through, from driver.log: it writes result.json only when it ends, the log line by line."""
+    done = [m for m in (DRIVER_STEP.match(line) for line in log.splitlines()) if m and m.group(4) == "passed"]
+    if done:
+        return "last completed step %s %s(%s)" % (done[-1].group(1), done[-1].group(2), done[-1].group(3) or "")
+    return "the driver logged no completed step, so the step it was in is not known" if log.strip() \
+        else "the driver wrote no step to its log, so the step it was in is not known"
 
 
 def _step_text(failure):
@@ -216,10 +228,7 @@ def _verdict(ev):
         return Classification(CRASH, "%s: %s" % (ev.crash["kind"], (ev.crash.get("excerpt") or "").strip()[:200]))
     result = ev.result
     if ev.killed_after is not None:
-        steps = [s for s in (result or {}).get("steps", []) if s.get("outcome") == "passed"]
-        last = "last completed step %s %s(%s)" % (steps[-1].get("index"), steps[-1].get("primitive"), steps[-1].get("target")) \
-            if steps else "the runner writes result.json only when it ends, so the step it was in is not known"
-        return Classification(TIMEOUT, "scenario exceeded %ds; %s" % (ev.killed_after, last))
+        return Classification(TIMEOUT, "scenario exceeded %ds; %s" % (ev.killed_after, _last_logged_step(ev.driver_log)))
     if result is None:
         matches = [line for line in ev.runner_log.splitlines() if RUNNER_ERROR.search(line)]
         return Classification(TOOLING, ev.result_error or (matches[-1].strip() if matches else "result.json is missing"))

@@ -157,9 +157,16 @@ cmd_crash_probe() {
 }
 
 cmd_collect_failure() {
-	local dir="${1:?attempt dir}" since="${2:?since}" start
+	local dir="${1:?attempt dir}" since="${2:?since}" start file
 	resolve_device
 	read_build_state
+	# A run the harness killed copied nothing from the runner's output directory: whatever it wrote there (driver.log) comes now,
+	# without replacing what a finished run already copied.
+	if [[ -n "${E2E_CURRENT_SCENARIO:-}" && -d "${dir}/results/${E2E_CURRENT_SCENARIO}" ]]; then
+		for file in "${dir}/results/${E2E_CURRENT_SCENARIO}/"*; do
+			[[ -e "${dir}/${file##*/}" ]] || cp -R "${file}" "${dir}/"
+		done
+	fi
 	if ! compgen -G "${dir}/*.png" > /dev/null; then
 		xcrun simctl io "${UDID}" screenshot "${dir}/fallback-screen.png" >&2
 	fi

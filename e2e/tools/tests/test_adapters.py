@@ -135,6 +135,37 @@ class AndroidAdapterTests(unittest.TestCase):
         except ProcessLookupError:
             pass
 
+    def test_the_driver_log_of_a_killed_run_reaches_the_attempt_through_collect_failure(self):
+        # The trap of a killed run does not pull anything and the next reset-app empties the runner's directory: only
+        # collect-failure, which runs in between, can bring the log home.
+        self.box.write("instrument.hang", "")
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        attempt = os.path.join(self.box.dir, "h")
+        process = subprocess.Popen(["bash", self.box.script, "run-scenario", "auth-login-cancel", attempt, "18626"],
+            env=self.box.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, start_new_session=True)
+        deadline = time.time() + 20
+        while time.time() < deadline and not any("am instrument" in c for c in self.box.adb_calls()):
+            time.sleep(0.1)
+        process.send_signal(signal.SIGTERM)
+        self.assertEqual(process.wait(timeout=20), 143)
+        try:
+            os.killpg(process.pid, signal.SIGKILL)  # the fake's sleep
+        except ProcessLookupError:
+            pass
+        self.assertFalse(os.path.exists(os.path.join(attempt, "driver.log")))
+        done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+
+    def test_collect_failure_does_not_replace_a_driver_log_the_run_already_brought(self):
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "from the device\n")
+        attempt = os.path.join(self.box.dir, "k2")
+        os.makedirs(attempt)
+        with open(os.path.join(attempt, "driver.log"), "w") as handle:
+            handle.write("brought by run-scenario\n")
+        self.assertEqual(self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel").returncode, 0)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "brought by run-scenario\n")
+
     def test_enumerate_names_each_scenario_exactly_once(self):
         self.box.write("tests.list", "auth-login-cancel\nsummary-profile-picture\n")
         done = self.box.run("enumerate")
@@ -285,6 +316,20 @@ class IosAdapterTests(unittest.TestCase):
         self.assertIn('process == "TuIndiceHost" OR process CONTAINS "UITests"', calls[0])
         self.assertNotIn("--last", calls[0])
         self.assertIn("app log line", support.text(os.path.join(attempt, "app.log")))
+
+    def test_collect_failure_brings_the_results_of_a_killed_run_and_keeps_what_the_run_already_copied(self):
+        attempt = os.path.join(self.box.dir, "r")
+        results = os.path.join(attempt, "results", "auth-login-cancel")
+        os.makedirs(results)
+        for name, text in (("driver.log", "[3] WaitVisible x -> passed (12 ms)\n"), ("result.json", "from results\n")):
+            with open(os.path.join(results, name), "w") as handle:
+                handle.write(text)
+        with open(os.path.join(attempt, "result.json"), "w") as handle:
+            handle.write("already copied\n")
+        done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "[3] WaitVisible x -> passed (12 ms)\n")
+        self.assertEqual(support.text(os.path.join(attempt, "result.json")), "already copied\n")
 
     def test_collect_failure_caps_the_app_log_and_keeps_the_end_of_it(self):
         self.box.write("log.txt", "".join("2026-10-07 01:22:%02d.000 I TuIndiceHost[1:1] line %04d %s\n" % (i % 60, i, "y" * 60)

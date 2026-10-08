@@ -162,6 +162,12 @@ cmd_collect_failure() {
 	local dir="${1:?attempt dir}" since="${2:?since}" events="${WORK}/failure-logcat.log"
 	resolve_device
 	mkdir -p "${WORK}"
+	# A run the harness killed pulled nothing, and the next reset-app empties the runner's directory: its driver.log, written line
+	# by line, comes home now.
+	if [[ -n "${E2E_CURRENT_SCENARIO:-}" && ! -e "${dir}/driver.log" ]]; then
+		read_build_state
+		pull_output "${E2E_CURRENT_SCENARIO}" "${dir}"
+	fi
 	# Read once from the device's log store, only now that the attempt failed: nothing streams while scenarios run.
 	adb_s logcat -b all -d -v epoch > "${events}"
 	python3 "${TOOLS}" logcat-window "${events}" "${since}" "${LOG_CAP_BYTES}" "${dir}/logcat.txt" >&2

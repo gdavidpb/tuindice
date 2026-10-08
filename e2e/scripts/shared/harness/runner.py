@@ -683,6 +683,7 @@ class PlatformRun:
         if not verdict.passed:
             self.adapter.call("collect-failure", adir, since, env=env)
             evidence.logs = {name: self._tail(os.path.join(adir, name)) for name in FAILURE_LOGS}
+            evidence.driver_log = self._tail(os.path.join(adir, "driver.log"))  # collect-failure may have brought it just now
             evidence.runner_log = evidence.runner_log[-FAILURE_LOG_TAIL_BYTES:]
             verdict = cl.classify(evidence)  # again: the logs only exist now, and a degraded simulator is the environment's
             with open(os.path.join(adir, "classification.json"), "w") as handle:

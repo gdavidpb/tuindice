@@ -60,13 +60,16 @@ class RuleOrderTests(unittest.TestCase):
         self.assertEqual(cl.classify(evidence(result(), crash={"kind": "app_anr", "excerpt": "x"})).klass, cl.CRASH)
         self.assertEqual(cl.classify(evidence(result(), crash={"kind": "system_anr", "excerpt": "x"})).klass, cl.ENVIRONMENT)
 
-    def test_killed_runner_is_a_timeout_that_names_the_last_step(self):
-        verdict = cl.classify(evidence(result(), killed_after=180))
-        self.assertEqual((verdict.klass, verdict.summary),
-            (cl.TIMEOUT, "scenario exceeded 180s; last completed step 0 Tap(tag:a)"))
+    def test_killed_runner_is_a_timeout_that_names_the_last_step_of_the_driver_log(self):
+        # A runner that is killed writes no result.json: the driver log, written line by line, is the only witness.
+        for log, step in (("[0] WaitVisible tag:a -> passed (210 ms)\n[1] Tap tag:b -> passed (120 ms)\n", "1 Tap(tag:b)"),
+                ("10:00:01.100 [0] Launch -> passed (900 ms)\n10:00:02.000 [1] Tap tag:c -> failed (5 ms)\n", "0 Launch()")):
+            verdict = cl.classify(evidence(None, native_ok=False, killed_after=180, driver_log=log))
+            self.assertEqual((verdict.klass, verdict.summary), (cl.TIMEOUT, "scenario exceeded 180s; last completed step %s" % step))
         unknown = cl.classify(evidence(None, native_ok=False, killed_after=180))
-        self.assertIn("the step it was in is not known", unknown.summary)
-        self.assertNotIn("no step completed", unknown.summary)
+        self.assertIn("the driver wrote no step to its log, so the step it was in is not known", unknown.summary)
+        self.assertNotIn("last completed step", cl.classify(evidence(result(), killed_after=180)).summary,
+            "result.json is not written by a killed runner: it is not the source of the step")
 
     def test_result_kinds(self):
         self.assertEqual(cl.classify(evidence(result(kind="SYSTEM_DIALOG"))).klass, cl.ENVIRONMENT)
