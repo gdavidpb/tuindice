@@ -314,8 +314,10 @@
     "contractFixture": {
         "absentTag": "driver_contract_never_present",
         "disabledTag": "auth_sign_in_button",
-        "expectedText": "12-34567",
+        "expectedText": "76-54321",
         "presentTag": "auth_sign_in_idle_container",
+        "secureFieldTag": "auth_password_text_field",
+        "secureSample": "abcdefghijklmnopqrstuvwxyz0123",
         "start": {
             "arguments": {
                 "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
@@ -325,7 +327,7 @@
             "mockStates": []
         },
         "textFieldTag": "auth_usb_id_text_field",
-        "textSample": "1234567"
+        "textSample": "7654321"
     },
     "scenarios": [
         {
@@ -476,6 +478,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -543,7 +546,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "ac078464dff1c763",
+            "stepsHash": "4917296365da9c16",
             "tags": [
                 "smoke"
             ],
@@ -735,6 +738,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -802,7 +806,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "d68dbe6b87ec8b0f",
+            "stepsHash": "b0cf1771bf2680b2",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -992,6 +996,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -1059,7 +1064,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "fc7c1ba2648259a4",
+            "stepsHash": "344933eb5b256fdd",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -1248,6 +1253,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -1315,7 +1321,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "fe4b696f6194ff3f",
+            "stepsHash": "f5dde7ec1e0fc002",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -1467,6 +1473,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -1535,7 +1542,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "1bc9c68e02c8e30b",
+            "stepsHash": "b4b600aee18a51e0",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -1687,6 +1694,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -1730,7 +1738,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "ab8cddb7464864ec",
+            "stepsHash": "fdf983b51c235735",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -1882,6 +1890,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -2000,7 +2009,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "b8e061e93241f9c8",
+            "stepsHash": "f42cc29d5911de91",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -2150,6 +2159,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -2217,7 +2227,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "f6aa042dc5397845",
+            "stepsHash": "c2b944a288f234ac",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -2369,6 +2379,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -2508,7 +2519,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "74d904aaae45d6fe",
+            "stepsHash": "924c5f293b70040b",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -3348,6 +3359,7 @@
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
                         "line": 341
                     },
+                    "status": null,
                     "timeoutMs": 20000,
                     "type": "expectRequest"
                 },
@@ -3449,7 +3461,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "03f0ad483b4c591b",
+            "stepsHash": "7a320d994e45a33a",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -3842,6 +3854,7 @@
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
                         "line": 382
                     },
+                    "status": null,
                     "timeoutMs": 20000,
                     "type": "expectRequest"
                 },
@@ -3907,7 +3920,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "80b33f7be37ceda1",
+            "stepsHash": "0d9d48ad8d8a4792",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -4817,6 +4830,7 @@
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
                         "line": 475
                     },
+                    "status": null,
                     "timeoutMs": 20000,
                     "type": "expectRequest"
                 },
@@ -4833,7 +4847,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "f166bae3469b8294",
+            "stepsHash": "08a3a3e031584c41",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -13243,6 +13257,7 @@
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
                                 "line": 34
                             },
+                            "status": null,
                             "timeoutMs": 20000,
                             "type": "expectRequest"
                         }
@@ -13442,7 +13457,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "a2b70c688b3ccc4c",
+            "stepsHash": "c10d254c8b74fa19",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -24045,11 +24060,12 @@
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
                         "line": 191
                     },
+                    "status": null,
                     "timeoutMs": 20000,
                     "type": "expectRequest"
                 }
             ],
-            "stepsHash": "f75e84a396dea479",
+            "stepsHash": "f45181db70f1de42",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -25197,11 +25213,12 @@
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
                         "line": 317
                     },
+                    "status": null,
                     "timeoutMs": 20000,
                     "type": "expectRequest"
                 }
             ],
-            "stepsHash": "9af1828ef89683c9",
+            "stepsHash": "0bceec61808746f2",
             "tags": [],
             "timeoutSeconds": 180
         }
