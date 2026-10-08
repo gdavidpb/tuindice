@@ -4,10 +4,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
@@ -20,6 +23,8 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import tuindice.base.generated.resources.Res
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class, ExperimentalResourceApi::class)
 class LottieResourceAnimationViewUiTest {
@@ -134,46 +139,49 @@ class LottieResourceAnimationViewUiTest {
 		assertEquals(1, readCount)
 	}
 
+	// The decision is observed on what is painted: a square that crosses the frame in two seconds. With the
+	// animations on the frame changes as the clock moves; with them off it stays on the first one.
 	@Test
-	fun when_animationsAreDisabledInTheComposition_then_theViewDecidesNotToPlay() = runTuIndiceUiTest {
-		val decisions = mutableListOf<LottiePlayback>()
+	fun when_animationsAreEnabled_then_thePaintedFrameChangesWithTheClock() = runTuIndiceUiTest {
+		val (first, later) = paintedFramesAround(animationsEnabled = true)
 
-		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
-				ObservedLottieResourceAnimationView(
-					readBytes = { Res.readBytes(ANIMATION_PATH) },
-					modifier = Modifier.size(96.dp),
-					testTag = AnimationTag,
-					iterations = 2,
-					onPlayback = { decisions += it }
-				)
-			}
-		}
-
-		waitForIdle()
-
-		assertEquals(LottiePlayback(isPlaying = false, iterations = 2), decisions.last())
+		assertFalse(first.contentEquals(later), "the animation must have moved between the two frames")
 	}
 
 	@Test
-	fun when_animationsAreEnabledInTheComposition_then_theViewDecidesToPlay() = runTuIndiceUiTest {
-		val decisions = mutableListOf<LottiePlayback>()
+	fun when_animationsAreDisabled_then_thePaintedFrameStaysOnTheFirstOne() = runTuIndiceUiTest {
+		val (first, later) = paintedFramesAround(animationsEnabled = false)
+
+		assertTrue(first.contentEquals(later), "the animation must not have moved between the two frames")
+	}
+
+	private fun ComposeUiTest.paintedFramesAround(animationsEnabled: Boolean): Pair<IntArray, IntArray> {
+		var readCount = 0
+
+		// The harness cancels infinite animations that start while the clock auto-advances.
+		mainClock.autoAdvance = false
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides true) {
-				ObservedLottieResourceAnimationView(
-					readBytes = { Res.readBytes(ANIMATION_PATH) },
-					modifier = Modifier.size(96.dp),
-					testTag = AnimationTag,
-					iterations = 2,
-					onPlayback = { decisions += it }
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides animationsEnabled) {
+				LottieResourceAnimationView(
+					readBytes = {
+						readCount++
+						MOVING_SQUARE.encodeToByteArray()
+					},
+					modifier = Modifier.size(100.dp),
+					testTag = AnimationTag
 				)
 			}
 		}
 
-		waitForIdle()
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { readCount == 1 }
+		advanceAnimationsBy(200)
 
-		assertEquals(LottiePlayback(isPlaying = true, iterations = 2), decisions.last())
+		val first = onNodeWithTag(AnimationTag).captureToImage().toPixelMap().buffer.copyOf()
+
+		advanceAnimationsBy(1_000)
+
+		return first to onNodeWithTag(AnimationTag).captureToImage().toPixelMap().buffer.copyOf()
 	}
 
 	private companion object {
@@ -181,5 +189,16 @@ class LottieResourceAnimationViewUiTest {
 		const val HostTag = "lottie_host"
 		const val ANIMATION_PATH = "files/an_empty.json"
 		const val LOAD_TIMEOUT_MILLIS = 5_000L
+
+		// A red square, 40 by 40, that goes from the left to the right of a 100 by 100 frame in two seconds.
+		const val MOVING_SQUARE = """{"v":"5.5.7","fr":30,"ip":0,"op":60,"w":100,"h":100,"nm":"moving","ddd":0,""" +
+			""""assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"square","sr":1,"ao":0,"ip":0,"op":60,"st":0,""" +
+			""""bm":0,"ks":{"o":{"a":0,"k":100},"r":{"a":0,"k":0},"p":{"a":0,"k":[50,50,0]},""" +
+			""""a":{"a":0,"k":[0,0,0]},"s":{"a":0,"k":[100,100,100]}},"shapes":[{"ty":"gr","nm":"g","it":[""" +
+			"""{"ty":"rc","nm":"r","d":1,"s":{"a":0,"k":[40,40]},"r":{"a":0,"k":0},"p":{"a":1,"k":[""" +
+			"""{"t":0,"s":[-30,0],"i":{"x":[0.5],"y":[0.5]},"o":{"x":[0.5],"y":[0.5]}},{"t":60,"s":[30,0]}]}},""" +
+			"""{"ty":"fl","nm":"f","c":{"a":0,"k":[1,0,0,1]},"o":{"a":0,"k":100},"r":1},""" +
+			"""{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},""" +
+			""""r":{"a":0,"k":0},"o":{"a":0,"k":100}}]}]}]}"""
 	}
 }
