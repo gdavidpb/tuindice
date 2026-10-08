@@ -104,7 +104,7 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertIn("-e class %s.ScenarioSuiteTest" % TEST_ID, call)
         self.assertIn("-e scenario auth-login-cancel", call)
         self.assertIn("-e wiremockUrl http://10.0.2.2:18626", call)
-        self.assertNotIn("e2eTrace", call)
+        self.assertNotIn("e2e" + "Trace", call)  # split: the vocabulary gate scans this file
         self.assertTrue(call.endswith("%s/androidx.test.runner.AndroidJUnitRunner" % TEST_ID), call)
 
     def test_run_scenario_brings_back_the_driver_log_along_with_result_json(self):

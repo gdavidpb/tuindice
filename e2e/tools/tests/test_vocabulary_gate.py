@@ -12,6 +12,7 @@ import unittest
 
 TESTS = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(TESTS, "..", "verify", "verify-e2e-vocabulary.sh")
+SCRIPT_PATH = os.path.realpath(SCRIPT)
 ROOT = os.path.realpath(os.path.join(TESTS, "..", "..", ".."))
 
 WORD = "Mae" + "stro"
@@ -23,6 +24,9 @@ VERIFY_GHOST = "verify" + "Ghost"
 VERIFY_ELSEWHERE = "verify" + "Elsewhere"
 RETIRED_RUN = "e2e" + "RetiredRun"
 REGISTRY = os.path.join("gradle", "e2e-tasks.gradle.kts")
+SELF = os.path.join("e2e", "tools", "verify", "verify-e2e-vocabulary.sh")
+RETIRED_IDENTIFIERS = ["SEED_" + "STATE", "e2e" + "Mae" + "stro", "e2e" + "Platform", "Migration" + "Progress",
+    "validate-e2e-" + "contract", "run_sequential_" + "evidence", "flow-" + "catalog", "E2E_STRICT_" + "IOS"]
 
 
 def init_repository(tree):
@@ -51,6 +55,8 @@ class VocabularyGateTests(unittest.TestCase):
                 self.append(subject, "# leftovers of the %s runner\n" % WORD.lower())
             elif kind == "task-path":
                 self.append(subject, "# retired: %s\n" % RETIRED_RUN)
+            elif kind == "retired-path":
+                self.append(subject, "# retired: %s\n" % RETIRED_IDENTIFIERS[0])
             else:
                 tokens.append(subject)
         self.put("docs/exceptions.md", "".join("`%s`\n" % token for token in tokens))
@@ -151,6 +157,44 @@ class VocabularyGateTests(unittest.TestCase):
         code, out = self.verify()
         self.assertEqual(code, 1, out)
         self.assertIn("stale exception", out)
+
+    def test_the_script_does_not_keep_its_own_token_exceptions_alive(self):
+        # The script is a versioned file of the tree it scans, and its own text spells the tokens it excepts. A copy of it
+        # in the tree must not count as the use that keeps an exception from being stale.
+        with open(SCRIPT_PATH) as handle:
+            self.put(SELF, handle.read())
+        tokens = [subject for kind, subject in self.declared_exceptions() if kind == "task-token" and subject != "verify" + "E2e"]
+        self.put("docs/exceptions.md", "".join("`%s`\n" % token for token in tokens))
+        code, out = self.verify()
+        self.assertEqual(code, 1, out)
+        self.assertIn("stale exception: %s appears in no file (task-token)" % ("verify" + "E2e"), out)
+
+    def test_no_token_exception_describes_a_runner_argument_that_does_not_exist(self):
+        self.assertNotIn("e2e" + "Trace", [subject for _kind, subject in self.declared_exceptions()])
+
+    def test_every_retired_identifier_fails_wherever_it_reappears(self):
+        for identifier in RETIRED_IDENTIFIERS:
+            with self.subTest(identifier=identifier):
+                self.put("docs/back.md", "first\nuses %s again\n" % identifier)
+                code, out = self.verify()
+                self.assertEqual(code, 1, out)
+                self.assertIn("docs/back.md:2", out)
+                self.assertIn(identifier, out)
+                os.remove(os.path.join(self.tree, "docs", "back.md"))
+        self.put("scenarios/Some.kt", 'val key = "TUINDICE_E2E_%s"\n' % RETIRED_IDENTIFIERS[0])
+        code, out = self.verify()
+        self.assertEqual(code, 1, out)
+        self.assertIn("scenarios/Some.kt:1", out)
+
+    def test_a_retired_identifier_passes_only_in_the_declared_files_that_deny_it(self):
+        declared = [subject for kind, subject in self.declared_exceptions() if kind == "retired-path"]
+        self.assertTrue(declared)
+        code, out = self.verify()
+        self.assertEqual(code, 0, out)
+        self.put(declared[0], "# no longer names anything retired\n")
+        code, out = self.verify()
+        self.assertEqual(code, 1, out)
+        self.assertIn("stale exception: %s" % declared[0], out)
 
     def test_a_file_that_is_not_versioned_is_not_scanned(self):
         self.put("build/out.txt", "%s\n" % WORD)
