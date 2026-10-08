@@ -29,7 +29,10 @@ object Timeouts {
 	/** For the first screen after a launch, where the cold start of the app and its first sync are in the way. */
 	const val Sync = 60_000L
 
-	/** How long a typed, non-secure field is re-read before the text counts as corrupted. */
+	/**
+	 * How long a typed field is re-read before the text counts as corrupted; it needs two reads in a row, one
+	 * [PollInterval] apart, that show what was typed (a secure field: as many characters as were typed).
+	 */
 	const val TextReread = 3_000L
 
 	/** The pause between two checks of a polling wait. */

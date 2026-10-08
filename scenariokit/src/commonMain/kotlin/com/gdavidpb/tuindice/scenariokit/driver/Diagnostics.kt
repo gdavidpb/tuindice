@@ -5,7 +5,13 @@ import com.gdavidpb.tuindice.scenariokit.model.Platform
 interface Diagnostics {
 	val platform: Platform
 
-	/** One line of the driver's log: logcat on Android, the driver log (printed with `E2E_TRACE`) on iOS. */
+	/**
+	 * One line of the driver's log. Both drivers append every line to `driver.log` of the scenario's output directory
+	 * the moment it is written, so the file survives a run that hangs and is killed, and the lines the interpreter
+	 * writes (one per step) share it with the ones the driver writes about what it did on its own (a gesture refused,
+	 * the app brought back to the front, an alert dismissed). Android also sends them to logcat; iOS also prints them
+	 * with `E2E_TRACE`. A log that throws never costs the run its result.
+	 */
 	fun log(line: String)
 
 	/**
@@ -24,7 +30,8 @@ interface Diagnostics {
 
 	/**
 	 * Screenshot, hierarchy and platform log of the failure, wherever the runner keeps artifacts: files of the attempt
-	 * on Android, attachments of the test on iOS. The interpreter calls it once, for the first failing step.
+	 * on Android (with logcat), attachments of the test on iOS. The interpreter calls it once, for the first failing
+	 * step.
 	 */
 	fun captureFailure(scenarioId: String, stepIndex: Int)
 

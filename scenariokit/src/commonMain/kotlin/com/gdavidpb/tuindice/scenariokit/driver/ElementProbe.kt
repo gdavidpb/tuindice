@@ -10,13 +10,19 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * (iOS: its label, value or title); [Query.System] is an element of the OS outside the app (Android: resource id or
  * text in any package; iOS: label or identifier in the app or in the springboard). The first match is used. An
  * element counts as present only when it is on screen: on iOS it must also have a non-empty frame that meets the
- * screen.
+ * screen, and a tag or a text counts only while the app is in the foreground (its tree stays readable behind Safari
+ * or a system sheet, and then it is not what the user sees).
  */
 interface ElementProbe {
 	/** Polls [q] until it is visible or [timeoutMs] pass. It always looks once, so a timeout of 0 is a single check. */
 	fun waitVisible(q: Query, timeoutMs: Long): Boolean
 
-	/** Polls until [q] is not visible; false when [timeoutMs] pass with it still there. Polls like [waitVisible]. */
+	/**
+	 * Polls until [q] is not visible; false when [timeoutMs] pass with it still there. Polls like [waitVisible].
+	 * "Not visible" needs proof that the screen was read in that very round (Android: the root of the app's window is
+	 * there and no read threw; iOS: the app is in the foreground and its tree was read): a screen that cannot be read,
+	 * or an app that is gone, never counts as "gone", and the poll goes on until the timeout makes it false.
+	 */
 	fun waitGone(q: Query, timeoutMs: Long): Boolean
 
 	fun isVisible(q: Query): Boolean
@@ -26,8 +32,9 @@ interface ElementProbe {
 
 	/**
 	 * What the element shows, or null when it is absent. For a text field it is meant to be what the user typed (the
-	 * iOS driver returns the field's value, "" when it is empty, never its placeholder or label). The interpreter
-	 * does not read secure fields back.
+	 * iOS driver returns the field's value, "" when it is empty, never its placeholder or label). A secure field
+	 * shows one character per typed character on both platforms (Android reads one dot per character, iOS the same
+	 * count, measured), so the interpreter compares its length.
 	 */
 	fun readText(q: Query): String?
 

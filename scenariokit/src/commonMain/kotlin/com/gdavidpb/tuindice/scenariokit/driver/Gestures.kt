@@ -8,8 +8,12 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * A gesture answers true when it was delivered, which says nothing about its effect: the next step waits for that.
  * The interpreter waits for the target (visible, and for `tap` enabled) before calling, so a driver may assume the
  * element existed a moment ago. Both drivers aim at where the element is once its bounds stop moving (the keyboard
- * opening, a sheet settling); they differ when it never stops: Android refuses the gesture and answers false
- * (the reason goes to its log), iOS touches the last position it read and logs that it did.
+ * opening, a sheet settling): Android reads the bounds until they repeat 3 times in 5 s, iOS until 3 reads agree, at
+ * most 20 reads or 8 s. When they never do, or the element is no longer there, the gesture is refused: the call
+ * answers false, the reason goes to the driver log, and [Diagnostics.lastRefusal] hands it to the step that failed.
+ * A touch whose point is inside the on-screen keyboard is refused the same way, on both platforms, because it would
+ * press a key and type into the field that has the focus. A touch aimed at an app that is gone answers false, and
+ * on iOS an XCTest exception raised while dispatching it is caught and answered false too.
  */
 interface Gestures {
 	/** Touches the center of the visible part of [q]. */
@@ -34,8 +38,8 @@ interface Gestures {
 
 	/**
 	 * The system back action. Android injects the key without waiting for the app to consume it and answers true when
-	 * it was injected. iOS has no such action and always answers false, so a scenario uses `back()` only inside
-	 * `onPlatform(Platform.Android)` or in a scenario restricted to Android.
+	 * it was injected. iOS has no such action and always answers false (saying so as its refusal), so a scenario uses
+	 * `back()` only inside `onPlatform(Platform.Android)` or in a scenario restricted to Android.
 	 */
 	fun pressBack(): Boolean
 }

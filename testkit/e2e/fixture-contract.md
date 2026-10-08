@@ -16,7 +16,10 @@ Rules:
 - Every scenario declares its own start, clean or seeded, and none inherits one. Before the first step the interpreter
   resets the WireMock scenario states and the request journal, resets the stateful datasets of the custom transformers
   (`/evaluations/v3/reset`, `/record/v5/reset`; `BackendEngine.resetPaths`) and sets the `mockStates` of the start.
-  A new stateful transformer needs its reset path in that list (`MockContractTest` fails otherwise).
+  A scenario that needs the backend in another state later sets it with the `mockState(scenario, state)` step, which
+  makes the same `PUT /__admin/scenarios/{scenario}/state` request in the middle of the run (a reply that is not 2xx
+  fails the step as `BACKEND_UNAVAILABLE`). A new stateful transformer needs its reset path in that list
+  (`MockContractTest` fails otherwise).
 - A seeded start puts the login scenario of the account (for example `login-token-lifecycle` for `Canonical`) in the
   `TokensIssued` state, which is where the backend stays after a real sign-in; keep that scenario compatible with the
   canonical successful login tokens. An account without a session only signs in through the UI.
