@@ -152,7 +152,7 @@ degrading twice is exit 5 ("the simulator degraded twice on this scenario"), and
 `deviceDegradation` in the manifest: count, and per event the time, the scenarios since the previous and the marker
 counts; a recovery `ensure` made also counts. The manifest also holds `tolerances` (what the drivers put up with and went
 on, only from attempts that passed, `{key: n}`; the log prints a `TOLERANCES` line when there are any), `refusals` (the
-drivers' "gesture/touch/tap refused", from every attempt) and, for a `--repeat` series, `series` with the `SERIES` line's
+drivers' `[refusal]` lines by the first word of the reason, every attempt) and, for a `--repeat` series, `series` with the `SERIES` line's
 counts, also when the series was cut.
 
 Where the time went: `python3 e2e/tools/e2e-profile.py` (latest run per platform), `--compare 1` (against the
