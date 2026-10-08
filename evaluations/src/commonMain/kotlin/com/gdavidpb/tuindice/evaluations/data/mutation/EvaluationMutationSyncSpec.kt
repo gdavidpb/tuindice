@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
+import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
@@ -100,7 +101,9 @@ class EvaluationMutationSyncSpec(
 		mutation: MutationEnvelope<String, EvaluationMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, EvaluationMutation> {
-		if (throwable.isConnection()) {
+		// The service being away (a 503, or the wait it asked for) says nothing about the change
+		// itself: like a lost connection, the row stays Pending and the next drain sends it again.
+		if (throwable.isConnection() || throwable.isUnavailable()) {
 			return MutationFailureResolution.Defer()
 		}
 

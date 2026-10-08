@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
@@ -10,6 +11,9 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -115,4 +119,88 @@ class EvaluationMutationSyncSpecTest {
 		assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
 		assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
 	}
+
+	// A 503 (or the wait the service asked for) is the service being away, not a verdict on the
+	// change: the row stays Pending and goes out again with the next drain.
+	@Test
+	fun resolveFailure_whenTheServiceIsUnavailable_defersEveryKindOfMutation_withoutSnapshotRefresh() = runTest {
+		val unavailableErrors = listOf(
+			serverResponseException(HttpStatusCode.ServiceUnavailable),
+			ServiceRetryWindowException(retryAfterMillis = 30_000L)
+		)
+
+		unavailableErrors.forEach { unavailable ->
+			evaluationMutations().forEach { command ->
+				val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+					getEvaluationsThrowable = IllegalStateException("must not be read")
+				)
+				val syncSpec = EvaluationMutationSyncSpec(
+					databaseDataSource = FakeDatabaseDataSource(),
+					evaluationsApiDataSource = evaluationsApiDataSource,
+					refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+				)
+
+				val resolution = syncSpec.resolveFailure(
+					mutation = evaluationEnvelope(command),
+					throwable = unavailable
+				)
+
+				assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
+				assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
+			}
+		}
+	}
+
+	@Test
+	fun resolveFailure_whenTheServerRejectsWithAnUnclassifiedClientError_stillFailsTerminally() = runTest {
+		evaluationMutations().forEach { command ->
+			val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+			val syncSpec = EvaluationMutationSyncSpec(
+				databaseDataSource = FakeDatabaseDataSource(),
+				evaluationsApiDataSource = evaluationsApiDataSource,
+				refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+			)
+
+			val resolution = syncSpec.resolveFailure(
+				mutation = evaluationEnvelope(command),
+				throwable = clientRequestException(HttpStatusCode.BadRequest)
+			)
+
+			assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+		}
+	}
 }
+
+private fun evaluationMutations(): List<EvaluationMutation> = listOf(
+	EvaluationMutation.Add(
+		referenceId = "reference-1",
+		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+		termId = DEFAULT_EVALUATION_SUBJECT.termId,
+		scheduleMode = EvaluationScheduleMode.DATED,
+		grade = null,
+		maxGrade = 100.0,
+		date = 1_900_000_000_000L,
+		type = EvaluationType.QUIZ.ordinal
+	),
+	EvaluationMutation.Update(
+		evaluationId = DEFAULT_LOCAL_PENDING_EVALUATION.id,
+		scheduleMode = null,
+		grade = 80.0,
+		maxGrade = null,
+		date = null,
+		type = null
+	),
+	EvaluationMutation.Remove(evaluationId = DEFAULT_LOCAL_PENDING_EVALUATION.id)
+)
+
+private fun evaluationEnvelope(command: EvaluationMutation) = MutationEnvelope(
+	mutationId = "mutation-x",
+	scopeKey = EVALUATIONS_MUTATION_SCOPE,
+	command = command,
+	precondition = MutationPrecondition.Revision(DEFAULT_LOCAL_PENDING_EVALUATION.revision),
+	status = PendingMutationStatus.Pending,
+	createdAt = 1L,
+	updatedAt = 1L,
+	lastError = null
+)

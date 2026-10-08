@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
@@ -48,6 +49,57 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 
 		assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
 		assertEquals(0, refreshCalls)
+	}
+
+	// A 503 (or the wait the service asked for) is the service being away, not a verdict on the
+	// change: the row stays Pending and goes out again with the next drain.
+	@Test
+	fun resolveFailure_whenTheServiceIsUnavailable_defersEveryKindOfMutation_withoutCallingRefresh() = runTest {
+		var refreshCalls = 0
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			refreshCalls++
+			error("not reachable")
+		})
+		val unavailableErrors = listOf(
+			serverResponseException(HttpStatusCode.ServiceUnavailable),
+			ServiceRetryWindowException(retryAfterMillis = 30_000L)
+		)
+
+		unavailableErrors.forEach { unavailable ->
+			listOf(
+				upsertOverrideEnvelope(),
+				recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+				addSyntheticTermEnvelope(),
+				updateSyntheticTermEnvelope(),
+				deleteSyntheticTermEnvelope()
+			).forEach { mutation ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = unavailable)
+
+				assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
+			}
+		}
+
+		assertEquals(0, refreshCalls)
+	}
+
+	@Test
+	fun resolveFailure_whenTheServerRejectsWithAnUnclassifiedClientError_stillFailsTerminally() = runTest {
+		val spec = specUnderTest()
+
+		listOf(
+			upsertOverrideEnvelope(),
+			recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+			addSyntheticTermEnvelope(),
+			updateSyntheticTermEnvelope(),
+			deleteSyntheticTermEnvelope()
+		).forEach { mutation ->
+			val resolution = spec.resolveFailure(
+				mutation = mutation,
+				throwable = clientRequestException(HttpStatusCode.BadRequest)
+			)
+
+			assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+		}
 	}
 
 	// The safe refresh swallows failures on purpose, but a cancelled scope is not a failed

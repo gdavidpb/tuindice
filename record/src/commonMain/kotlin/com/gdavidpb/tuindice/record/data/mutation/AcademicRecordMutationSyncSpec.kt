@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
+import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
@@ -129,7 +130,9 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, AcademicRecordMutation> {
-		if (throwable.isConnection()) {
+		// The service being away (a 503, or the wait it asked for) says nothing about the change
+		// itself: like a lost connection, the row stays Pending and the next drain sends it again.
+		if (throwable.isConnection() || throwable.isUnavailable()) {
 			return MutationFailureResolution.Defer()
 		}
 
