@@ -135,5 +135,24 @@ class CutSeriesTests(unittest.TestCase):
         self.assertEqual(ws.manifest()["series"]["environment"], 1)
 
 
+class FinishFailureTests(unittest.TestCase):
+    """A defect while the results are written must not leave a manifest that contradicts the exit code (ZC-5)."""
+
+    def test_a_failure_writing_the_results_is_a_harness_error_in_the_manifest_the_output_and_the_exit_code(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        code = ("import sys; sys.path.insert(0, %r); import e2e; from harness import junit\n"
+            "def boom(*args): raise TypeError('junit broke')\n"
+            "junit.write = boom\nsys.exit(e2e.main(['run', '--platform', 'ios', '--mode', 'diagnose']))" % support.SHARED)
+        done = subprocess.run([sys.executable, "-c", code], cwd=ws.repo, env=ws.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            universal_newlines=True, timeout=120)
+        self.assertEqual(done.returncode, 70, done.stdout + done.stderr)
+        manifest = ws.manifest()
+        self.assertEqual((manifest["outcome"], manifest["exitCode"]), ("harness_error", 70))
+        self.assertIn("junit broke", manifest["stop"]["reason"])
+        self.assertIn("junit broke", support.text(os.path.join(ws.run_dirs()[-1], "harness-error.txt")))
+        self.assertIn("RESULT harness_error", done.stdout)
+        self.assertFalse(os.path.exists(os.path.join(ws.dir, "tmp", "ios", "wiremock", "lock", "owner.json")))
+
+
 if __name__ == "__main__":
     unittest.main()

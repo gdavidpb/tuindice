@@ -164,7 +164,7 @@ class PlatformRun:
             # 120 s) after it, so that a kill during the cleanup still leaves a finalised manifest. A failure of the finish never
             # skips the cleanup.
             try:
-                self._finish(outcome, code)
+                outcome, code = self._finish(outcome, code)
                 if signum is not None:
                     self.log.say("the manifest is finalised; stopping WireMock and the device now")
             finally:
@@ -801,9 +801,20 @@ class PlatformRun:
 
     def _finish(self, outcome, code):
         """Results, JUnit and the finalised manifest first; the retention (up to 600 s) after, so that a kill during it still
-        leaves a finalised run. The manifest is finalised even when writing the rest fails."""
+        leaves a finalised run. A defect while the results are written is a harness error: the manifest, the RESULT line and the
+        exit code say so (an outcome that was already a failure keeps its own code). Returns the outcome and the code."""
         try:
             self._write_results(outcome, code)
+        except Exception as error:
+            self.log.say("HARNESS ERROR %s: %s (traceback in harness-error.txt)" % (type(error).__name__, error))
+            self.manifest.data["stop"]["reason"] = "%s: %s" % (type(error).__name__, error)
+            if self.run_dir:
+                with open(os.path.join(self.run_dir, "harness-error.txt"), "a") as handle:
+                    handle.write(traceback.format_exc())
+            if code == 0:
+                outcome, code = "harness_error", EXIT_HARNESS_ERROR
+            green = sum(1 for s in self.runnable if self.ledger is not None and self.ledger.passed(s.id))
+            self.log.result(outcome, green, len(self.runnable), [], 0, code, self.fingerprint or "")
         finally:
             self.manifest.finalize(outcome, code)
         try:
@@ -813,6 +824,7 @@ class PlatformRun:
         finally:
             self.log.emit_result()
         self._archive(outcome)
+        return outcome, code
 
     def _archive(self, outcome):
         """The manifest of a green evidence run is also kept under certifications/<sha>/<platform>."""
