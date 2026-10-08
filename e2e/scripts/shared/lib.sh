@@ -11,6 +11,16 @@ fail() {
 	exit 3
 }
 
+# dir_gb <dir> <decimals>: the size of a directory in GiB. du exits 1 when a file vanishes under it while it walks a live device's
+# data and still prints the total, so its status is not the answer: the missing total is.
+dir_gb() {
+	local out status=0 kb
+	out="$(du -sk "$1" 2> /dev/null)" || status=$?
+	kb="${out%%[[:space:]]*}"
+	[[ "${kb}" =~ ^[0-9]+$ ]] || fail "du -sk $1 gave no total (exit ${status})"
+	awk -v kb="${kb}" -v decimals="$2" 'BEGIN { printf "%.*f", decimals, kb / 1048576 }'
+}
+
 # emit_json key=s:string key=j:raw-json ...
 emit_json() {
 	python3 -c '

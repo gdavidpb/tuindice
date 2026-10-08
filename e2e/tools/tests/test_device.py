@@ -99,6 +99,19 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertIn("shell settings put secure stylus_handwriting_enabled 0", calls)
         self.assertIn("shell settings get secure stylus_handwriting_enabled", calls)
 
+    def test_a_du_that_warns_while_it_walks_the_data_directory_does_not_fail_ensure(self):
+        # du exits 1 when a file vanishes under it and still prints the total; the device is fine and ensure has done everything.
+        box = Sandbox(self, "android")
+        done = box.run("ensure", FAKE_DU_KB="1048576", FAKE_DU_EXIT="1")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(done.json["dataDirGb"], 1.0)
+
+    def test_a_du_that_prints_no_total_is_still_an_environment_failure(self):
+        box = Sandbox(self, "android")
+        done = box.run("ensure", FAKE_DU_NONE="1", FAKE_DU_EXIT="1")
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("gave no total", done.stderr)
+
     def test_headless_zero_starts_the_window(self):
         box = Sandbox(self, "android")
         lock = os.path.join(box.dir, "android.lock")
@@ -308,6 +321,15 @@ class IosDeviceTests(unittest.TestCase):
         self.assertLess(calls.index("simctl shutdown FAKE-0000-0000-0000-000000000001"),
             calls.index("simctl erase FAKE-0000-0000-0000-000000000001"))
         self.assertTrue(done.json["bootedByHarness"])
+
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
+    def test_a_du_that_warns_while_it_walks_the_simulator_data_does_not_fail_ensure(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("FAKE-0000-0000-0000-000000000001/data/x", "x", os.path.join(box.dir, "devices"))
+        done = box.run("ensure", FAKE_DU_KB="1048576", FAKE_DU_EXIT="1")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(done.json["dataDirGb"], 1.0)
 
     def test_a_preference_that_does_not_read_back_exits_3(self):
         box = Sandbox(self, "ios")

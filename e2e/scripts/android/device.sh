@@ -235,7 +235,7 @@ cmd_ensure() {
 	verify_shape
 	tunnel
 	model="$(adb_out getprop ro.product.model)"
-	data_gb="$(du -sk "${AVD_CONFIG%/*}" | awk '{ printf "%.2f", $1 / 1048576 }')"
+	data_gb="$(dir_gb "${AVD_CONFIG%/*}" 2)"
 	booted_at="$(python3 -c 'import datetime, sys; print((datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=float(sys.argv[1]))).strftime("%Y-%m-%dT%H:%M:%SZ"))' \
 		"$(adb_out cat /proc/uptime | awk '{ print $1 }')")"
 	emit_json "id=s:${SERIAL}" "model=s:${model}" "bootedAt=s:${booted_at}" "bootedByHarness=j:${booted_by_harness}" \

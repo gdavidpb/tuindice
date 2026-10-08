@@ -108,7 +108,7 @@ boot_simulator() {
 data_gb() {
 	local dir="${DEVICES_DIR}/${UDID}/data"
 	if [[ -d "${dir}" ]]; then
-		du -sk "${dir}" | awk '{ printf "%.6f", $1 / 1048576 }'
+		dir_gb "${dir}" 6
 	else
 		printf '0.000000'
 	fi
