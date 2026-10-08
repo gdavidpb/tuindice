@@ -107,10 +107,21 @@ HAS_RELEVANT_CHANGES="$(github_output_value has_relevant_changes "$GITHUB_OUTPUT
 APP_VERSION_CHANGED="$(github_output_value app_version_changed "$GITHUB_OUTPUT_FILE")"
 HAS_RELEASE_IMPACT="$(github_output_value has_release_impact "$GITHUB_OUTPUT_FILE")"
 IOS_UITEST_BUILD_REQUIRED="$(github_output_value ios_uitest_build_required "$GITHUB_OUTPUT_FILE")"
+VOCABULARY_GATE_REQUIRED="$(github_output_value vocabulary_gate_required "$GITHUB_OUTPUT_FILE")"
 
 info "Android preflight tasks: ${ANDROID_TASKS:-<none>}"
 info "iOS preflight tasks: ${IOS_TASKS:-<none>}"
 info "iOS UI test target build required: ${IOS_UITEST_BUILD_REQUIRED:-false}"
+
+# Paridad con el step "Check the E2E vocabulary" del job compartido: documentos y skills corren la puerta de vocabulario
+# sola, también cuando no hay cambios relevantes para la app.
+if [[ "$VOCABULARY_GATE_REQUIRED" == "true" ]]; then
+	if [[ "$DRY_RUN" == "true" ]]; then
+		print_command bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
+	else
+		bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
+	fi
+fi
 
 if [[ "$HAS_RELEVANT_CHANGES" != "true" ]]; then
 	info "No deployable app changes were detected; preflight parity checks are not required."

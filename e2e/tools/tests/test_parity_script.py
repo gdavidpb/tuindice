@@ -13,7 +13,11 @@ PARITY = os.path.join(ROOT, ".codex", "skills", "certify-tuindice-pr", "scripts"
 COMMON = os.path.join(ROOT, ".github", "scripts", "common.sh")
 
 FAKE_DETECT = """#!/usr/bin/env bash
-printf 'has_relevant_changes=true\\nios_uitest_build_required=%s\\nandroid_tasks=\\nios_tasks=\\n' "$FAKE_UITEST" >> "$GITHUB_OUTPUT"
+printf 'has_relevant_changes=%s\\nvocabulary_gate_required=%s\\nios_uitest_build_required=%s\\nandroid_tasks=\\nios_tasks=\\n' \\
+	"${FAKE_RELEVANT:-true}" "${FAKE_VOCABULARY:-false}" "$FAKE_UITEST" >> "$GITHUB_OUTPUT"
+"""
+FAKE_VOCABULARY = """#!/usr/bin/env bash
+printf 'vocabulary\\n' >> "$FAKE_BUILD_LOG"
 """
 FAKE_BUILD = """#!/usr/bin/env bash
 printf '%s\\n' "$*" >> "$FAKE_BUILD_LOG"
@@ -35,6 +39,8 @@ class ParityScriptTests(unittest.TestCase):
         self.script(".github/scripts/detect-changed-app.sh", FAKE_DETECT)
         self.script(".github/scripts/verify-workflow-refs.sh", "#!/usr/bin/env bash\nexit 0\n")
         self.script("e2e/scripts/ios/build.sh", FAKE_BUILD)
+        os.makedirs(os.path.join(self.repo, "e2e", "tools", "verify"))
+        self.script("e2e/tools/verify/verify-e2e-vocabulary.sh", FAKE_VOCABULARY)
         self.git("init", "-q", "-b", "main")
         self.git("config", "user.name", "Parity Test")
         self.git("config", "user.email", "test@example.invalid")
@@ -52,8 +58,8 @@ class ParityScriptTests(unittest.TestCase):
             handle.write(body)
         os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR)
 
-    def parity(self, uitest, *argv):
-        env = dict(os.environ, FAKE_UITEST=uitest, FAKE_BUILD_LOG=self.log)
+    def parity(self, uitest, *argv, **extra):
+        env = dict(os.environ, FAKE_UITEST=uitest, FAKE_BUILD_LOG=self.log, **extra)
         env.pop("TARGET_GIT_SHA", None)
         env.pop("BASE_SHA", None)
         return subprocess.run(["bash", PARITY] + list(argv), cwd=self.repo, env=env, stdout=subprocess.PIPE,
@@ -85,6 +91,19 @@ class ParityScriptTests(unittest.TestCase):
         done = self.parity("false")
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(self.builds(), [])
+
+    def test_a_document_only_diff_still_runs_the_vocabulary_gate(self):
+        # The detector says the diff is not a relevant app change but asks for the vocabulary gate (documents, skills).
+        done = self.parity("false", FAKE_RELEVANT="false", FAKE_VOCABULARY="true")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(self.builds(), ["vocabulary"])
+        dry = self.parity("false", "--dry-run", FAKE_RELEVANT="false", FAKE_VOCABULARY="true")
+        self.assertIn("bash ./e2e/tools/verify/verify-e2e-vocabulary.sh", dry.stdout)
+
+    def test_the_gate_is_not_run_when_the_detector_does_not_ask_for_it(self):
+        self.assertEqual(self.parity("false").returncode, 0)
+        self.assertEqual(self.builds(), [])
+        self.assertNotIn("vocabulary", self.parity("false", "--dry-run").stdout)
 
 
 SHARED = os.path.join(ROOT, "e2e", "scripts", "shared")
