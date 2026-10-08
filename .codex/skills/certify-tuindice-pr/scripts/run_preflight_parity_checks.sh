@@ -190,7 +190,9 @@ if [[ -n "$ANDROID_TASKS" ]]; then
 		sanitize_sensitive_environment
 
 		IFS=' ' read -r -a android_task_array <<<"$ANDROID_TASKS"
-		if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* ]]; then
+		# The same condition as the workflow step "Materialize CI placeholder configuration": the release bundle and the
+		# scenarios' test APK (it builds :app, which applies the google-services plugin) need the placeholder configs.
+		if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* || "$ANDROID_TASKS" == *":scenariorunner:assembleDebug"* ]]; then
 			android_env_file="${STATE_DIR}/android-github-env"
 			GITHUB_ENV="$android_env_file" \
 				CI_PLACEHOLDER_IOS=0 \

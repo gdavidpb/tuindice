@@ -13,11 +13,17 @@ PARITY = os.path.join(ROOT, ".codex", "skills", "certify-tuindice-pr", "scripts"
 COMMON = os.path.join(ROOT, ".github", "scripts", "common.sh")
 
 FAKE_DETECT = """#!/usr/bin/env bash
-printf 'has_relevant_changes=%s\\nvocabulary_gate_required=%s\\nios_uitest_build_required=%s\\nandroid_tasks=\\nios_tasks=\\n' \\
-	"${FAKE_RELEVANT:-true}" "${FAKE_VOCABULARY:-false}" "$FAKE_UITEST" >> "$GITHUB_OUTPUT"
+printf 'has_relevant_changes=%s\\nvocabulary_gate_required=%s\\nios_uitest_build_required=%s\\nandroid_tasks=%s\\nios_tasks=\\n' \\
+	"${FAKE_RELEVANT:-true}" "${FAKE_VOCABULARY:-false}" "$FAKE_UITEST" "${FAKE_ANDROID_TASKS:-}" >> "$GITHUB_OUTPUT"
 """
 FAKE_VOCABULARY = """#!/usr/bin/env bash
 printf 'vocabulary\\n' >> "$FAKE_BUILD_LOG"
+"""
+FAKE_PLACEHOLDERS = """#!/usr/bin/env bash
+printf 'placeholders\\n' >> "$FAKE_BUILD_LOG"
+"""
+FAKE_GRADLE_RETRY = """#!/usr/bin/env bash
+printf 'gradle\\n' >> "$FAKE_BUILD_LOG"
 """
 FAKE_BUILD = """#!/usr/bin/env bash
 printf '%s\\n' "$*" >> "$FAKE_BUILD_LOG"
@@ -39,6 +45,8 @@ class ParityScriptTests(unittest.TestCase):
         self.script(".github/scripts/detect-changed-app.sh", FAKE_DETECT)
         self.script(".github/scripts/verify-workflow-refs.sh", "#!/usr/bin/env bash\nexit 0\n")
         self.script("e2e/scripts/ios/build.sh", FAKE_BUILD)
+        self.script(".github/scripts/materialize-ci-placeholders.sh", FAKE_PLACEHOLDERS)
+        self.script(".github/scripts/run-gradle-with-retry.sh", FAKE_GRADLE_RETRY)
         os.makedirs(os.path.join(self.repo, "e2e", "tools", "verify"))
         self.script("e2e/tools/verify/verify-e2e-vocabulary.sh", FAKE_VOCABULARY)
         self.git("init", "-q", "-b", "main")
@@ -99,6 +107,20 @@ class ParityScriptTests(unittest.TestCase):
         self.assertEqual(self.builds(), ["vocabulary"])
         dry = self.parity("false", "--dry-run", FAKE_RELEVANT="false", FAKE_VOCABULARY="true")
         self.assertIn("bash ./e2e/tools/verify/verify-e2e-vocabulary.sh", dry.stdout)
+
+    def test_zd12_the_placeholders_are_materialized_for_the_tasks_that_need_them_as_in_the_workflow(self):
+        # The workflow materializes them when the Android tasks hold :app:bundleRelease or :scenariorunner:assembleDebug
+        # (the test APK builds :app, which applies the google-services plugin); a clean machine fails where CI passes if
+        # the parity forgets one of them.
+        for tasks in (":app:bundleRelease", ":scenariorunner:assembleDebug", ":auth:testAndroidHostTest :scenariorunner:assembleDebug"):
+            if os.path.exists(self.log):
+                os.remove(self.log)
+            done = self.parity("false", FAKE_ANDROID_TASKS=tasks)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertEqual(self.builds(), ["placeholders", "gradle"], tasks)
+        os.remove(self.log)
+        self.assertEqual(self.parity("false", FAKE_ANDROID_TASKS=":auth:testAndroidHostTest").returncode, 0)
+        self.assertEqual(self.builds(), ["gradle"], "tasks that need no google-services configuration get no placeholders")
 
     def test_the_gate_is_not_run_when_the_detector_does_not_ask_for_it(self):
         self.assertEqual(self.parity("false").returncode, 0)
