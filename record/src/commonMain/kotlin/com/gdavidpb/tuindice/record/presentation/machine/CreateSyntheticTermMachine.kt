@@ -173,7 +173,8 @@ class CreateSyntheticTermMachine(
 						},
 						searchResults = snapshot.searchResults.map { subject ->
 							subject.toCreateTermSubjectItem()
-						}
+						},
+						searchQuery = snapshot.searchQuery
 					)
 				}
 

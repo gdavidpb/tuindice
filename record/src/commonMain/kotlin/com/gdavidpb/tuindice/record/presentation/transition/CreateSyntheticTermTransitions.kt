@@ -70,6 +70,9 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 		}
 
 		on<CreateSyntheticTermInternalEvent.SnapshotObserved> { state, event ->
+			// A snapshot already queued can answer a query that is no longer the typed one: the rest of it is
+			// still the truth, its search results are not.
+			val resultsAreOfTheTypedQuery = state.isAbout(event.searchQuery)
 			val updatedState = state.copy(
 				editingTermId = event.editingTermId,
 				editingTermKey = event.editingTermKey,
@@ -77,9 +80,13 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 				selectedPeriod = event.selectedPeriod,
 				selectedSubjects = event.selectedSubjects,
 				suggestedSubjects = event.suggestedSubjects,
-				searchResults = event.searchResults,
+				searchResults = if (resultsAreOfTheTypedQuery) event.searchResults else state.searchResults,
 				submitError = UiText.Empty,
-				hasSearchError = if (event.searchResults.isNotEmpty()) false else state.hasSearchError
+				hasSearchError = if (resultsAreOfTheTypedQuery && event.searchResults.isNotEmpty()) {
+					false
+				} else {
+					state.hasSearchError
+				}
 			)
 
 			if (

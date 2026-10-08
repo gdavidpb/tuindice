@@ -340,7 +340,8 @@ class RecordStateMachineContractTest {
 					selectedPeriod = period,
 					selectedSubjects = listOf(subjectItem),
 					suggestedSubjects = emptyList(),
-					searchResults = emptyList()
+					searchResults = emptyList(),
+					searchQuery = "algoritmos"
 				),
 				CreateSyntheticTermInternalEvent.SearchCleared(query = "algoritmos"),
 				CreateSyntheticTermInternalEvent.SearchStarted(query = "algoritmos"),
@@ -449,6 +450,72 @@ class RecordStateMachineContractTest {
 				CreateSyntheticTermInternalEvent.SearchFailed(query = "fisica")
 			).hasSearchError
 		)
+	}
+
+	// The snapshot is rebuilt from several sources, so one already queued can answer a query that is no longer
+	// the typed one: its search results are left out (the rest of the snapshot is still applied).
+	@Test
+	fun createSyntheticTermMachine_aSnapshotOfAnotherQuery_keepsTheSearchResultsOfTheTypedOne() = runTest {
+		var resolvedMachine: CreateSyntheticTermMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<CreateSyntheticTerm.Effect> {
+			override fun sendEffect(effect: CreateSyntheticTerm.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		fun item(code: String) = CreateTermSubjectItem(
+			subject = SyntheticTermSubject(subjectCode = code, name = code, credits = 4),
+			nameText = code
+		)
+
+		val shown = listOf(item("FS1111"))
+		val queued = listOf(item("MA1111"))
+		val picked = listOf(item("CI2125"))
+
+		fun snapshotOf(query: String, results: List<CreateTermSubjectItem>) =
+			CreateSyntheticTermInternalEvent.SnapshotObserved(
+				editingTermId = null,
+				editingTermKey = null,
+				periodOptions = emptyList(),
+				selectedPeriod = null,
+				selectedSubjects = picked,
+				suggestedSubjects = emptyList(),
+				searchResults = results,
+				searchQuery = query
+			)
+
+		suspend fun next(state: CreateSyntheticTerm.State, event: Any): CreateSyntheticTerm.State {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<CreateSyntheticTerm.State>>(result)
+
+			return result.toState
+		}
+
+		val typing = CreateSyntheticTerm.State(query = "fisica", searchResults = shown, hasSearchError = true)
+
+		// Another query: the results stay, the error flag stays, the rest of the snapshot is applied.
+		val ofAnotherQuery = next(typing, snapshotOf(query = "calculo", results = queued))
+		assertEquals(shown, ofAnotherQuery.searchResults)
+		assertTrue(ofAnotherQuery.hasSearchError)
+		assertEquals(picked, ofAnotherQuery.selectedSubjects)
+
+		// The typed one, however it was written: its results are shown.
+		val ofTheTypedQuery = next(typing, snapshotOf(query = "FÍSICA ", results = queued))
+		assertEquals(queued, ofTheTypedQuery.searchResults)
+		assertEquals(false, ofTheTypedQuery.hasSearchError)
+
+		// A query too short to search just emptied the results: a queued snapshot of the previous query
+		// must not bring them back until the next snapshot.
+		val tooShort = CreateSyntheticTerm.State(query = "f", searchResults = emptyList())
+		assertEquals(emptyList(), next(tooShort, snapshotOf(query = "fisica", results = queued)).searchResults)
 	}
 
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(

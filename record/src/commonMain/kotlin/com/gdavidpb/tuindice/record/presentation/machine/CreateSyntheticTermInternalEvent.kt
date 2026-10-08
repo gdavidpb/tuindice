@@ -10,9 +10,9 @@ import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
  * three observation pipelines over the draft registers (creation snapshot, debounced
  * subject search, and debounced load preview) plus the submit lifecycle.
  *
- * The search events carry the query they belong to; the machine ignores the ones whose query
- * is no longer the typed one (compared normalized), because `flatMapLatest` does not cancel
- * events that are already queued.
+ * The search events, and the search results of the snapshot, carry the query they belong to; the
+ * machine ignores the ones whose query is no longer the typed one (compared normalized), because
+ * `flatMapLatest` does not cancel events that are already queued.
  */
 sealed interface CreateSyntheticTermInternalEvent {
 	data class SnapshotObserved(
@@ -22,7 +22,8 @@ sealed interface CreateSyntheticTermInternalEvent {
 		val selectedPeriod: SyntheticTermPeriodOption?,
 		val selectedSubjects: List<CreateTermSubjectItem>,
 		val suggestedSubjects: List<CreateTermSubjectItem>,
-		val searchResults: List<CreateTermSubjectItem>
+		val searchResults: List<CreateTermSubjectItem>,
+		val searchQuery: String
 	) : CreateSyntheticTermInternalEvent
 
 	data class SearchCleared(

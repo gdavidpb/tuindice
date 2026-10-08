@@ -98,7 +98,7 @@ class SyntheticTermCreationDataSource(
 			pensumStateFlow,
 			searchFlow,
 			selectionFlow
-		) { pensumState, searchResults, selection ->
+		) { pensumState, search, selection ->
 			val record = pensumState.record
 			val pensum = pensumState.pensum
 			val periodOptions = record.periodOptions(editingTermId = selection.editingTermId)
@@ -127,7 +127,7 @@ class SyntheticTermCreationDataSource(
 					editorAvailabilityBySubjectCode = editorAvailabilityBySubjectCode,
 					pensumAvailabilityBySubjectCode = pensumAvailability.bySubjectCode
 				),
-				searchResults = searchResults
+				searchResults = search.results
 					.mapNotNull { subject ->
 						subject
 							.takeIf { item -> RealSubjectCodeRegex.matches(item.subjectCode) }
@@ -142,7 +142,8 @@ class SyntheticTermCreationDataSource(
 						}
 							.thenBy { subject -> subject.availability.searchOrder }
 							.thenBy(SyntheticTermSubject::subjectCode)
-					)
+					),
+				searchQuery = search.query
 			)
 		}
 	}
@@ -207,7 +208,7 @@ class SyntheticTermCreationDataSource(
 	}
 
 	@OptIn(ExperimentalCoroutinesApi::class)
-	private fun observeLocalSearch(queryFlow: StateFlow<String>): Flow<List<SyntheticTermSubject>> {
+	private fun observeLocalSearch(queryFlow: StateFlow<String>): Flow<LocalSearch> {
 		return queryFlow
 			.distinctUntilChanged { old, new ->
 				SubjectCatalogSearchNormalizer.normalize(old) == SubjectCatalogSearchNormalizer.normalize(new)
@@ -215,13 +216,13 @@ class SyntheticTermCreationDataSource(
 			.flatMapLatest { query ->
 				val normalizedQuery = SubjectCatalogSearchNormalizer.normalize(query)
 				if (normalizedQuery.length < MinimumSearchQueryLength) {
-					flowOf(emptyList())
+					flowOf(LocalSearch(query = query, results = emptyList()))
 				} else {
 					caches.subjectCatalogCacheDao.observeSearch(
 						normalizedQuery = normalizedQuery,
 						limit = SearchLimit
 					).map { entities ->
-						entities.map { entity -> entity.toSyntheticTermSubject() }
+						LocalSearch(query = query, results = entities.map { entity -> entity.toSyntheticTermSubject() })
 					}
 				}
 			}
@@ -309,6 +310,12 @@ class SyntheticTermCreationDataSource(
 			}
 		}
 	}
+
+	// The results of the catalog search together with the query they answer.
+	private data class LocalSearch(
+		val query: String,
+		val results: List<SyntheticTermSubject>
+	)
 
 	private data class FormSelectionState(
 		val selectedSubjects: List<SyntheticTermSubject>,

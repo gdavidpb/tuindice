@@ -271,7 +271,7 @@ class AcademicRecordMutationSyncSpec(
 }
 
 // runCatching: the refresh is a network read that fails during the same degraded windows that
-// break sends. Decisional callers Defer on null — Fail
+// break sends. Decisional callers Defer on null, because Fail
 // parks the row as silent FailedTerminal, and after the connection/retry-later preamble
 // the remaining refresh failures are dominated by transient outages that self-heal on a later drain.
 // Reconciliation callers (NotFound) treat it as best-effort: the 404 already decided the
