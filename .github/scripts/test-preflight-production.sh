@@ -49,6 +49,9 @@ run_preflight_fixture() {
 		printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
 	fi
 	: >"${ios_contexts_file}"
+	# The scope the detector wrote (one "platform,suite,reason" line per platform); empty unless a fixture sets it.
+	scope_file="${temp_dir}/e2e-scope.csv"
+	printf '%s' "${TUINDICE_PREFLIGHT_TEST_SCOPE:-}" >"${scope_file}"
 	: >"${missing_version_file}"
 	cat >"${fingerprint_script}" <<'SH'
 #!/usr/bin/env bash
@@ -171,6 +174,7 @@ SH
 		MISSING_VERSION_BUMP_FILE="${missing_version_file}" \
 		E2E_ANDROID_CONTEXTS_FILE="${android_contexts_file}" \
 		E2E_IOS_CONTEXTS_FILE="${ios_contexts_file}" \
+		E2E_SCOPE_FILE="${scope_file}" \
 		REQUIRES_E2E_CERTIFICATION="true" \
 		HAS_RELEVANT_CHANGES="true" \
 		APP_VERSION_CHANGED="false" \
@@ -234,6 +238,13 @@ SH
 				exit 1
 			fi
 			;;
+		scope-without-contexts)
+			if ! grep -q 'scope lists ios but its context file is empty' "${output_file}"; then
+				printf 'Preflight fixture %s did not reject a scope of two platforms with one empty context file.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
 		reuse-from-base)
 			if ! grep -q 'Reused successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not reuse the status found on the base commit.\n' "${name}" >&2
@@ -281,6 +292,11 @@ TUINDICE_PREFLIGHT_TEST_CONTEXT=local-e2e/android/record-suite run_preflight_fix
 
 # D-14: a certification that is required but lists no context cannot pass by checking nothing.
 TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS=1 run_preflight_fixture no-contexts direct-success failure
+# ...and neither can a scope of two platforms whose iOS context file is empty (the android one has its context).
+TUINDICE_PREFLIGHT_TEST_SCOPE=$'android,local-certification-suite,module-runtime\nios,local-certification-suite,module-runtime\n' \
+	run_preflight_fixture scope-without-contexts direct-success failure
+# The same files are fine when the scope names only the platform that has its context.
+TUINDICE_PREFLIGHT_TEST_SCOPE=$'android,local-certification-suite,module-runtime\n' run_preflight_fixture one-platform-scope direct-success success
 # D-15: the fake fingerprint now depends on the ref, so a candidate whose tree differs is not reused...
 TUINDICE_PREFLIGHT_TEST_OTHER_FP=1 run_preflight_fixture reuse-other-fingerprint reuse-success failure
 # ...the base commit is a candidate and an older commit is not (E2E_REUSE_BASE_SHA is no longer always empty)...

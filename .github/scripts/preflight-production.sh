@@ -14,6 +14,7 @@ require_tool curl
 MISSING_VERSION_BUMP_FILE="${MISSING_VERSION_BUMP_FILE:-}"
 E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-}"
 E2E_IOS_CONTEXTS_FILE="${E2E_IOS_CONTEXTS_FILE:-}"
+E2E_SCOPE_FILE="${E2E_SCOPE_FILE:-}"
 REQUIRES_E2E_CERTIFICATION="${REQUIRES_E2E_CERTIFICATION:-false}"
 HAS_RELEVANT_CHANGES="${HAS_RELEVANT_CHANGES:-true}"
 APP_VERSION_CHANGED="${APP_VERSION_CHANGED:-true}"
@@ -421,6 +422,20 @@ if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "
 	# wiring fault, not "nothing to check": fail instead of printing "required and validated".
 	if ! file_has_entries "$E2E_ANDROID_CONTEXTS_FILE" && ! file_has_entries "$E2E_IOS_CONTEXTS_FILE"; then
 		die "E2E certification is required but neither context file lists a context (android: '${E2E_ANDROID_CONTEXTS_FILE}', ios: '${E2E_IOS_CONTEXTS_FILE}')."
+	fi
+	# The detector writes one context per platform of the scope: a platform in the scope whose file is empty is the same
+	# wiring fault with a single file, and checking the other platform alone would print "validated".
+	if [[ -n "$E2E_SCOPE_FILE" && -s "$E2E_SCOPE_FILE" ]]; then
+		while IFS=, read -r scope_platform _; do
+			case "$scope_platform" in
+				android)
+					file_has_entries "$E2E_ANDROID_CONTEXTS_FILE" || die "E2E scope lists android but its context file is empty ('${E2E_ANDROID_CONTEXTS_FILE}')."
+					;;
+				ios)
+					file_has_entries "$E2E_IOS_CONTEXTS_FILE" || die "E2E scope lists ios but its context file is empty ('${E2E_IOS_CONTEXTS_FILE}')."
+					;;
+			esac
+		done <"$E2E_SCOPE_FILE"
 	fi
 	: >"$MISSING_E2E_STATUSES_FILE"
 	e2e_status_check_failed=false
