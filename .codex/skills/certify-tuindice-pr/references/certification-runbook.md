@@ -34,24 +34,21 @@ the stop conditions; this file has the detail behind them.
 
 ### Measured data
 
-These are the only measurements this runbook relies on. Each says where it came from.
+The measurements this runbook relies on are in `docs/e2e-mediciones.md`, dated and with their origin; what that file
+does not list was not measured. What this runbook takes from it:
 
-- Audit of the 13-hour certification of `feat/university-states-backlog` (October 2026), section F, on a 10-core M1
-  Max with 64 GB: load averages 8.19 / 25.99 / 34.33 at 13:16 (F1); corrupted long entries rose from 9 % to 36 %
-  from 10:00 and the load source was not recorded (F2); key delivery latency from HID to insertion stayed at a
-  12-15 ms median through the night, p99 30 to 44 ms (F3); time since reboot showed no effect before 10:00: 9 %,
-  7 %, 13 %, 8 % per segment (F4); the host had been up 34 days (F6).
-- The same audit and plan reproduced the text loss without any device: the auth fields turned `abc` into `ac` and
-  `12-3` into `13-` in two host tests that failed before the fix. That is why a typed-text mismatch is a product
-  or driver defect and not load.
-- Measured on the same 10-core host during the native E2E work (October 2026; the reports of that work hold the
-  runs): Android failed through emulator slowness when the host load exceeded about 1.3 per core: 8 of 160 runs, all with
-  a final `load1` of 12.9 or more on 10 cores, while iOS passed 80 of 80 with host load up to 54. With a 4-core
-  emulator the emulator's own load reached 12-13; with 8 cores and 16 GB it stayed at 2-5. One real source of load
-  peaks was another session running `pytest -n auto`.
-- Same host, emulator and simulator running scenarios together (October 2026): `load1` was 7.7 (0.77 per core)
-  while `top` showed 53 % of the CPU idle, and a parallel probe waited on load 37 times with the machine half free.
-  The load average overstates contention there; only the `pytest -n auto` session brought the idle CPU near zero.
+- A typed-text mismatch is a product or driver defect, not load. In the audit of the 13-hour certification (October
+  2026, a 10-core M1 Max with 64 GB), UIKit delivered and inserted every key in all 22 corrupted long entries that had a
+  full log, characters were moved and not only lost, key delivery latency stayed at a 12-15 ms median all night, and
+  with the Android emulator off 10 of 108 long entries were still corrupted before 10:00.
+- Time since reboot showed no effect before 10:00 (9, 7, 13 and 8 % per segment). The source of the load after 10:00
+  was not recorded.
+- Android failures under host load: 3 runs of the first series and 5 of the 80 runs of the repeat, all with a final
+  `load1` of 12.9 or more. The number of green runs under that load was not recorded, so this is an association, not a
+  failure rate. The emulator's own load reached 12-13 with 4 vCPUs and was 2.3 to 4.8 with 8 cores and 16 GB. One source
+  of load was another session running `pytest -n auto`.
+- With that session running, the idle CPU was 0 %; with only the E2E work it was 9 to 23 %. The harness records the idle
+  CPU (the `cpu` check) next to the load average.
 
 ## 2. Before paying for evidence
 
@@ -277,8 +274,8 @@ Wrap-up:
 - A learning becomes, in this order: (1) a harness check or classification rule with a fake-adapter test in
   `e2e/tools/tests/`; (2) a host test in `:scenarios`; (3) one row in a table here. The incident narrative goes in
   the commit message, not here.
-- No sentence may state a cause without a measured datum and its source. Section 1 lists the data this runbook
-  relies on; a new cause enters there with its measurement or does not enter.
+- No sentence may state a cause without a measured datum and its source. `docs/e2e-mediciones.md` holds the data this
+  runbook relies on, dated and with its origin; a new cause enters there first, with its measurement, or does not enter.
 - Line budgets are in `e2e/tools/verify/line-budgets.env` and are checked by `./gradlew verifyE2eHarness`
   (`e2e/tools/verify/verify-line-budgets.sh`) for `SKILL.md`, this runbook and `e2e/scripts/{shared,android,ios}`;
   the numbers live only there. Raising one needs its own commit stating why.
