@@ -99,10 +99,6 @@ final class PensumScenarioTests: ScenarioTestCase {
     func test_pensum_smoke() { runScenario("pensum-smoke") }
 }
 
-final class PocScenarioTests: ScenarioTestCase {
-    func test_poc_expected_failure() { runScenario("poc-expected-failure") }
-}
-
 final class RecordScenarioTests: ScenarioTestCase {
     func test_record_annulled_final_notice() { runScenario("record-annulled-final-notice") }
     func test_record_annulled_provisional_schedule() { runScenario("record-annulled-provisional-schedule") }

@@ -24320,49 +24320,6 @@
             "stepsHash": "9af1828ef89683c9",
             "tags": [],
             "timeoutSeconds": 180
-        },
-        {
-            "account": null,
-            "android": {
-                "scenarioArg": "poc-expected-failure"
-            },
-            "covers": [],
-            "id": "poc-expected-failure",
-            "ios": {
-                "onlyTesting": "TuIndiceUITests/PocScenarioTests/test_poc_expected_failure"
-            },
-            "module": "poc",
-            "platforms": [
-                "android",
-                "ios"
-            ],
-            "quarantine": null,
-            "signsIn": false,
-            "start": {
-                "arguments": {
-                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
-                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
-                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z"
-                },
-                "mockStates": []
-            },
-            "steps": [
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "poc_never_present"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PocScenarios.kt",
-                        "line": 11
-                    },
-                    "timeoutMs": 2000,
-                    "type": "waitVisible"
-                }
-            ],
-            "stepsHash": "d0a2b9d753b244e2",
-            "tags": [],
-            "timeoutSeconds": 180
         }
     ],
     "schema": "tuindice-e2e-catalog/1"
