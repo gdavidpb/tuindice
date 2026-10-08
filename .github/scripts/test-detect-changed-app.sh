@@ -281,6 +281,43 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "$github_output_file" "has_relevant_changes=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			# A skill is a document the vocabulary gate reads: it runs alone (no harness suite, no Gradle task).
+			assert_file_contains_line "$github_output_file" "vocabulary_gate_required=true" "GitHub output"
+			;;
+		docs-vocabulary)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/android-gradle-tasks.txt" "Android tasks"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "vocabulary_gate_required=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		license-only)
+			assert_file_contains_line "$github_output_file" "vocabulary_gate_required=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=false" "GitHub output"
+			;;
+		launch-contract-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		ci-shared-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyAppVersionSync" "Android tasks"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		ci-other-script)
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "e2e_contract_touched=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
 			;;
 		ios-script-tooling)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -305,6 +342,40 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
+			# The guard that reads the host Swift runs on the change it protects, not only on a change of the E2E contract.
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyLaunchArgumentContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "vocabulary_gate_required=false" "GitHub output"
+			;;
+		ios-host-tests-group)
+			# A group named like a test target inside the host sources is host runtime, not a unit test.
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "iosApp" "release impacted modules"
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" "ios,local-certification-suite,ios-host-runtime"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			;;
+		ios-unit-tests-dir)
+			# The directory iosApp/<name>Tests/ really is a unit test source: no runtime impact, no evidence.
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		kmp-test-named-package)
+			# A package ending in Test deeper in a runtime source set is runtime of both platforms.
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "auth" "release impacted modules"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			;;
+		kmp-tests-named-package)
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			;;
+		product-ui-tags)
+			# The tags the catalog is generated from: the committed artifacts must be compared, not only regenerated.
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eArtifactsFresh" "Android tasks"
 			;;
 		ios-version-xcconfig)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -432,6 +503,8 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
+			# The Android runner links the kit: a kit-only change must still build it.
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:assembleDebug" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" ":scenariorunner:compileKotlinIosSimulatorArm64" "iOS tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
@@ -482,6 +555,8 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyLaunchArgumentContract" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eArtifactsFresh" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":persistence:iosSimulatorArm64Test" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":wizard:compileKotlinIosSimulatorArm64" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
@@ -764,6 +839,20 @@ run_detector_fixture e2e-runner e2e/tools/tests/support.py
 run_detector_fixture e2e-loose-script e2e/scripts/stray.sh
 run_detector_fixture certification-skill .codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
 run_detector_fixture skill-docs .codex/skills/implement-tuindice-module/SKILL.md
+run_detector_fixture docs-vocabulary docs/release-pipeline.md
+run_detector_fixture docs-vocabulary README.md
+run_detector_fixture docs-vocabulary AGENTS.md
+run_detector_fixture license-only LICENSE
+run_detector_fixture launch-contract-script scripts/verify-launch-argument-contract.sh
+run_detector_fixture launch-contract-script scripts/verify-e2e-artifacts.sh
+run_detector_fixture ci-shared-script .github/scripts/common.sh
+run_detector_fixture ci-shared-script .github/scripts/detect-changed-app.sh
+run_detector_fixture ci-other-script .github/scripts/deploy-production.sh
+run_detector_fixture ios-host-tests-group iosApp/Sources/FooTests/Probe.swift
+run_detector_fixture ios-unit-tests-dir iosApp/TuIndiceHostTests/Probe.swift
+run_detector_fixture kmp-test-named-package auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/abTest/Probe.kt
+run_detector_fixture kmp-tests-named-package auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/fooTests/Probe.kt
+run_detector_fixture product-ui-tags auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/AuthUiTags.kt
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
 run_detector_fixture scenarios-test-only scenarios/src/androidHostTest/kotlin/com/gdavidpb/tuindice/scenarios/CatalogShapeTest.kt
 run_detector_fixture scenarios-sources scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/E2eCatalog.kt

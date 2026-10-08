@@ -49,6 +49,7 @@ CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
 MODULE_GRAPH_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
+VOCABULARY_GATE_REQUIRED=false
 DETEKT_CONFIG_TOUCHED=false
 SEMGREP_CONFIG_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
@@ -146,26 +147,18 @@ is_app_test_source_file() {
 is_ios_app_test_source_file() {
 	local file="$1"
 
-	case "$file" in
-		iosApp/Tests/*|iosApp/*Tests/*)
-			return 0
-			;;
-	esac
-
-	return 1
+	# Anchored to the first directory under iosApp: a group named like a test target deeper in the host sources
+	# (iosApp/Sources/FooTests/) is runtime, and a case pattern's `*` would cross the `/` and call it a test.
+	[[ "$file" =~ ^iosApp/[^/]*Tests/ ]]
 }
 
 is_kmp_test_source_file() {
 	local module="$1"
 	local file="$2"
 
-	case "$file" in
-		"$module/src/"*Test/*|"$module/src/test/"*)
-			return 0
-			;;
-	esac
-
-	return 1
+	# Anchored to the source-set directory (<module>/src/<set>Test/): a package or directory ending in Test deeper in a
+	# runtime source set is runtime, and a case pattern's `*` would cross the `/` and call it a test.
+	[[ "$file" =~ ^${module}/src/([^/]*Test|test)/ ]]
 }
 
 # A runtime source or build file of a KMP module is one the E2E fingerprint reads (the source-set lists live in
@@ -246,6 +239,15 @@ classify_changed_file() {
 			append_e2e_scope ios "e2e-ios-build-scripts"
 			return 0
 			;;
+		.github/scripts/common.sh|.github/scripts/detect-changed-app.sh)
+			# The harness sources common.sh (suite, status context, base ref, trusted creators) and the detector decides
+			# which checks every other change runs; test_single_definitions, test_real_scripts_chain and test_verdict
+			# test them, so a change here also runs the contract checks.
+			CI_CONFIG_TOUCHED=true
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		.github/workflows/*|.github/scripts/*|.github/actions/*)
 			CI_CONFIG_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
@@ -269,7 +271,20 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
-		AGENTS.md|README.md|LICENSE|docs/*|.codex/*)
+		AGENTS.md|README.md|docs/*|.codex/*)
+			# Documents and skills cannot change what a scenario does, but they can bring back a word or a task name the
+			# E2E vocabulary gate retired; it runs alone (not the whole harness suite) for them.
+			VOCABULARY_GATE_REQUIRED=true
+			return 0
+			;;
+		LICENSE)
+			return 0
+			;;
+		scripts/verify-launch-argument-contract.sh|scripts/verify-e2e-artifacts.sh)
+			# The launch-argument contract guard and the catalog freshness check: verifyE2eContract runs them and the
+			# harness tests (test_launch_argument_contract.py) exercise the first.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
 		config/detekt/*|.editorconfig|*/detekt-baseline.xml)
@@ -638,6 +653,10 @@ while IFS= read -r module; do
 				append_ios_host_task "verifyIosHostTypecheck"
 			fi
 			;;
+		scenariorunner)
+			# The Android test APK links the scenario kit: when only the kit changes, this is the only task that builds it.
+			append_unique_line "$ANDROID_TASKS_FILE" ":scenariorunner:assembleDebug"
+			;;
 		*)
 			if module_is_kmp "$module"; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
@@ -649,6 +668,12 @@ while IFS= read -r module; do
 				if [[ "$module" != "testkit" ]]; then
 					append_ios_test_task ":${module}:iosSimulatorArm64Test"
 				fi
+				if [[ "$module" == "scenarios" ]]; then
+					# Product modules own the UI tags the catalog is generated from, so a change in any module that
+					# reaches the scenarios must compare the generated artifacts with the versioned ones (the test task
+					# above only writes them).
+					append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eArtifactsFresh"
+				fi
 			fi
 			;;
 	esac
@@ -656,6 +681,12 @@ done <"$IMPACTED_MODULES_FILE"
 
 if [[ "$E2E_CONTRACT_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eContract"
+fi
+
+# The launch-argument guard reads the iOS host, iosMain and app/src/main (what it protects) with find and grep, no
+# compilation: any change that reaches a module runs it, not only a change of the E2E contract.
+if [[ -s "$IMPACTED_MODULES_FILE" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyLaunchArgumentContract"
 fi
 
 # Touching either version source is the only way to desynchronize the generated
@@ -719,6 +750,7 @@ info "Module graph touched: ${MODULE_GRAPH_TOUCHED}"
 info "Detekt config touched: ${DETEKT_CONFIG_TOUCHED}"
 info "Semgrep config touched: ${SEMGREP_CONFIG_TOUCHED}"
 info "Semgrep required: ${SEMGREP_REQUIRED}"
+info "E2E vocabulary gate required: ${VOCABULARY_GATE_REQUIRED}"
 info "iOS UI test build required: ${IOS_UITEST_BUILD_REQUIRED}"
 info "E2E suites requiring local certification:$(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
@@ -754,6 +786,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'ios_ci_scripts_touched=%s\n' "$IOS_CI_SCRIPTS_TOUCHED"
 		printf 'module_graph_touched=%s\n' "$MODULE_GRAPH_TOUCHED"
 		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"
+		printf 'vocabulary_gate_required=%s\n' "$VOCABULARY_GATE_REQUIRED"
 		printf 'ios_uitest_build_required=%s\n' "$IOS_UITEST_BUILD_REQUIRED"
 		printf 'requires_e2e_certification=%s\n' "$REQUIRES_E2E_CERTIFICATION"
 		printf 'e2e_suites_file=%s\n' "$E2E_SUITES_FILE"

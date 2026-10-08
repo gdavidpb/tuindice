@@ -25,6 +25,7 @@ jobs:
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
       ios_uitest_build_required: ${{ steps.changes.outputs.ios_uitest_build_required }}
       e2e_contract_touched: ${{ steps.changes.outputs.e2e_contract_touched }}
+      vocabulary_gate_required: ${{ steps.changes.outputs.vocabulary_gate_required }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
       app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
       has_release_impact: ${{ steps.changes.outputs.has_release_impact }}
@@ -46,7 +47,7 @@ jobs:
             bash ./.github/scripts/detect-changed-app.sh "$merge_base" "${{ github.event.pull_request.head.sha }}"
 
       - name: Skip shared preflight when there are no relevant changes
-        if: steps.changes.outputs.has_relevant_changes != 'true'
+        if: steps.changes.outputs.has_relevant_changes != 'true' && steps.changes.outputs.vocabulary_gate_required != 'true'
         run: |
           set -euo pipefail
           {
@@ -61,6 +62,15 @@ jobs:
         run: |
           set -euo pipefail
           bash ./.github/scripts/validate-ci-config.sh
+
+      # Documents and skills cannot change what a scenario does, but they can reintroduce a word or a task name the
+      # E2E vocabulary gate retired. The gate runs alone here; the harness suite that also contains it runs only when
+      # the E2E contract is touched.
+      - name: Check the E2E vocabulary
+        if: steps.changes.outputs.vocabulary_gate_required == 'true'
+        run: |
+          set -euo pipefail
+          bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
 
       # Enforcement estático de la arquitectura de referencia (README +
       # config/semgrep/rules): fixtures, prueba de generalidad y scan repo-wide.
@@ -124,8 +134,10 @@ jobs:
       # against placeholder Firebase configs and a throwaway signing keystore.
       # Real signing happens only in deploy-production.yml under the
       # production environment.
+      # The Android test APK of the scenarios (:scenariorunner:assembleDebug) builds :app too, which applies the
+      # google-services plugin: it needs the same placeholder.
       - name: Materialize CI placeholder configuration
-        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease')
+        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease') || contains(needs.shared-preflight.outputs.android_tasks, ':scenariorunner:assembleDebug')
         run: |
           set -euo pipefail
           CI_PLACEHOLDER_IOS=0 bash ./.github/scripts/materialize-ci-placeholders.sh

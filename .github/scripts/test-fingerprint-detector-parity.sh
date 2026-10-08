@@ -85,6 +85,15 @@ for platform in android ios; do
 		probe="$(probe_for "$path")"
 		printf '%s\n' "$probe" >>"$probes_file"
 		printf '%s\t%s\t%s\n' "$platform" "$probe" "$path" >>"$expectations"
+		# A directory is also probed through a directory whose name ends like a test source set (abTest, fooTests). The
+		# detector recognizes tests by the source-set segment only; a name that merely ends in Test or Tests, deeper in
+		# a pathspec the fingerprint reads, is still runtime.
+		if [[ "$probe" == */probe.txt ]]; then
+			for deep in abTest fooTests; do
+				printf '%s\n' "${path}/${deep}/probe.txt" >>"$probes_file"
+				printf '%s\t%s\t%s\n' "$platform" "${path}/${deep}/probe.txt" "$path" >>"$expectations"
+			done
+		fi
 	done < <(bash "$FINGERPRINT" --print-pathspecs "$platform" HEAD)
 done
 
