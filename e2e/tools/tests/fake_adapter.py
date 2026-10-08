@@ -133,6 +133,25 @@ def mutate_checkout(script, key):
         subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "during the run"], check=True)
 
 
+def driver_contract(mode, args):
+    """The `driver-contract` verb. `driverContract` in the script: pass | fail (two probes fail) | missing (an adapter that
+    does not know the verb) | invalid-json | no-ok (JSON without `ok`) | empty (ok, but no probe ran) | exit1 (ok JSON, exit 1)."""
+    probes = ["launch", "present-element", "foreground"]
+    if mode == "missing":
+        sys.stderr.write("unknown verb driver-contract\n")
+        sys.exit(64)
+    if mode == "invalid-json":
+        print("the contract ran, trust me")
+        sys.exit(0)
+    if mode == "no-ok":
+        emit({"passed": probes, "failed": []})
+    if mode == "empty":
+        emit({"ok": True, "passed": [], "failed": [], "artifacts": args[0]})
+    if mode == "fail":
+        emit({"ok": False, "passed": probes[:1], "failed": probes[1:], "artifacts": args[0]})
+    emit({"ok": True, "passed": probes, "failed": [], "artifacts": args[0]}, 1 if mode == "exit1" else 0)
+
+
 def main(argv):
     platform, verb, args = argv[1], argv[2], argv[3:]
     with open(os.environ["E2E_FAKE_CALL_LOG"], "a") as log:
@@ -190,6 +209,8 @@ def main(argv):
             if line and not line.startswith("#"))
         keys.update(script.get("toolchain", {}).get(platform, {}))
         emit(keys)
+    elif verb == "driver-contract":
+        driver_contract(script.get("driverContract", "pass"), args)
     elif verb in ("install", "reset-app", "stop-device"):
         emit({})
     else:

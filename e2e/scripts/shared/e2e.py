@@ -68,7 +68,8 @@ def cmd_run(cfg, args):
     options = runner.Options(
         args.mode, scenarios=[i for i in (args.scenario or "").split(",") if i], tag=args.tag,
         changed_since=args.changed_since, survey=args.survey, repeat=args.repeat, trace=args.trace,
-        dry_run=args.dry_run, force=args.force, child_of=args.child_of, stop_device=args.stop_device)
+        dry_run=args.dry_run, force=args.force, child_of=args.child_of, stop_device=args.stop_device,
+        driver_contract=args.driver_contract)
     if args.parallel_decision:
         options.parallel = (args.parallel_decision, args.parallel_reason or "")
     platforms = cfg.platforms_for(args.platform)
@@ -251,6 +252,7 @@ def build_parser():
     run.add_argument("--trace", action="store_true")
     run.add_argument("--dry-run", action="store_true")
     run.add_argument("--force", action="store_true")
+    run.add_argument("--driver-contract", action="store_true", help="also run the driver contract in diagnose mode (evidence always does)")
     # Internal: how `--platform all` starts each platform as an independent process.
     run.add_argument("--child-of", help=argparse.SUPPRESS)
     run.add_argument("--parallel-decision", help=argparse.SUPPRESS)

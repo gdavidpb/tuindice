@@ -41,11 +41,12 @@ class StopRun(Exception):
 
 class Options:
     def __init__(self, mode, scenarios=None, tag=None, changed_since=None, survey=False, repeat=1,
-            trace=False, dry_run=False, force=False, child_of=None, stop_device=False):
+            trace=False, dry_run=False, force=False, child_of=None, stop_device=False, driver_contract=False):
         self.mode = mode
         self.scenarios = scenarios or []
         self.tag, self.changed_since, self.survey = tag, changed_since, survey
         self.repeat, self.trace, self.dry_run, self.force = repeat, trace, dry_run, force
+        self.driver_contract = driver_contract  # diagnose runs the driver contract only when asked; evidence always does
         # Set for a platform of `--platform all`: the parent run id, whether to stop a device this run booted,
         # and the parent's (decision, reason).
         self.child_of, self.stop_device, self.parallel = child_of, stop_device, None
@@ -306,6 +307,8 @@ class PlatformRun:
         for name in ("toolchain", "env_check"):
             if HOOKS[name]:
                 HOOKS[name](self)
+        if self._runs_driver_contract():
+            self.log.say("DRY-RUN would run the driver contract once, after enumerate and before the first scenario")
 
     def _prepare(self):
         m, adapter, cfg = self.manifest, self.adapter, self.cfg
@@ -347,6 +350,39 @@ class PlatformRun:
                 if tests.count(s.runner_identifier(self.platform)) != 1]
             if bad:
                 raise UsageError("every catalog id needs exactly one runner test; mismatches: %s" % ", ".join(bad))
+        if self._runs_driver_contract():
+            with m.phase("driver-contract"):
+                self._driver_contract()
+
+    def _runs_driver_contract(self):
+        return self.evidence or self.opts.driver_contract
+
+    def _driver_contract(self):
+        """The driver's own contract, once per platform before the first scenario (B-5). What cannot be executed or read is
+        never taken as good: a missing verb, a timeout, an exit status or an answer the harness does not understand is exit 3
+        as much as a red probe."""
+        record, directory = self.manifest.data["driverContract"], os.path.join(self.run_dir, "driver-contract")
+        os.makedirs(directory, exist_ok=True)
+        result = self.adapter.call("driver-contract", directory, self.cfg.ports[self.platform])
+        answer = result.json
+        record.update(ran=True, artifacts="driver-contract")
+        shape = isinstance(answer.get("ok"), bool) and isinstance(answer.get("passed"), list) and isinstance(answer.get("failed"), list)
+        if shape:
+            record.update(ok=answer["ok"], passed=answer["passed"], failed=answer["failed"])
+        where = "(full output in %s, artifacts in driver-contract/)" % (result.log or "the adapter output")
+        if result.timed_out or not shape:
+            record["ok"] = False
+            raise EnvironmentRefused("the driver contract gave no answer the harness understands: %s %s"
+                % ("it timed out" if result.timed_out else "exit %s, %s" % (result.returncode, result.stderr.strip()[-200:] or "no valid JSON"), where))
+        if not answer["ok"] or answer["failed"]:
+            record["ok"] = False
+            raise EnvironmentRefused("the driver contract failed, so no scenario runs on this driver; failed probes: %s %s"
+                % (", ".join(str(n) for n in answer["failed"]) or "none named", where))
+        if not result.ok or not answer["passed"]:
+            record["ok"] = False
+            raise EnvironmentRefused("the driver contract answered ok but %s: it is not taken as good %s"
+                % ("exited %s" % result.returncode if not result.ok else "no probe ran", where))
+        self.log.say("CONTRACT driver contract green: %d probes" % len(answer["passed"]))
 
     def _require_unchanged(self, moment):
         """Evidence comes from one commit and a clean tree: HEAD and the tree are read again, and a change is exit 2."""

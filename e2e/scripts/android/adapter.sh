@@ -5,6 +5,9 @@
 #   build <port>                          build.sh; remembers the APKs for the verbs below
 #   install                               installs the app and the scenario runner
 #   enumerate                             the runner's tests, without running them
+#   driver-contract <dir> <port>          the driver's contract and the on-device driver probes (DriverContractTest, AndroidDriverProbesTest,
+#                                         AndroidTypingProbesTest minus its typingSeries measurement, which needs -e typingSeries) in one
+#                                         instrumentation run on a cleared app; {ok, passed, failed, skipped, artifacts}
 #   reset-app                             pm clear of the app and the runner's output directory (never pm clear of the runner)
 #   run-scenario <id> <attemptDir> <port> exactly one instrumentation run; the verdict comes from result.json, not from adb
 #   crash-probe <sinceEpoch> <attemptDir> [<untilEpoch> <waitSeconds>]   crash or ANR evidence in the device log (the log is cleared
@@ -73,16 +76,21 @@ cmd_enumerate() {
 	python3 "${TOOLS}" instrument-tests "${listing}"
 }
 
-cmd_reset_app() {
+# The app cleared and the runner's output directory emptied (the state every attempt and the driver contract start from).
+clear_app() {
 	local answer
-	resolve_device
-	read_build_state
 	answer="$(adb_s shell pm clear "${APP_ID}" | tr -d '\r')"
 	[[ "${answer}" == "Success" ]] || fail "pm clear ${APP_ID} answered '${answer}'"
 	# Only the runner's output directory is emptied: pm clear of the test package would erase result.json.
 	adb_s shell am force-stop "${TEST_ID}"
 	adb_s shell run-as "${TEST_ID}" rm -rf "${TEST_OUTPUT_DIR}" || fail "run-as ${TEST_ID} could not empty ${TEST_OUTPUT_DIR}"
 	adb_s logcat -b all -c
+}
+
+cmd_reset_app() {
+	resolve_device
+	read_build_state
+	clear_app
 	emit_json "ok=j:true"
 }
 
@@ -121,6 +129,27 @@ cmd_run_scenario() {
 	python3 "${TOOLS}" instrument-summary "${dir}/runner.log"
 }
 
+CONTRACT_CLASSES="${E2E_ANDROID_TEST_PACKAGE}.DriverContractTest,${E2E_ANDROID_TEST_PACKAGE}.AndroidDriverProbesTest,${E2E_ANDROID_TEST_PACKAGE}.AndroidTypingProbesTest"
+CONTRACT_REQUIRED="DriverContractTest#driverHonoursTheContract"
+
+cmd_driver_contract() {
+	local dir="${1:?artifacts dir}" port="${2:?port}" status=0 id
+	resolve_device
+	read_build_state
+	mkdir -p "${dir}"
+	clear_app
+	# No `-e scenario`: a filter would make the contract skip itself. The runner's own directories (the contract's and each probe's)
+	# hold result.json and driver.log; they are pulled so that a red probe leaves its record.
+	instrument -e class "${CONTRACT_CLASSES}" -e wiremockUrl "$(wiremock_url "${port}")" > "${dir}/runner.log" 2>&1 || status=$?
+	log "am instrument exited ${status}; the probes are read from its status stream and result.json"
+	for id in $(adb_s exec-out run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}" 2> /dev/null | tr -d '\r'); do
+		mkdir -p "${dir}/${id}"
+		pull_output "${id}" "${dir}/${id}"
+	done
+	python3 "${TOOLS}" instrument-probes "${dir}/runner.log" "${CONTRACT_REQUIRED}" "${dir}/driver-contract/result.json" \
+		| python3 -c 'import json, sys; out = json.load(sys.stdin); out["artifacts"] = sys.argv[1]; print(json.dumps(out))' "${dir}"
+}
+
 cmd_crash_probe() {
 	local since="${1:?since}" dir="${2:?attempt dir}" events="${WORK}/crash-probe.log"
 	resolve_device
@@ -155,8 +184,9 @@ case "${1:-}" in
 	install) cmd_install ;;
 	enumerate) cmd_enumerate ;;
 	reset-app) cmd_reset_app ;;
+	driver-contract) shift; cmd_driver_contract "$@" ;;
 	run-scenario) shift; cmd_run_scenario "$@" ;;
 	crash-probe) shift; cmd_crash_probe "$@" ;;
 	collect-failure) shift; cmd_collect_failure "$@" ;;
-	*) printf 'Usage: %s toolchain|ensure-device|build|install|enumerate|health|reset-app|run-scenario|crash-probe|collect-failure|recover|stop-device\n' "$0" >&2; exit 64 ;;
+	*) printf 'Usage: %s toolchain|ensure-device|build|install|enumerate|health|reset-app|driver-contract|run-scenario|crash-probe|collect-failure|recover|stop-device\n' "$0" >&2; exit 64 ;;
 esac

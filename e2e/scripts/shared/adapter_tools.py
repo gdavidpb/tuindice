@@ -10,6 +10,9 @@ Usage: adapter_tools.py <command> [args...]. Every command prints one JSON objec
   logcat-crash <log> <since> <app id> <file>     {kind, excerpt} from `logcat -v epoch`; the evidence goes to <file>
   logcat-window <log> <since> <max bytes> <file> {bytes, truncated} the `logcat -v epoch` lines from <since> on, the last <max bytes> of them
   cap-log <max bytes> <file>                     {bytes, truncated} stdin to <file>, the last <max bytes> of it
+  instrument-probes <log> <required> <result>    {ok, passed, failed, skipped} of an `am instrument -r` run of several classes; <required> is a
+                                                 comma list of `Class#method` that must pass, <result> the contract's result.json
+  xctest-contract <log> <exit code> <result>     {ok, passed, failed, skipped} of the xcodebuild run of the driver contract test
   xctest-summary <log> <exit code>               {nativeOk, testsExecuted} of an xcodebuild test run
   xctest-tests <enumeration json>                {tests} the `Target/Class/method` identifiers of an enumeration
   ios-crash <reports dir> <since> <until> <process> <file> <udid> <wait s>  {kind, excerpt} from the crash report of the app
@@ -65,6 +68,62 @@ def instrument_summary(log):
     broken = "INSTRUMENTATION_FAILED" in text or "Process crashed" in text
     ok = len(finished) == 1 and finished[0] == 0 and not broken and "INSTRUMENTATION_CODE: -1" in text
     return {"nativeOk": ok, "testsExecuted": len(finished)}
+
+
+STATUS_KEY = re.compile(r"^INSTRUMENTATION_STATUS: (class|test)=(.*)$")
+STATUS_CODE = re.compile(r"^INSTRUMENTATION_STATUS_CODE: (-?\d+)")
+# The code that closes a test in an `am instrument -r` stream: 0 passed, -2 failed, -3 ignored, -4 assumption not met (skipped).
+CLOSING = {0: "passed", -2: "failed", -3: "skipped", -4: "skipped"}
+
+
+def _contract_steps(result):
+    """([passed names], [failed names], problem) of the steps of the contract's result.json; a result that cannot be read is a problem."""
+    try:
+        steps = json.loads(_read(result)).get("steps")
+        if not isinstance(steps, list) or not steps:
+            return [], [], "result.json has no steps"
+        names = [(str(s.get("primitive")), s.get("outcome") == "passed") for s in steps]
+    except (OSError, ValueError, AttributeError) as error:
+        return [], [], "result.json is unreadable: %s" % error
+    return [n for n, ok in names if ok], [n for n, ok in names if not ok], None
+
+
+def instrument_probes(log, required, result):
+    """Every test of an `am instrument -r` run, as `Class#method`, sorted by how it closed. The run is red when a test failed, when
+    the process died, when a required test did not pass (a skipped contract is not a green one) or when nothing ran; the steps of
+    the contract's own result.json are listed as `contract:<check>`."""
+    text, current, passed, failed, skipped = _read(log), {}, [], [], []
+    for line in text.splitlines():
+        key = STATUS_KEY.match(line)
+        code = STATUS_CODE.match(line)
+        if key:
+            current[key.group(1)] = key.group(2).strip()
+        elif code:
+            if int(code.group(1)) in CLOSING and "test" in current:
+                name = "%s#%s" % (current.get("class", "?").rsplit(".", 1)[-1], current["test"])
+                {"passed": passed, "failed": failed, "skipped": skipped}[CLOSING[int(code.group(1))]].append(name)
+            current = {}
+    steps_passed, steps_failed, problem = _contract_steps(result)
+    passed += ["contract:" + n for n in steps_passed]
+    failed += ["contract:" + n for n in steps_failed]
+    if problem:
+        failed.append("contract:" + problem)
+    if "INSTRUMENTATION_FAILED" in text or "Process crashed" in text:
+        failed.append("instrumentation: the run failed or the process crashed")
+    failed += ["%s: did not pass (%s)" % (name, "skipped" if name in skipped else "not run")
+        for name in required.split(",") if name and name not in passed]
+    return {"ok": not failed and bool(passed), "passed": passed, "failed": failed, "skipped": skipped}
+
+
+def xctest_contract(log, exit_code, result):
+    summary = xctest_summary(log, exit_code)
+    steps_passed, steps_failed, problem = _contract_steps(result)
+    failed = list(steps_failed) + ([problem] if problem else [])
+    if not summary["nativeOk"] and not failed:
+        failed.append("xcodebuild: the contract test did not pass (exit %s)" % exit_code)
+    if summary["testsExecuted"] != 1:
+        failed.append("xcodebuild: %d tests executed, expected exactly 1" % summary["testsExecuted"])
+    return {"ok": not failed and bool(steps_passed), "passed": steps_passed, "failed": failed, "skipped": []}
 
 
 def instrument_tests(log):
@@ -227,7 +286,7 @@ def ios_crash(reports_dir, since, until, process, evidence_file, udid="", wait="
 COMMANDS = {
     "apk-outputs": (apk_outputs, 2), "catalog-field": (catalog_field, 3), "instrument-summary": (instrument_summary, 1),
     "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "logcat-window": (logcat_window, 4), "cap-log": (cap_log, 2),
-    "xctest-summary": (xctest_summary, 2),
+    "xctest-summary": (xctest_summary, 2), "instrument-probes": (instrument_probes, 3), "xctest-contract": (xctest_contract, 3),
     "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 7),
 }
 

@@ -25,6 +25,7 @@ VERB_TIMEOUTS = {
     "build": 1800,          # iOS cold derived data 92 s, warm 7-11 s; Android all cached 4 s; a clean Gradle build is not measured
     "install": 120,         # measured 0.6-3 s
     "enumerate": 120,       # measured 6-7 s
+    "driver-contract": 420, # measured 19 s Android, 26 s iOS by hand; the app is reset first and the Android probes ride along
     "health": 180,          # the Android probe may wait up to 120 s for the emulator load to drop; measured 0.2 s idle
     "reset-app": 60,        # measured 0.5 s Android, 1.9 s iOS
     "crash-probe": 45,      # measured 0.2 s Android, 1 s iOS; a failed iOS attempt may wait 15 s for the crash report

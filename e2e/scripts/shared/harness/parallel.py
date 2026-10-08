@@ -55,7 +55,7 @@ def _child_argv(args, platform, parent, decision, reason, stop_device):
         if value:
             argv += [flag, value]
     argv += ["--repeat", str(args.repeat)]
-    argv += [flag for flag, on in (("--survey", args.survey), ("--trace", args.trace), ("--force", args.force),
+    argv += [flag for flag, on in (("--survey", args.survey), ("--trace", args.trace), ("--force", args.force), ("--driver-contract", args.driver_contract),
         ("--stop-device", stop_device)) if on]
     return argv
 

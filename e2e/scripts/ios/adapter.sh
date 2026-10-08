@@ -5,6 +5,7 @@
 #   build <port>                          build.sh against the dedicated simulator; remembers the app
 #   install                               installs the app on the simulator
 #   enumerate                             the XCUITest tests, without running them
+#   driver-contract <dir> <port>          DriverContractTests on a freshly reset app: one xcodebuild invocation; {ok, passed, failed, skipped, artifacts}
 #   reset-app                             terminate, uninstall, keychain reset, reinstall
 #   run-scenario <id> <attemptDir> <port> exactly one xcodebuild invocation; the verdict comes from result.json, not from xcodebuild
 #   crash-probe <sinceEpoch> <attemptDir> [<untilEpoch> [<waitSeconds>]]   the crash report of the app process captured between the two
@@ -67,10 +68,9 @@ cmd_enumerate() {
 	python3 "${TOOLS}" xctest-tests "${listing}"
 }
 
-cmd_reset_app() {
+# Terminate, uninstall, keychain reset, reinstall: the state every attempt and the driver contract start from.
+reset_app_state() {
 	local answer
-	resolve_device
-	read_build_state
 	# An app that is not running is the normal case after the previous attempt; any other answer is a failure.
 	if ! answer="$(xcrun simctl terminate "${UDID}" "${APP_ID}" 2>&1)"; then
 		case "${answer}" in
@@ -81,7 +81,32 @@ cmd_reset_app() {
 	xcrun simctl uninstall "${UDID}" "${APP_ID}"
 	xcrun simctl keychain "${UDID}" reset
 	xcrun simctl install "${UDID}" "${APP}"
+}
+
+cmd_reset_app() {
+	resolve_device
+	read_build_state
+	reset_app_state
 	emit_json "ok=j:true"
+}
+
+CONTRACT_TEST="${E2E_IOS_UITEST_SCHEME}/DriverContractTests/test_driver_contract"
+
+cmd_driver_contract() {
+	local dir="${1:?artifacts dir}" port="${2:?port}" status=0
+	resolve_device
+	read_build_state
+	mkdir -p "${dir}"
+	reset_app_state
+	export TEST_RUNNER_E2E_WIREMOCK_URL="http://localhost:${port}"
+	export TEST_RUNNER_E2E_OUTPUT_DIR="${dir}/results"
+	xcodebuild_test "-only-testing:${CONTRACT_TEST}" -resultBundlePath "${dir}/attempt.xcresult" > "${dir}/runner.log" 2>&1 || status=$?
+	log "xcodebuild exited ${status}; the probes are read from result.json"
+	if [[ -d "${dir}/results/driver-contract" ]]; then
+		cp -R "${dir}/results/driver-contract/." "${dir}/"
+	fi
+	python3 "${TOOLS}" xctest-contract "${dir}/runner.log" "${status}" "${dir}/result.json" \
+		| python3 -c 'import json, sys; out = json.load(sys.stdin); out["artifacts"] = sys.argv[1]; print(json.dumps(out))' "${dir}"
 }
 
 cmd_run_scenario() {
@@ -153,8 +178,9 @@ case "${1:-}" in
 	install) cmd_install ;;
 	enumerate) cmd_enumerate ;;
 	reset-app) cmd_reset_app ;;
+	driver-contract) shift; cmd_driver_contract "$@" ;;
 	run-scenario) shift; cmd_run_scenario "$@" ;;
 	crash-probe) shift; cmd_crash_probe "$@" ;;
 	collect-failure) shift; cmd_collect_failure "$@" ;;
-	*) printf 'Usage: %s toolchain|ensure-device|build|install|enumerate|health|reset-app|run-scenario|crash-probe|collect-failure|recover|stop-device\n' "$0" >&2; exit 64 ;;
+	*) printf 'Usage: %s toolchain|ensure-device|build|install|enumerate|health|reset-app|driver-contract|run-scenario|crash-probe|collect-failure|recover|stop-device\n' "$0" >&2; exit 64 ;;
 esac
