@@ -37,11 +37,12 @@ evidence still to produce. Exit 2: a stop condition holds.
 | `partial` | No such status; at least one scenario is green | `./gradlew e2eEvidence` (or the platform task); only the pending ones run |
 | `rerun` | No such status; nothing is green for this fingerprint | `./gradlew e2eEvidence` (or the platform task) |
 | `exhausted` | No such status; a scenario used all its attempts | Stop (below); a new run is refused with exit 7 |
+| `incomplete` | GitHub did not answer for some commits after asking twice | Ask again later; do not run evidence on that answer |
 
 The fingerprint of a platform covers: its app and KMP runtime sources, `mocks/`, the scenario catalog and runner
-sources, `e2e/scripts/shared` plus the platform's own scripts, its toolchain lock and the Gradle version catalog.
-It does not cover unit-test sources, version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**` or `*.md`.
-Never rerun because the SHA moved. Never rerun a platform that is `current` or `reusable`.
+sources, `e2e/scripts/shared` plus the platform's own scripts, its toolchain lock, the root build script and the Gradle
+wrapper and version catalog. Not unit tests, version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**` or
+`*.md`. Never rerun because the SHA moved. Never rerun a platform that is `current` or `reusable`.
 
 ## Workflow
 
@@ -86,19 +87,19 @@ Stop and report to the person who owns the branch on any of these:
 - three evidence invocations for one platform in the session;
 - four hours of evidence wall time in the session.
 
-The helper prints these counters; a session is a platform's runs under the current fingerprint since its last
-complete run (a green run or a fix that moves the fingerprint starts a new one). Raising `E2E_MAX_RETRIES`, invoking evidence again on the same fingerprint,
-forcing `E2E_PARALLEL`, rebooting devices or the host, and `E2E_ENV_OVERRIDE` are not remedies. Hand over: the
-`STOP` line and the `stop` block of the run's `manifest.json` (reason, scenario, class, diagnosis), the attempt
-artifacts in `build/e2e/runs/<runId>/scenarios/<id>/attempt-<n>/`, the class, and the helper output. Say that you
-are not trying again.
+The helper prints these counters; a session is a platform's runs under the current fingerprint since its last complete
+run (a green run or a fix that moves the fingerprint starts a new one). Raising `E2E_MAX_RETRIES`, invoking evidence
+again on the same fingerprint, forcing `E2E_PARALLEL`, rebooting devices or the host, and `E2E_ENV_OVERRIDE` are not
+remedies. Hand over: the `STOP` line and the `stop` block of the run's `manifest.json` (reason, scenario, class,
+diagnosis), the attempt artifacts in `build/e2e/runs/<runId>/scenarios/<id>/attempt-<n>/`, the class, and the helper
+output. Say that you are not trying again.
 
 ## Host load
 
 The harness measures free CPU (not just the load average), the emulator's own load, disk, uptime, memory, competing
-processes and foreign devices, waits or refuses from those numbers, decides parallel or sequential, and records
-them in the manifest. Do not record `uptime` by hand, do not infer load
-from symptoms, and do not choose the mode. A typed-text mismatch is never load.
+processes and foreign devices; it waits or refuses from those numbers, decides parallel or sequential and records them
+in the manifest. Do not record `uptime` by hand, infer load from symptoms or choose the mode. A typed-text mismatch is
+never load.
 
 ## Long branches
 
