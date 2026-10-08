@@ -1,5 +1,6 @@
 """The driver contract as a gate of the evidence run (B-5): once per platform, after enumerate, before the first scenario."""
 
+import time
 import unittest
 
 from support import Workspace, scenario
@@ -66,6 +67,21 @@ class EvidenceGateTests(unittest.TestCase):
         ws = Workspace(self, two(), {"driverContract": "exit1"})
         self.assertEqual(ws.evidence().code, 3)
         self.assertEqual(ws.executed(), [])
+
+    def test_a_contract_that_never_answers_is_exit_3_after_its_deadline_and_no_scenario_runs(self):
+        ws = Workspace(self, two(), {"driverContract": "hang"})
+        began = time.monotonic()
+        result = ws.evidence(E2E_FAKE_DRIVER_CONTRACT_TIMEOUT_SECONDS="1")
+        self.assertEqual(result.code, 3, result.out)
+        self.assertLess(time.monotonic() - began, 60)
+        self.assertIn("the driver contract gave no answer the harness understands: it timed out", result.out)
+        self.assertEqual(ws.executed(), [])
+        self.assertIs(ws.manifest()["driverContract"]["ok"], False)
+
+    def test_the_manifest_keeps_the_probes_that_were_skipped(self):
+        ws = Workspace(self, two())
+        self.assertEqual(ws.evidence().code, 0)
+        self.assertEqual(ws.manifest()["driverContract"]["skipped"], ["typingSeries"])
 
     def test_each_platform_of_an_all_run_runs_its_own(self):
         ws = Workspace(self, two())

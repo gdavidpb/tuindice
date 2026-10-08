@@ -130,7 +130,8 @@ cmd_run_scenario() {
 }
 
 CONTRACT_CLASSES="${E2E_ANDROID_TEST_PACKAGE}.DriverContractTest,${E2E_ANDROID_TEST_PACKAGE}.AndroidDriverProbesTest,${E2E_ANDROID_TEST_PACKAGE}.AndroidTypingProbesTest"
-CONTRACT_REQUIRED="DriverContractTest#driverHonoursTheContract"
+# The contract test must pass, and each class must have a passing test; the rest of the run is required as well (adapter_tools.py).
+CONTRACT_REQUIRED="DriverContractTest#driverHonoursTheContract,AndroidDriverProbesTest,AndroidTypingProbesTest"
 
 cmd_driver_contract() {
 	local dir="${1:?artifacts dir}" port="${2:?port}" status=0 id

@@ -75,6 +75,30 @@ class AndroidVerbTests(unittest.TestCase):
         self.assertFalse(done.json["ok"])
         self.assertTrue(any("DriverContractTest#driverHonoursTheContract: did not pass (skipped)" in f for f in done.json["failed"]), done.json)
 
+    def test_a_probe_that_was_skipped_is_red_and_only_the_series_may_be(self):
+        self.put()
+        self.box.write("probes.mode", "skip-probe\n")
+        done = self.box.run("driver-contract", self.dir, "18626")
+        self.assertFalse(done.json["ok"])
+        self.assertTrue(any("AndroidDriverProbesTest#waitGoneIsFalseWhenTheAppIsNotThereToBeRead: did not pass (skipped)" in f
+            for f in done.json["failed"]), done.json)
+        self.assertIn("AndroidTypingProbesTest#typingSeries", done.json["skipped"])
+
+    def test_a_run_that_ends_without_the_instrumentation_code_is_red(self):
+        self.put()
+        self.box.write("probes.mode", "no-end\n")
+        done = self.box.run("driver-contract", self.dir, "18626")
+        self.assertFalse(done.json["ok"])
+        self.assertTrue(any("INSTRUMENTATION_CODE: -1" in f for f in done.json["failed"]), done.json)
+
+    def test_a_test_that_closes_with_a_status_the_reader_does_not_know_is_red_not_dropped(self):
+        self.put()
+        self.box.write("probes.mode", "odd-code\n")
+        done = self.box.run("driver-contract", self.dir, "18626")
+        self.assertFalse(done.json["ok"])
+        self.assertTrue(any("AndroidDriverProbesTest#waitGoneIsFalseWhenTheAppIsNotThereToBeRead" in f and "status code 2" in f
+            for f in done.json["failed"]), done.json)
+
     def test_a_process_that_died_is_red(self):
         self.put()
         self.box.write("probes.mode", "crash\n")
@@ -143,6 +167,50 @@ class ReaderTests(unittest.TestCase):
         answer = adapter_tools.xctest_contract(log, "0", result)
         self.assertFalse(answer["ok"])
         self.assertIn("2 tests executed", " ".join(answer["failed"]))
+
+    def stream(self, *tests, end="INSTRUMENTATION_CODE: -1\n"):
+        """An `am instrument -r` stream: (class, test, closing code or None for a test that starts and never closes)."""
+        text = ""
+        for klass, test, code in tests:
+            text += "INSTRUMENTATION_STATUS: class=%s.%s\nINSTRUMENTATION_STATUS: test=%s\nINSTRUMENTATION_STATUS_CODE: 1\n" % (PACKAGE, klass, test)
+            if code is not None:
+                text += "INSTRUMENTATION_STATUS: class=%s.%s\nINSTRUMENTATION_STATUS: test=%s\nINSTRUMENTATION_STATUS_CODE: %d\n" % (
+                    PACKAGE, klass, test, code)
+        return self.write("log", text + end)
+
+    def probes(self, log, required="DriverContractTest#driverHonoursTheContract"):
+        return adapter_tools.instrument_probes(log, required, self.write("result.json", json.dumps(CONTRACT_RESULT)))
+
+    def test_every_test_of_the_run_is_required_except_the_listed_measurements(self):
+        green = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0), ("AndroidDriverProbesTest", "a", 0),
+            ("AndroidTypingProbesTest", "typingSeries", -4)))
+        self.assertTrue(green["ok"], green)
+        self.assertEqual(green["skipped"], ["AndroidTypingProbesTest#typingSeries"])
+        for code in (-3, -4):
+            red = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0), ("AndroidDriverProbesTest", "a", code)))
+            self.assertFalse(red["ok"])
+            self.assertIn("AndroidDriverProbesTest#a: did not pass (skipped)", red["failed"])
+
+    def test_a_test_that_starts_and_never_closes_is_red(self):
+        red = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0), ("AndroidDriverProbesTest", "a", None)))
+        self.assertFalse(red["ok"])
+        self.assertIn("AndroidDriverProbesTest#a: did not finish", red["failed"])
+
+    def test_a_status_code_outside_the_known_ones_is_red(self):
+        red = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0), ("AndroidDriverProbesTest", "a", 7)))
+        self.assertFalse(red["ok"])
+        self.assertIn("AndroidDriverProbesTest#a: closed with the status code 7, which this reader does not know", red["failed"])
+
+    def test_a_stream_without_the_closing_instrumentation_code_is_red_however_green_its_tests(self):
+        red = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0), end=""))
+        self.assertFalse(red["ok"])
+        self.assertIn("instrumentation: the run did not end with INSTRUMENTATION_CODE: -1", red["failed"])
+
+    def test_a_class_that_never_ran_is_red_when_the_run_requires_it(self):
+        red = self.probes(self.stream(("DriverContractTest", "driverHonoursTheContract", 0)),
+            "DriverContractTest#driverHonoursTheContract,AndroidDriverProbesTest")
+        self.assertFalse(red["ok"])
+        self.assertIn("AndroidDriverProbesTest: no test of the class passed", red["failed"])
 
     def test_a_green_stream_with_a_failed_required_name_missing_from_it_is_red(self):
         log = self.write("log", "INSTRUMENTATION_CODE: -1\n")

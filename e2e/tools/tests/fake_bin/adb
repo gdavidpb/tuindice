@@ -10,7 +10,8 @@
 #   pmclear.answer    what `pm clear` prints (default Success)
 #   tests.list        scenario ids an `am instrument -e log true` listing reports
 #   instrument.mode   pass (default) | fail: what a scenario run prints; the exit status is always 0, as the real one is
-#   probes.mode       pass | fail | skip-contract | crash: what a run of several classes (-e class A,B,C) prints, one test per class,
+#   probes.mode       pass | fail | skip-contract | skip-probe | no-end | odd-code | crash: what a run of several classes (-e class A,B,C)
+#                     prints, one test per class,
 #   contract-files/   copied into the runner's output directory by such a run
 #                     plus the typingSeries test, skipped as it is without -e typingSeries
 #   instrument.hang   exists: a scenario run never ends
@@ -34,7 +35,7 @@ probe_status() { # class test code
 	printf 'INSTRUMENTATION_STATUS: class=%s\nINSTRUMENTATION_STATUS: test=%s\nINSTRUMENTATION_STATUS_CODE: %s\n' "$1" "$2" "$3"
 }
 
-fake_probes() { # pass | fail | skip-contract | crash
+fake_probes() { # pass | fail | skip-contract | skip-probe | no-end | odd-code | crash
 	local pkg="com.gdavidpb.tuindice.scenariorunner" contract=0 probes=0
 	# What the run leaves in the runner's output directory (the clearing before it removed the earlier files).
 	if [[ -d "${dir}/contract-files" ]]; then
@@ -43,11 +44,14 @@ fake_probes() { # pass | fail | skip-contract | crash
 	fi
 	[[ "$1" == "skip-contract" ]] && contract=-4
 	[[ "$1" == "fail" ]] && probes=-2
+	[[ "$1" == "skip-probe" ]] && probes=-4
+	[[ "$1" == "odd-code" ]] && probes=2
 	probe_status "${pkg}.DriverContractTest" driverHonoursTheContract "${contract}"
 	probe_status "${pkg}.AndroidDriverProbesTest" waitGoneIsFalseWhenTheAppIsNotThereToBeRead "${probes}"
 	probe_status "${pkg}.AndroidTypingProbesTest" aThirtyCharacterTextIsTypedCompletely 0
 	probe_status "${pkg}.AndroidTypingProbesTest" typingSeries -4
 	if [[ "$1" == "crash" ]]; then printf 'INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n'; return; fi
+	if [[ "$1" == "no-end" ]]; then return; fi
 	printf 'INSTRUMENTATION_CODE: -1\n'
 }
 

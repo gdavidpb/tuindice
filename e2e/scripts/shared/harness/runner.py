@@ -384,12 +384,14 @@ class PlatformRun:
         as much as a red probe."""
         record, directory = self.manifest.data["driverContract"], os.path.join(self.run_dir, "driver-contract")
         os.makedirs(directory, exist_ok=True)
-        result = self.adapter.call("driver-contract", directory, self.cfg.ports[self.platform])
+        deadline = self.cfg.seam("E2E_FAKE_DRIVER_CONTRACT_TIMEOUT_SECONDS")  # the tests' way to reach the deadline quickly
+        result = self.adapter.call("driver-contract", directory, self.cfg.ports[self.platform], timeout=float(deadline) if deadline else None)
         answer = result.json
         record.update(ran=True, artifacts="driver-contract")
         shape = isinstance(answer.get("ok"), bool) and isinstance(answer.get("passed"), list) and isinstance(answer.get("failed"), list)
         if shape:
-            record.update(ok=answer["ok"], passed=answer["passed"], failed=answer["failed"])
+            record.update(ok=answer["ok"], passed=answer["passed"], failed=answer["failed"],
+                skipped=answer["skipped"] if isinstance(answer.get("skipped"), list) else [])
         where = "(full output in %s, artifacts in driver-contract/)" % (result.log or "the adapter output")
         if result.timed_out or not shape:
             record["ok"] = False

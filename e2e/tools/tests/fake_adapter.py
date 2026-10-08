@@ -140,7 +140,7 @@ def mutate_checkout(script, key):
 
 def driver_contract(mode, args):
     """The `driver-contract` verb. `driverContract` in the script: pass | fail (two probes fail) | missing (an adapter that
-    does not know the verb) | invalid-json | no-ok (JSON without `ok`) | empty (ok, but no probe ran) | exit1 (ok JSON, exit 1)."""
+    does not know the verb) | invalid-json | no-ok (JSON without `ok`) | empty (ok, but no probe ran) | exit1 (ok JSON, exit 1) | hang."""
     probes = ["launch", "present-element", "foreground"]
     if mode == "missing":
         sys.stderr.write("unknown verb driver-contract\n")
@@ -154,7 +154,9 @@ def driver_contract(mode, args):
         emit({"ok": True, "passed": [], "failed": [], "artifacts": args[0]})
     if mode == "fail":
         emit({"ok": False, "passed": probes[:1], "failed": probes[1:], "artifacts": args[0]})
-    emit({"ok": True, "passed": probes, "failed": [], "artifacts": args[0]}, 1 if mode == "exit1" else 0)
+    if mode == "hang":
+        time.sleep(300)
+    emit({"ok": True, "passed": probes, "failed": [], "skipped": ["typingSeries"], "artifacts": args[0]}, 1 if mode == "exit1" else 0)
 
 
 def main(argv):
