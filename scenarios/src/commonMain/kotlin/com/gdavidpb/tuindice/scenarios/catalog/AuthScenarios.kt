@@ -183,13 +183,15 @@ private val authLoginInvalid = scenario("auth-login-invalid", "auth", Start.Clea
 	signsIn()
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
-	// The helper has already seen 00-00000:bad-password reach the backend; the rejection must show.
+	// The helper has already seen 00-00000:bad-password reach the backend; the rejection must show, in the fields
+	// and as a message under the password (its text is merged into the field's node, so it is read by text), and
+	// as no snackbar.
 	signInThroughUi(E2eAccounts.Invalid)
-	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
-	waitVisible(BaseUiTags.SnackbarMessage, Within.Assert)
-	waitVisible(text(Copy.InvalidUsbIdCredentials), Within.Assert)
-	waitVisible(AuthUiTags.SignInRejectedMarker, Within.Assert)
+	waitVisible(text(Copy.InvalidUsbIdCredentials), Within.Action)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
+	waitVisible(AuthUiTags.UsbIdTextField, Within.Assert)
+	waitVisible(AuthUiTags.PasswordTextField, Within.Assert)
+	waitGone(BaseUiTags.SnackbarContainer, Within.Assert)
 }
 
 private val authLoginDisabled = scenario("auth-login-disabled", "auth", Start.Clean().toLaunchSpec()) {
@@ -199,9 +201,10 @@ private val authLoginDisabled = scenario("auth-login-disabled", "auth", Start.Cl
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
 	signInThroughUi(E2eAccounts.Disabled)
-	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
-	waitVisible(BaseUiTags.SnackbarMessage, Within.Assert)
+	waitVisible(AuthUiTags.SignInRejectedMarker, Within.Action)
+	waitVisible(text(Copy.AccountDisabled), Within.Assert)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
+	waitGone(BaseUiTags.SnackbarContainer, Within.Assert)
 }
 
 /**

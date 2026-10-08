@@ -9,6 +9,7 @@ object Copy {
 	// auth
 	const val UsbEmailHint = "Correo USB"
 	const val InvalidUsbIdCredentials = "Revisa tu USBID y contraseña"
+	const val AccountDisabled = "Cuenta inhabilitada. Escríbenos a info@tuindice.app para recuperarla."
 	const val SignInServiceUnavailable = "Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento."
 	const val SignOutPendingOne =
 		"Tienes 1 cambio pendiente de sincronización. Intentaremos enviarlo antes de cerrar sesión."
@@ -56,6 +57,7 @@ object Copy {
 	const val TooltipPlannedIn = "Planificada en Jul - Ago 2026"
 	const val TooltipMissingRequirements = "Faltan requisitos: EP1308, EP5855"
 	const val TermSepDec2026 = "Sep - Dic 2026"
+	const val TermJanMar2027 = "Ene - Mar 2027"
 
 	// enrollmentproof
 	const val EnrollmentProofAnnulled = "Tu inscripción aparece anulada, por eso no hay comprobante."
@@ -84,6 +86,7 @@ object Copy {
 	val bindings: List<CopyBinding> = listOf(
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),
 		CopyBinding.Resource(InvalidUsbIdCredentials, "auth", "error_invalid_usb_id_credentials"),
+		CopyBinding.Resource(AccountDisabled, "auth", "error_account_disabled", listOf("info@tuindice.app")),
 		CopyBinding.Resource(SignInServiceUnavailable, "auth", "sign_in_service_unavailable"),
 		CopyBinding.Resource(SignOutPendingOne, "auth", "dialog_message_sign_out_pending[one]", listOf("1")),
 		CopyBinding.Resource(SignOutFlushFailedOne, "auth", "dialog_message_sign_out_flush_failed[one]", listOf("1")),
@@ -146,6 +149,7 @@ object Copy {
 			listOf("EP1308, EP5855")
 		),
 		CopyBinding.Derived(TermSepDec2026, "term label the app formats from the SEP_DEC period and the year 2026"),
+		CopyBinding.Derived(TermJanMar2027, "term label the app formats from the JAN_MAR period and the year 2027"),
 		CopyBinding.Resource(EnrollmentProofAnnulled, "enrollmentproof", "error_enrollment_annulled"),
 		CopyBinding.Resource(PensumFulfilledBy, "pensum", "pensum_subject_detail_fulfilled_by"),
 		CopyBinding.Resource(PensumViewStats, "pensum", "pensum_subject_detail_stats"),

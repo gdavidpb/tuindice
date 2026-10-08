@@ -79,12 +79,15 @@ private fun StepBuilder.openCreateTermScreen() {
 	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
 }
 
-/** Picks the term after the current one in the period selector, which lists its options by text. */
-private fun StepBuilder.pickNextPeriod() {
+/** Picks a period in the period selector, which lists its options by text. */
+private fun StepBuilder.pickPeriod(label: String) {
 	tap(RecordUiTags.CreateSyntheticTermPeriodSelector)
-	waitVisible(text(Copy.TermSepDec2026), Within.Action)
-	tap(text(Copy.TermSepDec2026))
+	waitVisible(text(label), Within.Action)
+	tap(text(label))
 }
+
+/** Picks the term after the current one, which is also the period the form opens with. */
+private fun StepBuilder.pickNextPeriod() = pickPeriod(Copy.TermSepDec2026)
 
 private fun StepBuilder.openSearchTab() {
 	tap(RecordUiTags.CreateSyntheticTermSearchTab)
@@ -343,8 +346,15 @@ private val recordSyntheticTermDiscard = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openRecordTab()
+	// Nothing touched: the form opens with its period preselected, and leaving it asks nothing.
 	openCreateTermScreen()
-	pickNextPeriod()
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+	waitGone(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
+	waitGone(RecordUiTags.DiscardSyntheticTermMessage, Within.Assert)
+	// A period other than the preselected one is a change worth a warning.
+	openCreateTermScreen()
+	pickPeriod(Copy.TermJanMar2027)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	waitVisible(RecordUiTags.DiscardSyntheticTermMessage, Within.Action)
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)

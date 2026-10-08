@@ -100,13 +100,11 @@ private val coachmarksSyntheticTerm = scenario(
 	tap(RecordUiTags.CreateSyntheticTermFab)
 	waitVisible(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
 	confirmCoachmarks(CoachmarkId.SyntheticTerm)
-	// Not a design this scenario fixes: the screen preselects a period, so leaving it untouched asks to discard,
-	// while `CreateSyntheticTerm.kt` says an untouched form is not worth the warning. Which of the two is meant is
-	// open with the owner; the scenario only follows what the screen does today.
+	// Nothing was touched: the form opens with its period preselected, and leaving it asks nothing.
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	waitVisible(RecordUiTags.DiscardSyntheticTermMessage, Within.Action)
-	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+	waitGone(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
+	waitGone(RecordUiTags.DiscardSyntheticTermMessage, Within.Assert)
 }
 
 /** The evaluations list's two coachmarks, then the one of the editor the add button opens. */

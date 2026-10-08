@@ -43,6 +43,8 @@ class E2eClockFixtureTest {
 	fun theDerivedKeyAndTextNameTheTermTheFrozenInstantFallsIn() {
 		assertEquals("${now.year}-SEP_DEC", E2eFixtures.NextTermKey.value)
 		assertEquals("Sep - Dic ${now.year}", Copy.TermSepDec2026)
+		// The second option the period selector lists: the first one of the next year.
+		assertEquals("Ene - Mar ${now.year + 1}", Copy.TermJanMar2027)
 	}
 
 	@Test
