@@ -69,6 +69,25 @@ fun Throwable.isUnavailable() = when (this) {
 	else -> false
 }
 
+private val transientServerStatusCodes = setOf(
+	HttpStatusCode.RequestTimeout,
+	HttpStatusCode.TooManyRequests,
+	HttpStatusCode.BadGateway,
+	HttpStatusCode.ServiceUnavailable,
+	HttpStatusCode.GatewayTimeout
+)
+
+/**
+ * The service, or the path to it, is momentarily away: a 408, 429, 502, 503 or 504, or a call held
+ * back inside the wait the server asked for. Decided by the status code, never by the message.
+ * A 500 or 501 is not here: it says the server cannot handle that particular request.
+ */
+fun Throwable.isTransientServerFailure() = when (this) {
+	is ResponseException -> response.status in transientServerStatusCodes
+	is ServiceRetryWindowException -> true
+	else -> false
+}
+
 fun Throwable.isFailedDependency() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.FailedDependency
 	else -> false

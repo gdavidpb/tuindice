@@ -22,7 +22,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 fun clientRequestException(
 	statusCode: HttpStatusCode,
 	path: String = "/test",
-	headers: Map<String, String> = emptyMap()
+	headers: Map<String, String> = emptyMap(),
+	message: String = statusCode.description
 ): ClientRequestException {
 	val response = httpResponse(
 		statusCode = statusCode,
@@ -30,16 +31,17 @@ fun clientRequestException(
 		headers = headers
 	)
 
-	return ClientRequestException(response, statusCode.description)
+	return ClientRequestException(response, message)
 }
 
 fun serverResponseException(
 	statusCode: HttpStatusCode,
-	path: String = "/test"
+	path: String = "/test",
+	message: String = statusCode.description
 ): ServerResponseException {
 	val response = httpResponse(statusCode = statusCode, path = path)
 
-	return ServerResponseException(response, statusCode.description)
+	return ServerResponseException(response, message)
 }
 
 @OptIn(InternalAPI::class)

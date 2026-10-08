@@ -60,10 +60,8 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 			refreshCalls++
 			error("not reachable")
 		})
-		val unavailableErrors = listOf(
-			serverResponseException(HttpStatusCode.ServiceUnavailable),
+		val unavailableErrors = listOf(408, 429, 502, 503, 504).map(::responseWithStatus) +
 			ServiceRetryWindowException(retryAfterMillis = 30_000L)
-		)
 
 		unavailableErrors.forEach { unavailable ->
 			listOf(
@@ -82,8 +80,9 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 		assertEquals(0, refreshCalls)
 	}
 
+	// 500 and 501 say the server cannot handle that particular request: a verdict, not an outage.
 	@Test
-	fun resolveFailure_whenTheServerRejectsWithAnUnclassifiedClientError_stillFailsTerminally() = runTest {
+	fun resolveFailure_whenTheServerRejectsTheRequest_stillFailsTerminally() = runTest {
 		val spec = specUnderTest()
 
 		listOf(
@@ -93,12 +92,11 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 			updateSyntheticTermEnvelope(),
 			deleteSyntheticTermEnvelope()
 		).forEach { mutation ->
-			val resolution = spec.resolveFailure(
-				mutation = mutation,
-				throwable = clientRequestException(HttpStatusCode.BadRequest)
-			)
+			listOf(400, 500, 501).map(::responseWithStatus).forEach { rejection ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = rejection)
 
-			assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+			}
 		}
 	}
 
@@ -445,3 +443,14 @@ private fun errorRemoteDataSource(
 			expectedRevision: Long
 		): VersionedAcademicRecord = onDeleteSyntheticTerm(termRef)
 	}
+
+// A response with the given status whose message never says "timeout": the verdict must come from the code.
+private fun responseWithStatus(code: Int): Throwable {
+	val status = HttpStatusCode.fromValue(code)
+
+	return if (code >= 500) {
+		serverResponseException(status, message = "status $code")
+	} else {
+		clientRequestException(status, message = "status $code")
+	}
+}

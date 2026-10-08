@@ -124,10 +124,8 @@ class EvaluationMutationSyncSpecTest {
 	// change: the row stays Pending and goes out again with the next drain.
 	@Test
 	fun resolveFailure_whenTheServiceIsUnavailable_defersEveryKindOfMutation_withoutSnapshotRefresh() = runTest {
-		val unavailableErrors = listOf(
-			serverResponseException(HttpStatusCode.ServiceUnavailable),
+		val unavailableErrors = listOf(408, 429, 502, 503, 504).map(::responseWithStatus) +
 			ServiceRetryWindowException(retryAfterMillis = 30_000L)
-		)
 
 		unavailableErrors.forEach { unavailable ->
 			evaluationMutations().forEach { command ->
@@ -151,22 +149,25 @@ class EvaluationMutationSyncSpecTest {
 		}
 	}
 
+	// 500 and 501 say the server cannot handle that particular request: a verdict, not an outage.
 	@Test
-	fun resolveFailure_whenTheServerRejectsWithAnUnclassifiedClientError_stillFailsTerminally() = runTest {
-		evaluationMutations().forEach { command ->
-			val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-			val syncSpec = EvaluationMutationSyncSpec(
-				databaseDataSource = FakeDatabaseDataSource(),
-				evaluationsApiDataSource = evaluationsApiDataSource,
-				refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
-			)
+	fun resolveFailure_whenTheServerRejectsTheRequest_stillFailsTerminally() = runTest {
+		listOf(400, 500, 501).map(::responseWithStatus).forEach { rejection ->
+			evaluationMutations().forEach { command ->
+				val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+				val syncSpec = EvaluationMutationSyncSpec(
+					databaseDataSource = FakeDatabaseDataSource(),
+					evaluationsApiDataSource = evaluationsApiDataSource,
+					refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+				)
 
-			val resolution = syncSpec.resolveFailure(
-				mutation = evaluationEnvelope(command),
-				throwable = clientRequestException(HttpStatusCode.BadRequest)
-			)
+				val resolution = syncSpec.resolveFailure(
+					mutation = evaluationEnvelope(command),
+					throwable = rejection
+				)
 
-			assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+				assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+			}
 		}
 	}
 }
@@ -204,3 +205,14 @@ private fun evaluationEnvelope(command: EvaluationMutation) = MutationEnvelope(
 	updatedAt = 1L,
 	lastError = null
 )
+
+// A response with the given status whose message never says "timeout": the verdict must come from the code.
+private fun responseWithStatus(code: Int): Throwable {
+	val status = HttpStatusCode.fromValue(code)
+
+	return if (code >= 500) {
+		serverResponseException(status, message = "status $code")
+	} else {
+		clientRequestException(status, message = "status $code")
+	}
+}
