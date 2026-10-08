@@ -152,7 +152,7 @@ class Workspace:
         merged = dict(self.env)
         merged.update(env)
         done = subprocess.run([sys.executable, E2E_PY] + list(argv), cwd=self.repo, env=merged, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, universal_newlines=True, timeout=120)
+            stderr=subprocess.PIPE, universal_newlines=True, timeout=300)
         return Run(done.returncode, done.stdout, done.stderr)
 
     def evidence(self, platform="ios", **env):

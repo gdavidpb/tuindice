@@ -64,8 +64,15 @@ done
 # skips are counted and said out loud; on macOS (the CI job that runs this whole) any skip is a failure.
 unittest_log="$(mktemp "${TMPDIR:-/tmp}/e2e-harness-unittest.XXXXXX")"
 trap 'rm -f "${unittest_log}"' EXIT
+# The tests run on the interpreter the harness targets (the system Python, 3.9) when there is one: the harness starts itself with
+# sys.executable, so an API newer than 3.9 would not pass here and fail for whoever runs it.
+suite_python=python3
+if [[ -x /usr/bin/python3 ]]; then
+	suite_python=/usr/bin/python3
+fi
+printf 'unit tests: %s\n' "$("${suite_python}" --version 2>&1)"
 set +e
-python3 -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v 2>&1 | tee "${unittest_log}"
+"${suite_python}" -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v 2>&1 | tee "${unittest_log}"
 unittest_status="${PIPESTATUS[0]}"
 set -e
 if (( unittest_status != 0 )); then

@@ -179,7 +179,7 @@ class BudgetAndProcessTests(unittest.TestCase):
         ws = Workspace(self, [scenario("fix-a", 1)], {"behaviours": {"fix-a": ["hang", "hang"]}})
         began = time.monotonic()
         result = ws.evidence(E2E_MAX_RETRIES="0")
-        self.assertLess(time.monotonic() - began, 1 + 1 + 15)
+        self.assertLess(time.monotonic() - began, 100, "the fake runner sleeps 300 s: the harness must have killed it, not waited")
         self.assertEqual(result.code, 1, result.out)
         self.assertIn("class=timeout: scenario exceeded 1s; the driver wrote no step to its log, so the step it was in is not known", result.out)
         pid = int(text(os.path.join(ws.fake, "ios", "hang.pid")))

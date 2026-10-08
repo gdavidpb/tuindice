@@ -110,7 +110,13 @@ class InterruptionTests(unittest.TestCase):
         self.assertTrue(os.path.exists(pid_file), "the hanging runner never started")
         time.sleep(0.3)
         process.terminate()
-        time.sleep(2)  # inside the cleanup: WireMock has been asked to stop and ignores it
+        # The kill must land inside the cleanup (WireMock was asked to stop and ignores it for 10 s), which starts when the harness
+        # says its manifest is finalised: wait for that line, however long a loaded machine takes to get there.
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline and not any("the manifest is finalised" in text(os.path.join(d, "run.log"))
+                for d in ws.run_dirs() if os.path.exists(os.path.join(d, "run.log"))):
+            time.sleep(0.05)
+        time.sleep(0.5)
         process.kill()
         process.communicate()
         manifest = ws.manifest()
