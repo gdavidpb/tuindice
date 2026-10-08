@@ -32,6 +32,10 @@ Auth fixture contract:
 - Invalid credential scenarios must still enter a syntactically valid USBID, for example raw digits `0000000`, and vary the password or backend fixture to trigger the unauthorized path.
 - Do not use short USBID values; the app requires the formatted shape `NN-NNNNN`. The sign-in field is typed once with `enterText` (the raw digits, with the formatted text as `expect`), and the interpreter re-reads it and fails with both texts when they differ. No digit is typed twice in case a key is lost: a lost key is a defect to find.
 
+Texts the scenarios assert (`Copy`):
+
+- Every text constant of `Copy` has exactly one binding that says where the text comes from, and `CopyTest` fails when it stops being true: `Resource` (a string of a module's `strings.xml`, checked to read exactly like the constant, with its placeholders filled), `MockData` (the text must be inside the stated mock file), `Supplied` (the scenario itself hands the app the text through a launch argument; the test only requires the stated source) and `Derived` (the app computes the text at runtime from data, such as a formatted period; the test only requires the stated reason, so the text is checked against the app only by the scenario running).
+
 Fixed clock:
 
 - Every `Start` passes the launch argument `TUINDICE_E2E_NOW` (`DebugLaunchArguments.NOW`) with `E2eFixtures.Now` (`2026-10-15T12:00:00Z`), and debug builds read the date through the injected clock (`OverridableClock`). What the app derives from the date therefore does not depend on the day of the run: the term the record offers next (`E2eFixtures.NextTermKey`, `Copy.TermSepDec2026`) and the evaluations calendar do not expire. `E2eClockFixtureTest` checks that the frozen instant falls in the term those fixtures name; changing `E2eFixtures.Now` means re-checking them.

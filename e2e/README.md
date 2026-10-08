@@ -130,6 +130,7 @@ conditions and the environment thresholds are in `.codex/skills/certify-tuindice
 | `E2E_BUDGET_MINUTES` | Wall-clock budget per platform (default 120, 10 to 240). |
 | `E2E_PARALLEL` | `auto` (default), `never` or `always`; recorded when changed. |
 | `E2E_PUBLISH_GITHUB_STATUS` | `auto` (default), `0` or `1`. |
+| `E2E_BASE_SHA` | Overrides the base of the diff that decides which platforms need evidence (default: the merge-base with `origin/production` or `production`). |
 | `E2E_ENV_OVERRIDE` | `cpu` and/or `disk`: lets evidence run past a refusal; recorded. |
 | `E2E_ANDROID_WIREMOCK_PORT`, `E2E_IOS_WIREMOCK_PORT` | 18626 and 18627 by default. |
 | `E2E_ANDROID_TUNNEL` | `host-alias` (default, `10.0.2.2`) or `reverse` (`adb reverse`). |
