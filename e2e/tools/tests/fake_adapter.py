@@ -12,7 +12,7 @@ pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-no
 fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, pass-system-anr (passes, but the probe reports
 a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies),
 degraded-health (the health verb says the simulator stopped serving preferences). A behaviour object may carry "applog": the
-text collect-failure leaves in app.log of a failed attempt, and "driverlog": the fixture copied to driver.log by the run.
+text collect-failure leaves in app.log of a failed attempt, and "driverlog": the fixture copied to driver.log by the run, and "resultExtra": fields added to a passing result.json.
 `slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1;
 `mutate` maps "<platform>:<verb>" to "file" (an untracked file appears in the checkout) or "commit" (an empty commit lands).
 """
@@ -116,7 +116,7 @@ def run_scenario(platform, scenario, directory, current):
         failure = {"kind": "ASSERTION", "stepIndex": 1, "primitive": "Tap", "target": "tag:b", "message": "app vanished"}
         json.dump(result_json(scenario, failure, False), open(os.path.join(directory, "result.json"), "w"))
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
-    json.dump(result_json(scenario), open(os.path.join(directory, "result.json"), "w"))
+    json.dump(dict(result_json(scenario), **current.get("resultExtra", {})), open(os.path.join(directory, "result.json"), "w"))
     if do == "disagree":
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
     emit({"nativeOk": True, "testsExecuted": 0 if do == "zero-tests" else 1})

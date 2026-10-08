@@ -1,6 +1,6 @@
 [0] WaitVisible tag:auth_screen -> passed (210 ms)
 [tolerance] dismissed-alert "Save Password?" dismissed by the interruption monitor
 [1] Tap tag:auth_sign_in_button -> passed (120 ms)
-[tolerance] allowed-paste Allow Paste answered
+[tolerance] future-kind a kind this harness has never heard of
 [tolerance] dismissed-alert "Notifications" dismissed by the interruption monitor
-[tolerances] dismissed-alert=2 allowed-paste=1
+[tolerances] dismissed-alert=2 future-kind=1

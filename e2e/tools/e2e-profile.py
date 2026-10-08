@@ -19,9 +19,12 @@ Terms (milliseconds in the JSON):
   invocation  runner minus in-process: what one runner invocation costs before and after the scenario (the number that
               decides whether scenarios should be batched; the consultation threshold is 40 s on iOS)
   harness     wall minus runner
+  prepare     prepareBackendMs of result.json: what the scenario spent preparing the backend before its first step
+  launch      launchMs of result.json: what it spent starting the app
+Both are left out (`-`, never 0) for a result.json that does not carry them.
 Runs written before the manifest listed its attempts have no runner time: only wall (of the last attempt, from the
 manifest results) and in-process are known for them, and `invocation` shows `-`.
-A primitive's time is that of its steps that ran; OnPlatform, Group, Retry, IfVisible and IfGone are not counted because
+A primitive's time is that of its steps that ran; OnPlatform, Group and IfVisible are not counted because
 their steps are listed on their own. Percentiles are nearest-rank: p95 of 20 samples is the 19th smallest.
 
 Exit codes: 0 done; 1 no runs found; 2 bad usage.
@@ -36,7 +39,7 @@ import re
 import sys
 
 RUN_SCHEMA = "tuindice-e2e-run/1"
-CONTAINERS = frozenset(("OnPlatform", "Group", "Retry", "IfVisible", "IfGone"))
+CONTAINERS = frozenset(("OnPlatform", "Group", "IfVisible"))
 INVOCATION_THRESHOLD_MS = 40000
 ATTEMPT_DIR = re.compile(r"^attempt-(\d+)(?:-r(\d+))?$")
 STAMP = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?Z$")
@@ -116,6 +119,10 @@ def recorded_timings(manifest):
         for a in manifest.get("attempts") or [] if isinstance(a, dict)}
 
 
+def number_or_none(value):
+    return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+
+
 def attempt_rows(run):
     recorded = recorded_timings(run.manifest)
     last_wall = {r.get("id"): r.get("durationMs") for r in run.manifest.get("results") or []
@@ -140,6 +147,7 @@ def attempt_rows(run):
                 "wallMs": wall, "runnerMs": runner, "inProcessMs": inside,
                 "invocationMs": runner - inside if runner is not None and inside is not None else None,
                 "harnessMs": wall - runner if wall is not None and runner is not None else None,
+                "prepareBackendMs": number_or_none(result.get("prepareBackendMs")), "launchMs": number_or_none(result.get("launchMs")),
                 "steps": [s for s in result.get("steps") or [] if isinstance(s, dict)],
             })
     return rows
@@ -164,6 +172,11 @@ def overhead_summary(rows):
         "overThreshold": percentile(values, 50) > INVOCATION_THRESHOLD_MS}
 
 
+def start_summary(rows, key):
+    values = [r[key] for r in rows if r[key] is not None]
+    return {"attempts": len(values), "p50Ms": percentile(values, 50), "maxMs": max(values)} if values else None
+
+
 def profile_run(run):
     rows = attempt_rows(run)
     manifest = run.manifest
@@ -179,6 +192,7 @@ def profile_run(run):
         "scenarios": manifest.get("scenarios") or {}, "failuresByClass": failures,
         "attempts": [{k: v for k, v in row.items() if k != "steps"} for row in rows],
         "primitives": primitive_stats(rows), "invocationOverhead": overhead_summary(rows),
+        "prepareOverhead": start_summary(rows, "prepareBackendMs"), "launchOverhead": start_summary(rows, "launchMs"),
     }
 
 
@@ -205,9 +219,15 @@ def render_profile(data):
         data["parallel"] or "sequential", number(data["maxLoad1m"], "%.2f")),
         "  phases: " + (", ".join("%s %ss" % (k, v) for k, v in data["phases"].items()) or "-"),
         "", "Scenarios (one row per attempt)"]
-    out += table(["scenario", "att", "outcome", "wall", "runner", "in-process", "invocation", "harness"],
+    timed = bool(data.get("prepareOverhead") or data.get("launchOverhead"))
+    out += table(["scenario", "att", "outcome", "wall", "runner", "in-process", "invocation", "harness"] + (["prepare", "launch"] if timed else []),
         [[a["scenario"], "%d%s" % (a["attempt"], "-r%d" % a["repetition"] if a["repetition"] > 1 else ""), a["failureClass"] or a["outcome"], seconds(a["wallMs"]), seconds(a["runnerMs"]),
-            seconds(a["inProcessMs"]), seconds(a["invocationMs"]), seconds(a["harnessMs"])] for a in data["attempts"]])
+            seconds(a["inProcessMs"]), seconds(a["invocationMs"]), seconds(a["harnessMs"])]
+            + ([seconds(a.get("prepareBackendMs")), seconds(a.get("launchMs"))] if timed else []) for a in data["attempts"]])
+    for label, key in (("backend preparation", "prepareOverhead"), ("app launch", "launchOverhead")):
+        if data.get(key):
+            out.append("  %s overhead over %d attempt(s): p50 %s, max %s" % (label, data[key]["attempts"], seconds(data[key]["p50Ms"]),
+                seconds(data[key]["maxMs"])))
     overhead = data["invocationOverhead"]
     if overhead:
         out.append("  invocation overhead over %d attempt(s): p50 %s, max %s%s" % (overhead["attempts"], seconds(overhead["p50Ms"]),

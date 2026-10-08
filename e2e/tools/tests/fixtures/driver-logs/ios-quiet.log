@@ -1,2 +1,2 @@
 [0] WaitVisible tag:auth_screen -> passed (210 ms)
-[tolerances] dismissed-alert=0 allowed-paste=0
+[tolerances] dismissed-alert=0 future-kind=0

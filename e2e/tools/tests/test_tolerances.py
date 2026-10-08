@@ -15,14 +15,14 @@ def fixture(name):
 
 
 class CountTests(unittest.TestCase):
-    def test_ios_reads_the_final_summary_line(self):
-        self.assertEqual(tolerances.count(fixture("ios.log")), {"dismissed-alert": 2, "allowed-paste": 1})
+    def test_ios_reads_the_final_summary_line_and_accepts_keys_it_does_not_know(self):
+        self.assertEqual(tolerances.count(fixture("ios.log")), {"dismissed-alert": 2, "future-kind": 1})
 
     def test_ios_zeros_are_not_tolerances(self):
         self.assertEqual(tolerances.count(fixture("ios-quiet.log")), {})
 
     def test_ios_without_the_summary_counts_the_lines_so_a_killed_run_still_shows_them(self):
-        self.assertEqual(tolerances.count(fixture("ios-unfinished.log")), {"dismissed-alert": 1, "allowed-paste": 2})
+        self.assertEqual(tolerances.count(fixture("ios-unfinished.log")), {"dismissed-alert": 1, "future-kind": 2})
 
     def test_android_counts_the_requests_to_bring_the_app_back_the_failure_and_the_refused_gestures(self):
         self.assertEqual(tolerances.count(fixture("android.log")),
@@ -44,7 +44,7 @@ class RunTests(unittest.TestCase):
         ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "ios.log"}]}})
         result = ws.evidence()
         self.assertEqual(result.code, 0, result.out)
-        expected = {"dismissed-alert": 2, "allowed-paste": 1}
+        expected = {"dismissed-alert": 2, "future-kind": 1}
         manifest = ws.manifest()
         self.assertEqual(manifest["attempts"][0]["tolerances"], expected)
         self.assertEqual(manifest["attempts"][1]["tolerances"], {}, "no driver.log: an empty object, not an absent key")
@@ -65,8 +65,8 @@ class RunTests(unittest.TestCase):
             {"do": "fail:assertion", "driverlog": "ios.log"}, {"do": "pass", "driverlog": "ios.log"}]}})
         self.assertEqual(ws.evidence().code, 0)
         manifest = ws.manifest()
-        self.assertEqual(manifest["tolerances"], {"dismissed-alert": 4, "allowed-paste": 2})
-        self.assertEqual([a["tolerances"] for a in manifest["attempts"]], [{"dismissed-alert": 2, "allowed-paste": 1}] * 2)
+        self.assertEqual(manifest["tolerances"], {"dismissed-alert": 4, "future-kind": 2})
+        self.assertEqual([a["tolerances"] for a in manifest["attempts"]], [{"dismissed-alert": 2, "future-kind": 1}] * 2)
 
     def test_android_logs_are_read_the_same_way(self):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "android.log"}]}})

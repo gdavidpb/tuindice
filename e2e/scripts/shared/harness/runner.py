@@ -523,7 +523,7 @@ class PlatformRun:
                 "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
                 "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
                 "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"],
-                "tolerances": attempt["tolerances"]})
+                "tolerances": attempt["tolerances"], **self._timings(attempt)})
             self.executed.add(scenario.id)
             self.series[(self.repetition, scenario.id)] = "passed" if verdict.passed \
                 else "environment" if verdict.klass == cl.ENVIRONMENT else "failed"
@@ -677,6 +677,7 @@ class PlatformRun:
             "attemptDir": directory, "repetition": self.repetition + 1,
             "unmatchedRequests": cl.unmatched_summary(evidence.journal), "notes": [verdict.note] if verdict.note else [],
             "probeErrors": errors, "tolerances": tolerances.count_file(os.path.join(adir, "driver.log")),
+            **self._timings(evidence.result),
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
         }
         return attempt, verdict
@@ -692,6 +693,12 @@ class PlatformRun:
         if not probe.ok or not probe.json.get("kind"):
             return ["crash-probe gave no answer (exit %s, %s); a crash would have gone unseen" % (probe.returncode, probe.log or "no output")]
         return []
+
+    @staticmethod
+    def _timings(source):
+        """prepareBackendMs and launchMs when the runner's result.json (or the attempt built from it) carries them; absent is not zero."""
+        return {key: source[key] for key in ("prepareBackendMs", "launchMs")
+            if isinstance(source, dict) and isinstance(source.get(key), (int, float)) and not isinstance(source.get(key), bool)}
 
     @staticmethod
     def _tail(path, limit=FAILURE_LOG_TAIL_BYTES):

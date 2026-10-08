@@ -110,6 +110,35 @@ class HarnessRunTests(unittest.TestCase):
             self.assertEqual(row["wallMs"], recorded[directory]["durationMs"])
 
 
+    def test_prepare_and_launch_times_go_to_the_manifest_and_the_profile_and_are_omitted_when_not_reported(self):
+        ws = support.Workspace(self, [support.scenario("fix-a"), support.scenario("fix-b"), support.scenario("fix-c")], {"behaviours": {
+            "fix-a": [{"do": "pass", "resultExtra": {"prepareBackendMs": 1200, "launchMs": 3400}}],
+            "fix-c": [{"do": "pass", "resultExtra": {"prepareBackendMs": "slow", "launchMs": None}}]}})
+        self.assertEqual(ws.diagnose("ios").code, 0)
+        attempts = {a["scenario"]: a for a in ws.manifest()["attempts"]}
+        self.assertEqual((attempts["fix-a"]["prepareBackendMs"], attempts["fix-a"]["launchMs"]), (1200, 3400))
+        for absent in ("fix-b", "fix-c"):
+            self.assertNotIn("prepareBackendMs", attempts[absent], "a result.json without the number gives no key, not a zero")
+            self.assertNotIn("launchMs", attempts[absent])
+        done = subprocess.run([sys.executable, PROFILE, "--state-root", ws.state, "--json", "--no-write"], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, universal_newlines=True, timeout=60)
+        data = json.loads(done.stdout)
+        rows = {r["scenario"]: r for r in data["attempts"]}
+        self.assertEqual((rows["fix-a"]["prepareBackendMs"], rows["fix-a"]["launchMs"]), (1200, 3400))
+        self.assertEqual((rows["fix-b"]["prepareBackendMs"], rows["fix-b"]["launchMs"]), (None, None))
+        self.assertEqual(data["prepareOverhead"], {"attempts": 1, "p50Ms": 1200, "maxMs": 1200})
+        self.assertEqual(data["launchOverhead"], {"attempts": 1, "p50Ms": 3400, "maxMs": 3400})
+        text = "\n".join(profile.render_profile(data))
+        self.assertIn("backend preparation overhead over 1 attempt(s): p50 1.2s, max 1.2s", text)
+        self.assertIn("app launch overhead over 1 attempt(s): p50 3.4s, max 3.4s", text)
+
+    def test_a_run_whose_results_carry_neither_shows_no_such_columns(self):
+        fx = Fixture(self)
+        data = profile.profile_run(profile.locate(fx.root, fx.run(attempts=[("a", True, 30, [step("Tap", 1)], 60000, 50000)])))
+        self.assertIsNone(data["prepareOverhead"])
+        self.assertNotIn("prepare", "\n".join(profile.render_profile(data)).split("Primitives")[0].split("overhead")[0])
+
+
 class PercentileTests(unittest.TestCase):
     def test_nearest_rank(self):
         self.assertEqual(profile.percentile([40, 10, 30, 20], 50), 20)
@@ -139,11 +168,14 @@ class RunProfileTests(unittest.TestCase):
 
     def test_per_primitive_counts_and_percentiles_skip_containers_and_skipped_steps(self):
         steps = [step("Tap", 100), step("Tap", 300), step("Tap", 200), step("Tap", 9000, "skipped"),
-            step("WaitVisible", 50), step("OnPlatform", 700), step("Group", 800), step("IfVisible", 5), step("Retry", 6)]
+            step("WaitVisible", 50), step("OnPlatform", 700), step("Group", 800), step("IfVisible", 5)]
         data = self.profile(attempts=[("a", True, 30, steps, 45000, 40000)])
         self.assertEqual(data["primitives"], {
             "Tap": {"count": 3, "p50Ms": 200, "p95Ms": 300, "maxMs": 300, "totalMs": 600},
             "WaitVisible": {"count": 1, "p50Ms": 50, "p95Ms": 50, "maxMs": 50, "totalMs": 50}})
+
+    def test_the_containers_are_the_primitives_that_still_exist(self):
+        self.assertEqual(profile.CONTAINERS, frozenset(("OnPlatform", "Group", "IfVisible")))
 
     def test_overhead_is_the_runner_minus_the_scenario_and_the_harness_the_wall_minus_the_runner(self):
         data = self.profile(attempts=[("a", True, 30, [step("Tap", 1)], 60000, 50000)])
