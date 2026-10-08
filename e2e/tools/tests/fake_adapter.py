@@ -12,7 +12,7 @@ pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-no
 fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, pass-system-anr (passes, but the probe reports
 a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies),
 degraded-health (the health verb says the simulator stopped serving preferences). A behaviour object may carry "applog": the
-text collect-failure leaves in app.log of a failed attempt, and "driverlog": the fixture copied to driver.log by the run, and "resultExtra": fields added to a passing result.json.
+text collect-failure leaves in app.log of a failed attempt, "killWiremock" (true: the real fake WireMock dies while the scenario runs), and "driverlog": the fixture copied to driver.log by the run, and "resultExtra": fields added to a passing result.json.
 `slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1;
 `mutate` maps "<platform>:<verb>" to "file" (an untracked file appears in the checkout) or "commit" (an empty commit lands).
 """
@@ -91,6 +91,8 @@ def run_scenario(platform, scenario, directory, current):
         if current.get("journal_raw"):
             open(os.path.join(wiremock, "journal.json"), "w").write(current["journal_raw"])
     do = current["do"]
+    if current.get("killWiremock"):  # the real fake WireMock of the run dies while the scenario runs
+        kill_wiremock(platform)
     if current.get("driverlog"):  # a fixture of fixtures/driver-logs, left as the driver's own log of the attempt
         shutil.copy(os.path.join(HERE, "fixtures", "driver-logs", current["driverlog"]), os.path.join(directory, "driver.log"))
     with open(os.path.join(directory, "runner.log"), "w") as log:

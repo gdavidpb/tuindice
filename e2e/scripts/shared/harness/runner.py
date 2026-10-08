@@ -680,6 +680,7 @@ class PlatformRun:
             evidence.journal = self.wiremock.journal()
             if self.wiremock.journal_error:
                 errors.append(self.wiremock.journal_error)
+                evidence.backend_down = not self.wiremock.health()[0]
             with open(os.path.join(adir, "wiremock-requests.json"), "w") as handle:
                 json.dump({"requests": evidence.journal}, handle, indent=2)
         verdict = cl.classify(evidence)

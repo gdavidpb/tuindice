@@ -49,6 +49,7 @@ class Evidence:
         self.logs = {}               # name -> bounded text of the logs collected for a failed attempt (app.log, logcat.txt, ...)
         self.degraded_health = False  # the health verb said the simulator stopped serving preferences
         self.journal = []
+        self.backend_down = False    # the journal could not be read and WireMock does not answer: it died during the attempt
 
     def degradation(self):
         """{marker: lines} over the logs of the attempt when one marker reaches its threshold (iOS only), else None."""
@@ -207,6 +208,9 @@ def classify(ev):
     """Returns a Classification; `klass is None` means the attempt passed. An ANR of another process only reclassifies an
     attempt that failed (and was not a crash or a typing defect); on a passing attempt it is noted and nothing more."""
     verdict = _verdict(ev)
+    if ev.backend_down and not verdict.passed and verdict.klass not in (ENVIRONMENT, CRASH, TYPED):
+        return Classification(ENVIRONMENT, "WireMock stopped answering during the attempt; it had failed as %s: %s"
+            % (verdict.klass, verdict.summary[:160]))
     found = ev.degradation() if verdict.klass in DEGRADABLE else None
     if found:
         counts = ", ".join("%s x%d" % item for item in sorted(found.items()))
