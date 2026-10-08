@@ -9,6 +9,8 @@ import ScenarioKit
 /// keyboard does not cover; otherwise it is refused with a line in the driver log that says which of the two.
 final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private static let pollInterval = 0.1
+    /// How long `isForeground` gives XCTest to report that the app went to the background.
+    private static let stateProbe = 0.3
     private static let launchTimeout = 30.0
     private static let edgeMargin: CGFloat = 12
 
@@ -52,16 +54,24 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
             log.clearRefusal()
             guard resolver.isAppRunning else { return refuse("foreground: the app is not running (state \(app.state.rawValue)); it is not started again") }
             guard guarded("activate", log: log, { app.activate() }) else { return false }
-            let front = app.wait(for: .runningForeground, timeout: Self.launchTimeout)
+            // Not `app.wait(for: .runningForeground)`: it answers at once when the cached state still says foreground, with the
+            // home screen or another app in front (measured: 15-40 ms). The app is in front when it also passes `isForeground`.
+            let front = poll(timeoutMs: Int64(Self.launchTimeout * 1000)) { self.isForeground() }
             if !front { log.refuse("[driver] foreground: the app was not in the foreground \(Self.launchTimeout) s after activate") }
             return front
         }
     }
 
-    /// The state `XCUIApplication` reports: it flips to background about a second after another app takes the front (measured: 4 for
-    /// four reads, then 3), and stays 3, never "suspended", for at least 30 s in Safari on the simulator. Under heavy load it was
-    /// seen to stay 4 for 10 s with Safari already in front (once in 12 runs of `conformance-foreground`).
-    func isForeground() -> Bool { traced("isForeground") { app.state == .runningForeground } }
+    /// Whether the app is in front. `XCUIApplication.state` is a value XCTest refreshes lazily: with Safari opened on top of the
+    /// app it stayed `runningForeground` for 10 s in every `conformance-foreground` run that followed other scenarios (and
+    /// `foreground()` then answered in 15 ms with the home screen in front). Asking XCTest to wait for the background state is a
+    /// round trip with the system, so it sees what the cached value misses; a window that is not in front answers it at once.
+    func isForeground() -> Bool {
+        traced("isForeground") {
+            guard app.state == .runningForeground else { return false }
+            return !app.wait(for: .runningBackground, timeout: Self.stateProbe)
+        }
+    }
 
     func terminate() { traced("terminate") { _ = guarded("terminate", log: log) { app.terminate() } } }
 
