@@ -186,9 +186,16 @@ class LottieResourceAnimationViewUiTest {
 		}
 
 		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { readCount == 1 }
-		advanceAnimationsBy(200)
 
-		val first = onNodeWithTag(AnimationTag).captureToImage().toPixelMap().buffer.copyOf()
+		// The painter gets its composition a little after the bytes are read: the first frame is the first one
+		// that shows the square, never an empty one that would make "the frame moved" true by itself.
+		var first = IntArray(0)
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
+			advanceAnimationsBy(50)
+			first = onNodeWithTag(AnimationTag).captureToImage().toPixelMap().buffer.copyOf()
+			first.hasTheSquare()
+		}
 
 		advanceAnimationsBy(1_000)
 
