@@ -49,6 +49,7 @@ internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 			state.copy(
 				usbId = nextUsbId,
 				identifierMode = nextMode,
+				identifierToggleCount = state.identifierToggleCount + 1,
 				rejection = null
 			)
 		}

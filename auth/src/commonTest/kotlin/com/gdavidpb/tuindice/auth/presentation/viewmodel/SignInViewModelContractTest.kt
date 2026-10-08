@@ -323,6 +323,7 @@ class SignInViewModelContractTest {
 						usbId = VALID_USB_ID,
 						password = "secret123",
 						identifierMode = SignInIdentifierMode.UsbEmail,
+						identifierToggleCount = 1,
 						isPasswordVisible = true
 					),
 					awaitItem()
@@ -333,6 +334,7 @@ class SignInViewModelContractTest {
 					SignIn.State.Idle(
 						usbId = VALID_USB_ID,
 						password = "secret123",
+						identifierToggleCount = 2,
 						isPasswordVisible = true
 					),
 					awaitItem()

@@ -34,6 +34,10 @@ import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 private val identifierModeTogglePulseSize = 32.dp
 
 /**
+ * [identifierToggleCount] changes only when the person switches the mode by hand, which empties the field if
+ * its text is not a USB ID: the field adopts the state's text then. The switch an @ causes is not a reset, so
+ * a lagging echo of it cannot take back what was typed after the @.
+ *
  * [isWaiting], [error] and [isError]: see [PasswordTextField]. [errorDescription] is what a screen reader
  * says when the field is in error without showing a message of its own under it.
  */
@@ -46,6 +50,7 @@ fun UsbIdTextField(
 	errorDescription: String? = null,
 	isError: Boolean = false,
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
+	identifierToggleCount: Int = 0,
 	toggleContentDescription: String,
 	showTogglePulse: Boolean,
 	isWaiting: Boolean,
@@ -54,11 +59,11 @@ fun UsbIdTextField(
 	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val field = remember { EditableTextFieldState(usbId, identifierMode to isWaiting) }
+	val field = remember { EditableTextFieldState(usbId, identifierToggleCount to isWaiting) }
 	val shouldShowTogglePulse =
 		showTogglePulse && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId
 
-	field.syncExternal(usbId, identifierMode to isWaiting)
+	field.syncExternal(usbId, identifierToggleCount to isWaiting)
 
 	OutlinedTextField(
 		modifier = modifier

@@ -533,6 +533,26 @@ class SignInStateMachineContractTest {
 		assertEquals("", after.usbId)
 	}
 
+	// What makes the field start over is the switch by hand, never the automatic one.
+	@Test
+	fun onlyTheSwitchByHand_countsAsATogglingOfTheIdentifier() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		val automatic = assertIs<SignIn.State.Idle>(
+			machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = "12-34567@usb.ve"))
+		)
+		val typed = assertIs<SignIn.State.Idle>(
+			machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = "12-345"))
+		)
+		val byHand = assertIs<SignIn.State.Idle>(machine.nextState(automatic, SignIn.Action.ToggleIdentifierMode))
+		val twice = assertIs<SignIn.State.Idle>(machine.nextState(byHand, SignIn.Action.ToggleIdentifierMode))
+
+		assertEquals(0, automatic.identifierToggleCount)
+		assertEquals(0, typed.identifierToggleCount)
+		assertEquals(1, byHand.identifierToggleCount)
+		assertEquals(2, twice.identifierToggleCount)
+	}
+
 	@Test
 	fun anIdentifierChangeWhileLoggingIn_isIgnored() = runTest {
 		val machine = createFixture().viewModel.machine

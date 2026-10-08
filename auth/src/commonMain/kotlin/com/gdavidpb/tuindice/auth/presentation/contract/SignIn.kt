@@ -17,6 +17,10 @@ object SignIn {
 			val usbId: String = "",
 			val password: String = "",
 			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
+			// How many times the person switched the identifier mode by hand. The field starts over (it
+			// adopts the state's text) only when this changes; the automatic switch to email on an @ must
+			// not, or an echo that lags behind the keys would erase what was typed after it.
+			val identifierToggleCount: Int = 0,
 			val isPasswordVisible: Boolean = false,
 			val usageDataCollectionEnabled: Boolean = false,
 			// The university's services asked for a wait: sign-in stays disabled until it elapses.

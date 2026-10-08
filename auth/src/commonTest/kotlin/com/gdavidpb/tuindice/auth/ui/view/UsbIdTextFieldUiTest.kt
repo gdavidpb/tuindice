@@ -269,6 +269,7 @@ class UsbIdTextFieldUiTest {
 	fun when_identifierModeChangesAndTheCallerClears_then_theFieldIsEmptied() = runTuIndiceUiTest {
 		val usbId = mutableStateOf("")
 		val identifierMode = mutableStateOf(SignInIdentifierMode.UsbEmail)
+		val identifierToggleCount = mutableStateOf(0)
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
@@ -276,6 +277,7 @@ class UsbIdTextFieldUiTest {
 				labelText = "Correo USB",
 				placeholderText = "correo@usb.ve",
 				identifierMode = identifierMode.value,
+				identifierToggleCount = identifierToggleCount.value,
 				usbId = usbId.value,
 				toggleContentDescription = "Usar USBID",
 				showTogglePulse = false,
@@ -290,6 +292,7 @@ class UsbIdTextFieldUiTest {
 
 		runOnIdle {
 			identifierMode.value = SignInIdentifierMode.UsbId
+			identifierToggleCount.value += 1
 			usbId.value = ""
 		}
 		waitForIdle()
@@ -636,6 +639,52 @@ class UsbIdTextFieldUiTest {
 		waitForIdle()
 
 		assertEquals("12-3", onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
+	}
+
+	// Typing an @ in id mode switches to email mode by the answer of the owner, and that answer lags behind the
+	// keys: what is typed after the @ must not be lost to the switch.
+	@Test
+	fun when_anEmailIsTypedThroughTheAtInUsbIdModeWithALaggingEcho_then_noCharacterIsLost() = runTuIndiceUiTest {
+		val input = "12-34567@usb.ve"
+		val echoedUsbId = mutableStateOf("")
+		val identifierMode = mutableStateOf(SignInIdentifierMode.UsbId)
+		val emitted = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				isWaiting = false,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				identifierMode = identifierMode.value,
+				usbId = echoedUsbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> emitted += value }
+			)
+		}
+
+		fun echo(value: String) {
+			runOnIdle {
+				// What the sign-in machine answers: the text, and the mode once an @ went through.
+				if (identifierMode.value == SignInIdentifierMode.UsbId && '@' in value) {
+					identifierMode.value = SignInIdentifierMode.UsbEmail
+				}
+				echoedUsbId.value = value
+			}
+			waitForIdle()
+		}
+
+		performTextInputPerCharacter(AuthUiTags.UsbIdTextField, input) {
+			// The answer to the text from two emissions ago lands just before this key (a key that the mask
+			// turns into the same text emits nothing, so it is counted by emissions and not by keys).
+			if (emitted.size >= 2) echo(emitted[emitted.size - 2])
+		}
+
+		echo(emitted.last())
+
+		assertEquals(input, emitted.last())
+		assertEquals(input, onNodeWithTag(AuthUiTags.UsbIdTextField).editableText())
 	}
 }
 

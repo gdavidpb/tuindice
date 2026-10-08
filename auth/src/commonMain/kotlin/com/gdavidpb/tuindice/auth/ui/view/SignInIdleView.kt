@@ -133,6 +133,7 @@ fun SignInIdleView(
 				SignInIdentifierMode.UsbEmail -> usbEmailPlaceholderText
 			},
 			identifierMode = state.identifierMode,
+			identifierToggleCount = state.identifierToggleCount,
 			toggleContentDescription = when (state.identifierMode) {
 				SignInIdentifierMode.UsbId -> useUsbEmailContentDescription
 				SignInIdentifierMode.UsbEmail -> useUsbIdContentDescription
