@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.scenarios.catalog
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
-import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
@@ -51,14 +50,11 @@ private fun StepBuilder.openExternalLinkAndReturn(link: String) {
 	returnToAbout()
 }
 
-/** Scrolls to a trigger that may open a page of the in-app browser, taps it, and comes back. */
+/** Scrolls to a trigger that hands off to the system (store, mail, bug report), taps it, and comes back. */
 private fun StepBuilder.openPlatformEdgeTriggerAndReturn(trigger: String) {
 	scrollUntilVisible(trigger, Scroll.ContentDown, Within.Action)
 	tap(trigger)
 	foreground()
-	ifVisible(MaincoreUiTags.BrowserContainer) {
-		tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	}
 	returnToAbout()
 }
 
@@ -135,7 +131,8 @@ private val aboutPlatformEdgeTriggers = scenario(
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet is
 	// closed by the dimmed area around it, and that tap lands on the row of the About list beneath it, which opens
-	// an in-app browser page: the scenario goes back from it, as it does from the pages the other triggers open.
+	// an in-app browser page: the scenario goes back from it. That is a side effect the scenario waits for, not
+	// something the share sheet is meant to do, and it is the only trigger that opens a page: no other one does.
 	onPlatform(Platform.Ios) {
 		tap(system(POPOVER_DISMISS_REGION))
 		waitVisible(MaincoreUiTags.BrowserContainer, Within.Action)

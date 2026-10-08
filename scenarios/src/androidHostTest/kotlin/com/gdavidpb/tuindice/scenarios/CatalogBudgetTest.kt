@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
+import com.gdavidpb.tuindice.scenarios.catalog.IfVisibleBudget
 import com.gdavidpb.tuindice.scenarios.catalog.PlatformBranchBudget
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,6 +19,16 @@ class CatalogBudgetTest {
 		PlatformBranchBudget.perScenario.forEach { (id, count) ->
 			assertTrue(id.substringBefore('-') in modules, "budget for '$id' names no module")
 			assertTrue(count > 0, "budget for '$id' is zero: drop the entry")
+		}
+	}
+
+	@Test
+	fun theIfVisibleBudgetOnlyNamesScenariosOfAKnownModule() {
+		val modules = E2eCatalog.byModule.keys
+
+		IfVisibleBudget.perScenario.forEach { (id, count) ->
+			assertTrue(id.substringBefore('-') in modules, "ifVisible budget for '$id' names no module")
+			assertTrue(count > 0, "ifVisible budget for '$id' is zero: drop the entry")
 		}
 	}
 
