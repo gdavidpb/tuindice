@@ -36,7 +36,9 @@ internal object CatalogToleranceRules {
 	fun flushesNotShownAccepted(scenarios: List<Scenario>, ids: Set<String>): List<String> =
 		scenarios.filter { it.id in ids }.mapNotNull { scenario ->
 			val steps = scenario.steps.flattened()
-			val accepted = steps.any { it is Step.ExpectRequest && it.target == "POST /evaluations/v3" && it.status == HTTP_OK }
+			val accepted = steps.any {
+				it is Step.ExpectRequest && it.method == "POST" && it.path == "/evaluations/v3" && it.status == HTTP_OK
+			}
 			val notOffered = steps.any { it is Step.WaitGone && it.q == Query.Tag(AuthUiTags.SignOutSecondaryButton) }
 
 			scenario.id.takeUnless { accepted && notOffered }
