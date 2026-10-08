@@ -95,7 +95,7 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertEqual(support.text(os.path.join(attempt, "result.json")), json.dumps(failing))
         self.assertIn("exited 0", done.stderr)
 
-    def test_run_scenario_passes_the_filter_class_the_wiremock_url_and_the_trace(self):
+    def test_run_scenario_passes_the_filter_class_and_the_wiremock_url_and_no_trace_argument(self):
         self.put_result()
         done = self.box.run("run-scenario", "auth-login-cancel", os.path.join(self.box.dir, "a"), "18626", E2E_TRACE="1")
         self.assertEqual(done.json, {"nativeOk": True, "testsExecuted": 1})
@@ -104,8 +104,18 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertIn("-e class %s.ScenarioSuiteTest" % TEST_ID, call)
         self.assertIn("-e scenario auth-login-cancel", call)
         self.assertIn("-e wiremockUrl http://10.0.2.2:18626", call)
-        self.assertIn("-e e2eTrace true", call)
+        self.assertNotIn("e2eTrace", call)
         self.assertTrue(call.endswith("%s/androidx.test.runner.AndroidJUnitRunner" % TEST_ID), call)
+
+    def test_run_scenario_brings_back_the_driver_log_along_with_result_json(self):
+        # The runner appends driver.log line by line, so a run that hung or died still leaves it next to result.json.
+        self.put_result()
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        attempt = os.path.join(self.box.dir, "a")
+        done = self.box.run("run-scenario", "auth-login-cancel", attempt, "18626")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        self.assertEqual(support.text(os.path.join(attempt, "result.json")), json.dumps(RESULT))
 
     def test_a_hung_run_is_stopped_on_the_device_when_the_harness_kills_it(self):
         self.box.write("instrument.hang", "")

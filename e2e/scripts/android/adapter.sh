@@ -91,7 +91,8 @@ stop_instrumentation() {
 	adb_s shell am force-stop "${APP_ID}"
 }
 
-# The scenario's files, from the runner's internal directory (readable through run-as because the APK is debuggable).
+# The scenario's files, from the runner's internal directory (readable through run-as because the APK is debuggable):
+# result.json, driver.log (written line by line, so a hung run leaves it) and, after a failure, the capture.
 pull_output() { # id dir
 	local names name
 	if ! names="$(adb_s exec-out run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}/$1" 2>&1 | tr -d '\r')"; then
@@ -109,9 +110,6 @@ cmd_run_scenario() {
 	read_build_state
 	mkdir -p "${dir}"
 	args=(-e class "${SUITE_CLASS}" -e scenario "${id}" -e wiremockUrl "$(wiremock_url "${port}")")
-	if [[ "${E2E_TRACE:-0}" == "1" ]]; then
-		args+=(-e e2eTrace true)
-	fi
 	instrument "${args[@]}" > "${dir}/runner.log" 2>&1 &
 	pid=$!
 	# The harness stops a hung run with SIGTERM: stop the on-device instrumentation too, or it outlives adb.

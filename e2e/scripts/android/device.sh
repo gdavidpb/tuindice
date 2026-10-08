@@ -24,9 +24,12 @@ GATE_TIMEOUT_SECONDS="${E2E_FAKE_GATE_SECONDS:-240}"
 GATE_POLL_SECONDS="${E2E_FAKE_GATE_POLL_SECONDS:-5}"
 HEALTH_LOAD_WAIT_SECONDS="${E2E_FAKE_HEALTH_LOAD_WAIT_SECONDS:-120}"
 MEMORY_TOLERANCE_PERCENT=80 # the guest kernel reports less than the configured memory
-# namespace key value
-SETTINGS=("global window_animation_scale 0" "global transition_animation_scale 0" "global animator_duration_scale 0"
-	"secure spell_checker_enabled 0" "secure autofill_service null" "secure show_ime_with_hard_keyboard 0")
+# The one list of device settings (namespace key value): applied and read back by `ensure` and `recover`. The scenario
+# runner changes none of them, and the keyboard and dialog behavior the drivers rely on is only what is listed here.
+HIDE_ERROR_DIALOGS="global hide_error_dialogs 1" # also applied before the readiness gate: an ANR dialog blocks it
+SETTINGS=("${HIDE_ERROR_DIALOGS}" "global window_animation_scale 0" "global transition_animation_scale 0"
+	"global animator_duration_scale 0" "secure stylus_handwriting_enabled 0" "secure spell_checker_enabled 0"
+	"secure autofill_service null" "secure show_ime_with_hard_keyboard 0")
 
 resolve_sdk() {
 	if [[ -n "${ANDROID_HOME:-}" ]]; then
@@ -122,7 +125,8 @@ readiness_gate() {
 		(( SECONDS < deadline )) || fail "The emulator did not finish booting within ${GATE_TIMEOUT_SECONDS}s"
 		sleep "${GATE_POLL_SECONDS}"
 	done
-	adb_s shell settings put global hide_error_dialogs 1
+	# shellcheck disable=SC2086 # the entry is "namespace key value": three words
+	adb_s shell settings put ${HIDE_ERROR_DIALOGS}
 	while (( good < 2 )); do
 		load="$(device_load)"
 		if [[ "$(adb_out pm path android)" == package:* ]] && ! has_anr_window &&
@@ -243,7 +247,7 @@ cmd_health() {
 	find_avd
 	find_serial || fail "No online emulator runs ${ANDROID_AVD_NAME}"
 	[[ "$(adb_out getprop sys.boot_completed)" == "1" ]] || fail "sys.boot_completed is not 1"
-	[[ "$(adb_out settings get global hide_error_dialogs)" == "1" ]] || fail "hide_error_dialogs is not 1"
+	[[ "$(adb_out settings get global hide_error_dialogs)" == "${HIDE_ERROR_DIALOGS##* }" ]] || fail "hide_error_dialogs is not ${HIDE_ERROR_DIALOGS##* }"
 	! has_anr_window || fail "An Application Not Responding window is showing"
 	tunnel
 	load="$(device_load)"

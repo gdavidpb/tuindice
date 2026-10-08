@@ -88,6 +88,17 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(done.json["settings"]["secure.autofill_service"], "null")
         self.assertIn("shell settings put global hide_error_dialogs 1", "\n".join(box.calls()))
 
+    def test_ensure_applies_and_reads_back_every_setting_the_driver_used_to_apply_itself(self):
+        # One list lives in device.sh; the scenario runner no longer changes device settings.
+        box = Sandbox(self, "android")
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(done.json["settings"]["global.hide_error_dialogs"], "1")
+        self.assertEqual(done.json["settings"]["secure.stylus_handwriting_enabled"], "0")
+        calls = "\n".join(box.calls())
+        self.assertIn("shell settings put secure stylus_handwriting_enabled 0", calls)
+        self.assertIn("shell settings get secure stylus_handwriting_enabled", calls)
+
     def test_headless_zero_starts_the_window(self):
         box = Sandbox(self, "android")
         lock = os.path.join(box.dir, "android.lock")
