@@ -1,11 +1,10 @@
 package com.gdavidpb.tuindice.scenariorunner.driver
 
 import android.os.SystemClock
-import android.util.Log
 import com.gdavidpb.tuindice.scenariokit.driver.Diagnostics
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 
-/** Logging, pauses and failure artifacts; every line also goes to logcat for the failure capture. */
+/** Logging, pauses and failure artifacts; every line goes to `driver.log` and to logcat. */
 internal class DriverDiagnostics(
 	private val session: DeviceSession,
 	private val dialogs: SystemDialogs
@@ -13,7 +12,7 @@ internal class DriverDiagnostics(
 	override val platform: Platform = Platform.Android
 
 	override fun log(line: String) {
-		Log.i(TAG, line)
+		session.log.write(line)
 	}
 
 	override fun pause(ms: Long) {
@@ -25,8 +24,4 @@ internal class DriverDiagnostics(
 	}
 
 	override fun systemDialogInFront(): String? = dialogs.inFront()
-
-	private companion object {
-		const val TAG = "ScenarioDriver"
-	}
 }

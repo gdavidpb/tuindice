@@ -7,8 +7,12 @@ internal class SystemDialogs(private val session: DeviceSession) {
 	/** Clicks away the dialogs we know are harmless; called when a scenario starts. */
 	fun dismissKnown() {
 		runCatching {
-			session.device.findObject(By.res(ANR_WAIT_BUTTON))?.click()
+			session.device.findObject(By.res(ANR_WAIT_BUTTON))?.let {
+				session.log.write("dismissKnown: the \"app not responding\" dialog was dismissed with its wait button")
+				it.click()
+			}
 			if (session.device.hasObject(By.textContains(STYLUS_TEXT))) {
+				session.log.write("dismissKnown: the stylus handwriting notice was dismissed")
 				session.device.findObject(By.text(STYLUS_CANCEL))?.click()
 			}
 		}

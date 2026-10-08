@@ -10,7 +10,24 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 internal class ElementProber(private val session: DeviceSession) : ElementProbe {
 	override fun waitVisible(q: Query, timeoutMs: Long): Boolean = session.poll(timeoutMs) { isVisible(q) }
 
-	override fun waitGone(q: Query, timeoutMs: Long): Boolean = session.poll(timeoutMs) { !isVisible(q) }
+	/**
+	 * Gone means the app's window was read and the query matched nothing in it, in the same pass. A screen that
+	 * cannot be read (no root for the app, an accessibility error) keeps the poll going and, at the deadline,
+	 * is a failure: it must never read as "disappeared". Only the changes of what is read reach the log.
+	 */
+	override fun waitGone(q: Query, timeoutMs: Long): Boolean {
+		var last: Presence? = null
+		val gone = session.poll(timeoutMs) {
+			val reading = session.selectors.presence(q)
+			if (reading != last) note(q, reading)
+			last = reading
+			reading == Presence.ABSENT
+		}
+
+		if (!gone) session.log.write("waitGone $q: not gone after $timeoutMs ms; last read $last")
+
+		return gone
+	}
 
 	override fun isVisible(q: Query): Boolean = session.selectors.find(q) != null
 
@@ -23,6 +40,12 @@ internal class ElementProber(private val session: DeviceSession) : ElementProbe 
 
 		return rect?.let {
 			ElementBounds(it.left.toDouble(), it.top.toDouble(), it.right.toDouble(), it.bottom.toDouble())
+		}
+	}
+
+	private fun note(q: Query, reading: Presence) {
+		if (reading == Presence.UNREADABLE) {
+			session.log.write("waitGone $q: the app's accessibility tree cannot be read; it is not taken as gone, still polling")
 		}
 	}
 

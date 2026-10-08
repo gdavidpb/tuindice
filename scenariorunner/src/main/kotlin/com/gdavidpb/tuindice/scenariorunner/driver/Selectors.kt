@@ -14,6 +14,19 @@ internal class Selectors(private val device: UiDevice) {
 	fun find(q: Query): UiObject2? =
 		candidates(q).firstNotNullOfOrNull { selector -> runCatching { device.findObject(selector) }.getOrNull() }
 
+	/**
+	 * One read of the screen for [q]. ABSENT needs proof that the read worked: the app's window has to be in
+	 * the tree in the same pass, and no step of the read may throw. An exception, or a tree without the
+	 * app's window (the root is null while the emulator is frozen or the app is not in front), is UNREADABLE.
+	 */
+	fun presence(q: Query): Presence = runCatching {
+		when {
+			candidates(q).any { device.findObject(it) != null } -> Presence.PRESENT
+			device.hasObject(By.pkg(AppIdentity.ID)) -> Presence.ABSENT
+			else -> Presence.UNREADABLE
+		}
+	}.getOrDefault(Presence.UNREADABLE)
+
 	private fun candidates(q: Query): List<BySelector> = when (q) {
 		is Query.Tag -> listOf(By.res(q.value))
 		is Query.Text -> listOf(if (q.contains) By.textContains(q.value) else By.text(q.value))

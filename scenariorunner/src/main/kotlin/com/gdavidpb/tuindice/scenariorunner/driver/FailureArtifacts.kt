@@ -31,7 +31,8 @@ internal object FailureArtifacts {
 		runCatching { File(dir, "$prefix.logcat").writeText(device.executeShellCommand("logcat -d -v threadtime")) }
 	}
 
-	private fun directory(scenarioId: String): File {
+	/** The directory of [scenarioId], not created. */
+	fun directory(scenarioId: String): File {
 		val base = RunConfig.outputDir?.let(::File)
 			?: File(InstrumentationRegistry.getInstrumentation().context.filesDir, "e2e")
 

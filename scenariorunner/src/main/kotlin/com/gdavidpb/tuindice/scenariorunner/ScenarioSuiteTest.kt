@@ -1,10 +1,8 @@
 package com.gdavidpb.tuindice.scenariorunner
 
 import com.gdavidpb.tuindice.scenariokit.engine.ScenarioRunner
-import com.gdavidpb.tuindice.scenariorunner.driver.DeviceSetup
 import com.gdavidpb.tuindice.scenariorunner.driver.FailureArtifacts
 import com.gdavidpb.tuindice.scenariorunner.driver.UiAutomatorScenarioDriver
-import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -24,12 +22,6 @@ class ScenarioSuiteTest(private val scenarioId: String) {
 	}
 
 	companion object {
-		@JvmStatic
-		@BeforeClass
-		fun setUpDevice() {
-			DeviceSetup.apply()
-		}
-
 		@JvmStatic
 		@Parameterized.Parameters(name = "{0}")
 		fun ids(): List<String> = CatalogAsset.selectedIds()

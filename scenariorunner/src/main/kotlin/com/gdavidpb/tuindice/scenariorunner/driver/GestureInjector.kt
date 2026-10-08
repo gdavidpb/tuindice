@@ -12,13 +12,13 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 	override fun tap(q: Query): Boolean {
 		val place = session.settledBounds(q) ?: return false
 
-		return runCatching { session.device.click(place.centerX(), place.centerY()) }.getOrDefault(false)
+		return click(place.centerX(), place.centerY(), "tap on $q")
 	}
 
 	override fun tapAt(q: Query?, fx: Double, fy: Double): Boolean {
 		val box = area(q) ?: return false
 
-		return runCatching { session.device.click(box.pointX(fx), box.pointY(fy)) }.getOrDefault(false)
+		return click(box.pointX(fx), box.pointY(fy), "tapAt ${q ?: "the screen"}")
 	}
 
 	override fun doubleTap(q: Query): Boolean {
@@ -26,7 +26,7 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		val x = box.pointX(CENTER)
 		val y = box.pointY(CENTER)
 
-		return runCatching {
+		return !session.keyboard.covers(x, y, "doubleTap on $q") && runCatching {
 			val first = session.device.click(x, y)
 			SystemClock.sleep(DOUBLE_TAP_GAP_MS)
 			session.device.click(x, y) && first
@@ -43,7 +43,8 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		val endY = (startY + vector.dy * screenHeight).toInt().coerceIn(EDGE_MARGIN, screenHeight - EDGE_MARGIN)
 		val steps = (durationMs / STEP_MS).toInt().coerceAtLeast(1)
 
-		return runCatching { session.device.swipe(startX, startY, endX, endY, steps) }.getOrDefault(false)
+		return !session.keyboard.covers(startX, startY, "swipe from ${from ?: "the screen"}") &&
+			runCatching { session.device.swipe(startX, startY, endX, endY, steps) }.getOrDefault(false)
 	}
 
 	/**
@@ -58,7 +59,14 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		val up = KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK, 0)
 
 		automation.injectInputEvent(down, false) && automation.injectInputEvent(up, false)
-	}.getOrDefault(false)
+	}.getOrDefault(false).also { if (!it) session.log.write("pressBack: the back key could not be injected") }
+
+	/** A click at ([x], [y]) unless that point is inside the on-screen keyboard, where it would press a key. */
+	private fun click(x: Int, y: Int, gesture: String): Boolean {
+		if (session.keyboard.covers(x, y, gesture)) return false
+
+		return runCatching { session.device.click(x, y) }.getOrDefault(false)
+	}
 
 	/** Visible rectangle of [q], or the whole screen when [q] is null; null when [q] is not on screen. */
 	private fun area(q: Query?): Box? {

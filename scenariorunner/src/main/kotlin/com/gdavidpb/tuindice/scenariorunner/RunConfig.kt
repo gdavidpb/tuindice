@@ -23,8 +23,6 @@ object RunConfig {
 	 */
 	val outputDir: String? get() = arguments.getString("e2eOutputDir")?.takeIf(String::isNotBlank)
 
-	val trace: Boolean get() = arguments.getString("e2eTrace") == "true"
-
 	/** True when the run is narrowed to some scenarios, in which case the driver contract is skipped. */
 	val isFiltered: Boolean get() = scenarioIds.isNotEmpty() || scenarioModule != null
 }

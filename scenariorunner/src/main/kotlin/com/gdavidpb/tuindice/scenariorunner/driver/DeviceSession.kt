@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.scenariorunner.driver
 import android.app.Instrumentation
 import android.graphics.Rect
 import android.os.SystemClock
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
@@ -17,6 +16,8 @@ internal class DeviceSession {
 	val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 	val device: UiDevice = UiDevice.getInstance(instrumentation)
 	val selectors = Selectors(device)
+	val log = DriverLog()
+	val keyboard = KeyboardGuard(this)
 
 	init {
 		Configurator.getInstance().apply {
@@ -26,7 +27,13 @@ internal class DeviceSession {
 		}
 	}
 
-	fun shell(command: String): String = runCatching { device.executeShellCommand(command) }.getOrDefault("")
+	fun shell(command: String): String = shellOrNull(command).orEmpty()
+
+	/** The output of [command], or null when the shell call itself failed: an empty answer then proves nothing. */
+	fun shellOrNull(command: String): String? = runCatching { device.executeShellCommand(command) }.getOrNull()
+
+	/** True/false by `pidof`; null when the shell call failed and nothing is known about the process. */
+	fun appProcessRunning(): Boolean? = shellOrNull("pidof ${AppIdentity.ID}")?.isNotBlank()
 
 	/** Polls [condition] every [POLL_MS] until it holds or [timeoutMs] passes; always tries once. */
 	fun poll(timeoutMs: Long, condition: () -> Boolean): Boolean {
@@ -41,8 +48,9 @@ internal class DeviceSession {
 	/**
 	 * Visible bounds of [q] once they read the same [STABLE_READS] times in a row, so a touch lands where the
 	 * element is and not where it was before the layout moved (the keyboard opening, a sheet settling).
-	 * Null when [q] is not on screen or its bounds keep changing for [SETTLE_TIMEOUT_MS]; in that case the
-	 * reason is written to the driver log and the gesture is refused.
+	 * Null when [q] is not on screen or its bounds keep changing for [SETTLE_TIMEOUT_MS]; in both cases the
+	 * reason is written to the driver log and the gesture is refused. Every gesture that aims at an element
+	 * (tap, tapAt, doubleTap, swipe, typeKeys) takes its point from here.
 	 */
 	fun settledBounds(q: Query): Rect? {
 		val deadline = SystemClock.uptimeMillis() + SETTLE_TIMEOUT_MS
@@ -56,8 +64,10 @@ internal class DeviceSession {
 			last = now
 		}
 
-		if (last != null && equalReads < STABLE_READS) {
-			Log.w(LOG_TAG, "$q: bounds still moving after $SETTLE_TIMEOUT_MS ms (last $last); gesture refused")
+		when {
+			last == null -> log.write("$q: not on screen when the gesture was about to be made; gesture refused")
+			equalReads < STABLE_READS ->
+				log.write("$q: bounds still moving after $SETTLE_TIMEOUT_MS ms (last $last); gesture refused")
 		}
 
 		return last.takeIf { equalReads >= STABLE_READS }
@@ -70,6 +80,5 @@ internal class DeviceSession {
 		const val SETTLE_POLL_MS = 50L
 		const val SETTLE_TIMEOUT_MS = 5_000L
 		const val STABLE_READS = 3
-		const val LOG_TAG = "ScenarioDriver"
 	}
 }

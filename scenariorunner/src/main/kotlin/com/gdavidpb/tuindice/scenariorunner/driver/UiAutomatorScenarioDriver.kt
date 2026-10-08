@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.scenariorunner.RunConfig
 
 /** The Android driver: UI Automator out of process, with the work split by contract interface. */
 internal class UiAutomatorScenarioDriver(
-	private val session: DeviceSession = DeviceSession(),
+	internal val session: DeviceSession = DeviceSession(),
 	private val dialogs: SystemDialogs = SystemDialogs(session)
 ) : ScenarioDriver,
 	AppControl by AppLauncher(session),
@@ -21,9 +21,9 @@ internal class UiAutomatorScenarioDriver(
 	BackendControl by HttpBackend(RunConfig.wiremockUrl),
 	Diagnostics by DriverDiagnostics(session, dialogs) {
 
-	/** Clears the previous output and log of [scenarioId] and any dialog left from an earlier run. */
+	/** Clears the output of [scenarioId], starts its `driver.log` and clears any dialog left from an earlier run. */
 	fun beginScenario(scenarioId: String) {
-		FailureArtifacts.reset(scenarioId)
+		session.log.open(FailureArtifacts.reset(scenarioId))
 		session.shell("logcat -c")
 		dialogs.dismissKnown()
 	}

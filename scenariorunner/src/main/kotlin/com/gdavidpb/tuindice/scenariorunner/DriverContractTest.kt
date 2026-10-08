@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.scenariorunner
 
 import com.gdavidpb.tuindice.scenariokit.engine.ScenarioRunner
-import com.gdavidpb.tuindice.scenariorunner.driver.DeviceSetup
 import com.gdavidpb.tuindice.scenariorunner.driver.FailureArtifacts
 import com.gdavidpb.tuindice.scenariorunner.driver.UiAutomatorScenarioDriver
 import org.junit.Assume.assumeFalse
@@ -12,8 +11,6 @@ class DriverContractTest {
 	@Test
 	fun driverHonoursTheContract() {
 		assumeFalse("a scenario filter is set", RunConfig.isFiltered)
-		DeviceSetup.apply()
-
 		val driver = UiAutomatorScenarioDriver()
 		driver.beginScenario("driver-contract")
 
