@@ -101,7 +101,7 @@ tasks.register<Exec>("e2eEnvCheck") {
 
 tasks.register<Exec>("verifyE2eHarness") {
 	group = "verification"
-	description = "Runs the E2E harness checks: shell and Python syntax, the harness and skill unit tests, the fingerprint coverage and the line budgets."
+	description = "Runs the E2E harness checks: shell and Python syntax, the harness and skill unit tests, the fingerprint coverage, the line budgets and the vocabulary gate."
 	timeout.set(Duration.ofMinutes(15))
 	commandLine("bash", "${rootDir}/e2e/tools/tests/run-harness-tests.sh")
 }

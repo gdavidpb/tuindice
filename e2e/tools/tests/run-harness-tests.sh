@@ -88,3 +88,7 @@ bash e2e/tools/tests/test-fingerprint.sh
 
 # The harness, the skill and its runbook stay within the budgets of e2e/tools/verify/line-budgets.env.
 bash e2e/tools/verify/verify-line-budgets.sh
+
+# The versioned files use the vocabulary of the system that exists: no name of the retired runner and no Gradle
+# task that no build file registers (exceptions are listed, with their reasons, in the script).
+bash e2e/tools/verify/verify-e2e-vocabulary.sh
