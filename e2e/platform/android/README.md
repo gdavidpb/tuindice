@@ -1,11 +1,11 @@
-# Android platform E2E edge suites
+# Android platform edges
 
-Use this directory for Android-only E2E cases that Maestro cannot cover with stable black-box selectors.
+Notes on Android behavior that no scenario drives, because it sits behind an OS surface or a device state the Android
+driver (`scenariorunner/`, UI Automator out of process) cannot reach or seed. No task runs these files; they are the
+record of what an edge test would verify, what covers it today and why no scenario does.
 
-Expected cases:
+Each note has the same parts: the scope an edge test would have, what covers the behavior elsewhere (host and UI tests),
+and the reason no scenario does. `ActionDispositions.kt` in `scenarios/` names the notes it relies on, and an action
+listed there as a platform edge never also appears in a scenario's `covers`.
 
-- Compose/Espresso synchronization and assertions that need Compose internals.
-- UI Automator flows that leave the app, such as PDF openers, share sheet, permissions, camera, or external browser.
-- Intent assertions that would duplicate a Maestro flow without adding platform-specific coverage.
-
-The root `e2ePlatformAndroid` task is wired and intentionally succeeds until concrete suites are registered.
+A behavior that a scenario can drive does not belong here: it goes in the catalog (`e2e/README.md`, "Add a scenario").

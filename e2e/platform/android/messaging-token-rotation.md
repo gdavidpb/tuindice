@@ -1,8 +1,8 @@
 # Messaging Token Rotation Edge (Android)
 
-Status: platform-edge placeholder for `e2ePlatformAndroid`.
+Status: platform-edge note; no scenario drives it.
 
-Maestro coverage: none. FCM token rotation is a Google Play services system callback with no user-visible surface or stable black-box selector.
+Scenario coverage: none. FCM token rotation is a Google Play services system callback with no user-visible surface or stable selector.
 
 Platform-only scope:
 
@@ -15,4 +15,4 @@ Covered elsewhere:
 - `app/src/test/kotlin/com/gdavidpb/tuindice/data/repository/messaging/MessagingDataRepositoryTest.kt` verifies rotated-token re-subscription and persisted token updates
 - the shared resume repair (`EnsureMessagingSubscribedUseCase` on `Main.Action.RequestSync`) keeps both platforms eventually consistent
 
-Reason: triggering a real FCM token rotation requires Play services internals that neither Maestro nor local instrumentation can drive deterministically.
+Reason: triggering a real FCM token rotation requires Play services internals that neither the UI Automator driver nor local instrumentation can drive deterministically.

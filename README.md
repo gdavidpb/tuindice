@@ -364,24 +364,24 @@ Objetivo:
 
 ## Patron de E2E local
 
-La suite E2E ejecutable vive en `e2e/` y prioriza Maestro para flujos cross-platform. Los casos Android o iOS que
-dependen de detalles de plataforma se registran como suites especificas bajo `e2e/platform/android` o
-`e2e/platform/ios`.
+Los escenarios E2E son datos escritos una vez en Kotlin y los ejecutan drivers nativos: UI Automator en Android y
+XCUITest en iOS, contra el WireMock de `mocks/`. Las piezas:
 
-En `testkit/e2e` vive el contrato de implementacion:
-
-- `flow-catalog.yaml`: inventario de flows, modulos, plataformas y siguientes escenarios.
-- `selector-policy.md`: reglas para usar `Modifier.testTag` como selector estable.
-- `fixture-contract.md`: reglas de uso de WireMock como backend local de QA.
-- `local-runbook.md`: comandos y variables para ejecucion local.
-- `validate-e2e-contract.sh`: valida el catalogo, los selectors criticos y el contrato de fixtures, y lintea los
-  flows Maestro; corre dentro de `verifyE2eContract`.
+- `scenariokit`: modelo de pasos, DSL, intérprete, contrato de driver y códec (ver "Módulos").
+- `scenarios`: el catálogo (cuentas, fixtures, textos y escenarios por módulo) y los tests de host que lo validan.
+- `scenariorunner` (Android) e `iosApp/UITests` (iOS): los drivers.
+- `e2e/`: el harness (`e2e/scripts`), el catálogo generado (`e2e/catalog/scenarios.json`), los locks de toolchain
+  y las herramientas de diagnóstico; `e2e/README.md` explica cómo correr y añadir un escenario.
+- `testkit/e2e`: el contrato de implementación: `selector-policy.md` (tags estables de los `*UiTags`) y
+  `fixture-contract.md` (reglas de uso de WireMock como backend local de QA).
 
 Reglas:
 
-- Los flows Maestro usan `id` sobre tags estables definidos por cada modulo.
-- Android debug expone `testTag` como resource id para runners black-box.
+- Los escenarios direccionan elementos por tags definidos en los `*UiTags` de cada módulo, nunca por literales.
+- Android debug expone `testTag` como resource id para los runners black-box.
 - La suite local usa WireMock desde `mocks/`; no llama servicios productivos.
+- `./gradlew verifyE2eContract` agrega los tests de host de `scenariokit` y `scenarios`, que el catálogo versionado
+  esté al día, los chequeos del harness y el contrato de argumentos de lanzamiento.
 - Firebase Test Lab queda fuera de esta capa local y debe agregarse con runners separados cuando corresponda.
 
 ## Checklist para cambios nuevos
@@ -396,7 +396,8 @@ Reglas:
 - Koin se registra en el módulo correcto.
 - Los textos visibles van a recursos comunes.
 - Si agregas o cambias wiring de Koin, agregas o actualizas el smoke test del modulo afectado.
-- Si agregas un flujo E2E, actualizas `testkit/e2e/flow-catalog.yaml` y ejecutas `verifyE2eContract`.
+- Si agregas o cambias un escenario E2E, ejecutas `./gradlew syncE2eArtifacts verifyE2eContract` y versionas los
+  dos archivos generados.
 - Ejecutas las verificaciones necesarias antes de cerrar el cambio.
 
 ## Enforcement de arquitectura (Semgrep)
@@ -455,7 +456,7 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain :evaluations:allTests
 ./gradlew --continue --console=plain :maincore:iosSimulatorArm64Test --tests '*IosAppKoinSmokeTest*'
 ./gradlew --continue --console=plain verifyE2eContract
-./gradlew --continue --console=plain e2eMaestroAndroid
+./gradlew --continue --console=plain e2eAndroid
 ./gradlew --continue --console=plain verifySharedHostTests
 ./gradlew --continue --console=plain detekt
 ./gradlew --continue --console=plain koverHtmlReport

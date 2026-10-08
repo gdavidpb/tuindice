@@ -1,13 +1,13 @@
 # Summary Profile Picture Upload Edge (iOS)
 
-Status: platform-edge placeholder for `e2ePlatformIos`.
+Status: platform-edge note; no scenario drives it.
 
-Maestro coverage: `e2e/maestro/flows/summary/summary-profile-picture.yaml` verifies the in-app profile picture settings sheet, pick/take triggers, and remove confirmation flow.
+Scenario coverage: `summary-profile-picture` verifies the in-app profile picture settings sheet (it shows the pick, take and remove actions) and the remove confirmation flow. No scenario taps the camera or gallery option (`summary.Summary.TakeProfilePicture`, `PickProfilePicture` are `Pending` in `ActionDispositions.kt`).
 
 Platform-only scope:
 
-- verify camera and photo picker hand-offs with XCUITest
+- verify the camera and photo picker hand-offs
 - verify a selected image returns to the app and reaches `summary.Summary.UploadProfilePicture`
 - cover invalid image and oversized image picker payloads once a stable debug file-source adapter exists
 
-Reason: native camera/photo picker surfaces, security-scoped file access, and returned file sources are iOS host/system edges that Maestro cannot assert stably.
+Reason: the upload (`summary.Summary.UploadProfilePicture`) runs once the system picker or camera hands a file back, through security-scoped file access, and no scenario can put a file in them; it needs a debug-only source of that file. The picker and camera screens themselves are system UI that the driver could reach with `system(...)` queries and `foreground()`, but nobody has written that scenario.

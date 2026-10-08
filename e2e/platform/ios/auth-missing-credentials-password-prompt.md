@@ -1,8 +1,8 @@
 # Missing Credentials Password Prompt Edge (iOS)
 
-Status: platform-edge placeholder for `e2ePlatformIos`.
+Status: platform-edge note; no scenario drives it.
 
-Maestro coverage: `e2e/maestro/flows/auth/update-password.yaml` verifies the same update-password dialog when it is reached because the backend rejected the stored password (`SyncStatus.OutdatedCredentials`). The `SyncStatus.MissingCredentials` entry into it has no flow.
+Scenario coverage: `auth-update-password` verifies the same update-password dialog when it is reached because the backend rejected the stored password (`SyncStatus.OutdatedCredentials`). The `SyncStatus.MissingCredentials` entry into it has no scenario.
 
 Platform-only scope:
 
@@ -16,4 +16,4 @@ Covered elsewhere:
 - `auth/src/commonTest/.../domain/usecase/AuthUseCaseContractTest.kt` (`updatePasswordUseCase_whenTheStoredPasswordCouldNotBeRead_storesItAgainAndClearsTheLatch`) verifies the way out: the typed password is stored again, the latch is cleared and the sync is scheduled
 - `maincore/src/commonTest/.../data/source/credentials/CredentialsDataSourceTest.kt` verifies how the password is read from the active and legacy secure stores
 
-Reason: the state is "valid session, unreadable password". Maestro can only clear the whole app state, which also drops the session and lands on sign-in, and it cannot reach the simulator's secure storage for a single item; no debug seed state signs in without a stored password (the host only knows the authenticated coachmark states).
+Reason: the state is "valid session, unreadable password". The harness resets the whole app (uninstall plus keychain reset), which also drops the session and lands on sign-in, and the driver cannot reach the simulator's secure storage for one item. The launch arguments cannot seed it either: a session seed carries its password (`SEED_PASSWORD`) and `DebugLaunchArguments.parse` rejects a partial seed (`partialSessionSeed_fails`).

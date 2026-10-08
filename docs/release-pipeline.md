@@ -41,19 +41,20 @@ Para cambios runtime o release se debe subir `versionName`, `androidVersionCode`
 ## Preflight
 
 El detector compara el PR contra el merge-base de `production` y ejecuta solo piezas impactadas. El alcance
-(módulos a recompilar/testear y suites E2E requeridas) se deriva del grafo de módulos en
+(módulos a recompilar/testear y plataformas con evidencia E2E requerida) se deriva del grafo de módulos en
 `scripts/module-graph.txt` — la fuente única que también valida `./gradlew verifyModuleGraph` contra los
 `build.gradle.kts` reales:
 
 - Cambios docs/skills no disparan release ni tests de app.
 - Cambios de feature prueban el módulo, sus dependientes transitivos (incluido `wizard`, que consume casi
-  todas las features) y hosts relevantes; las suites E2E requeridas incluyen las de los dependientes.
+  todas las features) y hosts relevantes; si un archivo está en el fingerprint E2E de una plataforma (fuentes de runtime, scripts del
+  harness, mocks, catálogo; ver `e2e/scripts/shared/e2e-fingerprint.sh`) se exige la evidencia de esa plataforma.
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios en cualquier `build.gradle.kts`, `settings.gradle.kts` o en el propio grafo ejecutan
   `verifyModuleGraph` en preflight, así el grafo no puede derivar en silencio.
 - Cada módulo impactado (y `app`) pasa por `:módulo:detekt` contra su baseline; cambios en
   `config/detekt/`, `.editorconfig` o cualquier `detekt-baseline.xml` ejecutan `detekt` completo sin marcar
-  impacto de runtime ni suites E2E. El Gradle raíz también ejecuta `detekt` completo, pero además marca
+  impacto de runtime ni evidencia E2E. El Gradle raíz también ejecuta `detekt` completo, pero además marca
   `has_release_impact=true` y exige la `local-certification-suite` en ambas plataformas.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
@@ -89,51 +90,48 @@ STATE_DIR=/tmp/tuindice-changes bash ./.github/scripts/detect-changed-app.sh "$m
 
 ## E2E local y statuses
 
-Los E2E pesados se ejecutan localmente, no en Firebase Test Lab. Cada corrida genera evidencia en:
+Los E2E pesados se ejecutan localmente, no en Firebase Test Lab: escenarios nativos (UI Automator en Android,
+XCUITest en iOS) contra el WireMock de `mocks/`. La evidencia es por plataforma y por fingerprint: el harness corre el
+catálogo completo, un escenario por invocación, y guarda en un libro mayor qué escenarios pasaron para ese
+fingerprint, de modo que una segunda invocación solo corre lo que todavía no está en verde. Cada corrida deja:
 
 ```text
-build/e2e/certifications/<sha>/<platform>/<suite>/
+build/e2e/runs/<runId>/                                   resumen, log, manifest.json, junit.xml y artefactos por intento
+build/e2e/ledger/<platform>/<fingerprint>/ledger.json     libro mayor del fingerprint
+build/e2e/certifications/<sha>/<platform>/manifest.json   copia del manifiesto de una corrida de evidencia que pasó
 ```
-
-La evidencia contiene `maestro.log`, `junit.xml`, salidas de Maestro y `manifest.json` con SHA, suite, plataforma, dispositivo, versión y hash del log.
 
 Comandos principales:
 
 ```bash
-./gradlew e2eMaestroEvidenceAndroid
-./gradlew e2eMaestroEvidenceIos
-./gradlew e2eMaestroEvidenceLocal
+./gradlew e2eEvidenceAndroid
+./gradlew e2eEvidenceIos
+./gradlew e2eEvidence            # ambas plataformas
 ```
 
-Por defecto estos comandos calculan el diff de la rama actual contra `production` u `origin/production`, ejecutan solo
-las suites requeridas por ese alcance y publican los GitHub commit statuses exitosos que preflight exige. Si no pueden
-resolver esa base, falla la resolucion de alcance; se puede pasar `E2E_BASE_SHA` para forzarla.
-
-Para forzar una suite enfocada durante debugging:
-
-```bash
-E2E_MAESTRO_SUITE="$PWD/e2e/maestro/flows/suites/auth-suite.yaml" \
-E2E_PUBLISH_GITHUB_STATUS=1 \
-./gradlew e2eMaestroEvidenceAndroid
-```
+Dependen de `verifyE2eArtifactsFresh`, exigen árbol limpio y, cuando una plataforma queda completa con `HEAD` empujado
+y visible en GitHub, publican el commit status exitoso que preflight exige para esa plataforma
+(`E2E_PUBLISH_GITHUB_STATUS=0` corre sin publicar). Para diagnosticar un escenario sin producir evidencia:
+`E2E_SCENARIOS=<id> ./gradlew e2eAndroid` (o `e2eIos`). El detalle del harness está en `e2e/README.md`; cómo certificar
+una rama (veredictos, condiciones de parada, umbrales de entorno) en `.codex/skills/certify-tuindice-pr/`.
 
 Los contextos publicados tienen formato:
 
 ```text
-local-e2e/android/<suite>
-local-e2e/ios/<suite>
+local-e2e/android/local-certification-suite
+local-e2e/ios/local-certification-suite
 ```
 
+con una única definición, `e2e_status_context` en `.github/scripts/common.sh` (`e2e.py contexts` la imprime). La
+descripción es `Local E2E <plataforma> <N>/<N> passed for <sha7> fp <fp12>.`, seguida de los conteos que apliquen
+(`retried`, `env`, `quarantined`, `overrides`).
+
 Un status `success` no basta por sí solo: preflight exige que la descripción contenga el fingerprint
-(`fp <12 hex>`) que corresponde al árbol del commit y la suite, y que el creator del status sea confiable
+(`fp <12 hex>`) que corresponde al árbol del commit y la plataforma, y que el creator del status sea confiable
 (dueño del repo o `github-actions[bot]`; configurable con la variable de repo
 `E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` pasa al script). Un status fabricado
 sin el fingerprint correcto se rechaza. El reuso por fingerprint también considera los heads de PRs asociados
 al commit (API de GitHub), por lo que sobrevive a merges por squash.
-
-La evidencia local también se espeja en `build/e2e/certifications/by-fingerprint/<fingerprint>/…`, pero solo
-cuando la corrida pasa: una corrida fallida conserva su evidencia bajo su propio SHA y deja intacto el espejo
-aprobado del mismo fingerprint.
 
 ## Stage y deploy
 
