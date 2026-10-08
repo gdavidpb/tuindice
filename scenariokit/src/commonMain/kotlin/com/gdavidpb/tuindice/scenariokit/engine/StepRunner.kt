@@ -9,13 +9,14 @@ internal class StepRunner(
 	private val driver: ScenarioDriver,
 	private val clocks: Clocks,
 	private val backend: BackendEngine,
+	startArguments: Map<String, String> = emptyMap(),
 	val recorder: StepRecorder = StepRecorder()
 ) {
 	private val poller = Poller(driver, clocks.timeSource)
 	private val gestures = GestureSteps(driver, poller, clocks.timeSource)
 	private val text = TextSteps(driver, poller)
 	private val waits = WaitSteps(driver, poller, ScrollEngine(driver, poller))
-	private val app = AppSteps(driver)
+	private val app = AppSteps(driver, startArguments)
 	private val containers = ContainerSteps(driver, ::runAll)
 
 	fun runAll(steps: List<Step>): StepResult.Failed? = steps.firstNotNullOfOrNull { runOne(it) }
@@ -26,7 +27,8 @@ internal class StepRunner(
 		val result = runCatching { dispatch(step) }.getOrElse { driverError(it) }
 		val durationMs = mark.elapsedNow().inWholeMilliseconds
 		recorder.end(index, result.outcome, durationMs)
-		driver.log("[$index] ${step::class.simpleName} ${step.target} -> ${result.outcome.wire} ($durationMs ms)")
+		// The log is evidence, never a reason to lose the run: a driver whose log throws still gets its result.
+		runCatching { driver.log("[$index] ${step::class.simpleName} ${step.target} -> ${result.outcome.wire} ($durationMs ms)") }
 		return (result as? StepResult.Failed)?.locatedAt(index, step)
 	}
 

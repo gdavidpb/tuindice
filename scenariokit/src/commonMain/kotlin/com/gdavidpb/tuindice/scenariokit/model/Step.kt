@@ -20,7 +20,10 @@ sealed interface Step {
 		val steps: List<Step>
 	}
 
-	/** Starts the app again keeping its state; the first launch comes from `Scenario.start`. */
+	/**
+	 * Starts the app again keeping its state; the first launch comes from `Scenario.start`. No [arguments] means the
+	 * launch arguments of `Scenario.start`.
+	 */
 	@Serializable
 	@SerialName("relaunch")
 	data class Relaunch(val arguments: Map<String, String>, override val site: Site? = null) : Step

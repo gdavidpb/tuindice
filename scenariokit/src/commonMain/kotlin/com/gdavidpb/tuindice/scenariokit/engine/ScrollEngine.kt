@@ -51,9 +51,11 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 		val screen = driver.bounds(null)
 		return when {
 			!driver.isVisible(q) -> Placement.HIDDEN
-			bounds == null || screen == null -> Placement.SETTLED
+			// Visible but without a position (it appeared between the reads, or the driver could not place it): where it
+			// sits is unknown, so it is not placed. Scrolling goes on, and the wait ends as a timeout if it never is.
+			bounds == null || screen == null -> Placement.HIDDEN
 			isCentered(bounds, screen, direction) -> Placement.SETTLED
-			previous != null && screen != null && isStill(previous, bounds, screen, direction) -> Placement.SETTLED
+			previous != null && isStill(previous, bounds, screen, direction) -> Placement.SETTLED
 			else -> Placement.OFF_CENTER
 		}
 	}

@@ -37,6 +37,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var finishResult = true
 	var typing: (String) -> String = { it }
 	var throwOn: String? = null
+	var logThrows = false
+	var launchTakesMs = 0L
+	var httpTakesMs = 0L
 
 	private fun enter(call: String) {
 		calls += call
@@ -52,6 +55,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun launch(spec: LaunchSpec): Boolean {
 		enter("launch")
+		time += launchTakesMs.milliseconds
 		launches += spec
 		return launchResults.removeFirstOrNull() ?: true
 	}
@@ -113,7 +117,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun bounds(q: Query?): ElementBounds? {
 		enter("bounds")
-		return if (q == null) SCREEN else if (shown(q)) element(q)?.let(::drifted) else null
+		return if (q == null) SCREEN else if (shown(q)) element(q)?.takeIf { !it.unreadableBounds }?.let(::drifted) else null
 	}
 
 	private fun drifted(el: FakeElement): ElementBounds {
@@ -181,10 +185,12 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun http(method: String, path: String, body: String?, authorization: String?): HttpReply {
 		enter("http($method $path)")
+		time += httpTakesMs.milliseconds
 		return backend.http(method, path, body, authorization)
 	}
 
 	override fun log(line: String) {
+		if (logThrows) error("scripted failure of the driver log")
 		logLines += line
 	}
 

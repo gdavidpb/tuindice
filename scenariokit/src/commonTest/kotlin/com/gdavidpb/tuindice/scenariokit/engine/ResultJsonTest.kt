@@ -31,7 +31,10 @@ class ResultJsonTest {
 
 		val root = parse(fake.run(Step.Tap(button)))
 
-		assertEquals(listOf("scenarioId", "outcome", "startedAt", "finishedAt", "steps", "failure"), root.keys.toList())
+		assertEquals(
+			listOf("scenarioId", "outcome", "startedAt", "finishedAt", "prepareBackendMs", "launchMs", "steps", "failure"),
+			root.keys.toList()
+		)
 		assertEquals("test-scenario", root.getValue("scenarioId").jsonPrimitive.content)
 		assertEquals("passed", root.getValue("outcome").jsonPrimitive.content)
 		assertEquals("2026-01-01T00:00:00Z", root.getValue("startedAt").jsonPrimitive.content)
@@ -42,6 +45,31 @@ class ResultJsonTest {
 		assertEquals("Tap", step.getValue("primitive").jsonPrimitive.content)
 		assertEquals("tag:button", step.getValue("target").jsonPrimitive.content)
 		assertEquals("passed", step.getValue("outcome").jsonPrimitive.content)
+	}
+
+	@Test
+	fun theBackendResetAndTheColdStart_reportTheirOwnDuration() {
+		val fake = FakeDriver().apply {
+			screen[button] = FakeElement()
+			launchTakesMs = 16_000
+			httpTakesMs = 40
+		}
+
+		val root = parse(fake.run(Step.Tap(button)))
+
+		// Four resets, each one request; the launch is the 16 s cold start of the app.
+		assertEquals(160, root.getValue("prepareBackendMs").jsonPrimitive.int)
+		assertEquals(16_000, root.getValue("launchMs").jsonPrimitive.int)
+	}
+
+	@Test
+	fun aRunThatNeverLaunched_hasNoLaunchDuration() {
+		val fake = FakeDriver().apply { backend.down = true }
+
+		val root = parse(fake.run(Step.Back()))
+
+		assertEquals(JsonNull, root.getValue("launchMs"))
+		assertNotNull(root.getValue("prepareBackendMs").jsonPrimitive.content.toIntOrNull())
 	}
 
 	@Test

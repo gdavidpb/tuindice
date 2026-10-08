@@ -15,8 +15,9 @@ data class FakeElement(
 	/** Every bounds read moves the element left by this much, like something still animating. */
 	var drift: Double = 0.0,
 	/** Reads as disabled for this many enabled checks, then as enabled. */
-	var enabledAfterChecks: Int = 0
-
+	var enabledAfterChecks: Int = 0,
+	/** Visible, but its bounds read as null: the driver cannot say where it is. */
+	var unreadableBounds: Boolean = false
 ) {
 	var enabledChecks = 0
 

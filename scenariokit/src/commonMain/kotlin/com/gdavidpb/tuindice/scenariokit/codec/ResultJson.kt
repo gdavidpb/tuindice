@@ -11,7 +11,8 @@ import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * The `result.json` each runner writes: `scenarioId`, `outcome` (`passed` or `failed`),
- * `startedAt`, `finishedAt`, `steps[]` and `failure`, which is null when the scenario passed.
+ * `startedAt`, `finishedAt`, `prepareBackendMs` and `launchMs` (how long the backend reset and the cold start took,
+ * null when the run never got that far), `steps[]` and `failure`, which is null when the scenario passed.
  */
 internal object ResultJson {
 	fun encode(outcome: ScenarioOutcome): String =
@@ -21,6 +22,8 @@ internal object ResultJson {
 				"outcome" to JsonPrimitive(if (outcome.passed) "passed" else "failed"),
 				"startedAt" to JsonPrimitive(outcome.startedAt),
 				"finishedAt" to JsonPrimitive(outcome.finishedAt),
+				"prepareBackendMs" to (outcome.prepareBackendMs?.let(::JsonPrimitive) ?: JsonNull),
+				"launchMs" to (outcome.launchMs?.let(::JsonPrimitive) ?: JsonNull),
 				"steps" to JsonArray(outcome.steps.map(::step)),
 				"failure" to (outcome.failure?.let(::failure) ?: JsonNull)
 			)

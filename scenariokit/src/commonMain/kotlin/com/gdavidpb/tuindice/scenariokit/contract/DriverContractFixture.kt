@@ -11,8 +11,8 @@ data class DriverContractFixture(
 	val absentTag: String,
 	val disabledTag: String? = null,
 	val textFieldTag: String? = null,
-	/** Typed into [textFieldTag] by both `setText` and `typeKeys`. */
-	val textSample: String = "ab1",
+	/** Typed into [textFieldTag] by `typeKeys`; it must not be the placeholder the field shows when empty. */
+	val textSample: String,
 	/** What the field must show after typing [textSample]; differs from it when the field masks its input. */
-	val expectedText: String = "ab1"
+	val expectedText: String
 )

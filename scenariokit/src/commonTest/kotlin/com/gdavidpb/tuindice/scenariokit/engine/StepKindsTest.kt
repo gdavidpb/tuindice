@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.scenariokit.engine
 
 import com.gdavidpb.tuindice.scenariokit.driver.ElementBounds
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
+import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Step
@@ -304,6 +305,26 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun scrollUntilVisible_doesNotAcceptAnElementWhosePositionCannotBeRead() {
+		val fake = driver(button to FakeElement(unreadableBounds = true))
+
+		val failure =
+			assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.STEP_TIMEOUT)
+
+		assertContains(failure.message, "did not scroll into view")
+		assertTrue(fake.swipes >= 1, "it kept scrolling instead of passing blind; swipes were ${fake.swipes}")
+	}
+
+	@Test
+	fun scrollUntilVisible_passesOnceTheElementCanBePlaced() {
+		val fake = driver(button to FakeElement(unreadableBounds = true))
+		fake.onSwipe = { count -> if (count == 2) fake.screen.getValue(button).unreadableBounds = false }
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertEquals(2, fake.swipes)
+	}
+
+	@Test
 	fun scrollUntilVisible_terminatesWhenTheElementNeverShowsUp() {
 		val fake = driver()
 
@@ -326,6 +347,18 @@ class StepKindsTest {
 		assertPassed(driver(button to FakeElement()).run(Step.Settle(button, 2_000)))
 		assertPassed(driver().run(Step.Settle(null, 2_000)))
 		assertFailed(driver(button to FakeElement(drift = 3.0)).run(Step.Settle(button, 2_000)), FailureKind.STEP_TIMEOUT)
+	}
+
+	@Test
+	fun relaunch_withoutArguments_startsTheAppWithTheArgumentsOfTheScenarioStart() {
+		val fake = driver()
+		val start = LaunchSpec(mapOf("DISABLE_ANIMATIONS" to "true", "NETWORK_AVAILABLE" to "true"))
+
+		assertPassed(fake.run(scenarioOf(Step.Relaunch(emptyMap()), start = start)))
+		assertEquals(start.arguments, fake.launches.last().arguments)
+
+		assertPassed(fake.run(scenarioOf(Step.Relaunch(mapOf("OTHER" to "1")), start = start)))
+		assertEquals(mapOf("OTHER" to "1"), fake.launches.last().arguments)
 	}
 
 	@Test

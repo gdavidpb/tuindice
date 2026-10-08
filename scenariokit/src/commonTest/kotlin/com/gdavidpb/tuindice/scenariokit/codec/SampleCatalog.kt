@@ -72,6 +72,8 @@ fun sampleCatalog(scenarios: List<Scenario> = listOf(sampleScenario())) = Scenar
 		presentTag = "present",
 		absentTag = "absent",
 		disabledTag = "disabled",
-		textFieldTag = "field"
+		textFieldTag = "field",
+		textSample = "ab1",
+		expectedText = "ab1"
 	)
 )

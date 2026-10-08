@@ -13,28 +13,47 @@ import com.gdavidpb.tuindice.scenariokit.model.ScenarioOutcome
  */
 internal class ScenarioInterpreter(private val driver: ScenarioDriver, private val clocks: Clocks = Clocks()) {
 	private val backend = BackendEngine(driver, Poller(driver, clocks.timeSource))
-	private val runner = StepRunner(driver, clocks, backend)
 
 	fun run(scenario: Scenario): ScenarioOutcome {
 		val startedAt = clocks.nowIso()
-		val failure = preparationFailure(scenario) ?: stepFailure(scenario)
+		val runner = StepRunner(driver, clocks, backend, scenario.start.arguments)
+		val preparation = prepare(scenario)
+		val failure = preparation.failure ?: stepFailure(scenario, runner)
 		val report = failure?.let { reportFor(scenario, it) } ?: "Scenario ${scenario.id} passed"
-		return ScenarioOutcome(scenario.id, startedAt, clocks.nowIso(), runner.recorder.all, failure, report)
+		return ScenarioOutcome(
+			scenarioId = scenario.id,
+			startedAt = startedAt,
+			finishedAt = clocks.nowIso(),
+			steps = runner.recorder.all,
+			failure = failure,
+			report = report,
+			prepareBackendMs = preparation.prepareBackendMs,
+			launchMs = preparation.launchMs
+		)
 	}
 
-	private fun preparationFailure(scenario: Scenario): ScenarioFailure? {
+	/** What `prepareBackend` and `launch` found and how long each took; a stage that never ran has no duration. */
+	private class Preparation(val failure: ScenarioFailure?, val prepareBackendMs: Long?, val launchMs: Long?)
+
+	private fun prepare(scenario: Scenario): Preparation {
+		val prepareMark = clocks.timeSource.markNow()
 		val backendError = backend.prepare(scenario.start)
-		return when {
-			backendError != null -> beforeFirstStep(FailureKind.BACKEND_UNAVAILABLE, "prepareBackend", backendError)
-			!driver.launch(scenario.start) -> beforeFirstStep(FailureKind.APP_NOT_RUNNING, "launch", "the app did not launch")
-			else -> null
+		val prepareMs = prepareMark.elapsedNow().inWholeMilliseconds
+		if (backendError != null) {
+			return Preparation(beforeFirstStep(FailureKind.BACKEND_UNAVAILABLE, "prepareBackend", backendError), prepareMs, null)
 		}
+
+		val launchMark = clocks.timeSource.markNow()
+		val launched = driver.launch(scenario.start)
+		val launchMs = launchMark.elapsedNow().inWholeMilliseconds
+		val failure = if (launched) null else beforeFirstStep(FailureKind.APP_NOT_RUNNING, "launch", "the app did not launch")
+		return Preparation(failure, prepareMs, launchMs)
 	}
 
 	private fun beforeFirstStep(kind: FailureKind, primitive: String, message: String) =
 		ScenarioFailure(kind, -1, primitive, "", message, "", "", null)
 
-	private fun stepFailure(scenario: Scenario): ScenarioFailure? =
+	private fun stepFailure(scenario: Scenario, runner: StepRunner): ScenarioFailure? =
 		runner.runAll(scenario.steps)?.let { failed ->
 			val refined = FailureRefiner.refine(failed, driver)
 			ScenarioFailure(

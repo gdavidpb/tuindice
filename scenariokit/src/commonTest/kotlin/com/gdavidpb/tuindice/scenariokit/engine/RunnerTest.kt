@@ -73,6 +73,16 @@ class RunnerTest {
 	}
 
 	@Test
+	fun run_whenTheDriverLogThrows_stillReturnsTheResultOfTheSteps() {
+		val fake = FakeDriver().apply { logThrows = true }
+
+		val outcome = ScenarioRunner.runWith(catalog, "a-pass", fake, fake.clocks)
+
+		assertPassed(outcome)
+		assertEquals(1, outcome.steps.size)
+	}
+
+	@Test
 	fun run_forAnUnknownIdOrBrokenCatalog_neverThrows() {
 		val unknown = ScenarioRunner.run(catalog, "nope", FakeDriver())
 		val broken = ScenarioRunner.run("{ not json", "a-pass", FakeDriver())

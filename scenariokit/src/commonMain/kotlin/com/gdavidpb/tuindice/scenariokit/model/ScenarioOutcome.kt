@@ -11,7 +11,11 @@ data class ScenarioOutcome(
 	val steps: List<StepRecord>,
 	val failure: ScenarioFailure?,
 	/** Human-readable text: failing step, site, expected against observed, last backend requests. */
-	val report: String
+	val report: String,
+	/** How long resetting WireMock and setting the mock states took; null when the run never got to it. */
+	val prepareBackendMs: Long? = null,
+	/** How long the cold start of the app took (the first launch of the scenario); null when it never got to it. */
+	val launchMs: Long? = null
 ) {
 	val passed: Boolean get() = failure == null
 
