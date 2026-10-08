@@ -45,9 +45,15 @@ python3 e2e/scripts/shared/e2e.py list [--platform android|ios] [--changed-since
 python3 e2e/scripts/shared/e2e.py env-check [--json]
 python3 e2e/scripts/shared/e2e.py status [--json]
 python3 e2e/scripts/shared/e2e.py contexts
+python3 e2e/scripts/shared/e2e.py publish --platform android|ios
 ```
 
-`status` and `contexts` serve certification; see `.codex/skills/certify-tuindice-pr/`.
+`status`, `contexts` and `publish` serve certification; see `.codex/skills/certify-tuindice-pr/`. The CI never writes the
+evidence statuses; `publish` is how the repository owner puts them on the head of a branch. It needs a clean tree, `HEAD == @{u}`
+and a commit GitHub can see. With a complete ledger for the fingerprint it publishes as an evidence run does; otherwise,
+when `HEAD` or a commit preflight considers already has a success status of a trusted creator (the owner, or whoever
+`E2E_TRUSTED_STATUS_CREATORS` lists) naming the same fingerprint, it publishes a status that says `reused from <sha7>`
+and keeps `fp <12>`; with neither it refuses and says why.
 
 ## Run a scenario in diagnostic mode
 

@@ -5,7 +5,7 @@ Git, scope and version checks live here. The evidence verdict (current, reusable
 partial, rerun, exhausted) comes from `e2e/scripts/shared/e2e.py status --json`; this script adds the session counters that the
 runbook's stop conditions need, read from the harness's run manifests and ledgers.
 
-Exit codes: 0 every check passed and every required platform is current or reusable; 1 something is not done yet;
+Exit codes: 0 every check passed and every required platform is current (reusable evidence is one `e2e.py publish` away: the workflow of a PR does not republish it); 1 something is not done yet;
 2 a stop condition holds: report to the person who owns the branch instead of trying again.
 """
 
@@ -25,7 +25,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[4]
 HARNESS = Path("e2e") / "scripts" / "shared" / "e2e.py"
 
-SAFE_VERDICTS = ("current", "reusable")
+SAFE_VERDICTS = ("current",)
+NO_STOP_VERDICTS = ("current", "reusable")  # reusable needs one command, not a rerun, so no stop condition applies
 COMPLETE_EXITS = (0, 6)  # green: published (0) or green with the publication failing (6)
 # A session, for a platform, is its evidence invocations under the fingerprint HEAD has now, made after the last
 # complete one: a fix that moves the fingerprint, or a green run, starts a new one.
@@ -36,6 +37,7 @@ MAX_DRIFT_COMMITS = 20  # HEAD past the last complete run: warn beyond this many
 MAX_DRIFT_FILES = 150  # ...or this many files
 NEXT_ACTION = {
     "incomplete": "ask GitHub again (python3 e2e/scripts/shared/e2e.py status); this is not missing evidence, so do not run {task}",
+    "reusable": "python3 e2e/scripts/shared/e2e.py publish --platform {platform}   (cites the evidence on {evidence}; the workflow of a pull request does not republish it)",
     "unpublished": "git push if HEAD is not on GitHub, then: python3 e2e/scripts/shared/e2e.py publish --platform {platform}",
     "partial": "./gradlew {task}   (only the pending scenarios run)",
     "rerun": "./gradlew {task}",
@@ -385,7 +387,7 @@ def drift_since_last_complete_run(root: Path, platform: str, head: str) -> tuple
 
 def stop_reasons(verdict: str, runs: list[dict], repeated: list[str]) -> list[str]:
     """Why the person certifying must stop and report for this platform (runbook section 5)."""
-    if verdict in SAFE_VERDICTS:
+    if verdict in NO_STOP_VERDICTS:
         return []
     reasons = []
     if runs and runs[-1]["exitCode"] in (5, 7):
@@ -456,7 +458,8 @@ def report_platform(platform: str, info: dict, runs: list[dict], repeated: list[
         lines.append(f"  failed: {failed['id']} class={failed.get('class')} attempts={failed.get('attempts')}"
                      f"{' EXHAUSTED' if failed.get('exhausted') else ''}: {failed.get('summary')}")
     if verdict in NEXT_ACTION:
-        lines.append("  next: " + NEXT_ACTION[verdict].format(platform=platform, task=TASKS.get(platform, "e2eEvidence")))
+        lines.append("  next: " + NEXT_ACTION[verdict].format(
+            platform=platform, task=TASKS.get(platform, "e2eEvidence"), evidence=evidence["sha"][:7] if evidence else "an ancestor"))
     if runs:
         lock = runs[-1]["lockMatches"]
         why = refusal_detail(runs[-1:])

@@ -137,10 +137,24 @@ descripción es `Local E2E <plataforma> <N>/<N> passed for <sha7> fp <fp12>.`, s
 
 Un status `success` no basta por sí solo: preflight exige que la descripción contenga el fingerprint
 (`fp <12 hex>`) que corresponde al árbol del commit y la plataforma, y que el creator del status sea confiable
-(dueño del repo o `github-actions[bot]`; configurable con la variable de repo
-`E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` pasa al script). Un status fabricado
-sin el fingerprint correcto se rechaza. El reuso por fingerprint también considera los heads de PRs asociados
-al commit (API de GitHub), por lo que sobrevive a merges por squash.
+(solo el dueño del repo por defecto; `github-actions[bot]` no cuenta salvo que lo liste la variable de repo
+`E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` y `stage-production-artifacts.yml` pasan al
+script; `e2e_trusted_status_creators` es la única definición y la usan también el preflight y `e2e.py status`).
+Un status fabricado sin el fingerprint correcto se rechaza.
+
+**El CI nunca escribe estos estados.** Los publica siempre el dueño, desde la máquina donde corrió la evidencia, con
+`python3 e2e/scripts/shared/e2e.py publish --platform <p>` (árbol limpio, `HEAD == @{u}`, commit visible en GitHub):
+con el libro mayor completo publica como siempre y, si el libro mayor no está completo pero un antecesor tiene un
+status de confianza con el mismo fingerprint, publica en `HEAD` un status `Local E2E <p> reused from <sha7> fp
+<fp12>.`. Ningún job de `preflight-production-pr.yml` tiene `statuses: write` (`verify-workflow-permissions.sh` lo
+rechaza) y `preflight-production.sh` no hace ningún POST.
+
+- **En el PR** (`GITHUB_EVENT_NAME=pull_request`) el status de confianza con el fingerprint debe estar en el `HEAD`
+  del PR. Si solo está en un antecesor, el check falla y nombra el commit que tiene la evidencia y el comando exacto
+  para publicarla en la cabeza.
+- **En el stage** (push a `production`) la evidencia se busca, sin republicarla, en los antecesores del SHA desplegado
+  (merge commit) y en el head del PR asociado al commit (API de GitHub; squash o rebase). Por eso el check del PR exige
+  el status en la cabeza final del PR: es el único commit del PR que el stage encuentra tras un squash.
 
 ## Stage y deploy
 
@@ -269,7 +283,13 @@ Variables de repo opcionales (`vars`, no secrets):
 E2E_TRUSTED_STATUS_CREATORS
 ```
 
-`preflight-production-pr.yml` la pasa a `preflight-production.sh`; si no está definida, la lista de creators
-confiables sigue siendo el dueño del repo más `github-actions[bot]`.
+`preflight-production-pr.yml` y `stage-production-artifacts.yml` la pasan a `preflight-production.sh`; si no está
+definida, el único creator de confianza es el dueño del repo. Un valor que incluya `github-actions[bot]` reabre el
+camino por el que cualquier workflow de una rama puede publicar evidencia: no lo pongas.
+
+Permisos sobrantes, anotados y sin cambiar: `statuses: write` en `stage-production-artifacts.yml` (nivel workflow) y
+en `deploy-production.yml` (nivel workflow) ya no lo usa ningún camino de evidencia (el preflight no publica y las
+fases `android`/`ios`/`tag` del deploy no lo llaman); los POST a `deployments/<id>/statuses` del stage usan
+`deployments: write`.
 
 La cuenta de Google debe tener permisos de Android Publisher sobre `com.gdavidpb.tuindice`, y la key de App Store Connect debe poder subir builds para el bundle iOS.

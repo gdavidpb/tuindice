@@ -9,7 +9,8 @@ the stop conditions; this file has the detail behind them.
 - **The remote SHA.** Evidence counts when the tree is clean, `HEAD == @{u}`, and a trusted `success` status exists
   on that SHA with the context `local-e2e/<platform>/local-certification-suite` (one definition,
   `e2e_status_context` in `e2e/scripts/shared/ci-common.sh`; `e2e.py contexts` prints it). Trusted means created by the
-  repository owner or `github-actions[bot]`. Its description is `Local E2E <p> <N>/<N> passed for <sha7> fp
+  repository owner, or whoever the repository variable `E2E_TRUSTED_STATUS_CREATORS` lists: the Actions bot is not
+  trusted by default, and the workflow of a PR never writes these statuses (the owner publishes them with `e2e.py publish`). Its description is `Local E2E <p> <N>/<N> passed for <sha7> fp
   <fp12>.`, plus the counts that apply: `retried N`, `env N` (scenarios with an environment failure, which does not
   count against the cap), `quarantined N` and `overrides N` (scenario resets plus the environment, parallelism and
   retry settings the runs used).
@@ -38,6 +39,9 @@ the stop conditions; this file has the detail behind them.
   CI's window differs: the heads of the associated PRs, then the commits from the PR base to the head plus the base when
   it is an ancestor of the head (an up-to-date PR), else the last 50 commits (`E2E_REUSE_MAX_COMMITS`). A branch not
   updated with `production` and longer than 50 commits can be `reusable` here and still ask for evidence in CI.
+  `reusable` is not done: the PR check wants the status on the head. `e2e.py publish --platform <p>` (clean tree, `HEAD == @{u}`)
+  publishes it there: from a complete ledger as always, else citing the ancestor that holds it (`reused from <sha7> fp <fp12>`);
+  it refuses, without calling `gh` to write, when no trusted ancestor has the same fingerprint.
 
 ### Measured data
 
@@ -263,7 +267,7 @@ provisional until compared against `e2e-profile.py --compare` data. Evidence is 
 ## 8. PR, wrap-up and store copy
 
 Before opening or updating a PR: branch `feat/*`, clean tree, `HEAD == @{u}`, parity passed for `HEAD`, and the
-helper shows every required platform `current` or `reusable`.
+helper shows every required platform `current`.
 
 ```bash
 gh auth status
@@ -300,6 +304,6 @@ Wrap-up:
   (`e2e/tools/verify/verify-line-budgets.sh`) for `SKILL.md`, this runbook and `e2e/scripts/{shared,android,ios}`;
   the numbers live only there. Raising one needs its own commit stating why.
 - Edits here, in `SKILL.md`, the scripts of the skill and `e2e/tools/**` do not change the fingerprint, so they can
-  ride the certified branch; the evidence stays `reusable`. Edits under `e2e/scripts/**` change it: batch them
+  ride the certified branch; the evidence stays valid but sits on the old SHA (`reusable`): push, then `e2e.py publish` puts it on the new head. Edits under `e2e/scripts/**` change it: batch them
   before the final evidence run or ship them in a follow-up PR.
 - Keep `agents/openai.yaml` in step with `SKILL.md` (description and triggers).

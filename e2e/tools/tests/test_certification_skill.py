@@ -279,10 +279,21 @@ class ReportTests(SessionFixtureMixin, unittest.TestCase):
 
     def test_report_evidence_is_quiet_when_every_platform_is_done(self):
         self.manifest("r1", exit_code=5, outcome="stopped")
-        status = {"platforms": {"ios": info("current"), "android": info("reusable", platform="android")}}
+        status = {"platforms": {"ios": info("current"), "android": info("current", platform="android")}}
         (failures, stops), out = self.run_report(status, ("ios", "android"))
         self.assertEqual((failures, stops), (0, 0))
         self.assertNotIn("STOP", out)
+
+    def test_reusable_is_not_done_because_the_workflow_no_longer_republishes_it(self):
+        # Option C: the PR check wants the owner's status on the head, so evidence that sits on an ancestor is one command away.
+        self.manifest("r1", exit_code=5, outcome="stopped")
+        evidence = {"sha": "e" * 40, "source": "remote"}
+        status = {"platforms": {"android": info("reusable", platform="android", evidence=evidence)}}
+        (failures, stops), out = self.run_report(status, ("android",))
+        self.assertEqual((failures, stops), (1, 0))
+        self.assertIn("[FAIL] android", out)
+        self.assertIn("next: python3 e2e/scripts/shared/e2e.py publish --platform android", out)
+        self.assertIn("eeeeeee", out)
 
     def test_both_platforms_pending_suggest_the_aggregate_task(self):
         status = {"platforms": {"ios": info("rerun"), "android": info("rerun", platform="android")}}
@@ -418,8 +429,11 @@ class MainExitCodeTests(SessionFixtureMixin, unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             return inspector.main()
 
-    def test_exit_0_when_every_required_platform_is_current_or_reusable(self):
-        self.assertEqual(self.run_main({"platforms": {"ios": info("reusable")}}), 0)
+    def test_exit_0_when_every_required_platform_is_current(self):
+        self.assertEqual(self.run_main({"platforms": {"ios": info("current")}}), 0)
+
+    def test_exit_1_when_the_evidence_is_only_reusable(self):
+        self.assertEqual(self.run_main({"platforms": {"ios": info("reusable")}}), 1)
 
     def test_exit_1_when_evidence_is_still_to_be_produced(self):
         self.assertEqual(self.run_main({"platforms": {"ios": info("partial")}}), 1)

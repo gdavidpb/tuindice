@@ -11,8 +11,8 @@ decision: what to do when something is the case.
 ## What is certified
 
 - What is certified is the remote SHA: the commit the PR head points to. Evidence counts only when the tree is clean,
-  `HEAD == @{u}`, and a trusted `success` status `local-e2e/<platform>/local-certification-suite` naming that platform's
-  fingerprint exists on that SHA. Any change to the branch needs a push, and the evidence has to match the pushed SHA.
+  `HEAD == @{u}`, and a `success` status `local-e2e/<platform>/local-certification-suite` created by the repository owner (the CI
+  never writes one) naming that platform's fingerprint exists on that SHA. Any change to the branch needs a push, and the evidence has to match the pushed SHA.
 - Evidence is a full run of every scenario on each required platform, accumulated in a ledger per platform and
   fingerprint. A scenario that is green for the fingerprint is never rerun.
 - The person who certifies launches the evidence (`git push`, then `./gradlew e2eEvidence`). An agent prepares,
@@ -31,7 +31,7 @@ evidence still to produce. Exit 2: a stop condition holds.
 | Verdict | Condition | Do |
 |---|---|---|
 | `current` | A trusted success status naming the platform's fingerprint is on HEAD | Nothing |
-| `reusable` | The same status is on a commit preflight considers: the branch's commits since the merge-base with `production`, or that base itself | Nothing; preflight republishes it |
+| `reusable` | The same status is on a commit preflight considers (the branch's commits since the merge-base with `production`, or that base) | Push if needed, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`: it cites that commit on HEAD. The PR workflow never republishes it, so it is not done |
 | `unpublished` | No such status; the ledger is green for every in-scope scenario | Push if HEAD is not on GitHub, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>` |
 | `partial` | No such status; at least one scenario is green | `./gradlew e2eEvidence` (or the platform task); only the pending ones run |
 | `rerun` | No such status; nothing is green for this fingerprint | `./gradlew e2eEvidence` (or the platform task) |
@@ -57,7 +57,7 @@ bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`.
 6. Only when the helper says `partial` or `rerun`: `./gradlew e2eEvidence`, or `e2eEvidenceAndroid` /
    `e2eEvidenceIos` for one platform.
 7. On a non-zero exit read the run's `summary.txt` and follow "Failure handling" and "Stop conditions".
-8. After the final push, rerun the helper: every required platform is `current` or `reusable`.
+8. After the final push, rerun the helper: every required platform is `current`.
 9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
 10. Stop the devices: `python3 e2e/scripts/shared/e2e.py stop-devices` (`--platform <p>` for one).
 11. Deliver the Spanish store-copy proposal in the session (runbook section 8), never in the PR body.
