@@ -116,6 +116,44 @@ class SingleDefinitionTests(unittest.TestCase):
                     files.add(path)
         return {path for path in files if not any(path.startswith(spec) for spec in excluded)}
 
+    @staticmethod
+    def pathspecs():
+        """The paths each platform's fingerprint reads (directories or files), `excluded:` entries left out."""
+        found = set()
+        for platform in ("android", "ios"):
+            done = subprocess.run(["bash", os.path.join(SHARED, "e2e-fingerprint.sh"), "--print-pathspecs", platform, "HEAD"],
+                cwd=ROOT, stdout=subprocess.PIPE, universal_newlines=True, check=True)
+            found.update(line.split(":", 1)[1] for line in done.stdout.splitlines() if line.split(":", 1)[0] in ("required", "optional"))
+        return found
+
+    def test_what_the_skill_and_the_runbook_call_not_covered_is_not_read_by_the_fingerprint(self):
+        # ΔD-6: the runbook said the root build script was not covered while the fingerprint reads it. Every path named
+        # after "Not covered:" must be absent from the pathspecs, or be named as an exception in the same document.
+        specs = self.pathspecs()
+        for name in ("SKILL.md", os.path.join("references", "certification-runbook.md")):
+            text = " ".join(read(SKILL, name).split())
+            match = re.search(r"Not covered: (.*?)\. [A-Z]", text)
+            self.assertTrue(match, "%s has no 'Not covered:' sentence" % name)
+            tokens = re.findall(r"`([^`]+)`", match.group(1))
+            elsewhere = text.replace(match.group(0), "")  # an exception is named outside the sentence it excepts from
+            self.assertGreaterEqual(len(tokens), 4, name)
+            for token in tokens:
+                base = token[:-3] if token.endswith("/**") else token
+                for spec in sorted(specs):
+                    if spec == base or spec.startswith(base.rstrip("/") + "/"):
+                        self.assertIn(os.path.basename(spec), elsewhere, "%s calls %s not covered but the fingerprint reads %s" % (name, token, spec))
+                    elif not token.startswith("*") and base.startswith(spec + "/"):
+                        self.fail("%s calls %s not covered but the fingerprint reads its parent %s" % (name, token, spec))
+
+    def test_the_runbook_names_the_root_files_the_fingerprint_reads(self):
+        text = " ".join(read(SKILL, "references", "certification-runbook.md").split())
+        covered = re.search(r"Covered: (.*?) Not covered:", text)
+        self.assertTrue(covered)
+        for spec in sorted(self.pathspecs()):
+            if ("/" not in spec and os.path.isfile(os.path.join(ROOT, spec))) or spec.startswith("gradle/"):
+                token = "version catalog" if spec.endswith("libs.versions.toml") else os.path.basename(spec)
+                self.assertIn(token, covered.group(1), "the runbook does not say the fingerprint reads %s" % spec)
+
     def test_what_the_build_and_the_harness_execute_of_the_shared_library_lives_inside_the_fingerprint(self):
         # D-4/ΔD-10: common.sh serves the CI scripts and is outside the fingerprint, yet the two scripts the iOS build runs
         # and the harness source it. The functions they use are defined in e2e/scripts/shared/ci-common.sh, which

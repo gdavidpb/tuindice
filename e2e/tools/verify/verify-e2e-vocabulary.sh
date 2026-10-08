@@ -41,6 +41,7 @@ TASK_PATTERN='(e2e|verify|sync)[A-Z][A-Za-z0-9]*[*]?'
 EXCEPTIONS="$(cat <<'EOF'
 word-path|e2e/tools/e2e-retention.py|looks for the leftovers of the previous harness on disk (build/e2e/<name>-*.log and certifications/*/*/*/<name>-*); a glob has to spell the name
 word-path|e2e/tools/tests/test_retention.py|creates those leftovers as fixtures to prove the retention finds them and only --purge-legacy --yes removes them
+word-path|docs/e2e-migracion-fidelidad.md|names the tag that preserves the flows of the retired runner (the tag is called after it), so the record can be checked against them
 word-path|e2e/tools/tests/test_single_definitions.py|names the retired tasks to assert that the registry no longer has them
 task-path|e2e/tools/tests/test_single_definitions.py|same test: the retired task names are what it asserts are absent
 task-token|verifyE2e|prefix of the task family in comments and in the regex of the fingerprint-coverage verifier; not a task

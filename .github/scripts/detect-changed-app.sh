@@ -162,7 +162,7 @@ is_kmp_test_source_file() {
 }
 
 # A runtime source or build file of a KMP module is one the E2E fingerprint reads (the source-set lists live in
-# common.sh and feed the fingerprint script too).
+# e2e/scripts/shared/layout.env and feed the fingerprint script too).
 is_kmp_runtime_source_or_build_file() {
 	[[ "$(e2e_platform_for_kmp_file "$1" "$2")" != "none" ]]
 }

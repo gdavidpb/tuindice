@@ -292,8 +292,9 @@ jobs:
           set -euo pipefail
           bash ./e2e/scripts/ios/build.sh --for-testing-only
 
-  # verifyE2eContract runs on the Linux Android job, where the harness tests that need macOS tools (top, xcrun,
-  # vm_stat, sysctl) are skipped with their reason printed. This job runs the same harness checks whole, on macOS.
+  # verifyE2eContract runs on the Linux Android job, where the harness tests that need macOS tools (the `defaults`
+  # command, build.sh with plutil, Mach-O inspection) are skipped with their reason printed. This job runs the same
+  # harness checks whole, on macOS.
   e2e-harness-preflight:
     name: E2E harness preflight (macOS)
     runs-on: macos-26

@@ -125,8 +125,10 @@ The manifest also counts what the drivers tolerated on their own as `tolerances:
 
 Evidence is produced by `./gradlew e2eEvidence` (or one platform) on a clean tree whose `HEAD` is pushed. The
 fingerprint depends on the git tree alone: app and runtime sources, `mocks/`, `e2e/catalog`, the driver sources, the
-shared scripts plus the platform's, and the toolchain lock. Tests, version bumps, `.github/`, `.codex/`, `docs/`,
-`e2e/tools/`, `e2e/platform/` and markdown files do not change it. How to certify a branch, the verdicts, the stop
+shared scripts plus the platform's, the toolchain lock, the root build files (`build.gradle.kts`, `settings.gradle.kts`,
+`gradle.properties`, `gradlew*`, `gradle/wrapper`, the daemon JVM file and the version catalog) and, for iOS, two scripts
+of `.github/scripts` (`sync-app-version.sh`, `materialize-firebase-configs.sh`). Tests, version bumps, the rest of
+`.github/`, `.codex/`, `docs/`, `e2e/tools/`, `e2e/platform/` and markdown files outside those paths do not change it. How to certify a branch, the verdicts, the stop
 conditions and the environment thresholds are in `.codex/skills/certify-tuindice-pr/` and its runbook.
 
 ## Environment variables

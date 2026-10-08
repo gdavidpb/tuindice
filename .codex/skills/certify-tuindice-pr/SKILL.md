@@ -39,9 +39,9 @@ evidence still to produce. Exit 2: a stop condition holds.
 | `incomplete` | GitHub did not answer for some commits after asking twice | Ask again later; do not run evidence on that answer |
 
 The fingerprint of a platform covers: its app and KMP runtime sources, `mocks/`, the scenario catalog and runner
-sources, `e2e/scripts/shared` plus the platform's own scripts, its toolchain lock, the root build script and the Gradle
-wrapper and version catalog. Not unit tests, version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**` or
-`*.md`. Never rerun because the SHA moved. Never rerun a platform that is `current` or `reusable`.
+sources, `e2e/scripts/shared` and the platform's scripts, its toolchain lock, the root build script, the Gradle wrapper
+and catalog and, on iOS, `sync-app-version.sh` and `materialize-firebase-configs.sh`. Not covered: unit tests, version
+bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`. Never rerun because the SHA moved.
 
 ## Workflow
 

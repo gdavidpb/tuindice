@@ -45,7 +45,10 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 `scripts/module-graph.txt` — la fuente única que también valida `./gradlew verifyModuleGraph` contra los
 `build.gradle.kts` reales:
 
-- Cambios docs/skills no disparan release ni tests de app.
+- Cambios en `docs/`, `README.md`, `AGENTS.md` y `.codex/` no disparan release ni tests de app; ejecutan solo la
+  puerta de vocabulario E2E (`e2e/tools/verify/verify-e2e-vocabulary.sh`, paso del job compartido). El skill de
+  certificación (`.codex/skills/certify-tuindice-pr/`) además corre `verifyE2eContract`, porque sus herramientas
+  las prueban los tests del harness.
 - Cambios de feature prueban el módulo, sus dependientes transitivos (incluido `wizard`, que consume casi
   todas las features) y hosts relevantes; si un archivo está en el fingerprint E2E de una plataforma (fuentes de runtime, scripts del
   harness, mocks, catálogo; ver `e2e/scripts/shared/e2e-fingerprint.sh`) se exige la evidencia de esa plataforma.
@@ -59,12 +62,18 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;
-  cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; el resto de `iosApp/scripts/*` solo dispara un
-  smoke liviano en macOS.
+  cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; los demás `ci-*` solo disparan un smoke liviano en
+  macOS. El resto de `iosApp/scripts/*` (`build-scenario-kit.sh`, `verify-ui-test-target.sh`,
+  `add-ui-test-target.rb`) entra en la huella de iOS: exige la evidencia de iOS y el build del target de UI tests
+  (`ios-uitest-preflight`); lo mismo vale para `.github/scripts/sync-app-version.sh` y
+  `materialize-firebase-configs.sh`.
 - El detector separa las tareas iOS en `ios_test_tasks` (compilación y tests de simulador) e `ios_host_tasks`
-  (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en dos jobs
-  macOS paralelos (`ios-test-preflight` e `ios-host-preflight`), así el wall-clock es el mayor de los dos y
-  una falla de tests no espera al build del host.
+  (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en cuatro jobs
+  macOS: `ios-test-preflight` e `ios-host-preflight` en paralelo (así el wall-clock es el mayor de los dos y
+  una falla de tests no espera al build del host), `ios-uitest-preflight` (construye la app y el bundle
+  `TuIndiceUITests` con el mismo script que el harness local) y `e2e-harness-preflight` (los tests del harness
+  completos, sin saltos, cuando cambia el contrato E2E). `verifyE2eContract` corre además en Linux, donde esos
+  tests saltan con su razón impresa.
 
 El preflight de PR no recibe secretos de producción: `:app:bundleRelease` firma con un keystore descartable y
 configs Firebase placeholder (`.github/scripts/materialize-ci-placeholders.sh`). La firma real ocurre en
@@ -122,7 +131,7 @@ local-e2e/android/local-certification-suite
 local-e2e/ios/local-certification-suite
 ```
 
-con una única definición, `e2e_status_context` en `.github/scripts/common.sh` (`e2e.py contexts` la imprime). La
+con una única definición, `e2e_status_context` en `e2e/scripts/shared/ci-common.sh` (la carga `.github/scripts/common.sh`; `e2e.py contexts` la imprime). La
 descripción es `Local E2E <plataforma> <N>/<N> passed for <sha7> fp <fp12>.`, seguida de los conteos que apliquen
 (`retried`, `env`, `quarantined`, `overrides`).
 

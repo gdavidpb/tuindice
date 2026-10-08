@@ -14,9 +14,11 @@ dice lo que se encontró entonces y no lo que dicen hoy los escenarios.
   condicionales: ninguno. Escenarios que terminan antes que su flujo: ninguno.
 - El flujo `login-summary-ready` no tiene escenario: era un preludio de otros flujos, y cada escenario declara ahora su
   propio inicio.
-- Los flujos viven en el historial de git, en el directorio `flows/` del runner anterior. Para leer uno:
-  `git ls-tree -r --name-only 972863869 | grep 'flows/auth/login-success.yaml'` da su ruta completa, y
-  `git show 972863869:<esa ruta>` su contenido. La columna «Flujo de origen» es la ruta bajo `flows/`.
+- Los flujos viven en el historial de git, en el directorio `flows/` del runner anterior, y la etiqueta
+  `pre-corte-maestro` (commit `aecd97de0f7ae5013fbce58966a3e39db8ac4f84`, el último antes del corte) los conserva. Para
+  leer uno: `git ls-tree -r --name-only pre-corte-maestro | grep 'flows/auth/login-success.yaml'` da su ruta completa, y
+  `git show pre-corte-maestro:<esa ruta>` su contenido. La columna «Flujo de origen» es la ruta bajo `flows/`. La
+  etiqueta es local hasta que la persona dueña la suba; el SHA es el dato que sobrevive a un squash.
 - Las notas con «heredado» describen una debilidad que el flujo ya tenía y el escenario conservó; las que dicen «después»
   agregan lo que se hizo tras la auditoría.
 

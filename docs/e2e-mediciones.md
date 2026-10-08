@@ -91,7 +91,17 @@ ambas; 14 escenarios con algún fallo. `auth` tres veces: iOS 54 de 54, Android 
 
 **Carga con trabajo ajeno (2026-10-07, 22:40-22:55).** Con `pytest -n auto` de otro proyecto (18 procesos) y Docker, la CPU
 libre fue 0 %; al terminar, 9 a 23 % libre con solo el emulador, el simulador y las compilaciones del propio trabajo. De ahí
-que el harness mida la CPU libre y no solo el promedio de carga.
+que el harness mida la CPU libre y no solo el promedio de carga. Es un episodio distinto del `pytest` con 10 trabajadores
+del 2026-10-06 (sección anterior, Android bajo carga), del que no se registró la CPU libre.
+
+**Simulador de iOS degradado (2026-10-08).** Sobre 30 intentos fallidos de iOS con `app.log`: 11 en simulador sano (10 del
+navegador externo y 1 de tecleo) tenían 0 apariciones de `kAXErrorAPIDisabled`, 0 de `Couldn't read values in
+CFPrefsPlistSource` y 0 de `Couldn't write values for keys`; 19 en simulador degradado tenían unas 1050, unas 111 y de 9 a
+74. La separación fue limpia en esa muestra. `device.sh health` contra un simulador vivo y sano respondió `ok` en 0,55 s;
+qué responde con el simulador degradado no se midió. Origen: la entrada de las 02:35 del 2026-10-08 de `reconciliaciones.md`
+(el registro de ejecución de la fase H, no versionado), que nombra un intento degradado
+(`…T022929Z-ios-diagnose-e0738f5/…/conformance-enabled/attempt-1-r7/app.log`, ruta abreviada allí) y no conserva las
+rutas de los otros 29 `app.log`.
 
 **Lectura del estado.** `e2e.py status` pasó de unos 125 s a unos 10 s al calcular los veredictos en `harness/verdict.py`.
 
@@ -100,5 +110,7 @@ que el harness mida la CPU libre y no solo el promedio de carga.
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.
 - El origen de la carga a partir de las 10:00 del 2026-10-06.
+- El umbral de 30 escenarios verdes entre dos recuperaciones del simulador de iOS degradado: es una decisión del harness,
+  sin medición que lo respalde.
 - Los umbrales del chequeo de entorno (`e2e.py env-check`) son provisionales hasta compararlos con los datos de
   `e2e-profile.py --compare`.

@@ -8,7 +8,7 @@ the stop conditions; this file has the detail behind them.
 
 - **The remote SHA.** Evidence counts when the tree is clean, `HEAD == @{u}`, and a trusted `success` status exists
   on that SHA with the context `local-e2e/<platform>/local-certification-suite` (one definition,
-  `e2e_status_context` in `.github/scripts/common.sh`; `e2e.py contexts` prints it). Trusted means created by the
+  `e2e_status_context` in `e2e/scripts/shared/ci-common.sh`; `e2e.py contexts` prints it). Trusted means created by the
   repository owner or `github-actions[bot]`. Its description is `Local E2E <p> <N>/<N> passed for <sha7> fp
   <fp12>.`, plus the counts that apply: `retried N`, `env N` (scenarios with an environment failure, which does not
   count against the cap), `quarantined N` and `overrides N` (scenario resets plus the environment, parallelism and
@@ -23,14 +23,21 @@ the stop conditions; this file has the detail behind them.
 - **The fingerprint** (`e2e/scripts/shared/e2e-fingerprint.sh`, version in `layout.env`) is a function of the
   git tree alone, so CI and this machine agree. Platform-scoped: an iOS-only fix keeps Android evidence valid.
   Covered: app and KMP runtime sources, `mocks/`, `e2e/catalog`, scenario and runner sources, `e2e/scripts/shared`
-  plus the platform's scripts, `e2e/toolchain/<platform>.lock`, the Gradle version catalog. Not covered: unit tests,
-  version bumps, `.github/**`, `.codex/**`, `docs/**`, `e2e/tools/**`, `e2e/platform/**`, `*.md`, root
-  `build.gradle.kts`. Every fix under `e2e/scripts/**` invalidates the evidence of the platform it touches.
+  (with `ci-common.sh`, the part of the CI shell library the build and the harness run) plus the platform's scripts,
+  `e2e/toolchain/<platform>.lock`, the root build files (`settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`),
+  `gradlew`, `gradlew.bat`, `gradle/wrapper`, `gradle/gradle-daemon-jvm.properties`, the Gradle version catalog and, for
+  iOS, `.github/scripts/sync-app-version.sh` and `.github/scripts/materialize-firebase-configs.sh`. Not covered: unit
+  tests, version bumps, `docs/**`, `.codex/**`, `e2e/tools/**`, `e2e/platform/**`, `gradle/e2e-tasks.gradle.kts`,
+  `.github/**` (except those two scripts) and `*.md` outside the covered paths. Every fix under `e2e/scripts/**`
+  invalidates the evidence of the platform it touches.
 - **Verdicts** (`current`, `reusable`, `incomplete`, `unpublished`, `partial`, `rerun`, `exhausted`) are computed by
   `e2e.py status`: GitHub first (HEAD, then the branch's commits since the merge-base with `production`, then the
   base itself; commits are asked about once and shared by both platforms, at most 100), the local ledger's
   publication records only when GitHub cannot be read. A lookup that fails is asked again; if it fails twice the
   verdict is `incomplete` (`remote.incomplete` lists the commits): ask again, do not rerun. Never rerun because the SHA moved.
+  CI's window differs: the heads of the associated PRs, then the commits from the PR base to the head plus the base when
+  it is an ancestor of the head (an up-to-date PR), else the last 50 commits (`E2E_REUSE_MAX_COMMITS`). A branch not
+  updated with `production` and longer than 50 commits can be `reusable` here and still ask for evidence in CI.
 
 ### Measured data
 
@@ -47,8 +54,9 @@ does not list was not measured. What this runbook takes from it:
   `load1` of 12.9 or more. The number of green runs under that load was not recorded, so this is an association, not a
   failure rate. The emulator's own load reached 12-13 with 4 vCPUs and was 2.3 to 4.8 with 8 cores and 16 GB. One source
   of load was another session running `pytest -n auto`.
-- With that session running, the idle CPU was 0 %; with only the E2E work it was 9 to 23 %. The harness records the idle
-  CPU (the `cpu` check) next to the load average.
+- On 2026-10-07 (22:40-22:55), with another project's `pytest -n auto` (18 processes) and Docker running, the idle CPU
+  was 0 %; after they ended, with only the E2E work, 9 to 23 %. Nothing was recorded for the 2026-10-06 `pytest` (10
+  workers). The harness records the idle CPU (the `cpu` check) next to the load average.
 
 ## 2. Before paying for evidence
 
@@ -205,7 +213,8 @@ provisional until compared against `e2e-profile.py --compare` data. Evidence is 
   run in parallel. The wait for the lock is in the manifest (`prepareLock`).
 - **Devices.** Android: the AVD of `e2e/toolchain/android.lock` as an 8-core, 16 GB emulator without a window,
   started with no snapshot. iOS: the dedicated simulator `TuIndice-E2E`, created from `e2e/toolchain/ios.lock`.
-  A booted device is not rebooted. Reboot exists only as the recovery after an environment failure, once per run.
+  A booted device is not rebooted. Reboot exists only as the recovery after an environment failure; the degraded iOS
+  simulator may be recovered again only under the rule in section 4 (the first time, then after 30 green scenarios).
   The tunnel is `10.0.2.2` unless `E2E_ANDROID_TUNNEL=reverse`.
 - **Toolchain lock.** Every key of `e2e/toolchain/{android,ios}.lock` is strict; a difference is exit 3 in
   evidence mode. To change a component (Xcode, runtime, system image, locale, emulator shape) edit the lock, one
