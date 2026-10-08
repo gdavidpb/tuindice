@@ -1,6 +1,7 @@
 """What a run must not do: record or publish from a checkout that moved, let a corrupt text through as a retry, lose its manifest,
 keep a dead WireMock, hide a recoverable failure, or publish through a test seam (the audit corrections C-1 to C-24)."""
 
+import argparse
 import json
 import os
 import shlex
@@ -14,6 +15,7 @@ from unittest import mock
 
 import support
 from support import FP_A, Workspace, expect_request, scenario, text
+import e2e
 from harness import parallel
 from harness.config import Config, UsageError
 from harness.gitstate import GitState
@@ -226,6 +228,52 @@ class SeamTests(unittest.TestCase):
         self.assertEqual(ws.calls(), [])
         self.assertEqual(gh_posts(ws), [])
         self.assertEqual(ws.run("publish", "--platform", "ios", E2E_TEST_ALLOW_SEAMS="").code, 2)
+
+    def test_evidence_refuses_seams_even_when_it_publishes_nothing(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        refused = ws.evidence(E2E_PUBLISH_GITHUB_STATUS="0", E2E_TEST_ALLOW_SEAMS="")
+        self.assertEqual(refused.code, 2, refused.out)
+        self.assertIn("unset the test seams", refused.out)
+        self.assertEqual(ws.calls(), [])
+
+    def test_the_fingerprint_root_is_a_seam(self):
+        cfg = Config(Path("."), {"E2E_FINGERPRINT_REPO_ROOT": "/elsewhere", "E2E_STATE_ROOT": "/s"})
+        self.assertEqual(cfg.seams(), ["E2E_FINGERPRINT_REPO_ROOT"])
+
+    def test_the_ledger_keeps_the_seams_of_each_run(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        self.assertEqual(ws.evidence().code, 0)
+        self.assertIn("E2E_ADAPTER_IOS_CMD", ws.ledger()["seams"])
+        self.assertNotIn("E2E_TEST_ALLOW_SEAMS", ws.ledger()["seams"])
+
+    def test_publish_refuses_a_ledger_that_recorded_seams_before_it_asks_github(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, {"E2E_STATE_ROOT": ws.state})  # a real environment: no seam of its own, no test key
+        ledger = Ledger.memory("ios")
+        ledger.data["seams"] = ["E2E_FAKE_HOST_METRICS"]
+        catalog = mock.Mock(in_scope=mock.Mock(return_value=([], [])))
+        with mock.patch.object(e2e, "open_ledger", return_value=(catalog, FP_A, ledger)), \
+                mock.patch.object(GitState, "require_publishable") as asks_github, \
+                mock.patch.object(e2e.publish_mod, "publish_success") as posts:  # never the real gh
+            with self.assertRaises(UsageError) as caught:
+                e2e.cmd_publish(cfg, argparse.Namespace(platform="ios"))
+        self.assertIn("E2E_FAKE_HOST_METRICS", str(caught.exception))
+        asks_github.assert_not_called()
+        posts.assert_not_called()
+
+    def test_the_run_refuses_to_publish_a_ledger_with_seams(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, {"E2E_STATE_ROOT": ws.state})
+        run = PlatformRun(cfg, "ios", Options("evidence"))
+        run.git = GitState(ws.repo)
+        run.manifest = Manifest("", "x", "evidence", "ios", cfg, enabled=False)
+        run.ledger, run.runnable, run.quarantined = Ledger.memory("ios"), [], []
+        run.ledger.data["seams"] = ["E2E_ADAPTER_IOS_CMD"]
+        run.fingerprint, run.context = FP_A, "local-e2e/ios/local-certification-suite"
+        with self.assertRaises(UsageError) as caught:
+            run._publish()
+        self.assertIn("E2E_ADAPTER_IOS_CMD", str(caught.exception))
+        self.assertFalse(os.path.exists(ws.gh_log))
 
     def test_a_state_root_alone_is_not_a_seam_and_diagnosis_may_use_seams(self):
         ws = Workspace(self, [scenario("fix-a")])

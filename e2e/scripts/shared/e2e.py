@@ -165,9 +165,10 @@ def cmd_publish(cfg, args):
     git = GitState(cfg.root)
     git.require_clean()
     cfg.require_no_seams("publishing a status")
-    git.require_publishable(publish_mod.gh_command(cfg))
     catalog, fingerprint, ledger = open_ledger(cfg, args.platform, lock=True, create=False)
     try:
+        cfg.require_no_seams("publishing a status", ledger.data["seams"])
+        git.require_publishable(publish_mod.gh_command(cfg))
         runnable, quarantined = catalog.in_scope(args.platform)
         pending = [s.id for s in runnable if not ledger.passed(s.id)]
         if pending:

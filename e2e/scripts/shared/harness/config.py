@@ -36,11 +36,12 @@ VERB_TIMEOUTS = {
 
 
 # Test seams: variables that replace a piece of the harness (an adapter, the scope, the catalog, the host measures). They
-# exist so that the harness can be tested without devices. Evidence that is published for real refuses to run with any of
-# them set, because each one changes what is measured or certified without leaving a trace in the status. The one key
-# below is the harness tests' explicit permission to publish through fakes (a fake `gh`); nothing else sets it.
+# exist so that the harness can be tested without devices. Evidence refuses to run with any of them set (the ledger records
+# the ones a run used and `publish` refuses such a ledger), because each one changes what is measured or certified without
+# leaving a trace in the status. The one key below is the harness tests' explicit permission to run and publish through
+# fakes (a fake `gh`); nothing else sets it.
 ALLOW_SEAMS_KEY = "E2E_TEST_ALLOW_SEAMS"
-SEAM_NAMES = frozenset(("E2E_CATALOG_FILE", "E2E_SCOPE_FILE", "DETECT_CHANGED_APP_CHANGED_FILES_FILE"))
+SEAM_NAMES = frozenset(("E2E_CATALOG_FILE", "E2E_SCOPE_FILE", "DETECT_CHANGED_APP_CHANGED_FILES_FILE", "E2E_FINGERPRINT_REPO_ROOT"))
 
 
 def is_seam(name):
@@ -160,9 +161,10 @@ class Config:
         """The test seams set in the environment (sorted names), the permission key included when present."""
         return sorted(name for name in self.env if (is_seam(name) or name == ALLOW_SEAMS_KEY) and self.env[name] != "")
 
-    def require_no_seams(self, what):
-        """Publishing for real (a status on GitHub) refuses every seam, except where the tests allow them."""
-        found = [name for name in self.seams() if name != ALLOW_SEAMS_KEY]
+    def require_no_seams(self, what, recorded=()):
+        """Evidence refuses every seam, and so does publishing it (a status on GitHub): the ones set now and the ones the
+        ledger recorded for its runs. Only the harness tests' key allows them."""
+        found = sorted((set(self.seams()) | set(recorded)) - {ALLOW_SEAMS_KEY})
         if found and self.env.get(ALLOW_SEAMS_KEY) != "1":
             raise UsageError("%s needs a real environment: unset the test seams %s" % (what, ", ".join(found)))
 

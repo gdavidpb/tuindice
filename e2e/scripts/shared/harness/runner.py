@@ -191,8 +191,7 @@ class PlatformRun:
         required = cfg.publish_required(self.opts.mode)
         m.data["published"]["required"] = required
         if self.evidence:
-            if required:
-                cfg.require_no_seams("publishing evidence")
+            cfg.require_no_seams("running evidence")
             git.require_clean()
             if required:
                 git.require_publishable(publish.gh_command(cfg))
@@ -216,6 +215,7 @@ class PlatformRun:
                 cfg.layout["E2E_FINGERPRINT_VERSION"], lock=not self.opts.dry_run, attempt_cap=cfg.attempt_cap)
             if not self.opts.dry_run:
                 self.ledger.note_overrides(cfg.run_overrides())
+                self.ledger.note_seams(cfg.seams())
                 self.ledger.save()
         else:
             self.ledger = Ledger.memory(self.platform)
@@ -769,6 +769,7 @@ class PlatformRun:
         pending = [s.id for s in self.runnable if not ledger.passed(s.id)]
         if pending or self._failed_list():
             raise UsageError("refusing to publish: %d scenario(s) are not green (%s)" % (len(pending), ", ".join(pending)))
+        cfg.require_no_seams("publishing evidence", ledger.data["seams"])
         self._require_unchanged("before publishing")
         text = publish.description(self.platform, self.runnable, self.quarantined, git.sha, self.fingerprint, ledger)
         m.data["published"].update(description=text, attempted=True)

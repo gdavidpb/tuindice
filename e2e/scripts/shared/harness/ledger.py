@@ -35,7 +35,7 @@ class Ledger:
     def _fresh(platform, fingerprint, catalog_sha, version, attempt_cap):
         return {
             "schema": SCHEMA, "platform": platform, "fingerprint": fingerprint, "fingerprintVersion": version,
-            "catalogSha256": catalog_sha, "attemptCap": attempt_cap, "runOverrides": [],
+            "catalogSha256": catalog_sha, "attemptCap": attempt_cap, "runOverrides": [], "seams": [],
             "createdAt": now(), "updatedAt": now(), "scenarios": {}, "publications": [],
         }
 
@@ -88,6 +88,7 @@ class Ledger:
         if stored is None:
             data["attemptCap"] = attempt_cap
         data.setdefault("runOverrides", [])
+        data.setdefault("seams", [])
         return data
 
     def cap(self, default):
@@ -97,6 +98,10 @@ class Ledger:
     def note_overrides(self, overrides):
         """Records the overrides a run used (environment checks, parallelism, retries); the status description counts them."""
         self.data["runOverrides"] = sorted(set(self.data["runOverrides"]) | set(overrides))
+
+    def note_seams(self, seams):
+        """Records the test seams a run used; a ledger that has any cannot be published (the harness tests' key apart)."""
+        self.data["seams"] = sorted((set(self.data["seams"]) | set(seams)) - {"E2E_TEST_ALLOW_SEAMS"})
 
     def release(self):
         if self.lock_fd is not None:
