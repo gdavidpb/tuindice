@@ -365,7 +365,8 @@ private val authUpdatePassword = scenario(
 	}
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 	// The reissue moved the mock to the state in which the pending change is accepted: the flush that follows the
-	// update sends it and signs out, and never offers "sign out anyway".
+	// update sends it, the server accepts it, and signing out never offers "sign out anyway".
+	expectRequest("POST", "/evaluations/v3", status = 200, timeout = Within.Sync)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Sync)
 	waitGone(AuthUiTags.SignOutSecondaryButton, Within.Assert)
 }
@@ -485,10 +486,10 @@ private val authPendingSignOutFlushSuccess = scenario(
 	waitVisible(text(Copy.SignOutAndSyncButton), Within.Assert)
 	mockState(PENDING_FLUSH_MOCK, MOCK_AVAILABLE)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
-	// The first attempt (the 503) counts too: that the resend happened is shown by reaching the sign-in
-	// screen without ever offering "sign out anyway", which only a flush that left the change pending does.
-	expectRequest("POST", "/evaluations/v3")
+	// The first attempt answered 503; this one is the resend, and the server accepted it.
+	expectRequest("POST", "/evaluations/v3", status = 200)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Sync)
+	waitGone(AuthUiTags.SignOutSecondaryButton, Within.Assert)
 }
 
 /** The scenarios of this module; list every new one here. */
