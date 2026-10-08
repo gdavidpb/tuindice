@@ -26,15 +26,29 @@ class CountTests(unittest.TestCase):
         self.assertEqual(tolerances.count(fixture("ios-unfinished.log")), {"dismissed-alert": 1, "future-kind": 2})
 
     def test_android_counts_the_requests_to_bring_the_app_back_and_the_failure_to_do_it(self):
-        self.assertEqual(tolerances.count(fixture("android.log")), {"foreground-request": 2, "foreground-not-in-front": 1})
+        self.assertEqual(tolerances.count(fixture("android.log")), {
+            "foreground-request": 2, "foreground-not-in-front": 1, "keyboard-taken-as-hidden": 1, "keyboard-unreadable": 2})
+
+    def test_the_guard_counts_each_touch_it_let_through_on_a_guess_and_not_the_ones_it_decided_with_a_reading(self):
+        # ZB-5: a keyboard taken as hidden after the wait and a window list that could not be read are tolerances of their own;
+        # a keyboard the input method said was hidden (no wait) or a listing that came are not.
+        log = "\n".join((
+            "10:00:00.000 guard: tap on tag:a: a text field has the focus and the input method says the keyboard is hidden; not waited for",
+            "10:00:00.100 guard: tap on tag:a: a text field has the focus, no keyboard window was listed and the input method says shown; the keyboard was listed after 400 ms",
+            "10:00:00.200 guard: tap on tag:a: a text field has the focus, no keyboard window was listed and the input method says nothing readable; the keyboard was never listed in 1500 ms, taken as hidden",
+            "10:00:00.300 guard: swipe from the screen: the keyboard windows could not be read (input method says hidden); taken as hidden",
+        ))
+        self.assertEqual(tolerances.count(log), {"keyboard-taken-as-hidden": 1, "keyboard-unreadable": 1})
 
     def test_a_refusal_is_a_line_with_the_marker_counted_by_the_first_word_of_its_reason(self):
-        # Both drivers write every refusal through one funnel that adds the marker, whatever the reason says (typing, deleting,
-        # submitting, back, gestures); the iOS drivers' own "[driver]" prefix is not the word.
+        # Both drivers write every refusal through one funnel that adds the marker and puts the primitive first (tap, tapAt, typeKeys,
+        # guard for the keyboard guard...), so the key is the primitive whatever the target or the reason says; a "[driver]" prefix, which
+        # the iOS driver used to add, is not the word.
         self.assertEqual(tolerances.refusals(fixture("android.log")),
-            {"tag:x-refused": 1, "tag:y-refused": 1, "Tap-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
+            {"tap-refused": 1, "tapAt-refused": 1, "guard-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
         self.assertEqual(tolerances.refusals(fixture("ios-refusal.log")),
-            {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1})
+            {"tap-refused": 1, "guard-refused": 1, "typeKeys-refused": 1, "submitTextEntry-refused": 1})
+        self.assertEqual(tolerances.refusals("[refusal] [driver] foreground: the app is not running\n"), {"foreground-refused": 1})
         self.assertEqual(tolerances.count(fixture("ios-refusal.log")), {"dismissed-alert": 1})
         self.assertEqual(tolerances.refusals(fixture("ios-unfinished.log")), {})
         self.assertEqual(tolerances.refusals(""), {})
@@ -88,7 +102,7 @@ class RunTests(unittest.TestCase):
         manifest = ws.manifest()
         self.assertEqual(manifest["tolerances"], {"dismissed-alert": 1}, "what a failed attempt put up with is not a tolerance")
         self.assertEqual([a["tolerances"] for a in manifest["attempts"]], [{}, {"dismissed-alert": 1}])
-        each = {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1}
+        each = {"tap-refused": 1, "guard-refused": 1, "typeKeys-refused": 1, "submitTextEntry-refused": 1}
         self.assertEqual(manifest["refusals"], {key: 2 * n for key, n in each.items()})
         self.assertEqual([a["refusals"] for a in manifest["attempts"]], [each] * 2)
         self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["refusals"], each)
@@ -105,9 +119,10 @@ class RunTests(unittest.TestCase):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "android.log"}]}})
         self.assertEqual(ws.evidence("android").code, 0)
         manifest = ws.manifest()
-        self.assertEqual(manifest["tolerances"], {"foreground-request": 2, "foreground-not-in-front": 1})
+        self.assertEqual(manifest["tolerances"],
+            {"foreground-request": 2, "foreground-not-in-front": 1, "keyboard-taken-as-hidden": 1, "keyboard-unreadable": 2})
         self.assertEqual(manifest["refusals"],
-            {"tag:x-refused": 1, "tag:y-refused": 1, "Tap-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
+            {"tap-refused": 1, "tapAt-refused": 1, "guard-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
 
 
 if __name__ == "__main__":

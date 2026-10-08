@@ -14,6 +14,11 @@ IOS_LINE = re.compile(r"^\[tolerance\]\s+([\w-]+)")
 ANDROID_LINES = (
     ("foreground-request", re.compile(r"foreground: .* request \d+ to bring the app back")),
     ("foreground-not-in-front", re.compile(r"foreground: not in front after")),
+    # The keyboard guard (scenariorunner/driver: KeyboardGuard) lets a touch through on a guess in two cases, each one a line of its own: the
+    # window list never showed a keyboard and the input method could not be asked, so it was taken as hidden after the wait; or the window list
+    # could not be read at all and the input method did not say "shown". iOS refuses instead (a `guard` refusal), so it has no such tolerance.
+    ("keyboard-taken-as-hidden", re.compile(r"guard: .*never listed in \d+ ms, taken as hidden")),
+    ("keyboard-unreadable", re.compile(r"guard: .*keyboard windows could not be read")),
 )
 # The marker both drivers' refusal funnel writes (DriverLog.kt, RunConfig.swift); the iOS driver's own "[driver]" prefix is not the word.
 REFUSAL = re.compile(r"\[refusal\]\s+(?:\[driver\]\s+)?(\S+)")
