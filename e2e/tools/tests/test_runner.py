@@ -181,7 +181,7 @@ class BudgetAndProcessTests(unittest.TestCase):
         result = ws.evidence(E2E_MAX_RETRIES="0")
         self.assertLess(time.monotonic() - began, 1 + 1 + 15)
         self.assertEqual(result.code, 1, result.out)
-        self.assertIn("class=timeout: scenario exceeded 1s; the runner writes result.json only when it ends", result.out)
+        self.assertIn("class=timeout: scenario exceeded 1s; the driver wrote no step to its log, so the step it was in is not known", result.out)
         pid = int(text(os.path.join(ws.fake, "ios", "hang.pid")))
         with self.assertRaises(ProcessLookupError):
             os.kill(pid, 0)
@@ -215,6 +215,21 @@ class BudgetAndProcessTests(unittest.TestCase):
         self.assertEqual([a["failureClass"] for a in attempts], ["environment", None])
         self.assertIn("WireMock is not healthy", attempts[0]["failureSummary"])
         self.assertIn("WireMock is down; restarting it", result.out)
+
+    def test_a_wiremock_that_dies_during_the_scenario_makes_the_failed_attempt_the_environments(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "fail:assertion", "killWiremock": True}, "pass"]}})
+        result = ws.evidence(**real_wiremock_env(ws))
+        self.assertEqual(result.code, 0, result.out)
+        attempts = ws.ledger()["scenarios"]["fix-a"]["attempts"]
+        self.assertEqual([a["failureClass"] for a in attempts], ["environment", None])
+        self.assertFalse(attempts[0]["countsAgainstCap"])
+        self.assertIn("WireMock stopped answering during the attempt", attempts[0]["failureSummary"])
+        self.assertEqual(ws.calls("recover"), [], "a dead WireMock is restarted by the harness, not by rebooting the device")
+
+    def test_an_unreadable_journal_with_a_healthy_wiremock_leaves_the_failure_as_it_was(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "fail:assertion", "journal_raw": "{not json"}, "pass"]}})
+        self.assertEqual(ws.evidence().code, 0)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["failureClass"], "product_assertion")
 
     def test_a_wiremock_that_cannot_be_restarted_stops_the_run(self):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["wiremock-down", "pass"]}})
