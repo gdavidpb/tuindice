@@ -366,6 +366,19 @@ class SeamTests(unittest.TestCase):
         self.assertIn("E2E_ADAPTER_IOS_CMD", recorded)
         self.assertEqual(len(ws.calls()), calls)
 
+    def test_evidence_that_ends_with_a_scenario_neither_green_nor_failed_is_an_internal_error_even_when_it_publishes_nothing(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, ws.env)
+        run = PlatformRun(cfg, "ios", Options("evidence"))
+        run.manifest = Manifest("", "x", "evidence", "ios", cfg, enabled=False)
+        run.ledger, run.runnable = Ledger.memory("ios"), [mock.Mock(id="fix-a")]  # nothing recorded for it, no stop, no failure
+        with self.assertRaises(RuntimeError) as caught:
+            run._decide(False)
+        self.assertIn("fix-a", str(caught.exception))
+        diagnose = PlatformRun(cfg, "ios", Options("diagnose"))
+        diagnose.manifest, diagnose.ledger, diagnose.runnable = run.manifest, run.ledger, run.runnable
+        self.assertEqual(diagnose._decide(False), ("passed", 0), "a diagnosis may leave scenarios unrun")
+
     def test_a_state_root_alone_is_not_a_seam_and_diagnosis_may_use_seams(self):
         ws = Workspace(self, [scenario("fix-a")])
         self.assertEqual(ws.diagnose("ios", E2E_TEST_ALLOW_SEAMS="").code, 0)

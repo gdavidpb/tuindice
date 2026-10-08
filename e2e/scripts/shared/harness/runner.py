@@ -257,6 +257,9 @@ class PlatformRun:
         failed = self._failed_list()
         if failed:
             return "failed", 1
+        loose = [s.id for s in self.runnable if not self.ledger.passed(s.id)]
+        if self.evidence and loose:  # a run that ended without a stop or a failure has every scenario green, whether it publishes or not
+            raise RuntimeError("the evidence run ended with %d scenario(s) neither green nor failed: %s" % (len(loose), ", ".join(loose)))
         if not required:
             return "passed", 0
         return self._publish()
@@ -347,6 +350,8 @@ class PlatformRun:
                 m.update(device=result.json)
                 self.device_booted = bool(result.json.get("bootedByHarness"))
                 self.boot_started = time.monotonic()
+                if result.json.get("deviceTypeVerified") is False:  # the verb says so on its stderr, which a good exit discards
+                    self.log.say("ENV   the device type was not verified (simctl could not list it); the manifest keeps deviceTypeVerified=false")
                 if result.json.get("recoveredAtEnsure") is True:  # a simulator that was up but refused its settings
                     self.log.say("ENV   the simulator refused its settings at ensure and was recovered; recorded as a degradation")
                     self._degradation_event(None, "ensure recovered a booted simulator that did not accept its settings", {}, {})
