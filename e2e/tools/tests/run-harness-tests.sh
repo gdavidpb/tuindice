@@ -29,7 +29,7 @@ if (( shell_failures > 0 )); then
 fi
 
 # Compile every Python file with the default interpreter and, when the system one is
-# older (the harness targets Python 3.9), with that one too.
+# older (the harness targets Python 3.9), with that one too; the unit tests run on each of them.
 interpreters=(python3)
 if [[ -x /usr/bin/python3 && "$(command -v python3)" != "/usr/bin/python3" ]]; then
 	interpreters+=(/usr/bin/python3)
@@ -64,20 +64,20 @@ done
 # skips are counted and said out loud; on macOS (the CI job that runs this whole) any skip is a failure.
 unittest_log="$(mktemp "${TMPDIR:-/tmp}/e2e-harness-unittest.XXXXXX")"
 trap 'rm -f "${unittest_log}"' EXIT
-# The tests run on the interpreter the harness targets (the system Python, 3.9) when there is one: the harness starts itself with
-# sys.executable, so an API newer than 3.9 would not pass here and fail for whoever runs it.
-suite_python=python3
-if [[ -x /usr/bin/python3 ]]; then
-	suite_python=/usr/bin/python3
-fi
-printf 'unit tests: %s\n' "$("${suite_python}" --version 2>&1)"
-set +e
-"${suite_python}" -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v 2>&1 | tee "${unittest_log}"
-unittest_status="${PIPESTATUS[0]}"
-set -e
-if (( unittest_status != 0 )); then
-	exit "${unittest_status}"
-fi
+# The suite runs on every interpreter of the list: the one the PATH finds is the one that runs the certification (gradle and the
+# adapters call `python3`), and the system Python (3.9) is the oldest the harness targets: an API newer than 3.9 would pass on the
+# first and fail for whoever runs the second, and a difference in behavior would pass on the second and fail in the evidence run.
+unittest_status=0
+for suite_python in "${interpreters[@]}"; do
+	printf 'unit tests: %s\n' "$("${suite_python}" --version 2>&1)"
+	set +e
+	"${suite_python}" -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v 2>&1 | tee -a "${unittest_log}"
+	unittest_status="${PIPESTATUS[0]}"
+	set -e
+	if (( unittest_status != 0 )); then
+		exit "${unittest_status}"
+	fi
+done
 skipped="$(awk '/ \.\.\. skipped /{ n++ } END { print n + 0 }' "${unittest_log}")"
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	if (( skipped > 0 )); then
