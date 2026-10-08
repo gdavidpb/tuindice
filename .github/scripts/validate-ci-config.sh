@@ -33,8 +33,8 @@ if ! awk '/^  preflight-production-pr:/ { in_job = 1; next } in_job && /^  [a-z]
 	die "preflight-production-pr must wait for e2e-harness-preflight."
 fi
 
-# The jobs run code of the pull request: statuses: write only where evidence is reused, and no token left in .git/config elsewhere.
-bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$preflight_workflow" --writer shared-preflight --credentials shared-preflight
+# The jobs run code of the pull request: no job writes commit statuses (the owner publishes the evidence), and no token is left in .git/config except in shared-preflight, which may have to fetch a commit.
+bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$preflight_workflow" --credentials shared-preflight
 
 # Documents and skills run the vocabulary gate alone: the detector's output must reach a step of the shared job.
 if ! awk '/vocabulary_gate_required/ { outputs += 1 } /verify-e2e-vocabulary\.sh/ { runs = 1 } END { exit !(outputs >= 2 && runs) }' "$preflight_workflow"; then

@@ -31,6 +31,7 @@ write_workflow() {
 }
 
 GOOD_TOP='permissions:\n  contents: read\n'
+SHARED_READS='    permissions:\n      contents: read\n      statuses: read\n'
 SHARED_WRITES='    permissions:\n      contents: read\n      statuses: write\n'
 BUILD_READS='    permissions:\n      contents: read\n'
 NO_PERSIST='        with:\n          ref: x\n          persist-credentials: false\n'
@@ -42,7 +43,7 @@ expect() {
 	local output status
 
 	set +e
-	output="$(bash "$VERIFY" "${WORK}/${name}.yml" --writer shared --credentials shared 2>&1)"
+	output="$(bash "$VERIFY" "${WORK}/${name}.yml" --credentials shared 2>&1)"
 	status=$?
 	set -e
 	if [[ "$expected" == "pass" && "$status" != "0" ]]; then
@@ -61,29 +62,33 @@ expect() {
 	fi
 }
 
-write_workflow good "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+write_workflow good "$GOOD_TOP" "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
 expect good pass
 
-write_workflow top-statuses 'permissions:\n  contents: read\n  statuses: write\n' "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+write_workflow top-statuses 'permissions:\n  contents: read\n  statuses: write\n' "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
 expect top-statuses fail "top-level permissions grant statuses: write"
 
-write_workflow no-top "" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+write_workflow no-top "" "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
 expect no-top fail "no top-level permissions"
 
-write_workflow job-without-permissions "$GOOD_TOP" "$SHARED_WRITES" "" "$NO_PERSIST"
+write_workflow job-without-permissions "$GOOD_TOP" "$SHARED_READS" "" "$NO_PERSIST"
 expect job-without-permissions fail "job build declares no permissions"
 
-write_workflow job-writes-statuses "$GOOD_TOP" "$SHARED_WRITES" '    permissions:\n      contents: read\n      statuses: write\n' "$NO_PERSIST"
-expect job-writes-statuses fail "job build has statuses: write but is not a declared writer"
+write_workflow job-writes-statuses "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: write\n' "$NO_PERSIST"
+expect job-writes-statuses fail "job build has statuses: write; no job of this workflow may write commit statuses"
 
-write_workflow checkout-keeps-token "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" '        with:\n          fetch-depth: 0\n'
+# Option C: no job of the workflow of a pull request writes commit statuses, not even the one that reads them.
+write_workflow shared-writes-statuses "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+expect shared-writes-statuses fail "job shared has statuses: write; no job of this workflow may write commit statuses"
+
+write_workflow checkout-keeps-token "$GOOD_TOP" "$SHARED_READS" "$BUILD_READS" '        with:\n          fetch-depth: 0\n'
 expect checkout-keeps-token fail "job build: an actions/checkout step does not set persist-credentials: false"
 
-write_workflow checkout-without-with "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" ""
+write_workflow checkout-without-with "$GOOD_TOP" "$SHARED_READS" "$BUILD_READS" ""
 expect checkout-without-with fail "job build: an actions/checkout step does not set persist-credentials: false"
 
 # The empty permission set is a declaration too.
-write_workflow empty-permissions "$GOOD_TOP" "$SHARED_WRITES" '    permissions: {}\n' "$NO_PERSIST"
+write_workflow empty-permissions "$GOOD_TOP" "$SHARED_READS" '    permissions: {}\n' "$NO_PERSIST"
 expect empty-permissions pass
 
 printf 'Workflow permission fixtures passed.\n'

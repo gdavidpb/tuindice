@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # The jobs of a workflow that runs code of the pull request get the least token they need.
-#   verify-workflow-permissions.sh <workflow.yml> [--writer JOB]... [--credentials JOB]...
+#   verify-workflow-permissions.sh <workflow.yml> [--credentials JOB]...
 # Rules (the workflow files have a regular two-space layout; this is a line scan, not a YAML parser):
 #   1. the workflow declares top-level `permissions` and none of them is `statuses: write`;
 #   2. every job declares its own `permissions`;
-#   3. `statuses: write` appears only in the jobs named with --writer (the ones that publish or reuse commit statuses);
+#   3. no job has `statuses: write`: the workflow of a pull request reads the evidence statuses and never publishes them
+#      (the owner publishes from the machine that ran the evidence);
 #   4. every actions/checkout step of a job not named with --credentials sets `persist-credentials: false`, so the token
 #      is not left in .git/config for the code that job runs.
 set -euo pipefail
@@ -14,22 +15,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=.github/scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
-[[ $# -ge 1 ]] || die "Usage: verify-workflow-permissions.sh <workflow.yml> [--writer JOB]... [--credentials JOB]..."
+[[ $# -ge 1 ]] || die "Usage: verify-workflow-permissions.sh <workflow.yml> [--credentials JOB]..."
 workflow="$1"
 shift
 [[ -f "$workflow" ]] || die "No such workflow: ${workflow}"
 
-writers=","
 credentials=","
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		--writer) writers="${writers}${2:?--writer needs a job}," ; shift 2 ;;
 		--credentials) credentials="${credentials}${2:?--credentials needs a job}," ; shift 2 ;;
 		*) die "Unknown argument: $1" ;;
 	esac
 done
 
-awk -v writers="$writers" -v credentials="$credentials" -v file="$workflow" '
+awk -v credentials="$credentials" -v file="$workflow" '
 	function fail(message) { printf "%s: %s\n", file, message > "/dev/stderr"; failed = 1 }
 	function close_checkout() {
 		if (in_checkout && !(credentials ~ ("," job ",")) && !persist_false) {
@@ -53,7 +52,7 @@ awk -v writers="$writers" -v credentials="$credentials" -v file="$workflow" '
 	section == "jobs" && job != "" {
 		if ($0 ~ /^    permissions:/) { job_has_permissions = 1; job_permissions = ($0 ~ /\{\}/) ? 0 : 1; next }
 		if (job_permissions && $0 ~ /^      [a-z-]+:/) {
-			if ($0 ~ /statuses: *write/ && !(writers ~ ("," job ","))) { fail("job " job " has statuses: write but is not a declared writer") }
+			if ($0 ~ /statuses: *write/) { fail("job " job " has statuses: write; no job of this workflow may write commit statuses") }
 			next
 		}
 		if ($0 ~ /^    [a-z-]+:/) { job_permissions = 0 }

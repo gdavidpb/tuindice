@@ -9,9 +9,11 @@ concurrency:
   group: preflight-production-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-# Every job runs code of the pull request (scripts, Gradle, tests). The token starts read-only; only shared-preflight
-# publishes and reads commit statuses (it reuses evidence), so only it may write them. The other jobs also leave the
-# token out of .git/config (persist-credentials: false). verify-workflow-permissions.sh enforces both.
+# Every job runs code of the pull request (scripts, Gradle, tests). The token is read-only and no job writes commit statuses:
+# the evidence is published by the repository owner from the machine that ran it, and shared-preflight only reads it
+# (statuses: read). The other jobs also leave the token out of .git/config (persist-credentials: false); shared-preflight
+# keeps it because ensure_commit_available may have to fetch a commit that is not in the checkout, and whether that works
+# without a token depends on the repository being public. verify-workflow-permissions.sh enforces all of this.
 permissions:
   contents: read
 
@@ -22,7 +24,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      statuses: write
+      statuses: read
     outputs:
       android_tasks: ${{ steps.changes.outputs.android_tasks }}
       ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
@@ -101,7 +103,7 @@ jobs:
           HAS_RELEASE_IMPACT: ${{ steps.changes.outputs.has_release_impact }}
           E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           # Unset repo variable resolves to "", so the script keeps its default
-          # trust list (repo owner + github-actions[bot]).
+          # trust list (the repo owner alone).
           E2E_TRUSTED_STATUS_CREATORS: ${{ vars.E2E_TRUSTED_STATUS_CREATORS }}
         run: |
           set -euo pipefail
