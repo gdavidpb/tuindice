@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.enterSecureText
@@ -171,7 +172,10 @@ private val authUsageDataConsent = scenario("auth-usage-data-consent", "auth", S
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
 	waitVisible(AuthUiTags.UsageDataConsentCheckbox, Within.Assert)
+	// Both states of the same element: on iOS an unchecked box is not told apart from an element that is no toggle.
+	assertChecked(AuthUiTags.UsageDataConsentCheckbox, false)
 	tap(AuthUiTags.UsageDataConsentCheckbox)
+	assertChecked(AuthUiTags.UsageDataConsentCheckbox, true)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
 	signInThroughUi(E2eAccounts.Canonical)
 	reachSummaryAfterSignIn()

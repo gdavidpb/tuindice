@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Step
+import com.gdavidpb.tuindice.scenariokit.model.describe
 
 /**
  * The rules about what a scenario may tolerate or leave unwatched, as functions that return what breaks them, so
@@ -42,6 +43,21 @@ internal object CatalogToleranceRules {
 			val notOffered = steps.any { it is Step.WaitGone && it.q == Query.Tag(AuthUiTags.SignOutSecondaryButton) }
 
 			scenario.id.takeUnless { accepted && notOffered }
+		}
+
+	/**
+	 * `scenario: element` for every element that a scenario asserts checked in only one state. On iOS an unchecked box
+	 * is not told apart from an element that is no toggle at all (a `Button` without the `Selected` trait reads
+	 * "unchecked"), so an `assertChecked(x, false)` alone proves nothing and `assertChecked(x, true)` alone proves
+	 * only the state after a change: a scenario asserts both states of the same element.
+	 */
+	fun checkedAssertedInOneStateOnly(scenarios: List<Scenario>): List<String> =
+		scenarios.flatMap { scenario ->
+			scenario.steps.flattened().filterIsInstance<Step.AssertChecked>()
+				.groupBy { it.q }
+				.filterValues { asserts -> asserts.map { it.checked }.toSet().size < 2 }
+				.keys
+				.map { "${scenario.id}: ${it.describe()}" }
 		}
 
 	private fun credentialRequestsAway(steps: List<Step>): List<String> {

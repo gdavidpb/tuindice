@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
+import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -46,6 +47,10 @@ import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SWIPE_MS = 600L
+
+// The centre of the last of the five items of the bottom bar, as fractions of the screen.
+private const val BOTTOM_BAR_LAST_ITEM_X = 0.9
+private const val BOTTOM_BAR_Y = 0.96
 
 // Two texts of the same length that share no letter, so a character left behind shows in the read-back.
 private const val SEARCH_BEFORE = "pr"
@@ -230,9 +235,11 @@ private val conformanceMockState = scenario(
 	waitVisible(BaseUiTags.ErrorViewContainer, Within.Sync)
 	mockState("summary-refresh-retry", "InitialSyncUnavailable")
 	tap(BaseUiTags.ErrorViewRetryButton)
-	// Only the first retry, made in this state, is answered 503 on the user route; waiting for that answer is the
-	// condition between the two taps, and it is what fails if the state step did not take effect.
-	expectRequest("GET", "/users/v1", status = 503)
+	// The start already left one 503 on the user route (the failure that shows the retry button), and the journal counts
+	// from the start of the scenario: the first retry, made in this state, is answered 503 as well, so the condition
+	// between the two taps is the second 503. It is what fails if the state step did not take effect (the retry would be
+	// answered 200 and the count would stay at one).
+	expectRequest("GET", "/users/v1", status = 503, atLeast = 2)
 	tap(BaseUiTags.ErrorViewRetryButton)
 	expectRequest("GET", "/users/v1", status = 200)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
@@ -320,6 +327,19 @@ private val conformanceDoubleTapSwipe = scenario("conformance-double-tap-swipe",
 	waitVisible(PensumUiTags.StickyTerms, Within.Assert)
 }
 
+/**
+ * A tap at a point of the screen with no element to aim at: the About item of the bottom bar sits where its fraction
+ * of the screen says (the bar has five items of the same width, About the last, and the bar is the bottom strip), so
+ * only a delivered tap there opens About.
+ */
+private val conformanceTapAtScreen = scenario("conformance-tap-at-screen", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	tapAtScreen(BOTTOM_BAR_LAST_ITEM_X, BOTTOM_BAR_Y)
+	waitVisible(AboutUiTags.ContentContainer, Within.Action)
+}
+
 /** A swipe that starts on an element: the schedule sheet closes when it is dragged down by its title. */
 private val conformanceSwipeFromElement = scenario(
 	"conformance-swipe-from-element",
@@ -396,6 +416,7 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceTapDisabled,
 	conformanceScrollHorizontal,
 	conformanceTapAt,
+	conformanceTapAtScreen,
 	conformanceDoubleTapSwipe,
 	conformanceSwipeFromElement,
 	conformanceSheetTags,
