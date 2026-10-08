@@ -113,6 +113,17 @@ cmd_driver_contract() {
 	python3 "${TOOLS}" xctest-probes "${dir}/runner.log" "${status}" "${dir}/result.json" "${dir}" "${PROBE_CLASSES}"
 }
 
+# What the runner wrote line by line into its results directory (driver.log), brought to the attempt directory without replacing what a
+# finished run already copied.
+bring_results() { # id dir
+	local file
+	[[ -d "$2/results/$1" ]] || return 0
+	for file in "$2/results/$1/"*; do
+		[[ -e "${file}" && ! -e "$2/${file##*/}" ]] && cp -R "${file}" "$2/"
+	done
+	return 0
+}
+
 cmd_run_scenario() {
 	local id="${1:?id}" dir="${2:?attempt dir}" port="${3:?port}" only status=0
 	resolve_device
@@ -121,10 +132,14 @@ cmd_run_scenario() {
 	only="$(python3 "${TOOLS}" catalog-field "${E2E_CATALOG_FILE:-${REPO_ROOT}/${E2E_CATALOG_JSON}}" "${id}" ios)"
 	export TEST_RUNNER_E2E_WIREMOCK_URL="http://localhost:${port}"
 	export TEST_RUNNER_E2E_OUTPUT_DIR="${dir}/results"
+	unset TEST_RUNNER_E2E_TRACE  # only --trace asks for it, not whatever the shell passed down
 	if [[ "${E2E_TRACE:-0}" == "1" ]]; then
 		export TEST_RUNNER_E2E_TRACE=1
 	fi
+	# The harness stops a hung run with SIGTERM to the group: xcodebuild dies with it and the log it wrote comes home before the next reset.
+	trap 'bring_results "${id}" "${dir}"; exit 143' TERM INT
 	xcodebuild_test "-only-testing:${only}" -resultBundlePath "${dir}/attempt.xcresult" > "${dir}/runner.log" 2>&1 || status=$?
+	trap - TERM INT
 	log "xcodebuild exited ${status}; the verdict is read from result.json"
 	if [[ -d "${dir}/results/${id}" ]]; then
 		cp -R "${dir}/results/${id}/." "${dir}/"
@@ -145,23 +160,21 @@ cmd_crash_probe() {
 }
 
 cmd_collect_failure() {
-	local dir="${1:?attempt dir}" since="${2:?since}" start file
+	local dir="${1:?attempt dir}" since="${2:?since}" start
 	resolve_device
 	read_build_state
-	# A run the harness killed copied nothing from the runner's output directory: whatever it wrote there (driver.log) comes now,
-	# without replacing what a finished run already copied.
-	if [[ -n "${E2E_CURRENT_SCENARIO:-}" && -d "${dir}/results/${E2E_CURRENT_SCENARIO}" ]]; then
-		for file in "${dir}/results/${E2E_CURRENT_SCENARIO}/"*; do
-			[[ -e "${dir}/${file##*/}" ]] || cp -R "${file}" "${dir}/"
-		done
+	# A run the harness killed copied nothing from the runner's output directory: whatever it wrote there (driver.log) comes now.
+	[[ -z "${E2E_CURRENT_SCENARIO:-}" ]] || bring_results "${E2E_CURRENT_SCENARIO}" "${dir}"
+	# `log show` reads the log store, so nothing streams while scenarios run and nothing is lost to a late start. Each piece reports
+	# its own failure and the next one still runs.
+	start="$(date -r "${since}" '+%Y-%m-%d %H:%M:%S')"
+	if ! xcrun simctl spawn "${UDID}" log show --start "${start}" --style compact \
+		--predicate "process == \"${EXECUTABLE}\" OR process CONTAINS \"UITests\"" | python3 "${TOOLS}" cap-log "${LOG_CAP_BYTES}" "${dir}/app.log" >&2; then
+		log "log show failed; the app log of this attempt is missing or short"
 	fi
 	if ! compgen -G "${dir}/*.png" > /dev/null; then
-		xcrun simctl io "${UDID}" screenshot "${dir}/fallback-screen.png" >&2
+		xcrun simctl io "${UDID}" screenshot "${dir}/fallback-screen.png" >&2 || log "the screenshot failed; the fallback screen is missing"
 	fi
-	# `log show` reads the log store, so nothing streams while scenarios run and nothing is lost to a late start.
-	start="$(date -r "${since}" '+%Y-%m-%d %H:%M:%S')"
-	xcrun simctl spawn "${UDID}" log show --start "${start}" --style compact \
-		--predicate "process == \"${EXECUTABLE}\" OR process CONTAINS \"UITests\"" | python3 "${TOOLS}" cap-log "${LOG_CAP_BYTES}" "${dir}/app.log" >&2
 	emit_json "ok=j:true"
 }
 

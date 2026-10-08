@@ -3,6 +3,7 @@
 #   tests.list     identifiers `-enumerate-tests` writes to -test-enumeration-output-path
 #   xc.rc          exit status of a test run (default 0)
 #   xc.id/xc.result  the scenario id and the result.json a test run leaves under $TEST_RUNNER_E2E_OUTPUT_DIR/<id>/
+#   xc.driverlog   the driver.log a test run leaves under $TEST_RUNNER_E2E_OUTPUT_DIR/<id>/ before it ends or hangs
 #   xc.hang        exists: a test run never ends
 #   calls.log      one line per call, followed by the TEST_RUNNER_ variables it saw
 set -euo pipefail
@@ -26,6 +27,10 @@ PY
 	exit 0
 fi
 
+if [[ -f "${dir}/xc.driverlog" ]]; then  # what a run writes line by line before it ends
+	mkdir -p "${TEST_RUNNER_E2E_OUTPUT_DIR}/$(cat "${dir}/xc.id")"
+	cp "${dir}/xc.driverlog" "${TEST_RUNNER_E2E_OUTPUT_DIR}/$(cat "${dir}/xc.id")/driver.log"
+fi
 if [[ -f "${dir}/xc.hang" ]]; then sleep 300; fi
 if [[ -f "${dir}/xc.result" ]]; then
 	mkdir -p "${TEST_RUNNER_E2E_OUTPUT_DIR}/$(cat "${dir}/xc.id")"

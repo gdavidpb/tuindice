@@ -120,7 +120,9 @@ class AndroidAdapterTests(unittest.TestCase):
 
     def test_a_hung_run_is_stopped_on_the_device_when_the_harness_kills_it(self):
         self.box.write("instrument.hang", "")
-        process = subprocess.Popen(["bash", self.box.script, "run-scenario", "auth-login-cancel", os.path.join(self.box.dir, "h"), "18626"],
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        attempt = os.path.join(self.box.dir, "h")
+        process = subprocess.Popen(["bash", self.box.script, "run-scenario", "auth-login-cancel", attempt, "18626"],
             env=self.box.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, start_new_session=True)
         deadline = time.time() + 20
         while time.time() < deadline and not any("am instrument" in c for c in self.box.adb_calls()):
@@ -131,14 +133,16 @@ class AndroidAdapterTests(unittest.TestCase):
         calls = "\n".join(self.box.adb_calls())
         self.assertIn("-s emulator-5554 shell am force-stop %s" % TEST_ID, calls)
         self.assertIn("-s emulator-5554 shell am force-stop %s" % APP_ID, calls)
+        # The run that was cut already wrote its log line by line: it comes home with the trap, after the instrumentation stopped.
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
         try:
             os.killpg(process.pid, signal.SIGKILL)  # the fake's sleep
         except ProcessLookupError:
             pass
 
-    def test_the_driver_log_of_a_killed_run_reaches_the_attempt_through_collect_failure(self):
-        # The trap of a killed run does not pull anything and the next reset-app empties the runner's directory: only
-        # collect-failure, which runs in between, can bring the log home.
+    def test_the_driver_log_of_a_run_killed_without_a_trap_reaches_the_attempt_through_collect_failure(self):
+        # A SIGKILL leaves no trap to pull anything and the next reset-app empties the runner's directory: collect-failure, which runs
+        # in between, can still bring the log home.
         self.box.write("instrument.hang", "")
         self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
         attempt = os.path.join(self.box.dir, "h")
@@ -147,12 +151,8 @@ class AndroidAdapterTests(unittest.TestCase):
         deadline = time.time() + 20
         while time.time() < deadline and not any("am instrument" in c for c in self.box.adb_calls()):
             time.sleep(0.1)
-        process.send_signal(signal.SIGTERM)
-        self.assertEqual(process.wait(timeout=20), 143)
-        try:
-            os.killpg(process.pid, signal.SIGKILL)  # the fake's sleep
-        except ProcessLookupError:
-            pass
+        os.killpg(process.pid, signal.SIGKILL)
+        process.communicate(timeout=20)
         self.assertFalse(os.path.exists(os.path.join(attempt, "driver.log")))
         done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
         self.assertEqual(done.returncode, 0, done.stderr)
@@ -337,6 +337,46 @@ class IosAdapterTests(unittest.TestCase):
         self.assertEqual(done.json["kind"], "app_crash")
         self.assertIn("SIGSEGV", support.text(os.path.join(attempt, "crash.txt")))
         self.assertEqual(self.box.run("crash-probe", str(now + 60), attempt, str(now + 90), "0").json["kind"], "none")
+
+    def test_a_run_cut_by_a_signal_brings_the_driver_log_of_its_results_directory_home(self):
+        self.box.write("xc.hang", "", self.box.xcrun)
+        self.box.write("xc.id", "auth-login-cancel", self.box.xcrun)
+        self.box.write("xc.driverlog", "[3] WaitVisible x -> passed (12 ms)\n", self.box.xcrun)
+        attempt = os.path.join(self.box.dir, "cut")
+        process = subprocess.Popen(["bash", self.box.script, "run-scenario", "auth-login-cancel", attempt, "18627"],
+            env=self.box.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, start_new_session=True)
+        deadline = time.time() + 20
+        while time.time() < deadline and not any(c.startswith("xcodebuild") for c in self.box.xcrun_calls()):
+            time.sleep(0.1)
+        time.sleep(0.3)
+        os.killpg(process.pid, signal.SIGTERM)
+        process.communicate(timeout=20)
+        self.assertEqual(process.returncode, 143)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "[3] WaitVisible x -> passed (12 ms)\n")
+
+    def test_the_trace_of_the_environment_is_not_inherited_by_a_run_that_did_not_ask_for_it(self):
+        self.box.write("xc.id", "auth-login-cancel", self.box.xcrun)
+        self.box.write("xc.result", json.dumps(RESULT), self.box.xcrun)
+        done = self.box.run("run-scenario", "auth-login-cancel", os.path.join(self.box.dir, "q"), "18627", TEST_RUNNER_E2E_TRACE="1")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertNotIn("TEST_RUNNER_E2E_TRACE", "\n".join(self.box.xcrun_calls()))
+
+    def test_collect_failure_with_an_empty_results_directory_still_brings_the_log_and_the_screenshot(self):
+        attempt = os.path.join(self.box.dir, "empty")
+        os.makedirs(os.path.join(attempt, "results", "auth-login-cancel"))
+        done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertTrue(os.path.exists(os.path.join(attempt, "app.log")))
+        self.assertTrue(os.path.exists(os.path.join(attempt, "fallback-screen.png")))
+
+    def test_collect_failure_reads_the_log_store_before_it_takes_the_screenshot_and_a_failed_screenshot_does_not_cost_the_log(self):
+        self.box.write("screenshot.fails", "", self.box.xcrun)
+        attempt = os.path.join(self.box.dir, "shot")
+        os.makedirs(attempt)
+        done = self.box.run("collect-failure", attempt, "1")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertTrue(os.path.exists(os.path.join(attempt, "app.log")))
+        self.assertIn("screenshot", done.stderr)
 
     def test_collect_failure_reads_the_log_store_from_the_start_of_the_attempt(self):
         attempt = os.path.join(self.box.dir, "c")

@@ -8,6 +8,7 @@
 #   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
 #   terminate.answer  with terminate.rc (default 3): `simctl terminate` fails with this message
 #   tests.list        identifiers the fake xcodebuild enumerates (with their trailing parentheses)
+#   screenshot.fails  exists: `simctl io screenshot` fails
 #   log.txt           what `simctl spawn <udid> log show` prints (default: one line)
 #   calls.log         one line per call
 set -euo pipefail
@@ -63,7 +64,10 @@ case "${verb}" in
 		fi
 		;;
 	uninstall | install | keychain) ;;
-	io) echo "screenshot" > "${3}" ;;
+	io)
+		if [[ -f "${dir}/screenshot.fails" ]]; then echo "fake simctl: screenshot failed" >&2; exit 1; fi
+		echo "screenshot" > "${3}"
+		;;
 	spawn)
 		if [[ "${2:-}" == "log" ]]; then
 			if [[ -f "${dir}/log.txt" ]]; then cat "${dir}/log.txt"; else echo "app log line"; fi
