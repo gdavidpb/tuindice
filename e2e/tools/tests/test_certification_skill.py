@@ -340,6 +340,63 @@ class ReportTests(SessionFixtureMixin, unittest.TestCase):
         self.assertIn("last exit 3 (the driver contract failed, so no scenario runs on this driver; failed probes: tap)", out)
 
 
+class SkillFrontmatterTests(unittest.TestCase):
+    """The frontmatter of every skill under .codex/skills is YAML a strict loader accepts (an unquoted value with `: ` is not)."""
+
+    SKILLS = Path(TESTS).resolve().parents[2] / ".codex" / "skills"
+
+    @staticmethod
+    def frontmatter(text):
+        lines = text.splitlines()
+        if not lines or lines[0] != "---":
+            return None
+        for index in range(1, len(lines)):
+            if lines[index] == "---":
+                return lines[1:index]
+        return None
+
+    @classmethod
+    def problems(cls, text):
+        lines = cls.frontmatter(text)
+        if lines is None:
+            return ["no frontmatter between two --- lines"]
+        found, issues = {}, []
+        for line in lines:
+            key, separator, value = line.partition(":")
+            if not separator or not key.strip() or line[:1] in " \t":
+                issues.append("not a top-level `key: value` line: %r" % line)
+                continue
+            value = value.strip()
+            found[key.strip()] = value
+            if value[:1] == '"':
+                if len(value) < 2 or value[-1] != '"' or '"' in value[1:-1].replace('\\"', ""):
+                    issues.append("%s: the double-quoted value is not closed once, at its end" % key)
+            elif value[:1] in ("'", "[", "{", "|", ">", "&", "*", "!", "%", "@", "`"):
+                continue
+            elif ": " in value or " #" in value or value.endswith(":"):
+                issues.append("%s: an unquoted value holds `: ` or ` #`; quote it" % key)
+        for required in ("name", "description"):
+            if not found.get(required):
+                issues.append("missing %s" % required)
+        return issues
+
+    def test_every_skill_has_a_valid_frontmatter(self):
+        skills = sorted(self.SKILLS.glob("*/SKILL.md"))
+        self.assertGreaterEqual(len(skills), 2)
+        for path in skills:
+            with self.subTest(skill=path.parent.name):
+                self.assertEqual(self.problems(path.read_text(encoding="utf-8")), [])
+
+    def test_the_check_rejects_what_a_strict_loader_rejects(self):
+        bad = "---\nname: x\ndescription: Certify branches: local evidence\n---\nbody\n"
+        self.assertIn("description: an unquoted value holds `: ` or ` #`; quote it", self.problems(bad))
+        self.assertIn("missing description", self.problems("---\nname: x\n---\n"))
+        self.assertTrue(self.problems('---\nname: x\ndescription: "open\n---\n'))
+        self.assertEqual(self.problems('---\nname: x\ndescription: "Certify: local, with # inside"\n---\n'), [])
+        self.assertEqual(self.problems("---\nname: x\ndescription: plain words, no colon\n---\n"), [])
+        self.assertEqual(self.problems("no frontmatter"), ["no frontmatter between two --- lines"])
+
+
 class MainExitCodeTests(SessionFixtureMixin, unittest.TestCase):
     def run_main(self, status, manifests=(), platforms=("ios",), scope=None, dirty=False):
         for args in manifests:
