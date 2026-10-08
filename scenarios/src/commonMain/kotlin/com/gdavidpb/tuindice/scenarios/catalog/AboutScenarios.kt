@@ -2,12 +2,14 @@ package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
+import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
@@ -46,6 +48,7 @@ private fun StepBuilder.returnToAbout() {
 private fun StepBuilder.openExternalLinkAndReturn(link: String) {
 	scrollUntilVisible(link, Scroll.ContentDown, Within.Action)
 	tap(link)
+	waitBackgrounded()
 	foreground()
 	returnToAbout()
 }
@@ -100,6 +103,7 @@ private val aboutExternalUrlLinks = scenario(
 
 	openAbout()
 	tap(AboutUiTags.OpenCreativeCommons)
+	waitBackgrounded()
 	foreground()
 	returnToAbout()
 	openExternalLinkAndReturn(AboutUiTags.OpenX)
@@ -157,9 +161,12 @@ private val aboutUsageDataConsent = scenario(
 	waitVisible(AboutUiTags.RateOnStore, Within.Assert)
 	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
 	waitVisible(AboutUiTags.UsageDataConsentToggle, Within.Assert)
+	assertChecked(AboutUiTags.UsageDataConsentToggle, false)
 	tap(AboutUiTags.UsageDataConsentToggle)
+	assertChecked(AboutUiTags.UsageDataConsentToggle, true)
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 	tap(AboutUiTags.UsageDataConsentToggle)
+	assertChecked(AboutUiTags.UsageDataConsentToggle, false)
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 }
 
