@@ -168,6 +168,29 @@ class ReaderTests(unittest.TestCase):
         self.assertFalse(answer["ok"])
         self.assertIn("2 tests executed", " ".join(answer["failed"]))
 
+    def xcode(self, *cases, executed=None):
+        lines = ["Test Case '-[TuIndiceUITests.%s %s]' %s (0.1 seconds)." % case for case in cases]
+        lines.append("\t Executed %d tests, with 0 failures (0 unexpected) in 1.0 (1.0) seconds" % (len(cases) if executed is None else executed))
+        return self.write("log", "\n".join(lines) + "\n")
+
+    CLASSES = "DriverContractTests,SettleWatchTests,ObjCCatchTests,GuardedIncidentTests"
+    GREEN_CASES = (("DriverContractTests", "test_driver_contract", "passed"), ("SettleWatchTests", "test_a", "passed"),
+        ("ObjCCatchTests", "test_b", "passed"), ("GuardedIncidentTests", "test_c", "passed"))
+
+    def test_the_ios_contract_run_with_its_probe_classes_is_green_when_every_class_passes(self):
+        result = self.write("result.json", json.dumps(CONTRACT_RESULT))
+        answer = adapter_tools.xctest_contract(self.xcode(*self.GREEN_CASES), "0", result, None, self.CLASSES)
+        self.assertTrue(answer["ok"], answer)
+
+    def test_a_probe_class_that_did_not_run_or_failed_is_red(self):
+        result = self.write("result.json", json.dumps(CONTRACT_RESULT))
+        missing = adapter_tools.xctest_contract(self.xcode(*self.GREEN_CASES[:3]), "0", result, None, self.CLASSES)
+        self.assertIn("probes:GuardedIncidentTests: no test of the class passed", missing["failed"])
+        broken = self.GREEN_CASES[:3] + (("GuardedIncidentTests", "test_c", "failed"),)
+        red = adapter_tools.xctest_contract(self.xcode(*broken), "1", result, None, self.CLASSES)
+        self.assertFalse(red["ok"])
+        self.assertIn("probes:GuardedIncidentTests#test_c failed", red["failed"])
+
     def stream(self, *tests, end="INSTRUMENTATION_CODE: -1\n"):
         """An `am instrument -r` stream: (class, test, closing code or None for a test that starts and never closes)."""
         text = ""

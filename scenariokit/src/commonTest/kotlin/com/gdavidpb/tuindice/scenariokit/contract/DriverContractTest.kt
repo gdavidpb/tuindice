@@ -171,11 +171,11 @@ class DriverContractTest {
 
 	@Test
 	fun aDriverThatDropsAKeyOfALongRun_failsTheLongTypingProbe() {
-		val fake = conformant().apply { typing = { if (it.length > 25) it.dropLast(1) else it } }
+		val fake = conformant().apply { typing = { if (it.length >= 25) it.dropLast(1) else it } }
 
 		val failure = assertNotNull(contract(fake, fake).failure)
 
-		assertContains(failure.message, "long-secure-typing: typeKeys of 30 characters left 29")
+		assertContains(failure.message, "long-secure-typing: typeKeys of 25 characters left 24")
 	}
 
 	@Test

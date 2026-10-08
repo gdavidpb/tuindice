@@ -6,7 +6,7 @@ import android.view.KeyEvent
 /** Injects key events into the focused window. */
 internal class KeyInjector(private val session: DeviceSession) {
 	/** How many events the system took, and how long the call that it refused (or that threw) took. */
-	class Injection(val entered: Int, val refusedAfterMs: Long?)
+	class Injection(val entered: Int, val refusedAfterMs: Long?, val slowestMs: Long = 0)
 
 	/**
 	 * Injects [events] in order and answers how many the system accepted, stopping at the first refusal or failure.
@@ -18,18 +18,22 @@ internal class KeyInjector(private val session: DeviceSession) {
 	fun inject(events: Array<KeyEvent>): Injection {
 		val automation = session.instrumentation.uiAutomation
 		var entered = 0
+		var slowest = 0L
 
 		for (event in events) {
 			val fresh = KeyEvent.changeTimeRepeat(event, SystemClock.uptimeMillis(), 0)
 			val began = SystemClock.uptimeMillis()
 			val taken = runCatching { automation.injectInputEvent(fresh, true) }.getOrDefault(false)
 
-			if (!taken) return Injection(entered, SystemClock.uptimeMillis() - began)
+			val took = SystemClock.uptimeMillis() - began
+			slowest = maxOf(slowest, took)
+
+			if (!taken) return Injection(entered, took, slowest)
 
 			entered++
 		}
 
-		return Injection(entered, null)
+		return Injection(entered, null, slowest)
 	}
 
 	/** Presses and releases [keyCode], and answers whether the system took both events. */

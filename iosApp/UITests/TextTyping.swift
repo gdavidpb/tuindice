@@ -128,9 +128,8 @@ final class TextTyping {
     /// not bring the keyboard up is reported, not tapped again.
     private func focus(_ q: Query) -> Bool {
         guard let (resolved, facts) = resolver.placed(q, for: "focus") else { return false }
-        // A field that already has the focus, with its keyboard on screen, is not touched again.
-        log.add("[driver] focus \(q): hasFocus=\(facts.hasFocus) keyboard=\(resolver.keyboardFrame != nil)")
-        if facts.hasFocus && resolver.keyboardFrame != nil { return true }
+        // XCUITest reports no keyboard focus for a text field (`hasFocus` read false with the keyboard up, measured in the
+        // driver contract), so the field cannot be told apart from an unfocused one: it is touched once, as before.
         guard tapper(resolved, center(of: facts), "focus \(q)") else { return false }
         if waitForKeyboard() { return true }
         log.refuse("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")

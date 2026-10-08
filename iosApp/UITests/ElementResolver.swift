@@ -19,8 +19,8 @@ struct ElementFacts {
     let isEnabled: Bool
     let value: String?
     let label: String
-    /// Whether the element holds the focus (for a text field on iOS: the keyboard focus).
-    let hasFocus: Bool
+    /// The `selected` trait: how a toggle without a value (a Compose switch or checkbox) says it is on.
+    let isSelected: Bool
 
     var isTextInput: Bool {
         type == .textField || type == .secureTextField || type == .textView || type == .searchField
@@ -241,7 +241,7 @@ final class ElementResolver {
                 isEnabled: snapshot.isEnabled,
                 value: snapshot.value as? String,
                 label: snapshot.label,
-                hasFocus: snapshot.hasFocus
+                isSelected: snapshot.isSelected
             )
             return .found(ResolvedElement(owner: owner, element: element), facts)
         }

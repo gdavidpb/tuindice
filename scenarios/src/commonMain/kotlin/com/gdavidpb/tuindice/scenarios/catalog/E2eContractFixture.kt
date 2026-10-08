@@ -18,7 +18,8 @@ object E2eContractFixture {
 		disabledTag = AuthUiTags.SignInButton,
 		textFieldTag = AuthUiTags.UsbIdTextField,
 		secureFieldTag = AuthUiTags.PasswordTextField,
-		secureSample = "abcdefghijklmnopqrstuvwxyz0123",
+		// 25 characters: the iOS driver empties a field by tapping at 75 % of its width, and 25 bullets still end before it.
+		secureSample = "abcdefghijklmnopqrstuvwxy",
 		// Not the placeholder of the field ("12-34567"), which a driver that read it instead of the text would match.
 		textSample = "7654321",
 		expectedText = "76-54321"

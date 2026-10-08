@@ -67,7 +67,8 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		val result = KeyInjector(session).inject(events)
 		injected = result.entered
 
-		val counted = "${result.entered} of ${events.size} key events injected for ${text.length} characters"
+		val counted = "${result.entered} of ${events.size} key events injected for ${text.length} characters " +
+			"(slowest injection ${result.slowestMs} ms)"
 		session.log.write("typeKeys $q: $counted")
 
 		if (result.entered != events.size) {

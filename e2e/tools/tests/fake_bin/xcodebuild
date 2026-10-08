@@ -31,5 +31,16 @@ if [[ -f "${dir}/xc.result" ]]; then
 	mkdir -p "${TEST_RUNNER_E2E_OUTPUT_DIR}/$(cat "${dir}/xc.id")"
 	cp "${dir}/xc.result" "${TEST_RUNNER_E2E_OUTPUT_DIR}/$(cat "${dir}/xc.id")/result.json"
 fi
-printf "Test Suite 'Selected tests' passed.\n\t Executed 1 test, with 0 failures (0 unexpected) in 1.0 (1.0) seconds\n"
+# One passed test case per -only-testing selection, the way xcodebuild reports them.
+count=0
+for arg in "$@"; do
+	if [[ "${arg}" == -only-testing:* ]]; then
+		selection="${arg#-only-testing:}"
+		klass="$(cut -d/ -f2 <<< "${selection}")"
+		printf "Test Case '-[TuIndiceUITests.%s test_fake]' passed (0.1 seconds).\n" "${klass}"
+		count=$((count + 1))
+	fi
+done
+(( count > 0 )) || count=1
+printf "Test Suite 'Selected tests' passed.\n\t Executed %d test%s, with 0 failures (0 unexpected) in 1.0 (1.0) seconds\n" "${count}" "$([[ ${count} -eq 1 ]] || printf s)"
 exit "$(cat "${dir}/xc.rc" 2> /dev/null || echo 0)"

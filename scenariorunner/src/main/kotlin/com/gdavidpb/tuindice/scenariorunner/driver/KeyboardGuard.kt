@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.scenariorunner.driver
 
 import android.graphics.Rect
 import android.os.SystemClock
-import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
+import androidx.test.uiautomator.By
 
 /**
  * Knows where the on-screen keyboard is. A touch that lands inside its window presses a key and types a
@@ -30,17 +30,20 @@ internal class KeyboardGuard(private val session: DeviceSession) {
 		Reading(true, frame)
 	}.getOrDefault(Reading(false, null))
 
-	/** True when an editable field holds the input focus, so a keyboard is showing or opening. */
+	/**
+	 * True when an editable field holds the focus, so a keyboard is showing or opening. It is read from the tree like
+	 * every other query: `findFocus(FOCUS_INPUT)` does not find a Compose field (measured: the focused field was in the
+	 * tree with `focused="true"` while `findFocus` answered nothing editable).
+	 */
 	fun textFieldHasFocus(): Boolean = runCatching {
-		session.instrumentation.uiAutomation.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.isEditable == true
+		session.device.hasObject(By.clazz(EDIT_TEXT).focused(true))
 	}.getOrDefault(false)
 
 	/** True, after logging why, when the point ([x], [y]) of [gesture] is inside the keyboard window. */
 	fun covers(x: Int, y: Int, gesture: String): Boolean {
 		var reading = read()
-		val expected = textFieldHasFocus()
 
-		if (reading.frame == null && expected) reading = awaitListing(gesture)
+		if (reading.frame == null && textFieldHasFocus()) reading = awaitListing(gesture)
 
 		val keyboard = reading.frame
 		val inside = keyboard != null && keyboard.contains(x, y)
@@ -72,6 +75,7 @@ internal class KeyboardGuard(private val session: DeviceSession) {
 	}
 
 	private companion object {
+		const val EDIT_TEXT = "android.widget.EditText"
 		const val LISTING_WAIT_MS = 1_500L
 		const val LISTING_POLL_MS = 100L
 		const val RECHECK_MS = 100L

@@ -71,7 +71,7 @@ fun sampleCatalog(scenarios: List<Scenario> = listOf(sampleScenario())) = Scenar
 		disabledTag = "disabled",
 		textFieldTag = "field",
 		secureFieldTag = "secret",
-		secureSample = "abcdefghijklmnopqrstuvwxyz0123",
+		secureSample = "abcdefghijklmnopqrstuvwxy",
 		textSample = "ab1",
 		expectedText = "ab1"
 	)

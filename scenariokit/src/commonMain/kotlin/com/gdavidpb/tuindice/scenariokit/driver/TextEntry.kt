@@ -9,8 +9,9 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * driver's call: after `typeKeys` the interpreter polls [ElementProbe.readText] until two reads in a row show the
  * text, for up to [com.gdavidpb.tuindice.scenariokit.model.Timeouts.TextReread], and fails with both texts when they
  * differ (a secure field is judged by the length of what it shows). When the driver answers false the interpreter
- * reads the field too: part of the text in it is a corrupted typing, not a refusal. A refusal carries its reason in
- * [Diagnostics.lastRefusal]. A call that has no app to act on, or no field on screen, answers false.
+ * reads the field too, and [keysInjected] says whether any key went in: a field that holds the beginning of the text
+ * is a driver that stopped (`DRIVER_ERROR`), only text nobody sent is a corrupted typing. A refusal carries its
+ * reason in [Diagnostics.lastRefusal]. A call that has no app to act on, or no field on screen, answers false.
  */
 interface TextEntry {
 	/**
@@ -18,12 +19,12 @@ interface TextEntry {
 	 * keyboard would produce, and the text goes in at the caret (a scenario that wants an empty field first uses
 	 * `replace`, which clears it). Android leaves a field that already has the focus alone, asks one that has not with
 	 * the accessibility click action (never with a touch on a point that the opening keyboard could be covering) and
-	 * waits for its keyboard; iOS touches the field once, unless it already has the focus. Both read the field before and
-	 * after the focus and, if it changed, type nothing and refuse ("the focus touch changed the field"). Neither driver
-	 * can prove the focus is on the field it was asked for beyond that. Android
-	 * injects the key events of the virtual keyboard, re-stamping each one just before it goes in, stops at the first
-	 * one the system refuses and logs how many entered; text the virtual keyboard cannot spell (accents) is refused.
-	 * iOS touches the field once, waits up to 2 s for the software keyboard (it does not touch again: a field that
+	 * waits for its keyboard; iOS touches the field once (XCUITest does not report the keyboard focus of a text
+	 * field). Both read the field before and after the focus and, if it changed, type nothing and refuse ("the focus
+	 * touch changed the field"). Neither driver can prove the focus is on the field it was asked for beyond that.
+	 * Android injects the key events of the virtual keyboard, re-stamping each one just before it goes in, stops at
+	 * the first one the system refuses and logs how many entered; text the virtual keyboard cannot spell (accents) is
+	 * refused. iOS waits up to 2 s for the software keyboard after its touch (it does not touch again: a field that
 	 * brings no keyboard is a refusal) and types in chunks of 4 characters through `typeText`.
 	 */
 	fun typeKeys(q: Query, text: String): Boolean

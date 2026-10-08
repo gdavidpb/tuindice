@@ -96,3 +96,24 @@ final class ObjCCatchTests: XCTestCase {
         XCTAssertNil(log.lastRefusal)
     }
 }
+
+/// The shim against a real XCTest incident (dB-4c): a touch on an application that is not installed makes XCTest record an
+/// issue and raise. It runs inside `XCTExpectFailure`, so the recorded issue is the expected one, and inside `guarded`, so the
+/// exception does not leave the closure: the test passing means the runner survived it and the call answered `false` with the
+/// exception as its reason.
+final class GuardedIncidentTests: XCTestCase {
+    func test_a_real_xctest_incident_inside_guarded_is_a_refusal_and_not_a_crash() {
+        let log = DriverLog(echo: false)
+        let missing = XCUIApplication(bundleIdentifier: "com.gdavidpb.tuindice.shim.does.not.exist")
+        var answered = true
+
+        XCTExpectFailure("a touch on an application that does not exist is an XCTest incident") {
+            answered = guarded("tap on a missing application", log: log) {
+                missing.coordinate(withNormalizedOffset: .zero).tap()
+            }
+        }
+
+        XCTAssertFalse(answered, "the call must answer false after the incident")
+        XCTAssertNotNil(log.lastRefusal, "and leave the reason of the refusal")
+    }
+}

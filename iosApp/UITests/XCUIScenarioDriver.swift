@@ -58,6 +58,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         }
     }
 
+    /// The state `XCUIApplication` reports: it flips to background about a second after another app takes the front (measured: 4 for
+    /// four reads, then 3), and stays 3, never "suspended", for at least 30 s in Safari on the simulator. Under heavy load it was
+    /// seen to stay 4 for 10 s with Safari already in front (once in 12 runs of `conformance-foreground`).
     func isForeground() -> Bool { traced("isForeground") { app.state == .runningForeground } }
 
     func terminate() { traced("terminate") { _ = guarded("terminate", log: log) { app.terminate() } } }
@@ -90,11 +93,13 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func isChecked(q: Query) -> KotlinBoolean? {
         traced("isChecked") {
-            guard let (_, facts) = resolver.visibleFacts(q), let value = facts.value?.lowercased() else { return nil }
-            switch value {
+            guard let (_, facts) = resolver.visibleFacts(q), facts.type == .switch || facts.type == .checkBox || facts.type == .toggle
+            else { return nil }
+            // A toggle that reports a value says it with "1"/"0"; the Compose ones report none and use the selected trait.
+            switch facts.value?.lowercased() {
             case "1", "true", "on", "checked": return KotlinBoolean(bool: true)
             case "0", "false", "off", "unchecked": return KotlinBoolean(bool: false)
-            default: return nil
+            default: return KotlinBoolean(bool: facts.isSelected)
             }
         }
     }

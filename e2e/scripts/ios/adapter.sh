@@ -91,6 +91,9 @@ cmd_reset_app() {
 }
 
 CONTRACT_TEST="${E2E_IOS_UITEST_SCHEME}/DriverContractTests/test_driver_contract"
+# The probes that need no scenario and run in the same xcodebuild: the rule of stillness, the Objective-C shim and the shim
+# against a real XCTest incident. Their classes must each pass for the contract to be green.
+PROBE_CLASSES="DriverContractTests,SettleWatchTests,ObjCCatchTests,GuardedIncidentTests"
 
 cmd_driver_contract() {
 	local dir="${1:?artifacts dir}" port="${2:?port}" status=0
@@ -100,12 +103,14 @@ cmd_driver_contract() {
 	reset_app_state
 	export TEST_RUNNER_E2E_WIREMOCK_URL="http://localhost:${port}"
 	export TEST_RUNNER_E2E_OUTPUT_DIR="${dir}/results"
-	xcodebuild_test "-only-testing:${CONTRACT_TEST}" -resultBundlePath "${dir}/attempt.xcresult" > "${dir}/runner.log" 2>&1 || status=$?
+	xcodebuild_test "-only-testing:${CONTRACT_TEST}" "-only-testing:${E2E_IOS_UITEST_SCHEME}/SettleWatchTests" \
+		"-only-testing:${E2E_IOS_UITEST_SCHEME}/ObjCCatchTests" "-only-testing:${E2E_IOS_UITEST_SCHEME}/GuardedIncidentTests" \
+		-resultBundlePath "${dir}/attempt.xcresult" > "${dir}/runner.log" 2>&1 || status=$?
 	log "xcodebuild exited ${status}; the probes are read from result.json"
 	if [[ -d "${dir}/results/driver-contract" ]]; then
 		cp -R "${dir}/results/driver-contract/." "${dir}/"
 	fi
-	python3 "${TOOLS}" xctest-contract "${dir}/runner.log" "${status}" "${dir}/result.json" "${dir}"
+	python3 "${TOOLS}" xctest-probes "${dir}/runner.log" "${status}" "${dir}/result.json" "${dir}" "${PROBE_CLASSES}"
 }
 
 cmd_run_scenario() {
