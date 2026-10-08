@@ -20,9 +20,11 @@ private const val MINUTES_PER_HOUR = 60
 private const val DAYS_PER_WEEK = 7
 
 /**
- * The device's clock, read once a minute. It keeps nothing: every collector gets its own ticker,
- * which stops with the screen that was listening. The clock and the time zone come in so a test
- * can say what time it is; the app uses the device's.
+ * The app's clock (the one Koin binds: the system one, or the frozen one of a debug build), read
+ * once a minute. It keeps nothing: every collector gets its own ticker, which stops with the screen
+ * that was listening. The clock and the time zone come in so a test or a debug build can say what
+ * time it is; the time zone is the device's unless told otherwise. A frozen clock does not move: the
+ * ticker keeps waking up, at most once a minute, and the same value is not emitted twice.
  */
 class ScheduleClockDataSource(
 	private val clock: Clock,
