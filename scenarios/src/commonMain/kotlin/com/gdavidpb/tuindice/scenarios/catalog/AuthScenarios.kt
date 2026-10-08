@@ -10,14 +10,12 @@ import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.enterSecureText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
-import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.relaunch
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
-import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
-import com.gdavidpb.tuindice.scenariokit.dsl.waitAnyVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
@@ -33,6 +31,10 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
+
+/** The mock scenario that answers 503 to the dated evaluation until it is set to [MOCK_AVAILABLE]. */
+private const val PENDING_FLUSH_MOCK = "evaluations-pending-sign-out-flush-success"
+private const val MOCK_AVAILABLE = "Available"
 
 /** The arguments of a clean launch, to start the app again the way the scenario started it. */
 private val cleanArguments = Start.Clean().toLaunchSpec().arguments
@@ -50,19 +52,13 @@ private fun StepBuilder.reachSummaryAfterSignIn() {
 }
 
 /**
- * The summary of an account whose password the university rejects: the update dialog may open over it, and
- * "later" closes it.
+ * The summary of an account whose password the university rejects: its sync answers "outdated credentials", so the
+ * update dialog always opens over it, and "later" closes it.
  */
 private fun StepBuilder.reachSummaryPastPasswordDialog() {
-	waitAnyVisible(
-		tag(SummaryUiTags.ContentContainer),
-		tag(AuthUiTags.UpdatePasswordIdleContainer),
-		timeout = Within.Sync
-	)
-	ifVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert) {
-		tap(BaseUiTags.ConfirmationDialogNegativeButton)
-		waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Action)
-	}
+	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Sync)
+	tap(BaseUiTags.ConfirmationDialogNegativeButton)
+	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Action)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
 }
 
@@ -355,15 +351,10 @@ private val authUpdatePassword = scenario(
 		assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, false)
 	}
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
-	waitAnyVisible(
-		tag(AuthUiTags.SignOutSecondaryButton),
-		tag(AuthUiTags.UsbIdTextField),
-		timeout = Within.Sync
-	)
-	ifVisible(AuthUiTags.SignOutSecondaryButton) {
-		tap(AuthUiTags.SignOutSecondaryButton)
-	}
+	// The reissue moved the mock to the state in which the pending change is accepted: the flush that follows the
+	// update sends it and signs out, and never offers "sign out anyway".
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Sync)
+	waitGone(AuthUiTags.SignOutSecondaryButton, Within.Assert)
 }
 
 private val authUpdatePasswordFailure = scenario(
@@ -434,7 +425,11 @@ private val authSignOut = scenario(
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 }
 
-/** Sign-out with a change the backend refuses: flushing fails, and signing out anyway is offered. */
+/**
+ * Sign-out with a change the server cannot take now (its evaluations route answers 503): the change stays pending,
+ * so the flush ends with it still pending and signing out anyway is offered. A 503 says nothing about the
+ * change, so it is never treated as the server refusing it.
+ */
 private val authPendingSignOut = scenario(
 	"auth-pending-sign-out",
 	"auth",
@@ -446,13 +441,20 @@ private val authPendingSignOut = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	addPendingEvaluation(withDate = false)
 	openSignOutFromSummary()
+	waitVisible(text(Copy.SignOutPendingOne), Within.Action)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.SignOutSecondaryButton, Within.Long)
+	waitVisible(text(Copy.SignOutFlushFailedOne), Within.Assert)
+	waitVisible(text(Copy.SignOutAnywayButton), Within.Assert)
 	tap(AuthUiTags.SignOutSecondaryButton)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Long)
 }
 
-/** Sign-out with a change the backend refuses once and then accepts: the flush succeeds and signs out. */
+/**
+ * Sign-out with a change that could not be sent because the server was unavailable: it stays pending, the sheet
+ * says so, and once the server is back the confirmation sends it and signs out. The mock answers 503 to the
+ * dated evaluation until the scenario sets its state to Available.
+ */
 private val authPendingSignOutFlushSuccess = scenario(
 	"auth-pending-sign-out-flush-success",
 	"auth",
@@ -464,7 +466,13 @@ private val authPendingSignOutFlushSuccess = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	addPendingEvaluation(withDate = true)
 	openSignOutFromSummary()
+	waitVisible(text(Copy.SignOutPendingOne), Within.Action)
+	waitVisible(text(Copy.SignOutAndSyncButton), Within.Assert)
+	mockState(PENDING_FLUSH_MOCK, MOCK_AVAILABLE)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
+	// The first attempt (the 503) counts too: that the resend happened is shown by reaching the sign-in
+	// screen without ever offering "sign out anyway", which only a flush that left the change pending does.
+	expectRequest("POST", "/evaluations/v3")
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Sync)
 }
 

@@ -142,6 +142,7 @@ class MockContractTest {
 		const val SEMANTIC_DELAY_MS = 5000.0
 		const val UNAVAILABLE_BODY = "\"bodyFileName\": \"sync/post-sync-record-unavailable.json\""
 
+		private const val PENDING_FLUSH = "evaluations/post-evaluations-pending-sign-out-flush-success"
 		private const val SYNC_RECORD_RETRY = "sync/post-sync-record-refresh-retry-unavailable"
 		private const val SYNC_RETRY = "sync/post-sync-summary-refresh-retry-unavailable"
 		private const val SUMMARY_USER = "summary/get-user-refresh-retry"
@@ -183,7 +184,13 @@ class MockContractTest {
 			"$RECORD_RETRY-unavailable-once-from-start.json" to "\"newScenarioState\": \"FirstFailure\"",
 			"$SYNC_RECORD_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
 			"$SYNC_RECORD_RETRY-after-failure.json" to "\"requiredScenarioState\": \"FirstFailure\"",
-			"$SYNC_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\""
+			"$SYNC_RETRY-while-unavailable.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
+			// A 503 on a change leaves it pending and is sent again: the mock refuses the dated add until the
+			// scenario sets the state Available, and accepts it from then on.
+			"$PENDING_FLUSH-unavailable.json" to "\"requiredScenarioState\": \"Started\"",
+			"$PENDING_FLUSH-unavailable.json" to "\"status\": 503",
+			"$PENDING_FLUSH-success.json" to "\"requiredScenarioState\": \"Available\"",
+			"$PENDING_FLUSH-success.json" to "\"status\": 200"
 		)
 
 		val staleMappings: List<String> = listOf(
@@ -195,7 +202,8 @@ class MockContractTest {
 			"summary/get-user-refresh-retry-fails-android-first-from-start.json",
 			"summary/get-user-refresh-retry-fails-android-second.json",
 			"summary/get-user-refresh-retry-success-ios.json",
-			"sync/post-sync-summary-refresh-retry-unavailable-after-android-failure.json"
+			"sync/post-sync-summary-refresh-retry-unavailable-after-android-failure.json",
+			"evaluations/post-evaluations-pending-sign-out-flush-success-unavailable-once.json"
 		)
 	}
 }

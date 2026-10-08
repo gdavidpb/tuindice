@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.scenarios
 
-import com.gdavidpb.tuindice.scenarios.MockJson.string
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -12,9 +11,6 @@ import kotlin.test.assertTrue
  * status the scenario waits for. The negative cases remove one stub and expect the replay to notice.
  */
 class RetryOrderMocksTest {
-	private val mappingFiles = RepoFiles.allMappings.walkTopDown().filter { it.isFile && it.extension == "json" }
-		.sortedBy { it.path }.toList()
-
 	@Test
 	fun theRecordRetryFailsTheReadOnceWhicheverComesFirstTheSyncOrTheRead() {
 		ordersOf(reads = 2).forEach { order ->
@@ -81,12 +77,9 @@ class RetryOrderMocksTest {
 		)
 	}
 
-	/** The mappings of one WireMock scenario plus the ones with no scenario, as the server holds them. */
-	private fun replay(scenario: String, without: String? = null): MockReplay =
-		MockReplay(
-			mappingFiles.filter { it.name != without }.map { it.name to MockJson.obj(it) }
-				.filter { (_, mapping) -> mapping.string("scenarioName").let { it == null || it == scenario } }
-		)
+	/** The mappings of the given WireMock scenarios plus the ones with no scenario, as the server holds them. */
+	private fun replay(vararg scenarios: String, without: String? = null): MockReplay =
+		MockReplay.of(*scenarios, without = without)
 
 	/** Every placement of one sync among [reads] reads (before, between, after), and two syncs together. */
 	private fun ordersOf(reads: Int): List<String> {
@@ -103,7 +96,7 @@ class RetryOrderMocksTest {
 		val bearer = mapOf("Authorization" to "Bearer record.refresh.retry.mock.access")
 
 		return if (event == 'S') {
-			replay.send("POST", "/record/v5/sync", bearer, password = "record-retry-pass")
+			replay.send("POST", "/record/v5/sync", bearer, body = mapOf("password" to "record-retry-pass"))
 		} else {
 			replay.send("GET", "/record/v5", bearer)
 		}
@@ -116,7 +109,7 @@ class RetryOrderMocksTest {
 		)
 
 		return if (event == 'S') {
-			replay.send("POST", "/record/v5/sync", headers, password = "summary-retry-pass")
+			replay.send("POST", "/record/v5/sync", headers, body = mapOf("password" to "summary-retry-pass"))
 		} else {
 			replay.send("GET", "/users/v1", headers)
 		}

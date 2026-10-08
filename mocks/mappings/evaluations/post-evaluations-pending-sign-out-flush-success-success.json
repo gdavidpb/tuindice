@@ -1,8 +1,8 @@
 {
   "priority": 1,
   "scenarioName": "evaluations-pending-sign-out-flush-success",
-  "requiredScenarioState": "MutationFailedOnce",
-  "newScenarioState": "MutationSynced",
+  "requiredScenarioState": "Available",
+  "newScenarioState": "Delivered",
   "request": {
     "method": "POST",
     "urlPath": "/evaluations/v3",

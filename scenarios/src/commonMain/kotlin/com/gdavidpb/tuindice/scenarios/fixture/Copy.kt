@@ -10,6 +10,11 @@ object Copy {
 	const val UsbEmailHint = "Correo USB"
 	const val InvalidUsbIdCredentials = "Revisa tu USBID y contraseña"
 	const val SignInServiceUnavailable = "Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento."
+	const val SignOutPendingOne =
+		"Tienes 1 cambio pendiente de sincronización. Intentaremos enviarlo antes de cerrar sesión."
+	const val SignOutFlushFailedOne = "No pudimos enviar 1 cambio pendiente. Puedes reintentar o cerrar sesión igualmente."
+	const val SignOutAndSyncButton = "Enviar y cerrar sesión"
+	const val SignOutAnywayButton = "Cerrar igualmente"
 
 	// maincore
 	const val ExternalLinkDialogTitle = "Abrir enlace externo"
@@ -21,6 +26,9 @@ object Copy {
 	const val RecordAccessDeniedTitle = "No pudimos consultar tu expediente"
 	const val RecordAccessDeniedMessage =
 		"La universidad no nos permite consultar tu expediente ahora. Mantenemos tus datos anteriores."
+	const val RecordUnavailableSyncMessage =
+		"No pudimos actualizar tus notas porque el servicio de la universidad no está disponible. " +
+			"Tus datos anteriores se mantienen y volveremos a intentar más tarde."
 	const val EnrollmentUnavailableSyncMessage =
 		"No pudimos actualizar tu inscripción porque el servicio de la universidad no está disponible. " +
 			"Tus datos anteriores se mantienen y volveremos a intentar más tarde."
@@ -77,12 +85,21 @@ object Copy {
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),
 		CopyBinding.Resource(InvalidUsbIdCredentials, "auth", "error_invalid_usb_id_credentials"),
 		CopyBinding.Resource(SignInServiceUnavailable, "auth", "sign_in_service_unavailable"),
+		CopyBinding.Resource(SignOutPendingOne, "auth", "dialog_message_sign_out_pending[one]", listOf("1")),
+		CopyBinding.Resource(SignOutFlushFailedOne, "auth", "dialog_message_sign_out_flush_failed[one]", listOf("1")),
+		CopyBinding.Resource(SignOutAndSyncButton, "auth", "dialog_button_sign_out_and_sync"),
+		CopyBinding.Resource(SignOutAnywayButton, "auth", "dialog_button_sign_out_anyway"),
 		CopyBinding.Resource(ExternalLinkDialogTitle, "maincore", "dialog_title_warning_external"),
 		CopyBinding.Supplied(NoticeTitle, "AVAILABILITY_NOTICE_TITLE launch argument"),
 		CopyBinding.Supplied(NoticeMessage, "AVAILABILITY_NOTICE_MESSAGE launch argument"),
 		CopyBinding.Resource(NewStudentNoRecordTitle, "base", "new_student_no_record_title"),
 		CopyBinding.Resource(RecordAccessDeniedTitle, "summary", "dialog_title_record_access_denied"),
 		CopyBinding.Resource(RecordAccessDeniedMessage, "summary", "dialog_message_record_access_denied"),
+		CopyBinding.Resource(
+			RecordUnavailableSyncMessage,
+			"summary",
+			"dialog_message_sync_sources_record_unavailable"
+		),
 		CopyBinding.Resource(
 			EnrollmentUnavailableSyncMessage,
 			"summary",
