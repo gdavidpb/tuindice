@@ -151,6 +151,8 @@ run_deploy_preflight() {
 	MISSING_VERSION_BUMP_FILE="${DETECT_STATE_DIR}/missing-version-bump.txt" \
 	E2E_ANDROID_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-android-contexts.txt" \
 	E2E_IOS_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-ios-contexts.txt" \
+	E2E_SCOPE_FILE="${DETECT_STATE_DIR}/e2e-scope.csv" \
+	E2E_EVIDENCE_SCOPE=merged \
 	REQUIRES_E2E_CERTIFICATION="${requires_e2e_certification:-false}" \
 	HAS_RELEVANT_CHANGES="$has_relevant_changes" \
 	APP_VERSION_CHANGED="$app_version_changed" \

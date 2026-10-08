@@ -172,13 +172,25 @@ class BaseRefTests(unittest.TestCase):
         def creators(**env):
             done = subprocess.run(["bash", "-c", 'source "$1"; e2e_trusted_status_creators "$2"', "_", COMMON, "owner"],
                 env=dict(os.environ, **env), stdout=subprocess.PIPE, universal_newlines=True)
-            return done.stdout.split()
+            return done.stdout.splitlines()
 
         # The owner alone: the Actions bot cannot be told apart from a workflow of a branch, so it is trusted only when
         # E2E_TRUSTED_STATUS_CREATORS says so.
         self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS=""), ["owner"])
         self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS="a,b"), ["a", "b"])
         self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS="owner,github-actions[bot]"), ["owner", "github-actions[bot]"])
+
+    def test_zd6_the_trusted_creators_are_trimmed_and_empty_entries_dropped_as_the_verdict_reads_them(self):
+        def creators(value):
+            done = subprocess.run(["bash", "-c", 'source "$1"; e2e_trusted_status_creators "$2"', "_", COMMON, "owner"],
+                env=dict(os.environ, E2E_TRUSTED_STATUS_CREATORS=value), stdout=subprocess.PIPE, universal_newlines=True)
+            return done.stdout.splitlines()
+
+        self.assertEqual(creators("a , b"), ["a", "b"])
+        self.assertEqual(creators(" a,b "), ["a", "b"])
+        self.assertEqual(creators("a,,b,"), ["a", "b"])
+        self.assertEqual(creators("owner, github-actions[bot]"), ["owner", "github-actions[bot]"])
+        self.assertEqual(creators("   "), [], "a list of only spaces trusts nobody")
 
 
 class ScopeChainTests(unittest.TestCase):

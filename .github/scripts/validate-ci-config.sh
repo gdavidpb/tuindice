@@ -36,6 +36,24 @@ fi
 # The jobs run code of the pull request: no job writes commit statuses (the owner publishes the evidence), and no token is left in .git/config except in shared-preflight, which may have to fetch a commit.
 bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$preflight_workflow" --credentials shared-preflight
 
+# The two invocations of the preflight (the workflow of a pull request and the stage, through deploy-production.sh) pass the
+# same certification flag, contexts and scope: the check that an empty context file is a wiring fault needs the scope, and
+# one invocation without it would print "required and validated" for nothing. Only the stage asks for the merged scope.
+for variable in E2E_ANDROID_CONTEXTS_FILE E2E_IOS_CONTEXTS_FILE E2E_SCOPE_FILE REQUIRES_E2E_CERTIFICATION; do
+	if ! grep -q "^[[:space:]]*${variable}: " "$preflight_workflow"; then
+		die "The pull request preflight step does not pass ${variable} to preflight-production.sh."
+	fi
+	if ! grep -q "^[[:space:]]*${variable}=" "${SCRIPT_DIR}/deploy-production.sh"; then
+		die "deploy-production.sh does not pass ${variable} to preflight-production.sh (the stage and the pull request must pass the same contexts and scope)."
+	fi
+done
+if ! grep -q '^[[:space:]]*E2E_EVIDENCE_SCOPE=merged' "${SCRIPT_DIR}/deploy-production.sh"; then
+	die "deploy-production.sh must pass E2E_EVIDENCE_SCOPE=merged to preflight-production.sh: the stage accepts the evidence of the merged commits."
+fi
+if grep -q 'E2E_EVIDENCE_SCOPE' "$preflight_workflow"; then
+	die "The pull request workflow must not set E2E_EVIDENCE_SCOPE: in a pull request the evidence has to be on the head."
+fi
+
 # Documents and skills run the vocabulary gate alone: the detector's output must reach a step of the shared job.
 if ! awk '/vocabulary_gate_required/ { outputs += 1 } /verify-e2e-vocabulary\.sh/ { runs = 1 } END { exit !(outputs >= 2 && runs) }' "$preflight_workflow"; then
 	die "shared-preflight must expose vocabulary_gate_required and run e2e/tools/verify/verify-e2e-vocabulary.sh when it is true."

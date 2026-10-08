@@ -20,59 +20,9 @@ TARGET_SHA="$(git -C "${REPO_ROOT}" rev-parse HEAD)"
 # The default trust list is the one under test; a variable of the caller must not change it.
 unset E2E_TRUSTED_STATUS_CREATORS
 
-run_preflight_fixture() {
-	local name="$1"
-	local curl_mode="$2"
-	local expected_status="$3"
-	local temp_dir
-	local bin_dir
-	local status_file
-	local summary_file
-	local android_contexts_file
-	local ios_contexts_file
-	local missing_version_file
-	local fingerprint_script
-	local output_file
-	local post_log
-	local status
-
-	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-preflight-test.XXXXXX")"
-	bin_dir="${temp_dir}/bin"
-	status_file="${temp_dir}/missing-e2e-statuses.txt"
-	summary_file="${temp_dir}/summary.md"
-	android_contexts_file="${temp_dir}/android-contexts.txt"
-	ios_contexts_file="${temp_dir}/ios-contexts.txt"
-	missing_version_file="${temp_dir}/missing-version.txt"
-	fingerprint_script="${temp_dir}/fingerprint.sh"
-	output_file="${temp_dir}/output.log"
-	post_log="${temp_dir}/writes.log"
-	: >"${post_log}"
-	mkdir -p "${bin_dir}"
-
-	if [[ -n "${TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS:-}" ]]; then
-		: >"${android_contexts_file}"
-	else
-		printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
-	fi
-	: >"${ios_contexts_file}"
-	# The scope the detector wrote (one "platform,suite,reason" line per platform); empty unless a fixture sets it.
-	scope_file="${temp_dir}/e2e-scope.csv"
-	printf '%s' "${TUINDICE_PREFLIGHT_TEST_SCOPE:-}" >"${scope_file}"
-	: >"${missing_version_file}"
-	cat >"${fingerprint_script}" <<'SH'
-#!/usr/bin/env bash
-set -euo pipefail
-# The fingerprint is a function of the ref: with TUINDICE_PREFLIGHT_TEST_OTHER_FP set, every ref but the target's
-# has another one, as a commit whose tree differs would.
-if [[ -n "${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" && "$3" != "${TUINDICE_PREFLIGHT_TEST_TARGET_SHA:-}" ]]; then
-	printf 'other-fingerprint-%s-%s\n' "$1" "$2"
-else
-	printf 'fixture-fingerprint-%s-%s\n' "$1" "$2"
-fi
-SH
-	chmod +x "${fingerprint_script}"
-
-	cat >"${bin_dir}/curl" <<'SH'
+# The curl stand-in: answers the GETs of the preflight from fixtures and logs every request that is not a GET.
+write_curl_stub() {
+	cat >"$1/curl" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -83,15 +33,21 @@ url=""
 
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
-		-X)
+		-X|--request)
 			method="$2"
 			shift 2
 			;;
-		--data|--data-urlencode|-d)
+		-X?*)
+			method="${1#-X}"
+			shift
+			;;
+		--data|--data-raw|--data-binary|--data-urlencode|-d|--json|--form|-F)
+			# A body makes the request a POST unless a method was given.
 			payload="$2"
+			[[ "${method}" != "GET" ]] || method="POST"
 			shift 2
 			;;
-		-H|--header|--request|--output|--retry|--retry-delay)
+		-H|--header|--output|--retry|--retry-delay)
 			shift 2
 			;;
 		--fail|--silent|--show-error)
@@ -122,6 +78,7 @@ if [[ "${url}" == *"/commits/"*"/pulls" ]]; then
 fi
 
 if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
+	printf '%s\n' "${url}" >>"${TUINDICE_PREFLIGHT_TEST_GET_LOG:-/dev/null}"
 	# The list endpoint (plural /statuses) returns a bare array of full status
 	# objects, creator included -- unlike the combined-status endpoint
 	# (singular /status), which never includes creator. preflight-production.sh
@@ -139,6 +96,9 @@ if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
+	elif [[ "${mode}" == "bot-newer-than-owner" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		# Newest first: the Actions bot posted after the owner, and the owner's status is still the evidence.
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"github-actions[bot]"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."},{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "bot-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"github-actions[bot]"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
@@ -161,7 +121,64 @@ fi
 
 printf '{}\n'
 SH
-	chmod +x "${bin_dir}/curl"
+	chmod +x "$1/curl"
+}
+
+run_preflight_fixture() {
+	local name="$1"
+	local curl_mode="$2"
+	local expected_status="$3"
+	local temp_dir
+	local bin_dir
+	local status_file
+	local summary_file
+	local android_contexts_file
+	local ios_contexts_file
+	local missing_version_file
+	local fingerprint_script
+	local output_file
+	local post_log
+	local status
+
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-preflight-test.XXXXXX")"
+	bin_dir="${temp_dir}/bin"
+	status_file="${temp_dir}/missing-e2e-statuses.txt"
+	summary_file="${temp_dir}/summary.md"
+	android_contexts_file="${temp_dir}/android-contexts.txt"
+	ios_contexts_file="${temp_dir}/ios-contexts.txt"
+	missing_version_file="${temp_dir}/missing-version.txt"
+	fingerprint_script="${temp_dir}/fingerprint.sh"
+	output_file="${temp_dir}/output.log"
+	post_log="${temp_dir}/writes.log"
+	get_log="${temp_dir}/statuses-gets.log"
+	: >"${post_log}"
+	: >"${get_log}"
+	mkdir -p "${bin_dir}"
+
+	if [[ -n "${TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS:-}" ]]; then
+		: >"${android_contexts_file}"
+	else
+		printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
+	fi
+	: >"${ios_contexts_file}"
+	# The scope the detector wrote (one "platform,suite,reason" line per platform); empty unless a fixture sets it.
+	scope_file="${temp_dir}/e2e-scope.csv"
+	printf '%s' "${TUINDICE_PREFLIGHT_TEST_SCOPE:-}" >"${scope_file}"
+	: >"${missing_version_file}"
+	cat >"${fingerprint_script}" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+# The fingerprint is a function of the ref: with TUINDICE_PREFLIGHT_TEST_OTHER_FP set, every ref but the target's
+# has another one, as a commit whose tree differs would.
+if [[ -n "${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" && "$3" != "${TUINDICE_PREFLIGHT_TEST_TARGET_SHA:-}" ]]; then
+	printf 'other-fingerprint-%s-%s\n' "$1" "$2"
+else
+	printf 'fixture-fingerprint-%s-%s\n' "$1" "$2"
+fi
+SH
+	chmod +x "${fingerprint_script}"
+
+	write_curl_stub "${bin_dir}"
 
 	set +e
 	(
@@ -172,6 +189,8 @@ SH
 		TUINDICE_PREFLIGHT_TEST_OLD_SHA="${TUINDICE_PREFLIGHT_TEST_OLD_SHA:-}" \
 		TUINDICE_PREFLIGHT_TEST_PR_HEAD="${TUINDICE_PREFLIGHT_TEST_PR_HEAD:-}" \
 		TUINDICE_PREFLIGHT_TEST_POST_LOG="${post_log}" \
+		TUINDICE_PREFLIGHT_TEST_GET_LOG="${get_log}" \
+		E2E_EVIDENCE_SCOPE="${TUINDICE_PREFLIGHT_TEST_EVIDENCE_SCOPE-merged}" \
 		GITHUB_EVENT_NAME="${TUINDICE_PREFLIGHT_TEST_EVENT:-}" \
 		TUINDICE_PREFLIGHT_TEST_OTHER_FP="${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" \
 		GITHUB_REPOSITORY="gdavidpb/tuindice" \
@@ -226,6 +245,29 @@ SH
 			if ! grep -q 'Found successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not accept the direct E2E status.\n' "${name}" >&2
 				cat "${output_file}" >&2
+				exit 1
+			fi
+			if ! grep -q 'Trusted E2E status creators: gdavidpb$' "${summary_file}"; then
+				printf 'Preflight fixture %s did not print the effective trust list in the summary.\n' "${name}" >&2
+				cat "${summary_file}" >&2
+				exit 1
+			fi
+			;;
+		strict-without-scope|strict-merge-group|merged-scope-never-in-a-pull-request)
+			# ZD-3: the evidence has to be on the head unless the caller asked for the merged scope, and a pull request
+			# never gets it.
+			if ! grep -q "is on .* but not on the head" "${output_file}" || grep -q 'Reused successful E2E status' "${output_file}"; then
+				printf 'Preflight fixture %s accepted evidence that is not on the head.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		trusted-list-with-spaces)
+			# ZD-6: the list is trimmed as the harness trims it, the summary shows it, and the bot in it is called out.
+			if ! grep -q 'Trusted E2E status creators: gdavidpb, github-actions\[bot\]$' "${summary_file}" ||
+				! grep -q 'trusts the Actions bot' "${output_file}"; then
+				printf 'Preflight fixture %s did not show the effective list or warn about the bot.\n' "${name}" >&2
+				cat "${output_file}" "${summary_file}" >&2
 				exit 1
 			fi
 			;;
@@ -290,6 +332,17 @@ SH
 			if ! grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not report missing evidence.\n' "${name}" >&2
 				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+	esac
+
+	# ZD-13: a candidate that measures another fingerprint is never asked about, so only the target is queried.
+	case "${name}" in
+		reuse-other-fingerprint)
+			if [[ ! -s "${get_log}" ]] || [[ -n "$(grep -v "/commits/${TARGET_SHA}/statuses" "${get_log}" || true)" ]]; then
+				printf 'Preflight fixture %s asked GitHub about commits other than the target:\n' "${name}" >&2
+				cat "${get_log}" >&2
 				exit 1
 			fi
 			;;
@@ -363,5 +416,55 @@ E2E_TRUSTED_STATUS_CREATORS='gdavidpb,github-actions[bot]' TUINDICE_PREFLIGHT_TE
 # commit (reuse-from-base above) and, after a squash, on the head of the pull request the API associates with the commit.
 TUINDICE_PREFLIGHT_TEST_EVENT=push TUINDICE_PREFLIGHT_TEST_REUSE_BASE="${BASE_PARENT_SHA}" TUINDICE_PREFLIGHT_TEST_OLD_SHA="${OLDER_SHA}" \
 	TUINDICE_PREFLIGHT_TEST_PR_HEAD="${OLDER_SHA}" run_preflight_fixture stage-squash reuse-only-old-sha success
+
+# ZD-3: accepting the evidence of the merged commits is asked for by the caller (the stage), it is not what a missing or
+# unexpected event gets, and a pull request never gets it...
+TUINDICE_PREFLIGHT_TEST_EVIDENCE_SCOPE= run_preflight_fixture strict-without-scope reuse-success failure
+TUINDICE_PREFLIGHT_TEST_EVIDENCE_SCOPE= TUINDICE_PREFLIGHT_TEST_EVENT=merge_group run_preflight_fixture strict-merge-group reuse-success failure
+TUINDICE_PREFLIGHT_TEST_EVENT=pull_request run_preflight_fixture merged-scope-never-in-a-pull-request reuse-success failure
+# ZD-6: a space after the comma in the list is trimmed (the harness trims it too) and the bot in it is called out.
+E2E_TRUSTED_STATUS_CREATORS='gdavidpb, github-actions[bot]' TUINDICE_PREFLIGHT_TEST_EVENT=pull_request \
+	run_preflight_fixture trusted-list-with-spaces bot-status success
+# ZD-9: a later status of someone else does not hide the owner's evidence on the head.
+TUINDICE_PREFLIGHT_TEST_EVENT=pull_request run_preflight_fixture bot-newer-than-owner bot-newer-than-owner success
+
+# ZD-7: the curl stand-in logs every way of writing, not only `-X`; a stand-in that missed one would let a write pass.
+stub_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-preflight-stub.XXXXXX")"
+write_curl_stub "${stub_dir}"
+stub_write_url="https://api.github.test/repos/gdavidpb/tuindice/statuses/abc"
+expect_stub_write() {
+	local label="$1"
+	shift
+	: >"${stub_dir}/writes.log"
+	TUINDICE_PREFLIGHT_TEST_CURL_MODE=none TUINDICE_PREFLIGHT_TEST_POST_LOG="${stub_dir}/writes.log" \
+		TUINDICE_PREFLIGHT_TEST_TARGET_SHA=none "${stub_dir}/curl" "$@" >/dev/null
+	if [[ ! -s "${stub_dir}/writes.log" ]]; then
+		printf 'The curl stand-in did not log a write made with %s.\n' "${label}" >&2
+		exit 1
+	fi
+}
+expect_stub_write '-X POST' -X POST "${stub_write_url}"
+expect_stub_write '--request POST' --request POST "${stub_write_url}"
+expect_stub_write '-XPOST' -XPOST "${stub_write_url}"
+expect_stub_write '--data (implicit POST)' --data 'state=success' "${stub_write_url}"
+expect_stub_write '-d (implicit POST)' -d 'state=success' "${stub_write_url}"
+expect_stub_write '--data-raw' --data-raw 'x' "${stub_write_url}"
+expect_stub_write '--json' --json '{}' "${stub_write_url}"
+expect_stub_write '--form' --form 'a=b' "${stub_write_url}"
+: >"${stub_dir}/writes.log"
+TUINDICE_PREFLIGHT_TEST_CURL_MODE=none TUINDICE_PREFLIGHT_TEST_POST_LOG="${stub_dir}/writes.log" \
+	TUINDICE_PREFLIGHT_TEST_TARGET_SHA=none "${stub_dir}/curl" --fail --silent -H 'A: b' "${stub_write_url}" >/dev/null
+if [[ -s "${stub_dir}/writes.log" ]]; then
+	printf 'The curl stand-in logged a plain GET as a write.\n' >&2
+	exit 1
+fi
+# ...and neither script that reads statuses can write one: no request to a statuses/<sha> URL, no gh api, no write method.
+for script_file in preflight-production.sh deploy-production.sh; do
+	write_routes="$(grep -nE -e '/statuses/|gh +api|(-X|--request)[ =]+(POST|PUT|PATCH|DELETE)|--data|--json' "${SCRIPT_DIR}/${script_file}" || true)"
+	if [[ -n "${write_routes}" ]]; then
+		printf '%s has a route that writes to GitHub:\n%s\n' "${script_file}" "${write_routes}" >&2
+		exit 1
+	fi
+done
 
 printf 'Preflight production shell fixtures passed.\n'

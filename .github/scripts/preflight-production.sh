@@ -49,14 +49,16 @@ record_missing_e2e_status() {
 }
 
 # The commit statuses are written only by the repository owner, from the machine that ran the evidence: this script
-# (the workflow of a pull request and the stage) reads them and never publishes. In a pull request the evidence has
-# to be on the head itself; the stage, which runs on the commit production now points at, also accepts it on the
-# commits that were merged (the ancestors of a merge commit, the head of the squashed pull request).
+# (the workflow of a pull request and the stage) reads them and never publishes. The evidence has to be on the target
+# commit itself unless the caller asked for the merged scope (E2E_EVIDENCE_SCOPE=merged, which deploy-production.sh sets for
+# the stage: it runs on the commit production now points at, so it also accepts the evidence on the commits that were
+# merged, the ancestors of a merge commit and the head of the squashed pull request). A missing or unexpected event
+# gets the strict rule, and a pull request gets it whatever the variable says.
 evidence_must_be_on_target() {
 	case "${GITHUB_EVENT_NAME:-}" in
 		pull_request | pull_request_target) return 0 ;;
 	esac
-	return 1
+	[[ "${E2E_EVIDENCE_SCOPE:-}" != "merged" ]]
 }
 
 # The command that puts evidence the harness already holds, or that sits on an ancestor, on the head.
@@ -108,18 +110,24 @@ github_commit_status_payload_at_sha() {
 	# The combined-status endpoint (singular /status) never includes `creator`
 	# on its per-status entries, so the trust check below always saw an empty
 	# creator regardless of who published it. Only the list endpoint (plural
-	# /statuses) returns the full status objects, creator included.
+	# /statuses) returns the full status objects, creator included. The newest status of a trusted creator is the one
+	# that decides: a later status of anyone else (any workflow of a branch can post one) must not hide it. When no
+	# trusted creator posted any, the newest of the context is returned so that the caller can say who it was.
 	curl --fail --silent --show-error --retry 3 \
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
 		"${api_url}/repos/${repository}/commits/${sha}/statuses" \
-		| jq -c --arg context "$context" '[.[] | select(.context == $context)][0] // empty'
+		| jq -c --arg context "$context" --argjson trusted "$(trusted_status_creators | jq -R . | jq -sc .)" '
+			[.[] | select(.context == $context)] as $all
+			| ([$all[] | select((.creator.login // "") as $login | [$trusted[] | select(. == $login)] | length > 0)][0])
+				// $all[0] // empty'
 }
 
 # Statuses are trusted only when created by the repository owner (or whoever
-# E2E_TRUSTED_STATUS_CREATORS names); the Actions bot is not in the default,
-# since a workflow of a branch publishes as the same identity.
+# E2E_TRUSTED_STATUS_CREATORS names, trimmed and without empty entries, as the harness
+# reads it); the Actions bot is not in the default, since a workflow of a branch
+# publishes as the same identity.
 trusted_status_creators() {
 	local repository="${GITHUB_REPOSITORY:-}"
 	local owner="${repository%%/*}"
@@ -264,10 +272,11 @@ e2e_reuse_candidate_commits() {
 			git merge-base --is-ancestor "$E2E_REUSE_BASE_SHA" "$TARGET_GIT_SHA" 2>/dev/null; then
 			# The base itself counts: `rev-list A ^B` excludes B, which left an
 			# up-to-date PR — the state branch protection requires to merge —
-			# unable to reuse evidence from production, while an out-of-date one
-			# reached it through the unbounded fallback below. Every candidate
-			# still has to match the fingerprint, so including it cannot loosen
-			# what "certified" means.
+			# without the base as the commit that holds the evidence, while an
+			# out-of-date one reached it through the unbounded fallback below.
+			# (Only the stage reuses; in a pull request a candidate is just the
+			# commit the guidance names.) Every candidate still has to match the
+			# fingerprint, so including it cannot loosen what "certified" means.
 			git rev-list "$TARGET_GIT_SHA" "^${E2E_REUSE_BASE_SHA}"
 			printf '%s\n' "$E2E_REUSE_BASE_SHA"
 		else
@@ -295,9 +304,8 @@ find_reusable_status_commit() {
 	current_fingerprint="$(e2e_fingerprint "$TARGET_GIT_SHA" "$platform" "$suite")"
 	while IFS= read -r candidate_sha; do
 		[[ -n "$candidate_sha" ]] || continue
-		candidate_description="$(status_context_success_description_at_sha "$candidate_sha" "$context" || true)"
-		[[ -n "$candidate_description" ]] || continue
-
+		# The fingerprint costs git only; the status costs a request, and a branch has hundreds of candidates: ask GitHub
+		# only about a commit that measures what the target measures.
 		if ! ensure_commit_available "$candidate_sha"; then
 			warn "Skipping E2E reuse candidate ${candidate_sha}: commit is not fetchable."
 			continue
@@ -307,6 +315,9 @@ find_reusable_status_commit() {
 		if [[ "$candidate_fingerprint" != "$current_fingerprint" ]]; then
 			continue
 		fi
+
+		candidate_description="$(status_context_success_description_at_sha "$candidate_sha" "$context" || true)"
+		[[ -n "$candidate_description" ]] || continue
 
 		# The candidate's own description has to name its fingerprint too. Matching
 		# trees only proves the candidate *could* have been certified; without this
@@ -362,6 +373,25 @@ verify_contexts_file() {
 	return 0
 }
 
+# The logins that count as evidence creators, as the caller configured them: shown in the summary, and called out when the
+# Actions bot is among them (any workflow of a branch publishes as it, so the evidence would no longer be the owner's).
+effective_trusted_creators_csv() {
+	local creators
+
+	creators="$(trusted_status_creators | paste -sd, -)"
+	printf '%s\n' "${creators//,/, }"
+}
+
+announce_trusted_creators() {
+	local trusted
+
+	while IFS= read -r trusted; do
+		if [[ "$trusted" == "github-actions[bot]" ]]; then
+			warn "E2E_TRUSTED_STATUS_CREATORS trusts the Actions bot: a workflow of any branch can publish E2E evidence that counts."
+		fi
+	done < <(trusted_status_creators)
+}
+
 write_summary() {
 	{
 		printf '## Production preflight summary\n\n'
@@ -376,6 +406,7 @@ write_summary() {
 		fi
 		if [[ "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
 			printf -- '- Local E2E certification: required and validated\n'
+			printf -- '- Trusted E2E status creators: %s\n' "$(effective_trusted_creators_csv)"
 		else
 			printf -- '- Local E2E certification: not required for this diff\n'
 		fi
@@ -418,6 +449,7 @@ if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "
 			esac
 		done <"$E2E_SCOPE_FILE"
 	fi
+	announce_trusted_creators
 	: >"$MISSING_E2E_STATUSES_FILE"
 	e2e_status_check_failed=false
 	verify_contexts_file "$E2E_ANDROID_CONTEXTS_FILE" android || e2e_status_check_failed=true
