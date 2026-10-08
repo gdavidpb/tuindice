@@ -380,6 +380,20 @@ class IosDeviceTests(unittest.TestCase):
         self.assertIn("is of type com.apple.CoreSimulator.SimDeviceType.iPhone-17, the lock pins", done.stderr)
         self.assertEqual([c for c in box.calls(box.xcrun) if c.split()[1] in ("boot", "erase", "shutdown", "create")], [])
 
+    @support.requires_macos("ios/device.sh writes the simulator settings through the host `defaults` command")
+    def test_a_simctl_that_does_not_report_the_device_type_says_it_could_not_verify_it(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("type", "omit\n", box.xcrun)
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn("did not report the device type", done.stderr)
+        self.assertIs(done.json["deviceTypeVerified"], False)
+        box.write("type", "com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro\n", box.xcrun)
+        again = box.run("ensure")
+        self.assertIs(again.json["deviceTypeVerified"], True)
+        self.assertNotIn("did not report the device type", again.stderr)
+
     def test_a_simctl_that_fails_is_not_an_absent_simulator(self):
         box = Sandbox(self, "ios")
         box.write("list-fails", "", box.xcrun)

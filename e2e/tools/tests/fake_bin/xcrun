@@ -4,7 +4,7 @@
 #   ignore            "<domain> <key>" lines whose `defaults write` is silently ignored
 #   fail-first-write  while this file exists, the next `defaults write` fails (like a booted simulator that does not answer) and removes it
 #   list-fails        while this file exists, `simctl list devices` fails
-#   type              the deviceTypeIdentifier `simctl list devices` reports for the simulator (default: the pinned one)
+#   type              the deviceTypeIdentifier `simctl list devices` reports for the simulator (default: the pinned one; "omit": none)
 #   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
 #   terminate.answer  with terminate.rc (default 3): `simctl terminate` fails with this message
 #   tests.list        identifiers the fake xcodebuild enumerates (with their trailing parentheses)
@@ -43,8 +43,9 @@ case "${verb}" in
 				fi
 				if [[ -f "${dir}/sim" ]]; then
 					read -r id state < "${dir}/sim"
-					printf '{"devices":{"%s":[{"udid":"%s","name":"TuIndice-E2E","state":"%s","deviceTypeIdentifier":"%s"}]}}\n' \
-						"${runtime}" "${id}" "${state}" "$(cat "${dir}/type" 2> /dev/null || echo com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro)"
+					type="$(cat "${dir}/type" 2> /dev/null || echo com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro)"
+					if [[ "${type}" == "omit" ]]; then field=""; else field=",\"deviceTypeIdentifier\":\"${type}\""; fi
+					printf '{"devices":{"%s":[{"udid":"%s","name":"TuIndice-E2E","state":"%s"%s}]}}\n' "${runtime}" "${id}" "${state}" "${field}"
 				else
 					echo '{"devices":{}}'
 				fi

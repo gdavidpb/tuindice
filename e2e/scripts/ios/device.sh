@@ -136,7 +136,7 @@ cmd_toolchain() {
 }
 
 cmd_ensure() {
-	local created=false booted_by_harness=false recovered=false model size
+	local created=false booted_by_harness=false recovered=false type_verified=true model size
 	if ! find_simulator; then
 		[[ -n "$(simctl_query runtimes "next((r['identifier'] for r in data['runtimes'] if r['identifier'] == '${IOS_RUNTIME_ID}' and r['isAvailable']), '')")" ]] ||
 			fail "The runtime ${IOS_RUNTIME_ID} is not installed"
@@ -145,7 +145,10 @@ cmd_ensure() {
 		TYPE="${IOS_DEVICE_TYPE_ID}"
 		created=true
 	fi
-	if [[ "${TYPE}" != "-" && "${TYPE}" != "${IOS_DEVICE_TYPE_ID}" ]]; then
+	if [[ "${TYPE}" == "-" ]]; then
+		type_verified=false
+		log "simctl did not report the device type of ${UDID}: ${IOS_DEVICE_TYPE_ID} from the lock is not verified for it."
+	elif [[ "${TYPE}" != "${IOS_DEVICE_TYPE_ID}" ]]; then
 		fail "The simulator ${IOS_SIMULATOR_NAME} (${UDID}) is of type ${TYPE}, the lock pins ${IOS_DEVICE_TYPE_ID}; delete it so that ensure creates the pinned one"
 	fi
 	case "${STATE}" in
@@ -176,7 +179,7 @@ cmd_ensure() {
 	fi
 	model="$(simctl_query devicetypes "next((t['name'] for t in data['devicetypes'] if t['identifier'] == '${IOS_DEVICE_TYPE_ID}'), '')")"
 	emit_json "id=s:${UDID}" "model=s:${model}" "created=j:${created}" "bootedByHarness=j:${booted_by_harness}" \
-		"recoveredAtEnsure=j:${recovered}" "bootedAt=j:null" "dataDirGb=j:$(data_gb)" "settings=j:${SETTINGS_JSON}"
+		"recoveredAtEnsure=j:${recovered}" "deviceTypeVerified=j:${type_verified}" "bootedAt=j:null" "dataDirGb=j:$(data_gb)" "settings=j:${SETTINGS_JSON}"
 }
 
 cmd_health() {
