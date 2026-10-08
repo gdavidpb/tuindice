@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-07 20:32:18 -0300_
+_Generated automatically on 2026-10-07 20:57:44 -0300_
 
 ## Summary by module
 
@@ -130,7 +130,7 @@ _Generated automatically on 2026-10-07 20:32:18 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPickerUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContent.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContentUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 7 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 6 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 7 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedViewUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPickerUiTest.kt` | 3 | PASS threshold (2) |
