@@ -22398,10 +22398,17 @@
                     "type": "tap"
                 },
                 {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 135
+                    },
+                    "type": "foreground"
+                },
+                {
                     "platform": "ios",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 137
+                        "line": 139
                     },
                     "steps": [
                         {
@@ -22412,19 +22419,36 @@
                             "requireEnabled": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                                "line": 138
+                                "line": 140
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "maincore_browser_container"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                                "line": 141
+                            },
+                            "timeoutMs": 10000,
+                            "type": "waitVisible"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "maincore_tuindice_top_bar_back_button"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                                "line": 142
                             },
                             "type": "tap"
                         }
                     ],
                     "type": "onPlatform"
-                },
-                {
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 140
-                    },
-                    "type": "foreground"
                 },
                 {
                     "q": {
@@ -22697,7 +22721,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "09dc7a04232ea7f1",
+            "stepsHash": "1aae41b96e105783",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -22785,7 +22809,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 156
+                        "line": 159
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -22797,7 +22821,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 157
+                        "line": 160
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22810,7 +22834,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 158
+                        "line": 161
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -22822,55 +22846,55 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 159
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "about_usage_data_consent_toggle"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 160
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "about_content_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 161
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "about_usage_data_consent_toggle"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
                         "line": 162
                     },
-                    "type": "tap"
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
                 },
                 {
                     "q": {
                         "type": "tag",
-                        "value": "about_content_container"
+                        "value": "about_usage_data_consent_toggle"
                     },
+                    "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
                         "line": 163
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 164
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_usage_data_consent_toggle"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 165
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 166
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"

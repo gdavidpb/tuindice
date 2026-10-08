@@ -132,12 +132,15 @@ private val aboutPlatformEdgeTriggers = scenario(
 	openAbout()
 	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ShareApp)
-	// Android's chooser has no cancel or close button (it goes when the app is brought back); iOS's sheet is
-	// closed by the dimmed area around it, whatever the language of the device.
+	foreground()
+	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet is
+	// closed by the dimmed area around it, and that tap lands on the row of the About list beneath it, which opens
+	// an in-app browser page: the scenario goes back from it, as it does from the pages the other triggers open.
 	onPlatform(Platform.Ios) {
 		tap(system(POPOVER_DISMISS_REGION))
+		waitVisible(MaincoreUiTags.BrowserContainer, Within.Action)
+		tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	}
-	foreground()
 	returnToAbout()
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore)
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper)
