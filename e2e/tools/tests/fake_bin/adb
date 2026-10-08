@@ -15,7 +15,7 @@
 #   contract-files/   copied into the runner's output directory by such a run
 #                     plus the typingSeries test, skipped as it is without -e typingSeries
 #   instrument.hang   exists: a scenario run never ends
-#   testfiles/<path>  what `exec-out run-as <pkg> ls|cat <path>` reads; `run-as <pkg> rm -rf <path>` removes it
+#   testfiles/<path>  what `exec-out run-as <pkg> ls|cat <path>` and `shell run-as <pkg> ls <path>` read; `run-as <pkg> rm -rf <path>` removes it
 #   logcat.txt        what `logcat -d` prints; `logcat -c` empties it
 #   calls.log         one line per call
 set -euo pipefail
@@ -180,6 +180,10 @@ case "${verb}" in
 				;;
 			run-as)
 				if [[ "${2:-}" == "rm" ]]; then rm -rf "${dir}/testfiles/${4}"; fi
+				if [[ "${2:-}" == "ls" ]]; then
+					[[ -d "${dir}/testfiles/${3}" ]] || { echo "ls: ${3}: No such file or directory" >&2; exit 1; }
+					ls -1 "${dir}/testfiles/${3}"
+				fi
 				;;
 			uiautomator) echo "UI hierarchy dumped to: $2" ;;
 			dumpsys)

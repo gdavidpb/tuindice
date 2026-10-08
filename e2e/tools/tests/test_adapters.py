@@ -167,6 +167,40 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertEqual(self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel").returncode, 0)
         self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "brought by run-scenario\n")
 
+    def test_collect_failure_of_an_attempt_without_a_directory_on_the_device_still_brings_the_log_and_the_screenshot(self):
+        # health or reset-app failed before the driver opened its directory: the evidence is the device log and the screen.
+        attempt = os.path.join(self.box.dir, "nodir")
+        os.makedirs(attempt)
+        self.box.write("logcat.txt", "1791346195.500  2  2 E App: it failed here\n")
+        with open(os.path.join(attempt, "runner.log"), "w") as handle:
+            handle.write("started\n")
+        done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(sorted(os.listdir(attempt)), ["fallback-hierarchy.xml", "fallback-screen.png", "logcat.txt", "runner.log"])
+
+    def test_collect_failure_brings_nothing_home_from_an_attempt_that_never_ran(self):
+        # Without runner.log the attempt did not reach the instrumentation: the directory on the device is another attempt's.
+        self.put_result()
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "from the previous attempt\n")
+        attempt = os.path.join(self.box.dir, "never")
+        os.makedirs(attempt)
+        done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertFalse(os.path.exists(os.path.join(attempt, "driver.log")))
+        self.assertFalse(os.path.exists(os.path.join(attempt, "result.json")))
+
+    def test_collect_failure_takes_the_log_and_the_screenshot_before_it_pulls_the_directory(self):
+        self.put_result()
+        attempt = os.path.join(self.box.dir, "order")
+        os.makedirs(attempt)
+        with open(os.path.join(attempt, "runner.log"), "w") as handle:
+            handle.write("started\n")
+        self.assertEqual(self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel").returncode, 0)
+        calls = self.box.adb_calls()
+        pulled = min(i for i, c in enumerate(calls) if "run-as" in c and " ls " in c)
+        self.assertLess(max(i for i, c in enumerate(calls) if " logcat " in c), pulled)
+        self.assertLess(max(i for i, c in enumerate(calls) if "screencap" in c), pulled)
+
     def test_enumerate_names_each_scenario_exactly_once(self):
         self.box.write("tests.list", "auth-login-cancel\nsummary-profile-picture\n")
         done = self.box.run("enumerate")

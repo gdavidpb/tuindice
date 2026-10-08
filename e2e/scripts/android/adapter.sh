@@ -103,8 +103,9 @@ stop_instrumentation() {
 # result.json, driver.log (written line by line, so a hung run leaves it) and, after a failure, the capture.
 pull_output() { # id dir
 	local names name
-	if ! names="$(adb_s exec-out run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}/$1" 2>&1 | tr -d '\r')"; then
-		printf '%s\n' "${names}" > "$2/pull.err"
+	# `shell` propagates the exit status of the remote ls; `exec-out` exits 0 and prints the error as output, which must never be iterated.
+	if ! names="$(adb_s shell run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}/$1" 2> /dev/null | tr -d '\r')"; then
+		log "the runner left no output directory for $1 on the device"
 		return 0
 	fi
 	for name in ${names}; do
@@ -143,7 +144,7 @@ cmd_driver_contract() {
 	# hold result.json and driver.log; they are pulled so that a red probe leaves its record.
 	instrument -e class "${CONTRACT_CLASSES}" -e wiremockUrl "$(wiremock_url "${port}")" > "${dir}/runner.log" 2>&1 || status=$?
 	log "am instrument exited ${status}; the probes are read from its status stream and result.json"
-	for id in $(adb_s exec-out run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}" 2> /dev/null | tr -d '\r'); do
+	for id in $(adb_s shell run-as "${TEST_ID}" ls "${TEST_OUTPUT_DIR}" 2> /dev/null | tr -d '\r'); do
 		mkdir -p "${dir}/${id}"
 		pull_output "${id}" "${dir}/${id}"
 	done
@@ -162,12 +163,6 @@ cmd_collect_failure() {
 	local dir="${1:?attempt dir}" since="${2:?since}" events="${WORK}/failure-logcat.log"
 	resolve_device
 	mkdir -p "${WORK}"
-	# A run the harness killed pulled nothing, and the next reset-app empties the runner's directory: its driver.log, written line
-	# by line, comes home now.
-	if [[ -n "${E2E_CURRENT_SCENARIO:-}" && ! -e "${dir}/driver.log" ]]; then
-		read_build_state
-		pull_output "${E2E_CURRENT_SCENARIO}" "${dir}"
-	fi
 	# Read once from the device's log store, only now that the attempt failed: nothing streams while scenarios run.
 	adb_s logcat -b all -d -v epoch > "${events}"
 	python3 "${TOOLS}" logcat-window "${events}" "${since}" "${LOG_CAP_BYTES}" "${dir}/logcat.txt" >&2
@@ -178,6 +173,13 @@ cmd_collect_failure() {
 		else
 			log "uiautomator dump failed; the fallback hierarchy is missing"
 		fi
+	fi
+	# A run the harness killed pulled nothing, and the next reset-app empties the runner's directory: its driver.log, written line by
+	# line, comes home now, after the log and the screen (the evidence that does not depend on the directory). Only an attempt that
+	# started the instrumentation (runner.log) has a directory of its own on the device; any other would bring another attempt's files.
+	if [[ -n "${E2E_CURRENT_SCENARIO:-}" && -e "${dir}/runner.log" && ! -e "${dir}/driver.log" ]]; then
+		read_build_state
+		pull_output "${E2E_CURRENT_SCENARIO}" "${dir}"
 	fi
 	emit_json "ok=j:true"
 }
