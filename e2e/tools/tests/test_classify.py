@@ -94,6 +94,32 @@ class RuleOrderTests(unittest.TestCase):
         self.assertEqual((verdict.klass, verdict.summary), (cl.PRODUCT, "step 3 WaitVisible(tag:x): snackbar not shown"))
 
 
+class ShapeTests(unittest.TestCase):
+    """A result.json whose failure has the wrong shape is a tooling error, never a crash of the classifier (dC-14)."""
+
+    def verdict(self, **failure_changes):
+        res = result()
+        res["failure"] = failure_changes["failure"] if "failure" in failure_changes else dict(res["failure"], **failure_changes)
+        return cl.classify(evidence(res))
+
+    def test_a_failure_that_is_not_an_object_is_a_tooling_error(self):
+        for value in ("boom", 7, ["x"], None):
+            verdict = self.verdict(failure=value)
+            self.assertEqual(verdict.klass, cl.TOOLING, value)
+            self.assertIn("result.json", verdict.summary)
+
+    def test_a_step_index_that_is_not_a_whole_number_is_a_tooling_error(self):
+        for value in (None, "3", 3.5, True, [3]):
+            verdict = self.verdict(stepIndex=value)
+            self.assertEqual(verdict.klass, cl.TOOLING, value)
+            self.assertIn("stepIndex", verdict.summary)
+
+    def test_a_failure_without_a_step_index_still_reads_as_before_the_first_step_of_a_journal(self):
+        res = result()
+        del res["failure"]["stepIndex"]
+        self.assertEqual(cl.classify(evidence(res)).klass, cl.PRODUCT)
+
+
 class JournalTests(unittest.TestCase):
     def test_the_audit_case_recordretry_ass_instead_of_the_password(self):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("typed-mismatch")))
@@ -106,6 +132,7 @@ class JournalTests(unittest.TestCase):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("equal-credential-401")))
         self.assertEqual(verdict.klass, cl.BACKEND)
         self.assertIn("answered 401 to the declared credential", verdict.summary)
+        self.assertIn("at step 3 WaitVisible(tag:x)", verdict.summary, "the rule is a guess: the step it saw the failure at is the evidence")
 
     def test_an_unmatched_request_is_a_backend_mismatch_that_lists_the_url(self):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("unmatched")))

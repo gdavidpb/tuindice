@@ -82,6 +82,17 @@ def _last_logged_step(log):
         else "the driver wrote no step to its log, so the step it was in is not known"
 
 
+def _failure_shape(failure):
+    """Why the failure of a failed result.json cannot be read, or None. The runners write it with the kit's codec, so this is
+    a defect of the tooling when it happens."""
+    if not isinstance(failure, dict):
+        return "the failure is %s, not an object" % ("missing" if failure is None else type(failure).__name__)
+    index = failure.get("stepIndex", -1)
+    if isinstance(index, bool) or not isinstance(index, int):
+        return "the failure's stepIndex is %r, not a whole number" % (index,)
+    return None
+
+
 def _step_text(failure):
     return "step %s %s(%s)" % (failure.get("stepIndex"), failure.get("primitive", "?"), failure.get("target", ""))
 
@@ -170,7 +181,7 @@ def _typed_verdict(ev):
     return None
 
 
-def _journal_verdict(ev):
+def _journal_verdict(ev, failure):
     typed = _typed_verdict(ev)
     if typed:
         return typed
@@ -178,8 +189,9 @@ def _journal_verdict(ev):
     for entry in ev.journal:
         decoded = _decode_basic(_header(entry.get("request") or {}, "Authorization"))
         if _path(entry) == BOOTSTRAP_PATH and _status(entry) == 401 and decoded is not None:
-            return Classification(BACKEND, "the backend answered 401 to the declared credential '%s' on %s; a scenario that "
-                "scripts that rejection fails at its own step, so read the step" % (decoded, BOOTSTRAP_PATH))
+            return Classification(BACKEND, "the backend answered 401 to the declared credential '%s' on %s at %s: %s; a scenario "
+                "that scripts that rejection fails at its own step, so read the step" % (decoded, BOOTSTRAP_PATH, _step_text(failure),
+                    failure.get("message", "")))
     unmatched = _unmatched_paths(ev.journal)
     if unmatched:
         return Classification(BACKEND, "requests without a stub: %s" % ", ".join(unmatched))
@@ -246,7 +258,10 @@ def _verdict(ev):
             % (result.get("outcome"), "ok" if ev.native_ok else "failed"))
     if passed:
         return Classification(None, "")
-    failure = result.get("failure") or {}
+    failure = result.get("failure")
+    problem = _failure_shape(failure)
+    if problem:
+        return Classification(TOOLING, "result.json is malformed: %s" % problem)
     kind = failure.get("kind")
     where = "%s: %s" % (_step_text(failure), failure.get("message", ""))
     if kind == "TYPED_TEXT_MISMATCH":
@@ -262,7 +277,7 @@ def _verdict(ev):
         # branch above); a driver that merely finds the app gone is a product assertion.
         return Classification(ENVIRONMENT, where)
     # Before the first step (index -1) the journal still holds the previous scenario's requests: it says nothing.
-    journal = None if int(failure.get("stepIndex", 0)) < 0 else _journal_verdict(ev)
+    journal = None if int(failure.get("stepIndex", 0)) < 0 else _journal_verdict(ev, failure)
     if journal:
         return journal
     if kind == "DRIVER_ERROR":
