@@ -145,6 +145,7 @@ class LottieResourceAnimationViewUiTest {
 	fun when_animationsAreEnabled_then_thePaintedFrameChangesWithTheClock() = runTuIndiceUiTest {
 		val (first, later) = paintedFramesAround(animationsEnabled = true)
 
+		assertTrue(first.hasTheSquare(), "the animation must have painted its square")
 		assertFalse(first.contentEquals(later), "the animation must have moved between the two frames")
 	}
 
@@ -152,7 +153,14 @@ class LottieResourceAnimationViewUiTest {
 	fun when_animationsAreDisabled_then_thePaintedFrameStaysOnTheFirstOne() = runTuIndiceUiTest {
 		val (first, later) = paintedFramesAround(animationsEnabled = false)
 
+		// Two equal captures would also be two empty ones: the frame it stays on has to show the square.
+		assertTrue(first.hasTheSquare(), "the frozen animation must still paint its square")
 		assertTrue(first.contentEquals(later), "the animation must not have moved between the two frames")
+	}
+
+	// Any opaque red pixel: the interior of the square is pure red, whatever the edges blend into.
+	private fun IntArray.hasTheSquare() = any { pixel ->
+		(pixel ushr 24) == OPAQUE && ((pixel shr 16) and OPAQUE) > 200 && ((pixel shr 8) and OPAQUE) < 50 && (pixel and OPAQUE) < 50
 	}
 
 	private fun ComposeUiTest.paintedFramesAround(animationsEnabled: Boolean): Pair<IntArray, IntArray> {
@@ -189,6 +197,7 @@ class LottieResourceAnimationViewUiTest {
 		const val HostTag = "lottie_host"
 		const val ANIMATION_PATH = "files/an_empty.json"
 		const val LOAD_TIMEOUT_MILLIS = 5_000L
+		const val OPAQUE = 255
 
 		// A red square, 40 by 40, that goes from the left to the right of a 100 by 100 frame in two seconds.
 		const val MOVING_SQUARE = """{"v":"5.5.7","fr":30,"ip":0,"op":60,"w":100,"h":100,"nm":"moving","ddd":0,""" +
