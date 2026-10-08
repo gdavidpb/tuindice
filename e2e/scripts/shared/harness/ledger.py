@@ -137,6 +137,9 @@ class Ledger:
     def environment_events(self, scenario_id):
         return [a for a in self.attempts(scenario_id) if a.get("failureClass") == "environment"]
 
+    def degraded_events(self, scenario_id):
+        return [a for a in self.environment_events(scenario_id) if a.get("degraded")]
+
     def has_failed_attempts(self, scenario_id):
         return any(a.get("outcome") == "failed" for a in self.attempts(scenario_id))
 

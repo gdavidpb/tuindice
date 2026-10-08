@@ -7,9 +7,12 @@ from support import Workspace, scenario
 from harness import classify as cl
 from test_classify import evidence, result
 
-AX = "2026-10-08 02:31:00.1 XCTest[1:2] Accessibility error kAXErrorAPIDisabled\n"
-PREFS_READ = "cfprefsd: Couldn't read values in CFPrefsPlistSource<0x1> (Domain: com.apple.x, User: kCFPreferencesAnyUser)\n"
-PREFS_WRITE = "cfprefsd: Couldn't write values for keys ( a ) in CFPrefsPlistSource<0x1>\n"
+AX_LINE = "2026-10-08 02:31:00.1 XCTest[1:2] Accessibility error kAXErrorAPIDisabled\n"
+PREFS_READ_LINE = "cfprefsd: Couldn't read values in CFPrefsPlistSource<0x1> (Domain: com.apple.x, User: kCFPreferencesAnyUser)\n"
+PREFS_WRITE_LINE = "cfprefsd: Couldn't write values for keys ( a ) in CFPrefsPlistSource<0x1>\n"
+# What a degraded simulator writes (measured: about 1050 and 111 lines); a healthy one writes none of them.
+AX = AX_LINE * 3
+PREFS_READ = PREFS_READ_LINE * 20
 
 
 class ClassificationTests(unittest.TestCase):
@@ -18,13 +21,37 @@ class ClassificationTests(unittest.TestCase):
         self.assertEqual(verdict.klass, cl.ENVIRONMENT)
         self.assertTrue(verdict.degraded)
         self.assertIn("the simulator stopped serving accessibility/preferences", verdict.summary)
-        self.assertIn("kAXErrorAPIDisabled", verdict.summary)
-        self.assertIn("app.log", verdict.summary)
+        self.assertIn("kAXErrorAPIDisabled x3", verdict.summary)
+        self.assertEqual(verdict.markers, {"kAXErrorAPIDisabled": 3, "Couldn't read values in CFPrefsPlistSource": 0})
 
-    def test_each_marker_and_each_log_counts(self):
-        for name, text in (("app.log", PREFS_READ), ("app.log", PREFS_WRITE), ("runner.log", AX)):
+    def test_a_single_line_of_either_marker_keeps_the_class_of_the_product(self):
+        for text in (AX_LINE, PREFS_READ_LINE, AX_LINE * 2 + PREFS_READ_LINE * 19):
+            verdict = cl.classify(evidence(result(), logs={"app.log": text}))
+            self.assertEqual((verdict.klass, verdict.degraded), (cl.PRODUCT, False), text)
+
+    def test_each_marker_at_its_threshold_and_each_log_counts(self):
+        for name, text in (("app.log", PREFS_READ), ("runner.log", AX), ("logcat.txt", AX_LINE * 7)):
             verdict = cl.classify(evidence(result(), logs={name: text}))
             self.assertEqual((verdict.klass, verdict.degraded), (cl.ENVIRONMENT, True), (name, text))
+
+    def test_the_lines_of_the_logs_of_one_attempt_add_up(self):
+        verdict = cl.classify(evidence(result(), logs={"app.log": AX_LINE * 2}, runner_log=AX_LINE))
+        self.assertEqual((verdict.klass, verdict.degraded), (cl.ENVIRONMENT, True))
+
+    def test_the_write_marker_is_not_a_sign_of_degradation_however_often_it_appears(self):
+        verdict = cl.classify(evidence(result(), logs={"app.log": PREFS_WRITE_LINE * 500}))
+        self.assertEqual((verdict.klass, verdict.degraded), (cl.PRODUCT, False))
+
+    def test_android_logs_never_decide_a_degraded_simulator(self):
+        verdict = cl.classify(evidence(result(), logs={"logcat.txt": AX_LINE * 500 + PREFS_READ_LINE * 500}, platform="android"))
+        self.assertEqual((verdict.klass, verdict.degraded), (cl.PRODUCT, False))
+
+    def test_a_request_without_a_stub_is_blamed_on_a_degraded_simulator_too(self):
+        journal = [{"request": {"url": "/record/v5/terms", "headers": {}}, "wasMatched": False}]
+        plain = cl.classify(evidence(result(), journal=journal))
+        self.assertEqual((plain.klass, plain.degraded), (cl.BACKEND, False))
+        verdict = cl.classify(evidence(result(), journal=journal, logs={"app.log": AX}))
+        self.assertEqual((verdict.klass, verdict.degraded), (cl.ENVIRONMENT, True))
 
     def test_the_runner_log_of_the_attempt_counts_without_a_collected_log(self):
         verdict = cl.classify(evidence(result(), runner_log="a\n" + AX))
@@ -79,6 +106,43 @@ class RunTests(unittest.TestCase):
         self.assertEqual(events["count"], 1)
         self.assertEqual(events["events"][0]["scenario"], "fix-00")
         self.assertEqual(events["events"][0]["scenariosSincePrevious"], 0)
+        self.assertEqual(events["events"][0]["markers"]["kAXErrorAPIDisabled"], 3)
+
+    def test_a_single_marker_line_is_a_failure_of_the_product_that_counts_and_recovers_nothing(self):
+        ws = Workspace(self, numbered(2), {"behaviours": {"fix-00": [with_log(text=AX_LINE), "pass"]}})
+        run = ws.evidence()
+        self.assertEqual(run.code, 0, run.out)
+        self.assertEqual(len(ws.calls("recover")), 0)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-00"]["attempts"][0]["failureClass"], "product_assertion")
+
+    def test_a_degraded_survey_recovers_the_simulator_and_does_not_rerun_the_scenario(self):
+        ws = Workspace(self, numbered(3), {"behaviours": {"fix-00": [with_log(), "pass"]}})
+        run = ws.diagnose("ios", "--survey")
+        self.assertEqual(len(ws.calls("recover")), 1, run.out)
+        self.assertEqual(ws.executed(), ["fix-00", "fix-01", "fix-02"], "the degraded scenario is not repeated")
+        self.assertIn("the simulator degraded; recovering it; this attempt does not count", run.out)
+        self.assertEqual(ws.manifest()["deviceDegradation"]["count"], 1)
+
+    def test_the_second_degradation_of_the_same_scenario_says_so_and_stops_the_run(self):
+        ws = Workspace(self, numbered(2), {"behaviours": {"fix-00": [with_log(), with_log(), "pass"]}})
+        run = ws.evidence()
+        self.assertEqual(run.code, 5, run.out)
+        self.assertIn("the simulator degraded twice on this scenario", run.out)
+        self.assertEqual(len(ws.calls("recover")), 1)
+
+    def test_a_degraded_attempt_after_another_kind_of_environment_failure_keeps_the_generic_message(self):
+        ws = Workspace(self, numbered(2), {"behaviours": {"fix-00": ["env", with_log(), "pass"]}})
+        run = ws.evidence()
+        self.assertEqual(run.code, 5, run.out)
+        self.assertIn("failed with class environment twice", run.out)
+
+    def test_a_degradation_that_ensure_recovered_enters_the_record(self):
+        ws = Workspace(self, numbered(2), {"ensureRecovered": True})
+        run = ws.evidence()
+        self.assertEqual(run.code, 0, run.out)
+        events = ws.manifest()["deviceDegradation"]
+        self.assertEqual((events["count"], events["events"][0]["scenario"]), (1, None))
+        self.assertIn("did not accept its settings", events["events"][0]["summary"])
 
     def test_a_failed_health_that_says_degraded_takes_the_same_path(self):
         ws = Workspace(self, numbered(2), {"behaviours": {"fix-00": ["degraded-health", "pass"]}})

@@ -347,6 +347,9 @@ class PlatformRun:
                 m.update(device=result.json)
                 self.device_booted = bool(result.json.get("bootedByHarness"))
                 self.boot_started = time.monotonic()
+                if result.json.get("recoveredAtEnsure") is True:  # a simulator that was up but refused its settings
+                    self.log.say("ENV   the simulator refused its settings at ensure and was recovered; recorded as a degradation")
+                    self._degradation_event(None, "ensure recovered a booted simulator that did not accept its settings", {})
             with m.phase("wiremock"):
                 self.wiremock.start()
                 m.data["wiremock"]["log"] = "wiremock.log"
@@ -515,6 +518,7 @@ class PlatformRun:
             waited, idle = self._wait_for_load(scenario)
             before = ledger.counted(scenario.id)
             environment_before = ledger.environment_events(scenario.id)
+            degraded_before = ledger.degraded_events(scenario.id)
             allowed = len(before) + 1 if single else ledger.allowance(scenario.id, cap)
             log.start(index, total, scenario, len(before) + 1, allowed)
             attempt, verdict = self._attempt(scenario)
@@ -547,11 +551,17 @@ class PlatformRun:
                 return
             log.failed(scenario, attempt["n"], seconds, verdict.klass, verdict.summary)
             if verdict.klass == cl.ENVIRONMENT:
-                if self.opts.survey:
-                    log.say("ENV   %s: noted; the survey goes on" % scenario.id)
+                if self.opts.survey:  # the scenario is not measured again, but the next ones need a simulator that can be read
+                    if verdict.degraded:
+                        self._recover(scenario, verdict)
+                    else:
+                        log.say("ENV   %s: noted; the survey goes on" % scenario.id)
                     return
                 if environment_before:
-                    text = "failed with class environment twice for this fingerprint. Another retry is not a remedy: something in " \
+                    text = "the simulator degraded twice on this scenario: it is the scenario, or the state it leaves behind, that " \
+                        "brings the simulator down. Another retry is not a remedy." \
+                        if verdict.degraded and degraded_before else \
+                        "failed with class environment twice for this fingerprint. Another retry is not a remedy: something in " \
                         "the environment, or a mock state the scenario declares, breaks it every time."
                     log.stop(scenario, text)
                     raise StopRun("stopped", 5, text, scenario.id, verdict.klass, report.same_class_diagnosis(verdict.klass))
@@ -575,7 +585,8 @@ class PlatformRun:
     def _recover(self, scenario, verdict):
         if verdict.degraded:
             self._note_degradation(scenario, verdict)
-            self.log.say("ENV   %s: the simulator degraded; recovering it and rerunning; this attempt does not count" % scenario.id)
+            self.log.say("ENV   %s: the simulator degraded; recovering it%s; this attempt does not count"
+                % (scenario.id, "" if self.opts.survey else " and rerunning"))
             return self._recover_device(scenario, verdict)
         if self.recoveries >= 1:
             text = "a second environment failure in this run (%s)" % verdict.summary
@@ -604,10 +615,15 @@ class PlatformRun:
                 "that degrades twice in a row is not usable (%s)" % (self.greens_since_recovery, DEGRADATION_MIN_GREEN, verdict.summary)
             self.log.stop(scenario, text)
             raise StopRun("environment_refused", 3, text, scenario.id, cl.ENVIRONMENT, verdict.summary)
-        record["events"].append({"at": now(), "scenario": scenario.id, "scenariosSincePrevious": self.greens_since_recovery,
+        self._degradation_event(scenario.id, verdict.summary, verdict.markers)
+
+    def _degradation_event(self, scenario_id, summary, markers):
+        record = self.manifest.data["deviceDegradation"]
+        record["events"].append({"at": now(), "scenario": scenario_id, "scenariosSincePrevious": self.greens_since_recovery,
             "attemptsSincePrevious": self.attempts_since_recovery,
             "minutesSincePrevious": round((time.monotonic() - self.boot_started) / 60, 1),
-            "previousIsHarnessBoot": not record["events"], "deviceBootedByHarness": self.device_booted, "summary": verdict.summary[:300]})
+            "previousIsHarnessBoot": not record["events"], "deviceBootedByHarness": self.device_booted, "summary": summary[:300],
+            "markers": markers})
         record["count"] = len(record["events"])
 
     def _recover_device(self, scenario, verdict):
@@ -638,7 +654,7 @@ class PlatformRun:
         adir = os.path.join(self.run_dir, "scenarios", scenario.id, directory)
         os.makedirs(adir)
         env = {"E2E_CURRENT_SCENARIO": scenario.id, "E2E_TRACE": "1" if self.opts.trace else "0"}
-        evidence = cl.Evidence(scenario, self.catalog.account(scenario))
+        evidence = cl.Evidence(scenario, self.catalog.account(scenario), p)
         since = int(time.time())
         started_at, began = now(), time.monotonic()
         load_start = read_load(cfg)[0]
@@ -675,7 +691,7 @@ class PlatformRun:
             "runId": self.run_id, "sha": self.git.sha, "startedAt": started_at, "finishedAt": now(),
             "durationMs": int((time.monotonic() - began) * 1000), "runnerDurationMs": runner_ms,
             "outcome": "passed" if verdict.passed else "failed", "failureClass": verdict.klass,
-            "failureSummary": verdict.summary, "countsAgainstCap": verdict.klass != cl.ENVIRONMENT,
+            "failureSummary": verdict.summary, "countsAgainstCap": verdict.klass != cl.ENVIRONMENT, "degraded": verdict.degraded,
             "load": {"start": load_start, "end": read_load(cfg)[0]}, "loadWaitSeconds": 0, "cpuIdle": None,
             "deviceLoad1": self.device_health.get("deviceLoad1"),
             "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),

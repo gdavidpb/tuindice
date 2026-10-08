@@ -16,21 +16,25 @@ NON_RETRYABLE = (TYPED, CRASH)
 JUNIT_FAILURES = (PRODUCT, TYPED, BACKEND, CRASH)
 BOOTSTRAP_PATH = "/auth/v2/bootstrap"
 RUNNER_ERROR = re.compile(r"error:|Testing failed|INSTRUMENTATION_FAILED|Process crashed")
-# What a simulator that stopped serving accessibility and preferences (after hours of runs) writes in the logs of the app and of
-# the runner. Where it appears, the failure is the environment's, whatever the step looked like.
-DEGRADED_MARKERS = ("kAXErrorAPIDisabled", "Couldn't read values in CFPrefsPlistSource", "Couldn't write values for keys")
+# What an iOS simulator that stopped serving accessibility and preferences (after hours of runs) writes in the logs of the app and
+# of the runner, with the number of lines it takes to say so: measured, a healthy attempt has none of either and a degraded one
+# about 1050 and 111, while a single line of the second kind can have another cause. "Couldn't write values for keys" is not
+# here on purpose: iOS writes it for a preference outside the app's container.
+DEGRADED_MARKERS = {"kAXErrorAPIDisabled": 3, "Couldn't read values in CFPrefsPlistSource": 20}
 DEGRADED_TEXT = "the simulator stopped serving accessibility/preferences"
-# Failures a degraded simulator is blamed for: the ones the product's own evidence does not decide (a crash report, the text
-# the backend received and the requests without a stub are facts about the product and stay as they are).
-DEGRADABLE = ("product_assertion", "timeout", "tooling_error")
+# Failures a degraded simulator is blamed for: the ones the product's own evidence does not decide. A crash report and the text
+# the backend received are facts about the product and stay as they are; the requests without a stub are the guess of a rule,
+# which a simulator that cannot be read explains as well.
+DEGRADABLE = ("product_assertion", "timeout", "tooling_error", "backend_mismatch")
 
 
 class Evidence:
     """Everything the harness knows about one finished attempt."""
 
-    def __init__(self, scenario, account=None):
+    def __init__(self, scenario, account=None, platform="ios"):
         self.scenario = scenario
         self.account = account
+        self.platform = platform
         self.pre_failure = None      # "<step>: <detail>" when health/reset-app/WireMock failed first
         self.crash = {"kind": "none", "excerpt": ""}
         self.killed_after = None     # seconds, when the harness killed the runner
@@ -44,20 +48,21 @@ class Evidence:
         self.journal = []
 
     def degradation(self):
-        """(log name, marker) of the first log of the attempt that shows a degraded simulator, or None."""
-        for name, text in list(self.logs.items()) + [("runner.log", self.runner_log)]:
-            for marker in DEGRADED_MARKERS:
-                if marker in text:
-                    return name, marker
-        return None
+        """{marker: lines} over the logs of the attempt when one marker reaches its threshold (iOS only), else None."""
+        if self.platform != "ios":
+            return None
+        texts = list(self.logs.values()) + [self.runner_log]
+        counts = {marker: sum(text.count(marker) for text in texts) for marker in DEGRADED_MARKERS}
+        return counts if any(counts[m] >= DEGRADED_MARKERS[m] for m in counts) else None
 
 
 class Classification:
-    def __init__(self, klass, summary, note=None, degraded=False):
+    def __init__(self, klass, summary, note=None, degraded=False, markers=None):
         self.klass = klass       # None means the attempt passed
         self.summary = summary
         self.note = note         # something worth keeping that did not change the verdict
         self.degraded = degraded  # an environment failure caused by a simulator that stopped serving preferences
+        self.markers = markers or {}  # the lines of each marker in the logs read, for the record
 
     @property
     def passed(self):
@@ -192,8 +197,9 @@ def classify(ev):
     verdict = _verdict(ev)
     found = ev.degradation() if verdict.klass in DEGRADABLE else None
     if found:
-        return Classification(ENVIRONMENT, "%s (%s in %s); the attempt had failed as %s: %s"
-            % (DEGRADED_TEXT, found[1], found[0], verdict.klass, verdict.summary[:160]), degraded=True)
+        counts = ", ".join("%s x%d" % item for item in sorted(found.items()))
+        return Classification(ENVIRONMENT, "%s (%s lines in the logs); the attempt had failed as %s: %s"
+            % (DEGRADED_TEXT, counts, verdict.klass, verdict.summary[:160]), degraded=True, markers=found)
     anr = ev.crash.get("kind") == "system_anr"
     text = "system ANR: %s" % (ev.crash.get("excerpt") or "").strip()[:200]
     if anr and verdict.passed:
