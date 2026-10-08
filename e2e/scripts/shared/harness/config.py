@@ -136,7 +136,7 @@ class Config:
             "android": _int(env, "E2E_ANDROID_WIREMOCK_PORT", 18626, 1024, 65535),
             "ios": _int(env, "E2E_IOS_WIREMOCK_PORT", 18627, 1024, 65535),
         }
-        self.tunnel = _choice(env, "E2E_ANDROID_TUNNEL", "host-alias", ("host-alias", "reverse"))
+        _choice(env, "E2E_ANDROID_TUNNEL", "host-alias", ("host-alias", "reverse"))  # read by the Android scripts; only checked here
         self.delay_profile = _choice(env, "E2E_WIREMOCK_DELAY_PROFILE", "fast", ("fast", "legacy"))
         self.env_override = [item for item in env.get("E2E_ENV_OVERRIDE", "").split(",") if item]
         unknown = [item for item in self.env_override if item not in REFUSABLE_CHECKS]

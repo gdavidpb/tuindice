@@ -105,8 +105,7 @@ cmd_driver_contract() {
 	if [[ -d "${dir}/results/driver-contract" ]]; then
 		cp -R "${dir}/results/driver-contract/." "${dir}/"
 	fi
-	python3 "${TOOLS}" xctest-contract "${dir}/runner.log" "${status}" "${dir}/result.json" \
-		| python3 -c 'import json, sys; out = json.load(sys.stdin); out["artifacts"] = sys.argv[1]; print(json.dumps(out))' "${dir}"
+	python3 "${TOOLS}" xctest-contract "${dir}/runner.log" "${status}" "${dir}/result.json" "${dir}"
 }
 
 cmd_run_scenario() {
@@ -128,28 +127,12 @@ cmd_run_scenario() {
 	python3 "${TOOLS}" xctest-summary "${dir}/runner.log" "${status}"
 }
 
-# Whether the attempt can have left a crash report. A report lands seconds after the crash, but only an app that went away has
-# one: with no readable result (the runner died or was killed) or a scenario that failed because the app was not running the probe
-# waits for it; a scenario that failed with the app alive (a step timed out, an assertion) has nothing to wait for.
-app_may_have_crashed() { # <attempt dir>
-	python3 - "$1/result.json" << 'PY'
-import json
-import sys
-
-try:
-    result = json.load(open(sys.argv[1]))
-except (OSError, ValueError):
-    sys.exit(0)
-failure = result.get("failure") if isinstance(result, dict) else None
-sys.exit(0 if not isinstance(result, dict) or (isinstance(failure, dict) and failure.get("kind") == "APP_NOT_RUNNING") else 1)
-PY
-}
-
 cmd_crash_probe() {
 	local since="${1:?since}" dir="${2:?attempt dir}" until_epoch="${3:-$(date +%s)}" wait_seconds="${4:-0}"
 	resolve_device
 	read_build_state
-	if [[ "${wait_seconds}" != "0" ]] && ! app_may_have_crashed "${dir}"; then
+	# A report lands seconds after the crash, but only an app that went away has one (adapter_tools.py says when it can have).
+	if [[ "${wait_seconds}" != "0" && "$(python3 "${TOOLS}" app-may-have-crashed "${dir}/result.json")" == "no" ]]; then
 		log "The scenario failed with the app alive; not waiting ${wait_seconds} s for a crash report."
 		wait_seconds=0
 	fi

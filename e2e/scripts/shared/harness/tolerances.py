@@ -7,6 +7,8 @@ and the summary line of iOS does not count it. A run that passed by way of a tol
 
 import re
 
+from . import proc
+
 TAIL_BYTES = 4 * 1024 * 1024
 IOS_SUMMARY = re.compile(r"^\[tolerances\]((?:\s+[\w-]+=\d+)*)\s*$")
 IOS_LINE = re.compile(r"^\[tolerance\]\s+([\w-]+)")
@@ -51,13 +53,7 @@ def refusals(text):
 
 def read(path):
     """(tolerances, refusals) of the last TAIL_BYTES of a driver log; a file that does not exist has none of either."""
-    try:
-        with open(path, "rb") as handle:
-            handle.seek(0, 2)
-            handle.seek(max(0, handle.tell() - TAIL_BYTES))
-            text = handle.read().decode("utf-8", errors="replace")
-    except OSError:
-        return {}, {}
+    text = proc.tail_text(path, TAIL_BYTES)
     return count(text), refusals(text)
 
 

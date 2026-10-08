@@ -147,8 +147,7 @@ cmd_driver_contract() {
 		mkdir -p "${dir}/${id}"
 		pull_output "${id}" "${dir}/${id}"
 	done
-	python3 "${TOOLS}" instrument-probes "${dir}/runner.log" "${CONTRACT_REQUIRED}" "${dir}/driver-contract/result.json" \
-		| python3 -c 'import json, sys; out = json.load(sys.stdin); out["artifacts"] = sys.argv[1]; print(json.dumps(out))' "${dir}"
+	python3 "${TOOLS}" instrument-probes "${dir}/runner.log" "${CONTRACT_REQUIRED}" "${dir}/driver-contract/result.json" "${dir}"
 }
 
 cmd_crash_probe() {

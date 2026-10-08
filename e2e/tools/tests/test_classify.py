@@ -150,7 +150,7 @@ class JournalTests(unittest.TestCase):
         header = "Basic " + base64.b64encode(b"mail:123456").decode()
         journal = [{"request": {"url": "/auth/v2/bootstrap", "headers": {"Authorization": header}},
                     "response": {"status": 401}, "wasMatched": True}]
-        account = dict(CANONICAL, usbId="mail@usb.ve")
+        account = dict(CANONICAL, usbId="mail@usb.ve", backendIdentifier="mail")
         self.assertEqual(cl.classify(evidence(result(), account=account, journal=journal)).klass, cl.BACKEND)
 
 
@@ -206,9 +206,11 @@ class DeclaredCredentialTests(unittest.TestCase):
         ev.scenario = scripted(None)
         self.assertEqual(cl.classify(ev).klass, cl.PRODUCT)
 
-    def test_the_backend_identifier_rule_of_an_email_account_still_applies(self):
-        mail = {"id": "mail", "usbId": "mail@usb.ve", "password": "123456", "accessToken": None}
-        self.assertEqual(self.judge([request("/auth/v2/bootstrap", "mail:123456", status=401, matched=True)], account=mail).klass, cl.BACKEND)
+    def test_an_email_account_is_declared_by_the_backend_identifier_the_catalog_exports_and_the_local_part_is_not_guessed(self):
+        journal = [request("/auth/v2/bootstrap", "mail:123456", status=401, matched=True)]
+        mail = {"id": "mail", "usbId": "mail@usb.ve", "password": "123456", "accessToken": None, "backendIdentifier": "mail"}
+        self.assertEqual(self.judge(journal, account=mail).klass, cl.BACKEND)
+        self.assertEqual(self.judge(journal, account=dict(mail, backendIdentifier=None)).klass, cl.TYPED)
 
     def test_the_catalogs_backend_identifier_wins_over_the_local_part_rule(self):
         # The backend knows the e-mail account as `mail1234` (no domain, not the local part): the catalog says so.

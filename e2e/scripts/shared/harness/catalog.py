@@ -20,7 +20,6 @@ class Scenario:
         self.tags = list(raw.get("tags") or [])
         self.platforms = list(raw["platforms"])
         self.account_id = raw.get("account")
-        self.signs_in = bool(raw.get("signsIn"))
         self.timeout = int(raw.get("timeoutSeconds", 180))
         self.steps_hash = raw.get("stepsHash", "")
         self.quarantine = raw.get("quarantine")

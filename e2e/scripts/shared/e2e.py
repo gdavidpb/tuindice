@@ -15,7 +15,7 @@ from harness import publish as publish_mod  # noqa: E402
 from harness import envcheck, parallel, report, runner, verdict  # noqa: E402
 from harness.config import EXIT_HARNESS_ERROR, PLATFORMS, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
 from harness.gitstate import GitState  # noqa: E402
-from harness.ledger import Ledger, now  # noqa: E402
+from harness.ledger import Ledger  # noqa: E402
 from harness.proc import Interrupted  # noqa: E402
 from harness.wiremock import WireMock  # noqa: E402
 
@@ -175,18 +175,12 @@ def cmd_publish(cfg, args):
             raise UsageError("%d scenarios are not green for fp %s: %s" % (len(pending), fingerprint[:12], ", ".join(pending)))
         context = publish_mod.status_context(cfg, args.platform)
         text = publish_mod.description(args.platform, runnable, quarantined, git.sha, fingerprint, ledger)
-        if ledger.publication(git.sha, context, text):
-            log.say("status %s already published for %s" % (context, git.sha7))
-            return 0
         try:
-            publish_mod.publish_success(cfg, args.platform, git.sha, context, text)
+            if publish_mod.publish_once(cfg, args.platform, git, context, text, ledger, "publish", log) == "published":
+                log.say("published %s: %s" % (context, text))
         except publish_mod.PublishError as error:
             log.say("PUBLISH FAILED %s" % error)
             return 6
-        ledger.add_publication({"sha": git.sha, "context": context, "description": text,
-            "publishedAt": now(), "runId": "publish"})
-        ledger.save()
-        log.say("published %s: %s" % (context, text))
         return 0
     finally:
         ledger.release()

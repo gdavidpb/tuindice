@@ -4,7 +4,8 @@ import json
 import shlex
 import subprocess
 
-from .config import UsageError
+from .config import UsageError, shared_function
+from .ledger import now
 
 
 PUBLISH_TIMEOUT_SECONDS = 120
@@ -20,18 +21,10 @@ def gh_command(config):
 
 def status_context(config, platform):
     """e2e_status_context from the shared shell library: the detector and the harness read the same name."""
-    source = config.root / config.layout["E2E_STATUS_CONTEXT_SOURCE"]
-    if not source.exists():
-        raise UsageError("%s does not exist" % source)
-    result = subprocess.run(
-        ["bash", "-c", 'source "$1"; e2e_status_context "$2"', "_", str(source), platform], cwd=str(config.root),
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
-    )
-    context = result.stdout.strip()
-    if result.returncode != 0 or not context:
-        raise UsageError("e2e_status_context is not defined in %s for %s: %s"
-            % (source, platform, result.stderr.strip()[:200]))
-    return context
+    code, lines = shared_function(config.root, "e2e_status_context", platform)
+    if code != 0 or not lines or not lines[0].strip():
+        raise UsageError("e2e_status_context is not defined in %s for %s" % (config.layout["E2E_STATUS_CONTEXT_SOURCE"], platform))
+    return lines[0].strip()
 
 
 def description(platform, runnable, quarantined, sha, fingerprint, ledger):
@@ -48,6 +41,18 @@ def description(platform, runnable, quarantined, sha, fingerprint, ledger):
         if count:
             text += " %s %d." % (word, count)
     return text[:140]
+
+
+def publish_once(config, platform, git, context, text, ledger, run_id, log):
+    """Posts the success status unless the ledger already holds it, and records it. Returns "already" or "published"; a status
+    GitHub did not take is a PublishError and the ledger stays as it was."""
+    if ledger.publication(git.sha, context, text):
+        log.say("status %s already published for %s" % (context, git.sha7))
+        return "already"
+    publish_success(config, platform, git.sha, context, text)
+    ledger.add_publication({"sha": git.sha, "context": context, "description": text, "publishedAt": now(), "runId": run_id})
+    ledger.save()
+    return "published"
 
 
 def publish_success(config, platform, sha, context, text):

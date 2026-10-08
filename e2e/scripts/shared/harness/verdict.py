@@ -16,7 +16,6 @@ from . import publish
 from .config import UsageError, shared_function
 from .gitstate import run_git
 
-VERDICTS = ("current", "reusable", "incomplete", "unpublished", "partial", "rerun", "exhausted")
 MAX_REMOTE_LOOKUPS = 100  # commits asked about; preflight's own fallback window is 50
 FALLBACK_WINDOW = 50
 

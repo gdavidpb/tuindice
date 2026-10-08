@@ -20,6 +20,17 @@ def parse_json(text):
     return {}
 
 
+def tail_text(path, limit):
+    """The last `limit` bytes of a file as text; empty when it does not exist."""
+    try:
+        with open(path, "rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            handle.seek(max(0, handle.tell() - limit))
+            return handle.read().decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
 class Interrupted(BaseException):
     """Raised by the signal handler so that cleanup runs in `finally` blocks."""
 

@@ -10,11 +10,12 @@ Usage: adapter_tools.py <command> [args...]. Every command prints one JSON objec
   logcat-crash <log> <since> <app id> <file>     {kind, excerpt} from `logcat -v epoch`; the evidence goes to <file>
   logcat-window <log> <since> <max bytes> <file> {bytes, truncated} the `logcat -v epoch` lines from <since> on, the last <max bytes> of them
   cap-log <max bytes> <file>                     {bytes, truncated} stdin to <file>, the last <max bytes> of it
-  instrument-probes <log> <required> <result>    {ok, passed, failed, skipped} of an `am instrument -r` run of several classes. Every test of
+  instrument-probes <log> <required> <result> <artifacts>   {ok, passed, failed, skipped, artifacts} of an `am instrument -r` run of several classes. Every test of
                                                  the run must pass except the measurements (MEASUREMENTS); <required> is a comma list of
                                                  `Class#method` that must pass and of `Class` that must have a passing test, <result> the
                                                  contract's result.json
-  xctest-contract <log> <exit code> <result>     {ok, passed, failed, skipped} of the xcodebuild run of the driver contract test
+  xctest-contract <log> <exit code> <result> <artifacts>   {ok, passed, failed, skipped, artifacts} of the xcodebuild run of the contract test
+  app-may-have-crashed <result.json>             yes | no: whether the attempt can have left a crash report (iOS waits for it only then)
   xctest-summary <log> <exit code>               {nativeOk, testsExecuted} of an xcodebuild test run
   xctest-tests <enumeration json>                {tests} the `Target/Class/method` identifiers of an enumeration
   ios-crash <reports dir> <since> <until> <process> <file> <udid> <wait s>  {kind, excerpt} from the crash report of the app
@@ -92,7 +93,7 @@ def _contract_steps(result):
     return [n for n, ok in names if ok], [n for n, ok in names if not ok], None
 
 
-def instrument_probes(log, required, result):
+def instrument_probes(log, required, result, artifacts=None):
     """Every test of an `am instrument -r` run, as `Class#method`, sorted by how it closed. The run is red when a test failed, was
     skipped (a measurement apart), started and did not close, or closed with a status code this reader does not know; when the
     process died or the stream does not end with INSTRUMENTATION_CODE: -1; when a required test or class did not pass; or when
@@ -131,10 +132,15 @@ def instrument_probes(log, required, result):
     failed += ["%s: did not pass (%s)" % (name, "skipped" if name in skipped else "not run") for name in dict.fromkeys(owed)]
     failed += ["%s: no test of the class passed" % name for name in required.split(",")
         if name and "#" not in name and not any(p.startswith(name + "#") for p in passed)]
-    return {"ok": not failed and bool(passed), "passed": passed, "failed": failed, "skipped": skipped}
+    return _answer(not failed and bool(passed), passed, failed, skipped, artifacts)
 
 
-def xctest_contract(log, exit_code, result):
+def _answer(ok, passed, failed, skipped, artifacts):
+    answer = {"ok": ok, "passed": passed, "failed": failed, "skipped": skipped}
+    return dict(answer, artifacts=artifacts) if artifacts is not None else answer
+
+
+def xctest_contract(log, exit_code, result, artifacts=None):
     summary = xctest_summary(log, exit_code)
     steps_passed, steps_failed, problem = _contract_steps(result)
     failed = list(steps_failed) + ([problem] if problem else [])
@@ -142,7 +148,18 @@ def xctest_contract(log, exit_code, result):
         failed.append("xcodebuild: the contract test did not pass (exit %s)" % exit_code)
     if summary["testsExecuted"] != 1:
         failed.append("xcodebuild: %d tests executed, expected exactly 1" % summary["testsExecuted"])
-    return {"ok": not failed and bool(steps_passed), "passed": steps_passed, "failed": failed, "skipped": []}
+    return _answer(not failed and bool(steps_passed), steps_passed, failed, [], artifacts)
+
+
+def app_may_have_crashed(result_path):
+    """"yes" when the attempt can have left a crash report: its result.json is unreadable or not an object (the runner died or was
+    killed) or the scenario failed because the app was not running; "no" when it failed with the app alive."""
+    try:
+        result = json.loads(_read(result_path))
+    except (OSError, ValueError):
+        return "yes"
+    failure = result.get("failure") if isinstance(result, dict) else None
+    return "yes" if not isinstance(result, dict) or (isinstance(failure, dict) and failure.get("kind") == "APP_NOT_RUNNING") else "no"
 
 
 def instrument_tests(log):
@@ -305,7 +322,8 @@ def ios_crash(reports_dir, since, until, process, evidence_file, udid="", wait="
 COMMANDS = {
     "apk-outputs": (apk_outputs, 2), "catalog-field": (catalog_field, 3), "instrument-summary": (instrument_summary, 1),
     "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "logcat-window": (logcat_window, 4), "cap-log": (cap_log, 2),
-    "xctest-summary": (xctest_summary, 2), "instrument-probes": (instrument_probes, 3), "xctest-contract": (xctest_contract, 3),
+    "xctest-summary": (xctest_summary, 2), "instrument-probes": (instrument_probes, 4), "xctest-contract": (xctest_contract, 4),
+    "app-may-have-crashed": (app_may_have_crashed, 1),
     "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 7),
 }
 

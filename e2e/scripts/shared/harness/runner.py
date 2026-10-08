@@ -686,8 +686,8 @@ class PlatformRun:
         verdict = cl.classify(evidence)
         if not verdict.passed:
             self.adapter.call("collect-failure", adir, since, env=env)
-            evidence.logs = {name: self._tail(os.path.join(adir, name)) for name in FAILURE_LOGS}
-            evidence.driver_log = self._tail(os.path.join(adir, "driver.log"))  # collect-failure may have brought it just now
+            evidence.logs = {name: proc.tail_text(os.path.join(adir, name), FAILURE_LOG_TAIL_BYTES) for name in FAILURE_LOGS}
+            evidence.driver_log = proc.tail_text(os.path.join(adir, "driver.log"), FAILURE_LOG_TAIL_BYTES)  # collect-failure may have brought it just now
             evidence.runner_log = evidence.runner_log[-FAILURE_LOG_TAIL_BYTES:]
             verdict = cl.classify(evidence)  # again: the logs only exist now, and a degraded simulator is the environment's
             with open(os.path.join(adir, "classification.json"), "w") as handle:
@@ -726,17 +726,6 @@ class PlatformRun:
         """prepareBackendMs and launchMs when the runner's result.json (or the attempt built from it) carries them; absent is not zero."""
         return {key: source[key] for key in ("prepareBackendMs", "launchMs")
             if isinstance(source, dict) and isinstance(source.get(key), (int, float)) and not isinstance(source.get(key), bool)}
-
-    @staticmethod
-    def _tail(path, limit=FAILURE_LOG_TAIL_BYTES):
-        """The last `limit` bytes of a file as text; empty when it does not exist."""
-        try:
-            with open(path, "rb") as handle:
-                handle.seek(0, os.SEEK_END)
-                handle.seek(max(0, handle.tell() - limit))
-                return handle.read().decode("utf-8", errors="replace")
-        except OSError:
-            return ""
 
     @staticmethod
     def _read(path):
@@ -780,20 +769,13 @@ class PlatformRun:
         text = publish.description(self.platform, self.runnable, self.quarantined, git.sha, self.fingerprint, ledger)
         m.data["published"].update(description=text, attempted=True)
         with m.phase("publish"):
-            if ledger.publication(git.sha, self.context, text):
-                self.log.say("status %s already published for %s" % (self.context, git.sha7))
-            else:
-                try:
-                    publish.publish_success(cfg, self.platform, git.sha, self.context, text)
-                except publish.PublishError as error:
-                    m.data["published"]["ok"] = False
-                    self.log.say("PUBLISH FAILED %s. The ledger is intact: rerun `e2e.py publish --platform %s`."
-                        % (error, self.platform))
-                    m.data["stop"]["reason"] = str(error)
-                    return "publish_failed", 6
-                ledger.add_publication({"sha": git.sha, "context": self.context, "description": text,
-                    "publishedAt": now(), "runId": self.run_id})
-                ledger.save()
+            try:
+                publish.publish_once(cfg, self.platform, git, self.context, text, ledger, self.run_id, self.log)
+            except publish.PublishError as error:
+                m.data["published"]["ok"] = False
+                self.log.say("PUBLISH FAILED %s. The ledger is intact: rerun `e2e.py publish --platform %s`." % (error, self.platform))
+                m.data["stop"]["reason"] = str(error)
+                return "publish_failed", 6
         m.data["published"]["ok"] = True
         return "passed", 0
 

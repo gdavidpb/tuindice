@@ -4,8 +4,9 @@ import json
 import os
 import unittest
 
+import support
 from support import TESTS, Workspace, scenario, text
-from harness import tolerances
+from harness import proc, tolerances
 
 LOGS = os.path.join(TESTS, "fixtures", "driver-logs")
 
@@ -38,6 +39,15 @@ class CountTests(unittest.TestCase):
     def test_android_without_a_tolerance_is_empty_and_so_is_nothing(self):
         self.assertEqual(tolerances.count(fixture("android-quiet.log")), {})
         self.assertEqual(tolerances.count(""), {})
+
+    def test_only_the_end_of_a_big_file_is_read(self):
+        path = os.path.join(support.tempfile.mkdtemp(prefix="e2e-tail-"), "log")
+        self.addCleanup(support.shutil.rmtree, os.path.dirname(path), True)
+        with open(path, "w") as handle:
+            handle.write("0123456789" * 10)
+        self.assertEqual(proc.tail_text(path, 15), "56789" + "0123456789")
+        self.assertEqual(proc.tail_text(path, 1000), "0123456789" * 10)
+        self.assertEqual(proc.tail_text("/nonexistent/log", 15), "")
 
     def test_the_sum_of_counts(self):
         self.assertEqual(tolerances.merge({"a": 1}, {"a": 2, "b": 1}, {}), {"a": 3, "b": 1})

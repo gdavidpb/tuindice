@@ -459,6 +459,14 @@ class ReaderTests(unittest.TestCase):
         self.assertEqual(adapter_tools.xctest_summary(log, 0), {"nativeOk": True, "testsExecuted": 3})
         self.assertFalse(adapter_tools.xctest_summary(log, 65)["nativeOk"])
 
+    def test_a_crash_report_is_waited_for_only_when_the_app_can_have_gone_away(self):
+        for text, expected in (("", "yes"), ("{not json", "yes"), ("[]", "yes"),
+                (json.dumps({"outcome": "failed", "failure": {"kind": "APP_NOT_RUNNING"}}), "yes"),
+                (json.dumps({"outcome": "failed", "failure": {"kind": "ASSERTION"}}), "no"),
+                (json.dumps({"outcome": "passed", "failure": None}), "no")):
+            self.assertEqual(adapter_tools.app_may_have_crashed(self.write(text)), expected, text)
+        self.assertEqual(adapter_tools.app_may_have_crashed("/nonexistent/result.json"), "yes")
+
     def test_a_native_crash_of_the_app_is_a_crash(self):
         log = self.write("1791346198.100  100  100 F libc    : Fatal signal 11 (SIGSEGV)\n"
                          "1791346198.200  100  100 F DEBUG   : pid: 100, tid: 100, name: x  >>> %s <<<\n" % APP_ID)

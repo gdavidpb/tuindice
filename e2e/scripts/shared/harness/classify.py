@@ -131,10 +131,8 @@ def _decode_basic(value):
 def _expected_credentials(account):
     user, password = account["usbId"], account["password"]
     expected = ["%s:%s" % (user, password)]
-    if account.get("backendIdentifier"):  # exported by the catalog when it knows it
+    if account.get("backendIdentifier"):  # what the app sends for this account, exported by the catalog
         expected.append("%s:%s" % (account["backendIdentifier"], password))
-    elif "@" in user:  # otherwise the rule the app applies: the local part of an e-mail
-        expected.append("%s:%s" % (user.split("@")[0], password))
     return expected
 
 
