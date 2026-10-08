@@ -217,9 +217,10 @@ provisional until compared against `e2e-profile.py --compare` data. Evidence is 
 - **Parallel or sequential** is decided by the harness: parallel only with `ncpu >= 8`, idle CPU of 50 % or more and
   memory of 32 GB or more; otherwise sequential. The decision and its reason are in the manifest. The skill sets no
   policy; do not choose it.
-- **Before each scenario** the harness measures the idle CPU when `load1/ncpu` is 1.0 or more, and waits only if it
-  is under 20 %, until it reaches 35 % (at most 300 s per scenario, 900 s per run); the Android adapter checks the
-  device's own load (`health`, limit 6.0). The waits and the idle CPU are recorded per attempt in the manifest.
+- **Before each scenario** the harness measures the idle CPU (evidence every time; a diagnosis only when `load1/ncpu`
+  is 0.7 or more), and waits only if it is under 20 %, until it reaches 35 % (at most 300 s per scenario, 900 s per
+  run); the Android adapter checks the device's own load (`health`, limit 6.0). If `top` gives no reading, evidence
+  says so once in a `LOAD` line and the gate stays off. The waits and the idle CPU are recorded per attempt in the manifest.
 - **`--platform all`** prepares one platform at a time (device, build, install, under a host lock); scenarios still
   run in parallel. The wait for the lock is in the manifest (`prepareLock`).
 - **Devices.** Android: the AVD of `e2e/toolchain/android.lock` as an 8-core, 16 GB emulator without a window,

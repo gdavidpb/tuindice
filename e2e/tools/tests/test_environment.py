@@ -24,6 +24,60 @@ def rows(evidence=True, overrides=(), **changes):
     return {r["id"]: r for r in envcheck.evaluate(measures, evidence, list(overrides))}
 
 
+TOP_OUTPUT = """Processes: 512 total, 3 running, 509 sleeping, 2850 threads
+2026/10/08 10:00:01
+Load Avg: 2.50, 3.11, 3.20
+CPU usage: 12.34% user, 8.10% sys, 79.56% idle
+SharedLibs: 640M resident, 120M data, 60M linkedit.
+MemRegions: 300000 total, 4000M resident, 200M private, 2000M shared.
+PhysMem: 15G used (2000M wired, 3000M compressor), 800M unused.
+VM: 200T vsize, 4000M framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 1/1K in, 1/1K out.
+Disks: 1/1G read, 1/1G written.
+
+Processes: 512 total, 2 running, 510 sleeping, 2850 threads
+2026/10/08 10:00:02
+Load Avg: 2.50, 3.11, 3.20
+CPU usage: 30.00% user, 9.10% sys, 60.90% idle
+SharedLibs: 640M resident, 120M data, 60M linkedit.
+"""
+
+
+class CpuReadingTests(unittest.TestCase):
+    def test_the_idle_percent_is_the_one_of_the_second_report_of_top(self):
+        self.assertEqual(envcheck.parse_cpu_idle(TOP_OUTPUT), 60.9)
+
+    def test_a_top_that_printed_nothing_or_no_cpu_line_is_not_a_reading(self):
+        self.assertIsNone(envcheck.parse_cpu_idle(""))
+        self.assertIsNone(envcheck.parse_cpu_idle("Processes: 512 total\n"))
+
+
+class UnmeasurableCpuTests(unittest.TestCase):
+    def test_evidence_says_once_that_the_cpu_gate_is_off_when_the_cpu_cannot_be_read(self):
+        from unittest import mock
+        from harness.runner import Options, PlatformRun
+        ws = Workspace(self, [scenario("fix-a")])
+        run = PlatformRun(Config(ws.repo, ws.env), "ios", Options("evidence"))
+        run.manifest = mock.Mock()
+        with mock.patch.object(envcheck, "cpu_idle", return_value=None), mock.patch.object(run.log, "say") as said:
+            self.assertEqual(run._wait_for_load(mock.Mock(id="fix-a")), (0, None))
+            self.assertEqual(run._wait_for_load(mock.Mock(id="fix-b")), (0, None))
+        lines = [call[0][0] for call in said.call_args_list]
+        self.assertEqual(len(lines), 1, lines)
+        self.assertIn("LOAD  the idle CPU could not be read", lines[0])
+
+    def test_a_diagnosis_does_not_say_it_because_it_only_measures_above_a_load(self):
+        from unittest import mock
+        from harness.runner import Options, PlatformRun
+        ws = Workspace(self, [scenario("fix-a")])
+        ws.set_metrics(load=[12.0, 12.0, 12.0])
+        run = PlatformRun(Config(ws.repo, ws.env), "ios", Options("diagnose"))
+        run.manifest = mock.Mock()
+        with mock.patch.object(envcheck, "cpu_idle", return_value=None), mock.patch.object(run.log, "say") as said:
+            run._wait_for_load(mock.Mock(id="fix-a"))
+        said.assert_not_called()
+
+
 class ThresholdTests(unittest.TestCase):
     def test_a_healthy_host_is_all_ok(self):
         self.assertEqual({r["level"] for r in rows().values()}, {"ok"})

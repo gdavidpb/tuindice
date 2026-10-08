@@ -103,6 +103,7 @@ class PlatformRun:
         self.attempts_since_recovery = 0
         self.load_waited = 0.0
         self.load_gate_spent = False
+        self.cpu_unmeasured_said = False
         self.ledger = None
         self.catalog = None
         self.runnable, self.quarantined = [], []
@@ -481,6 +482,9 @@ class PlatformRun:
         if not self.evidence and load[0] / ncpu < envcheck.LOAD_MEASURE_RATIO:
             return 0, None
         idle = envcheck.cpu_idle(cfg)
+        if idle is None and self.evidence and not self.cpu_unmeasured_said:
+            self.cpu_unmeasured_said = True
+            self.log.say("LOAD  the idle CPU could not be read (top gave no CPU line); the load gate is off for this run")
         if idle is None or idle >= envcheck.CPU_IDLE_WAIT_BELOW:
             return 0, idle
         poll = float(cfg.seam("E2E_FAKE_LOAD_POLL_SECONDS") or 10)

@@ -56,8 +56,14 @@ def cpu_idle(cfg, sample=0):
     if fake:
         value = fake["cpuIdle"]
         return float(value[min(sample, len(value) - 1)] if isinstance(value, list) else value)
-    found = re.findall(r"CPU usage:.*?([\d.]+)% idle", _output(["top", "-l", "2", "-n", "0", "-s", "1"]))
-    return float(found[-1]) if found else None  # the second report covers the interval; the first is since boot
+    return parse_cpu_idle(_output(["top", "-l", "2", "-n", "0", "-s", "1"]))
+
+
+def parse_cpu_idle(text):
+    """The idle percent of the last `CPU usage` line of `top -l 2` (the second report covers the interval; the first is since
+    boot), or None when there is none."""
+    found = re.findall(r"CPU usage:.*?([\d.]+)% idle", text)
+    return float(found[-1]) if found else None
 
 
 def _process_table():
