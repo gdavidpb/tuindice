@@ -383,6 +383,158 @@ class CreateSyntheticTermViewModelContractTest {
 		}
 	}
 
+	@Test
+	fun createForm_justOpenedWithThePreselectedPeriod_hasNothingToDiscard() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				val opened = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedPeriod == FirstPeriod
+				}
+
+				assertEquals(false, opened.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun createForm_withAnotherPeriodThanThePreselectedOne_hasADraftToDiscard() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				awaitUntilState<CreateSyntheticTerm.State> { state -> state.selectedPeriod == FirstPeriod }
+
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = SecondPeriod,
+					subjects = emptyList()
+				)
+				val changed = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedPeriod == SecondPeriod
+				}
+
+				assertEquals(true, changed.hasDiscardableDraft)
+
+				// Going back to the preselected period leaves nothing to lose again.
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				val restored = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedPeriod == FirstPeriod
+				}
+
+				assertEquals(false, restored.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun createForm_withASubjectAdded_hasADraftToDiscard_andNotOnceItIsRemoved() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				awaitUntilState<CreateSyntheticTerm.State> { state -> state.selectedPeriod == FirstPeriod }
+
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = listOf(DraftSubject)
+				)
+				val added = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedSubjects.size == 1
+				}
+
+				assertEquals(true, added.hasDiscardableDraft)
+
+				fixture.creationRepository.snapshotFlow.value = createSnapshot(
+					selectedPeriod = FirstPeriod,
+					subjects = emptyList()
+				)
+				val removed = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedSubjects.isEmpty()
+				}
+
+				// No subjects and the preselected period: the same as an untouched form.
+				assertEquals(false, removed.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun editForm_hasADraftToDiscard_onlyOnceItDivergesFromTheLoadedTerm() = runTest {
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		fun editSnapshot(subjects: List<SyntheticTermSubject>) = createSnapshot(
+			selectedPeriod = FirstPeriod,
+			subjects = subjects,
+			editingTermId = "synthetic-term"
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.creationRepository.snapshotFlow.value = editSnapshot(subjects = listOf(DraftSubject))
+				val loaded = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.isEditing && state.initialDraft != null
+				}
+
+				assertEquals(false, loaded.hasDiscardableDraft)
+
+				fixture.creationRepository.snapshotFlow.value = editSnapshot(subjects = emptyList())
+				val diverged = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.selectedSubjects.isEmpty()
+				}
+
+				assertEquals(true, diverged.hasDiscardableDraft)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	private fun createFixture(
 		record: AcademicRecord = AcademicRecord(id = "record")
 	): CreateSyntheticTermFixture {
@@ -442,6 +594,36 @@ class CreateSyntheticTermViewModelContractTest {
 			academicRecordRepository = academicRecordRepository,
 			selectionRepository = selectionRepository,
 			creationRepository = creationRepository
+		)
+	}
+
+	private fun createSnapshot(
+		selectedPeriod: SyntheticTermPeriodOption,
+		subjects: List<SyntheticTermSubject>,
+		editingTermId: String? = null
+	) = SyntheticTermCreationSnapshot(
+		editingTermId = editingTermId,
+		editingTermKey = editingTermId?.let { selectedPeriod.termKey },
+		periodOptions = listOf(FirstPeriod, SecondPeriod),
+		selectedPeriod = selectedPeriod,
+		selectedSubjects = subjects,
+		suggestedSubjects = emptyList(),
+		searchResults = emptyList()
+	)
+
+	private companion object {
+		val FirstPeriod = SyntheticTermPeriodOption(
+			periodYear = 9999,
+			periodCode = AcademicTermPeriod.JAN_MAR
+		)
+		val SecondPeriod = SyntheticTermPeriodOption(
+			periodYear = 9999,
+			periodCode = AcademicTermPeriod.APR_JUL
+		)
+		val DraftSubject = SyntheticTermSubject(
+			subjectCode = "MA1112",
+			name = "MA1112",
+			credits = 4
 		)
 	}
 }
