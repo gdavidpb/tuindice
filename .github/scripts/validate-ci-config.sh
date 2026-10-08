@@ -33,8 +33,11 @@ if ! awk '/^  preflight-production-pr:/ { in_job = 1; next } in_job && /^  [a-z]
 	die "preflight-production-pr must wait for e2e-harness-preflight."
 fi
 
-# The jobs run code of the pull request: no job writes commit statuses (the owner publishes the evidence), and no token is left in .git/config except in shared-preflight, which may have to fetch a commit.
-bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$preflight_workflow" --credentials shared-preflight
+# The jobs of every workflow triggered by a pull request run code of it: no job writes commit statuses (the owner publishes the evidence), and no token is left in .git/config except in shared-preflight, which may have to fetch a commit.
+for workflow_file in .github/workflows/*.yml .github/workflows/*.yaml; do
+	[[ -f "$workflow_file" ]] || continue
+	bash "${SCRIPT_DIR}/verify-workflow-permissions.sh" "$workflow_file" --if-pull-request --credentials shared-preflight
+done
 
 # The two invocations of the preflight (the workflow of a pull request and the stage, through deploy-production.sh) pass the
 # same certification flag, contexts and scope: the check that an empty context file is a wiring fault needs the scope, and

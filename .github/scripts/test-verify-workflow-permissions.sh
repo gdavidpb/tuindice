@@ -91,4 +91,71 @@ expect checkout-without-with fail "job build: an actions/checkout step does not 
 write_workflow empty-permissions "$GOOD_TOP" "$SHARED_READS" '    permissions: {}\n' "$NO_PERSIST"
 expect empty-permissions pass
 
+# ZD-2: the forms a line scan for `statuses: write` used to miss. Each one is a way to grant more than the rules allow.
+write_workflow job-write-all "$GOOD_TOP" "$SHARED_READS" '    permissions: write-all\n' "$NO_PERSIST"
+expect job-write-all fail "job build permissions have the inline value write-all"
+
+write_workflow top-write-all 'permissions: write-all\n' "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
+expect top-write-all fail "top-level permissions have the inline value write-all"
+
+write_workflow job-inline-map "$GOOD_TOP" "$SHARED_READS" '    permissions: { statuses: write }\n' "$NO_PERSIST"
+expect job-inline-map fail "job build permissions have the inline value { statuses: write }"
+
+write_workflow top-inline-map 'permissions: { statuses: write }\n' "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
+expect top-inline-map fail "top-level permissions have the inline value { statuses: write }"
+
+write_workflow job-quoted-write "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: "write"\n' "$NO_PERSIST"
+expect job-quoted-write fail "job build has statuses: write"
+
+write_workflow job-single-quoted-write "$GOOD_TOP" "$SHARED_READS" "    permissions:\\n      contents: read\\n      statuses: 'write'\\n" "$NO_PERSIST"
+expect job-single-quoted-write fail "job build has statuses: write"
+
+write_workflow top-quoted-write 'permissions:\n  contents: read\n  statuses: "write"\n' "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
+expect top-quoted-write fail "top-level permissions grant statuses: write"
+
+write_workflow job-wide-indent "$GOOD_TOP" "$SHARED_READS" '    permissions:\n        contents: read\n        statuses: write\n' "$NO_PERSIST"
+expect job-wide-indent fail "job build has statuses: write"
+
+write_workflow job-id-with-comment "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: write\n' "$NO_PERSIST"
+sed -i.bak 's/^  build:$/  build: # builds the thing/' "${WORK}/job-id-with-comment.yml"
+expect job-id-with-comment fail "job build has statuses: write"
+
+# ...and the inline values that are fine: read-all and the empty map, with a trailing comment.
+write_workflow job-read-all "$GOOD_TOP" "$SHARED_READS" '    permissions: read-all\n' "$NO_PERSIST"
+expect job-read-all pass
+write_workflow job-empty-map-comment "$GOOD_TOP" "$SHARED_READS" '    permissions: {} # nothing\n' "$NO_PERSIST"
+expect job-empty-map-comment pass
+write_workflow job-quoted-read "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: "read"\n' "$NO_PERSIST"
+expect job-quoted-read pass
+
+# ZD-2: with --if-pull-request only the workflows triggered by a pull request are verified, whichever file they are in.
+expect_if_pull_request() {
+	local name="$1"
+	local expected="$2"
+	local status
+
+	set +e
+	bash "$VERIFY" "${WORK}/${name}.yml" --if-pull-request >/dev/null 2>&1
+	status=$?
+	set -e
+	if [[ "$expected" == "pass" && "$status" != "0" ]] || [[ "$expected" == "fail" && "$status" == "0" ]]; then
+		printf 'Fixture %s (--if-pull-request) was expected to %s but exited %s.\n' "$name" "$expected" "$status" >&2
+		exit 1
+	fi
+}
+write_workflow new-pr-workflow "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+expect_if_pull_request new-pr-workflow fail
+write_workflow new-pr-target-workflow "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  pull_request:$/  pull_request_target:/' "${WORK}/new-pr-target-workflow.yml"
+expect_if_pull_request new-pr-target-workflow fail
+write_workflow new-inline-trigger "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^on:$/on: [push, pull_request]/; /^  pull_request:$/d' "${WORK}/new-inline-trigger.yml"
+expect_if_pull_request new-inline-trigger fail
+write_workflow push-only-workflow "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  pull_request:$/  push:/' "${WORK}/push-only-workflow.yml"
+expect_if_pull_request push-only-workflow pass
+write_workflow review-trigger-only "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  pull_request:$/  pull_request_review:/' "${WORK}/review-trigger-only.yml"
+expect_if_pull_request review-trigger-only pass
+
 printf 'Workflow permission fixtures passed.\n'
