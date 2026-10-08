@@ -25,6 +25,32 @@ def head(ws):
         check=True).stdout.strip()
 
 
+class DriverContractClassesTests(unittest.TestCase):
+    """The classes of probes each adapter enumerates by hand are the ones the sources define: a new one that is not listed would not
+    run and the gate would stay green (ZC-7)."""
+
+    def test_the_android_contract_classes_are_the_test_classes_of_the_runner_less_the_scenario_suite(self):
+        sources = os.path.join(ROOT, "scenariorunner", "src", "main", "kotlin", "com", "gdavidpb", "tuindice", "scenariorunner")
+        defined = set()
+        for name in os.listdir(sources):
+            if name.endswith(".kt") and "@Test" in read(sources, name):
+                defined.update(re.findall(r"^class (\w+)", read(sources, name), re.M))
+        defined.discard("ScenarioSuiteTest")
+        adapter = read(ROOT, "e2e", "scripts", "android", "adapter.sh")
+        listed = set(re.findall(r"\.(\w+)(?:,|\")", re.search(r'^CONTRACT_CLASSES="(.*)"$', adapter, re.M).group(1) + '"'))
+        self.assertEqual(listed, defined)
+        required = re.search(r'^CONTRACT_REQUIRED="(.*)"$', adapter, re.M).group(1)
+        self.assertEqual({item.split("#")[0] for item in required.split(",")}, defined)
+
+    def test_the_ios_probe_classes_are_the_xctest_classes_of_the_contract_file_and_each_is_selected(self):
+        defined = set(re.findall(r"^final class (\w+): (?:XCTestCase|ScenarioTestCase)", read(ROOT, "iosApp", "UITests", "DriverContractTests.swift"), re.M))
+        adapter = read(ROOT, "e2e", "scripts", "ios", "adapter.sh")
+        listed = set(re.search(r'^PROBE_CLASSES="(.*)"$', adapter, re.M).group(1).split(","))
+        self.assertEqual(listed, defined)
+        selected = set(re.findall(r"-only-testing:\$\{(?:E2E_IOS_UITEST_SCHEME)\}/(\w+)", adapter))
+        self.assertEqual(selected | {"DriverContractTests"}, defined)
+
+
 class SingleDefinitionTests(unittest.TestCase):
     def test_the_harness_suite_id_is_the_one_of_the_status_context(self):
         # D-13: common.sh defines the suite and the context; the harness' constant must not diverge from it, or the

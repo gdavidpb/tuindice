@@ -164,9 +164,9 @@ class ReaderTests(unittest.TestCase):
     def test_an_xcodebuild_that_ran_two_tests_is_not_the_one_contract_test(self):
         log = self.write("log", "\t Executed 2 tests, with 0 failures (0 unexpected) in 1.0 (1.0) seconds\n")
         result = self.write("result.json", json.dumps(CONTRACT_RESULT))
-        answer = adapter_tools.xctest_contract(log, "0", result)
+        answer = adapter_tools.xctest_contract(log, "0", result, None, self.CLASSES)
         self.assertFalse(answer["ok"])
-        self.assertIn("2 tests executed", " ".join(answer["failed"]))
+        self.assertIn("2 tests executed for 4 classes", " ".join(answer["failed"]))
 
     def xcode(self, *cases, executed=None):
         lines = ["Test Case '-[TuIndiceUITests.%s %s]' %s (0.1 seconds)." % case for case in cases]
@@ -190,6 +190,13 @@ class ReaderTests(unittest.TestCase):
         red = adapter_tools.xctest_contract(self.xcode(*broken), "1", result, None, self.CLASSES)
         self.assertFalse(red["ok"])
         self.assertIn("probes:GuardedIncidentTests#test_c failed", red["failed"])
+
+    def test_a_skipped_probe_is_red_even_when_another_test_of_its_class_passed(self):
+        result = self.write("result.json", json.dumps(CONTRACT_RESULT))
+        cases = self.GREEN_CASES + (("SettleWatchTests", "test_skipped", "skipped"),)
+        answer = adapter_tools.xctest_contract(self.xcode(*cases), "0", result, None, self.CLASSES)
+        self.assertFalse(answer["ok"])
+        self.assertIn("probes:SettleWatchTests#test_skipped skipped", answer["failed"])
 
     def stream(self, *tests, end="INSTRUMENTATION_CODE: -1\n"):
         """An `am instrument -r` stream: (class, test, closing code or None for a test that starts and never closes)."""

@@ -14,9 +14,8 @@ Usage: adapter_tools.py <command> [args...]. Every command prints one JSON objec
                                                  the run must pass except the measurements (MEASUREMENTS); <required> is a comma list of
                                                  `Class#method` that must pass and of `Class` that must have a passing test, <result> the
                                                  contract's result.json
-  xctest-probes <log> <exit code> <result> <artifacts> <classes>  like xctest-contract, and the comma-separated classes of probes
-                                                 the same run executes must each show a passed test and no failed one
-  xctest-contract <log> <exit code> <result> <artifacts>   {ok, passed, failed, skipped, artifacts} of the xcodebuild run of the contract test
+  xctest-probes <log> <exit code> <result> <artifacts> <classes>  {ok, passed, failed, skipped, artifacts} of the xcodebuild run of the contract
+                                                 test; the comma-separated classes it executes must each show a passed test and no failed or skipped one
   app-may-have-crashed <result.json>             yes | no: whether the attempt can have left a crash report (iOS waits for it only then)
   xctest-summary <log> <exit code>               {nativeOk, testsExecuted} of an xcodebuild test run
   xctest-tests <enumeration json>                {tests} the `Target/Class/method` identifiers of an enumeration
@@ -142,26 +141,24 @@ def _answer(ok, passed, failed, skipped, artifacts):
     return dict(answer, artifacts=artifacts) if artifacts is not None else answer
 
 
-TEST_CASE = re.compile(r"^Test Case '-\[(?:\S+\.)?(\w+) (\w+)\]' (passed|failed)", re.M)
+TEST_CASE = re.compile(r"^Test Case '-\[(?:\S+\.)?(\w+) (\w+)\]' (passed|failed|skipped)", re.M)
 
 
-def xctest_contract(log, exit_code, result, artifacts=None, required=""):
-    """The contract test of iOS. With [required] (comma-separated classes) the same xcodebuild run also executes those classes of
-    probes (the rule of stillness, the Objective-C shim): each must show a passed test case and none may fail. Without it the run
-    must be exactly the one contract test."""
+def xctest_contract(log, exit_code, result, artifacts, required):
+    """The contract test of iOS and, in the same xcodebuild run, the classes of probes in [required] (comma-separated: the contract
+    test itself, the rule of stillness, the Objective-C shim...): each must show a passed test case, and none of their tests may
+    fail or be skipped (a skipped probe proved nothing)."""
     summary = xctest_summary(log, exit_code)
     steps_passed, steps_failed, problem = _contract_steps(result)
     failed = list(steps_failed) + ([problem] if problem else [])
     if not summary["nativeOk"] and not failed:
         failed.append("xcodebuild: the contract test did not pass (exit %s)" % exit_code)
     classes = [name for name in required.split(",") if name]
-    if not classes and summary["testsExecuted"] != 1:
-        failed.append("xcodebuild: %d tests executed, expected exactly 1" % summary["testsExecuted"])
     cases = TEST_CASE.findall(_read(log))
-    failed += ["probes:%s#%s failed" % (k, t) for k, t, outcome in cases if outcome == "failed" and k in classes]
+    failed += ["probes:%s#%s %s" % (k, t, outcome) for k, t, outcome in cases if outcome in ("failed", "skipped") and k in classes]
     failed += ["probes:%s: no test of the class passed" % name for name in classes
         if not any(k == name and outcome == "passed" for k, _, outcome in cases)]
-    if classes and summary["testsExecuted"] < len(classes):
+    if summary["testsExecuted"] < len(classes):
         failed.append("xcodebuild: %d tests executed for %d classes" % (summary["testsExecuted"], len(classes)))
     return _answer(not failed and bool(steps_passed), steps_passed, failed, [], artifacts)
 
@@ -337,7 +334,7 @@ def ios_crash(reports_dir, since, until, process, evidence_file, udid="", wait="
 COMMANDS = {
     "apk-outputs": (apk_outputs, 2), "catalog-field": (catalog_field, 3), "instrument-summary": (instrument_summary, 1),
     "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "logcat-window": (logcat_window, 4), "cap-log": (cap_log, 2),
-    "xctest-summary": (xctest_summary, 2), "instrument-probes": (instrument_probes, 4), "xctest-contract": (xctest_contract, 4), "xctest-probes": (xctest_contract, 5),
+    "xctest-summary": (xctest_summary, 2), "instrument-probes": (instrument_probes, 4), "xctest-probes": (xctest_contract, 5),
     "app-may-have-crashed": (app_may_have_crashed, 1),
     "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 7),
 }
