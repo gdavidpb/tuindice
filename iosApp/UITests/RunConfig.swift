@@ -59,6 +59,7 @@ final class DriverLog {
     private var entries: [String] = []
     private var counts: [Tolerance: Int] = [:]
     private var file: FileHandle?
+    private var refusal: String?
 
     init(echo: Bool) {
         self.echo = echo
@@ -102,6 +103,20 @@ final class DriverLog {
         }
         if echo { print("[scenario] \(line)") }
     }
+
+    /// Writes [reason] like any line and keeps it as the reason the gesture or text entry in progress was refused.
+    func refuse(_ reason: String) {
+        locked { refusal = reason }
+        add(reason)
+    }
+
+    /// Forgets the last refusal: every gesture and text entry starts without one.
+    func clearRefusal() {
+        locked { refusal = nil }
+    }
+
+    /// The reason the last gesture or text entry was refused, or nil when it was not.
+    var lastRefusal: String? { locked { refusal } }
 
     /// Records that the driver tolerated [kind]: one line that says what, and one more in the count.
     func tolerate(_ kind: Tolerance, _ detail: String) {

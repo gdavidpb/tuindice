@@ -25,4 +25,16 @@ internal class KeyInjector(private val session: DeviceSession) {
 
 		return entered
 	}
+
+	/** Presses and releases [keyCode], and answers whether the system took both events. */
+	fun press(keyCode: Int): Boolean {
+		val automation = session.instrumentation.uiAutomation
+		val now = SystemClock.uptimeMillis()
+		val down = KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0)
+		val up = KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0)
+
+		return runCatching {
+			automation.injectInputEvent(down, true) && automation.injectInputEvent(up, true)
+		}.getOrDefault(false)
+	}
 }

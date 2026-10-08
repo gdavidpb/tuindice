@@ -34,7 +34,11 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var dialog: String? = null
 	var backResult = true
 	var swipeResult = true
-	var finishResult = true
+	var submitResult = true
+	var hideResult = true
+
+	/** When set, every gesture and text call is refused with this reason: it answers false and [lastRefusal] says why. */
+	var refusal: String? = null
 	var typing: (String) -> String = { it }
 
 	/** False makes `typeKeys` answer false after writing what [typing] makes of the text, like a refused injection. */
@@ -115,10 +119,14 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun readText(q: Query): String? {
 		enter("readText")
-		if (!shown(q)) return null
-		val el = element(q) ?: return null
-		val script = el.scriptedReads ?: return el.text
-		return if (script.size > 1) script.removeAt(0) else script.firstOrNull()
+		val el = element(q)?.takeIf { shown(q) }
+		val script = el?.scriptedReads
+		return when {
+			el == null -> null
+			script == null -> el.text
+			script.size > 1 -> script.removeAt(0)
+			else -> script.firstOrNull()
+		}
 	}
 
 	override fun bounds(q: Query?): ElementBounds? {
@@ -135,24 +143,24 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	override fun tap(q: Query): Boolean {
 		enter("tap")
 		taps += q
-		val reachable = shown(q)
+		val reachable = shown(q) && refusal == null
 		if (reachable) onTap[q]?.invoke()
 		return reachable
 	}
 
 	override fun tapAt(q: Query?, fx: Double, fy: Double): Boolean {
 		enter("tapAt")
-		return q == null || shown(q)
+		return (q == null || shown(q)) && refusal == null
 	}
 
 	override fun doubleTap(q: Query): Boolean {
 		enter("doubleTap")
-		return shown(q)
+		return shown(q) && refusal == null
 	}
 
 	override fun swipe(from: Query?, vector: SwipeVector, durationMs: Long): Boolean {
 		enter("swipe")
-		if (!swipeResult) return false
+		if (!swipeResult || refusal != null) return false
 		swipes++
 		onSwipe(swipes)
 		return true
@@ -160,27 +168,34 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun pressBack(): Boolean {
 		enter("pressBack")
-		return backResult
+		return backResult && refusal == null
 	}
 
 	override fun typeKeys(q: Query, text: String): Boolean {
 		enter("typeKeys")
-		val el = element(q) ?: return false
-		el.text = typing(el.text.orEmpty() + text)
-		return keysAccepted
+		val el = element(q)?.takeIf { refusal == null }
+		el?.let { it.text = typing(it.text.orEmpty() + text) }
+		return el != null && keysAccepted
 	}
 
 	override fun clearText(q: Query): Boolean {
 		enter("clearText")
-		val el = element(q) ?: return false
-		el.text = ""
-		return true
+		val el = element(q)?.takeIf { refusal == null }
+		el?.text = ""
+		return el != null
 	}
 
-	override fun finishTextEntry(): Boolean {
-		enter("finishTextEntry")
-		return finishResult
+	override fun submitTextEntry(): Boolean {
+		enter("submitTextEntry")
+		return submitResult && refusal == null
 	}
+
+	override fun hideKeyboard(): Boolean {
+		enter("hideKeyboard")
+		return hideResult && refusal == null
+	}
+
+	override fun lastRefusal(): String? = refusal
 
 	override fun http(method: String, path: String, body: String?, authorization: String?): HttpReply {
 		enter("http($method $path)")

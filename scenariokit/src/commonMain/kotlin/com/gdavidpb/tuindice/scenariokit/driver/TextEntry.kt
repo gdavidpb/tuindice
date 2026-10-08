@@ -26,6 +26,19 @@ interface TextEntry {
 	 */
 	fun clearText(q: Query): Boolean
 
-	/** Dismisses the keyboard if one is showing. */
-	fun finishTextEntry(): Boolean
+	/**
+	 * Sends the IME action of the field that has the focus, as the action key of its keyboard does (Search, Done, Go):
+	 * what the app does with it is the app's, and the next step waits for that. It does not choose the field, and it
+	 * does not close the keyboard by itself (the app does, or does not). True when the action was sent.
+	 */
+	fun submitTextEntry(): Boolean
+
+	/**
+	 * Puts the on-screen keyboard away without sending the field's action, true when none is showing afterwards.
+	 * Android presses back while the keyboard is up. iOS has no such action: its keyboards have no hide key on a phone,
+	 * so it answers false while a keyboard is showing (and true when there is none) and says why through
+	 * [Diagnostics.lastRefusal]; a scenario that must clear the keyboard on iOS sends the field's action or touches
+	 * what the app itself dismisses the keyboard with.
+	 */
+	fun hideKeyboard(): Boolean
 }

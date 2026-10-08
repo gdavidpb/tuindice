@@ -39,14 +39,16 @@ final class ConformanceScenarioTests: ScenarioTestCase {
     func test_conformance_backend() { runScenario("conformance-backend") }
     func test_conformance_double_tap_swipe() { runScenario("conformance-double-tap-swipe") }
     func test_conformance_enabled() { runScenario("conformance-enabled") }
-    func test_conformance_finish_text_entry() { runScenario("conformance-finish-text-entry") }
     func test_conformance_foreground() { runScenario("conformance-foreground") }
     func test_conformance_launch_clean() { runScenario("conformance-launch-clean") }
     func test_conformance_launch_seeded() { runScenario("conformance-launch-seeded") }
+    func test_conformance_mock_state() { runScenario("conformance-mock-state") }
     func test_conformance_scroll() { runScenario("conformance-scroll") }
     func test_conformance_scroll_horizontal() { runScenario("conformance-scroll-horizontal") }
     func test_conformance_secure_field() { runScenario("conformance-secure-field") }
     func test_conformance_sheet_tags() { runScenario("conformance-sheet-tags") }
+    func test_conformance_submit_search() { runScenario("conformance-submit-search") }
+    func test_conformance_submit_text_entry() { runScenario("conformance-submit-text-entry") }
     func test_conformance_swipe_from_element() { runScenario("conformance-swipe-from-element") }
     func test_conformance_tap_at() { runScenario("conformance-tap-at") }
     func test_conformance_text_query() { runScenario("conformance-text-query") }

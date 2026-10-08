@@ -22,7 +22,7 @@ class CatalogRulesTest {
 	private val clean = LaunchSpec(emptyMap())
 
 	/** Scenarios that run on one platform on purpose: the conformance one of `back`, which iOS does not have. */
-	private val platformRestricted = setOf("conformance-back")
+	private val platformRestricted = setOf("conformance-back", "conformance-hide-keyboard")
 
 	// The platform branches match the budget exactly.
 

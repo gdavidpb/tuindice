@@ -33,7 +33,7 @@ internal object FailureRefiner {
 
 	/** Everything except launch control, backend checks and elements of the OS itself. */
 	private fun needsApp(step: Step?): Boolean = when (step) {
-		null, is Step.Relaunch, is Step.Foreground, is Step.ExpectRequest, is Step.Container -> false
+		null, is Step.Relaunch, is Step.Foreground, is Step.ExpectRequest, is Step.SetMockState, is Step.Container -> false
 		else -> !step.target.contains(SYSTEM_QUERY_PREFIX)
 	}
 }

@@ -181,10 +181,10 @@ final class ElementResolver {
         case let .settled(resolved, facts):
             return (resolved, facts)
         case let .moving(facts, reads, seconds):
-            log.add("[driver] \(gesture) \(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
+            log.refuse("[driver] \(gesture) \(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
             return nil
         case let .gone(reads):
-            log.add("[driver] \(gesture) \(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")
+            log.refuse("[driver] \(gesture) \(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")
             return nil
         }
     }

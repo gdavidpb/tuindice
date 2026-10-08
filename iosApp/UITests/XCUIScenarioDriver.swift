@@ -93,6 +93,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func tap(q: Query) -> Bool {
         traced("tap") {
+            log.clearRefusal()
             guard let (resolved, facts) = resolver.placed(q, for: "tap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
             return tap(resolved, at: CGPoint(x: target.midX, y: target.midY), gesture: "tap \(q)")
@@ -101,7 +102,8 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func tapAt(q: Query?, fx: Double, fy: Double) -> Bool {
         traced("tapAt") {
-            guard resolver.isAppRunning else { return false }
+            log.clearRefusal()
+            guard resolver.isAppRunning else { return refuse("tapAt: the app is not running") }
             guard let (resolved, area) = area(of: q, for: "tapAt") else { return false }
             let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
             guard !coveredByKeyboard(point, gesture: "tapAt \(q.map { "\($0)" } ?? "screen")") else { return false }
@@ -112,7 +114,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func doubleTap(q: Query) -> Bool {
         traced("doubleTap") {
-            guard resolver.isAppRunning, let (resolved, facts) = resolver.placed(q, for: "doubleTap") else { return false }
+            log.clearRefusal()
+            guard resolver.isAppRunning else { return refuse("doubleTap: the app is not running") }
+            guard let (resolved, facts) = resolver.placed(q, for: "doubleTap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
             let point = CGPoint(x: target.midX, y: target.midY)
             guard !coveredByKeyboard(point, gesture: "doubleTap \(q)") else { return false }
@@ -122,11 +126,15 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func swipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
-        traced("swipe") { performSwipe(from: from, vector: vector, durationMs: durationMs) }
+        traced("swipe") {
+            log.clearRefusal()
+            return performSwipe(from: from, vector: vector, durationMs: durationMs)
+        }
     }
 
     private func performSwipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
-        guard resolver.isAppRunning, let (resolved, area) = area(of: from, for: "swipe") else { return false }
+        guard resolver.isAppRunning else { return refuse("swipe: the app is not running") }
+        guard let (resolved, area) = area(of: from, for: "swipe") else { return false }
         let screen = resolver.screen
         let start = CGPoint(x: area.minX + area.width * vector.fx, y: area.minY + area.height * vector.fy)
         let end = CGPoint(
@@ -147,15 +155,42 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         return true
     }
 
-    func pressBack() -> Bool { traced("pressBack") { false } }
+    func pressBack() -> Bool {
+        traced("pressBack") {
+            log.clearRefusal()
+            return refuse("pressBack: iOS has no system back action")
+        }
+    }
 
     // MARK: TextEntry
 
-    func typeKeys(q: Query, text: String) -> Bool { traced("typeKeys") { typing.typeKeys(q, text: text) } }
+    func typeKeys(q: Query, text: String) -> Bool {
+        traced("typeKeys") {
+            log.clearRefusal()
+            return typing.typeKeys(q, text: text)
+        }
+    }
 
-    func clearText(q: Query) -> Bool { traced("clearText") { typing.clearText(q) } }
+    func clearText(q: Query) -> Bool {
+        traced("clearText") {
+            log.clearRefusal()
+            return typing.clearText(q)
+        }
+    }
 
-    func finishTextEntry() -> Bool { traced("finishTextEntry") { typing.finishTextEntry() } }
+    func submitTextEntry() -> Bool {
+        traced("submitTextEntry") {
+            log.clearRefusal()
+            return typing.submitTextEntry()
+        }
+    }
+
+    func hideKeyboard() -> Bool {
+        traced("hideKeyboard") {
+            log.clearRefusal()
+            return typing.hideKeyboard()
+        }
+    }
 
     // MARK: BackendControl
 
@@ -170,6 +205,8 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func log(line: String) {
         log.add(line)
     }
+
+    func lastRefusal() -> String? { log.lastRefusal }
 
     func pause(ms: Int64) {
         traced("pause") { Thread.sleep(forTimeInterval: Double(max(ms, 0)) / 1000.0) }
@@ -216,7 +253,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// A coordinate tap at [point] (the centre of the visible part for a plain tap): no hittability assertion, and no dependence on the
     /// synthetic child Compose adds under a tagged element. A point under the on-screen keyboard is not tapped.
     private func tap(_ resolved: ResolvedElement, at point: CGPoint, gesture: String) -> Bool {
-        guard resolver.isAppRunning else { return false }
+        guard resolver.isAppRunning else { return refuse("\(gesture): the app is not running") }
         guard !coveredByKeyboard(point, gesture: gesture) else { return false }
         resolver.coordinate(at: point, in: resolved).tap()
         return true
@@ -227,8 +264,14 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// to it, `typeText` and the action key of `finishTextEntry`, do not use a point of the screen.)
     private func coveredByKeyboard(_ point: CGPoint, gesture: String) -> Bool {
         guard let keyboard = resolver.keyboardFrame, keyboard.contains(point) else { return false }
-        log.add("[driver] \(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")
+        log.refuse("[driver] \(gesture): the point \(point) is inside the keyboard on screen \(keyboard); tap refused")
         return true
+    }
+
+    /// Writes [reason] to the driver log as the reason of the call that is about to answer `false`, and answers it.
+    private func refuse(_ reason: String) -> Bool {
+        log.refuse("[driver] \(reason)")
+        return false
     }
 
     /// The place a gesture on [q] goes to: the whole screen without a query, otherwise the settled part of the element.

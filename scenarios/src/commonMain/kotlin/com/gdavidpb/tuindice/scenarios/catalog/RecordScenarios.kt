@@ -11,11 +11,12 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
-import com.gdavidpb.tuindice.scenariokit.dsl.finishTextEntry
+import com.gdavidpb.tuindice.scenariokit.dsl.hideKeyboard
 import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
@@ -98,7 +99,7 @@ private fun StepBuilder.openSearchTab() {
 private fun StepBuilder.searchSubjects(query: String, replace: Boolean = false) {
 	tap(RecordUiTags.CreateSyntheticTermSearchField)
 	enterText(RecordUiTags.CreateSyntheticTermSearchField, query, replace = replace)
-	finishTextEntry()
+	submitTextEntry()
 }
 
 private fun StepBuilder.addSubject(code: String, selectedCount: String) {
@@ -304,7 +305,7 @@ private val recordSyntheticTermSearchStates = scenario(
 	// selected): the keyboard covers half the list, and the scroll below swipes over the bar and the keyboard
 	// instead of over the results. The field is on screen once that request has been made.
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Action)
-	finishTextEntry()
+	submitTextEntry()
 	scrollUntilVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Scroll.ContentDown, Within.Wait)
 	waitVisible(subjectStatus(aa1001, STATUS_NOT_IN_PENSUM), Within.Assert)
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(aa1001), Within.Assert)
@@ -422,7 +423,7 @@ private val recordSyntheticTermLifecycle = scenario(
 	waitVisible(subjectAction(ec5333, ACTION_REMOVE), Within.Assert)
 	tap(RecordUiTags.CreateSyntheticTermSearchTab)
 	onPlatform(Platform.Android) {
-		finishTextEntry()
+		hideKeyboard()
 	}
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)
@@ -483,7 +484,7 @@ private val recordSyntheticTermRejected = scenario(
 	waitVisible(text(Copy.EditTermButton), Within.Action)
 	tap(RecordUiTags.CreateSyntheticTermSearchTab)
 	onPlatform(Platform.Android) {
-		finishTextEntry()
+		hideKeyboard()
 	}
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)

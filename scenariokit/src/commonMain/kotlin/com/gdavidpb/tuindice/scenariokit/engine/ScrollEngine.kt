@@ -37,7 +37,7 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 			}
 		}
 		return when {
-			swipeRefused -> StepResult.Failed(FailureKind.ASSERTION, "the driver refused the scroll swipe")
+			swipeRefused -> StepResult.Failed(FailureKind.ASSERTION, driver.refused("the driver refused the scroll swipe"))
 			inView -> StepResult.Passed
 			else -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,

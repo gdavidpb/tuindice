@@ -5,6 +5,9 @@ package com.gdavidpb.tuindice.scenariokit.model
  * A wait is for a condition and ends as soon as it holds, so a longer name only costs time when the step fails.
  */
 object Timeouts {
+	/** A single look and no waiting: for a check that something is, or is not, there at this very moment. */
+	const val Now = 0L
+
 	/** The default window of `ifVisible`: a quick look at whether something is there, never a wait. */
 	const val Probe = 1_500L
 

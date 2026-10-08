@@ -15,6 +15,8 @@ internal class DriverDiagnostics(
 		session.log.write(line)
 	}
 
+	override fun lastRefusal(): String? = session.log.lastRefusal()
+
 	override fun pause(ms: Long) {
 		SystemClock.sleep(ms)
 	}

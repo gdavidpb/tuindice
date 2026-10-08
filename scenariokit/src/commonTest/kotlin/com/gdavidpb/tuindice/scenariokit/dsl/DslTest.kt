@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.seconds
 
@@ -60,6 +59,22 @@ class DslTest {
 		assertEquals(false, secure.replace)
 		assertEquals(false, replacing.secure)
 		assertEquals(true, replacing.replace)
+	}
+
+	@Test
+	fun submitHideAndMockState_buildTheirOwnSteps() {
+		val built = scenario("a-b", "a", start) {
+			submitTextEntry()
+			hideKeyboard()
+			mockState("login-token-lifecycle", "Reissued")
+		}
+
+		assertEquals(
+			listOf("SubmitTextEntry", "HideKeyboard", "SetMockState"),
+			built.steps.map { it::class.simpleName }
+		)
+		assertEquals(Step.SetMockState("login-token-lifecycle", "Reissued", built.steps.last().site), built.steps.last())
+		assertEquals("login-token-lifecycle = Reissued", built.steps.last().target)
 	}
 
 	@Test

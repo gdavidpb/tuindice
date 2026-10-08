@@ -14,4 +14,8 @@ fun StepBuilder.enterSecureText(tag: String, text: String, replace: Boolean = fa
 fun StepBuilder.enterText(query: Query, text: String, expect: String? = null, replace: Boolean = false) =
 	add(Step.EnterText(query, text, expect, false, replace, site()))
 
-fun StepBuilder.finishTextEntry() = add(Step.FinishTextEntry(site()))
+/** Sends the IME action (search, done, go) of the focused field, as its keyboard's action key does. */
+fun StepBuilder.submitTextEntry() = add(Step.SubmitTextEntry(site()))
+
+/** Puts the keyboard away without sending the field's action. */
+fun StepBuilder.hideKeyboard() = add(Step.HideKeyboard(site()))

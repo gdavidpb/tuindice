@@ -16,15 +16,19 @@ internal class GestureSteps(
 	fun execute(step: Step): StepResult = when (step) {
 		is Step.Tap -> tap(step)
 		is Step.TapAt -> driver.awaitTarget(step.q)
-			?: passIf(driver.tapAt(step.q, step.fx, step.fy), FailureKind.ASSERTION) { "tapAt ${step.target} was refused" }
+			?: passIf(driver.tapAt(step.q, step.fx, step.fy), FailureKind.ASSERTION) {
+				driver.refused("tapAt ${step.target} was refused")
+			}
 		is Step.DoubleTap -> driver.awaitTarget(step.q)
-			?: passIf(driver.doubleTap(step.q), FailureKind.ASSERTION) { "doubleTap ${step.target} was refused" }
-		is Step.Back -> passIf(driver.pressBack(), FailureKind.ASSERTION) { "back was not handled" }
+			?: passIf(driver.doubleTap(step.q), FailureKind.ASSERTION) {
+				driver.refused("doubleTap ${step.target} was refused")
+			}
+		is Step.Back -> passIf(driver.pressBack(), FailureKind.ASSERTION) { driver.refused("back was not handled") }
 		is Step.Swipe -> driver.awaitTarget(step.from)
 			?: passIf(
 				driver.swipe(step.from, SwipeVector(step.fx, step.fy, step.dx, step.dy), step.durationMs),
 				FailureKind.ASSERTION
-			) { "swipe from ${step.target} was refused" }
+			) { driver.refused("swipe from ${step.target} was refused") }
 		else -> unhandled(step)
 	}
 
@@ -38,7 +42,9 @@ internal class GestureSteps(
 
 		return driver.awaitTarget(step.q)
 			?: awaitEnabled(step, Timeouts.Action - mark.elapsedNow().inWholeMilliseconds)
-			?: passIf(driver.tap(step.q), FailureKind.ASSERTION) { "tap on ${step.q.describe()} was refused" }
+			?: passIf(driver.tap(step.q), FailureKind.ASSERTION) {
+				driver.refused("tap on ${step.q.describe()} was refused")
+			}
 	}
 
 	private fun awaitEnabled(step: Step.Tap, remainingMs: Long): StepResult.Failed? =

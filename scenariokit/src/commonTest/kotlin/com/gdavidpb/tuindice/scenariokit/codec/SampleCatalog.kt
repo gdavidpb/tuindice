@@ -26,7 +26,8 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.DoubleTap(Query.Text("Save", contains = true), site),
 	Step.Back(site),
 	Step.EnterText(tag, "12-34567", "12-34567", false, true, site),
-	Step.FinishTextEntry(site),
+	Step.SubmitTextEntry(site),
+	Step.HideKeyboard(site),
 	Step.WaitVisible(tag, 5_000, site),
 	Step.WaitGone(Query.System("Cancel"), 5_000, site),
 	Step.WaitAnyVisible(listOf(tag, Query.Text("Ok")), 5_000, site),
@@ -35,6 +36,7 @@ fun allStepKinds(site: Site? = SAMPLE_SITE): List<Step> = listOf(
 	Step.ScrollUntilVisible(tag, Scroll.ContentDown, 20_000, site),
 	Step.IfVisible(tag, 1_500, listOf(Step.Tap(tag, true, site)), site),
 	Step.OnPlatform(Platform.Ios, listOf(Step.Back(site)), site),
+	Step.SetMockState("login-token-lifecycle", "Reissued", site),
 	Step.ExpectRequest("POST", "/auth/v2/bootstrap", "11-11111:123456", 20_000, site),
 	Step.Group("sign in", listOf(Step.Tap(tag, true, site)), site)
 )

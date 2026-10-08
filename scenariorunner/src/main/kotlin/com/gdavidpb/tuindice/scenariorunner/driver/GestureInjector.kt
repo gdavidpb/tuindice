@@ -10,18 +10,21 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 /** Touch input on computed pixels; fractions are of the target's (or the screen's) visible size. */
 internal class GestureInjector(private val session: DeviceSession) : Gestures {
 	override fun tap(q: Query): Boolean {
+		session.log.clearRefusal()
 		val place = session.settledBounds(q) ?: return false
 
 		return click(place.centerX(), place.centerY(), "tap on $q")
 	}
 
 	override fun tapAt(q: Query?, fx: Double, fy: Double): Boolean {
+		session.log.clearRefusal()
 		val box = area(q) ?: return false
 
 		return click(box.pointX(fx), box.pointY(fy), "tapAt ${q ?: "the screen"}")
 	}
 
 	override fun doubleTap(q: Query): Boolean {
+		session.log.clearRefusal()
 		val box = area(q) ?: return false
 		val x = box.pointX(CENTER)
 		val y = box.pointY(CENTER)
@@ -30,10 +33,11 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 			val first = session.device.click(x, y)
 			SystemClock.sleep(DOUBLE_TAP_GAP_MS)
 			session.device.click(x, y) && first
-		}.getOrDefault(false)
+		}.getOrDefault(false).also { if (!it) session.log.refuse("doubleTap on $q: the clicks were not delivered") }
 	}
 
 	override fun swipe(from: Query?, vector: SwipeVector, durationMs: Long): Boolean {
+		session.log.clearRefusal()
 		val box = area(from) ?: return false
 		val screenWidth = session.device.displayWidth
 		val screenHeight = session.device.displayHeight
@@ -45,6 +49,7 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 
 		return !session.keyboard.covers(startX, startY, "swipe from ${from ?: "the screen"}") &&
 			runCatching { session.device.swipe(startX, startY, endX, endY, steps) }.getOrDefault(false)
+				.also { if (!it) session.log.refuse("swipe from ${from ?: "the screen"}: the swipe was not delivered") }
 	}
 
 	/**
@@ -53,19 +58,21 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 	 * although the key was delivered. The next step waits for the effect.
 	 */
 	override fun pressBack(): Boolean = runCatching {
+		session.log.clearRefusal()
 		val automation = session.instrumentation.uiAutomation
 		val now = SystemClock.uptimeMillis()
 		val down = KeyEvent(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 0)
 		val up = KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK, 0)
 
 		automation.injectInputEvent(down, false) && automation.injectInputEvent(up, false)
-	}.getOrDefault(false).also { if (!it) session.log.write("pressBack: the back key could not be injected") }
+	}.getOrDefault(false).also { if (!it) session.log.refuse("pressBack: the back key could not be injected") }
 
 	/** A click at ([x], [y]) unless that point is inside the on-screen keyboard, where it would press a key. */
 	private fun click(x: Int, y: Int, gesture: String): Boolean {
 		if (session.keyboard.covers(x, y, gesture)) return false
 
 		return runCatching { session.device.click(x, y) }.getOrDefault(false)
+			.also { if (!it) session.log.refuse("$gesture at ($x, $y): the click was not delivered") }
 	}
 
 	/** Visible rectangle of [q], or the whole screen when [q] is null; null when [q] is not on screen. */

@@ -14,10 +14,12 @@ import com.gdavidpb.tuindice.scenariokit.dsl.doubleTap
 import com.gdavidpb.tuindice.scenariokit.dsl.enterSecureText
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
-import com.gdavidpb.tuindice.scenariokit.dsl.finishTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
+import com.gdavidpb.tuindice.scenariokit.dsl.hideKeyboard
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
@@ -122,7 +124,7 @@ private val conformanceTypeReplaceAfterBack = scenario(
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Action)
 	tap(RecordUiTags.CreateSyntheticTermSearchField)
 	enterText(RecordUiTags.CreateSyntheticTermSearchField, SEARCH_BEFORE, replace = true)
-	finishTextEntry()
+	submitTextEntry()
 	waitVisible(RecordUiTags.createSyntheticTermSubjectStatsButton(subject), Within.Wait)
 	tap(RecordUiTags.createSyntheticTermSubjectStatsButton(subject))
 	waitVisible(SubjectsUiTags.Content, Within.Long)
@@ -159,8 +161,8 @@ private val conformanceTextQuery = scenario("conformance-text-query", "conforman
 	waitVisible(text(Copy.UsbEmailHint), Within.Assert)
 }
 
-/** Ending a text entry: the search results are not hidden behind the keyboard. */
-private val conformanceFinishTextEntry = scenario("conformance-finish-text-entry", "conformance", canonical()) {
+/** Submitting a search: the action of the search keyboard is sent, and the results are not hidden behind it. */
+private val conformanceSubmitSearch = scenario("conformance-submit-search", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
 	openTab(MaincoreUiTags.TuIndiceBottomBarPensumItem, PensumUiTags.PensumScreen)
@@ -168,8 +170,74 @@ private val conformanceFinishTextEntry = scenario("conformance-finish-text-entry
 	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
 	tap(SubjectsUiTags.SearchTextField)
 	enterText(SubjectsUiTags.SearchTextField, "ci")
-	finishTextEntry()
+	submitTextEntry()
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
+}
+
+/**
+ * The two ways of ending a text entry are not the same thing. The password sheet of an expired session sends
+ * its request when the action of the keyboard is sent: the backend sees the credential the field holds.
+ * [conformanceHideKeyboard] is the other half: the same field, the keyboard put away, nothing sent.
+ */
+private val conformanceSubmitTextEntry = scenario(
+	"conformance-submit-text-entry",
+	"conformance",
+	Start.Seeded(E2eAccounts.SessionInvalidated).toLaunchSpec()
+) {
+	account(E2eAccounts.SessionInvalidated.id)
+
+	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Sync)
+	tap(AuthUiTags.PasswordTextField)
+	enterSecureText(AuthUiTags.PasswordTextField, E2eAccounts.SessionInvalidated.password)
+	submitTextEntry()
+	expectRequest(
+		"POST",
+		"/auth/v1/token",
+		basicAuth = "${E2eAccounts.SessionInvalidated.backendIdentifier}:${E2eAccounts.SessionInvalidated.password}"
+	)
+}
+
+/**
+ * Putting the keyboard away sends nothing to the field: right after it the password sheet is not loading (the
+ * mock holds the reply of a reissue for half a second, so a request sent by the hide would still be in flight),
+ * and still idle with its button enabled. That the keyboard is gone is the driver's own answer (it is true only once
+ * the keyboard window has left; `AndroidDriverProbesTest` checks it on the device). Android only: iOS has no
+ * action that hides a keyboard without the field's own (see `TextEntry.hideKeyboard`).
+ */
+private val conformanceHideKeyboard = scenario(
+	"conformance-hide-keyboard",
+	"conformance",
+	Start.Seeded(E2eAccounts.SessionInvalidated).toLaunchSpec()
+) {
+	platforms(Platform.Android)
+	account(E2eAccounts.SessionInvalidated.id)
+
+	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Sync)
+	tap(AuthUiTags.PasswordTextField)
+	enterSecureText(AuthUiTags.PasswordTextField, E2eAccounts.SessionInvalidated.password)
+	hideKeyboard()
+	waitGone(AuthUiTags.UpdatePasswordConfirmLoading, Within.Now)
+	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert)
+	assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, true)
+}
+
+/**
+ * A mock state set in the middle of a scenario: the summary failed once and shows its retry; the state is put
+ * back to the one before that failure, so the first retry fails again and only the second one loads. Without
+ * the step the first retry loads, and the second tap finds no retry button.
+ */
+private val conformanceMockState = scenario(
+	"conformance-mock-state",
+	"conformance",
+	Start.Seeded(E2eAccounts.SummaryRefreshRetry).toLaunchSpec()
+) {
+	account(E2eAccounts.SummaryRefreshRetry.id)
+
+	waitVisible(BaseUiTags.ErrorViewContainer, Within.Sync)
+	mockState("summary-refresh-retry", "InitialSyncUnavailable")
+	tap(BaseUiTags.ErrorViewRetryButton)
+	tap(BaseUiTags.ErrorViewRetryButton)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
 }
 
 /** Vertical scrolling: a toggle far down the About list becomes reachable and tappable. */
@@ -285,7 +353,10 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceSecureField,
 	conformanceEnabled,
 	conformanceTextQuery,
-	conformanceFinishTextEntry,
+	conformanceSubmitSearch,
+	conformanceSubmitTextEntry,
+	conformanceHideKeyboard,
+	conformanceMockState,
 	conformanceScroll,
 	conformanceScrollHorizontal,
 	conformanceTapAt,

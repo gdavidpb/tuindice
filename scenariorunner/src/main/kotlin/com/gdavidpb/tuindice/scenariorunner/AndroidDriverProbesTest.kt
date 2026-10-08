@@ -62,6 +62,39 @@ class AndroidDriverProbesTest {
 		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
 	}
 
+	/** The reason a gesture or typing was refused is available to the interpreter, and each new call forgets it. */
+	@Test
+	fun aRefusalLeavesItsReasonAndTheNextCallForgetsIt() {
+		val driver = app.begin("reasons")
+
+		assertFalse(driver.tap(app.never))
+		assertTrue(driver.lastRefusal().orEmpty().contains("not on screen"))
+		assertTrue(driver.tap(app.usbId))
+		assertEquals(null, driver.lastRefusal())
+
+		val shown = driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null }
+		assertTrue("the keyboard must show", shown)
+		val keyboard = checkNotNull(driver.session.keyboard.frame())
+		assertFalse(driver.tapAt(null, MIDDLE, keyboard.centerY() / driver.session.device.displayHeight.toDouble()))
+		assertTrue(driver.lastRefusal().orEmpty().contains("inside the on-screen keyboard"))
+	}
+
+	/** B-8: hiding the keyboard closes it, and with none showing it does nothing (back would leave the screen). */
+	@Test
+	fun hideKeyboardClosesTheKeyboardAndIsQuietWithoutOne() {
+		val driver = app.begin("hide")
+
+		assertTrue("nothing to hide at the start", driver.hideKeyboard())
+		assertTrue(driver.session.keyboard.frame() == null)
+		assertTrue(driver.tap(app.usbId))
+		assertTrue("the keyboard must show", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null })
+
+		assertTrue(driver.hideKeyboard())
+		assertTrue(driver.session.keyboard.frame() == null)
+		assertTrue("hiding is not leaving the screen", driver.waitVisible(app.screen, LONG_MS))
+		assertTrue(driver.hideKeyboard())
+	}
+
 	/** B-10 (b)/(c): a dead process is not revived by foreground(); a live one brought back logs each request. */
 	@Test
 	fun foregroundDoesNotReviveADeadAppAndLogsEachRequest() {

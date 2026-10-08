@@ -21,7 +21,7 @@ internal class KeyboardGuard(private val session: DeviceSession) {
 		val keyboard = frame()
 		val inside = keyboard != null && keyboard.contains(x, y)
 
-		if (inside) session.log.write("$gesture at ($x, $y) is inside the on-screen keyboard $keyboard; touch refused")
+		if (inside) session.log.refuse("$gesture at ($x, $y) is inside the on-screen keyboard $keyboard; touch refused")
 
 		return inside
 	}

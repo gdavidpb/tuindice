@@ -68,9 +68,18 @@ sealed interface Step {
 		override val target: String get() = q.describe()
 	}
 
+	/**
+	 * Sends the IME action of the field that has the focus (search, done, go): the same thing the action key of the
+	 * keyboard does, with the effect the app gives it. It does not pick the field: type into it first.
+	 */
 	@Serializable
-	@SerialName("finishTextEntry")
-	data class FinishTextEntry(override val site: Site? = null) : Step
+	@SerialName("submitTextEntry")
+	data class SubmitTextEntry(override val site: Site? = null) : Step
+
+	/** Puts the on-screen keyboard away without sending anything to the field. */
+	@Serializable
+	@SerialName("hideKeyboard")
+	data class HideKeyboard(override val site: Site? = null) : Step
 
 	@Serializable
 	@SerialName("waitVisible")
@@ -147,6 +156,16 @@ sealed interface Step {
 		override val site: Site? = null
 	) : Container {
 		override val target: String get() = platform.name
+	}
+
+	/**
+	 * Sets the state of a WireMock scenario in the middle of a scenario, with the same request the interpreter uses
+	 * before the first launch for `LaunchSpec.mockStates`: what the app asks for from here on gets that state's answer.
+	 */
+	@Serializable
+	@SerialName("mockState")
+	data class SetMockState(val scenario: String, val state: String, override val site: Site? = null) : Step {
+		override val target: String get() = "$scenario = $state"
 	}
 
 	@Serializable

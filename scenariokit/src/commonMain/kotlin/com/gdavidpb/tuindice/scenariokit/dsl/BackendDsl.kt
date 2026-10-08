@@ -4,6 +4,12 @@ import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.time.Duration
 
+/**
+ * Sets the state of the WireMock scenario [scenario] now, in the middle of the scenario
+ * (`PUT /__admin/scenarios/{scenario}/state`).
+ */
+fun StepBuilder.mockState(scenario: String, state: String) = add(Step.SetMockState(scenario, state, site()))
+
 /** Waits for the app to send [method] [path], optionally with `Authorization: Basic` of [basicAuth]. */
 fun StepBuilder.expectRequest(
 	method: String,

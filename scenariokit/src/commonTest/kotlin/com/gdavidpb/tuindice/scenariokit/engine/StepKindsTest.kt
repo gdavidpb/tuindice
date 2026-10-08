@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.scenariokit.engine
 
+import com.gdavidpb.tuindice.scenariokit.codec.CatalogCodec
+import com.gdavidpb.tuindice.scenariokit.codec.sampleCatalog
+import com.gdavidpb.tuindice.scenariokit.codec.sampleScenario
 import com.gdavidpb.tuindice.scenariokit.driver.ElementBounds
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
@@ -237,13 +240,113 @@ class StepKindsTest {
 	}
 
 	@Test
-	fun finishTextEntry_failsWhenRefused() {
+	fun submitTextEntryAndHideKeyboard_areTwoStepsThatFailOnTheirOwn() {
 		val fake = driver(field to FakeElement(text = "abc"))
 
-		assertPassed(fake.run(Step.FinishTextEntry()))
+		assertPassed(fake.run(Step.SubmitTextEntry(), Step.HideKeyboard()))
+		assertEquals(listOf("submitTextEntry", "hideKeyboard"), fake.calls.filter { it in TEXT_ENTRY_ENDINGS })
 
-		fake.finishResult = false
-		assertFailed(fake.run(Step.FinishTextEntry()), FailureKind.ASSERTION)
+		fake.submitResult = false
+		assertFailed(fake.run(Step.SubmitTextEntry()), FailureKind.ASSERTION)
+		assertPassed(fake.run(Step.HideKeyboard()))
+
+		fake.submitResult = true
+		fake.hideResult = false
+		assertPassed(fake.run(Step.SubmitTextEntry()))
+		assertFailed(fake.run(Step.HideKeyboard()), FailureKind.ASSERTION)
+	}
+
+	@Test
+	fun aRefusedGestureOrTyping_carriesTheReasonTheDriverGave() {
+		val reason = "frame still moving after 20 reads in 2.1 s"
+		val far: Query = Query.Tag("far")
+		val fake = driver(button to FakeElement(), field to FakeElement(text = ""), far to FakeElement(hiddenUntilSwipes = 3))
+		fake.refusal = reason
+
+		listOf(
+			Step.Tap(button) to "tap on tag:button was refused",
+			Step.TapAt(button, 0.5, 0.5) to "tapAt tag:button was refused",
+			Step.DoubleTap(button) to "doubleTap tag:button was refused",
+			Step.Swipe(null, 0.5, 0.8, 0.0, -0.4, 300) to "swipe from screen was refused",
+			Step.Back() to "back was not handled",
+			enter("abc") to "typing into tag:field was refused",
+			enter("abc", replace = true) to "clearText tag:field was refused",
+			Step.SubmitTextEntry() to "the IME action could not be sent",
+			Step.HideKeyboard() to "the keyboard could not be hidden",
+			Step.ScrollUntilVisible(far, Scroll.ContentDown, 2_000) to "the driver refused the scroll swipe"
+		).forEach { (step, what) ->
+			val failure = assertFailed(fake.run(step), FailureKind.ASSERTION)
+			assertEquals("$what: $reason", failure.message, step.toString())
+		}
+	}
+
+	@Test
+	fun aRefusalWithoutAReason_keepsTheShortMessage() {
+		val fake = driver(button to FakeElement())
+		fake.swipeResult = false
+
+		val failure = assertFailed(fake.run(Step.Swipe(null, 0.5, 0.8, 0.0, -0.4, 300)), FailureKind.ASSERTION)
+
+		assertEquals("swipe from screen was refused", failure.message)
+	}
+
+	@Test
+	fun aDriverWhoseRefusalReasonThrows_stillFailsTheStep() {
+		val fake = driver(button to FakeElement())
+		val throwing = object : com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver by fake {
+			override fun swipe(
+				from: Query?,
+				vector: com.gdavidpb.tuindice.scenariokit.driver.SwipeVector,
+				durationMs: Long
+			) = false
+
+			override fun lastRefusal(): String = error("no reason to give")
+		}
+
+		val swipe = Step.Swipe(null, 0.5, 0.8, 0.0, -0.4, 300)
+		val catalog = CatalogCodec.encode(sampleCatalog(listOf(sampleScenario("a-fail", steps = listOf(swipe)))))
+
+		val outcome = ScenarioRunner.runWith(catalog, "a-fail", throwing, fake.clocks)
+
+		assertFailed(outcome, FailureKind.ASSERTION, stepIndex = 0)
+	}
+
+	@Test
+	fun mockState_setsTheStateWithTheSameRequestAsTheStartOfTheScenario() {
+		val fake = driver(button to FakeElement())
+
+		assertPassed(fake.run(Step.Tap(button), Step.SetMockState("login-token-lifecycle", "Reissued"), Step.Tap(button)))
+
+		assertEquals("Reissued", fake.backend.states["login-token-lifecycle"])
+		assertEquals(
+			1,
+			fake.backend.calls.count { it == "PUT /__admin/scenarios/login-token-lifecycle/state" },
+			"the mid-scenario state is a single PUT of the same path prepareBackend uses"
+		)
+		assertTrue(fake.calls.indexOf("tap") < fake.calls.lastIndexOf("tap"))
+	}
+
+	@Test
+	fun mockState_aStateThatIsNotAccepted_isBackendUnavailableAtThatStep() {
+		val fake = driver(button to FakeElement())
+		fake.backend.failingPath = "/__admin/scenarios/login-token-lifecycle/state"
+
+		val failure = assertFailed(
+			fake.run(Step.Tap(button), Step.SetMockState("login-token-lifecycle", "Reissued")),
+			FailureKind.BACKEND_UNAVAILABLE,
+			stepIndex = 1
+		)
+
+		assertContains(failure.message, "PUT /__admin/scenarios/login-token-lifecycle/state answered 503")
+	}
+
+	@Test
+	fun mockState_isNotBlamedOnTheAppWhenTheAppIsInTheBackground() {
+		val fake = driver(button to FakeElement())
+		fake.backend.failingPath = "/__admin/scenarios/other/state"
+		fake.inForeground = false
+
+		assertFailed(fake.run(Step.SetMockState("other", "X")), FailureKind.BACKEND_UNAVAILABLE, stepIndex = 0)
 	}
 
 	@Test
@@ -431,5 +534,9 @@ class StepKindsTest {
 
 		fake.foregroundResult = false
 		assertFailed(fake.run(Step.Foreground()), FailureKind.APP_NOT_RUNNING, stepIndex = 0)
+	}
+
+	private companion object {
+		val TEXT_ENTRY_ENDINGS = setOf("submitTextEntry", "hideKeyboard")
 	}
 }

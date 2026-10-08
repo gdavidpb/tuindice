@@ -62,26 +62,41 @@ final class TextTyping {
         return last
     }
 
-    /// Presses the keyboard's action key (Search, Return, Done...). The key is tapped once its frame is still, and what was
-    /// seen is written to the driver log: the keyboard slides in, and a tap on a key that is still moving was suspected of
-    /// being the one that did not close the keyboard.
-    func finishTextEntry() -> Bool {
-        guard resolver.isAppRunning else { return false }
+    /// Presses the keyboard's action key (Search, Return, Done...): the key a user presses to send the field. The key is
+    /// tapped once its frame is still, and what was seen goes to the driver log: the keyboard slides in, and a tap on a key
+    /// that is still moving was suspected of being the one that did not take. Answers true when the key was tapped; what the
+    /// app does with the action, including whether the keyboard closes, is for the next step to wait for. A keyboard with
+    /// no action key (a number pad) has nothing to press: that is a refusal that names the keys the keyboard does offer.
+    func submitTextEntry() -> Bool {
+        guard resolver.isAppRunning else { return refuse("submitTextEntry: the app is not running") }
         let keyboard = app.keyboards.firstMatch
-        guard keyboard.exists else { return true }
+        guard keyboard.exists else { return refuse("submitTextEntry: no keyboard is showing, so there is no action key to press") }
 
         for name in Self.actionKeys {
             let key = keyboard.buttons[name]
             guard key.exists else { continue }
             let (frame, reads) = settledFrame(of: key)
-            log.add("[driver] finishTextEntry: key '\(name)' frame \(frame.map { "\($0)" } ?? "unreadable") after \(reads) reads")
-            guard let frame else { return false }
+            log.add("[driver] submitTextEntry: key '\(name)' frame \(frame.map { "\($0)" } ?? "unreadable") after \(reads) reads")
+            guard let frame else { return refuse("submitTextEntry: the '\(name)' key never stopped moving or could not be read") }
+            // A key of the keyboard is not tapped through the driver's guard, which refuses points under the keyboard.
             resolver.coordinate(at: CGPoint(x: frame.midX, y: frame.midY), in: nil).tap()
-            break
+            return true
         }
-        let closed = keyboard.waitForNonExistence(timeout: Self.keyboardTimeout)
-        if !closed { log.add("[driver] finishTextEntry: the keyboard was still on screen \(Self.keyboardTimeout) s after the action key") }
-        return closed
+        let offered = keyboard.buttons.allElementsBoundByIndex.map { $0.label }
+        return refuse("submitTextEntry: the keyboard has no action key among \(Self.actionKeys) (its buttons: \(offered))")
+    }
+
+    /// An iPhone keyboard has no key or gesture that closes it without the action of the field it serves, so there is
+    /// nothing honest to do while one is showing: the answer is false and says what to use instead.
+    func hideKeyboard() -> Bool {
+        guard resolver.isAppRunning else { return refuse("hideKeyboard: the app is not running") }
+        guard app.keyboards.firstMatch.exists else { return true }
+        return refuse("hideKeyboard: iOS has no action that hides the keyboard without the action of its field; send that action or touch what the app closes it with")
+    }
+
+    private func refuse(_ reason: String) -> Bool {
+        log.refuse("[driver] \(reason)")
+        return false
     }
 
     /// The frame of [element] once it reads the same three times in a row; nil if it cannot be read or never stops.
@@ -104,7 +119,7 @@ final class TextTyping {
         guard let (resolved, facts) = resolver.placed(q, for: "focus") else { return false }
         guard tapper(resolved, center(of: facts), "focus \(q)") else { return false }
         if waitForKeyboard() { return true }
-        log.add("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
+        log.refuse("[driver] focus \(q): no keyboard \(Self.keyboardTimeout) s after the focus tap")
         return false
     }
 

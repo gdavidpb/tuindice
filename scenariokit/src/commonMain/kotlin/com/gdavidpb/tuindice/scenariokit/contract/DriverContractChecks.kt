@@ -79,7 +79,6 @@ internal class DriverContractChecks(
 		val afterClear = settledText(field) { it.isNullOrEmpty() }
 		val typed = driver.typeKeys(field, fixture.textSample)
 		val afterType = settledText(field) { it == wanted }
-		driver.finishTextEntry()
 		return when {
 			!firstTyped || afterFirst != wanted ->
 				"typeKeys of \"${fixture.textSample}\" left \"$afterFirst\" in the field, expected \"$wanted\""

@@ -4,7 +4,7 @@ package com.gdavidpb.tuindice.scenariokit.model
  * Why a scenario stopped. The interpreter assigns the kind in this order:
  *
  * 1. a driver call throws -> [DRIVER_ERROR];
- * 2. `prepareBackend` fails -> [BACKEND_UNAVAILABLE];
+ * 2. `prepareBackend` fails, or a `mockState` step is answered with anything but 2xx -> [BACKEND_UNAVAILABLE];
  * 3. `EnterText` reads back a different text (also after the driver refused to type: the field then holds part of
  *    it) or, for a secure field, a different number of characters; or `ExpectRequest` does not find its request and
  *    the most recent one to that route carries the same identifier with another password, or is the only one

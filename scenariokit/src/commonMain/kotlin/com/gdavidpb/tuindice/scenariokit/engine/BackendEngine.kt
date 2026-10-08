@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
 import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenariokit.model.Step
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
@@ -22,6 +21,11 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 		resetPaths.firstNotNullOfOrNull { reset ->
 			describeFailure(reset.method, reset.path, backend.http(reset.method, reset.path, null, reset.authorization))
 		} ?: start.mockStates.firstNotNullOfOrNull { setState(it) }
+
+	/** The step that sets a mock scenario's state between two steps; a reply that is not 2xx is the backend failing. */
+	internal fun setMockState(step: Step.SetMockState): StepResult =
+		setState(MockState(step.scenario, step.state))?.let { StepResult.Failed(FailureKind.BACKEND_UNAVAILABLE, it) }
+			?: StepResult.Passed
 
 	private fun setState(mock: MockState): String? {
 		val path = "/__admin/scenarios/${mock.scenario}/state"
@@ -105,36 +109,9 @@ class BackendEngine internal constructor(private val backend: BackendControl, pr
 	}
 
 	/** Last requests and mock scenarios out of `Started`; transport problems come back in [BackendSnapshot.error]. */
-	internal fun snapshot(): BackendSnapshot {
-		val requests = backend.http("GET", "/__admin/requests?limit=$JOURNAL_LIMIT", null, null)
-		val scenarios = backend.http("GET", "/__admin/scenarios", null, null)
-		val error = listOf(requests, scenarios).firstOrNull { !it.isSuccess }?.let { "backend unreachable (${it.status})" }
-		return BackendSnapshot(
-			requests = WireMockJson.array(WireMockJson.obj(requests.body), "requests").map(::journalEntry),
-			unstarted = WireMockJson.array(WireMockJson.obj(scenarios.body), "scenarios").mapNotNull(::unstarted),
-			error = error
-		)
-	}
-
-	private fun journalEntry(event: JsonObject): JournalEntry {
-		val request = WireMockJson.child(event, "request")
-		return JournalEntry(
-			method = WireMockJson.text(request, "method").orEmpty(),
-			url = WireMockJson.text(request, "url").orEmpty(),
-			status = WireMockJson.number(WireMockJson.child(event, "response"), "status"),
-			authorization = WireMockJson.header(WireMockJson.child(request, "headers"), "Authorization")
-		)
-	}
-
-	private fun unstarted(scenario: JsonObject): MockState? {
-		val state = WireMockJson.text(scenario, "state")
-		val name = WireMockJson.text(scenario, "name")
-		return if (name != null && state != null && state != STARTED) MockState(name, state) else null
-	}
+	internal fun snapshot(): BackendSnapshot = BackendSnapshots.read(backend)
 
 	companion object {
-		private const val STARTED = "Started"
-		private const val JOURNAL_LIMIT = 5
 		private const val ERROR_BODY_LIMIT = 200
 
 		/** Every request that returns WireMock and its custom transformers to a known state. */

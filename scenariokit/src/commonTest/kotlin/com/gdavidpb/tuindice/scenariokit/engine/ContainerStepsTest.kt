@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.StepOutcome
-import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

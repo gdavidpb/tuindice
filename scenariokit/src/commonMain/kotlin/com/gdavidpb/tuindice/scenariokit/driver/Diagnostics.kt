@@ -9,6 +9,14 @@ interface Diagnostics {
 	fun log(line: String)
 
 	/**
+	 * Why the driver refused the gesture or text entry that just answered false (the frame never settled, the point is
+	 * under the keyboard, the element went away, the keys were not injected), or null when it gave no reason. The
+	 * interpreter reads it right after a false and puts it in the message of the failing step, so the reason is in
+	 * `result.json` and not only in the driver's log. Every [Gestures] and [TextEntry] call clears it first.
+	 */
+	fun lastRefusal(): String?
+
+	/**
 	 * Blocks the calling thread for [ms]. The interpreter's polling waits through it between two checks; a scenario
 	 * has no step to pause, because a wait is always for a condition.
 	 */

@@ -65,9 +65,9 @@ internal class DeviceSession {
 		}
 
 		when {
-			last == null -> log.write("$q: not on screen when the gesture was about to be made; gesture refused")
+			last == null -> log.refuse("$q: not on screen when the gesture was about to be made; gesture refused")
 			equalReads < STABLE_READS ->
-				log.write("$q: bounds still moving after $SETTLE_TIMEOUT_MS ms (last $last); gesture refused")
+				log.refuse("$q: bounds still moving after $SETTLE_TIMEOUT_MS ms (last $last); gesture refused")
 		}
 
 		return last.takeIf { equalReads >= STABLE_READS }

@@ -6,6 +6,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 /** The kit's named timeouts as durations, for the DSL. */
 object Within {
+	val Now: Duration = Timeouts.Now.milliseconds
 	val Assert: Duration = Timeouts.Assert.milliseconds
 	val Action: Duration = Timeouts.Action.milliseconds
 	val Wait: Duration = Timeouts.Wait.milliseconds

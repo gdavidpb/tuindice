@@ -49,7 +49,15 @@ internal object CatalogRules {
 
 	/** `scenario: milliseconds` for every wait whose timeout is not one of the kit's names. */
 	fun timeoutsOutsideNames(scenarios: List<Scenario>): List<String> {
-		val named = setOf(Timeouts.Probe, Timeouts.Assert, Timeouts.Action, Timeouts.Wait, Timeouts.Long, Timeouts.Sync)
+		val named = setOf(
+			Timeouts.Now,
+			Timeouts.Probe,
+			Timeouts.Assert,
+			Timeouts.Action,
+			Timeouts.Wait,
+			Timeouts.Long,
+			Timeouts.Sync
+		)
 
 		return scenarios.flatMap { scenario ->
 			scenario.steps.flattened().flatMap(::timeoutsOf).filter { it !in named }.map { "${scenario.id}: ${it}ms" }

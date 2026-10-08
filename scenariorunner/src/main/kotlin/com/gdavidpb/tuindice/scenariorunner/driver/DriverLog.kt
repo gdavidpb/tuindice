@@ -19,6 +19,9 @@ internal class DriverLog {
 	@Volatile
 	private var file: File? = null
 
+	@Volatile
+	private var refusal: String? = null
+
 	/** Starts appending to `driver.log` inside [directory]. */
 	fun open(directory: File) {
 		file = File(directory, FILE_NAME)
@@ -33,6 +36,20 @@ internal class DriverLog {
 			FileOutputStream(target, true).use { it.write("${stamp.format(Date())} $line\n".toByteArray()) }
 		}.onFailure { Log.w(TAG, "driver.log could not be written: $it") }
 	}
+
+	/** Writes [reason] like any line and keeps it as the reason the gesture or text entry in progress was refused. */
+	fun refuse(reason: String) {
+		refusal = reason
+		write(reason)
+	}
+
+	/** Forgets the last refusal: every gesture and text entry starts without one. */
+	fun clearRefusal() {
+		refusal = null
+	}
+
+	/** The reason the last gesture or text entry was refused, or null when it was not. */
+	fun lastRefusal(): String? = refusal
 
 	companion object {
 		const val FILE_NAME = "driver.log"

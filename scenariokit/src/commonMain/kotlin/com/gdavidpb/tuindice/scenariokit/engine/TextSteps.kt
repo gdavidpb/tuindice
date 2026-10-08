@@ -8,10 +8,12 @@ import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 internal class TextSteps(private val driver: ScenarioDriver, private val poller: Poller) {
 	fun execute(step: Step): StepResult = when (step) {
 		is Step.EnterText -> enterText(step)
-		is Step.FinishTextEntry -> passIf(
-			driver.finishTextEntry(),
-			FailureKind.ASSERTION
-		) { "keyboard could not be dismissed" }
+		is Step.SubmitTextEntry -> passIf(driver.submitTextEntry(), FailureKind.ASSERTION) {
+			driver.refused("the IME action could not be sent")
+		}
+		is Step.HideKeyboard -> passIf(driver.hideKeyboard(), FailureKind.ASSERTION) {
+			driver.refused("the keyboard could not be hidden")
+		}
 		else -> unhandled(step)
 	}
 
@@ -25,14 +27,14 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 
 	private fun clearBeforeTyping(step: Step.EnterText): StepResult.Failed? =
 		if (step.replace && !driver.clearText(step.q)) {
-			StepResult.Failed(FailureKind.ASSERTION, "clearText ${step.target} was refused")
+			StepResult.Failed(FailureKind.ASSERTION, driver.refused("clearText ${step.target} was refused"))
 		} else {
 			null
 		}
 
 	private fun type(step: Step.EnterText): StepResult.Failed? {
 		val accepted = driver.typeKeys(step.q, step.text)
-		return if (accepted) null else refusedTyping(step)
+		return if (accepted) null else refusedTyping(step, driver.refused("typing into ${step.target} was refused"))
 	}
 
 	/**
@@ -40,8 +42,8 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 	 * other than what was asked is corrupted text, which is never retried; an empty or unreadable one was simply not
 	 * typed into. A secure field is judged by its length alone, and the text of a secure field never reaches a message.
 	 */
-	private fun refusedTyping(step: Step.EnterText): StepResult.Failed {
-		val refused = StepResult.Failed(FailureKind.ASSERTION, "typing into ${step.target} was refused")
+	private fun refusedTyping(step: Step.EnterText, message: String): StepResult.Failed {
+		val refused = StepResult.Failed(FailureKind.ASSERTION, message)
 		val held = driver.readText(step.q)?.takeIf { it.isNotEmpty() } ?: return refused
 		val wanted = step.expect ?: step.text
 		val entered = "${held.length} of ${wanted.length} characters went in"
@@ -50,14 +52,14 @@ internal class TextSteps(private val driver: ScenarioDriver, private val poller:
 			step.secure && held.length == step.text.length -> refused
 			step.secure -> StepResult.Failed(
 				FailureKind.TYPED_TEXT_MISMATCH,
-				"typing into ${step.target} was refused after $entered",
+				"$message; $entered",
 				expected = "${step.text.length} characters",
 				actual = "${held.length} characters"
 			)
 			held == wanted -> refused
 			else -> StepResult.Failed(
 				FailureKind.TYPED_TEXT_MISMATCH,
-				"typing into ${step.target} was refused after $entered; the field shows \"$held\" instead of \"$wanted\"",
+				"$message; $entered and the field shows \"$held\" instead of \"$wanted\"",
 				expected = wanted,
 				actual = held
 			)

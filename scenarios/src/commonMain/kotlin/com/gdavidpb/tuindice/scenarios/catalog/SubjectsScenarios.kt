@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
-import com.gdavidpb.tuindice.scenariokit.dsl.finishTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
+import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -40,11 +40,11 @@ private fun StepBuilder.openSearch() {
 	onPlatform(Platform.Ios) { tap(SubjectsUiTags.SearchScreen) }
 }
 
-/** Types [query] in the search field and puts the keyboard away so the results are not behind it. */
+/** Types [query] in the search field and sends its search action: the keyboard goes, the results are not behind it. */
 private fun StepBuilder.searchFor(query: String) {
 	tap(SubjectsUiTags.SearchTextField)
 	enterText(SubjectsUiTags.SearchTextField, query)
-	finishTextEntry()
+	submitTextEntry()
 }
 
 /** Taps the search result of [code] and returns to the search once [detail] has shown. */
