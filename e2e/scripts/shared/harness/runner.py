@@ -164,12 +164,15 @@ class PlatformRun:
             outcome, code = "harness_error", EXIT_HARNESS_ERROR
         finally:
             # The cheap, valuable part first (results, JUnit, manifest); the slow cleanup (WireMock up to 20 s, the device up to
-            # 120 s) after it, so that a kill during the cleanup still leaves a finalised manifest.
-            self._finish(outcome, code)
-            if signum is not None:
-                self.log.say("the manifest is finalised; stopping WireMock and the device now")
-            self._cleanup()
-            self.log.close()
+            # 120 s) after it, so that a kill during the cleanup still leaves a finalised manifest. A failure of the finish never
+            # skips the cleanup.
+            try:
+                self._finish(outcome, code)
+                if signum is not None:
+                    self.log.say("the manifest is finalised; stopping WireMock and the device now")
+            finally:
+                self._cleanup()
+                self.log.close()
         return code
 
     def _cleanup(self):
@@ -415,14 +418,12 @@ class PlatformRun:
                 self._scenario(scenario, index, len(pending))
             for s in pending:
                 if not self.ledger.passed(s.id):
-                    self.failed_overall[s.id] = self._last_class(s)
-        if not self.evidence and self.opts.repeat > 1:
-            self.log.say("REPEAT %d runs: %d scenarios failed in at least one" % (self.opts.repeat, len(self.failed_overall)))
-            self._series_summary()
+                    self.failed_overall[s.id] = self._last_attempt(s) or {}
 
     def _series_summary(self):
         """Environment failures are not a signal about the product: the series says how many of its runs were valid, so that
-        '92 of 111' is not read as a failure rate."""
+        '92 of 111' is not read as a failure rate. Written at the end of the run, whatever cut it."""
+        self.log.say("REPEAT %d runs: %d scenarios failed in at least one" % (self.opts.repeat, len(self.failed_overall)))
         ends = list(self.series.values())
         counts = {kind: ends.count(kind) for kind in ("passed", "failed", "environment")}
         valid = counts["passed"] + counts["failed"]
@@ -443,10 +444,14 @@ class PlatformRun:
             parts.append("%d environment attempt%s %s not rerun" % (lost, "" if lost == 1 else "s", "was" if lost == 1 else "were"))
         return "; ".join(parts)
 
-    def _last_class(self, scenario):
-        """The class of the last counted attempt; a scenario that only had environment failures has no counted one."""
+    def _last_attempt(self, scenario):
+        """The last counted attempt; a scenario that only had environment failures has no counted one. None when there is none."""
         attempts = self.ledger.counted(scenario.id) or self.ledger.attempts(scenario.id)
-        return attempts[-1].get("failureClass") if attempts else None
+        return attempts[-1] if attempts else None
+
+    def _last_class(self, scenario):
+        attempt = self._last_attempt(scenario)
+        return attempt.get("failureClass") if attempt else None
 
     def _budget_check(self, scenario):
         elapsed = time.monotonic() - self.started
@@ -738,7 +743,7 @@ class PlatformRun:
         failed = []
         for s in self.runnable:
             if s.id in self.failed_overall:
-                failed.append((s.id, self.failed_overall[s.id]))
+                failed.append((s.id, self.failed_overall[s.id].get("failureClass")))
             elif not self.ledger.passed(s.id) and (self.ledger.counted(s.id) or (self.opts.survey and s.id in self.executed)):
                 failed.append((s.id, self._last_class(s)))  # a survey does not recover: what it could not measure is not a pass
         return failed
@@ -774,9 +779,10 @@ class PlatformRun:
         for s in self.runnable:
             entries = self.ledger.attempts(s.id)
             if s.id in failed:
-                last = self.ledger.counted(s.id)[-1] if self.ledger.counted(s.id) else entries[-1]
-                results.append({"id": s.id, "status": "failed", "class": failed[s.id], "summary": last["failureSummary"],
-                    "seconds": last["durationMs"] / 1000.0, "tolerances": last.get("tolerances", {})})
+                # The attempt that failed: the one a repetition kept when the scenario failed in it, or the last of this one.
+                last = self.failed_overall.get(s.id) or self._last_attempt(s) or {}
+                results.append({"id": s.id, "status": "failed", "class": failed[s.id], "summary": last.get("failureSummary", ""),
+                    "seconds": last.get("durationMs", 0) / 1000.0, "tolerances": last.get("tolerances", {})})
             elif self.ledger.passed(s.id):
                 won = [a for a in entries if a["outcome"] == "passed"][-1]
                 results.append({"id": s.id, "status": "passed", "seconds": won["durationMs"] / 1000.0,
@@ -790,9 +796,32 @@ class PlatformRun:
         return results
 
     def _finish(self, outcome, code):
+        """Results, JUnit and the finalised manifest first; the retention (up to 600 s) after, so that a kill during it still
+        leaves a finalised run. The manifest is finalised even when writing the rest fails."""
+        try:
+            self._write_results(outcome, code)
+        finally:
+            self.manifest.finalize(outcome, code)
+        try:
+            if self.run_dir and outcome != "interrupted":
+                self._retention()
+                self.manifest.write()
+        finally:
+            self.log.emit_result()
+        self._archive(outcome)
+
+    def _archive(self, outcome):
+        """The manifest of a green evidence run is also kept under certifications/<sha>/<platform>."""
+        if self.run_dir and outcome == "passed" and self.evidence and not self.stop and self.ledger is not None \
+                and self.catalog is not None:
+            target = os.path.join(str(self.cfg.state_root), "certifications", self.git.sha, self.platform)
+            os.makedirs(target, exist_ok=True)
+            shutil.copyfile(self.manifest.path, os.path.join(target, "manifest.json"))
+
+    def _write_results(self, outcome, code):
         m = self.manifest
-        if self.run_dir and outcome != "interrupted":
-            self._retention()  # before the RESULT line
+        if not self.evidence and self.opts.repeat > 1 and self.series:
+            self._series_summary()
         if self.ledger is not None and self.catalog is not None and self.run_dir:
             results = self._results()
             junit.write(os.path.join(self.run_dir, "junit.xml"), self.platform, results)
@@ -808,20 +837,15 @@ class PlatformRun:
                     and any(a["outcome"] == "failed" for a in self.ledger.attempts(s.id))),
                 notRun=sum(1 for r in results if r["status"] == "skipped" and r["summary"] == "not run"))
             green = sum(1 for r in results if r["status"] == "passed")
-            self.log.result(outcome, green, len(self.runnable), self._failed_list(), m.data["scenarios"]["notRun"],
+            line = self.log.result(outcome, green, len(self.runnable), self._failed_list(), m.data["scenarios"]["notRun"],
                 code, self.fingerprint)
-            report.write_summary(os.path.join(self.run_dir, "summary.txt"), [self.log.lines[-1]] + [
+            report.write_summary(os.path.join(self.run_dir, "summary.txt"), [line] + [
                 "%s %s %s" % (r["status"].upper(), r["id"], r.get("summary", "")) for r in results]
                 + ["tolerances: %s" % json.dumps(m.data["tolerances"], sort_keys=True)])
             if outcome == "passed" and self.evidence and not self.stop:
                 self.ledger.update_index(self.cfg.state_root, self.git.sha, time.monotonic() - self.started)
-                target = os.path.join(str(self.cfg.state_root), "certifications", self.git.sha, self.platform)
-                os.makedirs(target, exist_ok=True)
-                m.finalize(outcome, code)
-                shutil.copyfile(m.path, os.path.join(target, "manifest.json"))
         if self.env_checked and self.run_dir and not self.cfg.seam("E2E_FAKE_HOST_METRICS"):
             m.data["competingProcesses"]["end"] = envcheck.top_processes(envcheck._process_table())
-        m.finalize(outcome, code)
 
     def _retention_fingerprint(self):
         """The fingerprint of HEAD, whose ledger and runs the retention keeps; a diagnose run asks for it too, or the

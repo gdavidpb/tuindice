@@ -11,6 +11,7 @@ class Log:
         self.stream = stream or sys.stdout
         self.lines = []
         self.file = None
+        self.pending = None
 
     def attach(self, path):
         self.file = open(path, "a")
@@ -53,9 +54,17 @@ class Log:
         self.say("STOP  %s %s" % (scenario.id, text))
 
     def result(self, outcome, green, total, failed, not_run, exit_code, fp):
+        """Keeps the RESULT line and returns it as it will read; emit_result() prints it. The run prints it last, after the
+        retention, but writes the results and the manifest before."""
         failures = ", ".join("%s (%s)" % item for item in failed) or "none"
-        self.say("RESULT %s: %d/%d green for fp %s; failed: %s; not run: %d; exit %d."
-            % (outcome, green, total, fp[:12], failures, not_run, exit_code))
+        self.pending = "RESULT %s: %d/%d green for fp %s; failed: %s; not run: %d; exit %d." \
+            % (outcome, green, total, fp[:12], failures, not_run, exit_code)
+        return self.prefix + self.pending
+
+    def emit_result(self):
+        if self.pending:
+            self.say(self.pending)
+            self.pending = None
 
 
 DIAGNOSIS = {
