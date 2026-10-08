@@ -216,6 +216,39 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun enterText_whenTheDriverAnswersFalseAlthoughTheFieldHoldsAllTheText_isADriverError() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.keysAccepted = false
+		fake.stopReason = "the system took 5 of 6 key events"
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.DRIVER_ERROR, stepIndex = 0)
+
+		assertContains(failure.message, "the driver answered false although the field holds all 3 characters")
+		assertContains(failure.message, "the system took 5 of 6 key events")
+	}
+
+	@Test
+	fun enterText_whenTheDriverAnswersFalseAlthoughASecureFieldHoldsAllTheCharacters_isADriverErrorWithoutTheText() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "•".repeat(it.length) }
+		fake.keysAccepted = false
+
+		val failure = assertFailed(fake.run(enter("secret", secure = true)), FailureKind.DRIVER_ERROR, stepIndex = 0)
+
+		assertContains(failure.message, "the driver answered false although the field holds all 6 characters")
+		assertTrue("secret" !in failure.message)
+	}
+
+	@Test
+	fun enterText_whenTheDriverAnswersFalseWithTheFieldCompleteAndNoKeyInjected_staysAnAssertion() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.keysAccepted = false
+		fake.injectedOverride = 0
+
+		assertFailed(fake.run(enter("abc")), FailureKind.ASSERTION, stepIndex = 0)
+	}
+
+	@Test
 	fun enterText_whenTheDriverStopsWithASystemDialogInFront_staysAnAssertionForTheRefiner() {
 		val fake = driver(field to FakeElement(text = ""))
 		fake.typing = { it.take(3) }

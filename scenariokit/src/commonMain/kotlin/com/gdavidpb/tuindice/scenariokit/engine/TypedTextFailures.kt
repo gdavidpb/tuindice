@@ -25,7 +25,12 @@ internal object TypedTextFailures {
 		val complete = if (step.secure) held?.length == step.text.length else held == wanted
 
 		return when {
-			held == null || complete || environmentInTheWay(driver) -> refused
+			held == null || environmentInTheWay(driver) || (complete && driver.keysInjected() == 0) -> refused
+			complete -> StepResult.Failed(
+				FailureKind.DRIVER_ERROR,
+				"the driver answered false although the field holds all ${wanted.length} characters: " +
+					(runCatching { driver.lastRefusal() }.getOrNull() ?: "it gave no reason")
+			)
 			driver.keysInjected() == 0 -> StepResult.Failed(
 				FailureKind.DRIVER_ERROR,
 				"$message; no key was injected and the field holds ${held.length} characters"
