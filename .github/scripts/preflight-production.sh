@@ -39,35 +39,60 @@ join_file_lines_as_csv() {
 	fi
 }
 
+# $3 is the commit that already holds this evidence (same fingerprint, trusted creator) when it is not the target.
 record_missing_e2e_status() {
 	local platform="$1"
 	local context="$2"
+	local evidence_sha="${3:-}"
 
-	printf '%s\t%s\n' "$platform" "$context" >>"$MISSING_E2E_STATUSES_FILE"
+	printf '%s\t%s\t%s\n' "$platform" "$context" "$evidence_sha" >>"$MISSING_E2E_STATUSES_FILE"
+}
+
+# The commit statuses are written only by the repository owner, from the machine that ran the evidence: this script
+# (the workflow of a pull request and the stage) reads them and never publishes. In a pull request the evidence has
+# to be on the head itself; the stage, which runs on the commit production now points at, also accepts it on the
+# commits that were merged (the ancestors of a merge commit, the head of the squashed pull request).
+evidence_must_be_on_target() {
+	case "${GITHUB_EVENT_NAME:-}" in
+		pull_request | pull_request_target) return 0 ;;
+	esac
+	return 1
+}
+
+# The command that puts evidence the harness already holds, or that sits on an ancestor, on the head.
+publish_command() {
+	printf 'python3 e2e/scripts/shared/e2e.py publish --platform %s\n' "$1"
 }
 
 write_missing_e2e_guidance() {
 	local platform
 	local context
+	local evidence_sha
 
 	file_has_entries "$MISSING_E2E_STATUSES_FILE" || return 0
 	sort -u "$MISSING_E2E_STATUSES_FILE" -o "$MISSING_E2E_STATUSES_FILE"
 
 	warn "Missing successful E2E statuses on ${TARGET_GIT_SHA}:"
-	while IFS=$'\t' read -r platform context; do
+	while IFS=$'\t' read -r platform context evidence_sha; do
 		[[ -n "$platform" && -n "$context" ]] || continue
 		warn " - ${context}"
+		if [[ -n "$evidence_sha" ]]; then
+			warn "   the evidence is on ${evidence_sha} (same fingerprint); publish it on ${TARGET_GIT_SHA}: $(publish_command "$platform")"
+		fi
 	done <"$MISSING_E2E_STATUSES_FILE"
-	warn "On a clean checkout of ${TARGET_GIT_SHA} with HEAD == upstream, run ./gradlew e2eEvidence (or e2eEvidenceAndroid / e2eEvidenceIos). The harness runs only the scenarios not yet green for the fingerprint and publishes each status."
+	warn "The workflow does not publish evidence: the owner does, from a clean checkout of ${TARGET_GIT_SHA} with HEAD == upstream. Run ./gradlew e2eEvidence (or e2eEvidenceAndroid / e2eEvidenceIos) when the evidence has to be produced; the harness runs only the scenarios not yet green for the fingerprint and publishes each status."
 
 	{
 		printf '\n### Missing local E2E evidence\n\n'
-		printf 'Publish every missing commit status for `%s` before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
-		while IFS=$'\t' read -r platform context; do
+		printf 'The workflow does not publish evidence. Publish every missing commit status for `%s` as the repository owner before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
+		while IFS=$'\t' read -r platform context evidence_sha; do
 			[[ -n "$platform" && -n "$context" ]] || continue
 			printf -- '- `%s`\n' "$context"
+			if [[ -n "$evidence_sha" ]]; then
+				printf '  - the evidence is on `%s` (same fingerprint): `%s`\n' "$evidence_sha" "$(publish_command "$platform")"
+			fi
 		done <"$MISSING_E2E_STATUSES_FILE"
-		printf '\nOn a clean checkout of `%s` with HEAD == upstream, run `./gradlew e2eEvidence` (or `e2eEvidenceAndroid` / `e2eEvidenceIos`). The harness runs only the scenarios not yet green for the fingerprint and publishes the context above.\n' "$TARGET_GIT_SHA"
+		printf '\nOn a clean checkout of `%s` with HEAD == upstream, run `./gradlew e2eEvidence` (or `e2eEvidenceAndroid` / `e2eEvidenceIos`) where there is no evidence yet. The harness runs only the scenarios not yet green for the fingerprint and publishes the context above.\n' "$TARGET_GIT_SHA"
 	} >>"$SUMMARY_FILE"
 }
 
@@ -92,8 +117,9 @@ github_commit_status_payload_at_sha() {
 		| jq -c --arg context "$context" '[.[] | select(.context == $context)][0] // empty'
 }
 
-# Statuses are trusted only when created by the repository owner or the
-# Actions bot; anything else with a token could fabricate a success state.
+# Statuses are trusted only when created by the repository owner (or whoever
+# E2E_TRUSTED_STATUS_CREATORS names); the Actions bot is not in the default,
+# since a workflow of a branch publishes as the same identity.
 trusted_status_creators() {
 	local repository="${GITHUB_REPOSITORY:-}"
 	local owner="${repository%%/*}"
@@ -176,55 +202,6 @@ status_context_succeeded() {
 	return 1
 }
 
-publish_github_commit_status() {
-	local context="$1"
-	local description="$2"
-	local repository="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required to publish E2E commit statuses.}"
-	local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-	local api_url="${GITHUB_API_URL:-https://api.github.com}"
-	local payload
-	local response
-	local response_context
-	local response_state
-
-	[[ -n "$token" ]] || die "GITHUB_TOKEN or GH_TOKEN is required to publish reused E2E commit status '${context}'."
-
-	payload="$(
-		jq -n -c \
-			--arg state "success" \
-			--arg context "$context" \
-			--arg description "$description" \
-			'{state: $state, context: $context, description: $description}'
-	)"
-
-	response="$(
-		curl --fail --silent --show-error \
-			-X POST \
-			-H "Accept: application/vnd.github+json" \
-			-H "Authorization: Bearer ${token}" \
-			-H "X-GitHub-Api-Version: 2022-11-28" \
-			-H "Content-Type: application/json" \
-			"${api_url}/repos/${repository}/statuses/${TARGET_GIT_SHA}" \
-			--data "$payload"
-	)" || return 1
-
-	response_state="$(printf '%s\n' "$response" | jq -r '.state // empty')"
-	response_context="$(printf '%s\n' "$response" | jq -r '.context // empty')"
-	[[ "$response_state" == "success" && "$response_context" == "$context" ]]
-}
-
-publish_reused_github_commit_status() {
-	local context="$1"
-	local description="$2"
-
-	if publish_github_commit_status "$context" "$description"; then
-		return 0
-	fi
-
-	warn "Could not publish reused E2E status '${context}' on ${TARGET_GIT_SHA}."
-	return 1
-}
-
 # The suite is read out of the platform's one status context (common.sh); any other context is not evidence.
 e2e_suite_from_context() {
 	local context="$1"
@@ -299,7 +276,9 @@ e2e_reuse_candidate_commits() {
 	} | awk '!seen[$0]++' | grep -v "^${TARGET_GIT_SHA}$" || true
 }
 
-reuse_successful_status_for_context() {
+# Prints the commit that holds trusted evidence naming the target's fingerprint (an ancestor or, for the stage, the head
+# of the pull request that was merged). Returns 1 when there is none. Reads only.
+find_reusable_status_commit() {
 	local context="$1"
 	local platform="$2"
 	local suite
@@ -331,20 +310,14 @@ reuse_successful_status_for_context() {
 
 		# The candidate's own description has to name its fingerprint too. Matching
 		# trees only proves the candidate *could* have been certified; without this
-		# a bare success from a trusted identity is laundered into the target as a
-		# properly fingerprinted status, which is exactly what the direct path
-		# refuses. Widening the candidate set widens where such a status can sit.
+		# a bare success from a trusted identity is accepted as a properly
+		# fingerprinted status, which is exactly what the direct path refuses.
 		if ! description_matches_fingerprint "$candidate_description" "$platform" "$suite" "$candidate_sha"; then
 			warn "Skipping E2E reuse candidate ${candidate_sha}: its ${context} status does not name the fingerprint."
 			continue
 		fi
 
-
-		publish_reused_github_commit_status \
-			"$context" \
-			"Reused E2E ${suite} from ${candidate_sha:0:7} fp ${current_fingerprint:0:12}." ||
-			return 1
-		info "Reused successful E2E status ${context} from ${candidate_sha} for fingerprint ${current_fingerprint}."
+		printf '%s\n' "$candidate_sha"
 		return 0
 	done < <(e2e_reuse_candidate_commits)
 
@@ -355,6 +328,7 @@ verify_contexts_file() {
 	local file="$1"
 	local platform="$2"
 	local context
+	local evidence_sha
 	local missing_status=false
 
 	file_has_entries "$file" || return 0
@@ -366,11 +340,18 @@ verify_contexts_file() {
 			continue
 		fi
 
-		if reuse_successful_status_for_context "$context" "$platform"; then
-			continue
+		evidence_sha="$(find_reusable_status_commit "$context" "$platform" || true)"
+		if [[ -n "$evidence_sha" ]]; then
+			if ! evidence_must_be_on_target; then
+				info "Reused successful E2E status ${context} from ${evidence_sha} for the fingerprint of ${TARGET_GIT_SHA} (nothing is published)."
+				continue
+			fi
+			# The evidence exists, but not where it has to be. Passing here would leave the head without a status the
+			# stage can find after a squash, and publishing it from this workflow is what option C removed.
+			warn "E2E status '${context}' is on ${evidence_sha} but not on the head ${TARGET_GIT_SHA}."
 		fi
 
-		record_missing_e2e_status "$platform" "$context"
+		record_missing_e2e_status "$platform" "$context" "$evidence_sha"
 		missing_status=true
 	done <"$file"
 

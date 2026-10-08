@@ -17,6 +17,9 @@ require_tool jq
 
 TARGET_SHA="$(git -C "${REPO_ROOT}" rev-parse HEAD)"
 
+# The default trust list is the one under test; a variable of the caller must not change it.
+unset E2E_TRUSTED_STATUS_CREATORS
+
 run_preflight_fixture() {
 	local name="$1"
 	local curl_mode="$2"
@@ -30,6 +33,7 @@ run_preflight_fixture() {
 	local missing_version_file
 	local fingerprint_script
 	local output_file
+	local post_log
 	local status
 
 	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-preflight-test.XXXXXX")"
@@ -41,6 +45,8 @@ run_preflight_fixture() {
 	missing_version_file="${temp_dir}/missing-version.txt"
 	fingerprint_script="${temp_dir}/fingerprint.sh"
 	output_file="${temp_dir}/output.log"
+	post_log="${temp_dir}/writes.log"
+	: >"${post_log}"
 	mkdir -p "${bin_dir}"
 
 	if [[ -n "${TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS:-}" ]]; then
@@ -98,19 +104,20 @@ while [[ "$#" -gt 0 ]]; do
 	esac
 done
 
-if [[ "${method}" == "POST" ]]; then
-	if [[ "${mode}" == "publish-fails" ]]; then
-		printf '{"state":"success","context":"wrong-context"}\n'
-		exit 0
-	fi
-
-	context="$(printf '%s\n' "${payload}" | jq -r '.context')"
-	printf '{"state":"success","context":"%s"}\n' "${context}"
+# The CI never writes: any request that is not a GET lands here, and every fixture asserts this log stays empty.
+if [[ "${method}" != "GET" ]]; then
+	printf '%s %s %s\n' "${method}" "${url}" "${payload}" >>"${TUINDICE_PREFLIGHT_TEST_POST_LOG:?}"
+	printf '{"state":"success","context":"unexpected-write"}\n'
 	exit 0
 fi
 
 if [[ "${url}" == *"/commits/"*"/pulls" ]]; then
-	printf '[]\n'
+	# The pull request a squash merge left outside the history: its head is reachable only through this lookup.
+	if [[ -n "${TUINDICE_PREFLIGHT_TEST_PR_HEAD:-}" ]]; then
+		printf '[{"head":{"sha":"%s"}}]\n' "${TUINDICE_PREFLIGHT_TEST_PR_HEAD}"
+	else
+		printf '[]\n'
+	fi
 	exit 0
 fi
 
@@ -128,10 +135,12 @@ if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
 		else
 			printf '[]\n'
 		fi
-	elif [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+	elif [[ "${mode}" == "reuse-success" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
+	elif [[ "${mode}" == "bot-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"github-actions[bot]"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp 000000000000."}]\n'
 	elif [[ "${mode}" == "untrusted-creator" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
@@ -161,6 +170,9 @@ SH
 		TUINDICE_PREFLIGHT_TEST_CURL_MODE="${curl_mode}" \
 		TUINDICE_PREFLIGHT_TEST_TARGET_SHA="${TARGET_SHA}" \
 		TUINDICE_PREFLIGHT_TEST_OLD_SHA="${TUINDICE_PREFLIGHT_TEST_OLD_SHA:-}" \
+		TUINDICE_PREFLIGHT_TEST_PR_HEAD="${TUINDICE_PREFLIGHT_TEST_PR_HEAD:-}" \
+		TUINDICE_PREFLIGHT_TEST_POST_LOG="${post_log}" \
+		GITHUB_EVENT_NAME="${TUINDICE_PREFLIGHT_TEST_EVENT:-}" \
 		TUINDICE_PREFLIGHT_TEST_OTHER_FP="${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" \
 		GITHUB_REPOSITORY="gdavidpb/tuindice" \
 		GITHUB_TOKEN="fixture-token" \
@@ -252,7 +264,29 @@ SH
 				exit 1
 			fi
 			;;
-		publish-fails|missing-status|missing-status-reuse|untrusted-candidate|forged-candidate|anonymous-status|latest-failure|reuse-other-fingerprint|reuse-before-base)
+		pr-evidence-on-ancestor)
+			# Evidence on an ancestor is not evidence on the head: the run says where it is and how to publish it.
+			if ! grep -q 'Missing successful E2E status' "${output_file}" ||
+				! grep -q "$(git -C "${REPO_ROOT}" rev-parse HEAD~1)" "${output_file}" ||
+				! grep -q 'python3 e2e/scripts/shared/e2e.py publish --platform android' "${output_file}"; then
+				printf 'Preflight fixture %s did not name the commit that holds the evidence and the publish command.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			if grep -q 'Reused successful E2E status' "${output_file}"; then
+				printf 'Preflight fixture %s accepted evidence that is not on the head.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		bot-status-untrusted)
+			if ! grep -q "creator 'github-actions\[bot\]' is not trusted" "${output_file}"; then
+				printf 'Preflight fixture %s did not reject the Actions bot as creator.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		missing-status|missing-status-reuse|untrusted-candidate|forged-candidate|anonymous-status|latest-failure|reuse-other-fingerprint|reuse-before-base)
 			if ! grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not report missing evidence.\n' "${name}" >&2
 				cat "${output_file}" >&2
@@ -260,6 +294,13 @@ SH
 			fi
 			;;
 	esac
+
+	# No route of the script writes a commit status: the curl stand-in logs every request that is not a GET.
+	if [[ -s "${post_log}" ]]; then
+		printf 'Preflight fixture %s wrote to GitHub:\n' "${name}" >&2
+		cat "${post_log}" >&2
+		exit 1
+	fi
 
 	# Adversarial fixtures run in the production configuration
 	# (E2E_REUSE_STATUS_BY_FINGERPRINT=1): fingerprint reuse must never launder a
@@ -279,7 +320,6 @@ run_preflight_fixture reuse-success reuse-success success
 run_preflight_fixture direct-success direct-success success
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture forged-status forged-status failure
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture untrusted-creator untrusted-creator failure
-run_preflight_fixture publish-fails publish-fails failure
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture missing-status missing-status failure
 run_preflight_fixture forged-status-reuse forged-status failure
 run_preflight_fixture untrusted-creator-reuse untrusted-creator failure
@@ -308,5 +348,20 @@ TUINDICE_PREFLIGHT_TEST_REUSE_BASE="${BASE_PARENT_SHA}" TUINDICE_PREFLIGHT_TEST_
 	run_preflight_fixture reuse-before-base reuse-only-old-sha failure
 # ...and the newest status of the context is the one that counts.
 run_preflight_fixture latest-failure latest-failure failure
+
+# Option C: the workflow of a pull request never publishes. The evidence has to be on the head, published by the owner.
+# The owner's status on the head passes, with nothing written...
+TUINDICE_PREFLIGHT_TEST_EVENT=pull_request run_preflight_fixture pr-owner-on-head direct-success success
+# ...evidence only on an ancestor does not: the run names the commit and the command that publishes it on the head...
+TUINDICE_PREFLIGHT_TEST_EVENT=pull_request run_preflight_fixture pr-evidence-on-ancestor reuse-success failure
+# ...the Actions bot is not a creator of confidence by default (any workflow of a branch publishes as the bot)...
+TUINDICE_PREFLIGHT_TEST_EVENT=pull_request run_preflight_fixture bot-status-untrusted bot-status failure
+# ...unless the owner lists it in E2E_TRUSTED_STATUS_CREATORS.
+E2E_TRUSTED_STATUS_CREATORS='gdavidpb,github-actions[bot]' TUINDICE_PREFLIGHT_TEST_EVENT=pull_request \
+	run_preflight_fixture bot-status-trusted-by-variable bot-status success
+# The stage (a push to production) finds the owner's evidence without republishing it: in the ancestors of a merge
+# commit (reuse-from-base above) and, after a squash, on the head of the pull request the API associates with the commit.
+TUINDICE_PREFLIGHT_TEST_EVENT=push TUINDICE_PREFLIGHT_TEST_REUSE_BASE="${BASE_PARENT_SHA}" TUINDICE_PREFLIGHT_TEST_OLD_SHA="${OLDER_SHA}" \
+	TUINDICE_PREFLIGHT_TEST_PR_HEAD="${OLDER_SHA}" run_preflight_fixture stage-squash reuse-only-old-sha success
 
 printf 'Preflight production shell fixtures passed.\n'
