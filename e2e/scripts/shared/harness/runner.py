@@ -458,10 +458,6 @@ class PlatformRun:
         attempts = self.ledger.counted(scenario.id) or self.ledger.attempts(scenario.id)
         return attempts[-1] if attempts else None
 
-    def _last_class(self, scenario):
-        attempt = self._last_attempt(scenario)
-        return attempt.get("failureClass") if attempt else None
-
     def _budget_check(self, scenario):
         elapsed = time.monotonic() - self.started
         if elapsed + scenario.timeout > self.cfg.budget_seconds:
@@ -678,7 +674,7 @@ class PlatformRun:
                 evidence.killed_after = scenario.timeout
             evidence.native_ok = result.json.get("nativeOk")
             evidence.tests_executed = result.json.get("testsExecuted")
-            evidence.runner_log = self._read(os.path.join(adir, "runner.log")) or (result.stdout + result.stderr)
+            evidence.runner_log = proc.tail_text(os.path.join(adir, "runner.log"), FAILURE_LOG_TAIL_BYTES) or (result.stdout + result.stderr)
             self._read_result(adir, evidence)
             errors += self._probe(evidence, since, adir, env)
             evidence.journal = self.wiremock.journal()
@@ -689,14 +685,19 @@ class PlatformRun:
                 json.dump({"requests": evidence.journal}, handle, indent=2)
         verdict = cl.classify(evidence)
         if not verdict.passed:
-            self.adapter.call("collect-failure", adir, since, env=env)
+            collected = self.adapter.call("collect-failure", adir, since, env=env)
+            if not collected.ok:  # the verb is best effort, but the attempt says what its evidence lacks
+                errors.append("collect-failure failed (exit %s, %s); the device log and the screen of this attempt may be missing"
+                    % (collected.returncode, collected.log or "no output"))
+                self.log.say("NOTE  %s attempt %d: %s" % (scenario.id, n, errors[-1]))
             evidence.logs = {name: proc.tail_text(os.path.join(adir, name), FAILURE_LOG_TAIL_BYTES) for name in FAILURE_LOGS}
             evidence.driver_log = proc.tail_text(os.path.join(adir, "driver.log"), FAILURE_LOG_TAIL_BYTES)  # collect-failure may have brought it just now
-            evidence.runner_log = evidence.runner_log[-FAILURE_LOG_TAIL_BYTES:]
             verdict = cl.classify(evidence)  # again: the logs only exist now, and a degraded simulator is the environment's
             with open(os.path.join(adir, "classification.json"), "w") as handle:
                 json.dump({"class": verdict.klass, "summary": verdict.summary}, handle, indent=2)
-        tolerated, refused = tolerances.read(os.path.join(adir, "driver.log"))  # after collect-failure: a killed run's log is home
+        if verdict.passed:
+            evidence.driver_log = proc.tail_text(os.path.join(adir, "driver.log"), FAILURE_LOG_TAIL_BYTES)
+        tolerated, refused = tolerances.count(evidence.driver_log), tolerances.refusals(evidence.driver_log)  # a failed attempt read it after collect-failure
         attempt = {
             "runId": self.run_id, "sha": self.git.sha, "startedAt": started_at, "finishedAt": now(),
             "durationMs": int((time.monotonic() - began) * 1000), "runnerDurationMs": runner_ms,
@@ -731,13 +732,6 @@ class PlatformRun:
         return {key: source[key] for key in ("prepareBackendMs", "launchMs")
             if isinstance(source, dict) and isinstance(source.get(key), (int, float)) and not isinstance(source.get(key), bool)}
 
-    @staticmethod
-    def _read(path):
-        try:
-            return open(path, errors="replace").read()
-        except OSError:
-            return ""
-
     def _read_result(self, adir, evidence):
         path = os.path.join(adir, "result.json")
         if not os.path.exists(path):
@@ -760,9 +754,10 @@ class PlatformRun:
             if s.id in self.failed_overall:
                 failed.append((s.id, self.failed_overall[s.id].get("failureClass")))
             elif not self.ledger.passed(s.id) and (self.ledger.counted(s.id) or (self.opts.survey and s.id in self.executed)):
-                if self._last_attempt(s) is None:
+                last = self._last_attempt(s)
+                if last is None:
                     continue  # cut before its attempt was recorded: it was not run, which is not a failure
-                failed.append((s.id, self._last_class(s)))  # a survey does not recover: what it could not measure is not a pass
+                failed.append((s.id, last.get("failureClass")))  # a survey does not recover: what it could not measure is not a pass
         return failed
 
     def _publish(self):

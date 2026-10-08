@@ -448,6 +448,17 @@ class SignalTests(unittest.TestCase):
             os.kill(int(text(pid_file)), 0)
 
 
+class CollectFailureTests(unittest.TestCase):
+    def test_a_collect_failure_that_fails_is_named_in_the_attempt_and_in_the_log(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:assertion"]}, "failVerbs": ["ios:collect-failure"]})
+        result = ws.evidence()
+        self.assertEqual(result.code, 5, result.out)
+        errors = ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["probeErrors"]
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("collect-failure failed (exit 1", errors[0])
+        self.assertIn("NOTE  fix-a attempt 1: collect-failure failed", result.out)
+
+
 class TimeoutStepTests(unittest.TestCase):
     def test_a_hung_scenario_names_the_last_step_its_driver_logged(self):
         ws = Workspace(self, [scenario("fix-a", 2)], {"behaviours": {"fix-a": [{"do": "hang", "driverlog": "ios-quiet.log"}]}})

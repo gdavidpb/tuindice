@@ -3,13 +3,11 @@
 A tolerance is something the driver put up with and went on: iOS ends its log with `[tolerances] key=N ...` and writes a
 `[tolerance] <key> <detail>` line for each one; Android writes one line per time it brings the app back to the front. A refusal
 is the driver saying no to a gesture, a touch, a tap, a typing, a deletion, a submit or a back (it fails the step): both platforms
-write every one through a single funnel that marks the line `[refusal] <reason>`, and the summary line of iOS does not count it. A run that passed by way of a tolerance can then be told from one that did not."""
+write every one through a single funnel that marks the line `[refusal] <reason>`, and the summary line of iOS does not count it.
+A run that passed by way of a tolerance can then be told from one that did not."""
 
 import re
 
-from . import proc
-
-TAIL_BYTES = 4 * 1024 * 1024
 IOS_SUMMARY = re.compile(r"^\[tolerances\]((?:\s+[\w-]+=\d+)*)\s*$")
 IOS_LINE = re.compile(r"^\[tolerance\]\s+([\w-]+)")
 # (key, pattern) of the lines the Android driver writes (scenariorunner/driver: AppLauncher).
@@ -50,12 +48,6 @@ def refusals(text):
             key = "%s-refused" % found.group(1).rstrip(":")
             counts[key] = counts.get(key, 0) + 1
     return counts
-
-
-def read(path):
-    """(tolerances, refusals) of the last TAIL_BYTES of a driver log; a file that does not exist has none of either."""
-    text = proc.tail_text(path, TAIL_BYTES)
-    return count(text), refusals(text)
 
 
 def merge(*counts):

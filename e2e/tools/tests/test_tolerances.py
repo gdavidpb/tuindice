@@ -58,11 +58,6 @@ class CountTests(unittest.TestCase):
     def test_the_sum_of_counts(self):
         self.assertEqual(tolerances.merge({"a": 1}, {"a": 2, "b": 1}, {}), {"a": 3, "b": 1})
 
-    def test_a_file_that_does_not_exist_is_empty(self):
-        self.assertEqual(tolerances.read("/nonexistent/driver.log"), ({}, {}))
-        self.assertEqual(tolerances.read(os.path.join(LOGS, "ios-refusal.log")),
-            ({"dismissed-alert": 1}, {"Tap-refused": 2, "typeKeys-refused": 1, "submitTextEntry-refused": 1}))
-
 
 class RunTests(unittest.TestCase):
     def test_the_attempt_the_scenario_and_the_run_carry_the_counts(self):
