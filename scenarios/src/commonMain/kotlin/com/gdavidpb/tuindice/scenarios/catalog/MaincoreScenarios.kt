@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.back
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
@@ -163,11 +164,38 @@ private val maincoreBrowserExternalDialog = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 }
 
+/**
+ * A page that cannot be reached offers a retry: the mock resets the connection of the privacy page while it is in the
+ * `Unreachable` state, the error view shows, and once the page answers again (`Recovered`) the retry loads it (YE-3).
+ */
+private val maincoreBrowserLoadFailedRetry = scenario(
+	"maincore-browser-load-failed-retry",
+	"maincore",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("maincore.Browser.ClickRetry")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
+	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
+	mockState("browser-privacy-page", "Unreachable")
+	tap(AboutUiTags.OpenPrivacy)
+	waitVisible(BaseUiTags.ErrorViewRetryButton, Within.Long)
+	waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
+	mockState("browser-privacy-page", "Recovered")
+	tap(BaseUiTags.ErrorViewRetryButton)
+	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
+	waitVisible(text(Copy.PrivacyPageExternalLink), Within.Wait)
+	waitGone(BaseUiTags.ErrorViewRetryButton, Within.Assert)
+}
+
 /** The scenarios of this module; list every new one here. */
 val maincoreScenarios: List<Scenario> = listOf(
 	maincoreAppAvailabilityNotice,
 	maincoreBottomBarState,
 	maincoreBackStack,
 	maincoreTabStackPreservation,
-	maincoreBrowserExternalDialog
+	maincoreBrowserExternalDialog,
+	maincoreBrowserLoadFailedRetry
 )

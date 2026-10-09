@@ -11,18 +11,18 @@ object ActionDispositions {
 			action = "about.About.LoadVersion",
 			reason = "screen bootstrap"
 		),
+		ActionDisposition.PlatformEdge(
+			action = "about.About.ReportBug",
+			reason =
+				"the trigger opens the mail app and nothing the scenario can assert follows: on Android Gmail, " +
+				"with no account in the emulator, opens its compose screen and closes it by itself within about " +
+				"100 ms, so the app was seen leaving the foreground in 0 of 10 runs; on iOS the app stayed in " +
+				"front in 3 of 3 runs (docs/e2e-mediciones.md, section 3). `about-platform-edge-triggers` taps it " +
+				"and asserts that About is usable when the app is back"
+		),
 		ActionDisposition.Internal(
 			action = "auth.SignOut.Initialize",
 			reason = "route state bootstrap from pending changes"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "enrollmentproof.Enrollment.OpenSavedEnrollmentProof",
-			reason =
-				"the positive button of the saved-copy dialog hands the saved PDF to the device viewer; " +
-				"`enrollmentproof-saved-copy-dialog` drives everything up to the dialog and cancels it, and " +
-				"opening the copy is assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and " +
-				"e2e/platform/ios/enrollmentproof-saved-copy-dialog.md; covered by " +
-				"EnrollmentProofRouteUiTest and EnrollmentProofSavedCopyDialogUiTest"
 		),
 		ActionDisposition.Internal(
 			action = "enrollmentproof.Enrollment.OpenEnrollmentProofCompleted",
@@ -47,12 +47,6 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "maincore.Browser.SetLoadFailed",
 			reason = "renderer callback"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "maincore.Browser.ClickRetry",
-			reason =
-				"forcing a web view load failure needs host-level network manipulation; the retry UI is " +
-				"covered by BrowserScreenUiTest"
 		),
 		ActionDisposition.Internal(
 			action = "maincore.Main.RequestSync",

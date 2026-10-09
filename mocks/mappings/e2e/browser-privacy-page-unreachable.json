@@ -1,0 +1,12 @@
+{
+  "priority": 1,
+  "scenarioName": "browser-privacy-page",
+  "requiredScenarioState": "Unreachable",
+  "request": {
+    "method": "GET",
+    "urlPath": "/e2e/privacy.html"
+  },
+  "response": {
+    "fault": "CONNECTION_RESET_BY_PEER"
+  }
+}
