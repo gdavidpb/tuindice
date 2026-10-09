@@ -38,7 +38,8 @@ Rules:
 - A refusal that only one step of one scenario needs lives in a WireMock scenario state the scenario sets in the middle
   of its run with `mockState`, not in the default state: `enrollment-proof-saved-copy` answers the canonical account's
   proof request with 503 only in `Unavailable`, which `enrollmentproof-saved-copy-dialog` sets after the download that
-  leaves the saved copy (`SavedCopyMocksTest`).
+  leaves the saved copy and `enrollmentproof-saved-copy-gone-after-sign-out` sets after signing out and in again, to
+  see that no copy is offered (`SavedCopyMocksTest`).
 - Do not call production services from local E2E.
 - If a scenario needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`, and declare any new account in `E2eAccounts.kt` with the mapping that accepts its credential.
 

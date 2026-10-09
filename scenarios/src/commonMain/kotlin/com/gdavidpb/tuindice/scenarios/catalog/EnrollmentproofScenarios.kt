@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
+import com.gdavidpb.tuindice.scenariokit.dsl.relaunch
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
@@ -135,19 +137,26 @@ private val enrollmentproofOutdatedCredentials = scenario(
 
 /**
  * A proof that downloaded once is kept: when the service is down the next time, the app offers that saved copy
- * and asks before opening it. Cancelling leaves the record on screen.
+ * and asks before opening it. Cancelling leaves the record on screen; asking again and accepting hands the saved
+ * copy to the device's viewer, which takes the app out of the foreground (YE-3).
  */
 private val enrollmentproofSavedCopyDialog = scenario(
 	"enrollmentproof-saved-copy-dialog",
 	"enrollmentproof",
 	seeded(E2eAccounts.Canonical)
 ) {
-	covers("record.Record.SelectTerm", "enrollmentproof.Enrollment.FetchEnrollmentProof")
+	covers(
+		"record.Record.SelectTerm",
+		"enrollmentproof.Enrollment.FetchEnrollmentProof",
+		"enrollmentproof.Enrollment.OpenSavedEnrollmentProof"
+	)
 	account(E2eAccounts.Canonical.id)
 
 	openRecord()
 	openCurrentEnrollmentProof()
-	waitBackgrounded()
+	// The first download is held by the mock for its slow profile (`enrollment-proof-success.json`), so this wait is
+	// the `Long` one (YE-7): the delay of the mock and the hand-off of the file must both fit in it.
+	waitBackgrounded(Within.Long)
 	foreground()
 	waitVisible(RecordUiTags.ContentContainer, Within.Action)
 	mockState("enrollment-proof-saved-copy", "Unavailable")
@@ -156,6 +165,46 @@ private val enrollmentproofSavedCopyDialog = scenario(
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
 	waitGone(EnrollmentProofUiTags.SavedCopyMessage, Within.Action)
 	waitVisible(RecordUiTags.ContentContainer, Within.Assert)
+	openCurrentEnrollmentProof()
+	waitVisible(EnrollmentProofUiTags.SavedCopyMessage, Within.Wait)
+	tap(BaseUiTags.ConfirmationDialogPositiveButton)
+	waitBackgrounded(Within.Action)
+	foreground()
+	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+}
+
+/**
+ * The proofs the app saved are wiped when the session ends (YE-10): after signing out and in again as the same account,
+ * with the service down, the app offers no saved copy and says the service is unavailable, as when nothing was
+ * ever saved (`enrollmentproof-error-unavailable`). A copy left behind would show the dialog of the saved copy, which
+ * stays on screen until it is answered, so its absence is read with a wait that fails when it is there.
+ */
+private val enrollmentproofSavedCopyGoneAfterSignOut = scenario(
+	"enrollmentproof-saved-copy-gone-after-sign-out",
+	"enrollmentproof",
+	seeded(E2eAccounts.Canonical)
+) {
+	covers("record.Record.SelectTerm", "enrollmentproof.Enrollment.FetchEnrollmentProof", "auth.SignOut.ClickSignOut")
+	account(E2eAccounts.Canonical.id)
+
+	openRecord()
+	openCurrentEnrollmentProof()
+	waitBackgrounded(Within.Long)
+	foreground()
+	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
+	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
+	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	tap(BaseUiTags.ConfirmationDialogPositiveButton)
+	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
+	relaunch(seeded(E2eAccounts.Canonical).arguments)
+	mockState("enrollment-proof-saved-copy", "Unavailable")
+	openRecord()
+	openCurrentEnrollmentProof()
+	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
+	waitVisible(RecordUiTags.ContentContainer, Within.Assert)
+	waitGone(EnrollmentProofUiTags.SavedCopyMessage, Within.Assert)
 }
 
 /** The scenarios of this module; list every new one here. */
@@ -166,5 +215,6 @@ val enrollmentproofScenarios: List<Scenario> = listOf(
 	enrollmentproofNotFound,
 	enrollmentproofAnnulledNotFound,
 	enrollmentproofOutdatedCredentials,
-	enrollmentproofSavedCopyDialog
+	enrollmentproofSavedCopyDialog,
+	enrollmentproofSavedCopyGoneAfterSignOut
 )
