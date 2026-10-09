@@ -5,9 +5,12 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.foreground
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
+import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
@@ -130,6 +133,31 @@ private val enrollmentproofOutdatedCredentials = scenario(
 	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 }
 
+/**
+ * A proof that downloaded once is kept: when the service is down the next time, the app offers that saved copy
+ * and asks before opening it. Cancelling leaves the record on screen.
+ */
+private val enrollmentproofSavedCopyDialog = scenario(
+	"enrollmentproof-saved-copy-dialog",
+	"enrollmentproof",
+	seeded(E2eAccounts.Canonical)
+) {
+	covers("record.Record.SelectTerm", "enrollmentproof.Enrollment.FetchEnrollmentProof")
+	account(E2eAccounts.Canonical.id)
+
+	openRecord()
+	openCurrentEnrollmentProof()
+	waitBackgrounded()
+	foreground()
+	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+	mockState("enrollment-proof-saved-copy", "Unavailable")
+	openCurrentEnrollmentProof()
+	waitVisible(EnrollmentProofUiTags.SavedCopyMessage, Within.Wait)
+	tap(BaseUiTags.ConfirmationDialogNegativeButton)
+	waitGone(EnrollmentProofUiTags.SavedCopyMessage, Within.Action)
+	waitVisible(RecordUiTags.ContentContainer, Within.Assert)
+}
+
 /** The scenarios of this module; list every new one here. */
 val enrollmentproofScenarios: List<Scenario> = listOf(
 	enrollmentproofSmoke,
@@ -137,5 +165,6 @@ val enrollmentproofScenarios: List<Scenario> = listOf(
 	enrollmentproofErrorUnavailable,
 	enrollmentproofNotFound,
 	enrollmentproofAnnulledNotFound,
-	enrollmentproofOutdatedCredentials
+	enrollmentproofOutdatedCredentials,
+	enrollmentproofSavedCopyDialog
 )

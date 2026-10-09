@@ -18,9 +18,9 @@ object ActionDispositions {
 		ActionDisposition.PlatformEdge(
 			action = "enrollmentproof.Enrollment.OpenSavedEnrollmentProof",
 			reason =
-				"hands the saved PDF to the device viewer after a transient download failure; seeding the " +
-				"saved copy needs an earlier download that opens the system PDF viewer, so the dialog is " +
-				"assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and " +
+				"the positive button of the saved-copy dialog hands the saved PDF to the device viewer; " +
+				"`enrollmentproof-saved-copy-dialog` drives everything up to the dialog and cancels it, and " +
+				"opening the copy is assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and " +
 				"e2e/platform/ios/enrollmentproof-saved-copy-dialog.md; covered by " +
 				"EnrollmentProofRouteUiTest and EnrollmentProofSavedCopyDialogUiTest"
 		),

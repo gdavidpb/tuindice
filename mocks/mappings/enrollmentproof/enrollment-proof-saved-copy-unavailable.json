@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "enrollment-proof-saved-copy",
+  "requiredScenarioState": "Unavailable",
+  "request": {
+    "method": "POST",
+    "urlPath": "/enrollment-proof/v1",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == '123456')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "enrollment proof temporarily unavailable"
+    }
+  }
+}

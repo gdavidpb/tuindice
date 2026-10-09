@@ -1,13 +1,14 @@
 # Enrollment Proof Saved Copy Dialog Edge (iOS)
 
-Status: platform-edge note; no scenario drives it.
+Status: platform-edge note for the positive button only; the scenario `enrollmentproof-saved-copy-dialog` drives the rest.
 
-Scenario coverage: `enrollmentproof-error-unavailable` verifies the same transient failure (503) when there is no saved copy: the snackbar, its retry, and the record staying on screen. `enrollmentproof-smoke` only reaches the download button.
+What the scenario does (3 of 3 on iOS and on Android, see the E2c report): downloads the proof once so the app saves it (the file is handed to the system viewer: `waitBackgrounded`, `foreground()`), sets the WireMock scenario `enrollment-proof-saved-copy` to `Unavailable` with the `mockState` step so `/enrollment-proof/v1` answers 503, asks for the proof again, asserts the dialog (`enrollment_saved_copy_message`) and cancels it, and the record stays on screen.
 
-Platform-only scope:
+Platform-only scope that remains:
 
-- download the proof once so the app saves it, come back from the PDF viewer, make `/enrollment-proof/v1` answer 503 for that same session, and ask for the proof again
-- verify the dialog (`enrollment_saved_copy_message`) asks before anything opens, that its positive button reaches `enrollmentproof.Enrollment.OpenSavedEnrollmentProof` and the saved PDF is handed to the system, and that cancelling leaves the record on screen
+- verify that the dialog's positive button reaches `enrollmentproof.Enrollment.OpenSavedEnrollmentProof` and that the saved PDF is handed to the system viewer
+
+Scenario coverage: `enrollmentproof-error-unavailable` verifies the same transient failure (503) when there is no saved copy: the snackbar, its retry, and the record staying on screen.
 
 Covered elsewhere:
 
@@ -16,4 +17,4 @@ Covered elsewhere:
 - `enrollmentproof/src/commonTest/.../data/repository/EnrollmentProofRepositoryContractTest.kt` verifies when a saved copy stands in for the download: only for transient failures (`getEnrollmentProof_savedCopyBacksOnlyTransientFailures`), never for a 409 or a 400, never for a 404
 - `enrollmentproof/src/commonTest/.../domain/usecase/FetchEnrollmentProofUseCaseContractTest.kt` (`execute_tellsWhenTheFileIsTheSavedCopy`) and `EnrollmentProofStateMachineContractTest` verify the `ConfirmingSavedCopy` state and its `OpenSavedEnrollmentProof` row
 
-Reason: the saved copy only exists after a successful download, and a successful download ends in `UIApplication.shared.open` on the file URL (`TuIndicePlatformBridge.openFile`), a host/system hand-off that leaves the app. A scenario can come back with `foreground()`, but the same session would then need `/enrollment-proof/v1` to answer 503 after a success: the local backend picks that answer by the account's password, and the interpreter sets the WireMock states before the first launch (`Start.mockStates`) and, with the `mockState` step, also in the middle of a scenario, which would let a scenario flip the answer once the download has succeeded; what still has no way in is the saved copy itself. No launch argument writes a proof into the app container either.
+Reason: the positive button ends in `UIApplication.shared.open` on the file URL (`TuIndicePlatformBridge.openFile`), a hand-off the scenario would only be able to observe as the app leaving the foreground; it was not tried in E2c (the encargo asked for the dialog and the cancel) and stays here as the part nobody asserts.

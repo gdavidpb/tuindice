@@ -35,6 +35,10 @@ Rules:
   the path), `CatalogStartTest` lists the scenarios that start with states besides their account's, and
   `PendingFlushMocksTest` replays that the dated and undated adds of the other scenarios (`evaluations-add-submit`
   among them) are accepted. The flush mock accepts the dated add from `Available` and moves to `Delivered`.
+- A refusal that only one step of one scenario needs lives in a WireMock scenario state the scenario sets in the middle
+  of its run with `mockState`, not in the default state: `enrollment-proof-saved-copy` answers the canonical account's
+  proof request with 503 only in `Unavailable`, which `enrollmentproof-saved-copy-dialog` sets after the download that
+  leaves the saved copy (`SavedCopyMocksTest`).
 - Do not call production services from local E2E.
 - If a scenario needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`, and declare any new account in `E2eAccounts.kt` with the mapping that accepts its credential.
 
