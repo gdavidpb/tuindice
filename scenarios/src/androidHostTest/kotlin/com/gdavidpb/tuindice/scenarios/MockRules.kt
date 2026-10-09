@@ -89,6 +89,26 @@ internal object MockRules {
 		return owners.size == 1 && owners.single().id != defaultAccount.id
 	}
 
+	/**
+	 * The `(WireMock scenario, state)` pairs of [used] that no mapping declares, as `requiredScenarioState` or
+	 * `newScenarioState` of a mapping of that `scenarioName`. WireMock answers 422 to a state it does not know, which
+	 * the interpreter reads as a backend outage (`BACKEND_UNAVAILABLE`), so a misspelt state in the catalog would
+	 * look like a problem of the environment.
+	 */
+	fun undeclaredStates(
+		used: Collection<Pair<String, String>>,
+		mappings: List<Pair<String, JsonObject>>
+	): List<Pair<String, String>> {
+		val declared = mappings.flatMap { (_, mapping) ->
+			val scenario = mapping.string("scenarioName")
+
+			listOfNotNull(mapping.string("requiredScenarioState"), mapping.string("newScenarioState"))
+				.mapNotNull { state -> scenario?.let { it to state } }
+		}.toSet()
+
+		return used.distinct().filter { it !in declared }
+	}
+
 	/** Names of the mappings on a protected route whose request does not demand a `Bearer` authorization. */
 	fun protectedWithoutABearer(mappings: List<Pair<String, JsonObject>>): List<String> =
 		mappings.filter { (_, mapping) ->
