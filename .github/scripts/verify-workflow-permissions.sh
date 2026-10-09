@@ -12,8 +12,9 @@
 #      is not left in .git/config for the code that job runs.
 # A block is every line indented deeper than its `permissions:` line, whatever the indentation; the value of a key may be
 # quoted; a job id may carry a comment. validate-ci-config.sh runs this with --if-pull-request over every workflow: the
-# ones with a pull_request or pull_request_target trigger (the ones that run code of a pull request) are verified, the
-# others are left alone.
+# ones with a pull_request, pull_request_target or pull_request_review trigger (the ones that run code of a pull request,
+# with any value after the colon) are verified, the others are left alone. What the scan cannot read fails: a line at the
+# job level that is not a job id, or a workflow in which no job could be read.
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -38,9 +39,9 @@ done
 
 # A workflow triggered by pull_request or pull_request_target runs code of the pull request; the others do not concern this check.
 if [[ "$only_pull_request" == "true" ]] && ! awk '
-	/^on:/ { in_on = 1; if ($0 ~ /pull_request/) { found = 1 }; next }
+	/^["\047]?on["\047]?[ \t]*:/ { in_on = 1; if ($0 ~ /pull_request/) { found = 1 }; next }
 	/^[^ #]/ { in_on = 0 }
-	in_on && /^[ ]+(- *)?["\047]?pull_request(_target)?["\047]?:?[ ]*(#.*)?$/ { found = 1 }
+	in_on && /^[ ]+(- *)?["\047]?pull_request(_target|_review)?["\047]?[ \t]*(:.*)?$/ { found = 1 }
 	END { exit !found }
 ' "$workflow"; then
 	info "Not triggered by a pull request, nothing to verify: ${workflow}"
@@ -83,7 +84,7 @@ awk -v credentials="$credentials" -v file="$workflow" '
 		line_indent = indent_of($0)
 		if (perm_active && line_indent <= perm_indent) { perm_active = 0 }
 		if (perm_active) {
-			if ($0 ~ /statuses:[ \t]*["\047]?write/) {
+			if ($0 ~ /["\047]?statuses["\047]?[ \t]*:[ \t]*["\047]?write/) {
 				if (perm_scope == "top-level") { fail("top-level permissions grant statuses: write") }
 				else { fail("job " perm_scope " has statuses: write; no job of this workflow may write commit statuses") }
 			}
@@ -91,14 +92,15 @@ awk -v credentials="$credentials" -v file="$workflow" '
 		}
 	}
 	/^[^ #]/ {
-		section = $1; sub(/:.*/, "", section)
+		section = $1; sub(/:.*/, "", section); gsub(/["\047]/, "", section)
 		if (section == "permissions") { top_has_permissions = 1; open_permissions($0, "top-level") }
 		next
 	}
-	section == "jobs" && /^  [A-Za-z0-9_-]+:[ \t]*(#.*)?$/ {
+	section == "jobs" && /^  [^ #]/ {
 		close_job()
-		job = $1; sub(/:.*/, "", job)
-		job_has_permissions = 0
+		if ($0 !~ /^  ["\047]?[A-Za-z0-9_-]+["\047]?:[ \t]*(#.*)?$/) { fail("cannot read the job id of the line: " $0); next }
+		job = $1; sub(/:.*/, "", job); gsub(/["\047]/, "", job)
+		job_has_permissions = 0; jobs_read++
 		next
 	}
 	section == "jobs" && job != "" {
@@ -109,6 +111,7 @@ awk -v credentials="$credentials" -v file="$workflow" '
 	}
 	END {
 		close_job()
+		if (!jobs_read) { fail("cannot read any job: the jobs are not at the two-space layout this scan reads") }
 		if (!top_has_permissions) { fail("the workflow declares no top-level permissions") }
 		exit failed ? 1 : 0
 	}

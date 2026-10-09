@@ -154,8 +154,35 @@ expect_if_pull_request new-inline-trigger fail
 write_workflow push-only-workflow "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
 sed -i.bak 's/^  pull_request:$/  push:/' "${WORK}/push-only-workflow.yml"
 expect_if_pull_request push-only-workflow pass
+# YD-1: pull_request_review also runs the code of the pull request (refs/pull/N/merge).
 write_workflow review-trigger-only "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
 sed -i.bak 's/^  pull_request:$/  pull_request_review:/' "${WORK}/review-trigger-only.yml"
-expect_if_pull_request review-trigger-only pass
+expect_if_pull_request review-trigger-only fail
+
+# YD-1: forms a line scan does not see must fail closed, never read as "nothing to verify" or "least-privilege".
+write_workflow quoted-on "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^on:$/"on":/' "${WORK}/quoted-on.yml"
+expect_if_pull_request quoted-on fail
+write_workflow trigger-with-empty-map "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  pull_request:$/  pull_request: {}/' "${WORK}/trigger-with-empty-map.yml"
+expect_if_pull_request trigger-with-empty-map fail
+write_workflow trigger-with-inline-filter "$GOOD_TOP" "$SHARED_WRITES" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  pull_request:$/  pull_request: { branches: [production] }/' "${WORK}/trigger-with-inline-filter.yml"
+expect_if_pull_request trigger-with-inline-filter fail
+
+write_workflow quoted-statuses-key "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      "statuses": write\n' "$NO_PERSIST"
+expect quoted-statuses-key fail "job build has statuses: write"
+
+write_workflow quoted-job-id "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: write\n' "$NO_PERSIST"
+sed -i.bak 's/^  build:$/  "build":/' "${WORK}/quoted-job-id.yml"
+expect quoted-job-id fail "job build has statuses: write"
+
+write_workflow unreadable-job-id "$GOOD_TOP" "$SHARED_READS" "$BUILD_READS" "$NO_PERSIST"
+sed -i.bak 's/^  build:$/  build :/' "${WORK}/unreadable-job-id.yml"
+expect unreadable-job-id fail "cannot read the job id"
+
+write_workflow wide-layout "$GOOD_TOP" "$SHARED_READS" '    permissions:\n      contents: read\n      statuses: write\n' "$NO_PERSIST"
+sed -i.bak 's/^\( *\)/\1\1/' "${WORK}/wide-layout.yml"
+expect wide-layout fail "cannot read any job"
 
 printf 'Workflow permission fixtures passed.\n'
