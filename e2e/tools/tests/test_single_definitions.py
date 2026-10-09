@@ -2,7 +2,9 @@
 
 import os
 import re
+import shutil
 import subprocess
+import tempfile
 import unittest
 
 from support import SHARED, Workspace, scenario
@@ -25,16 +27,46 @@ def head(ws):
         check=True).stdout.strip()
 
 
+def android_test_classes(sources):
+    """The classes with a @Test in any file under the runner's sources, whatever the package or the depth (YC-6)."""
+    defined = set()
+    for folder, _, names in os.walk(sources):
+        for name in names:
+            if name.endswith(".kt") and "@Test" in read(folder, name):
+                defined.update(re.findall(r"^class (\w+)", read(folder, name), re.M))
+    return defined
+
+
+def ios_probe_classes(uitests):
+    """The XCTest classes of every Swift file of the UI tests but the generated ones (YC-6)."""
+    defined = set()
+    for folder, _, names in os.walk(uitests):
+        if os.path.relpath(folder, uitests).split(os.sep)[0] == "Generated":
+            continue
+        for name in names:
+            if name.endswith(".swift"):
+                defined.update(re.findall(r"^final class (\w+): (?:XCTestCase|ScenarioTestCase)", read(folder, name), re.M))
+    return defined
+
+
 class DriverContractClassesTests(unittest.TestCase):
     """The classes of probes each adapter enumerates by hand are the ones the sources define: a new one that is not listed would not
     run and the gate would stay green (ZC-7)."""
 
+    def test_the_discovery_of_probe_classes_does_not_depend_on_where_they_are_today(self):
+        tree = os.path.realpath(tempfile.mkdtemp(prefix="e2e-classes-"))
+        self.addCleanup(shutil.rmtree, tree, True)
+        for path, text in (("kt/A.kt", "class A {\n@Test fun x() {}\n}\n"), ("kt/deeper/B.kt", "class B {\n@Test fun y() {}\n}\n"),
+                ("kt/C.kt", "class C\n"), ("ui/One.swift", "final class One: XCTestCase {}\n"),
+                ("ui/Sub/Two.swift", "final class Two: ScenarioTestCase {}\n"), ("ui/Generated/G.swift", "final class G: XCTestCase {}\n")):
+            os.makedirs(os.path.dirname(os.path.join(tree, path)), exist_ok=True)
+            with open(os.path.join(tree, path), "w") as handle:
+                handle.write(text)
+        self.assertEqual(android_test_classes(os.path.join(tree, "kt")), {"A", "B"})
+        self.assertEqual(ios_probe_classes(os.path.join(tree, "ui")), {"One", "Two"})
+
     def test_the_android_contract_classes_are_the_test_classes_of_the_runner_less_the_scenario_suite(self):
-        sources = os.path.join(ROOT, "scenariorunner", "src", "main", "kotlin", "com", "gdavidpb", "tuindice", "scenariorunner")
-        defined = set()
-        for name in os.listdir(sources):
-            if name.endswith(".kt") and "@Test" in read(sources, name):
-                defined.update(re.findall(r"^class (\w+)", read(sources, name), re.M))
+        defined = android_test_classes(os.path.join(ROOT, "scenariorunner", "src"))
         defined.discard("ScenarioSuiteTest")
         adapter = read(ROOT, "e2e", "scripts", "android", "adapter.sh")
         listed = set(re.findall(r"\.(\w+)(?:,|\")", re.search(r'^CONTRACT_CLASSES="(.*)"$', adapter, re.M).group(1) + '"'))
@@ -43,7 +75,7 @@ class DriverContractClassesTests(unittest.TestCase):
         self.assertEqual({item.split("#")[0] for item in required.split(",")}, defined)
 
     def test_the_ios_probe_classes_are_the_xctest_classes_of_the_contract_file_and_each_is_selected(self):
-        defined = set(re.findall(r"^final class (\w+): (?:XCTestCase|ScenarioTestCase)", read(ROOT, "iosApp", "UITests", "DriverContractTests.swift"), re.M))
+        defined = ios_probe_classes(os.path.join(ROOT, "iosApp", "UITests"))
         adapter = read(ROOT, "e2e", "scripts", "ios", "adapter.sh")
         listed = set(re.search(r'^PROBE_CLASSES="(.*)"$', adapter, re.M).group(1).split(","))
         self.assertEqual(listed, defined)
