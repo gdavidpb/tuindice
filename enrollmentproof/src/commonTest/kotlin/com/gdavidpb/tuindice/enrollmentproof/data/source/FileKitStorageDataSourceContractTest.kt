@@ -61,6 +61,38 @@ class FileKitStorageDataSourceContractTest {
 		}
 	}
 
+	// A saved proof belongs to the account that fetched it, and the stores a sign-out wipes do not
+	// hold it: the directory has to go through the session memory.
+	@Test
+	fun clearSessionMemory_removesEverySavedProofAndTheirDirectory() = runTest {
+		val firstName = uniqueProofName("wipe_first")
+		val secondName = uniqueProofName("wipe_second")
+		val proof = EnrollmentProof(source = "ignored", content = DEFAULT_ENROLLMENT_PROOF_CONTENT)
+
+		try {
+			dataSource.saveEnrollmentProof(firstName, proof)
+			dataSource.saveEnrollmentProof(secondName, proof)
+
+			dataSource.clearSessionMemory()
+
+			assertFalse(dataSource.enrollmentProofExists(firstName))
+			assertFalse(dataSource.enrollmentProofExists(secondName))
+			assertFalse((FileKit.filesDir / "enrollmentProofs" / "$firstName.pdf").exists())
+			assertFalse((FileKit.filesDir / "enrollmentProofs").exists())
+		} finally {
+			deleteProofIfExists(firstName)
+			deleteProofIfExists(secondName)
+		}
+	}
+
+	@Test
+	fun clearSessionMemory_withoutTheDirectory_doesNotFail() = runTest {
+		dataSource.clearSessionMemory()
+		dataSource.clearSessionMemory()
+
+		assertFalse((FileKit.filesDir / "enrollmentProofs").exists())
+	}
+
 	private suspend fun deleteProofIfExists(name: String) {
 		val file = FileKit.filesDir / "enrollmentProofs" / "$name.pdf"
 		if (file.exists()) file.delete(mustExist = false)

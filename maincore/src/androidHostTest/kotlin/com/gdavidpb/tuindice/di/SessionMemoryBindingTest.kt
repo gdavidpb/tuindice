@@ -45,6 +45,7 @@ class SessionMemoryBindingTest {
 				"data.source.credentials.CredentialsDataSource",
 				"data.source.session.SessionRecoveryDataSource",
 				"data.source.sync.SyncStatusSettingsDataSource",
+				"enrollmentproof.data.source.FileKitStorageDataSource",
 				"evaluations.data.source.LocalSettingsDataSource",
 				"evaluations.data.source.RoomDatabaseDataSource",
 				"pensum.data.source.LocalSettingsDataSource",
