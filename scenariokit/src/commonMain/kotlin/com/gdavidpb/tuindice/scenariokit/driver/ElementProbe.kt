@@ -11,12 +11,13 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * text in any package; iOS: label or identifier in the app or in the springboard). The first match is used. An
  * element counts as present only when it is on screen: on iOS it must also have a non-empty frame that meets the
  * screen, and a tag or a text counts only while the app is in the foreground (its tree stays readable behind Safari
- * or a system sheet, and then it is not what the user sees). "In the foreground" is asked of the system when an
- * element is found, with a wait of 0.3 s for the background state; it costs 0.3 s on each hit of a wait or a read. What
- * that buys was measured (YB-1) against Safari's own state and screenshots: Safari opened over the app is in front
- * 0.0 s after the open returns, and the probe, like the state XCTest cached, says "not in front" only 2.6 to 2.9 s
- * later (5 runs, within 0.03 s of the cached state). So in that window an element of the app is still read as on
- * screen with Safari already in front: the probe does not cover it.
+ * or a system sheet, and then it is not what the user sees). On iOS "in the foreground" is the state XCTest has cached
+ * for the app, and that is the limit: after the app leaves the front, with Safari opened over it, the cached state
+ * keeps saying "foreground" for about 2.7 s (2.56 to 2.89 s, measured against Safari's own state and screenshots), and
+ * during that window a lookup that finds the element in the app's tree can answer "on screen" with another app in
+ * front. Asking the system with a wait for the background state (`AppControl.isForeground`) sees the change at the same
+ * moment as the cached state (within 0.03 s) and costs 0.3 s per hit, so the lookups do not pay it. A scenario that
+ * leaves the app on purpose waits for it with `WaitBackgrounded` before it asserts anything about what is on screen.
  */
 interface ElementProbe {
 	/** Polls [q] until it is visible or [timeoutMs] pass. It always looks once, so a timeout of 0 is a single check. */

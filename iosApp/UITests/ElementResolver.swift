@@ -244,7 +244,10 @@ final class ElementResolver {
     }
 
     /// On screen: it exists, has a non-empty frame and that frame meets the screen. The foreground it needs is the cached state of
-    /// the app (see [visibleFactsInFront] for what a step that reports to the scenario must use).
+    /// the app, and that is all a lookup asks (waits, reads and gestures alike). The limit, measured (YB-1, E4): after the app leaves
+    /// the front, the cached state keeps saying `runningForeground` for about 2.7 s (2.56 to 2.89 s, 6 runs), and a lookup that finds
+    /// the element in its tree in that window answers "on screen" with Safari or a system sheet already in front. A scenario that
+    /// leaves the app on purpose waits for it with `waitBackgrounded` (which asks [isAppFrontNow]) before it asserts anything.
     func visibleFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
         guard let (resolved, facts) = lookup(q) else { return nil }
         guard !facts.frame.isEmpty, screen.intersects(facts.frame) else { return nil }
@@ -255,28 +258,20 @@ final class ElementResolver {
     /// with Safari opened over the app by `simctl openurl`, against the state of Safari itself sampled every 0.03 s and screenshots
     /// (the screen showed Safari 0.5 s after its state said foreground, and the app before): Safari is in front when the open returns;
     /// the cached state of the app and the probe say "not in front" only 2.6 to 2.9 s later, the probe within 0.03 s of the cached state
-    /// (5 runs). The 0.7 s head start seen in the first measurement is not there: this probe does not cover that window. A decision of
-    /// the owner is pending on whether to keep its cost (0.3 s per hit) for what it covers.
+    /// (5 runs). The probe sees the change when the cached state does, so it costs 0.3 s per hit and covers nothing the cached state
+    /// does not: lookups do not pay it any more (E4); `isForeground()`, `waitBackgrounded` and `foreground()` do, because the polling
+    /// there converges.
     static let freshProbe = 0.3
 
     /// Whether the app is in front now, not as XCTest last cached it: the state, a wait for the background state that makes XCTest ask
     /// the system, and the state again (YB-1: an app that was suspended while it was waited for answers "not in background" and is not
     /// in front). It costs [freshProbe] when the app is in front, so it is asked once, when an answer is about to be given. This is the
-    /// only implementation: `isForeground()` of the driver uses it too.
+    /// only implementation: `isForeground()` of the driver uses it, and so does the proof of an absence ([isAbsent]).
     var isAppFrontNow: Bool {
         let before = app.state
         guard before == .runningForeground else { return false }
         let wentToBackground = app.wait(for: .runningBackground, timeout: Self.freshProbe)
         return FrontCheck.isInFront(before: before, wentToBackground: wentToBackground, after: app.state)
-    }
-
-    /// [visibleFacts] for a step that reports to the scenario (a wait, a read): an element of the app counts as on screen only while the
-    /// app is in front now, because behind Safari or a system sheet its tree is still readable and is not what the user sees. A system
-    /// query may belong to SpringBoard and is not held to the app being in front. The fresh check is paid only when the element was found.
-    func visibleFactsInFront(_ q: Query) -> (ResolvedElement, ElementFacts)? {
-        guard let hit = visibleFacts(q) else { return nil }
-        if q is QuerySystem { return hit }
-        return isAppFrontNow ? hit : nil
     }
 
     /// Whether [q] is shown nowhere, with positive evidence: the app is in the foreground and its tree was read in this very

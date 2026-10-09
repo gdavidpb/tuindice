@@ -66,8 +66,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// Whether the app is in front. `XCUIApplication.state` is a value XCTest refreshes lazily: with Safari opened on top of the
     /// app it stayed `runningForeground` for 10 s in every `conformance-foreground` run that followed other scenarios (and
     /// `foreground()` then answered in 15 ms with the home screen in front). Asking XCTest to wait for the background state is a
-    /// round trip with the system, which sees the change earlier than the cached value does (what that gains is in
-    /// `ElementResolver.freshProbe`); the one implementation is `ElementResolver.isAppFrontNow`, the same the lookups use.
+    /// round trip with the system, which sees the change as early as the cached value and no earlier (diff <= 0.03 s, measured:
+    /// `ElementResolver.freshProbe`), so it is paid only here, where the polling converges, and not by the lookups; the one
+    /// implementation is `ElementResolver.isAppFrontNow`, the same the proof of an absence uses.
     func isForeground() -> Bool { traced("isForeground") { resolver.isAppFrontNow } }
 
     /// False once the process is gone (`notRunning`); true when it is running in any way, suspended included, and when the
@@ -79,7 +80,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     // MARK: ElementProbe
 
     func waitVisible(q: Query, timeoutMs: Int64) -> Bool {
-        traced("waitVisible") { poll(timeoutMs: timeoutMs) { resolver.visibleFactsInFront(q) != nil } }
+        traced("waitVisible") { poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) != nil } }
     }
 
     func waitGone(q: Query, timeoutMs: Int64) -> Bool {
@@ -90,13 +91,13 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         }
     }
 
-    func isVisible(q: Query) -> Bool { traced("isVisible") { resolver.visibleFactsInFront(q) != nil } }
+    func isVisible(q: Query) -> Bool { traced("isVisible") { resolver.visibleFacts(q) != nil } }
 
-    func isEnabled(q: Query) -> Bool { traced("isEnabled") { resolver.visibleFactsInFront(q)?.1.isEnabled ?? false } }
+    func isEnabled(q: Query) -> Bool { traced("isEnabled") { resolver.visibleFacts(q)?.1.isEnabled ?? false } }
 
     func readText(q: Query) -> String? {
         traced("readText") {
-            guard let (_, facts) = resolver.visibleFactsInFront(q) else { return nil }
+            guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
             if facts.isTextInput { return facts.typedText }
             return facts.value ?? facts.label
         }
@@ -108,7 +109,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// element (the state before and the state after), and the contract probes the limit (`ToggleState`).
     func isChecked(q: Query) -> KotlinBoolean? {
         traced("isChecked") {
-            guard let (_, facts) = resolver.visibleFactsInFront(q), ToggleState.holdsState(facts.type) else { return nil }
+            guard let (_, facts) = resolver.visibleFacts(q), ToggleState.holdsState(facts.type) else { return nil }
             guard let checked = ToggleState.checked(value: facts.value, isSelected: facts.isSelected) else {
                 log.add("[driver] isChecked \(q): the value '\(facts.value ?? "")' is not one the driver knows how to read; no answer")
                 return nil
@@ -120,7 +121,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func bounds(q: Query?) -> ElementBounds? {
         traced("bounds") {
             guard let q else { return rectBounds(resolver.screen) }
-            guard let (_, facts) = resolver.visibleFactsInFront(q) else { return nil }
+            guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
             return rectBounds(resolver.visiblePart(of: facts.frame))
         }
     }

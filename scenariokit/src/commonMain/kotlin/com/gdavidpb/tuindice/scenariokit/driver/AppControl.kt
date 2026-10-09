@@ -44,7 +44,11 @@ interface AppControl {
 	 *   0.3 s that `isForeground` gives XCTest to refresh the state (the cached value alone stayed in the foreground for
 	 *   up to 10 s with Safari in front). A system alert does not count as "not in front": the app stays in the
 	 *   foreground behind it. A state that went straight to `runningBackgroundSuspended` while the cache still said
-	 *   foreground would read as in front.
+	 *   foreground would read as in front. The limit, measured: the state, cached or asked for, turns to "not in front"
+	 *   about 2.7 s after another app is already in front (2.56 to 2.89 s), so for that long after the app is left
+	 *   without the scenario waiting for it, this answers true, and so do the lookups of [ElementProbe], which do not ask
+	 *   the system at all (they read the cached state); `WaitBackgrounded` is how a scenario that leaves on purpose
+	 *   waits for the change.
 	 *
 	 * Both are false for a dead app, so [isForeground] alone cannot tell a backgrounded app from a dead one:
 	 * [isRunning] does.
