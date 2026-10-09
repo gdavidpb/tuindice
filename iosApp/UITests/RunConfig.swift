@@ -106,8 +106,9 @@ final class DriverLog {
 
     /// The one funnel of every refusal: writes `[refusal] <primitive> <reason>` (the harness counts them by the first word, so it is always the
     /// primitive that was refused: `tap`, `tapAt`, `doubleTap`, `swipe`, `typeKeys`, `clearText`, `submitTextEntry`, `pressBack`, `foreground`,
-    /// `scroll` or `guard` for the keyboard guard) and keeps the whole line as the reason the gesture or text entry in progress was refused.
-    /// A static test reads the sources and fails if a call does not name one of those primitives as a literal.
+    /// `launch`, `terminate`, `captureFailure`, `alert` or `guard` for the keyboard guard) and keeps the whole line as the reason the gesture or
+    /// text entry in progress was refused. A static test reads the sources and fails if a call does not name one of those primitives as a
+    /// literal, and that this list and the one of the Android driver are the list of the test.
     func refuse(_ primitive: String, _ reason: String) {
         let line = "\(primitive) \(reason)"
         locked { refusal = line }

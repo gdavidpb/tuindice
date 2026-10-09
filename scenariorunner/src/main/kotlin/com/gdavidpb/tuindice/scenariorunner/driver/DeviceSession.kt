@@ -34,9 +34,11 @@ internal class DeviceSession {
 
 	/**
 	 * Whether the input method says the soft keyboard is shown ([InputMethodDump]); null when the dump cannot be read.
-	 * The dump is about a megabyte, so it is asked for only when the window list cannot settle the question.
+	 * The dump is about a megabyte, so it is asked for only when the window list cannot settle the question. `-t 2`
+	 * bounds it: a service that hangs would otherwise keep `dumpsys` for its default 10 s, twice in one gesture; at the
+	 * end of the time it writes a warning line without `mInputShown`, which reads as null (YB-3).
 	 */
-	fun inputMethodShown(): Boolean? = shellOrNull("dumpsys input_method")?.let(InputMethodDump::shown)
+	fun inputMethodShown(): Boolean? = shellOrNull("dumpsys -t 2 input_method")?.let(InputMethodDump::shown)
 
 	/** True/false by `pidof`; null when the shell call failed and nothing is known about the process. */
 	fun appProcessRunning(): Boolean? = shellOrNull("pidof ${AppIdentity.ID}")?.isNotBlank()

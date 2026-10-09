@@ -77,6 +77,7 @@ tasks.withType<Test>().configureEach {
 				include("iosApp/Sources/TuIndiceHost/**/*.swift")
 				include("scenariorunner/src/main/**/*.kt")
 				include("iosApp/UITests/*.swift")
+				include("iosApp/Config/*.xcconfig")
 			}
 		).withPropertyName("repoFilesRead")
 		outputs.dir(layout.buildDirectory.dir("e2e/catalog"))

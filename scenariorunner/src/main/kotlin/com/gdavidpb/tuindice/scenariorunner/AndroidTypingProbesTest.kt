@@ -1,13 +1,17 @@
 package com.gdavidpb.tuindice.scenariorunner
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.gdavidpb.tuindice.scenariorunner.driver.GuardVerdict
 import com.gdavidpb.tuindice.scenariorunner.driver.UiAutomatorScenarioDriver
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
-/** Typing probes of the Android driver (B-2); run by class on a cleared app, like [AndroidDriverProbesTest]. */
+/**
+ * Typing probes of the Android driver (B-2), and the verdict of its keyboard guard, which only the typing makes matter
+ * (YB-3); run by class on a cleared app, like [AndroidDriverProbesTest].
+ */
 class AndroidTypingProbesTest {
 	private val app = ProbeApp()
 
@@ -30,8 +34,8 @@ class AndroidTypingProbesTest {
 	/**
 	 * ZB-3, the regression probe of the extra character ("v" in the password field): `typeKeys` never touches the screen.
 	 * With the field without the focus, `typeKeys` asks for it with the accessibility click action and logcat has no
-	 * `Clicking on` (the line `UiDevice.click` writes for a touch on a coordinate) since the probe began. Red if a click
-	 * by coordinate returns to the focus path (verified by putting one in `FieldFocus`).
+	 * `Clicking on` (the line a touch on a coordinate writes) since the probe began. Red if a click by coordinate returns
+	 * to the focus path, by `UiDevice.click` or by `UiObject2.click()` (verified by putting each one in `FieldFocus`).
 	 */
 	@Test
 	fun typeKeysOnAFieldWithoutFocusDoesNotClickOnTheScreen() {
@@ -61,9 +65,75 @@ class AndroidTypingProbesTest {
 		assertEquals("the tap clicked once and typeKeys never: ${clicks(driver)}", 1, clicks(driver).size)
 	}
 
-	/** The `Clicking on` lines of `UiDevice` since logcat was last cleared. */
+	/** A reading the verdict may ask for: it counts how many times it was asked and answers always the same. */
+	private class Reading(private val answer: Boolean?) {
+		var asked = 0
+
+		fun ask(): Boolean? {
+			asked++
+			return answer
+		}
+	}
+
+	/**
+	 * YB-3: every row of the table of the keyboard guard, on its pure verdict, and what each row asks. Red when two
+	 * rows are swapped (refusing when the windows cannot be read and letting a keyboard that is shown pass, say): the
+	 * row that defends from the extra character is the one a device probe cannot provoke.
+	 */
+	@Test
+	fun theGuardDecidesEveryRowOfItsTableBeforeWaitingAndAsksOnlyWhatTheRowNeeds() {
+		var focus = Reading(true)
+		var shown = Reading(true)
+
+		fun before(readable: Boolean, listed: Boolean, hasFocus: Boolean?, inputMethod: Boolean?): GuardVerdict {
+			focus = Reading(hasFocus)
+			shown = Reading(inputMethod)
+			return GuardVerdict.beforeWaiting(readable, listed, focus::ask, shown::ask)
+		}
+
+		assertEquals("windows unreadable, shown", GuardVerdict.REFUSE, before(false, false, true, true))
+		assertEquals(GuardVerdict.PASS_UNREADABLE, before(false, false, true, false))
+		assertEquals(GuardVerdict.PASS_UNREADABLE, before(false, false, true, null))
+		assertEquals("a keyboard that is listed needs nothing", GuardVerdict.PASS, before(true, true, true, true))
+		assertEquals("nothing was asked", 0, focus.asked + shown.asked)
+		assertEquals("no field with the focus", GuardVerdict.PASS, before(true, false, false, true))
+		assertEquals("the input method is not asked without a field", 0, shown.asked)
+		assertEquals(GuardVerdict.PASS_HIDDEN, before(true, false, true, false))
+		assertEquals(GuardVerdict.WAIT, before(true, false, true, true))
+		assertEquals(GuardVerdict.WAIT, before(true, false, true, null))
+		assertEquals("a focus that cannot be read counts as a focus", GuardVerdict.WAIT, before(true, false, null, true))
+		assertEquals(GuardVerdict.PASS_HIDDEN, before(true, false, null, false))
+		assertEquals(1, shown.asked)
+	}
+
+	/** YB-3/YB-4: the rows of the verdict after the wait, the one that says the layout moved (listed) among them. */
+	@Test
+	fun theGuardDecidesEveryRowOfItsTableAfterWaitingAndAsksOnlyWhatTheRowNeeds() {
+		var now = Reading(true)
+
+		fun after(listed: Boolean, before: Boolean?, inputMethod: Boolean?): GuardVerdict {
+			now = Reading(inputMethod)
+			return GuardVerdict.afterWaiting(listed, before, now::ask)
+		}
+
+		assertEquals("the layout moved while it was awaited", GuardVerdict.PASS_AFTER_WAIT, after(true, true, true))
+		assertEquals(0, now.asked)
+		assertEquals("nothing could be asked", GuardVerdict.PASS_TAKEN_AS_HIDDEN, after(false, null, true))
+		assertEquals(0, now.asked)
+		assertEquals("hidden while it was awaited", GuardVerdict.PASS_HIDDEN, after(false, true, false))
+		assertEquals("shown and never listed", GuardVerdict.REFUSE, after(false, true, true))
+		assertEquals("shown and now unreadable", GuardVerdict.REFUSE, after(false, true, null))
+	}
+
+	/**
+	 * The lines UI Automator writes for a touch since logcat was last cleared (YB-2): `Clicking on` and
+	 * `Long-clicking on`, under the tag of the class that made the touch: `UiDevice` for `UiDevice.click`, `UiObject2`
+	 * for `UiObject2.click()` (the usual way to put a point read from the tree back into the focus path) and
+	 * `UiObject` for the legacy API.
+	 */
 	private fun clicks(driver: UiAutomatorScenarioDriver): List<String> =
-		driver.session.shell("logcat -d -s UiDevice").lines().filter { it.contains("Clicking on") }
+		driver.session.shell("logcat -d -s UiDevice UiObject2 UiObject").lines()
+			.filter { it.contains("Clicking on") || it.contains("Long-clicking on") }
 
 	/**
 	 * With `-e typingSeries N`, types 30 characters into the password field N times and counts how many enter

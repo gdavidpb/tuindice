@@ -25,7 +25,8 @@ class TestInputsDeclaredTest {
 		"maincore/src/iosMain" to "the iOS debug code (LaunchArgsParityTest)",
 		"iosApp/Sources/TuIndiceHost" to "the iOS Swift host (LaunchArgsParityTest)",
 		"scenariorunner/src/main" to "the Android driver and its probes (DriverSourcesTest)",
-		"iosApp/UITests" to "the iOS driver (DriverSourcesTest)"
+		"iosApp/UITests" to "the iOS driver (DriverSourcesTest)",
+		"iosApp/Config" to "the build settings of the UI test target (DriverSourcesTest: ARC for the Objective-C shim)"
 	)
 
 	@Test

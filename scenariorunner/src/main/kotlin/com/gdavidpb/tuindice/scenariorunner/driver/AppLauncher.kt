@@ -61,14 +61,17 @@ internal class AppLauncher(private val session: DeviceSession) : AppControl {
 		if (inFront) {
 			session.log.write("foreground: in front after $brought requests; last other package '$lastOther'")
 		} else if (alive) {
-			session.log.write("foreground: not in front after ${Timeouts.Action} ms, $brought requests; front '$lastOther'")
+			session.log.tolerate(
+				"foreground-not-in-front",
+				"not in front after ${Timeouts.Action} ms, $brought requests; front '$lastOther'"
+			)
 		}
 
 		return inFront
 	}
 
 	private fun bringBack(front: String, request: Int, deadline: Long) {
-		session.log.write("foreground: '$front' is in front, request $request to bring the app back")
+		session.log.tolerate("foreground-request", "'$front' is in front, request $request to bring the app back")
 
 		if (start(reorderToFront(), deadline - SystemClock.uptimeMillis())) {
 			session.poll(minOf(deadline - SystemClock.uptimeMillis(), Timeouts.Assert)) { isForeground() }

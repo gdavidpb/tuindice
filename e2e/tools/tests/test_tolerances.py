@@ -31,14 +31,22 @@ class CountTests(unittest.TestCase):
 
     def test_the_guard_counts_each_touch_it_let_through_on_a_guess_and_not_the_ones_it_decided_with_a_reading(self):
         # ZB-5: a keyboard taken as hidden after the wait and a window list that could not be read are tolerances of their own;
-        # a keyboard the input method said was hidden (no wait) or a listing that came are not.
+        # a keyboard the input method said was hidden (no wait) or a listing that came are plain lines of the log, not tolerances.
+        # YB-9: the driver writes the two through the funnel `DriverLog.tolerate`, so what is counted is the marker, in any position of the
+        # line, and not a phrase the Kotlin code could rewrite.
         log = "\n".join((
             "10:00:00.000 guard: tap on tag:a: a text field has the focus and the input method says the keyboard is hidden; not waited for",
             "10:00:00.100 guard: tap on tag:a: a text field has the focus, no keyboard window was listed and the input method says shown; the keyboard was listed after 400 ms",
-            "10:00:00.200 guard: tap on tag:a: a text field has the focus, no keyboard window was listed and the input method says nothing readable; the keyboard was never listed in 1500 ms, taken as hidden",
-            "10:00:00.300 guard: swipe from the screen: the keyboard windows could not be read (input method says hidden); taken as hidden",
+            "10:00:00.200 [tolerance] keyboard-taken-as-hidden tap on tag:a: the keyboard was never listed in 1500 ms",
+            "10:00:00.300 [tolerance] keyboard-unreadable swipe from the screen: the keyboard windows could not be read",
         ))
         self.assertEqual(tolerances.count(log), {"keyboard-taken-as-hidden": 1, "keyboard-unreadable": 1})
+
+    def test_a_phrase_without_the_marker_is_not_a_tolerance_whatever_it_says(self):
+        # YB-9: the old phrases no longer count; only a line the funnel marked does, so rewriting the text of a message cannot hide one.
+        log = "10:00:00.200 guard: tap on tag:a: the keyboard was never listed in 1500 ms, taken as hidden\n" \
+              "10:00:00.300 foreground: 'x' is in front, request 1 to bring the app back\n"
+        self.assertEqual(tolerances.count(log), {})
 
     def test_a_refusal_is_a_line_with_the_marker_counted_by_the_first_word_of_its_reason(self):
         # Both drivers write every refusal through one funnel that adds the marker and puts the primitive first (tap, tapAt, typeKeys,

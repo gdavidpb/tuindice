@@ -1,6 +1,6 @@
 10:00:01.100 [0] Launch -> passed (900 ms)
-10:00:01.900 foreground: 'com.android.chrome' is in front, request 1 to bring the app back
-10:00:02.400 foreground: 'com.android.chrome' is in front, request 2 to bring the app back
+10:00:01.900 [tolerance] foreground-request 'com.android.chrome' is in front, request 1 to bring the app back
+10:00:02.400 [tolerance] foreground-request 'com.android.chrome' is in front, request 2 to bring the app back
 10:00:03.000 foreground: in front after 2 requests; last other package 'com.android.chrome'
 10:00:09.000 [refusal] tap tag:x: not on screen when the gesture was about to be made; gesture refused
 10:00:10.000 [refusal] tapAt tag:y: bounds still moving after 2000 ms (last Rect(1, 2)); gesture refused
@@ -8,7 +8,7 @@
 10:00:11.500 [refusal] typeKeys tag:email: the field is not on screen
 10:00:11.700 [refusal] typeKeys tag:email: the focus request changed the field (held 3)
 10:00:11.800 [refusal] pressBack the back key could not be injected
-10:00:11.900 guard: tap on tag:z: a text field has the focus, no keyboard window was listed and the input method says nothing readable; the keyboard was never listed in 1500 ms, taken as hidden
-10:00:11.950 guard: swipe from the screen: the keyboard windows could not be read (input method says hidden); taken as hidden
-10:00:11.960 guard: tap on tag:z: the keyboard windows could not be read (input method says nothing readable); taken as hidden
-10:00:12.000 foreground: not in front after 20000 ms, 4 requests; front 'com.android.chrome'
+10:00:11.900 [tolerance] keyboard-taken-as-hidden tap on tag:z: a text field has the focus, no keyboard window was listed and the input method says nothing readable; the keyboard was never listed in 1500 ms
+10:00:11.950 [tolerance] keyboard-unreadable swipe from the screen: the keyboard windows could not be read (input method says hidden)
+10:00:11.960 [tolerance] keyboard-unreadable tap on tag:z: the keyboard windows could not be read (input method says nothing readable)
+10:00:12.000 [tolerance] foreground-not-in-front not in front after 20000 ms, 4 requests; front 'com.android.chrome'
