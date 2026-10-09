@@ -218,6 +218,11 @@ sin completar ningún paso (carga extrema; el orquestador paró los `yes` a las 
 una lectura fallida de la tecla ya no es «desapareció» (`SettleWatch.feedUnreadable`: cuenta para los límites, reinicia la racha y solo termina como `moving`), y
 el error de cada lectura fallida va al `driver.log`. La causa de la lectura fallida no se observó (el texto del error no existía); la próxima aparición lo trae.
 
+**Cierre de iOS (E4).** Conformidad con `E2E_MAX_RETRIES=0 --survey --repeat 10`, cortada por tiempo en la repetición 4 (107 corridas de escenario: 106
+válidas, 106 pasaron, 0 fallos de escenario; 1 perdida por el entorno, «simulator degraded: stopped serving preferences» en `conformance-launch-seeded`);
+cada uno de los 25 escenarios tiene 4 o 5 pasadas. `DriverContract` ×10: 10 de 10, 17 sondas (con 2 sondas más de `SettleWatchTests` en la clase
+que corre aparte). `:scenariokit:iosSimulatorArm64Test verifyIosUiTestsBuild verifyIosHostTypecheck`: BUILD SUCCESSFUL.
+
 **Desplazamiento en Android con carga (E3).** `conformance-scroll` con `OpenKtor` como destino (escenario temporal, restaurado),
 serie de 50 con el host cargado por la conformidad de iOS corriendo a la vez, y la duración de cada swipe leída de una línea
 `swipe: N events in X ms` que se añadió al `driver.log` en ambas variantes. Con `UiDevice.swipe` (80 eventos síncronos): 1 fallo de
