@@ -64,6 +64,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var launchTakesMs = 0L
 	var httpTakesMs = 0L
 
+	/** Virtual time a swipe takes to be injected, like a device so loaded that a 0.4 s swipe lasts seconds. */
+	var swipeTakesMs = 0L
+
 	private fun enter(call: String) {
 		calls += call
 		if (throwOn == call.substringBefore('(')) error("scripted driver failure in $call")
@@ -208,6 +211,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		enter("swipe")
 		val allowed = aim(from, "swipe") && !underKeyboard(vector.fy, "swipe") && swipeResult
 		if (allowed) {
+			time += swipeTakesMs.milliseconds
 			swipes++
 			onSwipe(swipes)
 		}

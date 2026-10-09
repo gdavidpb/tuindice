@@ -678,6 +678,24 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun scrollUntilVisible_judgesTheLastSwipeByItsEffectWhenTheDeadlinePassedDuringIt() {
+		val fake = driver(button to FakeElement(hiddenUntilSwipes = 2))
+		fake.swipeTakesMs = 1_500
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)))
+		assertEquals(2, fake.swipes, "no swipe is made for the last look")
+	}
+
+	@Test
+	fun scrollUntilVisible_failsWhenTheLastSwipeDidNotBringTheElementIntoView() {
+		val fake = driver(button to FakeElement(hiddenUntilSwipes = 5))
+		fake.swipeTakesMs = 1_500
+
+		assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.STEP_TIMEOUT)
+		assertEquals(2, fake.swipes, "the deadline is not extended for more swipes")
+	}
+
+	@Test
 	fun scrollUntilVisible_failsWhenTheDriverRefusesTheSwipe() {
 		val fake = driver().apply { swipeResult = false }
 
