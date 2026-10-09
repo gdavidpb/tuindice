@@ -654,16 +654,25 @@ class StepKindsTest {
 			assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.STEP_TIMEOUT)
 
 		assertContains(failure.message, "did not scroll into view")
-		assertTrue(fake.swipes >= 1, "it kept scrolling instead of passing blind; swipes were ${fake.swipes}")
+		assertContains(failure.message, "its position could not be read")
+		assertEquals(0, fake.swipes, "an element that is visible but cannot be read is waited for, not swiped past")
 	}
 
 	@Test
 	fun scrollUntilVisible_passesOnceTheElementCanBePlaced() {
-		val fake = driver(button to FakeElement(unreadableBounds = true))
-		fake.onSwipe = { count -> if (count == 2) fake.screen.getValue(button).unreadableBounds = false }
+		val fake = driver(button to FakeElement(unreadableReadsAfterSwipe = 2))
 
 		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
-		assertEquals(2, fake.swipes)
+		assertEquals(0, fake.swipes)
+	}
+
+	@Test
+	fun scrollUntilVisible_waitsForTheTreeToBeReadableAfterASwipeInsteadOfSwipingAgain() {
+		val fixed = ElementBounds(450.0, 1560.0, 550.0, 1670.0)
+		val fake = driver(button to FakeElement(bounds = fixed, unreadableReadsAfterSwipe = 3))
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertEquals(1, fake.swipes, "a floating button that cannot be read just after a swipe needs no other swipe")
 	}
 
 	@Test

@@ -26,6 +26,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	val taps = mutableListOf<Query>()
 	val onTap = mutableMapOf<Query, () -> Unit>()
 	var swipes = 0
+	private var readsSinceSwipe = 0
 	var onSwipe: (Int) -> Unit = {}
 
 	var launchResults = ArrayDeque<Boolean>()
@@ -166,7 +167,14 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 
 	override fun bounds(q: Query?): ElementBounds? {
 		enter("bounds")
-		return if (q == null) SCREEN else if (shown(q)) element(q)?.takeIf { !it.unreadableBounds }?.let(::drifted) else null
+		val el = q?.let { element(it) }?.takeIf { shown(q) }
+		val settling = el != null && readsSinceSwipe++ < el.unreadableReadsAfterSwipe
+
+		return when {
+			q == null -> SCREEN
+			el == null || el.unreadableBounds || settling -> null
+			else -> drifted(el)
+		}
 	}
 
 	private fun drifted(el: FakeElement): ElementBounds {
@@ -213,6 +221,7 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		if (allowed) {
 			time += swipeTakesMs.milliseconds
 			swipes++
+			readsSinceSwipe = 0
 			onSwipe(swipes)
 		}
 		return allowed

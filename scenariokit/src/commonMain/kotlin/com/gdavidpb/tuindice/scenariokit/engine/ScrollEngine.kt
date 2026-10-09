@@ -21,11 +21,17 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 	fun execute(step: Step.ScrollUntilVisible): StepResult {
 		var swipeRefused = false
 		var beforeSwipe: ElementBounds? = null
+		var unreadAtLastRead = false
 		val settledInTime = poller.until(step.timeoutMs, SCROLL_PAUSE_MS) {
 			val bounds = driver.bounds(step.q)
 			val placement = placement(step.q, bounds, beforeSwipe)
+			unreadAtLastRead = placement == Placement.UNREAD
 			when {
 				placement == Placement.SETTLED -> true
+				// Waiting for a condition, not a swipe: the element is on screen but the tree would not give its position
+				// (measured on Android: right after a swipe, three reads of four throw StaleObjectException). Swiping now
+				// would erase where it sat before the last swipe, and "it did not move" would never be provable.
+				placement == Placement.UNREAD -> false
 				swipeOnce(step.direction) -> {
 					beforeSwipe = bounds.takeIf { placement == Placement.OFF_CENTER }
 					false
@@ -45,7 +51,8 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 			inView -> StepResult.Passed
 			else -> StepResult.Failed(
 				FailureKind.STEP_TIMEOUT,
-				"${step.q.describe()} did not scroll into view within ${step.timeoutMs} ms"
+				"${step.q.describe()} did not scroll into view within ${step.timeoutMs} ms" +
+					if (unreadAtLastRead) ": it was on screen but its position could not be read" else ""
 			)
 		}
 	}
@@ -59,15 +66,15 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 		return when {
 			!driver.isVisible(q) -> Placement.HIDDEN
 			// Visible but without a position (it appeared between the reads, or the driver could not place it): where it
-			// sits is unknown, so it is not placed. Scrolling goes on, and the wait ends as a timeout if it never is.
-			bounds == null || screen == null -> Placement.HIDDEN
+			// sits is unknown, so it is not placed. The wait goes on without swiping and ends as a timeout if it never is.
+			bounds == null || screen == null -> Placement.UNREAD
 			isCentered(bounds, screen) -> Placement.SETTLED
 			previous != null && isStill(previous, bounds, screen) -> Placement.SETTLED
 			else -> Placement.OFF_CENTER
 		}
 	}
 
-	private enum class Placement { HIDDEN, OFF_CENTER, SETTLED }
+	private enum class Placement { HIDDEN, UNREAD, OFF_CENTER, SETTLED }
 
 	private fun isStill(before: ElementBounds, now: ElementBounds, screen: ElementBounds): Boolean {
 		val extent = screen.bottom - screen.top
