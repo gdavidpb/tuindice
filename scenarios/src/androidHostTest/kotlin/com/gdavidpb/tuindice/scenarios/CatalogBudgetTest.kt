@@ -33,8 +33,9 @@ class CatalogBudgetTest {
 	}
 
 	@Test
-	fun conformanceScenariosHoldNoPlatformBranchExceptTheBackOne() {
-		scenarios.filter { it.id.startsWith("conformance-") && it.id != "conformance-back" }.forEach {
+	fun conformanceScenariosHoldNoPlatformBranchExceptTheSystemOne() {
+		// `conformance-system` is the one exception: the system surface it looks at has other elements on each platform.
+		scenarios.filter { it.id.startsWith("conformance-") && it.id != "conformance-system" }.forEach {
 			assertEquals(0, branchesOf(it.steps), it.id)
 		}
 	}

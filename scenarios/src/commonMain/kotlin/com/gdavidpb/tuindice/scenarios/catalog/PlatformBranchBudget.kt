@@ -10,6 +10,7 @@ class PlatformBranchBudget private constructor() {
 		val perScenario: Map<String, Int> = mapOf(
 			"about-platform-edge-triggers" to 3,
 			"auth-terms-privacy-from-login" to 4,
+			"conformance-system" to 2,
 			"maincore-tab-stack-preservation" to 1,
 			"summary-profile-picture" to 2,
 			"summary-profile-picture-sources" to 4

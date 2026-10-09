@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
+import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.relaunch
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
+import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
@@ -47,6 +49,14 @@ import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SWIPE_MS = 600L
+
+/** An element of the system's share surface on each platform. */
+private const val ANDROID_SHARE_ELEMENT = "com.android.intentresolver:id/chooser_container"
+private const val IOS_SHARE_ELEMENT = "PopoverDismissRegion"
+
+/** Where the top bar of About has nothing to tap (fractions of the screen), over the dimmed area of the iOS sheet. */
+private const val SHEET_DISMISS_X = 0.6
+private const val SHEET_DISMISS_Y = 0.1
 
 // The centre of the last of the five items of the bottom bar, as fractions of the screen.
 private const val BOTTOM_BAR_LAST_ITEM_X = 0.9
@@ -345,6 +355,31 @@ private val conformanceDoubleTapSwipe = scenario("conformance-double-tap-swipe",
 }
 
 /**
+ * Elements of the system outside the app: the share surface of About is the system's on both platforms, with elements
+ * of its own on each (so this scenario holds one branch per platform, the only conformance one that does).
+ */
+private val conformanceSystem = scenario("conformance-system", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
+	tap(AboutUiTags.ShareApp)
+	onPlatform(Platform.Android) {
+		waitVisible(system(ANDROID_SHARE_ELEMENT), Within.Action)
+		// Bringing the app back closes the chooser.
+		foreground()
+		waitGone(system(ANDROID_SHARE_ELEMENT), Within.Action)
+	}
+	onPlatform(Platform.Ios) {
+		waitVisible(system(IOS_SHARE_ELEMENT), Within.Action)
+		// The dimmed area closes the sheet; the tap goes where the top bar of About has nothing to activate.
+		tapAtScreen(SHEET_DISMISS_X, SHEET_DISMISS_Y)
+		waitGone(system(IOS_SHARE_ELEMENT), Within.Action)
+	}
+	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+}
+
+/**
  * The effect of the double tap: it zooms the canvas, which reveals the minimap toggle, and a second one zooms back to
  * fit. Android only: no delivery of the double tap that XCUITest offers makes the canvas zoom on the simulator, so on
  * iOS the primitive is only fired (`conformance-double-tap-swipe`) and the gap is written down in
@@ -459,6 +494,7 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceTapAtScreen,
 	conformanceDoubleTapSwipe,
 	conformanceDoubleTapEffect,
+	conformanceSystem,
 	conformanceSwipeFromElement,
 	conformanceSheetTags,
 	conformanceForeground,
