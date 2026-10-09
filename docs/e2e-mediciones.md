@@ -193,6 +193,31 @@ la app en `runningForeground` y ninguna app externa conocida (`com.apple.mobiles
 (`simctl openurl`); el estado de Safari que se vio en la etapa de drivers 2 no se reprodujo, y no se averiguó qué distingue las dos
 clases. No se commiteó nada de iOS: el código quedó como estaba.
 
+**Coste de los lookups sin la sonda del primer plano, y el estado de Safari como fuente (E4, 2026-10-09, base `3967f130c`).** La sonda
+`wait(for: .runningBackground, timeout: 0,3)` se quitó de `waitVisible`, `isVisible`, `isEnabled`, `readText`, `isChecked` y `bounds` (queda en
+`isForeground`, `waitBackgrounded`, `foreground` y en la prueba de una ausencia). Media por llamada de lookup en la conformidad de iOS con `--trace`
+(25 escenarios × 2 pasadas, las líneas `[driver] <llamada> <µs>`): 457,4 ms antes (464,3 ms la media de las medias por escenario) y 204,5 ms
+después (209,0 ms); `waitVisible` 501 → 245 ms, `isVisible` 349 → 141, `isEnabled` 436 → 150, `readText` 546 → 257, `isChecked` 430 → 135,
+`bounds` 145 → 74. Residuo que queda: tras salir la app sin esperarlo, un lookup puede acertar con otra app delante durante unos 2,7 s
+(2,56 a 2,89 s). Fuente alternativa: con un muestreo cada 30 ms en un hilo aparte, durante `conformance-foreground` (Safari abierto desde la
+app), el estado de `XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")` pasó a `runningForeground` de 0,015 a 0,095 s después de volver
+el toque (8 de 8 corridas, con el proxy creado antes y con uno nuevo en cada lectura, 2 de ellas con Safari sin arrancar; `wait(for: .runningForeground,
+timeout: 0)` dio lo mismo; cada lectura costó 2 ms), mientras el estado cacheado de la app tardó de 0,9 a 2,8 s. Pero ese estado de Safari se queda
+en `runningForeground` al menos 8 s después de que la app vuelve (3 de 3): no es una lectura de «Safari delante» sino de «Safari estuvo delante», y sin
+estado previo no distingue la ventana de salida de la de regreso, así que `foreground()` no terminaría (lo visto en E3, 6 de 6). No se implementó; la
+lectura de `notRunning` de E3 no se reprodujo y no se averiguó qué la causó (esta vez se leyó desde otro hilo). No se probó el `simctl openurl`.
+
+**`conformance-submit-text-entry` y la tecla de acción en iOS (E4).** Los artefactos de los dos fallos de E3 ya no existían (la retención de
+`build/e2e/runs` los liberó), así que no se pudo ver el `driver.log` de esos intentos. En la corrida de coste de E4 apareció un fallo de la misma
+familia en `conformance-type-replace-after-back` (clave `Search`): «frame unreadable after 2 reads» a los 1,46 s; la primera lectura del snapshot de la tecla
+sirvió, la segunda lanzó, y `SettleWatch` lo trató como «la tecla se fue» aunque `exists` la había visto un momento antes. Series sin carga inducida, 30
+pasadas de cada escenario (CPU libre al empezar 31 %, con Android corriendo a la vez en la máquina): 30 de 30 en `conformance-submit-text-entry` y 30 de 30 en
+`conformance-type-replace-after-back`; la tecla asentó siempre a las 3 lecturas y `submitTextEntry` tardó de 1,83 a 3,21 s (mediana 2,30 s, 60 llamadas). Con
+10 procesos `yes` (CPU libre 0 %): 12 pasadas completas de cada uno sin fallos de la tecla, y una pasada de `conformance-submit-text-entry` que agotó los 180 s
+sin completar ningún paso (carga extrema; el orquestador paró los `yes` a las 13:41, lo posterior no cuenta como carga inducida). No se llegó a 30 con carga. Cambio:
+una lectura fallida de la tecla ya no es «desapareció» (`SettleWatch.feedUnreadable`: cuenta para los límites, reinicia la racha y solo termina como `moving`), y
+el error de cada lectura fallida va al `driver.log`. La causa de la lectura fallida no se observó (el texto del error no existía); la próxima aparición lo trae.
+
 **Desplazamiento en Android con carga (E3).** `conformance-scroll` con `OpenKtor` como destino (escenario temporal, restaurado),
 serie de 50 con el host cargado por la conformidad de iOS corriendo a la vez, y la duración de cada swipe leída de una línea
 `swipe: N events in X ms` que se añadió al `driver.log` en ambas variantes. Con `UiDevice.swipe` (80 eventos síncronos): 1 fallo de
@@ -237,7 +262,40 @@ cerrarla), `--tag enrollmentproof` (8 escenarios × 3, incluidos el botón posit
 borrado de `clearSessionMemory()` anulado (producto, temporal), `enrollmentproof-saved-copy-gone-after-sign-out` falló en iOS en
 `WaitVisible(snackbar)` porque se ofreció la copia. `ReportBug`: 0 de 10 en Android, 3 de 3 «sigue delante» en iOS.
 
-## 5. Lo que no se midió
+## 5. El swipe de 12 eventos y el botón flotante del comprobante (E4, Android, 2026-10-09)
+
+**Síntoma.** Con el swipe de 12 eventos con tiempos (commit `f5ec4ca43`), `scrollUntilVisible(RecordUiTags.EnrollmentProofButton)`
+no terminaba («did not scroll into view within 20000 ms», ~35 swipes): 10 fallos de 24 en `--tag enrollmentproof --repeat 3`.
+
+**Causa, con datos.** Instrumentando cada vuelta del sondeo (límites del elemento y de la pantalla, visibilidad, rama de `placement`) se vio:
+- El botón es flotante y no se mueve: siempre `[1104,2332][1272,2500]` de una pantalla de 1344x2992 (centro al 80,7 %, fuera de la banda
+  15 %–80 % por poco). Ni se oculta ni cambia de límites.
+- `isVisible` daba `true` en todas las vueltas, pero `bounds(q)` daba `null` en 3 de cada 4 lecturas tras un swipe. Con trazas en
+  `ElementProber.attempt`: cada `null` era un `StaleObjectException` al leer `visibleBounds` (el árbol de accesibilidad cambia justo después
+  del swipe). El patrón fue cíclico: lectura buena, tres `StaleObjectException`, lectura buena.
+- El motor trataba «visible sin posición» como `HIDDEN`, volvía a deslizar y borraba `beforeSwipe`. La regla «no se movió» (`isStill`)
+  necesita dos lecturas buenas seguidas separadas por un swipe y con esa secuencia no se daba nunca.
+- El swipe lento anterior no tropezaba con esto porque el árbol ya estaba quieto cuando se leía.
+
+**Corrección** (`ScrollEngine`): un elemento visible cuya posición no se puede leer es `UNREAD`; el motor espera una vuelta del sondeo sin
+deslizar y conserva dónde estaba antes del último swipe. Es una espera de condición con el plazo del paso; si vence, el fallo dice
+«it was on screen but its position could not be read». Rojo y verde en `StepKindsTest` (`FakeDriver` con `unreadableReadsAfterSwipe`).
+
+**Series en Android tras la corrección.** `--tag enrollmentproof --repeat 3`: 24/24 (antes 14/24). Los 22 escenarios restantes que usan
+`scrollUntilVisible`, `swipe` o `swipeScreen`, ×3: 66/66. `conformance-scroll` con «Ktor» ×50: 50/50 (el escenario temporal se restauró).
+Conformidad completa ×10: 269/270; el fallo, `conformance-system` repetición 7, `WaitVisible(chooser_container)` a los 10 s con el tap
+de 6,5 s, con la máquina saturada por la serie de iOS de la otra persona (0 % de CPU libre en esa franja); sin relación con el swipe.
+`DriverContract` ×10: 7/10; los tres fallos son de teclado/escritura (`the keyboard must show` dos veces, y `long-secure-typing`) con la misma carga.
+
+**Duración de los swipes** (`swipe: N events in X ms (nominal 400 ms)` del `driver.log`):
+
+| Serie | Swipes | Mediana | Máximo |
+|---|---|---|---|
+| Driver anterior, 80 eventos, carga de iOS (E3) | 299 | 3241 ms | 10 554 ms |
+| 12 eventos con tiempos, `conformance-scroll` «Ktor» ×50 | 200 | 402 ms | 917 ms |
+| 12 eventos con tiempos, conformidad ×10 (logs conservados) | 80 | 504,5 ms | 610 ms |
+
+## 6. Lo que no se midió
 
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.
