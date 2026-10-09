@@ -46,18 +46,22 @@ internal object CatalogToleranceRules {
 		}
 
 	/**
-	 * `scenario: element` for every element that a scenario asserts checked in only one state. On iOS an unchecked box
-	 * is not told apart from an element that is no toggle at all (a `Button` without the `Selected` trait reads
-	 * "unchecked"), so an `assertChecked(x, false)` alone proves nothing and `assertChecked(x, true)` alone proves
-	 * only the state after a change: a scenario asserts both states of the same element.
+	 * `scenario (platform): element` for every element that a scenario asserts checked in only one state on a platform
+	 * it runs on. On iOS an unchecked box is not told apart from an element that is no toggle at all (a `Button`
+	 * without the `Selected` trait reads "unchecked"), so an `assertChecked(x, false)` alone proves nothing and
+	 * `assertChecked(x, true)` alone proves only the state after a change: a scenario asserts both states of the same
+	 * element, on each platform it runs on (YB-7): a state asserted only inside the branch of the other platform is
+	 * not asserted here.
 	 */
 	fun checkedAssertedInOneStateOnly(scenarios: List<Scenario>): List<String> =
 		scenarios.flatMap { scenario ->
-			scenario.steps.flattened().filterIsInstance<Step.AssertChecked>()
-				.groupBy { it.q }
-				.filterValues { asserts -> asserts.map { it.checked }.toSet().size < 2 }
-				.keys
-				.map { "${scenario.id}: ${it.describe()}" }
+			scenario.platforms.flatMap { platform ->
+				scenario.steps.reachableOn(platform).filterIsInstance<Step.AssertChecked>()
+					.groupBy { it.q }
+					.filterValues { asserts -> asserts.map { it.checked }.toSet().size < 2 }
+					.keys
+					.map { "${scenario.id} (${platform.name}): ${it.describe()}" }
+			}
 		}
 
 	private fun credentialRequestsAway(steps: List<Step>): List<String> {

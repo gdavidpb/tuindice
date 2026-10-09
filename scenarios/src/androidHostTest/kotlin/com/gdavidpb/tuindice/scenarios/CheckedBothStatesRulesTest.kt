@@ -48,8 +48,39 @@ class CheckedBothStatesRulesTest {
 		}
 
 		assertEquals(
-			listOf("x-after: tag:a", "x-two: tag:a", "x-two: tag:b"),
+			listOf(
+				"x-after (Android): tag:a",
+				"x-after (Ios): tag:a",
+				"x-two (Android): tag:a",
+				"x-two (Android): tag:b",
+				"x-two (Ios): tag:a",
+				"x-two (Ios): tag:b",
+				"x-nested (Ios): tag:a"
+			),
 			CatalogToleranceRules.checkedAssertedInOneStateOnly(listOf(both, onlyAfter, twoElements, nested))
 		)
+	}
+
+	@Test
+	fun theTwoStatesAreNeededOnEachPlatformTheScenarioRunsOn() {
+		val bothBranches = scenario("x-branches", "x", clean) {
+			onPlatform(Platform.Android) {
+				assertChecked("a", false)
+				assertChecked("a", true)
+			}
+			onPlatform(Platform.Ios) {
+				assertChecked("a", false)
+				assertChecked("a", true)
+			}
+		}
+		val androidOnly = scenario("x-android", "x", clean) {
+			platforms(Platform.Android)
+			assertChecked("a", false)
+			onPlatform(Platform.Android) { assertChecked("a", true) }
+			onPlatform(Platform.Ios) { assertChecked("a", true) }
+		}
+
+		assertEquals(emptyList(), CatalogToleranceRules.checkedAssertedInOneStateOnly(listOf(bothBranches)))
+		assertEquals(emptyList(), CatalogToleranceRules.checkedAssertedInOneStateOnly(listOf(androidOnly)))
 	}
 }
