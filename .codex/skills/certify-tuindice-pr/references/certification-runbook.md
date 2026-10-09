@@ -142,15 +142,15 @@ a `TYPED_TEXT_MISMATCH`, or a 401 on `/auth/v2/bootstrap` whose decoded `Authori
 is `typed_text_mismatch` ("typed X but the backend received Y"); the same 401 with the right credential, a request
 with no stub, or another Bearer is `backend_mismatch`; the rest is `product_assertion`. `APP_NOT_RUNNING` before
 the first step is `environment`; from the first step on it is `app_crash` only when the crash probe found a crash
-or an ANR, otherwise `product_assertion`. On iOS a failed attempt (not a typed mismatch or a crash) whose app and runner logs
-hold at least 3 lines with `kAXErrorAPIDisabled` or at least 20 with `Couldn't read values in CFPrefsPlistSource` is
-`environment` ("the simulator stopped serving accessibility/preferences"; measured, a healthy attempt has none and a
-degraded one about 1050 and 111); a single line decides nothing. iOS `health` fails with `simulator degraded` when the
+or an ANR, otherwise `product_assertion`. On iOS a failed attempt (not a typed mismatch or a crash) whose app log or
+runner output holds, in one of them, at least 3 lines with `kAXErrorAPIDisabled` or at least 20 with `Couldn't read values
+in CFPrefsPlistSource` is `environment` (the logs are never added up; "the simulator stopped serving accessibility/preferences";
+measured, a healthy attempt has none and a degraded one about 1050 and 111); a single line decides nothing. iOS `health` fails with `simulator degraded` when the
 preferences are not served. Such a degradation is recovered the first time (a `--survey` recovers too, without repeating
 the scenario); another needs at least 30 green scenarios since the previous one, or the run is exit 3. The same scenario
 degrading twice is exit 5 ("the simulator degraded twice on this scenario"), and `reset-scenario` does not clear it.
 `deviceDegradation` in the manifest: count, and per event the time, the scenarios since the previous and the marker
-counts; a recovery `ensure` made also counts. The manifest also holds `tolerances` (what the drivers put up with and went
+counts, and `markersByFile` holds them per log; a recovery `ensure` made also counts. The manifest also holds `tolerances` (what the drivers put up with and went
 on, only from attempts that passed, `{key: n}`; the log prints a `TOLERANCES` line when there are any), `refusals` (the
 drivers' `[refusal]` lines by the first word of the reason, every attempt) and, for a `--repeat` series, `series` with the `SERIES` line's
 counts, also when the series was cut.
