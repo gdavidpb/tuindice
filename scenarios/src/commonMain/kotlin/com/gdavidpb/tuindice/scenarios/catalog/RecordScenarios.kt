@@ -50,9 +50,6 @@ private val ACTION_ADD = CreateTermSubjectCardAction.Add.name.lowercase()
 private val ACTION_REMOVE = CreateTermSubjectCardAction.Remove.name.lowercase()
 private const val CLASH_DAY = 2
 
-/** A search text that has no results; the other ones the scenarios type are fixtures the mocks answer. */
-private const val QUERY_NO_RESULTS = "zz"
-
 private val searches = E2eFixtures.recordSearches.associateBy { it.query }
 
 private val queryEc = searches.getValue("ec").query
@@ -221,7 +218,7 @@ private val recordSyntheticTermSearchEmpty = scenario(
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	openCreateTermScreen()
 	openSearchTab()
-	searchSubjects(QUERY_NO_RESULTS)
+	searchSubjects(E2eInputs.RecordQueryNoResults)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchField, Within.Assert)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)
 	waitVisible(text(Copy.RecordSearchNoResults), Within.Assert)

@@ -45,6 +45,12 @@ object E2eInputs {
 	/** A query no subject of the catalog or of the debug source matches (`SubjectSearchFixturesTest` checks it). */
 	const val SubjectQueryNoMatch = "zzzznomatch"
 
+	/**
+	 * A search text of the create-term screen that has no results; the other texts the scenarios type are fixtures
+	 * the mocks answer.
+	 */
+	const val RecordQueryNoResults = "zz"
+
 	/** `EvaluationType.TEST`, as the type chip tag spells it (the tag lowercases the name). */
 	val EvaluationTypeTest: String = EvaluationType.TEST.name.lowercase()
 
