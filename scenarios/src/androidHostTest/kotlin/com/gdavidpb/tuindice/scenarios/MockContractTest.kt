@@ -14,10 +14,6 @@ import kotlin.test.assertTrue
  * `MockRules`, checked in `MockRulesTest`.
  */
 class MockContractTest {
-	private val protectedPath = Regex(
-		"""^/(users/v1($|/)|messaging/v1$|record/v5($|/)|evaluations/v3($|/)""" +
-			"""|enrollment-proof/v1$|subjects/v1($|/)|pensums/v4$)"""
-	)
 	private val mappingFiles = RepoFiles.allMappings.walkTopDown().filter { it.isFile && it.extension == "json" }
 		.sortedBy { it.path }.toList()
 
@@ -28,16 +24,9 @@ class MockContractTest {
 
 	@Test
 	fun protectedMappingsRequireABearerAuthorization() {
-		val offenders = mappingFiles.filter { file ->
-			val request = MockJson.obj(file)["request"] as? JsonObject
-			val path = request?.string("urlPath").orEmpty()
-			val matcher = (request?.get("headers") as? JsonObject)?.get("Authorization") as? JsonObject
-			val expected = matcher?.string("equalTo") ?: matcher?.string("matches").orEmpty()
+		val offenders = MockRules.protectedWithoutABearer(mappingFiles.map { it.name to MockJson.obj(it) })
 
-			protectedPath.containsMatchIn(path) && (matcher == null || !expected.startsWith("Bearer "))
-		}
-
-		assertTrue(offenders.isEmpty(), "protected mappings without a Bearer matcher: ${offenders.map { it.name }}")
+		assertTrue(offenders.isEmpty(), "protected mappings without a Bearer matcher: $offenders")
 	}
 
 	@Test

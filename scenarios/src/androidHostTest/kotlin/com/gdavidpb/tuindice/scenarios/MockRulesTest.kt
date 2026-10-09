@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.scenarios.MockJson.string
+import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -19,6 +20,11 @@ class MockRulesTest {
 	private val namedMappings: List<Pair<String, JsonObject>> =
 		RepoFiles.allMappings.walkTopDown().filter { it.isFile && it.extension == "json" }
 			.sortedBy { it.path }.map { it.name to MockJson.obj(it) }.toList()
+
+	/** The `(WireMock scenario, state)` pairs more than one catalog scenario starts in: states every one of them sees. */
+	private val sharedStartStates: Set<Pair<String, String>> =
+		E2eCatalog.all.flatMap { scenario -> scenario.start.mockStates.map { it.scenario to it.state } }
+			.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
 
 	@Test
 	fun everyDelayAScenarioCanSeeDeclaresWhatTheFastProfileKeeps() {
@@ -56,10 +62,23 @@ class MockRulesTest {
 		val offenders = MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(
 			namedMappings,
 			E2eAccounts.all,
-			E2eAccounts.Canonical
+			E2eAccounts.Canonical,
+			sharedStartStates
 		)
 
 		assertTrue(offenders.isEmpty(), "refusals any scenario with a shared token gets in the default state: $offenders")
+	}
+
+	@Test
+	fun theStartStatesMoreThanOneScenarioSharesIncludeTheCanonicalAccountsAndNoneOfTheStatesOfOwnOnes() {
+		val canonical = checkNotNull(E2eAccounts.Canonical.mockScenario) to "TokensIssued"
+
+		assertTrue(canonical in sharedStartStates, "the canonical start is shared by many scenarios: $sharedStartStates")
+		ExtraMockStatesAtStart.scenarioIds.forEach { id ->
+			ExtraMockStatesAtStart.of(id).forEach {
+				assertTrue(it !in sharedStartStates, "$id starts in a state of its own, $it, and is not shared")
+			}
+		}
 	}
 
 	@Test
@@ -74,7 +93,8 @@ class MockRulesTest {
 			MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(
 				listOf("started" to inTheDefaultState, "own-state" to flush, "none" to withoutState),
 				E2eAccounts.all,
-				E2eAccounts.Canonical
+				E2eAccounts.Canonical,
+				sharedStartStates
 			)
 		)
 	}
@@ -104,11 +124,61 @@ class MockRulesTest {
 
 		assertEquals(
 			emptyList(),
-			MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(aimed, E2eAccounts.all, E2eAccounts.Canonical)
+			MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(
+				aimed,
+				E2eAccounts.all,
+				E2eAccounts.Canonical,
+				sharedStartStates
+			)
 		)
 		assertEquals(
 			shared.map { it.first },
-			MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(shared, E2eAccounts.all, E2eAccounts.Canonical)
+			MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(
+				shared,
+				E2eAccounts.all,
+				E2eAccounts.Canonical,
+				sharedStartStates
+			)
+		)
+	}
+
+	@Test
+	fun aRefusalIsNotAimedByAPatternPathTheCanonicalTokenOrAStartStateManyScenariosShare() {
+		fun refusal(request: String, state: String? = null) =
+			Json.parseToJsonElement(
+				"""{"request": {$request}, "response": {"status": 503}""" +
+					(state?.let { """, "scenarioName": "${E2eAccounts.Canonical.mockScenario}", "requiredScenarioState": "$it"""" }
+						.orEmpty()) + "}"
+			) as JsonObject
+
+		fun token(value: String) = """"headers": {"Authorization": {"equalTo": "Bearer $value"}}"""
+
+		val canonicalToken = checkNotNull(E2eAccounts.Canonical.session).accessToken
+		val ownToken = checkNotNull(E2eAccounts.PensumRetry.session).accessToken
+		val shared = listOf(
+			"pattern" to refusal(""""urlPathPattern": "/evaluations/v3/[A-Za-z0-9]+""""),
+			"canonical-token" to refusal(""""urlPath": "/record/v5", ${token(canonicalToken)}"""),
+			"unknown-token" to refusal(""""urlPath": "/record/v5", ${token("nobody.has.it")}"""),
+			"shared-start" to refusal(""""urlPath": "/record/v5"""", "TokensIssued")
+		)
+		val aimed = listOf(
+			"own-token" to refusal(""""urlPath": "/record/v5", ${token(ownToken)}"""),
+			"own-token-pattern" to refusal(""""urlPathPattern": "/record/v5/.+", ${token(ownToken)}""")
+		)
+		val sharedStart = setOf(checkNotNull(E2eAccounts.Canonical.mockScenario) to "TokensIssued")
+
+		fun caught(list: List<Pair<String, JsonObject>>) = MockRules.refusalsInTheDefaultStateNotAimedAtOneAccount(
+			list,
+			E2eAccounts.all,
+			E2eAccounts.Canonical,
+			sharedStart
+		)
+
+		assertEquals(shared.map { it.first }, caught(shared))
+		assertEquals(emptyList(), caught(aimed))
+		assertEquals(
+			emptyList(),
+			caught(listOf("own-state" to refusal(""""urlPath": "/record/v5", ${token(canonicalToken)}""", "Unavailable")))
 		)
 	}
 

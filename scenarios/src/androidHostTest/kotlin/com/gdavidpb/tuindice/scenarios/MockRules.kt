@@ -47,28 +47,57 @@ internal object MockRules {
 	 * Names of the mappings that refuse (status 400 or more) on a protected route in the state every WireMock
 	 * scenario starts in, or in no state, and are not aimed at one account. Such a stub answers every scenario that
 	 * sends the request with a token it matches, and only the scenario that needed the refusal should get it. It is
-	 * aimed when it matches one exact token, pins in the body the password of an account other than
-	 * [defaultAccount], or names one resource in the path. Otherwise it belongs in a state of its own, which the
+	 * aimed when it matches the exact token of one account other than [defaultAccount] (not the default's, not one
+	 * nobody owns), pins in the body the password of an account other than [defaultAccount], or names one resource
+	 * in the path. The path is `urlPath` or `urlPathPattern`. A state counts as the default one too when it is in
+	 * [sharedStartStates], the `(WireMock scenario, state)` pairs more than one catalog scenario starts in (the
+	 * `TokensIssued` of an account that several seed). Otherwise it belongs in a state of its own, which the
 	 * scenario that needs it puts the mock in at its start (`Start.Seeded(mockStates = ...)`).
 	 */
 	fun refusalsInTheDefaultStateNotAimedAtOneAccount(
 		mappings: List<Pair<String, JsonObject>>,
 		accounts: List<E2eAccount>,
-		defaultAccount: E2eAccount
+		defaultAccount: E2eAccount,
+		sharedStartStates: Set<Pair<String, String>>
 	): List<String> =
 		mappings.filter { (_, mapping) ->
 			val request = mapping["request"] as? JsonObject
-			val path = request?.string("urlPath").orEmpty()
+			val path = pathOf(request)
 			val status = number((mapping["response"] as? JsonObject)?.get("status")) ?: 0.0
 			val state = mapping.string("requiredScenarioState")
+			val inTheDefaultState = state == null || state == STARTED ||
+				(mapping.string("scenarioName") to state) in sharedStartStates
+			val token = request?.string("headers", "Authorization", "equalTo")
 			val password = request?.array("bodyPatterns").orEmpty()
 				.firstNotNullOfOrNull { pinnedPassword.find((it as? JsonObject)?.string("matchesJsonPath").orEmpty()) }
 				?.groupValues?.get(1)
-			val aimed = request?.string("headers", "Authorization", "equalTo") != null ||
+			val aimed = (token != null && ownedByOneOtherAccount(token, accounts, defaultAccount)) ||
 				(password != null && password != defaultAccount.password && accounts.any { it.password == password }) ||
 				resourcePath.matches(path)
 
-			status >= HTTP_ERROR && (state == null || state == STARTED) && protectedPath.containsMatchIn(path) && !aimed
+			status >= HTTP_ERROR && inTheDefaultState && protectedPath.containsMatchIn(path) && !aimed
+		}.map { it.first }
+
+	/** The path a request matches: `urlPath`, or the pattern of `urlPathPattern`. */
+	private fun pathOf(request: JsonObject?): String =
+		request?.string("urlPath") ?: request?.string("urlPathPattern").orEmpty()
+
+	/** An exact `Authorization` is aimed only when it is the bearer of exactly one account and that is not the default. */
+	private fun ownedByOneOtherAccount(header: String, accounts: List<E2eAccount>, defaultAccount: E2eAccount): Boolean {
+		val owners = accounts.filter { account -> account.session?.let { "Bearer ${it.accessToken}" == header } == true }
+
+		return owners.size == 1 && owners.single().id != defaultAccount.id
+	}
+
+	/** Names of the mappings on a protected route whose request does not demand a `Bearer` authorization. */
+	fun protectedWithoutABearer(mappings: List<Pair<String, JsonObject>>): List<String> =
+		mappings.filter { (_, mapping) ->
+			val request = mapping["request"] as? JsonObject
+			val path = request?.string("urlPath").orEmpty()
+			val matcher = (request?.get("headers") as? JsonObject)?.get("Authorization") as? JsonObject
+			val expected = matcher?.string("equalTo") ?: matcher?.string("matches").orEmpty()
+
+			protectedPath.containsMatchIn(path) && (matcher == null || !expected.startsWith("Bearer "))
 		}.map { it.first }
 
 	private fun number(element: JsonElement?): Double? = (element as? JsonPrimitive)?.doubleOrNull
