@@ -109,7 +109,8 @@ pull_output() { # id dir
 		return 0
 	fi
 	for name in ${names}; do
-		adb_s exec-out run-as "${TEST_ID}" cat "${TEST_OUTPUT_DIR}/$1/${name}" > "$2/${name}"
+		# Under its name only when whole: collect-failure looks for the name, so a cut transfer is repeated, never taken as the log.
+		adb_s exec-out run-as "${TEST_ID}" cat "${TEST_OUTPUT_DIR}/$1/${name}" > "$2/${name}.part" && mv "$2/${name}.part" "$2/${name}"
 	done
 }
 
@@ -123,7 +124,7 @@ cmd_run_scenario() {
 	pid=$!
 	# The harness stops a hung run with SIGTERM: stop the on-device instrumentation too, or it outlives adb, and bring home the driver.log
 	# it wrote line by line (the next reset-app empties the directory); a failed pull only says so.
-	trap 'stop_instrumentation; pull_output "${id}" "${dir}" || log "the driver.log of the cut run could not be pulled"; kill "${pid}" 2> /dev/null || printf "adb already exited\n" >&2; exit 143' TERM INT
+	trap 'stop_instrumentation || log "the instrumentation could not be stopped"; pull_output "${id}" "${dir}" || log "the driver.log of the cut run could not be pulled"; kill "${pid}" 2> /dev/null || printf "adb already exited\n" >&2; exit 143' TERM INT
 	wait "${pid}" || status=$?
 	trap - TERM INT
 	log "am instrument exited ${status}; the verdict is read from result.json"

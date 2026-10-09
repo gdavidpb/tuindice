@@ -140,6 +140,45 @@ class AndroidAdapterTests(unittest.TestCase):
         except ProcessLookupError:
             pass
 
+    def test_a_run_cut_while_the_instrumentation_cannot_be_stopped_still_brings_the_driver_log_and_says_so(self):
+        # set -e would end the trap at the first failed force-stop, before the pull the trap exists for (YC-5a).
+        self.box.write("instrument.hang", "")
+        self.box.write("forcestop.fails", "")
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        attempt = os.path.join(self.box.dir, "fs")
+        process = subprocess.Popen(["bash", self.box.script, "run-scenario", "auth-login-cancel", attempt, "18626"],
+            env=self.box.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, start_new_session=True)
+        deadline = time.time() + 20
+        while time.time() < deadline and not any("am instrument" in c for c in self.box.adb_calls()):
+            time.sleep(0.1)
+        process.send_signal(signal.SIGTERM)
+        out, err = process.communicate(timeout=20)
+        self.assertEqual(process.returncode, 143, err)
+        self.assertIn("the instrumentation could not be stopped", err)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        try:
+            os.killpg(process.pid, signal.SIGKILL)  # the fake's sleep
+        except ProcessLookupError:
+            pass
+
+    def test_a_transfer_cut_in_the_middle_leaves_no_driver_log_and_collect_failure_brings_it_whole_later(self):
+        # The file appears under its name only when it is whole, so that collect-failure, which only looks for the name, repeats it (YC-5b).
+        self.put_result()
+        self.box.write("testfiles/files/e2e/auth-login-cancel/driver.log", "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        attempt = os.path.join(self.box.dir, "part")
+        os.makedirs(attempt)
+        with open(os.path.join(attempt, "runner.log"), "w") as handle:
+            handle.write("started\n")
+        with open(os.path.join(attempt, "driver.log.part"), "w") as handle:
+            handle.write("10:0")  # left by the cut transfer of an earlier pull
+        self.box.write("cat.fails", "")
+        self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
+        self.assertFalse(os.path.exists(os.path.join(attempt, "driver.log")))
+        os.remove(os.path.join(self.box.adb, "cat.fails"))
+        self.assertEqual(self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel").returncode, 0)
+        self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "10:00:00.000 [3] WaitVisible x -> passed (12 ms)\n")
+        self.assertFalse([n for n in os.listdir(attempt) if n.endswith(".part")])
+
     def test_the_driver_log_of_a_run_killed_without_a_trap_reaches_the_attempt_through_collect_failure(self):
         # A SIGKILL leaves no trap to pull anything and the next reset-app empties the runner's directory: collect-failure, which runs
         # in between, can still bring the log home.

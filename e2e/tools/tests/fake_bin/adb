@@ -16,6 +16,8 @@
 #                     plus the typingSeries test, skipped as it is without -e typingSeries
 #   instrument.hang   exists: a scenario run never ends
 #   testfiles/<path>  what `exec-out run-as <pkg> ls|cat <path>` and `shell run-as <pkg> ls <path>` read; `run-as <pkg> rm -rf <path>` removes it
+#   forcestop.fails   exists: `shell am force-stop` exits 1
+#   cat.fails         exists: `exec-out run-as <pkg> cat` prints the first 4 bytes and exits 1
 #   logcat.txt        what `logcat -d` prints; `logcat -c` empties it
 #   calls.log         one line per call
 set -euo pipefail
@@ -125,6 +127,8 @@ case "${verb}" in
 					ls -1 "${path}"
 				else
 					[[ -f "${path}" ]] || { echo "cat: ${4}: No such file or directory"; exit 0; }
+					# cat.fails: the transfer is cut after its first bytes (what a SIGKILL of the adapter leaves behind)
+					if [[ -f "${dir}/cat.fails" ]]; then head -c 4 "${path}"; exit 1; fi
 					cat "${path}"
 				fi
 				;;
@@ -177,7 +181,7 @@ case "${verb}" in
 			am)
 				case "${1:-}" in
 					instrument) shift; fake_instrument "$@" ;;
-					force-stop) ;;
+					force-stop) [[ ! -f "${dir}/forcestop.fails" ]] || exit 1 ;;
 				esac
 				;;
 			run-as)
