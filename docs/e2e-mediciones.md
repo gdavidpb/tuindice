@@ -105,7 +105,76 @@ rutas de los otros 29 `app.log`.
 
 **Lectura del estado.** `e2e.py status` pasó de unos 125 s a unos 10 s al calcular los veredictos en `harness/verdict.py`.
 
-## 3. Lo que no se midió
+## 3. Escenarios de plataforma y etapa de drivers de cierre (2026-10-08 y 2026-10-09)
+
+Mismo equipo; Android en el emulador `Pixel_10_Pro_XL` e iOS en el simulador `TuIndice-E2E`. Cada serie de N corridas
+usó `E2E_MAX_RETRIES=0 --repeat N --survey`. Los informes de origen (E2b, E2c y la etapa de drivers de cierre) no están
+versionados; la hora de cada corrida no se registró, solo la de los commits que las contienen. Los registros de las
+corridas viven en el scratchpad de la sesión y bajo `build/e2e`, ninguno versionado.
+
+**Disparadores de plataforma de `about-platform-edge-triggers` (E2b, desde las 15:14 del 2026-10-08, base `ce2ac8167`; E2c,
+commit `097733552` de las 22:46 y serie final, `bab0139cb`).** Android, serie de 10 con `waitBackgrounded` tras cada
+disparador: tienda (Play Store) salió de la app 10 de 10 y otras 10 de 10 en la serie final, en 1,0 s; correo (Gmail,
+`WelcomeTourActivity`) 10 de 10 y 10 de 10, en 1,5 s; «Reportar un error» 0 de 10: Gmail abre `ComposeActivityGmailExternal`
+y la cierra solo a los 100 ms (`wm_finish_activity ... app-request` en el logcat del intento) y la app ya está de vuelta
+cuando el wait mira. En E2b, tienda y correo salieron en 0,8 y 1,5 s, y «Reportar un error» una vez sí y otra no (Gmail abrió
+`WelcomeTourActivity` y luego `ComposeActivityGmailExternal`; el estado de Gmail en el emulador no es determinista); el
+número total de corridas de E2b no está registrado (sin fuente). iOS: el
+`waitBackgrounded` tras el disparador de la tienda venció a los 20 s (E2b, una corrida); correo y reporte no se midieron en
+iOS por separado. Con el escenario tal como quedó, 10 de 10 en Android y 3 de 3 en iOS.
+
+**Hoja de compartir en iOS (E2c, commit `097733552`, 2026-10-08 22:46).** Con la hoja abierta, el árbol mostró un `Popover`
+de 384 por 364 y un `PopoverDismissRegion` de pantalla completa, sin botón de cierre. Un toque por posición, una vez cada
+uno: a (0,5; 0,04) de la pantalla, en la barra de estado, la hoja siguió abierta; a (0,5; 0,3), a la altura de la fila
+«Creative Commons», cerró la hoja y abrió ese enlace en Safari; a (0,6; 0,1), en la parte vacía de la barra superior, cerró
+la hoja y About quedó igual. El mecanismo no se probó. Con el escenario tal como quedó, 3 de 3 en iOS.
+
+**Copia guardada del comprobante (E2c, commit `c8f30c0db`, 2026-10-08 23:00).** `enrollmentproof-saved-copy-dialog`: 3 de 3
+en Android y 3 de 3 en iOS. El botón positivo del diálogo no se probó en esa fase.
+
+**Doble toque en el lienzo del pensum en iOS (E2c, 40 minutos, commit `d84b6ea37`, 2026-10-09 00:40; la entrega del centro,
+etapa de drivers del 2026-10-08).** Se leyó el efecto como la aparición de `pensum_minimap_toggle`, que sí aparece en iOS tras
+el botón de zoom de `pensum-smoke`. Una corrida por entrega, ninguna con efecto: `coordinate.doubleTap()` en el centro del
+lienzo (etapa de drivers, que además comprobó que el punto cae en un hueco y no en un nodo); `element.tap(withNumberOfTaps: 2,
+numberOfTouches: 1)`; `element.doubleTap()`; `coordinate.doubleTap()` a un cuarto de la altura; dos `press(forDuration: 0.02)`
+seguidos, donde el segundo empezó 422 ms después del primero (cada llamada de XCUITest cuesta unos 0,4 s) y el detector de
+Compose espera 300 ms. Como ninguna entrega movió el lienzo ni una vez, no se repitió ninguna 10 veces. En Android el efecto
+sí se observa: `conformance-double-tap-effect` 3 de 3. Si el zoom funciona en un iPhone real no se midió.
+
+**Desplazamiento en Android (E2c, 2026-10-09).** `conformance-scroll` con `OpenKoin` como destino: 10 de 10. Con `OpenKtor`
+6 de 10 fallos y con `OpenDst` 1 de 1 fallo, aunque el elemento aparece visible y centrado en la captura
+(`visible-to-user="true"`, 72 % de la altura); los intentos fallidos están en
+`build/e2e/runs/20261009T030947Z-android-diagnose-449a23b/scenarios/conformance-scroll/attempt-1*` de esa máquina. Causa no
+determinada.
+
+**Otros escenarios de E2c.** `summary-profile-picture-sources`: la primera versión dio 2 de 3 en iOS (el Cancel se pulsaba con
+el selector aún cargando y el toque se perdía); esperando la condición, 10 de 10 en iOS y 3 de 3 en Android.
+`conformance-system`, `conformance-swipe-screen`, `auth-update-password` y `evaluations-list-retry`: 3 de 3 en las dos
+plataformas. `record-synthetic-term-lifecycle`: 3 de 3 en las dos.
+
+**Pensum guardado tras relanzar (E2c, commit `6ffd3d513`, 2026-10-08 22:50).** Tras `relaunch()` y volver a la pestaña de
+pensum, el journal de WireMock no registró ningún `GET /pensums/v4`; el número de corridas observadas no está registrado
+(sin fuente). La causa es que la edad del pensum guardado se compara con `currentTimeMillis()` (el reloj del sistema, que
+`TUINDICE_E2E_NOW` no mueve) y en una corrida es de segundos, no que el producto no revalide: ver
+`e2e/platform/{android,ios}/pensum-stale-cache-revalidation.md`.
+
+**Sondas del driver (etapa de drivers de cierre, base `847f83a58`, commit `73a06139c`, 2026-10-08 16:59).**
+
+- Salida del primer plano en iOS (ZB-13): con Safari abierto por `simctl openurl` sobre la app, el estado cacheado y el árbol
+  de la app siguen en «primer plano» durante unos 2,5 s (10 s en corridas anteriores); `app.wait(for: .runningBackground,
+  timeout: 0,3)` lo ve unos 0,7 s antes, y con 0,01 a 0,1 s ve lo mismo que la caché. Tras la corrección, durante 0,43 s la
+  búsqueda en caché seguía acertando y la búsqueda al frente fallaba; el coste es 0,3 s más por acierto.
+- Teclado en Android (ZB-5): `dumpsys input_method` (Android 37, Gboard) tiene una línea `mInputShown=`: `false` antes de abrir,
+  `true` con el teclado delante, `false` tras Atrás con el campo aún enfocado. Un volcado pesa unos 1 MB y tarda de 50 a 70 ms.
+- Contrato del driver (`--driver-contract`), 10 corridas: Android 10 de 10 (31 sondas) e iOS 10 de 10 (17 sondas). Un fallo
+  previo y aislado en Android (`UiDevice.click` devolvió `false`) durante una compilación de iOS; no se repitió.
+- Conformidad con `--repeat 10`: Android 250 de 250 (25 escenarios); iOS 24 escenarios, todos con 10 o más pasadas válidas y
+  ningún fallo de escenario; `conformance-submit-text-entry` 10 de 11 (una pasada perdida por «simulator degraded: stopped
+  serving preferences»).
+- `conformance-mock-state`, 3 de 3 en las dos plataformas; sin el `mockState`, la espera falló con «GET /users/v1 was not
+  answered with 503 at least 2 times within 20000 ms; it answered, most recent first: 200, 503».
+
+## 4. Lo que no se midió
 
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.

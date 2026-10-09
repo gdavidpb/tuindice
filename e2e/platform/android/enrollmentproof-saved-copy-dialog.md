@@ -2,7 +2,7 @@
 
 Status: platform-edge note for the positive button only; the scenario `enrollmentproof-saved-copy-dialog` drives the rest.
 
-What the scenario does (3 of 3 on Android and on iOS, see the E2c report): downloads the proof once so the app saves it (the file is handed to the device's PDF viewer: `waitBackgrounded`, `foreground()`), sets the WireMock scenario `enrollment-proof-saved-copy` to `Unavailable` with the `mockState` step so `/enrollment-proof/v1` answers 503, asks for the proof again, asserts the dialog (`enrollment_saved_copy_message`) and cancels it, and the record stays on screen.
+What the scenario does (3 of 3 on Android and on iOS, 2026-10-08; see `docs/e2e-mediciones.md`, section 3): downloads the proof once so the app saves it (the file is handed to the device's PDF viewer: `waitBackgrounded`, `foreground()`), sets the WireMock scenario `enrollment-proof-saved-copy` to `Unavailable` with the `mockState` step so `/enrollment-proof/v1` answers 503, asks for the proof again, asserts the dialog (`enrollment_saved_copy_message`) and cancels it, and the record stays on screen.
 
 Platform-only scope that remains:
 
@@ -17,4 +17,4 @@ Covered elsewhere:
 - `enrollmentproof/src/commonTest/.../data/repository/EnrollmentProofRepositoryContractTest.kt` verifies when a saved copy stands in for the download: only for transient failures (`getEnrollmentProof_savedCopyBacksOnlyTransientFailures`), never for a 409 or a 400, never for a 404
 - `enrollmentproof/src/commonTest/.../domain/usecase/FetchEnrollmentProofUseCaseContractTest.kt` (`execute_tellsWhenTheFileIsTheSavedCopy`) and `EnrollmentProofStateMachineContractTest` verify the `ConfirmingSavedCopy` state and its `OpenSavedEnrollmentProof` row
 
-Reason: the positive button ends in an `Intent.ACTION_VIEW` hand-off to the device's PDF viewer (`AndroidFileOpenerDataSource`); it was not tried in E2c (the encargo asked for the dialog and the cancel) and stays here as the part nobody asserts.
+Reason: the positive button ends in an `Intent.ACTION_VIEW` hand-off to the device's PDF viewer (`AndroidFileOpenerDataSource`); it was not tried when the scenario was written, which covered the dialog and its cancel (`docs/e2e-mediciones.md`, section 3), and stays here as the part nobody asserts.

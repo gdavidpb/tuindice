@@ -1,14 +1,14 @@
 # Pensum canvas zoom by double tap (iOS)
 
-Status: platform-edge note; `conformance-double-tap-swipe` fires the double tap on iOS but asserts its effect only on Android.
+Status: platform-edge note; `conformance-double-tap-swipe` fires the double tap on both platforms and asserts no effect of it on either (only that the sticky term header stays after the swipe); the effect (the zoom that reveals the minimap toggle) is asserted by `conformance-double-tap-effect`, which runs on Android only.
 
 Platform-only scope:
 
 - a double tap on the pensum canvas (`PensumGraphCanvas.kt`, `toggleDoubleTapZoom`) zooms it in and reveals the minimap toggle; a second one zooms back to fit
 
-Measured on the `TuIndice-E2E` simulator (E2c, 40 minutes, one run per delivery, the effect read as `pensum_minimap_toggle` appearing; it does appear on iOS after the zoom-in button, so the tree can show it):
+Measured on the `TuIndice-E2E` simulator (2026-10-08 and 2026-10-09, 40 minutes, one run per delivery; date, commits and series in `docs/e2e-mediciones.md`, section 3, the effect read as `pensum_minimap_toggle` appearing; it does appear on iOS after the zoom-in button, so the tree can show it):
 
-- `coordinate.doubleTap()` at the centre of the canvas (the drivers stage): no effect
+- `coordinate.doubleTap()` at the centre of the canvas (the delivery the driver used until then): no effect
 - `element.tap(withNumberOfTaps: 2, numberOfTouches: 1)` on the canvas element: no effect
 - `element.doubleTap()` on the canvas element: no effect
 - `coordinate.doubleTap()` at a quarter of the canvas height, in an empty part of the canvas, so that a node under the finger does not discard the double tap (`isNodeTap`): no effect
