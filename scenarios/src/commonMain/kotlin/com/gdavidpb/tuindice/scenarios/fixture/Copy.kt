@@ -19,6 +19,10 @@ object Copy {
 
 	// maincore
 	const val ExternalLinkDialogTitle = "Abrir enlace externo"
+
+	/** The link of the privacy page the mock serves (`mocks/__files/e2e/privacy.html`), not the dialog it opens. */
+	const val PrivacyPageExternalLink = "Abrir enlace externo"
+
 	const val NoticeTitle = "Servicio no disponible"
 	const val NoticeMessage = "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
 
@@ -153,7 +157,8 @@ object Copy {
 		CopyBinding.Resource(EnrollmentProofAnnulled, "enrollmentproof", "error_enrollment_annulled"),
 		CopyBinding.Resource(PensumFulfilledBy, "pensum", "pensum_subject_detail_fulfilled_by"),
 		CopyBinding.Resource(PensumViewStats, "pensum", "pensum_subject_detail_stats"),
-		CopyBinding.MockData(PensumSubjectLanguage1, "mocks/__files/pensums/get-pensum-equivalence-success.json"),
+		CopyBinding.MockData(PrivacyPageExternalLink, "mocks/__files/e2e/privacy.html"),
+		CopyBinding.MockData(PensumSubjectLanguage1,"mocks/__files/pensums/get-pensum-equivalence-success.json"),
 		CopyBinding.Resource(SubjectsSearchNoResults, "subjects", "subjects_search_no_results_title"),
 		CopyBinding.Resource(StudentsTooltipLine1, "subjects", "subjects_segment_students_tooltip_line_1"),
 		CopyBinding.Resource(StudentsTooltipLine2, "subjects", "subjects_segment_students_tooltip_line_2"),

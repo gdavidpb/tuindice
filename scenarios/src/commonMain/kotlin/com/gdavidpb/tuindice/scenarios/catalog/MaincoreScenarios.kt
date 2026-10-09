@@ -150,9 +150,9 @@ private val maincoreBrowserExternalDialog = scenario(
 	tap(AboutUiTags.OpenPrivacy)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
 	// The container appears before the page inside it has rendered. Both platforms expose the page's text to the
-	// hierarchy, and the page shows its link with the very text of the dialog it opens: wait for it, then tap it.
-	waitVisible(text(Copy.ExternalLinkDialogTitle), Within.Wait)
-	tap(text(Copy.ExternalLinkDialogTitle))
+	// hierarchy, and the page shows its link (`mocks/__files/e2e/privacy.html`): wait for it, then tap it.
+	waitVisible(text(Copy.PrivacyPageExternalLink), Within.Wait)
+	tap(text(Copy.PrivacyPageExternalLink))
 	waitVisible(BaseUiTags.ExternalResourceMessage, Within.Action)
 	waitVisible(BaseUiTags.ExternalResourceUrl, Within.Assert)
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
