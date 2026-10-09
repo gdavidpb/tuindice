@@ -52,6 +52,8 @@ final class DriverLog {
     enum Tolerance: String, CaseIterable {
         /// An alert that interrupted the app was dismissed by the interruption monitor.
         case dismissedAlert = "dismissed-alert"
+        /// A read of the frame of the IME action key failed and the watch went on to the next read (E4).
+        case keyReadFailed = "key-read-failed"
     }
 
     private let lock = NSLock()

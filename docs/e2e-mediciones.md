@@ -288,8 +288,11 @@ deslizar y conserva dónde estaba antes del último swipe. Es una espera de cond
 
 **Series en Android tras la corrección.** `--tag enrollmentproof --repeat 3`: 24/24 (antes 14/24). Los 22 escenarios restantes que usan
 `scrollUntilVisible`, `swipe` o `swipeScreen`, ×3: 66/66. `conformance-scroll` con «Ktor» ×50: 50/50 (el escenario temporal se restauró).
-Conformidad completa ×10: 269/270; el fallo, `conformance-system` repetición 7, `WaitVisible(chooser_container)` a los 10 s con el tap
-de 6,5 s, con la máquina saturada por la serie de iOS de la otra persona (0 % de CPU libre en esa franja); sin relación con el swipe.
+Conformidad completa ×10: 269/270; el fallo, `conformance-system` repetición 7 (14:31), `WaitVisible(chooser_container)` a los 10 s con el
+tap de 6,5 s. El logcat del intento dice por qué: `Displayed com.android.intentresolver/.ChooserActivityLauncher: +19s545ms` y
+`ChooserActivity: app target loading time 15480 ms`; el selector del sistema tardó 19,5 s en pintarse y la captura del fallo ya lo muestra
+abierto. La máquina la compartía con la conformidad de iOS (CPU libre entre 8 % y 37 % en las muestras de esa media hora, sin carga
+inducida). Sin relación con el swipe, y el plazo del paso no se alarga.
 `DriverContract` ×10: 7/10; los tres fallos son de teclado/escritura (`the keyboard must show` dos veces, y `long-secure-typing`) con la misma carga.
 
 **Duración de los swipes** (`swipe: N events in X ms (nominal 400 ms)` del `driver.log`):

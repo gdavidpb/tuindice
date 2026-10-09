@@ -127,7 +127,7 @@ final class TextTyping {
                 // The key was found a moment ago: a read that fails is not the key going away, it is a read that did not
                 // happen. It does not settle the frame and it does not end the watch; the reads and the time limit do.
                 frame = nil
-                log.add("[driver] submitTextEntry: read \(watch.reads + 1) of the key failed after \(String(format: "%.2f", Monotonic.now - began)) s: \(error)")
+                log.tolerate(.keyReadFailed, "submitTextEntry: read \(watch.reads + 1) of the key failed after \(String(format: "%.2f", Monotonic.now - began)) s: \(error)")
                 verdict = watch.feedUnreadable(at: Monotonic.now)
             }
             if verdict == nil { Thread.sleep(forTimeInterval: Self.pollInterval) }
