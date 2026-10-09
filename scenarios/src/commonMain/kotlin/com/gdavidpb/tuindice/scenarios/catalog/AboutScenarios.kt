@@ -9,7 +9,9 @@ import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
+import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
+import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
@@ -22,6 +24,10 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 /** The label of the iOS popover's dimmed area, which closes a share sheet. */
 private const val POPOVER_DISMISS_REGION = "PopoverDismissRegion"
+
+/** Where the top bar of the About screen has nothing to tap: right of its title (fractions of the screen). */
+private const val SHEET_DISMISS_X = 0.6
+private const val SHEET_DISMISS_Y = 0.1
 
 /** From the seeded summary: opens the About tab. */
 private fun StepBuilder.openAbout() {
@@ -53,10 +59,20 @@ private fun StepBuilder.openExternalLinkAndReturn(link: String) {
 	returnToAbout()
 }
 
-/** Scrolls to a trigger that hands off to the system (store, mail, bug report), taps it, and comes back. */
-private fun StepBuilder.openPlatformEdgeTriggerAndReturn(trigger: String) {
+/**
+ * Scrolls to a trigger that hands off to the system (store, mail, bug report), taps it, and comes back. On Android the
+ * triggers measured to take the app out of the foreground every time ([leavesTheAppOnAndroid]) wait for that first.
+ * No trigger leaves the app on the iOS simulator, so nothing is asserted there
+ * (e2e/platform/ios/about-platform-edge-triggers.md).
+ */
+private fun StepBuilder.openPlatformEdgeTriggerAndReturn(trigger: String, leavesTheAppOnAndroid: Boolean) {
 	scrollUntilVisible(trigger, Scroll.ContentDown, Within.Action)
 	tap(trigger)
+	if (leavesTheAppOnAndroid) {
+		onPlatform(Platform.Android) {
+			waitBackgrounded()
+		}
+	}
 	foreground()
 	returnToAbout()
 }
@@ -133,19 +149,23 @@ private val aboutPlatformEdgeTriggers = scenario(
 	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ShareApp)
 	foreground()
-	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet is
-	// closed by the dimmed area around it, and that tap lands on the row of the About list beneath it, which opens
-	// an in-app browser page: the scenario goes back from it. That is a side effect the scenario waits for, not
-	// something the share sheet is meant to do, and it is the only trigger that opens a page: no other one does.
+	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
+	// none either and is closed by tapping the dimmed area around it, but that tap also reaches whatever the app
+	// shows under the finger (measured: a tap at the height of the Creative Commons row closed the sheet and opened
+	// that link in Safari). So the scenario taps where the app has nothing to activate, the empty part of the top
+	// bar, and asserts that the sheet went and the About screen is still the one in front.
 	onPlatform(Platform.Ios) {
-		tap(system(POPOVER_DISMISS_REGION))
-		waitVisible(MaincoreUiTags.BrowserContainer, Within.Action)
-		tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+		tapAtScreen(SHEET_DISMISS_X, SHEET_DISMISS_Y)
+		waitGone(system(POPOVER_DISMISS_REGION), Within.Action)
+		waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+		waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
 	}
 	returnToAbout()
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore)
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper)
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.ReportBug)
+	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore, leavesTheAppOnAndroid = true)
+	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper, leavesTheAppOnAndroid = true)
+	// Not asserted: Gmail's compose screen, with no account in the emulator, closes itself within ~100 ms of opening
+	// (measured 0 of 10 runs in which the app was seen leaving), so the app is already back when the wait looks.
+	openPlatformEdgeTriggerAndReturn(AboutUiTags.ReportBug, leavesTheAppOnAndroid = false)
 }
 
 private val aboutUsageDataConsent = scenario(
