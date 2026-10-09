@@ -58,6 +58,7 @@ final class ConformanceScenarioTests: ScenarioTestCase {
     func test_conformance_submit_text_entry() { runScenario("conformance-submit-text-entry") }
     func test_conformance_swipe_from_element() { runScenario("conformance-swipe-from-element") }
     func test_conformance_swipe_screen() { runScenario("conformance-swipe-screen") }
+    func test_conformance_system() { runScenario("conformance-system") }
     func test_conformance_tap_at() { runScenario("conformance-tap-at") }
     func test_conformance_tap_at_screen() { runScenario("conformance-tap-at-screen") }
     func test_conformance_tap_disabled() { runScenario("conformance-tap-disabled") }
