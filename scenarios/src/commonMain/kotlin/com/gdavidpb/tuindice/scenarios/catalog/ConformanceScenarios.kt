@@ -24,8 +24,8 @@ import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
-import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.system
+import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAt
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
