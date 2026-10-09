@@ -12,8 +12,11 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * element counts as present only when it is on screen: on iOS it must also have a non-empty frame that meets the
  * screen, and a tag or a text counts only while the app is in the foreground (its tree stays readable behind Safari
  * or a system sheet, and then it is not what the user sees). "In the foreground" is asked of the system when an
- * element is found, not read from the state XCTest cached (that state and the tree kept saying "in front" for seconds
- * with Safari on top); it costs 0.3 s on each hit of a wait or a read.
+ * element is found, with a wait of 0.3 s for the background state; it costs 0.3 s on each hit of a wait or a read. What
+ * that buys was measured (YB-1) against Safari's own state and screenshots: Safari opened over the app is in front
+ * 0.0 s after the open returns, and the probe, like the state XCTest cached, says "not in front" only 2.6 to 2.9 s
+ * later (5 runs, within 0.03 s of the cached state). So in that window an element of the app is still read as on
+ * screen with Safari already in front: the probe does not cover it.
  */
 interface ElementProbe {
 	/** Polls [q] until it is visible or [timeoutMs] pass. It always looks once, so a timeout of 0 is a single check. */

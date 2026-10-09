@@ -9,8 +9,6 @@ import ScenarioKit
 /// keyboard does not cover; otherwise it is refused with a line in the driver log that says which of the two.
 final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private static let pollInterval = 0.1
-    /// How long `isForeground` gives XCTest to report that the app went to the background.
-    private static let stateProbe = 0.3
     private static let launchTimeout = 30.0
     private static let edgeMargin: CGFloat = 12
 
@@ -52,7 +50,10 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func foreground() -> Bool {
         traced("foreground") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("foreground", "the app is not running (state \(app.state.rawValue)); it is not started again") }
+            let state = app.state
+            guard AppLife.canBeBroughtBack(state) else {
+                return refuse("foreground", "the app is \(AppLife.describe(state)) (state \(state.rawValue)); it is not started again")
+            }
             guard guarded("foreground", "activate", log: log, { app.activate() }) else { return false }
             // Not `app.wait(for: .runningForeground)`: it answers at once when the cached state still says foreground, with the
             // home screen or another app in front (measured: 15-40 ms). The app is in front when it also passes `isForeground`.
@@ -65,13 +66,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// Whether the app is in front. `XCUIApplication.state` is a value XCTest refreshes lazily: with Safari opened on top of the
     /// app it stayed `runningForeground` for 10 s in every `conformance-foreground` run that followed other scenarios (and
     /// `foreground()` then answered in 15 ms with the home screen in front). Asking XCTest to wait for the background state is a
-    /// round trip with the system, so it sees what the cached value misses; a window that is not in front answers it at once.
-    func isForeground() -> Bool {
-        traced("isForeground") {
-            guard app.state == .runningForeground else { return false }
-            return !app.wait(for: .runningBackground, timeout: Self.stateProbe)
-        }
-    }
+    /// round trip with the system, which sees the change earlier than the cached value does (what that gains is in
+    /// `ElementResolver.freshProbe`); the one implementation is `ElementResolver.isAppFrontNow`, the same the lookups use.
+    func isForeground() -> Bool { traced("isForeground") { resolver.isAppFrontNow } }
 
     /// False once the process is gone (`notRunning`); true when it is running in any way, suspended included, and when the
     /// state is unknown, which is not a death (see `AppControl.isRunning`).
@@ -142,7 +139,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func tapAt(q: Query?, fx: Double, fy: Double) -> Bool {
         traced("tapAt") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("tapAt", "the app is not running") }
+            guard resolver.isAppRunning else { return refuse("tapAt", resolver.notRunningReason) }
             guard let (resolved, area) = area(of: q, primitive: "tapAt") else { return false }
             let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
             guard !coveredByKeyboard(point, gesture: "tapAt \(q.map { "\($0)" } ?? "screen")") else { return false }
@@ -153,7 +150,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     func doubleTap(q: Query) -> Bool {
         traced("doubleTap") {
             log.clearRefusal()
-            guard resolver.isAppRunning else { return refuse("doubleTap", "the app is not running") }
+            guard resolver.isAppRunning else { return refuse("doubleTap", resolver.notRunningReason) }
             guard let (resolved, facts) = resolver.placed(q, primitive: "doubleTap") else { return false }
             let target = resolver.visiblePart(of: facts.frame)
             let point = CGPoint(x: target.midX, y: target.midY)
@@ -170,7 +167,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     private func performSwipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
-        guard resolver.isAppRunning else { return refuse("swipe", "the app is not running") }
+        guard resolver.isAppRunning else { return refuse("swipe", resolver.notRunningReason) }
         guard let (resolved, area) = area(of: from, primitive: "swipe") else { return false }
         let screen = resolver.screen
         let start = CGPoint(x: area.minX + area.width * vector.fx, y: area.minY + area.height * vector.fy)
@@ -290,7 +287,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// A coordinate tap at [point] (the centre of the visible part for a plain tap): no hittability assertion, and no dependence on the
     /// synthetic child Compose adds under a tagged element. A point under the on-screen keyboard is not tapped.
     private func tap(_ resolved: ResolvedElement, at point: CGPoint, primitive: String, target: String) -> Bool {
-        guard resolver.isAppRunning else { return refuse(primitive, "\(target): the app is not running") }
+        guard resolver.isAppRunning else { return refuse(primitive, "\(target): \(resolver.notRunningReason)") }
         guard !coveredByKeyboard(point, gesture: "\(primitive) \(target)") else { return false }
         return guarded(primitive, target, log: log) { resolver.coordinate(at: point, in: resolved).tap() }
     }

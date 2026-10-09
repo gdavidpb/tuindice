@@ -87,6 +87,29 @@ final class SettleWatchTests: XCTestCase {
         XCTAssertEqual(reads, 0)
     }
 
+    /// YB-1: in front needs the state to say so before the wait and after it, and the wait not to have seen the background.
+    func test_the_app_is_in_front_only_when_it_was_before_and_is_after_the_probe() {
+        XCTAssertTrue(FrontCheck.isInFront(before: .runningForeground, wentToBackground: false, after: .runningForeground))
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningForeground, wentToBackground: true, after: .runningForeground), "the probe saw the background")
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningForeground, wentToBackground: false, after: .runningBackgroundSuspended), "suspended while it was waited for")
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningForeground, wentToBackground: false, after: .runningBackground))
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningForeground, wentToBackground: false, after: .notRunning))
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningBackground, wentToBackground: false, after: .runningForeground), "it was not in front when asked")
+        XCTAssertFalse(FrontCheck.isInFront(before: .runningBackgroundSuspended, wentToBackground: false, after: .runningForeground))
+    }
+
+    /// YB-5: `foreground()` brings back every app that is alive, suspended included, and says "not running" only for a dead process.
+    func test_foreground_brings_back_a_suspended_app_and_refuses_only_a_dead_or_unreadable_one() {
+        XCTAssertTrue(AppLife.canBeBroughtBack(.runningForeground))
+        XCTAssertTrue(AppLife.canBeBroughtBack(.runningBackground))
+        XCTAssertTrue(AppLife.canBeBroughtBack(.runningBackgroundSuspended))
+        XCTAssertFalse(AppLife.canBeBroughtBack(.notRunning))
+        XCTAssertFalse(AppLife.canBeBroughtBack(.unknown))
+        XCTAssertEqual(AppLife.describe(.notRunning), "not running")
+        XCTAssertEqual(AppLife.describe(.unknown), "in a state XCTest cannot read")
+        XCTAssertEqual(AppLife.describe(.runningBackgroundSuspended), "running")
+    }
+
     /// K-3/ZB-9: a Compose checkbox is a button with the `Selected` trait; a value that is present and unknown is no answer.
     func test_a_checkbox_is_read_from_the_selected_trait_and_a_known_value() {
         XCTAssertEqual(ToggleState.checked(value: nil, isSelected: true), true)

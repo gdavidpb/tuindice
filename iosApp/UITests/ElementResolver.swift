@@ -99,6 +99,37 @@ enum ToggleState {
     }
 }
 
+/// Decides whether the app is in front from the three things the probe saw (YB-1). It is pure: the state before the wait, whether the wait
+/// for the background state was answered "yes" and the state after it. An app that was in front, did not go to the background and is in
+/// front again is in front; an app that was suspended while it was waited for (a state that is not "background") is not.
+enum FrontCheck {
+    static func isInFront(
+        before: XCUIApplication.State,
+        wentToBackground: Bool,
+        after: XCUIApplication.State
+    ) -> Bool {
+        before == .runningForeground && !wentToBackground && after == .runningForeground
+    }
+}
+
+/// What the state of the application allows (YB-5). It is pure. A suspended app is alive: `activate()` resumes it without a cold start.
+enum AppLife {
+    /// Whether `foreground()` may ask the system to bring the app back: it is alive in any way, suspended included. The state XCTest
+    /// cannot read is not a death (`isRunning()` says alive) and is not brought back either: nothing is known about the process.
+    static func canBeBroughtBack(_ state: XCUIApplication.State) -> Bool {
+        state != .notRunning && state != .unknown
+    }
+
+    /// What is said of the app in the refusal: "not running" only for a process that is gone.
+    static func describe(_ state: XCUIApplication.State) -> String {
+        switch state {
+        case .notRunning: return "not running"
+        case .unknown: return "in a state XCTest cannot read"
+        default: return "running"
+        }
+    }
+}
+
 /// What one look for an element found, reduced to what deciding that it is gone needs.
 enum Sighting: Equatable {
     /// An element that meets the screen.
@@ -167,6 +198,10 @@ final class ElementResolver {
         app.state == .runningForeground || app.state == .runningBackground
     }
 
+    /// Why a gesture is refused while [isAppRunning] is false: the app is not in front or behind another app. A suspended app
+    /// is alive and is not "not running" (YB-5), so the reason says the state.
+    var notRunningReason: String { "the app is not in front or behind another app (state \(app.state.rawValue))" }
+
     var isAppInForeground: Bool { app.state == .runningForeground }
 
     /// The first element matching [q] that exists right now, with what its snapshot says; nil when there is none or when it
@@ -216,15 +251,24 @@ final class ElementResolver {
         return (resolved, facts)
     }
 
-    /// How long [isAppFrontNow] gives XCTest to say that the app went to the background (ZB-13). Measured on the simulator with
-    /// Safari opened over the app by a link: the cached state and the app's tree (which stays readable behind Safari) said "in front"
-    /// for about 2.5 s after Safari came up (10 s in earlier runs), and a wait of 0.3 s for the background state saw it about 0.7 s
-    /// before the cached state did, while waits of 0.1 s or less saw what the cached state saw.
+    /// How long [isAppFrontNow] gives XCTest to say that the app went to the background (ZB-13). Measured on the simulator (YB-1)
+    /// with Safari opened over the app by `simctl openurl`, against the state of Safari itself sampled every 0.03 s and screenshots
+    /// (the screen showed Safari 0.5 s after its state said foreground, and the app before): Safari is in front when the open returns;
+    /// the cached state of the app and the probe say "not in front" only 2.6 to 2.9 s later, the probe within 0.03 s of the cached state
+    /// (5 runs). The 0.7 s head start seen in the first measurement is not there: this probe does not cover that window. A decision of
+    /// the owner is pending on whether to keep its cost (0.3 s per hit) for what it covers.
     static let freshProbe = 0.3
 
-    /// Whether the app is in front now, not as XCTest last cached it: the state, and a wait for the background state that makes XCTest
-    /// ask the system. It costs [freshProbe] when the app is in front, so it is asked once, when an answer is about to be given.
-    var isAppFrontNow: Bool { app.state == .runningForeground && !app.wait(for: .runningBackground, timeout: Self.freshProbe) }
+    /// Whether the app is in front now, not as XCTest last cached it: the state, a wait for the background state that makes XCTest ask
+    /// the system, and the state again (YB-1: an app that was suspended while it was waited for answers "not in background" and is not
+    /// in front). It costs [freshProbe] when the app is in front, so it is asked once, when an answer is about to be given. This is the
+    /// only implementation: `isForeground()` of the driver uses it too.
+    var isAppFrontNow: Bool {
+        let before = app.state
+        guard before == .runningForeground else { return false }
+        let wentToBackground = app.wait(for: .runningBackground, timeout: Self.freshProbe)
+        return FrontCheck.isInFront(before: before, wentToBackground: wentToBackground, after: app.state)
+    }
 
     /// [visibleFacts] for a step that reports to the scenario (a wait, a read): an element of the app counts as on screen only while the
     /// app is in front now, because behind Safari or a system sheet its tree is still readable and is not what the user sees. A system

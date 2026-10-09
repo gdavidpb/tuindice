@@ -85,7 +85,7 @@ final class TextTyping {
     /// app does with the action, including whether the keyboard closes, is for the next step to wait for. A keyboard with
     /// no action key (a number pad) has nothing to press: that is a refusal that names the keys the keyboard does offer.
     func submitTextEntry() -> Bool {
-        guard resolver.isAppRunning else { return refuse("submitTextEntry", "the app is not running") }
+        guard resolver.isAppRunning else { return refuse("submitTextEntry", resolver.notRunningReason) }
         let keyboard = app.keyboards.firstMatch
         // Right after a touch that opens the keyboard it may not be there yet: wait for it as a condition (Timeouts.Action).
         guard keyboard.waitForExistence(timeout: Self.submitWait) else {
