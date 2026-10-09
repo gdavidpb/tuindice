@@ -116,11 +116,20 @@ final class TextTyping {
     /// The frame of [element] once it reads the same three times in a row; nil if it cannot be read or never stops.
     private func settledFrame(of element: XCUIElement) -> (CGRect?, Int) {
         var watch = SettleWatch()
+        let began = Monotonic.now
         var frame: CGRect?
         var verdict: FrameVerdict?
         repeat {
-            frame = (try? element.snapshot())?.frame
-            verdict = watch.feed(frame, at: Monotonic.now)
+            do {
+                frame = try element.snapshot().frame
+                verdict = watch.feed(frame, at: Monotonic.now)
+            } catch {
+                // The key was found a moment ago: a read that fails is not the key going away, it is a read that did not
+                // happen. It does not settle the frame and it does not end the watch; the reads and the time limit do.
+                frame = nil
+                log.add("[driver] submitTextEntry: read \(watch.reads + 1) of the key failed after \(String(format: "%.2f", Monotonic.now - began)) s: \(error)")
+                verdict = watch.feedUnreadable(at: Monotonic.now)
+            }
             if verdict == nil { Thread.sleep(forTimeInterval: Self.pollInterval) }
         } while verdict == nil
         return (verdict == .settled ? frame : nil, watch.reads)

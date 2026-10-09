@@ -49,6 +49,29 @@ final class SettleWatchTests: XCTestCase {
         XCTAssertEqual(run([a, b, nil]).0, .vanished)
     }
 
+    /// E4: a read that failed for an element known to be there is not "gone": the run of equal reads starts again, and only the
+    /// limits end the watch, as `.moving` (a key that does not come back is refused, never passed).
+    func test_a_read_that_fails_does_not_end_the_watch_and_starts_the_count_again() {
+        var watch = SettleWatch()
+        XCTAssertNil(watch.feed(a, at: 0))
+        XCTAssertNil(watch.feedUnreadable(at: 0.1))
+        XCTAssertNil(watch.feed(a, at: 0.2))
+        XCTAssertNil(watch.feed(a, at: 0.3))
+        XCTAssertEqual(watch.feed(a, at: 0.4), .settled, "three equal reads after the failed one")
+        XCTAssertEqual(watch.reads, 5)
+    }
+
+    func test_reads_that_keep_failing_end_as_moving_by_reads_and_by_time() {
+        var byReads = SettleWatch(requiredEqualReads: 3, maxReads: 4, timeLimit: 100)
+        XCTAssertNil(byReads.feedUnreadable(at: 0))
+        XCTAssertNil(byReads.feedUnreadable(at: 0.1))
+        XCTAssertNil(byReads.feedUnreadable(at: 0.2))
+        XCTAssertEqual(byReads.feedUnreadable(at: 0.3), .moving)
+        var byTime = SettleWatch(requiredEqualReads: 3, maxReads: 20, timeLimit: 1)
+        XCTAssertNil(byTime.feedUnreadable(at: 0))
+        XCTAssertEqual(byTime.feedUnreadable(at: 1.2), .moving)
+    }
+
     func test_a_frame_that_never_stops_is_moving_after_the_reads_run_out() {
         let frames = (0..<30).map { CGRect(x: 0, y: CGFloat($0), width: 1, height: 1) }
         let (verdict, reads) = run(frames, watch: SettleWatch(requiredEqualReads: 3, maxReads: 20, timeLimit: 100))

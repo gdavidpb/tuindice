@@ -76,6 +76,18 @@ struct SettleWatch {
         if reads >= maxReads || time - (firstReadAt ?? time) >= timeLimit { return .moving }
         return nil
     }
+
+    /// The verdict after a read that failed for an element known to be there (E4): XCTest could not take its snapshot, which says nothing about
+    /// the element being gone. The read counts toward the limits and the run of equal reads starts again; the answer is never `.vanished`, and
+    /// at the limits it is `.moving` (the frame was not seen to be still), so a key that does not come back is a refusal and not a pass.
+    mutating func feedUnreadable(at time: Double) -> FrameVerdict? {
+        firstReadAt = firstReadAt ?? time
+        reads += 1
+        equalReads = 0
+        last = nil
+        if reads >= maxReads || time - (firstReadAt ?? time) >= timeLimit { return .moving }
+        return nil
+    }
 }
 
 /// How the checked state of a toggle is read from what its snapshot says (K-3/ZB-9). It is pure.
