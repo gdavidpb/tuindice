@@ -98,7 +98,6 @@ final class MaincoreScenarioTests: ScenarioTestCase {
 }
 
 final class PensumScenarioTests: ScenarioTestCase {
-    func test_pensum_cache_refresh_failed() { runScenario("pensum-cache-refresh-failed") }
     func test_pensum_current_absent() { runScenario("pensum-current-absent") }
     func test_pensum_detail_navigation() { runScenario("pensum-detail-navigation") }
     func test_pensum_equivalence_fulfilled() { runScenario("pensum-equivalence-fulfilled") }

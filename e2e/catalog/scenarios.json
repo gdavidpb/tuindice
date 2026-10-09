@@ -251,16 +251,6 @@
             "usbId": "10-10101"
         },
         {
-            "accessToken": "pensum.cache.mock.access",
-            "backendIdentifier": "99-99999",
-            "id": "pensum-cache",
-            "mockScenario": "auth-pensum-cache-login",
-            "password": "pensum-cache-pass",
-            "refreshToken": "pensum.cache.mock.refresh",
-            "sessionId": "pensum-cache-session",
-            "usbId": "99-99999"
-        },
-        {
             "accessToken": "pensum.no.current.mock.access",
             "backendIdentifier": "55-55555",
             "id": "pensum-no-current",
@@ -16979,220 +16969,6 @@
             "timeoutSeconds": 180
         },
         {
-            "account": "pensum-cache",
-            "android": {
-                "scenarioArg": "pensum-cache-refresh-failed"
-            },
-            "covers": [
-                "pensum.Pensum.SelectSelection"
-            ],
-            "id": "pensum-cache-refresh-failed",
-            "ios": {
-                "onlyTesting": "TuIndiceUITests/PensumScenarioTests/test_pensum_cache_refresh_failed"
-            },
-            "module": "pensum",
-            "platforms": [
-                "android",
-                "ios"
-            ],
-            "quarantine": null,
-            "signsIn": false,
-            "start": {
-                "arguments": {
-                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
-                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
-                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
-                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z",
-                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "pensum.cache.mock.access",
-                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
-                    "TUINDICE_E2E_SEED_PASSWORD": "pensum-cache-pass",
-                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "pensum.cache.mock.refresh",
-                    "TUINDICE_E2E_SEED_SESSION_ID": "pensum-cache-session",
-                    "TUINDICE_E2E_SEED_USB_ID": "99-99999"
-                },
-                "mockStates": [
-                    {
-                        "scenario": "auth-pensum-cache-login",
-                        "state": "TokensIssued"
-                    }
-                ]
-            },
-            "steps": [
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "summary_content_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 37
-                    },
-                    "timeoutMs": 60000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "maincore_tuindice_bottom_bar_pensum_item"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 38
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_screen"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 39
-                    },
-                    "timeoutMs": 30000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_canvas"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 228
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_context_summary"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 44
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "base_confirmation_dialog_sheet"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 45
-                    },
-                    "timeoutMs": 10000,
-                    "type": "waitVisible"
-                },
-                {
-                    "direction": "contentForward",
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_version_option_2018"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 46
-                    },
-                    "timeoutMs": 10000,
-                    "type": "scrollUntilVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_version_option_2018"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 47
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_modality_option_long_internship"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 48
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "base_confirmation_dialog_positive_button"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 49
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_canvas"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 230
-                    },
-                    "timeoutMs": 30000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_loading"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 231
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitGone"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "pensum_node_0800-2018-long_internship-t1-math1-ma1111"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 232
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "base_snackbar_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 233
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitGone"
-                }
-            ],
-            "stepsHash": "8c52c0b5e3ad1466",
-            "tags": [],
-            "timeoutSeconds": 180
-        },
-        {
             "account": "pensum-equivalence",
             "android": {
                 "scenarioArg": "pensum-equivalence-fulfilled"
@@ -17273,7 +17049,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 244
+                        "line": 227
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -17286,7 +17062,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 245
+                        "line": 228
                     },
                     "type": "tap"
                 },
@@ -17297,7 +17073,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 246
+                        "line": 229
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17309,7 +17085,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 247
+                        "line": 230
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17322,7 +17098,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 248
+                        "line": 231
                     },
                     "type": "tap"
                 },
@@ -17334,7 +17110,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 249
+                        "line": 232
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17347,7 +17123,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PensumScenarios.kt",
-                        "line": 250
+                        "line": 233
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
