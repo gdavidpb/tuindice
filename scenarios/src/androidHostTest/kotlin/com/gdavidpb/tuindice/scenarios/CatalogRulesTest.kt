@@ -28,8 +28,11 @@ class CatalogRulesTest {
 	private val scenarios = E2eCatalog.all
 	private val clean = LaunchSpec(emptyMap())
 
-	/** Scenarios that run on one platform on purpose: the conformance one of `back`, which iOS does not have. */
-	private val platformRestricted = setOf("conformance-back")
+	/**
+	 * Scenarios that run on one platform on purpose: the conformance one of `back`, which iOS does not have, and the one
+	 * of the effect of the double tap, which no XCUITest delivery of the gesture shows on the iOS simulator.
+	 */
+	private val platformRestricted = setOf("conformance-back", "conformance-double-tap-effect")
 
 	// The platform branches match the budget exactly.
 

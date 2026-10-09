@@ -345,6 +345,28 @@ private val conformanceDoubleTapSwipe = scenario("conformance-double-tap-swipe",
 }
 
 /**
+ * The effect of the double tap: it zooms the canvas, which reveals the minimap toggle, and a second one zooms back to
+ * fit. Android only: no delivery of the double tap that XCUITest offers makes the canvas zoom on the simulator, so on
+ * iOS the primitive is only fired (`conformance-double-tap-swipe`) and the gap is written down in
+ * `e2e/platform/ios/double-tap-canvas.md`.
+ */
+private val conformanceDoubleTapEffect = scenario("conformance-double-tap-effect", "conformance", canonical()) {
+	platforms(Platform.Android)
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarPensumItem, PensumUiTags.PensumScreen)
+	waitVisible(PensumUiTags.Canvas, Within.Assert)
+	waitVisible(PensumUiTags.FitToScreen, Within.Assert)
+	waitGone(PensumUiTags.MinimapToggle, Within.Assert)
+	doubleTap(PensumUiTags.Canvas)
+	waitVisible(PensumUiTags.MinimapToggle, Within.Assert)
+	swipeScreen(SwipeDirection.Left, SWIPE_MS.milliseconds)
+	waitVisible(PensumUiTags.StickyTerms, Within.Assert)
+	doubleTap(PensumUiTags.Canvas)
+	waitGone(PensumUiTags.FitToScreen, Within.Assert)
+}
+
+/**
  * A tap at a point of the screen with no element to aim at: the About item of the bottom bar sits where its fraction
  * of the screen says (the bar has five items of the same width, About the last, and the bar is the bottom strip), so
  * only a delivered tap there opens About.
@@ -436,6 +458,7 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceTapAt,
 	conformanceTapAtScreen,
 	conformanceDoubleTapSwipe,
+	conformanceDoubleTapEffect,
 	conformanceSwipeFromElement,
 	conformanceSheetTags,
 	conformanceForeground,
