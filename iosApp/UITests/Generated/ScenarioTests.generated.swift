@@ -50,7 +50,6 @@ final class ConformanceScenarioTests: ScenarioTestCase {
     func test_conformance_mock_state() { runScenario("conformance-mock-state") }
     func test_conformance_relaunch() { runScenario("conformance-relaunch") }
     func test_conformance_scroll() { runScenario("conformance-scroll") }
-    func test_conformance_scroll_horizontal() { runScenario("conformance-scroll-horizontal") }
     func test_conformance_secure_field() { runScenario("conformance-secure-field") }
     func test_conformance_sheet_tags() { runScenario("conformance-sheet-tags") }
     func test_conformance_submit_after_open() { runScenario("conformance-submit-after-open") }
