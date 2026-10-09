@@ -144,12 +144,12 @@ class MockRulesTest {
 
 	@Test
 	fun aRefusalIsNotAimedByAPatternPathTheCanonicalTokenOrAStartStateManyScenariosShare() {
-		fun refusal(request: String, state: String? = null) =
-			Json.parseToJsonElement(
-				"""{"request": {$request}, "response": {"status": 503}""" +
-					(state?.let { """, "scenarioName": "${E2eAccounts.Canonical.mockScenario}", "requiredScenarioState": "$it"""" }
-						.orEmpty()) + "}"
-			) as JsonObject
+		fun refusal(request: String, state: String? = null): JsonObject {
+			val scenario = E2eAccounts.Canonical.mockScenario
+			val inState = state?.let { """, "scenarioName": "$scenario", "requiredScenarioState": "$it"""" }.orEmpty()
+
+			return Json.parseToJsonElement("""{"request": {$request}, "response": {"status": 503}$inState}""") as JsonObject
+		}
 
 		fun token(value: String) = """"headers": {"Authorization": {"equalTo": "Bearer $value"}}"""
 

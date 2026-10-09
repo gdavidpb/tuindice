@@ -158,7 +158,7 @@ object Copy {
 		CopyBinding.Resource(PensumFulfilledBy, "pensum", "pensum_subject_detail_fulfilled_by"),
 		CopyBinding.Resource(PensumViewStats, "pensum", "pensum_subject_detail_stats"),
 		CopyBinding.MockData(PrivacyPageExternalLink, "mocks/__files/e2e/privacy.html"),
-		CopyBinding.MockData(PensumSubjectLanguage1,"mocks/__files/pensums/get-pensum-equivalence-success.json"),
+		CopyBinding.MockData(PensumSubjectLanguage1, "mocks/__files/pensums/get-pensum-equivalence-success.json"),
 		CopyBinding.Resource(SubjectsSearchNoResults, "subjects", "subjects_search_no_results_title"),
 		CopyBinding.Resource(StudentsTooltipLine1, "subjects", "subjects_segment_students_tooltip_line_1"),
 		CopyBinding.Resource(StudentsTooltipLine2, "subjects", "subjects_segment_students_tooltip_line_2"),
