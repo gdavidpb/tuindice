@@ -44,9 +44,9 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		val (startX, startY) = start
 		val endX = (startX + vector.dx * screenWidth).toInt().coerceIn(EDGE_MARGIN, screenWidth - EDGE_MARGIN)
 		val endY = (startY + vector.dy * screenHeight).toInt().coerceIn(EDGE_MARGIN, screenHeight - EDGE_MARGIN)
-		val steps = (durationMs / STEP_MS).toInt().coerceAtLeast(1)
+		val track = SwipeTrack.plan(start, endX to endY, durationMs, SystemClock.uptimeMillis())
 
-		return runCatching { session.device.swipe(startX, startY, endX, endY, steps) }.getOrDefault(false)
+		return runCatching { SwipeInjector(session).inject(track) }.getOrDefault(false)
 			.also { if (!it) refuse("swipe", "from $source: the swipe was not delivered") }
 	}
 
@@ -126,6 +126,5 @@ internal class GestureInjector(private val session: DeviceSession) : Gestures {
 		const val CENTER = 0.5
 		const val DOUBLE_TAP_GAP_MS = 80L
 		const val EDGE_MARGIN = 8
-		const val STEP_MS = 5L
 	}
 }
