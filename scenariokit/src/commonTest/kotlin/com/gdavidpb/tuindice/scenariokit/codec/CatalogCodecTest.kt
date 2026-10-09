@@ -118,6 +118,16 @@ class CatalogCodecTest {
 	}
 
 	@Test
+	fun decode_ofAnExpectRequestWithoutARequestToWaitFor_fails() {
+		val expect = Step.ExpectRequest("GET", "/users/v1", null, 1_000, 503, atLeast = 2)
+		val text = CatalogCodec.encode(sampleCatalog(listOf(sampleScenario(steps = listOf(expect)))))
+
+		for (count in listOf("0", "-1")) {
+			assertFailsWith<Exception> { CatalogCodec.decode(text.replace("\"atLeast\": 2", "\"atLeast\": $count")) }
+		}
+	}
+
+	@Test
 	fun encode_addsTheDerivedFieldsPerScenario() {
 		val scenario = scenarioJson(sampleCatalog())
 

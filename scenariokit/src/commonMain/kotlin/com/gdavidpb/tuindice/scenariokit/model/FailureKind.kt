@@ -18,7 +18,8 @@ package com.gdavidpb.tuindice.scenariokit.model
  * 4. any other failed step while the driver reports a system dialog in front ->
  *    [SYSTEM_DIALOG]; or while the app is not in the foreground although the step
  *    needs it (not `Relaunch`, `Foreground`, `WaitBackgrounded`, `ExpectRequest` or a system query) ->
- *    [APP_NOT_RUNNING] (also a failed launch or foreground);
+ *    [APP_NOT_RUNNING] (also a failed launch or foreground, and a `WaitBackgrounded` that finds the app dead: its
+ *    own step says so, since there the app is out of the foreground by definition);
  * 5. a step that waited for its own target and the target never came (visible, gone,
  *    enabled, checked, backgrounded, scrolled into view, request received) -> [STEP_TIMEOUT];
  * 6. everything else (disabled tap, a gesture the driver refused) -> [ASSERTION].

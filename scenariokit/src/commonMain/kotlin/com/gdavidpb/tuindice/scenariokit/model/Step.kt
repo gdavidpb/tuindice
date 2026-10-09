@@ -208,6 +208,11 @@ sealed interface Step {
 		val atLeast: Int = 1,
 		override val site: Site? = null
 	) : Step {
+		init {
+			// Zero or fewer passes on the first read without any request: a step that cannot fail. Decoding checks it too.
+			require(atLeast >= 1) { "expectRequest needs at least one request, not $atLeast ($method $path)" }
+		}
+
 		override val target: String
 			get() = buildString {
 				append("$method $path")

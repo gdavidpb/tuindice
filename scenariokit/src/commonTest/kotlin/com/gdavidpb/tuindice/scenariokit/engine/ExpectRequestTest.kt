@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Step
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ExpectRequestTest {
 	private val go: Query = Query.Tag("go")
@@ -168,6 +169,16 @@ class ExpectRequestTest {
 		assertContains(failure.message, "GET /users/v1 was not answered with 200")
 		assertContains(failure.message, "it answered, most recent first: 503, 429, 503")
 		assertEquals("GET /users/v1 answered 200", failure.target)
+	}
+
+	@Test
+	fun expectRequest_needsAtLeastOneRequest_soItCannotPassWithoutAny() {
+		for (count in listOf(0, -1, Int.MIN_VALUE)) {
+			val failure = assertFailsWith<IllegalArgumentException> { expectAnswered(SERVICE_UNAVAILABLE, atLeast = count) }
+
+			assertContains(failure.message.orEmpty(), "at least one request")
+		}
+		assertEquals(1, expectAnswered(SERVICE_UNAVAILABLE, atLeast = 1).atLeast)
 	}
 
 	@Test
