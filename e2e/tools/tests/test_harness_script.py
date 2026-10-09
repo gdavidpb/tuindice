@@ -22,7 +22,13 @@ class HarnessScriptTests(unittest.TestCase):
     def test_verify_e2e_harness_has_its_deadline(self):
         build = support.text(os.path.join(ROOT, "gradle", "e2e-tasks.gradle.kts"))
         block = re.search(r'tasks\.register<Exec>\("verifyE2eHarness"\) \{.*?\n\}', build, re.S).group(0)
-        self.assertIn("Duration.ofMinutes(30)", block)
+        self.assertIn("Duration.ofMinutes(45)", block)
+
+    def test_the_macos_harness_job_has_room_for_the_suite_in_two_interpreters(self):
+        # The suite takes about 19 minutes with two interpreters on a 10-core machine; a 3-core runner needs more (YC-2).
+        workflow = support.text(os.path.join(ROOT, ".github", "workflows", "preflight-production-pr.yml"))
+        job = re.search(r"\n  e2e-harness-preflight:\n(.*?)\n  [a-z0-9-]+:\n", workflow + "\n  end:\n", re.S).group(1)
+        self.assertIn("    timeout-minutes: 60\n", job)
 
 
 if __name__ == "__main__":

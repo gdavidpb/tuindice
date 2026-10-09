@@ -300,7 +300,7 @@ jobs:
   e2e-harness-preflight:
     name: E2E harness preflight (macOS)
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
     needs:
