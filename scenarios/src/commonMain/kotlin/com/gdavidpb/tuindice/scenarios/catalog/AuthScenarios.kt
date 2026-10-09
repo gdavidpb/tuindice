@@ -361,12 +361,10 @@ private val authUpdatePassword = scenario(
 		basicAuth = "${E2eAccounts.UpdatePassword.backendIdentifier}:${E2eFixtures.UpdatedPassword}"
 	)
 	// The sheet shows its loading state only while the reissue is in flight, so look at it right after the request.
-	onPlatform(Platform.Android) {
-		waitVisible(AuthUiTags.UpdatePasswordConfirmLoading, Within.Assert)
-		assertEnabled(AuthUiTags.PasswordTextField, false)
-		assertEnabled(AuthUiTags.PasswordToggle, false)
-		assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, false)
-	}
+	waitVisible(AuthUiTags.UpdatePasswordConfirmLoading, Within.Assert)
+	assertEnabled(AuthUiTags.PasswordTextField, false)
+	assertEnabled(AuthUiTags.PasswordToggle, false)
+	assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, false)
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 	// The reissue moved the mock to the state in which the pending change is accepted: the flush that follows the
 	// update sends it, the server accepts it, and signing out never offers "sign out anyway". The sign-in screen
