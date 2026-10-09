@@ -85,6 +85,7 @@ final class EvaluationsScenarioTests: ScenarioTestCase {
     func test_evaluations_enrollment_unavailable() { runScenario("evaluations-enrollment-unavailable") }
     func test_evaluations_filters_and_form() { runScenario("evaluations-filters-and-form") }
     func test_evaluations_grade_from_list() { runScenario("evaluations-grade-from-list") }
+    func test_evaluations_list_retry() { runScenario("evaluations-list-retry") }
     func test_evaluations_not_enrolled() { runScenario("evaluations-not-enrolled") }
     func test_evaluations_smoke() { runScenario("evaluations-smoke") }
     func test_evaluations_swipe_delete() { runScenario("evaluations-swipe-delete") }
@@ -141,6 +142,7 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_outdated_credentials() { runScenario("summary-outdated-credentials") }
     func test_summary_partial_enrollment_status_dialog() { runScenario("summary-partial-enrollment-status-dialog") }
     func test_summary_profile_picture() { runScenario("summary-profile-picture") }
+    func test_summary_profile_picture_sources() { runScenario("summary-profile-picture-sources") }
     func test_summary_record_access_denied() { runScenario("summary-record-access-denied") }
     func test_summary_refresh_retry() { runScenario("summary-refresh-retry") }
     func test_summary_smoke() { runScenario("summary-smoke") }
