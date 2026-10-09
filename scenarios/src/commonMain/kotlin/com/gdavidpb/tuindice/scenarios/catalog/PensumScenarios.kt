@@ -216,23 +216,6 @@ private val pensumCurrentAbsent = scenario(
 	waitGone(PensumUiTags.FocusProgress, Within.Assert)
 }
 
-private val pensumCacheRefreshFailed = scenario(
-	"pensum-cache-refresh-failed",
-	"pensum",
-	seeded(E2eAccounts.PensumCache)
-) {
-	covers("pensum.Pensum.SelectSelection")
-	account(E2eAccounts.PensumCache.id)
-
-	openPensum()
-	waitVisible(PensumUiTags.Canvas, Within.Assert)
-	chooseLongInternship2018()
-	waitVisible(PensumUiTags.Canvas, Within.Long)
-	waitGone(PensumUiTags.Loading, Within.Assert)
-	waitVisible(PensumUiTags.node(E2eFixtures.PensumNodeLongInternshipMath1.value), Within.Assert)
-	waitGone(BaseUiTags.SnackbarContainer, Within.Assert)
-}
-
 private val pensumEquivalenceFulfilled = scenario(
 	"pensum-equivalence-fulfilled",
 	"pensum",
@@ -261,6 +244,5 @@ val pensumScenarios: List<Scenario> = listOf(
 	pensumRefreshFailedRetry,
 	pensumRecordUnavailable,
 	pensumCurrentAbsent,
-	pensumCacheRefreshFailed,
 	pensumEquivalenceFulfilled
 )

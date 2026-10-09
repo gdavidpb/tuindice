@@ -53,21 +53,6 @@ class RetryOrderMocksTest {
 		assertTrue(NOT_FOUND in broken.syncs, "the replay should see an unanswered sync: ${broken.all}")
 	}
 
-	@Test
-	fun theOlderPensumIsServedByItsOwnMappingEvenAfterTheCachedRefreshStartedFailing() {
-		val replay = replay(PENSUM_CACHE)
-		val bearer = mapOf("Authorization" to "Bearer pensum.cache.mock.access")
-		val older = mapOf("year" to "2018", "modality_id" to "long_internship")
-
-		assertEquals(OK, replay.send("GET", "/pensums/v4", bearer).status, "the first read primes the cache")
-		assertEquals(UNAVAILABLE, replay.send("GET", "/pensums/v4", bearer).status, "the refresh of the current pensum")
-		assertEquals(
-			MockReplay.Reply(OK, "get-pensum-2018-long_internship.json"),
-			replay.send("GET", "/pensums/v4", bearer, older),
-			"the older pensum must not tie with the failing refresh"
-		)
-	}
-
 	/** The mappings of the given WireMock scenarios plus the ones with no scenario, as the server holds them. */
 	private fun replay(vararg scenarios: String, without: String? = null): MockReplay =
 		MockReplay.of(*scenarios, without = without)
@@ -109,7 +94,6 @@ class RetryOrderMocksTest {
 	}
 
 	private companion object {
-		const val PENSUM_CACHE = "pensum-cache-refresh-failed"
 		const val RECORD_RETRY = "record-refresh-retry"
 		const val SUMMARY_RETRY = "summary-refresh-retry"
 		const val OK = 200

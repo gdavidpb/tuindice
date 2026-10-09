@@ -334,20 +334,6 @@ object E2eAccounts {
 		mockScenario = "auth-evaluations-enrollment-unavailable-login"
 	)
 
-	/** Session values of `auth-pensum-cache-exchange-success.json`. */
-	val PensumCache = E2eAccount(
-		id = "pensum-cache",
-		usbIdDigits = "9999999",
-		usbIdFormatted = "99-99999",
-		password = "pensum-cache-pass",
-		session = E2eSession(
-			sessionId = "pensum-cache-session",
-			accessToken = "pensum.cache.mock.access",
-			refreshToken = "pensum.cache.mock.refresh"
-		),
-		mockScenario = "auth-pensum-cache-login"
-	)
-
 	/** Session values of `auth-pensum-no-current-exchange-success.json`. */
 	val PensumNoCurrent = E2eAccount(
 		id = "pensum-no-current",
@@ -444,7 +430,6 @@ object E2eAccounts {
 		AnnulledFinal,
 		NotEnrolled,
 		EvaluationsEnrollmentUnavailable,
-		PensumCache,
 		PensumNoCurrent,
 		PensumEquivalence,
 		PensumRecordUnavailable,
