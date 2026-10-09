@@ -824,15 +824,20 @@ class PlatformRun:
         try:
             self._write_results(outcome, code)
         except Exception as error:
-            self.log.say("HARNESS ERROR %s: %s (traceback in harness-error.txt)" % (type(error).__name__, error))
-            self.manifest.data["stop"]["reason"] = "%s: %s" % (type(error).__name__, error)
-            if self.run_dir:
-                with open(os.path.join(self.run_dir, "harness-error.txt"), "a") as handle:
-                    handle.write(traceback.format_exc())
             if code == 0:
-                outcome, code = "harness_error", EXIT_HARNESS_ERROR
-            green = sum(1 for s in self.runnable if self.ledger is not None and self.ledger.passed(s.id))
-            self.log.result(outcome, green, len(self.runnable), [], 0, code, self.fingerprint or "")
+                outcome, code = "harness_error", EXIT_HARNESS_ERROR  # first: the report of the error below may fail as well
+            stop, detail = self.manifest.data["stop"], "%s: %s" % (type(error).__name__, error)
+            stop["harnessError"] = detail
+            stop["reason"] = stop["reason"] or detail  # the reason of a cut is what the runbook hands over: never replaced
+            try:
+                self.log.say("HARNESS ERROR %s (traceback in harness-error.txt)" % detail)
+                if self.run_dir:
+                    with open(os.path.join(self.run_dir, "harness-error.txt"), "a") as handle:
+                        handle.write(traceback.format_exc())
+                green = sum(1 for s in self.runnable if self.ledger is not None and self.ledger.passed(s.id))
+                self.log.result(outcome, green, len(self.runnable), self._failed_list(), 0, code, self.fingerprint or "")
+            except Exception:  # the disk that broke the results may break this too; the manifest below still says what happened
+                pass
         finally:
             self.manifest.finalize(outcome, code)
         try:

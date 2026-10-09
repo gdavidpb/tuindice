@@ -195,6 +195,48 @@ class FinishFailureTests(unittest.TestCase):
         self.assertIn("RESULT harness_error", done.stdout)
         self.assertFalse(os.path.exists(os.path.join(ws.dir, "tmp", "ios", "wiremock", "lock", "owner.json")))
 
+    def test_a_failure_of_the_handler_itself_still_ends_in_harness_error_not_in_passed_with_exit_0(self):
+        # The disk is full: the results fail to be written and so does the line that says it (YC-4a).
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, ws.env)
+        run = PlatformRun(cfg, "ios", Options("diagnose"))
+        run.git = GitState(ws.repo)
+        run.manifest = Manifest("", "x", "diagnose", "ios", cfg, enabled=False)
+        run.ledger, run.quarantined, run.runnable, run.run_dir = Ledger.memory("ios"), [], [], None
+        run.log = mock.Mock()
+        run.log.say.side_effect = OSError(28, "No space left on device")
+        run._write_results = mock.Mock(side_effect=OSError(28, "No space left on device"))
+        self.assertEqual(run._finish("passed", 0), ("harness_error", 70))
+        self.assertEqual((run.manifest.data["outcome"], run.manifest.data["exitCode"]), ("harness_error", 70))
+
+    def test_a_failure_writing_the_results_of_a_cut_keeps_the_diagnosis_of_the_cut_and_its_exit_code(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-a": ["fail:typed"]}})
+        code = ("import sys; sys.path.insert(0, %r); import e2e; from harness import junit\n"
+            "def boom(*args): raise TypeError('junit broke')\n"
+            "junit.write = boom\nsys.exit(e2e.main(['run', '--platform', 'ios', '--mode', 'diagnose']))" % support.SHARED)
+        done = subprocess.run([sys.executable, "-c", code], cwd=ws.repo, env=ws.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            universal_newlines=True, timeout=120)
+        self.assertEqual(done.returncode, 5, done.stdout + done.stderr)
+        stop = ws.manifest()["stop"]
+        self.assertEqual((stop["scenario"], stop["failureClass"]), ("fix-a", "typed_text_mismatch"))
+        self.assertIn("junit broke", stop["harnessError"])
+        self.assertIn("fix-a", done.stdout.split("RESULT", 1)[1])
+
+    def test_a_failure_writing_the_results_of_a_cut_run_does_not_replace_the_reason_of_the_cut(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        cfg = Config(ws.repo, ws.env)
+        run = PlatformRun(cfg, "ios", Options("diagnose"))
+        run.git = GitState(ws.repo)
+        run.manifest = Manifest("", "x", "diagnose", "ios", cfg, enabled=False)
+        run.ledger, run.quarantined, run.runnable, run.run_dir = Ledger.memory("ios"), [], [], None
+        run.log = mock.Mock()
+        run.manifest.data["stop"]["reason"] = "signal 15"
+        run._write_results = mock.Mock(side_effect=TypeError("junit broke"))
+        self.assertEqual(run._finish("interrupted", 143), ("interrupted", 143))
+        stop = run.manifest.data["stop"]
+        self.assertEqual(stop["reason"], "signal 15")
+        self.assertEqual(stop["harnessError"], "TypeError: junit broke")
+
 
 if __name__ == "__main__":
     unittest.main()
