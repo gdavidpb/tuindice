@@ -14166,7 +14166,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -14179,7 +14179,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -14190,7 +14190,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -14203,7 +14203,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 44
+                        "line": 47
                     },
                     "type": "tap"
                 },
@@ -14214,7 +14214,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 45
+                        "line": 48
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -14274,7 +14274,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -14287,7 +14287,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -14298,7 +14298,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -14369,7 +14369,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 58
+                        "line": 61
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -14381,7 +14381,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 59
+                        "line": 62
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -14393,7 +14393,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 60
+                        "line": 63
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -14406,7 +14406,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 61
+                        "line": 64
                     },
                     "type": "tap"
                 },
@@ -14417,7 +14417,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 62
+                        "line": 65
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -14429,7 +14429,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 63
+                        "line": 66
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -14441,7 +14441,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 64
+                        "line": 67
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -14499,7 +14499,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -14512,7 +14512,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -14523,7 +14523,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -14594,7 +14594,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 77
+                        "line": 80
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -14606,7 +14606,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 78
+                        "line": 81
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -14619,7 +14619,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 82
+                        "line": 85
                     },
                     "type": "tap"
                 },
@@ -14630,7 +14630,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 83
+                        "line": 86
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -14642,7 +14642,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 84
+                        "line": 87
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -14654,7 +14654,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 85
+                        "line": 88
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -14712,7 +14712,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -14725,7 +14725,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -14736,7 +14736,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -14807,7 +14807,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 98
+                        "line": 101
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -14819,7 +14819,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 100
+                        "line": 103
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -14831,7 +14831,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 101
+                        "line": 104
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -14889,7 +14889,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -14902,7 +14902,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -14913,7 +14913,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -14984,7 +14984,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 114
+                        "line": 117
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -14997,7 +14997,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 115
+                        "line": 118
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15009,7 +15009,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 116
+                        "line": 119
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -15021,7 +15021,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 117
+                        "line": 120
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15079,7 +15079,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 29
+                        "line": 32
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -15092,7 +15092,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 30
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -15103,7 +15103,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 31
+                        "line": 34
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -15174,13 +15174,297 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
-                        "line": 130
+                        "line": 133
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
                 }
             ],
             "stepsHash": "8430d240f0335c1b",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "enrollmentproof-saved-copy-dialog"
+            },
+            "covers": [
+                "record.Record.SelectTerm",
+                "enrollmentproof.Enrollment.FetchEnrollmentProof"
+            ],
+            "id": "enrollmentproof-saved-copy-dialog",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/EnrollmentproofScenarioTests/test_enrollmentproof_saved_copy_dialog"
+            },
+            "module": "enrollmentproof",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 32
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_record_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 33
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 34
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "name": "openCurrentEnrollmentProof",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                        "line": 17
+                    },
+                    "steps": [
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_term_chip_d377155d39da686f412622aaca9074cd"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 18
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 19
+                            },
+                            "timeoutMs": 10000,
+                            "type": "waitVisible"
+                        },
+                        {
+                            "direction": "contentDown",
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 20
+                            },
+                            "timeoutMs": 20000,
+                            "type": "scrollUntilVisible"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 21
+                            },
+                            "type": "tap"
+                        }
+                    ],
+                    "type": "group"
+                },
+                {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 150
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitBackgrounded"
+                },
+                {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 151
+                    },
+                    "type": "foreground"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 152
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "scenario": "enrollment-proof-saved-copy",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 153
+                    },
+                    "state": "Unavailable",
+                    "type": "mockState"
+                },
+                {
+                    "name": "openCurrentEnrollmentProof",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                        "line": 17
+                    },
+                    "steps": [
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_term_chip_d377155d39da686f412622aaca9074cd"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 18
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 19
+                            },
+                            "timeoutMs": 10000,
+                            "type": "waitVisible"
+                        },
+                        {
+                            "direction": "contentDown",
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 20
+                            },
+                            "timeoutMs": 20000,
+                            "type": "scrollUntilVisible"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "record_enrollment_proof_button"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EnrollmentProofSteps.kt",
+                                "line": 21
+                            },
+                            "type": "tap"
+                        }
+                    ],
+                    "type": "group"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "enrollment_saved_copy_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 155
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_negative_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 156
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "enrollment_saved_copy_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 157
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitGone"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EnrollmentproofScenarios.kt",
+                        "line": 158
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "3b7d5fe147919af1",
             "tags": [],
             "timeoutSeconds": 180
         },

@@ -72,6 +72,7 @@ final class EnrollmentproofScenarioTests: ScenarioTestCase {
     func test_enrollmentproof_fetching_cancel() { runScenario("enrollmentproof-fetching-cancel") }
     func test_enrollmentproof_not_found() { runScenario("enrollmentproof-not-found") }
     func test_enrollmentproof_outdated_credentials() { runScenario("enrollmentproof-outdated-credentials") }
+    func test_enrollmentproof_saved_copy_dialog() { runScenario("enrollmentproof-saved-copy-dialog") }
     func test_enrollmentproof_smoke() { runScenario("enrollmentproof-smoke") }
 }
 
