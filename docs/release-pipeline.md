@@ -145,7 +145,7 @@ Un status fabricado sin el fingerprint correcto se rechaza.
 **El CI nunca escribe estos estados.** Los publica siempre el dueño, desde la máquina donde corrió la evidencia, con
 `python3 e2e/scripts/shared/e2e.py publish --platform <p>` (árbol limpio, `HEAD == @{u}`, commit visible en GitHub):
 con el libro mayor completo publica como siempre y, si el libro mayor no está completo pero un antecesor tiene un
-status de confianza con el mismo fingerprint, publica en `HEAD` un status `Local E2E <p> reused from <sha7> fp
+status creado por el dueño con el mismo fingerprint, publica en `HEAD` un status `Local E2E <p> reused from <sha7> fp
 <fp12>.`. Ningún job de `preflight-production-pr.yml` tiene `statuses: write` (`verify-workflow-permissions.sh` lo
 rechaza) y `preflight-production.sh` no hace ningún POST.
 
