@@ -74,6 +74,7 @@ final class EnrollmentproofScenarioTests: ScenarioTestCase {
     func test_enrollmentproof_not_found() { runScenario("enrollmentproof-not-found") }
     func test_enrollmentproof_outdated_credentials() { runScenario("enrollmentproof-outdated-credentials") }
     func test_enrollmentproof_saved_copy_dialog() { runScenario("enrollmentproof-saved-copy-dialog") }
+    func test_enrollmentproof_saved_copy_gone_after_sign_out() { runScenario("enrollmentproof-saved-copy-gone-after-sign-out") }
     func test_enrollmentproof_smoke() { runScenario("enrollmentproof-smoke") }
 }
 
@@ -97,6 +98,7 @@ final class MaincoreScenarioTests: ScenarioTestCase {
     func test_maincore_back_stack() { runScenario("maincore-back-stack") }
     func test_maincore_bottom_bar_state() { runScenario("maincore-bottom-bar-state") }
     func test_maincore_browser_external_dialog() { runScenario("maincore-browser-external-dialog") }
+    func test_maincore_browser_load_failed_retry() { runScenario("maincore-browser-load-failed-retry") }
     func test_maincore_tab_stack_preservation() { runScenario("maincore-tab-stack-preservation") }
 }
 
