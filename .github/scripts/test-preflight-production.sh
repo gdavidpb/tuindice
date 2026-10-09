@@ -77,7 +77,7 @@ if [[ "${url}" == *"/commits/"*"/pulls" ]]; then
 	exit 0
 fi
 
-if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
+if [[ "${url}" == *"/commits/"*"/statuses?per_page=100" ]]; then  # YD-3: the page size is part of the request, or 30 statuses of others hide the owner's
 	printf '%s\n' "${url}" >>"${TUINDICE_PREFLIGHT_TEST_GET_LOG:-/dev/null}"
 	# The list endpoint (plural /statuses) returns a bare array of full status
 	# objects, creator included -- unlike the combined-status endpoint

@@ -211,10 +211,12 @@ class VerdictTests(unittest.TestCase):
         self.remote(head(self.ws), success())
         open(self.ws.gh_log, "w").close()
         self.assertEqual(self.status()["verdict"], "current")
-        asked = [line for line in open(self.ws.gh_log).read().splitlines() if line.endswith("/statuses")]
+        asked = [line for line in open(self.ws.gh_log).read().splitlines() if "/statuses" in line]
         # HEAD, then (for Android, which has nothing there) the two older commits; iOS reuses what was fetched.
         self.assertEqual(len(asked), 3, asked)
         self.assertEqual(len(set(asked)), len(asked), "a commit was fetched twice")
+        # YD-3: the API answers 30 statuses by default; a later status of someone else must not push the owner's off the page.
+        self.assertTrue(all(line.endswith("/statuses?per_page=100") for line in asked), asked)
 
     def test_a_head_github_does_not_know_is_unreachable_not_rerun(self):
         # An unpushed HEAD answers 422: nothing was asked successfully, so the ledger is the only source.
@@ -247,7 +249,7 @@ class VerdictTests(unittest.TestCase):
         open(self.ws.gh_log, "w").close()
         self.status(E2E_FAKE_GH_FAIL_SHAS=first)
         with open(self.ws.gh_log) as handle:
-            asked = [line for line in handle.read().splitlines() if line.endswith("commits/%s/statuses" % first)]
+            asked = [line for line in handle.read().splitlines() if line.endswith("commits/%s/statuses?per_page=100" % first)]
         self.assertEqual(len(asked), 2, "asked once and once more, not a third time")
 
     def test_a_query_that_answers_on_the_second_try_is_a_normal_answer(self):

@@ -117,7 +117,7 @@ github_commit_status_payload_at_sha() {
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"${api_url}/repos/${repository}/commits/${sha}/statuses" \
+		"${api_url}/repos/${repository}/commits/${sha}/statuses?per_page=100" \
 		| jq -c --arg context "$context" --argjson trusted "$(trusted_status_creators | jq -R . | jq -sc .)" '
 			[.[] | select(.context == $context)] as $all
 			| ([$all[] | select((.creator.login // "") as $login | [$trusted[] | select(. == $login)] | length > 0)][0])

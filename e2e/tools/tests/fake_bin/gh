@@ -52,6 +52,8 @@ while (( $# > 0 )); do
 			;;
 	esac
 done
+# The only query a read of statuses carries is the page size (the log keeps the whole call; the tests assert it).
+endpoint="${endpoint%\?per_page=100}"
 
 if [[ "${method}" == "POST" ]]; then
 	if [[ -n "${E2E_FAKE_GH_SLEEP:-}" ]]; then

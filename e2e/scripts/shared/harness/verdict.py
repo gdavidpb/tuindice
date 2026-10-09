@@ -73,7 +73,7 @@ class Remote:
         """{sha: (raw, unknown)} for each sha, eight at a time."""
         with ThreadPoolExecutor(max_workers=8) as pool:
             return dict(zip(shas, pool.map(
-                lambda sha: _gh(self.cfg, "api", "repos/{owner}/{repo}/commits/%s/statuses" % sha), shas)))
+                lambda sha: _gh(self.cfg, "api", "repos/{owner}/{repo}/commits/%s/statuses?per_page=100" % sha), shas)))
 
     def _load(self, shas):
         missing = [sha for sha in shas if sha not in self.statuses]
