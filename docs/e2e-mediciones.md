@@ -174,7 +174,70 @@ pensum, el journal de WireMock no registró ningún `GET /pensums/v4`; el númer
 - `conformance-mock-state`, 3 de 3 en las dos plataformas; sin el `mockState`, la espera falló con «GET /users/v1 was not
   answered with 503 at least 2 times within 20000 ms; it answered, most recent first: 200, 503».
 
-## 4. Lo que no se midió
+## 4. Etapa de drivers 2 y última tanda en dispositivos (2026-10-09)
+
+Mismo equipo. Las series usan `E2E_MAX_RETRIES=0 --repeat N --survey`. Los registros están en el scratchpad de la sesión
+(`r7-*` de la etapa de drivers 2 y `r8-*` de esta tanda); ninguno está versionado.
+
+**Salida de la app del primer plano en iOS, residuo del estado cacheado y de la sonda de 0,3 s (etapa de drivers 2, base
+`42a3d780c`).** Con Safari abierto por `simctl openurl` sobre la app, el estado de Safari muestreado cada 0,03 s en un hilo aparte
+dice «primer plano» al volver el `openurl`; el estado cacheado de la app y la sonda dicen «no delante» de 2,56 a 2,89 s después
+(5 corridas: 2,85; 2,87; 2,70; 2,76; 2,89 s, y 2,56 s con capturas; la sonda dentro de 0,03 s del estado cacheado). La ventaja de
+0,7 s de la medición de ZB-13 no se reprodujo. La sonda cuesta 0,3 s por acierto. Esto reemplaza lo dicho sobre la sonda en la sección 3.
+
+**Estado de Safari como fuente del «frente» en iOS (E3, base `99b1b3045`): no funcionó como se decidió.** `isAppFrontNow` =
+la app en `runningForeground` y ninguna app externa conocida (`com.apple.mobilesafari`) en `runningForeground`, sin sonda de espera:
+`waitBackgrounded` pasó a la primera (414 ms) pero `foreground()` no vio nunca la vuelta y `conformance-foreground` falló 6 de 6 con
+«the app could not be brought to the foreground» a los 30 s. En una clase de medición aparte, `XCUIApplication(bundleIdentifier:
+"com.apple.mobilesafari").state` leyó `notRunning` (1) durante los 18 s de la corrida aunque la captura mostraba Safari delante
+(`simctl openurl`); el estado de Safari que se vio en la etapa de drivers 2 no se reprodujo, y no se averiguó qué distingue las dos
+clases. No se commiteó nada de iOS: el código quedó como estaba.
+
+**Desplazamiento en Android con carga (E3).** `conformance-scroll` con `OpenKtor` como destino (escenario temporal, restaurado),
+serie de 50 con el host cargado por la conformidad de iOS corriendo a la vez, y la duración de cada swipe leída de una línea
+`swipe: N events in X ms` que se añadió al `driver.log` en ambas variantes. Con `UiDevice.swipe` (80 eventos síncronos): 1 fallo de
+50 (`attempt-1-r15`); 299 swipes de 2701 a 10 554 ms (mediana 3241, media 3357, p90 3963) para 400 ms nominales; 5,98 swipes por
+intento. Con 12 eventos y tiempos explícitos (`downTime`/`eventTime` espaciados sobre 400 ms, el último esperado en la inyección):
+0 fallos de 50, 250 swipes de 400 a 415 ms (mediana 403), 5,00 por intento, y el paso de desplazamiento pasó de unos 11 s a 1,2 s.
+`conformance-swipe-screen`, `conformance-scroll` (con `OpenKoin`), `conformance-double-tap-effect` y `pensum-smoke` ×10, 10 de 10
+cada uno. **Pero el cambio alteró el efecto del gesto:** con la dinámica nominal, `scrollUntilVisible(record_enrollment_proof_button)`
+no terminó en 10 de 24 intentos de `--tag enrollmentproof --repeat 3` (el botón flotante del informe, al 80,7 % de la altura, nunca
+quedó «asentado» en 20 s, tras 35 swipes), y con el driver anterior los mismos 24 pasaron. El cambio se revirtió (`14d9993b5` revierte
+`1f746b0ad`); queda para decisión.
+
+**Hoja de compartir en iOS (etapa de drivers 2, base `42a3d780c`).** Con la hoja abierta, `tapAtScreen(0,5; 0,3)` sacó la app a
+Safari 3 de 3. Tres configuraciones de presentación del producto (`IosShareTextHandler`), una a la vez y recompilando, con el mismo
+toque: popover con `sourceView = topController.view` y `passthroughViews = []`: el defecto sigue (con captura, la app no está
+delante); `modalPresentationStyle = PageSheet`: 3 de 3 igual; `OverFullScreen`: 3 de 3 igual. El aspecto de la hoja se comparó
+con captura solo en la primera. No se probó `sourceRect`. Ver `e2e/platform/ios/share-sheet-touch-through.md`.
+
+**Disparadores de iOS «Contacto» y «Reportar un error» (etapa de drivers 2).** Con `waitBackgrounded` puesto temporalmente en cada
+uno, 3 corridas y 20 s cada una: la app siguió delante 3 de 3 en el correo y 3 de 3 en el reporte.
+
+**Página web que se desplaza (E3).** `mocks/__files/e2e/terms.html` con cinco cláusulas y una última línea; con 8 cláusulas un solo
+swipe de Android no llegaba al final (capturas del paso fallido). Con 5: `about-internal-browser-links` 3 de 3 en Android y 3 de 3
+en iOS, afirmando que la última línea no está visible al cargar y sí tras un swipe. En iOS, con `isNativeAccessibilityEnabled = false`
+(producto, temporal, restaurado) la página se desplaza igual que con `true`: cuatro capturas (`r8-ios-web-{true,false}-{noswipe,swipe}-capture.png`)
+muestran el mismo estado antes del swipe (título y cláusulas 1 a 4) y el mismo después (cláusulas 3 a 5 y la última línea). Android registró
+un `GET /favicon.ico` sin stub con la página alta; se añadió `browser-favicon.json`.
+
+**Valor por defecto de `isInteractive` (Compose Multiplatform 1.12.0).** En `ui-iosSimulatorArm64Main-1.12.0.klib`
+(`klib dump-ir`), `UIKitInteropProperties(isInteractive: Boolean, isNativeAccessibilityEnabled: Boolean)` no tiene valores por
+defecto; el constructor con `interactionMode: UIKitInteropInteractionMode? = Cooperative` y `isNativeAccessibilityEnabled = false`
+es el que los tiene, y `Cooperative` equivale a `isInteractive = true`. Pasar solo `isNativeAccessibilityEnabled = true` compila contra
+ese segundo constructor y da el mismo comportamiento interactivo. El producto no se tocó.
+
+**Escenarios nuevos y tocados (E3), N de N por plataforma.** Android y iOS, 3 de 3: `about-platform-edge-triggers` (con la hoja vista antes de
+cerrarla), `--tag enrollmentproof` (8 escenarios × 3, incluidos el botón positivo de la copia guardada y
+`enrollmentproof-saved-copy-gone-after-sign-out`), `auth-login-invalid` y `auth-login-disabled` (con `waitGone(snackbar, Probe)`),
+`maincore-browser-load-failed-retry` (reinicio de la conexión de WireMock sobre `privacy.html`, con `mockState`), `conformance-submit-search`,
+`conformance-system`, `evaluations-edit-submit`, `evaluations-swipe-delete`, `record-attempt-overrides` y `record-synthetic-term-lifecycle`
+(con `Authorization: Bearer` exigido en los siete mappings de `urlPathPattern`). Rojos: repuesto el snackbar del rechazo
+(producto, temporal), `auth-login-invalid` y `auth-login-disabled` fallaron en `waitGone(snackbar)` en las dos plataformas; con el
+borrado de `clearSessionMemory()` anulado (producto, temporal), `enrollmentproof-saved-copy-gone-after-sign-out` falló en iOS en
+`WaitVisible(snackbar)` porque se ofreció la copia. `ReportBug`: 0 de 10 en Android, 3 de 3 «sigue delante» en iOS.
+
+## 5. Lo que no se midió
 
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.
