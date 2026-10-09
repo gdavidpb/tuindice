@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "PATCH",
-    "urlPathPattern": "/record/v5/overlay/terms/[^/]+"
+    "urlPathPattern": "/record/v5/overlay/terms/[^/]+",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "transformers": [

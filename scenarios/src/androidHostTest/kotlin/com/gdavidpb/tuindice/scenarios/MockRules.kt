@@ -113,7 +113,7 @@ internal object MockRules {
 	fun protectedWithoutABearer(mappings: List<Pair<String, JsonObject>>): List<String> =
 		mappings.filter { (_, mapping) ->
 			val request = mapping["request"] as? JsonObject
-			val path = request?.string("urlPath").orEmpty()
+			val path = pathOf(request)
 			val matcher = (request?.get("headers") as? JsonObject)?.get("Authorization") as? JsonObject
 			val expected = matcher?.string("equalTo") ?: matcher?.string("matches").orEmpty()
 

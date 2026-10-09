@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.scenariokit.engine.BackendEngine
 import com.gdavidpb.tuindice.scenarios.MockJson.string
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import java.io.File
 import kotlin.test.Test
@@ -27,6 +28,26 @@ class MockContractTest {
 		val offenders = MockRules.protectedWithoutABearer(mappingFiles.map { it.name to MockJson.obj(it) })
 
 		assertTrue(offenders.isEmpty(), "protected mappings without a Bearer matcher: $offenders")
+	}
+
+	/** YE-5: a mapping that names its path with `urlPathPattern` is as protected as one that names it with `urlPath`. */
+	@Test
+	fun everyProtectedMappingDemandsABearerWhateverWayItNamesItsPath() {
+		fun mapping(path: String, headers: String = "") =
+			Json.parseToJsonElement("""{"request": {$path$headers}, "response": {"status": 200}}""") as JsonObject
+
+		val bearer = """, "headers": {"Authorization": {"matches": "Bearer .+"}}"""
+		val basic = """, "headers": {"Authorization": {"matches": "Basic .+"}}"""
+		val mappings = listOf(
+			"exact-ok" to mapping(""""urlPath": "/record/v5/sync"""", bearer),
+			"pattern-ok" to mapping(""""urlPathPattern": "/record/v5/overlay/terms/[^/]+"""", bearer),
+			"exact-open" to mapping(""""urlPath": "/record/v5/sync""""),
+			"pattern-open" to mapping(""""urlPathPattern": "/evaluations/v3/[A-Za-z0-9]+""""),
+			"pattern-basic" to mapping(""""urlPathPattern": "/evaluations/v3/[A-Za-z0-9]+"""", basic),
+			"unprotected" to mapping(""""urlPathPattern": "/auth/v2/.*"""")
+		)
+
+		assertEquals(listOf("exact-open", "pattern-open", "pattern-basic"), MockRules.protectedWithoutABearer(mappings))
 	}
 
 	@Test
