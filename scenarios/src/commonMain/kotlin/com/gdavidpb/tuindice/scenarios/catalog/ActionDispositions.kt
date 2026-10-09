@@ -40,12 +40,6 @@ object ActionDispositions {
 			action = "evaluations.Evaluations.LoadEvaluations",
 			reason = "list bootstrap"
 		),
-		ActionDisposition.Pending(
-			action = "evaluations.Evaluations.RefreshEvaluations",
-			reason =
-				"its only trigger is the retry button of the failed list, and no scenario drives the " +
-				"evaluations list into that state"
-		),
 		ActionDisposition.Internal(
 			action = "maincore.Browser.SetLoading",
 			reason = "renderer callback"
@@ -135,18 +129,6 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "summary.Summary.ObserveSummary",
 			reason = "screen bootstrap"
-		),
-		ActionDisposition.Pending(
-			action = "summary.Summary.TakeProfilePicture",
-			reason =
-				"no scenario taps the camera option: it opens the system camera, which the suite can reach " +
-				"as system UI but nobody has written a scenario for"
-		),
-		ActionDisposition.Pending(
-			action = "summary.Summary.PickProfilePicture",
-			reason =
-				"no scenario taps the gallery option: it opens the system photo picker, which the suite " +
-				"can reach as system UI but nobody has written a scenario for"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "summary.Summary.UploadProfilePicture",

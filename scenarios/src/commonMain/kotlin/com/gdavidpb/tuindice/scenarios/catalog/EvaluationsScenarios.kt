@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
@@ -63,6 +64,25 @@ private fun StepBuilder.pickPreviousMonthDay() {
 	tap(EvaluationsUiTags.EvaluationCalendarPreviousMonthButton)
 	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.CalendarDay))
 	tap(EvaluationsUiTags.EvaluationDateDialogAcceptButton)
+}
+
+/** The list that cannot load offers a retry; once the service answers again, the retry shows the list. */
+private val evaluationsListRetry = scenario(
+	"evaluations-list-retry",
+	"evaluations",
+	seeded(E2eAccounts.Canonical)
+) {
+	covers("evaluations.Evaluations.RefreshEvaluations")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	mockState("evaluations-list-failure", "Unavailable")
+	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
+	waitVisible(BaseUiTags.ErrorViewRetryButton, Within.Long)
+	mockState("evaluations-list-failure", "Recovered")
+	tap(BaseUiTags.ErrorViewRetryButton)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
+	waitGone(BaseUiTags.ErrorViewRetryButton, Within.Assert)
 }
 
 private val evaluationsSmoke = scenario(
@@ -364,6 +384,7 @@ private val evaluationsAnnulledProvisionalNotice = scenario(
 /** The scenarios of this module; list every new one here. */
 val evaluationsScenarios: List<Scenario> = listOf(
 	evaluationsSmoke,
+	evaluationsListRetry,
 	evaluationsFiltersAndForm,
 	evaluationsGradeFromList,
 	evaluationsEditSubmit,

@@ -11,7 +11,8 @@ class PlatformBranchBudget private constructor() {
 			"about-platform-edge-triggers" to 3,
 			"auth-terms-privacy-from-login" to 4,
 			"maincore-tab-stack-preservation" to 1,
-			"summary-profile-picture" to 2
+			"summary-profile-picture" to 2,
+			"summary-profile-picture-sources" to 4
 		)
 
 		fun of(scenarioId: String): Int = perScenario[scenarioId] ?: 0

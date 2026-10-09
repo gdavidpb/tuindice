@@ -2,15 +2,18 @@ package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
+import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
+import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
@@ -24,6 +27,15 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val IOS_SHEET_SWIPE_MS = 600L
+
+/**
+ * Identifiers of the iOS system surfaces: the photo picker's "Cancelar" button and its "Ordenar y filtrar" button (only
+ * there once the library has loaded), the camera's "Dismiss" button and its shutter.
+ */
+private const val IOS_PICKER_CANCEL = "Cancel"
+private const val IOS_PICKER_LOADED = "Sort and Filter"
+private const val IOS_CAMERA_DISMISS = "DismissButton"
+private const val IOS_CAMERA_LOADED = "PhotoCapture"
 
 private val summarySmoke = scenario(
 	"summary-smoke",
@@ -208,10 +220,49 @@ private val summaryProfilePicture = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 }
 
+/**
+ * Opens the system surface of a picture source and leaves it without choosing: Android's gallery and camera are other
+ * apps (the app leaves the foreground, the back key closes them); iOS shows its photo picker and camera over the app,
+ * each with a control of its own that closes it.
+ */
+private fun StepBuilder.openPictureSourceAndCancel(source: String, iosReady: String, iosCancel: String) {
+	tap(SummaryUiTags.ProfilePictureEditButton)
+	waitVisible(source, Within.Action)
+	tap(source)
+	onPlatform(Platform.Android) {
+		waitBackgrounded()
+		back()
+	}
+	onPlatform(Platform.Ios) {
+		// The surface shows its close control while it still loads, and a tap on it then is lost: wait for a
+		// control that only a loaded one has.
+		waitVisible(system(iosReady), Within.Action)
+		tap(system(iosCancel))
+		// The app's own elements stay in the tree under a system surface: only its going proves it closed.
+		waitGone(system(iosCancel), Within.Action)
+	}
+	waitVisible(SummaryUiTags.ProfilePictureContainer, Within.Action)
+	waitGone(SummaryUiTags.ProfilePicturePickAction, Within.Assert)
+}
+
+private val summaryProfilePictureSources = scenario(
+	"summary-profile-picture-sources",
+	"summary",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("summary.Summary.PickProfilePicture", "summary.Summary.TakeProfilePicture")
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openPictureSourceAndCancel(SummaryUiTags.ProfilePicturePickAction, IOS_PICKER_LOADED, IOS_PICKER_CANCEL)
+	openPictureSourceAndCancel(SummaryUiTags.ProfilePictureTakeAction, IOS_CAMERA_LOADED, IOS_CAMERA_DISMISS)
+}
+
 /** The scenarios of this module; list every new one here. */
 val summaryScenarios: List<Scenario> = listOf(
 	summarySmoke,
 	summaryProfilePicture,
+	summaryProfilePictureSources,
 	summaryRefreshRetry,
 	summaryStatusDialog,
 	summaryPartialEnrollmentStatusDialog,
