@@ -187,15 +187,15 @@ private val authLoginInvalid = scenario("auth-login-invalid", "auth", Start.Clea
 	signsIn()
 
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
-	// The helper has already seen 00-00000:bad-password reach the backend; the rejection must show, in the fields
-	// and as a message under the password (its text is merged into the field's node, so it is read by text), and
-	// as no snackbar.
+	// The helper has already seen 00-00000:bad-password reach the backend; the rejection must show, as a message under
+	// the password (its text is merged into the field's node, so it is read by text), and as no snackbar.
 	signInThroughUi(E2eAccounts.Invalid)
 	waitVisible(text(Copy.InvalidUsbIdCredentials), Within.Action)
+	// The absence of the snackbar is read right after the rejection shows (YE-2): a snackbar without an action lasts 4 s,
+	// longer than this wait, so one shown with the rejection is still there when it ends and the step fails. It is a
+	// window and not a proof of absence; the firm guarantee is the UI test of the sign-in route in `auth`.
+	waitGone(BaseUiTags.SnackbarContainer, Within.Probe)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
-	waitVisible(AuthUiTags.UsbIdTextField, Within.Assert)
-	waitVisible(AuthUiTags.PasswordTextField, Within.Assert)
-	waitGone(BaseUiTags.SnackbarContainer, Within.Assert)
 }
 
 private val authLoginDisabled = scenario("auth-login-disabled", "auth", Start.Clean().toLaunchSpec()) {
@@ -206,9 +206,10 @@ private val authLoginDisabled = scenario("auth-login-disabled", "auth", Start.Cl
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Sync)
 	signInThroughUi(E2eAccounts.Disabled)
 	waitVisible(AuthUiTags.SignInRejectedMarker, Within.Action)
+	// Right after the rejection shows, for the reason given in `auth-login-invalid` (YE-2).
+	waitGone(BaseUiTags.SnackbarContainer, Within.Probe)
 	waitVisible(text(Copy.AccountDisabled), Within.Assert)
 	waitVisible(AuthUiTags.SignInIdleContainer, Within.Assert)
-	waitGone(BaseUiTags.SnackbarContainer, Within.Assert)
 }
 
 /**

@@ -41,6 +41,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
+import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -49,14 +50,6 @@ import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SWIPE_MS = 600L
-
-/** An element of the system's share surface on each platform. */
-private const val ANDROID_SHARE_ELEMENT = "com.android.intentresolver:id/chooser_container"
-private const val IOS_SHARE_ELEMENT = "PopoverDismissRegion"
-
-/** Where the top bar of About has nothing to tap (fractions of the screen), over the dimmed area of the iOS sheet. */
-private const val SHEET_DISMISS_X = 0.6
-private const val SHEET_DISMISS_Y = 0.1
 
 // The centre of the last of the five items of the bottom bar, as fractions of the screen.
 private const val BOTTOM_BAR_LAST_ITEM_X = 0.9
@@ -190,7 +183,7 @@ private val conformanceSubmitSearch = scenario("conformance-submit-search", "con
 	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
 	waitVisible(SubjectsUiTags.SearchScreen, Within.Action)
 	tap(SubjectsUiTags.SearchTextField)
-	enterText(SubjectsUiTags.SearchTextField, "ci")
+	enterText(SubjectsUiTags.SearchTextField, E2eInputs.SubjectQueryMatch)
 	submitTextEntry()
 	waitVisible(SubjectsUiTags.searchResult(E2eFixtures.SubjectCi2511.value), Within.Wait)
 }
@@ -350,16 +343,16 @@ private val conformanceSystem = scenario("conformance-system", "conformance", ca
 	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ShareApp)
 	onPlatform(Platform.Android) {
-		waitVisible(system(ANDROID_SHARE_ELEMENT), Within.Action)
+		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
 		// Bringing the app back closes the chooser.
 		foreground()
-		waitGone(system(ANDROID_SHARE_ELEMENT), Within.Action)
+		waitGone(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
 	}
 	onPlatform(Platform.Ios) {
-		waitVisible(system(IOS_SHARE_ELEMENT), Within.Action)
+		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		// The dimmed area closes the sheet; the tap goes where the top bar of About has nothing to activate.
-		tapAtScreen(SHEET_DISMISS_X, SHEET_DISMISS_Y)
-		waitGone(system(IOS_SHARE_ELEMENT), Within.Action)
+		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
+		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 	}
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 }

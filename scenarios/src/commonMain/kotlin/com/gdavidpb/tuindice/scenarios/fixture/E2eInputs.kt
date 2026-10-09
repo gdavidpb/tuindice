@@ -45,6 +45,9 @@ object E2eInputs {
 	/** A query no subject of the catalog or of the debug source matches (`SubjectSearchFixturesTest` checks it). */
 	const val SubjectQueryNoMatch = "zzzznomatch"
 
+	/** A query the pensum search answers with the subject the scenarios look for (`SubjectCi2511`). */
+	const val SubjectQueryMatch = "ci"
+
 	/**
 	 * A search text of the create-term screen that has no results; the other texts the scenarios type are fixtures
 	 * the mocks answer.

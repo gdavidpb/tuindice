@@ -8,7 +8,7 @@ package com.gdavidpb.tuindice.scenarios.catalog
 class PlatformBranchBudget private constructor() {
 	companion object {
 		val perScenario: Map<String, Int> = mapOf(
-			"about-platform-edge-triggers" to 3,
+			"about-platform-edge-triggers" to 4,
 			"auth-terms-privacy-from-login" to 4,
 			"conformance-system" to 2,
 			"maincore-tab-stack-preservation" to 1,

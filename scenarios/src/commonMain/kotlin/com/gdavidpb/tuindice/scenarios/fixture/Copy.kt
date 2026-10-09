@@ -23,6 +23,10 @@ object Copy {
 	/** The link of the privacy page the mock serves (`mocks/__files/e2e/privacy.html`), not the dialog it opens. */
 	const val PrivacyPageExternalLink = "Abrir enlace externo"
 
+	/** The title and the last line of the terms page the mock serves, taller than a screen (`e2e/terms.html`). */
+	const val TermsPageTitle = "Términos TuIndice E2E"
+	const val TermsPageEnd = "Fin de los términos de prueba."
+
 	const val NoticeTitle = "Servicio no disponible"
 	const val NoticeMessage = "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
 
@@ -158,6 +162,8 @@ object Copy {
 		CopyBinding.Resource(PensumFulfilledBy, "pensum", "pensum_subject_detail_fulfilled_by"),
 		CopyBinding.Resource(PensumViewStats, "pensum", "pensum_subject_detail_stats"),
 		CopyBinding.MockData(PrivacyPageExternalLink, "mocks/__files/e2e/privacy.html"),
+		CopyBinding.MockData(TermsPageTitle, "mocks/__files/e2e/terms.html"),
+		CopyBinding.MockData(TermsPageEnd, "mocks/__files/e2e/terms.html"),
 		CopyBinding.MockData(PensumSubjectLanguage1, "mocks/__files/pensums/get-pensum-equivalence-success.json"),
 		CopyBinding.Resource(SubjectsSearchNoResults, "subjects", "subjects_search_no_results_title"),
 		CopyBinding.Resource(StudentsTooltipLine1, "subjects", "subjects_segment_students_tooltip_line_1"),

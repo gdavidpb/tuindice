@@ -2,32 +2,30 @@ package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
+import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
+import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
+import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
-
-/** The label of the iOS popover's dimmed area, which closes a share sheet. */
-private const val POPOVER_DISMISS_REGION = "PopoverDismissRegion"
-
-/** Where the top bar of the About screen has nothing to tap: right of its title (fractions of the screen). */
-private const val SHEET_DISMISS_X = 0.6
-private const val SHEET_DISMISS_Y = 0.1
 
 /** From the seeded summary: opens the About tab. */
 private fun StepBuilder.openAbout() {
@@ -104,7 +102,17 @@ private val aboutInternalBrowserLinks = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openAbout()
-	openBrowserPageAndReturn(AboutUiTags.OpenTerms)
+	// The terms page the mock serves is taller than a screen (`mocks/__files/e2e/terms.html`): its last line is not on
+	// screen when the page loads and comes into view only when the web view scrolls, which is what keeps the web view
+	// scrolling covered on both platforms.
+	tap(AboutUiTags.OpenTerms)
+	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
+	waitVisible(text(Copy.TermsPageTitle), Within.Wait)
+	waitGone(text(Copy.TermsPageEnd), Within.Assert)
+	swipeScreen(SwipeDirection.Up)
+	waitVisible(text(Copy.TermsPageEnd), Within.Action)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(AboutUiTags.ContentContainer, Within.Action)
 	openBrowserPageAndReturn(AboutUiTags.OpenPrivacy)
 	openBrowserPageAndReturn(AboutUiTags.OpenSupport)
 }
@@ -140,31 +148,37 @@ private val aboutPlatformEdgeTriggers = scenario(
 	covers(
 		"about.About.ShareApp",
 		"about.About.RateOnStore",
-		"about.About.ContactDeveloper",
-		"about.About.ReportBug"
+		"about.About.ContactDeveloper"
 	)
 	account(E2eAccounts.Canonical.id)
 
 	openAbout()
 	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ShareApp)
+	// The sheet must have appeared before it is closed (YE-1): without this a share that opens nothing would pass,
+	// because the touch that closes it and the waits after it are already true when there is no sheet.
+	onPlatform(Platform.Android) {
+		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
+	}
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
 	// none either and is closed by tapping the dimmed area around it, but that tap also reaches whatever the app
 	// shows under the finger (measured: a tap at the height of the Creative Commons row closed the sheet and opened
-	// that link in Safari). So the scenario taps where the app has nothing to activate, the empty part of the top
-	// bar, and asserts that the sheet went and the About screen is still the one in front.
+	// that link in Safari). So the scenario sees the sheet first, then taps where the app has nothing to activate,
+	// the empty part of the top bar, and asserts that the sheet went and the About screen is still the one in front.
 	onPlatform(Platform.Ios) {
-		tapAtScreen(SHEET_DISMISS_X, SHEET_DISMISS_Y)
-		waitGone(system(POPOVER_DISMISS_REGION), Within.Action)
+		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
+		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
+		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 		waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
 	}
 	returnToAbout()
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore, leavesTheAppOnAndroid = true)
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper, leavesTheAppOnAndroid = true)
-	// Not asserted: Gmail's compose screen, with no account in the emulator, closes itself within ~100 ms of opening
-	// (measured 0 of 10 runs in which the app was seen leaving), so the app is already back when the wait looks.
+	// Not asserted, and so not in `covers` but a platform edge (ActionDispositions): Gmail's compose screen, with no
+	// account in the emulator, closes itself within ~100 ms of opening (measured 0 of 10 runs on Android in which the
+	// app was seen leaving), and on iOS the app stays in front 3 of 3 times (docs/e2e-mediciones.md, section 3).
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.ReportBug, leavesTheAppOnAndroid = false)
 }
 

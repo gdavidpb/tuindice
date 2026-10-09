@@ -6,6 +6,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 /** The kit's named timeouts as durations, for the DSL. */
 object Within {
+	/** A quick look at whether something is (not) there; the window of the absence of something that shows for seconds. */
+	val Probe: Duration = Timeouts.Probe.milliseconds
 	val Assert: Duration = Timeouts.Assert.milliseconds
 	val Action: Duration = Timeouts.Action.milliseconds
 	val Wait: Duration = Timeouts.Wait.milliseconds
