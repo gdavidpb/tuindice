@@ -177,6 +177,16 @@ class AndroidAdapterTests(unittest.TestCase):
         done = self.box.run("collect-failure", attempt, "1", E2E_CURRENT_SCENARIO="auth-login-cancel")
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(sorted(os.listdir(attempt)), ["fallback-hierarchy.xml", "fallback-screen.png", "logcat.txt", "runner.log"])
+        # Listing through exec-out exits 0 even when the directory is absent and would iterate the error text (YC-1).
+        self.assertFalse([c for c in self.box.adb_calls() if "exec-out run-as" in c and " ls " in c])
+
+    def test_the_fake_adb_answers_exec_out_of_a_missing_path_like_the_real_one_with_the_error_as_text_and_exit_0(self):
+        # The real exec-out exits 0 and prints the error as output; a fake that exits 1 hides every listing done through it (ZC-1, YC-1).
+        for tail in (["ls", "files/e2e/nope"], ["cat", "files/e2e/nope/result.json"]):
+            done = subprocess.run(["adb", "exec-out", "run-as", TEST_ID] + tail, env=self.box.env, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, universal_newlines=True, timeout=60)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertIn("No such file or directory", done.stdout)
 
     def test_collect_failure_brings_nothing_home_from_an_attempt_that_never_ran(self):
         # Without runner.log the attempt did not reach the instrumentation: the directory on the device is another attempt's.

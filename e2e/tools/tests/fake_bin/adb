@@ -119,10 +119,12 @@ case "${verb}" in
 			run-as)
 				action="${3:-}"
 				path="${dir}/testfiles/${4:-}"
+				# Like the real exec-out: the error of the remote command is output and the status is 0.
 				if [[ "${action}" == "ls" ]]; then
-					[[ -d "${path}" ]] || { echo "ls: ${4}: No such file or directory"; exit 1; }
+					[[ -d "${path}" ]] || { echo "ls: ${4}: No such file or directory"; exit 0; }
 					ls -1 "${path}"
 				else
+					[[ -f "${path}" ]] || { echo "cat: ${4}: No such file or directory"; exit 0; }
 					cat "${path}"
 				fi
 				;;
