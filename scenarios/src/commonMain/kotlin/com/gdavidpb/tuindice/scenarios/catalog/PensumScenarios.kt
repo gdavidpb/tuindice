@@ -7,14 +7,12 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.doubleTap
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
-import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
-import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
@@ -43,7 +41,7 @@ private fun StepBuilder.openPensum(loaded: String = PensumUiTags.PensumScreen) {
 private fun StepBuilder.chooseLongInternship2018() {
 	tap(PensumUiTags.PensumContextSummary)
 	waitVisible(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	scrollUntilVisible(PensumUiTags.versionOption(E2eInputs.OlderPensumYear), Scroll.ContentForward, Within.Action)
+	waitVisible(PensumUiTags.versionOption(E2eInputs.OlderPensumYear), Within.Action)
 	tap(PensumUiTags.versionOption(E2eInputs.OlderPensumYear))
 	tap(PensumUiTags.modalityOption(E2eInputs.LongInternship))
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)

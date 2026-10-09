@@ -97,6 +97,18 @@ class CatalogCodecTest {
 		}
 	}
 
+	@Test
+	fun decode_rejectsTheHorizontalScrollDirections() {
+		val text = CatalogCodec.encode(sampleCatalog())
+		assertTrue("\"contentDown\"" in text)
+
+		for (removed in listOf("contentForward", "contentBackward")) {
+			assertFailsWith<SerializationException>(removed) {
+				CatalogCodec.decode(text.replace("\"contentDown\"", "\"$removed\""))
+			}
+		}
+	}
+
 	private fun expectRequestJson(step: Step.ExpectRequest): JsonObject =
 		scenarioJson(sampleCatalog(listOf(sampleScenario(steps = listOf(step)))))
 			.getValue("steps").jsonArray.single().jsonObject

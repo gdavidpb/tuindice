@@ -312,21 +312,6 @@ private val conformanceTapDisabled = scenario("conformance-tap-disabled", "confo
 	assertEnabled(AuthUiTags.SignInButton, false)
 }
 
-/**
- * Horizontal scrolling: a version option of the pensum context dialog is scrolled to. The four version options fit the
- * dialog on the screens the suite runs on (measured in E2c: with all of them in view, the scroll moves nothing), so
- * this proves the step does not break, not that it moves the content; see the consultation of the E2c report.
- */
-private val conformanceScrollHorizontal = scenario("conformance-scroll-horizontal", "conformance", canonical()) {
-	account(canonicalAccount.id)
-
-	openTab(MaincoreUiTags.TuIndiceBottomBarPensumItem, PensumUiTags.PensumScreen)
-	tap(PensumUiTags.PensumContextSummary)
-	waitVisible(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	scrollUntilVisible(PensumUiTags.versionOption(E2eInputs.OlderPensumYear), Scroll.ContentForward, Within.Action)
-	tap(PensumUiTags.versionOption(E2eInputs.OlderPensumYear))
-}
-
 /** Tapping at a point of an element: the grade slider takes the grade from where it is tapped. */
 private val conformanceTapAt = scenario("conformance-tap-at", "conformance", canonical()) {
 	account(canonicalAccount.id)
@@ -489,7 +474,6 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceChecked,
 	conformanceRelaunch,
 	conformanceTapDisabled,
-	conformanceScrollHorizontal,
 	conformanceTapAt,
 	conformanceTapAtScreen,
 	conformanceDoubleTapSwipe,

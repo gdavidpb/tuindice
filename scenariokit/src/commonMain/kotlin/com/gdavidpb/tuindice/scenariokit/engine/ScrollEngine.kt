@@ -23,7 +23,7 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 		var beforeSwipe: ElementBounds? = null
 		val settledInTime = poller.until(step.timeoutMs, SCROLL_PAUSE_MS) {
 			val bounds = driver.bounds(step.q)
-			val placement = placement(step.q, step.direction, bounds, beforeSwipe)
+			val placement = placement(step.q, bounds, beforeSwipe)
 			when {
 				placement == Placement.SETTLED -> true
 				swipeOnce(step.direction) -> {
@@ -51,35 +51,32 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 	}
 
 	private fun settledAfterLastSwipe(step: Step.ScrollUntilVisible, beforeSwipe: ElementBounds?): Boolean =
-		placement(step.q, step.direction, driver.bounds(step.q), beforeSwipe) == Placement.SETTLED
+		placement(step.q, driver.bounds(step.q), beforeSwipe) == Placement.SETTLED
 
 	/** [previous] is where the element sat before the last swipe, when it was visible but off-centre. */
-	private fun placement(q: Query, direction: Scroll, bounds: ElementBounds?, previous: ElementBounds?): Placement {
+	private fun placement(q: Query, bounds: ElementBounds?, previous: ElementBounds?): Placement {
 		val screen = driver.bounds(null)
 		return when {
 			!driver.isVisible(q) -> Placement.HIDDEN
 			// Visible but without a position (it appeared between the reads, or the driver could not place it): where it
 			// sits is unknown, so it is not placed. Scrolling goes on, and the wait ends as a timeout if it never is.
 			bounds == null || screen == null -> Placement.HIDDEN
-			isCentered(bounds, screen, direction) -> Placement.SETTLED
-			previous != null && isStill(previous, bounds, screen, direction) -> Placement.SETTLED
+			isCentered(bounds, screen) -> Placement.SETTLED
+			previous != null && isStill(previous, bounds, screen) -> Placement.SETTLED
 			else -> Placement.OFF_CENTER
 		}
 	}
 
 	private enum class Placement { HIDDEN, OFF_CENTER, SETTLED }
 
-	private fun isStill(before: ElementBounds, now: ElementBounds, screen: ElementBounds, direction: Scroll): Boolean {
-		val vertical = direction == Scroll.ContentDown || direction == Scroll.ContentUp
-		val moved = if (vertical) now.centerY - before.centerY else now.centerX - before.centerX
-		val extent = if (vertical) screen.bottom - screen.top else screen.right - screen.left
-		return abs(moved) <= extent * STILL_TOLERANCE
+	private fun isStill(before: ElementBounds, now: ElementBounds, screen: ElementBounds): Boolean {
+		val extent = screen.bottom - screen.top
+		return abs(now.centerY - before.centerY) <= extent * STILL_TOLERANCE
 	}
 
-	private fun isCentered(bounds: ElementBounds, screen: ElementBounds, direction: Scroll): Boolean {
-		val vertical = direction == Scroll.ContentDown || direction == Scroll.ContentUp
-		val center = if (vertical) bounds.centerY - screen.top else bounds.centerX - screen.left
-		val extent = if (vertical) screen.bottom - screen.top else screen.right - screen.left
+	private fun isCentered(bounds: ElementBounds, screen: ElementBounds): Boolean {
+		val center = bounds.centerY - screen.top
+		val extent = screen.bottom - screen.top
 		return center >= extent * VIEW_MIN && center <= extent * VIEW_MAX
 	}
 
@@ -87,8 +84,6 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 	private fun swipeOnce(direction: Scroll): Boolean = when (direction) {
 		Scroll.ContentDown -> swipe(MID, MID + HALF_STEP, 0.0, -STEP)
 		Scroll.ContentUp -> swipe(MID, MID - HALF_STEP, 0.0, STEP)
-		Scroll.ContentForward -> swipe(MID + HALF_STEP, MID, -STEP, 0.0)
-		Scroll.ContentBackward -> swipe(MID - HALF_STEP, MID, STEP, 0.0)
 	}
 
 	private fun swipe(fx: Double, fy: Double, dx: Double, dy: Double) =
