@@ -246,17 +246,30 @@ private val conformanceMockState = scenario(
 }
 
 /**
- * Vertical scrolling: a toggle far down the About list becomes reachable and tappable. On a tall screen the whole
- * list fits and nothing needs scrolling, so this proves the step does not break, not that it moves the content (see
- * the report of dB-3 about lists that overflow on every device).
+ * Vertical scrolling in both directions with an effect that is checked: the About list is longer than any phone
+ * screen, so the first link leaves the view when the toggle at the bottom is scrolled to, and comes back when the
+ * list is scrolled up; a scroll that does not move the content fails on the `waitGone` after it.
  */
 private val conformanceScroll = scenario("conformance-scroll", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
 	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
-	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.UsageDataConsentToggle)
-	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+	waitVisible(AboutUiTags.OpenCreativeCommons, Within.Assert)
+	waitGone(AboutUiTags.OpenKoin, Within.Assert)
+	scrollUntilVisible(AboutUiTags.OpenKoin, Scroll.ContentDown, Within.Action)
+	waitGone(AboutUiTags.OpenCreativeCommons, Within.Assert)
+	scrollUntilVisible(AboutUiTags.OpenCreativeCommons, Scroll.ContentUp, Within.Action)
+	waitGone(AboutUiTags.OpenKoin, Within.Assert)
+}
+
+/** A swipe over the screen with no element to start from moves a list: the last link of About comes into view. */
+private val conformanceSwipeScreen = scenario("conformance-swipe-screen", "conformance", canonical()) {
+	account(canonicalAccount.id)
+
+	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	waitGone(AboutUiTags.OpenKotlin, Within.Assert)
+	swipeScreen(SwipeDirection.Up, SWIPE_MS.milliseconds)
+	waitVisible(AboutUiTags.OpenKotlin, Within.Action)
 }
 
 /** The usage-data switch of About reads its state and flips with a tap. */
@@ -289,7 +302,11 @@ private val conformanceTapDisabled = scenario("conformance-tap-disabled", "confo
 	assertEnabled(AuthUiTags.SignInButton, false)
 }
 
-/** Horizontal scrolling: a version option off the edge of the pensum context dialog is brought into view. */
+/**
+ * Horizontal scrolling: a version option of the pensum context dialog is scrolled to. The four version options fit the
+ * dialog on the screens the suite runs on (measured in E2c: with all of them in view, the scroll moves nothing), so
+ * this proves the step does not break, not that it moves the content; see the consultation of the E2c report.
+ */
 private val conformanceScrollHorizontal = scenario("conformance-scroll-horizontal", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
@@ -411,6 +428,7 @@ val conformanceScenarios: List<Scenario> = listOf(
 	conformanceSubmitTextEntry,
 	conformanceMockState,
 	conformanceScroll,
+	conformanceSwipeScreen,
 	conformanceChecked,
 	conformanceRelaunch,
 	conformanceTapDisabled,
