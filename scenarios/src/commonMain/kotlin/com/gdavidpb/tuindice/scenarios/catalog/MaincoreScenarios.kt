@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.submitTextEntry
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
-import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
@@ -25,11 +24,6 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
-
-// The privacy page of the mocks has its link at these screen fractions (Android finds the page text first).
-private const val ANDROID_LINK_Y = 0.25
-private const val IOS_LINK_Y = 0.28
-private const val LINK_X = 0.5
 
 private val maincoreAppAvailabilityNotice = scenario(
 	"maincore-app-availability-notice",
@@ -155,19 +149,10 @@ private val maincoreBrowserExternalDialog = scenario(
 	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
 	tap(AboutUiTags.OpenPrivacy)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
-	onPlatform(Platform.Android) {
-		// The container appears before the page inside it has rendered; tapping by coordinate right away
-		// lands on a blank WebView. Only Android exposes the WebView's text to the hierarchy, and the page
-		// shows its link with the very text of the dialog it opens.
-		waitVisible(text(Copy.ExternalLinkDialogTitle), Within.Wait)
-		tapAtScreen(LINK_X, ANDROID_LINK_Y)
-	}
-	onPlatform(Platform.Ios) {
-		// The WebView is not in the iOS hierarchy; the browser's own loading bar goes away when the page
-		// has loaded, which is when its link can be tapped by coordinate.
-		waitGone(MaincoreUiTags.BrowserLoadingIndicator, Within.Wait)
-		tapAtScreen(LINK_X, IOS_LINK_Y)
-	}
+	// The container appears before the page inside it has rendered. Both platforms expose the page's text to the
+	// hierarchy, and the page shows its link with the very text of the dialog it opens: wait for it, then tap it.
+	waitVisible(text(Copy.ExternalLinkDialogTitle), Within.Wait)
+	tap(text(Copy.ExternalLinkDialogTitle))
 	waitVisible(BaseUiTags.ExternalResourceMessage, Within.Action)
 	waitVisible(BaseUiTags.ExternalResourceUrl, Within.Assert)
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)

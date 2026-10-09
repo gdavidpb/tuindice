@@ -11,7 +11,6 @@ class PlatformBranchBudget private constructor() {
 			"about-platform-edge-triggers" to 1,
 			"auth-terms-privacy-from-login" to 4,
 			"auth-update-password" to 1,
-			"maincore-browser-external-dialog" to 2,
 			"maincore-tab-stack-preservation" to 1,
 			"summary-profile-picture" to 2
 		)
