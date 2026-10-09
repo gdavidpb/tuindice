@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.scenariorunner
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.gdavidpb.tuindice.scenariorunner.driver.GuardVerdict
+import com.gdavidpb.tuindice.scenariorunner.driver.SwipeTrack
 import com.gdavidpb.tuindice.scenariorunner.driver.UiAutomatorScenarioDriver
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -9,8 +10,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 /**
- * Typing probes of the Android driver (B-2), and the verdict of its keyboard guard, which only the typing makes matter
- * (YB-3); run by class on a cleared app, like [AndroidDriverProbesTest].
+ * Typing probes of the Android driver (B-2), the verdict of its keyboard guard, which only the typing makes matter
+ * (YB-3), and the track of a swipe (E3); run by class on a cleared app, like [AndroidDriverProbesTest].
  */
 class AndroidTypingProbesTest {
 	private val app = ProbeApp()
@@ -126,6 +127,34 @@ class AndroidTypingProbesTest {
 	}
 
 	/**
+	 * E3: a swipe is a down, [SwipeTrack.MOVES] moves and an up (12 events, not the 80 that `UiDevice.swipe` injected),
+	 * and the time of each event is its place of the nominal duration: the velocity the app sees comes from the stamps
+	 * and not from how long the host takes to deliver the events. Red if the track goes back to a step per 5 ms, loses
+	 * the up, or stamps the events with anything but the plan.
+	 */
+	@Test
+	fun aSwipeIsTwelveEventsStampedAtTheirPlaceOfTheNominalDuration() {
+		val track = SwipeTrack.plan(SWIPE_FROM, SWIPE_TO, SWIPE_MS, SWIPE_DOWN_TIME)
+		val moves = track.subList(1, track.size - 1)
+
+		assertEquals(SWIPE_EVENTS, track.size)
+		assertEquals(SwipeTrack.MOVES + 2, track.size)
+		assertEquals(SwipeTrack.Kind.DOWN, track.first().kind)
+		assertEquals(SwipeTrack.Kind.UP, track.last().kind)
+		assertEquals(List(SwipeTrack.MOVES) { SwipeTrack.Kind.MOVE }, moves.map { it.kind })
+		assertEquals("the down is stamped when the swipe begins", SWIPE_DOWN_TIME, track.first().eventTime)
+		assertEquals("the up comes when the nominal duration has passed", SWIPE_DOWN_TIME + SWIPE_MS, track.last().eventTime)
+		assertEquals(
+			"the moves are evenly spaced",
+			List(SwipeTrack.MOVES) { SWIPE_DOWN_TIME + SWIPE_MOVE_GAP_MS * (it + 1) },
+			moves.map { it.eventTime }
+		)
+		assertEquals("the track starts where the swipe starts", SWIPE_FROM.second.toFloat(), track.first().y)
+		assertEquals("the track ends where the swipe ends", SWIPE_TO.second.toFloat(), track.last().y)
+		assertEquals("half the distance at half the time", SWIPE_MIDDLE_Y, track[SwipeTrack.MOVES / 2].y)
+	}
+
+	/**
 	 * The lines UI Automator writes for a touch since logcat was last cleared (YB-2): `Clicking on` and
 	 * `Long-clicking on`, under the tag of the class that made the touch: `UiDevice` for `UiDevice.click`, `UiObject2`
 	 * for `UiObject2.click()` (the usual way to put a point read from the tree back into the focus path) and
@@ -159,5 +188,12 @@ class AndroidTypingProbesTest {
 
 	private companion object {
 		const val READ_MS = 2_000L
+		const val SWIPE_EVENTS = 12
+		const val SWIPE_MS = 400L
+		const val SWIPE_MOVE_GAP_MS = 40L
+		const val SWIPE_DOWN_TIME = 1_000_000L
+		const val SWIPE_MIDDLE_Y = 600f
+		val SWIPE_FROM = 100 to 900
+		val SWIPE_TO = 100 to 300
 	}
 }
