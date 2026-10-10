@@ -222,3 +222,91 @@ final class GuardedIncidentTests: XCTestCase {
         XCTAssertNotNil(log.lastRefusal, "and leave the reason of the refusal")
     }
 }
+
+/// Final round, on the device: a scenario cannot end green having left the app without a step waiting for it. The probe is the catalog's
+/// own `conformance-foreground` (the Creative Commons link that opens Safari), run through the real interpreter and the real driver, in two
+/// forms cut from the catalog in memory (nothing is written, and no scenario made to fail is added to it): without the steps that wait for
+/// the exit and bring the app back, which is an exit nobody waited for with the lookup that follows it still passing, and without the tap that
+/// leaves, which never leaves. The first must fail with `APP_NOT_RUNNING` every round, the second must pass every round. A third form ends at the
+/// tap that leaves, so the question is asked at once: the line it logs is how long XCTest took to notice, the measure of `Timeouts.ForegroundSettle`.
+/// The `driver-contract` verb runs one round of each; the series is launched with `TEST_RUNNER_E2E_PROBE_ROUNDS=10`.
+final class ExitConfirmationTests: ScenarioTestCase {
+    private static let rounds = Int(ProcessInfo.processInfo.environment["E2E_PROBE_ROUNDS"] ?? "") ?? 1
+    private static let scenarioId = "conformance-foreground"
+    private static let leavingLink = "about_open_creative_commons"
+
+    func test_an_exit_nobody_waited_for_fails_the_scenario_every_round() {
+        let catalog = cut { step in
+            let type = step["type"] as? String
+            return type != "waitBackgrounded" && type != "foreground"
+        }
+        var failed = 0
+        for round in 1...Self.rounds {
+            let (outcome, log) = run(catalog)
+            let kind = outcome.failure?.kind.name ?? "none"
+            if kind == "APP_NOT_RUNNING" { failed += 1 }
+            print("PROBE exit-by-surprise round \(round): \(kind); \(notice(in: log))")
+        }
+        XCTAssertEqual(failed, Self.rounds, "every exit nobody waited for must end the scenario with APP_NOT_RUNNING")
+    }
+
+    func test_an_exit_asked_about_at_once_is_seen_inside_the_window() {
+        var keep = true
+        let catalog = cut { step in
+            guard keep else { return false }
+            let target = (step["q"] as? [String: Any])?["value"] as? String
+            if target == Self.leavingLink { keep = false }
+            return true
+        }
+        var seen = 0
+        for round in 1...Self.rounds {
+            let (outcome, log) = run(catalog)
+            let kind = outcome.failure?.kind.name ?? "none"
+            if kind == "APP_NOT_RUNNING" { seen += 1 }
+            print("PROBE window round \(round): \(kind); \(notice(in: log))")
+        }
+        XCTAssertEqual(seen, Self.rounds, "an exit asked about right after the tap must be seen inside the window")
+    }
+
+    func test_a_scenario_that_never_leaves_is_confirmed_every_round() {
+        let catalog = cut { step in
+            let type = step["type"] as? String
+            let target = (step["q"] as? [String: Any])?["value"] as? String
+            return type != "waitBackgrounded" && type != "foreground" && target != Self.leavingLink
+        }
+        var passed = 0
+        for round in 1...Self.rounds {
+            let (outcome, _) = run(catalog)
+            if outcome.passed { passed += 1 } else { print("PROBE no-exit round \(round): \(outcome.report)") }
+        }
+        XCTAssertEqual(passed, Self.rounds, "a scenario that stays in front must pass")
+    }
+
+    /// The catalog with `conformance-foreground` keeping only the steps [keep] accepts.
+    private func cut(_ keep: ([String: Any]) -> Bool) -> String {
+        let config = RunConfig.shared
+        guard var root = (try? JSONSerialization.jsonObject(with: Data(config.catalogJson.utf8))) as? [String: Any],
+              var scenarios = root["scenarios"] as? [[String: Any]],
+              let index = scenarios.firstIndex(where: { $0["id"] as? String == Self.scenarioId }),
+              let steps = scenarios[index]["steps"] as? [[String: Any]]
+        else {
+            XCTFail("the catalog has no scenario \(Self.scenarioId)")
+            return config.catalogJson
+        }
+        scenarios[index]["steps"] = steps.filter(keep)
+        root["scenarios"] = scenarios
+        let data = (try? JSONSerialization.data(withJSONObject: root)) ?? Data()
+        return String(decoding: data, as: UTF8.self)
+    }
+
+    private func run(_ catalog: String) -> (ScenarioOutcome, DriverLog) {
+        let log = DriverLog(echo: false)
+        let driver = XCUIScenarioDriver(config: RunConfig.shared, log: log)
+        return (ScenarioRunner.shared.run(catalogJson: catalog, scenarioId: Self.scenarioId, driver: driver), log)
+    }
+
+    /// The line the driver writes when `confirmForeground` saw the app leave: how long after the last input.
+    private func notice(in log: DriverLog) -> String {
+        log.lines.first { $0.contains("confirmForeground:") } ?? "no notice"
+    }
+}

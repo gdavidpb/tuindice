@@ -259,7 +259,10 @@ final class ElementResolver {
     /// the app, and that is all a lookup asks (waits, reads and gestures alike). The limit, measured (YB-1, E4): after the app leaves
     /// the front, the cached state keeps saying `runningForeground` for about 2.7 s (2.56 to 2.89 s, 6 runs), and a lookup that finds
     /// the element in its tree in that window answers "on screen" with Safari or a system sheet already in front. A scenario that
-    /// leaves the app on purpose waits for it with `waitBackgrounded` (which asks [isAppFrontNow]) before it asserts anything.
+    /// leaves the app on purpose waits for it with `waitBackgrounded` (which asks [isAppFrontNow]) before it asserts anything. The limit
+    /// is true of a lookup alone; what it cannot do any more is carry a scenario through: the interpreter asks
+    /// `XCUIScenarioDriver.confirmForeground`, which waits out a whole window from the moment it is asked, when the scenario ends and
+    /// before a `Foreground` or a `Relaunch`, so an exit nobody waited for ends the scenario as `APP_NOT_RUNNING`.
     func visibleFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
         guard let (resolved, facts) = lookup(q) else { return nil }
         guard !facts.frame.isEmpty, screen.intersects(facts.frame) else { return nil }

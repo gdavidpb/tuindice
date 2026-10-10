@@ -18,6 +18,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     private let backend: HttpBackend
     private let log: DriverLog
     private var typing: TextTyping!
+
+    /// The window XCTest gets to notice that the app left the front, from `Timeouts.ForegroundSettle`, in seconds.
+    private static let settleWindow = Double(Timeouts.shared.ForegroundSettle) / 1000.0
     private(set) var failureAttachments: [XCTAttachment] = []
 
     init(config: RunConfig, log: DriverLog) {
@@ -68,8 +71,27 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     /// `foreground()` then answered in 15 ms with the home screen in front). Asking XCTest to wait for the background state is a
     /// round trip with the system, which sees the change as early as the cached value and no earlier (diff <= 0.03 s, measured:
     /// `ElementResolver.freshProbe`), so it is paid only here, where the polling converges, and not by the lookups; the one
-    /// implementation is `ElementResolver.isAppFrontNow`, the same the proof of an absence uses.
+    /// implementation is `ElementResolver.isAppFrontNow`, the same the proof of an absence uses. The limit of the cached state (about 2.7 s
+    /// after Safari is in front) stays true for a call alone; [confirmForeground] is what keeps a scenario from passing through it.
     func isForeground() -> Bool { traced("isForeground") { resolver.isAppFrontNow } }
+
+    /// Whether the app is in front once the system has had time to notice an exit (`AppControl.confirmForeground`). The limit of
+    /// [isForeground] and of the lookups is real and stays: the state XCTest keeps turns to "not in front" about 2.7 s after another app
+    /// is in front (2.56 to 2.89 s), and for that long a lookup can find the tree of the app with Safari in front. What this closes is
+    /// its consequence: it waits the whole `Timeouts.ForegroundSettle` from the moment it is asked (`wait(for: .runningBackground)`, which
+    /// ends as soon as the state changes), so an exit from before the question is seen whatever caused it. It answers false at once when
+    /// the state already says the app is not in front. The only residue is an XCTest delay longer than the window.
+    func confirmForeground() -> Bool {
+        traced("confirmForeground") {
+            guard app.state == .runningForeground else { return false }
+            let began = Monotonic.now
+            if app.wait(for: .runningBackground, timeout: Self.settleWindow) {
+                log.add("[driver] confirmForeground: the app went to the background \(Monotonic.now - began) s after the question")
+                return false
+            }
+            return app.state == .runningForeground
+        }
+    }
 
     /// False once the process is gone (`notRunning`); true when it is running in any way, suspended included, and when the
     /// state is unknown, which is not a death (see `AppControl.isRunning`).
