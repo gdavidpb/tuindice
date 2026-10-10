@@ -89,6 +89,39 @@ class DriverContractTest {
 	}
 
 	@Test
+	fun aDriverThatConfirmsTheFrontOfADeadApp_failsTheTerminatedAppProbe() {
+		val fake = conformant()
+		val optimistic = object : ScenarioDriver by fake {
+			override fun confirmForeground() = true
+		}
+
+		val failure = assertNotNull(contract(optimistic, fake).failure)
+
+		assertEquals("terminated-app", failure.primitive)
+		assertContains(failure.message, "confirmForeground is true with the app terminated")
+	}
+
+	@Test
+	fun aDriverThatDoesNotConfirmTheFrontOfAnAppThatIsInFront_failsTheForegroundProbe() {
+		val fake = conformant()
+		val pessimistic = object : ScenarioDriver by fake {
+			override fun confirmForeground() = false
+		}
+
+		val failure = assertNotNull(contract(pessimistic, fake).failure)
+
+		assertEquals("foreground", failure.primitive)
+		assertContains(failure.message, "confirmForeground is false for an app in front")
+	}
+
+	@Test
+	fun aDriverThatWaitsItsWindowToConfirmTheFront_stillPassesTheContract() {
+		val fake = conformant().apply { confirmTakesMs = 3_500 }
+
+		assertNull(contract(fake, fake).failure)
+	}
+
+	@Test
 	fun aDriverThatReadsAGoneAppAsGone_failsTheTerminatedAppProbe() {
 		val fake = conformant()
 		val credulous = object : ScenarioDriver by fake {

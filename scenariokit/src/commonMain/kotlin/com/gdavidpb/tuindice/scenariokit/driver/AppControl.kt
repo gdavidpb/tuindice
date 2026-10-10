@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenariokit.driver
 
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
+import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 
 /**
  * Lifecycle of the app under test. Implementations never throw and never clear the
@@ -54,6 +55,25 @@ interface AppControl {
 	 * [isRunning] does.
 	 */
 	fun isForeground(): Boolean
+
+	/**
+	 * Whether the app is in front AND the system has had time to notice that it was not. It is what keeps the limit
+	 * of [isForeground] from reaching a verdict: right after the app is taken out, by an input or by the app itself,
+	 * a lookup or [isForeground] can still answer "in front" for a while, but this one waits out a whole window
+	 * ([Timeouts.ForegroundSettle]) from the moment it is asked, so any exit before the question is seen. It never
+	 * throws and it may block for that window; it answers false at once when the system already says the app is not
+	 * in front. The only residue is a delay of the system longer than the window, which is why the window is
+	 * measured. The interpreter asks it when a scenario ends and before a `Foreground` or `Relaunch` (see
+	 * `StepRunner`), unless a `WaitBackgrounded` announced the exit; false there fails the scenario with
+	 * `APP_NOT_RUNNING`, because the app left the front and no step waited for it. It is also false for an app whose
+	 * process is gone.
+	 *
+	 * - Android: the window manager answers at once, so this is [isForeground]; there is nothing to wait out.
+	 * - iOS: `XCUIApplication.state` turns to "not in front" about 2.7 s after another app is in front (2.56 to
+	 *   2.89 s), so the driver waits (`wait(for: .runningBackground)`, which ends as soon as the state changes) for
+	 *   the whole window. See `docs/e2e-mediciones.md`.
+	 */
+	fun confirmForeground(): Boolean
 
 	/**
 	 * Whether the process of the app exists, in front or not. False once the app is gone (it crashed, it was stopped);

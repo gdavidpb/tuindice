@@ -16,6 +16,7 @@ import kotlin.time.TestTimeSource
  */
 internal class FakeDriver(override val platform: Platform = Platform.Android) : ScenarioDriver {
 	val time = TestTimeSource()
+	private val born = time.markNow()
 	val clocks = Clocks(time) { "2026-01-01T00:00:00Z" }
 	val screen = mutableMapOf<Query, FakeElement>()
 	val backend = FakeWireMock()
@@ -32,6 +33,9 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	var launchResults = ArrayDeque<Boolean>()
 	var foregroundResult = true
 	var inForeground = true
+
+	/** When set, a launch puts the app in front again, like a cold start; off so a test can start it out of front. */
+	var launchBringsFront = false
 
 	/** When set, `isForeground` answers what it returns on each call instead of [inForeground]. */
 	var foregroundScript: (() -> Boolean)? = null
@@ -84,12 +88,15 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 		enter("launch")
 		time += launchTakesMs.milliseconds
 		launches += spec
+		if (launchBringsFront) inForeground = true
 		return launchResults.removeFirstOrNull() ?: true
 	}
 
 	override fun foreground(): Boolean {
 		enter("foreground")
-		return foregroundResult && !terminated
+		val back = foregroundResult && !terminated
+		if (back) inForeground = true
+		return back
 	}
 
 	override fun terminate() {
@@ -100,6 +107,22 @@ internal class FakeDriver(override val platform: Platform = Platform.Android) : 
 	override fun isForeground(): Boolean {
 		enter("isForeground")
 		return (foregroundScript?.invoke() ?: inForeground) && !terminated
+	}
+
+	/** Virtual time that each `confirmForeground` takes, like the settle window that iOS waits out. */
+	var confirmTakesMs = 0L
+
+	/** When set, `confirmForeground` answers what it returns on each call instead of [inForeground]. */
+	var confirmScript: (() -> Boolean)? = null
+
+	/** The app leaves the front by itself at this virtual time (ms since the fake was made), like a late link. */
+	var leavesAtMs: Long? = null
+
+	override fun confirmForeground(): Boolean {
+		enter("confirmForeground")
+		time += confirmTakesMs.milliseconds
+		val left = leavesAtMs?.let { born.elapsedNow() >= it.milliseconds } == true
+		return (confirmScript?.invoke() ?: inForeground) && !left && !terminated
 	}
 
 	/** When set, `isRunning` answers what it returns on each call instead of "not terminated". */

@@ -36,12 +36,7 @@ internal class DriverContractChecks(
 		secure?.let { s -> DriverContractCheck("long-secure-typing") { texts.longSecureTyping(s) } },
 		secure?.let { s -> DriverContractCheck("keyboard-guard") { texts.keyboardGuard(s) } },
 		secure?.let { s -> DriverContractCheck("submit-text-entry") { texts.submitTextEntry(s) } },
-		DriverContractCheck("foreground") {
-			problem(
-				driver.foreground() && driver.isForeground() && driver.isRunning(),
-				"the app is not in the foreground and running after foreground()"
-			)
-		},
+		DriverContractCheck("foreground", ::foreground),
 		DriverContractCheck("backend") {
 			val reply = driver.http("GET", "/__admin/scenarios", null, null)
 			problem(reply.isSuccess, "GET /__admin/scenarios answered ${reply.status}")
@@ -50,6 +45,17 @@ internal class DriverContractChecks(
 		// Last: it ends the app, and nothing after it can use the screen.
 		DriverContractCheck("terminated-app", ::terminatedApp)
 	)
+
+	/**
+	 * `foreground()` leaves the app in front and running, and `confirmForeground()` agrees. How long it takes is not
+	 * asserted: Android answers at once and iOS waits out its window, so the time is a measurement per platform.
+	 */
+	private fun foreground(): String? = when {
+		!(driver.foreground() && driver.isForeground() && driver.isRunning()) ->
+			"the app is not in the foreground and running after foreground()"
+		!driver.confirmForeground() -> "confirmForeground is false for an app in front"
+		else -> null
+	}
 
 	/** An absent element is gone at once: the answer is true and quick, on a screen that can be read. */
 	private fun goneWaitOnAbsent(): String? {
@@ -86,11 +92,17 @@ internal class DriverContractChecks(
 			field != null && driver.typeKeys(field, fixture.textSample) -> "typeKeys returned true with the app terminated"
 			driver.isVisible(present) -> "isVisible is true with the app terminated"
 			driver.waitGone(present, GONE_WAIT_MS) -> "waitGone returned true although nothing can be read from a dead app"
-			driver.isForeground() -> "isForeground is true with the app terminated"
-			driver.isRunning() -> "isRunning is true with the app terminated"
-			driver.foreground() -> "foreground returned true with the app terminated"
-			else -> null
+			else -> terminatedLifecycle()
 		}
+	}
+
+	/** The lifecycle answers of [terminatedApp]: a dead app is not in front, not confirmed in front and not running. */
+	private fun terminatedLifecycle(): String? = when {
+		driver.isForeground() -> "isForeground is true with the app terminated"
+		driver.confirmForeground() -> "confirmForeground is true with the app terminated"
+		driver.isRunning() -> "isRunning is true with the app terminated"
+		driver.foreground() -> "foreground returned true with the app terminated"
+		else -> null
 	}
 
 	private fun problem(holds: Boolean, message: String): String? = if (holds) null else message

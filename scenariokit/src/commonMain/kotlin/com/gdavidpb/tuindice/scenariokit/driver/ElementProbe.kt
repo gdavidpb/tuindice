@@ -18,6 +18,11 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
  * front. Asking the system with a wait for the background state (`AppControl.isForeground`) sees the change at the same
  * moment as the cached state (within 0.03 s) and costs 0.3 s per hit, so the lookups do not pay it. A scenario that
  * leaves the app on purpose waits for it with `WaitBackgrounded` before it asserts anything about what is on screen.
+ *
+ * The limit is true of a lookup taken alone and stays true. What it cannot do any more is carry a scenario through:
+ * the interpreter confirms the foreground (`AppControl.confirmForeground`, which waits out a whole window from the
+ * moment it is asked) when the last step passes and before a `Foreground` or a `Relaunch`, so a scenario
+ * whose lookups passed with the app already out ends as `APP_NOT_RUNNING` unless a `WaitBackgrounded` announced it.
  */
 interface ElementProbe {
 	/** Polls [q] until it is visible or [timeoutMs] pass. It always looks once, so a timeout of 0 is a single check. */

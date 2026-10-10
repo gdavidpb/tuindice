@@ -34,4 +34,10 @@ object Timeouts {
 
 	/** The pause between two checks of a polling wait. */
 	const val PollInterval = 200L
+
+	/**
+	 * The window that iOS gives XCTest to notice that the app left the foreground, counted from the moment
+	 * `AppControl.confirmForeground` is asked. Measured, not chosen: see `docs/e2e-mediciones.md`.
+	 */
+	const val ForegroundSettle = 4_000L
 }

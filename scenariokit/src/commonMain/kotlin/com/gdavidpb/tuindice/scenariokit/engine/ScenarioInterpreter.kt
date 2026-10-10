@@ -53,8 +53,9 @@ internal class ScenarioInterpreter(private val driver: ScenarioDriver, private v
 	private fun beforeFirstStep(kind: FailureKind, primitive: String, message: String) =
 		ScenarioFailure(kind, -1, primitive, "", message, "", "", null)
 
+	/** The first failed step; if none failed, the app must still be in front unless a step waited for its exit. */
 	private fun stepFailure(scenario: Scenario, runner: StepRunner): ScenarioFailure? =
-		runner.runAll(scenario.steps)?.let { failed ->
+		(runner.runAll(scenario.steps) ?: runner.confirmEnd())?.let { failed ->
 			val refined = FailureRefiner.refine(failed, driver)
 			ScenarioFailure(
 				kind = refined.kind,
