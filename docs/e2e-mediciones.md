@@ -239,7 +239,7 @@ quedó «asentado» en 20 s, tras 35 swipes), y con el driver anterior los mismo
 Safari 3 de 3. Tres configuraciones de presentación del producto (`IosShareTextHandler`), una a la vez y recompilando, con el mismo
 toque: popover con `sourceView = topController.view` y `passthroughViews = []`: el defecto sigue (con captura, la app no está
 delante); `modalPresentationStyle = PageSheet`: 3 de 3 igual; `OverFullScreen`: 3 de 3 igual. El aspecto de la hoja se comparó
-con captura solo en la primera. No se probó `sourceRect`. Ver `e2e/platform/ios/share-sheet-touch-through.md`.
+con captura solo en la primera. No se probó `sourceRect`. Resuelto después: sección 6.
 
 **Disparadores de iOS «Contacto» y «Reportar un error» (etapa de drivers 2).** Con `waitBackgrounded` puesto temporalmente en cada
 uno, 3 corridas y 20 s cada una: la app siguió delante 3 de 3 en el correo y 3 de 3 en el reporte.
@@ -303,7 +303,51 @@ inducida). Sin relación con el swipe, y el plazo del paso no se alarga.
 | 12 eventos con tiempos, `conformance-scroll` «Ktor» ×50 | 200 | 402 ms | 917 ms |
 | 12 eventos con tiempos, conformidad ×10 (logs conservados) | 80 | 504,5 ms | 610 ms |
 
-## 6. Lo que no se midió
+## 6. La hoja de compartir de iOS deja pasar el toque (2026-10-09, base `cf7d334d9`)
+
+Simulador `TuIndice-E2E`. Registros en el scratchpad de la sesión (`r10-ios-*`); ninguno versionado.
+
+**El rojo.** `about-platform-edge-triggers` con el cierre de la hoja en `tapAtScreen(0,5; 0,3)` (la fila «Creative Commons») sobre el
+producto sin corregir, `--repeat 3`: 3 de 3 fallan con `WaitGone(system:PopoverDismissRegion): … still visible after 10000 ms`
+(`r10-ios-share-red.log`).
+
+**Quién recibía el toque.** Instrumentación temporal (ya quitada): un reconocedor de gestos de largo toque sin retardo, con delegado que
+devuelve `false` y registra `touch.view`, en cada ventana de la app durante la presentación de la hoja
+(`r10-ios-touchspy.log`). El toque de cierre llegó a `androidx.compose.ui.window.OverlayInputView` (la vista de entrada de Compose),
+cuya cadena de superiores es `ComposeContainerView` → `UIHostingView` de SwiftUI → `UIDropShadowView` → `UITransitionView`. La ventana
+tiene dos `UITransitionView`: la primera, la de la app, lleva reconocedores de gestos (el que cierra el popover); la segunda, la de la
+hoja, no recibió el toque. Es decir: el popover cierra la hoja con un reconocedor sobre el lado presentador que no detiene el toque, y
+Compose lo recibe como un toque normal. Esto resuelve las dudas de la nota anterior: con el estricto el fallo «`PopoverDismissRegion`
+sigue visible» es la app en Safari, no una hoja que no cierra.
+
+**La corrección.** `IosShareTextHandler`: mientras la hoja está presentada, la vista del controlador que presenta
+(`topController.view`) tiene `userInteractionEnabled = false`, y `completionWithItemsHandler` del `UIActivityViewController` la
+devuelve al valor que tenía. No hubo que probar `sourceRect`.
+
+**Aspecto de la hoja, antes y después.** Misma pantalla, mismo momento (la hoja abierta, capturada con `simctl io screenshot` durante
+la corrida): `r10-ios-sheet-before-fix.png` y `r10-ios-sheet-after-fix.png`. Iguales a la vista (1206 × 2622 ambas; solo cambia el
+reloj de la barra de estado). No se comparó por píxeles (no hay `PIL` en el equipo).
+
+**Los cuatro cierres** (corrección puesta; escenarios temporales, ya revertidos, una corrida cada uno; tras cada cierre, un toque que
+navega):
+
+| Cierre | Resultado |
+|---|---|
+| (a) toque en la zona atenuada, (0,5; 0,3) | pasa: la hoja se va, «Acerca de» sigue, la app responde. 3 de 3 y luego 10 de 10 |
+| (b) deslizar la hoja hacia abajo | la hoja NO se cierra (es un popover sin arrastre): `WaitGone` venció a los 10 s. No hay cierre que restaurar; la hoja se cierra después con (a). 1 corrida |
+| (c) completar una acción («Copy») | pasa: la hoja se va y el toque siguiente navega a Resumen. 1 corrida |
+| (d) segundo plano con la hoja abierta | pasa: `simctl openurl` sacó la app, `foreground()` la trajo, la hoja seguía, el toque en la zona atenuada la cerró y el siguiente navegó. 1 corrida |
+
+**Series que terminaron.** Escenario estricto (`about-platform-edge-triggers`, cierre en (0,5; 0,3), con un toque final a Resumen)
+`--repeat 10`: 10 de 10 (`r10-ios-share-strict-x10.log`); antes, con la misma corrección y sin el toque final a Resumen, 3 de 3
+(`r10-ios-share-fix1.log`).
+
+**Sin terminar o sin medir** (el dueño pidió no lanzar más corridas): `--tag about --repeat 3` se interrumpió (`r10-ios-about-tag-x3.log`,
+3 corridas verdes de las 5 que había en la primera pasada, sin veredicto de la serie); `conformance-system --repeat 5` no llegó a
+correr (`r10-ios-conformance-system-x5.log`: «not run: 1»); `E2E_MAX_RETRIES=0 --survey` solo en las series anteriores. No se midió
+nada en Android de estos dos escenarios.
+
+## 7. Lo que no se midió
 
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.
