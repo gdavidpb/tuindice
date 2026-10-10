@@ -159,6 +159,8 @@ private val aboutPlatformEdgeTriggers = scenario(
 	// because the touch that closes it and the waits after it are already true when there is no sheet.
 	onPlatform(Platform.Android) {
 		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
+		// The chooser is in front of the app: the exit is announced before the app is brought back.
+		waitBackgrounded()
 	}
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has

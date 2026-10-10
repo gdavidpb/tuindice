@@ -344,6 +344,8 @@ private val conformanceSystem = scenario("conformance-system", "conformance", ca
 	tap(AboutUiTags.ShareApp)
 	onPlatform(Platform.Android) {
 		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
+		// The chooser is in front of the app: the exit is announced before the app is brought back.
+		waitBackgrounded()
 		// Bringing the app back closes the chooser.
 		foreground()
 		waitGone(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
