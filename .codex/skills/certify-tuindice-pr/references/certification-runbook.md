@@ -228,6 +228,9 @@ provisional until compared against `e2e-profile.py --compare` data. Evidence is 
   A booted device is not rebooted. Reboot exists only as the recovery after an environment failure; the degraded iOS
   simulator may be recovered again only under the rule in section 4 (the first time, then after 30 green scenarios).
   The tunnel is `10.0.2.2` unless `E2E_ANDROID_TUNNEL=reverse`.
+- **A device used by hand** keeps what the session left. After a manual review on `TuIndice-E2E` the iOS driver
+  contract failed `keyboard-guard` 5 runs of 5 and passed once the harness had restarted the simulator, on the same
+  code. Run `e2e.py stop-devices` after using a device by hand and before evidence; the harness boots it clean.
 - **Toolchain lock.** Every key of `e2e/toolchain/{android,ios}.lock` is strict; a difference is exit 3 in
   evidence mode. To change a component (Xcode, runtime, system image, locale, emulator shape) edit the lock, one
   component per commit; that platform's evidence reruns. CI builds the UI test target with the Xcode that
