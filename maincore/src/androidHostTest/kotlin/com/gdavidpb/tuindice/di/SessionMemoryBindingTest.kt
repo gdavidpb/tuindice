@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.definition.BeanDefinition
 import org.koin.core.module.flatten
@@ -59,5 +60,27 @@ class SessionMemoryBindingTest {
 			),
 			bound
 		)
+	}
+
+	// The start without a session asks only these, so a holder that is not bound here is never
+	// asked. Narrow on purpose: it is not a second list of every session memory.
+	@Test
+	fun theSharedModulesBindExactlyTheKnownSessionResidueHolders() {
+		val bound = definitions
+			.filter { definition -> SessionResidue::class in definition.secondaryTypes }
+			.map { definition -> definition.primaryType.qualifiedName.orEmpty().removePrefix("com.gdavidpb.tuindice.") }
+			.sorted()
+
+		assertEquals(listOf("enrollmentproof.data.source.FileKitStorageDataSource"), bound)
+	}
+
+	@Test
+	fun everyDefinitionDeclaredAsASessionResidueIsBoundAsOne() {
+		val unbound = definitions
+			.filter { definition -> SessionResidue::class.java.isAssignableFrom(definition.primaryType.java) }
+			.filterNot { definition -> SessionResidue::class in definition.secondaryTypes }
+			.map { definition -> definition.primaryType.qualifiedName }
+
+		assertEquals(emptyList(), unbound)
 	}
 }

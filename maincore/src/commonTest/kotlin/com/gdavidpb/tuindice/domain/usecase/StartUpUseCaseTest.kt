@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.domain.model.StartUpTarget
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
@@ -145,6 +146,132 @@ class StartUpUseCaseTest {
 		}
 
 		assertEquals(false, settingsRepository.sessionResetNoticePending)
+	}
+
+	// What a previous version left behind for the account that signed out belongs to nobody now.
+	@Test
+	fun execute_withoutASession_clearsTheSessionResidueOnce() = runTest {
+		val applicationRepository = RecordingApplicationRepository()
+
+		val result = runStartUp(
+			startUpUseCase(
+				sessionRepository = FakeSessionRepository(sessionId = ""),
+				applicationRepository = applicationRepository
+			)
+		)
+
+		assertEquals(StartUpTarget.Auth, assertIs<StartUpResult.Available>(result).startTarget)
+		assertEquals(1, applicationRepository.clearSessionResidueCalls)
+		assertEquals(0, applicationRepository.clearCalls)
+	}
+
+	// With a session the saved files are the user's own.
+	@Test
+	fun execute_withASession_keepsTheSessionResidue() = runTest {
+		val applicationRepository = RecordingApplicationRepository()
+
+		val result = runStartUp(
+			startUpUseCase(
+				sessionRepository = FakeSessionRepository(),
+				applicationRepository = applicationRepository
+			)
+		)
+
+		assertIs<StartUpTarget.Main>(assertIs<StartUpResult.Available>(result).startTarget)
+		assertEquals(0, applicationRepository.clearSessionResidueCalls)
+	}
+
+	@Test
+	fun execute_whenClearingTheSessionResidueFails_startsTheSameAndReportsIt() = runTest {
+		val failure = IllegalStateException("residue failed")
+		val settingsRepository = FakeSettingsRepository()
+		val applicationRepository = RecordingApplicationRepository(clearSessionResidueFailure = failure)
+		val reportingRepository = RecordingReportingRepository()
+
+		val result = runStartUp(
+			startUpUseCase(
+				sessionRepository = FakeSessionRepository(sessionId = ""),
+				applicationRepository = applicationRepository,
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			)
+		)
+
+		assertEquals(StartUpTarget.Auth, assertIs<StartUpResult.Available>(result).startTarget)
+		assertEquals(listOf<Throwable>(failure), reportingRepository.loggedExceptions)
+		// It is not a broken session: nothing is wiped and no notice is left.
+		assertEquals(0, applicationRepository.clearCalls)
+		assertEquals(false, settingsRepository.sessionResetNoticePending)
+	}
+
+	// The session is not decided on these two paths, so the residue is left for the next start.
+	@Test
+	fun execute_whenTheAppIsOutdated_doesNotClearTheSessionResidue() = runTest {
+		val applicationRepository = RecordingApplicationRepository()
+
+		val result = runStartUp(
+			StartUpUseCase(
+				sessionRepository = FailingSessionRepository(),
+				settingsRepository = FakeSettingsRepository(outdatedAppState = OutdatedAppState(minimumVersionCode = 52)),
+				configRepository = FakeConfigRepository(),
+				deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 51),
+				applicationRepository = applicationRepository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = StartUpExceptionHandler()
+			)
+		)
+
+		assertIs<StartUpResult.OutdatedApp>(result)
+		assertEquals(0, applicationRepository.clearSessionResidueCalls)
+	}
+
+	@Test
+	fun execute_whenTheAppIsUnavailable_doesNotClearTheSessionResidue() = runTest {
+		val applicationRepository = RecordingApplicationRepository()
+
+		val result = runStartUp(
+			StartUpUseCase(
+				sessionRepository = FailingSessionRepository(),
+				settingsRepository = FakeSettingsRepository(),
+				configRepository = FakeConfigRepository(
+					appAvailabilityNotice = AppAvailabilityNotice(enabled = true, title = "Pausa", message = "Mantenimiento.")
+				),
+				deviceInfoRepository = FakeDeviceInfoRepository(),
+				applicationRepository = applicationRepository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = StartUpExceptionHandler()
+			)
+		)
+
+		assertIs<StartUpResult.AppUnavailable>(result)
+		assertEquals(0, applicationRepository.clearSessionResidueCalls)
+	}
+
+	private fun startUpUseCase(
+		sessionRepository: SessionRepository,
+		applicationRepository: RecordingApplicationRepository,
+		settingsRepository: FakeSettingsRepository = FakeSettingsRepository(),
+		reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
+	) = StartUpUseCase(
+		sessionRepository = sessionRepository,
+		settingsRepository = settingsRepository,
+		configRepository = FakeConfigRepository(),
+		deviceInfoRepository = FakeDeviceInfoRepository(),
+		applicationRepository = applicationRepository,
+		reportingRepository = reportingRepository,
+		exceptionHandler = StartUpExceptionHandler()
+	)
+
+	private suspend fun runStartUp(useCase: StartUpUseCase): StartUpResult {
+		var result: StartUpResult? = null
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+			result = assertIs<UseCaseState.Data<StartUpResult>>(awaitItem()).value
+			awaitComplete()
+		}
+
+		return checkNotNull(result)
 	}
 
 	private class FailingSessionRepository : SessionRepository {

@@ -93,6 +93,37 @@ class FileKitStorageDataSourceContractTest {
 		assertFalse((FileKit.filesDir / "enrollmentProofs").exists())
 	}
 
+	// What a version before the sign-out wipe covered the proofs left on disk: the start without a
+	// session removes it through the narrow contract, not through the whole session memory.
+	@Test
+	fun clearSessionResidue_removesEverySavedProofAndTheirDirectory() = runTest {
+		val firstName = uniqueProofName("residue_first")
+		val secondName = uniqueProofName("residue_second")
+		val proof = EnrollmentProof(source = "ignored", content = DEFAULT_ENROLLMENT_PROOF_CONTENT)
+
+		try {
+			dataSource.saveEnrollmentProof(firstName, proof)
+			dataSource.saveEnrollmentProof(secondName, proof)
+
+			dataSource.clearSessionResidue()
+
+			assertFalse(dataSource.enrollmentProofExists(firstName))
+			assertFalse(dataSource.enrollmentProofExists(secondName))
+			assertFalse((FileKit.filesDir / "enrollmentProofs").exists())
+		} finally {
+			deleteProofIfExists(firstName)
+			deleteProofIfExists(secondName)
+		}
+	}
+
+	@Test
+	fun clearSessionResidue_withoutTheDirectory_doesNotFail() = runTest {
+		dataSource.clearSessionResidue()
+		dataSource.clearSessionResidue()
+
+		assertFalse((FileKit.filesDir / "enrollmentProofs").exists())
+	}
+
 	private suspend fun deleteProofIfExists(name: String) {
 		val file = FileKit.filesDir / "enrollmentProofs" / "$name.pdf"
 		if (file.exists()) file.delete(mustExist = false)

@@ -123,6 +123,8 @@ class SignOutRouteUiTest {
 					error("forced sign out failure")
 				}
 
+				override suspend fun clearSessionResidue() = Unit
+
 				override suspend fun canOpen(file: PlatformFile): Boolean = true
 			}
 		} else {

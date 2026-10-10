@@ -11,10 +11,12 @@ import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
+import kotlinx.coroutines.CancellationException
 import java.io.File
 
 class AndroidApplicationDataSource(
@@ -25,8 +27,23 @@ class AndroidApplicationDataSource(
 	private val legacySecureStore: SecureKeyValueDataRepository,
 	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability,
 	// Resolved when the wipe runs, not when this is built: some holders need this repository.
-	private val sessionMemory: () -> List<SessionMemory>
+	private val sessionMemory: () -> List<SessionMemory>,
+	private val sessionResidue: () -> List<SessionResidue>
 ) : ApplicationRepository {
+	override suspend fun clearSessionResidue() {
+		var firstFailure: Throwable? = null
+
+		sessionResidue().forEach { residue ->
+			runCatching { residue.clearSessionResidue() }
+				.onFailure { failure ->
+					if (failure is CancellationException) throw failure
+					if (firstFailure == null) firstFailure = failure
+				}
+		}
+
+		firstFailure?.let { failure -> throw failure }
+	}
+
 	override suspend fun canOpen(file: PlatformFile): Boolean {
 		val source = file.path
 		val uri = source.toUri()

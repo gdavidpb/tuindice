@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.domain.model.StartUpTarget
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -69,6 +70,21 @@ class StartUpUseCase(
 			}
 		}.getOrThrow()
 
+		// What a version before the sign-out wipe left for the account that already left. Only
+		// without a session (with one the files are the user's own), and outside the block above:
+		// a failure here is not a broken session, so it must not wipe anything. It is reported
+		// and the start goes on unchanged.
+		if (startUpResult.startTarget is StartUpTarget.Auth) clearSessionResidue()
+
 		return flowOf(startUpResult)
+	}
+
+	private suspend fun clearSessionResidue() {
+		runCatching { applicationRepository.clearSessionResidue() }
+			.onFailure { failure ->
+				if (failure is CancellationException) throw failure
+
+				reportingRepository.logException(failure)
+			}
 	}
 }

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
@@ -125,6 +126,14 @@ class AndroidAppKoinSmokeTest {
 
 		assertTrue(declared.isNotEmpty())
 		assertEquals(declared.size, getAll<SessionMemory>().size)
+	}
+
+	@Test
+	fun theSessionResidueHoldersAllResolve() = hostGraph.start {
+		val declared = hostGraph.declaring(SessionResidue::class)
+
+		assertTrue(declared.isNotEmpty())
+		assertEquals(declared.size, getAll<SessionResidue>().size)
 	}
 
 	// Startup tasks and event subscribers are collected with getAll, where a definition without a

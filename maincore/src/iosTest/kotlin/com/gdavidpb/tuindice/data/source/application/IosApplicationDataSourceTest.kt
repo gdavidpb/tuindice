@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.application
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
@@ -79,10 +80,36 @@ class IosApplicationDataSourceTest {
 		assertEquals(listOf(1, 1), holders.map(RecordingSessionMemory::clearCount))
 	}
 
+	// Only the residue contract is asked: the stores and the session memory stay as they are.
+	@Test
+	fun clearSessionResidue_asksEveryHolderAndThrowsTheFirstFailureAfterwards() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val residue = listOf(
+			RecordingSessionResidue(failure = IllegalStateException("first failed")),
+			RecordingSessionResidue(failure = IllegalStateException("second failed")),
+			RecordingSessionResidue()
+		)
+		val memory = RecordingSessionMemory(settingsRepository)
+		val dataSource = dataSource(
+			persistenceMaintenanceRepository = NoOpPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			sessionMemory = listOf(memory),
+			sessionResidue = residue
+		)
+
+		val failure = runCatching { dataSource.clearSessionResidue() }.exceptionOrNull()
+
+		assertEquals("first failed", failure?.message)
+		assertEquals(listOf(1, 1, 1), residue.map(RecordingSessionResidue::clearCount))
+		assertEquals(0, memory.clearCount)
+		assertEquals(false, settingsRepository.cleared)
+	}
+
 	private fun dataSource(
 		persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 		settingsRepository: FakeSettingsRepository,
-		sessionMemory: List<SessionMemory> = emptyList()
+		sessionMemory: List<SessionMemory> = emptyList(),
+		sessionResidue: List<SessionResidue> = emptyList()
 	) = IosApplicationDataSource(
 		persistenceMaintenanceRepository = persistenceMaintenanceRepository,
 		settingsRepository = settingsRepository,
@@ -90,8 +117,21 @@ class IosApplicationDataSourceTest {
 		legacySecureStore = NoOpSecureKeyValueDataRepository(),
 		attestationCapability = NoOpAttestationCapability(),
 		externalActionsCapability = NoOpExternalActionsCapability(),
-		sessionMemory = { sessionMemory }
+		sessionMemory = { sessionMemory },
+		sessionResidue = { sessionResidue }
 	)
+}
+
+private class RecordingSessionResidue(
+	private val failure: Throwable? = null
+) : SessionResidue {
+	var clearCount = 0
+		private set
+
+	override suspend fun clearSessionResidue() {
+		clearCount += 1
+		failure?.let { throw it }
+	}
 }
 
 private class RecordingSessionMemory(
