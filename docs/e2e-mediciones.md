@@ -347,7 +347,49 @@ navega):
 correr (`r10-ios-conformance-system-x5.log`: «not run: 1»); `E2E_MAX_RETRIES=0 --survey` solo en las series anteriores. No se midió
 nada en Android de estos dos escenarios.
 
-## 7. Lo que no se midió
+## 7. Que ningún escenario pueda terminar fuera de la app sin decirlo (ronda final, 2026-10-10)
+
+El límite de ≈ 2,7 s de XCTest para enterarse de que la app dejó el primer plano sigue siendo cierto para un lookup suelto. Lo
+cerrado es su consecuencia: `AppControl.confirmForeground()` (iOS: espera la ventana entera desde que se le pregunta con
+`app.wait(for: .runningBackground)`, y responde falso al instante si el estado en caché ya no es «delante»; Android: `isForeground()`) la
+pregunta el intérprete al terminar el último paso en verde y antes de un `Foreground` o `Relaunch`, salvo que un `WaitBackgrounded`
+haya anunciado la salida. Si es falso: `APP_NOT_RUNNING` en el último paso ejecutado («found after the last step») o en el
+`Foreground`/`Relaunch`. Un diseño anterior contaba la ventana desde la última entrada y se descartó porque dejaba pasar una salida que
+la app provoca tarde (un toque que dispara red y abre Safari 5 s después).
+
+**La ventana** (`Timeouts.ForegroundSettle`). 30 salidas a Safari con el enlace Creative Commons de `conformance-foreground`, con la
+pregunta hecha justo al volver el toque (`ExitConfirmationTests.test_an_exit_asked_about_at_once_is_seen_inside_the_window`; el tiempo es el
+que `confirmForeground` esperó hasta ver `runningBackground`; `r10-ios-window-{0..3}-runner.log`, `r10-ios-probe10-runner.log`):
+
+| Serie | Salidas | Mínimo | Máximo | Nota |
+|---|---|---|---|---|
+| Primera pasada tras arrancar (Safari frío) | 1 | 3,407 s | 3,407 s | la única por encima de 0,9 s |
+| Resto de la primera serie | 4 | 0,749 s | 0,892 s | |
+| Series 1 a 3 (5 cada una) | 15 | 0,723 s | 0,780 s | |
+| Sonda de 10 rondas | 10 | 0,722 s | 0,750 s | |
+
+Máximo observado 3,407 s (Safari sin arrancar); con Safari ya lanzado, 0,892 s. **Ventana fijada en 4 000 ms**: el máximo más 593 ms (17 %),
+5 veces el máximo con Safari caliente. Más margen se paga en cada escenario que no sale (espera la ventana entera). No se midió con una
+serie de Android corriendo al lado, ni con Safari frío más de una vez: un retraso de XCTest mayor que 4 s es el único residuo.
+
+**La sonda** (`ExitConfirmationTests`, entra en el contrato de iOS con una ronda de cada caso; la serie se lanza con
+`TEST_RUNNER_E2E_PROBE_ROUNDS=10`): salida por sorpresa con un lookup posterior que pasa → `APP_NOT_RUNNING` 10 de 10; pregunta inmediata tras el
+toque que sale → `APP_NOT_RUNNING` 10 de 10; sin la salida → verde 10 de 10 (`r10-ios-probe10-runner.log`). Android: la sonda de
+`AndroidDriverProbesTest` (10 rondas de `pressHome` y `foreground()`) y `DriverContract` en verde (34 sondas). **`DriverContract` de iOS:
+`keyboard-guard: tapAt on the keyboard returned true` en las 5 corridas de esta ronda** (el resto de sondas, verdes); no se aclaró si es
+anterior a esta ronda (el contrato estaba 17 de 17 en `ce7a8ccb4`), porque no se corrió contra el árbol sin el cambio.
+
+**Catálogo.** Android: `conformance-system` y `about-platform-edge-triggers` 3 de 3 cada uno (`waitBackgrounded` pasa con el selector
+delante), conformidad 27 de 27. iOS (`E2E_MAX_RETRIES=0 --survey`): conformidad 25 de 25, `--tag about` ×2 10 de 10.
+
+**Coste en iOS** (conformidad con `--trace`, `[driver] confirmForeground` del `driver.log`, sin «antes»): 4,01 s por llamada; 1 llamada por
+escenario salvo `conformance-relaunch` (2, 8,02 s, el máximo). Media 4,17 s por escenario (por debajo de 5 s); por pasada de 118
+escenarios, ≈ 8 min.
+
+**No medido:** la ventana con Android corriendo al lado; Safari frío repetido; la conformidad de iOS ×3, las series ×3 y la pasada completa
+del catálogo (la hace la certificación); la causa del fallo de `keyboard-guard`.
+
+## 8. Lo que no se midió
 
 - La tasa de aprobación de iOS y de Android con carga baja y sostenida sobre el catálogo completo con el harness nuevo.
 - El efecto de cada cambio de herramienta de agosto a septiembre de 2026 por separado.
