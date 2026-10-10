@@ -27,6 +27,12 @@ def requires_macos(reason):
     return unittest.skipUnless(sys.platform == "darwin", "macOS only: %s" % reason.strip())
 
 
+# How long a test waits for a run it started to reach the point it wants to cut it at. The run boots a real WireMock
+# first, which compiles its extensions: 30 s was enough on the Mac that certifies (the suite takes 570 s there) and not
+# on the macOS runner of CI, where the same suite took 1287 s and five of these waits ended before the run got there.
+RUN_READY_SECONDS = 180
+
+
 FP_A = "a" * 64
 FP_B = "b" * 64
 

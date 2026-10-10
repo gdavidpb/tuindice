@@ -76,6 +76,7 @@ class Sandbox:
 
 
 class AndroidDeviceTests(unittest.TestCase):
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_ensure_boots_with_the_lock_parameters_and_reads_the_settings_back(self):
         box = Sandbox(self, "android")
         done = box.run("ensure")
@@ -88,6 +89,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(done.json["settings"]["secure.autofill_service"], "null")
         self.assertIn("shell settings put global hide_error_dialogs 1", "\n".join(box.calls()))
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_ensure_applies_and_reads_back_every_setting_the_driver_used_to_apply_itself(self):
         # One list lives in device.sh; the scenario runner no longer changes device settings.
         box = Sandbox(self, "android")
@@ -99,6 +101,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertIn("shell settings put secure stylus_handwriting_enabled 0", calls)
         self.assertIn("shell settings get secure stylus_handwriting_enabled", calls)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_a_du_that_warns_while_it_walks_the_data_directory_does_not_fail_ensure(self):
         # du exits 1 when a file vanishes under it and still prints the total; the device is fine and ensure has done everything.
         box = Sandbox(self, "android")
@@ -106,12 +109,14 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(done.json["dataDirGb"], 1.0)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_a_du_that_prints_no_total_is_still_an_environment_failure(self):
         box = Sandbox(self, "android")
         done = box.run("ensure", FAKE_DU_NONE="1", FAKE_DU_EXIT="1")
         self.assertEqual(done.returncode, 3)
         self.assertIn("gave no total", done.stderr)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_headless_zero_starts_the_window(self):
         box = Sandbox(self, "android")
         lock = os.path.join(box.dir, "android.lock")
@@ -120,6 +125,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(box.run("ensure", E2E_FAKE_LOCK_FILE=lock).returncode, 0)
         self.assertNotIn("-no-window", support.text(os.path.join(box.adb, "emulator.args")))
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_a_booted_device_is_not_restarted(self):
         box = Sandbox(self, "android")
         box.online()
@@ -129,6 +135,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(box.adb, "emulator.args")), "an online emulator must not be booted again")
         self.assertFalse([c for c in box.calls() if "reboot" in c or "emu kill" in c])
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_a_setting_that_reads_back_a_different_value_exits_3(self):
         box = Sandbox(self, "android")
         box.online()
@@ -145,6 +152,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(done.returncode, 3)
         self.assertIn("did not finish booting within 3s", done.stderr)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_the_gate_opens_when_the_boot_animation_service_does_not_exist(self):
         # Measured on the real emulator: with -no-boot-anim the property init.svc.bootanim is never set.
         box = Sandbox(self, "android")
@@ -159,6 +167,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertEqual(done.returncode, 3)
         self.assertIn("did not finish booting within 3s", done.stderr)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_the_gate_waits_for_the_device_load_and_an_anr_window_blocks_it(self):
         box = Sandbox(self, "android")
         box.online()
@@ -191,6 +200,7 @@ class AndroidDeviceTests(unittest.TestCase):
         self.assertIn("avdmanager create avd -n Pixel_10_Pro_XL", done.stderr)
         self.assertFalse(os.path.exists(os.path.join(missing.adb, "emulator.args")), "the harness never creates or boots a missing AVD")
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_the_shape_of_a_running_emulator_must_match_the_lock(self):
         for prop, value, message in (("nproc", "4", "has 4 cores"), ("meminfo_kb", "2000000", "reports 2000000 kB"),
                 ("locale", "es-VE", "locale is 'es-VE'"), ("sdk", "36", "API level is '36'")):
@@ -201,6 +211,7 @@ class AndroidDeviceTests(unittest.TestCase):
             self.assertEqual(done.returncode, 3, prop)
             self.assertIn(message, done.stderr)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_health_waits_for_a_busy_device_and_records_the_load(self):
         box = Sandbox(self, "android")
         box.online()
@@ -230,6 +241,7 @@ class AndroidDeviceTests(unittest.TestCase):
             self.assertEqual(done.returncode, 3, message)
             self.assertIn(message, done.stderr)
 
+    @support.requires_macos("android/device.sh is written for the macOS host that runs the emulator (BSD awk and date)")
     def test_recover_reboots_the_pinned_device_and_reestablishes_the_reverse_tunnel(self):
         box = Sandbox(self, "android")
         box.online()

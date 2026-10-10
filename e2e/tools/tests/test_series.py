@@ -69,7 +69,7 @@ class CutSeriesTests(unittest.TestCase):
             cwd=ws.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.addCleanup(process.kill)
         pid_file = os.path.join(ws.fake, "ios", "hang.pid")
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + support.RUN_READY_SECONDS
         while not os.path.exists(pid_file) and time.monotonic() < deadline:
             time.sleep(0.1)
         self.assertTrue(os.path.exists(pid_file), "the second repetition never hung")
@@ -93,7 +93,7 @@ class CutSeriesTests(unittest.TestCase):
             "--survey"], cwd=ws.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.addCleanup(process.kill)
         pid_file = os.path.join(ws.fake, "ios", "hang.pid")
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + support.RUN_READY_SECONDS
         while not os.path.exists(pid_file) and time.monotonic() < deadline:
             time.sleep(0.1)
         self.assertTrue(os.path.exists(pid_file), "the second repetition never hung")
@@ -115,7 +115,7 @@ class CutSeriesTests(unittest.TestCase):
             cwd=ws.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.addCleanup(process.kill)
         pid_file = os.path.join(ws.fake, "ios", "hang.pid")
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + support.RUN_READY_SECONDS
         while not os.path.exists(pid_file) and time.monotonic() < deadline:
             time.sleep(0.1)
         self.assertTrue(os.path.exists(pid_file), "the first repetition never hung")
@@ -134,7 +134,7 @@ class CutSeriesTests(unittest.TestCase):
             "--survey"], cwd=ws.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.addCleanup(process.kill)
         pid_file = os.path.join(ws.fake, "ios", "hang.pid")
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + support.RUN_READY_SECONDS
         while not os.path.exists(pid_file) and time.monotonic() < deadline:
             time.sleep(0.1)
         self.assertTrue(os.path.exists(pid_file), "the second repetition never hung")

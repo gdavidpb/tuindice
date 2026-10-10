@@ -9,6 +9,7 @@ UDID = "FAKE-0000-0000-0000-000000000001"
 
 
 class IosKeyboardFirstUseSheetTests(unittest.TestCase):
+    @support.requires_macos("ios/device.sh writes the simulator preferences with defaults")
     def test_ensure_marks_the_first_use_sheet_as_seen_and_reads_it_back(self):
         box = Sandbox(self, "ios")
         done = box.run("ensure")
@@ -25,6 +26,7 @@ class IosKeyboardFirstUseSheetTests(unittest.TestCase):
         self.assertEqual(done.returncode, 3)
         self.assertIn("com.apple.keyboard.preferences DidShowContinuousPathIntroduction reads back ''", done.stderr)
 
+    @support.requires_macos("ios/device.sh writes the simulator preferences with defaults")
     def test_recover_applies_it_again(self):
         box = Sandbox(self, "ios")
         box.write("sim", "%s Booted\n" % UDID, box.xcrun)

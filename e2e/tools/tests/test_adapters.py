@@ -9,7 +9,7 @@ import time
 import unittest
 
 import support  # puts e2e/scripts/shared on sys.path
-from support import Workspace, scenario
+from support import Workspace, requires_macos, scenario
 from test_device import Sandbox
 
 import adapter_tools
@@ -308,6 +308,7 @@ class AndroidAdapterTests(unittest.TestCase):
         self.assertIn("line 0399", kept)
         self.assertNotIn("line 0000", kept)
 
+    @requires_macos("the Android adapter and device.sh are written for the macOS host that runs the emulator (BSD awk and date)")
     def test_every_device_call_names_the_serial(self):
         self.put_result()
         attempt = os.path.join(self.box.dir, "s")
@@ -410,6 +411,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertNotIn("TEST_RUNNER_E2E_TRACE", "\n".join(self.box.xcrun_calls()))
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_collect_failure_with_an_empty_results_directory_still_brings_the_log_and_the_screenshot(self):
         attempt = os.path.join(self.box.dir, "empty")
         os.makedirs(os.path.join(attempt, "results", "auth-login-cancel"))
@@ -418,6 +420,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(attempt, "app.log")))
         self.assertTrue(os.path.exists(os.path.join(attempt, "fallback-screen.png")))
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_collect_failure_reads_the_log_store_before_it_takes_the_screenshot_and_a_failed_screenshot_does_not_cost_the_log(self):
         self.box.write("screenshot.fails", "", self.box.xcrun)
         attempt = os.path.join(self.box.dir, "shot")
@@ -427,6 +430,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(attempt, "app.log")))
         self.assertIn("screenshot", done.stderr)
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_collect_failure_reads_the_log_store_from_the_start_of_the_attempt(self):
         attempt = os.path.join(self.box.dir, "c")
         os.makedirs(attempt)
@@ -441,6 +445,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertNotIn("--last", calls[0])
         self.assertIn("app log line", support.text(os.path.join(attempt, "app.log")))
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_collect_failure_brings_the_results_of_a_killed_run_and_keeps_what_the_run_already_copied(self):
         attempt = os.path.join(self.box.dir, "r")
         results = os.path.join(attempt, "results", "auth-login-cancel")
@@ -455,6 +460,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertEqual(support.text(os.path.join(attempt, "driver.log")), "[3] WaitVisible x -> passed (12 ms)\n")
         self.assertEqual(support.text(os.path.join(attempt, "result.json")), "already copied\n")
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_collect_failure_caps_the_app_log_and_keeps_the_end_of_it(self):
         self.box.write("log.txt", "".join("2026-10-07 01:22:%02d.000 I TuIndiceHost[1:1] line %04d %s\n" % (i % 60, i, "y" * 60)
             for i in range(600)), self.box.xcrun)
@@ -469,6 +475,7 @@ class IosAdapterTests(unittest.TestCase):
         self.assertIn("line 0599", kept)
         self.assertNotIn("line 0000", kept)
 
+    @requires_macos("the iOS adapter needs the BSD date and the Xcode tools of the Mac")
     def test_every_simulator_call_names_the_udid(self):
         attempt = os.path.join(self.box.dir, "s")
         os.makedirs(attempt)
