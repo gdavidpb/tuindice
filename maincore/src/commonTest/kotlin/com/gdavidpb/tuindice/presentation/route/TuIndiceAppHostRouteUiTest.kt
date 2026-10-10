@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.presentation.route
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToString
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -87,6 +90,7 @@ import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -351,13 +355,21 @@ class TuIndiceAppHostRouteUiTest {
 			assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
 			assertNodeHidden(AuthUiTags.AnimatedPatternBackground)
 
-			val gateEvents = eventPublisher.events.drop(eventCountBeforeSignIn)
-			assertTrue(
-				gateEvents.any { event ->
+			// The machine stores the state and then publishes the transition, on its own thread: the
+			// screen can be drawn before the event is recorded.
+			waitUntilOrSay(
+				seen = {
+					val events = eventPublisher.events.drop(eventCountBeforeSignIn)
+					"expected sign-in 426 to show the global outdated screen directly; the events were " +
+						events.map { event -> "${event.name}${event.parameters}" }
+				}
+			) {
+				eventPublisher.events.drop(eventCountBeforeSignIn).any { event ->
 					event.isMainTransition(event = "outdated_app_observed", to = "outdated_app")
-				},
-				"Expected sign-in 426 to show the global outdated screen directly."
-			)
+				}
+			}
+
+			val gateEvents = eventPublisher.events.drop(eventCountBeforeSignIn)
 			assertTrue(
 				gateEvents.none { event ->
 					event.isMainTransition(to = "starting")
@@ -747,10 +759,19 @@ class TuIndiceAppHostRouteUiTest {
 		)
 
 		// A recovery followed by a new degradation is a new episode. The machine follows the status
-		// on its own thread and equal values are conflated, so the recovery has to be seen by the
-		// host before the next degradation is emitted.
+		// on its own thread and the route counts an episode when it composes a new status, so the
+		// recovery has to be composed before the next degradation is emitted: a recovery the route
+		// never drew is the same status twice to it. The machine stores the state and then publishes
+		// the transition, so once that event is recorded the state is out, and one idle pass draws it.
+		val eventsBeforeRecovery = eventPublisher.events.size
 		syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
-		waitUntil(timeoutMillis = 5_000) { observedSyncStatus() == SyncStatus.Healthy }
+		waitUntil(timeoutMillis = 5_000) {
+			observedSyncStatus() == SyncStatus.Healthy &&
+				eventPublisher.events.drop(eventsBeforeRecovery).any { event ->
+					event.isMainTransition(event = "sync_status_observed")
+				}
+		}
+		waitForIdle()
 		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
 
 		waitUntil(timeoutMillis = 5_000) {
@@ -990,7 +1011,7 @@ class TuIndiceAppHostRouteUiTest {
 					syncStatusRepository.emitSyncStatus(SyncStatus.OutdatedCredentials)
 				}
 
-				waitUntil(timeoutMillis = 5_000) {
+				waitUntilOrSay(seen = { "the summary never showed; the screen was " + onAllNodes(isRoot()).printToString() }) {
 					onAllNodesWithTag(SummaryUiTags.ContentContainer).fetchSemanticsNodes().isNotEmpty()
 				}
 
@@ -1221,24 +1242,39 @@ private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
 	) = Unit
 }
 
+/**
+ * [ComposeUiTest.waitUntil] with the same limit, but a timeout says what was [seen] instead of only that the
+ * time ran out.
+ */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.waitUntilOrSay(seen: () -> String, condition: () -> Boolean) {
+	try {
+		waitUntil(timeoutMillis = 5_000, condition = condition)
+	} catch (timeout: ComposeTimeoutException) {
+		throw AssertionError("${timeout.message}: ${seen()}", timeout)
+	}
+}
+
 private class RecordingEventPublisher : EventPublisher {
 	private val eventsFlow = MutableStateFlow<List<AppEvent>>(emptyList())
 	val events: List<AppEvent>
 		get() = eventsFlow.value
 
 	override fun publish(event: AppEvent) {
-		eventsFlow.value += event
+		// Two threads publish at once (the machine its transition, the state collector its state): an append that
+		// reads and then writes loses one of them.
+		eventsFlow.update { events -> events + event }
 	}
 }
 
 private fun AppEvent.isMainTransition(
 	event: String? = null,
-	to: String
+	to: String? = null
 ): Boolean {
 	return name == EventNames.APP_TRANSITION &&
 			parameters[EventParameterKeys.SOURCE] == "main" &&
 			(event == null || parameters[EventParameterKeys.EVENT] == event) &&
-			parameters[EventParameterKeys.TO] == to
+			(to == null || parameters[EventParameterKeys.TO] == to)
 }
 
 private fun AppEvent.isDegradedSyncAction(): Boolean {
