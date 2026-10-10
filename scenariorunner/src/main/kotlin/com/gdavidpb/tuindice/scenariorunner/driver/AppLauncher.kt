@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.scenariorunner.driver
 
-import android.content.ComponentName
 import android.content.Intent
 import android.os.SystemClock
 import androidx.test.uiautomator.By
@@ -18,7 +17,7 @@ internal class AppLauncher(private val session: DeviceSession) : AppControl {
 		// A failed `pidof` proves nothing about the process, so the app is stopped anyway: a cold start needs it.
 		if (session.appProcessRunning() != false) session.shell("am force-stop ${AppIdentity.ID}")
 
-		val intent = mainIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+		val intent = AppIdentity.mainIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 		spec.arguments.forEach { (key, value) -> intent.putExtra(key, value) }
 
 		return start(intent)
@@ -84,6 +83,9 @@ internal class AppLauncher(private val session: DeviceSession) : AppControl {
 
 	override fun isForeground(): Boolean = session.device.currentPackageName == AppIdentity.ID
 
+	/** The window manager answers at once, so there is no window to wait out: it is [isForeground]. */
+	override fun confirmForeground(): Boolean = isForeground()
+
 	/** False only when `pidof` proves the process is gone; a failed `pidof` is not a death. */
 	override fun isRunning(): Boolean = session.appProcessRunning() != false
 
@@ -106,12 +108,7 @@ internal class AppLauncher(private val session: DeviceSession) : AppControl {
 	}
 
 	private fun reorderToFront(): Intent =
-		mainIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-
-	private fun mainIntent(): Intent =
-		Intent(Intent.ACTION_MAIN)
-			.addCategory(Intent.CATEGORY_LAUNCHER)
-			.setComponent(ComponentName(AppIdentity.ID, AppIdentity.ACTIVITY))
+		AppIdentity.mainIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
 
 	private companion object {
 		const val LAUNCH_TIMEOUT_MS = 30_000L

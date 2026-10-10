@@ -135,18 +135,30 @@ class AndroidDriverProbesTest {
 		assertTrue(driver.lastRefusal().orEmpty().contains("inside the on-screen keyboard"))
 	}
 
-	/** B-10 (b)/(c): a dead process is not revived by foreground(); a live one brought back logs each request. */
+	/**
+	 * B-10 (b)/(c): a dead process is not revived by foreground(); a live one brought back logs each request.
+	 * `confirmForeground` (final round) goes with it: true and immediate with the app in front, false each time the app is
+	 * sent back (the home key stands for an exit nobody waited for), true again once foreground() brought it back, and
+	 * false for a dead app. Android has no window to wait out, so it never blocks.
+	 */
 	@Test
 	fun foregroundDoesNotReviveADeadAppAndLogsEachRequest() {
 		val driver = app.begin("foreground")
-		driver.session.device.pressHome()
-		assertTrue(driver.foreground())
+		repeat(CONFIRM_ROUNDS) {
+			val startedAt = SystemClock.uptimeMillis()
+			assertTrue("in front", driver.confirmForeground())
+			assertTrue("and immediate", SystemClock.uptimeMillis() - startedAt < QUICK_MS)
+			driver.session.device.pressHome()
+			assertFalse("sent back", driver.confirmForeground())
+			assertTrue(driver.foreground())
+		}
 		assertTrue(app.log("foreground").contains("request 1 to bring the app back"))
 
 		driver.terminate()
 		assertFalse(driver.foreground())
 		assertTrue(app.log("foreground").contains("the app process is not running; it is not started again"))
 		assertFalse("the app stays dead", driver.isForeground())
+		assertFalse("a dead app is not in front", driver.confirmForeground())
 	}
 
 	/** B-11: a line is on disk as soon as it is written, with no close or flush at the end of the scenario. */
@@ -176,6 +188,7 @@ class AndroidDriverProbesTest {
 
 	private companion object {
 		const val REFUSING_GESTURES = 4
+		const val CONFIRM_ROUNDS = 10
 		const val MIDDLE = 0.5
 		const val UP_SHORT = -0.1
 		const val UP_LONG = -0.2
