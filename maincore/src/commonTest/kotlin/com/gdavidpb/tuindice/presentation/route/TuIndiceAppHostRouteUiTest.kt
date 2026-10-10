@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.presentation.route
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToString
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -46,8 +49,8 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
-import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
@@ -59,6 +62,7 @@ import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
@@ -86,15 +90,57 @@ import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalTime::class)
 class TuIndiceAppHostRouteUiTest {
+	// The host gives every screen the clock Koin binds, so a debug build can freeze the "today" they read.
+	// A sync at the frozen instant reads as today only if the screen is asked with that clock: with the system
+	// clock it would be a date years ahead of "now". The same instant is "today" in every time zone.
+	@Test
+	fun when_hostRouteRuns_then_screensReadTheClockKoinBinds() = runTuIndiceUiTest {
+		val frozenNow = Instant.parse("2030-06-15T06:00:00Z")
+		val syncStatusRepository = FakeSyncStatusRepository(
+			initialLastSuccessfulSyncAt = frozenNow.toEpochMilliseconds()
+		)
+
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository, clock = FixedClock(frozenNow)))
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 10_000) {
+				onAllNodesWithText("Última sincronización: Hoy", substring = true)
+					.fetchSemanticsNodes()
+					.isNotEmpty()
+			}
+		} finally {
+			stopKoin()
+		}
+	}
+
 	@Test
 	fun when_hostRouteStarts_then_rendersNavHostAndTriggersReviewRequest() = runTuIndiceUiTest {
 		val reviewRepository = RecordingReviewRepository()
@@ -110,16 +156,17 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
 					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel()
+					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository
+					)
 				)
 			}
 
-			waitUntil(timeoutMillis = 2_000) {
+			// The first route of the class pays for the cold start of the whole host (navigation,
+			// resources, Koin), and the effect is handed over on the main queue behind it.
+			waitUntil(timeoutMillis = 10_000) {
 				reviewRepository.launchCalls > 0
 			}
 			waitUntil(timeoutMillis = 2_000) {
@@ -152,12 +199,10 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
 					updateRepository = updateRepository,
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						configRepository = FakeConfigRepository(
 							appAvailabilityNotice = AppAvailabilityNotice(
 								enabled = true,
@@ -280,16 +325,14 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
-					outdatedAppEventRepository = outdatedAppEventRepository,
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						sessionRepository = sessionRepository,
 						settingsRepository = settingsRepository,
 						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1),
+						outdatedAppEventRepository = outdatedAppEventRepository,
 						eventPublisher = eventPublisher
 					)
 				)
@@ -312,13 +355,21 @@ class TuIndiceAppHostRouteUiTest {
 			assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
 			assertNodeHidden(AuthUiTags.AnimatedPatternBackground)
 
+			// The machine stores the state and then publishes the transition, on its own thread: the
+			// screen can be drawn before the event is recorded.
+			waitUntilOrSay(
+				seen = {
+					val events = eventPublisher.events.drop(eventCountBeforeSignIn)
+					"expected sign-in 426 to show the global outdated screen directly; the events were " +
+						events.map { event -> "${event.name}${event.parameters}" }
+				}
+			) {
+				eventPublisher.events.drop(eventCountBeforeSignIn).any { event ->
+					event.isMainTransition(event = "outdated_app_observed", to = "outdated_app")
+				}
+			}
+
 			val gateEvents = eventPublisher.events.drop(eventCountBeforeSignIn)
-			assertTrue(
-				gateEvents.any { event ->
-					event.isMainTransition(event = "show_outdated_app", to = "outdated_app")
-				},
-				"Expected sign-in 426 to show the global outdated screen directly."
-			)
 			assertTrue(
 				gateEvents.none { event ->
 					event.isMainTransition(to = "starting")
@@ -345,12 +396,10 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						credentialsRepository = FakeCredentialsRepository(password = "secret123"),
 						syncRepository = syncRepository
 					)
@@ -383,9 +432,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = updateRepository,
 					viewModel = viewModel
@@ -427,9 +473,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = browserRepository,
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = updateRepository,
 					viewModel = viewModel
@@ -527,13 +570,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -582,13 +623,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					pendingChangesRepository = pendingChangesRepository,
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						pendingChangesRepository = pendingChangesRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -635,7 +674,12 @@ class TuIndiceAppHostRouteUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val eventPublisher = RecordingEventPublisher()
-
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			eventPublisher = eventPublisher
+		)
 		stopKoin()
 
 		startKoin {
@@ -648,13 +692,7 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> { stubAuthRepository() }
 					single<SessionRepository> { sessionRepository }
-					single<MessagingRepository> {
-						object : MessagingRepository {
-							override suspend fun subscribe() = Unit
-
-							override suspend fun unsubscribe() = Unit
-						}
-					}
+					single<MessagingRepository> { FakeMessagingRepository() }
 					single<ConfigRepository> { FakeConfigRepository() }
 					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
@@ -676,15 +714,9 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel(
-						sessionRepository = sessionRepository,
-						eventPublisher = eventPublisher
-					)
+					viewModel = viewModel
 				)
 			}
 
@@ -694,7 +726,8 @@ class TuIndiceAppHostRouteUiTest {
 
 			assertDegradedSyncEpisodesReportOnce(
 				syncStatusRepository = syncStatusRepository,
-				eventPublisher = eventPublisher
+				eventPublisher = eventPublisher,
+				observedSyncStatus = { (viewModel.state.value as? Main.State.Content)?.syncStatus }
 			)
 		} finally {
 			stopKoin()
@@ -703,7 +736,8 @@ class TuIndiceAppHostRouteUiTest {
 
 	private fun ComposeUiTest.assertDegradedSyncEpisodesReportOnce(
 		syncStatusRepository: FakeSyncStatusRepository,
-		eventPublisher: RecordingEventPublisher
+		eventPublisher: RecordingEventPublisher,
+		observedSyncStatus: () -> SyncStatus?
 	) {
 		assertTrue(
 			eventPublisher.events.none { event -> event.isDegradedSyncAction() },
@@ -724,8 +758,19 @@ class TuIndiceAppHostRouteUiTest {
 			"Re-emitting the same degraded status must not report a second episode."
 		)
 
-		// A recovery followed by a new degradation is a new episode.
+		// A recovery followed by a new degradation is a new episode. The machine follows the status
+		// on its own thread and the route counts an episode when it composes a new status, so the
+		// recovery has to be composed before the next degradation is emitted: a recovery the route
+		// never drew is the same status twice to it. The machine stores the state and then publishes
+		// the transition, so once that event is recorded the state is out, and one idle pass draws it.
+		val eventsBeforeRecovery = eventPublisher.events.size
 		syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
+		waitUntil(timeoutMillis = 5_000) {
+			observedSyncStatus() == SyncStatus.Healthy &&
+				eventPublisher.events.drop(eventsBeforeRecovery).any { event ->
+					event.isMainTransition(event = "sync_status_observed")
+				}
+		}
 		waitForIdle()
 		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
 
@@ -735,8 +780,15 @@ class TuIndiceAppHostRouteUiTest {
 	}
 
 	@Test
-	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
-		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() =
+		assertHostRouteAsksForPassword(syncStatus = SyncStatus.OutdatedCredentials)
+
+	@Test
+	fun when_syncStatusIsMissingCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() =
+		assertHostRouteAsksForPassword(syncStatus = SyncStatus.MissingCredentials)
+
+	private fun assertHostRouteAsksForPassword(syncStatus: SyncStatus) = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = syncStatus)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
 		stopKoin()
@@ -814,12 +866,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -934,12 +985,11 @@ class TuIndiceAppHostRouteUiTest {
 					TuIndiceAppHostRoute(
 						onConfirmExitClick = {},
 							browserRepository = RecordingBrowserRepository(),
-						deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-						sessionInvalidationRepository = sessionInvalidationRepository,
-						syncStatusRepository = syncStatusRepository,
 						reviewRepository = RecordingReviewRepository(),
 						updateRepository = FakeUpdateRepository(),
 						viewModel = createMainViewModel(
+							sessionInvalidationRepository = sessionInvalidationRepository,
+							syncStatusRepository = syncStatusRepository,
 							sessionRepository = sessionRepository,
 							settingsRepository = FakeSettingsRepository(
 								reviewSuggested = true,
@@ -961,7 +1011,7 @@ class TuIndiceAppHostRouteUiTest {
 					syncStatusRepository.emitSyncStatus(SyncStatus.OutdatedCredentials)
 				}
 
-				waitUntil(timeoutMillis = 5_000) {
+				waitUntilOrSay(seen = { "the summary never showed; the screen was " + onAllNodes(isRoot()).printToString() }) {
 					onAllNodesWithTag(SummaryUiTags.ContentContainer).fetchSemanticsNodes().isNotEmpty()
 				}
 
@@ -1057,12 +1107,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -1098,14 +1147,22 @@ class TuIndiceAppHostRouteUiTest {
 
 	private fun hostRouteNavigationModule(
 		syncStatusRepository: SyncStatusRepository,
-		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
+		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository(),
+		clock: Clock = Clock.System
 	) = module {
-		factory { createSummaryViewModel() }
+		single<Clock> { clock }
+		// Summary reads the sync through its own use case: it gets the very repositories the
+		// host and the auth module resolve, as it does in production.
+		factory {
+			createSummaryViewModel(
+				syncStatusRepository = get(),
+				syncRepository = get()
+			)
+		}
 		factory { NavEntryStoresViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
-		single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<ApplicationRepository> { RecordingApplicationRepository() }
 		single<SettingsRepository> { FakeSettingsRepository() }
@@ -1185,28 +1242,48 @@ private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
 	) = Unit
 }
 
+/**
+ * [ComposeUiTest.waitUntil] with the same limit, but a timeout says what was [seen] instead of only that the
+ * time ran out.
+ */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.waitUntilOrSay(seen: () -> String, condition: () -> Boolean) {
+	try {
+		waitUntil(timeoutMillis = 5_000, condition = condition)
+	} catch (timeout: ComposeTimeoutException) {
+		throw AssertionError("${timeout.message}: ${seen()}", timeout)
+	}
+}
+
 private class RecordingEventPublisher : EventPublisher {
 	private val eventsFlow = MutableStateFlow<List<AppEvent>>(emptyList())
 	val events: List<AppEvent>
 		get() = eventsFlow.value
 
 	override fun publish(event: AppEvent) {
-		eventsFlow.value += event
+		// Two threads publish at once (the machine its transition, the state collector its state): an append that
+		// reads and then writes loses one of them.
+		eventsFlow.update { events -> events + event }
 	}
 }
 
 private fun AppEvent.isMainTransition(
 	event: String? = null,
-	to: String
+	to: String? = null
 ): Boolean {
 	return name == EventNames.APP_TRANSITION &&
 			parameters[EventParameterKeys.SOURCE] == "main" &&
 			(event == null || parameters[EventParameterKeys.EVENT] == event) &&
-			parameters[EventParameterKeys.TO] == to
+			(to == null || parameters[EventParameterKeys.TO] == to)
 }
 
 private fun AppEvent.isDegradedSyncAction(): Boolean {
 	return name == EventNames.APP_ACTION &&
 			parameters[EventParameterKeys.SOURCE] == "main" &&
 			parameters[EventParameterKeys.ACTION] == "note_sync_unavailable"
+}
+
+@OptIn(ExperimentalTime::class)
+private class FixedClock(private val instant: Instant) : Clock {
+	override fun now(): Instant = instant
 }

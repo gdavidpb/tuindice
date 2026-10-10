@@ -7,22 +7,51 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3115BF0DF99DDCC82D5AADE6 /* ElementResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD9EE81232D248EABC8FB6 /* ElementResolver.swift */; };
+		336B6A5CF91775C72CF0B7C9 /* SystemUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = F205E29EA2A14850DF8779BF /* SystemUi.swift */; };
+		6F1729ED7B8AA4237D5F46DE /* GuardedCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE71D7979857B4F3473B856 /* GuardedCall.swift */; };
+		897AD60115443FB40459EDAB /* DriverContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DDF3D443E403ABF6214C67 /* DriverContractTests.swift */; };
 		A1B2C3D4E5F60708090A1020 /* TuIndiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */; };
 		A1B2C3D4E5F60708090A1021 /* TuIndiceAppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */; };
-		A1B2C3D4E5F60708090A1025 /* TuIndiceDebugRuntimeOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */; };
 		A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */; };
 		A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */; };
 		A1B2C3D4E5F60708090A1024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A101A /* Assets.xcassets */; };
+		A1B2C3D4E5F60708090A1025 /* TuIndiceDebugRuntimeOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */; };
 		B27FFE1B4776D0780E777F67 /* Pods_TuIndiceHost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */; };
+		B708241D2C2A964F4D2D4270 /* ScenarioTests.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE6DFFE2C80006B3A75455E /* ScenarioTests.generated.swift */; };
+		B982B0C47E80E507CD7E499A /* ScenarioTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E690302573E2B094D70A03FC /* ScenarioTestCase.swift */; };
 		C1A74271B3D64A39AFD7B771 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */; };
+		DFB5A759EDCA2843A62F7FB1 /* XCUIScenarioDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9341659B7269CA7C58CD0DF /* XCUIScenarioDriver.swift */; };
+		EEC56FF86547526DA1873D87 /* TextTyping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89178C41057DDA90E5263658 /* TextTyping.swift */; };
+		EF1A7616201A34822FC80A04 /* RunConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135C8E61830D1CF8A1690D31 /* RunConfig.swift */; };
+		F45D398BE62139098546BB1F /* ObjCCatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 894971E862B2B881ACB375ED /* ObjCCatch.m */; };
+		F7AFADA7CDD1BA51DF987FCD /* HttpBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6C72033CE42EE3CD84AEE0 /* HttpBackend.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1FD08FC7894DA5AF01624533 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1B2C3D4E5F60708090A1060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1B2C3D4E5F60708090A1061;
+			remoteInfo = TuIndiceHost;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		09A1C3B669336A46A163C3E4 /* Pods-TuIndiceHost.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TuIndiceHost.debug.xcconfig"; path = "Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.debug.xcconfig"; sourceTree = "<group>"; };
+		0D6C974C0AF6CC07ED451DA3 /* UITests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = UITests.xcconfig; sourceTree = "<group>"; };
+		135C8E61830D1CF8A1690D31 /* RunConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RunConfig.swift; sourceTree = "<group>"; };
+		325F57A2DB8452C4607985E1 /* ObjCCatch.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ObjCCatch.h; sourceTree = "<group>"; };
+		3DE71D7979857B4F3473B856 /* GuardedCall.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GuardedCall.swift; sourceTree = "<group>"; };
+		4AFD9EE81232D248EABC8FB6 /* ElementResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ElementResolver.swift; sourceTree = "<group>"; };
 		5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TuIndiceHost.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		661277E1D22E79B341526B67 /* TuIndiceUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TuIndiceUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		787547142C7878FE16D81A62 /* build-scenario-kit.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "build-scenario-kit.sh"; sourceTree = "<group>"; };
+		89178C41057DDA90E5263658 /* TextTyping.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextTyping.swift; sourceTree = "<group>"; };
+		894971E862B2B881ACB375ED /* ObjCCatch.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = ObjCCatch.m; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceApp.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppBootstrap.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceDebugRuntimeOverrides.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppDelegate.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndicePlatformBridge.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TuIndiceHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,13 +60,28 @@
 		A1B2C3D4E5F60708090A1017 /* build-kmp-framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-kmp-framework.sh"; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1019 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
-		A1B2C3D4E5F60708090A101B /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A101A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A101B /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceDebugRuntimeOverrides.swift; sourceTree = "<group>"; };
+		A8DDF3D443E403ABF6214C67 /* DriverContractTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DriverContractTests.swift; sourceTree = "<group>"; };
 		AF1BDC0EEC885E12D192C018 /* Pods-TuIndiceHost.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TuIndiceHost.release.xcconfig"; path = "Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"; sourceTree = "<group>"; };
+		B9341659B7269CA7C58CD0DF /* XCUIScenarioDriver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XCUIScenarioDriver.swift; sourceTree = "<group>"; };
 		C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DD4F9897EB61522AC5CC616C /* TuIndiceUITests-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "TuIndiceUITests-Bridging-Header.h"; sourceTree = "<group>"; };
+		DF6C72033CE42EE3CD84AEE0 /* HttpBackend.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HttpBackend.swift; sourceTree = "<group>"; };
+		E690302573E2B094D70A03FC /* ScenarioTestCase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScenarioTestCase.swift; sourceTree = "<group>"; };
+		ECE6DFFE2C80006B3A75455E /* ScenarioTests.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScenarioTests.generated.swift; sourceTree = "<group>"; };
+		F205E29EA2A14850DF8779BF /* SystemUi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemUi.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		97EA111981B4674C53478541 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A1B2C3D4E5F60708090A1031 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -58,6 +102,27 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		5F94243C974CA71F2B209A0A /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				A8DDF3D443E403ABF6214C67 /* DriverContractTests.swift */,
+				4AFD9EE81232D248EABC8FB6 /* ElementResolver.swift */,
+				DF6C72033CE42EE3CD84AEE0 /* HttpBackend.swift */,
+				135C8E61830D1CF8A1690D31 /* RunConfig.swift */,
+				E690302573E2B094D70A03FC /* ScenarioTestCase.swift */,
+				F205E29EA2A14850DF8779BF /* SystemUi.swift */,
+				89178C41057DDA90E5263658 /* TextTyping.swift */,
+				B9341659B7269CA7C58CD0DF /* XCUIScenarioDriver.swift */,
+				E19A231A719EF4CC23AEBD25 /* Generated */,
+				3DE71D7979857B4F3473B856 /* GuardedCall.swift */,
+				325F57A2DB8452C4607985E1 /* ObjCCatch.h */,
+				894971E862B2B881ACB375ED /* ObjCCatch.m */,
+				DD4F9897EB61522AC5CC616C /* TuIndiceUITests-Bridging-Header.h */,
+			);
+			name = UITests;
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		A1B2C3D4E5F60708090A1070 = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +133,7 @@
 				A1B2C3D4E5F60708090A1071 /* Products */,
 				494B8DE7FA8E3380579296A3 /* Pods */,
 				B45A6639F3EBB8F79D72CAC6 /* Frameworks */,
+				5F94243C974CA71F2B209A0A /* UITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -75,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */,
+				661277E1D22E79B341526B67 /* TuIndiceUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +175,7 @@
 				A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */,
 				A1B2C3D4E5F60708090A1019 /* Release.xcconfig */,
 				A1B2C3D4E5F60708090A101B /* Version.xcconfig */,
+				0D6C974C0AF6CC07ED451DA3 /* UITests.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -116,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F60708090A1017 /* build-kmp-framework.sh */,
+				787547142C7878FE16D81A62 /* build-scenario-kit.sh */,
 			);
 			path = scripts;
 			sourceTree = "<group>";
@@ -126,6 +195,15 @@
 				5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E19A231A719EF4CC23AEBD25 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				ECE6DFFE2C80006B3A75455E /* ScenarioTests.generated.swift */,
+			);
+			name = Generated;
+			path = Generated;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -152,6 +230,25 @@
 			productReference = A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D071092B7D6A2412EA045017 /* TuIndiceUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8F502C0EE8FE0CB097FE5A2A /* Build configuration list for PBXNativeTarget "TuIndiceUITests" */;
+			buildPhases = (
+				9658008A93C8AE98DDFBBA10 /* Build Scenario Kit */,
+				BDA9B8A7400635D408D831D4 /* Sources */,
+				97EA111981B4674C53478541 /* Frameworks */,
+				441E0F7B91FE90C6F546A3F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4C8DEFCFCDBE02DD33428D12 /* PBXTargetDependency */,
+			);
+			name = TuIndiceUITests;
+			productName = TuIndiceUITests;
+			productReference = 661277E1D22E79B341526B67 /* TuIndiceUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -164,6 +261,10 @@
 				TargetAttributes = {
 					A1B2C3D4E5F60708090A1061 = {
 						CreatedOnToolsVersion = 26.2;
+					};
+					D071092B7D6A2412EA045017 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = A1B2C3D4E5F60708090A1061;
 					};
 				};
 			};
@@ -181,11 +282,19 @@
 			projectRoot = "";
 			targets = (
 				A1B2C3D4E5F60708090A1061 /* TuIndiceHost */,
+				D071092B7D6A2412EA045017 /* TuIndiceUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		441E0F7B91FE90C6F546A3F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A1B2C3D4E5F60708090A1032 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,6 +323,25 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		9658008A93C8AE98DDFBBA10 /* Build Scenario Kit */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Scenario Kit";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/build-scenario-kit.sh\"\n";
 		};
 		A1B2C3D4E5F60708090A1033 /* Build KMP Framework */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -296,7 +424,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDA9B8A7400635D408D831D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				897AD60115443FB40459EDAB /* DriverContractTests.swift in Sources */,
+				3115BF0DF99DDCC82D5AADE6 /* ElementResolver.swift in Sources */,
+				F7AFADA7CDD1BA51DF987FCD /* HttpBackend.swift in Sources */,
+				EF1A7616201A34822FC80A04 /* RunConfig.swift in Sources */,
+				B982B0C47E80E507CD7E499A /* ScenarioTestCase.swift in Sources */,
+				336B6A5CF91775C72CF0B7C9 /* SystemUi.swift in Sources */,
+				EEC56FF86547526DA1873D87 /* TextTyping.swift in Sources */,
+				DFB5A759EDCA2843A62F7FB1 /* XCUIScenarioDriver.swift in Sources */,
+				B708241D2C2A964F4D2D4270 /* ScenarioTests.generated.swift in Sources */,
+				6F1729ED7B8AA4237D5F46DE /* GuardedCall.swift in Sources */,
+				F45D398BE62139098546BB1F /* ObjCCatch.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4C8DEFCFCDBE02DD33428D12 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TuIndiceHost;
+			target = A1B2C3D4E5F60708090A1061 /* TuIndiceHost */;
+			targetProxy = 1FD08FC7894DA5AF01624533 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1B2C3D4E5F60708090A1040 /* Debug */ = {
@@ -388,9 +543,32 @@
 			};
 			name = Release;
 		};
+		B5D5DC4B2790080167E1C363 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0D6C974C0AF6CC07ED451DA3 /* UITests.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		F4210D2EBCAEE960C1CB661B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0D6C974C0AF6CC07ED451DA3 /* UITests.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8F502C0EE8FE0CB097FE5A2A /* Build configuration list for PBXNativeTarget "TuIndiceUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4210D2EBCAEE960C1CB661B /* Release */,
+				B5D5DC4B2790080167E1C363 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		A1B2C3D4E5F60708090A1050 /* Build configuration list for PBXProject "TuIndiceHost" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

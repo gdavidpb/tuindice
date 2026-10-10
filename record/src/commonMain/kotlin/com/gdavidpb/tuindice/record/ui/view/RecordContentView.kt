@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
+import com.gdavidpb.tuindice.record.presentation.mapper.takeIfAbovePager
 import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -30,6 +31,8 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_attempt_credits_pattern
 import tuindice.record.generated.resources.term_attempt_grade_pattern
+import tuindice.record.generated.resources.term_attempt_section_classroom_pattern
+import tuindice.record.generated.resources.term_attempt_section_pattern
 import tuindice.record.generated.resources.term_credits_pattern
 import tuindice.record.generated.resources.term_grade_diff_pattern
 import tuindice.record.generated.resources.term_grade_sum_pattern
@@ -54,13 +57,17 @@ fun RecordContentView(
 	val termCreditsPattern = stringResource(Res.string.term_credits_pattern)
 	val attemptGradePattern = stringResource(Res.string.term_attempt_grade_pattern)
 	val attemptCreditsPattern = stringResource(Res.string.term_attempt_credits_pattern)
+	val attemptSectionPattern = stringResource(Res.string.term_attempt_section_pattern)
+	val attemptSectionClassroomPattern = stringResource(Res.string.term_attempt_section_classroom_pattern)
 
 	val texts = remember(
 		termGradeDiffPattern,
 		termGradeSumPattern,
 		termCreditsPattern,
 		attemptGradePattern,
-		attemptCreditsPattern
+		attemptCreditsPattern,
+		attemptSectionPattern,
+		attemptSectionClassroomPattern
 	) {
 		RecordMapperTexts(
 			termGrade = { grade ->
@@ -77,6 +84,14 @@ fun RecordContentView(
 			},
 			termAttemptCredits = { credits ->
 				attemptCreditsPattern.replace("%1${'$'}d", credits.toString())
+			},
+			termAttemptSection = { section ->
+				attemptSectionPattern.replace("%1${'$'}d", section.toString())
+			},
+			termAttemptSectionClassroom = { section, classroom ->
+				attemptSectionClassroomPattern
+					.replace("%1${'$'}d", section.toString())
+					.replace("%2${'$'}s", classroom)
 			}
 		)
 	}
@@ -86,7 +101,8 @@ fun RecordContentView(
 		.toTermItemList(
 			viewMode = state.viewMode,
 			texts = texts,
-			highlightColor = MaterialTheme.colorScheme.primary
+			highlightColor = MaterialTheme.colorScheme.primary,
+			notice = state.notice
 		)
 		.asReversed()
 	val effectiveSelectedTermId = selectedTermId ?: terms.firstOrNull()?.termId
@@ -102,6 +118,7 @@ fun RecordContentView(
 					.fillMaxSize()
 					.padding(top = InternalScreenDefaults.TopBarSpacing),
 				terms = terms,
+				notice = state.notice?.takeIfAbovePager(),
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
 				onAttemptSelectionChange = onAttemptSelectionChange,

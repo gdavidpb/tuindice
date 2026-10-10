@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
@@ -16,14 +17,15 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.test.runTest
 
 // Resolves snack messages through getString, so it runs on the iOS host only
 // (androidHostTestExcludedPatterns) — same constraint as the SubjectDetail oracle.
@@ -43,6 +45,11 @@ class RecordViewModelSnackContractTest {
 				observeRecordUseCase = ObserveRecordUseCase(
 					academicRecordRepository = academicRecordRepository,
 					recordSelectionRepository = selectionRepository,
+					syncStatusRepository = FakeSyncStatusRepository(),
+					reportingRepository = reportingRepository
+				),
+				observeNewStudentNoRecordUseCase = ObserveNewStudentNoRecordUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = reportingRepository
 				),
 				observeSyntheticTermRejectionsUseCase = ObserveSyntheticTermRejectionsUseCase(

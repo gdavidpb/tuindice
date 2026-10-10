@@ -6,12 +6,16 @@ import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toMutationEnvelope
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toPendingMutationEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+
+// Rows a drain can still send: a terminally rejected one is never sent again, so its revision does not matter.
+private val WAITING_STATUSES = setOf(PendingMutationStatus.Pending.name, PendingMutationStatus.Failed.name)
 
 class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 	private val pendingMutationDao: PendingMutationDao,
@@ -129,6 +133,26 @@ class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 			scopeKey = scopeKey,
 			mutationId = mutationId
 		)
+	}
+
+	override suspend fun advancePendingRevisions(
+		scopeKey: String,
+		revision: Long
+	): Int {
+		// Read and written as rows, in one transaction: nothing needs the payload decoded.
+		return transactionRunner.immediate {
+			val behind = pendingMutationDao.getMutations(
+				storeId = storeId,
+				scopeKey = scopeKey
+			).filter { entity ->
+				entity.preconditionType == PendingMutationTable.PRECONDITION_REVISION &&
+					entity.expectedRevision < revision &&
+					entity.status in WAITING_STATUSES
+			}
+
+			pendingMutationDao.upsertEntities(behind.map { entity -> entity.copy(expectedRevision = revision) })
+			behind.size
+		}
 	}
 
 	override suspend fun requeueFailedMutations(

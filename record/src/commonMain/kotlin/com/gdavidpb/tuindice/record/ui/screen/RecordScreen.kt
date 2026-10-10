@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -38,11 +38,7 @@ import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.a11y_create_synthetic_term
-import tuindice.record.generated.resources.record_empty_message
-import tuindice.record.generated.resources.record_empty_title
-import tuindice.record.generated.resources.record_failed_message
 import tuindice.record.generated.resources.record_failed_retry
-import tuindice.record.generated.resources.record_failed_title
 
 @Composable
 fun RecordScreen(
@@ -113,19 +109,17 @@ fun RecordScreen(
 
 				is Record.State.Failed ->
 					RecordFailedView(
-						title = stringResource(Res.string.record_failed_title),
-						message = stringResource(Res.string.record_failed_message),
+						title = targetState.title.asString(),
+						message = targetState.message.asString(),
+						art = targetState.art,
 						retryText = stringResource(Res.string.record_failed_retry),
-						onRetryClick = onRetryClick,
-						headerContent = {
-							ErrorStateAnimationView()
-						}
+						onRetryClick = onRetryClick
 					)
 
 				is Record.State.Empty ->
 					RecordEmptyView(
-						title = stringResource(Res.string.record_empty_title),
-						message = stringResource(Res.string.record_empty_message)
+						title = targetState.title.asString(),
+						message = targetState.message.asString()
 					)
 			}
 		}

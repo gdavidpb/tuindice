@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 data class EvaluationItem(
 	val evaluationId: String,
@@ -18,7 +19,7 @@ data class EvaluationItem(
 	val typeText: String,
 	val typeNameText: String,
 	val typeIcon: ImageVector,
-	val dateText: String,
+	val dateText: UiText,
 	val dateIcon: ImageVector,
 	val gradeText: String,
 	val gradesText: String,

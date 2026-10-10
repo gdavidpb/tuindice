@@ -16,20 +16,20 @@ import com.gdavidpb.tuindice.auth.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.auth.ui.view.SignInLoggingInView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.a11y_use_usb_email
+import tuindice.auth.generated.resources.a11y_use_usb_id
 import tuindice.auth.generated.resources.background
 import tuindice.auth.generated.resources.button_cancel_sign_in
 import tuindice.auth.generated.resources.button_sign_in
 import tuindice.auth.generated.resources.hint_password
 import tuindice.auth.generated.resources.hint_usb_email
 import tuindice.auth.generated.resources.hint_usb_id
-import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.label_policies
+import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.link_privacy_policy
 import tuindice.auth.generated.resources.link_terms_and_conditions
 import tuindice.auth.generated.resources.placeholder_usb_email
 import tuindice.auth.generated.resources.placeholder_usb_id
-import tuindice.auth.generated.resources.a11y_use_usb_email
-import tuindice.auth.generated.resources.a11y_use_usb_id
 
 @Composable
 fun SignInScreen(
@@ -65,7 +65,7 @@ fun SignInScreen(
 			when (targetState) {
 				is SignIn.State.Idle ->
 					SignInIdleView(
-						state = targetState,
+						state = if (state is SignIn.State.LoggingIn) targetState.whileSigningIn(state) else targetState,
 						onUsbIdChange = onUsbIdChange,
 						onPasswordChange = onPasswordChange,
 						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
@@ -85,7 +85,8 @@ fun SignInScreen(
 						useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
 						passwordLabelText = stringResource(Res.string.hint_password),
 						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
-						signInButtonText = stringResource(Res.string.button_sign_in)
+						signInButtonText = stringResource(Res.string.button_sign_in),
+						isWaiting = state is SignIn.State.LoggingIn
 					)
 
 				is SignIn.State.LoggingIn ->
@@ -98,3 +99,14 @@ fun SignInScreen(
 		}
 	}
 }
+
+// The form that slides out is the last `Idle` the screen composed, which can be behind what the view model
+// held when it started signing in. What it shows while leaving is what the sign-in took, and a new
+// attempt has no verdict yet.
+private fun SignIn.State.Idle.whileSigningIn(loggingIn: SignIn.State.LoggingIn) = copy(
+	usbId = loggingIn.usbId,
+	password = loggingIn.password,
+	identifierMode = loggingIn.identifierMode,
+	usageDataCollectionEnabled = loggingIn.usageDataCollectionEnabled,
+	rejection = null
+)

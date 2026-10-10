@@ -1,13 +1,18 @@
 package com.gdavidpb.tuindice.summary.di
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.ProfilePictureImageLoaderDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -21,6 +26,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val summaryModule = module {
@@ -35,6 +41,8 @@ val summaryModule = module {
 	/* Use cases */
 
 	factoryOf(::ObserveUserUseCase)
+	factoryOf(::ObserveSyncUseCase)
+	factoryOf(::GetCameraAvailabilityUseCase)
 	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
@@ -47,7 +55,15 @@ val summaryModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
-	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
+	singleOf(::LocalSettingsDataSource) {
+		bind<SettingsDataRepository>()
+		bind<SessionMemory>()
+	}
+	singleOf(::ProfilePictureImageLoaderDataSource) { bind<SessionMemory>() }
+	// Named: an unnamed startup task would take the place of the platform's own.
+	single<AppStartupTask>(named(PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER)) {
+		get<ProfilePictureImageLoaderDataSource>()
+	}
 
 	/* Exception handlers */
 
@@ -55,3 +71,5 @@ val summaryModule = module {
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
 }
+
+private const val PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER = "summaryProfilePictureImageLoaderTask"

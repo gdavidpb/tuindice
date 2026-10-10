@@ -2,22 +2,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-info() {
-	printf '[INFO] %s\n' "$*" >&2
-}
-
-warn() {
-	printf '[WARN] %s\n' "$*" >&2
-}
-
-error() {
-	printf '[ERROR] %s\n' "$*" >&2
-}
-
-die() {
-	error "$*"
-	exit 1
-}
+# Logging, version helpers, the suite id and the e2e_* functions live in a file the E2E fingerprint reads (see its header).
+COMMON_LIBRARY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../e2e/scripts/shared/ci-common.sh"
+# shellcheck source=e2e/scripts/shared/ci-common.sh
+source "$COMMON_LIBRARY"
 
 require_tool() {
 	command -v "$1" >/dev/null 2>&1 || die "Required tool '$1' is not available."
@@ -63,44 +51,6 @@ file_to_json_array() {
 	fi
 }
 
-app_version_file() {
-	printf 'gradle/app-version.properties\n'
-}
-
-extract_property_from_stdin() {
-	local property_name="$1"
-	awk -F= -v key="$property_name" '
-		$1 == key {
-			value = $2
-			sub(/^[[:space:]]+/, "", value)
-			sub(/[[:space:]]+$/, "", value)
-			print value
-			exit
-		}
-	'
-}
-
-get_app_version_property() {
-	local property_name="$1"
-	local value
-
-	value="$(extract_property_from_stdin "$property_name" <"$(app_version_file)")"
-	[[ -n "$value" ]] || die "Missing app version property '${property_name}' in $(app_version_file)."
-	printf '%s\n' "$value"
-}
-
-get_app_version_name() {
-	get_app_version_property versionName
-}
-
-get_android_version_code() {
-	get_app_version_property androidVersionCode
-}
-
-get_ios_build_number() {
-	get_app_version_property iosBuildNumber
-}
-
 get_app_version_property_at_git_ref() {
 	local property_name="$1"
 	local git_ref="$2"
@@ -108,16 +58,6 @@ get_app_version_property_at_git_ref() {
 
 	contents="$(git show "${git_ref}:$(app_version_file)" 2>/dev/null || true)"
 	printf '%s' "$contents" | extract_property_from_stdin "$property_name"
-}
-
-validate_semver() {
-	local version="$1"
-	[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-}
-
-validate_positive_integer() {
-	local value="$1"
-	[[ "$value" =~ ^[1-9][0-9]*$ ]]
 }
 
 app_tag_name() {
@@ -137,12 +77,15 @@ changed_files_between_refs() {
 	local before_sha="$1"
 	local after_sha="$2"
 
+	# -z: git quotes a non-ASCII name according to core.quotePath, and a quoted name matches no path pattern of the detector.
 	if is_zero_sha "$before_sha"; then
 		info "Using single-commit diff because the previous SHA is empty."
-		git diff-tree --no-commit-id --name-only -r "$after_sha"
+		git diff-tree --no-renames --no-commit-id --name-only -r -z "$after_sha" | tr '\0' '\n'
 	else
 		info "Detecting changes between ${before_sha} and ${after_sha}."
-		git diff --name-only "$before_sha" "$after_sha"
+		# --no-renames: a moved file is a deletion at its origin and an addition at its destination. Folding it
+		# into the destination hides the origin, so moving runtime sources into a test source set asked for nothing.
+		git diff --no-renames --name-only -z "$before_sha" "$after_sha" | tr '\0' '\n'
 	fi
 }
 
@@ -223,13 +166,18 @@ module_reverse_closure() {
 	fi
 }
 
+# Modules with Kotlin Multiplatform tasks: everything but the Android app and the
+# Android-only instrumentation runner of the E2E scenarios.
 kmp_modules() {
-	module_graph_modules | grep -Fxv app
+	module_graph_modules | grep -Fxv app | grep -Fxv scenariorunner
 }
 
+# Modules that ship in the app. The test-only modules (testkit and the E2E
+# scenario kit, catalog and runner) never reach a release build.
 runtime_modules() {
 	{
-		module_graph_modules | grep -Fxv testkit
+		module_graph_modules |
+			grep -Fxv testkit | grep -Fxv scenariokit | grep -Fxv scenarios | grep -Fxv scenariorunner
 		printf 'iosApp\n'
 	} | sort
 }
@@ -242,34 +190,6 @@ module_is_kmp() {
 module_is_runtime() {
 	local module="$1"
 	runtime_modules | grep -Fx "$module" >/dev/null 2>&1
-}
-
-module_e2e_suite() {
-	local module="$1"
-
-	case "$module" in
-		about|auth|enrollmentproof|evaluations|maincore|pensum|record|subjects|summary)
-			printf '%s-suite\n' "$module"
-			;;
-	esac
-}
-
-# Feature modules in the reverse closure of a module, i.e. every module with
-# its own E2E suite whose behavior the change can impact. maincore is excluded:
-# its suite is only required by its own semantic triggers (maincore changes,
-# persistence bootstrap paths, shared E2E flow changes).
-module_impacted_feature_suites() {
-	local module="$1"
-	local impacted
-	local suite
-
-	while IFS= read -r impacted; do
-		[[ -n "$impacted" && "$impacted" != "maincore" ]] || continue
-		suite="$(module_e2e_suite "$impacted" || true)"
-		if [[ -n "$suite" ]]; then
-			printf '%s\n' "$impacted"
-		fi
-	done < <(module_reverse_closure "$module") | sort -u
 }
 
 append_module_closure() {
@@ -299,11 +219,3 @@ sort_file_if_present() {
 	fi
 }
 
-write_version_xcconfig_contents() {
-	local version_name="$1"
-	local ios_build_number="$2"
-
-	printf '// Generated from %s. Do not edit directly.\n' "$(app_version_file)"
-	printf 'MARKETING_VERSION = %s\n' "$version_name"
-	printf 'CURRENT_PROJECT_VERSION = %s\n' "$ios_build_number"
-}

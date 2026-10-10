@@ -7,9 +7,12 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
+import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.canRetry
 import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
-import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.enrollmentProofTransitions
+import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.anyStateTransitions
+import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.confirmingSavedCopyTransitions
+import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.fetchingTransitions
 
 class EnrollmentProofMachine(
 	private val fetchEnrollmentProofUseCase: FetchEnrollmentProofUseCase,
@@ -19,7 +22,9 @@ class EnrollmentProofMachine(
 
 	override fun define(host: MachineHost<Enrollment.Effect>): MachineDefinition<Enrollment.State> {
 		return MachineDefinition.define {
-			enrollmentProofTransitions(machine = this@EnrollmentProofMachine, host = host)
+			fetchingTransitions(machine = this@EnrollmentProofMachine, host = host)
+			confirmingSavedCopyTransitions(host = host)
+			anyStateTransitions(machine = this@EnrollmentProofMachine, host = host)
 		}
 	}
 
@@ -30,9 +35,15 @@ class EnrollmentProofMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						EnrollmentProofInternalEvent.EnrollmentProofFetched(
-							file = useCaseState.value
-						)
+						if (useCaseState.value.isFromCache) {
+							EnrollmentProofInternalEvent.SavedEnrollmentProofFound(
+								file = useCaseState.value.file
+							)
+						} else {
+							EnrollmentProofInternalEvent.EnrollmentProofFetched(
+								file = useCaseState.value.file
+							)
+						}
 					)
 
 					is UseCaseState.Error -> when (useCaseState.error) {
@@ -43,12 +54,23 @@ class EnrollmentProofMachine(
 
 						else -> host.processInternalEvent(
 							EnrollmentProofInternalEvent.EnrollmentProofFetchFailed(
-								message = useCaseState.error.toErrorMessage(textProvider)
+								message = useCaseState.error.toErrorMessage(textProvider),
+								canRetry = useCaseState.error.canRetry()
 							)
 						)
 					}
 				}
 			}
+		}
+	}
+
+	internal fun reportViewerMissing(host: MachineHost<Enrollment.Effect>) {
+		host.launchMachineJob {
+			host.processInternalEvent(
+				EnrollmentProofInternalEvent.EnrollmentProofViewerMissing(
+					message = textProvider.enrollmentUnsupported()
+				)
+			)
 		}
 	}
 }

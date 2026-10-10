@@ -3,16 +3,20 @@ package com.gdavidpb.tuindice.record.ui.screen
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -23,6 +27,7 @@ import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
+import com.gdavidpb.tuindice.testkit.ui.performTextInputPerCharacter
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -49,19 +54,11 @@ class CreateSyntheticTermScreenUiTest {
 
 			CreateSyntheticTermScreen(
 				state = screenState.value,
-				onQueryChange = { query, selectionStart, selectionEnd ->
-					screenState.value = screenState.value.copy(
-						query = query,
-						querySelectionStart = selectionStart,
-						querySelectionEnd = selectionEnd
-					)
+				onQueryChange = { query ->
+					screenState.value = screenState.value.copy(query = query)
 				},
 				onClearQueryClick = {
-					screenState.value = screenState.value.copy(
-						query = "",
-						querySelectionStart = 0,
-						querySelectionEnd = 0
-					)
+					screenState.value = screenState.value.copy(query = "")
 				},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = { tab ->
@@ -98,7 +95,7 @@ class CreateSyntheticTermScreenUiTest {
 					query = "m",
 					selectedAddSubjectTab = CreateTermAddSubjectTab.Search
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -116,8 +113,6 @@ class CreateSyntheticTermScreenUiTest {
 	@Test
 	fun when_searchExampleIsClicked_then_queryIsUpdated() = runTuIndiceUiTest {
 		var latestQuery = ""
-		var latestSelectionStart = 0
-		var latestSelectionEnd = 0
 
 		setTuIndiceTestContent {
 			val screenState = remember {
@@ -130,15 +125,9 @@ class CreateSyntheticTermScreenUiTest {
 
 			CreateSyntheticTermScreen(
 				state = screenState.value,
-				onQueryChange = { query, selectionStart, selectionEnd ->
+				onQueryChange = { query ->
 					latestQuery = query
-					latestSelectionStart = selectionStart
-					latestSelectionEnd = selectionEnd
-					screenState.value = screenState.value.copy(
-						query = query,
-						querySelectionStart = selectionStart,
-						querySelectionEnd = selectionEnd
-					)
+					screenState.value = screenState.value.copy(query = query)
 				},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
@@ -152,8 +141,104 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
 
 		assertEquals("MA1111", latestQuery)
-		assertEquals("MA1111".length, latestSelectionStart)
-		assertEquals("MA1111".length, latestSelectionEnd)
+	}
+
+	// The view model answers each keystroke later: the answer to a key lands just before the next one.
+	@Test
+	fun when_theQueryEchoLagsBehindTheTyping_then_keepsEveryTypedCharacter() = runTuIndiceUiTest {
+		val reportedQueries = mutableListOf<String>()
+		val screenState = mutableStateOf(
+			CreateSyntheticTerm.State(selectedAddSubjectTab = CreateTermAddSubjectTab.Search)
+		)
+
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = screenState.value,
+				onQueryChange = { query -> reportedQueries += query },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		performTextInputPerCharacter(RecordUiTags.CreateSyntheticTermSearchField, "slot") { index ->
+			if (index >= 1) {
+				runOnIdle {
+					screenState.value = screenState.value.copy(query = reportedQueries[index - 1])
+				}
+				waitForIdle()
+			}
+		}
+
+		assertEquals("slot", reportedQueries.last())
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("slot"))
+	}
+
+	// The field holds the typed text, so an example is a text the caller never pushed: the field
+	// itself must take it, even when the same text was typed earlier.
+	@Test
+	fun when_anExampleIsTappedAfterTheSameTextWasTyped_then_theFieldShowsTheExample() = runTuIndiceUiTest {
+		val screenState = mutableStateOf(
+			CreateSyntheticTerm.State(selectedAddSubjectTab = CreateTermAddSubjectTab.Search)
+		)
+
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = screenState.value,
+				onQueryChange = { query ->
+					screenState.value = screenState.value.copy(query = query)
+				},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performTextInput("MA1111")
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performTextReplacement("M")
+		waitForIdle()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("M"))
+
+		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
+
+		assertEquals("MA1111", screenState.value.query)
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("MA1111"))
+	}
+
+	@Test
+	fun when_theQueryChangesToATextTheUserNeverTyped_then_theFieldShowsIt() = runTuIndiceUiTest {
+		val screenState = mutableStateOf(
+			CreateSyntheticTerm.State(
+				query = "fisica",
+				selectedAddSubjectTab = CreateTermAddSubjectTab.Search
+			)
+		)
+
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = screenState.value,
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("fisica"))
+
+		runOnIdle { screenState.value = screenState.value.copy(query = "quimica") }
+		waitForIdle()
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("quimica"))
 	}
 
 	@Test
@@ -178,7 +263,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -226,7 +311,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -276,7 +361,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -318,7 +403,7 @@ class CreateSyntheticTermScreenUiTest {
 					).toItems(),
 					selectedSubjects = listOf(selectedSubject).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -374,7 +459,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -468,7 +553,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -507,7 +592,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -545,19 +630,11 @@ class CreateSyntheticTermScreenUiTest {
 
 			CreateSyntheticTermScreen(
 				state = screenState.value,
-				onQueryChange = { query, selectionStart, selectionEnd ->
-					screenState.value = screenState.value.copy(
-						query = query,
-						querySelectionStart = selectionStart,
-						querySelectionEnd = selectionEnd
-					)
+				onQueryChange = { query ->
+					screenState.value = screenState.value.copy(query = query)
 				},
 				onClearQueryClick = {
-					screenState.value = screenState.value.copy(
-						query = "",
-						querySelectionStart = 0,
-						querySelectionEnd = 0
-					)
+					screenState.value = screenState.value.copy(query = "")
 				},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = { tab ->
@@ -588,7 +665,7 @@ class CreateSyntheticTermScreenUiTest {
 					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
 					searchResults = emptyList()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -620,7 +697,7 @@ class CreateSyntheticTermScreenUiTest {
 						)
 					).toItems()
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},
@@ -656,7 +733,7 @@ class CreateSyntheticTermScreenUiTest {
 					).toItems(),
 					isSubmitting = true
 				),
-				onQueryChange = { _, _, _ -> },
+				onQueryChange = {},
 				onClearQueryClick = {},
 				onPeriodSelected = {},
 				onAddSubjectTabSelected = {},

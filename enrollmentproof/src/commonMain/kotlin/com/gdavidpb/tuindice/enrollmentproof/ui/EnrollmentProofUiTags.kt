@@ -6,4 +6,5 @@ object EnrollmentProofUiTags {
 	const val FetchingCancelButton = "enrollment_fetching_cancel_button"
 	const val FetchingLoadingContainer = "enrollment_fetching_loading_container"
 	const val FetchingLottie = "enrollment_fetching_lottie"
+	const val SavedCopyMessage = "enrollment_saved_copy_message"
 }

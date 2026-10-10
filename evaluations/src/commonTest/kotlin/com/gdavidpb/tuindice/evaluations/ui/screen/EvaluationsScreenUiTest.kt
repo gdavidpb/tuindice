@@ -7,6 +7,8 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -75,7 +77,9 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.RecordDataUnavailable,
+					state = Evaluations.State.RecordDataUnavailable(
+						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = false)
+					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -117,7 +121,9 @@ class EvaluationsScreenUiTest {
 	fun when_stateIsNoAttempts_then_displaysEmptyContainerWithoutActionButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
+				state = Evaluations.State.NoAttempts(
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm)
+				),
 				onAddEvaluationClick = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -127,6 +133,8 @@ class EvaluationsScreenUiTest {
 		}
 
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
+		onNodeWithText("Sin trimestre en curso").assertExists()
+		onNodeWithText("Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.").assertExists()
 		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 	}
 
@@ -135,7 +143,9 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
+					state = Evaluations.State.NoAttempts(
+						explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.EnrollmentUnavailable)
+					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -152,4 +162,65 @@ class EvaluationsScreenUiTest {
 			// The outage is not resolved by the user, so the state offers no action.
 			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
+
+	@Test
+	fun when_stateIsNoAttemptsBecauseNotEnrolled_then_displaysNotEnrolledCopy() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationsScreen(
+				state = Evaluations.State.NoAttempts(
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NotEnrolled)
+				),
+				onAddEvaluationClick = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {},
+				onRetryClick = {}
+			)
+		}
+
+		onNodeWithText("No estás inscrito en este trimestre").assertExists()
+		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
+	}
+
+	@Test
+	fun when_recordDataIsUnavailableForANewStudent_then_displaysNoCurrentTermCopyWithoutRetry() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = Evaluations.State.RecordDataUnavailable(
+						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = true)
+					),
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			// The record and the summary tell a new student about the missing record; here it only
+			// reads as a term that is not there yet, the same as any other empty term.
+			onNodeWithText("Sin trimestre en curso").assertExists()
+			onNodeWithText("Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.").assertExists()
+			onNodeWithText("Aún no tienes expediente").assertDoesNotExist()
+			assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
+		}
+
+	@Test
+	fun when_stateIsContent_then_theListShowsWithNoNoticeAboveIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationsScreen(
+				state = evaluationsContentState(),
+				onAddEvaluationClick = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {},
+				onRetryClick = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
+		assertNodeHidden(BaseUiTags.NoticeView)
+	}
 }

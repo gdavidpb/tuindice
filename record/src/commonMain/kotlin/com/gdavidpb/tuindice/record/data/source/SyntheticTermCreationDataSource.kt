@@ -20,9 +20,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermPensumCacheResponse
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermSubjectSearchResponse
@@ -55,11 +52,10 @@ import kotlin.time.ExperimentalTime
 
 class SyntheticTermCreationDataSource(
 	private val academicRecordRepository: AcademicRecordRepository,
-	private val pensumCacheDao: PensumCacheDao,
-	private val pensumSelectionDao: PensumSelectionDao,
-	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
+	private val caches: SyntheticTermCreationCaches,
 	private val ktorClient: HttpClient,
-	private val json: Json
+	private val json: Json,
+	private val clock: Clock
 ) : SyntheticTermCreationRepository {
 	private val academicPensumStatusEngine = AcademicPensumStatusEngine()
 
@@ -102,7 +98,7 @@ class SyntheticTermCreationDataSource(
 			pensumStateFlow,
 			searchFlow,
 			selectionFlow
-		) { pensumState, searchResults, selection ->
+		) { pensumState, search, selection ->
 			val record = pensumState.record
 			val pensum = pensumState.pensum
 			val periodOptions = record.periodOptions(editingTermId = selection.editingTermId)
@@ -131,7 +127,7 @@ class SyntheticTermCreationDataSource(
 					editorAvailabilityBySubjectCode = editorAvailabilityBySubjectCode,
 					pensumAvailabilityBySubjectCode = pensumAvailability.bySubjectCode
 				),
-				searchResults = searchResults
+				searchResults = search.results
 					.mapNotNull { subject ->
 						subject
 							.takeIf { item -> RealSubjectCodeRegex.matches(item.subjectCode) }
@@ -146,7 +142,8 @@ class SyntheticTermCreationDataSource(
 						}
 							.thenBy { subject -> subject.availability.searchOrder }
 							.thenBy(SyntheticTermSubject::subjectCode)
-					)
+					),
+				searchQuery = search.query
 			)
 		}
 	}
@@ -180,7 +177,7 @@ class SyntheticTermCreationDataSource(
 			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
 
 		if (entities.isNotEmpty()) {
-			subjectCatalogCacheDao.upsertEntities(entities)
+			caches.subjectCatalogCacheDao.upsertEntities(entities)
 		}
 	}
 
@@ -192,13 +189,13 @@ class SyntheticTermCreationDataSource(
 
 	@OptIn(ExperimentalCoroutinesApi::class)
 	private fun observePensum(): Flow<CreateSyntheticTermPensumCacheResponse?> {
-		return pensumSelectionDao.observeSelection()
+		return caches.pensumSelectionDao.observeSelection()
 			.flatMapLatest { selection ->
 				val cacheKey = selection?.cacheKey
 				if (cacheKey == null) {
 					flowOf(null)
 				} else {
-					pensumCacheDao.observePensum(cacheKey)
+					caches.pensumCacheDao.observePensum(cacheKey)
 						.map { cache ->
 							cache?.payloadJson?.let { payload ->
 								runCatching {
@@ -211,7 +208,7 @@ class SyntheticTermCreationDataSource(
 	}
 
 	@OptIn(ExperimentalCoroutinesApi::class)
-	private fun observeLocalSearch(queryFlow: StateFlow<String>): Flow<List<SyntheticTermSubject>> {
+	private fun observeLocalSearch(queryFlow: StateFlow<String>): Flow<LocalSearch> {
 		return queryFlow
 			.distinctUntilChanged { old, new ->
 				SubjectCatalogSearchNormalizer.normalize(old) == SubjectCatalogSearchNormalizer.normalize(new)
@@ -219,13 +216,13 @@ class SyntheticTermCreationDataSource(
 			.flatMapLatest { query ->
 				val normalizedQuery = SubjectCatalogSearchNormalizer.normalize(query)
 				if (normalizedQuery.length < MinimumSearchQueryLength) {
-					flowOf(emptyList())
+					flowOf(LocalSearch(query = query, results = emptyList()))
 				} else {
-					subjectCatalogCacheDao.observeSearch(
+					caches.subjectCatalogCacheDao.observeSearch(
 						normalizedQuery = normalizedQuery,
 						limit = SearchLimit
 					).map { entities ->
-						entities.map { entity -> entity.toSyntheticTermSubject() }
+						LocalSearch(query = query, results = entities.map { entity -> entity.toSyntheticTermSubject() })
 					}
 				}
 			}
@@ -279,7 +276,7 @@ class SyntheticTermCreationDataSource(
 	}
 
 	private fun currentAcademicTermOrder(): Int {
-		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
+		val dateTime = clock.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
 		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
 	}
 
@@ -313,6 +310,12 @@ class SyntheticTermCreationDataSource(
 			}
 		}
 	}
+
+	// The results of the catalog search together with the query they answer.
+	private data class LocalSearch(
+		val query: String,
+		val results: List<SyntheticTermSubject>
+	)
 
 	private data class FormSelectionState(
 		val selectedSubjects: List<SyntheticTermSubject>,

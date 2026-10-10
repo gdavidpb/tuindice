@@ -14,10 +14,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 @Composable
 fun StatusCardItemView(
@@ -63,6 +65,18 @@ fun StatusCardItemView(
 						weight = value.toFloat(),
 						color = color
 					)
+			}
+
+			// Nothing counted yet (a new student): an empty track keeps the card whole instead of
+			// leaving the header and the legend with nothing between them. No figure under it: the
+			// header already says zero, and the blank label only holds the row's height.
+			if (entries.none { entry -> entry.value > 0 }) {
+				DistributionView(
+					modifier = Modifier.testTag(SummaryUiTags.StatusCardEmptyTrack),
+					label = "",
+					weight = 1f,
+					color = MaterialTheme.colorScheme.outlineVariant
+				)
 			}
 		}
 

@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
@@ -650,33 +651,36 @@ class SyntheticTermCreationDataSourceTest {
 		val cacheKey = "2016-regular"
 		return SyntheticTermCreationDataSource(
 			academicRecordRepository = FakeAcademicRecordRepository(record),
-			pensumCacheDao = FakePensumCacheDao(
-				cache = PensumCacheEntity(
-					cacheKey = cacheKey,
-					year = 2016,
-					modalityId = "regular",
-					payloadJson = pensumPayloadJson,
-					updatedAt = 1L
-				)
+			caches = SyntheticTermCreationCaches(
+				pensumCacheDao = FakePensumCacheDao(
+					cache = PensumCacheEntity(
+						cacheKey = cacheKey,
+						year = 2016,
+						modalityId = "regular",
+						payloadJson = pensumPayloadJson,
+						updatedAt = 1L
+					)
+				),
+				pensumSelectionDao = FakePensumSelectionDao(
+					selection = PensumSelectionEntity(
+						year = 2016,
+						modalityId = "regular",
+						cacheKey = cacheKey,
+						updatedAt = 1L
+					)
+				),
+				subjectCatalogCacheDao = FakeSubjectCatalogCacheDao(searchEntities)
 			),
-			pensumSelectionDao = FakePensumSelectionDao(
-				selection = PensumSelectionEntity(
-					year = 2016,
-					modalityId = "regular",
-					cacheKey = cacheKey,
-					updatedAt = 1L
-				)
-			),
-			subjectCatalogCacheDao = FakeSubjectCatalogCacheDao(searchEntities),
 			ktorClient = HttpClient(MockEngine { respondOk() }),
 			json = Json {
 				ignoreUnknownKeys = true
-			}
+			},
+			clock = Clock.System
 		)
 	}
 }
 
-private class FakeAcademicRecordRepository(
+internal class FakeAcademicRecordRepository(
 	private val record: AcademicRecord
 ) : AcademicRecordRepository {
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = flowOf(record)
@@ -704,7 +708,7 @@ private class FakeAcademicRecordRepository(
 	override suspend fun deleteSyntheticTerm(termId: String) = Unit
 }
 
-private class FakePensumCacheDao(
+internal class FakePensumCacheDao(
 	private val cache: PensumCacheEntity
 ) : PensumCacheDao() {
 	override fun observePensum(cacheKey: String): Flow<PensumCacheEntity?> {
@@ -729,7 +733,7 @@ private class FakePensumCacheDao(
 	override suspend fun deleteAll(): Int = 0
 }
 
-private class FakePensumSelectionDao(
+internal class FakePensumSelectionDao(
 	private val selection: PensumSelectionEntity
 ) : PensumSelectionDao() {
 	override fun observeSelection(id: String): Flow<PensumSelectionEntity?> = flowOf(selection)
@@ -743,7 +747,7 @@ private class FakePensumSelectionDao(
 	override suspend fun deleteAll(): Int = 0
 }
 
-private class FakeSubjectCatalogCacheDao(
+internal class FakeSubjectCatalogCacheDao(
 	private val entities: List<SubjectCatalogCacheEntity>
 ) : SubjectCatalogCacheDao() {
 	override fun observeSearch(
@@ -864,7 +868,7 @@ private fun subjectCatalogEntity(
 	)
 }
 
-private fun pensumPayload(
+internal fun pensumPayload(
 	nodes: List<String>,
 	edges: List<String>
 ): String {
@@ -880,7 +884,7 @@ private fun pensumPayload(
 	)
 }
 
-private fun pensumResponsePayload(
+internal fun pensumResponsePayload(
 	selectedPensumId: String,
 	pensums: List<String>
 ): String {
@@ -892,7 +896,7 @@ private fun pensumResponsePayload(
 	""".trimIndent()
 }
 
-private fun pensumPayloadPensum(
+internal fun pensumPayloadPensum(
 	id: String,
 	nodes: List<String>,
 	edges: List<String>
@@ -906,7 +910,7 @@ private fun pensumPayloadPensum(
 	""".trimIndent()
 }
 
-private fun pensumNode(
+internal fun pensumNode(
 	id: String,
 	subjectCode: String,
 	name: String
@@ -922,7 +926,7 @@ private fun pensumNode(
 	""".trimIndent()
 }
 
-private fun pensumEdge(
+internal fun pensumEdge(
 	fromNodeId: String,
 	toNodeId: String,
 	relationshipType: String

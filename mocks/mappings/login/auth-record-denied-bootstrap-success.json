@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-record-denied-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzQtMzQzNDM6cmVjb3JkLWRlbmllZC1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "record-denied-user",
+      "usb_id": "34-34343",
+      "access_token": "bootstrap.mock.record-denied.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

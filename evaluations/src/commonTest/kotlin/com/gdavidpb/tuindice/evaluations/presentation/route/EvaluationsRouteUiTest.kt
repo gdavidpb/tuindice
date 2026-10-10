@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -36,6 +38,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationsRouteUiTest {
@@ -392,7 +396,8 @@ class EvaluationsRouteUiTest {
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -419,7 +424,8 @@ class EvaluationsRouteUiTest {
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = RecordingReportingRepository()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)

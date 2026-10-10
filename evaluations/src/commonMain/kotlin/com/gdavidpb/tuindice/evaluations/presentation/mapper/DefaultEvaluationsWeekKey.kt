@@ -4,13 +4,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.datetime.LocalDate
 
 fun defaultEvaluationsWeekKey(
 	currentTerm: EvaluationTermDescriptor?,
 	evaluations: List<Evaluation>,
-	currentDate: LocalDate = currentEvaluationLocalDate()
+	currentDate: LocalDate
 ): EvaluationsWeekKey {
 	val hasDatedEvaluations = evaluations.any { evaluation ->
 		evaluation.scheduleMode == EvaluationScheduleMode.DATED

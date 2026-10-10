@@ -1,0 +1,21 @@
+{
+  "requests": [
+    {
+      "id": "0b11ce38-cded-4688-ae4f-bec7a70e0bc1",
+      "request": {
+        "url": "/auth/v1/token",
+        "absoluteUrl": "http://10.0.2.2:18626/auth/v1/token",
+        "method": "POST",
+        "headers": {
+          "Authorization": "Basic NTUtNTU1NTU6djEyMzQ1Ng==",
+          "X-Attested-Flow": "reissue_tokens",
+          "Host": "10.0.2.2:18626"
+        },
+        "body": ""
+      },
+      "responseDefinition": {"status": 404, "fromConfiguredStub": false},
+      "response": {"status": 404, "body": ""},
+      "wasMatched": false
+    }
+  ]
+}

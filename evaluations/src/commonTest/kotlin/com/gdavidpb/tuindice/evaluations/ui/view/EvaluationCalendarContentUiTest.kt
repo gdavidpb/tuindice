@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -37,6 +39,29 @@ class EvaluationCalendarContentUiTest {
 
 		assertEquals(1, previousClicks)
 		assertEquals(1, nextClicks)
+	}
+
+	@Test
+	fun when_displayedMonthChanges_then_labelReadsTheMonthInLowerCaseAndTheYear() = runTuIndiceUiTest {
+		val displayedMonth = mutableStateOf(LocalDate(2026, 1, 1))
+
+		setTuIndiceTestContent {
+			EvaluationCalendarContent(
+				displayedMonth = displayedMonth.value,
+				selectedDate = null,
+				onPreviousMonthClick = {},
+				onNextMonthClick = {},
+				onDateSelected = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationCalendarMonthLabel).assertTextEquals("enero 2026")
+
+		runOnIdle {
+			displayedMonth.value = LocalDate(2025, 12, 1)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationCalendarMonthLabel).assertTextEquals("diciembre 2025")
 	}
 
 	@Test

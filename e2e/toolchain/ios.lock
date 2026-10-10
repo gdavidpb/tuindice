@@ -1,0 +1,12 @@
+# iOS toolchain lock. Every key is strict: a difference exits 3 in evidence mode.
+# Changing a value is a deliberate commit and changes the iOS fingerprint.
+XCODE_VERSION=27.0
+XCODE_BUILD=27A266a
+IOS_RUNTIME_ID=com.apple.CoreSimulator.SimRuntime.iOS-27-0
+IOS_RUNTIME_BUILD=24A434
+IOS_DEVICE_TYPE_ID=com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro
+IOS_SIMULATOR_NAME=TuIndice-E2E
+IOS_LANGUAGE=es
+IOS_LOCALE=es
+# The active keyboard list of the simulator (AppleKeyboards): the one layout that goes with IOS_LANGUAGE, no emoji or globe key.
+IOS_KEYBOARDS=es_ES@sw=QWERTY;hw=Automatic

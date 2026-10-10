@@ -1,12 +1,16 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.data.repository
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -21,12 +25,19 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationRepositoryContractTest {
@@ -40,7 +51,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -65,7 +77,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -85,7 +98,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations()
@@ -110,7 +124,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
 			mutationEngine = createEvaluationsMutationEngine(),
-			identifierRepository = FakeIdentifierRepository()
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluations(forceRemote = true)
@@ -118,6 +133,31 @@ class EvaluationRepositoryContractTest {
 		assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
 		assertEquals(1, databaseDataSource.savedSnapshots.size)
 		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	// Evaluations whose subject is no longer in the current term are never listed, so the refresh
+	// must not report them as something to wait for: the screen would wait forever.
+	@Test
+	fun updateEvaluations_countsOnlyEvaluationsUnderAnAvailableSubject() = runTest {
+		val orphan = DEFAULT_LOCAL_PENDING_EVALUATION.copy(attemptId = "attempt-that-is-gone")
+
+		fun repositoryWith(evaluations: List<LocalEvaluation>) = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = true, evaluations = evaluations)
+			),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
+		)
+
+		val onlyOrphans = repositoryWith(listOf(orphan)).updateEvaluations()
+		val withListed = repositoryWith(listOf(orphan, DEFAULT_LOCAL_PENDING_EVALUATION)).updateEvaluations()
+
+		assertEquals(false, onlyOrphans.hasEvaluations)
+		assertEquals(true, onlyOrphans.hasAvailableAttempts)
+		assertEquals(true, withListed.hasEvaluations)
 	}
 
 	@Test
@@ -133,7 +173,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-1")
+			identifierRepository = FakeIdentifierRepository("mutation-1"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(
@@ -190,7 +231,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -245,7 +287,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
@@ -263,7 +306,8 @@ class EvaluationRepositoryContractTest {
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
@@ -284,7 +328,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -317,7 +362,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(equivalentAdd(reference = "reference-2"))
@@ -340,7 +386,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-2")
+			identifierRepository = FakeIdentifierRepository("mutation-2"),
+			clock = Clock.System
 		)
 
 		repository.addEvaluation(
@@ -405,7 +452,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-3")
+			identifierRepository = FakeIdentifierRepository("mutation-3"),
+			clock = Clock.System
 		)
 
 		repository.updateEvaluation(
@@ -439,7 +487,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-4")
+			identifierRepository = FakeIdentifierRepository("mutation-4"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))
@@ -465,7 +514,8 @@ class EvaluationRepositoryContractTest {
 				store = pendingMutationStore,
 				coroutineScope = backgroundScope
 			),
-			identifierRepository = FakeIdentifierRepository("mutation-5")
+			identifierRepository = FakeIdentifierRepository("mutation-5"),
+			clock = Clock.System
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))
@@ -477,5 +527,111 @@ class EvaluationRepositoryContractTest {
 		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
 		assertEquals("mutation-5", pendingRemove.mutationId)
 		assertEquals(PendingMutationStatus.Pending, pendingRemove.status)
+	}
+
+	// A 503 is the service being away, not a verdict on the change: the add stays queued as
+	// Pending (with the reason) so the next drain sends it, instead of being parked for good.
+	@Test
+	fun addEvaluation_whenTheServiceAnswers503_keepsTheAddPendingForTheNextDrain() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		outage.releaseFirstAnswer()
+		runCurrent()
+
+		val queued = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
+		assertEquals(PendingMutationStatus.Pending, queued.status)
+		assertEquals(1, outage.addAttempts)
+	}
+
+	@Test
+	fun drainPendingMutations_afterA503_sendsTheAddAgainAndRetiresIt() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		outage.releaseFirstAnswer()
+		runCurrent()
+		repository.drainPendingMutations()
+
+		assertEquals(2, outage.addAttempts)
+		assertEquals(emptyList(), pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE))
+	}
+
+	// The drain of a sign-out flush arrives while the add is still in flight and about to be
+	// answered 503: it must wait for that send, send the add again, and leave nothing behind.
+	@Test
+	fun drainPendingMutations_whileAnAddEndsIn503_waitsResendsAndLeavesNothingPending() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val outage = OutageThenRecoveryApi()
+		val repository = repositoryOver(outage, pendingMutationStore, backgroundScope)
+
+		repository.addEvaluation(quizAdd())
+		runCurrent()
+		val flush = launch { repository.drainPendingMutations() }
+		runCurrent()
+		assertEquals(1, outage.addAttempts)
+		assertTrue(flush.isActive)
+
+		outage.releaseFirstAnswer()
+		flush.join()
+
+		assertEquals(2, outage.addAttempts)
+		assertEquals(emptyList(), pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE))
+	}
+
+	private fun repositoryOver(
+		api: EvaluationsApiDataRepository,
+		store: FakeMutationEnvelopeStore<String, EvaluationMutation>,
+		scope: kotlinx.coroutines.CoroutineScope
+	) = EvaluationDataSource(
+		databaseDataSource = FakeDatabaseDataSource(),
+		evaluationsApiDataSource = api,
+		settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+		mutationEngine = createEvaluationsMutationEngine(store = store, coroutineScope = scope),
+		identifierRepository = FakeIdentifierRepository("mutation-503"),
+		clock = Clock.System
+	)
+
+	private fun quizAdd() = EvaluationAdd(
+		reference = "reference-503",
+		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+		termId = DEFAULT_EVALUATION_SUBJECT.termId,
+		type = EvaluationType.QUIZ,
+		scheduleMode = EvaluationScheduleMode.DATED,
+		date = 1_900_000_000_000L,
+		grade = null,
+		maxGrade = 100.0
+	)
+
+	// The first add is held open and then answered 503; every later one succeeds.
+	private class OutageThenRecoveryApi(
+		private val healthy: FakeEvaluationsApiDataSource = FakeEvaluationsApiDataSource()
+	) : EvaluationsApiDataRepository by healthy {
+		private val firstAnswer = CompletableDeferred<Unit>()
+		var addAttempts = 0
+			private set
+
+		fun releaseFirstAnswer() {
+			firstAnswer.complete(Unit)
+		}
+
+		override suspend fun addEvaluation(
+			add: EvaluationMutation.Add,
+			mutationId: String
+		): EvaluationMutationAck.Add {
+			addAttempts += 1
+			if (addAttempts == 1) {
+				firstAnswer.await()
+				throw serverResponseException(HttpStatusCode.ServiceUnavailable)
+			}
+			return healthy.addEvaluation(add, mutationId)
+		}
 	}
 }

@@ -15,8 +15,12 @@
   "response": {
     "status": 503,
     "headers": {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Retry-After": "10"
     },
     "fixedDelayMilliseconds": 1500
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
   }
 }

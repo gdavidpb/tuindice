@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPathPattern": "/record/v5/overlay/attempts/[^/]+"
+    "urlPathPattern": "/record/v5/overlay/attempts/[^/]+",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "transformers": [

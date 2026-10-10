@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -21,6 +24,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.listedUnder
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekKeyOrNull
@@ -36,6 +42,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsFail
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdleTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -43,6 +51,8 @@ import tuindice.evaluations.generated.resources.evaluations_continuous_label
 import tuindice.evaluations.generated.resources.evaluations_week_label
 import tuindice.evaluations.generated.resources.snack_evaluation_removed
 import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsMachine(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
@@ -51,7 +61,8 @@ class EvaluationsMachine(
 	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
-	private val setSelectedWeekUseCase: SetSelectedWeekUseCase
+	private val setSelectedWeekUseCase: SetSelectedWeekUseCase,
+	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
@@ -63,6 +74,7 @@ class EvaluationsMachine(
 			evaluationsEmptyTransitions()
 			evaluationsNoAttemptsTransitions()
 			evaluationsFailedTransitions()
+			evaluationsRecordDataUnavailableTransitions()
 			evaluationsAnyStateTransitions(machine = this@EvaluationsMachine, host = host)
 		}
 	}
@@ -78,19 +90,26 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsWaitingObserved
 						)
 
-						GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
+						is GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
+							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+								explanation = resolveRecordDataUnavailableExplanation(
+									isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+								)
+							)
 						)
 
 						is GetEvaluations.NoAttempts -> host.processInternalEvent(
 							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-								reason = evaluations.reason
+								explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
 							)
 						)
 
 						is GetEvaluations.Content -> when (
 							resolveSyncedContentResolution(
-								hasContent = evaluations.evaluations.isNotEmpty(),
+								// Counted over what the list will show: evaluations with no subject
+								// to be listed under are left out, and a screen left with none of
+								// them is the empty one, not a list with nothing in it.
+								hasContent = evaluations.listedEvaluations().isNotEmpty(),
 								hasSynced = evaluations.hasSyncedEvaluations,
 								keepCurrentWhileWaiting = false
 							)
@@ -300,11 +319,15 @@ class EvaluationsMachine(
 		val mapping = getEvaluationItemMapping()
 		val weekLabelPattern = getString(Res.string.evaluations_week_label)
 		val continuousLabel = getString(Res.string.evaluations_continuous_label)
+		// Filtered once, here, so the week strip, the default week and the list all describe the
+		// same evaluations: one left out of the list must not leave a dot on its day behind.
+		val listedEvaluations = listedEvaluations()
 		val weekItems = buildEvaluationsWeekItems(
 			currentTerm = displayContext.currentTerm,
-			evaluations = evaluations,
+			evaluations = listedEvaluations,
 			weekLabelPattern = weekLabelPattern,
-			continuousLabel = continuousLabel
+			continuousLabel = continuousLabel,
+			currentDate = clock.currentEvaluationLocalDate()
 		)
 
 		// EFSM guard: la semana persistida (plegada en la observación) siembra el default
@@ -318,14 +341,19 @@ class EvaluationsMachine(
 			weekItems = weekItems,
 			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
-				evaluations = evaluations
+				evaluations = listedEvaluations,
+				currentDate = clock.currentEvaluationLocalDate()
 			),
 			evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
-				evaluations = evaluations,
+				evaluations = listedEvaluations,
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
 			)
 		)
+	}
+
+	private fun GetEvaluations.Content.listedEvaluations(): List<Evaluation> {
+		return evaluations.listedUnder(attempts = displayContext.attempts)
 	}
 }

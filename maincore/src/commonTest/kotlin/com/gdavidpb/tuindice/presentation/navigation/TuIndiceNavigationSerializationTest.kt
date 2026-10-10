@@ -50,12 +50,20 @@ class TuIndiceNavigationSerializationTest {
 		),
 		AuthDestination.UpdatePasswordDialog,
 		SummaryDestination.Summary,
-		SummaryDestination.ProfilePictureSettingsDialog(showRemove = true),
+		SummaryDestination.ProfilePictureSettingsDialog(
+			showRemove = true,
+			isCameraAvailable = true
+		),
+		SummaryDestination.ProfilePictureSettingsDialog(
+			showRemove = false,
+			isCameraAvailable = false
+		),
 		SummaryDestination.RemoveProfilePictureConfirmationDialog,
 		RecordDestination.Record,
 		RecordDestination.CreateSyntheticTerm(termId = "term-1"),
 		RecordDestination.CreateSyntheticTerm(termId = null),
 		RecordDestination.DeleteSyntheticTermConfirmationDialog(termId = "term-1"),
+		RecordDestination.ScheduleDialog,
 		EvaluationsDestination.Evaluations,
 		EvaluationsDestination.Evaluation(evaluationId = "evaluation-1"),
 		EvaluationsDestination.Evaluation(evaluationId = null),

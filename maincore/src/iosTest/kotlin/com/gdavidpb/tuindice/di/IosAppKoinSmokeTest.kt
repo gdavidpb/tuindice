@@ -1,29 +1,16 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.UpdateAction
-import com.gdavidpb.tuindice.domain.model.IosBuildVariant
-import com.gdavidpb.tuindice.domain.model.IosHostCapabilities
-import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
-import com.gdavidpb.tuindice.platform.IOSContext
-import com.gdavidpb.tuindice.platform.IosAttestationCapability
-import com.gdavidpb.tuindice.platform.IosDeviceCapability
-import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
-import com.gdavidpb.tuindice.platform.IosObservabilityCapability
-import com.gdavidpb.tuindice.platform.IosPushCapability
-import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
-import com.gdavidpb.tuindice.platform.IosReviewCapability
-import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
-import com.gdavidpb.tuindice.platform.IosUpdateCapability
-import com.gdavidpb.tuindice.platform.iosDefaultConfigValues
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class IosAppKoinSmokeTest {
 	@Test
@@ -32,85 +19,7 @@ class IosAppKoinSmokeTest {
 			startAppKoin(
 				AppKoinBootstrapRequest(
 					platformBootstrap = IosKoinBootstrap(
-						iOSContext = IOSContext(
-							hostCapabilities = IosHostCapabilities(
-								remoteConfig = object : IosRemoteConfigCapability {
-									override fun remoteConfigString(key: String): String? = null
-								},
-								attestation = object : IosAttestationCapability {
-									override fun sha256Base64Url(value: String): String = value
-									override suspend fun resolveAttestationKeyId(): String = "key"
-									override suspend fun invalidateAttestationKeyId() = Unit
-									override suspend fun requestAttestation(
-										attestationInput: String,
-										keyId: String,
-										evidenceMode: String
-									): IosPlatformAttestation {
-										return IosPlatformAttestation(
-											token = "token",
-											keyId = "key",
-											provider = AttestationProvider.APP_ATTEST
-										)
-									}
-								},
-								push = object : IosPushCapability {
-									override suspend fun pushToken(): String = "push-token"
-								},
-								review = object : IosReviewCapability {
-									override suspend fun launchReview() = Unit
-								},
-								update = object : IosUpdateCapability {
-									override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? = null
-									override suspend fun launchUpdate(action: UpdateAction) = Unit
-								},
-								externalActions = object : IosExternalActionsCapability {
-									override fun openUrl(url: String) = Unit
-									override fun openFile(path: String): Boolean = true
-									override fun canOpen(path: String): Boolean = true
-								},
-								device = object : IosDeviceCapability {
-									override fun appVersionName(): String = "1.0"
-									override fun appVersionCode(): Long = 1L
-									override fun hasCamera(): Boolean = true
-									override fun isNetworkAvailable(): Boolean = true
-								},
-								observability = object : IosObservabilityCapability {
-									override fun setUserIdentifier(identifier: String) = Unit
-									override fun setUsageDataCollectionEnabled(enabled: Boolean) = Unit
-									override fun setPerformanceCollectionEnabled(enabled: Boolean) = Unit
-									override fun logEvent(name: String, parameters: Map<String, String>) = Unit
-									override fun logMessage(message: String) = Unit
-									override fun logException(throwable: Throwable) = Unit
-									override fun setCustomKey(key: String, value: String) = Unit
-								},
-								secureStore = object : IosSecureStoreCapability {
-									private val values = mutableMapOf<String, String>()
-
-									override fun readSecureValue(key: String): String? = values[key]
-
-									override fun writeSecureValue(key: String, value: String) {
-										values[key] = value
-									}
-
-									override fun deleteSecureValue(key: String) {
-										values.remove(key)
-									}
-
-									override fun clearSecureValues() {
-										values.clear()
-									}
-								}
-							),
-							appEnvironment = AppEnvironment(
-								apiBaseUrl = "http://localhost:8080/",
-								privacyPolicyUrl = "https://tuindice.app/privacy",
-								termsAndConditionsUrl = "https://tuindice.app/terms",
-								supportUrl = "https://tuindice.app/support",
-								debug = true
-							),
-							appStoreUrl = "itms-apps://apps.apple.com/app/id6760307454",
-							configValues = iosDefaultConfigValues(IosBuildVariant.DEBUG)
-						),
+						iOSContext = iosSmokeTestContext(),
 						platformVariantModules = emptyList()
 					)
 				)
@@ -124,4 +33,23 @@ class IosAppKoinSmokeTest {
 				RecordViewModel::class
 			)
 		}
+
+	// The sign-out wipe and the start without a session reach the normalized profile pictures only
+	// through these two bindings, which live in the iOS platform module.
+	@Test
+	fun bindsTheProfilePictureInputAsSessionMemoryAndResidue() = withStartedKoin(
+		start = {
+			startAppKoin(
+				AppKoinBootstrapRequest(
+					platformBootstrap = IosKoinBootstrap(
+						iOSContext = iosSmokeTestContext(),
+						platformVariantModules = emptyList()
+					)
+				)
+			)
+		}
+	) {
+		assertTrue(getAll<SessionMemory>().any { holder -> holder is IosProfilePictureInputDataSource })
+		assertTrue(getAll<SessionResidue>().any { holder -> holder is IosProfilePictureInputDataSource })
+	}
 }

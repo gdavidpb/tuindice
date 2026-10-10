@@ -20,6 +20,8 @@ import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutationSyncSpec
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
+import com.gdavidpb.tuindice.record.domain.model.RecordRejectionKind
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -40,7 +42,8 @@ class AcademicRecordDataSource(
 	private val mutationSyncSpec = AcademicRecordMutationSyncSpec(
 		remoteDataSource = remoteDataSource,
 		persistConfirmedSnapshot = ::persistRemoteSnapshot,
-		refreshRemoteSnapshot = ::refreshRemoteSnapshot
+		refreshRemoteSnapshot = ::refreshRemoteSnapshot,
+		currentLocalRevision = localDataSource::getRecordRevision
 	)
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> {
@@ -62,11 +65,27 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> {
+		return observeTerminallyRejectedMutationsFlow()
+			.map { rejections -> rejections.map { rejection -> rejection.mutationId } }
+			.distinctUntilChanged()
+	}
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> {
 		return mutationEngine.observeMutations(RECORD_MUTATION_SCOPE)
 			.map { mutations ->
 				mutations.filter { mutation ->
 					mutation.status == PendingMutationStatus.FailedTerminal
-				}.map { mutation -> mutation.mutationId }
+				}.map { mutation ->
+					RecordRejection(
+						mutationId = mutation.mutationId,
+						kind = when (mutation.command) {
+							is AcademicRecordMutation.UpsertAttemptOverride,
+							is AcademicRecordMutation.DeleteAttemptOverride -> RecordRejectionKind.Grade
+
+							else -> RecordRejectionKind.Term
+						}
+					)
+				}
 			}
 			.distinctUntilChanged()
 	}

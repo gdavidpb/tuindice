@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
@@ -15,6 +17,8 @@ import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 	id = id,
@@ -94,7 +98,7 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	isDone = isDone
 )
 
-fun LocalEvaluation.toEvaluation() = Evaluation(
+fun LocalEvaluation.toEvaluation(clock: Clock) = Evaluation(
 	id = id,
 	attemptId = attemptId,
 	subjectCode = subjectCode,
@@ -107,6 +111,7 @@ fun LocalEvaluation.toEvaluation() = Evaluation(
 	state = computeEvaluationState(
 		scheduleMode = scheduleMode,
 		grade = grade,
-		date = date
+		date = date,
+		clock = clock
 	)
 )

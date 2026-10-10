@@ -49,4 +49,10 @@ class MainViewModel(
 
 	fun noteSyncFailedAction() =
 		sendAction(Main.Action.NoteSyncFailed)
+
+	fun dismissUpdatePasswordAction() =
+		sendAction(Main.Action.DismissUpdatePassword)
+
+	fun requestSignOutAction() =
+		sendAction(Main.Action.RequestSignOut)
 }

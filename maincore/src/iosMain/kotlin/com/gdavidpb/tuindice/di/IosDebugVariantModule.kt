@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosDebugAttestationDataSource
+import com.gdavidpb.tuindice.debug.OverridableClock
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
@@ -25,10 +26,15 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private const val IOS_DEBUG_SUMMARY_SOURCE = "ios-debug-summary"
 
+@OptIn(ExperimentalTime::class)
 val iosDebugVariantModule = module {
+	single<Clock> { OverridableClock() }
+
 	single<EventSubscriber>(named("iosDebugEventSubscriber")) {
 		DebugEventSubscriber(
 			sourceName = "ios-debug"

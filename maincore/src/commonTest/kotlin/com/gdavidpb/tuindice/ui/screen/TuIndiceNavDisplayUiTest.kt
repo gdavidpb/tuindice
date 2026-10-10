@@ -3,14 +3,10 @@ package com.gdavidpb.tuindice.ui.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -36,10 +32,10 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
+					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -61,10 +57,10 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = { confirmExitCalls++ },
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
+					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -87,10 +83,10 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = { confirmExitCalls++ },
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
+					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -114,8 +110,6 @@ class TuIndiceNavDisplayUiTest {
 			modules(
 				module {
 					factory { createSummaryViewModel() }
-					single<SyncRepository> { FakeSyncRepository() }
-					single<SyncStatusRepository> { FakeSyncStatusRepository() }
 				}
 			)
 		}

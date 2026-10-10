@@ -168,6 +168,7 @@ dependencies {
 	testImplementation(libs.bundles.testing)
 	testImplementation(libs.ktor.client.mock)
 	testImplementation(libs.kotlinx.coroutines.test)
+	testImplementation(libs.robolectric)
 	androidTestImplementation(libs.bundles.testing.android)
 	androidTestImplementation(libs.test.ext.junit)
 

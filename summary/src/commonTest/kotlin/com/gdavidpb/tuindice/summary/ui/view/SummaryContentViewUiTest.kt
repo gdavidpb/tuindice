@@ -12,9 +12,16 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SYNC_STATUS_TEXT
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryItemsFor
@@ -37,7 +44,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.Healthy,
+				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 				summaryItems = items,
 				onEditProfilePictureClick = { editClicks++ },
 				onStatusIconClick = {}
@@ -67,7 +74,7 @@ class SummaryContentViewUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryContentView(
 					state = contentState,
-					syncStatus = SyncStatus.Healthy,
+					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 					summaryItems = summaryItemsFor(contentState),
 					onEditProfilePictureClick = { editClicks++ },
 					onStatusIconClick = {}
@@ -86,7 +93,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.Healthy,
+				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 				summaryItems = emptyList(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = {}
@@ -105,7 +112,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.Healthy,
+				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 				summaryItems = summaryItemsFor(contentState),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = {}
@@ -133,7 +140,7 @@ class SummaryContentViewUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryContentView(
 					state = contentState,
-					syncStatus = SyncStatus.Healthy,
+					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 					isSyncing = true,
 					summaryItems = summaryItemsFor(contentState),
 					onEditProfilePictureClick = {},
@@ -181,7 +188,7 @@ class SummaryContentViewUiTest {
 			assertEquals(
 				expected = Icons.Outlined.Sync,
 				actual = syncStatusIcon(
-					syncStatus = syncStatus,
+					syncAttention = resolveSyncAttention(syncStatus, SyncReport.success()),
 					isStatusRefreshing = true
 				)
 			)
@@ -204,8 +211,7 @@ class SummaryContentViewUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryContentView(
 					state = contentState,
-					syncStatus = SyncStatus.Healthy,
-					syncReport = SyncReport.partialEnrollmentUnavailable(),
+					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.partialEnrollmentUnavailable()),
 					showSyncAttentionHalo = true,
 					summaryItems = summaryItemsFor(contentState),
 					onEditProfilePictureClick = {},
@@ -229,8 +235,7 @@ class SummaryContentViewUiTest {
 				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 					SummaryContentView(
 						state = contentState,
-						syncStatus = SyncStatus.Healthy,
-						syncReport = SyncReport.partialEnrollmentUnavailable(),
+						syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.partialEnrollmentUnavailable()),
 						isSyncing = true,
 						showSyncAttentionHalo = true,
 						summaryItems = summaryItemsFor(contentState),
@@ -249,16 +254,18 @@ class SummaryContentViewUiTest {
 		assertEquals(
 			expected = Icons.Outlined.SyncProblem,
 			actual = syncStatusIcon(
-				syncStatus = SyncStatus.Failed,
+				syncAttention = SyncAttention.Problem,
 				isStatusRefreshing = false
 			)
 		)
 		assertEquals(
 			expected = Icons.Outlined.SyncProblem,
 			actual = syncStatusIcon(
-				syncStatus = SyncStatus.Healthy,
-				isStatusRefreshing = false,
-				hasSyncSourceIssue = true
+				syncAttention = resolveSyncAttention(
+					SyncStatus.Healthy,
+					SyncReport.partialEnrollmentUnavailable()
+				),
+				isStatusRefreshing = false
 			)
 		)
 		assertEquals(
@@ -280,7 +287,7 @@ class SummaryContentViewUiTest {
 				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 					SummaryContentView(
 						state = contentState,
-						syncStatus = SyncStatus.Failed,
+						syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
 						isSyncing = true,
 						summaryItems = summaryItemsFor(contentState),
 						onEditProfilePictureClick = {},
@@ -306,7 +313,7 @@ class SummaryContentViewUiTest {
 				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 					SummaryContentView(
 						state = contentState,
-						syncStatus = SyncStatus.Failed,
+						syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
 						isSyncing = false,
 						summaryItems = summaryItemsFor(contentState),
 						onEditProfilePictureClick = {},
@@ -329,7 +336,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.Failed,
+				syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
 				summaryItems = summaryItemsFor(contentState),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
@@ -352,7 +359,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.Unavailable,
+				syncAttention = resolveSyncAttention(SyncStatus.Unavailable, SyncReport.success()),
 				summaryItems = summaryItemsFor(contentState),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
@@ -375,7 +382,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
-				syncStatus = SyncStatus.OutdatedCredentials,
+				syncAttention = resolveSyncAttention(SyncStatus.OutdatedCredentials, SyncReport.success()),
 				summaryItems = summaryItemsFor(contentState),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
@@ -388,5 +395,146 @@ class SummaryContentViewUiTest {
 		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(DEFAULT_SYNC_STATUS_TEXT)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
+	}
+
+	@Test
+	fun when_enrollmentIsAnnulled_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncAttention = resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
+					// Even told to pulse, a row with no problem to announce has no halo.
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		// Record and Evaluations carry the annulment notice; the sync itself had no problem.
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		assertNodeVisible(SummaryUiTags.StatusIcon, useUnmergedTree = true)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
+	}
+
+	@Test
+	fun when_enrollmentIsNotEnrolled_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncAttention = resolveSyncAttention(
+						SyncStatus.Healthy,
+						enrollmentReport(SyncSourceStatus.NotEnrolled)
+					),
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
+	}
+
+	@Test
+	fun when_newStudentHasNoRecord_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncAttention = resolveSyncAttention(
+						SyncStatus.NewStudentNoRecord,
+						SyncReport.failedRecordUnavailable()
+					),
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
+	}
+
+	@Test
+	fun when_enrollmentIsUnavailableAndAnAnnulmentIsCarriedOver_then_statusShowsTheProblem() =
+		runTuIndiceUiTest {
+			val contentState = summaryContentState()
+			var statusIconClicks = 0
+
+			setTuIndiceTestContent {
+				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+					SummaryContentView(
+						state = contentState,
+						syncAttention = resolveSyncAttention(
+							SyncStatus.Healthy,
+							SyncReport.partialEnrollmentUnavailable().carryingEnrollmentFrom(annulledReport())
+						),
+						showSyncAttentionHalo = true,
+						summaryItems = summaryItemsFor(contentState),
+						onEditProfilePictureClick = {},
+						onStatusIconClick = { statusIconClicks++ }
+					)
+				}
+			}
+
+			// The source that could not be read is a problem of the sync, annulment or not.
+			assertNodeVisible(SummaryUiTags.StatusIconHalo)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+			onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+			assertEquals(1, statusIconClicks)
+		}
+
+	@Test
+	fun when_universityReportsAnEnrollmentState_then_iconIsThePlainSyncOne() {
+		listOf(
+			resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
+			resolveSyncAttention(SyncStatus.Healthy, enrollmentReport(SyncSourceStatus.NotEnrolled)),
+			resolveSyncAttention(SyncStatus.NewStudentNoRecord, SyncReport.failedRecordUnavailable())
+		).forEach { syncAttention ->
+			assertEquals(
+				expected = Icons.Outlined.Sync,
+				actual = syncStatusIcon(syncAttention = syncAttention, isStatusRefreshing = false)
+			)
+		}
+	}
+
+	private fun annulledReport(): SyncReport {
+		return enrollmentReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+	}
+
+	private fun enrollmentReport(
+		enrollment: SyncSourceStatus,
+		situation: EnrollmentSituation? = null
+	): SyncReport {
+		return SyncReport(
+			status = SyncReportStatus.Success,
+			sources = SyncReportSources(
+				record = SyncSourceReport(SyncSourceStatus.Success),
+				enrollment = SyncSourceReport(enrollment, situation)
+			)
+		)
 	}
 }

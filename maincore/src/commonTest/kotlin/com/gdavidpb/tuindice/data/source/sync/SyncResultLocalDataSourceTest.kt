@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.data.model.SyncResult
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordOutboxDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -19,7 +20,25 @@ class SyncResultLocalDataSourceTest {
 		val writes = mutableListOf<String>()
 		val dataSource = SyncResultLocalDataSource(
 			recordLocalDataSource = RecordingRecordLocalDataRepository(writes),
-			userLocalDataSource = RecordingUserLocalDataRepository(writes)
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(writes)
+		)
+
+		dataSource.saveSyncResult(SyncResult(record = RECORD, user = USER))
+
+		assertEquals(listOf("record 3", "outbox 3", "user user-1"), writes)
+	}
+
+	@Test
+	fun saveSyncResult_whenTheQueueCannotBeReconciled_stillSavesTheUser() = runTest {
+		val writes = mutableListOf<String>()
+		val dataSource = SyncResultLocalDataSource(
+			recordLocalDataSource = RecordingRecordLocalDataRepository(writes),
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(
+				writes,
+				failure = IllegalStateException("outbox unavailable")
+			)
 		)
 
 		dataSource.saveSyncResult(SyncResult(record = RECORD, user = USER))
@@ -32,7 +51,8 @@ class SyncResultLocalDataSourceTest {
 		val writes = mutableListOf<String>()
 		val dataSource = SyncResultLocalDataSource(
 			recordLocalDataSource = RecordingRecordLocalDataRepository(writes, failure = IllegalStateException("disk full")),
-			userLocalDataSource = RecordingUserLocalDataRepository(writes)
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(writes)
 		)
 
 		assertFailsWith<IllegalStateException> {
@@ -60,6 +80,16 @@ private class RecordingRecordLocalDataRepository(
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		failure?.let { throw it }
 		writes += "record ${record.revision}"
+	}
+}
+
+private class RecordingRecordOutboxDataRepository(
+	private val writes: MutableList<String>,
+	private val failure: Throwable? = null
+) : AcademicRecordOutboxDataRepository {
+	override suspend fun reconcileWithConfirmedRecord(record: VersionedAcademicRecord) {
+		failure?.let { throw it }
+		writes += "outbox ${record.revision}"
 	}
 }
 

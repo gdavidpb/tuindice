@@ -48,3 +48,48 @@ rules:
     metadata:
       area: infrastructure
       referencia: 'base (módulo): logging y ReportingRepository'
+
+  - id: data-source-memory-is-session-memory
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un data source que guarda estado en memoria (espejo de una preferencia, caché, credencial)
+      sobrevive al cierre de sesión: el borrado de datos solo alcanza lo almacenado. Implementa
+      SessionMemory (base/domain/session) para volver a lo que dicen los stores y enlázalo con
+      bind<SessionMemory>() en su módulo de Koin (README "Memoria de sesión"). Si el estado es
+      del proceso o del dispositivo y debe sobrevivir a la sesión, exclúyelo aquí con su razón.
+    # Desde la cabecera de la clase hasta su primer miembro con estado, sin pasar por la palabra
+    # SessionMemory (que estaría en la lista de supertipos) ni por el cierre de la clase.
+    pattern-regex: '(?s)^(?:internal\s+)?class\s+\w+(?:(?!\bSessionMemory\b|^\}).)*?^\t(?:@Volatile\s+)?private\s+(?:var\s+\w+|val\s+\w+\s*=\s*(?:MutableStateFlow|mutable(?:Map|List|Set)Of)\b)'
+    paths:
+      include:
+        - '**/src/commonMain/**/data/source/**'
+        - '**/src/androidMain/**/data/source/**'
+        - '**/src/iosMain/**/data/source/**'
+        - 'app/src/main/**/data/source/**'
+        - 'persistence/src/commonMain/**/domain/mutation/**'
+      exclude:
+        # Estado del proceso o del dispositivo, no de la cuenta: debe sobrevivir a la sesión.
+        # La actividad en primer plano, el proveedor de Play Integrity, la actualización
+        # pendiente de Play y el arranque único de la recolección de uso.
+        - '**/data/source/activity/CurrentActivityDataSource.kt'
+        - '**/data/source/attestation/PlayIntegrityDataSource.kt'
+        - '**/data/source/update/PlayUpdateDataSource.kt'
+        - '**/data/source/usage/UsageDataCollectionDataSource.kt'
+        # El AEAD en caché se descarta en su propio clear(), que el borrado ya invoca.
+        - '**/data/source/secure/AndroidTinkSecureKeyValueDataSource.kt'
+        # La espera que piden los servicios de la universidad vale para el dispositivo: olvidarla
+        # al borrar datos (el ingreso sobre datos de otra cuenta también borra) la saltaría.
+        - '**/data/source/AuthRetryWindowDataSource.kt'
+        # La marca de cierre de sesión intencional la escribe el propio cierre y debe seguir ahí
+        # cuando vuelvan los 401 de las peticiones que quedaron en vuelo.
+        - '**/data/source/SessionInvalidationDataSource.kt'
+        # Bandera transitoria: se apaga en el finally de la sincronización que el cierre cancela.
+        - '**/data/source/sync/SyncDataSource.kt'
+        # Dobles en memoria de variantes debug y de pruebas: no guardan datos de una cuenta real.
+        - '**/data/source/**/Debug*.kt'
+        - '**/data/source/**/FileKitDebug*.kt'
+        - '**/data/source/usage/InMemoryUsageDataConsentRepository.kt'
+    metadata:
+      area: infrastructure
+      referencia: 'README.md § Memoria de sesión'

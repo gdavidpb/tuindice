@@ -2,12 +2,21 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
@@ -17,23 +26,25 @@ import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
+import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RecordViewModelContractTest {
@@ -322,6 +333,115 @@ class RecordViewModelContractTest {
 		}
 	}
 
+	@Test
+	fun observe_whenAnnulmentComesWithCurrentTerm_contentCarriesProvisionalNotice() = runTest {
+		val fixture = createFixture(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "current",
+						kind = TermKind.CURRENT,
+						attempts = listOf(academicAttempt(subjectCode = "MAT101"))
+					)
+				)
+			),
+			hasSynced = true,
+			viewMode = RecordViewMode.Projection
+		)
+		fixture.syncStatusRepository.setSyncReport(annulledReport())
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val content = awaitUntilState<Record.State.Content>()
+
+				assertEquals(RecordNoticeKind.AnnulledProvisional, content.notice?.kind)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_whenAnnulmentComesWithoutCurrentTerm_contentCarriesFinalNotice() = runTest {
+		val fixture = createFixture(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "past",
+						attempts = listOf(academicAttempt(subjectCode = "MAT101"))
+					)
+				)
+			),
+			hasSynced = true
+		)
+		fixture.syncStatusRepository.setSyncReport(annulledReport())
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val content = awaitUntilState<Record.State.Content>()
+
+				assertEquals(RecordNoticeKind.AnnulledFinal, content.notice?.kind)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_whenEmptyAndAnnulled_emptySaysTheFinalAnnulment() = runTest {
+		val fixture = createFixture(
+			record = AcademicRecord(id = "record"),
+			hasSynced = true
+		)
+		fixture.syncStatusRepository.setSyncReport(annulledReport())
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val empty = awaitUntilState<Record.State.Empty>()
+
+				assertEquals(EnrollmentAnnulmentTexts.title(isProvisional = false), empty.title)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	private fun annulledReport(): SyncReport {
+		return SyncReport(
+			status = SyncReportStatus.Success,
+			sources = SyncReportSources(
+				record = SyncSourceReport(SyncSourceStatus.Success),
+				enrollment = SyncSourceReport(
+					status = SyncSourceStatus.Success,
+					situation = EnrollmentSituation(code = "01")
+				)
+			)
+		)
+	}
+
 	private fun createFixture(
 		record: AcademicRecord,
 		hasSynced: Boolean,
@@ -337,48 +457,13 @@ class RecordViewModelContractTest {
 			cachedRecord = cachedRecord
 		)
 		val selectionRepository = RecordingRecordSelectionRepository(initialViewMode = viewMode)
-		val reportingRepository = RecordingReportingRepository()
-		val exceptionHandler = RecordExceptionHandler()
+		val syncStatusRepository = FakeSyncStatusRepository()
 
 		val viewModel = RecordViewModel(
-			screenMachine = RecordMachine(
-				observeRecordUseCase = ObserveRecordUseCase(
-					academicRecordRepository = academicRecordRepository,
-					recordSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
-				),
-				observeSyntheticTermRejectionsUseCase = ObserveSyntheticTermRejectionsUseCase(
-					academicRecordRepository = academicRecordRepository,
-					reportingRepository = reportingRepository
-				),
-				ensureRecordLoadedUseCase = EnsureRecordLoadedUseCase(
-					academicRecordRepository = academicRecordRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				updateRecordUseCase = UpdateRecordUseCase(
-					academicRecordRepository = academicRecordRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				setRecordViewModeUseCase = SetRecordViewModeUseCase(
-					recordSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
-				),
-				setSelectedTermUseCase = SetSelectedTermUseCase(
-					recordSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
-				),
-				upsertAttemptSelectionUseCase = UpsertAttemptSelectionUseCase(
-					academicRecordRepository = academicRecordRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				deleteSyntheticTermUseCase = DeleteSyntheticTermUseCase(
-					academicRecordRepository = academicRecordRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				)
+			screenMachine = createMachine(
+				academicRecordRepository = academicRecordRepository,
+				selectionRepository = selectionRepository,
+				syncStatusRepository = syncStatusRepository
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers
@@ -387,7 +472,62 @@ class RecordViewModelContractTest {
 		return RecordFixture(
 			viewModel = viewModel,
 			academicRecordRepository = academicRecordRepository,
-			selectionRepository = selectionRepository
+			selectionRepository = selectionRepository,
+			syncStatusRepository = syncStatusRepository
+		)
+	}
+
+	private fun createMachine(
+		academicRecordRepository: ControllableAcademicRecordRepository,
+		selectionRepository: RecordingRecordSelectionRepository,
+		syncStatusRepository: FakeSyncStatusRepository
+	): RecordMachine {
+		val reportingRepository = RecordingReportingRepository()
+		val exceptionHandler = RecordExceptionHandler()
+
+		return RecordMachine(
+			observeRecordUseCase = ObserveRecordUseCase(
+				academicRecordRepository = academicRecordRepository,
+				recordSelectionRepository = selectionRepository,
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
+			),
+			observeNewStudentNoRecordUseCase = ObserveNewStudentNoRecordUseCase(
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
+			),
+			observeSyntheticTermRejectionsUseCase = ObserveSyntheticTermRejectionsUseCase(
+				academicRecordRepository = academicRecordRepository,
+				reportingRepository = reportingRepository
+			),
+			ensureRecordLoadedUseCase = EnsureRecordLoadedUseCase(
+				academicRecordRepository = academicRecordRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			updateRecordUseCase = UpdateRecordUseCase(
+				academicRecordRepository = academicRecordRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			setRecordViewModeUseCase = SetRecordViewModeUseCase(
+				recordSelectionRepository = selectionRepository,
+				reportingRepository = reportingRepository
+			),
+			setSelectedTermUseCase = SetSelectedTermUseCase(
+				recordSelectionRepository = selectionRepository,
+				reportingRepository = reportingRepository
+			),
+			upsertAttemptSelectionUseCase = UpsertAttemptSelectionUseCase(
+				academicRecordRepository = academicRecordRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			deleteSyntheticTermUseCase = DeleteSyntheticTermUseCase(
+				academicRecordRepository = academicRecordRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			)
 		)
 	}
 }
@@ -395,5 +535,6 @@ class RecordViewModelContractTest {
 private data class RecordFixture(
 	val viewModel: RecordViewModel,
 	val academicRecordRepository: ControllableAcademicRecordRepository,
-	val selectionRepository: RecordingRecordSelectionRepository
+	val selectionRepository: RecordingRecordSelectionRepository,
+	val syncStatusRepository: FakeSyncStatusRepository
 )

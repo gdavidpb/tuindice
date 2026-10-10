@@ -1,6 +1,6 @@
 ---
 name: implement-tuindice-module
-description: Create or modify Kotlin Multiplatform modules and app frontend flows in this `tuindice` app repository, including required E2E tests and supporting artifacts whenever a change affects user-visible behavior, navigation, selectors, fixtures, app host startup/reset, or platform edges. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with Maestro/XCUITest/Compose/Espresso/UI Automator for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, `subjects`, `pensum`, `wizard`, and `testkit`.
+description: Create or modify Kotlin Multiplatform modules and app frontend flows in this `tuindice` app repository, including required E2E tests and supporting artifacts whenever a change affects user-visible behavior, navigation, selectors, fixtures, app host startup/reset, or platform edges. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with native E2E scenarios (UI Automator on Android, XCUITest on iOS) for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, `subjects`, `pensum`, `wizard`, and `testkit`.
 ---
 
 # Implement TuIndice Module
@@ -51,19 +51,19 @@ Implement module work by copying the nearest existing module pattern instead of 
    - referenced response bodies live under `mocks/__files/<feature-or-domain>/`
    - keep fixture payloads aligned with the current request shape, response shape, and status codes
    - update E2E fixture assumptions or scenario reset expectations when the contract is covered by a local flow
-   - update `testkit/e2e/fixture-contract.env`, `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`, catalog `fixture_state` entries, and reset/run scripts when fixture values or state setup change
+   - update the fixture values in `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`, `Copy.kt`) and, for a new stateful transformer, its reset path in `BackendEngine.resetPaths`; the host tests of `:scenarios` (`AccountFixturesTest`, `MockContractTest` and the others) fail when a value and a mapping drift
 8. Keep the UI boundary explicit:
    - `Navigation` resolves the `ViewModel`
    - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
    - `Screen` stays free of Koin and business wiring
 9. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
 10. When E2E is in scope, update the complete local E2E surface in the same change:
-   - `testkit/e2e/flow-catalog.yaml` for flow, module, platform, and fixture coverage
-   - `testkit/e2e/mvi-action-catalog.yaml` for added, removed, renamed, or reclassified presentation `Action`s
-   - Maestro flows under `e2e/maestro/flows/<module>/` plus affected suite aggregators under `e2e/maestro/flows/suites/`
-   - stable `Modifier.testTag`/accessibility identifiers and `testkit/e2e/critical-selectors.txt` when selectors are added, renamed, removed, or made critical
-   - `mocks/`, `testkit/e2e/fixture-contract.env`, `E2eFixtureContract.kt`, and reset/run scripts when local backend behavior or fixture state changes
-   - `e2e/platform/android/` or `e2e/platform/ios/` placeholders/tests for platform edges Maestro cannot verify stably
+   - the module's `*UiTags` (stable `Modifier.testTag` constants) for every element a scenario touches
+   - `scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/<Module>Scenarios.kt` for the scenarios (listed in `<module>Scenarios` and, for a new module, in `E2eCatalog.byModule`), with the actions they fire in `covers`
+   - `catalog/ActionDispositions.kt` for added, removed, renamed, or reclassified presentation `Action`s that no scenario fires (`Internal`, `PlatformEdge` or `Pending`, each with its reason; `ActionCoverageTest` enforces it)
+   - `scenarios/.../fixture/` (`E2eAccounts.kt`, `E2eFixtures.kt`, `Copy.kt`) and `mocks/` when accounts, texts, ids or local backend behavior change
+   - `e2e/catalog/scenarios.json` and `iosApp/UITests/Generated/ScenarioTests.generated.swift`, regenerated with `./gradlew syncE2eArtifacts` and committed
+   - `e2e/platform/android/` or `e2e/platform/ios/` notes for platform edges no scenario can drive
    Do not leave required E2E coverage as a TODO; either add coverage or state the precise internal-only or platform-edge reason.
 11. Run the smallest truthful verification set and report anything left unverified.
 
@@ -112,6 +112,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Persisted screen selection/preference state (record's selected term and view mode, pensum's summary collapsed, evaluations' selected week) follows one canonical shape across all features:
   - a feature-owned `*SelectionRepository` contract in `domain/repository` exposing `observe*(): Flow<...>` plus `suspend set*(...)`; no sync getters
   - implemented directly by the module's settings-backed `LocalSettingsDataSource` (a `MutableStateFlow` mirror seeded from `Settings` with write-through on set); never a trivial delegate `*DataSource` in between
+  - the mirror outlives the session, so that `LocalSettingsDataSource` also implements `SessionMemory` and re-reads every mirror from `Settings` in `clearSessionMemory()`
   - writes go through a dedicated `Set*UseCase` fired from the transition row's machine command; the row updates state optimistically and the fold re-emission converges to the same value
   - reads are folded into the feature's main observe/get use case with `combine`, so the observed domain model already carries the persisted value; machines never inject selection repositories nor read persisted state directly
   - validity guards over the persisted value (e.g., a stale week key against the current term) live in the machine's mapping to internal events, falling back to the computed default
@@ -167,6 +168,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - no `BuildConfig`
   - no Java IO types in shared code
   - no Android-specific Koin ViewModel DSL in KMP source sets
+- Session memory: a shared (`single`) `*DataSource` that keeps anything in memory on behalf of the signed-in account (a `MutableStateFlow` mirror of a stored preference, a cache, a credential) implements `SessionMemory` (`base/domain/session`) and is bound with `bind<SessionMemory>()` in its Koin module. `clearSessionMemory()` goes back to what the stores say (re-read a mirror, drop a cache) and never takes a lock a network request may be holding. `ApplicationRepository.clearData()` is the only caller. State that belongs to the process or the device and must outlive the session is excluded by path, with its reason, in the semgrep rule `data-source-memory-is-session-memory`; `SessionMemoryBindingTest` in maincore keeps the inventory.
 - Feature modules expose a single public Koin module named `<feature>Module`.
 - Platform wiring stays centralized in `androidPlatformModule` and `iosPlatformModule`; do not create per-feature platform modules.
 - New user-facing text goes through `composeResources`.
@@ -185,7 +187,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - For machine or transition-table changes, run `./gradlew verifySharedHostTests`: the android host is the only platform where the alphabet/Λ validators enforce (on iOS they report SKIPPED), and the contract tests' seeded random walk (`assertMachineRandomWalk`) runs everywhere.
 - For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
 - For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.
-- When E2E scope was triggered, always run `./gradlew verifyE2eContract`; run `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos` when the local device/simulator and Maestro CLI are available, and report any unavailable platform runner as unverified.
+- When E2E scope was triggered, always run `./gradlew syncE2eArtifacts verifyE2eContract`; run the new or changed scenarios on each platform in diagnostic mode (`python3 e2e/scripts/shared/e2e.py run --platform all --mode diagnose --scenario <id>`, or `E2E_SCENARIOS=<id> ./gradlew e2eAndroid` / `e2eIos`) when the emulator and simulator are available, and report any unavailable platform as unverified. Evidence belongs to the certification skill.
 - When a new shared module is added, also update and run the relevant root verification tasks listed in [references/project-map.md](references/project-map.md).
 - Never claim checks you did not run.
 
@@ -194,4 +196,4 @@ Implement module work by copying the nearest existing module pattern instead of 
 - [references/project-map.md](references/project-map.md): architecture, dependency rules, integration points, and root file map.
 - [references/module-recipes.md](references/module-recipes.md): concrete recipes for feature, infrastructure, and host-module changes.
 - [references/scaffolding.md](references/scaffolding.md): scaffolding workflow, template catalog, and explicit `ViewModel` plus `Route` patterns.
-- [references/e2e.md](references/e2e.md): local E2E architecture, selector policy, module rollout, platform-specific test boundaries, and validation commands.
+- [references/e2e.md](references/e2e.md): local E2E architecture, what a new module adds (`*UiTags`, scenarios, accounts, action coverage), selector policy, platform edges, and validation commands.

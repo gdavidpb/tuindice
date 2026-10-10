@@ -3,19 +3,16 @@ package com.gdavidpb.tuindice.data.source.sync
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.russhwolf.settings.Settings
-import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.json.Json
 
 class SyncStatusSettingsDataSource(
 	private val settings: Settings
-) : SyncStatusRepository {
-	private val syncStatus = MutableStateFlow(
-		SyncStatus.entries.firstOrNull { status ->
-			status.name == settings.getStringOrNull(PreferencesKeys.SYNC_STATUS)
-		} ?: SyncStatus.Healthy
-	)
+) : SyncStatusRepository, SessionMemory {
+	private val syncStatus = MutableStateFlow(loadSyncStatus())
 	private val lastSuccessfulSyncAt = MutableStateFlow(
 		settings.getLongOrNull(PreferencesKeys.LAST_SUCCESSFUL_SYNC_AT)
 	)
@@ -76,6 +73,19 @@ class SyncStatusSettingsDataSource(
 		syncStatus.value = SyncStatus.Healthy
 		syncReport.value = SyncReport.success()
 		lastSuccessfulSyncAt.value = null
+	}
+
+	// The mirrors go back to what is stored, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		syncStatus.value = loadSyncStatus()
+		syncReport.value = loadSyncReport()
+		lastSuccessfulSyncAt.value = settings.getLongOrNull(PreferencesKeys.LAST_SUCCESSFUL_SYNC_AT)
+	}
+
+	private fun loadSyncStatus(): SyncStatus {
+		return SyncStatus.entries.firstOrNull { status ->
+			status.name == settings.getStringOrNull(PreferencesKeys.SYNC_STATUS)
+		} ?: SyncStatus.Healthy
 	}
 
 	private fun loadSyncReport(): SyncReport {

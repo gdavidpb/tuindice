@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.presentation.contract
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.presentation.ViewAction
@@ -22,8 +24,13 @@ object Main {
 			val outdatedAppState: OutdatedAppState
 		) : State()
 
+		// syncStatus: how the last sync ended, followed while the content is up. The host asks
+		// for the password again when it requires one, unless the user has already closed that
+		// dialog for this very problem (isUpdatePasswordDismissed).
 		data class Content(
-			val startDestination: Destination
+			val startDestination: Destination,
+			val syncStatus: SyncStatus = SyncStatus.Healthy,
+			val isUpdatePasswordDismissed: Boolean = false
 		) : State()
 
 		data object Failed : State()
@@ -40,6 +47,8 @@ object Main {
 		data object NoteSyncUnavailable : Action()
 		data object NoteSyncFailed : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
+		data object DismissUpdatePassword : Action()
+		data object RequestSignOut : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -51,5 +60,7 @@ object Main {
 		) : Effect()
 
 		class ShowSnackBar(val message: String) : Effect()
+		class SessionInvalidated(val message: String) : Effect()
+		class NavigateToSignOutDialog(val pendingChanges: PendingChanges) : Effect()
 	}
 }

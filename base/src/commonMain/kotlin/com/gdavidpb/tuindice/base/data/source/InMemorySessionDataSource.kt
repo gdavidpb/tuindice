@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 
-class InMemorySessionDataSource : MemorySessionDataRepository {
+class InMemorySessionDataSource : MemorySessionDataRepository, SessionMemory {
 	private var usbId: String? = null
 	private var sessionId: String? = null
 	private var accessToken: String? = null
@@ -49,5 +50,9 @@ class InMemorySessionDataSource : MemorySessionDataRepository {
 		sessionId = null
 		accessToken = null
 		refreshToken = null
+	}
+
+	override suspend fun clearSessionMemory() {
+		clear()
 	}
 }

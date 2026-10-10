@@ -11,6 +11,9 @@ import com.gdavidpb.tuindice.record.domain.mapper.attemptSelectionToOverridePayl
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
+import com.gdavidpb.tuindice.record.presentation.mapper.hasScheduleOnTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordEmpty
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
 
 internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 	machine: RecordMachine,
@@ -78,20 +81,26 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 					?.inFlightSelection
 					?.takeUnless { selection ->
 						selection.isCommitted && event.record.hasSettled(selection.override)
-					}
+					},
+				notice = event.notice,
+				hasSelectedTermSchedule = event.record.hasScheduleOnTerm(termId = event.selectedTermId)
 			)
 		}
 
-		onTo<RecordInternalEvent.RecordEmptyObserved, Record.State.Empty> { _, _ ->
-			Record.State.Empty
+		onTo<RecordInternalEvent.RecordEmptyObserved, Record.State.Empty> { _, event ->
+			resolveRecordEmpty(notice = event.notice)
 		}
 
 		onTo<RecordInternalEvent.RecordWaitingObserved, Record.State.Loading> { _, _ ->
 			Record.State.Loading
 		}
 
+		// Only Failed shows it. Elsewhere there is nothing to keep: a refresh that fails later asks
+		// again, and brings the answer in its own event.
+		on<RecordInternalEvent.NewStudentNoRecordObserved> { state, _ -> state }
+
 		onTo<RecordInternalEvent.RecordObservationFailed, Record.State.Failed> { _, _ ->
-			Record.State.Failed
+			resolveRecordFailed(isNewStudentNoRecord = false)
 		}
 
 		onTo<RecordInternalEvent.RecordRefreshStarted, Record.State.Loading> { _, _ ->
@@ -105,7 +114,7 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 				host.sendEffect(Record.Effect.NavigateToOutdatedCredentials)
 			}
 
-			Record.State.Failed
+			resolveRecordFailed(isNewStudentNoRecord = event.isNewStudentNoRecord)
 		}
 
 		on<RecordInternalEvent.RecordViewModeSet>(

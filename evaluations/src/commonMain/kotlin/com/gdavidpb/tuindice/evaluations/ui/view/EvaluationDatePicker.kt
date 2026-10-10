@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.*
@@ -14,13 +16,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.*
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.*
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun EvaluationDatePicker(
@@ -30,6 +36,7 @@ fun EvaluationDatePicker(
 	onDateChange: (date: Long?) -> Unit,
 	selectableRange: ClosedRange<LocalDate>? = null
 ) {
+	val clock = LocalTuIndiceClock.current
 	val committedDate = selectedDate?.toEvaluationLocalDate()
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
@@ -37,7 +44,7 @@ fun EvaluationDatePicker(
 	// Open on the committed date's month, or today's, clamped into the term range so
 	// the picker never lands on a fully-disabled month.
 	fun initialDisplayedMonth(): LocalDate {
-		return (committedDate ?: currentEvaluationLocalDate()).clampToMonthRange(selectableRange)
+		return (committedDate ?: clock.currentEvaluationLocalDate()).clampToMonthRange(selectableRange)
 	}
 
 	val displayedMonth = remember(selectedDate, selectableRange) {
@@ -159,7 +166,7 @@ fun EvaluationDatePicker(
 
 			Text(
 				modifier = Modifier.fillMaxWidth(),
-				text = selectedDate?.formatAsShortDayOfWeekAndDate()
+				text = selectedDate?.formatAsShortDayOfWeekAndDate()?.asString()
 					?: stringResource(Res.string.label_evaluation_date),
 				maxLines = 2,
 				overflow = TextOverflow.Ellipsis,

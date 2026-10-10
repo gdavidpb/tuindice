@@ -9,7 +9,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -17,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.imageResource
 import tuindice.auth.generated.resources.Res
@@ -44,15 +47,7 @@ fun AnimatedPatternBackground(
 	val tileHeightPx = remember(tileHeight) { (tileHeight + 0.5f).toInt().coerceAtLeast(1) }
 	val backgroundColor = MaterialTheme.colorScheme.background.copy(alpha = alpha)
 
-	val transition = rememberInfiniteTransition(label = "AnimatedPatternBackground")
-	val animatedProgress by transition.animateFloat(
-		label = "AnimatedPatternBackground",
-		initialValue = 0f,
-		targetValue = 1f,
-		animationSpec = infiniteRepeatable(
-			animation = tween(durationMillis = durationMillis, easing = LinearEasing)
-		)
-	)
+	val animatedProgress by currentPatternProgress(durationMillis = durationMillis)
 
 	Canvas(
 		modifier = Modifier
@@ -82,4 +77,37 @@ fun AnimatedPatternBackground(
 			drawX += tileWidthPx
 		}
 	}
+}
+
+/**
+ * Horizontal offset of the pattern as a fraction of one tile. The infinite transition exists only
+ * while animations are enabled; otherwise the pattern is drawn still, at its first position.
+ * It returns the state, not the value, so only the draw phase reads it while the pattern moves.
+ */
+@Composable
+internal fun patternProgress(
+	animationsEnabled: Boolean,
+	durationMillis: Int
+): State<Float> {
+	if (!animationsEnabled) return remember { mutableStateOf(0f) }
+
+	val transition = rememberInfiniteTransition(label = "AnimatedPatternBackground")
+
+	return transition.animateFloat(
+		label = "AnimatedPatternBackground",
+		initialValue = 0f,
+		targetValue = 1f,
+		animationSpec = infiniteRepeatable(
+			animation = tween(durationMillis = durationMillis, easing = LinearEasing)
+		)
+	)
+}
+
+/** [patternProgress] driven by the animations flag of the composition, as the background uses it. */
+@Composable
+internal fun currentPatternProgress(durationMillis: Int): State<Float> {
+	return patternProgress(
+		animationsEnabled = LocalTuIndiceAnimationsEnabled.current,
+		durationMillis = durationMillis
+	)
 }

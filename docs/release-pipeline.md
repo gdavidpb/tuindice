@@ -41,29 +41,39 @@ Para cambios runtime o release se debe subir `versionName`, `androidVersionCode`
 ## Preflight
 
 El detector compara el PR contra el merge-base de `production` y ejecuta solo piezas impactadas. El alcance
-(módulos a recompilar/testear y suites E2E requeridas) se deriva del grafo de módulos en
+(módulos a recompilar/testear y plataformas con evidencia E2E requerida) se deriva del grafo de módulos en
 `scripts/module-graph.txt` — la fuente única que también valida `./gradlew verifyModuleGraph` contra los
 `build.gradle.kts` reales:
 
-- Cambios docs/skills no disparan release ni tests de app.
+- Cambios en `docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/` y `.codex/` no disparan release ni tests de app; ejecutan solo la
+  puerta de vocabulario E2E (`e2e/tools/verify/verify-e2e-vocabulary.sh`, paso del job compartido). El skill de
+  certificación (`.codex/skills/certify-tuindice-pr/`) además corre `verifyE2eContract`, porque sus herramientas
+  las prueban los tests del harness.
 - Cambios de feature prueban el módulo, sus dependientes transitivos (incluido `wizard`, que consume casi
-  todas las features) y hosts relevantes; las suites E2E requeridas incluyen las de los dependientes.
+  todas las features) y hosts relevantes; si un archivo está en el fingerprint E2E de una plataforma (fuentes de runtime, scripts del
+  harness, mocks, catálogo; ver `e2e/scripts/shared/e2e-fingerprint.sh`) se exige la evidencia de esa plataforma.
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios en cualquier `build.gradle.kts`, `settings.gradle.kts` o en el propio grafo ejecutan
   `verifyModuleGraph` en preflight, así el grafo no puede derivar en silencio.
 - Cada módulo impactado (y `app`) pasa por `:módulo:detekt` contra su baseline; cambios en
   `config/detekt/`, `.editorconfig` o cualquier `detekt-baseline.xml` ejecutan `detekt` completo sin marcar
-  impacto de runtime ni suites E2E. El Gradle raíz también ejecuta `detekt` completo, pero además marca
+  impacto de runtime ni evidencia E2E. El Gradle raíz también ejecuta `detekt` completo, pero además marca
   `has_release_impact=true` y exige la `local-certification-suite` en ambas plataformas.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;
-  cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; el resto de `iosApp/scripts/*` solo dispara un
-  smoke liviano en macOS.
+  cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; los demás `ci-*` solo disparan un smoke liviano en
+  macOS. Todo `iosApp/scripts/*` que no es `ci-*` (`build-kmp-framework.sh`, `build-scenario-kit.sh`,
+  `verify-ui-test-target.sh`, `add-ui-test-target.rb`) entra además en la huella de iOS: exige la evidencia de iOS y
+  el build del target de UI tests (`ios-uitest-preflight`); lo mismo vale para `.github/scripts/sync-app-version.sh`
+  y `materialize-firebase-configs.sh`.
 - El detector separa las tareas iOS en `ios_test_tasks` (compilación y tests de simulador) e `ios_host_tasks`
-  (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en dos jobs
-  macOS paralelos (`ios-test-preflight` e `ios-host-preflight`), así el wall-clock es el mayor de los dos y
-  una falla de tests no espera al build del host.
+  (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en cuatro jobs
+  macOS: `ios-test-preflight` e `ios-host-preflight` en paralelo (así el wall-clock es el mayor de los dos y
+  una falla de tests no espera al build del host), `ios-uitest-preflight` (construye la app y el bundle
+  `TuIndiceUITests` con el mismo script que el harness local) y `e2e-harness-preflight` (los tests del harness
+  completos, sin saltos, cuando cambia el contrato E2E). `verifyE2eContract` corre además en Linux, donde esos
+  tests saltan con su razón impresa.
 
 El preflight de PR no recibe secretos de producción: `:app:bundleRelease` firma con un keystore descartable y
 configs Firebase placeholder (`.github/scripts/materialize-ci-placeholders.sh`). La firma real ocurre en
@@ -89,51 +99,63 @@ STATE_DIR=/tmp/tuindice-changes bash ./.github/scripts/detect-changed-app.sh "$m
 
 ## E2E local y statuses
 
-Los E2E pesados se ejecutan localmente, no en Firebase Test Lab. Cada corrida genera evidencia en:
+Los E2E pesados se ejecutan localmente, no en Firebase Test Lab: escenarios nativos (UI Automator en Android,
+XCUITest en iOS) contra el WireMock de `mocks/`. La evidencia es por plataforma y por fingerprint: el harness corre el
+catálogo completo, un escenario por invocación, y guarda en un libro mayor qué escenarios pasaron para ese
+fingerprint, de modo que una segunda invocación solo corre lo que todavía no está en verde. Cada corrida deja:
 
 ```text
-build/e2e/certifications/<sha>/<platform>/<suite>/
+build/e2e/runs/<runId>/                                   resumen, log, manifest.json, junit.xml y artefactos por intento
+build/e2e/ledger/<platform>/<fingerprint>/ledger.json     libro mayor del fingerprint
+build/e2e/certifications/<sha>/<platform>/manifest.json   copia del manifiesto de una corrida de evidencia que pasó
 ```
-
-La evidencia contiene `maestro.log`, `junit.xml`, salidas de Maestro y `manifest.json` con SHA, suite, plataforma, dispositivo, versión y hash del log.
 
 Comandos principales:
 
 ```bash
-./gradlew e2eMaestroEvidenceAndroid
-./gradlew e2eMaestroEvidenceIos
-./gradlew e2eMaestroEvidenceLocal
+./gradlew e2eEvidenceAndroid
+./gradlew e2eEvidenceIos
+./gradlew e2eEvidence            # ambas plataformas
 ```
 
-Por defecto estos comandos calculan el diff de la rama actual contra `production` u `origin/production`, ejecutan solo
-las suites requeridas por ese alcance y publican los GitHub commit statuses exitosos que preflight exige. Si no pueden
-resolver esa base, falla la resolucion de alcance; se puede pasar `E2E_BASE_SHA` para forzarla.
-
-Para forzar una suite enfocada durante debugging:
-
-```bash
-E2E_MAESTRO_SUITE="$PWD/e2e/maestro/flows/suites/auth-suite.yaml" \
-E2E_PUBLISH_GITHUB_STATUS=1 \
-./gradlew e2eMaestroEvidenceAndroid
-```
+Dependen de `verifyE2eArtifactsFresh`, exigen árbol limpio y, cuando una plataforma queda completa con `HEAD` empujado
+y visible en GitHub, publican el commit status exitoso que preflight exige para esa plataforma
+(`E2E_PUBLISH_GITHUB_STATUS=0` corre sin publicar). Para diagnosticar un escenario sin producir evidencia:
+`E2E_SCENARIOS=<id> ./gradlew e2eAndroid` (o `e2eIos`). El detalle del harness está en `e2e/README.md`; cómo certificar
+una rama (veredictos, condiciones de parada, umbrales de entorno) en `.codex/skills/certify-tuindice-pr/`.
 
 Los contextos publicados tienen formato:
 
 ```text
-local-e2e/android/<suite>
-local-e2e/ios/<suite>
+local-e2e/android/local-certification-suite
+local-e2e/ios/local-certification-suite
 ```
 
-Un status `success` no basta por sí solo: preflight exige que la descripción contenga el fingerprint
-(`fp <12 hex>`) que corresponde al árbol del commit y la suite, y que el creator del status sea confiable
-(dueño del repo o `github-actions[bot]`; configurable con la variable de repo
-`E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` pasa al script). Un status fabricado
-sin el fingerprint correcto se rechaza. El reuso por fingerprint también considera los heads de PRs asociados
-al commit (API de GitHub), por lo que sobrevive a merges por squash.
+con una única definición, `e2e_status_context` en `e2e/scripts/shared/ci-common.sh` (la carga `.github/scripts/common.sh`; `e2e.py contexts` la imprime). La
+descripción es `Local E2E <plataforma> <N>/<N> passed for <sha7> fp <fp12>.`, seguida de los conteos que apliquen
+(`retried`, `env`, `quarantined`, `overrides`).
 
-La evidencia local también se espeja en `build/e2e/certifications/by-fingerprint/<fingerprint>/…`, pero solo
-cuando la corrida pasa: una corrida fallida conserva su evidencia bajo su propio SHA y deja intacto el espejo
-aprobado del mismo fingerprint.
+Un status `success` no basta por sí solo: preflight exige que la descripción contenga el fingerprint
+(`fp <12 hex>`) que corresponde al árbol del commit y la plataforma, y que el creator del status sea confiable
+(solo el dueño del repo por defecto; `github-actions[bot]` no cuenta salvo que lo liste la variable de repo
+`E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` y `stage-production-artifacts.yml` pasan al
+script; `e2e_trusted_status_creators` es la única definición y la usan también el preflight y `e2e.py status`).
+Un status fabricado sin el fingerprint correcto se rechaza.
+
+**El CI nunca escribe estos estados.** Los publica siempre el dueño, desde la máquina donde corrió la evidencia, con
+`python3 e2e/scripts/shared/e2e.py publish --platform <p>` (árbol limpio, `HEAD == @{u}`, commit visible en GitHub):
+con el libro mayor completo publica como siempre y, si el libro mayor no está completo pero un antecesor tiene un
+status creado por el dueño con el mismo fingerprint, publica en `HEAD` un status `Local E2E <p> reused from <sha7> fp
+<fp12>.`. Ningún job de `preflight-production-pr.yml` tiene `statuses: write` (`verify-workflow-permissions.sh` lo
+rechaza) y `preflight-production.sh` no hace ningún POST.
+
+- **En el PR** (`GITHUB_EVENT_NAME=pull_request`) el status de confianza con el fingerprint debe estar en el `HEAD`
+  del PR. Si solo está en un antecesor, el check falla y nombra el commit que tiene la evidencia y el comando exacto
+  para publicarla en la cabeza.
+- **En el stage** (push a `production`; `deploy-production.sh` pasa `E2E_EVIDENCE_SCOPE=merged` al preflight, y sin esa
+  variable el script exige la cabeza aunque falte el evento) la evidencia se busca, sin republicarla, en los antecesores del SHA desplegado
+  (merge commit) y en el head del PR asociado al commit (API de GitHub; squash o rebase). Por eso el check del PR exige
+  el status en la cabeza final del PR: es el único commit del PR que el stage encuentra tras un squash.
 
 ## Stage y deploy
 
@@ -262,7 +284,14 @@ Variables de repo opcionales (`vars`, no secrets):
 E2E_TRUSTED_STATUS_CREATORS
 ```
 
-`preflight-production-pr.yml` la pasa a `preflight-production.sh`; si no está definida, la lista de creators
-confiables sigue siendo el dueño del repo más `github-actions[bot]`.
+`preflight-production-pr.yml` y `stage-production-artifacts.yml` la pasan a `preflight-production.sh`; si no está
+definida, el único creator de confianza es el dueño del repo. Se lee recortada y sin entradas vacías (`a, b` es `a` y `b`); el preflight imprime la lista efectiva en el resumen y
+avisa si incluye al bot. Un valor que incluya `github-actions[bot]` reabre el camino por el que cualquier workflow de
+una rama puede publicar evidencia: no lo pongas. `e2e.py publish` la ignora: solo cita estados creados por el dueño.
+
+Permisos sobrantes, anotados y sin cambiar: `statuses: write` en `stage-production-artifacts.yml` (nivel workflow) y
+en `deploy-production.yml` (nivel workflow) ya no lo usa ningún camino de evidencia (el preflight no publica y las
+fases `android`/`ios`/`tag` del deploy no lo llaman); los POST a `deployments/<id>/statuses` del stage usan
+`deployments: write`.
 
 La cuenta de Google debe tener permisos de Android Publisher sobre `com.gdavidpb.tuindice`, y la key de App Store Connect debe poder subir builds para el bundle iOS.

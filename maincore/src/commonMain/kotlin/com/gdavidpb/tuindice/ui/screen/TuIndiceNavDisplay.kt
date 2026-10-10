@@ -49,12 +49,12 @@ fun TuIndiceNavDisplay(
 	navigator: TuIndiceNavigator,
 	modifier: Modifier = Modifier.fillMaxSize(),
 	onConfirmExitClick: () -> Unit,
-	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -92,7 +92,6 @@ fun TuIndiceNavDisplay(
 		summaryEntries(
 			navActions = navigator,
 			shellBindings = shellBindings,
-			isCameraAvailable = isCameraAvailable,
 			onNavigateToUpdatePassword = {
 				navigator.push(AuthDestination.UpdatePasswordDialog)
 			}
@@ -110,6 +109,7 @@ fun TuIndiceNavDisplay(
 				},
 				onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
+				onTopBarScheduleAvailable = onRecordScheduleAvailable,
 				onNavigateToEnrollmentProof = {
 					navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
 				}
@@ -133,12 +133,6 @@ fun TuIndiceNavDisplay(
 			shellBindings = shellBindings,
 			onNavigateToUpdatePassword = {
 				navigator.push(AuthDestination.UpdatePasswordDialog)
-			},
-			onRetryRequest = {
-				/* Nav2 stacked a second identical dialog; a fresh fetch needs a
-				   fresh entry, so retry is pop + push of the same key. */
-				navigator.pop()
-				navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
 			}
 		)
 

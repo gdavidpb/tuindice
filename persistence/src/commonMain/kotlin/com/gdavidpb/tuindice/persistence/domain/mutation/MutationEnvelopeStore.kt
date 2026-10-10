@@ -38,6 +38,16 @@ interface MutationEnvelopeStore<ScopeKey, Command : OutboxMutation> {
 		mutationId: String
 	)
 
+	/**
+	 * Moves every waiting row of the scope that expects an older revision up to [revision]: a
+	 * newer one is known, and sending them with the old one would only earn a conflict each.
+	 * Rows that already expect it or more are left alone. Returns how many were moved.
+	 */
+	suspend fun advancePendingRevisions(
+		scopeKey: ScopeKey,
+		revision: Long
+	): Int = 0
+
 	suspend fun requeueFailedMutations(
 		scopeKey: ScopeKey,
 		retryableBefore: Long

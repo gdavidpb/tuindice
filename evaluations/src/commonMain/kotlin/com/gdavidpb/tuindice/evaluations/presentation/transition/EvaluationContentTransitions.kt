@@ -43,7 +43,7 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 		}
 
 		on<Evaluation.Action.SetDate> { state, action ->
-			val isOverdue = action.date.isDateInPast()
+			val isOverdue = action.date.isDateInPast(machine.clock)
 
 			state.copy(
 				scheduleMode = if (action.date == null) {

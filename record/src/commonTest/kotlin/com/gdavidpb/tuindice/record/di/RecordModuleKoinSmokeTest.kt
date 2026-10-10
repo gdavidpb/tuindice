@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -8,20 +10,27 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
-import kotlin.test.Test
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.dsl.module
+import kotlin.test.Test
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class RecordModuleKoinSmokeTest {
 	@Test
@@ -30,12 +39,16 @@ class RecordModuleKoinSmokeTest {
 		module {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
+			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			single<Clock> { Clock.System }
 		}
 	) {
 		assertResolves(RecordViewModel::class)
+		assertResolves(ScheduleViewModel::class)
 	}
 }
 
@@ -77,4 +90,10 @@ private class StubRecordSelectionRepository : RecordSelectionRepository {
 	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
 
 	override suspend fun setRecordViewMode(viewMode: RecordViewMode) = Unit
+}
+
+private class StubScheduleSelectionRepository : ScheduleSelectionRepository {
+	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = flowOf(ScheduleViewMode.Table)
+
+	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) = Unit
 }

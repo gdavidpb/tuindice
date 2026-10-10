@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import app.cash.turbine.test
@@ -25,6 +27,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class UpdateSyntheticTermUseCaseTest {
 	@Test
@@ -211,7 +215,8 @@ class UpdateSyntheticTermUseCaseTest {
 		return UpdateSyntheticTermUseCase(
 			repository = repository,
 			reportingRepository = RecordingReportingRepository(),
-			exceptionHandler = RecordExceptionHandler()
+			exceptionHandler = RecordExceptionHandler(),
+			clock = Clock.System
 		)
 	}
 

@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+# Fake adb for the device.sh tests. State lives in $FAKE_ADB_DIR:
+#   online            exists while the emulator is online (the fake emulator creates it)
+#   loadavg.seq       lines consumed one per read as the first /proc/loadavg field; the last one repeats
+#   anr               exists: dumpsys window shows an ANR window
+#   boot_completed    contents override sys.boot_completed (default 1)
+#   offline_polls     after `reboot`, `devices` hides the emulator for this many calls
+#   ignore            "<namespace> <key>" lines whose `settings put` is silently ignored
+#   props/<name>      overrides a getprop value; nproc and meminfo_kb override those reads
+#   pmclear.answer    what `pm clear` prints (default Success)
+#   tests.list        scenario ids an `am instrument -e log true` listing reports
+#   instrument.mode   pass (default) | fail: what a scenario run prints; the exit status is always 0, as the real one is
+#   probes.mode       pass | fail | skip-contract | skip-probe | no-end | odd-code | crash: what a run of several classes (-e class A,B,C)
+#                     prints, one test per class,
+#   contract-files/   copied into the runner's output directory by such a run
+#                     plus the typingSeries test, skipped as it is without -e typingSeries
+#   instrument.hang   exists: a scenario run never ends
+#   testfiles/<path>  what `exec-out run-as <pkg> ls|cat <path>` and `shell run-as <pkg> ls <path>` read; `run-as <pkg> rm -rf <path>` removes it
+#   forcestop.fails   exists: `shell am force-stop` exits 1
+#   cat.fails         exists: `exec-out run-as <pkg> cat` prints the first 4 bytes and exits 1
+#   logcat.txt        what `logcat -d` prints; `logcat -c` empties it
+#   calls.log         one line per call
+set -euo pipefail
+
+dir="${FAKE_ADB_DIR:?FAKE_ADB_DIR is required}"
+mkdir -p "${dir}/settings" "${dir}/props"
+printf '%s\n' "$*" >> "${dir}/calls.log"
+
+if [[ "${1:-}" == "-s" ]]; then
+	shift 2
+fi
+verb="${1:-}"
+if (( $# > 0 )); then shift; fi
+
+probe_status() { # class test code
+	printf 'INSTRUMENTATION_STATUS: class=%s\nINSTRUMENTATION_STATUS: test=%s\nINSTRUMENTATION_STATUS_CODE: 1\n' "$1" "$2"
+	printf 'INSTRUMENTATION_STATUS: class=%s\nINSTRUMENTATION_STATUS: test=%s\nINSTRUMENTATION_STATUS_CODE: %s\n' "$1" "$2" "$3"
+}
+
+fake_probes() { # pass | fail | skip-contract | skip-probe | no-end | odd-code | crash
+	local pkg="com.gdavidpb.tuindice.scenariorunner" contract=0 probes=0
+	# What the run leaves in the runner's output directory (the clearing before it removed the earlier files).
+	if [[ -d "${dir}/contract-files" ]]; then
+		mkdir -p "${dir}/testfiles/files/e2e"
+		cp -R "${dir}/contract-files/." "${dir}/testfiles/files/e2e/"
+	fi
+	[[ "$1" == "skip-contract" ]] && contract=-4
+	[[ "$1" == "fail" ]] && probes=-2
+	[[ "$1" == "skip-probe" ]] && probes=-4
+	[[ "$1" == "odd-code" ]] && probes=2
+	probe_status "${pkg}.DriverContractTest" driverHonoursTheContract "${contract}"
+	probe_status "${pkg}.AndroidDriverProbesTest" waitGoneIsFalseWhenTheAppIsNotThereToBeRead "${probes}"
+	probe_status "${pkg}.AndroidTypingProbesTest" aThirtyCharacterTextIsTypedCompletely 0
+	probe_status "${pkg}.AndroidTypingProbesTest" typingSeries -4
+	if [[ "$1" == "crash" ]]; then printf 'INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n'; return; fi
+	if [[ "$1" == "no-end" ]]; then return; fi
+	printf 'INSTRUMENTATION_CODE: -1\n'
+}
+
+fake_instrument() { # the arguments after `instrument`: -w -r -e key value ... <package>/<runner>
+	local listing=0 scenario="" classes=""
+	while (( $# > 0 )); do
+		case "$1" in
+			-e)
+				[[ "$2" == "log" ]] && listing=1
+				[[ "$2" == "scenario" ]] && scenario="$3"
+				[[ "$2" == "class" ]] && classes="$3"
+				shift 3
+				;;
+			*) shift ;;
+		esac
+	done
+	if [[ "${classes}" == *,* && -f "${dir}/probes.mode" ]]; then
+		fake_probes "$(cat "${dir}/probes.mode")"
+		return
+	fi
+	if (( listing )); then
+		local id
+		while read -r id; do
+			printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 1\n' "${id}"
+			printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 0\n' "${id}"
+		done < <(cat "${dir}/tests.list" 2> /dev/null || printf 'one\ntwo\n')
+		printf 'INSTRUMENTATION_CODE: -1\n'
+		return
+	fi
+	if [[ -f "${dir}/instrument.hang" ]]; then sleep 300; fi
+	printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 1\n' "${scenario}"
+	if [[ "$(cat "${dir}/instrument.mode" 2> /dev/null || echo pass)" == "fail" ]]; then
+		printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: -2\nINSTRUMENTATION_RESULT: stream=\nFAILURES!!!\nTests run: 1,  Failures: 1\nINSTRUMENTATION_CODE: -1\n' "${scenario}"
+	else
+		printf 'INSTRUMENTATION_STATUS: test=run[%s]\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_RESULT: stream=\nOK (1 test)\nINSTRUMENTATION_CODE: -1\n' "${scenario}"
+	fi
+}
+
+prop() { # name default
+	if [[ -f "${dir}/props/$1" ]]; then cat "${dir}/props/$1"; else printf '%s\n' "$2"; fi
+}
+
+case "${verb}" in
+	version) echo "Android Debug Bridge version 1.0.41" ;;
+	devices)
+		echo "List of devices attached"
+		if [[ -f "${dir}/offline_polls" ]]; then
+			left="$(cat "${dir}/offline_polls")"
+			if (( left > 0 )); then
+				echo $((left - 1)) > "${dir}/offline_polls"
+			else
+				rm -f "${dir}/offline_polls"
+			fi
+		fi
+		if [[ -f "${dir}/online" && ! -f "${dir}/offline_polls" ]]; then printf 'emulator-5554\tdevice\n'; fi
+		;;
+	emu)
+		if [[ "${1:-}" == "avd" ]]; then printf '%s\nOK\n' "${FAKE_AVD_NAME:-Pixel_10_Pro_XL}"; fi
+		if [[ "${1:-}" == "kill" ]]; then rm -f "${dir}/online"; fi
+		;;
+	reboot) echo 2 > "${dir}/offline_polls" ;;
+	install) echo Success ;;
+	exec-out)
+		case "${1:-}" in
+			run-as)
+				action="${3:-}"
+				path="${dir}/testfiles/${4:-}"
+				# Like the real exec-out: the error of the remote command is output and the status is 0.
+				if [[ "${action}" == "ls" ]]; then
+					[[ -d "${path}" ]] || { echo "ls: ${4}: No such file or directory"; exit 0; }
+					ls -1 "${path}"
+				else
+					[[ -f "${path}" ]] || { echo "cat: ${4}: No such file or directory"; exit 0; }
+					# cat.fails: the transfer is cut after its first bytes (what a SIGKILL of the adapter leaves behind)
+					if [[ -f "${dir}/cat.fails" ]]; then head -c 4 "${path}"; exit 1; fi
+					cat "${path}"
+				fi
+				;;
+			screencap) printf 'PNG' ;;
+			cat) echo "<hierarchy/>" ;;
+		esac
+		;;
+	logcat)
+		if [[ " $* " == *" -c "* ]]; then
+			: > "${dir}/logcat.txt"
+		elif [[ -f "${dir}/logcat.txt" ]]; then
+			cat "${dir}/logcat.txt"
+		fi
+		;;
+	reverse)
+		if [[ "${1:-}" == "--list" ]]; then
+			[[ ! -f "${dir}/reverse" ]] || cat "${dir}/reverse"
+		else
+			printf 'host-1 %s %s\n' "$1" "$2" >> "${dir}/reverse"
+		fi
+		;;
+	shell)
+		sub="${1:-}"
+		if (( $# > 0 )); then shift; fi
+		case "${sub}" in
+			getprop)
+				case "$1" in
+					sys.boot_completed) if [[ -f "${dir}/boot_completed" ]]; then cat "${dir}/boot_completed"; else echo 1; fi ;;
+					init.svc.bootanim) prop bootanim stopped ;;
+					ro.build.version.sdk) prop sdk 37 ;;
+					persist.sys.locale) prop locale en-US ;;
+					ro.product.locale) prop product_locale en-US ;;
+					ro.product.model) echo "Pixel 10 Pro XL" ;;
+				esac
+				;;
+			settings)
+				if [[ "$1" == "put" ]]; then
+					if ! grep -qxF -e "$2 $3" "${dir}/ignore" 2> /dev/null; then printf '%s\n' "$4" > "${dir}/settings/$2.$3"; fi
+				else
+					if [[ -f "${dir}/settings/$2.$3" ]]; then cat "${dir}/settings/$2.$3"; else echo null; fi
+				fi
+				;;
+			pm)
+				if [[ "${1:-}" == "clear" ]]; then
+					if [[ -f "${dir}/pmclear.answer" ]]; then cat "${dir}/pmclear.answer"; else echo Success; fi
+				else
+					echo "package:/system/framework/framework-res.apk"
+				fi
+				;;
+			am)
+				case "${1:-}" in
+					instrument) shift; fake_instrument "$@" ;;
+					force-stop) [[ ! -f "${dir}/forcestop.fails" ]] || exit 1 ;;
+				esac
+				;;
+			run-as)
+				if [[ "${2:-}" == "rm" ]]; then rm -rf "${dir}/testfiles/${4}"; fi
+				if [[ "${2:-}" == "ls" ]]; then
+					[[ -d "${dir}/testfiles/${3}" ]] || { echo "ls: ${3}: No such file or directory" >&2; exit 1; }
+					ls -1 "${dir}/testfiles/${3}"
+				fi
+				;;
+			uiautomator) echo "UI hierarchy dumped to: $2" ;;
+			dumpsys)
+				if [[ "$1" == "window" ]]; then
+					if [[ -f "${dir}/anr" ]]; then echo "Window #1 Application Not Responding: com.example"; else echo "Window #1"; fi
+				else
+					echo "mResumedActivity: ActivityRecord{1 u0 com.example/.Main}"
+				fi
+				;;
+			cat)
+				case "$1" in
+					/proc/loadavg)
+						if [[ -f "${dir}/loadavg.seq" ]]; then
+							first="$(head -n 1 "${dir}/loadavg.seq")"
+							if [[ "$(wc -l < "${dir}/loadavg.seq")" -gt 1 ]]; then tail -n +2 "${dir}/loadavg.seq" > "${dir}/loadavg.tmp"; mv "${dir}/loadavg.tmp" "${dir}/loadavg.seq"; fi
+						else
+							first="1.20"
+						fi
+						echo "${first} 1.00 0.90 1/500 1234"
+						;;
+					/proc/uptime) echo "120.50 400.10" ;;
+					/proc/meminfo) printf 'MemTotal:       %s kB\n' "$(prop meminfo_kb 16000000)" ;;
+				esac
+				;;
+			nproc) prop nproc 8 ;;
+		esac
+		;;
+	*) echo "fake adb: unsupported $verb" >&2; exit 64 ;;
+esac

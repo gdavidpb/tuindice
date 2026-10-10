@@ -22,13 +22,12 @@ import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -56,6 +55,7 @@ import tuindice.evaluations.generated.resources.evaluation_status_scheduled
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
+import tuindice.evaluations.generated.resources.label_evaluation_no_date
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
@@ -68,62 +68,12 @@ data class EvaluationItemMapping(
 	val typeIcon: (type: EvaluationType) -> ImageVector,
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
-	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
-	val dateHeaderText: (evaluation: Evaluation) -> String,
-	val dateText: (evaluation: Evaluation) -> String,
+	val dateText: (evaluation: Evaluation) -> UiText,
 	val highlightTone: (state: EvaluationState) -> EvaluationHighlightTone
 )
 
-@Composable
-fun rememberEvaluationItemMapping(): EvaluationItemMapping {
-	val dateTextMapping = rememberEvaluationDateTextMapping()
-
-	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
-	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
-	val evaluationScoreGradePattern = stringResource(Res.string.evaluation_score_grade)
-	val evaluationEmptyGradeLabel = stringResource(Res.string.evaluation_empty_grade)
-	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
-	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
-	val evaluationPendingStatusLabel = stringResource(Res.string.evaluation_status_pending)
-	val evaluationScheduledStatusLabel = stringResource(Res.string.evaluation_status_scheduled)
-	val evaluationCompletedStatusLabel = stringResource(Res.string.evaluation_status_completed)
-	val evaluationContinuousStatusLabel = stringResource(Res.string.evaluation_status_continuous)
-	val typeLabels = rememberEvaluationTypeLabels()
-
-	return remember(
-		dateTextMapping,
-		evaluationNamePattern,
-		evaluationGradePattern,
-		evaluationScoreGradePattern,
-		evaluationEmptyGradeLabel,
-		evaluationPendingGradePattern,
-		evaluationNotGradePattern,
-		evaluationPendingStatusLabel,
-		evaluationScheduledStatusLabel,
-		evaluationCompletedStatusLabel,
-		evaluationContinuousStatusLabel,
-		typeLabels
-	) {
-		buildEvaluationItemMapping(
-			dateTextMapping = dateTextMapping,
-			evaluationNamePattern = evaluationNamePattern,
-			evaluationGradePattern = evaluationGradePattern,
-			evaluationScoreGradePattern = evaluationScoreGradePattern,
-			evaluationEmptyGradeLabel = evaluationEmptyGradeLabel,
-			evaluationPendingGradePattern = evaluationPendingGradePattern,
-			evaluationNotGradePattern = evaluationNotGradePattern,
-			evaluationPendingStatusLabel = evaluationPendingStatusLabel,
-			evaluationScheduledStatusLabel = evaluationScheduledStatusLabel,
-			evaluationCompletedStatusLabel = evaluationCompletedStatusLabel,
-			evaluationContinuousStatusLabel = evaluationContinuousStatusLabel,
-			typeLabels = typeLabels
-		)
-	}
-}
-
 suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 	return buildEvaluationItemMapping(
-		dateTextMapping = getEvaluationDateTextMapping(),
 		evaluationNamePattern = getString(Res.string.evaluation_name),
 		evaluationGradePattern = getString(Res.string.evaluation_grade),
 		evaluationScoreGradePattern = getString(Res.string.evaluation_score_grade),
@@ -139,7 +89,6 @@ suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 }
 
 private fun buildEvaluationItemMapping(
-	dateTextMapping: EvaluationDateTextMapping,
 	evaluationNamePattern: String,
 	evaluationGradePattern: String,
 	evaluationScoreGradePattern: String,
@@ -152,6 +101,8 @@ private fun buildEvaluationItemMapping(
 	evaluationContinuousStatusLabel: String,
 	typeLabels: Map<EvaluationType, String>
 ): EvaluationItemMapping {
+	val noDateLabel = UiText.Resource(Res.string.label_evaluation_no_date)
+
 	return EvaluationItemMapping(
 		evaluationName = { type, ordinal ->
 			evaluationNamePattern
@@ -198,14 +149,8 @@ private fun buildEvaluationItemMapping(
 				EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
 			}
 		},
-		dateGroupTitle = { bucket ->
-			bucket.getLabel(dateTextMapping)
-		},
-		dateHeaderText = { evaluation: Evaluation ->
-			evaluation.formatAsExactDateHeader(noDateLabel = dateTextMapping.noDateLabel)
-		},
 		dateText = { evaluation: Evaluation ->
-			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
+			evaluation.formatAsDayOfWeekAndDate(noDateLabel = noDateLabel)
 		},
 		highlightTone = { state ->
 			when (state) {

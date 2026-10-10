@@ -10,6 +10,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.intl.Locale
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -22,6 +24,7 @@ import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -51,12 +54,10 @@ class SummaryRtlA11yUiTest {
 		setTuIndiceTestContent(locale = Locale("ar")) {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -84,14 +85,12 @@ class SummaryRtlA11yUiTest {
 		setTuIndiceTestContent(locale = Locale("ar")) {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -116,12 +115,10 @@ class SummaryRtlA11yUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -155,12 +152,10 @@ class SummaryRtlA11yUiTest {
 		) {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -182,6 +177,15 @@ class SummaryRtlA11yUiTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeSyncUseCase = ObserveSyncUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
+					syncRepository = FakeSyncRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

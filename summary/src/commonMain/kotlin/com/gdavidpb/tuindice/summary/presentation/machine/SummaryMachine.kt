@@ -5,6 +5,8 @@ import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessa
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -14,6 +16,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRefreshMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRemoveMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummarySyncItem
 import com.gdavidpb.tuindice.summary.presentation.mapper.toUploadMessage
 import com.gdavidpb.tuindice.summary.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.contentTransitions
@@ -29,11 +32,13 @@ import tuindice.summary.generated.resources.snack_profile_picture_updated
 
 class SummaryMachine(
 	private val observeUserUseCase: ObserveUserUseCase,
+	private val observeSyncUseCase: ObserveSyncUseCase,
+	private val getCameraAvailabilityUseCase: GetCameraAvailabilityUseCase,
 	private val updateUserUseCase: UpdateUserUseCase,
 	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
 ) : ScreenMachine<Summary.State, Summary.Effect> {
-	override fun initialState(): Summary.State = Summary.State.Idle
+	override fun initialState(): Summary.State = Summary.State.Idle()
 
 	override fun define(host: MachineHost<Summary.Effect>): MachineDefinition<Summary.State> {
 		return MachineDefinition.define {
@@ -70,7 +75,7 @@ class SummaryMachine(
 										failedSubjects = failedSubjects,
 										failedCredits = failedCredits,
 										profilePictureUrl = pictureUrl,
-											profilePictureVersion = pictureVersion,
+										profilePictureVersion = pictureVersion,
 										isProfilePictureLoading = false,
 										isUserRefreshing = false
 									)
@@ -82,6 +87,44 @@ class SummaryMachine(
 					is UseCaseState.Error -> host.processInternalEvent(
 						SummaryInternalEvent.ObservationFailed(
 							message = commonUnexpectedErrorMessage()
+						)
+					)
+				}
+			}
+		}
+
+		// Its own observation: the user's never emits for an account with nothing stored, and the
+		// failed screen still has to learn why from the sync.
+		host.launchMachineJob {
+			observeSyncUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						SummaryInternalEvent.SyncObserved(
+							sync = useCaseState.value.toSummarySyncItem()
+						)
+					)
+				}
+			}
+		}
+	}
+
+	internal fun resolveCameraAvailability(host: MachineHost<Summary.Effect>) {
+		host.launchMachineJob {
+			getCameraAvailabilityUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> host.processInternalEvent(
+						SummaryInternalEvent.CameraAvailabilityResolved(
+							isCameraAvailable = useCaseState.value
+						)
+					)
+
+					// A device that cannot say still gets its options: picking does not
+					// need a camera, so only taking a picture is left out.
+					is UseCaseState.Error -> host.processInternalEvent(
+						SummaryInternalEvent.CameraAvailabilityResolved(
+							isCameraAvailable = false
 						)
 					)
 				}

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-annulled-final-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzItMzIzMjM6YW5udWxsZWQtZmluYWwtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "annulled-final-user",
+      "usb_id": "32-32323",
+      "access_token": "bootstrap.mock.annulled-final.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

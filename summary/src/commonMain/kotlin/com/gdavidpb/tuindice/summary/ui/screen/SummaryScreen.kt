@@ -11,20 +11,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSummaryFailedItem
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttentionKey
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryFailedKind
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
+import com.gdavidpb.tuindice.summary.ui.view.SummaryNewStudentView
 import com.gdavidpb.tuindice.summary.ui.view.rememberSummaryItems
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.summary_failed_message
 import tuindice.summary.generated.resources.summary_failed_retry
-import tuindice.summary.generated.resources.summary_failed_title
 
 @Composable
 fun SummaryScreen(
@@ -38,10 +42,10 @@ fun SummaryScreen(
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatusDetails?>(null) }
 	val acknowledgedSyncAttentionKey = remember { mutableStateOf<String?>(null) }
-	val syncAttentionKey = syncAttentionKey(
-		syncStatus = syncStatus,
-		syncReport = syncReport
-	)
+	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
+	val syncAttentionKey = resolveSyncAttentionKey(syncStatus = syncStatus, syncReport = syncReport)
+	// The halo asks for attention until the user opens the details of this very problem; a running
+	// sync hides it, and a new problem (another key) brings it back.
 	val shouldShowSyncAttentionHalo = syncAttentionKey != null &&
 		acknowledgedSyncAttentionKey.value != syncAttentionKey &&
 		!isSyncing
@@ -59,27 +63,38 @@ fun SummaryScreen(
 	) {
 		SealedCrossfade(targetState = state) { targetState ->
 			when (targetState) {
-				Summary.State.Idle -> Unit
+				is Summary.State.Idle -> Unit
 
 				is Summary.State.Loading ->
 					LoadingView(indicatorTag = SummaryUiTags.LoadingIndicator)
 
-				is Summary.State.Failed ->
-					SummaryFailedView(
-						title = stringResource(Res.string.summary_failed_title),
-						message = stringResource(Res.string.summary_failed_message),
-						retryText = stringResource(Res.string.summary_failed_retry),
-						onRetryClick = onRetryClick,
-						headerContent = {
-							ErrorStateAnimationView()
-						}
-					)
+				is Summary.State.Failed -> {
+					val failedItem = resolveSummaryFailedItem(syncStatus = syncStatus)
+
+					when (failedItem.kind) {
+						SummaryFailedKind.NewStudentNoRecord -> SummaryNewStudentView(
+							title = failedItem.title.asString(),
+							message = failedItem.message.asString(),
+							isRetryEnabled = !isSyncing,
+							onRetryClick = onRetryClick
+						)
+
+						SummaryFailedKind.Error -> SummaryFailedView(
+							title = failedItem.title.asString(),
+							message = failedItem.message.asString(),
+							retryText = stringResource(Res.string.summary_failed_retry),
+							onRetryClick = onRetryClick,
+							headerContent = {
+								ErrorStateAnimationView()
+							}
+						)
+					}
+				}
 
 				is Summary.State.Content ->
 					SummaryContentView(
 						state = targetState,
-						syncStatus = syncStatus,
-						syncReport = syncReport,
+						syncAttention = syncAttention,
 						isSyncing = isSyncing,
 						showSyncAttentionHalo = shouldShowSyncAttentionHalo,
 						summaryItems = rememberSummaryItems(
@@ -87,6 +102,7 @@ fun SummaryScreen(
 						),
 						onEditProfilePictureClick = onEditProfilePictureClick,
 						onStatusIconClick = {
+							// Only a problem has a key, and only a problem has details to open.
 							syncAttentionKey?.let { currentKey ->
 								acknowledgedSyncAttentionKey.value = currentKey
 								displayedSyncStatusDetails.value = SyncStatusDetails(
@@ -114,14 +130,3 @@ private data class SyncStatusDetails(
 	val status: SyncStatus,
 	val report: SyncReport
 )
-
-private fun syncAttentionKey(
-	syncStatus: SyncStatus,
-	syncReport: SyncReport
-): String? {
-	return if (syncStatus != SyncStatus.Healthy || syncReport.hasUnavailableSource) {
-		"$syncStatus|$syncReport"
-	} else {
-		null
-	}
-}

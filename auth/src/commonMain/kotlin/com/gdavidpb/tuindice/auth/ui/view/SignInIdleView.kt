@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -37,8 +45,12 @@ import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbEmail
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
+import org.jetbrains.compose.resources.stringResource
+import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.sign_in_service_unavailable
 
 @Composable
 fun SignInIdleView(
@@ -62,7 +74,8 @@ fun SignInIdleView(
 	useUsbIdContentDescription: String,
 	passwordLabelText: String,
 	usageDataConsentText: String = "",
-	signInButtonText: String
+	signInButtonText: String,
+	isWaiting: Boolean
 ) {
 	val focusManager = LocalFocusManager.current
 	val passwordFocusRequester = remember { FocusRequester() }
@@ -70,7 +83,9 @@ fun SignInIdleView(
 		SignInIdentifierMode.UsbId -> state.usbId.isUsbId()
 		SignInIdentifierMode.UsbEmail -> state.usbId.isUsbEmail()
 	}
-	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty()
+	val rejection = state.rejection
+	val fixedRejection = rejection.takeIfFixedUnderTheButton()
+	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty() && !state.isServiceUnavailable
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
 		textAlign = TextAlign.Center,
@@ -118,11 +133,16 @@ fun SignInIdleView(
 				SignInIdentifierMode.UsbEmail -> usbEmailPlaceholderText
 			},
 			identifierMode = state.identifierMode,
+			identifierToggleCount = state.identifierToggleCount,
 			toggleContentDescription = when (state.identifierMode) {
 				SignInIdentifierMode.UsbId -> useUsbEmailContentDescription
 				SignInIdentifierMode.UsbEmail -> useUsbIdContentDescription
 			},
 			showTogglePulse = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
+			isWaiting = isWaiting,
+			// Wrong credentials mark both fields; the message is not repeated here, a screen reader gets it.
+			isError = rejection is SignIn.Rejection.InvalidCredentials,
+			errorDescription = (rejection as? SignIn.Rejection.InvalidCredentials)?.message,
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
 			onIdentifierModeToggle = onIdentifierModeToggle,
@@ -139,8 +159,14 @@ fun SignInIdleView(
 			labelText = passwordLabelText,
 			password = state.password,
 			isPasswordVisible = state.isPasswordVisible,
+			isWaiting = isWaiting,
 			onPasswordChange = onPasswordChange,
 			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+			// Wrong credentials: the only message goes here, once, under the password.
+			error = (rejection as? SignIn.Rejection.InvalidCredentials)?.message,
+			errorModifier = Modifier
+				.testTag(AuthUiTags.SignInRejectedMarker)
+				.semantics { liveRegion = LiveRegionMode.Polite },
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
 				if (isSignInEnabled) onSignInClick()
@@ -195,6 +221,22 @@ fun SignInIdleView(
 			Text(text = signInButtonText)
 		}
 
+		// Animated so the form does not jump when the wait starts or ends, and a live region so a
+		// screen reader says why the button stopped responding.
+		FixedMessage(
+			text = stringResource(Res.string.sign_in_service_unavailable).takeIf { state.isServiceUnavailable },
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			tag = AuthUiTags.ServiceUnavailableMessage
+		)
+
+		// A disabled account or an unverified device: nothing the person typed is wrong, so the fields
+		// stay as they are and the message stays here, in the color of an error, until they edit.
+		FixedMessage(
+			text = fixedRejection?.message,
+			color = MaterialTheme.colorScheme.error,
+			tag = AuthUiTags.SignInRejectedMarker
+		)
+
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
@@ -230,5 +272,49 @@ fun SignInIdleView(
 				)
 			}
 		}
+	}
+}
+
+// [text] is null while there is nothing to say. The message that leaves keeps its own text for as long as it
+// takes to go, so the block does not collapse into an empty line first.
+@Composable
+private fun FixedMessage(
+	text: String?,
+	color: Color,
+	tag: String
+) {
+	AnimatedContent(
+		targetState = text,
+		transitionSpec = { fadeIn() togetherWith fadeOut() },
+		label = "FixedMessage"
+	) { message ->
+		if (message != null) {
+			Text(
+				modifier = Modifier
+					.testTag(tag)
+					.semantics { liveRegion = LiveRegionMode.Polite }
+					.fillMaxWidth()
+					.padding(
+						start = TuIndiceSpacing.Wide,
+						end = TuIndiceSpacing.Wide,
+						bottom = TuIndiceSpacing.Screen
+					),
+				text = message,
+				style = MaterialTheme.typography.bodySmall,
+				color = color,
+				textAlign = TextAlign.Center
+			)
+		}
+	}
+}
+
+// A disabled account or an unverified device are shown under the button; wrong credentials are not.
+private fun SignIn.Rejection?.takeIfFixedUnderTheButton(): SignIn.Rejection? {
+	return when (this) {
+		is SignIn.Rejection.AccountDisabled,
+		is SignIn.Rejection.Untrusted -> this
+
+		is SignIn.Rejection.InvalidCredentials,
+		null -> null
 	}
 }

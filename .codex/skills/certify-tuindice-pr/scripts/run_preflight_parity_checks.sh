@@ -21,15 +21,11 @@ resolve_merge_base() {
 	local ref
 	local merge_base
 
-	for ref in origin/production production; do
-		merge_base="$(git merge-base "$ref" "$head_sha" 2>/dev/null || true)"
-		if [[ -n "$merge_base" ]]; then
-			printf '%s\n' "$merge_base"
-			return 0
-		fi
-	done
-
-	return 1
+	# The base ref has one definition (e2e_base_ref in e2e/scripts/shared/ci-common.sh, loaded by common.sh), shared with the scope resolver, the audit helper and the verdict.
+	ref="$(e2e_base_ref "$REPO_ROOT")" || return 1
+	merge_base="$(git merge-base "$ref" "$head_sha" 2>/dev/null || true)"
+	[[ -n "$merge_base" ]] || return 1
+	printf '%s\n' "$merge_base"
 }
 
 github_output_value() {
@@ -110,9 +106,22 @@ IOS_CI_SCRIPTS_TOUCHED="$(github_output_value ios_ci_scripts_touched "$GITHUB_OU
 HAS_RELEVANT_CHANGES="$(github_output_value has_relevant_changes "$GITHUB_OUTPUT_FILE")"
 APP_VERSION_CHANGED="$(github_output_value app_version_changed "$GITHUB_OUTPUT_FILE")"
 HAS_RELEASE_IMPACT="$(github_output_value has_release_impact "$GITHUB_OUTPUT_FILE")"
+IOS_UITEST_BUILD_REQUIRED="$(github_output_value ios_uitest_build_required "$GITHUB_OUTPUT_FILE")"
+VOCABULARY_GATE_REQUIRED="$(github_output_value vocabulary_gate_required "$GITHUB_OUTPUT_FILE")"
 
 info "Android preflight tasks: ${ANDROID_TASKS:-<none>}"
 info "iOS preflight tasks: ${IOS_TASKS:-<none>}"
+info "iOS UI test target build required: ${IOS_UITEST_BUILD_REQUIRED:-false}"
+
+# Paridad con el step "Check the E2E vocabulary" del job compartido: documentos y skills corren la puerta de vocabulario
+# sola, también cuando no hay cambios relevantes para la app.
+if [[ "$VOCABULARY_GATE_REQUIRED" == "true" ]]; then
+	if [[ "$DRY_RUN" == "true" ]]; then
+		print_command bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
+	else
+		bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
+	fi
+fi
 
 if [[ "$HAS_RELEVANT_CHANGES" != "true" ]]; then
 	info "No deployable app changes were detected; preflight parity checks are not required."
@@ -151,6 +160,10 @@ if [[ "$DRY_RUN" == "true" ]]; then
 			-Pcompose.ios.resources.archs=arm64 \
 			"${ios_task_array[@]}"
 	fi
+	if [[ "$IOS_UITEST_BUILD_REQUIRED" == "true" ]]; then
+		# Paridad con el job ios-uitest-preflight: construye la app y el bundle TuIndiceUITests.
+		print_command bash ./e2e/scripts/ios/build.sh --for-testing-only
+	fi
 	exit 0
 fi
 
@@ -177,7 +190,9 @@ if [[ -n "$ANDROID_TASKS" ]]; then
 		sanitize_sensitive_environment
 
 		IFS=' ' read -r -a android_task_array <<<"$ANDROID_TASKS"
-		if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* ]]; then
+		# The same condition as the workflow step "Materialize CI placeholder configuration": the release bundle and the
+		# scenarios' test APK (it builds :app, which applies the google-services plugin) need the placeholder configs.
+		if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* || "$ANDROID_TASKS" == *":scenariorunner:assembleDebug"* ]]; then
 			android_env_file="${STATE_DIR}/android-github-env"
 			GITHUB_ENV="$android_env_file" \
 				CI_PLACEHOLDER_IOS=0 \
@@ -228,6 +243,15 @@ if [[ -n "$IOS_TASKS" ]]; then
 				-Pcompose.ios.resources.platform=iphoneos \
 				-Pcompose.ios.resources.archs=arm64 \
 				"${ios_task_array[@]}"
+	)
+fi
+
+if [[ "$IOS_UITEST_BUILD_REQUIRED" == "true" ]]; then
+	# Paridad con el job ios-uitest-preflight, que corre aparte del host de iOS: sin las variables de
+	# dispositivo (iphoneos) del bloque anterior, que romperían una compilación para simulador.
+	(
+		sanitize_sensitive_environment
+		bash ./e2e/scripts/ios/build.sh --for-testing-only
 	)
 fi
 

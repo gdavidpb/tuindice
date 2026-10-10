@@ -11,7 +11,8 @@ sealed class SummaryDestination : Destination() {
 
 	@Serializable
 	data class ProfilePictureSettingsDialog(
-		val showRemove: Boolean
+		val showRemove: Boolean,
+		val isCameraAvailable: Boolean
 	) : SummaryDestination(), DialogDestination
 
 	@Serializable

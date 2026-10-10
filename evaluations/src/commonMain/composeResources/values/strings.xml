@@ -9,6 +9,8 @@
 	<string name="message_empty_evaluations">Registra el primer parcial, quiz o entrega de este trimestre.</string>
 	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
+	<string name="title_not_enrolled_evaluations">No estás inscrito en este trimestre</string>
+	<string name="message_not_enrolled_evaluations">La universidad no reporta una inscripción vigente para ti en este trimestre.</string>
 	<string name="title_enrollment_unavailable_evaluations">Servicio de inscripción no disponible</string>
 	<string name="message_enrollment_unavailable_evaluations">El servicio de inscripción de la universidad no responde. Cuando se restablezca, tus evaluaciones aparecerán aquí.</string>
 	<string name="title_empty_match_evaluations">Sin evaluaciones aquí</string>
@@ -61,13 +63,6 @@
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Modificar</string>
-	<string name="evaluation_date_today">Hoy</string>
-	<string name="evaluation_date_tomorrow">Mañana</string>
-	<string name="evaluation_date_yesterday">Ayer</string>
-	<string name="evaluation_date_past_week">El %1$s</string>
-	<string name="evaluation_date_this_week">Este %1$s</string>
-	<string name="evaluation_date_next_week">El próximo %1$s</string>
-	<string name="evaluation_date_weeks_ahead">En %1$d semanas</string>
 
 	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
 	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>

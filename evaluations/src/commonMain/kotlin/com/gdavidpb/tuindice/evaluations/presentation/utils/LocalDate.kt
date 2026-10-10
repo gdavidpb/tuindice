@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.utils
 
 import com.gdavidpb.tuindice.base.presentation.mapper.formatLocalizedMonthYear
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import kotlinx.datetime.*
 import kotlin.time.Clock
@@ -36,7 +37,7 @@ fun LocalDate.nextMonthStart() = if (month.ordinal == 11) {
 	LocalDate(year = year, month = Month.entries[month.ordinal + 1], day = 1)
 }
 
-fun LocalDate.formatMonthYear(): String {
+fun LocalDate.formatMonthYear(): UiText {
 	return formatLocalizedMonthYear()
 }
 
@@ -52,8 +53,8 @@ fun LocalDate.toEvaluationEpochMillis(): Long {
 		.toEpochMilliseconds()
 }
 
-fun currentEvaluationLocalDate(): LocalDate {
-	return Clock.System.now()
+fun Clock.currentEvaluationLocalDate(): LocalDate {
+	return now()
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
 }

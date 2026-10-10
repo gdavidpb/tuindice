@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
@@ -9,9 +11,13 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
@@ -20,14 +26,23 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
@@ -36,6 +51,8 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -44,7 +61,11 @@ import kotlinx.coroutines.test.runTest
 import org.koin.core.Koin
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 // The machines need twelve use cases between them, so instead of hand-building that
 // graph the tests boot the real Koin module with stubbed repositories and resolve the
@@ -96,6 +117,30 @@ class RecordStateMachineContractTest {
 		)
 
 		assertMachineCoversEffects(machine, CreateSyntheticTerm.Effect::class)
+	}
+
+	@Test
+	fun scheduleMachine_coversAlphabet_andStatesAreReachable() = withMachineKoin {
+		val machine = get<ScheduleViewModel>().machine
+
+		assertMachineCoversAlphabet(
+			machine,
+			Schedule.Action::class,
+			ScheduleInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
+			machine,
+			Schedule.Action::class,
+			ScheduleInternalEvent::class
+		)
+
+		assertMachineStatesReachable(
+			machine = machine,
+			initialState = Schedule.State.Idle::class
+		)
+
+		assertMachineCoversEffects(machine, Schedule.Effect::class)
 	}
 
 	@Test
@@ -163,6 +208,39 @@ class RecordStateMachineContractTest {
 		}
 	}
 
+	// Its own test so the record export above stays readable; the name still ends in ToMermaid,
+	// which is what scripts/dump-machine-diagrams.sh filters on.
+	@Test
+	fun scheduleMachine_exportsDeclaredTransitionsToMermaid() = withMachineKoin {
+		val scheduleDiagram = get<ScheduleViewModel>()
+			.machine.exportToMermaid(
+				machineName = "schedule",
+				initialState = Schedule.State.Idle::class
+			)
+
+		// Captured from test output to publish the generated diagram as a docs artifact.
+		println(scheduleDiagram)
+
+		val expectedScheduleFragments = listOf(
+			"idle",
+			"loading",
+			"content",
+			"empty",
+			"ObserveSchedule",
+			"SelectScheduleView",
+			"ScheduleContentObserved",
+			"ScheduleEmptyObserved",
+			"ScheduleWaitingObserved"
+		)
+
+		for (fragment in expectedScheduleFragments) {
+			assertTrue(
+				scheduleDiagram.contains(fragment),
+				"Expected schedule Mermaid export to mention '$fragment':\n$scheduleDiagram"
+			)
+		}
+	}
+
 	@Test
 	fun recordMachine_survivesSeededRandomWalk() = runTest {
 		// The walk is suspend and withMachineKoin's block is not, so the machine is
@@ -191,15 +269,18 @@ class RecordStateMachineContractTest {
 				RecordInternalEvent.RecordContentObserved(
 					viewMode = RecordViewMode.Projection,
 					record = AcademicRecord(id = "record-1"),
-					selectedTermId = "term-1"
+					selectedTermId = "term-1",
+					notice = null
 				),
-				RecordInternalEvent.RecordEmptyObserved,
-				RecordInternalEvent.RecordWaitingObserved,
+				RecordInternalEvent.RecordEmptyObserved(notice = null),
+				RecordInternalEvent.RecordWaitingObserved(isNewStudentNoRecord = false),
+				RecordInternalEvent.NewStudentNoRecordObserved(isNewStudentNoRecord = true),
 				RecordInternalEvent.RecordObservationFailed,
 				RecordInternalEvent.RecordRefreshStarted,
 				RecordInternalEvent.RecordRefreshFailed(
 					message = "Comprueba tu conexión",
-					navigateToOutdatedCredentials = false
+					navigateToOutdatedCredentials = false,
+					isNewStudentNoRecord = false
 				),
 				RecordInternalEvent.RecordViewModeSet(viewMode = RecordViewMode.Projection),
 				RecordInternalEvent.RecordUnauthorized,
@@ -244,11 +325,7 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				CreateSyntheticTerm.Action.Observe,
 				CreateSyntheticTerm.Action.ConfigureTerm(termId = null),
-				CreateSyntheticTerm.Action.UpdateQuery(
-					query = "algoritmos",
-					selectionStart = 10,
-					selectionEnd = 10
-				),
+				CreateSyntheticTerm.Action.UpdateQuery(query = "algoritmos"),
 				CreateSyntheticTerm.Action.SelectAddSubjectTab(
 					tab = CreateTermAddSubjectTab.Search
 				),
@@ -263,12 +340,13 @@ class RecordStateMachineContractTest {
 					selectedPeriod = period,
 					selectedSubjects = listOf(subjectItem),
 					suggestedSubjects = emptyList(),
-					searchResults = emptyList()
+					searchResults = emptyList(),
+					searchQuery = "algoritmos"
 				),
-				CreateSyntheticTermInternalEvent.SearchCleared,
-				CreateSyntheticTermInternalEvent.SearchStarted,
-				CreateSyntheticTermInternalEvent.SearchSucceeded,
-				CreateSyntheticTermInternalEvent.SearchFailed,
+				CreateSyntheticTermInternalEvent.SearchCleared(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchStarted(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchSucceeded(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchFailed(query = "algoritmos"),
 				CreateSyntheticTermInternalEvent.LoadPreviewCleared,
 				CreateSyntheticTermInternalEvent.LoadPreviewStarted,
 				CreateSyntheticTermInternalEvent.LoadPreviewLoaded(
@@ -286,16 +364,176 @@ class RecordStateMachineContractTest {
 		)
 	}
 
+	@Test
+	fun scheduleMachine_survivesSeededRandomWalk() = runTest {
+		var resolvedMachine: ScheduleMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		assertMachineRandomWalk(
+			screenMachine = requireNotNull(resolvedMachine),
+			sampleEvents = listOf(
+				Schedule.Action.ObserveSchedule,
+				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
+				ScheduleInternalEvent.ScheduleContentObserved(
+					termName = "SEP-DIC 2026",
+					schedule = ScheduleItem(
+						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
+						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
+					),
+					viewMode = ScheduleViewMode.Table
+				),
+				ScheduleInternalEvent.ScheduleEmptyObserved,
+				ScheduleInternalEvent.ScheduleWaitingObserved
+			),
+			coroutineScope = backgroundScope,
+			// Five samples over a handful of rows: every row resolves from them.
+			minRowCoverage = 0.5
+		)
+	}
+
+	@Test
+	fun createSyntheticTermMachine_ignoresTheSearchEventsOfAnotherQuery_andAppliesTheOnesOfTheTypedOne() = runTest {
+		var resolvedMachine: CreateSyntheticTermMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<CreateSyntheticTerm.Effect> {
+			override fun sendEffect(effect: CreateSyntheticTerm.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		val typing = CreateSyntheticTerm.State(
+			query = "fisica",
+			isRefreshingSearch = true,
+			hasSearchError = false
+		)
+
+		suspend fun next(state: CreateSyntheticTerm.State, event: Any): CreateSyntheticTerm.State {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<CreateSyntheticTerm.State>>(result)
+
+			return result.toState
+		}
+
+		val superseded = listOf(
+			CreateSyntheticTermInternalEvent.SearchCleared(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchStarted(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchSucceeded(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchFailed(query = "calculo")
+		)
+
+		for (event in superseded) {
+			assertEquals(typing, next(typing, event), "$event must be ignored")
+		}
+
+		assertEquals(
+			typing.copy(isRefreshingSearch = false),
+			next(typing, CreateSyntheticTermInternalEvent.SearchSucceeded(query = "fisica"))
+		)
+		assertEquals(
+			typing.copy(isRefreshingSearch = false),
+			next(typing.copy(query = "FÍSICA "), CreateSyntheticTermInternalEvent.SearchSucceeded(query = "fisica"))
+				.copy(query = "fisica")
+		)
+		assertTrue(
+			next(
+				typing.copy(isRefreshingSearch = false),
+				CreateSyntheticTermInternalEvent.SearchFailed(query = "fisica")
+			).hasSearchError
+		)
+	}
+
+	// The snapshot is rebuilt from several sources, so one already queued can answer a query that is no longer
+	// the typed one: its search results are left out (the rest of the snapshot is still applied).
+	@Test
+	fun createSyntheticTermMachine_aSnapshotOfAnotherQuery_keepsTheSearchResultsOfTheTypedOne() = runTest {
+		var resolvedMachine: CreateSyntheticTermMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<CreateSyntheticTerm.Effect> {
+			override fun sendEffect(effect: CreateSyntheticTerm.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		fun item(code: String) = CreateTermSubjectItem(
+			subject = SyntheticTermSubject(subjectCode = code, name = code, credits = 4),
+			nameText = code
+		)
+
+		val shown = listOf(item("FS1111"))
+		val queued = listOf(item("MA1111"))
+		val picked = listOf(item("CI2125"))
+
+		fun snapshotOf(query: String, results: List<CreateTermSubjectItem>) =
+			CreateSyntheticTermInternalEvent.SnapshotObserved(
+				editingTermId = null,
+				editingTermKey = null,
+				periodOptions = emptyList(),
+				selectedPeriod = null,
+				selectedSubjects = picked,
+				suggestedSubjects = emptyList(),
+				searchResults = results,
+				searchQuery = query
+			)
+
+		suspend fun next(state: CreateSyntheticTerm.State, event: Any): CreateSyntheticTerm.State {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<CreateSyntheticTerm.State>>(result)
+
+			return result.toState
+		}
+
+		val typing = CreateSyntheticTerm.State(query = "fisica", searchResults = shown, hasSearchError = true)
+
+		// Another query: the results stay, the error flag stays, the rest of the snapshot is applied.
+		val ofAnotherQuery = next(typing, snapshotOf(query = "calculo", results = queued))
+		assertEquals(shown, ofAnotherQuery.searchResults)
+		assertTrue(ofAnotherQuery.hasSearchError)
+		assertEquals(picked, ofAnotherQuery.selectedSubjects)
+
+		// The typed one, however it was written: its results are shown.
+		val ofTheTypedQuery = next(typing, snapshotOf(query = "FÍSICA ", results = queued))
+		assertEquals(queued, ofTheTypedQuery.searchResults)
+		assertEquals(false, ofTheTypedQuery.hasSearchError)
+
+		// A query too short to search just emptied the results: a queued snapshot of the previous query
+		// must not bring them back until the next snapshot.
+		val tooShort = CreateSyntheticTerm.State(query = "f", searchResults = emptyList())
+		assertEquals(emptyList(), next(tooShort, snapshotOf(query = "fisica", results = queued)).searchResults)
+	}
+
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(
 		recordModule,
 		module {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
+			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
+			// Overrides the module's clock: the real one ticks forever, and the walks wait for idle.
+			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			// The app binds it in the common module.
+			single<Clock> { Clock.System }
 		},
 		block = block
 	)
@@ -339,6 +577,12 @@ private class StubRecordSelectionRepository : RecordSelectionRepository {
 	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
 
 	override suspend fun setRecordViewMode(viewMode: RecordViewMode) = Unit
+}
+
+private class StubScheduleSelectionRepository : ScheduleSelectionRepository {
+	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = flowOf(ScheduleViewMode.Table)
+
+	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) = Unit
 }
 
 private class StubSyntheticTermCreationRepository : SyntheticTermCreationRepository {

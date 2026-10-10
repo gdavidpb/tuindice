@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -9,9 +10,11 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefres
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
@@ -22,7 +25,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.mapper.syntheticTermRejectionMessage
+import com.gdavidpb.tuindice.record.presentation.mapper.recordRejectionMessage
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordNotice
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordContentTransitions
@@ -31,6 +35,8 @@ import com.gdavidpb.tuindice.record.presentation.transition.recordFailedTransiti
 import com.gdavidpb.tuindice.record.presentation.transition.recordIdleTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_synthetic_term_delete_failed
@@ -38,6 +44,7 @@ import tuindice.record.generated.resources.snack_synthetic_term_deleted
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
+	private val observeNewStudentNoRecordUseCase: ObserveNewStudentNoRecordUseCase,
 	private val observeSyntheticTermRejectionsUseCase: ObserveSyntheticTermRejectionsUseCase,
 	private val ensureRecordLoadedUseCase: EnsureRecordLoadedUseCase,
 	private val updateRecordUseCase: UpdateRecordUseCase,
@@ -52,6 +59,7 @@ class RecordMachine(
 	// handles keep that guarantee from depending on the call site.
 	private var recordObservationJob: Job? = null
 	private var syntheticTermRejectionObservationJob: Job? = null
+	private var newStudentObservationJob: Job? = null
 
 	override fun initialState(): Record.State = Record.State.Idle
 
@@ -66,7 +74,7 @@ class RecordMachine(
 	}
 
 	internal fun startObservation(host: MachineHost<Record.Effect>) {
-		startSyntheticTermRejectionObservation(host = host)
+		startSideObservations(host = host)
 
 		if (recordObservationJob?.isActive == true) return
 
@@ -77,6 +85,7 @@ class RecordMachine(
 
 					is UseCaseState.Data -> {
 						val record = useCaseState.value
+						val notice = resolveRecordNotice(record)
 
 						when (
 							resolveSyncedContentResolution(
@@ -89,18 +98,24 @@ class RecordMachine(
 								RecordInternalEvent.RecordContentObserved(
 									viewMode = record.viewMode,
 									record = record.record,
-									selectedTermId = requireNotNull(record.selectedTermId)
+									selectedTermId = requireNotNull(record.selectedTermId),
+									notice = notice
 								)
 							)
 
 							SyncedContentResolution.Empty -> host.processInternalEvent(
-								RecordInternalEvent.RecordEmptyObserved
+								RecordInternalEvent.RecordEmptyObserved(notice = notice)
 							)
 
 							SyncedContentResolution.Loading,
 							SyncedContentResolution.KeepCurrent,
 							-> host.processInternalEvent(
-								RecordInternalEvent.RecordWaitingObserved
+								RecordInternalEvent.RecordWaitingObserved(
+									// Read from the observation that says the record is still to come,
+									// so the wait and its reason are one fact.
+									isNewStudentNoRecord =
+										record.syncStatus == SyncStatus.NewStudentNoRecord
+								)
 							)
 						}
 					}
@@ -113,17 +128,37 @@ class RecordMachine(
 		}
 	}
 
-	private fun startSyntheticTermRejectionObservation(host: MachineHost<Record.Effect>) {
+	// What the screen listens to besides the record itself: whether the account is a new student
+	// with no record yet, and the edits the server refused for good. The first has its own
+	// observation because the record's never emits for an account with nothing stored.
+	private fun startSideObservations(host: MachineHost<Record.Effect>) {
+		if (newStudentObservationJob?.isActive != true) {
+			newStudentObservationJob = host.launchMachineJob {
+				observeNewStudentNoRecordUseCase.execute(Unit).collect { useCaseState ->
+					if (useCaseState is UseCaseState.Data) {
+						host.processInternalEvent(
+							RecordInternalEvent.NewStudentNoRecordObserved(
+								isNewStudentNoRecord = useCaseState.value
+							)
+						)
+					}
+				}
+			}
+		}
+
 		if (syntheticTermRejectionObservationJob?.isActive == true) return
 
 		syntheticTermRejectionObservationJob = host.launchMachineJob {
 			observeSyntheticTermRejectionsUseCase.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						RecordInternalEvent.SyntheticTermRejected(
-							message = syntheticTermRejectionMessage(count = useCaseState.value)
+					// A grade and a term are rejected for different reasons, so each gets its own snackbar.
+					useCaseState.value.groupBy(RecordRejection::kind).forEach { (kind, rejections) ->
+						host.processInternalEvent(
+							RecordInternalEvent.SyntheticTermRejected(
+								message = recordRejectionMessage(kind = kind, count = rejections.size)
+							)
 						)
-					)
+					}
 				}
 			}
 		}
@@ -143,7 +178,8 @@ class RecordMachine(
 						RecordInternalEvent.RecordRefreshFailed(
 							message = useCaseState.error.toRecordFailureMessage(),
 							navigateToOutdatedCredentials =
-								useCaseState.error == RecordUseCaseError.Unauthorized
+								useCaseState.error == RecordUseCaseError.Unauthorized,
+							isNewStudentNoRecord = observeNewStudentNoRecordUseCase.currentValue()
 						)
 					)
 				}
@@ -186,7 +222,8 @@ class RecordMachine(
 								RecordInternalEvent.RecordRefreshFailed(
 									message = useCaseState.error.toRecordFailureMessage(),
 									navigateToOutdatedCredentials =
-										useCaseState.error == RecordUseCaseError.Unauthorized
+										useCaseState.error == RecordUseCaseError.Unauthorized,
+									isNewStudentNoRecord = observeNewStudentNoRecordUseCase.currentValue()
 								)
 							)
 						}
@@ -279,4 +316,15 @@ class RecordMachine(
 			}
 		}
 	}
+}
+
+// Whether the university has no record for this account yet, as of now. A refresh asks it in its
+// own job at the moment it fails, so the failure re-enters the table already knowing why; a sync
+// that learns it later reaches Failed as NewStudentNoRecordObserved. Between the two the table
+// needs no register that one job writes for another to read.
+private suspend fun ObserveNewStudentNoRecordUseCase.currentValue(): Boolean {
+	return execute(Unit)
+		.mapNotNull { useCaseState -> (useCaseState as? UseCaseState.Data)?.value }
+		.firstOrNull()
+		?: false
 }

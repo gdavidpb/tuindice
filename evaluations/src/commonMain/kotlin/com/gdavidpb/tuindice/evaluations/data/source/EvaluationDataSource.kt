@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
@@ -31,13 +33,16 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationDataSource(
 	private val databaseDataSource: DatabaseDataRepository,
 	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
 	private val settingsDataSource: SettingsDataRepository,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
-	private val identifierRepository: IdentifierRepository
+	private val identifierRepository: IdentifierRepository,
+	private val clock: Clock
 ) : EvaluationRepository {
 	private val mutationSyncSpec = EvaluationMutationSyncSpec(
 		databaseDataSource = databaseDataSource,
@@ -47,7 +52,7 @@ class EvaluationDataSource(
 
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> {
 		return databaseDataSource.observeEvaluationsFlow()
-			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
+			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation(clock) } }
 	}
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
@@ -89,10 +94,16 @@ class EvaluationDataSource(
 		)
 
 		val visibleSnapshot = databaseDataSource.getEvaluationsSnapshot()
+		val availableAttemptIds = databaseDataSource.getAvailableAttempts()
+			.mapTo(HashSet()) { attempt -> attempt.id }
+		// An evaluation counts only under a subject of the current term: one whose subject is gone
+		// is never listed, so it must not keep the screen waiting for a list that will not come.
 		return EvaluationsRefreshResult(
-			hasEvaluations = fetchedSnapshot?.evaluations?.isNotEmpty() == true ||
-					visibleSnapshot.evaluations.isNotEmpty(),
-			hasAvailableAttempts = databaseDataSource.getAvailableAttempts().isNotEmpty()
+			hasEvaluations = fetchedSnapshot?.evaluations
+				?.any { evaluation -> evaluation.attemptId in availableAttemptIds } == true ||
+				visibleSnapshot.evaluations
+					.any { evaluation -> evaluation.attemptId in availableAttemptIds },
+			hasAvailableAttempts = availableAttemptIds.isNotEmpty()
 		)
 	}
 
@@ -105,7 +116,7 @@ class EvaluationDataSource(
 	}
 
 	override suspend fun getEvaluation(eid: String): Evaluation? {
-		return databaseDataSource.getEvaluation(eid)?.toEvaluation()
+		return databaseDataSource.getEvaluation(eid)?.toEvaluation(clock)
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
@@ -201,7 +212,7 @@ class EvaluationDataSource(
 
 	private fun LocalEvaluationsSnapshot.toObservedSyncedSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
 		return ObservedSyncedSnapshot(
-			value = evaluations.map { evaluation -> evaluation.toEvaluation() },
+			value = evaluations.map { evaluation -> evaluation.toEvaluation(clock) },
 			hasSynced = hasSynced
 		)
 	}

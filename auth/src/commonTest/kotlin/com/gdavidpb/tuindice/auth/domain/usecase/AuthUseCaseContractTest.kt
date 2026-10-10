@@ -2,12 +2,14 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
+import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
@@ -57,6 +59,7 @@ class AuthUseCaseContractTest {
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = SignInUseCase(
 			authRepository = repository,
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = messagingRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
@@ -104,6 +107,7 @@ class AuthUseCaseContractTest {
 		val reportingRepository = RecordingReportingRepository()
 		val useCase = SignInUseCase(
 			authRepository = repository,
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = messagingRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
@@ -136,6 +140,7 @@ class AuthUseCaseContractTest {
 		val repository = RecordingAuthRepository()
 		val useCase = SignInUseCase(
 			authRepository = repository,
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -169,6 +174,7 @@ class AuthUseCaseContractTest {
 		val repository = RecordingAuthRepository()
 		val useCase = SignInUseCase(
 			authRepository = repository,
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -202,6 +208,7 @@ class AuthUseCaseContractTest {
 		val repository = RecordingAuthRepository()
 		val useCase = SignInUseCase(
 			authRepository = repository,
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -258,6 +265,36 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("new-secret"), syncRepository.scheduledSyncCalls)
+	}
+
+	@Test
+	fun updatePasswordUseCase_whenTheStoredPasswordCouldNotBeRead_storesItAgainAndClearsTheLatch() = runTest {
+		val syncRepository = FakeSyncRepository()
+		val credentialsRepository = FakeCredentialsRepository(password = null)
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.MissingCredentials)
+		val useCase = UpdatePasswordUseCase(
+			authRepository = RecordingAuthRepository(),
+			sessionRepository = FakeSessionRepository(usbId = "20261234"),
+			syncRepository = syncRepository,
+			credentialsRepository = credentialsRepository,
+			syncStatusRepository = syncStatusRepository,
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			paramsValidator = UpdatePasswordParamsValidator(),
+			exceptionHandler = UpdatePasswordExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute("typed-again").test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		// The same exit as an outdated password: the typed one is stored and the sync resumes.
+		assertEquals(listOf("typed-again"), credentialsRepository.storedPasswords)
+		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
+		assertEquals(listOf("typed-again"), syncRepository.scheduledSyncCalls)
 	}
 
 	@Test
@@ -333,12 +370,36 @@ class AuthUseCaseContractTest {
 		assertEquals(null, settingsRepository.getLocalDataOwner())
 	}
 
+	@Test
+	fun signInUseCase_whenTheServiceAskedForAWait_carriesItInTheUnavailableError() = runTest {
+		val retryWindow = FakeAuthRetryWindowRepository(signInWaitMillis = 30_000L)
+		val useCase = signInUseCase(
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
+			authRepository = RecordingAuthRepository(
+				throwable = clientRequestException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap")
+			),
+			authRetryWindowRepository = retryWindow
+		)
+
+		useCase.execute(SignInParams(usbId = "2026123", password = "secret123")).test {
+			val error = awaitLoadingThenError(this)
+			assertEquals(SignInUseCaseError.Unavailable(retryAfterMillis = 30_000L), error.error)
+			awaitComplete()
+		}
+
+		// Asked for the canonical account: the key the data source recorded the wait under.
+		assertEquals(listOf(VALID_USB_ID), retryWindow.signInWaitAccounts)
+	}
+
 	private fun signInUseCase(
 		settingsRepository: FakeSettingsRepository,
 		applicationRepository: RecordingApplicationRepository,
-		authRepository: RecordingAuthRepository = RecordingAuthRepository()
+		authRepository: RecordingAuthRepository = RecordingAuthRepository(),
+		authRetryWindowRepository: FakeAuthRetryWindowRepository = FakeAuthRetryWindowRepository()
 	) = SignInUseCase(
 		authRepository = authRepository,
+		authRetryWindowRepository = authRetryWindowRepository,
 		messagingRepository = RecordingMessagingRepository(),
 		syncRepository = FakeSyncRepository(),
 		credentialsRepository = FakeCredentialsRepository(),

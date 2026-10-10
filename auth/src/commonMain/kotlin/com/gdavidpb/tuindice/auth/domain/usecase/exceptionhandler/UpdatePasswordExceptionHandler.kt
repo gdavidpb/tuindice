@@ -29,7 +29,7 @@ class UpdatePasswordExceptionHandler(
 			rootThrowable.isLocked() -> SignInUseCaseError.AccountDisabled
 			rootThrowable.isForbidden() -> SignInUseCaseError.Untrusted
 			rootThrowable.isUnauthorized() -> SignInUseCaseError.AuthenticationFailed
-			rootThrowable.isUnavailable() || rootThrowable.isTooManyRequests() -> SignInUseCaseError.Unavailable
+			rootThrowable.isUnavailable() || rootThrowable.isTooManyRequests() -> SignInUseCaseError.Unavailable()
 			rootThrowable.isTimeout() -> SignInUseCaseError.Timeout
 			rootThrowable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null

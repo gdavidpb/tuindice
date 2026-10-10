@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
@@ -20,6 +22,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -40,6 +44,8 @@ import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationsStateMachineContractTest {
 	@Test
@@ -160,7 +166,8 @@ class EvaluationsStateMachineContractTest {
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 				syncStatusRepository = RecordingSyncStatusRepository(),
 				evaluationsSelectionRepository = selectionRepository,
-				reportingRepository = reportingRepository
+				reportingRepository = reportingRepository,
+				clock = Clock.System
 			),
 			ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 				evaluationRepository = repository,
@@ -187,7 +194,8 @@ class EvaluationsStateMachineContractTest {
 			setSelectedWeekUseCase = SetSelectedWeekUseCase(
 				evaluationsSelectionRepository = selectionRepository,
 				reportingRepository = reportingRepository
-			)
+			),
+			clock = Clock.System
 		)
 
 		val weekKey = EvaluationsWeekKey.Academic(weekNumber = 1)
@@ -217,9 +225,11 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EditEvaluation(evaluationId = "evaluation-1"),
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
-				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
+				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+					explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = false)
+				),
 				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm)
 				),
 				EvaluationsInternalEvent.EvaluationsContentObserved(
 					weekItems = listOf(weekItem),
@@ -286,7 +296,8 @@ class EvaluationsStateMachineContractTest {
 				evaluationRepository = repository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = UpdateEvaluationExceptionHandler()
-			)
+			),
+			clock = Clock.System
 		)
 
 		val attempt = EditableAttemptDescriptor(
@@ -351,7 +362,8 @@ class EvaluationsStateMachineContractTest {
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
+					reportingRepository = reportingRepository,
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -378,7 +390,8 @@ class EvaluationsStateMachineContractTest {
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = reportingRepository
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -409,7 +422,8 @@ class EvaluationsStateMachineContractTest {
 					evaluationRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)

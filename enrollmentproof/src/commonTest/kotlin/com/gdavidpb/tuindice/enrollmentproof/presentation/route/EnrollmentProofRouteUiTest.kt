@@ -1,29 +1,38 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.DefaultEnrollmentProofTextProvider
+import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.gdavidpb.tuindice.enrollmentproof.testing.clientRequestException
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeFileRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import io.ktor.http.HttpStatusCode
 import io.github.vinceglb.filekit.PlatformFile
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -100,7 +109,7 @@ class EnrollmentProofRouteUiTest {
 	}
 
 	@Test
-	fun when_fetchFailsWithNotFound_then_showsRetryableSnackBarAndDismissesSheet() = runTuIndiceUiTest {
+	fun when_fetchFailsWithNotFound_then_showsSnackBarWithoutRetryAndDismissesSheet() = runTuIndiceUiTest {
 		val externalActions = RecordingFileOpenerRepository()
 		val viewModel = createEnrollmentProofViewModel(
 			throwable = EnrollmentProofNotFoundException()
@@ -129,10 +138,120 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 		assertEquals("Comprobante no disponible", snackBarMessages.first().message)
-		assertEquals("Reintentar", snackBarMessages.first().actionLabel)
-		assertNotNull(snackBarMessages.first().onAction).invoke()
-		assertEquals(1, retryRequests)
+		// There is nothing to try again when the university has no proof to give.
+		assertEquals(null, snackBarMessages.first().actionLabel)
+		assertEquals(null, snackBarMessages.first().onAction)
+		assertEquals(0, retryRequests)
 		assertEquals(null, externalActions.lastOpenedFile)
+	}
+
+	@Test
+	fun when_theProofIsMissingBecauseTheEnrollmentWasAnnulled_then_saysSoWithoutRetry() = runTuIndiceUiTest {
+		val viewModel = createEnrollmentProofViewModel(
+			throwable = EnrollmentProofNotFoundException(reason = EnrollmentProofNotFoundReason.Annulled)
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = RecordingFileOpenerRepository(),
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertEquals(
+			"Tu inscripción aparece anulada, por eso no hay comprobante.",
+			snackBarMessages.single().message
+		)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+	}
+
+	@Test
+	fun when_theProofIsMissingBecauseThereIsNoEnrollment_then_saysSoWithoutRetry() = runTuIndiceUiTest {
+		val viewModel = createEnrollmentProofViewModel(
+			throwable = EnrollmentProofNotFoundException(reason = EnrollmentProofNotFoundReason.NotEnrolled)
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = RecordingFileOpenerRepository(),
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertEquals(
+			"No tienes una inscripción vigente, así que no hay comprobante que mostrar.",
+			snackBarMessages.single().message
+		)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+	}
+
+	@Test
+	fun when_onlyTheSavedCopyIsLeft_then_asksBeforeOpeningIt() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository()
+		val viewModel = createEnrollmentProofViewModel(
+			enrollmentProofRepository = object : EnrollmentProofRepository {
+				override suspend fun getEnrollmentProof() = EnrollmentProof(
+					source = "/tmp/enrollment-proof.pdf",
+					content = "PDF",
+					isFromCache = true
+				)
+			}
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		// Nothing opens on its own: the saved copy waits for the answer.
+		assertNodeVisible(EnrollmentProofUiTags.SavedCopyMessage)
+		onNodeWithText("No pudimos descargar tu comprobante").assertExists()
+		assertEquals(null, externalActions.lastOpenedFile)
+
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		waitUntil(timeoutMillis = 2_000) { externalActions.lastOpenedFile != null }
+
+		assertNotNull(externalActions.lastOpenedFile)
+		assertEquals(emptyList(), snackBarMessages)
+	}
+
+	@Test
+	fun when_theFreshCopyIsOpened_then_noSavedCopyNoticeIsShown() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository()
+		val viewModel = createEnrollmentProofViewModel()
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { externalActions.lastOpenedFile != null }
+
+		assertEquals(emptyList(), snackBarMessages)
 	}
 
 	@Test
@@ -384,7 +503,132 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 		assertEquals("Instala un lector de PDF para ver tu comprobante", snackBarMessages.first().message)
+		// Installing a viewer is not something downloading the proof again fixes.
 		assertEquals(null, snackBarMessages.first().actionLabel)
+		assertEquals(null, snackBarMessages.first().onAction)
+	}
+
+	@Test
+	fun when_theSavedCopyIsConfirmedButFileOpenerReturnsFalse_then_showsViewerMissingSnackBarAndDismisses() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository(openResult = false)
+		val viewModel = createEnrollmentProofViewModel(
+			enrollmentProofRepository = object : EnrollmentProofRepository {
+				override suspend fun getEnrollmentProof() = EnrollmentProof(
+					source = "/tmp/enrollment-proof.pdf",
+					content = "PDF",
+					isFromCache = true
+				)
+			}
+		)
+		var dismissCalls = 0
+		var retryRequests = 0
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = { dismissCalls++ },
+				onRetryRequest = { retryRequests++ },
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		assertNodeVisible(EnrollmentProofUiTags.SavedCopyMessage)
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertNotNull(externalActions.lastOpenedFile)
+		assertEquals(1, dismissCalls)
+		assertEquals(
+			"Instala un lector de PDF para ver tu comprobante",
+			snackBarMessages.single().message
+		)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+		assertEquals(null, snackBarMessages.single().onAction)
+		assertEquals(0, retryRequests)
+	}
+
+	@Test
+	fun when_theViewerIsMissing_then_theSheetStaysUntilTheMessageArrives() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository(openResult = false)
+		val messageRequested = CompletableDeferred<Unit>()
+		val message = CompletableDeferred<String>()
+		val viewModel = createEnrollmentProofViewModel(
+			textProvider = HeldViewerMissingTextProvider(
+				requested = messageRequested,
+				message = message
+			)
+		)
+		var dismissCalls = 0
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = { dismissCalls++ },
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { messageRequested.isCompleted }
+
+		// The route told the machine and waits: closing now would lose what it has to say.
+		assertNotNull(externalActions.lastOpenedFile)
+		assertEquals(0, dismissCalls)
+		assertEquals(emptyList(), snackBarMessages)
+
+		message.complete("Sin lector de PDF")
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertEquals("Sin lector de PDF", snackBarMessages.single().message)
+		assertEquals(1, dismissCalls)
+	}
+
+	@Test
+	fun when_userDismissesBeforeTheViewerMissingMessageArrives_then_ignoresIt() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository(openResult = false)
+		val eventPublisher = RecordingEffectPublisher()
+		val messageRequested = CompletableDeferred<Unit>()
+		val message = CompletableDeferred<String>()
+		val viewModel = createEnrollmentProofViewModel(
+			textProvider = HeldViewerMissingTextProvider(
+				requested = messageRequested,
+				message = message
+			),
+			eventPublisher = eventPublisher
+		)
+		var dismissCalls = 0
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = { dismissCalls++ },
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { messageRequested.isCompleted }
+
+		onNodeWithTag(EnrollmentProofUiTags.FetchingCancelButton).performClick()
+		assertEquals(1, dismissCalls)
+
+		message.complete("Sin lector de PDF")
+
+		// Open and snackbar: the machine did send it, and the route was already dismissed.
+		waitUntil(timeoutMillis = 2_000) { eventPublisher.effects >= 2 }
+		waitForIdle()
+
+		assertEquals(1, dismissCalls)
+		assertEquals(emptyList(), snackBarMessages)
 	}
 
 	private fun createEnrollmentProofViewModel(): EnrollmentProofViewModel {
@@ -395,7 +639,9 @@ class EnrollmentProofRouteUiTest {
 		throwable: Throwable? = null,
 		canOpenFile: Boolean = true,
 		networkAvailable: Boolean = true,
-		enrollmentProofRepository: EnrollmentProofRepository? = null
+		enrollmentProofRepository: EnrollmentProofRepository? = null,
+		textProvider: EnrollmentProofTextProvider = DefaultEnrollmentProofTextProvider(),
+		eventPublisher: EventPublisher = NoOpEventPublisher
 	): EnrollmentProofViewModel {
 		val resolvedEnrollmentProofRepository = enrollmentProofRepository ?: object : EnrollmentProofRepository {
 			override suspend fun getEnrollmentProof(): EnrollmentProof {
@@ -419,10 +665,33 @@ class EnrollmentProofRouteUiTest {
 		return EnrollmentProofViewModel(
 			screenMachine = EnrollmentProofMachine(
 				fetchEnrollmentProofUseCase = useCase,
-				textProvider = DefaultEnrollmentProofTextProvider()
+				textProvider = textProvider
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = eventPublisher
 		)
+	}
+
+	// Holds the one message the route no longer chooses, so a test can stand between the route
+	// reporting that nothing opened and the machine answering what to say.
+	private class HeldViewerMissingTextProvider(
+		private val requested: CompletableDeferred<Unit>,
+		private val message: CompletableDeferred<String>
+	) : EnrollmentProofTextProvider by DefaultEnrollmentProofTextProvider() {
+		override suspend fun enrollmentUnsupported(): String {
+			requested.complete(Unit)
+			return message.await()
+		}
+	}
+
+	private class RecordingEffectPublisher : EventPublisher {
+		private val effectCount = MutableStateFlow(0)
+
+		val effects: Int
+			get() = effectCount.value
+
+		override fun publish(event: AppEvent) {
+			if (event is AppEvent.Effect) effectCount.update { count -> count + 1 }
+		}
 	}
 
 	private class RecordingFileOpenerRepository(

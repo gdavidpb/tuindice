@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.application
 
-import android.content.Context
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.MimeTypeMap
@@ -10,10 +10,13 @@ import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
+import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
+import kotlinx.coroutines.CancellationException
 import java.io.File
 
 class AndroidApplicationDataSource(
@@ -22,8 +25,25 @@ class AndroidApplicationDataSource(
 	private val settingsRepository: SettingsRepository,
 	private val secureStore: SecureKeyValueDataRepository,
 	private val legacySecureStore: SecureKeyValueDataRepository,
-	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
+	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability,
+	// Resolved when the wipe runs, not when this is built: some holders need this repository.
+	private val sessionMemory: () -> List<SessionMemory>,
+	private val sessionResidue: () -> List<SessionResidue>
 ) : ApplicationRepository {
+	override suspend fun clearSessionResidue() {
+		var firstFailure: Throwable? = null
+
+		sessionResidue().forEach { residue ->
+			runCatching { residue.clearSessionResidue() }
+				.onFailure { failure ->
+					if (failure is CancellationException) throw failure
+					if (firstFailure == null) firstFailure = failure
+				}
+		}
+
+		firstFailure?.let { failure -> throw failure }
+	}
+
 	override suspend fun canOpen(file: PlatformFile): Boolean {
 		val source = file.path
 		val uri = source.toUri()
@@ -40,20 +60,26 @@ class AndroidApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
-		persistenceMaintenanceRepository.clearAll()
+		try {
+			persistenceMaintenanceRepository.clearAll()
 
-		proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
-		settingsRepository.clear()
-		runCatching { secureStore.clear() }
-		runCatching { legacySecureStore.clear() }
+			proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
+			settingsRepository.clear()
+			runCatching { secureStore.clear() }
+			runCatching { legacySecureStore.clear() }
 
-		with(context) {
-			listOf(
-				filesDir,
-				cacheDir,
-				noBackupFilesDir,
-				codeCacheDir
-			).forEach { dir -> runCatching { dir.deleteRecursively() } }
+			with(context) {
+				listOf(
+					filesDir,
+					cacheDir,
+					noBackupFilesDir,
+					codeCacheDir
+				).forEach { dir -> runCatching { dir.deleteRecursively() } }
+			}
+		} finally {
+			// Last, and also when the wipe stops halfway: every holder goes back to what the
+			// stores now say, so memory never keeps more than what is still stored.
+			sessionMemory().forEach { memory -> runCatching { memory.clearSessionMemory() } }
 		}
 	}
 

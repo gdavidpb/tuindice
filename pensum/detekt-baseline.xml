@@ -83,6 +83,7 @@
     <ID>NoUnusedImports:PensumScreenModelMapper.kt$com.gdavidpb.tuindice.pensum.presentation.mapper.PensumScreenModelMapper.kt</ID>
     <ID>ReturnCount:PensumGraphCanvas.kt$private fun PensumScreenModel.termFocusBounds(termId: String): CanvasBounds?</ID>
     <ID>ReturnCount:PensumRoomDataSource.kt$PensumRoomDataSource$override suspend fun getSelectionParams(): PensumSelectionParams</ID>
+    <ID>TooManyFunctions:PensumDataSource.kt$PensumDataSource : PensumRepositoryPensumRevalidationRepositorySessionMemory</ID>
     <ID>TooManyFunctions:PensumGraphCanvas.kt$com.gdavidpb.tuindice.pensum.ui.view.PensumGraphCanvas.kt</ID>
     <ID>TooManyFunctions:PensumMachine.kt$PensumMachine : ScreenMachine</ID>
     <ID>TooManyFunctions:PensumRoomDataSource.kt$PensumRoomDataSource : PensumLocalDataRepository</ID>

@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -12,10 +14,15 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -28,14 +35,18 @@ import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
+import com.gdavidpb.tuindice.summary.testing.FakeSyncProgressRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
@@ -55,7 +66,6 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_initialLoadSucceeds_then_routeRendersContentWithoutDialogsOrSnackBar() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 		var outdatedPasswordNavigations = 0
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 		var removeProfilePictureConfirmationNavigations = 0
@@ -64,7 +74,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = { outdatedPasswordNavigations++ },
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {
@@ -73,9 +83,7 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -92,23 +100,20 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_profilePictureSettingsActionTriggered_then_requestsDialogWithRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -129,25 +134,38 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
+	fun when_theDeviceHasACamera_then_requestsDialogWithTheTakeOption() = runTuIndiceUiTest {
+		assertEquals(
+			listOf(true to true),
+			profilePictureSettingsNavigationsFor(deviceHasCamera = true)
+		)
+	}
+
+	@Test
+	fun when_theDeviceHasNoCamera_then_requestsDialogWithoutTheTakeOption() = runTuIndiceUiTest {
+		assertEquals(
+			listOf(true to false),
+			profilePictureSettingsNavigationsFor(deviceHasCamera = false)
+		)
+	}
+
+	@Test
 	fun when_profilePictureEditTappedFromUi_then_requestsDialogWithRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -169,21 +187,18 @@ class SummaryRouteUiTest {
 	fun when_userRefreshIsRunning_then_profilePictureEditRemainsDisabledUntilRefreshCompletes() = runTuIndiceUiTest {
 		val userRepository = BlockingRefreshUserRepository()
 		val viewModel = createSummaryViewModel(userRepository = userRepository)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = { showRemove ->
+					onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 						profilePictureSettingsNavigations += showRemove
 					},
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
 					showSnackBar = {},
-					viewModel = viewModel,
-					syncStatusRepository = syncStatusRepository,
-					syncRepository = FakeSyncRepository()
+					viewModel = viewModel
 				)
 			}
 		}
@@ -209,19 +224,19 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_userRefreshIsRunningAndSyncHasFailed_then_routeKeepsSyncFailureVisible() = runTuIndiceUiTest {
 		val userRepository = BlockingRefreshUserRepository()
-		val viewModel = createSummaryViewModel(userRepository = userRepository)
-		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Failed)
+		val viewModel = createSummaryViewModel(
+			userRepository = userRepository,
+			syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Failed)
+		)
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
 					showSnackBar = {},
-					viewModel = viewModel,
-					syncStatusRepository = syncStatusRepository,
-					syncRepository = FakeSyncRepository()
+					viewModel = viewModel
 				)
 			}
 		}
@@ -240,22 +255,97 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
+	fun when_lastSuccessfulSyncArrives_then_routeUpdatesTheSyncStatusText() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val viewModel = createSummaryViewModel(syncStatusRepository = syncStatusRepository)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryRoute(
+					onNavigateToUpdatePassword = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
+					onNavigateToRemoveProfilePictureConfirmationDialog = {},
+					showSnackBar = {},
+					viewModel = viewModel
+				)
+			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
+		}
+
+		onNodeWithText("Última sincronización: Nunca").assertIsDisplayed()
+
+		syncStatusRepository.setLastSuccessfulSyncAt(1_709_251_200_000L)
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithText("Última sincronización: Nunca").fetchSemanticsNodes().isEmpty()
+		}
+
+		assertEquals(1_709_251_200_000L, viewModel.state.value.sync.lastSuccessfulSyncAt)
+		onNodeWithText("Última sincronización:", substring = true).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_syncLearnsTheAccountIsANewStudentAfterFailure_then_routeShowsTheNewStudentView() = runTuIndiceUiTest {
+		val userRepository = CountingFailingRefreshUserRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val syncRepository = FakeSyncProgressRepository()
+		val viewModel = createSummaryViewModel(
+			userRepository = userRepository,
+			syncStatusRepository = syncStatusRepository,
+			syncRepository = syncRepository
+		)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryRoute(
+					onNavigateToUpdatePassword = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
+					onNavigateToRemoveProfilePictureConfirmationDialog = {},
+					showSnackBar = {},
+					viewModel = viewModel
+				)
+			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Summary.State.Failed
+		}
+
+		assertNodeVisible(BaseUiTags.ErrorViewRetryButton)
+		assertNodeHidden(SummaryUiTags.NewStudentContainer)
+
+		syncRepository.syncInProgress.value = true
+		syncStatusRepository.emitSyncStatus(SyncStatus.NewStudentNoRecord)
+
+		assertNodeVisible(SummaryUiTags.NewStudentContainer)
+		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsNotEnabled()
+
+		syncRepository.syncInProgress.value = false
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Failed)?.sync?.isSyncing == false
+		}
+
+		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsEnabled()
+	}
+
+	@Test
 	fun when_removeProfilePictureActionTriggered_then_requestsRemoveConfirmationDialog() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 		var removeProfilePictureConfirmationNavigations = 0
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {
 					removeProfilePictureConfirmationNavigations++
 				},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -277,7 +367,6 @@ class SummaryRouteUiTest {
 				users = flow { throw IllegalStateException("boom") }
 			)
 		)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 		var outdatedPasswordNavigations = 0
 
@@ -286,14 +375,12 @@ class SummaryRouteUiTest {
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -318,7 +405,6 @@ class SummaryRouteUiTest {
 				)
 			)
 		)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		var outdatedPasswordNavigations = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
@@ -327,14 +413,12 @@ class SummaryRouteUiTest {
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -355,20 +439,17 @@ class SummaryRouteUiTest {
 				}
 			)
 		)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -396,20 +477,17 @@ class SummaryRouteUiTest {
 				}
 			)
 		)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -429,21 +507,18 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_confirmRemoveProfilePictureActionTriggered_then_showsSnackBarWithoutOutdatedNavigation() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 		var navigateOutdatedCalls = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = { navigateOutdatedCalls++ },
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -466,17 +541,14 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_confirmRemoveProfilePictureActionSucceeds_then_stateClearsPictureWithoutWaitingForObservation() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
-		val syncStatusRepository = FakeSyncStatusRepository()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -499,20 +571,17 @@ class SummaryRouteUiTest {
 	fun when_retryTappedAfterFailure_then_routeRequestsRefreshAgain() = runTuIndiceUiTest {
 		val userRepository = CountingFailingRefreshUserRepository()
 		val viewModel = createSummaryViewModel(userRepository = userRepository)
-		val syncStatusRepository = FakeSyncStatusRepository()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -529,14 +598,59 @@ class SummaryRouteUiTest {
 		assertTrue(userRepository.updateUserCalls >= 2)
 	}
 
+	// What the route asks the navigator for when the edit button is tapped: whether removing is
+	// offered (the state's to know) and whether taking a picture is (the device's).
+	private fun ComposeUiTest.profilePictureSettingsNavigationsFor(
+		deviceHasCamera: Boolean
+	): List<Pair<Boolean, Boolean>> {
+		val viewModel = createSummaryViewModel(
+			deviceInfoRepository = FakeDeviceInfoRepository(deviceHasCamera = deviceHasCamera)
+		)
+		val navigations = mutableListOf<Pair<Boolean, Boolean>>()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToUpdatePassword = {},
+				onNavigateToProfilePictureSettingsDialog = { showRemove, isCameraAvailable ->
+					navigations += showRemove to isCameraAvailable
+				},
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
+		}
+
+		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) { navigations.isNotEmpty() }
+
+		return navigations
+	}
+
 	private fun createSummaryViewModel(
 		userRepository: UserRepository = RecordingUserRepository(),
+		syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+		syncRepository: SyncRepository = FakeSyncRepository(),
+		deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
 		dispatchers: TuIndiceDispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
 	): SummaryViewModel {
 		return SummaryViewModel(
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeSyncUseCase = ObserveSyncUseCase(
+					syncStatusRepository = syncStatusRepository,
+					syncRepository = syncRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+					deviceInfoRepository = deviceInfoRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

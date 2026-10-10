@@ -1,12 +1,16 @@
 package com.gdavidpb.tuindice.subjects.ui.screen
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
@@ -43,6 +47,55 @@ class SubjectSearchScreenUiTest {
 				.performClick()
 
 		assertEquals("MA1111", selectedExample)
+	}
+
+	// The field holds the typed text, so an example is a text the caller never pushed: the field
+	// itself must take it, even when the same text was typed earlier.
+	@Test
+	fun when_theQueryChangesToATextTheUserNeverTyped_then_theFieldShowsIt() = runTuIndiceUiTest {
+		val screenState = mutableStateOf(SubjectSearch.State(query = "fisica"))
+
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = screenState.value,
+				onQueryChange = {},
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assertTextContains("fisica")
+
+		runOnIdle { screenState.value = screenState.value.copy(query = "quimica") }
+		waitForIdle()
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assertTextEquals("quimica")
+	}
+
+	@Test
+	fun when_anExampleIsTappedAfterTheSameTextWasTyped_then_theFieldShowsTheExample() = runTuIndiceUiTest {
+		val screenState = mutableStateOf(SubjectSearch.State())
+
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = screenState.value,
+				onQueryChange = { query -> screenState.value = screenState.value.copy(query = query) },
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).performTextInput("MA1111")
+		onNodeWithTag(SubjectsUiTags.SearchTextField).performTextReplacement("M")
+		waitForIdle()
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assertTextContains("M")
+
+		onNodeWithTag(SubjectsUiTags.searchExample(0)).performClick()
+
+		assertEquals("MA1111", screenState.value.query)
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assertTextEquals("MA1111")
 	}
 
 	@Test

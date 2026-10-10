@@ -14,6 +14,7 @@ require_tool curl
 MISSING_VERSION_BUMP_FILE="${MISSING_VERSION_BUMP_FILE:-}"
 E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-}"
 E2E_IOS_CONTEXTS_FILE="${E2E_IOS_CONTEXTS_FILE:-}"
+E2E_SCOPE_FILE="${E2E_SCOPE_FILE:-}"
 REQUIRES_E2E_CERTIFICATION="${REQUIRES_E2E_CERTIFICATION:-false}"
 HAS_RELEVANT_CHANGES="${HAS_RELEVANT_CHANGES:-true}"
 APP_VERSION_CHANGED="${APP_VERSION_CHANGED:-true}"
@@ -22,7 +23,7 @@ SUMMARY_FILE="${SUMMARY_FILE:-${GITHUB_STEP_SUMMARY:-${RUNNER_TEMP:-/tmp}/prefli
 TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 E2E_REUSE_BASE_SHA="${E2E_REUSE_BASE_SHA:-}"
 E2E_REUSE_MAX_COMMITS="${E2E_REUSE_MAX_COMMITS:-50}"
-E2E_FINGERPRINT_SCRIPT="${E2E_FINGERPRINT_SCRIPT:-${REPO_ROOT}/e2e/scripts/e2e-fingerprint.sh}"
+E2E_FINGERPRINT_SCRIPT="${E2E_FINGERPRINT_SCRIPT:-${REPO_ROOT}/e2e/scripts/shared/e2e-fingerprint.sh}"
 MISSING_E2E_STATUSES_FILE="${MISSING_E2E_STATUSES_FILE:-${RUNNER_TEMP:-/tmp}/missing-e2e-statuses.txt}"
 
 file_has_entries() {
@@ -38,53 +39,62 @@ join_file_lines_as_csv() {
 	fi
 }
 
-evidence_task_for_platform() {
-	local platform="$1"
-
-	case "$platform" in
-		android)
-			printf 'e2eMaestroEvidenceAndroid\n'
-			;;
-		ios)
-			printf 'e2eMaestroEvidenceIos\n'
-			;;
-		*)
-			die "Unsupported E2E evidence platform '${platform}'."
-			;;
-	esac
-}
-
+# $3 is the commit that already holds this evidence (same fingerprint, trusted creator) when it is not the target.
 record_missing_e2e_status() {
 	local platform="$1"
 	local context="$2"
+	local evidence_sha="${3:-}"
 
-	printf '%s\t%s\n' "$platform" "$context" >>"$MISSING_E2E_STATUSES_FILE"
+	printf '%s\t%s\t%s\n' "$platform" "$context" "$evidence_sha" >>"$MISSING_E2E_STATUSES_FILE"
+}
+
+# The commit statuses are written only by the repository owner, from the machine that ran the evidence: this script
+# (the workflow of a pull request and the stage) reads them and never publishes. The evidence has to be on the target
+# commit itself unless the caller asked for the merged scope (E2E_EVIDENCE_SCOPE=merged, which deploy-production.sh sets for
+# the stage: it runs on the commit production now points at, so it also accepts the evidence on the commits that were
+# merged, the ancestors of a merge commit and the head of the squashed pull request). A missing or unexpected event
+# gets the strict rule, and a pull request gets it whatever the variable says.
+evidence_must_be_on_target() {
+	case "${GITHUB_EVENT_NAME:-}" in
+		pull_request | pull_request_target) return 0 ;;
+	esac
+	[[ "${E2E_EVIDENCE_SCOPE:-}" != "merged" ]]
+}
+
+# The command that puts evidence the harness already holds, or that sits on an ancestor, on the head.
+publish_command() {
+	printf 'python3 e2e/scripts/shared/e2e.py publish --platform %s\n' "$1"
 }
 
 write_missing_e2e_guidance() {
 	local platform
 	local context
-	local task
+	local evidence_sha
 
 	file_has_entries "$MISSING_E2E_STATUSES_FILE" || return 0
 	sort -u "$MISSING_E2E_STATUSES_FILE" -o "$MISSING_E2E_STATUSES_FILE"
 
 	warn "Missing successful E2E statuses on ${TARGET_GIT_SHA}:"
-	while IFS=$'\t' read -r platform context; do
+	while IFS=$'\t' read -r platform context evidence_sha; do
 		[[ -n "$platform" && -n "$context" ]] || continue
-		task="$(evidence_task_for_platform "$platform")"
-		warn " - ${context} (publish with: E2E_COMMIT_SHA=${TARGET_GIT_SHA} ./gradlew ${task})"
+		warn " - ${context}"
+		if [[ -n "$evidence_sha" ]]; then
+			warn "   the evidence is on ${evidence_sha} (same fingerprint); publish it on ${TARGET_GIT_SHA}: $(publish_command "$platform")"
+		fi
 	done <"$MISSING_E2E_STATUSES_FILE"
+	warn "The workflow does not publish evidence: the owner does, from a clean checkout of ${TARGET_GIT_SHA} with HEAD == upstream. Run ./gradlew e2eEvidence (or e2eEvidenceAndroid / e2eEvidenceIos) when the evidence has to be produced; the harness runs only the scenarios not yet green for the fingerprint and publishes each status."
 
 	{
 		printf '\n### Missing local E2E evidence\n\n'
-		printf 'Publish every missing commit status for `%s` before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
-		while IFS=$'\t' read -r platform context; do
+		printf 'The workflow does not publish evidence. Publish every missing commit status for `%s` as the repository owner before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
+		while IFS=$'\t' read -r platform context evidence_sha; do
 			[[ -n "$platform" && -n "$context" ]] || continue
-			task="$(evidence_task_for_platform "$platform")"
-			printf -- '- `%s` with `E2E_COMMIT_SHA=%s ./gradlew %s`\n' "$context" "$TARGET_GIT_SHA" "$task"
+			printf -- '- `%s`\n' "$context"
+			if [[ -n "$evidence_sha" ]]; then
+				printf '  - the evidence is on `%s` (same fingerprint): `%s`\n' "$evidence_sha" "$(publish_command "$platform")"
+			fi
 		done <"$MISSING_E2E_STATUSES_FILE"
-		printf '\nOr run `E2E_COMMIT_SHA=%s ./gradlew e2eMaestroEvidenceLocal` to publish all required local evidence for this diff.\n' "$TARGET_GIT_SHA"
+		printf '\nOn a clean checkout of `%s` with HEAD == upstream, run `./gradlew e2eEvidence` (or `e2eEvidenceAndroid` / `e2eEvidenceIos`) where there is no evidence yet. The harness runs only the scenarios not yet green for the fingerprint and publishes the context above.\n' "$TARGET_GIT_SHA"
 	} >>"$SUMMARY_FILE"
 }
 
@@ -100,22 +110,29 @@ github_commit_status_payload_at_sha() {
 	# The combined-status endpoint (singular /status) never includes `creator`
 	# on its per-status entries, so the trust check below always saw an empty
 	# creator regardless of who published it. Only the list endpoint (plural
-	# /statuses) returns the full status objects, creator included.
+	# /statuses) returns the full status objects, creator included. The newest status of a trusted creator is the one
+	# that decides: a later status of anyone else (any workflow of a branch can post one) must not hide it. When no
+	# trusted creator posted any, the newest of the context is returned so that the caller can say who it was.
 	curl --fail --silent --show-error --retry 3 \
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"${api_url}/repos/${repository}/commits/${sha}/statuses" \
-		| jq -c --arg context "$context" '[.[] | select(.context == $context)][0] // empty'
+		"${api_url}/repos/${repository}/commits/${sha}/statuses?per_page=100" \
+		| jq -c --arg context "$context" --argjson trusted "$(trusted_status_creators | jq -R . | jq -sc .)" '
+			[.[] | select(.context == $context)] as $all
+			| ([$all[] | select((.creator.login // "") as $login | [$trusted[] | select(. == $login)] | length > 0)][0])
+				// $all[0] // empty'
 }
 
-# Statuses are trusted only when created by the repository owner or the
-# Actions bot; anything else with a token could fabricate a success state.
+# Statuses are trusted only when created by the repository owner (or whoever
+# E2E_TRUSTED_STATUS_CREATORS names, trimmed and without empty entries, as the harness
+# reads it); the Actions bot is not in the default, since a workflow of a branch
+# publishes as the same identity.
 trusted_status_creators() {
 	local repository="${GITHUB_REPOSITORY:-}"
 	local owner="${repository%%/*}"
 
-	printf '%s\n' "${E2E_TRUSTED_STATUS_CREATORS:-${owner},github-actions[bot]}" | tr ',' '\n'
+	e2e_trusted_status_creators "$owner"
 }
 
 status_creator_is_trusted() {
@@ -161,9 +178,7 @@ status_context_success_description_at_sha() {
 }
 
 # Published evidence embeds the first 12 chars of the suite fingerprint in the
-# status description; a success state alone is not accepted as evidence. The
-# aggregate certification-suite fingerprint also covers focused suites because
-# e2eMaestroEvidenceLocal publishes covered contexts with its own description.
+# status description; a success state alone is not accepted as evidence.
 description_matches_fingerprint() {
 	local description="$1"
 	local platform="$2"
@@ -172,18 +187,7 @@ description_matches_fingerprint() {
 	local fingerprint
 
 	fingerprint="$(e2e_fingerprint "$sha" "$platform" "$suite" || true)"
-	if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
-		return 0
-	fi
-
-	if [[ "$suite" != "local-certification-suite" ]]; then
-		fingerprint="$(e2e_fingerprint "$sha" "$platform" "local-certification-suite" || true)"
-		if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
-			return 0
-		fi
-	fi
-
-	return 1
+	[[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]
 }
 
 status_context_succeeded() {
@@ -206,62 +210,14 @@ status_context_succeeded() {
 	return 1
 }
 
-publish_github_commit_status() {
-	local context="$1"
-	local description="$2"
-	local repository="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required to publish E2E commit statuses.}"
-	local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-	local api_url="${GITHUB_API_URL:-https://api.github.com}"
-	local payload
-	local response
-	local response_context
-	local response_state
-
-	[[ -n "$token" ]] || die "GITHUB_TOKEN or GH_TOKEN is required to publish reused E2E commit status '${context}'."
-
-	payload="$(
-		jq -n -c \
-			--arg state "success" \
-			--arg context "$context" \
-			--arg description "$description" \
-			'{state: $state, context: $context, description: $description}'
-	)"
-
-	response="$(
-		curl --fail --silent --show-error \
-			-X POST \
-			-H "Accept: application/vnd.github+json" \
-			-H "Authorization: Bearer ${token}" \
-			-H "X-GitHub-Api-Version: 2022-11-28" \
-			-H "Content-Type: application/json" \
-			"${api_url}/repos/${repository}/statuses/${TARGET_GIT_SHA}" \
-			--data "$payload"
-	)" || return 1
-
-	response_state="$(printf '%s\n' "$response" | jq -r '.state // empty')"
-	response_context="$(printf '%s\n' "$response" | jq -r '.context // empty')"
-	[[ "$response_state" == "success" && "$response_context" == "$context" ]]
-}
-
-publish_reused_github_commit_status() {
-	local context="$1"
-	local description="$2"
-
-	if publish_github_commit_status "$context" "$description"; then
-		return 0
-	fi
-
-	warn "Could not publish reused E2E status '${context}' on ${TARGET_GIT_SHA}."
-	return 1
-}
-
+# The suite is read out of the platform's one status context (e2e_status_context, defined in ci-common.sh); any other
+# context is not evidence.
 e2e_suite_from_context() {
 	local context="$1"
 	local platform="$2"
-	local prefix="local-e2e/${platform}/"
 
-	[[ "$context" == "${prefix}"* ]] || return 1
-	printf '%s\n' "${context#"$prefix"}"
+	[[ "$context" == "$(e2e_status_context "$platform")" ]] || return 1
+	printf '%s\n' "${context##*/}"
 }
 
 e2e_fingerprint() {
@@ -317,10 +273,11 @@ e2e_reuse_candidate_commits() {
 			git merge-base --is-ancestor "$E2E_REUSE_BASE_SHA" "$TARGET_GIT_SHA" 2>/dev/null; then
 			# The base itself counts: `rev-list A ^B` excludes B, which left an
 			# up-to-date PR — the state branch protection requires to merge —
-			# unable to reuse evidence from production, while an out-of-date one
-			# reached it through the unbounded fallback below. Every candidate
-			# still has to match the fingerprint, so including it cannot loosen
-			# what "certified" means.
+			# without the base as the commit that holds the evidence, while an
+			# out-of-date one reached it through the unbounded fallback below.
+			# (Only the stage reuses; in a pull request a candidate is just the
+			# commit the guidance names.) Every candidate still has to match the
+			# fingerprint, so including it cannot loosen what "certified" means.
 			git rev-list "$TARGET_GIT_SHA" "^${E2E_REUSE_BASE_SHA}"
 			printf '%s\n' "$E2E_REUSE_BASE_SHA"
 		else
@@ -329,7 +286,9 @@ e2e_reuse_candidate_commits() {
 	} | awk '!seen[$0]++' | grep -v "^${TARGET_GIT_SHA}$" || true
 }
 
-reuse_successful_status_for_context() {
+# Prints the commit that holds trusted evidence naming the target's fingerprint (an ancestor or, for the stage, the head
+# of the pull request that was merged). Returns 1 when there is none. Reads only.
+find_reusable_status_commit() {
 	local context="$1"
 	local platform="$2"
 	local suite
@@ -346,9 +305,8 @@ reuse_successful_status_for_context() {
 	current_fingerprint="$(e2e_fingerprint "$TARGET_GIT_SHA" "$platform" "$suite")"
 	while IFS= read -r candidate_sha; do
 		[[ -n "$candidate_sha" ]] || continue
-		candidate_description="$(status_context_success_description_at_sha "$candidate_sha" "$context" || true)"
-		[[ -n "$candidate_description" ]] || continue
-
+		# The fingerprint costs git only; the status costs a request, and a branch has hundreds of candidates: ask GitHub
+		# only about a commit that measures what the target measures.
 		if ! ensure_commit_available "$candidate_sha"; then
 			warn "Skipping E2E reuse candidate ${candidate_sha}: commit is not fetchable."
 			continue
@@ -359,22 +317,19 @@ reuse_successful_status_for_context() {
 			continue
 		fi
 
+		candidate_description="$(status_context_success_description_at_sha "$candidate_sha" "$context" || true)"
+		[[ -n "$candidate_description" ]] || continue
+
 		# The candidate's own description has to name its fingerprint too. Matching
 		# trees only proves the candidate *could* have been certified; without this
-		# a bare success from a trusted identity is laundered into the target as a
-		# properly fingerprinted status, which is exactly what the direct path
-		# refuses. Widening the candidate set widens where such a status can sit.
+		# a bare success from a trusted identity is accepted as a properly
+		# fingerprinted status, which is exactly what the direct path refuses.
 		if ! description_matches_fingerprint "$candidate_description" "$platform" "$suite" "$candidate_sha"; then
 			warn "Skipping E2E reuse candidate ${candidate_sha}: its ${context} status does not name the fingerprint."
 			continue
 		fi
 
-
-		publish_reused_github_commit_status \
-			"$context" \
-			"Reused E2E ${suite} from ${candidate_sha:0:7} fp ${current_fingerprint:0:12}." ||
-			return 1
-		info "Reused successful E2E status ${context} from ${candidate_sha} for fingerprint ${current_fingerprint}."
+		printf '%s\n' "$candidate_sha"
 		return 0
 	done < <(e2e_reuse_candidate_commits)
 
@@ -385,7 +340,7 @@ verify_contexts_file() {
 	local file="$1"
 	local platform="$2"
 	local context
-	local fallback_context="local-e2e/${platform}/local-certification-suite"
+	local evidence_sha
 	local missing_status=false
 
 	file_has_entries "$file" || return 0
@@ -397,21 +352,18 @@ verify_contexts_file() {
 			continue
 		fi
 
-		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context" "$platform"; then
-			info "Found successful aggregate E2E status for ${context}: ${fallback_context}"
-			continue
+		evidence_sha="$(find_reusable_status_commit "$context" "$platform" || true)"
+		if [[ -n "$evidence_sha" ]]; then
+			if ! evidence_must_be_on_target; then
+				info "Reused successful E2E status ${context} from ${evidence_sha} for the fingerprint of ${TARGET_GIT_SHA} (nothing is published)."
+				continue
+			fi
+			# The evidence exists, but not where it has to be. Passing here would leave the head without a status the
+			# stage can find after a squash, and publishing it from this workflow is what option C removed.
+			warn "E2E status '${context}' is on ${evidence_sha} but not on the head ${TARGET_GIT_SHA}."
 		fi
 
-		if reuse_successful_status_for_context "$context" "$platform"; then
-			continue
-		fi
-
-		if [[ "$context" != "$fallback_context" ]] && reuse_successful_status_for_context "$fallback_context" "$platform"; then
-			info "Reused successful aggregate E2E status for ${context}: ${fallback_context}"
-			continue
-		fi
-
-		record_missing_e2e_status "$platform" "$context"
+		record_missing_e2e_status "$platform" "$context" "$evidence_sha"
 		missing_status=true
 	done <"$file"
 
@@ -420,6 +372,25 @@ verify_contexts_file() {
 	fi
 
 	return 0
+}
+
+# The logins that count as evidence creators, as the caller configured them: shown in the summary, and called out when the
+# Actions bot is among them (any workflow of a branch publishes as it, so the evidence would no longer be the owner's).
+effective_trusted_creators_csv() {
+	local creators
+
+	creators="$(trusted_status_creators | paste -sd, -)"
+	printf '%s\n' "${creators//,/, }"
+}
+
+announce_trusted_creators() {
+	local trusted
+
+	while IFS= read -r trusted; do
+		if [[ "$trusted" == "github-actions[bot]" ]]; then
+			warn "E2E_TRUSTED_STATUS_CREATORS trusts the Actions bot: a workflow of any branch can publish E2E evidence that counts."
+		fi
+	done < <(trusted_status_creators)
 }
 
 write_summary() {
@@ -436,6 +407,7 @@ write_summary() {
 		fi
 		if [[ "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
 			printf -- '- Local E2E certification: required and validated\n'
+			printf -- '- Trusted E2E status creators: %s\n' "$(effective_trusted_creators_csv)"
 		else
 			printf -- '- Local E2E certification: not required for this diff\n'
 		fi
@@ -459,6 +431,26 @@ if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
 fi
 
 if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
+	# verify_contexts_file passes an empty file. When evidence is required, both files being empty is a detector or
+	# wiring fault, not "nothing to check": fail instead of printing "required and validated".
+	if ! file_has_entries "$E2E_ANDROID_CONTEXTS_FILE" && ! file_has_entries "$E2E_IOS_CONTEXTS_FILE"; then
+		die "E2E certification is required but neither context file lists a context (android: '${E2E_ANDROID_CONTEXTS_FILE}', ios: '${E2E_IOS_CONTEXTS_FILE}')."
+	fi
+	# The detector writes one context per platform of the scope: a platform in the scope whose file is empty is the same
+	# wiring fault with a single file, and checking the other platform alone would print "validated".
+	if [[ -n "$E2E_SCOPE_FILE" && -s "$E2E_SCOPE_FILE" ]]; then
+		while IFS=, read -r scope_platform _; do
+			case "$scope_platform" in
+				android)
+					file_has_entries "$E2E_ANDROID_CONTEXTS_FILE" || die "E2E scope lists android but its context file is empty ('${E2E_ANDROID_CONTEXTS_FILE}')."
+					;;
+				ios)
+					file_has_entries "$E2E_IOS_CONTEXTS_FILE" || die "E2E scope lists ios but its context file is empty ('${E2E_IOS_CONTEXTS_FILE}')."
+					;;
+			esac
+		done <"$E2E_SCOPE_FILE"
+	fi
+	announce_trusted_creators
 	: >"$MISSING_E2E_STATUSES_FILE"
 	e2e_status_check_failed=false
 	verify_contexts_file "$E2E_ANDROID_CONTEXTS_FILE" android || e2e_status_check_failed=true

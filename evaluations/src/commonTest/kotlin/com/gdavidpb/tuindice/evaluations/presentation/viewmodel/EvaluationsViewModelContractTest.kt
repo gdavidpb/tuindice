@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -32,6 +35,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.fail
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class EvaluationsViewModelContractTest {
@@ -62,6 +67,88 @@ class EvaluationsViewModelContractTest {
 				viewModel.addEvaluationAction()
 				assertIs<Evaluations.Effect.NavigateToAddEvaluation>(awaitItem())
 
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observedEvaluationWhoseSubjectIsGone_isLeftOutInsteadOfClosingTheScreen() = runTest {
+		val orphan = DEFAULT_COMPLETED_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone"
+		)
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = RecordingEvaluationRepository(
+				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION, orphan),
+				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				val content = awaitUntilState<Evaluations.State.Content>()
+
+				assertEquals(
+					listOf(DEFAULT_PENDING_EVALUATION.id),
+					content.evaluationWeekGroups
+						.flatMap { weekGroup -> weekGroup.groups }
+						.flatMap { group -> group.items }
+						.map { item -> item.evaluationId }
+				)
+				// The week strip describes the same list: the only dot is the listed evaluation's.
+				assertEquals(
+					1,
+					content.weekItems
+						.flatMap { weekItem -> weekItem.days }
+						.count { day -> day.hasEvaluations }
+				)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	// Evaluations left with no subject to be listed under are not content: once the refresh
+	// confirms there is nothing else, the screen is the empty one, with its invitation to add the
+	// first evaluation, never a list with nothing in it.
+	@Test
+	fun observedEvaluationsWhoseSubjectsAreAllGone_reachEmpty() = runTest {
+		val orphans = listOf(
+			DEFAULT_PENDING_EVALUATION.copy(attemptId = "gone-1"),
+			DEFAULT_COMPLETED_EVALUATION.copy(
+				attemptId = "gone-2",
+				scheduleMode = EvaluationScheduleMode.CONTINUOUS
+			)
+		)
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = RecordingEvaluationRepository(
+				initialEvaluations = orphans,
+				refreshedEvaluations = orphans,
+				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
+
+				awaitUntilState<Evaluations.State.Empty>()
 				cancelAndIgnoreRemainingEvents()
 			}
 		} finally {
@@ -357,7 +444,8 @@ private fun createViewModel(
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					clock = Clock.System
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
 					evaluationRepository = repository,
@@ -384,7 +472,8 @@ private fun createViewModel(
 					setSelectedWeekUseCase = SetSelectedWeekUseCase(
 						evaluationsSelectionRepository = selectionRepository,
 						reportingRepository = RecordingReportingRepository()
-					)
+					),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))

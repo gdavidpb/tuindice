@@ -20,8 +20,6 @@ object CreateSyntheticTerm {
 		override val isBottomBarVisible: Boolean = false,
 		val initialDraft: Draft? = null,
 		val query: String = "",
-		val querySelectionStart: Int = 0,
-		val querySelectionEnd: Int = 0,
 		val selectedAddSubjectTab: CreateTermAddSubjectTab = CreateTermAddSubjectTab.Suggested,
 		val periodOptions: List<SyntheticTermPeriodOption> = emptyList(),
 		val selectedPeriod: SyntheticTermPeriodOption? = null,
@@ -45,13 +43,15 @@ object CreateSyntheticTerm {
 		val hasDraftChanges: Boolean
 			get() = initialDraft?.let { draft -> draft != this.draft } ?: !isEditing
 
-		// An untouched create form is not worth a discard warning; in edit mode any
-		// divergence from the loaded seed is.
+		// Leaving only warns when something would be lost. Editing: any divergence from the loaded term.
+		// Creating: the form opens with the first period already chosen and no subjects, so only another
+		// period or at least one subject counts (no period chosen yet is not another one).
 		val hasDiscardableDraft: Boolean
 			get() = if (isEditing) {
 				hasDraftChanges
 			} else {
-				selectedPeriod != null || selectedSubjects.isNotEmpty()
+				selectedSubjects.isNotEmpty() ||
+					(selectedPeriod != null && selectedPeriod.termKey != periodOptions.firstOrNull()?.termKey)
 			}
 
 		val canSubmit: Boolean
@@ -83,11 +83,7 @@ object CreateSyntheticTerm {
 			val termId: String?
 		) : Action()
 
-		data class UpdateQuery(
-			val query: String,
-			val selectionStart: Int,
-			val selectionEnd: Int
-		) : Action()
+		data class UpdateQuery(val query: String) : Action()
 
 		data class SelectAddSubjectTab(
 			val tab: CreateTermAddSubjectTab

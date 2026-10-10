@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SyncSourceReportResponse(
-	@SerialName("status") val status: SyncSourceStatusResponse
+	@SerialName("status") val status: SyncSourceStatusResponse,
+	@SerialName("situation") val situation: SyncEnrollmentSituationResponse? = null
 )

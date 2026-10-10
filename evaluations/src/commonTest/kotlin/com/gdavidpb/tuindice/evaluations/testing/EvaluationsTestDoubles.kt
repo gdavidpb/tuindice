@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -47,6 +49,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private const val PAST_EVALUATION_DATE = 1_780_545_600_000L
 private const val FUTURE_EVALUATION_DATE = 1_780_632_000_000L
@@ -66,9 +70,10 @@ class ReadyRecordDataPrerequisiteRepository(
 }
 
 class RecordingSyncStatusRepository(
-	initialReport: SyncReport = SyncReport.success()
+	initialReport: SyncReport = SyncReport.success(),
+	initialStatus: SyncStatus = SyncStatus.Healthy
 ) : SyncStatusRepository {
-	private val syncStatus = MutableStateFlow(SyncStatus.Healthy)
+	private val syncStatus = MutableStateFlow(initialStatus)
 	private val syncReport = MutableStateFlow(initialReport)
 	private val lastSuccessfulSyncAt = MutableStateFlow<Long?>(null)
 
@@ -299,8 +304,11 @@ class RecordingEvaluationRepository(
 		updateEvaluationsForceRemoteCalls += forceRemote
 		refreshThrowable?.let { throw it }
 		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
+		// Same rule as the real repository: only an evaluation under an available subject counts.
+		val availableAttemptIds = availableSubjects.mapTo(HashSet()) { subject -> subject.id }
 		return refreshResult ?: EvaluationsRefreshResult(
-			hasEvaluations = evaluationsState.value.isNotEmpty(),
+			hasEvaluations = evaluationsState.value
+				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
 			hasAvailableAttempts = availableSubjects.isNotEmpty()
 		)
 	}
@@ -315,7 +323,7 @@ class RecordingEvaluationRepository(
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		addCalls += add
 		addThrowable?.let { throw it }
-		evaluationsState.value += add.toEvaluation()
+		evaluationsState.value += add.toEvaluation(clock = Clock.System)
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
@@ -342,7 +350,8 @@ class RecordingEvaluationRepository(
 					state = computeEvaluationState(
 						scheduleMode = resolvedScheduleMode,
 						grade = update.grade,
-						date = resolvedDate
+						date = resolvedDate,
+						clock = Clock.System
 					)
 				)
 			} else {

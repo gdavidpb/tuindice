@@ -1,11 +1,16 @@
 package com.gdavidpb.tuindice.summary.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.createDirectories
+import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.filesDir
+import io.github.vinceglb.filekit.list
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.startAccessingSecurityScopedResource
@@ -23,10 +28,30 @@ import platform.UIKit.UIImageJPEGRepresentation
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
-class IosProfilePictureInputDataSource : ProfilePictureInputDataRepository {
+class IosProfilePictureInputDataSource : ProfilePictureInputDataRepository, SessionMemory, SessionResidue {
 	private object Settings {
 		const val JPEG_QUALITY = 0.85
 		const val NORMALIZED_DIRECTORY = "summaryProfilePictures"
+	}
+
+	// The upload deletes the normalized JPEG when it ends; one survives only if the process dies
+	// in between, and it is a photo of the person who is leaving.
+	override suspend fun clearSessionMemory() {
+		deleteNormalizedPictures()
+	}
+
+	override suspend fun clearSessionResidue() {
+		deleteNormalizedPictures()
+	}
+
+	private suspend fun deleteNormalizedPictures() {
+		val normalizedDirectory = FileKit.filesDir / Settings.NORMALIZED_DIRECTORY
+
+		if (!normalizedDirectory.exists()) return
+
+		// The directory holds only flat files, and FileKit refuses to delete a directory with content.
+		normalizedDirectory.list().forEach { picture -> picture.delete(mustExist = false) }
+		normalizedDirectory.delete(mustExist = false)
 	}
 
 	override suspend fun normalizeInput(file: PlatformFile): PlatformFile {

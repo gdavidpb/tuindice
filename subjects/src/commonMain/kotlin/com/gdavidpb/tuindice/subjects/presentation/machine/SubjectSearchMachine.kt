@@ -61,21 +61,21 @@ class SubjectSearchMachine(
 	internal fun startRetry(host: MachineHost<SubjectSearch.Effect>, query: String) {
 		host.launchMachineJob {
 			if (query.trim().length < MinimumSubjectSearchQueryLength) {
-				host.processInternalEvent(SubjectSearchInternalEvent.RetryCleared)
+				host.processInternalEvent(SubjectSearchInternalEvent.RetryCleared(query = query))
 				return@launchMachineJob
 			}
 
-			host.processInternalEvent(SubjectSearchInternalEvent.RetryStarted)
+			host.processInternalEvent(SubjectSearchInternalEvent.RetryStarted(query = query))
 
 			refreshSubjectSearchUseCase.execute(
 				SubjectSearchParams(query = query, limit = SubjectSearchLimit)
 			).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Data ->
-						host.processInternalEvent(SubjectSearchInternalEvent.RemoteSearchSucceeded)
+						host.processInternalEvent(SubjectSearchInternalEvent.RemoteSearchSucceeded(query = query))
 
 					is UseCaseState.Error ->
-						host.processInternalEvent(SubjectSearchInternalEvent.RemoteSearchFailed)
+						host.processInternalEvent(SubjectSearchInternalEvent.RemoteSearchFailed(query = query))
 
 					is UseCaseState.Loading -> Unit
 				}
@@ -114,10 +114,10 @@ class SubjectSearchMachine(
 			).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Data ->
-						emit(SubjectSearchInternalEvent.RemoteSearchSucceeded)
+						emit(SubjectSearchInternalEvent.RemoteSearchSucceeded(query = query))
 
 					is UseCaseState.Error ->
-						emit(SubjectSearchInternalEvent.RemoteSearchFailed)
+						emit(SubjectSearchInternalEvent.RemoteSearchFailed(query = query))
 
 					is UseCaseState.Loading -> Unit
 				}

@@ -6,10 +6,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -26,6 +28,8 @@ fun RecordRoute(
 	onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onTopBarScheduleAvailable: ((() -> Unit)?) -> Unit,
+	onNavigateToSchedule: () -> Unit,
 	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -38,15 +42,23 @@ fun RecordRoute(
 	}
 	val showTermSelection = remember { mutableStateOf(false) }
 
+	// What the bar's actions do while the record is the entry on screen. The schedule icon is
+	// drawn only when the route state says the selected term has a schedule; this is what it opens.
+	val currentOnNavigateToSchedule = rememberUpdatedState(onNavigateToSchedule)
+
 	DisposableEffect(viewModel) {
 		onTopBarViewModeChangeAvailable(viewModel::setViewModeAction)
 		onTopBarTermSelectionAvailable {
 			showTermSelection.value = true
 		}
+		onTopBarScheduleAvailable {
+			currentOnNavigateToSchedule.value()
+		}
 
 		onDispose {
 			onTopBarViewModeChangeAvailable(null)
 			onTopBarTermSelectionAvailable(null)
+			onTopBarScheduleAvailable(null)
 		}
 	}
 
@@ -109,11 +121,12 @@ internal fun Record.State.toRouteViewState(): ViewState {
 	return RecordRouteViewState(
 		topBarTitle = topBarTitle,
 		topBarConfig = when (this) {
-			is Record.State.Content -> topBarConfig
-			Record.State.Idle,
-			Record.State.Empty,
-			Record.State.Failed,
-			Record.State.Loading,
+			is Record.State.Content ->
+				if (hasSelectedTermSchedule) TopBarConfig.RecordWithSchedule else topBarConfig
+			is Record.State.Idle,
+			is Record.State.Empty,
+			is Record.State.Failed,
+			is Record.State.Loading,
 			-> null
 		},
 		isTopBarVisible = isTopBarVisible,
@@ -122,10 +135,10 @@ internal fun Record.State.toRouteViewState(): ViewState {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)
 
-			Record.State.Idle,
-			Record.State.Empty,
-			Record.State.Failed,
-			Record.State.Loading,
+			is Record.State.Idle,
+			is Record.State.Empty,
+			is Record.State.Failed,
+			is Record.State.Loading,
 			-> null
 		}
 	)

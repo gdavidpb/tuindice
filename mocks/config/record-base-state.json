@@ -88,7 +88,22 @@
           "revision": 1,
           "status": "pending",
           "mutable": true,
-          "scenario": "record-attempt-e21f0d7e481d13d19f328d6818ce4d77"
+          "scenario": "record-attempt-e21f0d7e481d13d19f328d6818ce4d77",
+          "section": 1,
+          "schedule": [
+            {
+              "day_of_week": 2,
+              "start_block": 1,
+              "end_block": 2,
+              "classroom": "MYS-116"
+            },
+            {
+              "day_of_week": 4,
+              "start_block": 1,
+              "end_block": 2,
+              "classroom": "MYS-116"
+            }
+          ]
         },
         {
           "id": "722cc2cc935e0aefdc73f9ebf9d2f1b6",
@@ -100,7 +115,25 @@
           "revision": 1,
           "status": "pending",
           "mutable": true,
-          "scenario": "record-attempt-722cc2cc935e0aefdc73f9ebf9d2f1b6"
+          "scenario": "record-attempt-722cc2cc935e0aefdc73f9ebf9d2f1b6",
+          "section": 2,
+          "schedule": [
+            {
+              "day_of_week": 2,
+              "start_block": 2,
+              "end_block": 3,
+              "classroom": "MYS-210"
+            },
+            {
+              "day_of_week": 5,
+              "start_block": 3,
+              "end_block": 4,
+              "classroom": "MYS-210"
+            }
+          ],
+          "enrollment_errors": [
+            "CHOQUE DE HORARIO"
+          ]
         },
         {
           "id": "f47ff0fa7342cdaec37d9e9cff489ebd",
@@ -112,7 +145,8 @@
           "revision": 1,
           "status": "pending",
           "mutable": true,
-          "scenario": "record-attempt-f47ff0fa7342cdaec37d9e9cff489ebd"
+          "scenario": "record-attempt-f47ff0fa7342cdaec37d9e9cff489ebd",
+          "withdrawn": true
         }
       ],
       "presence_scenario": "record-term-d377155d39da686f412622aaca9074cd",

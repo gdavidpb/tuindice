@@ -1,0 +1,201 @@
+package com.gdavidpb.tuindice.scenariorunner
+
+import android.os.SystemClock
+import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
+import com.gdavidpb.tuindice.scenariorunner.driver.InputMethodDump
+import com.gdavidpb.tuindice.scenariorunner.driver.Presence
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/**
+ * What the Android driver must do under the conditions the audit found, probed on the device. The app is driven
+ * from its login screen (the contract fixture), so it must start cleared. The `driver-contract` verb of the harness
+ * runs this class after the contract; by hand, `am instrument -w -e class <this class>`. Each probe names the
+ * finding it guards; the ones that were red without their fix say so in their own KDoc. Typing probes are in
+ * [AndroidTypingProbesTest].
+ */
+class AndroidDriverProbesTest {
+	private val app = ProbeApp()
+
+	/** B-1: with the app gone the screen cannot be read, and "cannot read" must not be "gone". */
+	@Test
+	fun waitGoneIsFalseWhenTheAppIsNotThereToBeRead() {
+		val driver = app.begin("waitgone")
+		val startedAt = SystemClock.uptimeMillis()
+
+		assertTrue("not on screen is gone while the app is readable", driver.waitGone(app.never, LONG_MS))
+		assertTrue("and it is quick", SystemClock.uptimeMillis() - startedAt < QUICK_MS)
+		assertFalse("on screen is not gone", driver.waitGone(app.screen, SHORT_MS))
+
+		driver.terminate()
+		assertFalse("nothing can be read from a dead app, so nothing is gone", driver.waitGone(app.screen, LONG_MS))
+		assertFalse(driver.waitGone(app.never, LONG_MS))
+		assertFalse(driver.isVisible(app.screen))
+		assertTrue(app.log("waitgone").contains("accessibility tree cannot be read"))
+	}
+
+	/** B-9: a clear that did not clear is false; a label cannot be emptied, so the old unchecked `true` was wrong. */
+	@Test
+	fun clearTextIsCheckedAgainstTheField() {
+		val driver = app.begin("clear")
+
+		assertTrue(driver.typeKeys(app.usbId, app.fixture.textSample))
+		assertTrue(driver.session.poll(LONG_MS) { driver.readText(app.usbId) == app.fixture.expectedText })
+		assertTrue(driver.clearText(app.usbId))
+		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
+		assertTrue("the label is on screen, so refusing it proves something", driver.isVisible(app.label))
+		assertFalse("a label keeps its text", driver.clearText(app.label))
+		assertFalse("an absent field cannot be cleared", driver.clearText(app.never))
+	}
+
+	/** B-10 (a): a touch inside the keyboard window would press a key, so it is refused. */
+	@Test
+	fun aTouchInsideTheOnScreenKeyboardIsRefused() {
+		val driver = app.begin("keyboard")
+		assertTrue(driver.tap(app.usbId))
+		val shown = driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null }
+		assertTrue("the keyboard window must show", shown)
+		val keyboard = checkNotNull(driver.session.keyboard.frame())
+		val middle = keyboard.centerY() / driver.session.device.displayHeight.toDouble()
+
+		assertFalse(driver.tapAt(null, MIDDLE, middle))
+		assertFalse(driver.swipe(null, SwipeVector(MIDDLE, middle, 0.0, UP_SHORT), SWIPE_MS))
+		assertEquals(2, app.log("keyboard").lines().count { it.contains("is inside the on-screen keyboard") })
+		assertTrue(driver.readText(app.usbId).isNullOrEmpty())
+	}
+
+	/**
+	 * ZB-5: a field that keeps the focus after Back closed its keyboard is not a keyboard to wait for. The input method
+	 * says it is hidden, so the next gesture goes on at once instead of paying the 1.5 s that a keyboard that is opening
+	 * is given to be listed. Red when the guard has no answer from the input method (its answer forced to unreadable),
+	 * which is the old wait.
+	 */
+	@Test
+	fun aFocusedFieldWithItsKeyboardClosedDoesNotMakeTheNextGestureWait() {
+		val driver = app.begin("closed-keyboard")
+		assertTrue(driver.tap(app.usbId))
+		assertTrue("the keyboard must show", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null })
+		assertTrue(driver.pressBack())
+		assertTrue("Back closes the keyboard", driver.session.poll(LONG_MS) { driver.session.keyboard.frame() == null })
+		assertTrue("the field keeps the focus", driver.session.keyboard.textFieldHasFocus())
+		assertEquals("the input method says it is hidden", false, driver.session.inputMethodShown())
+
+		val began = SystemClock.uptimeMillis()
+		assertTrue(driver.tap(app.usbId))
+		val took = SystemClock.uptimeMillis() - began
+
+		assertTrue("the tap took $took ms: the guard waited for a keyboard that is closed", took < GUARD_WAIT_MS)
+		assertFalse(app.log("closed-keyboard").contains("never listed"))
+		assertTrue(app.log("closed-keyboard").contains("the input method says the keyboard is hidden; not waited for"))
+	}
+
+	/** ZB-5: the dump is read only when it says `mInputShown` exactly once, so an unreadable dump is never a verdict. */
+	@Test
+	fun theInputMethodDumpSaysShownOnlyWhenItSaysItExactlyOnce() {
+		val block = "    mVisibilityStateComputer:\n      mImeHiddenByDisplayPolicy=false\n" +
+			"      mInputShown=%s\n      mLastImeTargetWindow=x\n"
+
+		assertEquals(true, InputMethodDump.shown(block.format("true")))
+		assertEquals(false, InputMethodDump.shown(block.format("false")))
+		assertEquals("a format that dropped the field", null, InputMethodDump.shown("mImeWindowVis=3\n"))
+		assertEquals("an empty answer", null, InputMethodDump.shown(""))
+		assertEquals("a value that is not a boolean", null, InputMethodDump.shown(block.format("maybe")))
+		assertEquals("two fields disagree", null, InputMethodDump.shown(block.format("true") + block.format("false")))
+		assertEquals("a field of another name", null, InputMethodDump.shown("      mIsInputViewShown=true\n"))
+	}
+
+	/** ZB-11 (residue B-1): "gone" needs both reads of the pass to have worked; no other combination proves it. */
+	@Test
+	fun presenceIsAbsentOnlyWhenTheAppsWindowWasReadAndNothingMatched() {
+		assertEquals(Presence.PRESENT, Presence.of(matched = true, appWindowInTree = null))
+		assertEquals(Presence.PRESENT, Presence.of(matched = true, appWindowInTree = false))
+		assertEquals(Presence.ABSENT, Presence.of(matched = false, appWindowInTree = true))
+		assertEquals("alive and unreadable: no root for the app", Presence.UNREADABLE, Presence.of(false, false))
+		assertEquals("the second read threw", Presence.UNREADABLE, Presence.of(false, null))
+		assertEquals("the first read threw", Presence.UNREADABLE, Presence.of(null, null))
+		assertEquals("the first read threw, whatever the second says", Presence.UNREADABLE, Presence.of(null, true))
+	}
+
+	/** The reason a gesture or typing was refused is available to the interpreter, and each new call forgets it. */
+	@Test
+	fun aRefusalLeavesItsReasonAndTheNextCallForgetsIt() {
+		val driver = app.begin("reasons")
+
+		assertFalse(driver.tap(app.never))
+		assertTrue(driver.lastRefusal().orEmpty().contains("not on screen"))
+		assertTrue(driver.tap(app.usbId))
+		assertEquals(null, driver.lastRefusal())
+
+		val shown = driver.session.poll(LONG_MS) { driver.session.keyboard.frame() != null }
+		assertTrue("the keyboard must show", shown)
+		val keyboard = checkNotNull(driver.session.keyboard.frame())
+		assertFalse(driver.tapAt(null, MIDDLE, keyboard.centerY() / driver.session.device.displayHeight.toDouble()))
+		assertTrue(driver.lastRefusal().orEmpty().contains("inside the on-screen keyboard"))
+	}
+
+	/**
+	 * B-10 (b)/(c): a dead process is not revived by foreground(); a live one brought back logs each request.
+	 * `confirmForeground` (final round) goes with it: true and immediate with the app in front, false each time the app is
+	 * sent back (the home key stands for an exit nobody waited for), true again once foreground() brought it back, and
+	 * false for a dead app. Android has no window to wait out, so it never blocks.
+	 */
+	@Test
+	fun foregroundDoesNotReviveADeadAppAndLogsEachRequest() {
+		val driver = app.begin("foreground")
+		repeat(CONFIRM_ROUNDS) {
+			val startedAt = SystemClock.uptimeMillis()
+			assertTrue("in front", driver.confirmForeground())
+			assertTrue("and immediate", SystemClock.uptimeMillis() - startedAt < QUICK_MS)
+			driver.session.device.pressHome()
+			assertFalse("sent back", driver.confirmForeground())
+			assertTrue(driver.foreground())
+		}
+		assertTrue(app.log("foreground").contains("request 1 to bring the app back"))
+
+		driver.terminate()
+		assertFalse(driver.foreground())
+		assertTrue(app.log("foreground").contains("the app process is not running; it is not started again"))
+		assertFalse("the app stays dead", driver.isForeground())
+		assertFalse("a dead app is not in front", driver.confirmForeground())
+	}
+
+	/** B-11: a line is on disk as soon as it is written, with no close or flush at the end of the scenario. */
+	@Test
+	fun driverLogIsWrittenLineByLine() {
+		val driver = app.begin("driverlog")
+
+		driver.log("[0] first marker")
+		assertTrue(app.log("driverlog").contains("[0] first marker"))
+		driver.log("[1] second marker")
+		assertEquals(2, app.log("driverlog").lines().count { it.contains("marker") })
+	}
+
+	/** Every gesture that aims at an element refuses, and logs why, when the element is not on screen. */
+	@Test
+	fun everyGestureThatAimsAtAnElementLogsItsRefusal() {
+		val driver = app.begin("refusals")
+
+		assertFalse(driver.tap(app.never))
+		assertFalse(driver.tapAt(app.never, MIDDLE, MIDDLE))
+		assertFalse(driver.doubleTap(app.never))
+		assertFalse(driver.swipe(app.never, SwipeVector(MIDDLE, MIDDLE, 0.0, UP_LONG), SWIPE_MS))
+		assertFalse(driver.typeKeys(app.never, "a"))
+		assertEquals(REFUSING_GESTURES, app.log("refusals").lines().count { it.contains("gesture refused") })
+		assertTrue(app.log("refusals").contains("typeKeys"))
+	}
+
+	private companion object {
+		const val REFUSING_GESTURES = 4
+		const val CONFIRM_ROUNDS = 10
+		const val MIDDLE = 0.5
+		const val UP_SHORT = -0.1
+		const val UP_LONG = -0.2
+		const val SHORT_MS = 500L
+		const val LONG_MS = 2_000L
+		const val QUICK_MS = 1_500L
+		const val GUARD_WAIT_MS = 1_200L
+		const val SWIPE_MS = 300L
+	}
+}

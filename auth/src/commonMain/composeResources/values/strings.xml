@@ -32,8 +32,8 @@
 	<string name="dialog_button_sign_out_anyway">Cerrar igualmente</string>
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_retry">Reintentar</string>
-	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
-	<string name="dialog_message_update_password">Tu contraseña USB cambió. Ingresa la nueva para seguir usando TuIndice.</string>
+	<string name="dialog_title_update_password">Ingresa tu contraseña USB</string>
+	<string name="dialog_message_update_password">Necesitamos tu contraseña USB para seguir sincronizando tus datos. Si la cambiaste, ingresa la nueva.</string>
 	<string name="dialog_button_update_password_later">Más tarde</string>
 	<string name="dialog_button_update_password_confirm">Aceptar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>
@@ -49,6 +49,7 @@
 	<string name="error_usb_unavailable">Los servicios de la universidad no están disponibles en este momento. Intenta más tarde</string>
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
+	<string name="sign_in_service_unavailable">Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento.</string>
 	<string name="snack_too_many_requests">Demasiados intentos. Espera un momento e intenta de nuevo</string>
 	<string name="snack_sign_in_failed">No pudimos iniciar sesión. Intenta nuevamente</string>
 	<string name="snack_update_password_failed">No pudimos actualizar tu contraseña. Intenta nuevamente</string>

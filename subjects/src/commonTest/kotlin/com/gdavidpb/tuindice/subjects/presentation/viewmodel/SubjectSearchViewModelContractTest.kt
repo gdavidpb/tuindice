@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.subjects.domain.repository.SubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
@@ -12,10 +13,10 @@ import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class SubjectSearchViewModelContractTest {
 	@Test
@@ -142,9 +143,53 @@ class SubjectSearchViewModelContractTest {
 		}
 	}
 
-	private fun createFixture(
-		repository: ControllableSubjectCatalogRepository
-	): SubjectSearchFixture {
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun updateQuery_withANormalisationEqualEdit_keepsTheTypedQueryWhenResultsArrive() = runTest {
+		val fixture = createFixture(
+			repository = ControllableSubjectCatalogRepository(
+				localResults = listOf(subjectSearchResult(subjectCode = "MAT101"))
+			)
+		)
+		val viewModel = fixture.viewModel
+
+		fixture.repository.blockRefresh = true
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SubjectSearch.State(), awaitItem())
+
+				viewModel.updateQueryAction(query = "calculo")
+
+				// The pipeline has observed "calculo" for certain before the edit that only
+				// differs by a trailing space, so the events that follow carry "calculo".
+				awaitUntilState<SubjectSearch.State> { state -> state.results.size == 1 }
+
+				viewModel.updateQueryAction(query = "calculo ")
+
+				val refreshing = awaitUntilState<SubjectSearch.State> { state -> state.isRefreshing }
+				assertEquals("calculo ", refreshing.query)
+
+				fixture.repository.releaseRefresh()
+
+				val settled = awaitUntilState<SubjectSearch.State> { state -> !state.isRefreshing }
+				assertEquals("calculo ", settled.query)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	private fun <R : SubjectCatalogRepository> createFixture(
+		repository: R
+	): SubjectSearchFixture<R> {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectSearchViewModel(
@@ -169,7 +214,7 @@ class SubjectSearchViewModelContractTest {
 	}
 }
 
-private data class SubjectSearchFixture(
+private data class SubjectSearchFixture<R : SubjectCatalogRepository>(
 	val viewModel: SubjectSearchViewModel,
-	val repository: ControllableSubjectCatalogRepository
+	val repository: R
 )

@@ -11,6 +11,8 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.applying
+import com.gdavidpb.tuindice.record.presentation.model.RecordFailedArt
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_record
 
@@ -29,7 +31,11 @@ object Record {
 			val viewMode: RecordViewMode,
 			val record: AcademicRecord,
 			val selectedTermId: String,
-			val inFlightSelection: InFlightSelection? = null
+			val inFlightSelection: InFlightSelection? = null,
+			val notice: RecordNotice? = null,
+			// Whether the selected term is the current one with something scheduled: what puts the
+			// schedule icon on the bar. Resolved with the observation, so nothing asks it while drawing.
+			val hasSelectedTermSchedule: Boolean = false
 		) : State() {
 			/**
 			 * Lo que la pantalla proyecta: el expediente observado más el override del
@@ -46,9 +52,20 @@ object Record {
 			val isCommitted: Boolean
 		)
 
-		data object Empty : State()
+		// Nothing to list. What it says arrives resolved: the generic copy, or the final annulment
+		// that is the reason there is nothing.
+		data class Empty(
+			val title: UiText,
+			val message: UiText
+		) : State()
 
-		data object Failed : State()
+		// The record could not be loaded. What it says and the art above it arrive resolved, because
+		// a university with no record for this account yet is not a failure of ours.
+		data class Failed(
+			val title: UiText,
+			val message: UiText,
+			val art: RecordFailedArt
+		) : State()
 	}
 
 	sealed class Action : ViewAction {

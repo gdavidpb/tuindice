@@ -1,0 +1,14 @@
+{
+  "requests": [
+    {
+      "id": "00000000-0000-0000-0000-000000000003",
+      "request": {
+        "url": "/record/v5/terms",
+        "method": "GET",
+        "headers": {"Authorization": "Bearer some.token"}
+      },
+      "response": {"status": 404},
+      "wasMatched": false
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
@@ -22,8 +23,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
@@ -42,6 +43,8 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 private const val EVALUATIONS_MUTATION_STORE_QUALIFIER = "evaluationsMutationStore"
@@ -90,21 +93,22 @@ val evaluationsModule = module {
 			outboxStore = get(named(EVALUATIONS_MUTATION_STORE_QUALIFIER)),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
-	}
+	} bind SessionMemory::class
 	single<EvaluationRepository> {
 		EvaluationDataSource(
 			databaseDataSource = get(),
 			evaluationsApiDataSource = get(),
 			settingsDataSource = get(),
 			mutationEngine = get(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)),
-			identifierRepository = get()
+			identifierRepository = get(),
+			clock = get()
 		)
 	}
 
 	/* Data sources */
 
 	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataRepository>() }
-	single<DatabaseDataRepository> {
+	single {
 		RoomDatabaseDataSource(
 			evaluationDao = get(),
 			evaluationSyncStateDao = get(),
@@ -114,10 +118,11 @@ val evaluationsModule = module {
 			mutationEngine = get(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)),
 			visibleEvaluationsStateResolver = get()
 		)
-	}
+	} binds arrayOf(DatabaseDataRepository::class, SessionMemory::class)
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
 		bind<EvaluationsSelectionRepository>()
+		bind<SessionMemory>()
 	}
 
 	/* Exception handlers */

@@ -8,15 +8,19 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -38,6 +42,7 @@ import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -319,11 +324,259 @@ class SignInStateMachineContractTest {
 		}
 	}
 
+	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun unavailableWithAWait_returnsToIdleDisabled_andReenablesWhenTheWaitElapses() = runTest {
+		val fixture = createFixture(
+			testScheduler = testScheduler,
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
+			serviceWaitMillis = 30_000L
+		)
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SignIn.State.Idle(), awaitItem())
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+
+				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
+				assertEquals(VALID_USB_ID, waiting.usbId)
+				assertEquals(PASSWORD, waiting.password)
+
+				advanceTimeBy(29_000L)
+				assertTrue(viewModel.state.value.let { it is SignIn.State.Idle && it.isServiceUnavailable })
+
+				advanceTimeBy(2_000L)
+				awaitUntilState<SignIn.State.Idle> { state -> !state.isServiceUnavailable }
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	// Uses the wait branch of failSignIn: the other branch resolves a string resource, which only iOS can do
+	// (see SignInViewModelContractTest.signInRejected_keepsWhichVerdictItWas_withItsMessage_andSendsNoSnackbar).
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun aServiceWait_isNotARejectionOfTheLastAttempt() = runTest {
+		val fixture = createFixture(
+			testScheduler = testScheduler,
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
+			serviceWaitMillis = 30_000L
+		)
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(null, (awaitItem() as SignIn.State.Idle).rejection)
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+
+				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
+				assertEquals(VALID_USB_ID, waiting.usbId)
+				assertEquals(PASSWORD, waiting.password)
+				assertEquals(null, waiting.rejection)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	// The marks are set by failSignIn, which only iOS can run; the rows that clear or keep them
+	// are plain table rows, so they are checked from a state that already carries the mark.
+	@Test
+	fun editingEitherField_orTheMode_clearsTheRejection() = runTest {
+		val machine = createFixture().viewModel.machine
+		val verdicts = listOf(
+			SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID"),
+			SignIn.Rejection.AccountDisabled(message = "Cuenta inhabilitada"),
+			SignIn.Rejection.Untrusted(message = "Dispositivo no verificado")
+		)
+
+		val edits = listOf(
+			SignIn.Action.SetPassword(password = "${PASSWORD}x"),
+			SignIn.Action.SetUsbId(usbId = "20-26124"),
+			SignIn.Action.ToggleIdentifierMode
+		)
+
+		for (verdict in verdicts) {
+			val rejected = SignIn.State.Idle(usbId = VALID_USB_ID, password = PASSWORD, rejection = verdict)
+
+			for (edit in edits) {
+				val after = assertIs<SignIn.State.Idle>(machine.nextState(rejected, edit))
+
+				assertEquals(null, after.rejection, "${edit::class.simpleName} must clear ${verdict::class.simpleName}")
+			}
+		}
+	}
+
+	@Test
+	fun theWaitElapsing_keepsTheRejection_andReenablesSignIn() = runTest {
+		val machine = createFixture().viewModel.machine
+		val verdict = SignIn.Rejection.AccountDisabled(message = "Cuenta inhabilitada")
+		val waiting = SignIn.State.Idle(isServiceUnavailable = true, rejection = verdict)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(waiting, SignInInternalEvent.ServiceWaitElapsed)
+		)
+
+		assertEquals(false, after.isServiceUnavailable)
+		assertEquals(verdict, after.rejection)
+	}
+
+	@Test
+	fun cancellingTheSignIn_returnsToIdleWithoutAMark() = runTest {
+		val machine = createFixture().viewModel.machine
+		val loggingIn = SignIn.State.LoggingIn(
+			usbId = VALID_USB_ID,
+			password = PASSWORD,
+			messages = emptyList()
+		)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(loggingIn, SignIn.Action.ClickCancelSignIn)
+		)
+
+		assertEquals(null, after.rejection)
+		assertEquals(VALID_USB_ID, after.usbId)
+	}
+
+	// The system autofill and a paste hand the identifier over in one change. A text with an @ can
+	// only be an email, so the field leaves the USB ID mode and keeps what it was given.
+	@Test
+	fun anIdentifierWithAnAt_inUsbIdMode_switchesToEmailModeKeepingTheText() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		for (identifier in listOf("mail@usb.ve", "12-34567@usb.ve", "@")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun anIdentifierWithoutAnAt_inUsbIdMode_staysInUsbIdMode() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		for (identifier in listOf("", "1234567", "12-34567", "12-3")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbId, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun inEmailMode_anyIdentifierKeepsTheMode() = runTest {
+		val machine = createFixture().viewModel.machine
+		val email = SignIn.State.Idle(identifierMode = SignInIdentifierMode.UsbEmail)
+
+		for (identifier in listOf("", "mail", "12-34567", "mail@usb.ve")) {
+			val after = assertIs<SignIn.State.Idle>(
+				machine.nextState(email, SignIn.Action.SetUsbId(usbId = identifier))
+			)
+
+			assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode, identifier)
+			assertEquals(identifier, after.usbId)
+		}
+	}
+
+	@Test
+	fun theAutomaticSwitch_keepsThePassword_andClearsTheRejection() = runTest {
+		val machine = createFixture().viewModel.machine
+		val rejected = SignIn.State.Idle(
+			password = PASSWORD,
+			isPasswordVisible = true,
+			rejection = SignIn.Rejection.InvalidCredentials(message = "Revisa tu USBID")
+		)
+
+		val after = assertIs<SignIn.State.Idle>(
+			machine.nextState(rejected, SignIn.Action.SetUsbId(usbId = "mail@usb.ve"))
+		)
+
+		assertEquals(SignInIdentifierMode.UsbEmail, after.identifierMode)
+		assertEquals(PASSWORD, after.password)
+		assertEquals(true, after.isPasswordVisible)
+		assertEquals(null, after.rejection)
+	}
+
+	@Test
+	fun togglingByHand_stillClearsAnEmailThatIsNotAUsbId() = runTest {
+		val machine = createFixture().viewModel.machine
+		val email = SignIn.State.Idle(usbId = "mail@usb.ve", identifierMode = SignInIdentifierMode.UsbEmail)
+
+		val after = assertIs<SignIn.State.Idle>(machine.nextState(email, SignIn.Action.ToggleIdentifierMode))
+
+		assertEquals(SignInIdentifierMode.UsbId, after.identifierMode)
+		assertEquals("", after.usbId)
+	}
+
+	// What makes the field start over is the switch by hand, never the automatic one.
+	@Test
+	fun onlyTheSwitchByHand_countsAsATogglingOfTheIdentifier() = runTest {
+		val machine = createFixture().viewModel.machine
+
+		val automatic = assertIs<SignIn.State.Idle>(
+			machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = "12-34567@usb.ve"))
+		)
+		val typed = assertIs<SignIn.State.Idle>(
+			machine.nextState(SignIn.State.Idle(), SignIn.Action.SetUsbId(usbId = "12-345"))
+		)
+		val byHand = assertIs<SignIn.State.Idle>(machine.nextState(automatic, SignIn.Action.ToggleIdentifierMode))
+		val twice = assertIs<SignIn.State.Idle>(machine.nextState(byHand, SignIn.Action.ToggleIdentifierMode))
+
+		assertEquals(0, automatic.identifierToggleCount)
+		assertEquals(0, typed.identifierToggleCount)
+		assertEquals(1, byHand.identifierToggleCount)
+		assertEquals(2, twice.identifierToggleCount)
+	}
+
+	@Test
+	fun anIdentifierChangeWhileLoggingIn_isIgnored() = runTest {
+		val machine = createFixture().viewModel.machine
+		val loggingIn = SignIn.State.LoggingIn(usbId = VALID_USB_ID, password = PASSWORD, messages = emptyList())
+
+		val result = machine.process(loggingIn, SignIn.Action.SetUsbId(usbId = "mail@usb.ve"))
+
+		assertIs<TransitionResult.Rejected<SignIn.State>>(result)
+	}
+
+	private suspend fun MachineDefinition<SignIn.State>.nextState(state: SignIn.State, event: Any): SignIn.State {
+		val result = process(state, event)
+
+		assertIs<TransitionResult.Transitioned<SignIn.State>>(result)
+
+		return result.toState
+	}
+
 	private fun createFixture(
-		testScheduler: TestCoroutineScheduler? = null
+		testScheduler: TestCoroutineScheduler? = null,
+		signInThrowable: Throwable? = null,
+		serviceWaitMillis: Long = 0L
 	): SignInStateMachineFixture {
-		val authRepository = RecordingAuthRepository()
+		val authRepository = RecordingAuthRepository(throwable = signInThrowable)
 		val eventPublisher = RecordingEventPublisher()
 		val dispatchers: TuIndiceDispatchers = testScheduler
 			?.let { scheduler -> TestTuIndiceDispatchers(UnconfinedTestDispatcher(scheduler)) }
@@ -333,6 +586,7 @@ class SignInStateMachineContractTest {
 			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = authRepository,
+					authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
 					messagingRepository = RecordingMessagingRepository(),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),

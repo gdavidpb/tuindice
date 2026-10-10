@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
@@ -63,7 +65,49 @@ private val connectionMessageFragments = setOf(
 
 fun Throwable.isUnavailable() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.ServiceUnavailable
+	// A call held back inside the wait the server asked for stands in for the 503 that caused it.
+	is ServiceRetryWindowException -> true
 	else -> false
+}
+
+private val retryableLaterStatusCodes = setOf(
+	HttpStatusCode.UpgradeRequired,
+	HttpStatusCode.TooManyRequests,
+	HttpStatusCode.BadGateway,
+	HttpStatusCode.ServiceUnavailable,
+	HttpStatusCode.GatewayTimeout
+)
+
+/**
+ * The failure says nothing about the request itself, so trying it again later can work. Decided by
+ * the status code or the exception type, never by the message. What our backend means by each:
+ * - 503: Mongo is unreachable, or the auth service is down while it validates the token.
+ * - 502 and 504: not emitted by our code, only by the API Gateway in front of Cloud Run; the
+ *   evaluations and record-change routes use the default deadline, which a cold start can exceed.
+ * - 429: only the auth and attestation rate limits emit it; it reaches a request because the token
+ *   refresh happens inside the same send and its error comes out through it.
+ * - 426: the minimum-version check, on every route; the request is valid and goes through once the
+ *   person updates the app.
+ * - Retry window: the call was held back inside the wait the server asked for.
+ * - Attestation refused during session recovery: an integrity-plumbing failure, not a verdict.
+ * Not here: 400, 401, 403, 423, 500 and the rest, which are answers about the request.
+ */
+fun Throwable.isRetryableLater(): Boolean = when {
+	this is ResponseException -> response.status in retryableLaterStatusCodes
+	this is ServiceRetryWindowException -> true
+	else -> errorChain().any { throwable -> throwable is SessionRecoveryAttestationException }
+}
+
+/**
+ * The failure of a send that leaves a queued change waiting for the next attempt. A response from the
+ * server is decided by its status code alone ([isRetryableLater]): Ktor puts the response body in the
+ * exception message, so reading the message would turn a 400 or a 500 whose body mentions a timeout
+ * into an outage. What is not a response (a lost connection, a deadline, a refused attestation) is
+ * decided by [isConnection] or [isRetryableLater].
+ */
+fun Throwable.isTransient(): Boolean = when (this) {
+	is ResponseException -> isRetryableLater()
+	else -> isConnection() || isRetryableLater()
 }
 
 fun Throwable.isFailedDependency() = when (this) {

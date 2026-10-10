@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -43,6 +44,7 @@ class SignInStateMachineWalkUiTest {
 		val screenMachine = SignInMachine(
 			signInUseCase = SignInUseCase(
 				authRepository = RecordingAuthRepository(),
+				authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 				messagingRepository = RecordingMessagingRepository(),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),

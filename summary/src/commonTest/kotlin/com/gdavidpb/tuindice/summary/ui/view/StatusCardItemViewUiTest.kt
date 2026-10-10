@@ -7,6 +7,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -36,7 +38,7 @@ class StatusCardItemViewUiTest {
 	}
 
 	@Test
-	fun when_allEntriesAreZero_then_keepsHeaderAndLabelsWithoutDistributionValues() = runTuIndiceUiTest {
+	fun when_allEntriesAreZero_then_keepsHeaderAndLabelsOverOneEmptyTrack() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			StatusCardItemView(
 				header = "Creditos cursados",
@@ -52,6 +54,9 @@ class StatusCardItemViewUiTest {
 		onNodeWithText("Aprobados").assertIsDisplayed()
 		onNodeWithText("Reprobados").assertIsDisplayed()
 		onNodeWithText("Retirados").assertIsDisplayed()
+		// One empty track and no figure under it: the header already says zero.
+		// The card reads as one node, so the track is only addressable in the unmerged tree.
+		assertNodeVisible(SummaryUiTags.StatusCardEmptyTrack, useUnmergedTree = true)
 		onAllNodesWithText("0").assertCountEquals(0)
 	}
 }

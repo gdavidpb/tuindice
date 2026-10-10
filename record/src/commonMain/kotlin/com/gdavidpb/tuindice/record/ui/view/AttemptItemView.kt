@@ -5,7 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -25,7 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -34,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptItemBadge
@@ -95,6 +93,9 @@ fun AttemptItemView(
 		AttemptItemBadge.EQUIVALENCE -> equivalenceLabel
 		else -> null
 	}
+	// A withdrawn subject stays in the list but no longer weighs on the term: what describes it is
+	// dimmed, while the "Retirada" pill and any enrollment error stay at full strength to be read.
+	val contentAlpha = if (item.isWithdrawn) TuIndiceAlpha.Muted else 1f
 	val headerVerticalAlignment = if (!item.isReadOnly && isQualitative) {
 		Alignment.Top
 	} else {
@@ -119,7 +120,8 @@ fun AttemptItemView(
 			Text(
 				modifier = Modifier
 					.padding(end = 12.dp)
-					.weight(1f),
+					.weight(1f)
+					.alpha(contentAlpha),
 				text = item.nameText,
 				maxLines = 1,
 				style = MaterialTheme.typography.titleMedium,
@@ -247,30 +249,18 @@ fun AttemptItemView(
 			}
 		}
 
-		Row(
+		AttemptSubjectRowView(
 			modifier = Modifier
 				.padding(top = 8.dp)
-				.fillMaxWidth(),
-			horizontalArrangement = Arrangement.SpaceBetween,
-			verticalAlignment = Alignment.CenterVertically
-		) {
-			Text(
-				modifier = Modifier
-					.testTag(RecordUiTags.attemptSubjectChip(item.attemptId))
-					.background(
-						color = item.codeContainerColor,
-						shape = RoundedCornerShape(TuIndiceRadius.Small)
-					)
-					.padding(vertical = 5.dp, horizontal = 10.dp),
-				text = item.codeText,
-				color = item.codeColor,
-				style = MaterialTheme.typography.labelLarge
-			)
+				.alpha(contentAlpha),
+			item = item
+		)
 
-			Text(
-				text = item.creditsText,
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				style = MaterialTheme.typography.labelLarge
+		item.enrollmentErrorText?.let { errorText ->
+			AttemptEnrollmentErrorChipView(
+				modifier = Modifier.padding(top = 8.dp),
+				attemptId = item.attemptId,
+				text = errorText
 			)
 		}
 

@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.auth.di
 
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
+import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
@@ -44,8 +46,17 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import kotlinx.coroutines.test.runTest
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AuthModuleKoinSmokeTest {
 	@Test
@@ -79,5 +90,43 @@ class AuthModuleKoinSmokeTest {
 			SignOutViewModel::class,
 			UpdatePasswordViewModel::class
 		)
+	}
+
+	// The platform modules build the API data source with `retryWindow = get()`, as below. This
+	// module has to answer that with the same memory sign-in reads: a wait recorded in one
+	// instance and looked up in another would never hold a call back.
+	@Test
+	fun sharesOneRetryWindow_betweenTheApiDataSourceAndSignIn() = runTest {
+		withKoinSmokeTest(
+			authModule,
+			module {
+				factory<AuthApiDataRepository> {
+					KtorAuthApiDataSource(
+						ktorClient = HttpClient(
+							MockEngine {
+								respond(
+									content = "",
+									status = HttpStatusCode.ServiceUnavailable,
+									headers = headersOf(HttpHeaders.RetryAfter, "30")
+								)
+							}
+						) {
+							expectSuccess = true
+						},
+						retryWindow = get()
+					)
+				}
+			}
+		) {
+			val retryWindow = get<AuthRetryWindowRepository>()
+
+			assertEquals(0L, retryWindow.signInRemainingMillis("20-26123"))
+
+			runCatching {
+				get<AuthApiDataRepository>().bootstrapSignIn(usbId = "20-26123", password = "secret123")
+			}
+
+			assertTrue(retryWindow.signInRemainingMillis("20-26123") > 0L)
+		}
 	}
 }

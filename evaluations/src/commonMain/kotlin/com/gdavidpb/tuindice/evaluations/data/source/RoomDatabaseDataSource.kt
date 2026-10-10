@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
@@ -40,7 +41,7 @@ class RoomDatabaseDataSource(
 	private val transactionRunner: PersistenceTransactionRunner,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
 	private val visibleEvaluationsStateResolver: VisibleEvaluationsStateResolver
-) : DatabaseDataRepository {
+) : DatabaseDataRepository, SessionMemory {
 	private val writeMutex = Mutex()
 
 	private var inMemoryConfirmedSnapshot: LocalEvaluationsSnapshot? = null
@@ -83,6 +84,15 @@ class RoomDatabaseDataSource(
 			)
 		}.onEach { snapshot ->
 			inMemoryConfirmedSnapshot = snapshot
+		}
+	}
+
+	// Under the write lock so a write in flight cannot put back the snapshot being dropped. The
+	// next read loads from Room, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		writeMutex.withLock {
+			inMemoryConfirmedSnapshot = null
+			pendingMutationsSnapshot = null
 		}
 	}
 

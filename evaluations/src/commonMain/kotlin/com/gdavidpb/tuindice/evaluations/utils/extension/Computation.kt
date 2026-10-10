@@ -1,11 +1,14 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
-import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.roundToInt
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -19,9 +22,10 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 fun computeEvaluationState(
 	scheduleMode: EvaluationScheduleMode,
 	grade: Double?,
-	date: Long?
+	date: Long?,
+	clock: Clock
 ): EvaluationState {
-	val hasDatePassed = date != null && date.toLocalDate() < currentTimeMillis().toLocalDate()
+	val hasDatePassed = date != null && date.toLocalDate() < clock.now().toEpochMilliseconds().toLocalDate()
 
 	return when {
 		scheduleMode == EvaluationScheduleMode.CONTINUOUS -> EvaluationState.CONTINUOUS

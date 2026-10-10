@@ -31,6 +31,7 @@ fun AttemptItem.toAttemptItemDisplay(currentGrade: Int): AttemptItemDisplay {
 }
 
 private fun AttemptItem.toAttemptItemBadge(isQualitative: Boolean, currentGrade: Int): AttemptItemBadge? = when {
+	isWithdrawn -> AttemptItemBadge.RETIRED
 	badge == AttemptBadge.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
 	badge == AttemptBadge.EQUIVALENCE -> AttemptItemBadge.EQUIVALENCE
 	outcome == AttemptOutcome.UNREPORTED -> AttemptItemBadge.UNREPORTED

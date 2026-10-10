@@ -68,12 +68,12 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 		onTo<
 			EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
 			Evaluations.State.RecordDataUnavailable,
-			> { _, _ ->
-			Evaluations.State.RecordDataUnavailable
+			> { _, event ->
+			Evaluations.State.RecordDataUnavailable(explanation = event.explanation)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, event ->
-			Evaluations.State.NoAttempts(reason = event.reason)
+			Evaluations.State.NoAttempts(explanation = event.explanation)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsContentObserved, Evaluations.State.Content> { state, event ->

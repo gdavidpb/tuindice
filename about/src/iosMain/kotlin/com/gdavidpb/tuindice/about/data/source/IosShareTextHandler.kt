@@ -17,6 +17,18 @@ class IosShareTextHandler : ShareTextHandler {
 			applicationActivities = null
 		)
 
+		// The sheet is a popover whose dismissal listens to the touches of the presenting side without stopping them: the
+		// tap that closes it also reached the Compose view under it (a link of About opened in Safari). While the sheet is
+		// up the view that holds the app does not take touches; every way the sheet ends reaches this handler.
+		val presentingView = topController.view
+		val wasInteractive = presentingView.userInteractionEnabled
+
+		presentingView.userInteractionEnabled = false
+
+		activityController.completionWithItemsHandler = { _, _, _, _ ->
+			presentingView.userInteractionEnabled = wasInteractive
+		}
+
 		topController.presentViewController(
 			viewControllerToPresent = activityController,
 			animated = true,

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
@@ -18,6 +20,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class EvaluationMappingTest {
 	@Test
@@ -158,7 +162,7 @@ class EvaluationMappingTest {
 	fun toEvaluation_whenTypeOrdinalIsLastEntry_mapsToOtherType() {
 		val evaluation = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			type = EvaluationType.OTHER.ordinal
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 
 		assertEquals(EvaluationType.OTHER, evaluation.type)
 	}
@@ -171,15 +175,15 @@ class EvaluationMappingTest {
 		val completed = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			grade = 18.0,
 			date = pastDate
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 		val overdue = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			grade = null,
 			date = pastDate
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 		val pending = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			grade = null,
 			date = futureDate
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 
 		assertEquals(EvaluationState.COMPLETED, completed.state)
 		assertEquals(EvaluationState.OVERDUE, overdue.state)
@@ -193,11 +197,11 @@ class EvaluationMappingTest {
 		val pendingToday = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			grade = null,
 			date = today
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 		val completedToday = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			grade = 18.0,
 			date = today
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 
 		assertEquals(EvaluationState.PENDING, pendingToday.state)
 		assertEquals(EvaluationState.COMPLETED, completedToday.state)
@@ -208,7 +212,7 @@ class EvaluationMappingTest {
 		val evaluation = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
 			date = null
-		).toEvaluation()
+		).toEvaluation(clock = Clock.System)
 
 		assertEquals(EvaluationState.CONTINUOUS, evaluation.state)
 	}

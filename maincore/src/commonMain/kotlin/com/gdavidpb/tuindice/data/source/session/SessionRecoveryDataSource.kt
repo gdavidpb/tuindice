@@ -5,12 +5,14 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
@@ -20,6 +22,7 @@ import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,7 +37,7 @@ class SessionRecoveryDataSource(
 	private val authRepository: AuthRepository,
 	private val credentialsRepository: CredentialsRepository,
 	private val sessionCoroutineScope: SessionCoroutineScope
-) : SessionRecoveryRepository {
+) : SessionRecoveryRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
 
 	// Guarded by recoveryMutex. Marks a token that still reported near-expiry after the
@@ -151,6 +154,12 @@ class SessionRecoveryDataSource(
 		runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
 	}
 
+	// Not under recoveryMutex: the wipe can be reached from a recovery that still holds it, and
+	// forgetting a token of a session that is gone needs no ordering with the next one.
+	override suspend fun clearSessionMemory() {
+		expiryArbitratedAccessToken = null
+	}
+
 	private suspend fun refreshAttemptedSession(
 		attemptedSnapshot: SessionSnapshot,
 		authRepository: AuthRepository
@@ -225,7 +234,15 @@ class SessionRecoveryDataSource(
 		credentialsRepository: CredentialsRepository,
 		authRepository: AuthRepository
 	): SessionSnapshot? {
-		if (!credentialsRepository.hasPassword()) return null
+		val hasPassword = try {
+			credentialsRepository.hasPassword()
+		} catch (cancellation: CancellationException) {
+			throw cancellation
+		} catch (_: Exception) {
+			false
+		}
+
+		if (!hasPassword) return null
 
 		return runCatching {
 			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
@@ -318,10 +335,6 @@ class SessionRecoveryDataSource(
 private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
 	return isSessionSuperseded()
 }
-
-private class SessionRecoveryAttestationException(
-	cause: Throwable
-) : Exception("Attestation rejected during session recovery.", cause)
 
 private fun isStaleTokenAttempt(
 	attemptedAuthorizationAccessToken: String?,

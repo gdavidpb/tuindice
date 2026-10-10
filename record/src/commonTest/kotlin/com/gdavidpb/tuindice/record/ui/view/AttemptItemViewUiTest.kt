@@ -98,6 +98,57 @@ class AttemptItemViewUiTest {
 		onNodeWithText("Aprobada").assertIsDisplayed()
 	}
 
+	@Test
+	fun when_attemptHasSectionAndClassroom_then_theyShareTheRowWithTheCodeAndCredits() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptItemView(
+				item = qualitativeAttemptItem(outcome = null).copy(detailText = "Sección 1 · MYS-116"),
+				onGradeChange = { _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.attemptDetail("attempt-1")).assertTextContains("Sección 1 · MYS-116")
+		onNodeWithText("9 UC").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_attemptHasAnEnrollmentError_then_aWarningChipShowsIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptItemView(
+				item = qualitativeAttemptItem(outcome = null).copy(enrollmentErrorText = "Choque de horario"),
+				onGradeChange = { _, _, _ -> }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.attemptEnrollmentError("attempt-1"))
+		onNodeWithText("Choque de horario").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_attemptHasNoEnrollmentError_then_noWarningChipIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptItemView(
+				item = qualitativeAttemptItem(outcome = null),
+				onGradeChange = { _, _, _ -> }
+			)
+		}
+
+		assertNodeHidden(RecordUiTags.attemptEnrollmentError("attempt-1"))
+	}
+
+	@Test
+	fun when_attemptIsWithdrawn_then_showsTheRetiredPillAndNoEditor() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptItemView(
+				item = qualitativeAttemptItem(outcome = null, isReadOnly = true).copy(isWithdrawn = true),
+				onGradeChange = { _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.attemptStatusChip("attempt-1")).assertTextContains("Retirada")
+		assertNodeHidden(RecordUiTags.attemptStatusSelector("attempt-1"))
+	}
+
 	private fun qualitativeAttemptItem(
 		outcome: AttemptOutcome?,
 		isReadOnly: Boolean = false,

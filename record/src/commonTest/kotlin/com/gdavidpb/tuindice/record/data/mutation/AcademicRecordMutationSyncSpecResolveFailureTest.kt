@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResoluti
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.record.data.model.AcademicRecordConflictException
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -47,6 +50,90 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 
 		assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
 		assertEquals(0, refreshCalls)
+	}
+
+	// A 503 (or the wait the service asked for) is the service being away, not a verdict on the
+	// change: the row stays Pending and goes out again with the next drain.
+	@Test
+	fun resolveFailure_whenTheServiceIsUnavailable_defersEveryKindOfMutation_withoutCallingRefresh() = runTest {
+		var refreshCalls = 0
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			refreshCalls++
+			error("not reachable")
+		})
+		val unavailableErrors = listOf(426, 429, 502, 503, 504).map(::responseWithStatus) +
+			ServiceRetryWindowException(retryAfterMillis = 30_000L) +
+			SessionRecoveryAttestationException(responseWithStatus(403))
+
+		unavailableErrors.forEach { unavailable ->
+			listOf(
+				upsertOverrideEnvelope(),
+				recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+				addSyntheticTermEnvelope(),
+				updateSyntheticTermEnvelope(),
+				deleteSyntheticTermEnvelope()
+			).forEach { mutation ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = unavailable)
+
+				assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
+			}
+		}
+
+		assertEquals(0, refreshCalls)
+	}
+
+	// These say something about the request itself (or the server cannot handle it): a verdict, not an outage.
+	@Test
+	fun resolveFailure_whenTheServerRejectsTheRequest_stillFailsTerminally() = runTest {
+		val spec = specUnderTest()
+
+		listOf(
+			upsertOverrideEnvelope(),
+			recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+			addSyntheticTermEnvelope(),
+			updateSyntheticTermEnvelope(),
+			deleteSyntheticTermEnvelope()
+		).forEach { mutation ->
+			listOf(400, 401, 403, 423, 500).map(::responseWithStatus).forEach { rejection ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = rejection)
+
+				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+			}
+		}
+	}
+
+	// A response from the server is decided by its status code. Ktor puts the body in the exception message,
+	// so a 400 or a 500 whose body talks about a timeout must stay a verdict, and a 408 is not an outage.
+	@Test
+	fun resolveFailure_aResponseIsDecidedByItsCode_neverByWhatItsBodySays() = runTest {
+		val spec = specUnderTest()
+		val verdicts = listOf(
+			clientRequestException(HttpStatusCode.BadRequest, message = "date: time out of range"),
+			serverResponseException(HttpStatusCode.InternalServerError, message = "MongoTimeoutException: no primary"),
+			clientRequestException(HttpStatusCode.RequestTimeout)
+		)
+
+		verdicts.forEach { verdict ->
+			listOf(
+				upsertOverrideEnvelope(),
+				addSyntheticTermEnvelope(),
+				deleteSyntheticTermEnvelope()
+			).forEach { mutation ->
+				val resolution = spec.resolveFailure(mutation = mutation, throwable = verdict)
+
+				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
+			}
+		}
+	}
+
+	@Test
+	fun resolveFailure_aGatewayTimeout_defersEvenWhenItsBodyIsEmpty() = runTest {
+		val resolution = specUnderTest().resolveFailure(
+			mutation = upsertOverrideEnvelope(),
+			throwable = serverResponseException(HttpStatusCode.GatewayTimeout)
+		)
+
+		assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
 	}
 
 	// The safe refresh swallows failures on purpose, but a cancelled scope is not a failed
@@ -86,6 +173,75 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 			MutationFailureKind.Terminal,
 			spec.classifyError(mutation, clientRequestException(HttpStatusCode.BadRequest))
 		)
+	}
+
+	@Test
+	fun resolveFailure_staleConflictNamingTheRevision_rebasesOnItWithoutRefreshing() = runTest {
+		var refreshCalls = 0
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			refreshCalls++
+			error("not reachable")
+		})
+
+		listOf(
+			upsertOverrideEnvelope(),
+			recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+			updateSyntheticTermEnvelope()
+		).forEach { mutation ->
+			val resolution = spec.resolveFailure(
+				mutation = mutation,
+				throwable = overlayConflict(reason = "STALE_PRECONDITION", currentRevision = 9L)
+			)
+
+			val retry = assertIs<MutationFailureResolution.Retry<String, AcademicRecordMutation>>(resolution)
+			assertEquals(MutationPrecondition.Revision(9L), retry.mutation.precondition)
+		}
+
+		assertEquals(0, refreshCalls)
+	}
+
+	@Test
+	fun resolveFailure_concurrentWriteConflict_withoutARevision_stillRefreshes() = runTest {
+		var refreshCalls = 0
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			refreshCalls++
+			versionedRecord(revision = 4L)
+		})
+
+		val resolution = spec.resolveFailure(
+			mutation = updateSyntheticTermEnvelope(),
+			throwable = overlayConflict(reason = "CONCURRENT_WRITE", currentRevision = null)
+		)
+
+		val retry = assertIs<MutationFailureResolution.Retry<String, AcademicRecordMutation>>(resolution)
+		assertEquals(MutationPrecondition.Revision(4L), retry.mutation.precondition)
+		assertEquals(1, refreshCalls)
+	}
+
+	@Test
+	fun currentPrecondition_neverGoesBelowWhatTheRowAlreadyExpects() = runTest {
+		val mutation = upsertOverrideEnvelope()
+
+		assertEquals(
+			MutationPrecondition.Revision(7L),
+			specUnderTest(currentLocalRevision = { 7L }).currentPrecondition(mutation)
+		)
+		assertEquals(
+			MutationPrecondition.Revision(1L),
+			specUnderTest(currentLocalRevision = { 0L }).currentPrecondition(mutation)
+		)
+		assertEquals(
+			MutationPrecondition.Revision(1L),
+			specUnderTest(currentLocalRevision = { null }).currentPrecondition(mutation)
+		)
+	}
+
+	@Test
+	fun spec_readsTheRevisionOfAnAck_andParksAfterFiveExhaustedExecutions() {
+		val spec = specUnderTest()
+
+		assertEquals(12L, spec.revisionOf(versionedRecord(revision = 12L)))
+		assertEquals(5, spec.maxExhaustedExecutions)
 	}
 
 	@Test
@@ -217,12 +373,30 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 
 private fun specUnderTest(
 	refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord = { error("not used") },
-	onDeleteSyntheticTerm: (String) -> VersionedAcademicRecord = { error("not used") }
+	onDeleteSyntheticTerm: (String) -> VersionedAcademicRecord = { error("not used") },
+	currentLocalRevision: suspend () -> Long? = { null }
 ) = AcademicRecordMutationSyncSpec(
 	remoteDataSource = errorRemoteDataSource(onDeleteSyntheticTerm = onDeleteSyntheticTerm),
 	persistConfirmedSnapshot = { },
-	refreshRemoteSnapshot = refreshRemoteSnapshot
+	refreshRemoteSnapshot = refreshRemoteSnapshot,
+	currentLocalRevision = currentLocalRevision
 )
+
+private fun overlayConflict(reason: String?, currentRevision: Long?) = AcademicRecordConflictException(
+	reason = reason,
+	currentRevision = currentRevision,
+	original = clientRequestException(HttpStatusCode.Conflict)
+)
+
+private fun upsertOverrideEnvelope() = recordMutationEnvelope(
+	AcademicRecordMutation.UpsertAttemptOverride(
+		attemptId = "attempt-1",
+		score = AttemptScore.numeric(4),
+		outcome = null
+	)
+)
+
+private fun updateSyntheticTermEnvelope() = recordMutationEnvelope(updateSyntheticTermMutation())
 
 private fun addSyntheticTermEnvelope() = recordMutationEnvelope(
 	AcademicRecordMutation.AddSyntheticTerm(
@@ -305,3 +479,14 @@ private fun errorRemoteDataSource(
 			expectedRevision: Long
 		): VersionedAcademicRecord = onDeleteSyntheticTerm(termRef)
 	}
+
+// A response with the given status whose message never says "timeout": the verdict must come from the code.
+private fun responseWithStatus(code: Int): Throwable {
+	val status = HttpStatusCode.fromValue(code)
+
+	return if (code >= 500) {
+		serverResponseException(status, message = "status $code")
+	} else {
+		clientRequestException(status, message = "status $code")
+	}
+}

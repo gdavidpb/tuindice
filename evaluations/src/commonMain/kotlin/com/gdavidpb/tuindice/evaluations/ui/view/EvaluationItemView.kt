@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
@@ -172,7 +173,7 @@ fun EvaluationItemView(
 
 					Text(
 						modifier = Modifier.padding(start = 8.dp),
-						text = item.dateText,
+						text = item.dateText.asString(),
 						maxLines = 1,
 						softWrap = false,
 						color = metadataColor,

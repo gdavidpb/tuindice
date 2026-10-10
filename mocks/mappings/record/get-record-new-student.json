@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/record/v5",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer new-student.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 404,
+    "fixedDelayMilliseconds": 500
+  }
+}

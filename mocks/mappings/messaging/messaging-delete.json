@@ -14,5 +14,8 @@
       "Content-Type": "application/json"
     },
     "fixedDelayMilliseconds": 3000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
   }
 }

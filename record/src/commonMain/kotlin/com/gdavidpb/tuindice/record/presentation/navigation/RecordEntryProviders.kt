@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -11,9 +12,11 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLi
 import com.gdavidpb.tuindice.base.utils.extension.CollectNavResultWithLifecycle
 import com.gdavidpb.tuindice.record.presentation.route.CreateSyntheticTermRoute
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
+import com.gdavidpb.tuindice.record.presentation.route.ScheduleRoute
 import com.gdavidpb.tuindice.record.presentation.route.toRouteViewState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.ui.dialog.DeleteSyntheticTermConfirmationContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -23,6 +26,7 @@ fun EntryProviderScope<NavKey>.recordEntries(
 	dependencies: RecordNavDependencies
 ) {
 	recordEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
+	scheduleEntry(navActions = navActions)
 	createSyntheticTermEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
 	deleteSyntheticTermConfirmationDialogEntry(navActions = navActions)
 }
@@ -37,7 +41,7 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 		CollectCurrentEntryValueWithLifecycle(
-			value = viewState.toRouteViewState(),
+			value = remember(viewState) { viewState.toRouteViewState() },
 			onValue = shellBindings.onViewStateChanged
 		)
 
@@ -61,10 +65,27 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 			},
 			onTopBarViewModeChangeAvailable = dependencies.onTopBarViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = dependencies.onTopBarTermSelectionAvailable,
+			onTopBarScheduleAvailable = dependencies.onTopBarScheduleAvailable,
+			onNavigateToSchedule = {
+				navActions.push(RecordDestination.ScheduleDialog)
+			},
 			onNavigateToEnrollmentProof = dependencies.onNavigateToEnrollmentProof,
 			showTopBarBanner = shellBindings.showTopBarBanner,
 			showSnackBar = shellBindings.showSnackBar,
 			viewModel = viewModel
+		)
+	}
+}
+
+private fun EntryProviderScope<NavKey>.scheduleEntry(
+	navActions: TuIndiceNavActions
+) {
+	entry<RecordDestination.ScheduleDialog>(metadata = dialogMetadata()) {
+		val viewModel = koinViewModel<ScheduleViewModel>()
+
+		ScheduleRoute(
+			viewModel = viewModel,
+			onDismissRequest = { navActions.pop() }
 		)
 	}
 }

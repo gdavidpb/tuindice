@@ -6,7 +6,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Quiz
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
@@ -60,6 +60,142 @@ class EvaluationsWeekGroupItemMappingTest {
 				.none { item -> item.evaluationId == continuousEvaluation.id }
 		)
 	}
+
+	// The crash this fixes: an evaluation pointing at a subject that is not among the current
+	// term's used to throw from the mapper, inside the machine's job, and take the process down.
+	@Test
+	fun toEvaluationItemList_leavesOutAnEvaluationWhoseSubjectIsGone() {
+		val orphan = DEFAULT_PENDING_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone"
+		)
+
+		val groups = listOf(orphan, DEFAULT_PENDING_EVALUATION).toEvaluationItemList(
+			mapping = testEvaluationItemMapping(),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
+
+		assertEquals(
+			listOf(DEFAULT_PENDING_EVALUATION.id),
+			groups.flatMap { group -> group.items }.map { item -> item.evaluationId }
+		)
+	}
+
+	@Test
+	fun toEvaluationItemList_takesTheItemDateTextFromTheMapping() {
+		val continuous = DEFAULT_PENDING_EVALUATION.copy(
+			id = "continuous-evaluation",
+			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
+			date = null
+		)
+		val dated = DEFAULT_PENDING_EVALUATION.copy(
+			date = LocalDate(2026, 5, 21).toEvaluationEpochMillis()
+		)
+
+		val groups = listOf(continuous, dated).toEvaluationItemList(
+			mapping = testEvaluationItemMapping(),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
+
+		// Dated first, then the ones without a date: the order comes from the instant, never
+		// from the text of the date.
+		assertEquals(
+			listOf(DATED_DATE_TEXT, CONTINUOUS_DATE_TEXT),
+			groups.flatMap { group -> group.items }.map { item -> item.dateText }
+		)
+	}
+
+	@Test
+	fun toEvaluationItemList_whenEverySubjectIsGone_isEmptyInsteadOfThrowing() {
+		val date = LocalDate(2026, 5, 21)
+		val orphans = listOf(
+			DEFAULT_PENDING_EVALUATION.copy(id = "orphan-1", attemptId = "gone-1"),
+			DEFAULT_PENDING_EVALUATION.copy(
+				id = "orphan-2",
+				attemptId = "gone-2",
+				date = date.toEvaluationEpochMillis()
+			)
+		)
+
+		// No date header is left behind with nothing under it.
+		assertEquals(
+			emptyList(),
+			orphans.toEvaluationItemList(
+				mapping = testEvaluationItemMapping(),
+				attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+		)
+		assertEquals(
+			emptyList(),
+			orphans.toEvaluationItemList(mapping = testEvaluationItemMapping(), attempts = emptyList())
+		)
+	}
+
+	@Test
+	fun toEvaluationItemList_doesNotCountAGoneSubjectInTheOrdinals() {
+		val date = LocalDate(2026, 5, 21)
+		val orphan = DEFAULT_PENDING_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone",
+			date = date.toEvaluationEpochMillis()
+		)
+		val listed = DEFAULT_PENDING_EVALUATION.copy(
+			date = LocalDate(2026, 5, 22).toEvaluationEpochMillis()
+		)
+
+		val item = listOf(orphan, listed)
+			.toEvaluationItemList(
+				mapping = testEvaluationItemMapping(),
+				attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+			.flatMap { group -> group.items }
+			.single()
+
+		assertEquals("${listed.type.name} 1", item.nameText)
+	}
+
+	@Test
+	fun toEvaluationsWeekGroupItemList_leavesOutTheWeekOfAnEvaluationWhoseSubjectIsGone() {
+		val date = LocalDate(2026, 5, 21)
+		val orphan = DEFAULT_PENDING_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone",
+			date = date.toEvaluationEpochMillis()
+		)
+		val weekItems = buildEvaluationsWeekItems(
+			currentTerm = DEFAULT_EVALUATION_TERM,
+			evaluations = listOf(orphan),
+			weekLabelPattern = "Semana %1${'$'}d",
+			continuousLabel = "Continuas",
+			currentDate = date
+		)
+
+		val groups = weekItems.toEvaluationsWeekGroupItemList(
+			evaluations = listOf(orphan),
+			currentTerm = DEFAULT_EVALUATION_TERM,
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT),
+			mapping = testEvaluationItemMapping()
+		)
+
+		assertEquals(emptyList(), groups)
+	}
+
+	@Test
+	fun listedUnder_keepsOnlyTheEvaluationsOfTheGivenSubjects() {
+		val orphan = DEFAULT_PENDING_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone"
+		)
+
+		assertEquals(
+			listOf(DEFAULT_PENDING_EVALUATION),
+			listOf(orphan, DEFAULT_PENDING_EVALUATION).listedUnder(listOf(DEFAULT_EVALUATION_SUBJECT))
+		)
+		assertEquals(
+			emptyList(),
+			listOf(orphan, DEFAULT_PENDING_EVALUATION).listedUnder(emptyList())
+		)
+	}
 }
 
 private fun testEvaluationItemMapping() = EvaluationItemMapping(
@@ -73,17 +209,8 @@ private fun testEvaluationItemMapping() = EvaluationItemMapping(
 	typeIcon = { Icons.Outlined.Quiz },
 	dateIcon = { Icons.Outlined.CalendarToday },
 	gradesIcon = { Icons.Outlined.AssignmentTurnedIn },
-	dateGroupTitle = { group ->
-		when (group) {
-			EvaluationDateGroup.Continuous -> "Evaluacion continua"
-			else -> "Fecha"
-		}
-	},
-	dateHeaderText = { evaluation ->
-		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) "Evaluacion continua" else "Fecha"
-	},
 	dateText = { evaluation ->
-		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) "Evaluacion continua" else "Fecha"
+		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) CONTINUOUS_DATE_TEXT else DATED_DATE_TEXT
 	},
 	highlightTone = { state ->
 		when (state) {
@@ -93,3 +220,6 @@ private fun testEvaluationItemMapping() = EvaluationItemMapping(
 		}
 	}
 )
+
+private val CONTINUOUS_DATE_TEXT = UiText.Raw("Evaluacion continua")
+private val DATED_DATE_TEXT = UiText.Raw("Fecha")

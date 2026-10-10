@@ -14,108 +14,91 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
-private const val USB_ID_MAX_DIGITS = 7
 private val identifierModeTogglePulseSize = 32.dp
 
+/**
+ * [identifierToggleCount] changes only when the person switches the mode by hand, which empties the field if
+ * its text is not a USB ID: the field adopts the state's text then. The switch an @ causes is not a reset, so
+ * a lagging echo of it cannot take back what was typed after the @.
+ *
+ * [isWaiting], [error] and [isError]: see [PasswordTextField]. [errorDescription] is what a screen reader
+ * says when the field is in error without showing a message of its own under it.
+ */
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
 	labelText: String,
 	placeholderText: String,
 	error: String? = null,
+	errorDescription: String? = null,
+	isError: Boolean = false,
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
+	identifierToggleCount: Int = 0,
 	toggleContentDescription: String,
 	showTogglePulse: Boolean,
+	isWaiting: Boolean,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onIdentifierModeToggle: () -> Unit,
 	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val textField = remember {
-		mutableStateOf(
-			TextFieldValue(
-				text = usbId,
-				selection = TextRange(usbId.length)
-			)
-		)
-	}
-	val supportingText = remember { mutableStateOf(error) }
-	val digitsOnlyRegex = remember { "\\D+".toRegex() }
+	val field = remember { EditableTextFieldState(usbId, identifierToggleCount to isWaiting) }
 	val shouldShowTogglePulse =
 		showTogglePulse && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId
 
-	LaunchedEffect(usbId, identifierMode) {
-		if (textField.value.text != usbId) {
-			val selectionEnd = textField.value.selection.end.coerceAtMost(usbId.length)
-
-			textField.value = TextFieldValue(
-				text = usbId,
-				selection = TextRange(selectionEnd)
-			)
-		}
-	}
-
-	LaunchedEffect(error) {
-		supportingText.value = error
-	}
+	field.syncExternal(usbId, identifierToggleCount to isWaiting)
 
 	OutlinedTextField(
-		modifier = modifier.testTag(AuthUiTags.UsbIdTextField),
-		value = textField.value,
+		modifier = modifier
+			.testTag(AuthUiTags.UsbIdTextField)
+			.semantics {
+				contentType = ContentType.Username
+
+				(error ?: errorDescription)?.let { description -> error(description) }
+			},
+		value = field.value,
 		onValueChange = { newValue ->
-			val previousText = textField.value.text
-			if (newValue.text == previousText) {
-				textField.value = newValue
-				return@OutlinedTextField
-			}
+			when {
+				// While the owner is busy the view model drops what it is told (see PasswordTextField).
+				isWaiting -> Unit
 
-			val s = when (identifierMode) {
-				SignInIdentifierMode.UsbId -> newValue.text
-					.replace(digitsOnlyRegex, "")
-					.let { digitsOnly ->
-						StringBuilder(digitsOnly).apply {
-							val atLeast2Digits = length >= 2
-							val newContainsDash = newValue.text.elementAtOrNull(2) == '-'
-							val oldContainsDash = previousText.elementAtOrNull(2) == '-'
+				newValue.text == field.value.text -> field.edit(newValue)
 
-							if (atLeast2Digits && (!oldContainsDash || newContainsDash))
-								insert(2, '-')
-						}.toString()
+				else -> {
+					// An @ means an email (autofill, paste): the mask would discard it, so it goes
+					// through whole and the owner switches the mode, which this field then adopts.
+					val edited = when {
+						identifierMode == SignInIdentifierMode.UsbId && '@' !in newValue.text ->
+							newValue.toMaskedUsbId(previous = field.value)
+
+						else -> newValue
 					}
 
-				SignInIdentifierMode.UsbEmail -> newValue.text
-			}
-
-			if (identifierMode == SignInIdentifierMode.UsbEmail || s.length <= USB_ID_MAX_DIGITS + 1) {
-				textField.value = TextFieldValue(
-					text = s,
-					selection = TextRange(s.length)
-				)
-				supportingText.value = null
-				onUsbIdChange(textField.value.text)
+					if (field.edit(edited)) {
+						onUsbIdChange(edited.text)
+					}
+				}
 			}
 		},
-		isError = supportingText.value != null,
-			supportingText = {
-				val text = supportingText.value
-
-				if (text != null) Text(text)
-			},
+		isError = isError || error != null,
+		supportingText = { if (error != null) Text(error) },
 		label = { Text(text = labelText) },
 		placeholder = { Text(text = placeholderText) },
 		leadingIcon = {
@@ -152,6 +135,7 @@ fun UsbIdTextField(
 			}
 		},
 		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.None,
 			autoCorrectEnabled = false,
 			imeAction = ImeAction.Next,
 			keyboardType = when (identifierMode) {

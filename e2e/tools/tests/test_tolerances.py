@@ -1,0 +1,137 @@
+"""What the drivers tolerate (B-7): counted from driver.log per attempt, per scenario and per run, and shown in the manifest and the summary."""
+
+import json
+import os
+import unittest
+
+import support
+from support import TESTS, Workspace, scenario, text
+from harness import proc, tolerances
+
+LOGS = os.path.join(TESTS, "fixtures", "driver-logs")
+
+
+def fixture(name):
+    return text(os.path.join(LOGS, name))
+
+
+class CountTests(unittest.TestCase):
+    def test_ios_reads_the_final_summary_line_and_accepts_keys_it_does_not_know(self):
+        self.assertEqual(tolerances.count(fixture("ios.log")), {"dismissed-alert": 2, "future-kind": 1})
+
+    def test_ios_zeros_are_not_tolerances(self):
+        self.assertEqual(tolerances.count(fixture("ios-quiet.log")), {})
+
+    def test_ios_without_the_summary_counts_the_lines_so_a_killed_run_still_shows_them(self):
+        self.assertEqual(tolerances.count(fixture("ios-unfinished.log")), {"dismissed-alert": 1, "future-kind": 2})
+
+    def test_android_counts_the_requests_to_bring_the_app_back_and_the_failure_to_do_it(self):
+        self.assertEqual(tolerances.count(fixture("android.log")), {
+            "foreground-request": 2, "foreground-not-in-front": 1, "keyboard-taken-as-hidden": 1, "keyboard-unreadable": 2})
+
+    def test_the_guard_counts_each_touch_it_let_through_on_a_guess_and_not_the_ones_it_decided_with_a_reading(self):
+        # ZB-5: a keyboard taken as hidden after the wait and a window list that could not be read are tolerances of their own;
+        # a keyboard the input method said was hidden (no wait) or a listing that came are plain lines of the log, not tolerances.
+        # YB-9: the driver writes the two through the funnel `DriverLog.tolerate`, so what is counted is the marker, in any position of the
+        # line, and not a phrase the Kotlin code could rewrite.
+        log = "\n".join((
+            "10:00:00.000 guard: tap on tag:a: a text field has the focus and the input method says the keyboard is hidden; not waited for",
+            "10:00:00.100 guard: tap on tag:a: a text field has the focus, no keyboard window was listed and the input method says shown; the keyboard was listed after 400 ms",
+            "10:00:00.200 [tolerance] keyboard-taken-as-hidden tap on tag:a: the keyboard was never listed in 1500 ms",
+            "10:00:00.300 [tolerance] keyboard-unreadable swipe from the screen: the keyboard windows could not be read",
+        ))
+        self.assertEqual(tolerances.count(log), {"keyboard-taken-as-hidden": 1, "keyboard-unreadable": 1})
+
+    def test_a_phrase_without_the_marker_is_not_a_tolerance_whatever_it_says(self):
+        # YB-9: the old phrases no longer count; only a line the funnel marked does, so rewriting the text of a message cannot hide one.
+        log = "10:00:00.200 guard: tap on tag:a: the keyboard was never listed in 1500 ms, taken as hidden\n" \
+              "10:00:00.300 foreground: 'x' is in front, request 1 to bring the app back\n"
+        self.assertEqual(tolerances.count(log), {})
+
+    def test_a_refusal_is_a_line_with_the_marker_counted_by_the_first_word_of_its_reason(self):
+        # Both drivers write every refusal through one funnel that adds the marker and puts the primitive first (tap, tapAt, typeKeys,
+        # guard for the keyboard guard...), so the key is the primitive whatever the target or the reason says; a "[driver]" prefix, which
+        # the iOS driver used to add, is not the word.
+        self.assertEqual(tolerances.refusals(fixture("android.log")),
+            {"tap-refused": 1, "tapAt-refused": 1, "guard-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
+        self.assertEqual(tolerances.refusals(fixture("ios-refusal.log")),
+            {"tap-refused": 1, "guard-refused": 1, "typeKeys-refused": 1, "submitTextEntry-refused": 1})
+        self.assertEqual(tolerances.refusals("[refusal] [driver] foreground: the app is not running\n"), {"foreground-refused": 1})
+        self.assertEqual(tolerances.count(fixture("ios-refusal.log")), {"dismissed-alert": 1})
+        self.assertEqual(tolerances.refusals(fixture("ios-unfinished.log")), {})
+        self.assertEqual(tolerances.refusals(""), {})
+
+    def test_a_line_that_only_says_refused_without_the_marker_is_not_a_refusal(self):
+        self.assertEqual(tolerances.refusals("10:00:00.000 tag:x: not on screen; gesture refused\n[driver] Tap: tap refused\n"), {})
+
+    def test_android_without_a_tolerance_is_empty_and_so_is_nothing(self):
+        self.assertEqual(tolerances.count(fixture("android-quiet.log")), {})
+        self.assertEqual(tolerances.count(""), {})
+
+    def test_only_the_end_of_a_big_file_is_read(self):
+        path = os.path.join(support.tempfile.mkdtemp(prefix="e2e-tail-"), "log")
+        self.addCleanup(support.shutil.rmtree, os.path.dirname(path), True)
+        with open(path, "w") as handle:
+            handle.write("0123456789" * 10)
+        self.assertEqual(proc.tail_text(path, 15), "56789" + "0123456789")
+        self.assertEqual(proc.tail_text(path, 1000), "0123456789" * 10)
+        self.assertEqual(proc.tail_text("/nonexistent/log", 15), "")
+
+    def test_the_sum_of_counts(self):
+        self.assertEqual(tolerances.merge({"a": 1}, {"a": 2, "b": 1}, {}), {"a": 3, "b": 1})
+
+
+class RunTests(unittest.TestCase):
+    def test_the_attempt_the_scenario_and_the_run_carry_the_counts(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "ios.log"}]}})
+        result = ws.evidence()
+        self.assertEqual(result.code, 0, result.out)
+        expected = {"dismissed-alert": 2, "future-kind": 1}
+        manifest = ws.manifest()
+        self.assertEqual(manifest["attempts"][0]["tolerances"], expected)
+        self.assertEqual(manifest["attempts"][1]["tolerances"], {}, "no driver.log: an empty object, not an absent key")
+        self.assertEqual({r["id"]: r["tolerances"] for r in manifest["results"]}, {"fix-a": expected, "fix-b": {}})
+        self.assertEqual(manifest["tolerances"], expected)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["tolerances"], expected)
+        summary = text(os.path.join(ws.run_dirs()[-1], "summary.txt"))
+        self.assertIn("tolerances: %s" % json.dumps(expected, sort_keys=True), summary)
+
+    def test_a_run_without_tolerances_says_so_with_an_empty_object(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        self.assertEqual(ws.evidence().code, 0)
+        self.assertEqual(ws.manifest()["tolerances"], {})
+        self.assertIn("tolerances: {}", text(os.path.join(ws.run_dirs()[-1], "summary.txt")))
+
+    def test_only_an_attempt_that_passed_tolerated_anything_while_every_attempt_counts_its_refusals(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [
+            {"do": "fail:assertion", "driverlog": "ios-refusal.log"}, {"do": "pass", "driverlog": "ios-refusal.log"}]}})
+        result = ws.evidence()
+        self.assertEqual(result.code, 0, result.out)
+        manifest = ws.manifest()
+        self.assertEqual(manifest["tolerances"], {"dismissed-alert": 1}, "what a failed attempt put up with is not a tolerance")
+        self.assertEqual([a["tolerances"] for a in manifest["attempts"]], [{}, {"dismissed-alert": 1}])
+        each = {"tap-refused": 1, "guard-refused": 1, "typeKeys-refused": 1, "submitTextEntry-refused": 1}
+        self.assertEqual(manifest["refusals"], {key: 2 * n for key, n in each.items()})
+        self.assertEqual([a["refusals"] for a in manifest["attempts"]], [each] * 2)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["refusals"], each)
+        self.assertIn("refusals: %s" % json.dumps(manifest["refusals"], sort_keys=True), text(os.path.join(ws.run_dirs()[-1], "summary.txt")))
+
+    def test_the_log_says_the_tolerances_of_the_run_when_there_are_any(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "ios.log"}]}})
+        result = ws.evidence()
+        self.assertIn("TOLERANCES dismissed-alert=2 future-kind=1", result.out)
+        quiet = Workspace(self, [scenario("fix-a")])
+        self.assertNotIn("TOLERANCES", quiet.evidence().out)
+
+    def test_android_logs_are_read_the_same_way(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": [{"do": "pass", "driverlog": "android.log"}]}})
+        self.assertEqual(ws.evidence("android").code, 0)
+        manifest = ws.manifest()
+        self.assertEqual(manifest["tolerances"],
+            {"foreground-request": 2, "foreground-not-in-front": 1, "keyboard-taken-as-hidden": 1, "keyboard-unreadable": 2})
+        self.assertEqual(manifest["refusals"],
+            {"tap-refused": 1, "tapAt-refused": 1, "guard-refused": 1, "typeKeys-refused": 2, "pressBack-refused": 1})
+
+
+if __name__ == "__main__":
+    unittest.main()

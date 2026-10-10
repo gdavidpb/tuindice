@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.data.source
 
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailableModalities
@@ -31,7 +32,7 @@ class PensumDataSource(
 	private val remoteDataRepository: PensumRemoteDataRepository,
 	private val pensumStatusEngine: PensumStatusEngine,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository
-) : PensumRepository, PensumRevalidationRepository {
+) : PensumRepository, PensumRevalidationRepository, SessionMemory {
 	// Every remote read-then-persist runs under this lock: a revalidation that lands after the
 	// student switched pensum would otherwise write back the selection they just left.
 	private val remoteWriteMutex = Mutex()
@@ -39,6 +40,13 @@ class PensumDataSource(
 	// When the last automatic revalidation failed; the next one waits COOLDOWN_RETRY_PENSUM. In
 	// memory on purpose: a fresh process is a fair moment to try again. Guarded by remoteWriteMutex.
 	private var lastRevalidationFailureAt: Long? = null
+
+	// The hold belongs to the account whose revalidation failed; the next one starts without it.
+	// Not under remoteWriteMutex: a request made while holding it can end the session, and the
+	// wipe would then wait for its own caller.
+	override suspend fun clearSessionMemory() {
+		lastRevalidationFailureAt = null
+	}
 
 	override fun observePensumFlow(): Flow<PensumObservation> {
 		return combine(

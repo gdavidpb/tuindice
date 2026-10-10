@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
@@ -60,9 +61,16 @@ import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.binds
 import org.koin.dsl.module
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 val commonModule = module {
+	// What "now" is for the dates the app shows (academic terms); debug builds rebind it to a clock the
+	// E2E launch arguments can freeze. Expiry, cooldowns and timers read the system time directly.
+	single<Clock> { Clock.System }
 	singleOf(::createSharedJson)
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
@@ -70,7 +78,10 @@ val commonModule = module {
 	single { SessionCoroutineScope(dispatchers = get()) }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
-	singleOf(::UsageDataConsentSettingsDataSource) { bind<UsageDataConsentRepository>() }
+	singleOf(::UsageDataConsentSettingsDataSource) {
+		bind<UsageDataConsentRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
 	single<EventPublisher> {
 		BufferedEventPublisher(
@@ -80,7 +91,10 @@ val commonModule = module {
 		)
 	}
 
-	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataRepository>() }
+	singleOf(::InMemorySessionDataSource) {
+		bind<MemorySessionDataRepository>()
+		bind<SessionMemory>()
+	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {
 		KSafeLegacySecureKeyValueDataSource(kSafe = get())
 	}
@@ -93,22 +107,28 @@ val commonModule = module {
 	}
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
-	singleOf(::SessionRecoveryDataSource) { bind<SessionRecoveryRepository>() }
+	singleOf(::SessionRecoveryDataSource) {
+		bind<SessionRecoveryRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::OutdatedAppEventDataSource) { bind<OutdatedAppEventRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataRepository>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataRepository>() }
 	singleOf(::MessagingDataSource) { bind<MessagingRepository>() }
 
-	single<CredentialsRepository> {
+	single {
 		CredentialsDataSource(
 			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
 			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER))
 		)
-	}
+	} binds arrayOf(CredentialsRepository::class, SessionMemory::class)
 	singleOf(::PendingChangesDataSource) { bind<PendingChangesRepository>() }
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataRepository>() }
-	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }
+	singleOf(::SyncStatusSettingsDataSource) {
+		bind<SyncStatusRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
 	singleOf(::SyncResultLocalDataSource) { bind<SyncResultLocalDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }

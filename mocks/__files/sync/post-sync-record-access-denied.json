@@ -1,0 +1,15 @@
+{
+  "message": "DST denied access to the record.",
+  "reason": "DST_RECORD_ACCESS_DENIED",
+  "sync": {
+    "status": "failed",
+    "sources": {
+      "record": {
+        "status": "unavailable"
+      },
+      "enrollment": {
+        "status": "not_attempted"
+      }
+    }
+  }
+}

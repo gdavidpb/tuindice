@@ -5,7 +5,11 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 sealed interface GetEvaluations {
 	data object WaitingForRecordData : GetEvaluations
 
-	data object RecordDataUnavailable : GetEvaluations
+	// isNewStudentNoRecord: the record is missing because the university has none for this
+	// account yet, not because the sync broke.
+	data class RecordDataUnavailable(
+		val isNewStudentNoRecord: Boolean = false
+	) : GetEvaluations
 
 	data class NoAttempts(
 		val reason: EvaluationsNoAttemptsReason
@@ -17,9 +21,4 @@ sealed interface GetEvaluations {
 		val displayContext: EvaluationDisplayContext,
 		val selectedWeekKey: String?
 	) : GetEvaluations
-}
-
-enum class EvaluationsNoAttemptsReason {
-	NoCurrentTerm,
-	EnrollmentUnavailable
 }

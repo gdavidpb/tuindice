@@ -16,6 +16,12 @@ internal suspend fun FetchEnrollmentProofUseCaseError?.toErrorMessage(
 		is FetchEnrollmentProofUseCaseError.NotFound ->
 			textProvider.enrollmentNotFound()
 
+		is FetchEnrollmentProofUseCaseError.EnrollmentAnnulled ->
+			textProvider.enrollmentAnnulled()
+
+		is FetchEnrollmentProofUseCaseError.NotEnrolled ->
+			textProvider.notEnrolled()
+
 		is FetchEnrollmentProofUseCaseError.UnsupportedFile ->
 			textProvider.enrollmentUnsupported()
 
@@ -27,5 +33,16 @@ internal suspend fun FetchEnrollmentProofUseCaseError?.toErrorMessage(
 
 		else ->
 			textProvider.defaultError()
+	}
+}
+
+// There is nothing to try again when the university says there is no proof to give.
+internal fun FetchEnrollmentProofUseCaseError?.canRetry(): Boolean {
+	return when (this) {
+		is FetchEnrollmentProofUseCaseError.NotFound,
+		is FetchEnrollmentProofUseCaseError.EnrollmentAnnulled,
+		is FetchEnrollmentProofUseCaseError.NotEnrolled -> false
+
+		else -> true
 	}
 }

@@ -14,8 +14,8 @@ enum TuIndiceDebugRuntimeOverrides {
     }
 
     static func webUrl(for resource: WebResource) -> String? {
-        #if DEBUG
-        guard let webBaseUrl = launchArgumentString(for: webBaseUrlKey) else { return nil }
+        #if DEBUG && (canImport(maincore) || canImport(Maincore))
+        guard let webBaseUrl = launchArguments.webBaseUrl else { return nil }
         return "\(webBaseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")))/\(resource.path)"
         #else
         _ = resource
@@ -24,72 +24,27 @@ enum TuIndiceDebugRuntimeOverrides {
     }
 
     static func apiBaseUrl() -> String? {
-        #if DEBUG
-        return launchArgumentString(for: apiBaseUrlKey)
+        #if DEBUG && (canImport(maincore) || canImport(Maincore))
+        return launchArguments.apiBaseUrl
         #else
         return nil
         #endif
     }
 
     static func networkAvailabilityOverride() -> Bool? {
-        #if DEBUG
-        guard let rawValue = launchArgumentString(for: networkAvailabilityKey) else { return nil }
-
-        switch rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "true", "1", "yes":
-            return true
-        case "false", "0", "no":
-            return false
-        default:
-            return nil
-        }
+        #if DEBUG && (canImport(maincore) || canImport(Maincore))
+        return launchArguments.networkAvailable?.boolValue
         #else
         return nil
         #endif
     }
 
     #if canImport(maincore) || canImport(Maincore)
-    static func configureRemoteConfigOverridesIfNeeded(
-        appBootstrap: IosAppHostBootstrap
-    ) {
+    static func applyLaunchArguments(appBootstrap: IosAppHostBootstrap) {
         #if DEBUG
-        guard let rawEnabled = launchArgumentString(for: availabilityNoticeEnabledKey) else { return }
-        let enabled = ["true", "1", "yes"].contains(rawEnabled.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
-
-        appBootstrap.setDebugAppAvailabilityNoticeOverride(
-            enabled: enabled,
-            title: launchArgumentString(for: availabilityNoticeTitleKey) ?? "",
-            message: launchArgumentString(for: availabilityNoticeMessageKey) ?? ""
-        )
+        appBootstrap.applyDebugLaunchArguments(arguments: launchArguments)
         #else
         _ = appBootstrap
-        #endif
-    }
-
-    static func runStartupHooksIfNeeded(
-        appBootstrap: IosAppHostBootstrap,
-        apiBaseUrl: String
-    ) {
-        #if DEBUG
-        guard let rawSeedState = launchArgumentString(for: seedStateKey) else { return }
-        let seedState = rawSeedState.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard seedState.isEmpty == false else { return }
-
-        let mainSectionName = launchArgumentString(for: mainSectionKey) ?? "SUMMARY"
-
-        seedWireMockTokensIssuedState(apiBaseUrl: apiBaseUrl)
-        switch seedState {
-        case "authenticatedCoachmarksSeen":
-            appBootstrap.runAuthenticatedCoachmarksSeenStartupHook(mainSectionName: mainSectionName)
-        case "authenticatedCoachmarksPending":
-            appBootstrap.runAuthenticatedCoachmarksPendingStartupHook(mainSectionName: mainSectionName)
-        default:
-            fatalError("Unsupported debug startup hook: \(seedState)")
-        }
-        #else
-        _ = appBootstrap
-        _ = apiBaseUrl
         #endif
     }
     #endif
@@ -97,78 +52,26 @@ enum TuIndiceDebugRuntimeOverrides {
 
 #if DEBUG
 private extension TuIndiceDebugRuntimeOverrides {
-    static let apiBaseUrlKey = "TUINDICE_E2E_API_BASE_URL"
-    static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
-    static let networkAvailabilityKey = "TUINDICE_E2E_NETWORK_AVAILABLE"
-    static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
-    static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
-    static let availabilityNoticeEnabledKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
-    static let availabilityNoticeTitleKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
-    static let availabilityNoticeMessageKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
-
-    static func launchArgumentString(for key: String) -> String? {
-        if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {
-            return value
-        }
-
-        if let value = launchArgumentValue(for: key), value.isEmpty == false {
-            return value
-        }
-
-        if let value = UserDefaults.standard.string(forKey: key), value.isEmpty == false {
-            return value
-        }
-
-        return nil
-    }
-
-    static func launchArgumentValue(for key: String) -> String? {
+    #if canImport(maincore) || canImport(Maincore)
+    /// Every launch value under the shared prefix, parsed once by the Kotlin definition.
+    /// The key names live only there; the environment wins over `-KEY value` argument pairs.
+    static let launchArguments: DebugLaunchArguments = {
+        let prefix = DebugLaunchArguments.companion.PREFIX
+        var values: [String: String] = [:]
         let arguments = ProcessInfo.processInfo.arguments
-        guard let keyIndex = arguments.firstIndex(of: "-\(key)") else {
-            return nil
+
+        for (index, argument) in arguments.enumerated()
+        where argument.hasPrefix("-\(prefix)") && index + 1 < arguments.count {
+            values[String(argument.dropFirst())] = arguments[index + 1]
         }
 
-        let valueIndex = arguments.index(after: keyIndex)
-        guard valueIndex < arguments.endIndex else {
-            return nil
+        for (key, value) in ProcessInfo.processInfo.environment where key.hasPrefix(prefix) {
+            values[key] = value
         }
 
-        return arguments[valueIndex]
-    }
-
-    static func seedWireMockTokensIssuedState(apiBaseUrl: String) {
-        let adminUrl = "\(apiBaseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")))/__admin/scenarios/login-token-lifecycle/state"
-        guard let url = URL(string: adminUrl) else {
-            fatalError("Invalid WireMock admin URL: \(adminUrl)")
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = #"{"state":"TokensIssued"}"#.data(using: .utf8)
-
-        let semaphore = DispatchSemaphore(value: 0)
-        var requestError: Error?
-        var responseStatusCode = 0
-
-        URLSession.shared.dataTask(with: request) { _, response, error in
-            requestError = error
-            responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            semaphore.signal()
-        }.resume()
-
-        guard semaphore.wait(timeout: .now() + 5) == .success else {
-            fatalError("Timed out seeding WireMock login-token-lifecycle scenario.")
-        }
-
-        if let requestError {
-            fatalError("Failed to seed WireMock login-token-lifecycle scenario: \(requestError)")
-        }
-
-        guard (200...299).contains(responseStatusCode) else {
-            fatalError("WireMock scenario seed failed with HTTP \(responseStatusCode).")
-        }
-    }
+        return DebugLaunchArguments.companion.parse(values: values)
+    }()
+    #endif
 }
 
 private extension TuIndiceDebugRuntimeOverrides.WebResource {

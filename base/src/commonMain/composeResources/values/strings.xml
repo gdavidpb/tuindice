@@ -7,4 +7,74 @@
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>
 	<string name="snack_unexpected_error">Ocurrió un error inesperado</string>
+	<string name="enrollment_annulled_provisional_title">Tu inscripción aparece anulada</string>
+	<string name="enrollment_annulled_provisional_message">Anulada %1$s. Consulta en DACE.</string>
+	<string name="enrollment_annulled_provisional_message_generic">Consulta en DACE para regularizarla.</string>
+	<string name="enrollment_annulled_final_title">Tu inscripción fue anulada</string>
+	<string name="enrollment_annulled_final_message">Anulada %1$s. Consulta en DACE.</string>
+	<string name="enrollment_annulled_final_message_generic">Consulta en DACE para regularizarla.</string>
+	<string name="new_student_no_record_title">Aún no tienes expediente</string>
+	<string name="new_student_no_record_message">Si eres nuevo ingreso, es normal. Vuelve en unos días.</string>
+	<string name="enrollment_annulled_cause_credit_limit">por el límite de créditos</string>
+	<string name="enrollment_annulled_cause_academic_index">por tu índice académico</string>
+	<string name="enrollment_annulled_cause_withdrawal_rule">por la norma de retiros</string>
+	<string name="enrollment_annulled_cause_probation">por estar en período de prueba</string>
+	<string name="enrollment_annulled_cause_permanence_rule">por el reglamento de permanencia</string>
+	<string-array name="date_month_names">
+		<item>enero</item>
+		<item>febrero</item>
+		<item>marzo</item>
+		<item>abril</item>
+		<item>mayo</item>
+		<item>junio</item>
+		<item>julio</item>
+		<item>agosto</item>
+		<item>septiembre</item>
+		<item>octubre</item>
+		<item>noviembre</item>
+		<item>diciembre</item>
+	</string-array>
+	<string-array name="date_month_short_names">
+		<item>ene</item>
+		<item>feb</item>
+		<item>mar</item>
+		<item>abr</item>
+		<item>may</item>
+		<item>jun</item>
+		<item>jul</item>
+		<item>ago</item>
+		<item>sep</item>
+		<item>oct</item>
+		<item>nov</item>
+		<item>dic</item>
+	</string-array>
+	<string-array name="date_weekday_names">
+		<item>lunes</item>
+		<item>martes</item>
+		<item>miércoles</item>
+		<item>jueves</item>
+		<item>viernes</item>
+		<item>sábado</item>
+		<item>domingo</item>
+	</string-array>
+	<string-array name="date_weekday_short_names">
+		<item>lun</item>
+		<item>mar</item>
+		<item>mié</item>
+		<item>jue</item>
+		<item>vie</item>
+		<item>sáb</item>
+		<item>dom</item>
+	</string-array>
+	<string name="date_time">%1$s:%2$s %3$s</string>
+	<string name="date_time_am">a. m.</string>
+	<string name="date_time_pm">p. m.</string>
+	<string name="date_today_time">Hoy, %1$s</string>
+	<string name="date_yesterday_time">Ayer, %1$s</string>
+	<string name="date_weekday_time">%1$s, %2$s</string>
+	<string name="date_day_month_year">%1$s de %2$s %3$s</string>
+	<string name="date_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
+	<string name="date_short_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
+	<string name="date_day_short_month">%1$s %2$s.</string>
+	<string name="date_month_year">%1$s %2$s</string>
 </resources>

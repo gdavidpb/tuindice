@@ -1,26 +1,35 @@
 package com.gdavidpb.tuindice.auth.presentation.route
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
-import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import androidx.compose.ui.test.performTextReplacement
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -31,13 +40,19 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
+import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -199,6 +214,46 @@ class SignInRouteUiTest {
 		assertEquals("1234", fixture.authRepository.bootstrapSignInCalls.single().password)
 	}
 
+	// Autofill hands a saved email over in one change while the field is still in USB ID mode.
+	@Test
+	fun when_autofillDeliversAnEmailInUsbIdMode_then_theModeBecomesEmailAndSignInUsesTheEmail() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+		var summaryNavigations = 0
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextReplacement("mail@usb.ve")
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("1234")
+		waitForIdle()
+
+		runOnIdle {
+			val state = assertIs<SignIn.State.Idle>(fixture.viewModel.state.value)
+			assertEquals(SignInIdentifierMode.UsbEmail, state.identifierMode)
+			assertEquals("mail@usb.ve", state.usbId)
+			assertEquals("1234", state.password)
+		}
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("mail@usb.ve")
+		assertNodeEnabled(AuthUiTags.SignInButton)
+
+		onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			summaryNavigations > 0 &&
+				fixture.authRepository.bootstrapSignInCalls.isNotEmpty()
+		}
+
+		assertEquals("mail", fixture.authRepository.bootstrapSignInCalls.single().usbId)
+	}
+
 	@Test
 	fun when_emailValueReturnsToUsbIdMode_then_identifierIsCleared() = runTuIndiceUiTest {
 		val fixture = createSignInViewModel(
@@ -255,18 +310,123 @@ class SignInRouteUiTest {
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
+	// The verdict stays on the screen: both fields in error and the message under the password, no snackbar.
 	@Test
-	fun when_signInFailsWithInvalidCredentials_then_showsSnackBarWithoutSummaryNavigation() = runTuIndiceUiTest {
+	fun when_signInFailsWithInvalidCredentials_then_marksTheFieldsAndShowsTheMessageWithoutSnackBar() =
+		runTuIndiceUiTest {
+			val fixture = createSignInViewModel(
+				termsAndConditionsUrl = "https://tuindice.test/terms",
+				signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
+			)
+			var summaryNavigations = 0
+			val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+			setTuIndiceTestContent {
+				SignInRoute(
+					onNavigateToSummary = { summaryNavigations++ },
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> shownSnackBars += message },
+					viewModel = fixture.viewModel
+				)
+			}
+
+			runOnIdle {
+				fixture.viewModel.setUsbIdAction("12-34567")
+				fixture.viewModel.setPasswordAction("clave-invalida")
+				fixture.viewModel.signInAction()
+			}
+
+			assertNodeVisible(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+			waitForIdle()
+
+			onNodeWithTag(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+				.assertTextEquals("Revisa tu USBID y contraseña")
+			assertTrue(onNodeWithTag(AuthUiTags.UsbIdTextField).hasError())
+			assertTrue(onNodeWithTag(AuthUiTags.PasswordTextField).hasError())
+			assertEquals(0, summaryNavigations)
+			assertTrue(shownSnackBars.isEmpty())
+		}
+
+	// Nothing typed is wrong: the fields stay as they are and the message is fixed under the button.
+	@Test
+	fun when_signInFailsWithADisabledAccount_then_showsTheSupportMessageUnderTheButtonWithoutSnackBar() =
+		runTuIndiceUiTest {
+			val fixture = createSignInViewModel(
+				termsAndConditionsUrl = "https://tuindice.test/terms",
+				signInThrowable = clientRequestException(HttpStatusCode.Locked, path = "/auth/v1/token")
+			)
+			val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+			setTuIndiceTestContent {
+				SignInRoute(
+					onNavigateToSummary = {},
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> shownSnackBars += message },
+					viewModel = fixture.viewModel
+				)
+			}
+
+			runOnIdle {
+				fixture.viewModel.setUsbIdAction("12-34567")
+				fixture.viewModel.setPasswordAction("clave-correcta")
+				fixture.viewModel.signInAction()
+			}
+
+			assertNodeVisible(AuthUiTags.SignInRejectedMarker)
+			waitForIdle()
+
+			val supportEmail = FakeConfigRepository().getContactEmail()
+			onNodeWithTag(AuthUiTags.SignInRejectedMarker)
+				.assertTextEquals("Cuenta inhabilitada. Escríbenos a $supportEmail para recuperarla.")
+			assertFalse(onNodeWithTag(AuthUiTags.UsbIdTextField).hasError())
+			assertFalse(onNodeWithTag(AuthUiTags.PasswordTextField).hasError())
+			assertTrue(shownSnackBars.isEmpty())
+		}
+
+	@Test
+	fun when_signInFailsWithAnUntrustedDevice_then_showsTheSupportMessageUnderTheButtonWithoutSnackBar() =
+		runTuIndiceUiTest {
+			val fixture = createSignInViewModel(
+				termsAndConditionsUrl = "https://tuindice.test/terms",
+				signInThrowable = clientRequestException(HttpStatusCode.Forbidden, path = "/auth/v1/token")
+			)
+			val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+			setTuIndiceTestContent {
+				SignInRoute(
+					onNavigateToSummary = {},
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> shownSnackBars += message },
+					viewModel = fixture.viewModel
+				)
+			}
+
+			runOnIdle {
+				fixture.viewModel.setUsbIdAction("12-34567")
+				fixture.viewModel.setPasswordAction("clave-correcta")
+				fixture.viewModel.signInAction()
+			}
+
+			assertNodeVisible(AuthUiTags.SignInRejectedMarker)
+			waitForIdle()
+
+			val supportEmail = FakeConfigRepository().getContactEmail()
+			onNodeWithTag(AuthUiTags.SignInRejectedMarker).assertTextContains(supportEmail, substring = true)
+			assertTrue(shownSnackBars.isEmpty())
+		}
+
+	// Throttling is not a verdict on the credentials: it keeps its snackbar and marks nothing.
+	@Test
+	fun when_signInIsThrottled_then_keepsItsSnackBarAndLeavesNoSignalOnTheForm() = runTuIndiceUiTest {
 		val fixture = createSignInViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
-			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
+			signInThrowable = clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v1/token")
 		)
-		var summaryNavigations = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SignInRoute(
-				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToSummary = {},
 				onNavigateToBrowser = { _, _ -> },
 				showSnackBar = { message -> shownSnackBars += message },
 				viewModel = fixture.viewModel
@@ -275,19 +435,17 @@ class SignInRouteUiTest {
 
 		runOnIdle {
 			fixture.viewModel.setUsbIdAction("12-34567")
-			fixture.viewModel.setPasswordAction("clave-invalida")
+			fixture.viewModel.setPasswordAction("clave-correcta")
 			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
 			shownSnackBars.isNotEmpty()
 		}
+		waitForIdle()
 
-		val snackBar = shownSnackBars.first()
-		assertEquals(0, summaryNavigations)
-		assertEquals("Revisa tu USBID y contraseña", snackBar.message)
-		assertTrue(snackBar.message.isNotBlank())
-		assertTrue(snackBar.onAction == null || snackBar.actionLabel.isNullOrBlank().not())
+		assertNodeHidden(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+		assertFalse(onNodeWithTag(AuthUiTags.PasswordTextField).hasError())
 	}
 
 	@Test
@@ -326,37 +484,39 @@ class SignInRouteUiTest {
 	}
 
 	@Test
-	fun when_emailSignInFailsWithInvalidCredentials_then_showsEmailSpecificSnackBar() = runTuIndiceUiTest {
-		val fixture = createSignInViewModel(
-			termsAndConditionsUrl = "https://tuindice.test/terms",
-			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
-		)
-		var summaryNavigations = 0
-		val shownSnackBars = mutableListOf<SnackBarMessage>()
-
-		setTuIndiceTestContent {
-			SignInRoute(
-				onNavigateToSummary = { summaryNavigations++ },
-				onNavigateToBrowser = { _, _ -> },
-				showSnackBar = { message -> shownSnackBars += message },
-				viewModel = fixture.viewModel
+	fun when_emailSignInFailsWithInvalidCredentials_then_showsTheEmailSpecificMessageWithoutSnackBar() =
+		runTuIndiceUiTest {
+			val fixture = createSignInViewModel(
+				termsAndConditionsUrl = "https://tuindice.test/terms",
+				signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
 			)
-		}
+			var summaryNavigations = 0
+			val shownSnackBars = mutableListOf<SnackBarMessage>()
 
-		runOnIdle {
-			fixture.viewModel.toggleIdentifierModeAction()
-			fixture.viewModel.setUsbIdAction("mail@usb.ve")
-			fixture.viewModel.setPasswordAction("clave-invalida")
-			fixture.viewModel.signInAction()
-		}
+			setTuIndiceTestContent {
+				SignInRoute(
+					onNavigateToSummary = { summaryNavigations++ },
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> shownSnackBars += message },
+					viewModel = fixture.viewModel
+				)
+			}
 
-		waitUntil(timeoutMillis = 2_000) {
-			shownSnackBars.isNotEmpty()
-		}
+			runOnIdle {
+				fixture.viewModel.toggleIdentifierModeAction()
+				fixture.viewModel.setUsbIdAction("mail@usb.ve")
+				fixture.viewModel.setPasswordAction("clave-invalida")
+				fixture.viewModel.signInAction()
+			}
 
-		assertEquals(0, summaryNavigations)
-		assertEquals("Revisa tu correo USB y contraseña", shownSnackBars.first().message)
-	}
+			assertNodeVisible(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+			waitForIdle()
+
+			onNodeWithTag(AuthUiTags.SignInRejectedMarker, useUnmergedTree = true)
+				.assertTextEquals("Revisa tu correo USB y contraseña")
+			assertEquals(0, summaryNavigations)
+			assertTrue(shownSnackBars.isEmpty())
+		}
 
 	@Test
 	fun when_signInFailsWithConnection_then_retrySnackBarActionRetriesSignIn() = runTuIndiceUiTest {
@@ -402,15 +562,88 @@ class SignInRouteUiTest {
 		assertTrue(shownSnackBars.size >= 2)
 	}
 
+	@Test
+	fun when_signInFailsWithTooManyRequests_then_itIsNeverShownAsWrongCredentials() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v2/bootstrap")
+		)
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			shownSnackBars.isNotEmpty()
+		}
+
+		val message = shownSnackBars.first()
+		assertTrue("contraseña" !in message.message, "A 429 is not a wrong password: ${message.message}")
+		assertNull(message.onAction)
+	}
+
+	@Test
+	fun when_theServiceAskedForAWait_then_signInWaitsWithoutASnackBarAndComesBack() = runTuIndiceUiTest {
+		val retryWindow = FakeAuthRetryWindowRepository(signInWaitMillis = 400L)
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 400L),
+			retryWindow = retryWindow
+		)
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isNotEmpty()
+		}
+
+		assertNodeDisabled(AuthUiTags.SignInButton)
+		assertTrue(shownSnackBars.isEmpty())
+
+		waitUntil(timeoutMillis = 4_000) {
+			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isEmpty()
+		}
+
+		assertNodeEnabled(AuthUiTags.SignInButton)
+	}
+
 	private fun createSignInViewModel(
 		termsAndConditionsUrl: String,
 		privacyPolicyUrl: String = "https://tuindice.test/privacy",
 		signInThrowable: Throwable? = null,
-		networkAvailable: Boolean = true
+		networkAvailable: Boolean = true,
+		retryWindow: FakeAuthRetryWindowRepository = FakeAuthRetryWindowRepository()
 	): SignInRouteFixture {
 		val authRepository = RecordingAuthRepository(throwable = signInThrowable)
 		val signInUseCase = SignInUseCase(
 			authRepository = authRepository,
+			authRetryWindowRepository = retryWindow,
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -447,3 +680,6 @@ class SignInRouteUiTest {
 		)
 	}
 }
+
+private fun SemanticsNodeInteraction.hasError() =
+	fetchSemanticsNode().config.contains(SemanticsProperties.Error)

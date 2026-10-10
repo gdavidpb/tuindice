@@ -17,5 +17,8 @@ data class TermItem(
 	val isCurrent: Boolean,
 	val canDelete: Boolean,
 	val canEdit: Boolean,
-	val attempts: List<AttemptItem>
+	val attempts: List<AttemptItem>,
+	// The notice this term's page carries: only the current term has one, and only when it speaks
+	// of that term.
+	val notice: RecordNotice? = null
 )

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
@@ -17,11 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.formatMonthYear
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toCalendarGrid
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun EvaluationCalendarContent(
@@ -57,7 +62,7 @@ fun EvaluationCalendarContent(
 				modifier = Modifier
 					.testTag(EvaluationsUiTags.EvaluationCalendarMonthLabel)
 					.weight(1f),
-				text = displayedMonth.formatMonthYear(),
+				text = displayedMonth.formatMonthYear().asString(),
 				style = MaterialTheme.typography.titleMedium,
 				textAlign = TextAlign.Center
 			)
@@ -86,7 +91,7 @@ fun EvaluationCalendarContent(
 						modifier = Modifier.weight(1f),
 						date = date,
 						selectedDate = selectedDate,
-						today = currentEvaluationLocalDate(),
+						today = LocalTuIndiceClock.current.currentEvaluationLocalDate(),
 						isSelectable = date != null &&
 							(selectableRange == null || date in selectableRange),
 						onDateSelected = onDateSelected

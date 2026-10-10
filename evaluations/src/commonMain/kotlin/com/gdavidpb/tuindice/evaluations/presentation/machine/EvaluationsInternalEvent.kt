@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -13,10 +13,12 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 sealed interface EvaluationsInternalEvent {
 	data object EvaluationsWaitingObserved : EvaluationsInternalEvent
 
-	data object EvaluationsRecordDataUnavailableObserved : EvaluationsInternalEvent
+	data class EvaluationsRecordDataUnavailableObserved(
+		val explanation: EvaluationsExplanation
+	) : EvaluationsInternalEvent
 
 	data class EvaluationsNoAttemptsObserved(
-		val reason: EvaluationsNoAttemptsReason
+		val explanation: EvaluationsExplanation
 	) : EvaluationsInternalEvent
 
 	data class EvaluationsContentObserved(

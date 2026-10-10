@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -10,16 +11,22 @@ import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordOutboxDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
+import com.gdavidpb.tuindice.record.data.source.AcademicRecordOutboxDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.record.data.source.ScheduleClockDataSource
+import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationCaches
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
@@ -27,11 +34,14 @@ import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase
@@ -40,13 +50,16 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExcept
 import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermDraft
 import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
+import com.gdavidpb.tuindice.record.presentation.machine.ScheduleMachine
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
@@ -57,16 +70,21 @@ val recordModule = module {
 
 	viewModelOf(::RecordViewModel)
 	viewModelOf(::CreateSyntheticTermViewModel)
+	viewModelOf(::ScheduleViewModel)
 
 	/* Screen machines */
 
 	factoryOf(::RecordMachine)
 	factoryOf(::CreateSyntheticTermMachine)
+	factoryOf(::ScheduleMachine)
 	factoryOf(::CreateSyntheticTermDraft)
 
 	/* Use cases */
 
 	factoryOf(::ObserveRecordUseCase)
+	factoryOf(::ObserveNewStudentNoRecordUseCase)
+	factoryOf(::ObserveScheduleUseCase)
+	factoryOf(::SetScheduleViewModeUseCase)
 	factoryOf(::ObserveSyntheticTermRejectionsUseCase)
 	factoryOf(::EnsureRecordLoadedUseCase)
 	factoryOf(::UpdateRecordUseCase)
@@ -103,7 +121,7 @@ val recordModule = module {
 			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER)),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
-	}
+	} bind SessionMemory::class
 	single<AcademicRecordRepository> {
 		AcademicRecordDataSource(
 			localDataSource = get(),
@@ -113,6 +131,7 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
+	singleOf(::SyntheticTermCreationCaches)
 	singleOf(::SyntheticTermCreationDataSource) { bind<SyntheticTermCreationRepository>() }
 	singleOf(::SyntheticTermLoadPreviewDataSource) { bind<SyntheticTermLoadPreviewRepository>() }
 
@@ -121,9 +140,17 @@ val recordModule = module {
 	singleOf(::LocalSettingsDataSource) {
 		bind<RecordSettingsDataRepository>()
 		bind<RecordSelectionRepository>()
+		bind<ScheduleSelectionRepository>()
+		bind<SessionMemory>()
 	}
+	// Stateless: every schedule sheet gets its own ticker, which dies with it.
+	// Built by hand: its parameters are the device's clock and zone, defaults a test replaces.
+	factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
+	single<AcademicRecordOutboxDataRepository> {
+		AcademicRecordOutboxDataSource(mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)))
+	}
 
 	/* Exception handlers */
 

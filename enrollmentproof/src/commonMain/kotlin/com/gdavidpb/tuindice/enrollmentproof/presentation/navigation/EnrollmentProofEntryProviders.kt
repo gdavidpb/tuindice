@@ -14,8 +14,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EntryProviderScope<NavKey>.enrollmentProofEntries(
 	navActions: TuIndiceNavActions,
 	shellBindings: NavShellBindings,
-	onNavigateToUpdatePassword: () -> Unit,
-	onRetryRequest: () -> Unit
+	onNavigateToUpdatePassword: () -> Unit
 ) {
 	entry<EnrollmentProofDestination.EnrollmentProofDialog>(metadata = dialogMetadata()) {
 		val externalActions = koinInject<FileOpenerRepository>()
@@ -24,7 +23,11 @@ fun EntryProviderScope<NavKey>.enrollmentProofEntries(
 		EnrollmentProofRoute(
 			onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 			onDismissRequest = { navActions.pop() },
-			onRetryRequest = onRetryRequest,
+			/* The route pops this dialog as it reports the failure, so by the time the snackbar's
+			   retry is tapped the entry and its ViewModel are gone: pushing the key again is a fresh
+			   fetch. Popping first would not close the dialog, it would take the back step of
+			   whatever is on top, and at a tab root that step leaves for the start tab. */
+			onRetryRequest = { navActions.push(EnrollmentProofDestination.EnrollmentProofDialog) },
 			showSnackBar = shellBindings.showSnackBar,
 			externalActions = externalActions,
 			viewModel = viewModel

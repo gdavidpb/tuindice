@@ -11,23 +11,31 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.a11y_hide_password
 import tuindice.auth.generated.resources.a11y_show_password
 
+/**
+ * [isWaiting] is true while the owner of the state is busy (signing in, updating the password) and the
+ * view model drops the edits it receives. The field takes no edits then. A key typed just before the
+ * wait reaches the screen is shown but dropped, so the field readopts the state's text when the wait
+ * starts and when it ends. It changes nothing when no key was dropped.
+ */
 @Composable
 fun PasswordTextField(
 	modifier: Modifier = Modifier,
@@ -35,57 +43,41 @@ fun PasswordTextField(
 	password: String,
 	isPasswordVisible: Boolean = false,
 	enabled: Boolean = true,
+	isWaiting: Boolean,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit = {},
 	error: String? = null,
+	errorModifier: Modifier = Modifier,
+	isError: Boolean = false,
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val passwordField = remember {
-		mutableStateOf(
-			TextFieldValue(
-				text = password,
-				selection = TextRange(password.length)
-			)
-		)
-	}
-	val supportingText = remember { mutableStateOf(error) }
+	val field = remember { EditableTextFieldState(password, isWaiting) }
 
-	LaunchedEffect(password) {
-		if (passwordField.value.text != password) {
-			val selectionEnd = passwordField.value.selection.end.coerceAtMost(password.length)
-
-			passwordField.value = TextFieldValue(
-				text = password,
-				selection = TextRange(selectionEnd)
-			)
-		}
-	}
-
-	LaunchedEffect(error) {
-		supportingText.value = error
-	}
+	field.syncExternal(password, isWaiting)
 
 	OutlinedTextField(
-		modifier = modifier.testTag(AuthUiTags.PasswordTextField),
-		value = passwordField.value,
+		modifier = modifier
+			.testTag(AuthUiTags.PasswordTextField)
+			.semantics {
+				contentType = ContentType.Password
+
+				// The reason for the rejection, instead of the default text of Material ("Invalid input").
+				if (error != null) error(error)
+			},
+		value = field.value,
 		enabled = enabled,
 		onValueChange = { newValue ->
-			val previousText = passwordField.value.text
-
-			passwordField.value = newValue
-			supportingText.value = null
-
-			if (newValue.text != previousText) {
-				onPasswordChange(newValue.text)
+			// While the owner is busy the view model drops what it is told: a key taken now would be shown
+			// and lost, or kept by the field and unknown to the view model.
+			if (!isWaiting) {
+				if (field.edit(newValue)) onPasswordChange(newValue.text)
 			}
 		},
-		isError = supportingText.value != null,
-		supportingText = {
-			val text = supportingText.value
-
-			if (text != null) Text(text)
-		},
+		isError = isError || error != null,
+		// Always present, with or without a message: the line under the field is reserved either way, so the
+		// form does not get tighter or jump when the message comes and goes.
+		supportingText = { if (error != null) Text(modifier = errorModifier, text = error) },
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(
@@ -117,6 +109,7 @@ fun PasswordTextField(
 			PasswordVisualTransformation()
 		},
 		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.None,
 			autoCorrectEnabled = false,
 			imeAction = imeAction,
 			keyboardType = KeyboardType.Password

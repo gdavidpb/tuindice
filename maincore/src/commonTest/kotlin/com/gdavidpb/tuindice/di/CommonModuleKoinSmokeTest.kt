@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordOutboxDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import org.koin.dsl.module
@@ -31,6 +33,7 @@ class CommonModuleKoinSmokeTest {
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<SyncRemoteDataRepository> { FakeSyncRemoteDataSource() }
 			single<AcademicRecordLocalDataRepository> { FakeAcademicRecordLocalDataRepository() }
+			single<AcademicRecordOutboxDataRepository> { NoOpRecordOutboxDataRepository }
 			single<LocalDataRepository> { FakeUserLocalDataRepository() }
 			single<PensumRevalidationRepository> { FakePensumRevalidationRepository() }
 		}

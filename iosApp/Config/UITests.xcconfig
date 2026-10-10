@@ -1,0 +1,23 @@
+// Configuration of the TuIndiceUITests target. Debug.xcconfig and Release.xcconfig do not mention
+// ScenarioKit, so the framework can only reach the test bundle and never the app binary.
+PRODUCT_BUNDLE_IDENTIFIER = com.gdavidpb.tuindice.debug.uitests
+PRODUCT_NAME = TuIndiceUITests
+GENERATE_INFOPLIST_FILE = YES
+TEST_TARGET_NAME = TuIndiceHost
+SDKROOT = iphoneos
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SWIFT_VERSION = 5.9
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/UITests/TuIndiceUITests-Bridging-Header.h
+// ObjCCatch.m (the shim that keeps an XCTest exception from reaching the Kotlin frames) is compiled by this target; its
+// blocks and the NSString out-parameter are only correct under ARC, so it is set here and not left to the project default.
+CLANG_ENABLE_OBJC_ARC = YES
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*] = 18.5
+ARCHS[sdk=iphonesimulator*] = arm64
+TARGETED_DEVICE_FAMILY = 1,2
+ENABLE_USER_SCRIPT_SANDBOXING = NO
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = 94BBJ5X5GL
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
+OTHER_LDFLAGS = $(inherited) -framework ScenarioKit
+FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64] = $(inherited) $(SRCROOT)/../scenariokit/build/bin/iosSimulatorArm64/debugFramework

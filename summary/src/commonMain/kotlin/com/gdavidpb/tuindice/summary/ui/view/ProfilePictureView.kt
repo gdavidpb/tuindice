@@ -30,7 +30,6 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
-import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -51,8 +50,9 @@ fun ProfilePictureView(
 ) {
 	val platformContext = LocalPlatformContext.current
 	val placeholderPainter = painterResource(Res.drawable.il_profile_picture_placeholder_owl)
+	// The app-wide loader: ProfilePictureImageLoaderDataSource says how it is built, at start-up.
 	val imageLoader = remember(platformContext) {
-		profilePictureImageLoader(platformContext = platformContext)
+		SingletonImageLoader.get(platformContext)
 	}
 	val viewState = rememberProfilePictureViewState(display = display)
 	val isInteractionEnabled = isEnabled && !display.isUploading && !viewState.isColdLoading
@@ -296,18 +296,4 @@ private fun ProfilePictureLayerContext.previewLayer(): ProfilePictureLayer? {
 			}
 		}
 	)
-}
-
-// Configured once and shared app-wide so the memory cache survives recomposition
-// and navigation; a per-composition loader re-downloads the avatar on every visit.
-private fun profilePictureImageLoader(platformContext: PlatformContext): ImageLoader {
-	SingletonImageLoader.setSafe { context ->
-		ImageLoader.Builder(context)
-			.components {
-				add(KtorNetworkFetcherFactory())
-			}
-			.build()
-	}
-
-	return SingletonImageLoader.get(platformContext)
 }

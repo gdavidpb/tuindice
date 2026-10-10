@@ -9,20 +9,30 @@ concurrency:
   group: preflight-production-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# Every job runs code of the pull request (scripts, Gradle, tests). The token is read-only and no job writes commit statuses:
+# the evidence is published by the repository owner from the machine that ran it, and shared-preflight only reads it
+# (statuses: read). The other jobs also leave the token out of .git/config (persist-credentials: false); shared-preflight
+# keeps it because ensure_commit_available may have to fetch a commit that is not in the checkout, and whether that works
+# without a token depends on the repository being public. verify-workflow-permissions.sh enforces all of this.
 permissions:
   contents: read
-  statuses: write
 
 jobs:
   shared-preflight:
     name: Shared preflight
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: read
     outputs:
       android_tasks: ${{ steps.changes.outputs.android_tasks }}
       ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
       ios_host_tasks: ${{ steps.changes.outputs.ios_host_tasks }}
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
+      ios_uitest_build_required: ${{ steps.changes.outputs.ios_uitest_build_required }}
+      e2e_contract_touched: ${{ steps.changes.outputs.e2e_contract_touched }}
+      vocabulary_gate_required: ${{ steps.changes.outputs.vocabulary_gate_required }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
       app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
       has_release_impact: ${{ steps.changes.outputs.has_release_impact }}
@@ -44,7 +54,7 @@ jobs:
             bash ./.github/scripts/detect-changed-app.sh "$merge_base" "${{ github.event.pull_request.head.sha }}"
 
       - name: Skip shared preflight when there are no relevant changes
-        if: steps.changes.outputs.has_relevant_changes != 'true'
+        if: steps.changes.outputs.has_relevant_changes != 'true' && steps.changes.outputs.vocabulary_gate_required != 'true'
         run: |
           set -euo pipefail
           {
@@ -59,6 +69,15 @@ jobs:
         run: |
           set -euo pipefail
           bash ./.github/scripts/validate-ci-config.sh
+
+      # Documents and skills cannot change what a scenario does, but they can reintroduce a word or a task name the
+      # E2E vocabulary gate retired. The gate runs alone here; the harness suite that also contains it runs only when
+      # the E2E contract is touched.
+      - name: Check the E2E vocabulary
+        if: steps.changes.outputs.vocabulary_gate_required == 'true'
+        run: |
+          set -euo pipefail
+          bash ./e2e/tools/verify/verify-e2e-vocabulary.sh
 
       # Enforcement estático de la arquitectura de referencia (README +
       # config/semgrep/rules): fixtures, prueba de generalidad y scan repo-wide.
@@ -77,13 +96,14 @@ jobs:
           MISSING_VERSION_BUMP_FILE: ${{ steps.changes.outputs.missing_version_bump_file }}
           E2E_ANDROID_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_android_contexts_file }}
           E2E_IOS_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_ios_contexts_file }}
+          E2E_SCOPE_FILE: ${{ steps.changes.outputs.e2e_scope_file }}
           REQUIRES_E2E_CERTIFICATION: ${{ steps.changes.outputs.requires_e2e_certification }}
           HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
           APP_VERSION_CHANGED: ${{ steps.changes.outputs.app_version_changed }}
           HAS_RELEASE_IMPACT: ${{ steps.changes.outputs.has_release_impact }}
           E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           # Unset repo variable resolves to "", so the script keeps its default
-          # trust list (repo owner + github-actions[bot]).
+          # trust list (the repo owner alone).
           E2E_TRUSTED_STATUS_CREATORS: ${{ vars.E2E_TRUSTED_STATUS_CREATORS }}
         run: |
           set -euo pipefail
@@ -93,6 +113,8 @@ jobs:
     name: Android preflight
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.android_tasks != '' }}
@@ -103,6 +125,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Java
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
@@ -122,8 +145,10 @@ jobs:
       # against placeholder Firebase configs and a throwaway signing keystore.
       # Real signing happens only in deploy-production.yml under the
       # production environment.
+      # The Android test APK of the scenarios (:scenariorunner:assembleDebug) builds :app too, which applies the
+      # google-services plugin: it needs the same placeholder.
       - name: Materialize CI placeholder configuration
-        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease')
+        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease') || contains(needs.shared-preflight.outputs.android_tasks, ':scenariorunner:assembleDebug')
         run: |
           set -euo pipefail
           CI_PLACEHOLDER_IOS=0 bash ./.github/scripts/materialize-ci-placeholders.sh
@@ -143,6 +168,8 @@ jobs:
     name: iOS test preflight
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_test_tasks != '' }}
@@ -153,6 +180,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up iOS build environment
         uses: ./.github/actions/setup-ios-build
@@ -174,6 +202,8 @@ jobs:
     name: iOS host preflight
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: read
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && (needs.shared-preflight.outputs.ios_host_tasks != '' || needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true') }}
@@ -184,6 +214,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run iOS CI script smoke checks
         if: needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true'
@@ -226,14 +257,80 @@ jobs:
             -Pcompose.ios.resources.archs=arm64 \
             ${{ needs.shared-preflight.outputs.ios_host_tasks }}
 
+  # The E2E UI test target is built by the same script the local harness uses. It is a job of its own
+  # because ios-host-preflight exports device-release variables (PLATFORM_NAME=iphoneos and the
+  # compose iphoneos resources) that would break a simulator build. The Xcode is whatever
+  # ./.github/actions/setup-ios-build selects for every iOS job.
+  ios-uitest-preflight:
+    name: iOS UI test target preflight
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_uitest_build_required == 'true' }}
+    env:
+      # warm-ios-caches.yml publishes the simulator build entries under the ios-test-preflight identity; without this
+      # the job has its own cache key and links maincore and ScenarioKit from cold inside its 45 minutes.
+      GRADLE_BUILD_ACTION_CACHE_KEY_JOB: ios-test-preflight
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up iOS build environment
+        uses: ./.github/actions/setup-ios-build
+        with:
+          cache-device-framework: "false"
+          cache-read-only: "false"
+
+      - name: Build the iOS UI test target
+        run: |
+          set -euo pipefail
+          bash ./e2e/scripts/ios/build.sh --for-testing-only
+
+  # verifyE2eContract runs on the Linux Android job, where the harness tests that need macOS tools (the `defaults`
+  # command, build.sh with plutil, Mach-O inspection) are skipped with their reason printed. This job runs the same
+  # harness checks whole, on macOS.
+  e2e-harness-preflight:
+    name: E2E harness preflight (macOS)
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.e2e_contract_touched == 'true' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run the E2E harness checks without skips
+        run: |
+          set -euo pipefail
+          bash ./e2e/tools/tests/run-harness-tests.sh
+
   preflight-production-pr:
     name: preflight-production-pr
     runs-on: ubuntu-latest
+    permissions: {}
     needs:
       - shared-preflight
       - android-preflight
       - ios-test-preflight
       - ios-host-preflight
+      - ios-uitest-preflight
+      - e2e-harness-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
@@ -243,14 +340,20 @@ jobs:
           android_result="${{ needs.android-preflight.result }}"
           ios_test_result="${{ needs.ios-test-preflight.result }}"
           ios_host_result="${{ needs.ios-host-preflight.result }}"
+          ios_uitest_result="${{ needs.ios-uitest-preflight.result }}"
+          e2e_harness_result="${{ needs.e2e-harness-preflight.result }}"
           android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
           ios_test_tasks="${{ needs.shared-preflight.outputs.ios_test_tasks }}"
           ios_host_tasks="${{ needs.shared-preflight.outputs.ios_host_tasks }}"
           ios_ci_scripts_touched="${{ needs.shared-preflight.outputs.ios_ci_scripts_touched }}"
+          ios_uitest_build_required="${{ needs.shared-preflight.outputs.ios_uitest_build_required }}"
+          e2e_contract_touched="${{ needs.shared-preflight.outputs.e2e_contract_touched }}"
           echo "Shared preflight result: ${shared_result}"
           echo "Android preflight result: ${android_result}"
           echo "iOS test preflight result: ${ios_test_result}"
           echo "iOS host preflight result: ${ios_host_result}"
+          echo "iOS UI test preflight result: ${ios_uitest_result}"
+          echo "E2E harness preflight result: ${e2e_harness_result}"
           if [[ "${shared_result}" != "success" ]]; then
             exit 1
           fi
@@ -261,5 +364,11 @@ jobs:
             exit 1
           fi
           if [[ ( -n "${ios_host_tasks}" || "${ios_ci_scripts_touched}" == "true" ) && "${ios_host_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ "${ios_uitest_build_required}" == "true" && "${ios_uitest_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ "${e2e_contract_touched}" == "true" && "${e2e_harness_result}" != "success" ]]; then
             exit 1
           fi

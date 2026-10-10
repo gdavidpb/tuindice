@@ -5,5 +5,7 @@ import com.gdavidpb.tuindice.persistence.TuIndiceDatabase
 class SampleFlowDataSource(
 	private val database: TuIndiceDatabase
 ) {
-	fun read(): String = database.toString()
+	private var lastRead: String? = null
+
+	fun read(): String = database.toString().also { value -> lastRead = value }
 }

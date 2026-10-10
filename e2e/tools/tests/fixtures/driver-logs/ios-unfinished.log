@@ -1,0 +1,4 @@
+[0] WaitVisible tag:auth_screen -> passed (210 ms)
+[tolerance] dismissed-alert "Save Password?" dismissed by the interruption monitor
+[tolerance] future-kind a kind this harness has never heard of
+[tolerance] future-kind a kind this harness has never heard of

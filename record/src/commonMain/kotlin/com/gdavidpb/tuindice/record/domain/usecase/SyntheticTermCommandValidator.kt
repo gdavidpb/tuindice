@@ -19,7 +19,9 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-internal object SyntheticTermCommandValidator {
+internal class SyntheticTermCommandValidator(
+	private val clock: Clock
+) {
 	fun validate(
 		record: AcademicRecord,
 		params: CreateSyntheticTermParams
@@ -101,7 +103,7 @@ internal object SyntheticTermCommandValidator {
 	}
 
 	private fun currentAcademicTermOrder(): Int {
-		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
+		val dateTime = clock.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
 		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
 	}
 

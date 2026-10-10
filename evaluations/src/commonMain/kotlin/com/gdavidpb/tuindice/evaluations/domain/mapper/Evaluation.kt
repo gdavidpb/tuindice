@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.domain.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
@@ -6,6 +8,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 fun AddEvaluationParams.toEvaluationAdd(reference: String) = EvaluationAdd(
 	reference = reference,
@@ -28,7 +32,7 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	type = type
 )
 
-fun EvaluationAdd.toEvaluation() = Evaluation(
+fun EvaluationAdd.toEvaluation(clock: Clock) = Evaluation(
 	id = reference,
 	attemptId = attemptId,
 	subjectCode = subjectCode,
@@ -41,6 +45,7 @@ fun EvaluationAdd.toEvaluation() = Evaluation(
 	state = computeEvaluationState(
 		scheduleMode = scheduleMode,
 		grade = grade,
-		date = date
+		date = date,
+		clock = clock
 	)
 )

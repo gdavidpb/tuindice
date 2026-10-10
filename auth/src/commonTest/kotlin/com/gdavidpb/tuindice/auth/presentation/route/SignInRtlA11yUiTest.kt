@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
@@ -174,6 +175,7 @@ class SignInRtlA11yUiTest {
 	private fun createSignInViewModel(): SignInViewModel {
 		val signInUseCase = SignInUseCase(
 			authRepository = RecordingAuthRepository(throwable = null),
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),

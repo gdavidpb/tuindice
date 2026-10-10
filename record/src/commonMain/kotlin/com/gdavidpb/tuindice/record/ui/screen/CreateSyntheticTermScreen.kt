@@ -29,11 +29,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
@@ -64,7 +63,7 @@ import tuindice.record.generated.resources.create_term_suggested_title
 @Composable
 fun CreateSyntheticTermScreen(
 	state: CreateSyntheticTerm.State,
-	onQueryChange: (String, Int, Int) -> Unit,
+	onQueryChange: (String) -> Unit,
 	onClearQueryClick: () -> Unit,
 	onPeriodSelected: (String) -> Unit,
 	onAddSubjectTabSelected: (CreateTermAddSubjectTab) -> Unit,
@@ -78,13 +77,10 @@ fun CreateSyntheticTermScreen(
 	val focusManager = LocalFocusManager.current
 	val lazyListState = rememberLazyListState()
 	val showApprovedSearchResults = remember { mutableStateOf(false) }
-	val searchFieldValue = TextFieldValue(
-		text = state.query,
-		selection = TextRange(
-			start = state.querySelectionStart.coerceIn(0, state.query.length),
-			end = state.querySelectionEnd.coerceIn(0, state.query.length)
-		)
-	)
+	val searchField = remember { EditableTextFieldState(state.query) }
+
+	searchField.syncExternal(state.query, resetKey = null)
+
 	val selectedSubjectCodes = remember(state.selectedSubjects) {
 		state.selectedSubjects.map(CreateTermSubjectItem::subjectCode).toSet()
 	}
@@ -243,15 +239,9 @@ fun CreateSyntheticTermScreen(
 				CreateTermAddSubjectTab.Search -> {
 					item {
 						CreateTermSearchField(
-							query = searchFieldValue,
+							fieldState = searchField,
 							focusRequester = focusRequester,
-							onQueryChange = { value ->
-								onQueryChange(
-									value.text,
-									value.selection.start,
-									value.selection.end
-								)
-							},
+							onQueryChange = onQueryChange,
 							onClearQueryClick = onClearQueryClick,
 							onSearch = ::dismissKeyboard
 						)
@@ -262,7 +252,8 @@ fun CreateSyntheticTermScreen(
 							CreateTermSearchGuidance(
 								query = state.query,
 								onExampleClick = { example ->
-									onQueryChange(example, example.length, example.length)
+									searchField.replace(example)
+									onQueryChange(example)
 								}
 							)
 						}

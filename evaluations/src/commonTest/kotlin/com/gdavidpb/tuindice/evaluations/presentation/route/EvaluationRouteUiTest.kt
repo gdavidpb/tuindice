@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -34,6 +36,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationRouteUiTest {
@@ -425,7 +429,8 @@ class EvaluationRouteUiTest {
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
+				),
+				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher
 		)

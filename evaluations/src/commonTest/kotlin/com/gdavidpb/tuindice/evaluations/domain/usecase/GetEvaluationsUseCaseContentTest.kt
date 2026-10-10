@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
@@ -24,6 +26,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class GetEvaluationsUseCaseContentTest {
 	@Test
@@ -37,7 +41,8 @@ class GetEvaluationsUseCaseContentTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -62,7 +67,8 @@ class GetEvaluationsUseCaseContentTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -116,7 +122,8 @@ class GetEvaluationsUseCaseContentTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {
@@ -140,7 +147,8 @@ class GetEvaluationsUseCaseContentTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
 			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-			reportingRepository = reportingRepository
+			reportingRepository = reportingRepository,
+			clock = Clock.System
 		)
 
 		useCase.execute(Unit).test {

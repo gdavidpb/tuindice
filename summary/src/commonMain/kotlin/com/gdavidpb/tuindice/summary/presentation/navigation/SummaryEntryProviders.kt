@@ -18,7 +18,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EntryProviderScope<NavKey>.summaryEntries(
 	navActions: TuIndiceNavActions,
 	shellBindings: NavShellBindings,
-	isCameraAvailable: Boolean,
 	onNavigateToUpdatePassword: () -> Unit
 ) {
 	summaryEntry(
@@ -26,7 +25,7 @@ fun EntryProviderScope<NavKey>.summaryEntries(
 		shellBindings = shellBindings,
 		onNavigateToUpdatePassword = onNavigateToUpdatePassword
 	)
-	profilePictureSettingsDialogEntry(navActions = navActions, isCameraAvailable = isCameraAvailable)
+	profilePictureSettingsDialogEntry(navActions = navActions)
 	removeProfilePictureConfirmationDialogEntry(navActions = navActions)
 }
 
@@ -63,8 +62,13 @@ private fun EntryProviderScope<NavKey>.summaryEntry(
 
 		SummaryRoute(
 			onNavigateToUpdatePassword = onNavigateToUpdatePassword,
-			onNavigateToProfilePictureSettingsDialog = { showRemove ->
-				navActions.push(SummaryDestination.ProfilePictureSettingsDialog(showRemove = showRemove))
+			onNavigateToProfilePictureSettingsDialog = { showRemove, isCameraAvailable ->
+				navActions.push(
+					SummaryDestination.ProfilePictureSettingsDialog(
+						showRemove = showRemove,
+						isCameraAvailable = isCameraAvailable
+					)
+				)
 			},
 			onNavigateToRemoveProfilePictureConfirmationDialog = {
 				navActions.push(SummaryDestination.RemoveProfilePictureConfirmationDialog)
@@ -76,13 +80,12 @@ private fun EntryProviderScope<NavKey>.summaryEntry(
 }
 
 private fun EntryProviderScope<NavKey>.profilePictureSettingsDialogEntry(
-	navActions: TuIndiceNavActions,
-	isCameraAvailable: Boolean
+	navActions: TuIndiceNavActions
 ) {
 	entry<SummaryDestination.ProfilePictureSettingsDialog>(metadata = dialogMetadata()) { key ->
 		ProfilePictureSettingsContentDialog(
 			showRemove = key.showRemove,
-			isCameraAvailable = isCameraAvailable,
+			isCameraAvailable = key.isCameraAvailable,
 			onPickPictureClick = {
 				navActions.popWithResult(ProfilePictureSettingsResult.Pick)
 			},

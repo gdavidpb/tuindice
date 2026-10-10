@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "PATCH",
-    "urlPathPattern": "/evaluations/v3/[A-Za-z0-9]+"
+    "urlPathPattern": "/evaluations/v3/[A-Za-z0-9]+",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

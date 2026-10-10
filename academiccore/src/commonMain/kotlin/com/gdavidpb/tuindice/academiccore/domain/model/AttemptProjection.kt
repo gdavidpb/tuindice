@@ -12,5 +12,9 @@ data class AttemptProjection(
 	@SerialName("grading_mode") val gradingMode: AttemptGradingMode,
 	val score: AttemptScore,
 	val outcome: AttemptOutcome,
-	val badge: AttemptBadge
+	val badge: AttemptBadge,
+	val section: Int? = null,
+	val schedule: List<AcademicScheduleEntry>? = null,
+	@SerialName("enrollment_errors") val enrollmentErrors: List<String>? = null,
+	val withdrawn: Boolean = false
 )

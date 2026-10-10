@@ -1,129 +1,111 @@
 package com.gdavidpb.tuindice.e2e
 
 import android.content.Intent
-import androidx.activity.ComponentActivity
-import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.base.domain.model.MainSection
-import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.debug.DebugLaunchArguments
+import com.gdavidpb.tuindice.debug.DebugSessionSeed
+import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
+import com.gdavidpb.tuindice.debug.freezeDebugClock
+import com.gdavidpb.tuindice.debug.seedDebugSession
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
-import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks
-import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.koin.core.Koin
 import org.koin.core.context.GlobalContext
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 object E2eSeedBridge {
-	private const val SEED_STATE_ARG = "TUINDICE_E2E_SEED_STATE"
-	private const val MAIN_SECTION_ARG = "TUINDICE_E2E_MAIN_SECTION"
-	private const val AVAILABILITY_NOTICE_ENABLED_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
-	private const val AVAILABILITY_NOTICE_TITLE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
-	private const val AVAILABILITY_NOTICE_MESSAGE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
-	private const val AUTHENTICATED_COACHMARKS_SEEN = "authenticatedCoachmarksSeen"
-	private const val AUTHENTICATED_COACHMARKS_PENDING = "authenticatedCoachmarksPending"
+	/** What the launch arguments change in the running app; the production one talks to Koin. */
+	internal interface Effects {
+		fun setAvailabilityNotice(notice: DebugLaunchArguments.AvailabilityNotice)
 
+		fun setNetworkAvailable(forced: Boolean)
+
+		fun setFixedNow(instant: Instant)
+
+		fun seedSession(seed: DebugSessionSeed)
+	}
+
+	private class KoinEffects(private val koin: Koin) : Effects {
+		override fun setAvailabilityNotice(notice: DebugLaunchArguments.AvailabilityNotice) {
+			koin.setDebugAppAvailabilityNoticeOverride(
+				enabled = notice.enabled,
+				title = notice.title,
+				message = notice.message
+			)
+		}
+
+		override fun setNetworkAvailable(forced: Boolean) {
+			val network = koin.get<NetworkRepository>()
+
+			check(network is OverridableNetworkDataSource) {
+				"Network availability overrides require OverridableNetworkDataSource."
+			}
+
+			network.forced = forced
+		}
+
+		override fun setFixedNow(instant: Instant) {
+			koin.freezeDebugClock(instant)
+		}
+
+		override fun seedSession(seed: DebugSessionSeed) {
+			runBlocking { koin.seedDebugSession(seed) }
+		}
+	}
+
+	/**
+	 * Parses the `TUINDICE_E2E_*` extras of the launch intent and applies them.
+	 * Returns the parsed arguments so the activity can read the ones it owns.
+	 *
+	 * The extras are always parsed. The session seed and the availability notice are applied only
+	 * on a cold start ([isColdStart]): the seed clears the session, the settings and the sync
+	 * status, so applying it again when the activity is recreated (configuration change, restore
+	 * after the process died) would wipe a scenario in progress. The network override and the
+	 * clock are kept in-process and idempotent, so they are applied every time.
+	 */
 	@JvmStatic
-	fun seedIfRequested(activity: ComponentActivity, intent: Intent?) {
-		configureAvailabilityNoticeOverrideIfRequested(
-			koin = GlobalContext.get(),
-			intent = intent
-		)
+	fun applyLaunchArguments(intent: Intent?, isColdStart: Boolean): DebugLaunchArguments {
+		val extras = intent?.extras
+		val raw = extras?.keySet().orEmpty().associateWith { key -> extras?.get(key) }
 
-		val seedState = intent?.getStringExtra(SEED_STATE_ARG)
-			?.takeIf { it.isNotBlank() }
-			?: return
-
-		check(seedState in setOf(AUTHENTICATED_COACHMARKS_SEEN, AUTHENTICATED_COACHMARKS_PENDING)) {
-			"Unsupported E2E seed state: $seedState"
-		}
-
-		val section = intent.getStringExtra(MAIN_SECTION_ARG)
-			?.takeIf { it.isNotBlank() }
-			?.let(MainSection::valueOf)
-			?: MainSection.SUMMARY
-
-		runBlocking {
-			putWireMockTokensIssuedState(BuildConfig.URL_API)
-			seedAuthenticatedCoachmarkState(
-				koin = GlobalContext.get(),
-				section = section,
-				areCoachmarksSeen = seedState == AUTHENTICATED_COACHMARKS_SEEN
-			)
-		}
+		return applyLaunchArguments(raw, isColdStart, KoinEffects(GlobalContext.get()))
 	}
 
-	private fun configureAvailabilityNoticeOverrideIfRequested(koin: Koin, intent: Intent?) {
-		val enabled = intent?.getStringExtra(AVAILABILITY_NOTICE_ENABLED_ARG)
-			?.takeIf { it.isNotBlank() }
-			?.toBooleanStrictOrNull()
-			?: return
+	internal fun applyLaunchArguments(
+		extras: Map<String, Any?>,
+		isColdStart: Boolean,
+		effects: Effects
+	): DebugLaunchArguments {
+		val arguments = DebugLaunchArguments.parse(launchValues(extras))
 
-		koin.setDebugAppAvailabilityNoticeOverride(
-			enabled = enabled,
-			title = intent.getStringExtra(AVAILABILITY_NOTICE_TITLE_ARG).orEmpty(),
-			message = intent.getStringExtra(AVAILABILITY_NOTICE_MESSAGE_ARG).orEmpty()
-		)
+		if (isColdStart) {
+			arguments.availabilityNotice?.let(effects::setAvailabilityNotice)
+		}
+
+		arguments.networkAvailable?.let(effects::setNetworkAvailable)
+		arguments.fixedNow?.let(effects::setFixedNow)
+
+		if (isColdStart) {
+			arguments.sessionSeed?.let(effects::seedSession)
+		}
+
+		return arguments
 	}
 
-	private suspend fun seedAuthenticatedCoachmarkState(
-		koin: Koin,
-		section: MainSection,
-		areCoachmarksSeen: Boolean
-	) {
-		val sessionRepository = koin.get<SessionRepository>()
-		val settingsRepository = koin.get<SettingsRepository>()
-		val credentialsRepository = koin.get<CredentialsRepository>()
-		val syncStatusRepository = koin.get<SyncStatusRepository>()
-
-		sessionRepository.clear()
-		settingsRepository.clear()
-		credentialsRepository.clearPassword()
-		syncStatusRepository.reset()
-
-		sessionRepository.setSessionSnapshot(
-			SessionSnapshot(
-				sessionId = "auth-session-initial",
-				accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
-				refreshToken = "refresh.mock.token.value",
-				usbId = "11-11111"
-			)
-		)
-		credentialsRepository.setPassword("123456")
-		if (areCoachmarksSeen) {
-			contextualCoachmarks().forEach { coachmark ->
-				settingsRepository.markCoachmarkSeen(coachmark.id.persistedId)
+	/** Every `TUINDICE_E2E_*` extra must be a string (`adb shell am start --es`); anything else fails loudly. */
+	internal fun launchValues(extras: Map<String, Any?>): Map<String, String> {
+		return extras
+			.filterKeys { key -> key.startsWith(DebugLaunchArguments.PREFIX) }
+			.mapValues { (key, value) ->
+				when (value) {
+					null -> ""
+					is String -> value
+					else -> throw IllegalArgumentException(
+						"Launch argument $key must be a String extra (use --es), got ${value::class.simpleName}: $value"
+					)
+				}
 			}
-		}
-		settingsRepository.setLastMainSection(section)
-	}
-
-	private suspend fun putWireMockTokensIssuedState(apiBaseUrl: String) = withContext(Dispatchers.IO) {
-		val adminUrl = apiBaseUrl.trimEnd('/') +
-			"/__admin/scenarios/login-token-lifecycle/state"
-		val connection = (URL(adminUrl).openConnection() as HttpURLConnection).apply {
-			requestMethod = "PUT"
-			connectTimeout = 3000
-			readTimeout = 3000
-			doOutput = true
-			setRequestProperty("Content-Type", "application/json")
-		}
-
-		try {
-			connection.outputStream.use { outputStream ->
-				outputStream.write("""{"state":"TokensIssued"}""".toByteArray())
-			}
-			check(connection.responseCode in 200..299) {
-				"WireMock scenario seed failed with HTTP ${connection.responseCode}"
-			}
-		} finally {
-			connection.disconnect()
-		}
 	}
 }

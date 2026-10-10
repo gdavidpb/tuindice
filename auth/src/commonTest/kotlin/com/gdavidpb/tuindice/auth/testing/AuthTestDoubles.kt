@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
@@ -123,6 +124,26 @@ class RecordingAuthRepository(
 		revokedRefreshTokens += refreshToken
 		throwable?.let { throw it }
 	}
+}
+
+class FakeAuthRetryWindowRepository(
+	var signInWaitMillis: Long = 0L
+) : AuthRetryWindowRepository {
+	val signInWaitAccounts = mutableListOf<String>()
+
+	override fun remainingMillis(key: String): Long = signInWaitMillis
+
+	override fun signInRemainingMillis(account: String): Long {
+		signInWaitAccounts += account
+
+		return signInWaitMillis
+	}
+
+	override fun recordUnavailable(key: String, retryAfterSeconds: Long?) = Unit
+
+	override fun recordTooManyRequests(key: String, retryAfterSeconds: Long?) = Unit
+
+	override fun recordSuccess(key: String) = Unit
 }
 
 class FakeAttestationRepository(

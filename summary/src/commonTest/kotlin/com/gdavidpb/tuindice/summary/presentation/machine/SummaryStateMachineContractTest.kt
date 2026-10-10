@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -12,7 +14,10 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
@@ -69,6 +74,9 @@ class SummaryStateMachineContractTest {
 			"ObserveSummary",
 			"RefreshSummary",
 			"UserObserved",
+			"SyncObserved",
+			"OpenProfilePictureSettings",
+			"CameraAvailabilityResolved / ShowProfilePictureSettingsDialog",
 			"ProfilePictureRemovalFailed / ShowSnackBar",
 			"TakeProfilePicture / OpenCamera",
 			"RemoveProfilePicture / ShowRemoveProfilePictureConfirmationDialog"
@@ -90,6 +98,15 @@ class SummaryStateMachineContractTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					reportingRepository = reportingRepository
+				),
+				observeSyncUseCase = ObserveSyncUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
+					syncRepository = FakeSyncRepository(),
+					reportingRepository = reportingRepository
+				),
+				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = reportingRepository
 				),
 				updateUserUseCase = UpdateUserUseCase(

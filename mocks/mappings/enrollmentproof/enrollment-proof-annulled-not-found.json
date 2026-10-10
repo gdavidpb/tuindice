@@ -1,0 +1,30 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/enrollment-proof/v1",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'annulled-provisional-pass')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "enrollment proof not found"
+    },
+    "fixedDelayMilliseconds": 1500
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
+  }
+}

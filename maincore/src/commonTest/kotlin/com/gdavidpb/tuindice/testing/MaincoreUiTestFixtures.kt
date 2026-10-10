@@ -1,17 +1,28 @@
 package com.gdavidpb.tuindice.testing
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
+import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSessionInvalidationUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSyncStatusUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -23,6 +34,8 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -36,9 +49,12 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -51,12 +67,24 @@ fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
 )
 
 fun createSummaryViewModel(
-	userRepository: UserRepository = FakeUserRepository()
+	userRepository: UserRepository = FakeUserRepository(),
+	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+	syncRepository: SyncRepository = FakeSyncRepository(),
+	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository()
 ): SummaryViewModel {
 	return SummaryViewModel(
 		screenMachine = SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			observeSyncUseCase = ObserveSyncUseCase(
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = syncRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+				deviceInfoRepository = deviceInfoRepository,
 				reportingRepository = RecordingReportingRepository()
 			),
 			updateUserUseCase = UpdateUserUseCase(
@@ -93,6 +121,7 @@ fun createMainViewModel(
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
 	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
+	outdatedAppEventRepository: OutdatedAppEventRepository = OutdatedAppEventDataSource(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
 	messagingRepository: MessagingRepository = FakeMessagingRepository(),
@@ -100,7 +129,11 @@ fun createMainViewModel(
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository(),
-	eventPublisher: EventPublisher = NoOpEventPublisher
+	eventPublisher: EventPublisher = NoOpEventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
+	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+	sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository(),
+	pendingChangesRepository: PendingChangesRepository = FakePendingChangesRepository()
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -112,6 +145,10 @@ fun createMainViewModel(
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
+			),
+			observeOutdatedAppUseCase = ObserveOutdatedAppUseCase(
+				outdatedAppEventRepository = outdatedAppEventRepository,
+				reportingRepository = reportingRepository
 			),
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
@@ -127,6 +164,9 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				credentialsRepository = credentialsRepository,
 				syncRepository = syncRepository,
+				// Its own status store, as before the host learnt the status from the machine: what a
+				// scheduled sync writes here must not send these tests to the password dialog.
+				syncStatusRepository = FakeSyncStatusRepository(),
 				coreCacheStateRepository = coreCacheStateRepository,
 				reportingRepository = reportingRepository
 			),
@@ -138,9 +178,22 @@ fun createMainViewModel(
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
+			),
+			observeSyncStatusUseCase = ObserveSyncStatusUseCase(
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
+			),
+			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				reportingRepository = reportingRepository
+			),
+			getPendingChangesUseCase = GetPendingChangesUseCase(
+				pendingChangesRepository = pendingChangesRepository,
+				reportingRepository = reportingRepository
 			)
 		),
-		eventPublisher = eventPublisher
+		eventPublisher = eventPublisher,
+		dispatchers = dispatchers
 	)
 }
 

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.label_retry
@@ -31,6 +32,9 @@ class SignInMachine(
 	// Held only to support the mid-flight cancel affordance; the table already
 	// rejects zombie results for every other exit.
 	private var signInJob: Job? = null
+
+	// Re-enables sign-in when the wait the identity service asked for is over.
+	private var serviceWaitJob: Job? = null
 
 	override fun initialState(): SignIn.State {
 		return SignIn.State.Idle(
@@ -50,6 +54,9 @@ class SignInMachine(
 		host: MachineHost<SignIn.Effect>,
 		state: SignIn.State.Idle
 	): SignIn.State.LoggingIn {
+		serviceWaitJob?.cancel()
+		serviceWaitJob = null
+
 		val params = SignInParams(
 			usbId = state.usbId,
 			password = state.password,
@@ -106,15 +113,36 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
+		val serviceWaitMillis = (error as? SignInUseCaseError.Unavailable)?.retryAfterMillis ?: 0L
+
+		// A server that asked for a wait is explained by the screen itself, not by a retry snackbar.
+		if (serviceWaitMillis > 0) {
+			serviceWaitJob = host.launchMachineJob {
+				delay(serviceWaitMillis)
+				host.processInternalEvent(SignInInternalEvent.ServiceWaitElapsed)
+			}
+
+			return SignIn.State.Idle(
+				usbId = state.usbId,
+				password = state.password,
+				identifierMode = state.identifierMode,
+				usageDataCollectionEnabled = state.usageDataCollectionEnabled,
+				isServiceUnavailable = true
+			)
+		}
+
 		val errorMessage = error.toErrorMessage(
 			identifierMode = state.identifierMode,
 			supportEmail = configRepository.getContactEmail()
 		)
 
 		when (error) {
+			// The screen itself keeps these verdicts (marked fields, or a message under the button), so
+			// the snackbar would only say it twice.
 			is SignInUseCaseError.InvalidCredentials,
 			is SignInUseCaseError.AccountDisabled,
-			is SignInUseCaseError.Untrusted,
+			is SignInUseCaseError.Untrusted -> Unit
+
 			is SignInUseCaseError.TooManyRequests ->
 				host.sendEffect(
 					SignIn.Effect.ShowSnackBar(
@@ -135,7 +163,8 @@ class SignInMachine(
 			usbId = state.usbId,
 			password = state.password,
 			identifierMode = state.identifierMode,
-			usageDataCollectionEnabled = state.usageDataCollectionEnabled
+			usageDataCollectionEnabled = state.usageDataCollectionEnabled,
+			rejection = error.toRejection(message = errorMessage)
 		)
 	}
 

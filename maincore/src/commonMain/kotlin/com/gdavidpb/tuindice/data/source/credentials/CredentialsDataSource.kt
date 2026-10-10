@@ -2,15 +2,18 @@ package com.gdavidpb.tuindice.data.source.credentials
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 
 class CredentialsDataSource(
 	private val secureStore: SecureKeyValueDataRepository,
 	private val legacySecureStore: SecureKeyValueDataRepository
-) : CredentialsRepository {
+) : CredentialsRepository, SessionMemory {
 	private var memoryPassword: String? = null
 
+	// A store that fails to read is not a store without a password: the failure is thrown so
+	// a caller that latches on "absent" never latches on a transient Keystore/Keychain error.
 	override suspend fun hasPassword(): Boolean {
-		return readPassword() != null
+		return readPassword(strict = true) != null
 	}
 
 	override suspend fun getPassword(): String {
@@ -39,25 +42,35 @@ class CredentialsDataSource(
 		}
 	}
 
-	private suspend fun readPassword(): String? {
-		memoryPassword?.let { return it }
+	// Only the copy held here: the stored one is wiped by the caller, and a later read falls
+	// back to the store, so nothing of the signed-out account can be served from memory.
+	override suspend fun clearSessionMemory() {
+		memoryPassword = null
+	}
 
-		val activePassword = runCatching {
+	private suspend fun readPassword(strict: Boolean = false): String? {
+		return memoryPassword
+			?: readActivePassword(strict)?.also { password -> memoryPassword = password }
+			?: readLegacyPassword()?.let { password -> migrateLegacyPassword(password) }
+	}
+
+	private suspend fun readActivePassword(strict: Boolean): String? {
+		if (strict) {
+			return secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
+				?.takeIf(String::isNotBlank)
+		}
+
+		return runCatching {
 			secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
 		}.getOrNull()
+	}
 
-		if (activePassword != null) {
-			memoryPassword = activePassword
-			return activePassword
-		}
-
-		val legacyPassword = runCatching {
+	private suspend fun readLegacyPassword(): String? {
+		return runCatching {
 			legacySecureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
-		}.getOrNull() ?: return null
-
-		return migrateLegacyPassword(legacyPassword)
+		}.getOrNull()
 	}
 
 	private suspend fun migrateLegacyPassword(password: String): String? {

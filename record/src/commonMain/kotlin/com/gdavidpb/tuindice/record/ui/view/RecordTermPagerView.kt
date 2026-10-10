@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.NoticeView
+import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,6 +31,7 @@ import kotlinx.coroutines.flow.filter
 fun RecordTermPagerView(
 	modifier: Modifier = Modifier,
 	terms: List<TermItem>,
+	notice: RecordNotice? = null,
 	selectedTermId: String,
 	onSelectedTermChange: (termId: String) -> Unit,
 	onAttemptSelectionChange: (
@@ -82,6 +90,19 @@ fun RecordTermPagerView(
 			terms = terms,
 			selectedTermId = termIds.getOrNull(pagerState.currentPage) ?: selectedTermId,
 			onTermSelected = onSelectedTermChange
+		)
+
+		// The notice every page shares (a final annulment has no current term to sit on). Always
+		// composed, so it animates in and out instead of making the pages jump.
+		val shownNotice = rememberLastNonNull(notice)
+
+		NoticeView(
+			modifier = Modifier.padding(vertical = TuIndiceSpacing.Medium),
+			visible = notice != null,
+			title = shownNotice?.title?.asString(),
+			message = shownNotice?.message?.asString().orEmpty(),
+			// The fallback is never drawn: nothing shows until a notice has brought its own icon.
+			icon = shownNotice?.icon ?: Icons.Outlined.Info
 		)
 
 		HorizontalPager(

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Fake du for the device.sh tests: the real one unless FAKE_DU_KB is set. FAKE_DU_KB=<n> prints that total for the last
+# argument; FAKE_DU_EXIT=<code> is the exit status (1 is what du answers when a file vanished while it walked the tree, with the
+# total printed all the same); FAKE_DU_NONE=1 prints nothing at all.
+set -euo pipefail
+
+if [[ -z "${FAKE_DU_KB:-}" && -z "${FAKE_DU_NONE:-}" ]]; then
+	exec /usr/bin/du "$@"
+fi
+if [[ -z "${FAKE_DU_NONE:-}" ]]; then
+	printf '%s\t%s\n' "${FAKE_DU_KB}" "${*: -1}"
+fi
+exit "${FAKE_DU_EXIT:-0}"

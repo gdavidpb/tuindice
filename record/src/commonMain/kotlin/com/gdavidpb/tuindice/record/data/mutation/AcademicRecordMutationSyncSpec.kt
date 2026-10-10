@@ -2,25 +2,50 @@ package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
-import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
+import com.gdavidpb.tuindice.base.utils.extension.isTransient
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.data.model.AcademicRecordConflictException
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import kotlinx.coroutines.CancellationException
 
+private const val MAX_EXHAUSTED_EXECUTIONS = 5
+
 class AcademicRecordMutationSyncSpec(
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
 	private val persistConfirmedSnapshot: suspend (VersionedAcademicRecord) -> Unit,
-	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
+	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord,
+	private val currentLocalRevision: suspend () -> Long?
 ) : MutationSyncSpec<String, AcademicRecordMutation, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 3
+
+	// A row that exhausted its rebases is requeued after a backoff; after this many exhausted
+	// executions it has lost the race too often to be worth another, and is parked for good.
+	override val maxExhaustedExecutions: Int = MAX_EXHAUSTED_EXECUTIONS
+
+	override fun revisionOf(ack: VersionedAcademicRecord): Long = ack.revision
+
+	// The record revision the mutations ahead of this one just confirmed. Never lower than what
+	// the row already expects: a conflict may have taught it a revision the local copy lacks.
+	override suspend fun currentPrecondition(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	): MutationPrecondition {
+		val expected = mutation.expectedRevision
+		val local = currentLocalRevision()
+
+		return if (expected != null && local != null && local > expected) {
+			MutationPrecondition.Revision(local)
+		} else {
+			mutation.precondition
+		}
+	}
 
 	// false: confirm() (which persists the confirmed snapshot to localDataSource) must
 	// land BEFORE the outbox row is deleted. With the outbox emptied first, there is a
@@ -104,11 +129,16 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, AcademicRecordMutation> {
-		if (throwable.isConnection()) {
+		// A lost connection, or a failure that says nothing about the change (see isTransient: a response
+		// is judged by its code alone: 426, 429, 502, 503, 504; plus the retry window and a refused
+		// attestation), leaves the row Pending so the next drain sends it again. 408, 500 and the 4xx
+		// answers stay out: they are about the request itself, whatever their body says.
+		if (throwable.isTransient()) {
 			return MutationFailureResolution.Defer()
 		}
 
-		return when (val command = mutation.command) {
+		// A stale precondition names the revision to retry with: no need to GET the record to learn it.
+		return rebaseOnKnownRevision(mutation, throwable) ?: when (val command = mutation.command) {
 			is AcademicRecordMutation.UpsertAttemptOverride ->
 				resolveUpsertAttemptOverrideFailure(
 					mutation = mutation,
@@ -150,7 +180,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+				val refreshedSnapshot = refreshRemoteSnapshot.orNullIfItFails()
 					?: return MutationFailureResolution.Defer()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
@@ -168,7 +198,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshotSafely()
+				refreshRemoteSnapshot.orNullIfItFails()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -185,7 +215,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+				val refreshedSnapshot = refreshRemoteSnapshot.orNullIfItFails()
 					?: return MutationFailureResolution.Defer()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
@@ -203,7 +233,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshotSafely()
+				refreshRemoteSnapshot.orNullIfItFails()
 				MutationFailureResolution.Drop()
 			}
 
@@ -220,7 +250,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+				val refreshedSnapshot = refreshRemoteSnapshot.orNullIfItFails()
 					?: return MutationFailureResolution.Defer()
 				MutationFailureResolution.Retry(
 					mutation.copy(
@@ -230,7 +260,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshotSafely()
+				refreshRemoteSnapshot.orNullIfItFails()
 				MutationFailureResolution.Drop(propagate = propagateNotFound)
 			}
 
@@ -238,23 +268,36 @@ class AcademicRecordMutationSyncSpec(
 				MutationFailureResolution.Fail()
 		}
 	}
+}
 
-	// runCatching: the refresh is a network read that fails during the same degraded windows that
-	// break sends. Decisional callers Defer on null — evaluations Fails there, but in record Fail
-	// parks the row as silent FailedTerminal, and after the isConnection preamble the remaining
-	// refresh failures are dominated by transient outages that self-heal on a later drain.
-	// Reconciliation callers (NotFound) treat it as best-effort: the 404 already decided the
-	// resolution, and a dropped envelope can transiently resurrect the stale local base state
-	// until the next successful GET converges the snapshot.
-	private suspend fun refreshRemoteSnapshotSafely(): VersionedAcademicRecord? {
-		return runCatching { refreshRemoteSnapshot() }
-			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
-			.getOrNull()
-	}
+// runCatching: the refresh is a network read that fails during the same degraded windows that
+// break sends. Decisional callers Defer on null, because Fail
+// parks the row as silent FailedTerminal, and after the connection/retry-later preamble
+// the remaining refresh failures are dominated by transient outages that self-heal on a later drain.
+// Reconciliation callers (NotFound) treat it as best-effort: the 404 already decided the
+// resolution, and a dropped envelope can transiently resurrect the stale local base state
+// until the next successful GET converges the snapshot.
+private suspend fun (suspend () -> VersionedAcademicRecord).orNullIfItFails(): VersionedAcademicRecord? {
+	return runCatching { invoke() }
+		.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+		.getOrNull()
+}
 
-	private fun AttemptOverride?.matches(
-		command: AcademicRecordMutation.UpsertAttemptOverride
-	): Boolean {
-		return this?.score == command.score && this?.outcome == command.outcome
-	}
+// A stale precondition names the revision to retry with: no need to GET the record to learn it.
+private fun rebaseOnKnownRevision(
+	mutation: MutationEnvelope<String, AcademicRecordMutation>,
+	throwable: Throwable
+): MutationFailureResolution<String, AcademicRecordMutation>? {
+	val currentRevision = (throwable as? AcademicRecordConflictException)?.currentRevision
+		?: return null
+
+	return MutationFailureResolution.Retry(
+		mutation.copy(precondition = MutationPrecondition.Revision(currentRevision))
+	)
+}
+
+private fun AttemptOverride?.matches(
+	command: AcademicRecordMutation.UpsertAttemptOverride
+): Boolean {
+	return this?.score == command.score && this?.outcome == command.outcome
 }

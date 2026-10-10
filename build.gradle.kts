@@ -114,7 +114,8 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/SummaryUseCaseContractTest.class",
 	"**/UserRepositoryContractTest.class",
 	"**/SummaryViewModelContractTest.class",
-	"**/TermSelectorViewTest.class"
+	"**/TermSelectorViewTest.class",
+	"**/MainViewModelHostMessagesContractTest.class"
 )
 
 subprojects {
@@ -161,6 +162,10 @@ tasks.register("verifySharedCompilation") {
 		":base:compileKotlinIosSimulatorArm64",
 		":testkit:compileAndroidMain",
 		":testkit:compileKotlinIosSimulatorArm64",
+		":scenariokit:compileAndroidMain",
+		":scenariokit:compileKotlinIosSimulatorArm64",
+		":scenarios:compileAndroidMain",
+		":scenarios:compileKotlinIosSimulatorArm64",
 		":enrollmentproof:compileAndroidMain",
 		":enrollmentproof:compileKotlinIosSimulatorArm64",
 		":evaluations:compileAndroidMain",
@@ -195,6 +200,7 @@ tasks.register("verifySharedTests") {
 		":academiccore:iosSimulatorArm64Test",
 		":base:iosSimulatorArm64Test",
 		":testkit:iosSimulatorArm64Test",
+		":scenariokit:iosSimulatorArm64Test",
 		":enrollmentproof:iosSimulatorArm64Test",
 		":evaluations:iosSimulatorArm64Test",
 		":auth:iosSimulatorArm64Test",
@@ -218,6 +224,8 @@ tasks.register("verifySharedHostTests") {
 		":academiccore:testAndroidHostTest",
 		":base:testAndroidHostTest",
 		":testkit:testAndroidHostTest",
+		":scenariokit:testAndroidHostTest",
+		":scenarios:testAndroidHostTest",
 		":enrollmentproof:testAndroidHostTest",
 		":evaluations:testAndroidHostTest",
 		":auth:testAndroidHostTest",
@@ -296,11 +304,8 @@ tasks.register<Exec>("verifyModuleGraph") {
 	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
 }
 
-tasks.register<Exec>("verifyE2eContract") {
-	group = "verification"
-	description = "Validates the local E2E flow catalog and critical selector coverage."
-	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
-}
+// The E2E tasks live in a file outside the E2E fingerprint; see its header.
+apply(from = "gradle/e2e-tasks.gradle.kts")
 
 tasks.register<Exec>("syncAppVersion") {
 	group = "build setup"
@@ -312,66 +317,6 @@ tasks.register<Exec>("verifyAppVersionSync") {
 	group = "verification"
 	description = "Validates Android and iOS app versions against the shared app version properties without mutating the tree."
 	commandLine("bash", "${rootDir}/.github/scripts/validate-app-version.sh")
-}
-
-tasks.register<Exec>("e2eMaestroAndroid") {
-	group = "verification"
-	description = "Builds the Android debug app and runs the local Maestro E2E certification suite against WireMock."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
-}
-
-tasks.register<Exec>("e2eMaestroIos") {
-	group = "verification"
-	description = "Builds the iOS debug host and runs the local Maestro E2E certification suite against WireMock."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
-}
-
-tasks.register<Exec>("e2eMaestroLocal") {
-	group = "verification"
-	description = "Runs the local Maestro E2E certification suite on every locally available platform."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceAndroid") {
-	group = "verification"
-	description = "Runs required Android Maestro E2E suites and writes/publishes commit-bound evidence logs and metadata."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "android")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceIos") {
-	group = "verification"
-	description = "Runs required iOS Maestro E2E suites and writes/publishes commit-bound evidence logs and metadata."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "ios")
-}
-
-tasks.register<Exec>("e2eMaestroEvidenceLocal") {
-	group = "verification"
-	description = "Runs required local Maestro E2E evidence on locally needed platforms and publishes passing statuses when possible."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence-local.sh")
-}
-
-tasks.register<Exec>("e2eMaestroProfileAndroid") {
-	group = "verification"
-	description = "Profiles Android Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
-	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "android")
-}
-
-tasks.register<Exec>("e2eMaestroProfileIos") {
-	group = "verification"
-	description = "Profiles iOS Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
-	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "ios")
-}
-
-tasks.register<Exec>("e2ePlatformAndroid") {
-	group = "verification"
-	description = "Runs Android-only E2E edge suites when registered."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-android.sh")
-}
-
-tasks.register<Exec>("e2ePlatformIos") {
-	group = "verification"
-	description = "Runs iOS-only E2E edge suites when registered."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-ios.sh")
 }
 
 tasks.register<Exec>("verifyIosHostTypecheck") {

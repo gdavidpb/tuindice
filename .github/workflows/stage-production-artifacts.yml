@@ -40,6 +40,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           TARGET_GIT_SHA: ${{ github.sha }}
           DEPLOY_PRODUCTION_PHASE: preflight
+          # Same trust list as the PR preflight (an unset variable resolves to "" and keeps the default).
+          E2E_TRUSTED_STATUS_CREATORS: ${{ vars.E2E_TRUSTED_STATUS_CREATORS }}
         run: |
           set -euo pipefail
           bash ./.github/scripts/deploy-production.sh

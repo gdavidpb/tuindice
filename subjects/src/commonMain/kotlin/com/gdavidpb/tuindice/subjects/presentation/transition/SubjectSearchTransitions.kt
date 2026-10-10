@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.transition
 
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
@@ -41,56 +42,84 @@ internal fun MachineDefinitionBuilder<SubjectSearch.State>.searchTransitions(
 		}
 
 		on<SubjectSearchInternalEvent.ShortQueryCleared> { state, event ->
-			state.copy(
-				query = event.query,
-				results = emptyList(),
-				isRefreshing = false,
-				hasRemoteError = false
-			)
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					results = emptyList(),
+					isRefreshing = false,
+					hasRemoteError = false
+				)
+			}
 		}
 
 		on<SubjectSearchInternalEvent.LocalResultsChanged> { state, event ->
-			state.copy(
-				query = event.query,
-				results = event.results,
-				hasRemoteError = if (event.results.isNotEmpty()) false else state.hasRemoteError
-			)
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					results = event.results,
+					hasRemoteError = if (event.results.isNotEmpty()) false else state.hasRemoteError
+				)
+			}
 		}
 
 		on<SubjectSearchInternalEvent.RemoteSearchStarted> { state, event ->
-			state.copy(
-				query = event.query,
-				isRefreshing = true,
-				hasRemoteError = false
-			)
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = true,
+					hasRemoteError = false
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RemoteSearchSucceeded> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RemoteSearchSucceeded> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = false
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RemoteSearchFailed> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = state.results.isEmpty()
-			)
+		on<SubjectSearchInternalEvent.RemoteSearchFailed> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = state.results.isEmpty()
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RetryStarted> { state, _ ->
-			state.copy(
-				isRefreshing = true,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RetryStarted> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = true,
+					hasRemoteError = false
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RetryCleared> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RetryCleared> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = false
+				)
+			}
 		}
 	}
 }
+
+private fun SubjectSearch.State.isAbout(query: String) =
+	SubjectCatalogSearchNormalizer.normalize(this.query) == SubjectCatalogSearchNormalizer.normalize(query)

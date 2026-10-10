@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -8,9 +11,13 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfi
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import io.github.vinceglb.filekit.PlatformFile
@@ -49,6 +56,15 @@ class SummaryStateMachineWalkUiTest {
 		return SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
+				reportingRepository = reportingRepository
+			),
+			observeSyncUseCase = ObserveSyncUseCase(
+				syncStatusRepository = FakeSyncStatusRepository(),
+				syncRepository = FakeSyncRepository(),
+				reportingRepository = reportingRepository
+			),
+			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+				deviceInfoRepository = FakeDeviceInfoRepository(),
 				reportingRepository = reportingRepository
 			),
 			updateUserUseCase = UpdateUserUseCase(
@@ -112,6 +128,10 @@ class SummaryStateMachineWalkUiTest {
 				Summary.Action.ConfirmRemoveProfilePicture,
 				SummaryInternalEvent.UserObserved(content = content),
 				SummaryInternalEvent.ObservationFailed(message = "No se pudo cargar"),
+				SummaryInternalEvent.SyncObserved(
+					sync = SummarySyncItem(status = SyncStatus.Failed, isSyncing = true)
+				),
+				SummaryInternalEvent.CameraAvailabilityResolved(isCameraAvailable = true),
 				SummaryInternalEvent.RefreshSucceeded,
 				SummaryInternalEvent.RefreshFailed(message = "No se pudo actualizar"),
 				SummaryInternalEvent.ProfilePictureUploadStarted(
