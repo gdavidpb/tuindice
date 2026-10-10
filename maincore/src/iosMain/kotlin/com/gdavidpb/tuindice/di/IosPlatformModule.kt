@@ -188,7 +188,11 @@ val iosPlatformModule = module {
 		IosStoreUrlDataSource(appStoreUrl = iOSContext().appStoreUrl)
 	}
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
-	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
+	singleOf(::IosProfilePictureInputDataSource) {
+		bind<ProfilePictureInputDataRepository>()
+		bind<SessionMemory>()
+		bind<SessionResidue>()
+	}
 	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	single(named(IDENTITY_HTTP_CLIENT_QUALIFIER)) {

@@ -63,7 +63,9 @@ class SessionMemoryBindingTest {
 	}
 
 	// The start without a session asks only these, so a holder that is not bound here is never
-	// asked. Narrow on purpose: it is not a second list of every session memory.
+	// asked. Narrow on purpose: it is not a second list of every session memory. Only the shared
+	// modules are seen here; the iOS-only holder (IosProfilePictureInputDataSource) is bound in the
+	// iOS platform module and is covered by IosAppKoinSmokeTest.
 	@Test
 	fun theSharedModulesBindExactlyTheKnownSessionResidueHolders() {
 		val bound = definitions

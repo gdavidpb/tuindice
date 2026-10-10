@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.base.domain.session
 
 /**
- * Files of its own that a shared object keeps for the signed-in account and that a version before
- * the sign-out wipe covered it left on the device (a saved document). A person who signed out with
- * that version still has them, and the next one to sign in on the phone would find them.
+ * Files of its own that a shared object keeps for the signed-in account and that may be left on the
+ * device after that account is gone: a saved document (the enrollment proofs), or a photo written
+ * for an upload the process never finished (the iOS normalized profile picture). A person who
+ * signed out before the sign-out wipe covered them, or whose app died mid-upload, still has them,
+ * and the next one to sign in on the phone would find them. Each holder lists its own files here;
+ * there is no single owner.
  *
  * Narrower than [SessionMemory] on purpose: [SessionMemory] is what a sign-out lets go of, all of
  * it, and includes state that is valid without a session (the usage-data consent can be given on
