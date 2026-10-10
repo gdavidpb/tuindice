@@ -350,7 +350,7 @@ private val conformanceSystem = scenario("conformance-system", "conformance", ca
 	}
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
-		// The dimmed area closes the sheet; the tap goes where the top bar of About has nothing to activate.
+		// The dimmed area closes the sheet; the tap goes over a row of About with a link, which it must not reach.
 		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
 		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 	}

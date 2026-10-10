@@ -8,7 +8,10 @@ object ShareSheet {
 	/** The label of the dimmed area of the iOS popover, which closes the sheet when tapped. */
 	const val IOS_ELEMENT = "PopoverDismissRegion"
 
-	/** Where the top bar of About has nothing to tap (fractions of the screen), over the dimmed area of the iOS sheet. */
-	const val DISMISS_X = 0.6
-	const val DISMISS_Y = 0.1
+	/**
+	 * Where the dimmed area of the iOS sheet lies over a row of About that has a link (the Creative Commons row;
+	 * fractions of the screen): the tap that closes the sheet must not reach that row.
+	 */
+	const val DISMISS_X = 0.5
+	const val DISMISS_Y = 0.3
 }

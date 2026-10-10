@@ -162,16 +162,19 @@ private val aboutPlatformEdgeTriggers = scenario(
 	}
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
-	// none either and is closed by tapping the dimmed area around it, but that tap also reaches whatever the app
-	// shows under the finger (measured: a tap at the height of the Creative Commons row closed the sheet and opened
-	// that link in Safari). So the scenario sees the sheet first, then taps where the app has nothing to activate,
-	// the empty part of the top bar, and asserts that the sheet went and the About screen is still the one in front.
+	// none either and is closed by tapping the dimmed area around it, at the height of a row with a link (the
+	// Creative Commons row): the tap must close the sheet and must not reach the row, so the scenario asserts that
+	// the sheet went, that About is still the screen in front (no browser page opened, the app did not go to
+	// Safari), and the next step taps the app and needs it to answer.
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
 		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 		waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
+		// The app answers the next touch (the sheet's closing left it taking touches again): another tab opens.
+		tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
+		waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 	}
 	returnToAbout()
 	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore, leavesTheAppOnAndroid = true)
