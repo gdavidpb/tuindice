@@ -52,6 +52,9 @@ class MainMachine(
 	// open the dialog twice.
 	private var signOutPreparationJob: Job? = null
 
+	// A session notice was sent to the interface and it has not said it showed it.
+	private var sessionNoticeInFlight = false
+
 	override fun initialState(): Main.State = Main.State.Starting
 
 	override fun define(host: MachineHost<Main.Effect>): MachineDefinition<Main.State> {
@@ -156,8 +159,21 @@ class MainMachine(
 		}
 	}
 
+	// One notice of a session that ended behind the user's back is on its way to the screen at a time:
+	// the start-up offers the one the invalidation left and the live signal tells the same invalidation,
+	// and both stay pending until the interface says it showed it. True when this one may be sent.
+	internal fun beginSessionNotice(): Boolean {
+		if (sessionNoticeInFlight) return false
+
+		sessionNoticeInFlight = true
+
+		return true
+	}
+
 	// The interface showed the notice: only now is it taken from the settings.
 	internal fun acknowledgeSessionInvalidation(host: MachineHost<Main.Effect>) {
+		sessionNoticeInFlight = false
+
 		host.launchMachineJob {
 			acknowledgeSessionInvalidationUseCase.execute(Unit).collect()
 		}

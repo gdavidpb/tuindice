@@ -121,7 +121,7 @@ class StartUpUseCaseTest {
 	}
 
 	@Test
-	fun execute_consumesSessionResetNoticeAndFlagsAuthStart() = runTest {
+	fun execute_offersTheSessionResetNoticeWithoutTakingIt() = runTest {
 		val settingsRepository = FakeSettingsRepository()
 		settingsRepository.setSessionResetNoticePending()
 
@@ -145,6 +145,25 @@ class StartUpUseCaseTest {
 			awaitComplete()
 		}
 
+		// Reading it is not showing it: it stays until the interface says it showed it.
+		assertEquals(true, settingsRepository.sessionResetNoticePending)
+	}
+
+	// A notice left for a session that came back (there are tokens again) explains nothing: it is
+	// dropped, not kept for a later sign-out.
+	@Test
+	fun execute_withASession_dropsAStaleSessionResetNotice() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		settingsRepository.setSessionResetNoticePending()
+
+		val result = runStartUp(
+			startUpUseCase(
+				sessionRepository = FakeSessionRepository(),
+				settingsRepository = settingsRepository
+			)
+		)
+
+		assertEquals(false, assertIs<StartUpResult.Available>(result).showSessionResetNotice)
 		assertEquals(false, settingsRepository.sessionResetNoticePending)
 	}
 
@@ -249,7 +268,7 @@ class StartUpUseCaseTest {
 
 	private fun startUpUseCase(
 		sessionRepository: SessionRepository,
-		applicationRepository: RecordingApplicationRepository,
+		applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 		settingsRepository: FakeSettingsRepository = FakeSettingsRepository(),
 		reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
 	) = StartUpUseCase(

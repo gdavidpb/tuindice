@@ -113,6 +113,42 @@ class RoomAvailableAttemptsObservationTest {
 		assertEquals(listOf("t1[a1]", "t2[a2]"), emitted)
 	}
 
+	// The coherence of the pair does not depend on the runner isolating its reads: on Android the
+	// database is opened by the framework helper (one passthrough connection), where that isolation is
+	// not proven, so the pair is checked by itself. Here `read` isolates nothing, and the write lands
+	// after the terms were read and before the attempts are.
+	@Test
+	fun withARunnerThatDoesNotIsolate_aWriteBetweenTheTwoReads_isNeverShownAsTheOldTermOverTheNewAttempts() = runTest {
+		val emitted = mutableListOf<String>()
+		var landed = false
+		termChanges.emit(terms)
+
+		backgroundScope.launch {
+			RoomDatabaseDataSource.observeDisplayContext(
+				changes = merge(termChanges, attemptChanges),
+				transactionRunner = object : PersistenceTransactionRunner {
+					override suspend fun <R> immediate(block: suspend () -> R): R = block()
+
+					override suspend fun <R> read(block: suspend () -> R): R = block()
+				},
+				readTerms = { terms },
+				readAttempts = {
+					if (!landed) {
+						landed = true
+						terms = listOf(term(id = "t2", order = 20262))
+						attempts = listOf(attempt(id = "a2", termId = "t2", code = "FIS-101"))
+					}
+
+					attempts
+				}
+			).collect { context -> emitted += context.pair() }
+		}
+		runCurrent()
+
+		// Never t1 over a2 (an empty list in the middle of the change): the pair is read again.
+		assertEquals(listOf("t2[a2]"), emitted)
+	}
+
 	@Test
 	fun anAttemptThatDisappearsWithinTheSameTerm_isReflectedWithoutMovingTheTerm() = runTest {
 		attempts += attempt(id = "a1b", termId = "t1", code = "MAT-101")

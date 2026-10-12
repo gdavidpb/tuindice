@@ -100,10 +100,13 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		}
 
 		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content>(
-			emits = setOf(Main.Effect.ShowSnackBar::class)
+			emits = setOf(Main.Effect.SessionInvalidated::class)
 		) { _, event ->
+			// Told as the live notice is: the route acknowledges it once it showed it.
 			event.sessionResetMessage?.let { message ->
-				host.sendEffect(Main.Effect.ShowSnackBar(message = message))
+				if (machine.beginSessionNotice()) {
+					host.sendEffect(Main.Effect.SessionInvalidated(message = message))
+				}
 			}
 
 			machine.observeContent(host = host)
@@ -128,7 +131,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		on<MainInternalEvent.SessionInvalidationObserved>(
 			emits = setOf(Main.Effect.SessionInvalidated::class)
 		) { state, event ->
-			host.sendEffect(Main.Effect.SessionInvalidated(message = event.message))
+			if (machine.beginSessionNotice()) {
+				host.sendEffect(Main.Effect.SessionInvalidated(message = event.message))
+			}
+
 			state
 		}
 

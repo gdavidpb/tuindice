@@ -50,9 +50,9 @@ class SessionNoticeShownOnceTest {
 	}
 
 	// The process dies before the interface could show anything: the notice was kept, and the next
-	// start shows it once.
+	// start shows it.
 	@Test
-	fun whenTheProcessDies_theNextStartShowsTheNoticeOnce() = runTest {
+	fun whenTheProcessDies_theNextStartOffersTheNotice() = runTest {
 		val world = World(this)
 
 		world.invalidate()
@@ -60,7 +60,33 @@ class SessionNoticeShownOnceTest {
 		val afterTheDeath = world.afterAProcessDeath()
 
 		assertTrue(afterTheDeath.nextStart().showSessionResetNotice, "the next start explains the sign-in screen")
-		assertFalse(afterTheDeath.nextStart().showSessionResetNotice, "and only once")
+	}
+
+	// The start-up read the notice but the process died before the interface showed it: reading it
+	// is not showing it, so the start after that offers it again.
+	@Test
+	fun whenTheProcessDiesAfterTheStartUpReadTheNoticeButBeforeItWasShown_theNextStartOffersItAgain() = runTest {
+		val world = World(this)
+
+		world.invalidate()
+		assertTrue(world.afterAProcessDeath().nextStart().showSessionResetNotice, "read, never shown")
+
+		val afterTheSecondDeath = world.afterAProcessDeath()
+
+		assertTrue(afterTheSecondDeath.nextStart().showSessionResetNotice, "so it is not lost")
+	}
+
+	// The start-up offered the notice and the interface showed it and said so: the next start has
+	// nothing left to say.
+	@Test
+	fun whenTheStartUpNoticeWasShownAndAcknowledged_theNextStartDoesNotOfferIt() = runTest {
+		val world = World(this)
+
+		world.invalidate()
+		assertTrue(world.nextStart().showSessionResetNotice)
+		world.acknowledgeNotice()
+
+		assertFalse(world.afterAProcessDeath().nextStart().showSessionResetNotice, "only once")
 	}
 
 	// The signal reached the machine but the process was killed before the screen showed it (a
@@ -77,14 +103,17 @@ class SessionNoticeShownOnceTest {
 	}
 
 	// The invalidation happened while the start-up was still resolving: the start-up showed the
-	// notice (it read what the invalidation left), and the live signal that arrives after the
-	// content is up is the same notice, not a second one.
+	// notice (it read what the invalidation left) and the interface acknowledged it, so the live
+	// signal that arrives after the content is up is the same notice, not a second one. (While the
+	// notice is shown but not yet acknowledged, the machine holds the signal back: see
+	// MainViewModelHostMessagesContractTest.)
 	@Test
 	fun whenTheStartUpShowedTheNotice_theLiveSignalThatArrivesAfterwardsIsNotShownAgain() = runTest {
 		val world = World(this)
 
 		world.invalidate()
 		assertTrue(world.nextStart().showSessionResetNotice)
+		world.acknowledgeNotice()
 
 		// The user was told already: the signal that arrives afterwards says nothing.
 		world.showLiveNotice(expected = false)
@@ -163,10 +192,13 @@ class SessionNoticeShownOnceTest {
 		// What the content does when it is up: it observes the signal and, for each one, shows the
 		// notice and acknowledges it. [expected] says whether a signal is waiting for it.
 		suspend fun showLiveNotice(expected: Boolean) {
-			observeLiveNotice(expected) {
-				AcknowledgeSessionInvalidationUseCase(settings, reporting).execute(Unit).test {
-					cancelAndIgnoreRemainingEvents()
-				}
+			observeLiveNotice(expected) { acknowledgeNotice() }
+		}
+
+		// The interface showed the notice and says so.
+		suspend fun acknowledgeNotice() {
+			AcknowledgeSessionInvalidationUseCase(settings, reporting).execute(Unit).test {
+				cancelAndIgnoreRemainingEvents()
 			}
 		}
 

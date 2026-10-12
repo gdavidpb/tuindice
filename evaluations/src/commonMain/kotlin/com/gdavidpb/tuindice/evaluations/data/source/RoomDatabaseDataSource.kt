@@ -268,6 +268,10 @@ class RoomDatabaseDataSource(
 	}
 
 	internal companion object {
+		// Writes that keep landing between the reads of one pair; past this the last pair is used, and
+		// the next change of the tables reads it again.
+		private const val COHERENT_READ_RETRIES = 3
+
 		// Each emission of [changes] only says "the terms or the attempts changed": both are read again
 		// afterwards, in one read transaction (see readDisplayContext), so a record write that moves
 		// the term and its attempts together yields the new term with its own attempts, never the new
@@ -309,17 +313,34 @@ class RoomDatabaseDataSource(
 			readAttempts: suspend () -> List<AcademicAttemptEntity>
 		): LocalEvaluationDisplayContext {
 			// One read transaction for both tables: a write between two separate reads would pair the
-			// new term with the old attempts, and the tab would pass through "no attempts".
+			// new term with the old attempts, and the tab would pass through "no attempts". The pair
+			// does not rest on that transaction alone (its isolation is proven on iOS, not on Android,
+			// see PersistenceTransactionRunner.read): the terms are read again after the attempts, and
+			// if they moved a write landed in between, so the pair is read anew.
 			return transactionRunner.read {
-				val terms = readTerms()
-				val attempts = readAttempts()
+				var terms = readTerms()
+				var attempts = readAttempts()
 
-				LocalEvaluationDisplayContext(
-					currentTerm = selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor(),
-					attempts = selectAvailableAttempts(terms = terms, attempts = attempts)
-				)
+				repeat(COHERENT_READ_RETRIES) {
+					val termsAfter = readTerms()
+
+					if (termsAfter == terms) return@read toDisplayContext(terms = terms, attempts = attempts)
+
+					terms = termsAfter
+					attempts = readAttempts()
+				}
+
+				toDisplayContext(terms = terms, attempts = attempts)
 			}
 		}
+
+		private fun toDisplayContext(
+			terms: List<AcademicTermEntity>,
+			attempts: List<AcademicAttemptEntity>
+		) = LocalEvaluationDisplayContext(
+			currentTerm = selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor(),
+			attempts = selectAvailableAttempts(terms = terms, attempts = attempts)
+		)
 
 		fun selectAvailableAttempts(
 			terms: List<AcademicTermEntity>,

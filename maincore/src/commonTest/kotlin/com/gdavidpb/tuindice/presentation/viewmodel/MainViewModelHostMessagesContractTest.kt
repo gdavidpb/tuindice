@@ -6,14 +6,17 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import kotlin.test.Test
@@ -82,6 +85,51 @@ class MainViewModelHostMessagesContractTest {
 				viewModel.effect.test {
 					assertIs<Main.Effect.SessionInvalidated>(awaitSessionInvalidated())
 					assertEquals(true, settingsRepository.sessionResetNoticePending, "told is not shown")
+
+					viewModel.sessionInvalidationShownAction()
+					withTimeout(3_000) {
+						while (settingsRepository.sessionResetNoticePending) yield()
+					}
+
+					cancelAndIgnoreRemainingEvents()
+				}
+			}
+		}
+	}
+
+	// The start-up offers the notice the invalidation left (it is still pending until the route says it
+	// showed it) and the live signal of the same invalidation arrives afterwards: the user is told once.
+	@Test
+	fun sessionNoticeOfferedByTheStartUp_isNotFollowedByTheLiveSignalOfTheSameInvalidation() = runTest {
+		withMainDispatcher { dispatchers ->
+			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
+			val sessionInvalidationRepository = SessionInvalidationDataSource()
+			// What the invalidation did before the start-up: leave the notice, and tell.
+			settingsRepository.setSessionResetNoticePending()
+			sessionInvalidationRepository.notifySessionInvalidated()
+			val viewModel = createMainViewModel(
+				sessionRepository = FakeSessionRepository(sessionId = ""),
+				settingsRepository = settingsRepository,
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				dispatchers = dispatchers
+			)
+
+			collectingState(viewModel) {
+				viewModel.effect.test {
+					val effect = awaitSessionInvalidated()
+
+					assertIs<Main.Effect.SessionInvalidated>(effect)
+					assertEquals("No pudimos leer tus datos y reiniciamos la sesión. Inicia sesión de nuevo.", effect.message)
+					assertEquals(true, settingsRepository.sessionResetNoticePending, "offered is not shown")
+
+					// The content is up, and the live signal of the same invalidation with it. The start-up
+					// reads the message from the resources, which takes real time: the wait is in real time.
+					withContext(Dispatchers.Default) {
+						withTimeout(3_000) { viewModel.state.filterIsInstance<Main.State.Content>().first() }
+					}
+					testScheduler.advanceUntilIdle()
+					// The live signal reached the machine while the notice was still pending: no second one.
+					expectNoEvents()
 
 					viewModel.sessionInvalidationShownAction()
 					withTimeout(3_000) {
