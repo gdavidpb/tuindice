@@ -44,6 +44,12 @@ class IosApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
+		// First, before anything is emptied: from here on, whatever a holder was waiting on (a
+		// download that lands while the stores are being wiped) belongs to the account that is
+		// leaving and must find that out. The same call in the finally below stays: it brings the
+		// mirrors back to what the emptied stores say.
+		releaseSessionMemory()
+
 		try {
 			persistenceMaintenanceRepository.clearAll()
 			attestationCapability.invalidateAttestationKeyId()
@@ -57,7 +63,11 @@ class IosApplicationDataSource(
 		} finally {
 			// Last, and also when the wipe stops halfway: every holder goes back to what the
 			// stores now say, so memory never keeps more than what is still stored.
-			sessionMemory().forEach { memory -> runCatching { memory.clearSessionMemory() } }
+			releaseSessionMemory()
 		}
+	}
+
+	private suspend fun releaseSessionMemory() {
+		sessionMemory().forEach { memory -> runCatching { memory.clearSessionMemory() } }
 	}
 }

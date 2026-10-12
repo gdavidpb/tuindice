@@ -1,0 +1,22 @@
+rules:
+  - id: session-recovery-no-noncancellable
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Ni nonCancellableRefresh ni NonCancellable en el camino de recuperación de sesión. La
+      invalidación corre dentro de la rama de la petición (refreshTokens del plugin Auth) y
+      SessionCoroutineScope.cancelActiveWork() reconoce esa rama por su Job padre: con un contexto
+      no cancelable el Job de quien llama cuelga de NonCancellable, deja de ser descendiente del
+      scope, y el cierre de sesión se cancela y espera a su propia rama para siempre.
+    pattern-either:
+      - pattern: nonCancellableRefresh = true
+      - pattern: $RECEIVER.nonCancellableRefresh = true
+      - pattern: NonCancellable
+    paths:
+      include:
+        - '**/di/KtorClient*.kt'
+        - '**/data/source/session/**'
+        - '**/base/domain/coroutine/**'
+    metadata:
+      area: session
+      referencia: 'SessionCoroutineScope.cancelActiveWork; SessionRecoveryDataSource.invalidateSession'

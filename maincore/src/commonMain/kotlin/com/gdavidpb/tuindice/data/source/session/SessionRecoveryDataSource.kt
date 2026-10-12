@@ -23,7 +23,9 @@ import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.coroutineContext
@@ -39,6 +41,8 @@ class SessionRecoveryDataSource(
 	private val sessionCoroutineScope: SessionCoroutineScope
 ) : SessionRecoveryRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
+	private val invalidationMutex = Mutex()
+	private val invalidationsCompleted = MutableStateFlow(0)
 
 	// Guarded by recoveryMutex. Marks a token that still reported near-expiry after the
 	// freshest refresh this device can obtain, so the gateway arbitrates it instead of
@@ -146,12 +150,36 @@ class SessionRecoveryDataSource(
 		}
 	}
 
+	// One invalidation at a time, and a call that arrives while another is in flight does not start
+	// a second wipe. It waits for the one in progress and ends there, because that wipe is the one
+	// that serves it: both callers want the session gone and the notice emitted once. Waiting is
+	// also what a caller outside the scope needs (the session is gone when the call returns), while
+	// a caller inside the scope is cancelled by the wipe in progress and never gets past the wait.
+	// Two invalidations from inside the scope would otherwise each skip their own branch, cancel the
+	// other and leave the wipe half done. This lock is taken by invalidations only: no request holds
+	// it, and the recovery lock is never needed to take it.
 	override suspend fun invalidateSession(sessionId: String?) {
-		sessionCoroutineScope.cancelActiveWork()
-		runCatching { applicationRepository.clearData() }
-		runCatching { sessionRepository.clear() }
-		runCatching { syncStatusRepository.reset() }
-		runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
+		val invalidationsSeen = invalidationsCompleted.value
+
+		invalidationMutex.withLock {
+			if (invalidationsCompleted.value != invalidationsSeen) {
+				// The wipe this call waited for is done; the request that made it is over as well.
+				sessionCoroutineScope.callerBranch()?.cancel()
+				return
+			}
+
+			val callerBranch = sessionCoroutineScope.cancelActiveWork()
+			runCatching { applicationRepository.clearData() }
+			runCatching { sessionRepository.clear() }
+			runCatching { syncStatusRepository.reset() }
+			runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
+
+			invalidationsCompleted.value += 1
+
+			// Last, once everything is wiped: the request that ran into the end of the session
+			// (a sync, a revalidation) unwinds as a cancellation and writes nothing afterwards.
+			callerBranch?.cancel()
+		}
 	}
 
 	// Not under recoveryMutex: the wipe can be reached from a recovery that still holds it, and

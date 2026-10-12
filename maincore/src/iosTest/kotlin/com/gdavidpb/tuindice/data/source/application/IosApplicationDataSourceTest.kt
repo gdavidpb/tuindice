@@ -61,6 +61,29 @@ class IosApplicationDataSourceTest {
 		assertEquals(listOf(true, true), holders.map(RecordingSessionMemory::clearedAfterTheStores))
 	}
 
+	// A download that lands while the stores are being emptied must already find the session over:
+	// the holders are told before anything is wiped, and again at the end.
+	@Test
+	fun clearData_tellsEverySessionMemoryBeforeEmptyingTheStores_andAgainAfterwards() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-26123")
+		val holders = listOf(
+			RecordingSessionMemory(settingsRepository),
+			RecordingSessionMemory(settingsRepository)
+		)
+		val dataSource = dataSource(
+			persistenceMaintenanceRepository = NoOpPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			sessionMemory = holders
+		)
+
+		dataSource.clearData()
+
+		assertEquals(
+			listOf(listOf(false, true), listOf(false, true)),
+			holders.map(RecordingSessionMemory::storesWipedAtEachCall)
+		)
+	}
+
 	@Test
 	fun clearData_whenDatabaseWipeFails_stillClearsEverySessionMemory() = runTest {
 		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-26123")
@@ -77,7 +100,7 @@ class IosApplicationDataSourceTest {
 		val failure = assertFailsWith<IllegalStateException> { dataSource.clearData() }
 
 		assertEquals("database wipe failed", failure.message)
-		assertEquals(listOf(1, 1), holders.map(RecordingSessionMemory::clearCount))
+		assertEquals(listOf(2, 2), holders.map(RecordingSessionMemory::clearCount))
 	}
 
 	// Only the residue contract is asked: the stores and the session memory stay as they are.
@@ -142,10 +165,12 @@ private class RecordingSessionMemory(
 		private set
 	var clearedAfterTheStores = false
 		private set
+	val storesWipedAtEachCall = mutableListOf<Boolean>()
 
 	override suspend fun clearSessionMemory() {
 		clearCount += 1
 		clearedAfterTheStores = settingsRepository.cleared
+		storesWipedAtEachCall += settingsRepository.cleared
 		failure?.let { throw it }
 	}
 }

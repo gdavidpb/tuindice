@@ -346,9 +346,11 @@ class EvaluationDataSource(
 	// caller that holds it may itself be waiting on a drain's scope). The mutation version check
 	// below is what keeps it from overwriting newer writes.
 	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {
+		val epoch = sessionEpoch
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
-		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
+		// Like downloadAndSave: an answer that outlived its session is not stored for the next account.
+		if (epoch == sessionEpoch && snapshotVersion == mutationEngine.currentMutationVersion()) {
 			databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
 		}
 		return remoteSnapshot

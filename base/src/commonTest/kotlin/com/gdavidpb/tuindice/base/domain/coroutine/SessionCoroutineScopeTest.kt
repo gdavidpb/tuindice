@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.coroutine
 
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +12,10 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -117,5 +121,57 @@ class SessionCoroutineScopeTest {
 
 		assertTrue(checkNotNull(late).isCancelled, "the child launched during the cancellation is cancelled")
 		assertTrue(checkNotNull(late).isCompleted)
+	}
+
+	// The wipe cancels the caller's branch as its last step, so cancelActiveWork hands it back.
+	@Test
+	fun cancelActiveWork_returnsTheBranchOfTheCaller_andNullFromOutside() = runTest {
+		val dispatcher = StandardTestDispatcher(testScheduler)
+		val scope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher))
+		var fromBranch: Job? = null
+		var fromGrandchild: Job? = null
+
+		val branch = scope.launch {
+			fromBranch = scope.cancelActiveWork()
+			launch { fromGrandchild = scope.cancelActiveWork() }
+		}
+		runCurrent()
+		branch.join()
+
+		assertSame(branch, fromBranch)
+		assertSame(branch, fromGrandchild)
+		assertNull(scope.cancelActiveWork())
+	}
+
+	// A child that relaunches work every time it is cancelled must not keep the sign-out spinning.
+	@Test
+	fun cancelActiveWork_givesUpAfterAFewPasses_andReports() = runTest {
+		val dispatcher = StandardTestDispatcher(testScheduler)
+		val reporting = RecordingReportingRepository()
+		val scope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), reporting)
+		var relaunches = 0
+		var keepRelaunching = true
+
+		fun relaunch() {
+			scope.launch {
+				try {
+					awaitCancellation()
+				} finally {
+					relaunches++
+					if (keepRelaunching) relaunch()
+				}
+			}
+		}
+		relaunch()
+		runCurrent()
+
+		scope.cancelActiveWork()
+
+		assertEquals(8, relaunches, "one pass per cancellation, and no more than the bound")
+		assertEquals(1, reporting.loggedExceptions.size)
+
+		keepRelaunching = false
+		scope.cancelActiveWork()
+		assertEquals(1, reporting.loggedExceptions.size, "a scope that settles is not reported")
 	}
 }

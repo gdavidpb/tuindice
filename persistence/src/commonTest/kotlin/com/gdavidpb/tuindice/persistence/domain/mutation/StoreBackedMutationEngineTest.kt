@@ -750,6 +750,71 @@ class StoreBackedMutationEngineTest {
 		assertEquals(2, outcome.sendCount)
 		assertEquals(null, outcome.storedStatus)
 	}
+
+	// The resolution of a failure can download (a 409 re-reads the snapshot) and the session can end
+	// meanwhile: the wipe has emptied the outbox, and what the engine decides next belongs to the
+	// account that left, so it must not put the row back nor send it again.
+	@Test
+	fun failureResolution_whenTheSessionEndsWhileItSuspends_doesNotResurrectTheRow() = runTest {
+		val resolutions = listOf<(MutationEnvelope<String, TestMutation>) -> MutationFailureResolution<String, TestMutation>>(
+			{ MutationFailureResolution.Defer() },
+			{ MutationFailureResolution.Fail() },
+			{ mutation ->
+				MutationFailureResolution.Retry(
+					mutation.copy(precondition = MutationPrecondition.Revision(9L))
+				)
+			}
+		)
+
+		resolutions.forEach { resolution ->
+			val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+			val engine = createEngine(store, this)
+			val resolutionStarted = CompletableDeferred<Unit>()
+			val releaseResolution = CompletableDeferred<Unit>()
+			var sendCount = 0
+			val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+				override val maxRebaseAttempts: Int = 3
+
+				override suspend fun send(
+					mutation: MutationEnvelope<String, TestMutation>
+				): TestAck {
+					sendCount += 1
+					throw TestTerminalFailure()
+				}
+
+				override suspend fun confirm(
+					mutation: MutationEnvelope<String, TestMutation>,
+					ack: TestAck
+				) = Unit
+
+				override suspend fun resolveFailure(
+					mutation: MutationEnvelope<String, TestMutation>,
+					throwable: Throwable
+				): MutationFailureResolution<String, TestMutation> {
+					resolutionStarted.complete(Unit)
+					releaseResolution.await()
+					return resolution(mutation)
+				}
+			}
+			val job = launch {
+				engine.submit(
+					mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+					syncSpec = syncSpec,
+					propagateTerminalErrors = false
+				)
+			}
+
+			resolutionStarted.await()
+			// What the wipe does while the resolution is downloading.
+			store.deletePendingMutation("record", "mutation-1")
+			engine.clearSessionMemory()
+			releaseResolution.complete(Unit)
+			job.join()
+
+			assertEquals(emptyList(), store.getMutations("record"))
+			assertEquals(1, sendCount)
+		}
+	}
 }
 
 private class DrainBehindExecutionOutcome(

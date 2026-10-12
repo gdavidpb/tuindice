@@ -118,7 +118,7 @@ class PensumDataSource(
 
 			val epoch = sessionEpoch
 
-			runCatching { fetchAndSave(cached = cached) }
+			runCatching { fetchAndSave(cached = cached, epoch = epoch) }
 				.onSuccess { if (epoch == sessionEpoch) lastRevalidationFailureAt = null }
 				.onFailure { throwable ->
 					if (throwable !is CancellationException && epoch == sessionEpoch) {
@@ -171,20 +171,31 @@ class PensumDataSource(
 	// An inferred selection is revalidated as the same year and modality, still marked inferred:
 	// letting the backend infer again could move the student to another pensum on a routine
 	// revalidation. Only if that pensum is gone does it fall back to a fresh inference.
-	private suspend fun fetchAndSave(cached: SelectedPensumCacheState?) {
+	//
+	// Saves only if the session it started in is still the current one: the download can outlive it
+	// (a request that ends the session), and the previous account's pensum must not reach the next.
+	private suspend fun fetchAndSave(cached: SelectedPensumCacheState?, epoch: Int) {
 		val pinnedInferredSelection = cached
 			?.takeIf { state -> state.inferred && state.year != null && state.modalityId != null }
 			?.let { state -> PensumSelectionParams(year = state.year, modalityId = state.modalityId) }
 
 		if (pinnedInferredSelection == null) {
 			val selection = localDataRepository.getSelectionParams()
+			val response = remoteDataRepository.getPensum(selection)
+
+			if (epoch != sessionEpoch) return
+
 			localDataRepository.savePensumResponse(
-				response = remoteDataRepository.getPensum(selection),
+				response = response,
 				inferredSelection = selection.year == null && selection.modalityId == null
 			)
 		} else {
+			val response = getPensumOrInfer(pinnedInferredSelection)
+
+			if (epoch != sessionEpoch) return
+
 			localDataRepository.savePensumResponse(
-				response = getPensumOrInfer(pinnedInferredSelection),
+				response = response,
 				inferredSelection = true
 			)
 		}

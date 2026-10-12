@@ -125,6 +125,29 @@ class PensumDataSourceTest {
 		assertEquals(2, remote.requestedSelections.size, "the next account's revalidation is not held off")
 	}
 
+	// The answer of a request made by the account that left must not become the next account's pensum.
+	@Test
+	fun refreshPensum_whenTheSessionEndsWhileDownloading_savesNothing() = runTest {
+		listOf(false, true).forEach { inferred ->
+			val local = FakePensumLocalDataRepository(
+				selection = if (inferred) {
+					PensumSelectionParams()
+				} else {
+					PensumSelectionParams(year = 2019, modalityId = "degree_project")
+				},
+				cacheState = cacheState(ageMillis = CooldownTimes.COOLDOWN_GET_PENSUM + HOUR, inferred = inferred)
+			)
+			lateinit var dataSource: PensumDataSource
+			val remote = FakePensumRemoteDataRepository(onRequest = { dataSource.clearSessionMemory() })
+			dataSource = createDataSource(local = local, remote = remote)
+
+			dataSource.refreshPensum(forceRemote = false)
+
+			assertEquals(1, remote.requestedSelections.size)
+			assertEquals(null, local.lastInferredSelection, "nothing is saved (inferred = $inferred)")
+		}
+	}
+
 	@Test
 	fun refreshPensum_forAnInferredSelection_revalidatesTheSamePensum_andKeepsItInferred() = runTest {
 		// Inferred selections read back as empty params: only the cache row knows which pensum it is.

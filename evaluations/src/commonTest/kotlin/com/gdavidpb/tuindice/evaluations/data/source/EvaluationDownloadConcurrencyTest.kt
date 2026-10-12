@@ -237,13 +237,40 @@ class EvaluationDownloadConcurrencyTest {
 
 		val revalidation = launch { repository.revalidateEvaluations() }
 		runCurrent()
+		// The order of the real wipe: the holders are told when it begins, the download lands while
+		// the stores are still being emptied, and they are told again when it ends.
 		repository.clearSessionMemory()
 		api.release()
 		runCurrent()
+		repository.clearSessionMemory()
 
 		assertTrue(revalidation.isCompleted)
 		assertTrue(database.savedSnapshots.isEmpty(), "the previous account's snapshot is not stored")
 		assertEquals(false, settings.cooldownMarked, "and it marks no cooldown for the next one")
+	}
+
+	// The download a 409 asks for while a drain runs has the same guard as the others.
+	@Test
+	fun theSnapshotAConflictDownloads_afterTheSessionWasCleared_isNotStored() = runTest {
+		val api = HeldEvaluationsApi(
+			delegate = FakeEvaluationsApiDataSource(
+				addThrowable = clientRequestException(HttpStatusCode.Conflict)
+			)
+		)
+		val database = FakeDatabaseDataSource(
+			initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
+		)
+		val repository = repository(api = api, database = database, store = storeWithPendingAdd())
+
+		val drain = launch { repository.drainPendingMutations() }
+		runCurrent()
+		assertEquals(1, api.calls, "the conflict asked for the download")
+		repository.clearSessionMemory()
+		api.release()
+		runCurrent()
+
+		assertTrue(drain.isCompleted)
+		assertTrue(database.savedSnapshots.isEmpty(), "the previous account's snapshot is not stored")
 	}
 
 	@Test

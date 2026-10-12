@@ -37,6 +37,12 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 
 	private var latestMutationVersion = 0L
 
+	// Counts the sessions this engine has seen end. An execution takes the number when it starts and
+	// compares it after every wait that a sign-out can cross (the spec's lock-free reads and the
+	// download inside resolveFailure): if it moved, the row and the answer belong to the account
+	// that left, so the execution neither saves nor sends anything else.
+	private val sessionEpoch = MutableStateFlow(0)
+
 	private val runtimeStore: MutableStore<ScopeKey, MutationExecution<ScopeKey, Command, Ack>> =
 		MutableStoreBuilder.from<
 				ScopeKey,
@@ -138,6 +144,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	// late result of an old mutation can never match a new one, and the per-scope execution locks
 	// stay: they carry no data and one may be held by the very request that ended the session.
 	override suspend fun clearSessionMemory() {
+		sessionEpoch.value += 1
 		versionMutex.withLock {
 			latestMutationVersionByReplaceKey.clear()
 			mutationVersionById.clear()
@@ -318,7 +325,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	private suspend fun processExecution(
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
 	): UpdaterResult {
-		var currentMutation = alignedMutation(execution)
+		val epoch = sessionEpoch.value
+		var currentMutation = alignedMutation(execution, epoch)
 			?: return UpdaterResult.Success.Untyped(Unit)
 		var rebaseAttempts = 0
 
@@ -326,7 +334,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			val step = attemptMutation(
 				execution = execution,
 				mutation = currentMutation,
-				rebaseAttempts = rebaseAttempts
+				rebaseAttempts = rebaseAttempts,
+				epoch = epoch
 			)
 
 			if (step !is ExecutionStep.Rebase) return (step as ExecutionStep.Done).result
@@ -348,7 +357,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	// One that ended Failed or FailedTerminal stays as it was; returns null then, so the waiting
 	// execution touches neither the row nor its version.
 	private suspend fun alignedMutation(
-		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
+		execution: MutationExecution.Execute<ScopeKey, Command, Ack>,
+		epoch: Int
 	): MutationEnvelope<ScopeKey, Command>? {
 		val queued = execution.mutation
 		val stored = outboxStore.getPendingMutation(queued.scopeKey, queued.mutationId)
@@ -361,7 +371,9 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			else -> {
 				val precondition = execution.syncSpec.currentPrecondition(stored)
 
-				if (precondition == stored.precondition) {
+				if (sessionEpoch.value != epoch) {
+					null
+				} else if (precondition == stored.precondition) {
 					stored
 				} else {
 					stored.copy(precondition = precondition).also { aligned ->
@@ -375,14 +387,15 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	private suspend fun attemptMutation(
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>,
 		mutation: MutationEnvelope<ScopeKey, Command>,
-		rebaseAttempts: Int
+		rebaseAttempts: Int,
+		epoch: Int
 	): ExecutionStep<ScopeKey, Command> {
-		if (!shouldApplyMutation(mutation)) return suppressMutation(mutation)
+		if (sessionEpoch.value != epoch || !shouldApplyMutation(mutation)) return suppressMutation(mutation)
 
 		return try {
 			val ack = execution.syncSpec.send(mutation)
 
-			if (shouldApplyMutation(mutation)) {
+			if (sessionEpoch.value == epoch && shouldApplyMutation(mutation)) {
 				confirmMutation(execution.syncSpec, mutation, ack)
 				ExecutionStep.Done(UpdaterResult.Success.Typed(ack))
 			} else {
@@ -391,8 +404,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		} catch (throwable: Throwable) {
 			if (throwable is CancellationException) throw throwable
 
-			if (shouldApplyMutation(mutation)) {
-				resolveExecutionFailure(execution, mutation, throwable, rebaseAttempts)
+			if (sessionEpoch.value == epoch && shouldApplyMutation(mutation)) {
+				resolveExecutionFailure(execution, mutation, throwable, rebaseAttempts, epoch)
 			} else {
 				suppressMutation(mutation)
 			}
@@ -439,7 +452,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>,
 		mutation: MutationEnvelope<ScopeKey, Command>,
 		throwable: Throwable,
-		rebaseAttempts: Int
+		rebaseAttempts: Int,
+		epoch: Int
 	): ExecutionStep<ScopeKey, Command> {
 		val resolution = runCatching {
 			execution.syncSpec.resolveFailure(mutation, throwable)
@@ -450,13 +464,37 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			// survives as Failed so the drain requeue backoff owns the next attempt, and the
 			// pass keeps draining instead of aborting on a poison row. Anything else would
 			// either lose the mutation or re-send it at full drain cadence forever.
-			outboxStore.savePendingMutation(
-				mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
-			)
+			if (sessionEpoch.value == epoch) {
+				outboxStore.savePendingMutation(
+					mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
+				)
+			}
 
 			return terminalStep(throwable, execution.propagateTerminalErrors)
 		}
 
+		// The resolution may have downloaded for a while: if the session ended meanwhile, the row
+		// was wiped with it and saving the verdict would bring it back.
+		return when {
+			sessionEpoch.value != epoch -> ExecutionStep.Done(UpdaterResult.Success.Untyped(Unit))
+
+			else -> applyResolution(
+				execution = execution,
+				mutation = mutation,
+				throwable = throwable,
+				rebaseAttempts = rebaseAttempts,
+				resolution = resolution
+			)
+		}
+	}
+
+	private suspend fun applyResolution(
+		execution: MutationExecution.Execute<ScopeKey, Command, Ack>,
+		mutation: MutationEnvelope<ScopeKey, Command>,
+		throwable: Throwable,
+		rebaseAttempts: Int,
+		resolution: MutationFailureResolution<ScopeKey, Command>
+	): ExecutionStep<ScopeKey, Command> {
 		return when (resolution) {
 			is MutationFailureResolution.Defer -> {
 				outboxStore.savePendingMutation(
