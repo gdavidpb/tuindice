@@ -4,9 +4,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Quiz
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
@@ -14,7 +17,9 @@ import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -178,6 +183,98 @@ class EvaluationsWeekGroupItemMappingTest {
 		)
 
 		assertEquals(emptyList(), groups)
+	}
+
+	// SEP_DEC 2026 with classes starting on Monday September 28th.
+	private val termWithClassesStart = DEFAULT_EVALUATION_TERM.copy(
+		periodCode = AcademicTermPeriod.SEP_DEC,
+		classesStartDate = LocalDate(2026, 9, 28)
+	)
+
+	private fun groupsOf(vararg evaluations: Evaluation, currentDate: LocalDate = LocalDate(2026, 10, 14)) =
+		buildEvaluationsWeekItems(
+			currentTerm = termWithClassesStart,
+			evaluations = evaluations.toList(),
+			weekLabelPattern = "Semana %1${'$'}d",
+			continuousLabel = "Continuas",
+			currentDate = currentDate
+		).toEvaluationsWeekGroupItemList(
+			evaluations = evaluations.toList(),
+			currentTerm = termWithClassesStart,
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT),
+			mapping = testEvaluationItemMapping()
+		)
+
+	private fun datedOn(id: String, date: LocalDate) = DEFAULT_PENDING_EVALUATION.copy(
+		id = id,
+		date = date.toEvaluationEpochMillis()
+	)
+
+	@Test
+	fun toEvaluationsWeekGroupItemList_withARealStart_groupsEachEvaluationUnderTheWeekOfItsDate() {
+		val groups = groupsOf(
+			datedOn("first-day", LocalDate(2026, 9, 28)),
+			datedOn("sunday-of-week-one", LocalDate(2026, 10, 4)),
+			datedOn("monday-of-week-two", LocalDate(2026, 10, 5)),
+			datedOn("thursday-of-week-three", LocalDate(2026, 10, 15))
+		)
+
+		assertEquals(
+			mapOf<EvaluationsWeekKey, List<String>>(
+				EvaluationsWeekKey.Academic(1) to listOf("first-day", "sunday-of-week-one"),
+				EvaluationsWeekKey.Academic(2) to listOf("monday-of-week-two"),
+				EvaluationsWeekKey.Academic(3) to listOf("thursday-of-week-three")
+			),
+			groups.associate { group ->
+				group.key to group.groups.flatMap { it.items }.map { item -> item.evaluationId }.sorted()
+			}
+		)
+	}
+
+	// Fixed on purpose: the strip has no such day, and the group holds the evaluation in the nearest week.
+	@Test
+	fun toEvaluationsWeekGroupItemList_withARealStart_holdsEvaluationsOutsideTheTwelveWeeksInTheNearestOne() {
+		val groups = groupsOf(
+			datedOn("before", LocalDate(2026, 9, 20)),
+			datedOn("after", LocalDate(2027, 2, 1))
+		)
+
+		assertEquals(
+			mapOf<EvaluationsWeekKey, List<String>>(
+				EvaluationsWeekKey.Academic(1) to listOf("before"),
+				EvaluationsWeekKey.Academic(12) to listOf("after")
+			),
+			groups.associate { group ->
+				group.key to group.groups.flatMap { it.items }.map { item -> item.evaluationId }
+			}
+		)
+	}
+
+	@Test
+	fun theStrip_theGroupAndTheDefaultWeek_agreeOnTheWeekOfAnyDateOfTheTerm() {
+		val firstDay = LocalDate(2026, 9, 28)
+
+		(0 until 12 * 7).forEach { offset ->
+			val date = firstDay.plus(DatePeriod(days = offset))
+			val evaluation = datedOn("on-$date", date)
+			val stripWeek = buildEvaluationsWeekItems(
+				currentTerm = termWithClassesStart,
+				evaluations = listOf(evaluation),
+				weekLabelPattern = "Semana %1${'$'}d",
+				continuousLabel = "Continuas",
+				currentDate = date
+			).single { item -> item.days.any { day -> day.isSelected } }.key
+			val groupWeek = groupsOf(evaluation, currentDate = date).single().key
+			val defaultWeek = defaultEvaluationsWeekKey(
+				currentTerm = termWithClassesStart,
+				evaluations = listOf(evaluation),
+				currentDate = date
+			)
+
+			assertEquals(stripWeek, groupWeek, "group of $date")
+			assertEquals(stripWeek, defaultWeek, "default of $date")
+			assertEquals(EvaluationsWeekKey.Academic(offset / 7 + 1), stripWeek, "week of $date")
+		}
 	}
 
 	@Test

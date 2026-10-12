@@ -38,6 +38,24 @@ class AcademicWeekEngineTest {
 	}
 
 	@Test
+	fun weekOneStart_withAClassesStartDateOnAMonday_isThatSameDate() {
+		// Monday September 28th.
+		assertEquals(
+			LocalDate(2026, 9, 28),
+			AcademicWeekEngine.weekOneStart(2026, AcademicTermPeriod.SEP_DEC, LocalDate(2026, 9, 28))
+		)
+	}
+
+	@Test
+	fun weekOneStart_withAClassesStartDateOnASunday_isTheMondaySixDaysBefore() {
+		// Sunday September 27th belongs to the week that opened on Monday the 21st.
+		assertEquals(
+			LocalDate(2026, 9, 21),
+			AcademicWeekEngine.weekOneStart(2026, AcademicTermPeriod.SEP_DEC, LocalDate(2026, 9, 27))
+		)
+	}
+
+	@Test
 	fun weekOneStart_withAnImplausibleClassesStartDate_fallsBackToThePeriodStart() {
 		assertEquals(
 			LocalDate(2026, 8, 31),

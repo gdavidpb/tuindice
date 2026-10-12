@@ -9,6 +9,7 @@ package com.gdavidpb.tuindice.academiccore.domain.model
 object ScheduleBlockClock {
 	const val FIRST_BLOCK_START_MINUTE = 7 * 60 + 30
 	const val BLOCK_MINUTES = 60
+	const val MINUTES_PER_DAY = 24 * 60
 
 	/**
 	 * How many blocks have gone by since block 1 started, as a fraction: 0.0 at 7:30, 1.5 at 9:00.
@@ -18,12 +19,40 @@ object ScheduleBlockClock {
 		return (minuteOfDay - FIRST_BLOCK_START_MINUTE) / BLOCK_MINUTES.toFloat()
 	}
 
-	/** The minute of the day (0 = midnight) at which [block] starts: block 1 starts at minute 450. */
+	/**
+	 * The block being taught at [minuteOfDay]: 1 from 7:30, 2 from 8:30 and so on, and 0 while block 1
+	 * has not started. It keeps counting past the last block the university uses (there is no upper
+	 * bound), so the caller decides what is worth showing.
+	 */
+	fun blockAt(minuteOfDay: Int): Int {
+		val minutesSinceFirstBlock = minuteOfDay - FIRST_BLOCK_START_MINUTE
+
+		return if (minutesSinceFirstBlock < 0) 0 else minutesSinceFirstBlock / BLOCK_MINUTES + 1
+	}
+
+	/**
+	 * Whether [block] starts and ends within one day, that is, whether [blockStartMinute] and
+	 * [blockEndMinute] are minutes of that day (0 until [MINUTES_PER_DAY]). Blocks 1 to 16 do; block 17
+	 * starts at 23:30 and ends past midnight, and later ones start on the next day. Whoever shows the
+	 * hour of a block should check it first.
+	 */
+	fun isWithinDay(block: Int): Boolean {
+		return block >= 1 && blockEndMinute(block) <= MINUTES_PER_DAY
+	}
+
+	/**
+	 * The minute of the day (0 = midnight) at which [block] starts: block 1 starts at minute 450. It is
+	 * a plain offset from block 1, so for blocks from 17 on it is [MINUTES_PER_DAY] or more (a minute
+	 * of the following day); see [isWithinDay].
+	 */
 	fun blockStartMinute(block: Int): Int {
 		return FIRST_BLOCK_START_MINUTE + (block - 1) * BLOCK_MINUTES
 	}
 
-	/** The minute of the day at which [block] ends, which is the minute the next block starts. */
+	/**
+	 * The minute at which [block] ends, which is the minute the next block starts. Like
+	 * [blockStartMinute] it can reach [MINUTES_PER_DAY] or more; see [isWithinDay].
+	 */
 	fun blockEndMinute(block: Int): Int {
 		return blockStartMinute(block) + BLOCK_MINUTES
 	}

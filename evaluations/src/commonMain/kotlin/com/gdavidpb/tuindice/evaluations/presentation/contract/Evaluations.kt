@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import kotlinx.datetime.LocalDate
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.screen_title_evaluations
 
@@ -33,7 +34,10 @@ object Evaluations {
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
-			)
+			),
+			// The Monday that opened week 1 when this content was laid out: what the week numbers hang
+			// from, saved with the selection and compared when the content is observed again.
+			val weekOneStart: LocalDate? = null
 		) : State()
 
 		data object Empty : State()

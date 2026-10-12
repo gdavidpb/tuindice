@@ -23,12 +23,14 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
+import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
@@ -268,6 +270,7 @@ class RecordingEvaluationRepository(
 	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
+	private val currentTermState = MutableStateFlow(currentTerm)
 
 	val addCalls = mutableListOf<EvaluationAdd>()
 	val updateCalls = mutableListOf<EvaluationUpdate>()
@@ -373,7 +376,13 @@ class RecordingEvaluationRepository(
 		return availableSubjects
 	}
 
-	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTerm
+	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTermState.value
+
+	override fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?> = currentTermState
+
+	fun changeCurrentTerm(term: EvaluationTermDescriptor?) {
+		currentTermState.value = term
+	}
 }
 
 class FakeDatabaseDataSource(
@@ -417,6 +426,8 @@ class FakeDatabaseDataSource(
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
 
 	override suspend fun getCurrentTerm(): LocalCurrentTermDescriptor? = currentTerm
+
+	override fun observeCurrentTermFlow(): Flow<LocalCurrentTermDescriptor?> = flowOf(currentTerm)
 
 	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
 		addedEvaluations += evaluation
@@ -617,6 +628,30 @@ class RecordingReportingRepository : ReportingRepository {
 	override fun logMessage(message: String) = Unit
 
 	override fun <T : Any> setCustomKey(key: String, value: T) = Unit
+}
+
+// The database layer of the real thing in what matters here: the snapshot it hands out is the
+// confirmed one merged with the pending mutations of the outbox, through the real resolver. Reads
+// that do not depend on the queue go to the fake underneath.
+class QueueMergingDatabaseDataSource(
+	private val confirmed: FakeDatabaseDataSource,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
+	private val resolver: VisibleEvaluationsStateResolver = VisibleEvaluationsStateResolver()
+) : DatabaseDataRepository by confirmed {
+	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
+		return kotlinx.coroutines.flow.combine(
+			confirmed.observeEvaluationsSnapshotFlow(),
+			mutationEngine.observeMutations(EVALUATIONS_MUTATION_SCOPE)
+		) { confirmedSnapshot, pendingMutations ->
+			confirmedSnapshot.copy(
+				evaluations = resolver.resolveVisibleState(confirmedSnapshot, pendingMutations)
+			)
+		}
+	}
+
+	override suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot {
+		return observeEvaluationsSnapshotFlow().first()
+	}
 }
 
 class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(

@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefres
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
@@ -23,8 +24,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekOneStart
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
@@ -45,6 +46,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAt
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.coroutines.flow.collect
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluations_continuous_label
@@ -286,10 +288,14 @@ class EvaluationsMachine(
 
 	internal fun persistSelectedWeek(
 		host: MachineHost<Evaluations.Effect>,
-		weekKey: EvaluationsWeekKey
+		weekKey: EvaluationsWeekKey,
+		weekOneStart: LocalDate?
 	) {
+		// An academic week is saved with the Monday that opens week 1; without it there is nothing to save.
+		val storageValue = weekKey.toStorageValue(weekOneStart = weekOneStart) ?: return
+
 		host.launchMachineJob {
-			setSelectedWeekUseCase.execute(weekKey.toStorageValue()).collect()
+			setSelectedWeekUseCase.execute(storageValue).collect()
 		}
 	}
 
@@ -322,19 +328,22 @@ class EvaluationsMachine(
 		// Filtered once, here, so the week strip, the default week and the list all describe the
 		// same evaluations: one left out of the list must not leave a dot on its day behind.
 		val listedEvaluations = listedEvaluations()
+		val currentDate = clock.currentEvaluationLocalDate()
+		val weekOneStart = evaluationsWeekOneStart(currentTerm = displayContext.currentTerm, currentDate = currentDate)
 		val weekItems = buildEvaluationsWeekItems(
 			currentTerm = displayContext.currentTerm,
 			evaluations = listedEvaluations,
 			weekLabelPattern = weekLabelPattern,
 			continuousLabel = continuousLabel,
-			currentDate = clock.currentEvaluationLocalDate()
+			currentDate = currentDate
 		)
 
 		// EFSM guard: la semana persistida (plegada en la observación) siembra el default
-		// solo si sigue siendo una semana válida del término actual; si quedó obsoleta,
-		// el default vuelve a la semana corriente en vez de caer a la primera de la lista.
+		// solo si sigue siendo una semana válida del término actual y de la misma ancla (el lunes
+		// de la semana 1); si quedó obsoleta, o se guardó con otra ancla o sin ella, el default
+		// vuelve a la semana corriente en vez de caer a la primera de la lista.
 		val persistedWeekKey = selectedWeekKey
-			?.toEvaluationsWeekKeyOrNull()
+			?.toEvaluationsWeekKeyOrNull(weekOneStart = weekOneStart)
 			?.takeIf { key -> weekItems.any { item -> item.key == key } }
 
 		return EvaluationsInternalEvent.EvaluationsContentObserved(
@@ -342,14 +351,15 @@ class EvaluationsMachine(
 			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
 				evaluations = listedEvaluations,
-				currentDate = clock.currentEvaluationLocalDate()
+				currentDate = currentDate
 			),
 			evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
 				evaluations = listedEvaluations,
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
-			)
+			),
+			weekOneStart = weekOneStart
 		)
 	}
 

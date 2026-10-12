@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
@@ -436,6 +437,57 @@ class ScheduleItemTest {
 		// A closed term keeps what it was taught at, but the bar offers the schedule of the term being lived.
 		assertFalse(record.hasScheduleOnTerm(termId = "past"))
 		assertFalse(record.hasScheduleOnTerm(termId = "missing"))
+	}
+
+	@Test
+	fun when_twoTermsAreCurrent_then_onlyTheOneTheSheetShowsHasTheScheduleIcon() {
+		val scheduled = academicAttempt(subjectCode = "CI5311").copy(schedule = listOf(entry()))
+		val record = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(id = "newer", kind = TermKind.CURRENT, periodYear = 2026, attempts = listOf(scheduled)),
+				academicTerm(id = "older", kind = TermKind.CURRENT, periodYear = 2025, attempts = listOf(scheduled))
+			)
+		)
+
+		assertTrue(record.hasScheduleOnTerm(termId = "newer"))
+		assertFalse(record.hasScheduleOnTerm(termId = "older"))
+	}
+
+	// The icon asks the record as stored and the sheet lays the projection out: both start from the
+	// valid meetings, and this fails if the two rules ever drift apart.
+	@Test
+	fun the_iconAndTheSheet_agreeOnWhatIsDrawableForEveryKindOfEntry() {
+		val cases = mapOf(
+			"valid" to listOf(entry()),
+			"valid with a padded room" to listOf(entry(classroom = "  B-1  ")),
+			"duplicated" to listOf(entry(), entry()),
+			"bad day" to listOf(entry(day = 0), entry(day = 8)),
+			"bad range" to listOf(entry(start = 0, end = 2), entry(start = 3, end = 2), entry(start = 23, end = 25)),
+			"mixed" to listOf(entry(day = 9), entry(day = 3, start = 2, end = 3)),
+			"empty" to emptyList(),
+			"none" to null
+		)
+
+		cases.forEach { (name, schedule) ->
+			listOf(false, true).forEach { withdrawn ->
+				val stored = academicAttempt(subjectCode = "CI5311").copy(schedule = schedule, withdrawn = withdrawn)
+				val record = AcademicRecord(
+					id = "record",
+					terms = listOf(academicTerm(id = "now", kind = TermKind.CURRENT, attempts = listOf(stored)))
+				)
+				val projected = record.projectionFor(RecordViewMode.Projection).terms.single().attempts
+				val grid = projected.toScheduleItem()?.grid
+				val drawnMeetings = projected.sumOf { attempt -> attempt.validMeetings().size }
+
+				assertEquals(grid != null, record.hasScheduleOnTerm(termId = "now"), "$name, withdrawn=$withdrawn")
+				assertEquals(
+					drawnMeetings,
+					grid?.days?.sumOf { day -> day.cells.size } ?: 0,
+					"$name, withdrawn=$withdrawn"
+				)
+			}
+		}
 	}
 
 	@Test

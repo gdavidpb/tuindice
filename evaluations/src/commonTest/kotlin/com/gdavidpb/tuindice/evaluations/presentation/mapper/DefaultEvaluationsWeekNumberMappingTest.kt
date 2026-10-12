@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MAX_ACADEMIC_WEEK
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MIN_ACADEMIC_WEEK
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test

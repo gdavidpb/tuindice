@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMoment
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -111,6 +112,70 @@ class AcademicScheduleEngineTest {
 			projection(withdrawn = false).validMeetings()
 		)
 		assertTrue(projection(withdrawn = true).validMeetings().isEmpty())
+	}
+
+	@Test
+	fun validMeetings_ofAProjection_trimTheClassroomDropDuplicatesAndMalformedEntries() {
+		val projection = AttemptProjection(
+			id = "p2",
+			subjectCode = "CI2526",
+			subjectName = "Algorithms 2",
+			credits = 4,
+			gradingMode = AttemptGradingMode.NUMERIC,
+			score = AttemptScore.empty(),
+			outcome = AttemptOutcome.PENDING,
+			badge = AttemptBadge.NONE,
+			section = 3,
+			schedule = listOf(
+				AcademicScheduleEntry(MONDAY, 1, 2, "  B-101  "),
+				AcademicScheduleEntry(MONDAY, 1, 2, "B-101"),
+				AcademicScheduleEntry(WEDNESDAY, 5, 4, "B-101"),
+				AcademicScheduleEntry(0, 1, 2, "B-101"),
+				AcademicScheduleEntry(MONDAY, 0, 2, "B-101"),
+				AcademicScheduleEntry(MONDAY, 23, 25, "B-101")
+			)
+		)
+
+		assertEquals(
+			listOf(ScheduleMeeting("p2", "CI2526", 3, MONDAY, 1, 2, "B-101")),
+			projection.validMeetings()
+		)
+	}
+
+	@Test
+	fun meetingsOn_andCurrentOrNext_requireADayBetweenOneAndSeven() {
+		listOf(0, 8, -1).forEach { day ->
+			assertFailsWith<IllegalArgumentException> { AcademicScheduleEngine.meetingsOn(emptyList(), day) }
+			assertFailsWith<IllegalArgumentException> { AcademicScheduleEngine.currentOrNext(emptyList(), day, 0) }
+		}
+	}
+
+	@Test
+	fun currentOrNext_whenOneClassEndsWhereTheNextStarts_theNextOneTakesOverAtItsFirstMinute() {
+		val meetings = listOf(meeting("AA", MONDAY, 1, 2), meeting("BB", MONDAY, 3, 4))
+
+		assertEquals(
+			ScheduleMoment.InProgress(meetings[0]),
+			AcademicScheduleEngine.currentOrNext(meetings, MONDAY, ScheduleBlockClock.blockStartMinute(3) - 1)
+		)
+		assertEquals(
+			ScheduleMoment.InProgress(meetings[1]),
+			AcademicScheduleEngine.currentOrNext(meetings, MONDAY, ScheduleBlockClock.blockStartMinute(3))
+		)
+	}
+
+	@Test
+	fun currentOrNext_aMinutePastTheLastBlockOfTheDay_leavesNothingInProgress() {
+		val meetings = listOf(meeting("AA", MONDAY, 1, 2), meeting("BB", MONDAY, 3, 4), meeting("CC", WEDNESDAY, 2))
+
+		assertEquals(
+			ScheduleMoment.Next(meetings[2], daysAhead = 2),
+			AcademicScheduleEngine.currentOrNext(meetings, MONDAY, ScheduleBlockClock.blockEndMinute(4))
+		)
+		assertEquals(
+			ScheduleMoment.Next(meetings[2], daysAhead = 2),
+			AcademicScheduleEngine.currentOrNext(meetings, MONDAY, ScheduleBlockClock.MINUTES_PER_DAY - 1)
+		)
 	}
 
 	@Test

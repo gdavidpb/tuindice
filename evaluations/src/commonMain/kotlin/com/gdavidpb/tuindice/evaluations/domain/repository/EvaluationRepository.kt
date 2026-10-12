@@ -41,4 +41,10 @@ interface EvaluationRepository {
 
 	suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor>
 	suspend fun getCurrentTerm(): EvaluationTermDescriptor?
+
+	/**
+	 * The current term, observed: it emits again when the current term changes or when its data does
+	 * (the first day of classes arrives with a sync), and it emits null while there is none.
+	 */
+	fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?>
 }

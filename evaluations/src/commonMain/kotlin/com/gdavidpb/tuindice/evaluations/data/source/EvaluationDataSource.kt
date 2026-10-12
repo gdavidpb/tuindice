@@ -330,6 +330,10 @@ class EvaluationDataSource(
 	override suspend fun getCurrentTerm() =
 		databaseDataSource.getCurrentTerm()?.toEvaluationTermDescriptor()
 
+	override fun observeCurrentTermFlow() =
+		databaseDataSource.observeCurrentTermFlow()
+			.map { term -> term?.toEvaluationTermDescriptor() }
+
 	private fun LocalEvaluationsSnapshot.toObservedSyncedSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
 		return ObservedSyncedSnapshot(
 			value = evaluations.map { evaluation -> evaluation.toEvaluation(clock) },

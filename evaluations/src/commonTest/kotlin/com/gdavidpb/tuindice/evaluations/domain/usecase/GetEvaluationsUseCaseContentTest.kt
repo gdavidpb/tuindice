@@ -5,6 +5,7 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -78,6 +80,39 @@ class GetEvaluationsUseCaseContentTest {
 				content.displayContext.attempts
 			)
 			assertEquals(DEFAULT_EVALUATION_TERM, content.displayContext.currentTerm)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_whenTheTermGainsItsFirstDayOfClasses_emitsContentAgainWithTheNewTerm() = runTest {
+		val repository = RecordingEvaluationRepository(
+			evaluationsFlow = flowOf(listOf(DEFAULT_PENDING_EVALUATION)),
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+			currentTerm = DEFAULT_EVALUATION_TERM
+		)
+		val useCase = GetEvaluationsUseCase(
+			evaluationRepository = repository,
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			clock = Clock.System
+		)
+		val withClassesStart = DEFAULT_EVALUATION_TERM.copy(classesStartDate = LocalDate(2026, 3, 30))
+
+		useCase.execute(Unit).test {
+			val first = assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+			assertNull(first.displayContext.currentTerm?.classesStartDate)
+
+			// A sync stores the date while the tab is open: the content comes again with it.
+			repository.changeCurrentTerm(withClassesStart)
+
+			val second = assertIs<GetEvaluations.Content>(
+				assertIs<UseCaseState.Data<GetEvaluations>>(awaitItem()).value
+			)
+			assertEquals(withClassesStart, second.displayContext.currentTerm)
+			assertEquals(first.displayContext.attempts, second.displayContext.attempts)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

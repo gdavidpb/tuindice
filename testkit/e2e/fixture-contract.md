@@ -37,7 +37,8 @@ Rules:
   among them) are accepted. The flush mock accepts the dated add from `Available` and moves to `Delivered`.
 - A successful sync revalidates the evaluations (`EvaluationsRevalidationRepository`): the first `GET /evaluations/v3` of
   a session happens right after the sync, whether or not the scenario ever opens the evaluations tab, and the tab then
-  finds the list cached (the cooldown the download sets keeps it from asking again). A scenario that needs that first
+  finds the list cached (the cooldown the download sets keeps it from asking again) only when the list has at least one
+  evaluation the tab shows; with an empty list the tab forces a remote read and downloads again. A scenario that needs that first
   answer to be a refusal therefore cannot set the refusing state after the summary shows: it starts in it
   (`evaluations-list-retry` starts with `evaluations-list-failure` in `Unavailable`, the revalidation fails without
   failing the sync, the tab, which the failure never holds off, meets the same 503 and offers the retry, and the

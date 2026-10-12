@@ -387,6 +387,8 @@ private class FakeEvaluationRepository(
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> = emptyList()
 
 	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = null
+
+	override fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?> = flowOf(null)
 }
 
 private fun pendingMutation(

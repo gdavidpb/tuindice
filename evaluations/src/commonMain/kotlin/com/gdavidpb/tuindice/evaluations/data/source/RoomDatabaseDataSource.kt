@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngi
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -135,6 +137,12 @@ class RoomDatabaseDataSource(
 		selectOfficialCurrentTerm(
 			terms = academicTermDao.getTerms()
 		)?.toLocalCurrentTermDescriptor()
+
+	override fun observeCurrentTermFlow(): Flow<LocalCurrentTermDescriptor?> {
+		return academicTermDao.observeTermsFlow()
+			.map { terms -> selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor() }
+			.distinctUntilChanged()
+	}
 
 	override suspend fun confirmAddedEvaluation(
 		evaluation: LocalEvaluation

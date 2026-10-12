@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MIN_ACADEMIC_WEEK
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import kotlinx.datetime.LocalDate
 

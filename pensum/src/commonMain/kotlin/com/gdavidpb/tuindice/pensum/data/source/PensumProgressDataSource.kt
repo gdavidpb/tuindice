@@ -5,10 +5,11 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 // A map over the flow the pensum screen already observes: the same two numbers the screen shows, and
-// no download of its own.
+// no download of its own. It emits only when those numbers (or their absence) change.
 class PensumProgressDataSource(
 	private val pensumRepository: PensumRepository
 ) : PensumProgressRepository {
@@ -24,6 +25,6 @@ class PensumProgressDataSource(
 				PensumObservation.WaitingForRecordData,
 				PensumObservation.RecordDataUnavailable -> null
 			}
-		}
+		}.distinctUntilChanged()
 	}
 }

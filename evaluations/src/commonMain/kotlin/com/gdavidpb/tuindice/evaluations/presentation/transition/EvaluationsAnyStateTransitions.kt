@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsInternalEvent
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 
 internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTransitions(
 	machine: EvaluationsMachine,
@@ -152,14 +153,21 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 	}
 }
 
-// Selected-week preservation across re-emissions, exactly as the old reducer: keep the
-// current selection when it still exists, fall back to the default key, then to the
-// first available week.
+// Selected-week preservation across re-emissions: keep the current selection when it still exists
+// and still means the same dates, fall back to the default key, then to the first available week.
+// A numbered week means other dates once the Monday that opens week 1 moves (the first day of
+// classes arrived with a sync), so then the selection is dropped; "Continuas" does not depend on it.
 private fun Evaluations.State.toObservedContent(
 	event: EvaluationsInternalEvent.EvaluationsContentObserved
 ): Evaluations.State.Content {
 	val selectedWeekKey = when (this) {
-		is Evaluations.State.Content -> selectedWeekKey
+		is Evaluations.State.Content ->
+			if (selectedWeekKey == EvaluationsWeekKey.Continuous || weekOneStart == event.weekOneStart) {
+				selectedWeekKey
+			} else {
+				event.defaultWeekKey
+			}
+
 		else -> event.defaultWeekKey
 	}.takeIf { key ->
 		event.weekItems.any { item -> item.key == key }
@@ -172,6 +180,7 @@ private fun Evaluations.State.toObservedContent(
 		weekItems = event.weekItems,
 		selectedWeekKey = selectedWeekKey,
 		evaluationGroups = event.evaluationWeekGroups.flatMap { weekGroup -> weekGroup.groups },
-		evaluationWeekGroups = event.evaluationWeekGroups
+		evaluationWeekGroups = event.evaluationWeekGroups,
+		weekOneStart = event.weekOneStart
 	)
 }

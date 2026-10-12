@@ -20,7 +20,7 @@ class EvaluationStateEngineTest {
 		assertEquals(EvaluationState.CONTINUOUS, stateOf(EvaluationScheduleMode.CONTINUOUS))
 		assertEquals(
 			EvaluationState.CONTINUOUS,
-			stateOf(EvaluationScheduleMode.CONTINUOUS, hasGrade = true, date = today.let { LocalDate(2020, 1, 1) })
+			stateOf(EvaluationScheduleMode.CONTINUOUS, hasGrade = true, date = LocalDate(2020, 1, 1))
 		)
 	}
 

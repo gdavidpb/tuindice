@@ -37,7 +37,7 @@ class PensumProgressDataSourceTest {
 	}
 
 	@Test
-	fun observePensumProgressFlow_whileTheRecordIsNotReady_emitsNull() = runTest {
+	fun observePensumProgressFlow_whileTheRecordIsNotReadyOrAvailable_emitsNullOnce() = runTest {
 		val repository = RecordingPensumRepository(
 			observations = listOf(
 				PensumObservation.WaitingForRecordData,
@@ -47,7 +47,8 @@ class PensumProgressDataSourceTest {
 
 		val progress = PensumProgressDataSource(repository).observePensumProgressFlow().toList()
 
-		assertEquals(listOf<PensumCreditsProgress?>(null, null), progress)
+		// Two causes, one value: the contract only emits when the progress changes.
+		assertEquals(listOf<PensumCreditsProgress?>(null), progress)
 	}
 
 	@Test
@@ -61,5 +62,19 @@ class PensumProgressDataSourceTest {
 			listOf(null, PensumCreditsProgress(approvedCredits = 12, totalCredits = samplePensumGraph().totalCredits)),
 			progress
 		)
+	}
+
+	@Test
+	fun observePensumProgressFlow_doesNotRepeatAProgressThatDidNotChange() = runTest {
+		val content = PensumObservation.Content(sampleObservedPensum().copy(approvedCredits = 12))
+		val sameCreditsRebuilt = PensumObservation.Content(sampleObservedPensum().copy(approvedCredits = 12))
+		val moreCredits = PensumObservation.Content(sampleObservedPensum().copy(approvedCredits = 15))
+		val repository = RecordingPensumRepository(
+			observations = listOf(content, sameCreditsRebuilt, moreCredits, moreCredits)
+		)
+
+		val progress = PensumProgressDataSource(repository).observePensumProgressFlow().toList()
+
+		assertEquals(listOf(12, 15), progress.map { credits -> credits?.approvedCredits })
 	}
 }

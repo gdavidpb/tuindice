@@ -82,6 +82,27 @@ class ObserveScheduleUseCaseTest {
 	}
 
 	@Test
+	fun execute_withTwoCurrentTermsInAnyOrder_emitsTheMostRecentOne() = runTest {
+		val older = academicTerm(id = "older", kind = TermKind.CURRENT, periodYear = 2025)
+		val newer = academicTerm(id = "newer", kind = TermKind.CURRENT, periodYear = 2026)
+		val historical = academicTerm(id = "historical", kind = TermKind.HISTORICAL, periodYear = 2027)
+
+		listOf(
+			listOf(older, newer, historical),
+			listOf(historical, newer, older),
+			listOf(newer, historical, older)
+		).forEach { terms ->
+			val observed = observe(
+				record = AcademicRecord(id = "record", terms = terms),
+				hasSynced = true,
+				viewMode = ScheduleViewMode.Week
+			)
+
+			assertEquals("newer", observed.currentTerm?.id, "terms: ${terms.map { term -> term.id }}")
+		}
+	}
+
+	@Test
 	fun execute_withoutACurrentTerm_emitsNoTerm() = runTest {
 		val observed = observe(
 			record = AcademicRecord(id = "record", terms = listOf(academicTerm(id = "old"))),

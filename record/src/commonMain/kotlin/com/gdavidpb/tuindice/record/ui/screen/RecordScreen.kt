@@ -20,8 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
@@ -75,9 +76,12 @@ fun RecordScreen(
 		?.visibleRecord
 		?.filteredProjectionFor(RecordViewMode.Projection)
 		?.terms
-		?.any { term ->
-			term.id == selectedTermIdValue && term.kind.isCurrent
-		}
+		?.currentTermOrNull(
+			kind = TermProjection::kind,
+			termOrder = TermProjection::termOrder,
+			id = TermProjection::id
+		)
+		?.let { currentTerm -> currentTerm.id == selectedTermIdValue }
 		?: false
 
 	Box(

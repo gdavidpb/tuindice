@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanati
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import kotlinx.datetime.LocalDate
 
 /**
  * Internal machine inputs for the evaluations list: observation outcomes split per
@@ -24,7 +25,8 @@ sealed interface EvaluationsInternalEvent {
 	data class EvaluationsContentObserved(
 		val weekItems: List<EvaluationsWeekItem>,
 		val defaultWeekKey: EvaluationsWeekKey,
-		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>
+		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>,
+		val weekOneStart: LocalDate? = null
 	) : EvaluationsInternalEvent
 
 	data object EvaluationsEmptyObserved : EvaluationsInternalEvent

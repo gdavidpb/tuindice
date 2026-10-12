@@ -4,13 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
-
-internal fun EvaluationTermDescriptor.academicTermStartDate() = LocalDate(
-	year = periodYear,
-	month = periodCode.startMonth,
-	day = 1
-)
+import kotlinx.datetime.minus
 
 // The Monday that opens week 1: it follows the real first day of classes when the backend served a
 // plausible one, and the calendar month of the period otherwise. Every week number and the strip of
@@ -21,8 +15,15 @@ internal fun EvaluationTermDescriptor.academicWeekOneStart(): LocalDate = Academ
 	classesStartDate = classesStartDate
 )
 
-internal fun LocalDate.academicWeekStart(): LocalDate =
-	plus(DatePeriod(days = -dayOfWeek.ordinal))
+// The anchor the strip of weeks hangs from. Without a term there is no week 1: the strip is laid out
+// from the Monday of the week of [currentDate], and that anchor moves with the week.
+internal fun evaluationsWeekOneStart(
+	currentTerm: EvaluationTermDescriptor?,
+	currentDate: LocalDate
+): LocalDate {
+	return currentTerm?.academicWeekOneStart()
+		?: currentDate.minus(DatePeriod(days = currentDate.dayOfWeek.ordinal))
+}
 
 internal fun computeAcademicWeek(
 	term: EvaluationTermDescriptor,
@@ -30,7 +31,3 @@ internal fun computeAcademicWeek(
 ): Int {
 	return AcademicWeekEngine.weekOf(weekOneStart = term.academicWeekOneStart(), date = currentDate)
 }
-
-internal const val DAYS_PER_WEEK = AcademicWeekEngine.DAYS_PER_WEEK
-internal const val MIN_ACADEMIC_WEEK = AcademicWeekEngine.MIN_ACADEMIC_WEEK
-internal const val MAX_ACADEMIC_WEEK = AcademicWeekEngine.MAX_ACADEMIC_WEEK

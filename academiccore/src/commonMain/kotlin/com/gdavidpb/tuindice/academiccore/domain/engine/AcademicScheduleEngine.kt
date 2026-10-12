@@ -39,8 +39,13 @@ object AcademicScheduleEngine {
 			entry.endBlock <= LAST_BLOCK
 	}
 
-	/** The meetings that happen on [dayOfWeek], by start block and then by subject code. */
+	/**
+	 * The meetings that happen on [dayOfWeek] (1..7, otherwise [IllegalArgumentException]), by start
+	 * block and then by subject code.
+	 */
 	fun meetingsOn(meetings: List<ScheduleMeeting>, dayOfWeek: Int): List<ScheduleMeeting> {
+		requireValidDay(dayOfWeek)
+
 		return meetings
 			.filter { meeting -> meeting.dayOfWeek == dayOfWeek }
 			.sortedWith(meetingOrder)
@@ -52,15 +57,18 @@ object AcademicScheduleEngine {
 	 * one: the first still to start today or, when none is left, the first of the next day with
 	 * classes within the following seven days (the last one is the same weekday next week, so a
 	 * student with a single weekly class asking right after it still gets it). Null when there is no meeting to speak of.
+	 * [dayOfWeek] must be 1..7 ([IllegalArgumentException] otherwise).
 	 */
 	fun currentOrNext(
 		meetings: List<ScheduleMeeting>,
 		dayOfWeek: Int,
 		minuteOfDay: Int
 	): ScheduleMoment? {
+		requireValidDay(dayOfWeek)
+
 		val today = meetingsOn(meetings, dayOfWeek)
 		// 0 before block 1: nothing is in progress and every meeting of the day is still to come.
-		val currentBlock = currentBlockAt(minuteOfDay)
+		val currentBlock = ScheduleBlockClock.blockAt(minuteOfDay)
 		val inProgress = today.firstOrNull { meeting -> currentBlock in meeting.startBlock..meeting.endBlock }
 
 		if (inProgress != null) return ScheduleMoment.InProgress(inProgress)
@@ -91,6 +99,10 @@ object AcademicScheduleEngine {
 		return date.dayOfWeek.isoDayNumber % DAYS_PER_WEEK + FIRST_DAY
 	}
 
+	private fun requireValidDay(dayOfWeek: Int) {
+		require(dayOfWeek in FIRST_DAY..LAST_DAY) { "dayOfWeek must be 1 (Sunday) to 7 (Saturday), was $dayOfWeek" }
+	}
+
 	private fun nextOnFollowingDays(meetings: List<ScheduleMeeting>, dayOfWeek: Int): ScheduleMoment.Next? {
 		return SEARCH_DAYS_AHEAD.firstNotNullOfOrNull { daysAhead ->
 			val day = (dayOfWeek - FIRST_DAY + daysAhead) % DAYS_PER_WEEK + FIRST_DAY
@@ -98,12 +110,5 @@ object AcademicScheduleEngine {
 			meetingsOn(meetings, day).firstOrNull()
 				?.let { meeting -> ScheduleMoment.Next(meeting = meeting, daysAhead = daysAhead) }
 		}
-	}
-
-	// The block being taught at the minute, or 0 while block 1 has not started.
-	private fun currentBlockAt(minuteOfDay: Int): Int {
-		val minutesSinceFirstBlock = minuteOfDay - ScheduleBlockClock.FIRST_BLOCK_START_MINUTE
-
-		return if (minutesSinceFirstBlock < 0) 0 else minutesSinceFirstBlock / ScheduleBlockClock.BLOCK_MINUTES + 1
 	}
 }

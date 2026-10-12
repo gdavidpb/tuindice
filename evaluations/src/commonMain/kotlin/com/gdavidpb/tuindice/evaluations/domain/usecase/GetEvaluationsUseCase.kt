@@ -89,19 +89,21 @@ class GetEvaluationsUseCase(
 					)
 				}
 		}
-		val displayContext = EvaluationDisplayContext(
-			attempts = availableAttempts,
-			currentTerm = evaluationRepository.getCurrentTerm()
-		)
 
+		// The term is observed, not read once: a sync can bring the first day of classes while the tab
+		// is open, and the weeks hang from it.
 		return combine(
 			evaluationRepository.observeEvaluationsSnapshotFlow(),
-			evaluationsSelectionRepository.observeSelectedWeekKey()
-		) { snapshot, selectedWeekKey ->
+			evaluationsSelectionRepository.observeSelectedWeekKey(),
+			evaluationRepository.observeCurrentTermFlow()
+		) { snapshot, selectedWeekKey, currentTerm ->
 			GetEvaluations.Content(
 				evaluations = snapshot.value.sortedWith(evaluationComparator),
 				hasSyncedEvaluations = snapshot.hasSynced,
-				displayContext = displayContext,
+				displayContext = EvaluationDisplayContext(
+					attempts = availableAttempts,
+					currentTerm = currentTerm
+				),
 				selectedWeekKey = selectedWeekKey
 			)
 		}

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.utils
 import com.gdavidpb.tuindice.base.presentation.mapper.formatLocalizedMonthYear
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.academicWeekOneStart
 import kotlinx.datetime.*
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -62,8 +63,14 @@ fun Clock.currentEvaluationLocalDate(): LocalDate {
 // Evaluation dates are constrained to the current term plus one month of slack:
 // from the first day of the term's start month to the last day of the month right
 // after it ends (e.g. a January–March term allows January 1st through April 30th).
+// The range also reaches back to the Monday that opens week 1 when that falls before the
+// start month (classes starting on March 30th for an April term), so every day of week 1
+// can be picked.
 fun EvaluationTermDescriptor.toSelectableDateRange(): ClosedRange<LocalDate> {
-	val start = firstDayOfMonth(year = periodYear, monthNumber = periodCode.startMonth)
+	val start = minOf(
+		firstDayOfMonth(year = periodYear, monthNumber = periodCode.startMonth),
+		academicWeekOneStart()
+	)
 	val slackMonthStart = firstDayOfMonth(year = periodYear, monthNumber = periodCode.endMonth + 1)
 	val endInclusive = slackMonthStart.nextMonthStart().minus(DatePeriod(days = 1))
 

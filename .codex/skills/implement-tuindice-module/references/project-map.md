@@ -6,7 +6,9 @@
 - `iosApp`: Swift host app and Xcode project. Boots the shared `maincore` framework and passes iOS runtime capabilities.
 - `maincore`: shared app assembler. Owns shared Koin bootstrap, feature registration, shared navigation host, and shared host UI.
 - `base`: shared contracts, base repositories, MVI primitives, reusable UI, logging, common helpers, and networking foundations.
-- `academiccore`: shared academic-domain model and projection engine used by academic features.
+- `academiccore`: shared academic-domain model and projection engine used by academic features. It also holds the pure
+  engines: term weeks (`AcademicWeekEngine`), schedule (`AcademicScheduleEngine`, `ScheduleBlockClock`), evaluation
+  state and points (`EvaluationStateEngine`, `EvaluationPointsEngine`) and current-term selection (`currentTermOrNull`).
 - `persistence`: shared Room database, DAOs, entities, and platform database factories.
 - `testkit`: shared test doubles and helpers for Koin, coroutines, flows, and Compose UI tests.
 - Feature modules:

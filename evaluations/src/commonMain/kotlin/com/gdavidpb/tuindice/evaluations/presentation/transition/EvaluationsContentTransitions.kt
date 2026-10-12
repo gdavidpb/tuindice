@@ -15,7 +15,11 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsContentTrans
 			state.weekItems
 				.firstOrNull { item -> item.key == action.weekKey }
 				?.let { selectedWeekItem ->
-					machine.persistSelectedWeek(host = host, weekKey = selectedWeekItem.key)
+					machine.persistSelectedWeek(
+						host = host,
+						weekKey = selectedWeekItem.key,
+						weekOneStart = state.weekOneStart
+					)
 					state.copy(
 						selectedWeekKey = selectedWeekItem.key,
 						weekItem = selectedWeekItem

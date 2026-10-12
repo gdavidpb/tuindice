@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicScheduleEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
+import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
@@ -22,17 +23,22 @@ import tuindice.record.generated.resources.schedule_table_section_classroom
 import tuindice.record.generated.resources.schedule_unscheduled
 
 /**
- * Whether the term with [termId] is the current one and has something scheduled: what puts the
- * schedule icon on the record's bar. Asked of the record as stored, without projecting it or laying
- * the week out — the projection hands a current term's meetings over untouched, so this agrees with
- * [toScheduleItem] returning a schedule for that term.
+ * Whether the term with [termId] is the current one (the one [currentTermOrNull] picks, the same the
+ * schedule sheet shows) and has something scheduled: what puts the schedule icon on the record's
+ * bar. Asked of the record as stored, without projecting it or laying the week out — the projection
+ * hands a current term's meetings over untouched, and both go through [validMeetings], so this
+ * agrees with [toScheduleItem] returning a schedule for that term.
  */
 internal fun AcademicRecord.hasScheduleOnTerm(termId: String): Boolean {
-	return terms.any { term ->
-		term.id == termId && term.kind.isCurrent && term.attempts.any { attempt ->
-			!attempt.withdrawn && attempt.schedule.orEmpty().any { entry -> AcademicScheduleEngine.isPlaceable(entry) }
-		}
-	}
+	val currentTerm = terms.currentTermOrNull(
+		kind = AcademicTerm::kind,
+		termOrder = AcademicTerm::termOrder,
+		id = AcademicTerm::id
+	)
+
+	return currentTerm != null &&
+		currentTerm.id == termId &&
+		currentTerm.attempts.any { attempt -> attempt.validMeetings().isNotEmpty() }
 }
 
 /**
@@ -50,10 +56,11 @@ internal fun AcademicRecord.hasScheduleOnTerm(termId: String): Boolean {
  */
 internal fun List<AttemptProjection>.toScheduleItem(now: ScheduleNow? = null): ScheduleItem? {
 	val active = filterNot { attempt -> attempt.withdrawn }
-	// distinct: the same meeting listed twice is still one cell.
+	// The valid meetings are the engine's: placeable, with the room trimmed and the same meeting
+	// listed twice counted once, so it is still one cell.
 	val placed = active.flatMap { attempt ->
-		attempt.schedule.orEmpty().mapNotNull { entry -> attempt.toPlacement(entry) }
-	}.distinct()
+		attempt.validMeetings().mapNotNull { meeting -> meeting.toPlacement() }
+	}
 
 	if (placed.isEmpty()) return null
 
@@ -66,7 +73,9 @@ internal fun List<AttemptProjection>.toScheduleItem(now: ScheduleNow? = null): S
 		?.takeIf { today != null }
 		?.let { moment -> ScheduleBlockClock.blocksSinceFirstBlock(moment.minuteOfDay) }
 		?.takeIf { offset -> offset >= 0f && offset < blockCount }
-	val currentBlock = nowBlockOffset?.let { offset -> offset.toInt() + AcademicScheduleEngine.FIRST_BLOCK }
+	val currentBlock = now
+		?.takeIf { nowBlockOffset != null }
+		?.let { moment -> ScheduleBlockClock.blockAt(moment.minuteOfDay) }
 	val days = shownDays.map { day ->
 		val isToday = day == today
 
@@ -148,20 +157,19 @@ private data class SchedulePlacement(
 	val endBlock: Int
 )
 
-// A malformed block range or day is dropped rather than drawn: a wrong cell is worse than none.
-private fun AttemptProjection.toPlacement(entry: AcademicScheduleEntry): SchedulePlacement? {
-	val day = ScheduleDay.fromCode(entry.dayOfWeek)
+// The meetings arrive valid (see validMeetings), so every day has a column; one that does not is
+// dropped rather than drawn: a wrong cell is worse than none.
+private fun ScheduleMeeting.toPlacement(): SchedulePlacement? {
+	val day = ScheduleDay.fromCode(dayOfWeek) ?: return null
 
-	return day?.takeIf { AcademicScheduleEngine.isPlaceable(entry) }?.let {
-		SchedulePlacement(
-			attemptId = id,
-			subjectCode = subjectCode,
-			classroom = entry.classroom.trim().takeIf { room -> room.isNotEmpty() },
-			day = day,
-			startBlock = entry.startBlock,
-			endBlock = entry.endBlock
-		)
-	}
+	return SchedulePlacement(
+		attemptId = attemptId,
+		subjectCode = subjectCode,
+		classroom = classroom.takeIf { room -> room.isNotEmpty() },
+		day = day,
+		startBlock = startBlock,
+		endBlock = endBlock
+	)
 }
 
 // Meetings that overlap share the day's width: each cluster of overlapping meetings is split into
