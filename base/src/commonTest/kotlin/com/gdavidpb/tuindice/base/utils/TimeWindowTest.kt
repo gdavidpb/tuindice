@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.pensum.utils
+package com.gdavidpb.tuindice.base.utils
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CooldownTimesTest {
+class TimeWindowTest {
 	@Test
 	fun isWithinWindow_isHalfOpen_andTreatsAFutureStampAsOutside() {
 		data class Case(val description: String, val since: Long, val within: Boolean)

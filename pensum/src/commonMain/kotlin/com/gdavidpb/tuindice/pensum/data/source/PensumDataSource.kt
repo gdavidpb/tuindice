@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
+import com.gdavidpb.tuindice.base.utils.isWithinWindow
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailableModalities
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailablePensums
 import com.gdavidpb.tuindice.pensum.data.mapper.toGraph
@@ -20,12 +21,12 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.pensum.utils.CooldownTimes
-import com.gdavidpb.tuindice.pensum.utils.isWithinWindow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.concurrent.Volatile
 
 class PensumDataSource(
 	private val localDataRepository: PensumLocalDataRepository,
@@ -38,13 +39,22 @@ class PensumDataSource(
 	private val remoteWriteMutex = Mutex()
 
 	// When the last automatic revalidation failed; the next one waits COOLDOWN_RETRY_PENSUM. In
-	// memory on purpose: a fresh process is a fair moment to try again. Guarded by remoteWriteMutex.
+	// memory on purpose: a fresh process is a fair moment to try again. Written only by a fetch of
+	// the current epoch.
+	@Volatile
 	private var lastRevalidationFailureAt: Long? = null
+
+	// Bumped by clearSessionMemory. A fetch remembers the one it started in: a request that ends the
+	// session (a 401) clears the memory first and only then throws, so without this the failure
+	// would stamp the hold again and the next account would start held off.
+	@Volatile
+	private var sessionEpoch: Int = 0
 
 	// The hold belongs to the account whose revalidation failed; the next one starts without it.
 	// Not under remoteWriteMutex: a request made while holding it can end the session, and the
 	// wipe would then wait for its own caller.
 	override suspend fun clearSessionMemory() {
+		sessionEpoch += 1
 		lastRevalidationFailureAt = null
 	}
 
@@ -106,10 +116,14 @@ class PensumDataSource(
 
 			if (!forceRemote && (isFresh || isRetryOnHold)) return@withLock
 
+			val epoch = sessionEpoch
+
 			runCatching { fetchAndSave(cached = cached) }
-				.onSuccess { lastRevalidationFailureAt = null }
+				.onSuccess { if (epoch == sessionEpoch) lastRevalidationFailureAt = null }
 				.onFailure { throwable ->
-					if (throwable !is CancellationException) lastRevalidationFailureAt = now
+					if (throwable !is CancellationException && epoch == sessionEpoch) {
+						lastRevalidationFailureAt = now
+					}
 					throw throwable
 				}
 		}

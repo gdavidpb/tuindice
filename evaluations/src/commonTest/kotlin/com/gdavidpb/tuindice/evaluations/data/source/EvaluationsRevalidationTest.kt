@@ -49,8 +49,11 @@ class EvaluationsRevalidationTest {
 		assertEquals(1, api.getEvaluationsCalls)
 	}
 
+	// The contract of the function alone: it honours a cooldown that holds. After a real sync this
+	// does not happen (the sync clears the stale cooldowns first; see the integrated test in maincore,
+	// scheduleSync_launchesTheEvaluationsRevalidation_afterClearingTheStaleCooldowns).
 	@Test
-	fun revalidateEvaluations_doesNotTouchTheNetwork_whenCooldownHoldsAndTheyWereDownloaded() = runTest {
+	fun revalidateEvaluations_honoursAHoldingCooldown_whenTheyWereDownloaded() = runTest {
 		val api = FakeEvaluationsApiDataSource()
 		val database = FakeDatabaseDataSource()
 		val settings = FakeSettingsDataSource(onCooldown = true)

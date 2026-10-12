@@ -103,6 +103,28 @@ class PensumDataSourceTest {
 		assertEquals(2, remote.requestedSelections.size)
 	}
 
+	// A 401 ends the session (and wipes the session memory) before the request throws: that failure
+	// belongs to the account that is gone and must not hold the next one's revalidations off.
+	@Test
+	fun refreshPensum_aFailureThatEndedTheSession_doesNotHoldTheNextAccountOff() = runTest {
+		val local = FakePensumLocalDataRepository(
+			selection = PensumSelectionParams(year = 2019, modalityId = "degree_project"),
+			cacheState = cacheState(ageMillis = CooldownTimes.COOLDOWN_GET_PENSUM + HOUR)
+		)
+		lateinit var dataSource: PensumDataSource
+		val remote = FakePensumRemoteDataRepository(
+			throwable = IllegalStateException("401"),
+			onRequest = { dataSource.clearSessionMemory() }
+		)
+		dataSource = createDataSource(local = local, remote = remote)
+
+		assertFailsWith<IllegalStateException> { dataSource.refreshPensum(forceRemote = false) }
+		remote.throwable = null
+		dataSource.refreshPensum(forceRemote = false)
+
+		assertEquals(2, remote.requestedSelections.size, "the next account's revalidation is not held off")
+	}
+
 	@Test
 	fun refreshPensum_forAnInferredSelection_revalidatesTheSamePensum_andKeepsItInferred() = runTest {
 		// Inferred selections read back as empty params: only the cache row knows which pensum it is.
@@ -340,12 +362,15 @@ internal class FakePensumRemoteDataRepository(
 	private val throwableBySelection: Map<PensumSelectionParams, Throwable> = emptyMap(),
 	// Holds only the first request, so a later one can overtake it: a shared gate would hold every
 	// caller and hide the very race the lock prevents.
-	private val firstRequestGate: CompletableDeferred<Unit>? = null
+	private val firstRequestGate: CompletableDeferred<Unit>? = null,
+	// Runs when a request starts, before it answers or fails.
+	private val onRequest: suspend () -> Unit = {}
 ) : PensumRemoteDataRepository {
 	val requestedSelections = mutableListOf<PensumSelectionParams>()
 
 	override suspend fun getPensum(selection: PensumSelectionParams): GetPensumResponse {
 		requestedSelections += selection
+		onRequest()
 		if (requestedSelections.size == 1) firstRequestGate?.await()
 		throwableBySelection[selection]?.let { throw it }
 		throwable?.let { throw it }

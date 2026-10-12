@@ -726,6 +726,9 @@ internal class FakeSyncSettingsLocalDataSource(
 	),
 	private val events: MutableList<String> = mutableListOf()
 ) : SyncSettingsLocalDataRepository {
+	// Runs when the stale feature cooldowns are cleared, in the middle of the sync's final stretch.
+	var onClearStaleFeatureCooldowns: suspend () -> Unit = {}
+
 	var cooldownMarked = false
 	var syncedFeatureCooldownsMarked = false
 	var staleFeatureCooldownsCleared = false
@@ -744,6 +747,7 @@ internal class FakeSyncSettingsLocalDataSource(
 
 	override suspend fun clearStaleFeatureCooldowns() {
 		staleFeatureCooldownsCleared = true
+		onClearStaleFeatureCooldowns()
 	}
 
 	override suspend fun clearRecoveryCooldowns() {
@@ -846,7 +850,8 @@ internal class FakePensumRevalidationRepository(
 
 internal class FakeEvaluationsRevalidationRepository(
 	var throwable: Throwable? = null,
-	private val gate: CompletableDeferred<Unit>? = null
+	private val gate: CompletableDeferred<Unit>? = null,
+	private val onRevalidate: () -> Unit = {}
 ) : EvaluationsRevalidationRepository {
 	var calls = 0
 		private set
@@ -855,6 +860,7 @@ internal class FakeEvaluationsRevalidationRepository(
 
 	override suspend fun revalidateEvaluations() {
 		calls++
+		onRevalidate()
 		try {
 			gate?.await()
 		} catch (throwable: CancellationException) {

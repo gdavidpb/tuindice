@@ -17,6 +17,8 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,6 +79,10 @@ class SyncDataSource(
 						settingsDataSource.setSyncOnCooldown()
 						settingsDataSource.setSyncedFeatureCooldowns()
 						settingsDataSource.clearStaleFeatureCooldowns()
+						// Everything above is a plain write that never checks for cancellation: a
+						// sign-out that cancelled the session scope in the meantime must not be
+						// answered with new children that nobody cancels or waits for.
+						currentCoroutineContext().ensureActive()
 						launchPensumRevalidation()
 						launchEvaluationsRevalidation()
 					} finally {

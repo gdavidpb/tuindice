@@ -12,7 +12,9 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -111,6 +113,68 @@ class SyncEvaluationsRevalidationContractTest {
 
 		assertEquals(1, evaluationsRevalidation.calls)
 		assertEquals(true, evaluationsRevalidation.cancelled)
+	}
+
+	// The revalidation is launched after the cooldowns are cleared, never before: the retention the
+	// revalidation honours is the one that is left once the sync has cleared the stale ones.
+	@Test
+	fun scheduleSync_launchesTheEvaluationsRevalidation_afterClearingTheStaleCooldowns() = runTest {
+		val events = mutableListOf<String>()
+		val repository = createRepositoryWith(
+			settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false).apply {
+				onClearStaleFeatureCooldowns = { events += "clear_stale" }
+			},
+			evaluationsRevalidationRepository = FakeEvaluationsRevalidationRepository(
+				onRevalidate = { events += "revalidate_evaluations" }
+			)
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(listOf("clear_stale", "revalidate_evaluations"), events)
+	}
+
+	// Between the last suspension of the sync and the launch there are only plain writes: a
+	// sign-out that cancels the sync there must not be followed by revalidations nobody cancels.
+	@Test
+	fun scheduleSync_cancelledInItsFinalStretch_launchesNoRevalidation() = runTest {
+		val evaluationsRevalidation = FakeEvaluationsRevalidationRepository()
+		val pensumRevalidation = FakePensumRevalidationRepository()
+		val repository = createRepositoryWith(
+			settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false).apply {
+				onClearStaleFeatureCooldowns = { currentCoroutineContext()[Job]?.cancel() }
+			},
+			evaluationsRevalidationRepository = evaluationsRevalidation,
+			pensumRevalidationRepository = pensumRevalidation
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(0, pensumRevalidation.calls)
+		assertEquals(0, evaluationsRevalidation.calls)
+		assertEquals(false, repository.observeSyncInProgress().first())
+	}
+
+	private fun TestScope.createRepositoryWith(
+		settingsDataSource: SyncSettingsLocalDataRepository,
+		evaluationsRevalidationRepository: FakeEvaluationsRevalidationRepository,
+		pensumRevalidationRepository: FakePensumRevalidationRepository = FakePensumRevalidationRepository()
+	): SyncDataSource {
+		return SyncDataSource(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			remoteDataSource = FakeSyncRemoteDataSource(),
+			syncResultLocalDataSource = SyncResultLocalDataSource(
+				recordLocalDataSource = FakeAcademicRecordLocalDataRepository(),
+				userLocalDataSource = FakeUserLocalDataRepository(),
+				recordOutboxDataSource = NoOpRecordOutboxDataRepository
+			),
+			pensumRevalidationRepository = pensumRevalidationRepository,
+			evaluationsRevalidationRepository = evaluationsRevalidationRepository,
+			coroutineScope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+		)
 	}
 
 	private fun TestScope.createRepository(
