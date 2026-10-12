@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.mapper.toNoticeText
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
@@ -54,10 +55,9 @@ class MainMachine(
 	// open the dialog twice.
 	private var signOutPreparationJob: Job? = null
 
-	// A session notice was sent to the interface and it has not said it showed it.
-	private var sessionNoticeInFlight = false
+	private val sessionEnds = SessionEndTracker()
 
-	override fun initialState(): Main.State = Main.State.Starting
+	override fun initialState(): Main.State = Main.State.Starting()
 
 	override fun define(host: MachineHost<Main.Effect>): MachineDefinition<Main.State> {
 		return MachineDefinition.define {
@@ -129,7 +129,9 @@ class MainMachine(
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						MainInternalEvent.SessionInvalidationObserved(
-							message = useCaseState.value?.toNoticeText()
+							sessionNotice = useCaseState.value?.let { notice ->
+								SessionNoticeText(stamp = notice.stamp, message = notice.reason.toNoticeText())
+							}
 						)
 					)
 				}
@@ -161,29 +163,19 @@ class MainMachine(
 		}
 	}
 
-	// One notice of a session that ended behind the user's back is on its way to the screen at a time:
-	// the start-up offers the one the invalidation left and the live signal tells the same invalidation,
-	// and both stay pending until the interface says it showed it. True when this one may be sent.
-	internal fun beginSessionNotice(): Boolean {
-		if (sessionNoticeInFlight) return false
-
-		sessionNoticeInFlight = true
-
-		return true
+	// The way to the sign-in is owed whatever the notice brings; see SessionEndTracker.
+	internal fun beginSessionEnd(current: PendingSessionEnd?, notice: SessionNoticeText?): PendingSessionEnd {
+		return sessionEnds.begin(current = current, notice = notice)
 	}
 
-	// The interface could not show the notice (its coroutine was cancelled while it waited): the lock
-	// is free again and the notice stays pending in the settings, so the next signal or start tells it.
-	internal fun releaseSessionNotice() {
-		sessionNoticeInFlight = false
-	}
-
-	// The interface showed the notice: only now is it taken from the settings.
-	internal fun acknowledgeSessionInvalidation(host: MachineHost<Main.Effect>) {
-		sessionNoticeInFlight = false
+	// The interface attended the pending end: only now is the copy of the notice kept for the next
+	// start taken, by its stamp. A process that dies before this (a background kill) leaves it, and the
+	// next start explains the sign-in screen.
+	internal fun finishSessionEnd(host: MachineHost<Main.Effect>, pending: PendingSessionEnd) {
+		val stamp = sessionEnds.finish(pending) ?: return
 
 		host.launchMachineJob {
-			acknowledgeSessionInvalidationUseCase.execute(Unit).collect()
+			acknowledgeSessionInvalidationUseCase.execute(stamp).collect()
 		}
 	}
 
@@ -235,7 +227,9 @@ class MainMachine(
 		return when (this) {
 			is StartUpResult.Available -> MainInternalEvent.StartUpCompleted(
 				startDestination = startTarget.toDestination(),
-				sessionResetMessage = sessionResetNotice?.toNoticeText()
+				sessionNotice = sessionResetNotice?.let { notice ->
+					SessionNoticeText(stamp = notice.stamp, message = notice.reason.toNoticeText())
+				}
 			)
 			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
 				notice = notice

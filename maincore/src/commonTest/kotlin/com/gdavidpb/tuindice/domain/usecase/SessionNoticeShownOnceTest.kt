@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
@@ -23,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -84,8 +86,9 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		assertEquals(SessionResetNoticeReason.ServerEndedSession, world.nextStart().sessionResetNotice)
-		world.acknowledgeNotice()
+		val offered = world.nextStart().sessionResetNotice
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, offered?.reason)
+		world.acknowledgeNotice(checkNotNull(offered).stamp)
 
 		assertNull(world.afterAProcessDeath().nextStart().sessionResetNotice, "only once")
 	}
@@ -100,7 +103,7 @@ class SessionNoticeShownOnceTest {
 		world.receiveLiveNoticeWithoutShowingIt()
 		val afterTheDeath = world.afterAProcessDeath()
 
-		assertEquals(SessionResetNoticeReason.ServerEndedSession, afterTheDeath.nextStart().sessionResetNotice)
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, afterTheDeath.nextStart().sessionResetNotice?.reason)
 	}
 
 	// The invalidation happened while the start-up was still resolving: the start-up showed the
@@ -113,8 +116,9 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		assertEquals(SessionResetNoticeReason.ServerEndedSession, world.nextStart().sessionResetNotice)
-		world.acknowledgeNotice()
+		val offered = world.nextStart().sessionResetNotice
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, offered?.reason)
+		world.acknowledgeNotice(checkNotNull(offered).stamp)
 
 		// The user was told already: the signal that arrives afterwards still takes them to the sign-in,
 		// and has no notice to carry.
@@ -133,8 +137,8 @@ class SessionNoticeShownOnceTest {
 		world.showLiveNotice(delivery = LiveSignal.Nothing)
 	}
 
-	private fun assertServerEnded(notice: SessionResetNoticeReason?, message: String) {
-		assertEquals(SessionResetNoticeReason.ServerEndedSession, notice, message)
+	private fun assertServerEnded(notice: SessionResetNotice?, message: String) {
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, notice?.reason, message)
 	}
 
 	private class World(
@@ -163,7 +167,8 @@ class SessionNoticeShownOnceTest {
 				credentialsRepository = FakeCredentialsRepository(),
 				settingsRepository = settings,
 				reportingRepository = reporting,
-				sessionCoroutineScope = testSessionCoroutineScope(StandardTestDispatcher(testScope.testScheduler))
+				sessionCoroutineScope = testSessionCoroutineScope(StandardTestDispatcher(testScope.testScheduler)),
+				appCoroutineScope = testAppCoroutineScope(StandardTestDispatcher(testScope.testScheduler))
 			).invalidateSession(sessionId = "session-old", reason = SessionInvalidationReason.RefreshRejected)
 		}
 
@@ -198,36 +203,34 @@ class SessionNoticeShownOnceTest {
 		// What the content does when it is up: it observes the signal and, for each one, shows the
 		// notice (when the signal carries one) and acknowledges it. [delivery] says what is waiting for it.
 		suspend fun showLiveNotice(delivery: LiveSignal) {
-			observeLiveNotice(delivery) { acknowledgeNotice() }
+			observeLiveNotice(delivery) { notice -> acknowledgeNotice(notice.stamp) }
 		}
 
-		// The interface showed the notice and says so.
-		suspend fun acknowledgeNotice() {
-			AcknowledgeSessionInvalidationUseCase(settings, reporting).execute(Unit).test {
+		// The interface showed the notice with this stamp and says so.
+		suspend fun acknowledgeNotice(stamp: Long) {
+			AcknowledgeSessionInvalidationUseCase(settings, reporting).execute(stamp).test {
 				cancelAndIgnoreRemainingEvents()
 			}
 		}
 
 		// The signal reaches the machine, and the process dies before the interface shows it.
 		suspend fun receiveLiveNoticeWithoutShowingIt() {
-			observeLiveNotice(LiveSignal.WithNotice) { }
+			observeLiveNotice(LiveSignal.WithNotice) { _ -> }
 		}
 
-		private suspend fun observeLiveNotice(delivery: LiveSignal, onNotice: suspend () -> Unit) {
+		private suspend fun observeLiveNotice(delivery: LiveSignal, onNotice: suspend (SessionResetNotice) -> Unit) {
 			ObserveSessionInvalidationUseCase(sessionInvalidations, settings, reporting).execute(Unit).test {
 				assertIs<UseCaseState.Loading>(awaitItem())
 
 				when (delivery) {
 					LiveSignal.WithNotice -> {
-						assertEquals(
-							UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession),
-							awaitItem()
-						)
-						onNotice()
+						val signal = assertIs<UseCaseState.Data<SessionResetNotice?>>(awaitItem())
+						assertEquals(SessionResetNoticeReason.ServerEndedSession, signal.value?.reason)
+						onNotice(checkNotNull(signal.value))
 					}
 
 					LiveSignal.WithoutNotice ->
-						assertEquals(UseCaseState.Data<SessionResetNoticeReason?>(null), awaitItem())
+						assertEquals(UseCaseState.Data<SessionResetNotice?>(null), awaitItem())
 
 					LiveSignal.Nothing -> expectNoEvents()
 				}

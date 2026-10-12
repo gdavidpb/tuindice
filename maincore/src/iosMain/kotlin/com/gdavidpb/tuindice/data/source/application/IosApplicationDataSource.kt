@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
+import com.gdavidpb.tuindice.base.utils.extension.attempt
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
@@ -54,8 +55,8 @@ class IosApplicationDataSource(
 			persistenceMaintenanceRepository.clearAll()
 			attestationCapability.invalidateAttestationKeyId()
 			settingsRepository.clear()
-			runCatching { secureStore.clear() }
-			runCatching { legacySecureStore.clear() }
+			attempt { secureStore.clear() }
+			attempt { legacySecureStore.clear() }
 
 			runCatching {
 				FileSystem.SYSTEM.deleteRecursively(temporaryStorageRoot(), mustExist = false)
@@ -68,6 +69,6 @@ class IosApplicationDataSource(
 	}
 
 	private suspend fun releaseSessionMemory() {
-		sessionMemory().forEach { memory -> runCatching { memory.clearSessionMemory() } }
+		sessionMemory().forEach { memory -> attempt { memory.clearSessionMemory() } }
 	}
 }

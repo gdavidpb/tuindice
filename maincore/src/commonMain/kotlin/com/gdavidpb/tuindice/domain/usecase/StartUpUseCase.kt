@@ -48,13 +48,19 @@ class StartUpUseCase(
 		}
 
 		val startUpResult = runCatching {
-			// Read, not taken: the notice stays pending until the interface says it showed it, so a
-			// process that dies before the screen shows it still explains the sign-in at the next start.
-			val sessionResetNotice = settingsRepository.getSessionResetNoticeReason()
+			// The session first and the notice after: a stored session that cannot be read is ended by the
+			// store while it is read, and the store persists the notice that explains it then: read before,
+			// the notice would miss the one that explains the sign-in this start lands on.
 			val hasActiveTokens = sessionRepository.hasActiveSession()
 
+			// Read, not taken: the notice stays pending until the interface says it showed it, so a
+			// process that dies before the screen shows it still explains the sign-in at the next start.
+			val sessionResetNotice = settingsRepository.getSessionResetNotice()
+
 			// A notice left for a session that is back explains nothing and must not outlive it.
-			if (sessionResetNotice != null && hasActiveTokens) settingsRepository.consumeSessionResetNoticePending()
+			if (sessionResetNotice != null && hasActiveTokens) {
+				settingsRepository.consumeSessionResetNotice(stamp = sessionResetNotice.stamp)
+			}
 
 			val startTarget = if (hasActiveTokens)
 				StartUpTarget.Main(section = settingsRepository.getLastMainSection())

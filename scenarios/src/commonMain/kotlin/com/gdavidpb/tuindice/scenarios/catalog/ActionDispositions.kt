@@ -53,12 +53,8 @@ object ActionDispositions {
 			reason = "the host dispatches it each time the app resumes with content; no user performs it"
 		),
 		ActionDisposition.Internal(
-			action = "maincore.Main.SessionInvalidationShown",
-			reason = "the host route reports that it showed the notice of a session that ended behind the user's back"
-		),
-		ActionDisposition.Internal(
-			action = "maincore.Main.SessionInvalidationNotShown",
-			reason = "the host route reports that it could not show the notice (its coroutine ended first)"
+			action = "maincore.Main.SessionEndHandled",
+			reason = "the host route reports that it attended the end of a session that ended behind the user's back"
 		),
 		ActionDisposition.Internal(
 			action = "maincore.Main.ShowOutdatedApp",

@@ -108,7 +108,8 @@ val commonModule = module {
 		SecureStoreSessionDataSource(
 			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
 			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
-			sessionInvalidationRepository = get()
+			sessionInvalidationRepository = get(),
+			settingsRepository = get()
 		)
 	}
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }

@@ -4,6 +4,7 @@ import android.content.ContextWrapper
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -165,6 +167,29 @@ class AndroidApplicationDataSourceTest {
 		assertEquals(false, cached.exists())
 	}
 
+	// The cancellation of a step of the wipe is not a step that failed: it goes up, and the session
+	// memory is still brought back to what the stores say.
+	@Test
+	fun clearData_doesNotSwallowACancellationOfTheStores() = runTest {
+		val settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123")
+		val memory = RecordingSessionMemory(settingsRepository)
+		val dataSource = AndroidApplicationDataSource(
+			context = TestContext(),
+			persistenceMaintenanceRepository = RecordingPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			secureStore = CancellingSecureKeyValueDataRepository(),
+			legacySecureStore = NoOpSecureKeyValueDataRepository(),
+			proofOfPossessionCapability = NoOpProofOfPossessionCapability(),
+			sessionMemory = { listOf(memory) },
+			sessionResidue = { emptyList() }
+		)
+
+		val failure = runCatching { dataSource.clearData() }.exceptionOrNull()
+
+		assertTrue(failure is CancellationException)
+		assertEquals(2, memory.clearCount)
+	}
+
 	private fun dataSource(
 		persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 		settingsRepository: SettingsRepository,
@@ -212,7 +237,7 @@ private class RecordingSessionMemory(
 	}
 }
 
-private class TestContext : ContextWrapper(null) {
+internal class TestContext : ContextWrapper(null) {
 	private val root: File = File.createTempFile("tuindice-clear-data", "").let { file ->
 		file.delete()
 		file.mkdirs()
@@ -238,6 +263,16 @@ private class RecordingPersistenceMaintenanceRepository : PersistenceMaintenance
 	override suspend fun clearAll() = Unit
 }
 
+private class CancellingSecureKeyValueDataRepository : SecureKeyValueDataRepository {
+	override suspend fun getString(key: String): String? = null
+
+	override suspend fun putString(key: String, value: String) = Unit
+
+	override suspend fun remove(key: String) = Unit
+
+	override suspend fun clear(): Unit = throw CancellationException("cancelled")
+}
+
 private class NoOpSecureKeyValueDataRepository : SecureKeyValueDataRepository {
 	override suspend fun getString(key: String): String? = null
 
@@ -260,7 +295,7 @@ private class NoOpProofOfPossessionCapability : AndroidProofOfPossessionCapabili
 	): AttestationProofOfPossessionRequest = error("not used")
 }
 
-private class RecordingSettingsRepository(
+internal class RecordingSettingsRepository(
 	private var localDataOwner: String? = null
 ) : SettingsRepository {
 	var cleared = false
@@ -284,11 +319,24 @@ private class RecordingSettingsRepository(
 
 	override suspend fun markCoachmarkSeen(coachmarkId: String) = Unit
 
-	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason) = Unit
+	var notice: SessionResetNotice? = null
+		private set
 
-	override suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason? = null
+	private var lastStamp = 0L
 
-	override suspend fun consumeSessionResetNoticePending(): Boolean = false
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason): SessionResetNotice {
+		return SessionResetNotice(reason = reason, stamp = ++lastStamp).also { created -> notice = created }
+	}
+
+	override suspend fun getSessionResetNotice(): SessionResetNotice? = notice
+
+	override suspend fun consumeSessionResetNotice(stamp: Long): Boolean {
+		if (notice?.stamp != stamp) return false
+
+		notice = null
+
+		return true
+	}
 
 	override suspend fun getLocalDataOwner(): String? = localDataOwner
 
@@ -299,5 +347,6 @@ private class RecordingSettingsRepository(
 	override suspend fun clear() {
 		cleared = true
 		localDataOwner = null
+		notice = null
 	}
 }

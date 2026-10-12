@@ -46,7 +46,7 @@ class TuIndiceScreenUiTest {
 	fun when_stateIsStarting_then_displaysStartingIndicator() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TuIndiceScreen(
-				state = Main.State.Starting,
+				state = Main.State.Starting(),
 				shellState = shellState(),
 				onRetryStartUp = {},
 				onUpdateAppClick = {},
@@ -73,7 +73,7 @@ class TuIndiceScreenUiTest {
 
 		setTuIndiceTestContent {
 			TuIndiceScreen(
-				state = Main.State.Failed,
+				state = Main.State.Failed(),
 				shellState = shellState(),
 				onRetryStartUp = { retryCalls++ },
 				onUpdateAppClick = {},

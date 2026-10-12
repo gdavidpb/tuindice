@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withTimeoutOrNull
@@ -31,34 +30,25 @@ class SessionCoroutineScope(
 
 	// Cancels the scope's children and waits for them, until none is left: a child that is launched
 	// while the others are cancelling (a cleanup that starts more work, a sync that reaches its last
-	// step) would otherwise outlive the session. The caller's own branch is left alone: a request
-	// that runs inside the scope (a sync, a revalidation) can be the one that ends the session, and
-	// cancelling it would make this call throw before the session is wiped, or wait for itself.
-	//
-	// Returns that branch (the child of the scope the caller runs in, null when it runs outside),
-	// so whoever ends the session can cancel it as its very last step, once everything is wiped:
-	// the request then unwinds as a cancellation instead of writing its failure into the empty stores.
+	// step) would otherwise outlive the session. Every child is cancelled, the branch of whoever asks
+	// included: whoever ends a session does it from outside the scope (see SessionRecoveryDataSource),
+	// so a request of the scope that is waiting for it is cancelled like any other and unwinds
+	// without writing anything afterwards. A caller that does run inside the scope is cancelled by
+	// this call as well.
 	//
 	// The number of passes is bounded: a child that relaunches work every time it is cancelled would
 	// otherwise keep the sign-out spinning forever. So is the wait of each pass: a child that ignores
 	// its cancellation would hold the sign-out for as long as it runs. Past either bound the leftover
 	// work is reported and left running; ending the session matters more than waiting for it. What it
 	// writes afterwards is fenced by the session epoch of each holder.
-	suspend fun cancelActiveWork(): Job? {
-		val caller = currentCoroutineContext()[Job]
-		var callerBranch: Job? = null
+	suspend fun cancelActiveWork() {
 		var settled = false
 		var pass = 0
 
 		while (!settled && pass < MAX_CANCELLATION_PASSES) {
 			pass += 1
 
-			val children = coroutineContext[Job]?.children?.toList().orEmpty()
-			val (own, pending) = children.partition { child ->
-				caller != null && (child === caller || child.isAncestorOf(caller))
-			}
-
-			callerBranch = own.firstOrNull() ?: callerBranch
+			val pending = coroutineContext[Job]?.children?.toList().orEmpty()
 
 			if (pending.isEmpty()) {
 				settled = true
@@ -84,8 +74,6 @@ class SessionCoroutineScope(
 				)
 			)
 		}
-
-		return callerBranch
 	}
 
 	// The child of the scope the caller runs in, or null when it runs outside of it.

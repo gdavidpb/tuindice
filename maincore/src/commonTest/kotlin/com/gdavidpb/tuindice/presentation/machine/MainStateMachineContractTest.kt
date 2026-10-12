@@ -138,8 +138,7 @@ class MainStateMachineContractTest {
 					)
 				),
 				Main.Action.RequestSync,
-				Main.Action.SessionInvalidationShown,
-				Main.Action.SessionInvalidationNotShown,
+				Main.Action.SessionEndHandled(id = 1),
 				Main.Action.NoteSyncUnavailable,
 				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
@@ -147,7 +146,9 @@ class MainStateMachineContractTest {
 				Main.Action.RequestSignOut,
 				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.OutdatedCredentials),
 				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.Healthy),
-				MainInternalEvent.SessionInvalidationObserved(message = "Inicia sesión nuevamente"),
+				MainInternalEvent.SessionInvalidationObserved(
+					sessionNotice = SessionNoticeText(stamp = 7, message = "Inicia sesión nuevamente")
+				),
 				MainInternalEvent.SignOutPrepared(pendingChanges = PendingChanges.Empty),
 				MainInternalEvent.SignOutPreparationFailed(message = "No pudimos revisar tus cambios"),
 				MainInternalEvent.StartUpStarting,

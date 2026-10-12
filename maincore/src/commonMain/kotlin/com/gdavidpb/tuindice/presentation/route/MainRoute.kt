@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -43,31 +45,23 @@ fun MainRoute(
 			is Main.Effect.ShowSnackBar ->
 				onShowSnackBar(effect.message)
 
-			is Main.Effect.SessionInvalidated -> {
-				// A message means a notice owed that the machine holds a lock for: it is confirmed when it
-				// was shown and released when this coroutine ended without showing it (a cancellation while
-				// it waited for the navigator is the usual one). Without a message there is no lock to free.
-				var settled = effect.message == null
-
-				try {
-					onSessionInvalidated(effect.message)
-
-					if (effect.message != null) {
-						// Shown: only now is the copy kept for the next start taken. A process that dies
-						// before this line (a background kill) leaves it, and the next start explains the
-						// sign-in screen.
-						viewModel.sessionInvalidationShownAction()
-					}
-
-					settled = true
-				} finally {
-					// sendAction does not suspend, so this is also safe from a cancelled coroutine.
-					if (!settled) viewModel.sessionInvalidationNotShownAction()
-				}
-			}
-
 			is Main.Effect.NavigateToSignOutDialog ->
 				onNavigateToSignOutDialog(effect.pendingChanges)
+		}
+	}
+
+	val onSessionInvalidatedState by rememberUpdatedState(onSessionInvalidated)
+	val pendingSessionEnd = viewState.pendingSessionEnd
+
+	// The way to the sign-in is state: whoever composes this attends it, and is told to attend it again
+	// if it leaves the composition first (a rotation, or the route being taken out while it waits for the
+	// navigator). Only when it was attended does it say so, and only then does the machine clear it and
+	// take the notice kept for the next start.
+	LaunchedEffect(pendingSessionEnd?.id) {
+		if (pendingSessionEnd != null) {
+			onSessionInvalidatedState(pendingSessionEnd.message)
+
+			viewModel.sessionEndHandledAction(id = pendingSessionEnd.id)
 		}
 	}
 

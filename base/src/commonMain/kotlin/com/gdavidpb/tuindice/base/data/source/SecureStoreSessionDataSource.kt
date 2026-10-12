@@ -3,8 +3,12 @@ package com.gdavidpb.tuindice.base.data.source
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.domain.session.announceInvalidation
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.base.utils.extension.attempt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,7 +16,8 @@ import kotlinx.coroutines.sync.withLock
 class SecureStoreSessionDataSource(
 	private val secureStore: SecureKeyValueDataRepository,
 	private val legacySecureStore: SecureKeyValueDataRepository,
-	private val sessionInvalidationRepository: SessionInvalidationRepository
+	private val sessionInvalidationRepository: SessionInvalidationRepository,
+	private val settingsRepository: SettingsRepository
 ) : PreferencesSessionDataRepository {
 	private val migrationMutex = Mutex()
 
@@ -54,8 +59,8 @@ class SecureStoreSessionDataSource(
 
 	override suspend fun clear() {
 		sessionKeys.forEach { key ->
-			runCatching { secureStore.remove(key) }
-			runCatching { legacySecureStore.remove(key) }
+			attempt { secureStore.remove(key) }
+			attempt { legacySecureStore.remove(key) }
 		}
 	}
 
@@ -130,9 +135,18 @@ class SecureStoreSessionDataSource(
 	}
 
 	private suspend fun invalidateStoredSession(sessionId: String?): CompleteStoredSession? {
-		runCatching { secureStore.clear() }
-		runCatching { legacySecureStore.clear() }
-		sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId)
+		attempt { secureStore.clear() }
+		attempt { legacySecureStore.clear() }
+
+		// The session ends here, with nobody to ask: the notice goes with the signal, like the one of an
+		// invalidation that comes from the server, so the sign-in screen does not appear unexplained.
+		// A stored session that cannot be read is what the user is told.
+		sessionInvalidationRepository.announceInvalidation(
+			settingsRepository = settingsRepository,
+			reason = SessionResetNoticeReason.UnreadableData,
+			sessionId = sessionId
+		)
+
 		return null
 	}
 

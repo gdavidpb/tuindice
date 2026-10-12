@@ -43,6 +43,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -351,18 +352,36 @@ class EvaluationDownloadConcurrencyTest {
 		lateinit var repository: EvaluationDataSource
 		val dispatcher = HookedDispatcher(StandardTestDispatcher(testScheduler))
 		val api = HeldEvaluationsApi()
+		var decisionWasRead = false
+		var hookFired = 0
+		var callsWhenTheHookFired: Int? = null
+		var decisionWasReadWhenTheHookFired = false
 		val database = HookedDecisionDatabase(
 			delegate = FakeDatabaseDataSource(
 				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
 			),
 			afterTheDecisionIsRead = {
-				dispatcher.onNextDispatch = { runBlocking { repository.clearSessionMemory() } }
+				decisionWasRead = true
+				dispatcher.onNextDispatch = {
+					hookFired++
+					callsWhenTheHookFired = api.calls
+					decisionWasReadWhenTheHookFired = decisionWasRead
+					runBlocking { repository.clearSessionMemory() }
+				}
 			}
 		)
 		repository = repository(api = api, database = database)
 
 		val revalidation = launch(dispatcher) { repository.revalidateEvaluations() }
 		runCurrent()
+
+		// The window was really exercised: the hook was consumed, once, at the moment the request was
+		// handed to the dispatcher, with the download already registered (the decision to download is
+		// read after it is) and no call made.
+		assertEquals(1, hookFired, "the end of the session was produced exactly where the test says")
+		assertNull(dispatcher.onNextDispatch, "and the hook was consumed")
+		assertTrue(decisionWasReadWhenTheHookFired, "the download was registered when the session ended")
+		assertEquals(0, callsWhenTheHookFired, "and no call had been made")
 
 		assertTrue(revalidation.isCancelled, "the request of the session that ended is not waited for")
 		assertEquals(0, api.calls, "and it never makes the call")

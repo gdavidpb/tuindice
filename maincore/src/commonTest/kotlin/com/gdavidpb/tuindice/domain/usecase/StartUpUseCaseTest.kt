@@ -143,7 +143,7 @@ class StartUpUseCaseTest {
 
 			val data = assertIs<UseCaseState.Data<StartUpResult>>(awaitItem())
 			val result = assertIs<StartUpResult.Available>(data.value)
-			assertEquals(SessionResetNoticeReason.ServerEndedSession, result.sessionResetNotice)
+			assertEquals(SessionResetNoticeReason.ServerEndedSession, result.sessionResetNotice?.reason)
 
 			awaitComplete()
 		}
@@ -267,6 +267,30 @@ class StartUpUseCaseTest {
 
 		assertIs<StartUpResult.AppUnavailable>(result)
 		assertEquals(0, applicationRepository.clearSessionResidueCalls)
+	}
+
+	// Reading the stored session can end it (a half-written one is dropped by the store, which persists the
+	// notice that explains it while it is read): the notice is read after, or the sign-in this start
+	// lands on would go unexplained.
+	@Test
+	fun execute_readsTheSessionBeforeTheNotice_soTheNoticePersistedWhileReadingTheSessionIsOffered() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val sessionRepository = object : SessionRepository by FakeSessionRepository(sessionId = "") {
+			override suspend fun hasActiveSession(): Boolean {
+				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.UnreadableData)
+
+				return false
+			}
+		}
+
+		val result = runStartUp(
+			startUpUseCase(sessionRepository = sessionRepository, settingsRepository = settingsRepository)
+		)
+
+		assertEquals(
+			SessionResetNoticeReason.UnreadableData,
+			assertIs<StartUpResult.Available>(result).sessionResetNotice?.reason
+		)
 	}
 
 	private fun startUpUseCase(

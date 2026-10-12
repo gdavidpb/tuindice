@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
@@ -303,18 +304,22 @@ class FakeSettingsRepository(
 		seenCoachmarkIds += coachmarkId
 	}
 
-	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason) {
-		sessionResetNoticeReason = reason
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason): SessionResetNotice {
+		val notice = SessionResetNotice(reason = reason, stamp = ++lastNoticeStamp)
+
+		sessionResetNotice = notice
+
+		return notice
 	}
 
-	override suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason? = sessionResetNoticeReason
+	override suspend fun getSessionResetNotice(): SessionResetNotice? = sessionResetNotice
 
-	override suspend fun consumeSessionResetNoticePending(): Boolean {
-		val pending = sessionResetNoticeReason != null
+	override suspend fun consumeSessionResetNotice(stamp: Long): Boolean {
+		if (sessionResetNotice?.stamp != stamp) return false
 
-		sessionResetNoticeReason = null
+		sessionResetNotice = null
 
-		return pending
+		return true
 	}
 
 	override suspend fun getLocalDataOwner(): String? = localDataOwner
@@ -329,12 +334,18 @@ class FakeSettingsRepository(
 		seenCoachmarkIds.clear()
 		legacyOnboardingCompleted = false
 		localDataOwner = null
+		sessionResetNotice = null
 	}
 
-	var sessionResetNoticeReason: SessionResetNoticeReason? = null
+	private var lastNoticeStamp = 0L
+
+	var sessionResetNotice: SessionResetNotice? = null
+
+	val sessionResetNoticeReason: SessionResetNoticeReason?
+		get() = sessionResetNotice?.reason
 
 	val sessionResetNoticePending: Boolean
-		get() = sessionResetNoticeReason != null
+		get() = sessionResetNotice != null
 }
 
 class FakeConfigRepository(

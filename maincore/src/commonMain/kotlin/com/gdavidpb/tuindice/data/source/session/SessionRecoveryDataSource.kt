@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.model.ExchangeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
@@ -16,6 +17,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.session.announceInvalidation
+import com.gdavidpb.tuindice.base.utils.extension.attempt
 import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
@@ -28,7 +31,7 @@ import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
 import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +49,8 @@ class SessionRecoveryDataSource(
 	private val credentialsRepository: CredentialsRepository,
 	private val settingsRepository: SettingsRepository,
 	private val reportingRepository: ReportingRepository,
-	private val sessionCoroutineScope: SessionCoroutineScope
+	private val sessionCoroutineScope: SessionCoroutineScope,
+	private val appCoroutineScope: AppCoroutineScope
 ) : SessionRecoveryRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
 	private val invalidationMutex = Mutex()
@@ -158,75 +162,61 @@ class SessionRecoveryDataSource(
 		}
 	}
 
-	// One invalidation at a time, and a call that arrives while another is in flight does not start
-	// a second wipe. It waits for the one in progress and ends there, because that wipe is the one
-	// that serves it: both callers want the session gone and the notice emitted once. Waiting is
-	// also what a caller outside the scope needs (the session is gone when the call returns), while
-	// a caller inside the scope is cancelled by the wipe in progress and never gets past the wait.
-	// Two invalidations from inside the scope would otherwise each skip their own branch, cancel the
-	// other and leave the wipe half done. This lock is taken by invalidations only: no request holds
-	// it, and the recovery lock is never needed to take it.
+	// The invalidation belongs to the app, not to whoever asked for it. The wipe empties the stores the
+	// session is read from, so from its first step on the session is gone: a wipe cut short by the
+	// cancellation of the caller (a screen that closed, a request of the session scope that was
+	// cancelled) would leave the user inside the app with no session, no data and nobody told. It runs
+	// in the scope of the app instead, and the caller only waits for it: a caller that is cancelled
+	// stops waiting and the wipe goes on to its end. There are two outcomes only: it did not start, or
+	// it ended whole, with the notice kept, the signal emitted and the counter advanced.
+	//
+	// One invalidation at a time, and a call that arrives while another is in flight does not start a
+	// second wipe. It waits for the one in progress and ends there, because that wipe is the one that
+	// serves it: both callers want the session gone and the notice emitted once. A caller outside the
+	// session scope gets its normal return when the session is gone. One inside it is cancelled with
+	// the rest of the scope's work, and unwinds as a cancellation without writing anything afterwards.
+	// This lock is taken by invalidations only: no request holds it, and the recovery lock is never
+	// needed to take it.
 	override suspend fun invalidateSession(
 		sessionId: String?,
 		reason: SessionInvalidationReason?,
 		cause: Throwable?
 	) {
+		// Read here, from the caller: the job below runs outside of every scope it could be asked from.
+		val insideTheScope = sessionCoroutineScope.callerBranch() != null
 		val invalidationsSeen = invalidationsCompleted.value
 
-		invalidationMutex.withLock {
-			if (invalidationsCompleted.value != invalidationsSeen) {
-				// The wipe this call waited for is done; the request that made it is over as well.
-				sessionCoroutineScope.callerBranch()?.cancel()
-				currentCoroutineContext().ensureActive()
-				return
+		appCoroutineScope.async {
+			invalidationMutex.withLock {
+				// The wipe this call waited for is done: it is the one that serves this call.
+				if (invalidationsCompleted.value != invalidationsSeen) return@withLock
+
+				// Everything the session still runs, the caller's branch included: it waits for this job in
+				// a suspension that can be cancelled, so it ends here and does not wait for itself.
+				sessionCoroutineScope.cancelActiveWork()
+
+				// This job is never cancelled, so no step is cut short by a caller; a step that fails does
+				// not keep the next ones from running, because each one empties something different.
+				attempt { applicationRepository.clearData() }
+				attempt { sessionRepository.clear() }
+				attempt { syncStatusRepository.reset() }
+				sessionInvalidationRepository.announceInvalidation(
+					settingsRepository = settingsRepository,
+					reason = SessionResetNoticeReason.ServerEndedSession,
+					sessionId = sessionId
+				)
+				reportInvalidation(reason = reason, cause = cause, insideTheScope = insideTheScope)
+
+				// The wipe ran to its end, so it counts as the one that serves the callers waiting for it.
+				invalidationsCompleted.value += 1
 			}
+		}.await()
 
-			val callerBranch = sessionCoroutineScope.cancelActiveWork()
-
-			// All or nothing. The wipe of the data is the last step that can wait for something, and a
-			// cancellation of the caller (a screen) can cut it short or land right after it. In that case
-			// the session is NOT cleared, no notice is persisted or told and the counter does not move: the
-			// session stays marked as valid with a token the server rejects, so the next request meets the
-			// rejection again and completes the whole invalidation. The cancellation is rethrown.
-			attempt { applicationRepository.clearData() }
-
-			currentCoroutineContext().ensureActive()
-
-			// From here to the counter nothing waits for anything that can be cancelled: the steps are local
-			// writes whose implementations do not suspend, so a cancellation cannot fall between the notice
-			// and the counter (which would let the next caller announce it twice). The one call that can
-			// really suspend, the session store, goes first and only waits for its own lock before it changes
-			// anything: if that wait is cancelled nothing was touched, which is the state described above.
-			attempt { sessionRepository.clear() }
-			attempt { syncStatusRepository.reset() }
-			announceInvalidation(sessionId)
-			reportInvalidation(reason = reason, cause = cause, insideTheScope = callerBranch != null)
-
-			// The wipe ran to its end, so it counts as the one that serves the callers waiting for it.
-			invalidationsCompleted.value += 1
-
-			// Once everything is wiped: the request that ran into the end of the session
-			// (a sync, a revalidation) unwinds as a cancellation and writes nothing afterwards.
-			callerBranch?.cancel()
-		}
-
-		// Last: whatever follows the invalidation in a branch of the scope must not run.
+		// Last: whatever follows the invalidation in a branch of the scope must not run. The wipe cancels
+		// the branches that were there when it started; one that arrived later, while it was in
+		// flight, is served by it and ends here.
+		if (insideTheScope) sessionCoroutineScope.callerBranch()?.cancel()
 		currentCoroutineContext().ensureActive()
-	}
-
-	// The notice is kept in the settings, after the wipe that would erase it and before the live
-	// notice, so that an interface that never collects it (a process woken without UI that dies
-	// first) still explains the sign-in screen at the next start. The interface that does show it
-	// live consumes it (ObserveSessionInvalidationUseCase), and an intentional sign-out, whose
-	// live notice is suppressed, takes it back.
-	private suspend fun announceInvalidation(sessionId: String?) {
-		attempt { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
-
-		val raised = attempt {
-			sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId)
-		}.getOrDefault(false)
-
-		if (!raised) attempt { settingsRepository.consumeSessionResetNoticePending() }
 	}
 
 	// What the logout leaves behind, once per invalidation: status and error code of the rejection
@@ -248,12 +238,6 @@ class SessionRecoveryDataSource(
 				IllegalStateException("Session invalidated: reason=${reason?.name ?: "unspecified"} $rejection $origin")
 			)
 		}
-	}
-
-	// runCatching that does not swallow the cancellation: a step that fails is skipped, a caller that
-	// is cancelled is not.
-	private inline fun <T> attempt(block: () -> T): Result<T> {
-		return runCatching(block).onFailure { failure -> if (failure is CancellationException) throw failure }
 	}
 
 	// Not under recoveryMutex: the wipe can be reached from a recovery that still holds it, and

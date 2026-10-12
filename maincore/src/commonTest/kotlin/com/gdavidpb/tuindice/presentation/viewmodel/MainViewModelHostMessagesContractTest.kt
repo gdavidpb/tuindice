@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -26,14 +28,15 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 /**
- * The two effects of the app host whose message the machine reads from the resources. Kept apart
+ * What the app host owes the user about a session that ended, and the sign-out refusal, whose message the
+ * machine reads from the resources. Kept apart
  * from MainViewModelHostObservationTest because the Android host cannot read them: this class is
  * in the host exclusions of the root build and runs on the simulator.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelHostMessagesContractTest {
 	@Test
-	fun sessionInvalidatedFromOutside_isToldAsAnEffectWithItsMessage() = runTest {
+	fun sessionInvalidatedFromOutside_isPendingStateWithItsMessage() = runTest {
 		withMainDispatcher { dispatchers ->
 			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
@@ -47,26 +50,45 @@ class MainViewModelHostMessagesContractTest {
 				viewModel.awaitContent { true }
 				testScheduler.advanceUntilIdle()
 
-				viewModel.effect.test {
-					// What the invalidation does: leave the notice, then tell.
-					settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
-					sessionInvalidationRepository.notifySessionInvalidated()
+				// What the invalidation does: leave the notice, then tell.
+				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
+				sessionInvalidationRepository.notifySessionInvalidated()
 
-					val effect = awaitItem()
+				val pending = viewModel.awaitPendingSessionEnd { true }
 
-					assertIs<Main.Effect.SessionInvalidated>(effect)
-					assertEquals("Inicia sesión nuevamente", effect.message)
-					cancelAndIgnoreRemainingEvents()
-				}
+				assertEquals("Inicia sesión nuevamente", pending.message)
 			}
 		}
 	}
 
-	// The notice reaches the route once the content is up, and the copy kept for the next start is
-	// taken only when the route says it showed it: a process that dies in between (a background kill)
-	// still explains the sign-in screen at the next start.
+	// A signal without a notice (the user was already told, or there is none) still takes the user to the
+	// sign-in: it is a pending end with nothing to say, not an event that nobody hears.
 	@Test
-	fun sessionInvalidation_keepsTheCopyForTheNextStart_untilTheRouteSaysItShowedTheNotice() = runTest {
+	fun sessionInvalidatedWithoutANotice_isStillAPendingEnd() = runTest {
+		withMainDispatcher { dispatchers ->
+			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+			val viewModel = createMainViewModel(
+				settingsRepository = FakeSettingsRepository(reviewSuggested = false),
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				dispatchers = dispatchers
+			)
+
+			collectingState(viewModel) {
+				viewModel.awaitContent { true }
+				testScheduler.advanceUntilIdle()
+
+				sessionInvalidationRepository.notifySessionInvalidated()
+
+				assertNull(viewModel.awaitPendingSessionEnd { true }.message)
+			}
+		}
+	}
+
+	// The notice reaches the route as state once the content is up, and the copy kept for the next start
+	// is taken only when the route says it attended it: a process that dies in between (a background
+	// kill) still explains the sign-in screen at the next start.
+	@Test
+	fun theCopyForTheNextStart_isKeptUntilTheRouteSaysItAttendedTheEnd_andThenTakenByItsStamp() = runTest {
 		withMainDispatcher { dispatchers ->
 			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
 			// The real one: it keeps the signal until the machine observes it.
@@ -84,25 +106,55 @@ class MainViewModelHostMessagesContractTest {
 				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 				sessionInvalidationRepository.notifySessionInvalidated()
 
-				viewModel.effect.test {
-					assertIs<Main.Effect.SessionInvalidated>(awaitSessionInvalidated())
-					assertEquals(true, settingsRepository.sessionResetNoticePending, "told is not shown")
+				val pending = viewModel.awaitPendingSessionEnd { true }
+				assertEquals(true, settingsRepository.sessionResetNoticePending, "told is not shown")
 
-					viewModel.sessionInvalidationShownAction()
-					withTimeout(3_000) {
-						while (settingsRepository.sessionResetNoticePending) yield()
-					}
+				viewModel.sessionEndHandledAction(id = pending.id)
 
-					cancelAndIgnoreRemainingEvents()
+				viewModel.awaitState { state -> state.pendingSessionEnd == null }
+				withTimeout(3_000) {
+					while (settingsRepository.sessionResetNoticePending) yield()
 				}
 			}
 		}
 	}
 
-	// The start-up offers the notice the invalidation left (it is still pending until the route says it
-	// showed it) and the live signal of the same invalidation arrives afterwards: the user is told once.
+	// An end that is replaced while the route attends the old one: the old id changes nothing.
 	@Test
-	fun sessionNoticeOfferedByTheStartUp_isNotFollowedByTheLiveSignalOfTheSameInvalidation() = runTest {
+	fun handlingAnOldEnd_doesNotClearTheNewerOne() = runTest {
+		withMainDispatcher { dispatchers ->
+			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
+			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+			val viewModel = createMainViewModel(
+				settingsRepository = settingsRepository,
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				dispatchers = dispatchers
+			)
+
+			collectingState(viewModel) {
+				viewModel.awaitContent { true }
+				testScheduler.advanceUntilIdle()
+
+				// First without a notice, then the notice arrives: the end is replaced by one with a message.
+				sessionInvalidationRepository.notifySessionInvalidated()
+				val old = viewModel.awaitPendingSessionEnd { true }
+				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
+				sessionInvalidationRepository.notifySessionInvalidated()
+				val newer = viewModel.awaitPendingSessionEnd { pending -> pending.id != old.id }
+
+				viewModel.sessionEndHandledAction(id = old.id)
+				testScheduler.advanceUntilIdle()
+
+				assertEquals(newer, viewModel.state.value.pendingSessionEnd, "the newer end is still owed")
+				assertEquals(true, settingsRepository.sessionResetNoticePending, "and its notice is not taken")
+			}
+		}
+	}
+
+	// The start-up offers the notice the invalidation left (it is still pending until the route says it
+	// attended it) and the live signal of the same invalidation arrives afterwards: the user is told once.
+	@Test
+	fun sessionNoticeOfferedByTheStartUp_isStateFromTheStart_andTheLiveSignalOfTheSameInvalidationKeepsIt() = runTest {
 		withMainDispatcher { dispatchers ->
 			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
 			val sessionInvalidationRepository = SessionInvalidationDataSource()
@@ -117,31 +169,22 @@ class MainViewModelHostMessagesContractTest {
 			)
 
 			collectingState(viewModel) {
-				viewModel.effect.test {
-					val effect = awaitSessionInvalidated()
+				val offered = viewModel.awaitPendingSessionEnd { true }
 
-					assertIs<Main.Effect.SessionInvalidated>(effect)
-					// The server ended the session: the notice says that, not that the data could not be read.
-					assertEquals("Inicia sesión nuevamente", effect.message)
-					assertEquals(true, settingsRepository.sessionResetNoticePending, "offered is not shown")
+				// The server ended the session: the notice says that, not that the data could not be read.
+				assertEquals("Inicia sesión nuevamente", offered.message)
+				assertEquals(true, settingsRepository.sessionResetNoticePending, "offered is not shown")
 
-					// The content is up, and the live signal of the same invalidation with it. The start-up
-					// reads the message from the resources, which takes real time: the wait is in real time.
-					withContext(Dispatchers.Default) {
-						withTimeout(3_000) { viewModel.state.filterIsInstance<Main.State.Content>().first() }
-					}
-					testScheduler.advanceUntilIdle()
-					// The live signal reached the machine while the notice was still pending: it takes the user
-					// to the sign-in all the same, and carries no second notice.
-					assertNull(awaitSessionInvalidated().let { live -> (live as Main.Effect.SessionInvalidated).message })
-					expectNoEvents()
+				// The live signal of the same invalidation reached the machine while the end was pending:
+				// the end is the same one, with the same notice, neither lost nor repeated.
+				withContext(Dispatchers.Default) { delay(300) }
+				testScheduler.advanceUntilIdle()
+				assertEquals(offered, viewModel.state.value.pendingSessionEnd)
 
-					viewModel.sessionInvalidationShownAction()
-					withTimeout(3_000) {
-						while (settingsRepository.sessionResetNoticePending) yield()
-					}
-
-					cancelAndIgnoreRemainingEvents()
+				viewModel.sessionEndHandledAction(id = offered.id)
+				viewModel.awaitState { state -> state.pendingSessionEnd == null }
+				withTimeout(3_000) {
+					while (settingsRepository.sessionResetNoticePending) yield()
 				}
 			}
 		}
@@ -160,96 +203,29 @@ class MainViewModelHostMessagesContractTest {
 			)
 
 			collectingState(viewModel) {
-				viewModel.effect.test {
-					val effect = awaitSessionInvalidated()
-
-					assertIs<Main.Effect.SessionInvalidated>(effect)
-					assertEquals(
-						"No pudimos leer tus datos y reiniciamos la sesión. Inicia sesión de nuevo.",
-						effect.message
-					)
-					cancelAndIgnoreRemainingEvents()
-				}
+				assertEquals(
+					"No pudimos leer tus datos y reiniciamos la sesión. Inicia sesión de nuevo.",
+					viewModel.awaitPendingSessionEnd { true }.message
+				)
 			}
 		}
 	}
 
-	// Taking the user to the sign-in never depends on the notice: a notice that was told and never
-	// confirmed (the route was cancelled before it could show it) holds the machine's lock, and the
-	// invalidation that follows must still navigate, with nothing new to say.
+	// A start-up with nothing owed leaves nothing pending.
 	@Test
-	fun anInvalidationAfterANoticeThatWasNeverConfirmed_stillTakesTheUserToTheSignIn() = runTest {
+	fun aStartUpWithNoNoticeOwed_leavesNoPendingEnd() = runTest {
 		withMainDispatcher { dispatchers ->
-			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
-			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 			val viewModel = createMainViewModel(
-				settingsRepository = settingsRepository,
-				sessionInvalidationRepository = sessionInvalidationRepository,
+				sessionRepository = FakeSessionRepository(sessionId = ""),
+				settingsRepository = FakeSettingsRepository(reviewSuggested = false),
 				dispatchers = dispatchers
 			)
 
 			collectingState(viewModel) {
-				viewModel.awaitContent { true }
-				testScheduler.advanceUntilIdle()
+				val content = viewModel.awaitContent { true }
 
-				viewModel.effect.test {
-					settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
-					sessionInvalidationRepository.notifySessionInvalidated()
-					val first = awaitSessionInvalidated() as Main.Effect.SessionInvalidated
-					assertEquals("Inicia sesión nuevamente", first.message)
-
-					// Nobody confirmed it. The next invalidation navigates, without a second notice.
-					sessionInvalidationRepository.notifySessionInvalidated()
-					val second = awaitSessionInvalidated() as Main.Effect.SessionInvalidated
-					assertNull(second.message, "navigates, and the notice already on its way is not told twice")
-					assertEquals(true, settingsRepository.sessionResetNoticePending)
-
-					cancelAndIgnoreRemainingEvents()
-				}
+				assertNull(content.pendingSessionEnd)
 			}
-		}
-	}
-
-	// The route could not show the notice (it was cancelled while it waited for the navigator): it says
-	// so, the lock is free and the notice, still persisted, is told with the next invalidation.
-	@Test
-	fun aNoticeTheRouteCouldNotShow_isOfferedAgainWithTheNextInvalidation() = runTest {
-		withMainDispatcher { dispatchers ->
-			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
-			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
-			val viewModel = createMainViewModel(
-				settingsRepository = settingsRepository,
-				sessionInvalidationRepository = sessionInvalidationRepository,
-				dispatchers = dispatchers
-			)
-
-			collectingState(viewModel) {
-				viewModel.awaitContent { true }
-				testScheduler.advanceUntilIdle()
-
-				viewModel.effect.test {
-					settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
-					sessionInvalidationRepository.notifySessionInvalidated()
-					assertEquals("Inicia sesión nuevamente", (awaitSessionInvalidated() as Main.Effect.SessionInvalidated).message)
-
-					viewModel.sessionInvalidationNotShownAction()
-					testScheduler.advanceUntilIdle()
-					assertEquals(true, settingsRepository.sessionResetNoticePending, "the notice stays pending")
-
-					sessionInvalidationRepository.notifySessionInvalidated()
-					assertEquals("Inicia sesión nuevamente", (awaitSessionInvalidated() as Main.Effect.SessionInvalidated).message)
-
-					cancelAndIgnoreRemainingEvents()
-				}
-			}
-		}
-	}
-
-	private suspend fun app.cash.turbine.ReceiveTurbine<Main.Effect>.awaitSessionInvalidated(): Main.Effect {
-		while (true) {
-			val effect = awaitItem()
-
-			if (effect is Main.Effect.SessionInvalidated) return effect
 		}
 	}
 
@@ -308,6 +284,21 @@ class MainViewModelHostMessagesContractTest {
 		} finally {
 			stateCollector.cancel()
 		}
+	}
+
+	// The live signal and the notice text are read in real time (the text comes from the resources).
+	private suspend fun MainViewModel.awaitState(predicate: (Main.State) -> Boolean): Main.State {
+		return withContext(Dispatchers.Default) {
+			withTimeout(3_000) { state.first(predicate) }
+		}
+	}
+
+	private suspend fun MainViewModel.awaitPendingSessionEnd(
+		predicate: (PendingSessionEnd) -> Boolean
+	): PendingSessionEnd {
+		val state = awaitState { candidate -> candidate.pendingSessionEnd?.let(predicate) == true }
+
+		return checkNotNull(state.pendingSessionEnd)
 	}
 
 	private suspend fun MainViewModel.awaitContent(

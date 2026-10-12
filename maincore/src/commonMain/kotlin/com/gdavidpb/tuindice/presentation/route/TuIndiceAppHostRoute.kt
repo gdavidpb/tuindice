@@ -122,7 +122,7 @@ fun TuIndiceAppHostRoute(
 				// the user away from, and replacing the stack would throw away what is being typed.
 				if (navigator.rootMode == TuIndiceRootMode.SIGNED_IN) navigator.replaceAllForSignIn()
 
-				// No message: the notice is already on its way to the screen or was shown.
+				// No message: the user was already told, or there is nothing to tell.
 				if (message != null) showSnackBar(SnackBarMessage(message = message))
 			},
 			onNavigateToSignOutDialog = { pendingChanges ->

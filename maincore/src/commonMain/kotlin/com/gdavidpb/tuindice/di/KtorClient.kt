@@ -137,10 +137,11 @@ internal fun AuthConfig.installSharedBearerAuth(
 
 		// Do not turn on the plugin's non-cancellable refresh (nor wrap the recovery in
 		// NonCancellable). refreshTokens can end the session from inside the branch of the request
-		// that is waiting on it; SessionCoroutineScope.cancelActiveWork() finds that branch through
-		// the caller's Job. In a non-cancellable context that Job hangs from NonCancellable, not
-		// from the session scope, so the sign-out would cancel its own branch and wait for it
-		// forever. The semgrep rule session-recovery-no-noncancellable keeps this from changing.
+		// that is waiting on it; SessionCoroutineScope.cancelActiveWork() cancels that branch with the
+		// rest of the scope's work. In a non-cancellable context the Job of the request hangs from
+		// NonCancellable, not from the session scope, so the invalidation would not reach it and the
+		// request would go on after the session ended. The semgrep rule
+		// session-recovery-no-noncancellable keeps this from changing.
 
 		refreshTokens {
 			val attemptedAccessToken = response.call.request.headers[HttpHeaders.Authorization]?.bearerAccessToken()

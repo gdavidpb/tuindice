@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
@@ -746,7 +747,8 @@ private fun sessionRecoveryDataSource(
 		credentialsRepository = credentialsRepository,
 		settingsRepository = FakeSettingsRepository(),
 		reportingRepository = RecordingReportingRepository(),
-		sessionCoroutineScope = sessionCoroutineScope
+		sessionCoroutineScope = sessionCoroutineScope,
+		appCoroutineScope = testAppCoroutineScope()
 	)
 }
 

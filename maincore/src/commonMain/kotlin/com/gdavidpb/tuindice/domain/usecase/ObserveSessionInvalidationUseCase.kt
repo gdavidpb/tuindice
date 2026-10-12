@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -25,10 +25,10 @@ class ObserveSessionInvalidationUseCase(
 	private val sessionInvalidationRepository: SessionInvalidationRepository,
 	private val settingsRepository: SettingsRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, SessionResetNoticeReason?, Nothing>() {
-	override suspend fun executeOnBackground(params: Unit): Flow<SessionResetNoticeReason?> {
+) : FlowUseCase<Unit, SessionResetNotice?, Nothing>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<SessionResetNotice?> {
 		return sessionInvalidationRepository.observeSessionInvalidation().map {
-			settingsRepository.getSessionResetNoticeReason()
+			settingsRepository.getSessionResetNotice()
 		}
 	}
 }

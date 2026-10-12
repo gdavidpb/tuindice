@@ -6,11 +6,13 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.data.repository.sync.FakeAcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.FakeEvaluationsRevalidationRepository
@@ -29,15 +31,15 @@ import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
+import com.gdavidpb.tuindice.testing.ProductionLikeApplicationRepository
+import com.gdavidpb.tuindice.testing.RealSessionStore
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
-import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -50,7 +52,6 @@ import io.ktor.http.headersOf
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -62,6 +63,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 // The path that caused the incidents, end to end: a request that runs inside the session scope
@@ -86,9 +88,10 @@ class SessionInvalidationFromTheScopeTest {
 			}
 		}
 		branch.join()
+		rig.finish()
 
 		assertEquals(1, rig.applicationRepository.clearCalls, "the wipe ran")
-		assertTrue(rig.sessionRepository.cleared)
+		assertTrue(rig.store.isGone())
 		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls, "the notice was emitted")
 		assertEquals(listOf<String?>("session-old"), rig.sessionInvalidationRepository.notifiedSessionIds)
 		assertTrue(branchFinished && branch.isCompleted, "the branch ended")
@@ -130,6 +133,7 @@ class SessionInvalidationFromTheScopeTest {
 
 		sync.scheduleSync(password = "secret", policy = SyncPolicy.ForceRefresh)
 		rig.settle()
+		rig.finish()
 
 		assertEquals(1, rig.applicationRepository.clearCalls, "the wipe ran")
 		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls)
@@ -147,7 +151,7 @@ class SessionInvalidationFromTheScopeTest {
 		val rig = SessionInvalidationRig(this)
 		val wipeStarted = CompletableDeferred<Unit>()
 		val releaseWipe = CompletableDeferred<Unit>()
-		val application = GatedApplicationRepository(wipeStarted, releaseWipe)
+		val application = rig.productionLike(database = { gate(wipeStarted, releaseWipe) })
 		val recovery = rig.recovery(application)
 
 		val first = rig.sessionScope.launch { recovery.invalidateSession(sessionId = "session-old") }
@@ -185,7 +189,7 @@ class SessionInvalidationFromTheScopeTest {
 		assertEquals(HttpStatusCode.Forbidden, (failure as? ClientRequestException)?.response?.status)
 		assertFalse(branch.isCancelled, "the request fails with its own error; nothing cancels it")
 		assertEquals(0, rig.applicationRepository.clearCalls, "nothing is wiped")
-		assertFalse(rig.sessionRepository.cleared, "the session is intact")
+		assertFalse(rig.store.isGone(), "the session is intact")
 		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls, "and nobody is told")
 		assertEquals(emptyList(), rig.reportingRepository.loggedExceptions)
 	}
@@ -226,7 +230,7 @@ class SessionInvalidationFromTheScopeTest {
 		rig.settle()
 
 		assertEquals(0, rig.applicationRepository.clearCalls, "nothing is wiped")
-		assertFalse(rig.sessionRepository.cleared)
+		assertFalse(rig.store.isGone())
 		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls)
 		assertEquals(listOf(SyncStatus.Failed), syncStatus.setStatuses, "the failure is recorded like any other")
 		assertTrue(settings.cooldownMarked, "and so is its cooldown")
@@ -241,7 +245,7 @@ class SessionInvalidationFromTheScopeTest {
 
 		assertTrue(failure is ClientRequestException)
 		assertEquals(1, rig.applicationRepository.clearCalls)
-		assertTrue(rig.sessionRepository.cleared)
+		assertTrue(rig.store.isGone())
 		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls)
 	}
 
@@ -252,8 +256,9 @@ class SessionInvalidationFromTheScopeTest {
 		rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
 		// The wipe erases the settings, so the notice has to be written after it.
-		assertTrue(
-			rig.settingsRepository.consumeSessionResetNoticePending(),
+		assertEquals(
+			SessionResetNoticeReason.ServerEndedSession,
+			rig.settingsRepository.getSessionResetNotice()?.reason,
 			"the next start finds the notice pending"
 		)
 	}
@@ -261,19 +266,16 @@ class SessionInvalidationFromTheScopeTest {
 	@Test
 	fun theNoticeIsWrittenAfterTheWipe_soTheWipeCannotEraseIt() = runTest {
 		val rig = SessionInvalidationRig(this)
-		val wipingApplication = object : ApplicationRepository {
-			override suspend fun clearSessionResidue() = Unit
+		// A notice from before, which the wipe of the settings erases like everything else.
+		rig.settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.UnreadableData)
 
-			override suspend fun clearData() {
-				rig.settingsRepository.consumeSessionResetNoticePending()
-			}
+		rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
-			override suspend fun canOpen(file: PlatformFile): Boolean = true
-		}
-
-		rig.recovery(wipingApplication).invalidateSession(sessionId = "session-old")
-
-		assertTrue(rig.settingsRepository.consumeSessionResetNoticePending())
+		assertTrue(rig.settingsRepository.cleared, "the settings were wiped")
+		assertEquals(
+			SessionResetNoticeReason.ServerEndedSession,
+			rig.settingsRepository.getSessionResetNotice()?.reason
+		)
 	}
 
 	@Test
@@ -290,16 +292,18 @@ class SessionInvalidationFromTheScopeTest {
 
 			rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
-			assertEquals(UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession), awaitItem())
+			val signal = assertIs<UseCaseState.Data<SessionResetNotice?>>(awaitItem())
+			val notice = checkNotNull(signal.value)
+			assertEquals(SessionResetNoticeReason.ServerEndedSession, notice.reason)
 			assertTrue(rig.settingsRepository.sessionResetNoticePending, "told is not shown: the copy is kept")
 
 			// The interface showed it and says so.
 			AcknowledgeSessionInvalidationUseCase(
 				settingsRepository = rig.settingsRepository,
 				reportingRepository = rig.reportingRepository
-			).execute(Unit).test { cancelAndIgnoreRemainingEvents() }
-			assertFalse(
-				rig.settingsRepository.consumeSessionResetNoticePending(),
+			).execute(notice.stamp).test { cancelAndIgnoreRemainingEvents() }
+			assertNull(
+				rig.settingsRepository.getSessionResetNotice(),
 				"the interface showed it; the start must not show it again"
 			)
 
@@ -315,7 +319,7 @@ class SessionInvalidationFromTheScopeTest {
 		rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
 		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls)
-		assertFalse(rig.settingsRepository.consumeSessionResetNoticePending())
+		assertNull(rig.settingsRepository.getSessionResetNotice())
 	}
 
 	@Test
@@ -326,6 +330,7 @@ class SessionInvalidationFromTheScopeTest {
 			runCatching { rig.client.get("https://api.tuindice.app/record/v5/sync") }
 		}
 		branch.join()
+		rig.finish()
 
 		val reported = rig.reportingRepository.loggedExceptions
 		assertEquals(1, reported.size, "one report for the one invalidation")
@@ -354,7 +359,7 @@ class SessionInvalidationFromTheScopeTest {
 		val rig = SessionInvalidationRig(this)
 		val wipeStarted = CompletableDeferred<Unit>()
 		val releaseWipe = CompletableDeferred<Unit>()
-		val recovery = rig.recovery(GatedApplicationRepository(wipeStarted, releaseWipe))
+		val recovery = rig.recovery(rig.productionLike(database = { gate(wipeStarted, releaseWipe) }))
 
 		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
 		runCurrent()
@@ -378,6 +383,7 @@ class SessionInvalidationFromTheScopeTest {
 			ranAfterTheInvalidation = true
 		}
 		branch.join()
+		rig.finish()
 
 		assertEquals(1, rig.applicationRepository.clearCalls)
 		assertFalse(ranAfterTheInvalidation, "the branch is cancelled before it can continue")
@@ -389,7 +395,7 @@ class SessionInvalidationFromTheScopeTest {
 		val rig = SessionInvalidationRig(this)
 		val wipeStarted = CompletableDeferred<Unit>()
 		val releaseWipe = CompletableDeferred<Unit>()
-		val recovery = rig.recovery(GatedApplicationRepository(wipeStarted, releaseWipe))
+		val recovery = rig.recovery(rig.productionLike(database = { gate(wipeStarted, releaseWipe) }))
 		var ranAfterTheSecondInvalidation = false
 
 		launch { recovery.invalidateSession(sessionId = "session-old") }
@@ -407,18 +413,19 @@ class SessionInvalidationFromTheScopeTest {
 		assertFalse(ranAfterTheSecondInvalidation)
 	}
 
-	// The steps of the wipe run in runCatching, which swallows the cancellation of whoever is wiping.
-	// A wipe that was cut short must not count as done: the caller that waited for it has to wipe.
+	// A caller cancelled while the wipe runs stops waiting, and the wipe goes on to its end: the one that
+	// arrived behind it is served by that wipe, and the notice is told exactly once.
 	@Test
-	fun aWipeCancelledHalfway_doesNotServeTheCallerThatWaitedForIt() = runTest {
+	fun aCallerCancelledWhileTheWipeRuns_doesNotStopIt_andTheCallerBehindItIsServed() = runTest {
 		val rig = SessionInvalidationRig(this)
-		val firstWipeStarted = CompletableDeferred<Unit>()
-		val application = FirstCallBlocksApplicationRepository(firstWipeStarted)
+		val wipeStarted = CompletableDeferred<Unit>()
+		val releaseWipe = CompletableDeferred<Unit>()
+		val application = rig.productionLike(database = { gate(wipeStarted, releaseWipe) })
 		val recovery = rig.recovery(application)
 
 		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
 		runCurrent()
-		firstWipeStarted.await()
+		wipeStarted.await()
 		var secondFinishedNormally = false
 		val second = launch {
 			recovery.invalidateSession(sessionId = "session-old")
@@ -427,120 +434,25 @@ class SessionInvalidationFromTheScopeTest {
 		runCurrent()
 
 		first.cancel()
-		advanceUntilIdle()
-
-		assertTrue(first.isCancelled)
-		assertEquals(2, application.clearCalls, "the caller that waited did its own complete wipe")
-		assertTrue(secondFinishedNormally && !second.isCancelled)
-		assertTrue(rig.sessionRepository.cleared)
-		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls, "and the notice is told exactly once")
-	}
-
-	// All or nothing. A caller (a screen) cancelled while the data is being wiped leaves the wipe of the
-	// database, the settings and the files undone; the session must not be announced as over, nor
-	// cleared: it stays valid with a token the server rejects, so the next request meets the rejection
-	// again and completes the whole invalidation.
-	@Test
-	fun aCallerCancelledDuringTheWipeOfTheData_leavesTheSessionAsItWas_andALaterInvalidationCompletesIt() = runTest {
-		val rig = SessionInvalidationRig(this)
-		val application = CancelsItsCallerApplicationRepository()
-		val recovery = rig.recovery(application)
-
-		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
-		advanceUntilIdle()
-
-		assertTrue(first.isCancelled, "the cancellation is not swallowed")
-		assertFalse(rig.sessionRepository.cleared, "the session is not cleared")
-		assertFalse(rig.settingsRepository.sessionResetNoticePending, "no notice is persisted")
-		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls, "and none is announced")
-		assertEquals(emptyList(), rig.reportingRepository.loggedExceptions, "nor is a cause reported")
-
-		application.cancelTheCaller = false
-		launch { recovery.invalidateSession(sessionId = "session-old") }
-		advanceUntilIdle()
-
-		assertEquals(2, application.clearCalls)
-		assertTrue(rig.sessionRepository.cleared)
-		assertTrue(rig.settingsRepository.sessionResetNoticePending)
-		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls)
-		assertEquals(1, rig.reportingRepository.loggedExceptions.size)
-	}
-
-	@Test
-	fun aWipeOfTheDataThatEndsInCancellation_leavesTheSessionAsItWas() = runTest {
-		val rig = SessionInvalidationRig(this)
-		val started = CompletableDeferred<Unit>()
-		val recovery = rig.recovery(FirstCallBlocksApplicationRepository(started))
-
-		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
 		runCurrent()
-		started.await()
-		first.cancel()
+		releaseWipe.complete(Unit)
 		advanceUntilIdle()
 
 		assertTrue(first.isCancelled)
-		assertFalse(rig.sessionRepository.cleared)
-		assertFalse(rig.settingsRepository.sessionResetNoticePending)
-		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls)
+		assertEquals(1, application.clearCalls, "the wipe went on and ran once")
+		assertTrue(secondFinishedNormally && !second.isCancelled, "the caller behind it was served by that wipe")
+		assertTrue(rig.store.isGone())
+		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls, "and the notice is told exactly once")
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, rig.settingsRepository.sessionResetNoticeReason)
 	}
-}
-
-// The wipe of the data that is cut off by the cancellation of whoever asked for it, and returns as if
-// it had ended (a blocking wipe does not check): what is left for the caller to find is a cancelled job.
-private class CancelsItsCallerApplicationRepository : ApplicationRepository {
-	var cancelTheCaller = true
-	var clearCalls = 0
-		private set
-
-	override suspend fun clearSessionResidue() = Unit
-
-	override suspend fun clearData() {
-		clearCalls++
-
-		if (cancelTheCaller) currentCoroutineContext()[Job]?.cancel()
-	}
-
-	override suspend fun canOpen(file: PlatformFile): Boolean = true
-}
-
-private class FirstCallBlocksApplicationRepository(
-	private val firstStarted: CompletableDeferred<Unit>
-) : ApplicationRepository {
-	var clearCalls = 0
-		private set
-
-	override suspend fun clearSessionResidue() = Unit
-
-	override suspend fun clearData() {
-		clearCalls++
-
-		if (clearCalls == 1) {
-			firstStarted.complete(Unit)
-			CompletableDeferred<Unit>().await()
-		}
-	}
-
-	override suspend fun canOpen(file: PlatformFile): Boolean = true
 }
 
 private enum class Rejection { Unauthorized, InsufficientScope }
 
-private class GatedApplicationRepository(
-	private val started: CompletableDeferred<Unit>,
-	private val release: CompletableDeferred<Unit>
-) : ApplicationRepository {
-	var clearCalls = 0
-		private set
-
-	override suspend fun clearSessionResidue() = Unit
-
-	override suspend fun clearData() {
-		clearCalls++
-		started.complete(Unit)
-		release.await()
-	}
-
-	override suspend fun canOpen(file: PlatformFile): Boolean = true
+// The step of the wipe that waits: it says it started and does not go on until it is released.
+private suspend fun gate(started: CompletableDeferred<Unit>, release: CompletableDeferred<Unit>) {
+	started.complete(Unit)
+	release.await()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -550,25 +462,30 @@ private class SessionInvalidationRig(
 ) {
 	val sessionScope: SessionCoroutineScope =
 		testSessionCoroutineScope(StandardTestDispatcher(testScope.testScheduler))
-	val sessionRepository = FakeSessionRepository(
-		sessionId = "session-old",
-		usbId = "12-34567",
-		accessToken = "access-old",
-		refreshToken = "refresh-old"
-	)
-	val applicationRepository = RecordingApplicationRepository()
 	val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 	val settingsRepository = FakeSettingsRepository()
 	val reportingRepository = RecordingReportingRepository()
+
+	// The session as the app keeps it: the real store over the real secure-store source.
+	val store = RealSessionStore(settings = settingsRepository, invalidations = sessionInvalidationRepository)
+		.also { store -> store.seed() }
+	val sessionRepository: SessionRepository = store.repository
+	val applicationRepository = productionLike()
 	private val syncStatusRepository = FakeSyncStatusRepository()
 	private val authRepository: AuthRepository = when (rejection) {
 		Rejection.Unauthorized -> RejectingRefreshAuthRepository
 
 		// The refresh works, so the retried request is the one that is still short of scope.
-		Rejection.InsufficientScope -> ScopeRefreshingAuthRepository(sessionRepository)
+		Rejection.InsufficientScope -> ScopeRefreshingAuthRepository(store.repository)
 	}
 
 	val client: HttpClient
+
+	// The branch that ended the session is cancelled when the wipe starts, not when it ends: the wipe
+	// belongs to the app and goes on by itself, so the test lets it run to its end.
+	fun finish() {
+		testScope.testScheduler.advanceUntilIdle()
+	}
 
 	// The mock engine answers from its own threads, so the test waits on the scope's branches.
 	suspend fun settle() {
@@ -621,6 +538,14 @@ private class SessionInvalidationRig(
 		}
 	}
 
+	// A wipe that does what the platforms' do; [database] is where a test stands for the database.
+	fun productionLike(database: suspend () -> Unit = {}) = ProductionLikeApplicationRepository(
+		settings = settingsRepository,
+		stores = listOf(store.active, store.legacy),
+		memory = listOf(store.memory),
+		database = database
+	)
+
 	fun recovery(applicationRepository: ApplicationRepository) = SessionRecoveryDataSource(
 		sessionRepository = sessionRepository,
 		applicationRepository = applicationRepository,
@@ -633,7 +558,8 @@ private class SessionInvalidationRig(
 		credentialsRepository = FakeCredentialsRepository(),
 		settingsRepository = settingsRepository,
 		reportingRepository = reportingRepository,
-		sessionCoroutineScope = sessionScope
+		sessionCoroutineScope = sessionScope,
+		appCoroutineScope = testAppCoroutineScope(StandardTestDispatcher(testScope.testScheduler))
 	)
 }
 
@@ -656,7 +582,7 @@ private object RejectingRefreshAuthRepository : AuthRepository {
 }
 
 private class ScopeRefreshingAuthRepository(
-	private val sessionRepository: FakeSessionRepository
+	private val sessionRepository: SessionRepository
 ) : AuthRepository {
 	override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 

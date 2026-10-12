@@ -1134,6 +1134,107 @@ class TuIndiceAppHostRouteUiTest {
 		)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
+		startSignedInHostKoin(syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
+						settingsRepository = settingsRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(
+					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					useUnmergedTree = true
+				).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			runOnIdle {
+				// What the invalidation does: leave the notice, then tell.
+				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+		} finally {
+			stopKoin()
+		}
+	}
+
+	// The way to the sign-in does not depend on the notice: a signal with nothing owed (the user was told
+	// already, or there is no notice) takes the user there all the same, and no message is shown.
+	@Test
+	fun when_theSessionEndsWithNoNoticeOwed_then_hostRouteStillNavigatesToSignIn_andShowsNoMessage() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+
+		startSignedInHostKoin(syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
+						settingsRepository = settingsRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(
+					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					useUnmergedTree = true
+				).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			runOnIdle {
+				// No notice was left: the signal is all there is.
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			waitForIdle()
+
+			assertEquals(
+				0,
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().size,
+				"there was nothing to tell"
+			)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	private fun startSignedInHostKoin(
+		syncStatusRepository: FakeSyncStatusRepository,
+		sessionInvalidationRepository: SessionInvalidationRepository
+	) {
 		stopKoin()
 
 		startKoin {
@@ -1202,47 +1303,6 @@ class TuIndiceAppHostRouteUiTest {
 					single<ReportingRepository> { RecordingReportingRepository() }
 				}
 			)
-		}
-
-		try {
-			setTuIndiceTestContent {
-				TuIndiceAppHostRoute(
-					onConfirmExitClick = {},
-					browserRepository = RecordingBrowserRepository(),
-					reviewRepository = RecordingReviewRepository(),
-					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel(
-						sessionInvalidationRepository = sessionInvalidationRepository,
-						syncStatusRepository = syncStatusRepository,
-						settingsRepository = settingsRepository
-					)
-				)
-			}
-
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-					useUnmergedTree = true
-				).fetchSemanticsNodes().isNotEmpty()
-			}
-
-			runOnIdle {
-				// What the invalidation does: leave the notice, then tell.
-				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
-				sessionInvalidationRepository.notifySessionInvalidated()
-			}
-
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
-			}
-
-			assertNodeVisible(AuthUiTags.PasswordTextField)
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
-			}
-			onNodeWithText("Inicia sesión nuevamente").assertExists()
-		} finally {
-			stopKoin()
 		}
 	}
 

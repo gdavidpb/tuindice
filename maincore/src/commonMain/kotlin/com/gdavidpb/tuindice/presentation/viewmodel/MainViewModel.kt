@@ -56,9 +56,6 @@ class MainViewModel(
 	fun requestSignOutAction() =
 		sendAction(Main.Action.RequestSignOut)
 
-	fun sessionInvalidationShownAction() =
-		sendAction(Main.Action.SessionInvalidationShown)
-
-	fun sessionInvalidationNotShownAction() =
-		sendAction(Main.Action.SessionInvalidationNotShown)
+	fun sessionEndHandledAction(id: Long) =
+		sendAction(Main.Action.SessionEndHandled(id = id))
 }

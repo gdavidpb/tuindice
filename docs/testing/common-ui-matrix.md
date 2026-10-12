@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-12 15:42:56 -0300_
+_Generated automatically on 2026-10-12 17:05:22 -0300_
 
 ## Summary by module
 
@@ -166,8 +166,8 @@ _Generated automatically on 2026-10-12 15:42:56 -0300_
 |---|---:|---|---:|---|
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/navigation/RememberTuIndiceNavigator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/navigation/RememberTuIndiceNavigatorUiTest.kt` | 5 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRouteUiTest.kt` | 6 | PASS threshold (3) |
-| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/MainRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/MainRouteUiTest.kt` | 6 | PASS threshold (3) |
-| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRouteUiTest.kt` | 16 | PASS threshold (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/MainRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/MainRouteUiTest.kt` | 7 | PASS threshold (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRouteUiTest.kt` | 17 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialog.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialogUiTest.kt` | 3 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceEntryScopeDecorator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceEntryScopeDecoratorUiTest.kt` | 3 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceRetainedSavedStateDecorator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceRetainedSavedStateDecoratorUiTest.kt` | 3 | PASS threshold (3) |

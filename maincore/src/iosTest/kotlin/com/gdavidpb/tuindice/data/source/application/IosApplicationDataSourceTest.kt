@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanc
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -128,6 +129,27 @@ class IosApplicationDataSourceTest {
 		assertEquals(false, settingsRepository.cleared)
 	}
 
+	// The cancellation of a step of the wipe is not a step that failed: it goes up, and the session
+	// memory is still brought back to what the stores say.
+	@Test
+	fun clearData_doesNotSwallowACancellationOfTheStores() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-26123")
+		val memory = RecordingSessionMemory(settingsRepository)
+		val dataSource = IosApplicationDataSource(
+			persistenceMaintenanceRepository = NoOpPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			secureStore = CancellingSecureKeyValueDataRepository(),
+			legacySecureStore = NoOpSecureKeyValueDataRepository(),
+			attestationCapability = NoOpAttestationCapability(),
+			externalActionsCapability = NoOpExternalActionsCapability(),
+			sessionMemory = { listOf(memory) },
+			sessionResidue = { emptyList() }
+		)
+
+		assertFailsWith<CancellationException> { dataSource.clearData() }
+		assertEquals(2, memory.clearCount)
+	}
+
 	private fun dataSource(
 		persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 		settingsRepository: FakeSettingsRepository,
@@ -183,6 +205,16 @@ private class NoOpPersistenceMaintenanceRepository : PersistenceMaintenanceRepos
 	override suspend fun clearAll() = Unit
 }
 
+private class CancellingSecureKeyValueDataRepository : SecureKeyValueDataRepository {
+	override suspend fun getString(key: String): String? = null
+
+	override suspend fun putString(key: String, value: String) = Unit
+
+	override suspend fun remove(key: String) = Unit
+
+	override suspend fun clear(): Unit = throw CancellationException("cancelled")
+}
+
 private class NoOpSecureKeyValueDataRepository : SecureKeyValueDataRepository {
 	override suspend fun getString(key: String): String? = null
 
@@ -193,7 +225,7 @@ private class NoOpSecureKeyValueDataRepository : SecureKeyValueDataRepository {
 	override suspend fun clear() = Unit
 }
 
-private class NoOpAttestationCapability : IosAttestationCapability {
+internal class NoOpAttestationCapability : IosAttestationCapability {
 	override fun sha256Base64Url(value: String): String? = null
 
 	override suspend fun resolveAttestationKeyId(): String? = null
@@ -207,7 +239,7 @@ private class NoOpAttestationCapability : IosAttestationCapability {
 	): IosPlatformAttestation? = null
 }
 
-private class NoOpExternalActionsCapability : IosExternalActionsCapability {
+internal class NoOpExternalActionsCapability : IosExternalActionsCapability {
 	override fun openUrl(url: String) = Unit
 
 	override fun openFile(path: String): Boolean = false
