@@ -285,6 +285,7 @@ val androidPlatformModule = module {
 			sessionRepository = get(),
 			settingsRepository = get(),
 			sessionRecoveryRepository = get(),
+			sessionCoroutineScope = get(),
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),

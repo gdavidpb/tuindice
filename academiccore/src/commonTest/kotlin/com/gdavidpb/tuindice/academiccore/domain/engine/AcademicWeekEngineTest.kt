@@ -64,35 +64,49 @@ class AcademicWeekEngineTest {
 	}
 
 	@Test
-	fun isPlausibleClassesStartDate_inSeptember_spansAugustFirstToOctoberThirtyFirst() {
+	fun isPlausibleClassesStartDate_inSeptember_spansAugustFirstToTheLastDayOfTheMonthTheTermEndsIn() {
 		val period = AcademicTermPeriod.SEP_DEC
 
 		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 7, 31)))
 		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 8, 1)))
-		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 9, 15)))
-		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 10, 31)))
-		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 11, 1)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 9, 28)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 11, 15)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 12, 31)))
+		// Any January is past the term, whichever year.
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 1, 15)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2027, 1, 1)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2027, 1, 31)))
 	}
 
 	@Test
 	fun isPlausibleClassesStartDate_inJanuary_startsInDecemberOfThePreviousYear() {
 		val period = AcademicTermPeriod.JAN_MAR
 
-		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2025, 11, 30)))
-		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2025, 12, 1)))
-		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 1, 12)))
-		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 2, 28)))
-		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 3, 1)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2026, 11, 30)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2026, 12, 1)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2026, 12, 28)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2027, 1, 12)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2027, 3, 31)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2027, 4, 1)))
 		// The same December of the period's own year is a year too late.
-		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, period, LocalDate(2026, 12, 1)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2027, period, LocalDate(2027, 12, 1)))
 	}
 
 	@Test
-	fun isPlausibleClassesStartDate_inALeapYear_endsOnFebruaryTwentyNinth() {
+	fun isPlausibleClassesStartDate_inALeapYear_stillReachesTheEndOfTheTermsLastMonth() {
 		val period = AcademicTermPeriod.JAN_MAR
 
 		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2028, period, LocalDate(2028, 2, 29)))
-		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2028, period, LocalDate(2028, 3, 1)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2028, period, LocalDate(2028, 3, 31)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2028, period, LocalDate(2028, 4, 1)))
+	}
+
+	@Test
+	fun isPlausibleClassesStartDate_inALongerPeriod_reachesItsOwnLastMonth() {
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, AcademicTermPeriod.APR_SEP, LocalDate(2026, 9, 30)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, AcademicTermPeriod.APR_SEP, LocalDate(2026, 10, 1)))
+		assertTrue(AcademicWeekEngine.isPlausibleClassesStartDate(2026, AcademicTermPeriod.JAN_MAY, LocalDate(2026, 5, 31)))
+		assertFalse(AcademicWeekEngine.isPlausibleClassesStartDate(2026, AcademicTermPeriod.JAN_MAY, LocalDate(2026, 6, 1)))
 	}
 
 	@Test

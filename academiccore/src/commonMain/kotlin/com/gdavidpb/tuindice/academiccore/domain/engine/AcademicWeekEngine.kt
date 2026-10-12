@@ -38,7 +38,7 @@ object AcademicWeekEngine {
 
 	/**
 	 * Whether [date] can be the first day of classes of the period: from the 1st of the month before
-	 * the period's start month to the last day of the month after it.
+	 * the period's start month to the last day of the month the period ends in.
 	 */
 	fun isPlausibleClassesStartDate(
 		periodYear: Int,
@@ -51,12 +51,12 @@ object AcademicWeekEngine {
 		} else {
 			LocalDate(year = periodYear, month = startMonth - 1, day = 1)
 		}
-		// The 1st of the month after the start month, minus one day: its last day.
-		val nextMonthLastDay = LocalDate(year = periodYear, month = startMonth, day = 1)
-			.plus(DatePeriod(months = 2))
+		// The 1st of the month after the end month, minus one day: its last day.
+		val endMonthLastDay = LocalDate(year = periodYear, month = periodCode.endMonth, day = 1)
+			.plus(DatePeriod(months = 1))
 			.minus(DatePeriod(days = 1))
 
-		return date >= previousMonthFirstDay && date <= nextMonthLastDay
+		return date >= previousMonthFirstDay && date <= endMonthLastDay
 	}
 
 	/** The week [date] falls in, held between [MIN_ACADEMIC_WEEK] and [MAX_ACADEMIC_WEEK]. */

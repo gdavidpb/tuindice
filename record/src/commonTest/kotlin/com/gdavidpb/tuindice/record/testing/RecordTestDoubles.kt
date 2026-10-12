@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
 class ControllableAcademicRecordRepository(
 	initialRecord: AcademicRecord = AcademicRecord(id = "record"),
@@ -150,13 +152,22 @@ class RecordingScheduleSelectionRepository(
 	initialViewMode: ScheduleViewMode = ScheduleViewMode.Table
 ) : ScheduleSelectionRepository {
 	private val viewModeFlow = MutableStateFlow(initialViewMode)
-	val setViewModeCalls = mutableListOf<ScheduleViewMode>()
+
+	// The view model persists the choice from another coroutine, on another thread: the calls are
+	// kept in a state flow (atomic updates, safe to read from the test) and a test that asserts them
+	// waits for the write with awaitViewModeCalls instead of racing it.
+	private val viewModeCalls = MutableStateFlow<List<ScheduleViewMode>>(emptyList())
+	val setViewModeCalls: List<ScheduleViewMode> get() = viewModeCalls.value
 
 	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = viewModeFlow
 
 	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) {
-		setViewModeCalls += viewMode
+		viewModeCalls.update { calls -> calls + viewMode }
 		viewModeFlow.value = viewMode
+	}
+
+	suspend fun awaitViewModeCalls(count: Int): List<ScheduleViewMode> {
+		return viewModeCalls.first { calls -> calls.size >= count }
 	}
 }
 

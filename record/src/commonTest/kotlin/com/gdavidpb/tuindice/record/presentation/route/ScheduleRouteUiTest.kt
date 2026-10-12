@@ -65,6 +65,8 @@ class ScheduleRouteUiTest {
 		}
 
 		// The tap went through the view model: it is what the next opening of the sheet will read.
+		// The write is a coroutine of its own, so wait for it.
+		waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.selectionRepository.setViewModeCalls.isNotEmpty() }
 		assertEquals(listOf(ScheduleViewMode.Week), fixture.selectionRepository.setViewModeCalls)
 		assertNodeVisible(RecordUiTags.ScheduleGrid)
 		assertNodeHidden(RecordUiTags.ScheduleTable)

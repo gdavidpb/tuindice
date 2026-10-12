@@ -342,9 +342,15 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 
 			rebaseAttempts += 1
 			currentMutation = step.mutation
-			outboxStore.savePendingMutation(currentMutation)
-			currentMutation.expectedRevision?.let { revision ->
-				advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+
+			// The rebase is a verdict on a row the wipe may have taken meanwhile: saving it would
+			// bring the row back for the account that left. Not saved, the next attempt finds the
+			// session changed at its first check and ends without sending.
+			if (sessionEpoch.value == epoch) {
+				outboxStore.savePendingMutation(currentMutation)
+				currentMutation.expectedRevision?.let { revision ->
+					advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+				}
 			}
 		}
 	}

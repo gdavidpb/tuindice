@@ -228,18 +228,20 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 		}
 	}
 
-	override fun notifySessionInvalidated(sessionId: String?) {
+	override fun notifySessionInvalidated(sessionId: String?): Boolean {
 		val shouldSuppressInvalidation =
 			intentionalSignOutSessionId != null &&
 					(sessionId.isNullOrBlank() || sessionId == intentionalSignOutSessionId)
 
 		if (shouldSuppressInvalidation) {
-			return
+			return false
 		}
 
 		invalidationCalls++
 		notifiedSessionIds += sessionId
 		invalidations.tryEmit(Unit)
+
+		return true
 	}
 }
 

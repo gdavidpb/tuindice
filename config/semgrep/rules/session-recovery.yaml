@@ -7,16 +7,24 @@ rules:
       invalidación corre dentro de la rama de la petición (refreshTokens del plugin Auth) y
       SessionCoroutineScope.cancelActiveWork() reconoce esa rama por su Job padre: con un contexto
       no cancelable el Job de quien llama cuelga de NonCancellable, deja de ser descendiente del
-      scope, y el cierre de sesión se cancela y espera a su propia rama para siempre.
+      scope, y el cierre de sesión se cancela y espera a su propia rama para siempre. La invariante
+      es de todo el código de producción: una petición hecha dentro de withContext(NonCancellable)
+      desde el scope de sesión (un sync, una revalidación, el drenaje de la cola) dejaría el cierre
+      colgado igual.
     pattern-either:
       - pattern: nonCancellableRefresh = true
       - pattern: $RECEIVER.nonCancellableRefresh = true
       - pattern: NonCancellable
     paths:
       include:
-        - '**/di/KtorClient*.kt'
-        - '**/data/source/session/**'
-        - '**/base/domain/coroutine/**'
+        - '**/src/commonMain/**'
+        - '**/src/androidMain/**'
+        - '**/src/iosMain/**'
+        - '**/src/main/**'
+      exclude:
+        - '**/src/*Test/**'
+        - '**/src/test/**'
+        - '**/testkit/**'
     metadata:
       area: session
       referencia: 'SessionCoroutineScope.cancelActiveWork; SessionRecoveryDataSource.invalidateSession'

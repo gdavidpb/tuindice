@@ -106,6 +106,7 @@ class MainStateMachineContractTest {
 			),
 			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
 				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
 			getPendingChangesUseCase = GetPendingChangesUseCase(

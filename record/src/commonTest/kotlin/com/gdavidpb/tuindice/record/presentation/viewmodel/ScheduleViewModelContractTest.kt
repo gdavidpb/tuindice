@@ -66,7 +66,8 @@ class ScheduleViewModelContractTest {
 				val content = awaitUntilState<Schedule.State.Content> { it.viewMode == ScheduleViewMode.Week }
 
 				assertEquals(ScheduleViewMode.Week, content.viewMode)
-				assertEquals(listOf(ScheduleViewMode.Week), fixture.selectionRepository.setViewModeCalls)
+				// The state follows optimistically; the write is a coroutine of its own, so wait for it.
+				assertEquals(listOf(ScheduleViewMode.Week), fixture.selectionRepository.awaitViewModeCalls(count = 1))
 
 				cancelAndIgnoreRemainingEvents()
 			}

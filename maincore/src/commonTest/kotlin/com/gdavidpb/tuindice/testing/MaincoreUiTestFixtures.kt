@@ -185,6 +185,7 @@ fun createMainViewModel(
 			),
 			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
 				sessionInvalidationRepository = sessionInvalidationRepository,
+				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
 			getPendingChangesUseCase = GetPendingChangesUseCase(

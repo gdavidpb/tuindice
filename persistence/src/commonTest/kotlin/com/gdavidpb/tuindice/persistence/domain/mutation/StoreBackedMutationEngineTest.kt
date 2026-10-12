@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.domain.mutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -815,6 +816,158 @@ class StoreBackedMutationEngineTest {
 			assertEquals(1, sendCount)
 		}
 	}
+
+	// The guards of the session epoch, one per wait a sign-out can cross. Each test ends the session
+	// (clearSessionMemory) at exactly that point and leaves the row where it was: the guard under
+	// test is then the only thing between the engine and the account that left. What must not happen
+	// afterwards is a row written back or an answer sent or confirmed on behalf of that account.
+	@Test
+	fun sessionEpoch_whenTheSessionEndsInCurrentPrecondition_aligningNeitherSavesNorSends() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val started = CompletableDeferred<Unit>()
+		val release = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onCurrentPrecondition = {
+				started.complete(Unit)
+				release.await()
+				MutationPrecondition.Revision(7L)
+			}
+		)
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+		val job = launch { engine.submit(mutation, spec, propagateTerminalErrors = false) }
+
+		started.await()
+		engine.clearSessionMemory()
+		release.complete(Unit)
+		job.join()
+
+		assertEquals(0, spec.sendCount)
+		assertEquals(listOf(mutation), store.getMutations("record"), "the aligned row was not saved")
+	}
+
+	@Test
+	fun sessionEpoch_whenTheSessionEndsWhileTheAlignedRowIsSaved_theAttemptNeverSends() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val spec = ScriptedSpec(onCurrentPrecondition = { MutationPrecondition.Revision(7L) })
+		store.afterSave = { engine.clearSessionMemory() }
+
+		engine.submit(
+			mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+			syncSpec = spec,
+			propagateTerminalErrors = false
+		)
+
+		assertEquals(0, spec.sendCount)
+		assertEquals(0, spec.confirmCount)
+	}
+
+	@Test
+	fun sessionEpoch_whenTheSessionEndsWhileSending_theAckIsNotConfirmed() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val started = CompletableDeferred<Unit>()
+		val release = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onSend = {
+				started.complete(Unit)
+				release.await()
+			}
+		)
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+		val job = launch { engine.submit(mutation, spec, propagateTerminalErrors = false) }
+
+		started.await()
+		engine.clearSessionMemory()
+		release.complete(Unit)
+		job.join()
+
+		assertEquals(1, spec.sendCount)
+		assertEquals(0, spec.confirmCount, "the answer belongs to the account that left")
+		assertEquals(listOf(mutation), store.getMutations("record"), "and the row is not retired")
+	}
+
+	@Test
+	fun sessionEpoch_whenTheSessionEndsWhileSendingAndTheSendFails_theFailureIsNotResolved() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val started = CompletableDeferred<Unit>()
+		val release = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onSend = {
+				started.complete(Unit)
+				release.await()
+				throw TestTerminalFailure()
+			}
+		)
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+		val job = launch { engine.submit(mutation, spec, propagateTerminalErrors = false) }
+
+		started.await()
+		engine.clearSessionMemory()
+		release.complete(Unit)
+		job.join()
+
+		assertEquals(0, spec.resolveCount, "no verdict is asked for a failure of the account that left")
+		assertEquals(listOf(mutation), store.getMutations("record"), "and none is saved")
+	}
+
+	@Test
+	fun sessionEpoch_whenTheSessionEndsWhileTheResolverFailsToDecide_theRowIsNotMarkedFailed() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val started = CompletableDeferred<Unit>()
+		val release = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onSend = { throw TestTerminalFailure() },
+			onResolve = { _, _ ->
+				started.complete(Unit)
+				release.await()
+				error("the resolver cannot decide")
+			}
+		)
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+		val job = launch { engine.submit(mutation, spec, propagateTerminalErrors = false) }
+
+		started.await()
+		engine.clearSessionMemory()
+		release.complete(Unit)
+		job.join()
+
+		assertEquals(listOf(mutation), store.getMutations("record"), "the failed mark is not written back")
+	}
+
+	@Test
+	fun sessionEpoch_whenTheSessionEndsRightBeforeTheRebaseIsSaved_theRebasedRowIsNotSavedNorSent() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		var ended = false
+		val spec = ScriptedSpec(
+			// Read once the verdict is a Retry and before the rebased row is saved: the point where
+			// no suspension separates the epoch check of the resolution from the save.
+			rebaseLimit = {
+				if (!ended) {
+					ended = true
+					launch(start = CoroutineStart.UNDISPATCHED) { engine.clearSessionMemory() }
+				}
+				3
+			},
+			onSend = { throw TestTerminalFailure() },
+			onResolve = { mutation, _ ->
+				MutationFailureResolution.Retry(
+					mutation.copy(precondition = MutationPrecondition.Revision(9L))
+				)
+			}
+		)
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10)
+
+		engine.submit(mutation, spec, propagateTerminalErrors = false)
+
+		assertTrue(ended)
+		assertEquals(1, spec.sendCount, "no second attempt for the account that left")
+		assertEquals(listOf(mutation), store.getMutations("record"), "the rebased row was not saved")
+	}
 }
 
 private class DrainBehindExecutionOutcome(
@@ -915,6 +1068,10 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 ) : MutationEnvelopeStore<ScopeKey, Command> {
 	private val state = MutableStateFlow(initialMutations)
 
+	// Runs after each savePendingMutation: the point a test uses to end the session in the middle of
+	// an execution.
+	var afterSave: (suspend () -> Unit)? = null
+
 	override fun observePendingMutations(
 		scopeKey: ScopeKey
 	): Flow<List<MutationEnvelope<ScopeKey, Command>>> {
@@ -990,6 +1147,7 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		state.value = state.value
 			.filterNot { pending -> pending.mutationId == mutation.mutationId }
 			.plus(mutation)
+		afterSave?.invoke()
 	}
 
 	override suspend fun deletePendingMutation(
@@ -1040,3 +1198,46 @@ private data class TestAck(
 private class TestPreconditionFailure : RuntimeException("precondition failed")
 
 private class TestTerminalFailure : RuntimeException("terminal failure")
+
+private class ScriptedSpec(
+	private val rebaseLimit: () -> Int = { 0 },
+	private val onCurrentPrecondition: suspend (MutationEnvelope<String, TestMutation>) -> MutationPrecondition =
+		{ mutation -> mutation.precondition },
+	private val onSend: suspend (MutationEnvelope<String, TestMutation>) -> Unit = {},
+	private val onResolve: suspend (
+		MutationEnvelope<String, TestMutation>,
+		Throwable
+	) -> MutationFailureResolution<String, TestMutation> = { _, _ -> MutationFailureResolution.Fail() }
+) : MutationSyncSpec<String, TestMutation, TestAck> {
+	var sendCount = 0
+		private set
+	var confirmCount = 0
+		private set
+	var resolveCount = 0
+		private set
+
+	override val maxRebaseAttempts: Int
+		get() = rebaseLimit()
+
+	override suspend fun currentPrecondition(
+		mutation: MutationEnvelope<String, TestMutation>
+	): MutationPrecondition = onCurrentPrecondition(mutation)
+
+	override suspend fun send(mutation: MutationEnvelope<String, TestMutation>): TestAck {
+		sendCount += 1
+		onSend(mutation)
+		return TestAck(mutation.mutationId, mutation.command.value)
+	}
+
+	override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) {
+		confirmCount += 1
+	}
+
+	override suspend fun resolveFailure(
+		mutation: MutationEnvelope<String, TestMutation>,
+		throwable: Throwable
+	): MutationFailureResolution<String, TestMutation> {
+		resolveCount += 1
+		return onResolve(mutation, throwable)
+	}
+}

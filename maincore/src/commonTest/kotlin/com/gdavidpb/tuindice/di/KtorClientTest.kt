@@ -19,8 +19,10 @@ import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
@@ -742,6 +744,8 @@ private fun sessionRecoveryDataSource(
 		attestationRepository = attestationRepository,
 		authRepository = authRepository,
 		credentialsRepository = credentialsRepository,
+		settingsRepository = FakeSettingsRepository(),
+		reportingRepository = RecordingReportingRepository(),
 		sessionCoroutineScope = sessionCoroutineScope
 	)
 }

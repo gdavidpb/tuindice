@@ -165,6 +165,8 @@ private class RecordingTransactionRunner(
 			calls += "transaction:end"
 		}
 	}
+
+	override suspend fun <R> read(block: suspend () -> R): R = block()
 }
 
 private class RecordingUserDao(

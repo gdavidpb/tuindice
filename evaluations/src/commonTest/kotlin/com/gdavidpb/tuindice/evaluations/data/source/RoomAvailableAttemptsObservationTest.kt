@@ -4,11 +4,15 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,16 +28,32 @@ class RoomAvailableAttemptsObservationTest {
 	private val termChanges = MutableSharedFlow<List<AcademicTermEntity>>(replay = 1)
 	private val attemptChanges = MutableSharedFlow<List<AcademicAttemptEntity>>(replay = 1)
 
-	private fun observe() = RoomDatabaseDataSource.observeAvailableAttempts(
+	// The database as far as the reads are concerned: a read transaction and a write transaction do
+	// not interleave, which is what a snapshot gives the reader.
+	private val database = Mutex()
+	private val transactionRunner = object : PersistenceTransactionRunner {
+		override suspend fun <R> immediate(block: suspend () -> R): R = database.withLock { block() }
+
+		override suspend fun <R> read(block: suspend () -> R): R = database.withLock { block() }
+	}
+
+	private fun observe(
+		readAttempts: suspend () -> List<AcademicAttemptEntity> = { attempts }
+	) = RoomDatabaseDataSource.observeAvailableAttempts(
 		changes = merge(termChanges, attemptChanges),
+		transactionRunner = transactionRunner,
 		readTerms = { terms },
-		readAttempts = { attempts }
+		readAttempts = readAttempts
 	)
 
 	private suspend fun commit(newTerms: List<AcademicTermEntity>, newAttempts: List<AcademicAttemptEntity>) {
-		terms = newTerms
-		attempts = newAttempts
-		// Room invalidates both tables once the transaction commits: both flows speak.
+		transactionRunner.immediate {
+			terms = newTerms
+			attempts = newAttempts
+		}
+		// Room invalidates both tables once the transaction commits, and tells the observers a moment
+		// later, not inside the commit: both flows speak then.
+		yield()
 		termChanges.emit(newTerms)
 		attemptChanges.emit(newAttempts)
 	}
@@ -54,6 +74,40 @@ class RoomAvailableAttemptsObservationTest {
 		runCurrent()
 
 		// No empty list in between (new term over the attempts of the old one), nothing repeated.
+		assertEquals(listOf(listOf("a1"), listOf("a2")), emitted)
+	}
+
+	// The write lands after the terms were read and before the attempts are: read apart, that is the
+	// new attempts under the old term, an empty list in the middle of the change (the tab would pass
+	// through "no attempts" and drop the week the student chose).
+	@Test
+	fun aWriteThatLandsBetweenTheTwoReads_neverShowsAnEmptyListInTheMiddle() = runTest {
+		val emitted = mutableListOf<List<String>>()
+		var landed = false
+		// One initial change only, so the first read is not cancelled by a second change.
+		termChanges.emit(terms)
+
+		backgroundScope.launch {
+			observe(
+				readAttempts = {
+					if (!landed) {
+						landed = true
+						launch {
+							commit(
+								newTerms = listOf(term(id = "t2", order = 20262)),
+								newAttempts = listOf(attempt(id = "a2", termId = "t2", code = "FIS-101"))
+							)
+						}
+						// The writer gets its turn right here.
+						yield()
+					}
+
+					attempts
+				}
+			).collect { list -> emitted += list.map { it.id } }
+		}
+		runCurrent()
+
 		assertEquals(listOf(listOf("a1"), listOf("a2")), emitted)
 	}
 

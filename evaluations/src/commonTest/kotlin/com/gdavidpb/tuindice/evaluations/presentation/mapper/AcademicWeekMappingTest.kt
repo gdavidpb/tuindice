@@ -101,4 +101,21 @@ class AcademicWeekMappingTest {
 		assertEquals(LocalDate(2026, 9, 28), termWithClassesStart.academicWeekOneStart())
 		assertEquals(LocalDate(2026, 8, 31), termWithClassesStart.copy(classesStartDate = null).academicWeekOneStart())
 	}
+
+	@Test
+	fun academicWeekOneStart_acceptsAClassesStartDateUpToTheLastDayOfTheMonthTheTermEndsIn() {
+		// A late start inside the term's own months is honored; the January after it is not.
+		assertEquals(
+			LocalDate(2026, 11, 16),
+			termWithClassesStart.copy(classesStartDate = LocalDate(2026, 11, 18)).academicWeekOneStart()
+		)
+		assertEquals(
+			LocalDate(2026, 12, 28),
+			termWithClassesStart.copy(classesStartDate = LocalDate(2026, 12, 31)).academicWeekOneStart()
+		)
+		assertEquals(
+			LocalDate(2026, 8, 31),
+			termWithClassesStart.copy(classesStartDate = LocalDate(2027, 1, 4)).academicWeekOneStart()
+		)
+	}
 }

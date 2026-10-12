@@ -93,6 +93,40 @@ class EvaluationSelectableDateRangeTest {
 		assertEquals(LocalDate(2026, 9, 1), LocalDate(2026, 9, 20).clampToMonthRange(range))
 	}
 
+	@Test
+	fun initialPickerMonth_opensOnTheMonthOfTheChosenDate_evenWhenItIsBeforeTheMonthTheTermStartsIn() {
+		val range = term(AcademicTermPeriod.APR_JUL, year = 2026).toSelectableDateRange()
+		val today = LocalDate(2026, 5, 12)
+
+		// March 30th is day 1 of week 1 of an April term: the picker opens on March, day in view.
+		assertEquals(LocalDate(2026, 3, 1), initialPickerMonth(LocalDate(2026, 3, 30), today, range))
+		assertEquals(LocalDate(2026, 6, 1), initialPickerMonth(LocalDate(2026, 6, 15), today, range))
+	}
+
+	@Test
+	fun initialPickerMonth_withoutAChosenDate_keepsTheClampedRuleForToday() {
+		val range = term(AcademicTermPeriod.APR_JUL, year = 2026).toSelectableDateRange()
+
+		// Today inside the range but before the term's start month still opens on April.
+		assertEquals(LocalDate(2026, 4, 1), initialPickerMonth(null, LocalDate(2026, 3, 31), range))
+		assertEquals(LocalDate(2026, 4, 1), initialPickerMonth(null, LocalDate(2026, 1, 20), range))
+		assertEquals(LocalDate(2026, 5, 1), initialPickerMonth(null, LocalDate(2026, 5, 12), range))
+	}
+
+	@Test
+	fun initialPickerMonth_withAChosenDateOutsideTheRange_snapsItIntoTheRange() {
+		val range = term(AcademicTermPeriod.APR_JUL, year = 2026).toSelectableDateRange()
+
+		assertEquals(LocalDate(2026, 4, 1), initialPickerMonth(LocalDate(2026, 1, 20), LocalDate(2026, 5, 12), range))
+		assertEquals(LocalDate(2026, 8, 1), initialPickerMonth(LocalDate(2026, 12, 20), LocalDate(2026, 5, 12), range))
+	}
+
+	@Test
+	fun initialPickerMonth_withoutARange_opensOnTheMonthOfTheDate() {
+		assertEquals(LocalDate(2026, 3, 1), initialPickerMonth(LocalDate(2026, 3, 30), LocalDate(2026, 5, 12), null))
+		assertEquals(LocalDate(2026, 5, 1), initialPickerMonth(null, LocalDate(2026, 5, 12), null))
+	}
+
 	private fun term(period: AcademicTermPeriod, year: Int) = EvaluationTermDescriptor(
 		id = "$year-${period.name}",
 		periodYear = year,

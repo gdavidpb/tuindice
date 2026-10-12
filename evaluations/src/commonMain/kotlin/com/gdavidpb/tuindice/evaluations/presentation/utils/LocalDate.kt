@@ -95,6 +95,20 @@ fun LocalDate.clampToMonthRange(range: ClosedRange<LocalDate>?): LocalDate {
 	return maxOf(month, firstMonth)
 }
 
+// The month the picker opens on. A date the student already chose, when it is inside the range,
+// wins whatever month it is in: the day must be in view even if it is one of the few days of week 1
+// that fall before the month the term starts in. Without one (or with one outside the range, which
+// is snapped like any other date), it opens on today's month under the rule of clampToMonthRange.
+fun initialPickerMonth(
+	chosenDate: LocalDate?,
+	today: LocalDate,
+	range: ClosedRange<LocalDate>?
+): LocalDate {
+	if (chosenDate != null && (range == null || chosenDate in range)) return chosenDate.monthStart()
+
+	return (chosenDate ?: today).clampToMonthRange(range)
+}
+
 // The first month whose first day is selectable: the range's own month, or the next one when the
 // range begins mid-month (the Monday of week 1 falling before the start month).
 private fun ClosedRange<LocalDate>.openingMonthStart(): LocalDate {

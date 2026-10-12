@@ -30,3 +30,8 @@ suspend fun recoverWithoutShieldSample(): Int {
 	// ok: session-recovery-no-noncancellable
 	return withContext(Unconfined) { 1 }
 }
+
+suspend fun requestFromTheScopeSample(client: HttpClient): HttpResponse {
+	// ruleid: session-recovery-no-noncancellable
+	return withContext(NonCancellable) { client.get("https://api.tuindice.app/record/v5/sync") }
+}

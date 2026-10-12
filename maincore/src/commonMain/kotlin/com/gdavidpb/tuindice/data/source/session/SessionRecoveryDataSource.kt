@@ -9,23 +9,29 @@ import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationExc
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
+import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.coroutineContext
@@ -38,6 +44,8 @@ class SessionRecoveryDataSource(
 	private val attestationRepository: AttestationRepository,
 	private val authRepository: AuthRepository,
 	private val credentialsRepository: CredentialsRepository,
+	private val settingsRepository: SettingsRepository,
+	private val reportingRepository: ReportingRepository,
 	private val sessionCoroutineScope: SessionCoroutineScope
 ) : SessionRecoveryRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
@@ -158,13 +166,18 @@ class SessionRecoveryDataSource(
 	// Two invalidations from inside the scope would otherwise each skip their own branch, cancel the
 	// other and leave the wipe half done. This lock is taken by invalidations only: no request holds
 	// it, and the recovery lock is never needed to take it.
-	override suspend fun invalidateSession(sessionId: String?) {
+	override suspend fun invalidateSession(
+		sessionId: String?,
+		reason: SessionInvalidationReason?,
+		cause: Throwable?
+	) {
 		val invalidationsSeen = invalidationsCompleted.value
 
 		invalidationMutex.withLock {
 			if (invalidationsCompleted.value != invalidationsSeen) {
 				// The wipe this call waited for is done; the request that made it is over as well.
 				sessionCoroutineScope.callerBranch()?.cancel()
+				currentCoroutineContext().ensureActive()
 				return
 			}
 
@@ -172,13 +185,56 @@ class SessionRecoveryDataSource(
 			runCatching { applicationRepository.clearData() }
 			runCatching { sessionRepository.clear() }
 			runCatching { syncStatusRepository.reset() }
-			runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
+			announceInvalidation(sessionId)
+			reportInvalidation(reason = reason, cause = cause, insideTheScope = callerBranch != null)
 
-			invalidationsCompleted.value += 1
+			// Only a wipe that ran to its end counts as the one that serves the callers waiting for
+			// it: the steps above are in runCatching, which swallows the cancellation of whoever is
+			// wiping, and a wipe cut short must not make the next caller skip its own.
+			if (currentCoroutineContext().isActive) invalidationsCompleted.value += 1
 
-			// Last, once everything is wiped: the request that ran into the end of the session
+			// Once everything is wiped: the request that ran into the end of the session
 			// (a sync, a revalidation) unwinds as a cancellation and writes nothing afterwards.
 			callerBranch?.cancel()
+		}
+
+		// Last: whatever follows the invalidation in a branch of the scope must not run.
+		currentCoroutineContext().ensureActive()
+	}
+
+	// The notice is kept in the settings, after the wipe that would erase it and before the live
+	// notice, so that an interface that never collects it (a process woken without UI that dies
+	// first) still explains the sign-in screen at the next start. The interface that does show it
+	// live consumes it (ObserveSessionInvalidationUseCase), and an intentional sign-out, whose
+	// live notice is suppressed, takes it back.
+	private suspend fun announceInvalidation(sessionId: String?) {
+		runCatching { settingsRepository.setSessionResetNoticePending() }
+
+		val raised = runCatching {
+			sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId)
+		}.getOrDefault(false)
+
+		if (!raised) runCatching { settingsRepository.consumeSessionResetNoticePending() }
+	}
+
+	// What the logout leaves behind, once per invalidation: status and error code of the rejection
+	// (response metadata only: no tokens, no identifiers) and where the request came from.
+	private fun reportInvalidation(
+		reason: SessionInvalidationReason?,
+		cause: Throwable?,
+		insideTheScope: Boolean
+	) {
+		val rejection = when (cause) {
+			null -> "no rejection"
+			is ResponseException -> "status=${cause.response.status.value} authError=${cause.authErrorCode() ?: "none"}"
+			else -> "failure=${cause::class.simpleName}"
+		}
+		val origin = if (insideTheScope) "inside the session scope" else "outside the session scope"
+
+		runCatching {
+			reportingRepository.logException(
+				IllegalStateException("Session invalidated: reason=${reason?.name ?: "unspecified"} $rejection $origin")
+			)
 		}
 	}
 
@@ -239,7 +295,7 @@ class SessionRecoveryDataSource(
 				authRepository = authRepository
 			)
 
-		return recoveredSnapshot ?: invalidateAttemptedSession(attemptedSnapshot)
+		return recoveredSnapshot ?: invalidateAttemptedSession(attemptedSnapshot, throwable)
 	}
 
 	private suspend fun attemptCredentialRecovery(
@@ -337,13 +393,18 @@ class SessionRecoveryDataSource(
 	}
 
 	private suspend fun invalidateAttemptedSession(
-		attemptedSnapshot: SessionSnapshot
+		attemptedSnapshot: SessionSnapshot,
+		rejection: Throwable
 	): SessionSnapshot? {
 		sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
 			return snapshot
 		}
 
-		invalidateSession(sessionId = attemptedSnapshot.sessionId)
+		invalidateSession(
+			sessionId = attemptedSnapshot.sessionId,
+			reason = SessionInvalidationReason.RefreshRejected,
+			cause = rejection
+		)
 		return null
 	}
 

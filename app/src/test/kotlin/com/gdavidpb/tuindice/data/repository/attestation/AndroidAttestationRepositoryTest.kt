@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
+import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
@@ -814,7 +815,11 @@ private class RecordingSessionRecoveryRepository(
 
 	override suspend fun ensureFreshSession(): SessionSnapshot? = error("Unexpected proactive session refresh.")
 
-	override suspend fun invalidateSession(sessionId: String?) = error("Unexpected session invalidation.")
+	override suspend fun invalidateSession(
+		sessionId: String?,
+		reason: SessionInvalidationReason?,
+		cause: Throwable?
+	) = error("Unexpected session invalidation.")
 }
 
 private data class RecoveryCall(

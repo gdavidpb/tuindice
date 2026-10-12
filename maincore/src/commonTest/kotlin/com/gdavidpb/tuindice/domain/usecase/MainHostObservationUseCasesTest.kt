@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
@@ -42,6 +43,7 @@ class MainHostObservationUseCasesTest {
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val useCase = ObserveSessionInvalidationUseCase(
 			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = FakeSettingsRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 

@@ -41,10 +41,15 @@ fun EvaluationDatePicker(
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
 
-	// Open on the committed date's month, or today's, clamped into the term range so
-	// the picker never lands on a fully-disabled month.
+	// Open on the committed date's month when it is inside the term range (the day stays in view),
+	// otherwise on today's, clamped into the range so the picker never lands on a fully-disabled
+	// month.
 	fun initialDisplayedMonth(): LocalDate {
-		return (committedDate ?: clock.currentEvaluationLocalDate()).clampToMonthRange(selectableRange)
+		return initialPickerMonth(
+			chosenDate = committedDate,
+			today = clock.currentEvaluationLocalDate(),
+			range = selectableRange
+		)
 	}
 
 	val displayedMonth = remember(selectedDate, selectableRange) {

@@ -246,7 +246,9 @@ private class RecordingSessionInvalidationRepository : SessionInvalidationReposi
 
 	override fun clearIntentionalSignOut(sessionId: String) = Unit
 
-	override fun notifySessionInvalidated(sessionId: String?) {
+	override fun notifySessionInvalidated(sessionId: String?): Boolean {
 		notifiedSessionIds += sessionId
+
+		return true
 	}
 }

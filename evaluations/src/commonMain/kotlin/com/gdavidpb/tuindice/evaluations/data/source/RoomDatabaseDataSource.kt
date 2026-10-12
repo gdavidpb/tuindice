@@ -121,9 +121,10 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
-		return selectAvailableAttempts(
-			terms = academicTermDao.getTerms(),
-			attempts = academicAttemptDao.getAttempts()
+		return readAvailableAttempts(
+			transactionRunner = transactionRunner,
+			readTerms = academicTermDao::getTerms,
+			readAttempts = academicAttemptDao::getAttempts
 		)
 	}
 
@@ -133,6 +134,7 @@ class RoomDatabaseDataSource(
 				academicTermDao.observeTermsFlow(),
 				academicAttemptDao.observeAttemptsFlow()
 			),
+			transactionRunner = transactionRunner,
 			readTerms = academicTermDao::getTerms,
 			readAttempts = academicAttemptDao::getAttempts
 		)
@@ -273,23 +275,40 @@ class RoomDatabaseDataSource(
 
 	internal companion object {
 		// Each emission of [changes] only says "the terms or the attempts changed": both are read again
-		// afterwards, so a record write that moves the term and its attempts in one transaction yields
-		// the new term with its own attempts, never the new term over the old attempts. A write landing
-		// between the two reads emits again and corrects it. Never twice the same list.
+		// afterwards, in one read transaction (see readAvailableAttempts), so a record write that moves
+		// the term and its attempts together yields the new term with its own attempts, never the new
+		// term over the old attempts and never an empty list in between. Never twice the same list.
 		@OptIn(ExperimentalCoroutinesApi::class)
 		fun observeAvailableAttempts(
 			changes: Flow<Any?>,
+			transactionRunner: PersistenceTransactionRunner,
 			readTerms: suspend () -> List<AcademicTermEntity>,
 			readAttempts: suspend () -> List<AcademicAttemptEntity>
 		): Flow<List<LocalEditableAttemptDescriptor>> {
 			return changes
 				.mapLatest {
-					selectAvailableAttempts(
-						terms = readTerms(),
-						attempts = readAttempts()
+					readAvailableAttempts(
+						transactionRunner = transactionRunner,
+						readTerms = readTerms,
+						readAttempts = readAttempts
 					)
 				}
 				.distinctUntilChanged()
+		}
+
+		suspend fun readAvailableAttempts(
+			transactionRunner: PersistenceTransactionRunner,
+			readTerms: suspend () -> List<AcademicTermEntity>,
+			readAttempts: suspend () -> List<AcademicAttemptEntity>
+		): List<LocalEditableAttemptDescriptor> {
+			// One read transaction for both tables: a write between two separate reads would pair the
+			// new term with the old attempts, and the tab would pass through "no attempts".
+			return transactionRunner.read {
+				selectAvailableAttempts(
+					terms = readTerms(),
+					attempts = readAttempts()
+				)
+			}
 		}
 
 		fun selectAvailableAttempts(
