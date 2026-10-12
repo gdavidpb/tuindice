@@ -178,22 +178,6 @@ class FakeSessionRepository(
 		return true
 	}
 
-	override suspend fun setUsbId(usbId: String) {
-		this.usbId = usbId
-	}
-
-	override suspend fun setSessionId(sessionId: String) {
-		this.sessionId = sessionId
-	}
-
-	override suspend fun setAccessToken(accessToken: String) {
-		this.accessToken = accessToken
-	}
-
-	override suspend fun setRefreshToken(refreshToken: String) {
-		this.refreshToken = refreshToken
-	}
-
 	override suspend fun getUsbId(): String = usbId
 
 	override suspend fun getSessionId(): String = sessionId

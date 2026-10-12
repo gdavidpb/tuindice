@@ -107,14 +107,6 @@ private class FakeSessionRepository(
 		newSnapshot: SessionSnapshot
 	): Boolean = false
 
-	override suspend fun setUsbId(usbId: String) = Unit
-
-	override suspend fun setSessionId(sessionId: String) = Unit
-
-	override suspend fun setAccessToken(accessToken: String) = Unit
-
-	override suspend fun setRefreshToken(refreshToken: String) = Unit
-
 	override suspend fun getUsbId(): String = ""
 
 	override suspend fun getSessionId(): String = ""

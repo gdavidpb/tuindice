@@ -248,17 +248,28 @@ class SessionRecoveryDataSource(
 	override suspend fun endSignedOutSession(sessionId: String) {
 		appCoroutineScope.async {
 			invalidationMutex.withLock {
-				val failures = listOf(
-					runStep { sessionCoroutineScope.cancelActiveWork() },
-					runStep { applicationRepository.clearData() },
-					runStep { sessionRepository.clear() },
-					runStep { syncStatusRepository.reset() }
-				)
+				// A rejection that reached a request in flight while the server was revoking the session can
+				// have run its whole invalidation first, silenced by the mark of this sign-out: then the
+				// session is already gone, or a new sign-in replaced it, and wiping again would empty the
+				// newer one. A stored session that cannot be read does not excuse the steps.
+				val stored = attempt { sessionRepository.getActiveSessionSnapshot() }
+				val alreadyEnded = stored.isSuccess && stored.getOrNull()?.sessionId != sessionId
 
+				if (!alreadyEnded) {
+					val failures = listOf(
+						runStep { sessionCoroutineScope.cancelActiveWork() },
+						runStep { applicationRepository.clearData() },
+						runStep { sessionRepository.clear() },
+						runStep { syncStatusRepository.reset() }
+					)
+
+					invalidationsCompleted.value += 1
+
+					failures.filterNotNull().forEach { failure -> attempt { reportingRepository.logException(failure) } }
+				}
+
+				// Withdrawn whether the steps ran or not: the sign-out is over either way.
 				sessionInvalidationRepository.clearIntentionalSignOut(sessionId)
-				invalidationsCompleted.value += 1
-
-				failures.filterNotNull().forEach { failure -> attempt { reportingRepository.logException(failure) } }
 			}
 		}.await()
 	}

@@ -368,10 +368,6 @@ class StartUpUseCaseTest {
 			expectedSnapshot: SessionSnapshot,
 			newSnapshot: SessionSnapshot
 		): Boolean = error("Unexpected session write.")
-		override suspend fun setUsbId(usbId: String) = error("Unexpected session write.")
-		override suspend fun setSessionId(sessionId: String) = error("Unexpected session write.")
-		override suspend fun setAccessToken(accessToken: String) = error("Unexpected session write.")
-		override suspend fun setRefreshToken(refreshToken: String) = error("Unexpected session write.")
 		override suspend fun getUsbId(): String = error("Unexpected session read.")
 		override suspend fun getSessionId(): String = error("Unexpected session read.")
 		override suspend fun getAccessToken(): String = error("Unexpected session read.")

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -240,9 +241,78 @@ class SignOutCutAfterTheRevokeTest {
 
 		assertTrue(straggler.isCompleted)
 		assertTrue(rig.store.isGone())
+		assertEquals(1, rig.application.clearCalls, "the session is wiped once, by the invalidation that went first")
 		assertEquals(0, rig.invalidations.raised, "no signal after a manual sign-out")
 		assertNull(rig.settings.sessionResetNotice, "no notice after a manual sign-out")
 		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark is not left behind")
+	}
+
+	// The same overlap, but the user signed in again before the sign-out reached its local end: the stored
+	// session is the new one, which the end of the previous one has no business wiping.
+	@Test
+	fun aStoredSessionThatIsAlreadyAnotherOne_isNotTouchedByTheLocalEndOfThePreviousSignOut() = runTest {
+		val rig = SignOutRig(this)
+		val revokeGate = CompletableDeferred<Unit>()
+		rig.onRevoke = { revokeGate.await() }
+
+		launch { rig.signOut.execute(Unit).toList() }
+		runCurrent()
+
+		val newSession = SessionSnapshot(
+			sessionId = "session-new",
+			accessToken = "access-new",
+			refreshToken = "refresh-new",
+			usbId = "12-34567"
+		)
+		rig.store.repository.setSessionSnapshot(newSession)
+		revokeGate.complete(Unit)
+		advanceUntilIdle()
+
+		assertEquals(newSession, rig.store.repository.getActiveSessionSnapshot(), "the new session is still there")
+		assertEquals(0, rig.application.clearCalls, "nothing was wiped")
+		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark of the sign-out is withdrawn")
+	}
+
+	// A stored session that cannot be read is not proof that it is gone: the steps run.
+	@Test
+	fun aStoredSessionThatCannotBeRead_doesNotKeepTheLocalEndFromRunning() = runTest {
+		val rig = SignOutRig(this)
+		val revokeGate = CompletableDeferred<Unit>()
+		rig.onRevoke = { revokeGate.await() }
+
+		launch { rig.signOut.execute(Unit).toList() }
+		runCurrent()
+
+		rig.failSnapshotReads = true
+		revokeGate.complete(Unit)
+		advanceUntilIdle()
+
+		assertEquals(1, rig.application.clearCalls, "the local end ran")
+		rig.failSnapshotReads = false
+		assertTrue(rig.store.isGone(), "the session is gone")
+		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark is withdrawn")
+	}
+
+	// An invalidation that has no session to compare (it cannot be skipped by identity) and was waiting for
+	// the lock behind the local end of a sign-out is served by it: the end counted as a wipe.
+	@Test
+	fun anInvalidationWithoutASessionIdWaitingBehindTheLocalEnd_isServedByIt() = runTest {
+		val rig = SignOutRig(this)
+		rig.holdTheWipe()
+
+		launch { rig.signOut.execute(Unit).toList() }
+		runCurrent()
+		assertTrue(rig.wipeStarted.isCompleted, "the sign-out is wiping the database")
+
+		val waiting = launch { rig.recovery.invalidateSession(sessionId = null) }
+		runCurrent()
+		rig.releaseTheWipe()
+		advanceUntilIdle()
+
+		assertTrue(waiting.isCompleted)
+		assertEquals(1, rig.application.clearCalls, "the session is wiped once")
+		assertEquals(0, rig.invalidations.raised, "no signal after a manual sign-out")
+		assertNull(rig.settings.sessionResetNotice, "no notice after a manual sign-out")
 	}
 
 	// A CancellationException that is not the job's, thrown from inside cancelActiveWork() (a child that
@@ -281,6 +351,7 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 	var onRefresh: suspend () -> RefreshTokens = { error("unused") }
 	var onRevoke: suspend () -> Unit = {}
 	var refreshCalls = 0
+	var failSnapshotReads = false
 
 	private val dispatcher = StandardTestDispatcher(testScope.testScheduler)
 	val sessionScope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), scopeReporting)
@@ -322,6 +393,11 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 
 	val recovery = SessionRecoveryDataSource(
 		sessionRepository = object : SessionRepository by store.repository {
+			override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+				check(!failSnapshotReads) { "stored session unreadable" }
+				return store.repository.getActiveSessionSnapshot()
+			}
+
 			override suspend fun clear() {
 				onSessionClear()
 				store.repository.clear()

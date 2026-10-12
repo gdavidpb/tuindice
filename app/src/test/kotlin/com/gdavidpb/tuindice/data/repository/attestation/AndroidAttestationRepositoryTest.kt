@@ -776,14 +776,6 @@ private class FixedSessionRepository(
 		newSnapshot: SessionSnapshot
 	): Boolean = error("Unexpected session replacement.")
 
-	override suspend fun setUsbId(usbId: String) = error("Unexpected usbId write.")
-
-	override suspend fun setSessionId(sessionId: String) = error("Unexpected sessionId write.")
-
-	override suspend fun setAccessToken(accessToken: String) = error("Unexpected accessToken write.")
-
-	override suspend fun setRefreshToken(refreshToken: String) = error("Unexpected refreshToken write.")
-
 	override suspend fun getUsbId(): String = snapshot?.usbId ?: error("Unexpected usbId read.")
 
 	override suspend fun getSessionId(): String = snapshot?.sessionId ?: error("Unexpected sessionId read.")

@@ -41,34 +41,6 @@ class SessionDataSource(
 		}
 	}
 
-	override suspend fun setUsbId(usbId: String) {
-		sessionMutex.withLock {
-			memorySessionDataSource.setUsbId(usbId)
-			preferencesSessionDataSource.setUsbId(usbId)
-		}
-	}
-
-	override suspend fun setSessionId(sessionId: String) {
-		sessionMutex.withLock {
-			memorySessionDataSource.setSessionId(sessionId)
-			preferencesSessionDataSource.setSessionId(sessionId)
-		}
-	}
-
-	override suspend fun setAccessToken(accessToken: String) {
-		sessionMutex.withLock {
-			memorySessionDataSource.setAccessToken(accessToken)
-			preferencesSessionDataSource.setAccessToken(accessToken)
-		}
-	}
-
-	override suspend fun setRefreshToken(refreshToken: String) {
-		sessionMutex.withLock {
-			memorySessionDataSource.setRefreshToken(refreshToken)
-			preferencesSessionDataSource.setRefreshToken(refreshToken)
-		}
-	}
-
 	override suspend fun getUsbId(): String {
 		return sessionMutex.withLock {
 			memorySessionDataSource.getUsbId()

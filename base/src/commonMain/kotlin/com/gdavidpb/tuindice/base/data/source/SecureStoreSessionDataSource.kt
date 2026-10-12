@@ -21,24 +21,8 @@ class SecureStoreSessionDataSource(
 ) : PreferencesSessionDataRepository {
 	private val migrationMutex = Mutex()
 
-	suspend fun hasActiveSession(): Boolean {
+	override suspend fun hasActiveSession(): Boolean {
 		return resolveSession() != null
-	}
-
-	override suspend fun setUsbId(usbId: String) {
-		writeActiveValue(PreferencesKeys.USER_USB_ID, usbId)
-	}
-
-	override suspend fun setSessionId(sessionId: String) {
-		writeActiveValue(PreferencesKeys.USER_SESSION_ID, sessionId)
-	}
-
-	override suspend fun setAccessToken(accessToken: String) {
-		writeActiveValue(PreferencesKeys.USER_ACCESS_TOKEN, accessToken)
-	}
-
-	override suspend fun setRefreshToken(refreshToken: String) {
-		writeActiveValue(PreferencesKeys.USER_REFRESH_TOKEN, refreshToken)
 	}
 
 	// The four keys are written back to back and the legacy copies are removed afterwards: the removal
@@ -74,13 +58,6 @@ class SecureStoreSessionDataSource(
 	override suspend fun clear() {
 		sessionKeys.forEach { key ->
 			attempt { secureStore.remove(key) }
-			attempt { legacySecureStore.remove(key) }
-		}
-	}
-
-	private suspend fun writeActiveValue(key: String, value: String) {
-		migrationMutex.withLock {
-			secureStore.putString(key = key, value = value)
 			attempt { legacySecureStore.remove(key) }
 		}
 	}
