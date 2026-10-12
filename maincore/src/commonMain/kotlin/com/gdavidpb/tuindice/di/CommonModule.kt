@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRe
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -56,6 +58,7 @@ import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
@@ -71,6 +74,9 @@ val commonModule = module {
 	// What "now" is for the dates the app shows (academic terms); debug builds rebind it to a clock the
 	// E2E launch arguments can freeze. Expiry, cooldowns and timers read the system time directly.
 	single<Clock> { Clock.System }
+	// Stateless: every collector gets its own ticker, which dies with the screen that listens.
+	// Built by hand: its parameters are the clock and the zone, defaults a test replaces.
+	factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
 	singleOf(::createSharedJson)
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
@@ -140,6 +146,7 @@ val commonModule = module {
 			remoteDataSource = get<SyncRemoteDataRepository>(),
 			syncResultLocalDataSource = get<SyncResultLocalDataRepository>(),
 			pensumRevalidationRepository = get<PensumRevalidationRepository>(),
+			evaluationsRevalidationRepository = get<EvaluationsRevalidationRepository>(),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}

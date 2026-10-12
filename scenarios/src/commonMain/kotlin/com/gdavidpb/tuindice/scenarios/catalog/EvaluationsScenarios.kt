@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
@@ -66,17 +67,25 @@ private fun StepBuilder.pickPreviousMonthDay() {
 	tap(EvaluationsUiTags.EvaluationDateDialogAcceptButton)
 }
 
-/** The list that cannot load offers a retry; once the service answers again, the retry shows the list. */
+/**
+ * The list that cannot load offers a retry; once the service answers again, the retry shows the list. The sync that
+ * opens the session already asks for the evaluations (it revalidates them, even if their tab was never opened), so
+ * the list is refused from the very start: putting the mock in `Unavailable` after the summary would be too late,
+ * the revalidation would have downloaded the list and the tab would open with it cached. The revalidation fails
+ * without failing the sync, and opening the tab, which is never held off by it, meets the same refusal.
+ */
 private val evaluationsListRetry = scenario(
 	"evaluations-list-retry",
 	"evaluations",
-	seeded(E2eAccounts.Canonical)
+	Start.Seeded(
+		E2eAccounts.Canonical,
+		mockStates = listOf(MockState("evaluations-list-failure", "Unavailable"))
+	).toLaunchSpec()
 ) {
 	covers("evaluations.Evaluations.RefreshEvaluations")
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	mockState("evaluations-list-failure", "Unavailable")
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
 	waitVisible(BaseUiTags.ErrorViewRetryButton, Within.Long)
 	mockState("evaluations-list-failure", "Recovered")

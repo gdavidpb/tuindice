@@ -1,8 +1,8 @@
 @file:OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
 
-package com.gdavidpb.tuindice.record.data.source
+package com.gdavidpb.tuindice.base.data.source
 
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.FixedOffsetTimeZone
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlin.test.Test
@@ -35,7 +36,7 @@ class ScheduleClockDataSourceTest {
 	fun when_observed_then_theMomentArrivesAtOnce_withoutWaitingForTheNextMinute() = runTest {
 		val emitted = sourceAt(MondayNineOhFiveAndForty).observeNow().first()
 
-		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 9 * 60 + 5), emitted)
+		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 9 * 60 + 5, date = MondayDate), emitted)
 		// It reads first and sleeps after: no time went by to get the first value.
 		assertEquals(0L, currentTime)
 	}
@@ -51,16 +52,19 @@ class ScheduleClockDataSourceTest {
 		// Twenty seconds are left of 09:05; one millisecond short of them nothing new is said.
 		advanceTimeBy(20.seconds - 1.milliseconds)
 		runCurrent()
-		assertEquals(listOf(ScheduleNow(MONDAY, 9 * 60 + 5)), emitted)
+		assertEquals(listOf(ScheduleNow(MONDAY, 9 * 60 + 5, MondayDate)), emitted)
 
 		advanceTimeBy(1.milliseconds)
 		runCurrent()
-		assertEquals(listOf(ScheduleNow(MONDAY, 9 * 60 + 5), ScheduleNow(MONDAY, 9 * 60 + 6)), emitted)
+		assertEquals(
+			listOf(ScheduleNow(MONDAY, 9 * 60 + 5, MondayDate), ScheduleNow(MONDAY, 9 * 60 + 6, MondayDate)),
+			emitted
+		)
 
 		// From then on, once per minute.
 		advanceTimeBy(60.seconds)
 		runCurrent()
-		assertEquals(ScheduleNow(MONDAY, 9 * 60 + 7), emitted.last())
+		assertEquals(ScheduleNow(MONDAY, 9 * 60 + 7, MondayDate), emitted.last())
 		assertEquals(3, emitted.size)
 	}
 
@@ -84,14 +88,14 @@ class ScheduleClockDataSourceTest {
 		}
 
 		runCurrent()
-		assertEquals(ScheduleNow(dayOfWeek = 1, minuteOfDay = 12 * 60), emitted.single())
+		assertEquals(ScheduleNow(dayOfWeek = 1, minuteOfDay = 12 * 60, date = SundayDate), emitted.single())
 
 		// Thirteen hours ahead: the same instant is already Monday there.
 		zone = FixedOffsetTimeZone(UtcOffset(hours = 13))
 		advanceTimeBy(60.seconds)
 		runCurrent()
 
-		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 60 + 1), emitted.last())
+		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 60 + 1, date = MondayDate), emitted.last())
 	}
 
 	@Test
@@ -119,6 +123,34 @@ class ScheduleClockDataSourceTest {
 		assertEquals(2, second.size)
 	}
 
+	@Test
+	fun when_midnightPasses_then_theDateAdvances_alongWithTheDayOfWeek() = runTest {
+		val emitted = mutableListOf<ScheduleNow>()
+
+		backgroundScope.launch {
+			sourceAt(Instant.parse("2026-10-04T23:59:30Z")).observeNow().collect { now -> emitted += now }
+		}
+
+		runCurrent()
+		assertEquals(ScheduleNow(dayOfWeek = 1, minuteOfDay = 23 * 60 + 59, date = SundayDate), emitted.single())
+
+		advanceTimeBy(30.seconds)
+		runCurrent()
+
+		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 0, date = MondayDate), emitted.last())
+		assertEquals(2, emitted.size)
+	}
+
+	@Test
+	fun when_readInAZoneAheadOfUtc_then_theDateIsTheLocalOne_notTheUtcOne() = runTest {
+		// 22:00 UTC on Sunday is already 11:00 on Monday thirteen hours ahead.
+		val zone = FixedOffsetTimeZone(UtcOffset(hours = 13))
+		val emitted = sourceAt(Instant.parse("2026-10-04T22:00:00Z"), timeZone = { zone }).observeNow().first()
+
+		assertEquals(MondayDate, emitted.date)
+		assertEquals(ScheduleNow(dayOfWeek = MONDAY, minuteOfDay = 11 * 60, date = MondayDate), emitted)
+	}
+
 	// A clock that starts at [start] and moves with the test's virtual time.
 	private fun TestScope.sourceAt(
 		start: Instant,
@@ -132,6 +164,9 @@ class ScheduleClockDataSourceTest {
 
 	private companion object {
 		const val MONDAY = 2
+
+		val SundayDate = LocalDate(2026, 10, 4)
+		val MondayDate = LocalDate(2026, 10, 5)
 
 		val SundayNoon = Instant.parse("2026-10-04T12:00:00Z")
 		val MondayNineOhFiveAndForty = Instant.parse("2026-10-05T09:05:40Z")

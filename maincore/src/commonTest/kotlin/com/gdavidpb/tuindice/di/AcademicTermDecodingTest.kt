@@ -12,7 +12,7 @@ class AcademicTermDecodingTest {
 
 	@Test
 	fun createSharedJson_decodesATermWithoutClassesStartDateAsNull() {
-		val term = createSharedJson().decodeFromString(AcademicTerm.serializer(), termJson.format(""))
+		val term = createSharedJson().decodeFromString(AcademicTerm.serializer(), termJson.replace("%s", ""))
 
 		assertNull(term.classesStartDate)
 		assertNull(term.classesStartLocalDate())
@@ -22,7 +22,7 @@ class AcademicTermDecodingTest {
 	fun createSharedJson_keepsTheClassesStartDateWhenPresent() {
 		val term = createSharedJson().decodeFromString(
 			AcademicTerm.serializer(),
-			termJson.format(""","classes_start_date":"2026-09-28"""")
+			termJson.replace("%s", ""","classes_start_date":"2026-09-28"""")
 		)
 
 		assertEquals("2026-09-28", term.classesStartDate)
@@ -33,7 +33,7 @@ class AcademicTermDecodingTest {
 	fun createSharedJson_decodesAMalformedClassesStartDateWithoutFailingTheTerm() {
 		val term = createSharedJson().decodeFromString(
 			AcademicTerm.serializer(),
-			termJson.format(""","classes_start_date":"28/09/2026"""")
+			termJson.replace("%s", ""","classes_start_date":"28/09/2026"""")
 		)
 
 		assertEquals("28/09/2026", term.classesStartDate)

@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
@@ -707,6 +708,7 @@ class SyncRepositoryContractTest {
 				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = FakePensumRevalidationRepository(),
+			evaluationsRevalidationRepository = FakeEvaluationsRevalidationRepository(),
 			coroutineScope = coroutineScope
 		)
 	}
@@ -831,6 +833,27 @@ internal class FakePensumRevalidationRepository(
 		private set
 
 	override suspend fun revalidateSelectedPensum() {
+		calls++
+		try {
+			gate?.await()
+		} catch (throwable: CancellationException) {
+			cancelled = true
+			throw throwable
+		}
+		throwable?.let { throw it }
+	}
+}
+
+internal class FakeEvaluationsRevalidationRepository(
+	var throwable: Throwable? = null,
+	private val gate: CompletableDeferred<Unit>? = null
+) : EvaluationsRevalidationRepository {
+	var calls = 0
+		private set
+	var cancelled = false
+		private set
+
+	override suspend fun revalidateEvaluations() {
 		calls++
 		try {
 			gate?.await()

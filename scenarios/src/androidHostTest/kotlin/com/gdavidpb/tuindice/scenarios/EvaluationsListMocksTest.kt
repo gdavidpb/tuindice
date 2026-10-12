@@ -5,8 +5,8 @@ import kotlin.test.assertEquals
 
 /**
  * The evaluations list is served by `get-evaluations-success.json` in the default state and refused or served again
- * only after a scenario puts the `evaluations-list-failure` mock in `Unavailable` or `Recovered`
- * (`evaluations-list-retry` does). The replay runs the mapping files the way WireMock does, and it fails on a tie of
+ * only in the `Unavailable` or `Recovered` states of the `evaluations-list-failure` mock (`evaluations-list-retry`
+ * starts in the first and moves to the second). The replay runs the mapping files the way WireMock does, and it fails on a tie of
  * priorities, so each state is answered by exactly one stub.
  */
 class EvaluationsListMocksTest {

@@ -6,13 +6,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.record.domain.model.ObservedSchedule
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.scheduleNow
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import kotlinx.coroutines.test.runTest
@@ -55,7 +55,7 @@ class ObserveScheduleUseCaseTest {
 		assertEquals(listOf("CI5311"), observed.currentTerm?.attempts?.map { it.subjectCode })
 		assertEquals(ScheduleViewMode.Week, observed.viewMode)
 		assertTrue(observed.hasSyncedRecord)
-		assertEquals(ScheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60), observed.now)
+		assertEquals(scheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60), observed.now)
 	}
 
 	@Test
@@ -71,7 +71,7 @@ class ObserveScheduleUseCaseTest {
 		useCase.execute(Unit).test {
 			assertEquals(8 * 60, awaitLoadingThenData(this).now.minuteOfDay)
 
-			clockRepository.nowFlow.value = ScheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60 + 1)
+			clockRepository.nowFlow.value = scheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60 + 1)
 
 			val next = assertIs<UseCaseState.Data<ObservedSchedule>>(awaitItem())
 

@@ -1,8 +1,12 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -30,7 +34,12 @@ class IosAppKoinSmokeTest {
 				SignInViewModel::class,
 				MainViewModel::class,
 				BrowserViewModel::class,
-				RecordViewModel::class
+				RecordViewModel::class,
+				// The read contracts of the summary hub: nobody consumes them yet.
+				ScheduleClockRepository::class,
+				VisibleEvaluationsRepository::class,
+				PensumProgressRepository::class,
+				EvaluationsRevalidationRepository::class
 			)
 		}
 

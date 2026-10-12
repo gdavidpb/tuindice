@@ -129,6 +129,7 @@ class SyncPensumRevalidationContractTest {
 				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = pensumRevalidationRepository,
+			evaluationsRevalidationRepository = FakeEvaluationsRevalidationRepository(),
 			coroutineScope = coroutineScope
 		)
 	}

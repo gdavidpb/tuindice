@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.pensum.testing.FakeSettings
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -49,6 +50,17 @@ class PensumModuleKoinSmokeTest {
 			PensumViewModel::class,
 			PensumSelectionRepository::class
 		)
+	}
+
+	// The shared read contract the other features consume, bound by this module.
+	@Test
+	fun resolvesPensumProgressRepository() = withKoinSmokeTest(
+		pensumModule,
+		module {
+			single<PensumRepository> { FakePensumRepository() }
+		}
+	) {
+		assertResolves(PensumProgressRepository::class)
 	}
 
 	// One instance behind both contracts: a revalidation and a manual selection must share its

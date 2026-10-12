@@ -11,16 +11,26 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import kotlinx.datetime.LocalDate
 import kotlin.math.abs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+// A Monday: the day code of every ScheduleNow built in these tests is 2 (or 1, for the Sunday before).
+val ScheduleTestDate = LocalDate(2026, 10, 5)
+
 // Monday at 9:00: halfway through block 2 of the block clock, which starts block 1 at 7:30.
-val MondayAtNine = ScheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)
+val MondayAtNine = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)
+
+fun scheduleNow(dayOfWeek: Int, minuteOfDay: Int) = ScheduleNow(
+	dayOfWeek = dayOfWeek,
+	minuteOfDay = minuteOfDay,
+	date = ScheduleTestDate
+)
 
 // Laid out by the mapper, so what a schedule view is handed in a test is what the app resolves:
 // the cells, the lanes of a clash, the class in progress and every text shown or said.

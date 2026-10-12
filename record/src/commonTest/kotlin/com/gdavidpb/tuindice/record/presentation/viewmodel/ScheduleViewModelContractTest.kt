@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
@@ -17,6 +16,7 @@ import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.scheduleNow
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
@@ -93,7 +93,7 @@ class ScheduleViewModelContractTest {
 				assertTrue(atEight.schedule.grid.days.first().cells.single().isInProgress)
 
 				// 9:30: the meeting (blocks 1-2) is over, and so is the grid.
-				fixture.clockRepository.nowFlow.value = ScheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
+				fixture.clockRepository.nowFlow.value = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
 
 				val afterClass = awaitUntilState<Schedule.State.Content> { content ->
 					content.schedule.grid.days.first().nowBlockOffset == null

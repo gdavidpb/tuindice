@@ -11,13 +11,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.projectionFor
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.scheduleNow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_cell_description
 import tuindice.record.generated.resources.schedule_cell_description_clash
@@ -570,7 +570,7 @@ class ScheduleItemTest {
 	}
 
 	private fun at(day: Int, hour: Int, minute: Int = 0) =
-		ScheduleNow(dayOfWeek = day, minuteOfDay = hour * 60 + minute)
+		scheduleNow(dayOfWeek = day, minuteOfDay = hour * 60 + minute)
 
 	private fun unscheduled(codes: String) = UiText.Resource(Res.string.schedule_unscheduled, listOf(codes))
 

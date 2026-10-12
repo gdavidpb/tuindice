@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalTime::class)
 
-package com.gdavidpb.tuindice.record.data.source
+package com.gdavidpb.tuindice.base.data.source
 
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
-import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,7 +51,8 @@ class ScheduleClockDataSource(
 		return ScheduleNow(
 			// ISO counts from Monday (1) to Sunday (7); the backend counts from Sunday (1) to Saturday (7).
 			dayOfWeek = dateTime.dayOfWeek.isoDayNumber % DAYS_PER_WEEK + 1,
-			minuteOfDay = dateTime.hour * MINUTES_PER_HOUR + dateTime.minute
+			minuteOfDay = dateTime.hour * MINUTES_PER_HOUR + dateTime.minute,
+			date = dateTime.date
 		)
 	}
 }

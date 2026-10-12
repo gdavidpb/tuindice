@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepo
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import org.koin.dsl.module
@@ -45,7 +46,8 @@ class EvaluationsModuleKoinSmokeTest {
 	) {
 		assertResolves(
 			EvaluationsViewModel::class,
-			EvaluationViewModel::class
+			EvaluationViewModel::class,
+			VisibleEvaluationsRepository::class
 		)
 	}
 }

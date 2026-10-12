@@ -35,6 +35,15 @@ Rules:
   the path), `CatalogStartTest` lists the scenarios that start with states besides their account's, and
   `PendingFlushMocksTest` replays that the dated and undated adds of the other scenarios (`evaluations-add-submit`
   among them) are accepted. The flush mock accepts the dated add from `Available` and moves to `Delivered`.
+- A successful sync revalidates the evaluations (`EvaluationsRevalidationRepository`): the first `GET /evaluations/v3` of
+  a session happens right after the sync, whether or not the scenario ever opens the evaluations tab, and the tab then
+  finds the list cached (the cooldown the download sets keeps it from asking again). A scenario that needs that first
+  answer to be a refusal therefore cannot set the refusing state after the summary shows: it starts in it
+  (`evaluations-list-retry` starts with `evaluations-list-failure` in `Unavailable`, the revalidation fails without
+  failing the sync, the tab, which the failure never holds off, meets the same 503 and offers the retry, and the
+  scenario moves the mock to `Recovered`). The list does not change between the sync and the first visit of the tab in
+  any other scenario, and what the empty states show (`evaluations-enrollment-unavailable`, `evaluations-not-enrolled`,
+  the annulled ones) comes from the record's attempts and the sync report, not from the list response.
 - A refusal that only one step of one scenario needs lives in a WireMock scenario state the scenario sets in the middle
   of its run with `mockState`, not in the default state: `enrollment-proof-saved-copy` answers the canonical account's
   proof request with 503 only in `Unavailable`, which `enrollmentproof-saved-copy-dialog` sets after the download that

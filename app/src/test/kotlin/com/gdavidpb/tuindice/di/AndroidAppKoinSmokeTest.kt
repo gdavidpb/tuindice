@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
@@ -25,7 +26,10 @@ import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -107,6 +111,11 @@ class AndroidAppKoinSmokeTest {
 			PendingChangesRepository::class,
 			SessionInvalidationRepository::class,
 			PensumTopBarActionBus::class,
+			// The read contracts of the summary hub: nobody consumes them yet.
+			ScheduleClockRepository::class,
+			VisibleEvaluationsRepository::class,
+			PensumProgressRepository::class,
+			EvaluationsRevalidationRepository::class,
 			SignInViewModel::class,
 			MainViewModel::class,
 			BrowserViewModel::class,

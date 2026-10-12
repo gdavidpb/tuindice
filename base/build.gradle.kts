@@ -44,7 +44,7 @@ kotlin {
 
 				api(libs.components.resources)
 				implementation(libs.material.icons.extended)
-				implementation(libs.kotlinx.datetime)
+				api(libs.kotlinx.datetime)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.koin.core)
 				implementation(libs.compottie)

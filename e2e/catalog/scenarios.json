@@ -20197,7 +20197,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -20210,7 +20210,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -20221,7 +20221,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -20233,7 +20233,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 98
+                        "line": 107
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20245,7 +20245,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 99
+                        "line": 108
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20257,7 +20257,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 100
+                        "line": 109
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20269,7 +20269,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 101
+                        "line": 110
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20282,7 +20282,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 102
+                        "line": 111
                     },
                     "type": "tap"
                 },
@@ -20293,7 +20293,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 103
+                        "line": 112
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -20305,7 +20305,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 104
+                        "line": 113
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20317,7 +20317,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 105
+                        "line": 114
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20330,7 +20330,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 106
+                        "line": 115
                     },
                     "type": "tap"
                 },
@@ -20341,7 +20341,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 107
+                        "line": 116
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20389,6 +20389,10 @@
                     {
                         "scenario": "login-token-lifecycle",
                         "state": "TokensIssued"
+                    },
+                    {
+                        "scenario": "evaluations-list-failure",
+                        "state": "Unavailable"
                     }
                 ]
             },
@@ -20400,19 +20404,10 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 78
+                        "line": 88
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
-                },
-                {
-                    "scenario": "evaluations-list-failure",
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 79
-                    },
-                    "state": "Unavailable",
-                    "type": "mockState"
                 },
                 {
                     "q": {
@@ -20422,7 +20417,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 80
+                        "line": 89
                     },
                     "type": "tap"
                 },
@@ -20433,7 +20428,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 81
+                        "line": 90
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -20442,7 +20437,7 @@
                     "scenario": "evaluations-list-failure",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 82
+                        "line": 91
                     },
                     "state": "Recovered",
                     "type": "mockState"
@@ -20455,7 +20450,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 83
+                        "line": 92
                     },
                     "type": "tap"
                 },
@@ -20466,7 +20461,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 84
+                        "line": 93
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -20478,13 +20473,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 85
+                        "line": 94
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "78a53c919b60406e",
+            "stepsHash": "ada81747e39bc985",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -20542,7 +20537,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -20555,7 +20550,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -20566,7 +20561,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -20578,7 +20573,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 130
+                        "line": 139
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20590,7 +20585,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 131
+                        "line": 140
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20602,7 +20597,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 132
+                        "line": 141
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20614,7 +20609,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 135
+                        "line": 144
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20627,7 +20622,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 136
+                        "line": 145
                     },
                     "type": "tap"
                 },
@@ -20638,7 +20633,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 137
+                        "line": 146
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20650,7 +20645,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 138
+                        "line": 147
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -20663,7 +20658,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 37
+                        "line": 38
                     },
                     "type": "tap"
                 },
@@ -20674,7 +20669,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 38
+                        "line": 39
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -20687,7 +20682,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 140
+                        "line": 149
                     },
                     "type": "tap"
                 },
@@ -20698,7 +20693,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 141
+                        "line": 150
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20711,7 +20706,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 142
+                        "line": 151
                     },
                     "type": "tap"
                 },
@@ -20722,7 +20717,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 143
+                        "line": 152
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20735,7 +20730,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 144
+                        "line": 153
                     },
                     "type": "tap"
                 },
@@ -20747,7 +20742,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 145
+                        "line": 154
                     },
                     "type": "tap"
                 },
@@ -20758,7 +20753,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 146
+                        "line": 155
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20771,7 +20766,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 147
+                        "line": 156
                     },
                     "type": "tap"
                 },
@@ -20782,7 +20777,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 148
+                        "line": 157
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20795,7 +20790,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 149
+                        "line": 158
                     },
                     "type": "tap"
                 },
@@ -20807,7 +20802,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 150
+                        "line": 159
                     },
                     "type": "tap"
                 },
@@ -20818,7 +20813,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 151
+                        "line": 160
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20831,7 +20826,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 152
+                        "line": 161
                     },
                     "type": "tap"
                 },
@@ -20843,7 +20838,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 62
+                        "line": 63
                     },
                     "type": "tap"
                 },
@@ -20854,7 +20849,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 63
+                        "line": 64
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20867,7 +20862,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 64
+                        "line": 65
                     },
                     "type": "tap"
                 },
@@ -20879,7 +20874,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 65
+                        "line": 66
                     },
                     "type": "tap"
                 },
@@ -20891,7 +20886,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 66
+                        "line": 67
                     },
                     "type": "tap"
                 },
@@ -20902,7 +20897,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 154
+                        "line": 163
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20914,7 +20909,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 155
+                        "line": 164
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -20927,7 +20922,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 156
+                        "line": 165
                     },
                     "type": "tap"
                 },
@@ -20938,7 +20933,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20950,7 +20945,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20962,7 +20957,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -20975,7 +20970,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 158
+                        "line": 167
                     },
                     "type": "tap"
                 },
@@ -20986,7 +20981,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 159
+                        "line": 168
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -20999,7 +20994,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 160
+                        "line": 169
                     },
                     "type": "tap"
                 },
@@ -21010,7 +21005,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21022,7 +21017,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21034,7 +21029,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21046,7 +21041,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 162
+                        "line": 171
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21059,7 +21054,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 163
+                        "line": 172
                     },
                     "type": "tap"
                 },
@@ -21071,7 +21066,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 164
+                        "line": 173
                     },
                     "type": "tap"
                 },
@@ -21083,7 +21078,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 165
+                        "line": 174
                     },
                     "type": "tap"
                 },
@@ -21094,7 +21089,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 166
+                        "line": 175
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21107,7 +21102,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 167
+                        "line": 176
                     },
                     "type": "tap"
                 },
@@ -21118,7 +21113,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 168
+                        "line": 177
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -21130,7 +21125,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 169
+                        "line": 178
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21143,7 +21138,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 170
+                        "line": 179
                     },
                     "type": "tap"
                 },
@@ -21154,7 +21149,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 171
+                        "line": 180
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21167,7 +21162,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 172
+                        "line": 181
                     },
                     "type": "tap"
                 },
@@ -21178,7 +21173,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 173
+                        "line": 182
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21236,7 +21231,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -21249,7 +21244,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -21260,7 +21255,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -21273,7 +21268,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 188
+                        "line": 197
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -21286,7 +21281,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 193
+                        "line": 202
                     },
                     "type": "tap"
                 },
@@ -21297,7 +21292,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21309,7 +21304,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21321,7 +21316,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21333,7 +21328,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 195
+                        "line": 204
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21346,7 +21341,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 196
+                        "line": 205
                     },
                     "type": "tap"
                 },
@@ -21357,7 +21352,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 197
+                        "line": 206
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21370,7 +21365,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 198
+                        "line": 207
                     },
                     "type": "tap"
                 },
@@ -21381,7 +21376,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21393,7 +21388,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21405,7 +21400,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21417,7 +21412,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 200
+                        "line": 209
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21430,7 +21425,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 201
+                        "line": 210
                     },
                     "type": "tap"
                 },
@@ -21441,7 +21436,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 202
+                        "line": 211
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -21453,7 +21448,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 203
+                        "line": 212
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21512,7 +21507,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -21525,7 +21520,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -21536,7 +21531,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -21549,7 +21544,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 43
+                        "line": 44
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -21562,7 +21557,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 48
+                        "line": 49
                     },
                     "type": "tap"
                 },
@@ -21573,7 +21568,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 49
+                        "line": 50
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21585,7 +21580,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 50
+                        "line": 51
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21598,7 +21593,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 220
+                        "line": 229
                     },
                     "type": "tap"
                 },
@@ -21609,7 +21604,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 221
+                        "line": 230
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -21621,7 +21616,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 222
+                        "line": 231
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21633,7 +21628,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 223
+                        "line": 232
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21645,7 +21640,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 224
+                        "line": 233
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21657,7 +21652,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 225
+                        "line": 234
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21669,7 +21664,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 226
+                        "line": 235
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21682,7 +21677,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 227
+                        "line": 236
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -21695,7 +21690,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 228
+                        "line": 237
                     },
                     "type": "tap"
                 },
@@ -21707,7 +21702,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 229
+                        "line": 238
                     },
                     "type": "tap"
                 },
@@ -21719,7 +21714,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 230
+                        "line": 239
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -21732,7 +21727,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 231
+                        "line": 240
                     },
                     "type": "tap"
                 },
@@ -21743,7 +21738,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 232
+                        "line": 241
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -21755,7 +21750,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 233
+                        "line": 242
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -21812,7 +21807,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 244
+                        "line": 253
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -21825,7 +21820,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 245
+                        "line": 254
                     },
                     "type": "tap"
                 },
@@ -21836,7 +21831,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 246
+                        "line": 255
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -21849,7 +21844,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 247
+                        "line": 256
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -21862,7 +21857,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 252
+                        "line": 261
                     },
                     "type": "tap"
                 },
@@ -21873,7 +21868,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 253
+                        "line": 262
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21885,7 +21880,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 254
+                        "line": 263
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -21898,7 +21893,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 255
+                        "line": 264
                     },
                     "type": "tap"
                 },
@@ -21909,7 +21904,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 256
+                        "line": 265
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -21922,7 +21917,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 257
+                        "line": 266
                     },
                     "type": "tap"
                 },
@@ -21933,7 +21928,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 258
+                        "line": 267
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -21945,7 +21940,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 259
+                        "line": 268
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22010,7 +22005,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22023,7 +22018,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22034,7 +22029,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22047,7 +22042,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 37
+                        "line": 38
                     },
                     "type": "tap"
                 },
@@ -22058,7 +22053,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 38
+                        "line": 39
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -22071,7 +22066,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 282
+                        "line": 291
                     },
                     "type": "tap"
                 },
@@ -22083,7 +22078,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 283
+                        "line": 292
                     },
                     "type": "tap"
                 },
@@ -22095,7 +22090,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 62
+                        "line": 63
                     },
                     "type": "tap"
                 },
@@ -22106,7 +22101,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 63
+                        "line": 64
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -22119,7 +22114,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 64
+                        "line": 65
                     },
                     "type": "tap"
                 },
@@ -22131,7 +22126,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 65
+                        "line": 66
                     },
                     "type": "tap"
                 },
@@ -22143,7 +22138,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 66
+                        "line": 67
                     },
                     "type": "tap"
                 },
@@ -22154,7 +22149,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 285
+                        "line": 294
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -22167,7 +22162,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 286
+                        "line": 295
                     },
                     "type": "tap"
                 },
@@ -22178,7 +22173,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -22190,7 +22185,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22202,7 +22197,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22214,7 +22209,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 288
+                        "line": 297
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22227,7 +22222,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 289
+                        "line": 298
                     },
                     "type": "tap"
                 },
@@ -22238,7 +22233,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 290
+                        "line": 299
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -22251,7 +22246,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 291
+                        "line": 300
                     },
                     "type": "tap"
                 },
@@ -22262,7 +22257,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -22274,7 +22269,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22286,7 +22281,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22299,7 +22294,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 293
+                        "line": 302
                     },
                     "type": "tap"
                 },
@@ -22311,7 +22306,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 294
+                        "line": 303
                     },
                     "type": "tap"
                 },
@@ -22322,7 +22317,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 295
+                        "line": 304
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -22334,7 +22329,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 296
+                        "line": 305
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -22393,7 +22388,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22406,7 +22401,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22417,7 +22412,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22430,7 +22425,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 37
+                        "line": 38
                     },
                     "type": "tap"
                 },
@@ -22441,7 +22436,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 38
+                        "line": 39
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -22454,7 +22449,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 313
+                        "line": 322
                     },
                     "type": "tap"
                 },
@@ -22465,7 +22460,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 314
+                        "line": 323
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -22477,7 +22472,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 315
+                        "line": 324
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22489,7 +22484,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 316
+                        "line": 325
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22501,7 +22496,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 317
+                        "line": 326
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22514,7 +22509,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 318
+                        "line": 327
                     },
                     "type": "tap"
                 },
@@ -22525,7 +22520,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 319
+                        "line": 328
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -22582,7 +22577,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22595,7 +22590,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22606,7 +22601,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22618,7 +22613,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 331
+                        "line": 340
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22631,7 +22626,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 332
+                        "line": 341
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22644,7 +22639,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 333
+                        "line": 342
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22656,7 +22651,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 334
+                        "line": 343
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -22713,7 +22708,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22726,7 +22721,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22737,7 +22732,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22749,7 +22744,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 346
+                        "line": 355
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22762,7 +22757,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 348
+                        "line": 357
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22775,7 +22770,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 349
+                        "line": 358
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -22787,7 +22782,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 350
+                        "line": 359
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -22844,7 +22839,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22857,7 +22852,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22868,7 +22863,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22880,7 +22875,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 362
+                        "line": 371
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22893,7 +22888,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 363
+                        "line": 372
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -22905,7 +22900,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 364
+                        "line": 373
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -22962,7 +22957,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 30
+                        "line": 31
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -22975,7 +22970,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 31
+                        "line": 32
                     },
                     "type": "tap"
                 },
@@ -22986,7 +22981,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 32
+                        "line": 33
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -22998,7 +22993,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 378
+                        "line": 387
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -23010,7 +23005,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 379
+                        "line": 388
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -23022,7 +23017,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 380
+                        "line": 389
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -23035,7 +23030,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 381
+                        "line": 390
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"

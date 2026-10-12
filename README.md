@@ -15,10 +15,13 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 
 ## Módulos del workspace
 
-- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI
-  reutilizables.
+- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura (incluido el reloj
+  del horario, `ScheduleClockRepository`, que `maincore` enlaza) y piezas UI reutilizables.
 - `academiccore`: modelos académicos compartidos y motor de proyección de historial.
-- `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
+- `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage. Define
+  además los contratos de lectura que una feature implementa y otras consumen sin depender entre sí:
+  `VisibleAcademicRecordRepository` (lo implementa `persistence`), `VisibleEvaluationsRepository` (`evaluations`) y
+  `PensumProgressRepository` (`pensum`).
 - `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
   binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.

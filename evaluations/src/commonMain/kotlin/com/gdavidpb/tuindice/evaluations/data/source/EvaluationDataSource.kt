@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
@@ -27,12 +28,18 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
+import com.gdavidpb.tuindice.evaluations.utils.CooldownTimes
+import com.gdavidpb.tuindice.evaluations.utils.isWithinWindow
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -43,7 +50,16 @@ class EvaluationDataSource(
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
 	private val identifierRepository: IdentifierRepository,
 	private val clock: Clock
-) : EvaluationRepository {
+) : EvaluationRepository, EvaluationsRevalidationRepository, SessionMemory {
+	// Every download-then-persist runs under this lock, so the tab and the revalidation after a sync
+	// never download twice at once: the second one finds the cooldown the first one just set.
+	private val updateMutex = Mutex()
+
+	// When the last download failed; an automatic revalidation waits COOLDOWN_RETRY_EVALUATIONS after
+	// it. In memory on purpose: a fresh process is a fair moment to try again. Only the revalidation
+	// is held by it: the tab, which the student opened on purpose, always tries. Guarded by updateMutex.
+	private var lastDownloadFailureAt: Long? = null
+
 	private val mutationSyncSpec = EvaluationMutationSyncSpec(
 		databaseDataSource = databaseDataSource,
 		evaluationsApiDataSource = evaluationsApiDataSource,
@@ -72,14 +88,47 @@ class EvaluationDataSource(
 		return updateEvaluations(forceRemote = false)
 	}
 
+	// The hold belongs to the account whose download failed; the next one starts without it. Not
+	// under updateMutex: a request made while holding it can end the session, and the wipe would
+	// then wait for its own caller.
+	override suspend fun clearSessionMemory() {
+		lastDownloadFailureAt = null
+	}
+
+	override suspend fun revalidateEvaluations() {
+		updateMutex.withLock {
+			val failedAt = lastDownloadFailureAt
+			val isRetryOnHold = failedAt != null && isWithinWindow(
+				sinceMillis = failedAt,
+				nowMillis = currentTimeMillis(),
+				windowMillis = CooldownTimes.COOLDOWN_RETRY_EVALUATIONS
+			)
+
+			if (isRetryOnHold) return@withLock
+
+			updateEvaluationsLocked(forceRemote = false)
+		}
+	}
+
 	override suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
+		return updateMutex.withLock { updateEvaluationsLocked(forceRemote) }
+	}
+
+	// Cooldown and "already downloaded" are read inside the lock, so a caller queued behind a download
+	// skips its own.
+	private suspend fun updateEvaluationsLocked(forceRemote: Boolean): EvaluationsRefreshResult {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 		val hasSyncedEvaluations = databaseDataSource.observeHasSyncedEvaluationsFlow().first()
 		var fetchedSnapshot: RemoteEvaluationsSnapshot? = null
 
 		if (forceRemote || !isOnCooldown || !hasSyncedEvaluations) {
 			val snapshotVersion = mutationEngine.currentMutationVersion()
-			val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
+			val remoteSnapshot = runCatching { evaluationsApiDataSource.getEvaluations() }
+				.onFailure { throwable ->
+					if (throwable !is CancellationException) lastDownloadFailureAt = currentTimeMillis()
+				}
+				.getOrThrow()
+			lastDownloadFailureAt = null
 			fetchedSnapshot = remoteSnapshot
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
 				databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())

@@ -8,11 +8,11 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
 import com.gdavidpb.tuindice.record.testing.assertDpEquals
 import com.gdavidpb.tuindice.record.testing.clashingWeek
+import com.gdavidpb.tuindice.record.testing.scheduleNow
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -82,7 +82,7 @@ class ScheduleGridViewUiTest {
 	fun when_theHourIsPastTheLastBlock_then_todayIsStillMarked_butNoLineIsDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			// Monday at 20:00: the grid ends at block 3, hours before.
-			ScheduleGridView(grid = clashingWeek(now = ScheduleNow(dayOfWeek = 2, minuteOfDay = 20 * 60)).grid)
+			ScheduleGridView(grid = clashingWeek(now = scheduleNow(dayOfWeek = 2, minuteOfDay = 20 * 60)).grid)
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTodayHeader)

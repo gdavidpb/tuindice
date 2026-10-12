@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
@@ -35,6 +36,7 @@ class SyncDataSource(
 	private val remoteDataSource: SyncRemoteDataRepository,
 	private val syncResultLocalDataSource: SyncResultLocalDataRepository,
 	private val pensumRevalidationRepository: PensumRevalidationRepository,
+	private val evaluationsRevalidationRepository: EvaluationsRevalidationRepository,
 	private val coroutineScope: CoroutineScope
 ) : SyncRepository {
 	private val syncMutex = Mutex()
@@ -76,6 +78,7 @@ class SyncDataSource(
 						settingsDataSource.setSyncedFeatureCooldowns()
 						settingsDataSource.clearStaleFeatureCooldowns()
 						launchPensumRevalidation()
+						launchEvaluationsRevalidation()
 					} finally {
 						syncInProgress.value = false
 					}
@@ -95,6 +98,16 @@ class SyncDataSource(
 	private fun launchPensumRevalidation() {
 		coroutineScope.launch {
 			runCatching { pensumRevalidationRepository.revalidateSelectedPensum() }
+				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+		}
+	}
+
+	// The evaluations get the same treatment, with one difference: they are downloaded even if the
+	// student never opened their tab, because the summary and the schedule read them too. Same
+	// shape: fire-and-forget on the session scope, never under the sync lock, never marks the sync.
+	private fun launchEvaluationsRevalidation() {
+		coroutineScope.launch {
+			runCatching { evaluationsRevalidationRepository.revalidateEvaluations() }
 				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		}
 	}

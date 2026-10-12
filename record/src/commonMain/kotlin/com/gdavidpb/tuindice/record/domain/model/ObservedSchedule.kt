@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.model
 
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 
 data class ObservedSchedule(
 	// The term being lived, or null while the record has none.

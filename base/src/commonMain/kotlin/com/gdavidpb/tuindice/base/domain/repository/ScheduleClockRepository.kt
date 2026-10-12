@@ -1,6 +1,6 @@
-package com.gdavidpb.tuindice.record.domain.repository
+package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleClockRepository {
