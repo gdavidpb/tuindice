@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.base.utils.extension.attempt
 import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
+import com.gdavidpb.tuindice.base.utils.extension.runStep
 import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
@@ -167,8 +168,9 @@ class SessionRecoveryDataSource(
 	// cancellation of the caller (a screen that closed, a request of the session scope that was
 	// cancelled) would leave the user inside the app with no session, no data and nobody told. It runs
 	// in the scope of the app instead, and the caller only waits for it: a caller that is cancelled
-	// stops waiting and the wipe goes on to its end. There are two outcomes only: it did not start, or
-	// it ended whole, with the notice kept, the signal emitted and the counter advanced.
+	// stops waiting and the wipe goes on to its end. Nobody cancels the job, so it did not start, or it
+	// ran every step: each one is skipped if it fails, and only the cancellation of the job itself
+	// (the app scope closing) stops it. The notice, the signal and the counter close it.
 	//
 	// One invalidation at a time, and a call that arrives while another is in flight does not start a
 	// second wipe. It waits for the one in progress and ends there, because that wipe is the one that
@@ -191,15 +193,25 @@ class SessionRecoveryDataSource(
 				// The wipe this call waited for is done: it is the one that serves this call.
 				if (invalidationsCompleted.value != invalidationsSeen) return@withLock
 
+				// The caller's branch is cancelled when the wipe starts and frees the recovery lock with the
+				// session still readable, so a request that was waiting for it can start its own invalidation
+				// of the same session. If that session is not the stored one any more, a wipe already ended
+				// it (or a new sign-in replaced it): there is nothing left to end. A stored session that
+				// cannot be read does not excuse the wipe.
+				val stored = attempt { sessionRepository.getActiveSessionSnapshot() }
+				if (sessionId != null && stored.isSuccess && stored.getOrNull()?.sessionId != sessionId) {
+					return@withLock
+				}
+
 				// Everything the session still runs, the caller's branch included: it waits for this job in
 				// a suspension that can be cancelled, so it ends here and does not wait for itself.
-				sessionCoroutineScope.cancelActiveWork()
+				runStep { sessionCoroutineScope.cancelActiveWork() }
 
-				// This job is never cancelled, so no step is cut short by a caller; a step that fails does
-				// not keep the next ones from running, because each one empties something different.
-				attempt { applicationRepository.clearData() }
-				attempt { sessionRepository.clear() }
-				attempt { syncStatusRepository.reset() }
+				// No caller cancels this job, so no step is cut short by one; a step that fails does not keep
+				// the next ones from running, because each one empties something different.
+				runStep { applicationRepository.clearData() }
+				runStep { sessionRepository.clear() }
+				runStep { syncStatusRepository.reset() }
 				sessionInvalidationRepository.announceInvalidation(
 					settingsRepository = settingsRepository,
 					reason = SessionResetNoticeReason.ServerEndedSession,

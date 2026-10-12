@@ -6,9 +6,9 @@ import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableExcepti
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.session.announceInvalidation
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.base.utils.extension.attempt
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -67,15 +67,15 @@ class SecureStoreSessionDataSource(
 	private suspend fun writeActiveValue(key: String, value: String) {
 		migrationMutex.withLock {
 			secureStore.putString(key = key, value = value)
-			runCatching { legacySecureStore.remove(key) }
+			attempt { legacySecureStore.remove(key) }
 		}
 	}
 
 	private suspend fun readSingleValue(key: String): String? {
 		return migrationMutex.withLock {
-			runCatching { secureStore.getString(key)?.takeIf(String::isNotBlank) }
+			attempt { secureStore.getString(key)?.takeIf(String::isNotBlank) }
 				.getOrNull()
-				?: runCatching { legacySecureStore.getString(key)?.takeIf(String::isNotBlank) }
+				?: attempt { legacySecureStore.getString(key)?.takeIf(String::isNotBlank) }
 					.getOrNull()
 		}
 	}
@@ -87,9 +87,22 @@ class SecureStoreSessionDataSource(
 			when (activeState) {
 				is SessionStoreState.Complete -> activeState.session
 				is SessionStoreState.Empty -> resolveLegacySession()
-				is SessionStoreState.Partial -> recoverFromLegacyOrInvalidate(activeState.sessionId)
+				is SessionStoreState.Partial -> confirmPartialSession()
 				is SessionStoreState.Failed -> recoverFromLegacyOrInvalidate(null)
 			}
+		}
+	}
+
+	// The wipe of the application empties the secure store without taking the lock of this source, so a
+	// reader can land between two keys of a session that is being ended. A half-written session is
+	// confirmed with a second read before it is called one: if the store is empty by then, the session
+	// was not broken, it was being wiped, and whoever wipes it is the one that tells the user.
+	private suspend fun confirmPartialSession(): CompleteStoredSession? {
+		return when (val confirmed = readSessionState(secureStore)) {
+			is SessionStoreState.Complete -> confirmed.session
+			is SessionStoreState.Empty -> resolveLegacySession()
+			is SessionStoreState.Partial -> recoverFromLegacyOrInvalidate(confirmed.sessionId)
+			is SessionStoreState.Failed -> recoverFromLegacyOrInvalidate(null)
 		}
 	}
 
@@ -105,7 +118,7 @@ class SecureStoreSessionDataSource(
 	private suspend fun recoverFromLegacyOrInvalidate(activeSessionId: String?): CompleteStoredSession? {
 		return when (val legacyState = readSessionState(legacySecureStore)) {
 			is SessionStoreState.Complete -> {
-				runCatching { secureStore.clear() }
+				attempt { secureStore.clear() }
 				migrateLegacySession(legacyState.session)
 			}
 			is SessionStoreState.Empty -> invalidateStoredSession(activeSessionId)
@@ -115,7 +128,9 @@ class SecureStoreSessionDataSource(
 	}
 
 	private suspend fun migrateLegacySession(session: CompleteStoredSession): CompleteStoredSession? {
-		val migrated = runCatching {
+		// A cancellation is not a failed migration: attempt lets it through, so a reader that is cancelled
+		// here leaves the legacy copy as it was instead of ending a session that is fine.
+		val migrated = attempt {
 			secureStore.putString(PreferencesKeys.USER_USB_ID, session.usbId)
 			secureStore.putString(PreferencesKeys.USER_SESSION_ID, session.sessionId)
 			secureStore.putString(PreferencesKeys.USER_ACCESS_TOKEN, session.accessToken)
@@ -123,29 +138,39 @@ class SecureStoreSessionDataSource(
 
 			val verified = readSessionState(secureStore) as? SessionStoreState.Complete
 			check(verified?.session == session)
-
-			sessionKeys.forEach { key -> legacySecureStore.remove(key) }
-			session
 		}
 
-		return migrated.getOrElse {
-			runCatching { secureStore.clear() }
-			invalidateStoredSession(session.sessionId)
+		if (migrated.isFailure) {
+			attempt { secureStore.clear() }
+			return invalidateStoredSession(session.sessionId)
 		}
+
+		// The session is written and verified in the active store: that is the migration. Removing the
+		// legacy copy is cleaning up after it, so its failure does not undo the session, and a reader
+		// cancelled here leaves a session that the next read finds whole in the active store.
+		sessionKeys.forEach { key -> attempt { legacySecureStore.remove(key) } }
+
+		return session
 	}
 
 	private suspend fun invalidateStoredSession(sessionId: String?): CompleteStoredSession? {
+		// The session ends here, with nobody to ask: the notice goes with the signal, like the one of an
+		// invalidation that comes from the server, so the sign-in screen does not appear unexplained.
+		// A stored session that cannot be read is what the user is told. The notice is kept first: emptying
+		// the legacy store really suspends, and a reader that is cancelled there would otherwise leave the
+		// stores emptied with nothing to explain it at the next start.
+		val notice = attempt {
+			settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.UnreadableData)
+		}.getOrNull()
+
 		attempt { secureStore.clear() }
 		attempt { legacySecureStore.clear() }
 
-		// The session ends here, with nobody to ask: the notice goes with the signal, like the one of an
-		// invalidation that comes from the server, so the sign-in screen does not appear unexplained.
-		// A stored session that cannot be read is what the user is told.
-		sessionInvalidationRepository.announceInvalidation(
-			settingsRepository = settingsRepository,
-			reason = SessionResetNoticeReason.UnreadableData,
-			sessionId = sessionId
-		)
+		val raised = attempt { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
+			.getOrDefault(false)
+
+		// A signal that was suppressed (an intentional sign-out) owes the user no explanation.
+		if (!raised && notice != null) attempt { settingsRepository.consumeSessionResetNotice(notice.stamp) }
 
 		return null
 	}
@@ -153,7 +178,7 @@ class SecureStoreSessionDataSource(
 	private suspend fun readSessionState(
 		store: SecureKeyValueDataRepository
 	): SessionStoreState {
-		return runCatching {
+		val read = attempt {
 			readStoredSession(store)
 		}.recoverCatching { throwable ->
 			if (throwable !is SecureStoreUnavailableException) throw throwable
@@ -162,17 +187,21 @@ class SecureStoreSessionDataSource(
 			// the stored session untouched instead of degrading into an invalidation.
 			delay(SECURE_STORE_RETRY_DELAY_MILLIS)
 			readStoredSession(store)
-		}.map { session ->
+		}
+
+		// A reader that is cancelled while it reads (or waits to retry) did not find a broken session, and
+		// an outage is not one either.
+		read.exceptionOrNull()?.let { throwable ->
+			if (throwable is CancellationException || throwable is SecureStoreUnavailableException) throw throwable
+		}
+
+		return read.map { session ->
 			when {
 				session.isComplete -> SessionStoreState.Complete(session.toComplete())
 				session.isEmpty -> SessionStoreState.Empty
 				else -> SessionStoreState.Partial(session.sessionId)
 			}
-		}.getOrElse { throwable ->
-			if (throwable is SecureStoreUnavailableException) throw throwable
-
-			SessionStoreState.Failed
-		}
+		}.getOrElse { SessionStoreState.Failed }
 	}
 
 	private suspend fun readStoredSession(

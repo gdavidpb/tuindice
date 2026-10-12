@@ -43,6 +43,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -83,6 +84,7 @@ class AuthModuleKoinSmokeTest {
 				single<EventPublisher> { NoOpEventPublisher }
 				single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 				single { testSessionCoroutineScope() }
+				single { testAppCoroutineScope() }
 			}
 		) {
 		assertResolves(

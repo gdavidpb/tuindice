@@ -77,6 +77,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -1358,6 +1359,7 @@ class TuIndiceAppHostRouteUiTest {
 		factory { NavEntryStoresViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }
+		single { testAppCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<ApplicationRepository> { RecordingApplicationRepository() }

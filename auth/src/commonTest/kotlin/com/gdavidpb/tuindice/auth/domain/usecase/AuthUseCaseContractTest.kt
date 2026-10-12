@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
@@ -439,6 +440,7 @@ class AuthUseCaseContractTest {
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			sessionCoroutineScope = sessionCoroutineScope,
+			appCoroutineScope = testAppCoroutineScope(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -462,7 +464,10 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(1, syncStatusRepository.resetCalls)
 		assertEquals(true, applicationRepository.cleared)
-		assertEquals("session-123", sessionInvalidationRepository.intentionalSignOutSessionId)
+		assertNull(
+			sessionInvalidationRepository.intentionalSignOutSessionId,
+			"the mark of the sign-out is withdrawn once the local end is done"
+		)
 		assertTrue(activeSessionWork.isCancelled)
 		assertTrue(activeSessionWorkCancelled)
 	}
@@ -488,6 +493,7 @@ class AuthUseCaseContractTest {
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			sessionCoroutineScope = testSessionCoroutineScope(),
+			appCoroutineScope = testAppCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 

@@ -30,8 +30,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -299,29 +297,6 @@ class EvaluationDownloadConcurrencyTest {
 
 		assertTrue(tab.isCompleted)
 		assertEquals(2, api.calls, "it queues for the lock and makes its own request")
-	}
-
-	// The wipe of the request's own rejection (a 401 that ends the session from inside the request) must
-	// not be cut by the cancellation the end of the session sends to the request in flight: it would
-	// stop half way. The request is the caller here, so it is left running.
-	@Test
-	fun theEndOfTheSession_doesNotCancelTheRequestThatCausesIt() = runTest {
-		lateinit var repository: EvaluationDataSource
-		var activeAfterTheWipe: Boolean? = null
-		val api = HeldEvaluationsApi(
-			onCall = {
-				repository.clearSessionMemory()
-				activeAfterTheWipe = currentCoroutineContext().isActive
-			}
-		)
-		repository = repository(api = api)
-
-		launch { runCatching { repository.revalidateEvaluations() } }
-		runCurrent()
-
-		assertEquals(true, activeAfterTheWipe, "the request that ends the session is not cancelled by its own wipe")
-		api.release()
-		runCurrent()
 	}
 
 	// A caller that queued for the lock before the session ended and gets it afterwards has nobody to

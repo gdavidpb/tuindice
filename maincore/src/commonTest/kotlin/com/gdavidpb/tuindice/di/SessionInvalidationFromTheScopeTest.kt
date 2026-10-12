@@ -168,7 +168,7 @@ class SessionInvalidationFromTheScopeTest {
 		assertEquals(1, application.clearCalls, "the wipe runs exactly once")
 		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls, "and the notice is emitted once")
 		assertTrue(first.isCompleted && second.isCompleted)
-		assertTrue(first.isCancelled, "the branch that wiped ends last")
+		assertTrue(first.isCancelled, "the branch that asked first is cancelled when the wipe starts")
 		assertTrue(second.isCancelled, "the branch that met the finished wipe ends too")
 	}
 

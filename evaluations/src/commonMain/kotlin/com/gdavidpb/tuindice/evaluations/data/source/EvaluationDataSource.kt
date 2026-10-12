@@ -41,7 +41,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -130,18 +129,15 @@ class EvaluationDataSource(
 	//
 	// The request of the download in progress is cancelled, so the lock it holds is free at once
 	// instead of after the timeout of a request nobody is waiting for; whoever joined it starts over.
-	// Unless the caller is that very request (a 401 that ends the session from inside it): its wipe
-	// must not be cut by its own cancellation, and the session scope cancels it afterwards.
+	// The wipe never runs inside a request (the invalidation belongs to the app), so the caller is never
+	// the request being cancelled.
 	override suspend fun clearSessionMemory() {
 		writeGate.withLock {
 			sessionEpoch += 1
 			lastDownloadFailureAt = null
 		}
 
-		val request = inFlight.load()?.request ?: return
-		val caller = currentCoroutineContext()[Job]
-
-		if (caller == null || !request.contains(caller)) request.cancel()
+		inFlight.load()?.request?.cancel()
 	}
 
 	override suspend fun revalidateEvaluationsIfNeverDownloaded() {
@@ -583,8 +579,6 @@ private class Download(val epoch: Int) {
 }
 
 private class Claim(val joined: Download?, val own: Download?)
-
-private fun Job.contains(job: Job): Boolean = this === job || children.any { child -> child.contains(job) }
 
 private sealed interface FetchOutcome {
 	data object NotNeeded : FetchOutcome

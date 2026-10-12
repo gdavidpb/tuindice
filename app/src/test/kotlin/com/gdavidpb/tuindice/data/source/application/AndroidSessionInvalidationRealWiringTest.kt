@@ -85,6 +85,10 @@ class AndroidSessionInvalidationRealWiringTest {
 			)
 		)
 
+		// What the invalidation called on a collaborator it does not use: its steps are guarded, so a throw
+		// there would be swallowed, and the call is recorded to fail the test instead.
+		private val unexpectedCalls = mutableListOf<String>()
+
 		var database: suspend () -> Unit = {}
 		var onLegacyClear: suspend () -> Unit
 			get() = legacy.onClear
@@ -120,12 +124,12 @@ class AndroidSessionInvalidationRealWiringTest {
 				sessionResidue = { emptyList() }
 			),
 			sessionInvalidationRepository = signals,
-			syncStatusRepository = unused<SyncStatusRepository>(),
-			attestationRepository = unused<AttestationRepository>(),
-			authRepository = unused<AuthRepository>(),
-			credentialsRepository = unused<CredentialsRepository>(),
+			syncStatusRepository = unused<SyncStatusRepository>(allowed = setOf("reset"), unexpected = unexpectedCalls),
+			attestationRepository = unused<AttestationRepository>(unexpected = unexpectedCalls),
+			authRepository = unused<AuthRepository>(unexpected = unexpectedCalls),
+			credentialsRepository = unused<CredentialsRepository>(unexpected = unexpectedCalls),
 			settingsRepository = settings,
-			reportingRepository = unused<ReportingRepository>(),
+			reportingRepository = unused<ReportingRepository>(allowed = setOf("logException"), unexpected = unexpectedCalls),
 			sessionCoroutineScope = SessionCoroutineScope(TestDispatchers(dispatcher)),
 			appCoroutineScope = AppCoroutineScope(TestDispatchers(dispatcher))
 		)
@@ -148,6 +152,7 @@ class AndroidSessionInvalidationRealWiringTest {
 				settings.notice?.reason
 			)
 			assertEquals("and its signal emitted once", 1, signals.raised)
+			assertEquals("no call to a collaborator it does not use", emptyList<String>(), unexpectedCalls)
 		}
 	}
 }
@@ -191,14 +196,22 @@ private class TestDispatchers(dispatcher: CoroutineDispatcher) : TuIndiceDispatc
 	override val unconfined: CoroutineDispatcher = dispatcher
 }
 
-// A collaborator the invalidation does not reach in these cases: any call to it is a failure.
-private inline fun <reified T : Any> unused(): T {
+// A collaborator the invalidation does not use, except for the calls in [allowed] (which answer Unit):
+// any other call is recorded in [unexpected] and fails.
+private inline fun <reified T : Any> unused(
+	allowed: Set<String> = emptySet(),
+	unexpected: MutableList<String>
+): T {
 	return Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->
 		when (method.name) {
 			"toString" -> "unused"
 			"hashCode" -> 0
 			"equals" -> false
-			else -> Unit
+			in allowed -> Unit
+			else -> {
+				unexpected += "${T::class.simpleName}.${method.name}"
+				error("unexpected call to ${T::class.simpleName}.${method.name}")
+			}
 		}
 	} as T
 }

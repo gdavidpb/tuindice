@@ -34,6 +34,13 @@ class MainPendingSessionEndTransitionsTest {
 		)
 		val events = listOf(
 			MainInternalEvent.StartUpStarting,
+			MainInternalEvent.StartUpCompleted(startDestination = SummaryDestination.Summary),
+			// The notice the start-up found goes through the rule of the live one: an end that already
+			// carries a message keeps it.
+			MainInternalEvent.StartUpCompleted(
+				startDestination = SummaryDestination.Summary,
+				sessionNotice = SessionNoticeText(stamp = 9, message = "found at the start-up")
+			),
 			MainInternalEvent.StartUpFailed(noServices = false),
 			MainInternalEvent.AppUnavailableResolved(
 				notice = AppAvailabilityNotice(enabled = true, title = "t", message = "m")

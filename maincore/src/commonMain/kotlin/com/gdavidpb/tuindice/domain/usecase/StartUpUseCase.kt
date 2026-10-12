@@ -72,6 +72,10 @@ class StartUpUseCase(
 				sessionResetNotice = sessionResetNotice.takeIf { !hasActiveTokens }
 			)
 		}.onFailure { throwable ->
+			// A start that is cancelled (the screen closed while the session was read) found no broken
+			// session: it must not wipe what the next start will read.
+			if (throwable is CancellationException) throw throwable
+
 			// A transient secure-store outage must fail the startup (retryable)
 			// without wiping data the store still holds.
 			if (throwable !is SecureStoreUnavailableException) {

@@ -3,6 +3,9 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
+import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
 import com.gdavidpb.tuindice.testing.createMainViewModel
@@ -12,9 +15,9 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -161,10 +164,15 @@ class MainViewModelHostMessagesContractTest {
 			// What the invalidation did before the start-up: leave the notice, and tell.
 			settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 			sessionInvalidationRepository.notifySessionInvalidated()
+			val liveSignalProcessed = CompletableDeferred<Unit>()
 			val viewModel = createMainViewModel(
 				sessionRepository = FakeSessionRepository(sessionId = ""),
 				settingsRepository = settingsRepository,
 				sessionInvalidationRepository = sessionInvalidationRepository,
+				eventPublisher = TransitionWaitingEventPublisher(
+					eventName = "session_invalidation_observed",
+					seen = liveSignalProcessed
+				),
 				dispatchers = dispatchers
 			)
 
@@ -177,8 +185,9 @@ class MainViewModelHostMessagesContractTest {
 
 				// The live signal of the same invalidation reached the machine while the end was pending:
 				// the end is the same one, with the same notice, neither lost nor repeated.
-				withContext(Dispatchers.Default) { delay(300) }
-				testScheduler.advanceUntilIdle()
+				// The transition is published once the state is applied, so waiting for it is waiting for the
+				// machine to have decided: an assertion before it would pass whatever the machine did.
+				withTimeout(5_000) { liveSignalProcessed.await() }
 				assertEquals(offered, viewModel.state.value.pendingSessionEnd)
 
 				viewModel.sessionEndHandledAction(id = offered.id)
@@ -306,6 +315,18 @@ class MainViewModelHostMessagesContractTest {
 	): Main.State.Content {
 		return withTimeout(3_000) {
 			state.filterIsInstance<Main.State.Content>().first(predicate)
+		}
+	}
+}
+
+// Completes [seen] when the machine publishes the transition it made for the event named [eventName].
+private class TransitionWaitingEventPublisher(
+	private val eventName: String,
+	private val seen: CompletableDeferred<Unit>
+) : EventPublisher {
+	override fun publish(event: AppEvent) {
+		if (event is AppEvent.Transition && event.parameters[EventParameterKeys.EVENT] == eventName) {
+			seen.complete(Unit)
 		}
 	}
 }

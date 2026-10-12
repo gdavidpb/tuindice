@@ -16,12 +16,20 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class StartUpUseCaseTest {
 	@Test
 	fun execute_returnsAppUnavailableWhenRemoteConfigNoticeIsEnabled() = runTest {
@@ -291,6 +299,35 @@ class StartUpUseCaseTest {
 			SessionResetNoticeReason.UnreadableData,
 			assertIs<StartUpResult.Available>(result).sessionResetNotice?.reason
 		)
+	}
+
+	// A start that is cancelled while it reads the session (the screen closed) found nothing broken: it must
+	// not wipe the data the next start will read.
+	@Test
+	fun execute_whenTheStartIsCancelledWhileReadingTheSession_clearsNothing() = runTest {
+		val applicationRepository = RecordingApplicationRepository()
+		val settingsRepository = FakeSettingsRepository()
+		lateinit var start: Job
+		val sessionRepository = object : SessionRepository by FakeSessionRepository() {
+			override suspend fun hasActiveSession(): Boolean {
+				start.cancel()
+				yield()
+
+				return true
+			}
+		}
+		val useCase = startUpUseCase(
+			sessionRepository = sessionRepository,
+			applicationRepository = applicationRepository,
+			settingsRepository = settingsRepository
+		)
+
+		start = launch { useCase.execute(Unit).collect() }
+		advanceUntilIdle()
+
+		assertTrue(start.isCancelled)
+		assertEquals(0, applicationRepository.clearCalls, "a cancellation is not a session that cannot be read")
+		assertNull(settingsRepository.sessionResetNoticeReason)
 	}
 
 	private fun startUpUseCase(

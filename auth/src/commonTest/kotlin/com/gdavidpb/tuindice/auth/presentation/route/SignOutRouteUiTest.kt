@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -145,6 +146,7 @@ class SignOutRouteUiTest {
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			sessionCoroutineScope = testSessionCoroutineScope(),
+			appCoroutineScope = testAppCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 

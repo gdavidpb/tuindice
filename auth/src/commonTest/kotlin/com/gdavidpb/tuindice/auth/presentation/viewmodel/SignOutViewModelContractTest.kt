@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
@@ -50,6 +51,7 @@ class SignOutViewModelContractTest {
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					sessionCoroutineScope = testSessionCoroutineScope(),
+					appCoroutineScope = testAppCoroutineScope(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				flushPendingChangesUseCase = FlushPendingChangesUseCase(
@@ -102,6 +104,7 @@ class SignOutViewModelContractTest {
 			applicationRepository = RecordingApplicationRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			sessionCoroutineScope = testSessionCoroutineScope(),
+			appCoroutineScope = testAppCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -165,6 +168,7 @@ class SignOutViewModelContractTest {
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			sessionCoroutineScope = testSessionCoroutineScope(),
+			appCoroutineScope = testAppCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -233,6 +237,7 @@ class SignOutViewModelContractTest {
 				applicationRepository = RecordingApplicationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				sessionCoroutineScope = testSessionCoroutineScope(),
+				appCoroutineScope = testAppCoroutineScope(),
 				reportingRepository = reportingRepository
 			),
 			flushPendingChangesUseCase = FlushPendingChangesUseCase(
