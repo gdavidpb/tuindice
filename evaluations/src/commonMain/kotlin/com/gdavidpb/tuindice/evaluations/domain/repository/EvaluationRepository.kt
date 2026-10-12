@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -43,16 +44,12 @@ interface EvaluationRepository {
 	suspend fun getCurrentTerm(): EvaluationTermDescriptor?
 
 	/**
-	 * The attempts [getAvailableAttempts] returns, observed: it emits again when the current term
-	 * changes or when its numeric attempts do (a withdrawal, an enrollment correction), never twice
-	 * for the same list. A record write that changes the term and its attempts together is read after
-	 * it commits, so it emits the new term with its own attempts and not the old ones.
+	 * The current term and the attempts [getAvailableAttempts] returns, observed together: it emits
+	 * again when the current term changes (the first day of classes arrives with a sync) or when its
+	 * numeric attempts do (a withdrawal, an enrollment correction), never twice for the same pair, and
+	 * the term is null while there is none. Both come from one read, so a record write that changes
+	 * the term and its attempts together emits the new term with its own attempts and never one with
+	 * the other's.
 	 */
-	fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>>
-
-	/**
-	 * The current term, observed: it emits again when the current term changes or when its data does
-	 * (the first day of classes arrives with a sync), and it emits null while there is none.
-	 */
-	fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?>
+	fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext>
 }

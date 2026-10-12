@@ -6,9 +6,9 @@ import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
@@ -128,8 +128,8 @@ class RoomDatabaseDataSource(
 		)
 	}
 
-	override fun observeAvailableAttemptsFlow(): Flow<List<LocalEditableAttemptDescriptor>> {
-		return observeAvailableAttempts(
+	override fun observeDisplayContextFlow(): Flow<LocalEvaluationDisplayContext> {
+		return observeDisplayContext(
 			changes = merge(
 				academicTermDao.observeTermsFlow(),
 				academicAttemptDao.observeAttemptsFlow()
@@ -144,12 +144,6 @@ class RoomDatabaseDataSource(
 		selectOfficialCurrentTerm(
 			terms = academicTermDao.getTerms()
 		)?.toLocalCurrentTermDescriptor()
-
-	override fun observeCurrentTermFlow(): Flow<LocalCurrentTermDescriptor?> {
-		return academicTermDao.observeTermsFlow()
-			.map { terms -> selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor() }
-			.distinctUntilChanged()
-	}
 
 	override suspend fun confirmAddedEvaluation(
 		evaluation: LocalEvaluation
@@ -275,19 +269,20 @@ class RoomDatabaseDataSource(
 
 	internal companion object {
 		// Each emission of [changes] only says "the terms or the attempts changed": both are read again
-		// afterwards, in one read transaction (see readAvailableAttempts), so a record write that moves
+		// afterwards, in one read transaction (see readDisplayContext), so a record write that moves
 		// the term and its attempts together yields the new term with its own attempts, never the new
-		// term over the old attempts and never an empty list in between. Never twice the same list.
+		// term over the old attempts, never the old term over the new ones and never an empty list in
+		// between. Never twice the same pair.
 		@OptIn(ExperimentalCoroutinesApi::class)
-		fun observeAvailableAttempts(
+		fun observeDisplayContext(
 			changes: Flow<Any?>,
 			transactionRunner: PersistenceTransactionRunner,
 			readTerms: suspend () -> List<AcademicTermEntity>,
 			readAttempts: suspend () -> List<AcademicAttemptEntity>
-		): Flow<List<LocalEditableAttemptDescriptor>> {
+		): Flow<LocalEvaluationDisplayContext> {
 			return changes
 				.mapLatest {
-					readAvailableAttempts(
+					readDisplayContext(
 						transactionRunner = transactionRunner,
 						readTerms = readTerms,
 						readAttempts = readAttempts
@@ -301,12 +296,27 @@ class RoomDatabaseDataSource(
 			readTerms: suspend () -> List<AcademicTermEntity>,
 			readAttempts: suspend () -> List<AcademicAttemptEntity>
 		): List<LocalEditableAttemptDescriptor> {
+			return readDisplayContext(
+				transactionRunner = transactionRunner,
+				readTerms = readTerms,
+				readAttempts = readAttempts
+			).attempts
+		}
+
+		suspend fun readDisplayContext(
+			transactionRunner: PersistenceTransactionRunner,
+			readTerms: suspend () -> List<AcademicTermEntity>,
+			readAttempts: suspend () -> List<AcademicAttemptEntity>
+		): LocalEvaluationDisplayContext {
 			// One read transaction for both tables: a write between two separate reads would pair the
 			// new term with the old attempts, and the tab would pass through "no attempts".
 			return transactionRunner.read {
-				selectAvailableAttempts(
-					terms = readTerms(),
-					attempts = readAttempts()
+				val terms = readTerms()
+				val attempts = readAttempts()
+
+				LocalEvaluationDisplayContext(
+					currentTerm = selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor(),
+					attempts = selectAvailableAttempts(terms = terms, attempts = attempts)
 				)
 			}
 		}

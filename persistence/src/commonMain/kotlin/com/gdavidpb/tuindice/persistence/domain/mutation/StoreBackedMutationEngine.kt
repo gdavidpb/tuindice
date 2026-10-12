@@ -43,6 +43,13 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	// that left, so the execution neither saves nor sends anything else.
 	private val sessionEpoch = MutableStateFlow(0)
 
+	// Held ONLY while the engine writes locally (a row, a confirmation, a verdict), never during a
+	// request: the epoch is checked and the write made under it, and clearSessionMemory changes the
+	// epoch under it. A write therefore ends before the session does (and the wipe that follows
+	// removes it) or finds the new epoch and writes nothing: the session cannot end between the
+	// check and the write. Not reentrant, so nothing under it takes it again.
+	private val writeGate = Mutex()
+
 	private val runtimeStore: MutableStore<ScopeKey, MutationExecution<ScopeKey, Command, Ack>> =
 		MutableStoreBuilder.from<
 				ScopeKey,
@@ -144,7 +151,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	// late result of an old mutation can never match a new one, and the per-scope execution locks
 	// stay: they carry no data and one may be held by the very request that ended the session.
 	override suspend fun clearSessionMemory() {
-		sessionEpoch.value += 1
+		writeGate.withLock { sessionEpoch.value += 1 }
 		versionMutex.withLock {
 			latestMutationVersionByReplaceKey.clear()
 			mutationVersionById.clear()
@@ -346,7 +353,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			// The rebase is a verdict on a row the wipe may have taken meanwhile: saving it would
 			// bring the row back for the account that left. Not saved, the next attempt finds the
 			// session changed at its first check and ends without sending.
-			if (sessionEpoch.value == epoch) {
+			writeIfCurrent(epoch) {
 				outboxStore.savePendingMutation(currentMutation)
 				currentMutation.expectedRevision?.let { revision ->
 					advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
@@ -382,9 +389,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 				} else if (precondition == stored.precondition) {
 					stored
 				} else {
-					stored.copy(precondition = precondition).also { aligned ->
+					val aligned = stored.copy(precondition = precondition)
+
+					val saved = writeIfCurrent(epoch) {
 						outboxStore.savePendingMutation(aligned)
-					}
+						true
+					} == true
+
+					if (saved) aligned else null
 				}
 			}
 		}
@@ -401,8 +413,16 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		return try {
 			val ack = execution.syncSpec.send(mutation)
 
-			if (sessionEpoch.value == epoch && shouldApplyMutation(mutation)) {
-				confirmMutation(execution.syncSpec, mutation, ack)
+			val confirmed = writeIfCurrent(epoch) {
+				if (shouldApplyMutation(mutation)) {
+					confirmMutation(execution.syncSpec, mutation, ack)
+					true
+				} else {
+					false
+				}
+			} == true
+
+			if (confirmed) {
 				ExecutionStep.Done(UpdaterResult.Success.Typed(ack))
 			} else {
 				suppressMutation(mutation)
@@ -470,7 +490,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			// survives as Failed so the drain requeue backoff owns the next attempt, and the
 			// pass keeps draining instead of aborting on a poison row. Anything else would
 			// either lose the mutation or re-send it at full drain cadence forever.
-			if (sessionEpoch.value == epoch) {
+			writeIfCurrent(epoch) {
 				outboxStore.savePendingMutation(
 					mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
 				)
@@ -481,16 +501,26 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 
 		// The resolution may have downloaded for a while: if the session ended meanwhile, the row
 		// was wiped with it and saving the verdict would bring it back.
-		return when {
-			sessionEpoch.value != epoch -> ExecutionStep.Done(UpdaterResult.Success.Untyped(Unit))
+		return writeGate.withLock {
+			when {
+				sessionEpoch.value != epoch -> ExecutionStep.Done(UpdaterResult.Success.Untyped(Unit))
 
-			else -> applyResolution(
-				execution = execution,
-				mutation = mutation,
-				throwable = throwable,
-				rebaseAttempts = rebaseAttempts,
-				resolution = resolution
-			)
+				else -> applyResolution(
+					execution = execution,
+					mutation = mutation,
+					throwable = throwable,
+					rebaseAttempts = rebaseAttempts,
+					resolution = resolution
+				)
+			}
+		}
+	}
+
+	// Runs [write] only if the session [epoch] belongs to is still the current one, and keeps it from
+	// ending until [write] does. Null when the session had ended: nothing was written.
+	private suspend fun <T> writeIfCurrent(epoch: Int, write: suspend () -> T): T? {
+		return writeGate.withLock {
+			if (sessionEpoch.value == epoch) write() else null
 		}
 	}
 

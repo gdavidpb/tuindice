@@ -115,7 +115,8 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/UserRepositoryContractTest.class",
 	"**/SummaryViewModelContractTest.class",
 	"**/TermSelectorViewTest.class",
-	"**/MainViewModelHostMessagesContractTest.class"
+	"**/MainViewModelHostMessagesContractTest.class",
+	"**/VisibleEvaluationsTabMachineParityTest.class"
 )
 
 subprojects {

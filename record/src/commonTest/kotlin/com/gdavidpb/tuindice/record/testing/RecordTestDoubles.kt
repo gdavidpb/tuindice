@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepositor
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
@@ -179,6 +181,22 @@ class ControllableScheduleClockRepository(
 	val nowFlow = MutableStateFlow(initialNow)
 
 	override fun observeNow(): Flow<ScheduleNow> = nowFlow
+}
+
+// A clock whose ticker is asleep: every observation reads the moment once and then says nothing,
+// like the real one while the process is suspended. What it would say at the next tick is
+// [reading], so a test moves it and sees whether the screen read it again.
+class SleepingScheduleClockRepository(
+	var reading: ScheduleNow = scheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
+) : ScheduleClockRepository {
+	var observations = 0
+		private set
+
+	override fun observeNow(): Flow<ScheduleNow> = flow {
+		observations += 1
+		emit(reading)
+		awaitCancellation()
+	}
 }
 
 class ControllableSyntheticTermCreationRepository : SyntheticTermCreationRepository {

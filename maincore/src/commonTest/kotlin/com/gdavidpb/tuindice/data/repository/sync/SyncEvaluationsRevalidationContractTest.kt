@@ -157,15 +157,69 @@ class SyncEvaluationsRevalidationContractTest {
 		assertEquals(false, repository.observeSyncInProgress().first())
 	}
 
+	// A sync skipped by its cooldown or its retry backoff downloads nothing; the evaluations this
+	// account never downloaded must not wait for the next real one. Evaluations already downloaded
+	// are the revalidation's business (it adds no request for them): the sync only asks.
+	@Test
+	fun scheduleSync_skippedByTheCooldown_asksForTheRevalidationOfEvaluationsNeverDownloaded() = runTest {
+		val evaluationsRevalidation = FakeEvaluationsRevalidationRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource()
+		val repository = createRepositoryWith(
+			settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true),
+			evaluationsRevalidationRepository = evaluationsRevalidation,
+			remoteDataSource = remoteDataSource
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(emptyList(), remoteDataSource.syncPasswords, "no sync was made")
+		assertEquals(1, evaluationsRevalidation.neverDownloadedCalls)
+		assertEquals(0, evaluationsRevalidation.calls, "and the revalidation of the others was not asked for")
+	}
+
+	@Test
+	fun scheduleSync_skippedByTheRetryBackoff_asksForTheRevalidationOfEvaluationsNeverDownloaded() = runTest {
+		val evaluationsRevalidation = FakeEvaluationsRevalidationRepository()
+		val repository = createRepositoryWith(
+			settingsDataSource = FakeSyncSettingsLocalDataSource(
+				onCooldown = false,
+				syncRetryBackoffActive = true
+			),
+			evaluationsRevalidationRepository = evaluationsRevalidation
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(1, evaluationsRevalidation.neverDownloadedCalls)
+	}
+
+	@Test
+	fun scheduleSync_forced_orSuccessful_neverUsesTheNeverDownloadedRevalidation() = runTest {
+		val evaluationsRevalidation = FakeEvaluationsRevalidationRepository()
+		val repository = createRepositoryWith(
+			settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true),
+			evaluationsRevalidationRepository = evaluationsRevalidation
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.ForceRefresh)
+		advanceUntilIdle()
+
+		assertEquals(0, evaluationsRevalidation.neverDownloadedCalls)
+		assertEquals(1, evaluationsRevalidation.calls, "a real sync revalidates as before")
+	}
+
 	private fun TestScope.createRepositoryWith(
 		settingsDataSource: SyncSettingsLocalDataRepository,
 		evaluationsRevalidationRepository: FakeEvaluationsRevalidationRepository,
-		pensumRevalidationRepository: FakePensumRevalidationRepository = FakePensumRevalidationRepository()
+		pensumRevalidationRepository: FakePensumRevalidationRepository = FakePensumRevalidationRepository(),
+		remoteDataSource: SyncRemoteDataRepository = FakeSyncRemoteDataSource()
 	): SyncDataSource {
 		return SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = FakeSyncStatusRepository(),
-			remoteDataSource = FakeSyncRemoteDataSource(),
+			remoteDataSource = remoteDataSource,
 			syncResultLocalDataSource = SyncResultLocalDataSource(
 				recordLocalDataSource = FakeAcademicRecordLocalDataRepository(),
 				userLocalDataSource = FakeUserLocalDataRepository(),

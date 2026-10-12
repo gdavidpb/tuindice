@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.flow
 
 // What the Evaluations tab lists: its own snapshot, filtered with the code the tab filters with
 // (listedUnder, against the numeric attempts of the current term). The attempts come from the same
-// observed source the tab's use case reads, so a term change or a withdrawal reaches both. See
+// observed display context the tab's use case reads, so a term change or a withdrawal reaches both. See
 // VisibleEvaluationsRepository.
 class VisibleEvaluationsDataSource(
 	private val evaluationRepository: EvaluationRepository
@@ -22,9 +22,9 @@ class VisibleEvaluationsDataSource(
 			emitAll(
 				combine(
 					evaluationRepository.observeEvaluationsSnapshotFlow(),
-					evaluationRepository.observeAvailableAttemptsFlow()
-				) { snapshot, attempts ->
-					snapshot.copy(value = snapshot.value.listedUnder(attempts))
+					evaluationRepository.observeDisplayContextFlow()
+				) { snapshot, displayContext ->
+					snapshot.copy(value = snapshot.value.listedUnder(displayContext.attempts))
 				}
 			)
 		}

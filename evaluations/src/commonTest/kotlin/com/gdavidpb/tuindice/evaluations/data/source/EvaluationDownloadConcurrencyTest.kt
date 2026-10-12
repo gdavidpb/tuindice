@@ -10,7 +10,9 @@ import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
@@ -33,6 +35,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -290,12 +293,168 @@ class EvaluationDownloadConcurrencyTest {
 		assertEquals(2, api.calls, "it queues for the lock and makes its own request")
 	}
 
+	// The decision to download reads two stores before the request goes out. A caller that arrives
+	// meanwhile is not a second opinion: it shares what the one deciding ends up with.
+	@Test
+	fun aCallerThatArrivesWhileAnotherDecides_inheritsItsFailure_withoutASecondRequest() = runTest {
+		val failure = IllegalStateException("offline")
+		val api = HeldEvaluationsApi()
+		val settings = HeldSettings()
+		val repository = repository(api = api, settings = settings)
+		var revalidationFailure: Throwable? = null
+		var tabFailure: Throwable? = null
+
+		launch { runCatching { repository.revalidateEvaluations() }.onFailure { revalidationFailure = it } }
+		runCurrent()
+		assertEquals(0, api.calls, "the first caller is still reading the settings")
+		launch { runCatching { repository.updateEvaluations() }.onFailure { tabFailure = it } }
+		runCurrent()
+
+		settings.release()
+		api.release(failure)
+		runCurrent()
+
+		assertSame(failure, revalidationFailure)
+		assertSame(failure, tabFailure)
+		assertEquals(1, api.calls, "the caller that came in during the decision shares the failure")
+	}
+
+	@Test
+	fun aCallerThatJoinedADecision_makesNoRequest_whenThatDecisionWasNotToDownload() = runTest {
+		val api = HeldEvaluationsApi()
+		val settings = HeldSettings(onCooldown = true)
+		val database = FakeDatabaseDataSource(
+			initialSnapshot = LocalEvaluationsSnapshot(hasSynced = true, evaluations = emptyList())
+		)
+		val repository = repository(api = api, settings = settings, database = database)
+
+		val revalidation = launch { repository.revalidateEvaluations() }
+		runCurrent()
+		val tab = launch { repository.updateEvaluations() }
+		runCurrent()
+		settings.release()
+		runCurrent()
+
+		assertTrue(revalidation.isCompleted && tab.isCompleted)
+		assertEquals(0, api.calls, "an already downloaded list is not downloaded for the one who waited")
+	}
+
+	@Test
+	fun aDownloadOfTheSessionThatEnded_isCancelled_soTheLockIsFreeAtOnce() = runTest {
+		val api = HeldEvaluationsApi(hangFirstCall = true)
+		val repository = repository(api = api)
+
+		val owner = launch { runCatching { repository.updateEvaluations() } }
+		runCurrent()
+		val joiner = launch { repository.updateEvaluations() }
+		runCurrent()
+		assertEquals(1, api.calls, "the joiner shares the download that hangs")
+
+		repository.clearSessionMemory()
+		runCurrent()
+
+		assertTrue(owner.isCompleted, "the download of the previous session stops")
+		// Nothing was released: the request that hangs is gone, and the lock with it. The joiner
+		// started over with a request of its own, which only waits for its answer.
+		assertEquals(2, api.calls, "the joiner makes its own request instead of inheriting the cancellation")
+		api.release()
+		runCurrent()
+		assertTrue(joiner.isCompleted && !joiner.isCancelled, "its cancellation is not the joiner's")
+
+		val next = launch { repository.updateEvaluations() }
+		runCurrent()
+
+		assertTrue(next.isCompleted, "the next session does not wait for the 90 seconds of the old request")
+		assertEquals(3, api.calls, "the joiner started over and the next session made its own")
+	}
+
+	// A save that already began finishes before the session is told it ended: the wipe that
+	// follows then removes it, and one that has not begun finds the new epoch and does not save.
+	@Test
+	fun theClearing_waitsForASaveInProgress_butNotForTheRequest() = runTest {
+		val api = HeldEvaluationsApi()
+		val database = HeldSaveDatabase(
+			FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
+			)
+		)
+		val repository = repository(api = api, database = database)
+
+		val tab = launch { runCatching { repository.updateEvaluations() } }
+		runCurrent()
+		repository.clearSessionMemory()
+		assertEquals(1, api.calls, "clearing never waits for a request in flight")
+		tab.cancel()
+		runCurrent()
+
+		val second = HeldSaveDatabase(
+			FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
+			)
+		)
+		val api2 = HeldEvaluationsApi().also { it.release() }
+		val repository2 = repository(api = api2, database = second)
+
+		val download = launch { repository2.updateEvaluations() }
+		runCurrent()
+		assertTrue(second.saveStarted, "the answer is being saved")
+
+		var cleared = false
+		val clearing = launch {
+			repository2.clearSessionMemory()
+			cleared = true
+		}
+		runCurrent()
+		assertFalse(cleared, "the clearing waits for the local write that already began")
+
+		second.saveGate.complete(Unit)
+		runCurrent()
+
+		assertTrue(cleared && clearing.isCompleted)
+		assertEquals(1, second.delegate.savedSnapshots.size, "the save ended before the session did")
+		assertTrue(download.isCompleted)
+	}
+
+	@Test
+	fun theClearing_waitsForTheSaveOfAConflictDownload_too() = runTest {
+		val api = HeldEvaluationsApi(
+			delegate = FakeEvaluationsApiDataSource(
+				addThrowable = clientRequestException(HttpStatusCode.Conflict)
+			)
+		)
+		api.release()
+		val database = HeldSaveDatabase(
+			FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
+			)
+		)
+		val repository = repository(api = api, database = database, store = storeWithPendingAdd())
+
+		val drain = launch { repository.drainPendingMutations() }
+		runCurrent()
+		assertTrue(database.saveStarted, "the conflict download is being saved")
+
+		var cleared = false
+		launch {
+			repository.clearSessionMemory()
+			cleared = true
+		}
+		runCurrent()
+		assertFalse(cleared, "the clearing waits for that save as well")
+
+		database.saveGate.complete(Unit)
+		runCurrent()
+
+		assertTrue(cleared)
+		assertTrue(drain.isCompleted)
+	}
+
 	private fun TestScope.repository(
 		api: EvaluationsApiDataRepository = FakeEvaluationsApiDataSource(),
-		database: FakeDatabaseDataSource = FakeDatabaseDataSource(
+		database: DatabaseDataRepository = FakeDatabaseDataSource(
 			initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
 		),
-		settings: FakeSettingsDataSource = FakeSettingsDataSource(onCooldown = false),
+		settings: SettingsDataRepository = FakeSettingsDataSource(onCooldown = false),
 		store: FakeMutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore(),
 		clock: Clock = Clock.System
 	) = EvaluationDataSource(
@@ -349,6 +508,7 @@ class EvaluationDownloadConcurrencyTest {
 // the sending of an add too.
 private class HeldEvaluationsApi(
 	private val holdAdds: Boolean = false,
+	private val hangFirstCall: Boolean = false,
 	private val onCall: suspend () -> Unit = {},
 	private val delegate: FakeEvaluationsApiDataSource = FakeEvaluationsApiDataSource()
 ) : EvaluationsApiDataRepository by delegate {
@@ -365,6 +525,8 @@ private class HeldEvaluationsApi(
 	override suspend fun getEvaluations(): RemoteEvaluationsSnapshot {
 		calls++
 		onCall()
+		// A request that never answers (the 90 seconds of the timeout, as far as the test goes).
+		if (hangFirstCall && calls == 1) CompletableDeferred<Unit>().await()
 		gate.await()
 		failure?.let { throw it }
 		return delegate.getEvaluations()
@@ -387,4 +549,37 @@ private class MutableClock : Clock {
 	}
 
 	override fun now(): Instant = Instant.fromEpochMilliseconds(nowMillis)
+}
+
+// Holds the read of the cooldown, the first of the two reads that precede a download.
+private class HeldSettings(
+	private val onCooldown: Boolean = false
+) : SettingsDataRepository {
+	private val gate = CompletableDeferred<Unit>()
+
+	fun release() {
+		gate.complete(Unit)
+	}
+
+	override suspend fun isGetEvaluationsOnCooldown(): Boolean {
+		gate.await()
+		return onCooldown
+	}
+
+	override suspend fun setGetEvaluationsOnCooldown() = Unit
+}
+
+// Holds the save of the confirmed snapshot until told, recording that it began.
+private class HeldSaveDatabase(
+	val delegate: FakeDatabaseDataSource
+) : DatabaseDataRepository by delegate {
+	val saveGate = CompletableDeferred<Unit>()
+	var saveStarted = false
+		private set
+
+	override suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot) {
+		saveStarted = true
+		saveGate.await()
+		delegate.saveConfirmedSnapshot(snapshot)
+	}
 }

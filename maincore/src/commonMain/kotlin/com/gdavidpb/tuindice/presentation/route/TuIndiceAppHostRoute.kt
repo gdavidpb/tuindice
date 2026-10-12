@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.wizard.presentation.mapper.toCoachmarkSurface
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -113,11 +114,15 @@ fun TuIndiceAppHostRoute(
 				showSnackBar(SnackBarMessage(message = message))
 			},
 			onSessionInvalidated = { message ->
-				// Without content there is no navigation to take to the sign-in.
-				navigatorHolder.value?.let { navigator ->
-					navigator.replaceAllForSignIn()
-					showSnackBar(SnackBarMessage(message = message))
-				}
+				// The first occasion the interface can show it: the notice can arrive before the content
+				// (and its navigation) is on screen, so it waits for it instead of being dropped.
+				val navigator = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
+
+				// Already signed out (on the sign-in screen, or on its way): there is nothing to take
+				// the user away from, and replacing the stack would throw away what is being typed.
+				if (navigator.rootMode == TuIndiceRootMode.SIGNED_IN) navigator.replaceAllForSignIn()
+
+				showSnackBar(SnackBarMessage(message = message))
 			},
 			onNavigateToSignOutDialog = { pendingChanges ->
 				navigatorHolder.value?.push(

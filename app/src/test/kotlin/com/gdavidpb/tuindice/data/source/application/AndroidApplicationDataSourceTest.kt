@@ -253,6 +253,8 @@ private class RecordingSettingsRepository(
 
 	override suspend fun setSessionResetNoticePending() = Unit
 
+	override suspend fun hasSessionResetNoticePending(): Boolean = false
+
 	override suspend fun consumeSessionResetNoticePending(): Boolean = false
 
 	override suspend fun getLocalDataOwner(): String? = localDataOwner

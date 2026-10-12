@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
@@ -141,8 +142,7 @@ class GetEvaluationsUseCaseContentTest {
 			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), first.listed())
 
 			// A sync moves the record to the next term: the term and its attempts change together.
-			repository.changeAvailableAttempts(listOf(NEXT_TERM_SUBJECT))
-			repository.changeCurrentTerm(NEXT_TERM)
+			repository.changeTermAndAttempts(NEXT_TERM, listOf(NEXT_TERM_SUBJECT))
 
 			val last = awaitContentWhere { content ->
 				content.displayContext.currentTerm == NEXT_TERM &&
@@ -151,6 +151,34 @@ class GetEvaluationsUseCaseContentTest {
 			assertEquals(listOf(NEXT_TERM_EVALUATION), last.listed())
 			cancelAndIgnoreRemainingEvents()
 		}
+	}
+
+	// The term and its attempts are one observed value: when a write changes both, the tab is told
+	// the new pair once, never the attempts of one term under the descriptor of the other.
+	@Test
+	fun getEvaluationsUseCase_whenTheTermAndItsAttemptsChangeTogether_neverEmitsAMixedPair() = runTest {
+		val repository = repositoryOf(
+			evaluations = listOf(DEFAULT_PENDING_EVALUATION, NEXT_TERM_EVALUATION),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT),
+			term = DEFAULT_EVALUATION_TERM
+		)
+		val before = DEFAULT_EVALUATION_TERM to listOf(DEFAULT_EVALUATION_SUBJECT)
+		val after = NEXT_TERM to listOf(NEXT_TERM_SUBJECT)
+		val pairs = mutableListOf<Pair<Any?, Any?>>()
+
+		contentUseCase(repository).execute(Unit).test {
+			pairs += assertIs<GetEvaluations.Content>(awaitLoadingThenData(this)).displayContext.toPair()
+
+			repository.changeTermAndAttempts(NEXT_TERM, listOf(NEXT_TERM_SUBJECT))
+
+			pairs += awaitContentWhere { content -> content.displayContext.currentTerm == NEXT_TERM }
+				.displayContext.toPair()
+			// Nothing else follows from that one write.
+			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+
+		assertEquals(listOf<Pair<Any?, Any?>>(before, after), pairs)
 	}
 
 	@Test
@@ -326,5 +354,7 @@ class GetEvaluationsUseCaseContentTest {
 }
 
 private const val ONE_DAY_MILLIS = 86_400_000L
+
+private fun EvaluationDisplayContext.toPair(): Pair<Any?, Any?> = currentTerm to attempts
 
 private const val MAX_INTERMEDIATE_EMISSIONS = 4

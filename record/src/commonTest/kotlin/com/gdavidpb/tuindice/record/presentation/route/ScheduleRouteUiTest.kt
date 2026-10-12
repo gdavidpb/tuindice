@@ -11,6 +11,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
+import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.testing.academicAttempt
@@ -97,6 +100,33 @@ class ScheduleRouteUiTest {
 			onNodeWithText("Tu trimestre actual todavía no tiene horario.").assertIsDisplayed()
 			assertTrue(fixture.selectionRepository.setViewModeCalls.isEmpty())
 		}
+
+	// The clock's ticker sleeps with the process; the sheet that is in front tells its machine, which
+	// reads the clock again (see ScheduleViewModelContractTest.resume_readsTheClockAgain...).
+	@Test
+	fun when_theSheetIsInFront_then_itTellsItsMachineToReadTheClockAgain() = runTuIndiceUiTest {
+		val events = mutableListOf<AppEvent>()
+		val fixture = scheduleRouteFixture(
+			record = scheduledRecord(),
+			eventPublisher = object : EventPublisher {
+				override fun publish(event: AppEvent) {
+					events += event
+				}
+			}
+		)
+
+		setTuIndiceTestContent {
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+		}
+
+		waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.viewModel.state.value is Schedule.State.Content }
+		waitUntil(timeoutMillis = StateTimeoutMillis) { events.any { event -> event.isAction("resumed") } }
+
+		assertTrue(events.any { event -> event.isAction("resumed") })
+	}
+
+	private fun AppEvent.isAction(action: String) =
+		this is AppEvent.Action && parameters[EventParameterKeys.ACTION] == action
 
 	// CI5311 meets Monday (blocks 1-2) in MYS-116, in the current term.
 	private fun scheduledRecord() = AcademicRecord(

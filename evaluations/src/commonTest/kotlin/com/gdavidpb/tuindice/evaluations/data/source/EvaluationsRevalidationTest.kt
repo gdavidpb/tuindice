@@ -65,6 +65,42 @@ class EvaluationsRevalidationTest {
 		assertEquals(false, settings.cooldownMarked)
 	}
 
+	// What a skipped sync asks for: evaluations never downloaded are tried again, behind the hold
+	// after a failure; evaluations already downloaded cost no request at all.
+	@Test
+	fun revalidateEvaluationsIfNeverDownloaded_downloadsThem_whenTheyWereNeverDownloaded() = runTest {
+		val api = FakeEvaluationsApiDataSource()
+		val database = FakeDatabaseDataSource(initialSnapshot = neverDownloaded())
+
+		repository(api = api, database = database).revalidateEvaluationsIfNeverDownloaded()
+
+		assertEquals(1, api.getEvaluationsCalls)
+		assertEquals(1, database.savedSnapshots.size)
+	}
+
+	@Test
+	fun revalidateEvaluationsIfNeverDownloaded_addsNoRequest_whenTheyAreAlreadyDownloaded() = runTest {
+		val api = FakeEvaluationsApiDataSource()
+		val database = FakeDatabaseDataSource()
+
+		repository(api = api, database = database, settings = FakeSettingsDataSource(onCooldown = false))
+			.revalidateEvaluationsIfNeverDownloaded()
+
+		assertEquals(0, api.getEvaluationsCalls)
+		assertTrue(database.savedSnapshots.isEmpty())
+	}
+
+	@Test
+	fun revalidateEvaluationsIfNeverDownloaded_keepsTheHoldAfterAFailure() = runTest {
+		val api = FakeEvaluationsApiDataSource(getEvaluationsThrowable = IllegalStateException("offline"))
+		val repository = repository(api = api, database = FakeDatabaseDataSource(initialSnapshot = neverDownloaded()))
+
+		runCatching { repository.revalidateEvaluationsIfNeverDownloaded() }
+		repository.revalidateEvaluationsIfNeverDownloaded()
+
+		assertEquals(1, api.getEvaluationsCalls, "the hour after a failure is respected")
+	}
+
 	@Test
 	fun twoSimultaneousCalls_downloadOnlyOnce() = runTest {
 		val gate = CompletableDeferred<Unit>()

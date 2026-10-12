@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.ObserveSessionInvalidationUseCase
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
@@ -288,6 +289,13 @@ class SessionInvalidationFromTheScopeTest {
 			rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
 			assertEquals(UseCaseState.Data(Unit), awaitItem())
+			assertTrue(rig.settingsRepository.sessionResetNoticePending, "told is not shown: the copy is kept")
+
+			// The interface showed it and says so.
+			AcknowledgeSessionInvalidationUseCase(
+				settingsRepository = rig.settingsRepository,
+				reportingRepository = rig.reportingRepository
+			).execute(Unit).test { cancelAndIgnoreRemainingEvents() }
 			assertFalse(
 				rig.settingsRepository.consumeSessionResetNoticePending(),
 				"the interface showed it; the start must not show it again"

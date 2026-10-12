@@ -18,6 +18,11 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleAnyStateTransition
 			state
 		}
 
+		on<Schedule.Action.Resumed> { state, _ ->
+			machine.restartObservation(host = host)
+			state
+		}
+
 		onTo<ScheduleInternalEvent.ScheduleContentObserved, Schedule.State.Content> { _, event ->
 			Schedule.State.Content(
 				termName = event.termName,

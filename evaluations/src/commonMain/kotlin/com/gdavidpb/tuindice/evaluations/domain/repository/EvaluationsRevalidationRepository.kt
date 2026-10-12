@@ -17,7 +17,15 @@ package com.gdavidpb.tuindice.evaluations.domain.repository
  * limits is how often a forced sync re-tries after a failed download. If the revalidation finds a
  * download already in progress (the tab's), it waits for that one and shares its outcome instead of
  * making a second request.
+ *
+ * A sync that is skipped (its own cooldown, its retry backoff) clears nothing and downloads nothing,
+ * so an earlier revalidation that failed would wait for the next real sync, a day away. For that
+ * case [revalidateEvaluationsIfNeverDownloaded] tries again, only for evaluations this account has
+ * never downloaded, and still behind the hold after a failure: with the evaluations already
+ * downloaded it adds no request.
  */
 interface EvaluationsRevalidationRepository {
 	suspend fun revalidateEvaluations()
+
+	suspend fun revalidateEvaluationsIfNeverDownloaded()
 }

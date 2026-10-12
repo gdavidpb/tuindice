@@ -56,7 +56,13 @@ class SyncDataSource(
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()
 					val isSyncRetryBackoffActive = settingsDataSource.isSyncRetryBackoffActive()
 
-					if ((isOnCooldown || isSyncRetryBackoffActive) && policy == SyncPolicy.RespectCooldown) return@withLock
+					if ((isOnCooldown || isSyncRetryBackoffActive) && policy == SyncPolicy.RespectCooldown) {
+						// A skipped sync downloads nothing: evaluations this account has never
+						// downloaded (a revalidation that failed earlier) would wait for the next
+						// real sync, a day away. Already downloaded, this adds no request.
+						launchEvaluationsRevalidation(onlyIfNeverDownloaded = true)
+						return@withLock
+					}
 					if (policy == SyncPolicy.ForceRefresh) {
 						settingsDataSource.clearRecoveryCooldowns()
 						settingsDataSource.clearSyncRetryBackoff()
@@ -111,9 +117,15 @@ class SyncDataSource(
 	// The evaluations get the same treatment, with one difference: they are downloaded even if the
 	// student never opened their tab, because the summary and the schedule read them too. Same
 	// shape: fire-and-forget on the session scope, never under the sync lock, never marks the sync.
-	private fun launchEvaluationsRevalidation() {
+	private fun launchEvaluationsRevalidation(onlyIfNeverDownloaded: Boolean = false) {
 		coroutineScope.launch {
-			runCatching { evaluationsRevalidationRepository.revalidateEvaluations() }
+			runCatching {
+				if (onlyIfNeverDownloaded) {
+					evaluationsRevalidationRepository.revalidateEvaluationsIfNeverDownloaded()
+				} else {
+					evaluationsRevalidationRepository.revalidateEvaluations()
+				}
+			}
 				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		}
 	}

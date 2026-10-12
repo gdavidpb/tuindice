@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
@@ -64,17 +63,18 @@ class GetEvaluationsUseCase(
 			}
 	}
 
-	// The attempts are observed, not read once: the list and the display context come from the same
-	// attempts the tab was last told about, so a term change or a withdrawal reaches both together,
-	// and the step between "no attempts" and content is followed in both directions.
+	// The term and its attempts are observed, not read once, and as ONE value: the list and the display
+	// context come from the same read, so a term change or a withdrawal reaches both together (never
+	// the attempts of one term under the descriptor of another), and the step between "no attempts"
+	// and content is followed in both directions.
 	private fun observeReadyEvaluations(): Flow<GetEvaluations> {
 		return evaluationRepository
-			.observeAvailableAttemptsFlow()
-			.flatMapLatest { availableAttempts ->
-				if (availableAttempts.isEmpty()) {
+			.observeDisplayContextFlow()
+			.flatMapLatest { displayContext ->
+				if (displayContext.attempts.isEmpty()) {
 					observeNoAttempts()
 				} else {
-					observeContent(availableAttempts)
+					observeContent(displayContext)
 				}
 			}
 	}
@@ -104,23 +104,19 @@ class GetEvaluationsUseCase(
 			}
 	}
 
-	// The term is observed too: a sync can bring the first day of classes while the tab is open, and
-	// the weeks hang from it.
+	// A sync can bring the first day of classes while the tab is open, and the weeks hang from it: the
+	// term is part of the display context, so it restarts this observation like the attempts do.
 	private suspend fun observeContent(
-		availableAttempts: List<EditableAttemptDescriptor>
+		displayContext: EvaluationDisplayContext
 	): Flow<GetEvaluations> {
 		return combine(
 			evaluationRepository.observeEvaluationsSnapshotFlow(),
-			evaluationsSelectionRepository.observeSelectedWeekKey(),
-			evaluationRepository.observeCurrentTermFlow()
-		) { snapshot, selectedWeekKey, currentTerm ->
+			evaluationsSelectionRepository.observeSelectedWeekKey()
+		) { snapshot, selectedWeekKey ->
 			GetEvaluations.Content(
 				evaluations = snapshot.value.sortedWith(evaluationComparator),
 				hasSyncedEvaluations = snapshot.hasSynced,
-				displayContext = EvaluationDisplayContext(
-					attempts = availableAttempts,
-					currentTerm = currentTerm
-				),
+				displayContext = displayContext,
 				selectedWeekKey = selectedWeekKey
 			)
 		}

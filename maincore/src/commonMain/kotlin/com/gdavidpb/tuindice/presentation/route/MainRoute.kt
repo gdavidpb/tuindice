@@ -17,7 +17,7 @@ fun MainRoute(
 	onRequestUpdateFlow: suspend (UpdateAction) -> UpdateLaunchResult,
 	onOpenUpdateStoreFallback: suspend (UpdateLaunchResult.OpenStoreFallback) -> Unit = {},
 	onShowSnackBar: (message: String) -> Unit = {},
-	onSessionInvalidated: (message: String) -> Unit = {},
+	onSessionInvalidated: suspend (message: String) -> Unit = {},
 	onNavigateToSignOutDialog: (pendingChanges: PendingChanges) -> Unit = {},
 	viewModel: MainViewModel,
 	content: @Composable (state: Main.State) -> Unit
@@ -43,8 +43,12 @@ fun MainRoute(
 			is Main.Effect.ShowSnackBar ->
 				onShowSnackBar(effect.message)
 
-			is Main.Effect.SessionInvalidated ->
+			is Main.Effect.SessionInvalidated -> {
 				onSessionInvalidated(effect.message)
+				// Shown: only now is the copy kept for the next start taken. A process that dies before
+				// this line (a background kill) leaves it, and the next start explains the sign-in screen.
+				viewModel.sessionInvalidationShownAction()
+			}
 
 			is Main.Effect.NavigateToSignOutDialog ->
 				onNavigateToSignOutDialog(effect.pendingChanges)

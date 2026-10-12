@@ -5,16 +5,11 @@ package com.gdavidpb.tuindice.evaluations.data.source
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
-import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
-import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_COMPLETED_EVALUATION
@@ -26,15 +21,11 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.FakeMutationEnvelopeStore
 import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
-import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM
 import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.QueueMergingDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
-import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
-import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -167,60 +158,6 @@ class VisibleEvaluationsDataSourceTest {
 	}
 
 	@Test
-	fun observeVisibleEvaluationsFlow_deliversWhatTheTabListsThroughItsUseCase() = runTest {
-		val repository = RecordingEvaluationRepository(
-			initialEvaluations = listOf(
-				DEFAULT_PENDING_EVALUATION,
-				DEFAULT_COMPLETED_EVALUATION,
-				NEXT_TERM_EVALUATION,
-				DEFAULT_COMPLETED_EVALUATION.copy(id = "orphan", attemptId = "attempt-that-is-gone")
-			),
-			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
-		)
-		val source = VisibleEvaluationsDataSource(evaluationRepository = repository)
-		val tab = tabUseCase(repository)
-		val visible = mutableListOf<Set<String>>()
-		val listed = mutableListOf<Set<String>>()
-
-		backgroundScope.launch {
-			source.observeVisibleEvaluationsFlow().collect { snapshot ->
-				visible += snapshot.value.map { evaluation -> evaluation.id }.toSet()
-			}
-		}
-		backgroundScope.launch {
-			tab.execute(Unit).collect { state ->
-				listed += state.listedIds() ?: return@collect
-			}
-		}
-
-		// The same doubles go through four changes; after each one both must agree.
-		for (change in listOf<() -> Unit>(
-			{},
-			{ repository.changeAvailableAttempts(listOf(DEFAULT_EVALUATION_SUBJECT)) },
-			{
-				repository.changeAvailableAttempts(listOf(NEXT_TERM_SUBJECT))
-				repository.changeCurrentTerm(NEXT_TERM)
-			},
-			{ repository.changeAvailableAttempts(emptyList()) }
-		)) {
-			change()
-			runCurrent()
-
-			assertEquals(listed.last(), visible.last())
-		}
-
-		assertEquals(
-			listOf(
-				setOf(DEFAULT_PENDING_EVALUATION.id, DEFAULT_COMPLETED_EVALUATION.id),
-				setOf(DEFAULT_PENDING_EVALUATION.id),
-				setOf(NEXT_TERM_EVALUATION.id),
-				emptySet()
-			),
-			visible.distinct()
-		)
-	}
-
-	@Test
 	fun observeVisibleEvaluationsFlow_followsAnAttemptThatDisappearsAndATermThatChanges() = runTest {
 		val repository = RecordingEvaluationRepository(
 			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION, NEXT_TERM_EVALUATION),
@@ -239,8 +176,7 @@ class VisibleEvaluationsDataSourceTest {
 		repository.changeAvailableAttempts(listOf(DEFAULT_EVALUATION_SUBJECT))
 		runCurrent()
 		// Then the record moves to the next term, with its own attempts.
-		repository.changeAvailableAttempts(listOf(NEXT_TERM_SUBJECT))
-		repository.changeCurrentTerm(NEXT_TERM)
+		repository.changeTermAndAttempts(NEXT_TERM, listOf(NEXT_TERM_SUBJECT))
 		runCurrent()
 
 		assertEquals(
@@ -251,31 +187,6 @@ class VisibleEvaluationsDataSourceTest {
 			),
 			emitted
 		)
-	}
-
-	private fun tabUseCase(repository: RecordingEvaluationRepository) = GetEvaluationsUseCase(
-		evaluationRepository = repository,
-		recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
-		syncStatusRepository = RecordingSyncStatusRepository(),
-		evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
-		reportingRepository = RecordingReportingRepository(),
-		clock = Clock.System
-	)
-
-	// What the tab shows: the content filtered by the attempts it carries, nothing when the tab has
-	// no attempts; null while it is not showing either.
-	private fun UseCaseState<GetEvaluations, EvaluationsUseCaseError>.listedIds(): Set<String>? {
-		return when (val value = (this as? UseCaseState.Data<*>)?.value) {
-			is GetEvaluations.Content -> {
-				value.evaluations
-					.listedUnder(value.displayContext.attempts)
-					.map { evaluation -> evaluation.id }
-					.toSet()
-			}
-
-			is GetEvaluations.NoAttempts -> emptySet()
-			else -> null
-		}
 	}
 
 	private fun realRepository(

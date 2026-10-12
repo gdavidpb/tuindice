@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOP
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -388,9 +389,8 @@ private class FakeEvaluationRepository(
 
 	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = null
 
-	override fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?> = flowOf(null)
-
-	override fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>> = flowOf(emptyList())
+	override fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext> =
+		flowOf(EvaluationDisplayContext(attempts = emptyList(), currentTerm = null))
 }
 
 private fun pendingMutation(

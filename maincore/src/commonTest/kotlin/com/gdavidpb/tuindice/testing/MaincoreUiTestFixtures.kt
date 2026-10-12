@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -185,6 +186,10 @@ fun createMainViewModel(
 			),
 			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
 				sessionInvalidationRepository = sessionInvalidationRepository,
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			),
+			acknowledgeSessionInvalidationUseCase = AcknowledgeSessionInvalidationUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),

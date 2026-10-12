@@ -22,6 +22,7 @@
     <ID>FinalNewline:UserTable.kt$com.gdavidpb.tuindice.persistence.data.room.schema.UserTable.kt</ID>
     <ID>ImportOrdering:PendingMutationDao.kt$import androidx.room.Dao import androidx.room.Query import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity import kotlinx.coroutines.flow.Flow</ID>
     <ID>InstanceOfCheckForException:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$throwable is CancellationException</ID>
+    <ID>LargeClass:StoreBackedMutationEngineTest.kt$StoreBackedMutationEngineTest</ID>
     <ID>LongMethod:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private suspend fun processExecution( execution: MutationExecution.Execute&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): UpdaterResult</ID>
     <ID>LongParameterList:AcademicTermDaoTest.kt$AcademicTermDaoTest$( id: String, termOrder: Int, termKey: String = "key-$id", periodYear: Int = 2024, periodCode: String = "EM", periodLabel: String = "Enero - Marzo 2024", kind: String = "Regular" )</ID>
     <ID>LongParameterList:EvaluationDaoTest.kt$EvaluationDaoTest$( id: String, attemptId: String = "attempt-1", date: Long? = 1L, grade: Double? = null, isDone: Boolean = false, scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.DATED, revision: Long = 1L )</ID>

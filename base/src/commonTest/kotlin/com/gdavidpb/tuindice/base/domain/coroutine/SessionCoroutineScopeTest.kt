@@ -3,13 +3,17 @@ package com.gdavidpb.tuindice.base.domain.coroutine
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -144,6 +148,35 @@ class SessionCoroutineScopeTest {
 	}
 
 	// A child that relaunches work every time it is cancelled must not keep the sign-out spinning.
+	// A child that does not end when it is cancelled (a request inside a context that cannot be
+	// cancelled) must not keep the sign-out waiting for it: past the bound it is reported, and the
+	// caller goes on to wipe the session.
+	@Test
+	fun cancelActiveWork_doesNotWaitForeverForAChildThatIgnoresTheCancellation_andReports() = runTest {
+		val dispatcher = StandardTestDispatcher(testScheduler)
+		val reporting = RecordingReportingRepository()
+		val scope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), reporting)
+		val neverEnds = CompletableDeferred<Unit>()
+		val stubborn = scope.launch { withContext(NonCancellable) { neverEnds.await() } }
+		val polite = scope.launch { awaitCancellation() }
+		runCurrent()
+
+		val branch = scope.cancelActiveWork()
+
+		assertNull(branch)
+		assertFalse(stubborn.isCompleted, "the child that ignores the cancellation is left running")
+		assertTrue(polite.isCancelled, "the others were cancelled")
+		assertEquals(1, reporting.loggedExceptions.size, "and the one left behind is reported")
+		assertTrue(
+			currentTime in 1..60_000L,
+			"the wait ends at a bound well under the 90 seconds of a request, not after them"
+		)
+
+		neverEnds.complete(Unit)
+		runCurrent()
+		assertTrue(stubborn.isCompleted)
+	}
+
 	@Test
 	fun cancelActiveWork_givesUpAfterAFewPasses_andReports() = runTest {
 		val dispatcher = StandardTestDispatcher(testScheduler)

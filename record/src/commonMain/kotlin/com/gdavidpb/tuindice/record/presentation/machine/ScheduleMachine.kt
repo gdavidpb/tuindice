@@ -56,6 +56,18 @@ class ScheduleMachine(
 		}
 	}
 
+	// Coming back from the background: the clock's ticker sleeps with the process, and what the
+	// screen shows can be up to a minute behind until it wakes. A new observation reads the clock
+	// first thing, so the content is laid out again for the moment it is now. Nothing to do before
+	// the first observation: it reads the clock as well.
+	internal fun restartObservation(host: MachineHost<Schedule.Effect>) {
+		val running = scheduleObservationJob ?: return
+
+		running.cancel()
+		scheduleObservationJob = null
+		startObservation(host = host)
+	}
+
 	internal fun setViewMode(host: MachineHost<Schedule.Effect>, viewMode: ScheduleViewMode) {
 		host.launchMachineJob {
 			setScheduleViewModeUseCase.execute(viewMode).collect()

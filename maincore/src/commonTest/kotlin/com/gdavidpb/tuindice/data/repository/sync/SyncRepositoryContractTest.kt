@@ -858,6 +858,14 @@ internal class FakeEvaluationsRevalidationRepository(
 	var cancelled = false
 		private set
 
+	// How many times the sync asked for the revalidation that only applies to evaluations never downloaded.
+	var neverDownloadedCalls = 0
+		private set
+
+	override suspend fun revalidateEvaluationsIfNeverDownloaded() {
+		neverDownloadedCalls++
+	}
+
 	override suspend fun revalidateEvaluations() {
 		calls++
 		onRevalidate()

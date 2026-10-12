@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
@@ -34,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateRe
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -294,8 +296,12 @@ class RecordingEvaluationRepository(
 	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
-	private val availableSubjectsState = MutableStateFlow(availableSubjects)
-	private val currentTermState = MutableStateFlow(currentTerm)
+
+	// The term and its attempts are ONE state, like the real thing reads them: a test that moves both
+	// does it in one step (changeTermAndAttempts), and the pair is never half changed.
+	private val displayContextState = MutableStateFlow(
+		EvaluationDisplayContext(attempts = availableSubjects, currentTerm = currentTerm)
+	)
 
 	val addCalls = mutableListOf<EvaluationAdd>()
 	val updateCalls = mutableListOf<EvaluationUpdate>()
@@ -333,11 +339,11 @@ class RecordingEvaluationRepository(
 		refreshThrowable?.let { throw it }
 		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
 		// Same rule as the real repository: only an evaluation under an available subject counts.
-		val availableAttemptIds = availableSubjectsState.value.mapTo(HashSet()) { subject -> subject.id }
+		val availableAttemptIds = displayContextState.value.attempts.mapTo(HashSet()) { subject -> subject.id }
 		return refreshResult ?: EvaluationsRefreshResult(
 			hasEvaluations = evaluationsState.value
 				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
-			hasAvailableAttempts = availableSubjectsState.value.isNotEmpty()
+			hasAvailableAttempts = displayContextState.value.attempts.isNotEmpty()
 		)
 	}
 
@@ -398,26 +404,28 @@ class RecordingEvaluationRepository(
 
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> {
 		availableAttemptsThrowable?.let { throw it }
-		return availableSubjectsState.value
+		return displayContextState.value.attempts
 	}
 
-	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTermState.value
+	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = displayContextState.value.currentTerm
 
-	override fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?> = currentTermState
-
-	override fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>> {
-		return availableSubjectsState
-			.map { attempts -> attempts.sortedBy(EditableAttemptDescriptor::code) }
+	override fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext> {
+		return displayContextState
+			.map { context -> context.copy(attempts = context.attempts.sortedBy(EditableAttemptDescriptor::code)) }
 			.distinctUntilChanged()
 			.onStart { availableAttemptsThrowable?.let { throwable -> throw throwable } }
 	}
 
 	fun changeAvailableAttempts(attempts: List<EditableAttemptDescriptor>) {
-		availableSubjectsState.value = attempts
+		displayContextState.value = displayContextState.value.copy(attempts = attempts)
 	}
 
 	fun changeCurrentTerm(term: EvaluationTermDescriptor?) {
-		currentTermState.value = term
+		displayContextState.value = displayContextState.value.copy(currentTerm = term)
+	}
+
+	fun changeTermAndAttempts(term: EvaluationTermDescriptor?, attempts: List<EditableAttemptDescriptor>) {
+		displayContextState.value = EvaluationDisplayContext(attempts = attempts, currentTerm = term)
 	}
 }
 
@@ -462,15 +470,17 @@ class FakeDatabaseDataSource(
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjectsState.value
 
-	override fun observeAvailableAttemptsFlow(): Flow<List<LocalEditableAttemptDescriptor>> = availableSubjectsState
+	override fun observeDisplayContextFlow(): Flow<LocalEvaluationDisplayContext> {
+		return availableSubjectsState.map { attempts ->
+			LocalEvaluationDisplayContext(currentTerm = currentTerm, attempts = attempts)
+		}
+	}
 
 	fun changeAvailableAttempts(attempts: List<LocalEditableAttemptDescriptor>) {
 		availableSubjectsState.value = attempts
 	}
 
 	override suspend fun getCurrentTerm(): LocalCurrentTermDescriptor? = currentTerm
-
-	override fun observeCurrentTermFlow(): Flow<LocalCurrentTermDescriptor?> = flowOf(currentTerm)
 
 	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
 		addedEvaluations += evaluation

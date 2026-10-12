@@ -49,6 +49,9 @@ object Main {
 		class SetLastMainSection(val section: MainSection) : Action()
 		data object DismissUpdatePassword : Action()
 		data object RequestSignOut : Action()
+
+		// The interface showed the notice of a session that ended behind the user's back.
+		data object SessionInvalidationShown : Action()
 	}
 
 	sealed class Effect : ViewEffect {

@@ -8,9 +8,17 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CANCELLATION_PASSES = 8
+
+// How long one pass waits for the children it cancelled. A child that cooperates ends in
+// milliseconds (a cleanup, a local write); one that does not (a request inside a context that
+// cannot be cancelled) ends with the HTTP timeout, 90 seconds by default. The bound sits well under
+// that, so the sign-out does not stay on its spinner for a request nobody is waiting for, and well
+// above any cooperative cancellation, so a child that is merely slow is still waited for.
+private const val CANCELLATION_PASS_TIMEOUT_MILLIS = 10_000L
 
 class SessionCoroutineScope(
 	dispatchers: TuIndiceDispatchers,
@@ -32,13 +40,19 @@ class SessionCoroutineScope(
 	// the request then unwinds as a cancellation instead of writing its failure into the empty stores.
 	//
 	// The number of passes is bounded: a child that relaunches work every time it is cancelled would
-	// otherwise keep the sign-out spinning forever. Past the bound the leftover work is reported and
-	// left running; ending the session matters more than waiting for it.
+	// otherwise keep the sign-out spinning forever. So is the wait of each pass: a child that ignores
+	// its cancellation would hold the sign-out for as long as it runs. Past either bound the leftover
+	// work is reported and left running; ending the session matters more than waiting for it. What it
+	// writes afterwards is fenced by the session epoch of each holder.
 	suspend fun cancelActiveWork(): Job? {
 		val caller = currentCoroutineContext()[Job]
 		var callerBranch: Job? = null
+		var settled = false
+		var pass = 0
 
-		repeat(MAX_CANCELLATION_PASSES) {
+		while (!settled && pass < MAX_CANCELLATION_PASSES) {
+			pass += 1
+
 			val children = coroutineContext[Job]?.children?.toList().orEmpty()
 			val (own, pending) = children.partition { child ->
 				caller != null && (child === caller || child.isAncestorOf(caller))
@@ -46,17 +60,30 @@ class SessionCoroutineScope(
 
 			callerBranch = own.firstOrNull() ?: callerBranch
 
-			if (pending.isEmpty()) return callerBranch
+			if (pending.isEmpty()) {
+				settled = true
+			} else {
+				pending.forEach { child -> child.cancel() }
 
-			pending.forEach { child -> child.cancel() }
-			pending.joinAll()
+				if (withTimeoutOrNull(CANCELLATION_PASS_TIMEOUT_MILLIS) { pending.joinAll() } == null) {
+					reportingRepository?.logException(
+						IllegalStateException(
+							"The session scope still had ${pending.count { child -> !child.isCompleted }} child(ren) " +
+								"after waiting ${CANCELLATION_PASS_TIMEOUT_MILLIS}ms for their cancellation"
+						)
+					)
+					settled = true
+				}
+			}
 		}
 
-		reportingRepository?.logException(
-			IllegalStateException(
-				"The session scope still had work after $MAX_CANCELLATION_PASSES cancellation passes"
+		if (!settled) {
+			reportingRepository?.logException(
+				IllegalStateException(
+					"The session scope still had work after $MAX_CANCELLATION_PASSES cancellation passes"
+				)
 			)
-		)
+		}
 
 		return callerBranch
 	}

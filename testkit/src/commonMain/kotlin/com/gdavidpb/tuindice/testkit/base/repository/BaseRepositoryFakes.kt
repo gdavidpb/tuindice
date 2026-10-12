@@ -306,6 +306,8 @@ class FakeSettingsRepository(
 		sessionResetNoticePending = true
 	}
 
+	override suspend fun hasSessionResetNoticePending(): Boolean = sessionResetNoticePending
+
 	override suspend fun consumeSessionResetNoticePending(): Boolean {
 		val pending = sessionResetNoticePending
 

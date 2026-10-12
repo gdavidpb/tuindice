@@ -53,6 +53,10 @@ object ActionDispositions {
 			reason = "the host dispatches it each time the app resumes with content; no user performs it"
 		),
 		ActionDisposition.Internal(
+			action = "maincore.Main.SessionInvalidationShown",
+			reason = "the host route reports that it showed the notice of a session that ended behind the user's back"
+		),
+		ActionDisposition.Internal(
 			action = "maincore.Main.ShowOutdatedApp",
 			reason = "host shows the global outdated app screen from the shared HTTP 426 event"
 		),
@@ -107,6 +111,10 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "record.Record.EnsureRecordLoaded",
 			reason = "route entry preserves initial record refresh while local content wins"
+		),
+		ActionDisposition.Internal(
+			action = "record.Schedule.Resumed",
+			reason = "the sheet dispatches it each time it comes back in front, to read the clock again; no user performs it"
 		),
 		ActionDisposition.Internal(
 			action = "record.Schedule.ObserveSchedule",

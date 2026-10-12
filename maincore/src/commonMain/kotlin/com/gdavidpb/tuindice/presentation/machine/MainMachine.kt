@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -38,6 +39,7 @@ class MainMachine(
 	private val setLastMainSectionUseCase: SetLastMainSectionUseCase,
 	private val observeSyncStatusUseCase: ObserveSyncStatusUseCase,
 	private val observeSessionInvalidationUseCase: ObserveSessionInvalidationUseCase,
+	private val acknowledgeSessionInvalidationUseCase: AcknowledgeSessionInvalidationUseCase,
 	private val getPendingChangesUseCase: GetPendingChangesUseCase
 ) : ScreenMachine<Main.State, Main.Effect> {
 	// StartUp is dispatched again when a failed startup is retried, and launchMachineJob
@@ -151,6 +153,13 @@ class MainMachine(
 					)
 				}
 			}
+		}
+	}
+
+	// The interface showed the notice: only now is it taken from the settings.
+	internal fun acknowledgeSessionInvalidation(host: MachineHost<Main.Effect>) {
+		host.launchMachineJob {
+			acknowledgeSessionInvalidationUseCase.execute(Unit).collect()
 		}
 	}
 

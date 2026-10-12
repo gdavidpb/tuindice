@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalTime::class)
+@file:OptIn(ExperimentalTime::class, ExperimentalAtomicApi::class)
 
 package com.gdavidpb.tuindice.evaluations.data.source
 
@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.isWithinWindow
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
@@ -25,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepos
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
@@ -36,6 +38,10 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -43,6 +49,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.concurrent.Volatile
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -62,11 +70,18 @@ class EvaluationDataSource(
 	// mutex is not reentrant.
 	private val updateMutex = Mutex()
 
-	// The download currently in progress, if any. Set and cleared only by the holder of updateMutex;
-	// read without it so that a caller that does not force a download joins this one instead of
-	// queueing behind it for a second request.
-	@Volatile
-	private var inFlight: Download? = null
+	// The download currently being decided or made, if any: registered by the first caller that does
+	// not force one BEFORE it waits for the lock or reads anything, so a caller that does not force a
+	// download and arrives while somebody decides or downloads joins that one instead of deciding
+	// again or queueing for a second request. Compare-and-set, because callers register without the
+	// lock; whoever downloads sets it again (a forced caller registers there).
+	private val inFlight = AtomicReference<Download?>(null)
+
+	// Held ONLY while the answer of a download is written locally (the snapshot, the cooldown, the
+	// failure mark), never during a request, and taken by clearSessionMemory to change the epoch. A
+	// write therefore ends before the session does (and the wipe that follows removes it) or finds
+	// the new epoch and writes nothing: the epoch cannot change between its check and its save.
+	private val writeGate = Mutex()
 
 	// Bumped by clearSessionMemory. A download remembers the one it started in: if it differs when
 	// the answer arrives, the account that asked is gone and the answer must leave no trace.
@@ -110,11 +125,29 @@ class EvaluationDataSource(
 
 	// The hold belongs to the account whose download failed; the next one starts without it. Not
 	// under updateMutex: a request made while holding it can end the session, and the wipe would
-	// then wait for its own caller. The epoch is bumped first, so a download that fails (or lands)
-	// after this point finds it changed and stamps nothing.
+	// then wait for its own caller. Under writeGate, which only a local write holds: the epoch
+	// changes between two writes, never in the middle of one.
+	//
+	// The request of the download in progress is cancelled, so the lock it holds is free at once
+	// instead of after the timeout of a request nobody is waiting for; whoever joined it starts over.
+	// Unless the caller is that very request (a 401 that ends the session from inside it): its wipe
+	// must not be cut by its own cancellation, and the session scope cancels it afterwards.
 	override suspend fun clearSessionMemory() {
-		sessionEpoch += 1
-		lastDownloadFailureAt = null
+		writeGate.withLock {
+			sessionEpoch += 1
+			lastDownloadFailureAt = null
+		}
+
+		val request = inFlight.load()?.request ?: return
+		val caller = currentCoroutineContext()[Job]
+
+		if (caller == null || !request.contains(caller)) request.cancel()
+	}
+
+	override suspend fun revalidateEvaluationsIfNeverDownloaded() {
+		if (databaseDataSource.observeHasSyncedEvaluationsFlow().first()) return
+
+		revalidateEvaluations()
 	}
 
 	override suspend fun revalidateEvaluations() {
@@ -145,27 +178,61 @@ class EvaluationDataSource(
 		)
 	}
 
-	// A caller that does not force a download and finds one in progress waits for THAT download: it
-	// uses the snapshot if it arrives, and gets the very same failure if it does not, without a
-	// second request. A forced caller queues for the lock and downloads after it. If the download
-	// it joined was cancelled (not failed), nobody got an answer, so it starts over.
+	// A caller that does not force a download and finds one in progress, even one that is still
+	// deciding, waits for THAT download: it uses the snapshot if it arrives, and gets the very same
+	// failure if it does not, without a second request. A forced caller queues for the lock and
+	// downloads after it. If the download it joined was cancelled (not failed) or ended up not
+	// downloading, nobody got an answer, so it starts over.
 	private suspend fun fetchIfNeeded(forceRemote: Boolean, respectHold: Boolean): FetchOutcome {
 		while (true) {
-			val joinable = inFlight?.takeIf { download -> !forceRemote && download.epoch == sessionEpoch }
-				?: return updateMutex.withLock { fetchLocked(forceRemote, respectHold) }
-			val answer = joinable.answer.await() ?: continue
+			val claim = claimDownload(forceRemote)
+			val joined = claim.joined
 
-			return FetchOutcome.Fetched(answer.getOrThrow())
+			if (joined != null) {
+				val answer = joined.answer.await() ?: continue
+
+				return FetchOutcome.Fetched(answer.getOrThrow())
+			}
+
+			val own = claim.own
+
+			try {
+				return updateMutex.withLock { fetchLocked(own, forceRemote, respectHold) }
+			} finally {
+				own?.let(::retire)
+			}
 		}
+	}
+
+	// Joins the download being decided or made, or registers this caller as the one that decides:
+	// with no suspension in between, so two callers never both decide.
+	private fun claimDownload(forceRemote: Boolean): Claim {
+		if (forceRemote) return Claim(joined = null, own = null)
+
+		var claim: Claim? = null
+
+		while (claim == null) {
+			val current = inFlight.load()
+
+			claim = if (current != null && current.epoch == sessionEpoch) {
+				Claim(joined = current, own = null)
+			} else {
+				val own = Download(epoch = sessionEpoch)
+
+				if (inFlight.compareAndSet(current, own)) Claim(joined = null, own = own) else null
+			}
+		}
+
+		return claim
 	}
 
 	// Cooldown, hold and "already downloaded" are read inside the lock, so a caller queued behind a
 	// download skips its own.
-	private suspend fun fetchLocked(forceRemote: Boolean, respectHold: Boolean): FetchOutcome {
+	private suspend fun fetchLocked(own: Download?, forceRemote: Boolean, respectHold: Boolean): FetchOutcome {
 		return when {
 			respectHold && isRetryOnHold() -> FetchOutcome.OnHold
 			!forceRemote && isAlreadyDownloaded() -> FetchOutcome.NotNeeded
-			else -> FetchOutcome.Fetched(downloadSharing())
+			else -> FetchOutcome.Fetched(downloadSharing(own ?: Download(epoch = sessionEpoch)))
 		}
 	}
 
@@ -176,22 +243,31 @@ class EvaluationDataSource(
 		return isOnCooldown && hasSyncedEvaluations
 	}
 
-	private suspend fun downloadSharing(): RemoteEvaluationsSnapshot {
-		val download = Download(epoch = sessionEpoch)
+	private suspend fun downloadSharing(download: Download): RemoteEvaluationsSnapshot {
 		var answer: Result<RemoteEvaluationsSnapshot>? = null
 
-		inFlight = download
+		inFlight.store(download)
 		try {
-			answer = runCatching { downloadAndSave(epoch = download.epoch) }
+			// A caller of a session that already ended has nobody to answer to.
+			if (download.epoch != sessionEpoch) throw CancellationException("The session ended before the download began")
+
+			answer = runCatching { downloadAndSave(download) }
 				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		} finally {
 			// A null answer means the owner was cancelled: joiners start over instead of inheriting
 			// a cancellation that is not theirs.
-			inFlight = null
+			inFlight.compareAndSet(download, null)
 			download.answer.complete(answer)
 		}
 
 		return checkNotNull(answer).getOrThrow()
+	}
+
+	// The download that did not end up downloading (nothing was needed, the retry is on hold, the
+	// owner was cancelled while it waited): nobody got an answer, and those who joined start over.
+	private fun retire(download: Download) {
+		inFlight.compareAndSet(download, null)
+		download.answer.complete(null)
 	}
 
 	private fun isRetryOnHold(): Boolean {
@@ -206,26 +282,49 @@ class EvaluationDataSource(
 
 	// Only a download of the current epoch leaves a trace: a failure stamp, the snapshot, the
 	// cooldown. One that outlived its session (the tab's runs in the screen's scope, not the
-	// session's) would otherwise hand the previous account's evaluations to the next one.
-	private suspend fun downloadAndSave(epoch: Int): RemoteEvaluationsSnapshot {
+	// session's) would otherwise hand the previous account's evaluations to the next one. The epoch
+	// is checked and the answer saved under writeGate, so the session cannot end in between.
+	private suspend fun downloadAndSave(download: Download): RemoteEvaluationsSnapshot {
+		val epoch = download.epoch
 		val snapshotVersion = mutationEngine.currentMutationVersion()
-		val remoteSnapshot = runCatching { evaluationsApiDataSource.getEvaluations() }
+		val remoteSnapshot = runCatching { requestEvaluations(download) }
 			.onFailure { throwable ->
-				if (throwable !is CancellationException && epoch == sessionEpoch) {
-					lastDownloadFailureAt = clock.now().toEpochMilliseconds()
+				if (throwable !is CancellationException) {
+					writeGate.withLock {
+						if (epoch == sessionEpoch) lastDownloadFailureAt = clock.now().toEpochMilliseconds()
+					}
 				}
 			}
 			.getOrThrow()
 
-		if (epoch != sessionEpoch) return remoteSnapshot
+		writeGate.withLock {
+			if (epoch != sessionEpoch) return remoteSnapshot
 
-		lastDownloadFailureAt = null
-		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-			databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
-			settingsDataSource.setGetEvaluationsOnCooldown()
+			lastDownloadFailureAt = null
+			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
+				databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
+				settingsDataSource.setGetEvaluationsOnCooldown()
+			}
 		}
 
 		return remoteSnapshot
+	}
+
+	// The request runs as a job of its own, so that the end of the session can cancel it (see
+	// clearSessionMemory) without cancelling whoever asked. Its outcome travels as a value: a
+	// failure is rethrown here exactly as it came.
+	private suspend fun requestEvaluations(download: Download): RemoteEvaluationsSnapshot {
+		val outcome = coroutineScope {
+			val request = async { runCatching { evaluationsApiDataSource.getEvaluations() } }
+
+			download.request = request
+			// The session may have ended before the request could be found.
+			if (download.epoch != sessionEpoch) request.cancel()
+
+			request.await()
+		}
+
+		return outcome.getOrThrow()
 	}
 
 	override suspend fun drainPendingMutations() {
@@ -328,22 +427,14 @@ class EvaluationDataSource(
 			.sortedBy(EditableAttemptDescriptor::code)
 	}
 
-	override fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>> {
-		return databaseDataSource.observeAvailableAttemptsFlow()
-			.map { attempts ->
-				attempts
-					.map { attempt -> attempt.toEditableAttemptDescriptor() }
-					.sortedBy(EditableAttemptDescriptor::code)
-			}
-			.distinctUntilChanged()
-	}
-
 	override suspend fun getCurrentTerm() =
 		databaseDataSource.getCurrentTerm()?.toEvaluationTermDescriptor()
 
-	override fun observeCurrentTermFlow() =
-		databaseDataSource.observeCurrentTermFlow()
-			.map { term -> term?.toEvaluationTermDescriptor() }
+	override fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext> {
+		return databaseDataSource.observeDisplayContextFlow()
+			.map { context -> context.toEvaluationDisplayContext() }
+			.distinctUntilChanged()
+	}
 
 	private fun LocalEvaluationsSnapshot.toObservedSyncedSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
 		return ObservedSyncedSnapshot(
@@ -360,9 +451,12 @@ class EvaluationDataSource(
 		val epoch = sessionEpoch
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
-		// Like downloadAndSave: an answer that outlived its session is not stored for the next account.
-		if (epoch == sessionEpoch && snapshotVersion == mutationEngine.currentMutationVersion()) {
-			databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
+		// Like downloadAndSave: an answer that outlived its session is not stored for the next account,
+		// and the session cannot end between the check and the save.
+		writeGate.withLock {
+			if (epoch == sessionEpoch && snapshotVersion == mutationEngine.currentMutationVersion()) {
+				databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
+			}
 		}
 		return remoteSnapshot
 	}
@@ -474,9 +568,17 @@ class EvaluationDataSource(
 }
 
 private class Download(val epoch: Int) {
-	// null: the owner was cancelled before it could answer.
+	// null: the owner was cancelled, or did not download after all.
 	val answer = CompletableDeferred<Result<RemoteEvaluationsSnapshot>?>()
+
+	// The request, once it is made: what the end of the session cancels.
+	@Volatile
+	var request: Job? = null
 }
+
+private class Claim(val joined: Download?, val own: Download?)
+
+private fun Job.contains(job: Job): Boolean = this === job || children.any { child -> child.contains(job) }
 
 private sealed interface FetchOutcome {
 	data object NotNeeded : FetchOutcome

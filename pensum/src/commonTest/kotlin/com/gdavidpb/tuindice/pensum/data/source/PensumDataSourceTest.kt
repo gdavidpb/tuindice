@@ -24,6 +24,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class PensumDataSourceTest {
 	@Test
@@ -302,6 +304,74 @@ class PensumDataSourceTest {
 		}
 	}
 
+	// A write that already began is not crossed by the end of the session: the end waits for it, and
+	// the wipe that follows removes what it wrote.
+	@Test
+	fun theEndOfTheSession_waitsForARevalidationThatIsSavingItsPensum() = runTest {
+		val saveStarted = CompletableDeferred<Unit>()
+		val releaseSave = CompletableDeferred<Unit>()
+		val local = FakePensumLocalDataRepository(
+			selection = PensumSelectionParams(),
+			onWrite = {
+				saveStarted.complete(Unit)
+				releaseSave.await()
+			}
+		)
+		val dataSource = createDataSource(local = local, remote = FakePensumRemoteDataRepository())
+
+		val refresh = launch { dataSource.refreshPensum(forceRemote = true) }
+		saveStarted.await()
+		var ended = false
+		val ending = launch {
+			dataSource.clearSessionMemory()
+			ended = true
+		}
+		runCurrent()
+		assertFalse(ended, "the session does not end in the middle of the save")
+
+		releaseSave.complete(Unit)
+		refresh.join()
+		ending.join()
+
+		assertTrue(ended)
+		assertEquals(listOf("save inferred=true"), local.writes, "the save ended before the session did")
+	}
+
+	@Test
+	fun theEndOfTheSession_waitsForAManualSelectionThatIsSaving() = runTest {
+		val saveStarted = CompletableDeferred<Unit>()
+		val releaseSave = CompletableDeferred<Unit>()
+		val local = FakePensumLocalDataRepository(
+			selection = PensumSelectionParams(year = 2019, modalityId = "degree_project"),
+			onWrite = {
+				saveStarted.complete(Unit)
+				releaseSave.await()
+			}
+		)
+		val dataSource = createDataSource(local = local, remote = FakePensumRemoteDataRepository())
+
+		val selection = launch { dataSource.selectSelection(year = 2018, modalityId = "long_internship") }
+		saveStarted.await()
+		var ended = false
+		val ending = launch {
+			dataSource.clearSessionMemory()
+			ended = true
+		}
+		runCurrent()
+		assertFalse(ended, "the session does not end between the choice and its response")
+
+		releaseSave.complete(Unit)
+		selection.join()
+		ending.join()
+
+		assertTrue(ended)
+		assertEquals(
+			listOf("select 2018/long_internship", "save inferred=false"),
+			local.writes,
+			"the choice and its response are saved together, before the session ends"
+		)
+	}
+
 	@Test
 	fun theManualSelections_whenTheSessionDoesNotChange_stillSave() = runTest {
 		val local = FakePensumLocalDataRepository(selection = PensumSelectionParams())
@@ -376,7 +446,9 @@ private const val HOUR = 60L * 60L * 1000L
 
 internal class FakePensumLocalDataRepository(
 	private val selection: PensumSelectionParams,
-	var cacheState: SelectedPensumCacheState? = null
+	var cacheState: SelectedPensumCacheState? = null,
+	// Runs when the first write begins, before it is recorded: where a test holds a save open.
+	private val onWrite: suspend () -> Unit = {}
 ) : PensumLocalDataRepository {
 	var lastInferredSelection: Boolean? = null
 	var lastSelectedPensumYear: Int? = null
@@ -395,6 +467,7 @@ internal class FakePensumLocalDataRepository(
 	override suspend fun getSelectionParams(): PensumSelectionParams = selection
 
 	override suspend fun savePensumResponse(response: GetPensumResponse, inferredSelection: Boolean) {
+		onWrite()
 		lastInferredSelection = inferredSelection
 		writes += "save inferred=$inferredSelection"
 	}
@@ -410,6 +483,7 @@ internal class FakePensumLocalDataRepository(
 	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {
+		onWrite()
 		lastSelectedSelection = year to modalityId
 		writes += "select $year/$modalityId"
 	}

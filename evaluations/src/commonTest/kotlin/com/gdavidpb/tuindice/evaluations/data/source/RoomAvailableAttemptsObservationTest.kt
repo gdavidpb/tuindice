@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
@@ -39,7 +40,7 @@ class RoomAvailableAttemptsObservationTest {
 
 	private fun observe(
 		readAttempts: suspend () -> List<AcademicAttemptEntity> = { attempts }
-	) = RoomDatabaseDataSource.observeAvailableAttempts(
+	) = RoomDatabaseDataSource.observeDisplayContext(
 		changes = merge(termChanges, attemptChanges),
 		transactionRunner = transactionRunner,
 		readTerms = { terms },
@@ -60,11 +61,11 @@ class RoomAvailableAttemptsObservationTest {
 
 	@Test
 	fun aWriteThatMovesTheTermAndItsAttemptsTogether_neverShowsTheNewTermOverTheOldAttempts() = runTest {
-		val emitted = mutableListOf<List<String>>()
+		val emitted = mutableListOf<String>()
 		termChanges.emit(terms)
 		attemptChanges.emit(attempts)
 
-		backgroundScope.launch { observe().collect { list -> emitted += list.map { it.id } } }
+		backgroundScope.launch { observe().collect { context -> emitted += context.pair() } }
 		runCurrent()
 
 		commit(
@@ -73,8 +74,9 @@ class RoomAvailableAttemptsObservationTest {
 		)
 		runCurrent()
 
-		// No empty list in between (new term over the attempts of the old one), nothing repeated.
-		assertEquals(listOf(listOf("a1"), listOf("a2")), emitted)
+		// The term always with its own attempts, in both directions: never t2 over a1, never t1 over a2,
+		// no empty list in between, nothing repeated.
+		assertEquals(listOf("t1[a1]", "t2[a2]"), emitted)
 	}
 
 	// The write lands after the terms were read and before the attempts are: read apart, that is the
@@ -82,7 +84,7 @@ class RoomAvailableAttemptsObservationTest {
 	// through "no attempts" and drop the week the student chose).
 	@Test
 	fun aWriteThatLandsBetweenTheTwoReads_neverShowsAnEmptyListInTheMiddle() = runTest {
-		val emitted = mutableListOf<List<String>>()
+		val emitted = mutableListOf<String>()
 		var landed = false
 		// One initial change only, so the first read is not cancelled by a second change.
 		termChanges.emit(terms)
@@ -104,11 +106,11 @@ class RoomAvailableAttemptsObservationTest {
 
 					attempts
 				}
-			).collect { list -> emitted += list.map { it.id } }
+			).collect { context -> emitted += context.pair() }
 		}
 		runCurrent()
 
-		assertEquals(listOf(listOf("a1"), listOf("a2")), emitted)
+		assertEquals(listOf("t1[a1]", "t2[a2]"), emitted)
 	}
 
 	@Test
@@ -118,7 +120,7 @@ class RoomAvailableAttemptsObservationTest {
 		termChanges.emit(terms)
 		attemptChanges.emit(attempts)
 
-		backgroundScope.launch { observe().collect { list -> emitted += list.map { it.id } } }
+		backgroundScope.launch { observe().collect { context -> emitted += context.attempts.map { it.id } } }
 		runCurrent()
 
 		attempts = attempts.filterNot { attempt -> attempt.id == "a1b" }
@@ -134,7 +136,7 @@ class RoomAvailableAttemptsObservationTest {
 		termChanges.emit(terms)
 		attemptChanges.emit(attempts)
 
-		backgroundScope.launch { observe().collect { list -> emitted += list.map { it.id } } }
+		backgroundScope.launch { observe().collect { context -> emitted += context.attempts.map { it.id } } }
 		runCurrent()
 
 		// An attempt of a past term and a qualitative one: neither is available.
@@ -162,6 +164,9 @@ class RoomAvailableAttemptsObservationTest {
 		assertEquals(listOf("a", "b"), result.map { attempt -> attempt.id })
 	}
 }
+
+private fun LocalEvaluationDisplayContext.pair() =
+	"${currentTerm?.id}${attempts.map { attempt -> attempt.id }}"
 
 private fun term(
 	id: String,

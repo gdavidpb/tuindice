@@ -82,6 +82,10 @@ class MultiplatformSettingsDataSource(
 		settings.putBoolean(SESSION_RESET_NOTICE_PENDING_KEY, true)
 	}
 
+	override suspend fun hasSessionResetNoticePending(): Boolean {
+		return settings.getBooleanOrNull(SESSION_RESET_NOTICE_PENDING_KEY) == true
+	}
+
 	override suspend fun consumeSessionResetNoticePending(): Boolean {
 		val pending = settings.getBooleanOrNull(SESSION_RESET_NOTICE_PENDING_KEY) == true
 

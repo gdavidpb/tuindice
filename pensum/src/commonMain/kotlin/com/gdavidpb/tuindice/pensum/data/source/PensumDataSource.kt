@@ -38,6 +38,12 @@ class PensumDataSource(
 	// student switched pensum would otherwise write back the selection they just left.
 	private val remoteWriteMutex = Mutex()
 
+	// Held ONLY while a download's answer is written locally, never during a request: the epoch is
+	// checked and the answer saved under it, and clearSessionMemory changes the epoch under it. A
+	// write therefore ends before the session does (and the wipe that follows removes it) or finds
+	// the new epoch and writes nothing. It is not remoteWriteMutex, which a request holds.
+	private val writeGate = Mutex()
+
 	// When the last automatic revalidation failed; the next one waits COOLDOWN_RETRY_PENSUM. In
 	// memory on purpose: a fresh process is a fair moment to try again. Written only by a fetch of
 	// the current epoch.
@@ -52,10 +58,12 @@ class PensumDataSource(
 
 	// The hold belongs to the account whose revalidation failed; the next one starts without it.
 	// Not under remoteWriteMutex: a request made while holding it can end the session, and the
-	// wipe would then wait for its own caller.
+	// wipe would then wait for its own caller. Under writeGate, which only a local write holds.
 	override suspend fun clearSessionMemory() {
-		sessionEpoch += 1
-		lastRevalidationFailureAt = null
+		writeGate.withLock {
+			sessionEpoch += 1
+			lastRevalidationFailureAt = null
+		}
 	}
 
 	override fun observePensumFlow(): Flow<PensumObservation> {
@@ -119,10 +127,12 @@ class PensumDataSource(
 			val epoch = sessionEpoch
 
 			runCatching { fetchAndSave(cached = cached, epoch = epoch) }
-				.onSuccess { if (epoch == sessionEpoch) lastRevalidationFailureAt = null }
+				.onSuccess {
+					writeGate.withLock { if (epoch == sessionEpoch) lastRevalidationFailureAt = null }
+				}
 				.onFailure { throwable ->
-					if (throwable !is CancellationException && epoch == sessionEpoch) {
-						lastRevalidationFailureAt = now
+					if (throwable !is CancellationException) {
+						writeGate.withLock { if (epoch == sessionEpoch) lastRevalidationFailureAt = now }
 					}
 					throw throwable
 				}
@@ -183,21 +193,25 @@ class PensumDataSource(
 			val selection = localDataRepository.getSelectionParams()
 			val response = remoteDataRepository.getPensum(selection)
 
-			if (epoch != sessionEpoch) return
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return
 
-			localDataRepository.savePensumResponse(
-				response = response,
-				inferredSelection = selection.year == null && selection.modalityId == null
-			)
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = selection.year == null && selection.modalityId == null
+				)
+			}
 		} else {
 			val response = getPensumOrInfer(pinnedInferredSelection)
 
-			if (epoch != sessionEpoch) return
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return
 
-			localDataRepository.savePensumResponse(
-				response = response,
-				inferredSelection = true
-			)
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = true
+				)
+			}
 		}
 	}
 
@@ -222,14 +236,16 @@ class PensumDataSource(
 			val epoch = sessionEpoch
 			val response = remoteDataRepository.getPensum(selection)
 
-			if (epoch != sessionEpoch) return@withLock
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return@withLock
 
-			persistSelection()
-			localDataRepository.savePensumResponse(
-				response = response,
-				inferredSelection = selection.year == null && selection.modalityId == null
-			)
-			lastRevalidationFailureAt = null
+				persistSelection()
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = selection.year == null && selection.modalityId == null
+				)
+				lastRevalidationFailureAt = null
+			}
 		}
 	}
 }

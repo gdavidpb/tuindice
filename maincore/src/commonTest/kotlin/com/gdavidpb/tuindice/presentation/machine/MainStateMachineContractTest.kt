@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -109,6 +110,10 @@ class MainStateMachineContractTest {
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
+			acknowledgeSessionInvalidationUseCase = AcknowledgeSessionInvalidationUseCase(
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			),
 			getPendingChangesUseCase = GetPendingChangesUseCase(
 				pendingChangesRepository = FakePendingChangesRepository(),
 				reportingRepository = reportingRepository
@@ -131,6 +136,7 @@ class MainStateMachineContractTest {
 					)
 				),
 				Main.Action.RequestSync,
+				Main.Action.SessionInvalidationShown,
 				Main.Action.NoteSyncUnavailable,
 				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),

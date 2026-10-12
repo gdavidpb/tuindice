@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -846,21 +847,156 @@ class StoreBackedMutationEngineTest {
 		assertEquals(listOf(mutation), store.getMutations("record"), "the aligned row was not saved")
 	}
 
+	// The session cannot end in the middle of a local write of the queue: the end waits for it, and the
+	// wipe that follows removes what it wrote. One test per kind of write that follows an epoch check.
 	@Test
-	fun sessionEpoch_whenTheSessionEndsWhileTheAlignedRowIsSaved_theAttemptNeverSends() = runTest {
+	fun sessionEpoch_whenTheAlignedRowIsBeingSaved_theEndOfTheSessionWaitsForTheSave() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
-		val spec = ScriptedSpec(onCurrentPrecondition = { MutationPrecondition.Revision(7L) })
-		store.afterSave = { engine.clearSessionMemory() }
-
-		engine.submit(
-			mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
-			syncSpec = spec,
-			propagateTerminalErrors = false
+		val saveStarted = CompletableDeferred<Unit>()
+		val releaseSave = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onCurrentPrecondition = {
+				store.beforeSave = {
+					store.beforeSave = null
+					saveStarted.complete(Unit)
+					releaseSave.await()
+				}
+				MutationPrecondition.Revision(7L)
+			}
 		)
+		val job = launch {
+			engine.submit(
+				mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+				syncSpec = spec,
+				propagateTerminalErrors = false
+			)
+		}
 
-		assertEquals(0, spec.sendCount)
-		assertEquals(0, spec.confirmCount)
+		saveStarted.await()
+		var ended = false
+		val ending = launch {
+			engine.clearSessionMemory()
+			ended = true
+		}
+		testScheduler.runCurrent()
+		assertFalse(ended, "the session does not end in the middle of the save")
+
+		releaseSave.complete(Unit)
+		job.join()
+		ending.join()
+
+		assertTrue(ended)
+		assertEquals(
+			MutationPrecondition.Revision(7L),
+			store.getMutations("record").single().precondition,
+			"the save ended before the session did"
+		)
+	}
+
+	@Test
+	fun sessionEpoch_whenTheAckIsBeingConfirmed_theEndOfTheSessionWaitsForTheConfirmation() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val confirmStarted = CompletableDeferred<Unit>()
+		val releaseConfirm = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onConfirm = {
+				confirmStarted.complete(Unit)
+				releaseConfirm.await()
+			}
+		)
+		val job = launch {
+			engine.submit(
+				mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+				syncSpec = spec,
+				propagateTerminalErrors = false
+			)
+		}
+
+		confirmStarted.await()
+		var ended = false
+		val ending = launch {
+			engine.clearSessionMemory()
+			ended = true
+		}
+		testScheduler.runCurrent()
+		assertFalse(ended, "the session does not end in the middle of the confirmation")
+
+		releaseConfirm.complete(Unit)
+		job.join()
+		ending.join()
+
+		assertTrue(ended)
+		assertEquals(emptyList(), store.getMutations("record"), "the row was retired before the session ended")
+	}
+
+	@Test
+	fun sessionEpoch_whenAResolutionIsBeingSaved_theEndOfTheSessionWaitsForIt() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val saveStarted = CompletableDeferred<Unit>()
+		val releaseSave = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onSend = { throw TestTerminalFailure() },
+			onResolve = { _, _ ->
+				store.beforeSave = {
+					store.beforeSave = null
+					saveStarted.complete(Unit)
+					releaseSave.await()
+				}
+				MutationFailureResolution.Defer()
+			}
+		)
+		val job = launch {
+			engine.submit(
+				mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+				syncSpec = spec,
+				propagateTerminalErrors = false
+			)
+		}
+
+		saveStarted.await()
+		var ended = false
+		val ending = launch {
+			engine.clearSessionMemory()
+			ended = true
+		}
+		testScheduler.runCurrent()
+		assertFalse(ended, "the session does not end in the middle of the verdict's save")
+
+		releaseSave.complete(Unit)
+		job.join()
+		ending.join()
+
+		assertTrue(ended)
+	}
+
+	@Test
+	fun sessionEpoch_theGateIsNotHeldDuringARequest() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val sendStarted = CompletableDeferred<Unit>()
+		val releaseSend = CompletableDeferred<Unit>()
+		val spec = ScriptedSpec(
+			onSend = {
+				sendStarted.complete(Unit)
+				releaseSend.await()
+			}
+		)
+		val job = launch {
+			engine.submit(
+				mutation = testMutationEnvelope(mutationId = "mutation-1", value = 10),
+				syncSpec = spec,
+				propagateTerminalErrors = false
+			)
+		}
+
+		sendStarted.await()
+		// Returns at once: the send in flight does not hold what the end of the session needs.
+		engine.clearSessionMemory()
+		releaseSend.complete(Unit)
+		job.join()
 	}
 
 	@Test
@@ -1072,6 +1208,9 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 	// an execution.
 	var afterSave: (suspend () -> Unit)? = null
 
+	// Runs before each savePendingMutation: the point a test uses to hold a write open.
+	var beforeSave: (suspend () -> Unit)? = null
+
 	override fun observePendingMutations(
 		scopeKey: ScopeKey
 	): Flow<List<MutationEnvelope<ScopeKey, Command>>> {
@@ -1144,6 +1283,7 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 	override suspend fun savePendingMutation(
 		mutation: MutationEnvelope<ScopeKey, Command>
 	) {
+		beforeSave?.invoke()
 		state.value = state.value
 			.filterNot { pending -> pending.mutationId == mutation.mutationId }
 			.plus(mutation)
@@ -1204,6 +1344,7 @@ private class ScriptedSpec(
 	private val onCurrentPrecondition: suspend (MutationEnvelope<String, TestMutation>) -> MutationPrecondition =
 		{ mutation -> mutation.precondition },
 	private val onSend: suspend (MutationEnvelope<String, TestMutation>) -> Unit = {},
+	private val onConfirm: suspend () -> Unit = {},
 	private val onResolve: suspend (
 		MutationEnvelope<String, TestMutation>,
 		Throwable
@@ -1231,6 +1372,7 @@ private class ScriptedSpec(
 
 	override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) {
 		confirmCount += 1
+		onConfirm()
 	}
 
 	override suspend fun resolveFailure(

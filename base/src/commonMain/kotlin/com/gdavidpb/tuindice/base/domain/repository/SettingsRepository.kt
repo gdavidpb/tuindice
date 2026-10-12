@@ -18,6 +18,7 @@ interface SettingsRepository {
 	suspend fun markCoachmarkSeen(coachmarkId: String)
 
 	suspend fun setSessionResetNoticePending()
+	suspend fun hasSessionResetNoticePending(): Boolean
 	suspend fun consumeSessionResetNoticePending(): Boolean
 
 	suspend fun getLocalDataOwner(): String?

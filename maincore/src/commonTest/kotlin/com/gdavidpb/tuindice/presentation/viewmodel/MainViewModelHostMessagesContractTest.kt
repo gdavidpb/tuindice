@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -28,7 +31,9 @@ class MainViewModelHostMessagesContractTest {
 	fun sessionInvalidatedFromOutside_isToldAsAnEffectWithItsMessage() = runTest {
 		withMainDispatcher { dispatchers ->
 			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
 			val viewModel = createMainViewModel(
+				settingsRepository = settingsRepository,
 				sessionInvalidationRepository = sessionInvalidationRepository,
 				dispatchers = dispatchers
 			)
@@ -38,6 +43,8 @@ class MainViewModelHostMessagesContractTest {
 				testScheduler.advanceUntilIdle()
 
 				viewModel.effect.test {
+					// What the invalidation does: leave the notice, then tell.
+					settingsRepository.setSessionResetNoticePending()
 					sessionInvalidationRepository.notifySessionInvalidated()
 
 					val effect = awaitItem()
@@ -47,6 +54,51 @@ class MainViewModelHostMessagesContractTest {
 					cancelAndIgnoreRemainingEvents()
 				}
 			}
+		}
+	}
+
+	// The notice reaches the route once the content is up, and the copy kept for the next start is
+	// taken only when the route says it showed it: a process that dies in between (a background kill)
+	// still explains the sign-in screen at the next start.
+	@Test
+	fun sessionInvalidation_keepsTheCopyForTheNextStart_untilTheRouteSaysItShowedTheNotice() = runTest {
+		withMainDispatcher { dispatchers ->
+			val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
+			// The real one: it keeps the signal until the machine observes it.
+			val sessionInvalidationRepository = SessionInvalidationDataSource()
+			val viewModel = createMainViewModel(
+				settingsRepository = settingsRepository,
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				dispatchers = dispatchers
+			)
+
+			collectingState(viewModel) {
+				viewModel.awaitContent { true }
+
+				// The session ends once the start-up is over (it would have taken the notice before).
+				settingsRepository.setSessionResetNoticePending()
+				sessionInvalidationRepository.notifySessionInvalidated()
+
+				viewModel.effect.test {
+					assertIs<Main.Effect.SessionInvalidated>(awaitSessionInvalidated())
+					assertEquals(true, settingsRepository.sessionResetNoticePending, "told is not shown")
+
+					viewModel.sessionInvalidationShownAction()
+					withTimeout(3_000) {
+						while (settingsRepository.sessionResetNoticePending) yield()
+					}
+
+					cancelAndIgnoreRemainingEvents()
+				}
+			}
+		}
+	}
+
+	private suspend fun app.cash.turbine.ReceiveTurbine<Main.Effect>.awaitSessionInvalidated(): Main.Effect {
+		while (true) {
+			val effect = awaitItem()
+
+			if (effect is Main.Effect.SessionInvalidated) return effect
 		}
 	}
 

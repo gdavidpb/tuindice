@@ -71,6 +71,13 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
+		// The route showed the notice of a session that ended behind the user's back: only now is the
+		// copy kept for the next start taken.
+		on<Main.Action.SessionInvalidationShown> { state, _ ->
+			machine.acknowledgeSessionInvalidation(host = host)
+			state
+		}
+
 		// Telemetry-only rows: the host route dispatches these when the sync status
 		// transitions into a degraded state, so backend outages become measurable on the
 		// app_action rail. The self-loop transition itself is filtered by the analytics

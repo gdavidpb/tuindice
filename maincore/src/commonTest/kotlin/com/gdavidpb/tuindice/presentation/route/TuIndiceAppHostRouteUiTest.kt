@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.route
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -91,6 +92,7 @@ import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewM
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -668,6 +670,59 @@ class TuIndiceAppHostRouteUiTest {
 		}
 	}
 
+	// The user is already on the sign-in screen when the notice of the session that ended arrives (the
+	// invalidation came from work that was still running): it is shown, once, and the screen they are
+	// typing in is not thrown away to take them where they already are.
+	@Test
+	fun when_theSessionEndsWhileTheSignInIsShown_then_theNoticeIsShown_andTheScreenIsNotReset() = runTuIndiceUiTest {
+		val sessionRepository = signedOutSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			settingsRepository = settingsRepository
+		)
+		startSignedOutHostKoin(sessionRepository, syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
+
+			runOnIdle {
+				// What the invalidation does: leave the notice, then tell.
+				runBlocking { settingsRepository.setSessionResetNoticePending() }
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+			// What the user was typing is still there: nothing replaced the screen.
+			onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("12-34567")
+			// And the kept copy was taken once it was shown.
+			waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
+		} finally {
+			stopKoin()
+		}
+	}
+
 	@Test
 	fun when_syncStatusBecomesUnavailable_then_hostRouteReportsDegradedSyncActionOnce() = runTuIndiceUiTest {
 		val sessionRepository = signedOutSessionRepository()
@@ -1030,6 +1085,10 @@ class TuIndiceAppHostRouteUiTest {
 	@Test
 	fun when_sessionIsInvalidated_then_hostRouteNavigatesToSignIn() = runTuIndiceUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository()
+		val settingsRepository = FakeSettingsRepository(
+			reviewSuggested = true,
+			lastMainSection = MainSection.SUMMARY
+		)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
 		stopKoin()
@@ -1112,10 +1171,7 @@ class TuIndiceAppHostRouteUiTest {
 					viewModel = createMainViewModel(
 						sessionInvalidationRepository = sessionInvalidationRepository,
 						syncStatusRepository = syncStatusRepository,
-						settingsRepository = FakeSettingsRepository(
-							reviewSuggested = true,
-							lastMainSection = MainSection.SUMMARY
-						)
+						settingsRepository = settingsRepository
 					)
 				)
 			}
@@ -1128,6 +1184,8 @@ class TuIndiceAppHostRouteUiTest {
 			}
 
 			runOnIdle {
+				// What the invalidation does: leave the notice, then tell.
+				runBlocking { settingsRepository.setSessionResetNoticePending() }
 				sessionInvalidationRepository.notifySessionInvalidated()
 			}
 
@@ -1142,6 +1200,41 @@ class TuIndiceAppHostRouteUiTest {
 			onNodeWithText("Inicia sesión nuevamente").assertExists()
 		} finally {
 			stopKoin()
+		}
+	}
+
+	private fun startSignedOutHostKoin(
+		sessionRepository: SessionRepository,
+		syncStatusRepository: FakeSyncStatusRepository,
+		sessionInvalidationRepository: SessionInvalidationRepository
+	) {
+		stopKoin()
+
+		startKoin {
+			modules(
+				hostRouteNavigationModule(
+					syncStatusRepository = syncStatusRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				),
+				authModule,
+				module {
+					single<AuthRepository> { stubAuthRepository() }
+					single<SessionRepository> { sessionRepository }
+					single<MessagingRepository> { FakeMessagingRepository() }
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
 		}
 	}
 

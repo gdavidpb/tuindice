@@ -41,9 +41,10 @@ class MainHostObservationUseCasesTest {
 	@Test
 	fun observeSessionInvalidation_emitsEachInvalidation_whileObserved() = runTest {
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
 		val useCase = ObserveSessionInvalidationUseCase(
 			sessionInvalidationRepository = sessionInvalidationRepository,
-			settingsRepository = FakeSettingsRepository(),
+			settingsRepository = settingsRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -51,10 +52,61 @@ class MainHostObservationUseCasesTest {
 			assertIs<UseCaseState.Loading>(awaitItem())
 			expectNoEvents()
 
+			// The invalidation leaves its notice persisted before it tells anyone.
+			settingsRepository.setSessionResetNoticePending()
 			sessionInvalidationRepository.notifySessionInvalidated()
 			assertEquals(UseCaseState.Data(Unit), awaitItem())
 
 			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// The start-up already told the user (it read the notice the invalidation left): the live
+	// signal that arrives afterwards is the same notice, not a second one.
+	@Test
+	fun observeSessionInvalidation_whenTheStartUpAlreadyShowedTheNotice_doesNotShowItAgain() = runTest {
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
+		val useCase = ObserveSessionInvalidationUseCase(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = settingsRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		settingsRepository.setSessionResetNoticePending()
+		settingsRepository.consumeSessionResetNoticePending()
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			sessionInvalidationRepository.notifySessionInvalidated()
+
+			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// Told is not shown: the notice stays persisted until the interface says it showed it, so a
+	// process that dies in between (a background kill) still explains the sign-in screen at the
+	// next start.
+	@Test
+	fun observeSessionInvalidation_keepsTheNoticePending_untilTheInterfaceAcknowledgesIt() = runTest {
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
+		val useCase = ObserveSessionInvalidationUseCase(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = settingsRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		settingsRepository.setSessionResetNoticePending()
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			sessionInvalidationRepository.notifySessionInvalidated()
+			assertEquals(UseCaseState.Data(Unit), awaitItem())
+
+			assertEquals(true, settingsRepository.sessionResetNoticePending)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

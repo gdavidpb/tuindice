@@ -25,6 +25,9 @@ object Schedule {
 	sealed class Action : ViewAction {
 		data object ObserveSchedule : Action()
 		class SelectScheduleView(val viewMode: ScheduleViewMode) : Action()
+
+		// The screen is back in front: the clock is read again instead of waiting for its next tick.
+		data object Resumed : Action()
 	}
 
 	sealed class Effect : ViewEffect

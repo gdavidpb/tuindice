@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
+import com.gdavidpb.tuindice.record.testing.SleepingScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.record.testing.scheduleNow
@@ -94,7 +96,8 @@ class ScheduleViewModelContractTest {
 				assertTrue(atEight.schedule.grid.days.first().cells.single().isInProgress)
 
 				// 9:30: the meeting (blocks 1-2) is over, and so is the grid.
-				fixture.clockRepository.nowFlow.value = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
+				(fixture.clockRepository as ControllableScheduleClockRepository).nowFlow.value =
+					scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
 
 				val afterClass = awaitUntilState<Schedule.State.Content> { content ->
 					content.schedule.grid.days.first().nowBlockOffset == null
@@ -105,6 +108,62 @@ class ScheduleViewModelContractTest {
 
 				cancelAndIgnoreRemainingEvents()
 			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	// The ticker sleeps while the process is suspended and the value stays old until the next tick,
+	// up to a minute. Coming back reads the clock again.
+	@Test
+	fun resume_readsTheClockAgain_insteadOfWaitingForTheNextTick() = runTest {
+		val clock = SleepingScheduleClockRepository()
+		val fixture = createFixture(record = scheduledRecord(), hasSynced = true, clockRepository = clock)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				// Monday 8:00: halfway through block 1 of the Monday meeting.
+				val atEight = awaitUntilState<Schedule.State.Content>()
+				assertEquals(0.5f, atEight.schedule.grid.days.first().nowBlockOffset)
+
+				// The device was away: it is 9:30 now and the ticker has not spoken.
+				clock.reading = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
+				fixture.viewModel.resumedAction()
+
+				val afterClass = awaitUntilState<Schedule.State.Content> { content ->
+					content.schedule.grid.days.first().nowBlockOffset == null
+				}
+
+				assertFalse(afterClass.schedule.grid.days.first().cells.single().isInProgress)
+				assertEquals(2, clock.observations, "one observation at the start and one at the return")
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun resume_whenNothingHasBeenObservedYet_startsNoSecondObservation() = runTest {
+		val clock = SleepingScheduleClockRepository()
+		val fixture = createFixture(record = scheduledRecord(), hasSynced = true, clockRepository = clock)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				awaitUntilState<Schedule.State.Content>()
+
+				cancelAndIgnoreRemainingEvents()
+			}
+			assertEquals(1, clock.observations)
 		} finally {
 			stateCollector.cancel()
 		}
@@ -151,13 +210,16 @@ class ScheduleViewModelContractTest {
 		)
 	)
 
-	private fun createFixture(record: AcademicRecord, hasSynced: Boolean): ScheduleFixture {
+	private fun createFixture(
+		record: AcademicRecord,
+		hasSynced: Boolean,
+		clockRepository: ScheduleClockRepository = ControllableScheduleClockRepository()
+	): ScheduleFixture {
 		val academicRecordRepository = ControllableAcademicRecordRepository(
 			initialRecord = record,
 			initialHasSynced = hasSynced
 		)
 		val selectionRepository = RecordingScheduleSelectionRepository()
-		val clockRepository = ControllableScheduleClockRepository()
 		val reportingRepository = RecordingReportingRepository()
 
 		return ScheduleFixture(
@@ -186,6 +248,6 @@ class ScheduleViewModelContractTest {
 		val viewModel: ScheduleViewModel,
 		val academicRecordRepository: ControllableAcademicRecordRepository,
 		val selectionRepository: RecordingScheduleSelectionRepository,
-		val clockRepository: ControllableScheduleClockRepository
+		val clockRepository: ScheduleClockRepository
 	)
 }
