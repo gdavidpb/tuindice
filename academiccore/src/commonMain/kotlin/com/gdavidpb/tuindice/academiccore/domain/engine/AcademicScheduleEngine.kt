@@ -22,7 +22,7 @@ object AcademicScheduleEngine {
 	private const val FIRST_DAY = 1
 	private const val LAST_DAY = 7
 	private const val DAYS_PER_WEEK = 7
-	private const val MAX_DAYS_AHEAD = 6
+	private const val MAX_DAYS_AHEAD = 7
 	private val SEARCH_DAYS_AHEAD = 1..MAX_DAYS_AHEAD
 
 	private val meetingOrder = compareBy(ScheduleMeeting::startBlock, ScheduleMeeting::subjectCode)
@@ -50,7 +50,8 @@ object AcademicScheduleEngine {
 	 * The class in progress at [minuteOfDay] of [dayOfWeek]: the meeting whose block range contains the
 	 * block the clock is in (the first by start block and code when two overlap). Otherwise the next
 	 * one: the first still to start today or, when none is left, the first of the next day with
-	 * classes within the following six days. Null when there is no meeting to speak of.
+	 * classes within the following seven days (the last one is the same weekday next week, so a
+	 * student with a single weekly class asking right after it still gets it). Null when there is no meeting to speak of.
 	 */
 	fun currentOrNext(
 		meetings: List<ScheduleMeeting>,

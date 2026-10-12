@@ -9,7 +9,7 @@ sealed interface ScheduleMoment {
 
 	/**
 	 * [meeting] is the next one to start, [daysAhead] days from the day asked (0 = later today,
-	 * 1 = tomorrow, up to 6).
+	 * 1 = tomorrow, up to 7 = the same weekday next week).
 	 */
 	data class Next(val meeting: ScheduleMeeting, val daysAhead: Int) : ScheduleMoment
 }

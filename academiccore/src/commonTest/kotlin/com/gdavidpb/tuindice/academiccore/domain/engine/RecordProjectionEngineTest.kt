@@ -15,6 +15,23 @@ import kotlin.test.assertEquals
 
 class RecordProjectionEngineTest {
 	@Test
+	fun projectProjection_carriesTheClassesStartDateOfTheTermUnchanged() {
+		val withDate = AcademicTerm(
+			id = "term-1",
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.SEP_DEC,
+			kind = TermKind.CURRENT,
+			classesStartDate = "2026-09-28"
+		)
+		val withoutDate = withDate.copy(id = "term-2", periodYear = 2025, kind = TermKind.HISTORICAL, classesStartDate = null)
+
+		val terms = RecordProjectionEngine.projectProjection(record(terms = listOf(withDate, withoutDate))).terms
+
+		assertEquals("2026-09-28", terms.single { term -> term.id == "term-1" }.classesStartDate)
+		assertEquals(null, terms.single { term -> term.id == "term-2" }.classesStartDate)
+	}
+
+	@Test
 	fun projectProjection_countsPendingQualitativeCreditsInPeriodCredits_withoutAffectingAverage() {
 		val projection = projectSingleTerm(
 			attempt(

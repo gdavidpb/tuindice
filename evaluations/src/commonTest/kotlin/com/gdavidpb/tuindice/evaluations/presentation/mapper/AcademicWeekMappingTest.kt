@@ -120,4 +120,39 @@ class AcademicWeekMappingTest {
 			computeAcademicWeek(DEFAULT_EVALUATION_TERM, LocalDate(2027, 4, 1))
 		)
 	}
+
+	// SEP_DEC 2026 with classes starting on Monday September 28th.
+	private val termWithClassesStart = DEFAULT_EVALUATION_TERM.copy(
+		periodCode = AcademicTermPeriod.SEP_DEC,
+		classesStartDate = LocalDate(2026, 9, 28)
+	)
+
+	@Test
+	fun computeAcademicWeek_withClassesStartDate_countsWeeksFromTheRealStart() {
+		assertEquals(3, computeAcademicWeek(termWithClassesStart, LocalDate(2026, 10, 15)))
+		assertEquals(1, computeAcademicWeek(termWithClassesStart, LocalDate(2026, 9, 28)))
+		assertEquals(2, computeAcademicWeek(termWithClassesStart, LocalDate(2026, 10, 5)))
+	}
+
+	@Test
+	fun computeAcademicWeek_withClassesStartDate_clampsBeforeTheStartAndAfterWeekTwelve() {
+		assertEquals(MIN_ACADEMIC_WEEK, computeAcademicWeek(termWithClassesStart, LocalDate(2026, 9, 14)))
+		assertEquals(MAX_ACADEMIC_WEEK, computeAcademicWeek(termWithClassesStart, LocalDate(2027, 2, 1)))
+	}
+
+	@Test
+	fun computeAcademicWeek_withAnImplausibleClassesStartDate_usesThePeriodStartMonth() {
+		val term = termWithClassesStart.copy(classesStartDate = LocalDate(2027, 1, 12))
+		val withoutDate = termWithClassesStart.copy(classesStartDate = null)
+
+		// Week one opens on Monday August 31st, so October 15th is week 7.
+		assertEquals(7, computeAcademicWeek(withoutDate, LocalDate(2026, 10, 15)))
+		assertEquals(7, computeAcademicWeek(term, LocalDate(2026, 10, 15)))
+	}
+
+	@Test
+	fun academicWeekOneStart_followsTheClassesStartDateWhenPlausible() {
+		assertEquals(LocalDate(2026, 9, 28), termWithClassesStart.academicWeekOneStart())
+		assertEquals(LocalDate(2026, 8, 31), termWithClassesStart.copy(classesStartDate = null).academicWeekOneStart())
+	}
 }

@@ -157,8 +157,8 @@ class AcademicScheduleEngineTest {
 
 		val moment = AcademicScheduleEngine.currentOrNext(meetings, MONDAY, ScheduleBlockClock.blockEndMinute(3))
 
-		// Nothing is left today and the only meeting is on today's weekday: a week away, out of reach.
-		assertNull(moment)
+		// Nothing is left today and the only meeting is on today's weekday: it is next week's, seven days ahead.
+		assertEquals(ScheduleMoment.Next(meetings.single(), daysAhead = 7), moment)
 	}
 
 	@Test
@@ -220,7 +220,7 @@ class AcademicScheduleEngineTest {
 	}
 
 	@Test
-	fun currentOrNext_looksAheadSixDaysAtMost() {
+	fun currentOrNext_looksAheadSevenDaysAtMost() {
 		val sixAhead = listOf(meeting("AA", SUNDAY, 1))
 
 		// Monday + 6 days = Sunday.
@@ -228,8 +228,14 @@ class AcademicScheduleEngineTest {
 			ScheduleMoment.Next(sixAhead.single(), daysAhead = 6),
 			AcademicScheduleEngine.currentOrNext(sixAhead, MONDAY, minuteOf(5))
 		)
-		// A meeting only on today's weekday that has already passed is a week away: out of reach.
-		assertNull(AcademicScheduleEngine.currentOrNext(listOf(meeting("BB", MONDAY, 1)), MONDAY, minuteOf(5)))
+		// A meeting only on today's weekday that has already passed is the same weekday next week.
+		val sameDayNextWeek = listOf(meeting("BB", MONDAY, 1))
+
+		assertEquals(
+			ScheduleMoment.Next(sameDayNextWeek.single(), daysAhead = 7),
+			AcademicScheduleEngine.currentOrNext(sameDayNextWeek, MONDAY, minuteOf(5))
+		)
+		assertNull(AcademicScheduleEngine.currentOrNext(emptyList(), MONDAY, minuteOf(5)))
 	}
 
 	@Test

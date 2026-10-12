@@ -144,7 +144,8 @@ object RecordProjectionEngine {
 					cumulativeAverage = academicTermProjection.cumulativeAverage,
 					periodCredits = academicTermProjection.periodCredits,
 					cumulativeCredits = academicTermProjection.cumulativeCredits,
-					attempts = attemptProjections
+					attempts = attemptProjections,
+					classesStartDate = termState.term.classesStartDate
 				)
 			} else {
 				TermProjection(
@@ -165,7 +166,8 @@ object RecordProjectionEngine {
 					),
 					periodCredits = periodDisplayedCredits,
 					cumulativeCredits = cumulativeCredits.toInt(),
-					attempts = attemptProjections
+					attempts = attemptProjections,
+					classesStartDate = termState.term.classesStartDate
 				)
 			}
 		}

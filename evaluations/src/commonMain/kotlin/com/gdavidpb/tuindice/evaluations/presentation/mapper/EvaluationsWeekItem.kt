@@ -20,7 +20,7 @@ fun buildEvaluationsWeekItems(
 	continuousLabel: String,
 	currentDate: LocalDate
 ): List<EvaluationsWeekItem> {
-	val termStart = currentTerm?.academicTermStartDate() ?: currentDate
+	val termStart = currentTerm?.academicWeekOneStart() ?: currentDate
 	val evaluationDates = evaluations.mapNotNull { evaluation ->
 		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) {
 			null

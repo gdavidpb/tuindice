@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SyntheticTermLoadPrevi
 
 object TuIndiceRoomMigrations {
 	val all: Array<Migration>
-		get() = arrayOf(Migration30To31, Migration31To32, Migration32To33, Migration33To34, Migration34To35)
+		get() = arrayOf(Migration30To31, Migration31To32, Migration32To33, Migration33To34, Migration34To35, Migration35To36)
 }
 
 private object Migration30To31 : Migration(30, 31) {
@@ -52,6 +52,14 @@ private object Migration34To35 : Migration(VERSION_34, VERSION_35) {
 	}
 }
 
+private const val VERSION_36 = 36
+
+private object Migration35To36 : Migration(VERSION_35, VERSION_36) {
+	override fun migrate(connection: SQLiteConnection) {
+		connection.addAcademicTermClassesStartDateColumn()
+	}
+}
+
 private fun SQLiteConnection.clearPensumDerivedTables() {
 	execSQL("DELETE FROM ${PensumSelectionTable.TABLE_NAME}")
 	execSQL("DELETE FROM ${PensumCacheTable.TABLE_NAME}")
@@ -84,6 +92,12 @@ private fun SQLiteConnection.addAcademicAttemptScheduleColumns() {
 	addColumn(table, AcademicAttemptTable.WITHDRAWN, "INTEGER")
 	addColumn(table, AcademicAttemptTable.SCHEDULE, "TEXT")
 	addColumn(table, AcademicAttemptTable.ENROLLMENT_ERRORS, "TEXT")
+}
+
+// Nullable and without a default: a term stored before the backend served the first day of classes
+// has none, and the week numbering keeps its calendar-month rule for it.
+private fun SQLiteConnection.addAcademicTermClassesStartDateColumn() {
+	addColumn(AcademicTermTable.TABLE_NAME, AcademicTermTable.CLASSES_START_DATE, "TEXT")
 }
 
 // Lifetime count of exhausted rebases; a queued mutation that predates it starts at zero.

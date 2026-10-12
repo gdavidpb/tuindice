@@ -12,6 +12,15 @@ internal fun EvaluationTermDescriptor.academicTermStartDate() = LocalDate(
 	day = 1
 )
 
+// The Monday that opens week 1: it follows the real first day of classes when the backend served a
+// plausible one, and the calendar month of the period otherwise. Every week number and the strip of
+// weeks must come from this one anchor.
+internal fun EvaluationTermDescriptor.academicWeekOneStart(): LocalDate = AcademicWeekEngine.weekOneStart(
+	periodYear = periodYear,
+	periodCode = periodCode,
+	classesStartDate = classesStartDate
+)
+
 internal fun LocalDate.academicWeekStart(): LocalDate =
 	plus(DatePeriod(days = -dayOfWeek.ordinal))
 
@@ -19,12 +28,7 @@ internal fun computeAcademicWeek(
 	term: EvaluationTermDescriptor,
 	currentDate: LocalDate
 ): Int {
-	val weekOneStart = AcademicWeekEngine.weekOneStart(
-		periodYear = term.periodYear,
-		periodCode = term.periodCode
-	)
-
-	return AcademicWeekEngine.weekOf(weekOneStart = weekOneStart, date = currentDate)
+	return AcademicWeekEngine.weekOf(weekOneStart = term.academicWeekOneStart(), date = currentDate)
 }
 
 internal const val DAYS_PER_WEEK = AcademicWeekEngine.DAYS_PER_WEEK

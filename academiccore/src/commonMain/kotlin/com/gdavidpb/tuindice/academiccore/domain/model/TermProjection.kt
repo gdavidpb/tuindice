@@ -16,5 +16,6 @@ data class TermProjection(
 	@SerialName("cumulative_average") val cumulativeAverage: Double,
 	@SerialName("period_credits") val periodCredits: Int,
 	@SerialName("cumulative_credits") val cumulativeCredits: Int,
-	val attempts: List<AttemptProjection> = emptyList()
+	val attempts: List<AttemptProjection> = emptyList(),
+	@SerialName("classes_start_date") val classesStartDate: String? = null
 )

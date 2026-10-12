@@ -25,5 +25,7 @@ data class AcademicTermEntity(
 	// Nullable on purpose: rows written before the anchor existed, and every non-HISTORICAL term,
 	// carry no official average and must keep falling back to what the engine computes.
 	@ColumnInfo(name = AcademicTermTable.OFFICIAL_PERIOD_AVERAGE) val officialPeriodAverage: Double? = null,
-	@ColumnInfo(name = AcademicTermTable.OFFICIAL_CUMULATIVE_AVERAGE) val officialCumulativeAverage: Double? = null
+	@ColumnInfo(name = AcademicTermTable.OFFICIAL_CUMULATIVE_AVERAGE) val officialCumulativeAverage: Double? = null,
+	// ISO yyyy-MM-dd, nullable: only the CURRENT term carries it, and only when the backend knows it.
+	@ColumnInfo(name = AcademicTermTable.CLASSES_START_DATE) val classesStartDate: String? = null
 )

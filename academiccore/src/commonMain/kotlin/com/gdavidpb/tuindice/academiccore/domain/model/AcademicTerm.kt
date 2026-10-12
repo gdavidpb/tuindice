@@ -17,5 +17,9 @@ data class AcademicTerm(
 	// that is the number on the student's constancia; the engine still computes its own. Absent on
 	// CURRENT and SYNTHETIC terms, and on records the backend served before the anchor existed.
 	@SerialName("official_period_average") val officialPeriodAverage: Double? = null,
-	@SerialName("official_cumulative_average") val officialCumulativeAverage: Double? = null
+	@SerialName("official_cumulative_average") val officialCumulativeAverage: Double? = null,
+	// First day of classes (ISO yyyy-MM-dd) of the CURRENT term, when the backend knows it. Kept as a
+	// string so a malformed value cannot fail the decoding of the whole record; read it through
+	// classesStartLocalDate().
+	@SerialName("classes_start_date") val classesStartDate: String? = null
 )
