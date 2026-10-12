@@ -1,12 +1,13 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicScheduleEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
-import com.gdavidpb.tuindice.record.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
@@ -20,12 +21,6 @@ import tuindice.record.generated.resources.schedule_table_section
 import tuindice.record.generated.resources.schedule_table_section_classroom
 import tuindice.record.generated.resources.schedule_unscheduled
 
-private const val FIRST_BLOCK = 1
-
-// Far above the 11 blocks the university has used so far: anything beyond it is a malformed entry,
-// and drawing it would stretch the grid into dozens of empty rows.
-private const val LAST_BLOCK = 24
-
 /**
  * Whether the term with [termId] is the current one and has something scheduled: what puts the
  * schedule icon on the record's bar. Asked of the record as stored, without projecting it or laying
@@ -35,7 +30,7 @@ private const val LAST_BLOCK = 24
 internal fun AcademicRecord.hasScheduleOnTerm(termId: String): Boolean {
 	return terms.any { term ->
 		term.id == termId && term.kind.isCurrent && term.attempts.any { attempt ->
-			!attempt.withdrawn && attempt.schedule.orEmpty().any { entry -> entry.isPlaceable() }
+			!attempt.withdrawn && attempt.schedule.orEmpty().any { entry -> AcademicScheduleEngine.isPlaceable(entry) }
 		}
 	}
 }
@@ -71,7 +66,7 @@ internal fun List<AttemptProjection>.toScheduleItem(now: ScheduleNow? = null): S
 		?.takeIf { today != null }
 		?.let { moment -> ScheduleBlockClock.blocksSinceFirstBlock(moment.minuteOfDay) }
 		?.takeIf { offset -> offset >= 0f && offset < blockCount }
-	val currentBlock = nowBlockOffset?.let { offset -> offset.toInt() + FIRST_BLOCK }
+	val currentBlock = nowBlockOffset?.let { offset -> offset.toInt() + AcademicScheduleEngine.FIRST_BLOCK }
 	val days = shownDays.map { day ->
 		val isToday = day == today
 
@@ -153,19 +148,11 @@ private data class SchedulePlacement(
 	val endBlock: Int
 )
 
-// A day the week has and a block range that makes sense: what a meeting needs to be drawn.
-private fun AcademicScheduleEntry.isPlaceable(): Boolean {
-	return ScheduleDay.fromCode(dayOfWeek) != null &&
-		startBlock >= FIRST_BLOCK &&
-		endBlock >= startBlock &&
-		endBlock <= LAST_BLOCK
-}
-
 // A malformed block range or day is dropped rather than drawn: a wrong cell is worse than none.
 private fun AttemptProjection.toPlacement(entry: AcademicScheduleEntry): SchedulePlacement? {
 	val day = ScheduleDay.fromCode(entry.dayOfWeek)
 
-	return day?.takeIf { entry.isPlaceable() }?.let {
+	return day?.takeIf { AcademicScheduleEngine.isPlaceable(entry) }?.let {
 		SchedulePlacement(
 			attemptId = id,
 			subjectCode = subjectCode,

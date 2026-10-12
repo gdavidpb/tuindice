@@ -30,8 +30,7 @@ class RoomDatabaseDataSourceTermKindTest {
 		assertEquals(
 			"11111111111111111111111111111111",
 			RoomDatabaseDataSource.selectOfficialCurrentTermId(
-				terms = terms,
-				nowMillis = 1_776_124_800_000L
+				terms = terms
 			)
 		)
 	}
@@ -58,8 +57,7 @@ class RoomDatabaseDataSourceTermKindTest {
 
 		assertNull(
 			RoomDatabaseDataSource.selectOfficialCurrentTermId(
-				terms = terms,
-				nowMillis = 1_787_000_000_000L
+				terms = terms
 			)
 		)
 	}
@@ -81,8 +79,7 @@ class RoomDatabaseDataSourceTermKindTest {
 
 		assertNull(
 			RoomDatabaseDataSource.selectOfficialCurrentTermId(
-				terms = terms,
-				nowMillis = 1_774_000_000_000L
+				terms = terms
 			)
 		)
 	}
@@ -105,8 +102,7 @@ class RoomDatabaseDataSourceTermKindTest {
 		assertEquals(
 			"22222222222222222222222222222222",
 			RoomDatabaseDataSource.selectOfficialCurrentTermId(
-				terms = terms,
-				nowMillis = 1_787_000_000_000L
+				terms = terms
 			)
 		)
 	}

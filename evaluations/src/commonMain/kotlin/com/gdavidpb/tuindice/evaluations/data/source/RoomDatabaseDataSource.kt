@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
-import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
@@ -117,8 +117,7 @@ class RoomDatabaseDataSource(
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
 		val currentTermId = selectOfficialCurrentTermId(
-			terms = academicTermDao.getTerms(),
-			nowMillis = currentTimeMillis()
+			terms = academicTermDao.getTerms()
 		) ?: return emptyList()
 
 		return academicAttemptDao
@@ -134,8 +133,7 @@ class RoomDatabaseDataSource(
 
 	override suspend fun getCurrentTerm() =
 		selectOfficialCurrentTerm(
-			terms = academicTermDao.getTerms(),
-			nowMillis = currentTimeMillis()
+			terms = academicTermDao.getTerms()
 		)?.toLocalCurrentTermDescriptor()
 
 	override suspend fun confirmAddedEvaluation(
@@ -262,26 +260,15 @@ class RoomDatabaseDataSource(
 
 	internal companion object {
 		fun selectOfficialCurrentTermId(
-			terms: List<AcademicTermEntity>,
-			nowMillis: Long
-		): String? = selectOfficialCurrentTerm(
-			terms = terms,
-			nowMillis = nowMillis
-		)?.id
+			terms: List<AcademicTermEntity>
+		): String? = selectOfficialCurrentTerm(terms = terms)?.id
 
 		fun selectOfficialCurrentTerm(
-			terms: List<AcademicTermEntity>,
-			@Suppress("UNUSED_PARAMETER")
-			nowMillis: Long
-		): AcademicTermEntity? {
-			val termComparator = compareBy(
-				AcademicTermEntity::termOrder,
-				AcademicTermEntity::id
-			)
-
-			return terms
-				.filter { term -> TermKind.valueOf(term.kind) == TermKind.CURRENT }
-				.maxWithOrNull(termComparator)
-		}
+			terms: List<AcademicTermEntity>
+		): AcademicTermEntity? = terms.currentTermOrNull(
+			kind = { term -> TermKind.valueOf(term.kind) },
+			termOrder = AcademicTermEntity::termOrder,
+			id = AcademicTermEntity::id
+		)
 	}
 }

@@ -161,7 +161,7 @@ class RecordingScheduleSelectionRepository(
 }
 
 // A clock the test moves by hand: Monday at 8:00 unless told otherwise, which is halfway through
-// block 1 of the assumed block clock.
+// block 1 of the block clock.
 class ControllableScheduleClockRepository(
 	initialNow: ScheduleNow = ScheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
 ) : ScheduleClockRepository {

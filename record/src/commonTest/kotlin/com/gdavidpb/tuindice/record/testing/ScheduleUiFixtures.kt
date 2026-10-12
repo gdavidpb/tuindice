@@ -19,7 +19,7 @@ import kotlin.math.abs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-// Monday at 9:00: halfway through block 2 of the assumed block clock, which starts block 1 at 7:30.
+// Monday at 9:00: halfway through block 2 of the block clock, which starts block 1 at 7:30.
 val MondayAtNine = ScheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)
 
 // Laid out by the mapper, so what a schedule view is handed in a test is what the app resolves:

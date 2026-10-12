@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
+import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.ObservedSchedule
@@ -33,7 +34,11 @@ class ObserveScheduleUseCase(
 				currentTerm = recordSnapshot.value
 					.projectionFor(RecordViewMode.Projection)
 					.terms
-					.firstOrNull { term -> term.kind.isCurrent },
+					.currentTermOrNull(
+						kind = TermProjection::kind,
+						termOrder = TermProjection::termOrder,
+						id = TermProjection::id
+					),
 				viewMode = viewMode,
 				hasSyncedRecord = recordSnapshot.hasSynced,
 				now = now
