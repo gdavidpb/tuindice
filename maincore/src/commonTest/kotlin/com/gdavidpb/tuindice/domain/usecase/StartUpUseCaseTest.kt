@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
@@ -19,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 
 class StartUpUseCaseTest {
 	@Test
@@ -117,13 +119,14 @@ class StartUpUseCaseTest {
 			awaitComplete()
 		}
 
-		assertEquals(true, settingsRepository.sessionResetNoticePending)
+		// The reason is the true one: the data could not be read, not that the server ended anything.
+		assertEquals(SessionResetNoticeReason.UnreadableData, settingsRepository.sessionResetNoticeReason)
 	}
 
 	@Test
 	fun execute_offersTheSessionResetNoticeWithoutTakingIt() = runTest {
 		val settingsRepository = FakeSettingsRepository()
-		settingsRepository.setSessionResetNoticePending()
+		settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 
 		val useCase = StartUpUseCase(
 			sessionRepository = FakeSessionRepository(sessionId = ""),
@@ -140,7 +143,7 @@ class StartUpUseCaseTest {
 
 			val data = assertIs<UseCaseState.Data<StartUpResult>>(awaitItem())
 			val result = assertIs<StartUpResult.Available>(data.value)
-			assertEquals(true, result.showSessionResetNotice)
+			assertEquals(SessionResetNoticeReason.ServerEndedSession, result.sessionResetNotice)
 
 			awaitComplete()
 		}
@@ -154,7 +157,7 @@ class StartUpUseCaseTest {
 	@Test
 	fun execute_withASession_dropsAStaleSessionResetNotice() = runTest {
 		val settingsRepository = FakeSettingsRepository()
-		settingsRepository.setSessionResetNoticePending()
+		settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 
 		val result = runStartUp(
 			startUpUseCase(
@@ -163,7 +166,7 @@ class StartUpUseCaseTest {
 			)
 		)
 
-		assertEquals(false, assertIs<StartUpResult.Available>(result).showSessionResetNotice)
+		assertNull(assertIs<StartUpResult.Available>(result).sessionResetNotice)
 		assertEquals(false, settingsRepository.sessionResetNoticePending)
 	}
 

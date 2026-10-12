@@ -54,6 +54,7 @@ class SessionMemoryBindingTest {
 				"pensum.data.source.PensumDataSource",
 				"persistence.domain.mutation.StoreBackedMutationEngine",
 				"persistence.domain.mutation.StoreBackedMutationEngine",
+				"record.data.source.AcademicRecordDataSource",
 				"record.data.source.LocalSettingsDataSource",
 				"subjects.data.source.SubjectStatsRoomDataSource",
 				"summary.data.source.LocalSettingsDataSource",

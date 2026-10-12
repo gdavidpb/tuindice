@@ -57,6 +57,10 @@ object ActionDispositions {
 			reason = "the host route reports that it showed the notice of a session that ended behind the user's back"
 		),
 		ActionDisposition.Internal(
+			action = "maincore.Main.SessionInvalidationNotShown",
+			reason = "the host route reports that it could not show the notice (its coroutine ended first)"
+		),
+		ActionDisposition.Internal(
 			action = "maincore.Main.ShowOutdatedApp",
 			reason = "host shows the global outdated app screen from the shared HTTP 426 event"
 		),

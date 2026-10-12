@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.settings
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.data.mapper.toMainSectionOrThrow
@@ -78,18 +79,26 @@ class MultiplatformSettingsDataSource(
 		)
 	}
 
-	override suspend fun setSessionResetNoticePending() {
-		settings.putBoolean(SESSION_RESET_NOTICE_PENDING_KEY, true)
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason) {
+		settings.putString(SESSION_RESET_NOTICE_REASON_KEY, reason.name)
 	}
 
-	override suspend fun hasSessionResetNoticePending(): Boolean {
-		return settings.getBooleanOrNull(SESSION_RESET_NOTICE_PENDING_KEY) == true
+	override suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason? {
+		val stored = settings.getStringOrNull(SESSION_RESET_NOTICE_REASON_KEY)
+
+		return SessionResetNoticeReason.entries.firstOrNull { reason -> reason.name == stored }
+			// What the versions before the reason was kept left behind: a flag, which only a
+			// start-up that could not read the data used to set.
+			?: SessionResetNoticeReason.UnreadableData.takeIf {
+				settings.getBooleanOrNull(LEGACY_SESSION_RESET_NOTICE_PENDING_KEY) == true
+			}
 	}
 
 	override suspend fun consumeSessionResetNoticePending(): Boolean {
-		val pending = settings.getBooleanOrNull(SESSION_RESET_NOTICE_PENDING_KEY) == true
+		val pending = getSessionResetNoticeReason() != null
 
-		settings.remove(SESSION_RESET_NOTICE_PENDING_KEY)
+		settings.remove(SESSION_RESET_NOTICE_REASON_KEY)
+		settings.remove(LEGACY_SESSION_RESET_NOTICE_PENDING_KEY)
 
 		return pending
 	}
@@ -108,7 +117,8 @@ class MultiplatformSettingsDataSource(
 }
 
 private const val LAST_MAIN_SECTION_KEY = "lastDestination"
-private const val SESSION_RESET_NOTICE_PENDING_KEY = "sessionResetNoticePending"
+private const val SESSION_RESET_NOTICE_REASON_KEY = "sessionResetNoticeReason"
+private const val LEGACY_SESSION_RESET_NOTICE_PENDING_KEY = "sessionResetNoticePending"
 private const val LOCAL_DATA_OWNER_KEY = "localDataOwner"
 private const val OUTDATED_APP_MIN_VERSION_CODE_KEY = "outdatedAppMinVersionCode"
 private const val LEGACY_WIZARD_COMPLETED_KEY = "wizardCompleted"

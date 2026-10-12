@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
@@ -53,19 +54,23 @@ class MainHostObservationUseCasesTest {
 			expectNoEvents()
 
 			// The invalidation leaves its notice persisted before it tells anyone.
-			settingsRepository.setSessionResetNoticePending()
+			settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 			sessionInvalidationRepository.notifySessionInvalidated()
-			assertEquals(UseCaseState.Data(Unit), awaitItem())
+			assertEquals(
+				UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession),
+				awaitItem()
+			)
 
 			expectNoEvents()
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
-	// The start-up already told the user (it read the notice the invalidation left): the live
-	// signal that arrives afterwards is the same notice, not a second one.
+	// The start-up already told the user (it read the notice the invalidation left): the live signal
+	// that arrives afterwards is still delivered, because it takes the user to the sign-in, but it
+	// carries no notice: it is the same one, not a second one.
 	@Test
-	fun observeSessionInvalidation_whenTheStartUpAlreadyShowedTheNotice_doesNotShowItAgain() = runTest {
+	fun observeSessionInvalidation_whenTheStartUpAlreadyShowedTheNotice_stillDelivers_butWithNothingToTell() = runTest {
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val settingsRepository = FakeSettingsRepository()
 		val useCase = ObserveSessionInvalidationUseCase(
@@ -73,7 +78,7 @@ class MainHostObservationUseCasesTest {
 			settingsRepository = settingsRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
-		settingsRepository.setSessionResetNoticePending()
+		settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 		settingsRepository.consumeSessionResetNoticePending()
 
 		useCase.execute(Unit).test {
@@ -81,6 +86,7 @@ class MainHostObservationUseCasesTest {
 
 			sessionInvalidationRepository.notifySessionInvalidated()
 
+			assertEquals(UseCaseState.Data<SessionResetNoticeReason?>(null), awaitItem())
 			expectNoEvents()
 			cancelAndIgnoreRemainingEvents()
 		}
@@ -98,13 +104,16 @@ class MainHostObservationUseCasesTest {
 			settingsRepository = settingsRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
-		settingsRepository.setSessionResetNoticePending()
+		settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 
 		useCase.execute(Unit).test {
 			assertIs<UseCaseState.Loading>(awaitItem())
 
 			sessionInvalidationRepository.notifySessionInvalidated()
-			assertEquals(UseCaseState.Data(Unit), awaitItem())
+			assertEquals(
+				UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession),
+				awaitItem()
+			)
 
 			assertEquals(true, settingsRepository.sessionResetNoticePending)
 			cancelAndIgnoreRemainingEvents()

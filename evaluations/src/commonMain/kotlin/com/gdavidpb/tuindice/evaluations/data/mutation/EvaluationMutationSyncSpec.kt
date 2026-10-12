@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isInsufficientScope
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.base.utils.extension.isTransient
@@ -104,7 +105,11 @@ class EvaluationMutationSyncSpec(
 		// is judged by its code alone: 426, 429, 502, 503, 504; plus the retry window and a refused
 		// attestation), leaves the row Pending so the next drain sends it again. 408, 500 and the 4xx
 		// answers stay out: they are about the request itself, whatever their body says.
-		if (throwable.isTransient()) {
+		//
+		// So does a token that lacks the scope (403 insufficient_scope): from the background it does not
+		// end the session, and it says something about the token, not about the change, which is not
+		// condemned for it.
+		if (throwable.isTransient() || throwable.isInsufficientScope()) {
 			return MutationFailureResolution.Defer()
 		}
 
@@ -284,8 +289,12 @@ class EvaluationMutationSyncSpec(
 	}
 }
 
-// A refresh that fails because the service is away leaves the row Pending for the next drain, like the
-// send itself would; any other failure is a verdict and parks the row.
+// A refresh that fails because the service is away, or because the token lacks the scope, leaves the row
+// Pending for the next drain, like the send itself would; any other failure is a verdict and parks the row.
 private fun Throwable.afterFailedRefresh(): MutationFailureResolution<String, EvaluationMutation> {
-	return if (isTransient()) MutationFailureResolution.Defer() else MutationFailureResolution.Fail()
+	return if (isTransient() || isInsufficientScope()) {
+		MutationFailureResolution.Defer()
+	} else {
+		MutationFailureResolution.Fail()
+	}
 }

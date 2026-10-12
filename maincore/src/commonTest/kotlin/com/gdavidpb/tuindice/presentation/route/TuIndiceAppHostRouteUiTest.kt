@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -705,7 +706,7 @@ class TuIndiceAppHostRouteUiTest {
 
 			runOnIdle {
 				// What the invalidation does: leave the notice, then tell.
-				runBlocking { settingsRepository.setSessionResetNoticePending() }
+				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
 				sessionInvalidationRepository.notifySessionInvalidated()
 			}
 
@@ -717,6 +718,48 @@ class TuIndiceAppHostRouteUiTest {
 			// What the user was typing is still there: nothing replaced the screen.
 			onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("12-34567")
 			// And the kept copy was taken once it was shown.
+			waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
+		} finally {
+			stopKoin()
+		}
+	}
+
+	// The main path of a start after the process died: the start-up offers the notice the invalidation
+	// left while the navigation is not there yet (the content is just coming up). The route waits for the
+	// navigator, shows the notice, and only then says it showed it, so the copy kept for the next start
+	// is taken.
+	@Test
+	fun when_theStartUpOffersTheNotice_then_theRouteWaitsForTheNavigator_showsItAndConfirmsIt() = runTuIndiceUiTest {
+		val sessionRepository = signedOutSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			settingsRepository = settingsRepository
+		)
+		startSignedOutHostKoin(sessionRepository, syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			// Shown: only now is the copy kept for the next start taken.
 			waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
 		} finally {
 			stopKoin()
@@ -1185,7 +1228,7 @@ class TuIndiceAppHostRouteUiTest {
 
 			runOnIdle {
 				// What the invalidation does: leave the notice, then tell.
-				runBlocking { settingsRepository.setSessionResetNoticePending() }
+				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
 				sessionInvalidationRepository.notifySessionInvalidated()
 			}
 

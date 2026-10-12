@@ -27,11 +27,18 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -291,6 +298,101 @@ class EvaluationDownloadConcurrencyTest {
 
 		assertTrue(tab.isCompleted)
 		assertEquals(2, api.calls, "it queues for the lock and makes its own request")
+	}
+
+	// The wipe of the request's own rejection (a 401 that ends the session from inside the request) must
+	// not be cut by the cancellation the end of the session sends to the request in flight: it would
+	// stop half way. The request is the caller here, so it is left running.
+	@Test
+	fun theEndOfTheSession_doesNotCancelTheRequestThatCausesIt() = runTest {
+		lateinit var repository: EvaluationDataSource
+		var activeAfterTheWipe: Boolean? = null
+		val api = HeldEvaluationsApi(
+			onCall = {
+				repository.clearSessionMemory()
+				activeAfterTheWipe = currentCoroutineContext().isActive
+			}
+		)
+		repository = repository(api = api)
+
+		launch { runCatching { repository.revalidateEvaluations() } }
+		runCurrent()
+
+		assertEquals(true, activeAfterTheWipe, "the request that ends the session is not cancelled by its own wipe")
+		api.release()
+		runCurrent()
+	}
+
+	// A caller that queued for the lock before the session ended and gets it afterwards has nobody to
+	// answer to: it makes no request for the account that is gone.
+	@Test
+	fun aCallerThatWaitedForTheLock_throughTheEndOfItsSession_makesNoRequest() = runTest {
+		val api = HeldEvaluationsApi()
+		val settings = HeldSettings()
+		val repository = repository(api = api, settings = settings)
+
+		val revalidation = launch { repository.revalidateEvaluations() }
+		runCurrent()
+		repository.clearSessionMemory()
+		settings.release()
+		api.release()
+		runCurrent()
+
+		assertTrue(revalidation.isCancelled, "its session ended while it decided")
+		assertEquals(0, api.calls, "and the account that is gone gets no request")
+	}
+
+	// The session can end after the epoch was checked and before the wipe can find the request, which
+	// is created first and only then stored where the wipe looks for it. The request is then cancelled by
+	// its owner, before it makes the call. The window holds no suspension, so the test ends the session
+	// from the dispatcher, at the very moment the request is handed to it.
+	@Test
+	fun aRequestMadeAsTheSessionEnds_isCancelledBeforeItMakesTheCall() = runTest {
+		lateinit var repository: EvaluationDataSource
+		val dispatcher = HookedDispatcher(StandardTestDispatcher(testScheduler))
+		val api = HeldEvaluationsApi()
+		val database = HookedDecisionDatabase(
+			delegate = FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = false, evaluations = emptyList())
+			),
+			afterTheDecisionIsRead = {
+				dispatcher.onNextDispatch = { runBlocking { repository.clearSessionMemory() } }
+			}
+		)
+		repository = repository(api = api, database = database)
+
+		val revalidation = launch(dispatcher) { repository.revalidateEvaluations() }
+		runCurrent()
+
+		assertTrue(revalidation.isCancelled, "the request of the session that ended is not waited for")
+		assertEquals(0, api.calls, "and it never makes the call")
+	}
+
+	// A caller of an old session registers its download only if it still belongs to the session: the
+	// registration of the new one, made while the old one waited for the lock, must survive its attempt,
+	// so that whoever arrives afterwards shares it instead of making a second request.
+	@Test
+	fun anOwnerOfAnOldSession_doesNotErase_theDownloadRegisteredByTheNewOne() = runTest {
+		val api = HeldEvaluationsApi()
+		val settings = HeldSettings()
+		val repository = repository(api = api, settings = settings)
+
+		// The old owner decides (it holds the lock and waits for the settings) and a caller joins it.
+		launch { runCatching { repository.revalidateEvaluations() } }
+		runCurrent()
+		val joiner = launch { repository.updateEvaluations() }
+		runCurrent()
+		// The session ends; the first caller of the next one registers its download and queues.
+		repository.clearSessionMemory()
+		val next = launch { repository.updateEvaluations() }
+		runCurrent()
+
+		settings.release()
+		api.release()
+		runCurrent()
+
+		assertTrue(joiner.isCompleted && next.isCompleted)
+		assertEquals(1, api.calls, "the one who started over joined the registration of the new session")
 	}
 
 	// The decision to download reads two stores before the request goes out. A caller that arrives
@@ -581,5 +683,28 @@ private class HeldSaveDatabase(
 		saveStarted = true
 		saveGate.await()
 		delegate.saveConfirmedSnapshot(snapshot)
+	}
+}
+
+// Runs a hook right before the next block is handed to the dispatcher, on the thread that hands it.
+private class HookedDispatcher(private val delegate: CoroutineDispatcher) : CoroutineDispatcher() {
+	var onNextDispatch: (() -> Unit)? = null
+
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		onNextDispatch?.let { hook ->
+			onNextDispatch = null
+			hook()
+		}
+		delegate.dispatch(context, block)
+	}
+}
+
+// Tells when the two reads that precede a download are over.
+private class HookedDecisionDatabase(
+	private val delegate: FakeDatabaseDataSource,
+	private val afterTheDecisionIsRead: () -> Unit
+) : DatabaseDataRepository by delegate {
+	override fun observeHasSyncedEvaluationsFlow() = delegate.observeHasSyncedEvaluationsFlow().also {
+		afterTheDecisionIsRead()
 	}
 }

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.base.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 
 interface SettingsRepository {
 	suspend fun isReviewSuggested(value: Int): Boolean
@@ -17,8 +18,10 @@ interface SettingsRepository {
 	suspend fun getSeenCoachmarkIds(): Set<String>
 	suspend fun markCoachmarkSeen(coachmarkId: String)
 
-	suspend fun setSessionResetNoticePending()
-	suspend fun hasSessionResetNoticePending(): Boolean
+	suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason)
+
+	/** Why the notice that is still owed to the user was left, or null when none is pending. */
+	suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason?
 	suspend fun consumeSessionResetNoticePending(): Boolean
 
 	suspend fun getLocalDataOwner(): String?

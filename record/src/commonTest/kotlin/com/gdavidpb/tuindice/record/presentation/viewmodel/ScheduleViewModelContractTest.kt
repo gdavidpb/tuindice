@@ -130,6 +130,12 @@ class ScheduleViewModelContractTest {
 				val atEight = awaitUntilState<Schedule.State.Content>()
 				assertEquals(0.5f, atEight.schedule.grid.days.first().nowBlockOffset)
 
+				// The first RESUMED is the sheet opening (ResumedEffect fires for it): nothing restarts.
+				fixture.viewModel.resumedAction()
+				fixture.viewModel.selectScheduleViewAction(ScheduleViewMode.Week)
+				awaitUntilState<Schedule.State.Content> { it.viewMode == ScheduleViewMode.Week }
+				assertEquals(1, clock.observations, "the opening does not read the clock again")
+
 				// The device was away: it is 9:30 now and the ticker has not spoken.
 				clock.reading = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
 				fixture.viewModel.resumedAction()
@@ -148,8 +154,10 @@ class ScheduleViewModelContractTest {
 		}
 	}
 
+	// The first resumption is the opening of the sheet: the observation that is already running (or about
+	// to start) read the clock, so it restarts nothing.
 	@Test
-	fun resume_whenNothingHasBeenObservedYet_startsNoSecondObservation() = runTest {
+	fun resume_theFirstTime_isTheOpening_andStartsNoSecondObservation() = runTest {
 		val clock = SleepingScheduleClockRepository()
 		val fixture = createFixture(record = scheduledRecord(), hasSynced = true, clockRepository = clock)
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -160,6 +168,11 @@ class ScheduleViewModelContractTest {
 		try {
 			fixture.viewModel.state.test {
 				awaitUntilState<Schedule.State.Content>()
+
+				fixture.viewModel.resumedAction()
+				// Actions are processed in order: once this one is seen, the resumption before it was too.
+				fixture.viewModel.selectScheduleViewAction(ScheduleViewMode.Week)
+				awaitUntilState<Schedule.State.Content> { it.viewMode == ScheduleViewMode.Week }
 
 				cancelAndIgnoreRemainingEvents()
 			}

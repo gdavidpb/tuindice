@@ -47,9 +47,9 @@ sealed interface MainInternalEvent {
 		val syncStatus: SyncStatus
 	) : MainInternalEvent
 
-	/** The server ended the session behind the user's back. */
+	/** The server ended the session behind the user's back; [message] is the notice owed, if any. */
 	data class SessionInvalidationObserved(
-		val message: String
+		val message: String?
 	) : MainInternalEvent
 
 	/** The pending work was read: the sign-out dialog can say what would be lost. */

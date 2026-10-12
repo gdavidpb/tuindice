@@ -58,6 +58,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
@@ -120,7 +121,7 @@ val recordModule = module {
 			coroutineScope = get<SessionCoroutineScope>()
 		)
 	} bind SessionMemory::class
-	single<AcademicRecordRepository> {
+	single {
 		AcademicRecordDataSource(
 			localDataSource = get(),
 			remoteDataSource = get(),
@@ -128,7 +129,7 @@ val recordModule = module {
 			mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)),
 			identifierRepository = get()
 		)
-	}
+	} binds arrayOf(AcademicRecordRepository::class, SessionMemory::class)
 	singleOf(::SyntheticTermCreationCaches)
 	singleOf(::SyntheticTermCreationDataSource) { bind<SyntheticTermCreationRepository>() }
 	singleOf(::SyntheticTermLoadPreviewDataSource) { bind<SyntheticTermLoadPreviewRepository>() }

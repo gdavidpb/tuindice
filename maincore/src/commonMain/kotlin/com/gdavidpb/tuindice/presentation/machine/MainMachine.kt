@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
@@ -20,14 +21,14 @@ import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
+import com.gdavidpb.tuindice.presentation.mapper.toNoticeText
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
-import tuindice.maincore.generated.resources.snack_session_invalidated
-import tuindice.maincore.generated.resources.snack_session_reset_on_startup
 
 class MainMachine(
 	private val startUpUseCase: StartUpUseCase,
@@ -40,7 +41,8 @@ class MainMachine(
 	private val observeSyncStatusUseCase: ObserveSyncStatusUseCase,
 	private val observeSessionInvalidationUseCase: ObserveSessionInvalidationUseCase,
 	private val acknowledgeSessionInvalidationUseCase: AcknowledgeSessionInvalidationUseCase,
-	private val getPendingChangesUseCase: GetPendingChangesUseCase
+	private val getPendingChangesUseCase: GetPendingChangesUseCase,
+	private val sessionCoroutineScope: SessionCoroutineScope
 ) : ScreenMachine<Main.State, Main.Effect> {
 	// StartUp is dispatched again when a failed startup is retried, and launchMachineJob
 	// accumulates rather than replaces: this handle keeps a single observer of the refusals.
@@ -127,7 +129,7 @@ class MainMachine(
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						MainInternalEvent.SessionInvalidationObserved(
-							message = getString(Res.string.snack_session_invalidated)
+							message = useCaseState.value?.toNoticeText()
 						)
 					)
 				}
@@ -170,6 +172,12 @@ class MainMachine(
 		return true
 	}
 
+	// The interface could not show the notice (its coroutine was cancelled while it waited): the lock
+	// is free again and the notice stays pending in the settings, so the next signal or start tells it.
+	internal fun releaseSessionNotice() {
+		sessionNoticeInFlight = false
+	}
+
 	// The interface showed the notice: only now is it taken from the settings.
 	internal fun acknowledgeSessionInvalidation(host: MachineHost<Main.Effect>) {
 		sessionNoticeInFlight = false
@@ -207,8 +215,12 @@ class MainMachine(
 		}
 	}
 
-	internal fun ensureMessagingSubscribed(host: MachineHost<Main.Effect>) {
-		host.launchMachineJob {
+	// Background work of the session, like the sync it is dispatched with: it runs in the session
+	// scope, not in the screen's. A request of the screen's scope that meets a 403 insufficient_scope
+	// ends the session, and nobody asked for this subscription: the failure is the task's own (see
+	// installInsufficientScopeSessionInvalidation).
+	internal fun ensureMessagingSubscribed() {
+		sessionCoroutineScope.launch {
 			ensureMessagingSubscribedUseCase.execute(Unit).collect()
 		}
 	}
@@ -223,11 +235,7 @@ class MainMachine(
 		return when (this) {
 			is StartUpResult.Available -> MainInternalEvent.StartUpCompleted(
 				startDestination = startTarget.toDestination(),
-				sessionResetMessage = if (showSessionResetNotice) {
-					getString(Res.string.snack_session_reset_on_startup)
-				} else {
-					null
-				}
+				sessionResetMessage = sessionResetNotice?.toNoticeText()
 			)
 			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
 				notice = notice

@@ -52,6 +52,10 @@ object Main {
 
 		// The interface showed the notice of a session that ended behind the user's back.
 		data object SessionInvalidationShown : Action()
+
+		// The interface could not show the notice (the route was cancelled before it could): it stays
+		// pending, and the next one may be told.
+		data object SessionInvalidationNotShown : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -63,7 +67,11 @@ object Main {
 		) : Effect()
 
 		class ShowSnackBar(val message: String) : Effect()
-		class SessionInvalidated(val message: String) : Effect()
+
+		// Take the user to the sign-in. The message is the notice that goes with it, or null when there is
+		// nothing to tell (the notice is already on its way to the screen, or was shown): the navigation
+		// never depends on it.
+		class SessionInvalidated(val message: String?) : Effect()
 		class NavigateToSignOutDialog(val pendingChanges: PendingChanges) : Effect()
 	}
 }

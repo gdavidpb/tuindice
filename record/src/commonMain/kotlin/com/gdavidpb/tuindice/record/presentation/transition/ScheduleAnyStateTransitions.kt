@@ -19,7 +19,7 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleAnyStateTransition
 		}
 
 		on<Schedule.Action.Resumed> { state, _ ->
-			machine.restartObservation(host = host)
+			machine.resumed(host = host)
 			state
 		}
 

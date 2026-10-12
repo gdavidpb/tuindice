@@ -74,9 +74,21 @@ class AndroidApplicationDataSource(
 			runCatching { secureStore.clear() }
 			runCatching { legacySecureStore.clear() }
 
+			// The error reporter keeps what it has not sent yet in filesDir/.crashlytics.v3 (open sessions,
+			// reports, priority and native reports; verified in FileStore of firebase-crashlytics 20.1.0,
+			// which roots it at Context.getFilesDir). It is the app's and the device's, not the account's,
+			// and it holds the very report of the invalidation that is running this wipe: it stays. The
+			// older layouts it migrates away from are listed for the same reason. On iOS the reporter
+			// writes to Library/Caches/com.crashlytics.data (FIRCLSFileManager), which the iOS wipe
+			// (temporaryStorageRoot only) never touches.
 			with(context) {
+				runCatching {
+					filesDir.listFiles().orEmpty()
+						.filterNot { entry -> entry.name in REPORTER_FILE_NAMES }
+						.forEach { entry -> runCatching { entry.deleteRecursively() } }
+				}
+
 				listOf(
-					filesDir,
 					cacheDir,
 					noBackupFilesDir,
 					codeCacheDir
@@ -104,3 +116,12 @@ class AndroidApplicationDataSource(
 		}.getOrDefault(false)
 	}
 }
+
+// What the error reporter (Crashlytics) keeps in filesDir between runs: not data of the account.
+private val REPORTER_FILE_NAMES = setOf(
+	".crashlytics.v3",
+	".com.google.firebase.crashlytics",
+	".com.google.firebase.crashlytics-ndk",
+	".com.google.firebase.crashlytics.files.v1",
+	".com.google.firebase.crashlytics.files.v2"
+)

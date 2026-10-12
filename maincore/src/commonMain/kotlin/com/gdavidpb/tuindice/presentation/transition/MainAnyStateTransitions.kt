@@ -52,7 +52,7 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		on<Main.Action.RequestSync> { state, _ ->
 			machine.requestSync(host = host)
-			machine.ensureMessagingSubscribed(host = host)
+			machine.ensureMessagingSubscribed()
 			state
 		}
 
@@ -75,6 +75,13 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		// copy kept for the next start taken.
 		on<Main.Action.SessionInvalidationShown> { state, _ ->
 			machine.acknowledgeSessionInvalidation(host = host)
+			state
+		}
+
+		// The route could not show it (its coroutine ended first): the notice stays pending in the
+		// settings and the next one may be told again.
+		on<Main.Action.SessionInvalidationNotShown> { state, _ ->
+			machine.releaseSessionNotice()
 			state
 		}
 
@@ -131,9 +138,11 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		on<MainInternalEvent.SessionInvalidationObserved>(
 			emits = setOf(Main.Effect.SessionInvalidated::class)
 		) { state, event ->
-			if (machine.beginSessionNotice()) {
-				host.sendEffect(Main.Effect.SessionInvalidated(message = event.message))
-			}
+			// Going to the sign-in does not depend on the notice: the message travels only when there is
+			// one owed and none is already on its way to the screen.
+			val message = event.message?.takeIf { machine.beginSessionNotice() }
+
+			host.sendEffect(Main.Effect.SessionInvalidated(message = message))
 
 			state
 		}

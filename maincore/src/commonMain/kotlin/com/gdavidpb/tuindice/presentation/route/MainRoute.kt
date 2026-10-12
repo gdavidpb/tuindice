@@ -17,7 +17,7 @@ fun MainRoute(
 	onRequestUpdateFlow: suspend (UpdateAction) -> UpdateLaunchResult,
 	onOpenUpdateStoreFallback: suspend (UpdateLaunchResult.OpenStoreFallback) -> Unit = {},
 	onShowSnackBar: (message: String) -> Unit = {},
-	onSessionInvalidated: suspend (message: String) -> Unit = {},
+	onSessionInvalidated: suspend (message: String?) -> Unit = {},
 	onNavigateToSignOutDialog: (pendingChanges: PendingChanges) -> Unit = {},
 	viewModel: MainViewModel,
 	content: @Composable (state: Main.State) -> Unit
@@ -44,10 +44,26 @@ fun MainRoute(
 				onShowSnackBar(effect.message)
 
 			is Main.Effect.SessionInvalidated -> {
-				onSessionInvalidated(effect.message)
-				// Shown: only now is the copy kept for the next start taken. A process that dies before
-				// this line (a background kill) leaves it, and the next start explains the sign-in screen.
-				viewModel.sessionInvalidationShownAction()
+				// A message means a notice owed that the machine holds a lock for: it is confirmed when it
+				// was shown and released when this coroutine ended without showing it (a cancellation while
+				// it waited for the navigator is the usual one). Without a message there is no lock to free.
+				var settled = effect.message == null
+
+				try {
+					onSessionInvalidated(effect.message)
+
+					if (effect.message != null) {
+						// Shown: only now is the copy kept for the next start taken. A process that dies
+						// before this line (a background kill) leaves it, and the next start explains the
+						// sign-in screen.
+						viewModel.sessionInvalidationShownAction()
+					}
+
+					settled = true
+				} finally {
+					// sendAction does not suspend, so this is also safe from a cancelled coroutine.
+					if (!settled) viewModel.sessionInvalidationNotShownAction()
+				}
 			}
 
 			is Main.Effect.NavigateToSignOutDialog ->

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
@@ -49,11 +50,11 @@ class StartUpUseCase(
 		val startUpResult = runCatching {
 			// Read, not taken: the notice stays pending until the interface says it showed it, so a
 			// process that dies before the screen shows it still explains the sign-in at the next start.
-			val sessionResetNoticePending = settingsRepository.hasSessionResetNoticePending()
+			val sessionResetNotice = settingsRepository.getSessionResetNoticeReason()
 			val hasActiveTokens = sessionRepository.hasActiveSession()
 
 			// A notice left for a session that is back explains nothing and must not outlive it.
-			if (sessionResetNoticePending && hasActiveTokens) settingsRepository.consumeSessionResetNoticePending()
+			if (sessionResetNotice != null && hasActiveTokens) settingsRepository.consumeSessionResetNoticePending()
 
 			val startTarget = if (hasActiveTokens)
 				StartUpTarget.Main(section = settingsRepository.getLastMainSection())
@@ -62,7 +63,7 @@ class StartUpUseCase(
 
 			StartUpResult.Available(
 				startTarget = startTarget,
-				showSessionResetNotice = sessionResetNoticePending && !hasActiveTokens
+				sessionResetNotice = sessionResetNotice.takeIf { !hasActiveTokens }
 			)
 		}.onFailure { throwable ->
 			// A transient secure-store outage must fail the startup (retryable)
@@ -71,7 +72,7 @@ class StartUpUseCase(
 				applicationRepository.clearData()
 				// Written after clearData so the wipe cannot erase it: the next start
 				// lands on sign-in and must be able to explain why the session is gone.
-				settingsRepository.setSessionResetNoticePending()
+				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.UnreadableData)
 			}
 		}.getOrThrow()
 

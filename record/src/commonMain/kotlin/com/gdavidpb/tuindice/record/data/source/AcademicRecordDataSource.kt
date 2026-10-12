@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
@@ -31,6 +32,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.concurrent.Volatile
 
 class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
@@ -38,13 +42,30 @@ class AcademicRecordDataSource(
 	private val settingsDataSource: RecordSettingsDataRepository,
 	private val mutationEngine: StoreBackedMutationEngine<String, AcademicRecordMutation, VersionedAcademicRecord>,
 	private val identifierRepository: IdentifierRepository
-) : AcademicRecordRepository {
+) : AcademicRecordRepository, SessionMemory {
+	// Held ONLY while a downloaded record is written locally, never during a request. The epoch is
+	// checked and the record saved under it, and clearSessionMemory changes the epoch under it.
+	private val writeGate = Mutex()
+
+	// Bumped by clearSessionMemory. A download remembers the one it started in: if it differs when the
+	// answer arrives, the account that asked is gone and the answer must leave no trace.
+	@Volatile
+	private var sessionEpoch: Int = 0
+
 	private val mutationSyncSpec = AcademicRecordMutationSyncSpec(
 		remoteDataSource = remoteDataSource,
 		persistConfirmedSnapshot = ::persistRemoteSnapshot,
 		refreshRemoteSnapshot = ::refreshRemoteSnapshot,
 		currentLocalRevision = localDataSource::getRecordRevision
 	)
+
+	// Changes the epoch under the write gate, which only a local save holds (never a request): a save
+	// ends before the session does or finds the new epoch and writes nothing. Not under a lock a request
+	// may hold, so the wipe that a request causes (a 401) never waits for that request. The queue has its
+	// own epoch (StoreBackedMutationEngine); this one fences what this data source saves itself.
+	override suspend fun clearSessionMemory() {
+		writeGate.withLock { sessionEpoch += 1 }
+	}
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> {
 		return observeVisibleRecordFlow().filterNotNull()
@@ -133,11 +154,17 @@ class AcademicRecordDataSource(
 				localDataSource.observeHasSyncedRecordFlow().first()
 
 		if (forceRemote || !isOnCooldown || !hasUsableLocalRecord) {
+			val epoch = sessionEpoch
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteRecord = remoteDataSource.getAcademicRecord()
-			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-				persistRemoteSnapshot(remoteRecord)
-				settingsDataSource.setGetAcademicRecordOnCooldown()
+
+			// An answer that outlived its session is not stored for the next account, and the session
+			// cannot end between the check and the save.
+			writeGate.withLock {
+				if (epoch == sessionEpoch && snapshotVersion == mutationEngine.currentMutationVersion()) {
+					persistRemoteSnapshot(remoteRecord)
+					settingsDataSource.setGetAcademicRecordOnCooldown()
+				}
 			}
 		}
 
@@ -252,11 +279,19 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
+	// The download a 409 or a 404 asks for while the queue resolves a failure. It saves before the
+	// engine looks at its own epoch (that happens when the resolution comes back), so the same fence as
+	// the download of the screen is applied here. It does not take the gate of the engine: this runs
+	// outside it, and confirm (persistRemoteSnapshot) runs under it.
 	private suspend fun refreshRemoteSnapshot(): VersionedAcademicRecord {
+		val epoch = sessionEpoch
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteRecord = remoteDataSource.getAcademicRecord()
-		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-			persistRemoteSnapshot(remoteRecord)
+
+		writeGate.withLock {
+			if (epoch == sessionEpoch && snapshotVersion == mutationEngine.currentMutationVersion()) {
+				persistRemoteSnapshot(remoteRecord)
+			}
 		}
 		return remoteRecord
 	}

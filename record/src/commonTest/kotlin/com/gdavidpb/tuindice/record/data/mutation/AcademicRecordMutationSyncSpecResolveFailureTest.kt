@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
@@ -100,6 +101,38 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 				assertIs<MutationFailureResolution.Fail<String, AcademicRecordMutation>>(resolution)
 			}
 		}
+	}
+
+	// A 403 insufficient_scope is said of the token, not of the change: the row stays Pending for a
+	// later attempt instead of being parked as FailedTerminal. A plain 403 stays a verdict (above).
+	@Test
+	fun resolveFailure_whenTheTokenLacksTheScope_defersEveryKindOfMutation_withoutCallingRefresh() = runTest {
+		var refreshCalls = 0
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			refreshCalls++
+			error("not reachable")
+		})
+
+		listOf(
+			upsertOverrideEnvelope(),
+			recordMutationEnvelope(AcademicRecordMutation.DeleteAttemptOverride("attempt-1")),
+			addSyntheticTermEnvelope(),
+			updateSyntheticTermEnvelope(),
+			deleteSyntheticTermEnvelope()
+		).forEach { mutation ->
+			val resolution = spec.resolveFailure(
+				mutation = mutation,
+				throwable = clientRequestException(
+					statusCode = HttpStatusCode.Forbidden,
+					headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.INSUFFICIENT_SCOPE),
+					message = "status 403"
+				)
+			)
+
+			assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
+		}
+
+		assertEquals(0, refreshCalls)
 	}
 
 	// A response from the server is decided by its status code. Ktor puts the body in the exception message,

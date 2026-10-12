@@ -73,6 +73,12 @@ class SyncDataSource(
 					try {
 						val syncResult = remoteDataSource.sync(password)
 
+						// The sync runs in the session scope, which the end of the session cancels (and waits
+						// for) BEFORE it wipes anything. The request above is a suspension that observes that
+						// cancellation, so checking here, right before the save and with nothing suspending in
+						// between, is enough: a sync that gets past this line finishes its local writes before
+						// the wipe starts, and one that does not writes nothing for the account that left.
+						currentCoroutineContext().ensureActive()
 						syncResultLocalDataSource.saveSyncResult(syncResult)
 						syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
 						syncStatusRepository.setSyncReport(

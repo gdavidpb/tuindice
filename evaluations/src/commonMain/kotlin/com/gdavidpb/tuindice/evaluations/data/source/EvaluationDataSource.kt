@@ -246,11 +246,17 @@ class EvaluationDataSource(
 	private suspend fun downloadSharing(download: Download): RemoteEvaluationsSnapshot {
 		var answer: Result<RemoteEvaluationsSnapshot>? = null
 
+		// A caller of a session that already ended has nobody to answer to, and it is checked BEFORE the
+		// download is registered: a registration of the old session would replace the one the new session
+		// made while this caller waited for the lock, and removing it afterwards would leave whoever
+		// arrives next with nothing to share.
+		if (download.epoch != sessionEpoch) {
+			retire(download)
+			throw CancellationException("The session ended before the download began")
+		}
+
 		inFlight.store(download)
 		try {
-			// A caller of a session that already ended has nobody to answer to.
-			if (download.epoch != sessionEpoch) throw CancellationException("The session ended before the download began")
-
 			answer = runCatching { downloadAndSave(download) }
 				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		} finally {

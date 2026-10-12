@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.testing
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
@@ -59,6 +60,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 
@@ -134,7 +136,8 @@ fun createMainViewModel(
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
 	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
 	sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository(),
-	pendingChangesRepository: PendingChangesRepository = FakePendingChangesRepository()
+	pendingChangesRepository: PendingChangesRepository = FakePendingChangesRepository(),
+	sessionCoroutineScope: SessionCoroutineScope = testSessionCoroutineScope()
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -196,7 +199,8 @@ fun createMainViewModel(
 			getPendingChangesUseCase = GetPendingChangesUseCase(
 				pendingChangesRepository = pendingChangesRepository,
 				reportingRepository = reportingRepository
-			)
+			),
+			sessionCoroutineScope = sessionCoroutineScope
 		),
 		eventPublisher = eventPublisher,
 		dispatchers = dispatchers

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
@@ -302,16 +303,16 @@ class FakeSettingsRepository(
 		seenCoachmarkIds += coachmarkId
 	}
 
-	override suspend fun setSessionResetNoticePending() {
-		sessionResetNoticePending = true
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason) {
+		sessionResetNoticeReason = reason
 	}
 
-	override suspend fun hasSessionResetNoticePending(): Boolean = sessionResetNoticePending
+	override suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason? = sessionResetNoticeReason
 
 	override suspend fun consumeSessionResetNoticePending(): Boolean {
-		val pending = sessionResetNoticePending
+		val pending = sessionResetNoticeReason != null
 
-		sessionResetNoticePending = false
+		sessionResetNoticeReason = null
 
 		return pending
 	}
@@ -330,7 +331,10 @@ class FakeSettingsRepository(
 		localDataOwner = null
 	}
 
-	var sessionResetNoticePending = false
+	var sessionResetNoticeReason: SessionResetNoticeReason? = null
+
+	val sessionResetNoticePending: Boolean
+		get() = sessionResetNoticeReason != null
 }
 
 class FakeConfigRepository(

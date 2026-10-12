@@ -174,10 +174,15 @@ internal fun HttpClientConfig<*>.installInsufficientScopeSessionInvalidation(
 
 				// Invalidate only when a current token still lacks the scope; a
 				// stale token is refreshed and retried by the Auth plugin instead. And only when
-				// a screen made the request: the background work of the session scope (sync,
-				// revalidations, queue drain, push token rotation) fails with this error like with
-				// any other, and its task treats it as one. A dead session, by contrast, is
-				// ended from anywhere (see SessionRecoveryDataSource).
+				// a screen made the request: the background work of the session scope fails with
+				// this error like with any other, and its task treats it as one. That work is the
+				// sync and the revalidations it starts (pensum, evaluations), the sends and drains
+				// of the evaluations queue (submitInBackground, and the drain after a revalidation),
+				// the messaging subscription ensured when the app is resumed, and the push token
+				// rotation. The queue of the academic record sends from the screen
+				// (AcademicRecordDataSource.submitTrackedMutation), so there the same 403 does end
+				// the session: it is an action of the user, which is what this rule asks for. A
+				// dead session, by contrast, is ended from anywhere (see SessionRecoveryDataSource).
 				if (
 					activeSnapshot != null &&
 					attemptedAccessToken == activeSnapshot.accessToken &&

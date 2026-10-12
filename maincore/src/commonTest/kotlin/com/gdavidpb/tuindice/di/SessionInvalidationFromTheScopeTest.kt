@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -49,6 +50,7 @@ import io.ktor.http.headersOf
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -288,7 +290,7 @@ class SessionInvalidationFromTheScopeTest {
 
 			rig.recovery(rig.applicationRepository).invalidateSession(sessionId = "session-old")
 
-			assertEquals(UseCaseState.Data(Unit), awaitItem())
+			assertEquals(UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession), awaitItem())
 			assertTrue(rig.settingsRepository.sessionResetNoticePending, "told is not shown: the copy is kept")
 
 			// The interface showed it and says so.
@@ -431,7 +433,74 @@ class SessionInvalidationFromTheScopeTest {
 		assertEquals(2, application.clearCalls, "the caller that waited did its own complete wipe")
 		assertTrue(secondFinishedNormally && !second.isCancelled)
 		assertTrue(rig.sessionRepository.cleared)
+		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls, "and the notice is told exactly once")
 	}
+
+	// All or nothing. A caller (a screen) cancelled while the data is being wiped leaves the wipe of the
+	// database, the settings and the files undone; the session must not be announced as over, nor
+	// cleared: it stays valid with a token the server rejects, so the next request meets the rejection
+	// again and completes the whole invalidation.
+	@Test
+	fun aCallerCancelledDuringTheWipeOfTheData_leavesTheSessionAsItWas_andALaterInvalidationCompletesIt() = runTest {
+		val rig = SessionInvalidationRig(this)
+		val application = CancelsItsCallerApplicationRepository()
+		val recovery = rig.recovery(application)
+
+		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
+		advanceUntilIdle()
+
+		assertTrue(first.isCancelled, "the cancellation is not swallowed")
+		assertFalse(rig.sessionRepository.cleared, "the session is not cleared")
+		assertFalse(rig.settingsRepository.sessionResetNoticePending, "no notice is persisted")
+		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls, "and none is announced")
+		assertEquals(emptyList(), rig.reportingRepository.loggedExceptions, "nor is a cause reported")
+
+		application.cancelTheCaller = false
+		launch { recovery.invalidateSession(sessionId = "session-old") }
+		advanceUntilIdle()
+
+		assertEquals(2, application.clearCalls)
+		assertTrue(rig.sessionRepository.cleared)
+		assertTrue(rig.settingsRepository.sessionResetNoticePending)
+		assertEquals(1, rig.sessionInvalidationRepository.invalidationCalls)
+		assertEquals(1, rig.reportingRepository.loggedExceptions.size)
+	}
+
+	@Test
+	fun aWipeOfTheDataThatEndsInCancellation_leavesTheSessionAsItWas() = runTest {
+		val rig = SessionInvalidationRig(this)
+		val started = CompletableDeferred<Unit>()
+		val recovery = rig.recovery(FirstCallBlocksApplicationRepository(started))
+
+		val first = launch { recovery.invalidateSession(sessionId = "session-old") }
+		runCurrent()
+		started.await()
+		first.cancel()
+		advanceUntilIdle()
+
+		assertTrue(first.isCancelled)
+		assertFalse(rig.sessionRepository.cleared)
+		assertFalse(rig.settingsRepository.sessionResetNoticePending)
+		assertEquals(0, rig.sessionInvalidationRepository.invalidationCalls)
+	}
+}
+
+// The wipe of the data that is cut off by the cancellation of whoever asked for it, and returns as if
+// it had ended (a blocking wipe does not check): what is left for the caller to find is a cancelled job.
+private class CancelsItsCallerApplicationRepository : ApplicationRepository {
+	var cancelTheCaller = true
+	var clearCalls = 0
+		private set
+
+	override suspend fun clearSessionResidue() = Unit
+
+	override suspend fun clearData() {
+		clearCalls++
+
+		if (cancelTheCaller) currentCoroutineContext()[Job]?.cancel()
+	}
+
+	override suspend fun canOpen(file: PlatformFile): Boolean = true
 }
 
 private class FirstCallBlocksApplicationRepository(

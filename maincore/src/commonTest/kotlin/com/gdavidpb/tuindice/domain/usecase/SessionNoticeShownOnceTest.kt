@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.data.repository.sync.FakeSyncStatusRepository
@@ -30,7 +31,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 // The user sees the notice of a session that ended behind their back ONCE, on the first occasion
 // the interface can show it: whether the app stayed alive (the live signal, the interface
@@ -43,10 +44,10 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		world.showLiveNotice(expected = true)
+		world.showLiveNotice(delivery = LiveSignal.WithNotice)
 
 		assertFalse(world.settings.sessionResetNoticePending, "and the acknowledgement took the copy kept for the start")
-		assertFalse(world.nextStart().showSessionResetNotice, "so the next start does not show it again")
+		assertNull(world.nextStart().sessionResetNotice, "so the next start does not show it again")
 	}
 
 	// The process dies before the interface could show anything: the notice was kept, and the next
@@ -59,7 +60,7 @@ class SessionNoticeShownOnceTest {
 		// The process is gone: the memory goes with it, the settings stay.
 		val afterTheDeath = world.afterAProcessDeath()
 
-		assertTrue(afterTheDeath.nextStart().showSessionResetNotice, "the next start explains the sign-in screen")
+		assertServerEnded(afterTheDeath.nextStart().sessionResetNotice, "the next start explains the sign-in screen")
 	}
 
 	// The start-up read the notice but the process died before the interface showed it: reading it
@@ -69,11 +70,11 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		assertTrue(world.afterAProcessDeath().nextStart().showSessionResetNotice, "read, never shown")
+		assertServerEnded(world.afterAProcessDeath().nextStart().sessionResetNotice, "read, never shown")
 
 		val afterTheSecondDeath = world.afterAProcessDeath()
 
-		assertTrue(afterTheSecondDeath.nextStart().showSessionResetNotice, "so it is not lost")
+		assertServerEnded(afterTheSecondDeath.nextStart().sessionResetNotice, "so it is not lost")
 	}
 
 	// The start-up offered the notice and the interface showed it and said so: the next start has
@@ -83,10 +84,10 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		assertTrue(world.nextStart().showSessionResetNotice)
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, world.nextStart().sessionResetNotice)
 		world.acknowledgeNotice()
 
-		assertFalse(world.afterAProcessDeath().nextStart().showSessionResetNotice, "only once")
+		assertNull(world.afterAProcessDeath().nextStart().sessionResetNotice, "only once")
 	}
 
 	// The signal reached the machine but the process was killed before the screen showed it (a
@@ -99,7 +100,7 @@ class SessionNoticeShownOnceTest {
 		world.receiveLiveNoticeWithoutShowingIt()
 		val afterTheDeath = world.afterAProcessDeath()
 
-		assertTrue(afterTheDeath.nextStart().showSessionResetNotice)
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, afterTheDeath.nextStart().sessionResetNotice)
 	}
 
 	// The invalidation happened while the start-up was still resolving: the start-up showed the
@@ -112,11 +113,12 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		assertTrue(world.nextStart().showSessionResetNotice)
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, world.nextStart().sessionResetNotice)
 		world.acknowledgeNotice()
 
-		// The user was told already: the signal that arrives afterwards says nothing.
-		world.showLiveNotice(expected = false)
+		// The user was told already: the signal that arrives afterwards still takes them to the sign-in,
+		// and has no notice to carry.
+		world.showLiveNotice(delivery = LiveSignal.WithoutNotice)
 	}
 
 	// The notice reaches the interface when the content that observes it is up, however late: the
@@ -126,9 +128,13 @@ class SessionNoticeShownOnceTest {
 		val world = World(this)
 
 		world.invalidate()
-		world.showLiveNotice(expected = true)
+		world.showLiveNotice(delivery = LiveSignal.WithNotice)
 		// The signal was delivered, not kept for every observer.
-		world.showLiveNotice(expected = false)
+		world.showLiveNotice(delivery = LiveSignal.Nothing)
+	}
+
+	private fun assertServerEnded(notice: SessionResetNoticeReason?, message: String) {
+		assertEquals(SessionResetNoticeReason.ServerEndedSession, notice, message)
 	}
 
 	private class World(
@@ -190,9 +196,9 @@ class SessionNoticeShownOnceTest {
 		}
 
 		// What the content does when it is up: it observes the signal and, for each one, shows the
-		// notice and acknowledges it. [expected] says whether a signal is waiting for it.
-		suspend fun showLiveNotice(expected: Boolean) {
-			observeLiveNotice(expected) { acknowledgeNotice() }
+		// notice (when the signal carries one) and acknowledges it. [delivery] says what is waiting for it.
+		suspend fun showLiveNotice(delivery: LiveSignal) {
+			observeLiveNotice(delivery) { acknowledgeNotice() }
 		}
 
 		// The interface showed the notice and says so.
@@ -204,24 +210,35 @@ class SessionNoticeShownOnceTest {
 
 		// The signal reaches the machine, and the process dies before the interface shows it.
 		suspend fun receiveLiveNoticeWithoutShowingIt() {
-			observeLiveNotice(expected = true) { }
+			observeLiveNotice(LiveSignal.WithNotice) { }
 		}
 
-		private suspend fun observeLiveNotice(expected: Boolean, onNotice: suspend () -> Unit) {
+		private suspend fun observeLiveNotice(delivery: LiveSignal, onNotice: suspend () -> Unit) {
 			ObserveSessionInvalidationUseCase(sessionInvalidations, settings, reporting).execute(Unit).test {
 				assertIs<UseCaseState.Loading>(awaitItem())
 
-				if (expected) {
-					assertEquals(UseCaseState.Data(Unit), awaitItem())
-					onNotice()
-				} else {
-					expectNoEvents()
+				when (delivery) {
+					LiveSignal.WithNotice -> {
+						assertEquals(
+							UseCaseState.Data<SessionResetNoticeReason?>(SessionResetNoticeReason.ServerEndedSession),
+							awaitItem()
+						)
+						onNotice()
+					}
+
+					LiveSignal.WithoutNotice ->
+						assertEquals(UseCaseState.Data<SessionResetNoticeReason?>(null), awaitItem())
+
+					LiveSignal.Nothing -> expectNoEvents()
 				}
 
 				cancelAndIgnoreRemainingEvents()
 			}
 		}
 	}
+
+	// What waits for the observer of the signal.
+	private enum class LiveSignal { WithNotice, WithoutNotice, Nothing }
 }
 
 private object UnusedAuthRepository : AuthRepository {

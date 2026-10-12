@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -31,7 +32,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.coroutineContext
@@ -182,16 +182,28 @@ class SessionRecoveryDataSource(
 			}
 
 			val callerBranch = sessionCoroutineScope.cancelActiveWork()
-			runCatching { applicationRepository.clearData() }
-			runCatching { sessionRepository.clear() }
-			runCatching { syncStatusRepository.reset() }
+
+			// All or nothing. The wipe of the data is the last step that can wait for something, and a
+			// cancellation of the caller (a screen) can cut it short or land right after it. In that case
+			// the session is NOT cleared, no notice is persisted or told and the counter does not move: the
+			// session stays marked as valid with a token the server rejects, so the next request meets the
+			// rejection again and completes the whole invalidation. The cancellation is rethrown.
+			attempt { applicationRepository.clearData() }
+
+			currentCoroutineContext().ensureActive()
+
+			// From here to the counter nothing waits for anything that can be cancelled: the steps are local
+			// writes whose implementations do not suspend, so a cancellation cannot fall between the notice
+			// and the counter (which would let the next caller announce it twice). The one call that can
+			// really suspend, the session store, goes first and only waits for its own lock before it changes
+			// anything: if that wait is cancelled nothing was touched, which is the state described above.
+			attempt { sessionRepository.clear() }
+			attempt { syncStatusRepository.reset() }
 			announceInvalidation(sessionId)
 			reportInvalidation(reason = reason, cause = cause, insideTheScope = callerBranch != null)
 
-			// Only a wipe that ran to its end counts as the one that serves the callers waiting for
-			// it: the steps above are in runCatching, which swallows the cancellation of whoever is
-			// wiping, and a wipe cut short must not make the next caller skip its own.
-			if (currentCoroutineContext().isActive) invalidationsCompleted.value += 1
+			// The wipe ran to its end, so it counts as the one that serves the callers waiting for it.
+			invalidationsCompleted.value += 1
 
 			// Once everything is wiped: the request that ran into the end of the session
 			// (a sync, a revalidation) unwinds as a cancellation and writes nothing afterwards.
@@ -208,13 +220,13 @@ class SessionRecoveryDataSource(
 	// live consumes it (ObserveSessionInvalidationUseCase), and an intentional sign-out, whose
 	// live notice is suppressed, takes it back.
 	private suspend fun announceInvalidation(sessionId: String?) {
-		runCatching { settingsRepository.setSessionResetNoticePending() }
+		attempt { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
 
-		val raised = runCatching {
+		val raised = attempt {
 			sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId)
 		}.getOrDefault(false)
 
-		if (!raised) runCatching { settingsRepository.consumeSessionResetNoticePending() }
+		if (!raised) attempt { settingsRepository.consumeSessionResetNoticePending() }
 	}
 
 	// What the logout leaves behind, once per invalidation: status and error code of the rejection
@@ -231,11 +243,17 @@ class SessionRecoveryDataSource(
 		}
 		val origin = if (insideTheScope) "inside the session scope" else "outside the session scope"
 
-		runCatching {
+		attempt {
 			reportingRepository.logException(
 				IllegalStateException("Session invalidated: reason=${reason?.name ?: "unspecified"} $rejection $origin")
 			)
 		}
+	}
+
+	// runCatching that does not swallow the cancellation: a step that fails is skipped, a caller that
+	// is cancelled is not.
+	private inline fun <T> attempt(block: () -> T): Result<T> {
+		return runCatching(block).onFailure { failure -> if (failure is CancellationException) throw failure }
 	}
 
 	// Not under recoveryMutex: the wipe can be reached from a recovery that still holds it, and

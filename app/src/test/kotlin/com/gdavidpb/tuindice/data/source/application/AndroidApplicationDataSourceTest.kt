@@ -4,6 +4,7 @@ import android.content.ContextWrapper
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
@@ -132,6 +133,38 @@ class AndroidApplicationDataSourceTest {
 		assertEquals(false, settingsRepository.cleared)
 	}
 
+	// The error reporter keeps its unsent reports (and the one of the invalidation that runs this wipe)
+	// under filesDir: they are not data of the account, and the wipe leaves them where they are.
+	@Test
+	fun clearData_leavesWhatTheErrorReporterHasNotSentYet_andWipesTheRestOfTheFiles() = runTest {
+		val context = TestContext()
+		val pendingReport = File(context.filesDir, ".crashlytics.v3/process/reports/report-1").apply {
+			parentFile?.mkdirs()
+			writeText("pending")
+		}
+		val accountFile = File(context.filesDir, "enrollment/proof.pdf").apply {
+			parentFile?.mkdirs()
+			writeText("account")
+		}
+		val cached = File(context.cacheDir, "image.bin").apply { writeText("cache") }
+		val dataSource = AndroidApplicationDataSource(
+			context = context,
+			persistenceMaintenanceRepository = RecordingPersistenceMaintenanceRepository(),
+			settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123"),
+			secureStore = NoOpSecureKeyValueDataRepository(),
+			legacySecureStore = NoOpSecureKeyValueDataRepository(),
+			proofOfPossessionCapability = NoOpProofOfPossessionCapability(),
+			sessionMemory = { emptyList() },
+			sessionResidue = { emptyList() }
+		)
+
+		dataSource.clearData()
+
+		assertTrue("the unsent report stays", pendingReport.exists())
+		assertEquals(false, accountFile.exists())
+		assertEquals(false, cached.exists())
+	}
+
 	private fun dataSource(
 		persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 		settingsRepository: SettingsRepository,
@@ -251,9 +284,9 @@ private class RecordingSettingsRepository(
 
 	override suspend fun markCoachmarkSeen(coachmarkId: String) = Unit
 
-	override suspend fun setSessionResetNoticePending() = Unit
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason) = Unit
 
-	override suspend fun hasSessionResetNoticePending(): Boolean = false
+	override suspend fun getSessionResetNoticeReason(): SessionResetNoticeReason? = null
 
 	override suspend fun consumeSessionResetNoticePending(): Boolean = false
 

@@ -58,4 +58,7 @@ class MainViewModel(
 
 	fun sessionInvalidationShownAction() =
 		sendAction(Main.Action.SessionInvalidationShown)
+
+	fun sessionInvalidationNotShownAction() =
+		sendAction(Main.Action.SessionInvalidationNotShown)
 }

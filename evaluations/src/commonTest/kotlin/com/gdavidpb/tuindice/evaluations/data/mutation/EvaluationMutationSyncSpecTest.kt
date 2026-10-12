@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
@@ -169,6 +170,54 @@ class EvaluationMutationSyncSpecTest {
 				)
 
 				assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+			}
+		}
+	}
+
+	// A 403 insufficient_scope is said of the token, not of the change, and from the background it does
+	// not end the session: parking the row as FailedTerminal would condemn a change for a problem of
+	// the token. The row stays Pending for a later attempt; a plain 403 stays a verdict.
+	@Test
+	fun resolveFailure_whenTheTokenLacksTheScope_defersEveryKindOfMutation_withoutSnapshotRefresh() = runTest {
+		evaluationMutations().forEach { command ->
+			val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+				getEvaluationsThrowable = IllegalStateException("must not be read")
+			)
+			val syncSpec = EvaluationMutationSyncSpec(
+				databaseDataSource = FakeDatabaseDataSource(),
+				evaluationsApiDataSource = evaluationsApiDataSource,
+				refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+			)
+
+			val resolution = syncSpec.resolveFailure(
+				mutation = evaluationEnvelope(command),
+				throwable = insufficientScope()
+			)
+
+			assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
+			assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
+		}
+	}
+
+	@Test
+	fun resolveFailure_whenTheRefreshThatResolvesItMeetsTheScopeProblem_defersEveryKindOfMutation() = runTest {
+		listOf(409, 412, 404).forEach { status ->
+			evaluationMutations().forEach { command ->
+				val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+					getEvaluationsThrowable = insufficientScope()
+				)
+				val syncSpec = EvaluationMutationSyncSpec(
+					databaseDataSource = FakeDatabaseDataSource(),
+					evaluationsApiDataSource = evaluationsApiDataSource,
+					refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+				)
+
+				val resolution = syncSpec.resolveFailure(
+					mutation = evaluationEnvelope(command),
+					throwable = responseWithStatus(status)
+				)
+
+				assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
 			}
 		}
 	}
@@ -360,3 +409,10 @@ private fun responseWithStatus(code: Int): Throwable {
 		clientRequestException(status, message = "status $code")
 	}
 }
+
+// The 403 a current token gets when it lacks the scope of the request.
+private fun insufficientScope(): Throwable = clientRequestException(
+	statusCode = HttpStatusCode.Forbidden,
+	headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.INSUFFICIENT_SCOPE),
+	message = "status 403"
+)

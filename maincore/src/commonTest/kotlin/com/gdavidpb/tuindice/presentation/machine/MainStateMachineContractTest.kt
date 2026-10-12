@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
@@ -117,7 +118,8 @@ class MainStateMachineContractTest {
 			getPendingChangesUseCase = GetPendingChangesUseCase(
 				pendingChangesRepository = FakePendingChangesRepository(),
 				reportingRepository = reportingRepository
-			)
+			),
+			sessionCoroutineScope = testSessionCoroutineScope()
 		)
 
 		assertMachineRandomWalk(
@@ -137,6 +139,7 @@ class MainStateMachineContractTest {
 				),
 				Main.Action.RequestSync,
 				Main.Action.SessionInvalidationShown,
+				Main.Action.SessionInvalidationNotShown,
 				Main.Action.NoteSyncUnavailable,
 				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
