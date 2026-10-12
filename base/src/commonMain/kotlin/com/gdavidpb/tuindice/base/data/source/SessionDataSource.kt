@@ -192,9 +192,11 @@ class SessionDataSource(
 		memorySessionDataSource.setSessionId(snapshot.sessionId)
 		memorySessionDataSource.setAccessToken(snapshot.accessToken)
 		memorySessionDataSource.setRefreshToken(snapshot.refreshToken)
-		preferencesSessionDataSource.setSessionId(snapshot.sessionId)
-		preferencesSessionDataSource.setAccessToken(snapshot.accessToken)
-		preferencesSessionDataSource.setRefreshToken(snapshot.refreshToken)
-		preferencesSessionDataSource.setUsbId(snapshot.usbId)
+		preferencesSessionDataSource.setSession(
+			usbId = snapshot.usbId,
+			sessionId = snapshot.sessionId,
+			accessToken = snapshot.accessToken,
+			refreshToken = snapshot.refreshToken
+		)
 	}
 }

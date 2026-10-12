@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -43,6 +44,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -75,6 +77,7 @@ class AuthModuleKoinSmokeTest {
 				single<SyncStatusRepository> { FakeSyncStatusRepository() }
 				single<ApplicationRepository> { RecordingApplicationRepository() }
 				single<SettingsRepository> { FakeSettingsRepository() }
+				single<SessionEndRepository> { RunningSessionEndRepository(get(), get(), get(), get(), get()) }
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }

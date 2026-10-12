@@ -28,7 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
@@ -437,10 +437,13 @@ class AuthUseCaseContractTest {
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
 			sessionInvalidationRepository = sessionInvalidationRepository,
-			applicationRepository = applicationRepository,
-			syncStatusRepository = syncStatusRepository,
-			sessionCoroutineScope = sessionCoroutineScope,
-			appCoroutineScope = testAppCoroutineScope(),
+			sessionEndRepository = RunningSessionEndRepository(
+				applicationRepository = applicationRepository,
+				sessionRepository = sessionRepository,
+				syncStatusRepository = syncStatusRepository,
+				sessionCoroutineScope = sessionCoroutineScope,
+				sessionInvalidationRepository = sessionInvalidationRepository
+			),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -490,10 +493,13 @@ class AuthUseCaseContractTest {
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
 			sessionInvalidationRepository = sessionInvalidationRepository,
-			applicationRepository = applicationRepository,
-			syncStatusRepository = syncStatusRepository,
-			sessionCoroutineScope = testSessionCoroutineScope(),
-			appCoroutineScope = testAppCoroutineScope(),
+			sessionEndRepository = RunningSessionEndRepository(
+				applicationRepository = applicationRepository,
+				sessionRepository = sessionRepository,
+				syncStatusRepository = syncStatusRepository,
+				sessionCoroutineScope = testSessionCoroutineScope(),
+				sessionInvalidationRepository = sessionInvalidationRepository
+			),
 			reportingRepository = reportingRepository
 		)
 

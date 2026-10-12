@@ -33,6 +33,7 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -116,6 +117,7 @@ val commonModule = module {
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
 	singleOf(::SessionRecoveryDataSource) {
 		bind<SessionRecoveryRepository>()
+		bind<SessionEndRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::OutdatedAppEventDataSource) { bind<OutdatedAppEventRepository>() }

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -52,8 +53,13 @@ class SessionRecoveryDataSource(
 	private val reportingRepository: ReportingRepository,
 	private val sessionCoroutineScope: SessionCoroutineScope,
 	private val appCoroutineScope: AppCoroutineScope
-) : SessionRecoveryRepository, SessionMemory {
+) : SessionRecoveryRepository, SessionEndRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
+
+	// Taken by whatever ends the session locally (an invalidation, a sign-out), one at a time. What runs
+	// under it (clearSessionMemory included, through the wipe) is local work only: it cannot make an
+	// authenticated request nor ask for another invalidation, because that would wait for this same lock
+	// forever.
 	private val invalidationMutex = Mutex()
 	private val invalidationsCompleted = MutableStateFlow(0)
 
@@ -229,6 +235,32 @@ class SessionRecoveryDataSource(
 		// flight, is served by it and ends here.
 		if (insideTheScope) sessionCoroutineScope.callerBranch()?.cancel()
 		currentCoroutineContext().ensureActive()
+	}
+
+	// The sign-out belongs to the dialog that asked for it, and the dialog can be cleared at any moment, so
+	// its local end runs in the scope of the app like an invalidation does, and under the same lock and
+	// counter: a rejection that reaches a request in flight while the session is being wiped finds the end
+	// already served instead of wiping a second time and telling the user their session was closed. The
+	// mark of the intentional sign-out is withdrawn last, when the session is gone: left behind, it would
+	// silence the next invalidation, which is not this one's. The server has revoked the session by now,
+	// so the sign-out is done whatever happens to a step: each one is skipped if it fails, and its failure
+	// is reported instead of handed to a caller that cannot do anything about it.
+	override suspend fun endSignedOutSession(sessionId: String) {
+		appCoroutineScope.async {
+			invalidationMutex.withLock {
+				val failures = listOf(
+					runStep { sessionCoroutineScope.cancelActiveWork() },
+					runStep { applicationRepository.clearData() },
+					runStep { sessionRepository.clear() },
+					runStep { syncStatusRepository.reset() }
+				)
+
+				sessionInvalidationRepository.clearIntentionalSignOut(sessionId)
+				invalidationsCompleted.value += 1
+
+				failures.filterNotNull().forEach { failure -> attempt { reportingRepository.logException(failure) } }
+			}
+		}.await()
 	}
 
 	// What the logout leaves behind, once per invalidation: status and error code of the rejection

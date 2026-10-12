@@ -8,8 +8,11 @@ import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
@@ -18,12 +21,14 @@ import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.testing.ForeignCancellationReporting
 import com.gdavidpb.tuindice.testing.InMemorySecureStore
 import com.gdavidpb.tuindice.testing.ProductionLikeApplicationRepository
 import com.gdavidpb.tuindice.testing.RealSessionStore
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -31,6 +36,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,6 +44,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -163,15 +170,82 @@ class SessionInvalidationOneSessionOneWipeTest {
 		assertTrue(rig.store.isGone(), "the session is gone")
 		assertEquals(1, rig.invalidations.raised, "and told")
 	}
+
+	// A CancellationException that is not the job's, thrown from inside cancelActiveWork() (a child that
+	// ignores its cancellation makes the pass time out and the report of it throws): one more failure of
+	// that step, so the wipe, the notice and the signal still happen.
+	@Test
+	fun aForeignCancellationInsideCancelActiveWork_doesNotCutTheInvalidation() = runTest {
+		val foreign = ForeignCancellationReporting()
+		val rig = OneWipeRig(this, scopeReporting = foreign)
+		val never = CompletableDeferred<Unit>()
+		rig.sessionScope.launch { withContext(NonCancellable) { never.await() } }
+		runCurrent()
+		val recovery = rig.recovery(authRepository = OneWipeAuthRepository { error("unused") })
+
+		val caller = launch { recovery.invalidateSession(sessionId = "session-old") }
+		advanceUntilIdle()
+
+		assertTrue(foreign.thrown > 0, "the foreign cancellation was thrown inside cancelActiveWork")
+		assertTrue(caller.isCompleted && !caller.isCancelled, "nobody cancelled the caller")
+		assertTrue(rig.store.isGone(), "the session is gone")
+		assertEquals(1, rig.invalidations.raised, "and told")
+		never.complete(Unit)
+	}
+
+	// A stored session that cannot be read is not a session that is gone already: the wipe goes on.
+	@Test
+	fun whenTheStoredSessionCannotBeRead_theWipeGoesOn() = runTest {
+		val rig = OneWipeRig(this)
+		var failReads = false
+		val unreadable = object : SessionRepository by rig.store.repository {
+			override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+				if (failReads) error("unreadable")
+				return rig.store.repository.getActiveSessionSnapshot()
+			}
+		}
+		val recovery = rig.recovery(
+			authRepository = OneWipeAuthRepository { error("unused") },
+			sessionRepository = unreadable
+		)
+
+		failReads = true
+		launch { recovery.invalidateSession(sessionId = "session-old") }
+		advanceUntilIdle()
+		failReads = false
+
+		assertEquals(1, rig.application.clearCalls, "the wipe ran")
+		assertEquals(1, rig.invalidations.raised, "and the user is told")
+	}
+
+	// An invalidation that does not say which session it is about is never skipped; one that names a
+	// session that is not the stored one is, because a wipe already ended it or a sign-in replaced it.
+	@Test
+	fun anInvalidationWithoutASessionIsNeverSkipped_andAnotherSessionsIs() = runTest {
+		val rig = OneWipeRig(this)
+		val recovery = rig.recovery(authRepository = OneWipeAuthRepository { error("unused") })
+
+		val other = launch { recovery.invalidateSession(sessionId = "session-of-somebody-else") }
+		advanceUntilIdle()
+		assertTrue(other.isCompleted && !other.isCancelled)
+		assertEquals(0, rig.application.clearCalls, "the stored session is not the one named: nothing ends")
+		assertEquals(0, rig.invalidations.raised)
+		assertFalse(rig.store.isGone(), "the stored session survives")
+
+		launch { recovery.invalidateSession(sessionId = null) }
+		advanceUntilIdle()
+		assertEquals(1, rig.application.clearCalls)
+		assertEquals(1, rig.invalidations.raised)
+	}
 }
 
-private class OneWipeRig(val testScope: TestScope) {
+private class OneWipeRig(val testScope: TestScope, scopeReporting: ReportingRepository? = null) {
 	val settings = FakeSettingsRepository()
 	val invalidations = NoticeRecordingSessionInvalidations(settings)
 	val store = RealSessionStore(settings = settings, invalidations = invalidations).also { store -> store.seed() }
 	var database: suspend () -> Unit = {}
 	private val dispatcher = StandardTestDispatcher(testScope.testScheduler)
-	val sessionScope = testSessionCoroutineScope(dispatcher)
+	val sessionScope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), scopeReporting)
 	val application = ProductionLikeApplicationRepository(
 		settings = settings,
 		stores = listOf(store.active, store.legacy),

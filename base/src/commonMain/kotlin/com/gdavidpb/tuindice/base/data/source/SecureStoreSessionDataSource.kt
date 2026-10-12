@@ -21,7 +21,7 @@ class SecureStoreSessionDataSource(
 ) : PreferencesSessionDataRepository {
 	private val migrationMutex = Mutex()
 
-	override suspend fun hasActiveSession(): Boolean {
+	suspend fun hasActiveSession(): Boolean {
 		return resolveSession() != null
 	}
 
@@ -39,6 +39,20 @@ class SecureStoreSessionDataSource(
 
 	override suspend fun setRefreshToken(refreshToken: String) {
 		writeActiveValue(PreferencesKeys.USER_REFRESH_TOKEN, refreshToken)
+	}
+
+	// The four keys are written back to back and the legacy copies are removed afterwards: the removal
+	// really suspends, so a save cut by a cancellation at one of them must already have stored the whole
+	// session, not a mix of the new and the previous one.
+	override suspend fun setSession(usbId: String, sessionId: String, accessToken: String, refreshToken: String) {
+		migrationMutex.withLock {
+			secureStore.putString(key = PreferencesKeys.USER_USB_ID, value = usbId)
+			secureStore.putString(key = PreferencesKeys.USER_SESSION_ID, value = sessionId)
+			secureStore.putString(key = PreferencesKeys.USER_ACCESS_TOKEN, value = accessToken)
+			secureStore.putString(key = PreferencesKeys.USER_REFRESH_TOKEN, value = refreshToken)
+
+			sessionKeys.forEach { key -> attempt { legacySecureStore.remove(key) } }
+		}
 	}
 
 	override suspend fun getUsbId(): String? {

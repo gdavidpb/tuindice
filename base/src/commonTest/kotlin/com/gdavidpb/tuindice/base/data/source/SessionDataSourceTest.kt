@@ -160,10 +160,6 @@ private class FakePreferencesSessionDataRepository(
 	var accessToken: String? = null,
 	var refreshToken: String? = null
 ) : PreferencesSessionDataRepository {
-	override suspend fun hasActiveSession(): Boolean {
-		return sessionId != null && accessToken != null && refreshToken != null
-	}
-
 	override suspend fun setUsbId(usbId: String) {
 		this.usbId = usbId
 	}
@@ -177,6 +173,13 @@ private class FakePreferencesSessionDataRepository(
 	}
 
 	override suspend fun setRefreshToken(refreshToken: String) {
+		this.refreshToken = refreshToken
+	}
+
+	override suspend fun setSession(usbId: String, sessionId: String, accessToken: String, refreshToken: String) {
+		this.usbId = usbId
+		this.sessionId = sessionId
+		this.accessToken = accessToken
 		this.refreshToken = refreshToken
 	}
 

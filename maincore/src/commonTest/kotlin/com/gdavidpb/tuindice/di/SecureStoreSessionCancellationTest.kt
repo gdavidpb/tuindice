@@ -23,8 +23,9 @@ import kotlin.test.assertTrue
 // valid session nor leaves it half moved, and when it does end one it has left the notice first.
 @OptIn(ExperimentalCoroutinesApi::class)
 class SecureStoreSessionCancellationTest {
-	// The store ends a half-written session: it empties the active store, then the legacy one (a call
-	// that really suspends in production: KSafe), then keeps the notice. The reader is cancelled in between.
+	// The store ends a half-written session: it keeps the notice first, then empties the active store and
+	// the legacy one (a call that really suspends in production: KSafe). The reader is cancelled in between,
+	// so the notice has to be there already.
 	@Test
 	fun aStoreInvalidationCutWhileItEmptiesTheLegacyStore_stillLeavesItsNotice() = runTest {
 		val settings = FakeSettingsRepository()
@@ -115,6 +116,40 @@ class SecureStoreSessionCancellationTest {
 
 		assertTrue(active.values.size == 4 || legacy.values.size == 4, "the session is still whole in one of the stores")
 	}
+
+	// The legacy copy cannot be removed (a failure, not a cancellation) after the session was written and
+	// verified in the active store: cleaning up is not the migration, so the session is kept and nobody is
+	// told it was lost.
+	@Test
+	fun whenTheLegacyCopyCannotBeRemoved_theMigratedSessionIsKept() = runTest {
+		val settings = FakeSettingsRepository()
+		val invalidations = CountingSessionInvalidationRepository()
+		val active = InMemorySecureStore()
+		val legacy = object : SecureKeyValueDataRepository {
+			val values = mutableMapOf(
+				PreferencesKeys.USER_USB_ID to "12-34567",
+				PreferencesKeys.USER_SESSION_ID to "session-old",
+				PreferencesKeys.USER_ACCESS_TOKEN to "access-old",
+				PreferencesKeys.USER_REFRESH_TOKEN to "refresh-old"
+			)
+
+			override suspend fun getString(key: String): String? = values[key]
+			override suspend fun putString(key: String, value: String) {
+				values[key] = value
+			}
+
+			override suspend fun remove(key: String): Unit = error("the legacy store refuses to remove")
+			override suspend fun clear() {
+				values.clear()
+			}
+		}
+		val store = SecureStoreSessionDataSource(active, legacy, invalidations, settings)
+
+		assertTrue(store.hasActiveSession(), "the migrated session is the session")
+		assertEquals(4, active.values.size)
+		assertEquals(0, invalidations.raised)
+		assertNull(settings.sessionResetNotice)
+	}
 }
 
 // A legacy store that really suspends (as KSafe does): the first read (or the first removal, after it
@@ -165,7 +200,6 @@ private class CancellingStore(
 
 	// Observes the cancellation before it changes anything, the kindest case for the session.
 	override suspend fun clear() {
-		// A clear that does not look at the cancellation: the one that was cut must show in the outcome.
 		if (cancelOn != "put") yield()
 		values.clear()
 	}

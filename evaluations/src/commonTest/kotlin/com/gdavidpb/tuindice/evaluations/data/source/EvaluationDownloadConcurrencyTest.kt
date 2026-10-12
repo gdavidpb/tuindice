@@ -216,23 +216,36 @@ class EvaluationDownloadConcurrencyTest {
 		assertEquals(2, api.getEvaluationsCalls, "tries again once the window is over")
 	}
 
+	// A 401: the request fails, and the session is wiped at the very moment the failure is handed to the
+	// download that owns it, after its epoch was read and before it stamps the failure. The stamp belongs
+	// to the account that is gone: it must not hold the next one off.
 	@Test
 	fun aFailureThatEndedTheSession_doesNotHoldTheNextAccountOff() = runTest {
-		lateinit var repository: EvaluationDataSource
-		// A 401: the session is wiped first, then the request throws.
-		val api = HeldEvaluationsApi(onCall = { repository.clearSessionMemory() })
-		repository = repository(api = api)
+		val dispatcher = HookedDispatcher(StandardTestDispatcher(testScheduler))
+		val api = HeldEvaluationsApi()
+		val repository = repository(api = api)
+		var hookFired = 0
 
-		val first = launch { runCatching { repository.revalidateEvaluations() } }
+		val first = launch(dispatcher) { runCatching { repository.revalidateEvaluations() } }
 		runCurrent()
+		assertEquals(1, api.calls, "the request is in flight")
+
+		// The request is answered with the failure; the next dispatch is the one that hands it to its owner.
 		api.release(IllegalStateException("401"))
+		dispatcher.onNextDispatch = {
+			hookFired++
+			runBlocking { repository.clearSessionMemory() }
+		}
 		runCurrent()
+
+		assertEquals(1, hookFired, "the session ended where the test says")
+		assertNull(dispatcher.onNextDispatch, "and the hook was consumed")
 		assertTrue(first.isCompleted)
 
 		launch { runCatching { repository.revalidateEvaluations() } }
 		runCurrent()
 
-		assertEquals(2, api.calls)
+		assertEquals(2, api.calls, "the next account makes its own request")
 	}
 
 	@Test

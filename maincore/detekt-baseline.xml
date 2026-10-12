@@ -175,7 +175,7 @@
     <ID>TooManyFunctions:MainMachine.kt$MainMachine : ScreenMachine</ID>
     <ID>TooManyFunctions:MainViewModel.kt$MainViewModel : StateMachineViewModel</ID>
     <ID>TooManyFunctions:MultiplatformSettingsDataSource.kt$MultiplatformSettingsDataSource : SettingsRepository</ID>
-    <ID>TooManyFunctions:SessionRecoveryDataSource.kt$SessionRecoveryDataSource : SessionRecoveryRepositorySessionMemory</ID>
+    <ID>TooManyFunctions:SessionRecoveryDataSource.kt$SessionRecoveryDataSource : SessionRecoveryRepositorySessionEndRepositorySessionMemory</ID>
     <ID>TooManyFunctions:SyncStatusSettingsDataSource.kt$SyncStatusSettingsDataSource : SyncStatusRepositorySessionMemory</ID>
     <ID>TopLevelPropertyNaming:TopBarBannerHostUiTest.kt$private const val TestBannerTag = "top_bar_banner_host_test_banner"</ID>
     <ID>UseCheckOrError:CredentialsDataSource.kt$CredentialsDataSource$throw IllegalStateException("university password is not available")</ID>
