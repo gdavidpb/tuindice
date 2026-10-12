@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -325,6 +326,16 @@ class EvaluationDataSource(
 		return databaseDataSource.getAvailableAttempts()
 			.map { attempt -> attempt.toEditableAttemptDescriptor() }
 			.sortedBy(EditableAttemptDescriptor::code)
+	}
+
+	override fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>> {
+		return databaseDataSource.observeAvailableAttemptsFlow()
+			.map { attempts ->
+				attempts
+					.map { attempt -> attempt.toEditableAttemptDescriptor() }
+					.sortedBy(EditableAttemptDescriptor::code)
+			}
+			.distinctUntilChanged()
 	}
 
 	override suspend fun getCurrentTerm() =

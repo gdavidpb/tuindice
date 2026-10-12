@@ -211,13 +211,18 @@ class PensumDataSource(
 	}
 
 	// The candidate selection is validated against the backend before persisting,
-	// so a not-found selection never becomes the sticky default.
+	// so a not-found selection never becomes the sticky default. Like a revalidation, it saves only
+	// if the session it started in is still the current one: the request can outlive it, and the
+	// previous account's choice must not reach the next.
 	private suspend fun applySelection(
 		selection: PensumSelectionParams,
 		persistSelection: suspend () -> Unit
 	) {
 		remoteWriteMutex.withLock {
+			val epoch = sessionEpoch
 			val response = remoteDataRepository.getPensum(selection)
+
+			if (epoch != sessionEpoch) return@withLock
 
 			persistSelection()
 			localDataRepository.savePensumResponse(

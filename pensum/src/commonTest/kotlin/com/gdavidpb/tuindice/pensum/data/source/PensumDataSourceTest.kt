@@ -277,6 +277,41 @@ class PensumDataSourceTest {
 		assertEquals(false, local.lastInferredSelection)
 	}
 
+	// The student's own choice is a request too: if the session ends while it is out, the answer is
+	// the previous account's and nothing of it is saved.
+	@Test
+	fun theManualSelections_whenTheSessionEndsWhileValidating_saveNothing() = runTest {
+		val selections = listOf<suspend (PensumDataSource) -> Unit>(
+			{ dataSource -> dataSource.selectPensum(year = 2018) },
+			{ dataSource -> dataSource.selectModality(modalityId = "long_internship") },
+			{ dataSource -> dataSource.selectSelection(year = 2018, modalityId = "long_internship") }
+		)
+
+		selections.forEach { select ->
+			val local = FakePensumLocalDataRepository(
+				selection = PensumSelectionParams(year = 2019, modalityId = "degree_project")
+			)
+			lateinit var dataSource: PensumDataSource
+			val remote = FakePensumRemoteDataRepository(onRequest = { dataSource.clearSessionMemory() })
+			dataSource = createDataSource(local = local, remote = remote)
+
+			select(dataSource)
+
+			assertEquals(1, remote.requestedSelections.size)
+			assertEquals(emptyList(), local.writes)
+		}
+	}
+
+	@Test
+	fun theManualSelections_whenTheSessionDoesNotChange_stillSave() = runTest {
+		val local = FakePensumLocalDataRepository(selection = PensumSelectionParams())
+		val dataSource = createDataSource(local = local, remote = FakePensumRemoteDataRepository())
+
+		dataSource.selectSelection(year = 2019, modalityId = "degree_project")
+
+		assertEquals(listOf("select 2019/degree_project", "save inferred=false"), local.writes)
+	}
+
 	@Test
 	fun selectSelection_whenRemoteFails_persistsNothing() = runTest {
 		val local = FakePensumLocalDataRepository(selection = PensumSelectionParams())

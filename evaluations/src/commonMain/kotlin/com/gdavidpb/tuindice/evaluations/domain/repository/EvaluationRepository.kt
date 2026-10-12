@@ -43,6 +43,14 @@ interface EvaluationRepository {
 	suspend fun getCurrentTerm(): EvaluationTermDescriptor?
 
 	/**
+	 * The attempts [getAvailableAttempts] returns, observed: it emits again when the current term
+	 * changes or when its numeric attempts do (a withdrawal, an enrollment correction), never twice
+	 * for the same list. A record write that changes the term and its attempts together is read after
+	 * it commits, so it emits the new term with its own attempts and not the old ones.
+	 */
+	fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>>
+
+	/**
 	 * The current term, observed: it emits again when the current term changes or when its data does
 	 * (the first day of classes arrives with a sync), and it emits null while there is none.
 	 */

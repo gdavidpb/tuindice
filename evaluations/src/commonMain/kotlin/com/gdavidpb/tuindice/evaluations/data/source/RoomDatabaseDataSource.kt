@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
-import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
@@ -21,16 +19,21 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.currentTermEntityOrNull
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -118,19 +121,21 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
-		val currentTermId = selectOfficialCurrentTermId(
-			terms = academicTermDao.getTerms()
-		) ?: return emptyList()
+		return selectAvailableAttempts(
+			terms = academicTermDao.getTerms(),
+			attempts = academicAttemptDao.getAttempts()
+		)
+	}
 
-		return academicAttemptDao
-			.getAttempts()
-			.asSequence()
-			.filter { attempt -> attempt.termId == currentTermId }
-			.filter { attempt -> attempt.gradingMode == "NUMERIC" }
-			.map { attempt -> attempt.toLocalEditableAttemptDescriptor() }
-			.filter { attempt -> attempt.gradingMode == GradingMode.NUMERIC }
-			.sortedBy(LocalEditableAttemptDescriptor::code)
-			.toList()
+	override fun observeAvailableAttemptsFlow(): Flow<List<LocalEditableAttemptDescriptor>> {
+		return observeAvailableAttempts(
+			changes = merge(
+				academicTermDao.observeTermsFlow(),
+				academicAttemptDao.observeAttemptsFlow()
+			),
+			readTerms = academicTermDao::getTerms,
+			readAttempts = academicAttemptDao::getAttempts
+		)
 	}
 
 	override suspend fun getCurrentTerm() =
@@ -267,16 +272,49 @@ class RoomDatabaseDataSource(
 	}
 
 	internal companion object {
+		// Each emission of [changes] only says "the terms or the attempts changed": both are read again
+		// afterwards, so a record write that moves the term and its attempts in one transaction yields
+		// the new term with its own attempts, never the new term over the old attempts. A write landing
+		// between the two reads emits again and corrects it. Never twice the same list.
+		@OptIn(ExperimentalCoroutinesApi::class)
+		fun observeAvailableAttempts(
+			changes: Flow<Any?>,
+			readTerms: suspend () -> List<AcademicTermEntity>,
+			readAttempts: suspend () -> List<AcademicAttemptEntity>
+		): Flow<List<LocalEditableAttemptDescriptor>> {
+			return changes
+				.mapLatest {
+					selectAvailableAttempts(
+						terms = readTerms(),
+						attempts = readAttempts()
+					)
+				}
+				.distinctUntilChanged()
+		}
+
+		fun selectAvailableAttempts(
+			terms: List<AcademicTermEntity>,
+			attempts: List<AcademicAttemptEntity>
+		): List<LocalEditableAttemptDescriptor> {
+			val currentTermId = selectOfficialCurrentTermId(terms = terms)
+				?: return emptyList()
+
+			return attempts
+				.asSequence()
+				.filter { attempt -> attempt.termId == currentTermId }
+				.filter { attempt -> attempt.gradingMode == "NUMERIC" }
+				.map { attempt -> attempt.toLocalEditableAttemptDescriptor() }
+				.filter { attempt -> attempt.gradingMode == GradingMode.NUMERIC }
+				.sortedBy(LocalEditableAttemptDescriptor::code)
+				.toList()
+		}
+
 		fun selectOfficialCurrentTermId(
 			terms: List<AcademicTermEntity>
 		): String? = selectOfficialCurrentTerm(terms = terms)?.id
 
 		fun selectOfficialCurrentTerm(
 			terms: List<AcademicTermEntity>
-		): AcademicTermEntity? = terms.currentTermOrNull(
-			kind = { term -> TermKind.valueOf(term.kind) },
-			termOrder = AcademicTermEntity::termOrder,
-			id = AcademicTermEntity::id
-		)
+		): AcademicTermEntity? = terms.currentTermEntityOrNull()
 	}
 }

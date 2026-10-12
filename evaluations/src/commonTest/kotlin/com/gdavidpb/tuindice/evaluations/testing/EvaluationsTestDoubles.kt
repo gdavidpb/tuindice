@@ -48,9 +48,11 @@ import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -246,6 +248,28 @@ val DEFAULT_REMOTE_COMPLETED_EVALUATION = RemoteEvaluation(
 	isDone = true
 )
 
+// A second term with its own attempt and evaluation: what the record moves to when the term changes.
+val NEXT_TERM = EvaluationTermDescriptor(
+	id = "quarter-2",
+	periodYear = 2026,
+	periodCode = AcademicTermPeriod.SEP_DEC,
+	periodLabel = "Septiembre - Diciembre 2026"
+)
+
+val NEXT_TERM_SUBJECT = DEFAULT_EVALUATION_SUBJECT.copy(
+	id = "subject-3",
+	termId = NEXT_TERM.id,
+	code = "FIS-101",
+	name = "Fisica"
+)
+
+val NEXT_TERM_EVALUATION = DEFAULT_PENDING_EVALUATION.copy(
+	id = "evaluation-3",
+	attemptId = NEXT_TERM_SUBJECT.id,
+	subjectCode = NEXT_TERM_SUBJECT.code,
+	termId = NEXT_TERM.id
+)
+
 class RecordingEvaluationRepository(
 	initialEvaluations: List<Evaluation> = listOf(
 		DEFAULT_PENDING_EVALUATION,
@@ -263,13 +287,14 @@ class RecordingEvaluationRepository(
 	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
 	private val evaluationsSnapshot: ObservedSyncedSnapshot<List<Evaluation>>? = null,
 	private val refreshResult: EvaluationsRefreshResult? = null,
-	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
+	availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
 	),
 	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
+	private val availableSubjectsState = MutableStateFlow(availableSubjects)
 	private val currentTermState = MutableStateFlow(currentTerm)
 
 	val addCalls = mutableListOf<EvaluationAdd>()
@@ -308,11 +333,11 @@ class RecordingEvaluationRepository(
 		refreshThrowable?.let { throw it }
 		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
 		// Same rule as the real repository: only an evaluation under an available subject counts.
-		val availableAttemptIds = availableSubjects.mapTo(HashSet()) { subject -> subject.id }
+		val availableAttemptIds = availableSubjectsState.value.mapTo(HashSet()) { subject -> subject.id }
 		return refreshResult ?: EvaluationsRefreshResult(
 			hasEvaluations = evaluationsState.value
 				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
-			hasAvailableAttempts = availableSubjects.isNotEmpty()
+			hasAvailableAttempts = availableSubjectsState.value.isNotEmpty()
 		)
 	}
 
@@ -373,12 +398,23 @@ class RecordingEvaluationRepository(
 
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> {
 		availableAttemptsThrowable?.let { throw it }
-		return availableSubjects
+		return availableSubjectsState.value
 	}
 
 	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTermState.value
 
 	override fun observeCurrentTermFlow(): Flow<EvaluationTermDescriptor?> = currentTermState
+
+	override fun observeAvailableAttemptsFlow(): Flow<List<EditableAttemptDescriptor>> {
+		return availableSubjectsState
+			.map { attempts -> attempts.sortedBy(EditableAttemptDescriptor::code) }
+			.distinctUntilChanged()
+			.onStart { availableAttemptsThrowable?.let { throwable -> throw throwable } }
+	}
+
+	fun changeAvailableAttempts(attempts: List<EditableAttemptDescriptor>) {
+		availableSubjectsState.value = attempts
+	}
 
 	fun changeCurrentTerm(term: EvaluationTermDescriptor?) {
 		currentTermState.value = term
@@ -393,12 +429,13 @@ class FakeDatabaseDataSource(
 			DEFAULT_LOCAL_COMPLETED_EVALUATION
 		)
 	),
-	private val availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
+	availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	),
 	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM
 ) : DatabaseDataRepository {
+	private val availableSubjectsState = MutableStateFlow(availableSubjects)
 	private val snapshotState = MutableStateFlow(initialSnapshot)
 	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.hasSynced)
 
@@ -423,7 +460,13 @@ class FakeDatabaseDataSource(
 
 	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
-	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
+	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjectsState.value
+
+	override fun observeAvailableAttemptsFlow(): Flow<List<LocalEditableAttemptDescriptor>> = availableSubjectsState
+
+	fun changeAvailableAttempts(attempts: List<LocalEditableAttemptDescriptor>) {
+		availableSubjectsState.value = attempts
+	}
 
 	override suspend fun getCurrentTerm(): LocalCurrentTermDescriptor? = currentTerm
 

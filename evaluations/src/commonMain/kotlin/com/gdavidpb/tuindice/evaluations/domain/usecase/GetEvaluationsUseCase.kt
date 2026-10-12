@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
@@ -63,35 +64,51 @@ class GetEvaluationsUseCase(
 			}
 	}
 
-	private suspend fun observeReadyEvaluations(): Flow<GetEvaluations> {
-		val availableAttempts = evaluationRepository.getAvailableAttempts()
-		if (availableAttempts.isEmpty()) {
-			return syncStatusRepository.observeSyncReport()
-				.map { syncReport ->
-					val enrollment = syncReport.sources.enrollment
-
-					GetEvaluations.NoAttempts(
-						reason = when {
-							// A final annulment drops the term, and the university reports it together
-							// with "not enrolled". It has to win: the record and the summary are the
-							// ones that explain it, and here it reads as having no current term.
-							enrollment.situation != null ->
-								EvaluationsNoAttemptsReason.NoCurrentTerm
-
-							enrollment.status == SyncSourceStatus.NotEnrolled ->
-								EvaluationsNoAttemptsReason.NotEnrolled
-
-							enrollment.status == SyncSourceStatus.Unavailable ->
-								EvaluationsNoAttemptsReason.EnrollmentUnavailable
-
-							else -> EvaluationsNoAttemptsReason.NoCurrentTerm
-						}
-					)
+	// The attempts are observed, not read once: the list and the display context come from the same
+	// attempts the tab was last told about, so a term change or a withdrawal reaches both together,
+	// and the step between "no attempts" and content is followed in both directions.
+	private fun observeReadyEvaluations(): Flow<GetEvaluations> {
+		return evaluationRepository
+			.observeAvailableAttemptsFlow()
+			.flatMapLatest { availableAttempts ->
+				if (availableAttempts.isEmpty()) {
+					observeNoAttempts()
+				} else {
+					observeContent(availableAttempts)
 				}
-		}
+			}
+	}
 
-		// The term is observed, not read once: a sync can bring the first day of classes while the tab
-		// is open, and the weeks hang from it.
+	private fun observeNoAttempts(): Flow<GetEvaluations> {
+		return syncStatusRepository.observeSyncReport()
+			.map { syncReport ->
+				val enrollment = syncReport.sources.enrollment
+
+				GetEvaluations.NoAttempts(
+					reason = when {
+						// A final annulment drops the term, and the university reports it together
+						// with "not enrolled". It has to win: the record and the summary are the
+						// ones that explain it, and here it reads as having no current term.
+						enrollment.situation != null ->
+							EvaluationsNoAttemptsReason.NoCurrentTerm
+
+						enrollment.status == SyncSourceStatus.NotEnrolled ->
+							EvaluationsNoAttemptsReason.NotEnrolled
+
+						enrollment.status == SyncSourceStatus.Unavailable ->
+							EvaluationsNoAttemptsReason.EnrollmentUnavailable
+
+						else -> EvaluationsNoAttemptsReason.NoCurrentTerm
+					}
+				)
+			}
+	}
+
+	// The term is observed too: a sync can bring the first day of classes while the tab is open, and
+	// the weeks hang from it.
+	private suspend fun observeContent(
+		availableAttempts: List<EditableAttemptDescriptor>
+	): Flow<GetEvaluations> {
 		return combine(
 			evaluationRepository.observeEvaluationsSnapshotFlow(),
 			evaluationsSelectionRepository.observeSelectedWeekKey(),

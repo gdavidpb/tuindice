@@ -2,17 +2,26 @@
 
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
+import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM
+import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.NEXT_TERM_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -118,6 +127,123 @@ class GetEvaluationsUseCaseContentTest {
 	}
 
 	@Test
+	fun getEvaluationsUseCase_whenTheTermChangesWithTheTabOpen_listAndAttemptsAreOfTheNewTerm() = runTest {
+		val repository = repositoryOf(
+			evaluations = listOf(DEFAULT_PENDING_EVALUATION, NEXT_TERM_EVALUATION),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT),
+			term = DEFAULT_EVALUATION_TERM
+		)
+
+		contentUseCase(repository).execute(Unit).test {
+			val first = assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+			assertEquals(listOf(DEFAULT_EVALUATION_SUBJECT), first.displayContext.attempts)
+			assertEquals(DEFAULT_EVALUATION_TERM, first.displayContext.currentTerm)
+			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), first.listed())
+
+			// A sync moves the record to the next term: the term and its attempts change together.
+			repository.changeAvailableAttempts(listOf(NEXT_TERM_SUBJECT))
+			repository.changeCurrentTerm(NEXT_TERM)
+
+			val last = awaitContentWhere { content ->
+				content.displayContext.currentTerm == NEXT_TERM &&
+					content.displayContext.attempts == listOf(NEXT_TERM_SUBJECT)
+			}
+			assertEquals(listOf(NEXT_TERM_EVALUATION), last.listed())
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_whenAnAttemptDisappearsWithinTheSameTerm_itsEvaluationsLeaveTheList() = runTest {
+		val repository = repositoryOf(
+			evaluations = listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
+			term = DEFAULT_EVALUATION_TERM
+		)
+
+		contentUseCase(repository).execute(Unit).test {
+			val first = assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+			assertEquals(
+				setOf(DEFAULT_PENDING_EVALUATION.id, DEFAULT_COMPLETED_EVALUATION.id),
+				first.listed().map { evaluation -> evaluation.id }.toSet()
+			)
+
+			// A withdrawal: the term stays, one of its attempts goes away.
+			repository.changeAvailableAttempts(listOf(DEFAULT_EVALUATION_SUBJECT))
+
+			val second = assertIs<GetEvaluations.Content>(
+				assertIs<UseCaseState.Data<GetEvaluations>>(awaitItem()).value
+			)
+			assertEquals(listOf(DEFAULT_EVALUATION_SUBJECT), second.displayContext.attempts)
+			assertEquals(DEFAULT_EVALUATION_TERM, second.displayContext.currentTerm)
+			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), second.listed())
+			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_followsTheStepBetweenNoAttemptsAndContentInBothDirections() = runTest {
+		val repository = repositoryOf(
+			evaluations = listOf(DEFAULT_PENDING_EVALUATION),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT),
+			term = DEFAULT_EVALUATION_TERM
+		)
+
+		contentUseCase(repository).execute(Unit).test {
+			assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+
+			repository.changeAvailableAttempts(emptyList())
+			assertIs<GetEvaluations.NoAttempts>(
+				assertIs<UseCaseState.Data<GetEvaluations>>(awaitItem()).value
+			)
+
+			repository.changeAvailableAttempts(listOf(DEFAULT_EVALUATION_SUBJECT))
+			val back = assertIs<GetEvaluations.Content>(
+				assertIs<UseCaseState.Data<GetEvaluations>>(awaitItem()).value
+			)
+			assertEquals(listOf(DEFAULT_EVALUATION_SUBJECT), back.displayContext.attempts)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	private fun GetEvaluations.Content.listed(): List<Evaluation> {
+		return evaluations.listedUnder(displayContext.attempts)
+	}
+
+	private suspend fun ReceiveTurbine<UseCaseState<GetEvaluations, EvaluationsUseCaseError>>.awaitContentWhere(
+		predicate: (GetEvaluations.Content) -> Boolean
+	): GetEvaluations.Content {
+		repeat(MAX_INTERMEDIATE_EMISSIONS) {
+			val state = awaitItem()
+			val content = (state as? UseCaseState.Data<*>)?.value as? GetEvaluations.Content
+
+			if (content != null && predicate(content)) return content
+		}
+
+		throw AssertionError("The expected content never arrived")
+	}
+
+	private fun repositoryOf(
+		evaluations: List<Evaluation>,
+		attempts: List<EditableAttemptDescriptor>,
+		term: EvaluationTermDescriptor?
+	) = RecordingEvaluationRepository(
+		initialEvaluations = evaluations,
+		availableSubjects = attempts,
+		currentTerm = term
+	)
+
+	private fun contentUseCase(repository: RecordingEvaluationRepository) = GetEvaluationsUseCase(
+		evaluationRepository = repository,
+		recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+		syncStatusRepository = RecordingSyncStatusRepository(),
+		evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
+		reportingRepository = RecordingReportingRepository(),
+		clock = Clock.System
+	)
+
+	@Test
 	fun getEvaluationsUseCase_whenDatesShareTimeBucket_breaksTiesByEvaluationState() = runTest {
 		val currentTime = currentTimeMillis()
 		val pastOverdue = DEFAULT_PENDING_EVALUATION.copy(
@@ -200,3 +326,5 @@ class GetEvaluationsUseCaseContentTest {
 }
 
 private const val ONE_DAY_MILLIS = 86_400_000L
+
+private const val MAX_INTERMEDIATE_EMISSIONS = 4

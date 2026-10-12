@@ -14,6 +14,7 @@ interface DatabaseDataRepository {
 	suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor>
+	fun observeAvailableAttemptsFlow(): Flow<List<LocalEditableAttemptDescriptor>>
 	suspend fun getCurrentTerm(): LocalCurrentTermDescriptor?
 	fun observeCurrentTermFlow(): Flow<LocalCurrentTermDescriptor?>
 	suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation

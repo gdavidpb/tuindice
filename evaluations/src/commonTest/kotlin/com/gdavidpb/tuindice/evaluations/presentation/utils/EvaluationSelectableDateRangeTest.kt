@@ -65,10 +65,32 @@ class EvaluationSelectableDateRangeTest {
 	fun clampToMonthRange_snapsOutOfRangeDatesToTheNearestAllowedMonth() {
 		val range = term(AcademicTermPeriod.APR_JUL, year = 2026).toSelectableDateRange()
 
-		// The range starts on March 30th, so the month it snaps to is March.
-		assertEquals(LocalDate(2026, 3, 1), LocalDate(2026, 1, 20).clampToMonthRange(range))
+		// The range starts on March 30th, but the term starts in April: the picker opens on April.
+		assertEquals(LocalDate(2026, 4, 1), LocalDate(2026, 1, 20).clampToMonthRange(range))
 		assertEquals(LocalDate(2026, 8, 1), LocalDate(2026, 12, 20).clampToMonthRange(range))
 		assertEquals(LocalDate(2026, 6, 1), LocalDate(2026, 6, 15).clampToMonthRange(range))
+	}
+
+	@Test
+	fun clampToMonthRange_neverOpensBeforeTheMonthTheTermStartsIn_evenForADayOfWeekOne() {
+		val range = term(AcademicTermPeriod.APR_JUL, year = 2026).toSelectableDateRange()
+
+		// March 30th and 31st are selectable (week 1), but March only has those days enabled.
+		assertEquals(LocalDate(2026, 4, 1), LocalDate(2026, 3, 30).clampToMonthRange(range))
+		assertEquals(LocalDate(2026, 4, 1), LocalDate(2026, 3, 31).clampToMonthRange(range))
+		// Going back to March is still possible: the range keeps its days.
+		assertTrue(LocalDate(2026, 3, 30) in range)
+		assertEquals(LocalDate(2026, 3, 1), range.start.monthStart())
+	}
+
+	@Test
+	fun clampToMonthRange_whenTheRangeStartsOnTheFirst_opensOnThatMonth() {
+		val range = term(AcademicTermPeriod.SEP_DEC, year = 2026)
+			.copy(classesStartDate = LocalDate(2026, 9, 28))
+			.toSelectableDateRange()
+
+		assertEquals(LocalDate(2026, 9, 1), LocalDate(2026, 1, 20).clampToMonthRange(range))
+		assertEquals(LocalDate(2026, 9, 1), LocalDate(2026, 9, 20).clampToMonthRange(range))
 	}
 
 	private fun term(period: AcademicTermPeriod, year: Int) = EvaluationTermDescriptor(
