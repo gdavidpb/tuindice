@@ -119,11 +119,9 @@ class KtorClientSessionHardeningTest {
 			attestationRepository = TokenAttestationRepository,
 			authRepository = RefreshingAuthRepository(sessionRepository = sessionRepository)
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					respond(
@@ -160,7 +158,7 @@ class KtorClientSessionHardeningTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 		assertFalse(sessionRepository.cleared)
 		assertEquals(0, sessionInvalidationRepository.invalidationCalls)

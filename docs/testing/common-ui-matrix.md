@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-13 01:06:42 -0300_
+_Generated automatically on 2026-10-13 02:35:37 -0300_
 
 ## Summary by module
 
@@ -9,12 +9,12 @@ _Generated automatically on 2026-10-13 01:06:42 -0300_
 | `.claude` | 2 | 0 | 0 | 0 | 0 | 0 |
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
-| `base` | 2 | 34 | 46 | 35 | 33 | 33 |
+| `base` | 2 | 35 | 47 | 36 | 34 | 34 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
-| `evaluations` | 2 | 45 | 47 | 50 | 45 | 45 |
+| `evaluations` | 2 | 44 | 47 | 49 | 44 | 44 |
 | `maincore` | 3 | 14 | 17 | 15 | 14 | 14 |
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
-| `record` | 2 | 74 | 88 | 81 | 74 | 74 |
+| `record` | 2 | 75 | 89 | 82 | 75 | 75 |
 | `subjects` | 2 | 24 | 27 | 25 | 24 | 24 |
 | `summary` | 2 | 19 | 21 | 24 | 19 | 19 |
 | `wizard` | 2 | 2 | 3 | 2 | 2 | 2 |
@@ -76,6 +76,7 @@ _Generated automatically on 2026-10-13 01:06:42 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceDarkTheme.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceDarkThemeUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceShellColors.kt` | 4 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceShellColorsUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/AppLogoView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/AppLogoViewUiTest.kt` | 3 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLine.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLineUiTest.kt` | 8 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyStateAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyStateAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorStateAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorStateAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
@@ -130,14 +131,14 @@ _Generated automatically on 2026-10-13 01:06:42 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialog.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialogUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreenUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreenUiTest.kt` | 10 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 5 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 7 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayClassDot.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayClassDotUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActions.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsContainer.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsContainerUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPickerUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContent.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContentUiTest.kt` | 4 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 9 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 10 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateDialogTitle.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateDialogTitleUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 10 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateSelectionSummary.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateSelectionSummaryUiTest.kt` | 2 | PASS threshold (2) |
@@ -145,9 +146,8 @@ _Generated automatically on 2026-10-13 01:06:42 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPickerUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderViewUiTest.kt` | 2 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 6 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 8 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingViewUiTest.kt` | 2 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationPlaceLine.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationPlaceLineUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldError.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldErrorUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismiss.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismissUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePickerUiTest.kt` | 3 | PASS threshold (2) |
@@ -284,13 +284,14 @@ _Generated automatically on 2026-10-13 01:06:42 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleDayColumn.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleDayColumnUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleDayHeaderView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleDayHeaderViewUiTest.kt` | 4 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleEvaluationLegendView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleEvaluationLegendViewUiTest.kt` | 2 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleEvaluationMarkIcon.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleEvaluationMarkIconUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleGridView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleGridViewUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleHeaderView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleHeaderViewUiTest.kt` | 3 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleNowLineView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleNowLineViewUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellViewUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableHeaderRow.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableHeaderRowUiTest.kt` | 3 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingBlocksView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingBlocksViewUiTest.kt` | 3 | PASS threshold (2) |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingViewUiTest.kt` | 8 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingViewUiTest.kt` | 10 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowViewUiTest.kt` | 4 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableSubjectView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableSubjectViewUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableUnscheduledView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableUnscheduledViewUiTest.kt` | 3 | PASS threshold (2) |

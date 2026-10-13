@@ -52,9 +52,6 @@
 	<string name="evaluation_status_completed">Completada</string>
 	<string name="evaluation_status_continuous">Continua</string>
 
-	<string name="evaluation_place_blocks">Bloques %1$d-%2$d</string>
-	<string name="evaluation_place_block">Bloque %1$d</string>
-	<string name="evaluation_place_with_room">%1$s · %2$s</string>
 	<string name="evaluation_place_in_class">En clase · %1$s</string>
 
 	<string name="label_add_evaluation_subject">Materia</string>
@@ -94,4 +91,5 @@
 	<string name="a11y_add_evaluation">Agregar evaluación</string>
 	<string name="a11y_evaluation_show_actions">Ver acciones</string>
 	<string name="a11y_evaluation_register_grade">Registrar nota</string>
+	<string name="a11y_calendar_day_class">%1$d, día de clase</string>
 </resources>

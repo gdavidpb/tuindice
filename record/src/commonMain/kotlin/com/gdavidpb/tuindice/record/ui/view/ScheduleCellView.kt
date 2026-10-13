@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Assignment
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,7 +23,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
@@ -101,14 +96,11 @@ fun ScheduleCellView(
 
 			if (cell.hasEvaluation) {
 				// Decorative: the description already says "con evaluación ese día".
-				Icon(
+				ScheduleEvaluationMarkIcon(
 					modifier = Modifier
 						.align(Alignment.BottomEnd)
 						.offset(x = -EvaluationIconInset, y = -EvaluationIconInset)
-						.size(TuIndiceComponentSizes.IconSmall)
-						.testTag(RecordUiTags.scheduleCellEvaluation(cell.attemptId, day.code, cell.startBlock)),
-					imageVector = Icons.Outlined.Assignment,
-					contentDescription = null
+						.testTag(RecordUiTags.scheduleCellEvaluation(cell.attemptId, day.code, cell.startBlock))
 				)
 			}
 		}

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
+import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
@@ -10,10 +11,7 @@ import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.evaluation_place_block
-import tuindice.evaluations.generated.resources.evaluation_place_blocks
 import tuindice.evaluations.generated.resources.evaluation_place_in_class
-import tuindice.evaluations.generated.resources.evaluation_place_with_room
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -43,47 +41,44 @@ class EvaluationPlaceMappingTest {
 	)
 
 	@Test
-	fun toEvaluationPlaceItem_ofSeveralBlocks_saysTheRangeTheRoomAndTheHours() {
-		val place = meeting(day = MONDAY, start = 1, end = 2).toEvaluationPlaceItem()
+	fun toClassPlaceItem_ofSeveralBlocks_saysTheRangeTheRoomAndTheHours() {
+		val place = meeting(day = MONDAY, start = 1, end = 2).toClassPlaceItem()
+
+		// Block 1 starts at 7:30 and every block lasts an hour: the last block ends at 9:30. How the
+		// blocks, the room and the hours are said is the base's (ClassPlaceTest); this is that the
+		// meeting's own numbers reach it.
+		assertEquals(
+			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = 450..570),
+			place
+		)
+	}
+
+	@Test
+	fun toClassPlaceItem_ofASingleBlock_hasItsOwnHour() {
+		val place = meeting(day = MONDAY, start = 3).toClassPlaceItem()
 
 		assertEquals(
-			UiText.Resource(
-				Res.string.evaluation_place_with_room,
-				listOf(UiText.Resource(Res.string.evaluation_place_blocks, listOf(1, 2)), "MYS-116")
-			),
-			place.placeText
+			classPlaceItem(startBlock = 3, endBlock = 3, classroom = "MYS-116", clockRange = 570..630),
+			place
 		)
-		// Block 1 starts at 7:30 and every block lasts an hour: the last block ends at 9:30.
-		assertEquals("7:30–9:30", place.timeText)
 	}
 
 	@Test
-	fun toEvaluationPlaceItem_ofASingleBlock_saysBlockInTheSingular() {
-		val place = meeting(day = MONDAY, start = 3).toEvaluationPlaceItem()
+	fun toClassPlaceItem_withoutARoom_leavesTheRoomOut() {
+		val place = meeting(day = MONDAY, start = 1, end = 2, classroom = "").toClassPlaceItem()
 
 		assertEquals(
-			UiText.Resource(
-				Res.string.evaluation_place_with_room,
-				listOf(UiText.Resource(Res.string.evaluation_place_block, listOf(3)), "MYS-116")
-			),
+			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = 450..570).placeText,
 			place.placeText
 		)
-		assertEquals("9:30–10:30", place.timeText)
 	}
 
 	@Test
-	fun toEvaluationPlaceItem_withoutARoom_leavesTheRoomOut() {
-		val place = meeting(day = MONDAY, start = 1, end = 2, classroom = "").toEvaluationPlaceItem()
-
-		assertEquals(UiText.Resource(Res.string.evaluation_place_blocks, listOf(1, 2)), place.placeText)
-	}
-
-	@Test
-	fun toEvaluationPlaceItem_ofABlockPastTheDay_hasNoHours() {
+	fun toClassPlaceItem_ofABlockPastTheDay_hasNoHours() {
 		// Block 17 starts at 23:30 and ends past midnight: an hour for it would be wrong.
-		assertNull(meeting(day = MONDAY, start = 17).toEvaluationPlaceItem().timeText)
-		assertNull(meeting(day = MONDAY, start = 15, end = 17).toEvaluationPlaceItem().timeText)
-		assertNotNull(meeting(day = MONDAY, start = 15, end = 16).toEvaluationPlaceItem().timeText)
+		assertNull(meeting(day = MONDAY, start = 17).toClassPlaceItem().timeText)
+		assertNull(meeting(day = MONDAY, start = 15, end = 17).toClassPlaceItem().timeText)
+		assertNotNull(meeting(day = MONDAY, start = 15, end = 16).toClassPlaceItem().timeText)
 	}
 
 	@Test
@@ -92,7 +87,7 @@ class EvaluationPlaceMappingTest {
 
 		val place = inheritedEvaluationPlace(meetings, EvaluationScheduleMode.DATED, MONDAY_DATE)
 
-		assertEquals(meetings[1].toEvaluationPlaceItem(), place)
+		assertEquals(meetings[1].toClassPlaceItem(), place)
 		assertNull(inheritedEvaluationPlace(meetings, EvaluationScheduleMode.DATED, TUESDAY_DATE))
 	}
 
@@ -122,10 +117,10 @@ class EvaluationPlaceMappingTest {
 		val place = assertNotNull(meetings.classPlaceOn(MONDAY_DATE))
 
 		assertEquals(
-			UiText.Resource(Res.string.evaluation_place_in_class, listOf(meetings[0].toEvaluationPlaceItem().placeText)),
+			UiText.Resource(Res.string.evaluation_place_in_class, listOf(meetings[0].toClassPlaceItem().placeText)),
 			place.placeText
 		)
-		assertEquals("7:30–9:30", place.timeText)
+		assertEquals(meetings[0].toClassPlaceItem().timeText, place.timeText)
 		assertNull(meetings.classPlaceOn(TUESDAY_DATE))
 	}
 
@@ -148,7 +143,7 @@ class EvaluationPlaceMappingTest {
 			.flatMap { group -> group.items }
 			.associateBy { item -> item.evaluationId }
 
-		assertEquals(attempt.meetings[0].toEvaluationPlaceItem(), items.getValue(onClassDay.id).place)
+		assertEquals(attempt.meetings[0].toClassPlaceItem(), items.getValue(onClassDay.id).place)
 		assertNull(items.getValue(offClassDay.id).place)
 		assertNull(items.getValue(continuous.id).place)
 	}

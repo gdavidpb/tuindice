@@ -56,4 +56,15 @@ object ScheduleBlockClock {
 	fun blockEndMinute(block: Int): Int {
 		return blockStartMinute(block) + BLOCK_MINUTES
 	}
+
+	/**
+	 * The minutes of the day at which a class from [startBlock] to [endBlock] starts and ends, or null
+	 * when either block falls outside the day (see [isWithinDay]): an hour for it would be wrong rather
+	 * than late. It is the one place that decides whether a class has an hour to show.
+	 */
+	fun clockRangeOrNull(startBlock: Int, endBlock: Int): IntRange? {
+		if (!isWithinDay(startBlock) || !isWithinDay(endBlock)) return null
+
+		return blockStartMinute(startBlock)..blockEndMinute(endBlock)
+	}
 }

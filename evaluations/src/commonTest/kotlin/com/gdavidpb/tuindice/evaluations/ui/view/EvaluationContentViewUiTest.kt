@@ -2,13 +2,16 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -16,6 +19,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -263,5 +267,54 @@ class EvaluationContentViewUiTest {
 			.performClick()
 
 		assertEquals(0, attemptChanges)
+	}
+
+	@Test
+	fun when_theChosenSubjectHasClass_then_theDateDialogMarksItsClassDaysAndSaysWhereOnTheChosenOne() = runTuIndiceUiTest {
+		// 2026-10-12 is a Monday; the subject meets on Mondays.
+		val monday = LocalDate(2026, 10, 12)
+		val subject = DEFAULT_EVALUATION_SUBJECT.copy(
+			meetings = listOf(
+				ScheduleMeeting(
+					attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+					subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+					section = 1,
+					dayOfWeek = 2,
+					startBlock = 1,
+					endBlock = 2,
+					classroom = "MYS-116"
+				)
+			)
+		)
+		val state = evaluationContentState(isOverdue = false).copy(
+			selectedAttempt = subject,
+			date = monday.toEvaluationEpochMillis()
+		)
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = state,
+				onAttemptChange = {},
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _, _, _ -> },
+				onMaxGradeClick = { _, _, _ -> },
+				onDoneClick = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
+
+		// The subject of the dialog is the one chosen in the form, with its meetings.
+		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip)
+		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
+			onAllNodesWithText("En clase · Bloques 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+		}
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(19))
+	}
+
+	private companion object {
+		const val RESOURCE_TIMEOUT_MILLIS = 5_000L
 	}
 }

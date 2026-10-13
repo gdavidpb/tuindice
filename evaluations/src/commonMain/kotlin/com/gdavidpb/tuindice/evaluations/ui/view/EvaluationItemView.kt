@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLine
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
@@ -164,7 +164,9 @@ fun EvaluationItemView(
 						.padding(top = EvaluationMetadataTopPadding),
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					Column {
+					// It takes only what the grade button leaves: the place line wraps inside it instead of
+					// squeezing the button, which keeps the size it has on a row without a place.
+					Column(modifier = Modifier.weight(1f)) {
 						Row(verticalAlignment = Alignment.CenterVertically) {
 							Icon(
 								modifier = Modifier.size(18.dp),
@@ -184,7 +186,7 @@ fun EvaluationItemView(
 						}
 
 						item.place?.let { place ->
-							EvaluationPlaceLine(
+							ClassPlaceLine(
 								modifier = Modifier
 									.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId))
 									.padding(start = EvaluationPlaceStartPadding),
@@ -192,8 +194,6 @@ fun EvaluationItemView(
 							)
 						}
 					}
-
-					Spacer(modifier = Modifier.weight(1f))
 
 					if (item.showsGradeAction) {
 						Box(

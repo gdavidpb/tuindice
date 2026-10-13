@@ -28,7 +28,6 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.request.get
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,12 +44,10 @@ class KtorClientProactiveRefreshTest {
 		val sessionRepository = expiredSessionRepository()
 		val authRepository = ProactiveRefreshAuthRepository(sessionRepository = sessionRepository)
 		val attestationRepository = CountingAttestationRepository()
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
 			authRepository = authRepository,
-			attestationRepository = attestationRepository,
-			authorizationHeaders = authorizationHeaders
+			attestationRepository = attestationRepository
 		)
 
 		val response = try {
@@ -60,7 +57,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(HttpStatusCode.OK, response.status)
-		assertEquals(listOf("Bearer access-new"), authorizationHeaders)
+		assertEquals(listOf("Bearer access-new"), client.authorizationHeaders())
 		assertEquals(1, authRepository.refreshCalls)
 		assertEquals(1, attestationRepository.requests.size)
 	}
@@ -69,11 +66,9 @@ class KtorClientProactiveRefreshTest {
 	fun proactiveRefresh_sharesOneRefreshAcrossConcurrentRequests() = runTest {
 		val sessionRepository = expiredSessionRepository()
 		val authRepository = ProactiveRefreshAuthRepository(sessionRepository = sessionRepository)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = authRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = authRepository
 		)
 
 		try {
@@ -87,7 +82,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(1, authRepository.refreshCalls)
-		assertEquals(listOf("Bearer access-new", "Bearer access-new"), authorizationHeaders)
+		assertEquals(listOf("Bearer access-new", "Bearer access-new"), client.authorizationHeaders())
 	}
 
 	@Test
@@ -102,11 +97,9 @@ class KtorClientProactiveRefreshTest {
 				proceedRefresh.await()
 			}
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = authRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = authRepository
 		)
 
 		try {
@@ -126,7 +119,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(1, authRepository.refreshCalls)
-		assertEquals(listOf("Bearer access-new", "Bearer access-new"), authorizationHeaders)
+		assertEquals(listOf("Bearer access-new", "Bearer access-new"), client.authorizationHeaders())
 	}
 
 	@Test
@@ -137,11 +130,9 @@ class KtorClientProactiveRefreshTest {
 			accessToken = "bootstrap.mock.access.token",
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = UnusedAuthRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = UnusedAuthRepository
 		)
 
 		val response = try {
@@ -151,7 +142,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(HttpStatusCode.OK, response.status)
-		assertEquals(listOf("Bearer bootstrap.mock.access.token"), authorizationHeaders)
+		assertEquals(listOf("Bearer bootstrap.mock.access.token"), client.authorizationHeaders())
 	}
 
 	@Test
@@ -163,11 +154,9 @@ class KtorClientProactiveRefreshTest {
 			accessToken = freshToken,
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = UnusedAuthRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = UnusedAuthRepository
 		)
 
 		val response = try {
@@ -177,7 +166,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(HttpStatusCode.OK, response.status)
-		assertEquals(listOf("Bearer $freshToken"), authorizationHeaders)
+		assertEquals(listOf("Bearer $freshToken"), client.authorizationHeaders())
 	}
 
 	@Test
@@ -190,11 +179,9 @@ class KtorClientProactiveRefreshTest {
 			refreshToken = "refresh-old"
 		)
 		val authRepository = UnavailableRefreshAuthRepository()
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = authRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = authRepository
 		)
 
 		val response = try {
@@ -204,7 +191,7 @@ class KtorClientProactiveRefreshTest {
 		}
 
 		assertEquals(HttpStatusCode.OK, response.status)
-		assertEquals(listOf("Bearer $expiredToken"), authorizationHeaders)
+		assertEquals(listOf("Bearer $expiredToken"), client.authorizationHeaders())
 		assertEquals(1, authRepository.refreshCalls)
 		assertFalse(sessionRepository.cleared)
 	}
@@ -219,11 +206,9 @@ class KtorClientProactiveRefreshTest {
 			refreshToken = "refresh-old"
 		)
 		val authRepository = FailOnceThenRefreshAuthRepository(sessionRepository = sessionRepository)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = authRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = authRepository
 		)
 
 		try {
@@ -238,7 +223,7 @@ class KtorClientProactiveRefreshTest {
 		assertEquals(2, authRepository.refreshCalls)
 		assertEquals(
 			listOf("Bearer $expiredToken", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 
@@ -250,11 +235,9 @@ class KtorClientProactiveRefreshTest {
 			sessionRepository = sessionRepository,
 			newAccessToken = stillExpiredToken
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = proactiveClient(
 			sessionRepository = sessionRepository,
-			authRepository = authRepository,
-			authorizationHeaders = authorizationHeaders
+			authRepository = authRepository
 		)
 
 		try {
@@ -267,7 +250,7 @@ class KtorClientProactiveRefreshTest {
 		assertEquals(1, authRepository.refreshCalls)
 		assertEquals(
 			listOf("Bearer $stillExpiredToken", "Bearer $stillExpiredToken"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 }
@@ -288,8 +271,7 @@ private fun expiredSessionRepository(): FakeSessionRepository {
 private fun proactiveClient(
 	sessionRepository: SessionRepository,
 	authRepository: AuthRepository,
-	attestationRepository: AttestationRepository = CountingAttestationRepository(),
-	authorizationHeaders: MutableList<String>
+	attestationRepository: AttestationRepository = CountingAttestationRepository()
 ): HttpClient {
 	val sessionRecoveryRepository = sessionRecoveryDataSource(
 		sessionRepository = sessionRepository,
@@ -298,10 +280,10 @@ private fun proactiveClient(
 	)
 
 	return HttpClient(
-		MockEngine { request ->
-			authorizationHeaders += checkNotNull(request.headers[HttpHeaders.Authorization])
-			respondOk()
-		}
+		// The handler runs on the engine's dispatcher with no exclusion: it records nothing itself
+		// (a list written from there races with the test reading it) and the engine's own history
+		// is read once the requests are done.
+		MockEngine { respondOk() }
 	) {
 		install(Auth) {
 			installSharedBearerAuth(

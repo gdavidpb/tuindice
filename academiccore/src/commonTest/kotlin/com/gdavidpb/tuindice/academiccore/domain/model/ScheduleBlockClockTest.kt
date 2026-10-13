@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.academiccore.domain.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ScheduleBlockClockTest {
@@ -58,5 +59,22 @@ class ScheduleBlockClockTest {
 		assertEquals(23 * 60 + 30, ScheduleBlockClock.blockEndMinute(16))
 		assertFalse(ScheduleBlockClock.isWithinDay(17))
 		assertFalse(ScheduleBlockClock.isWithinDay(24))
+	}
+
+	@Test
+	fun clockRangeOrNull_goesFromTheStartOfTheFirstBlockToTheEndOfTheLast() {
+		assertEquals(450..570, ScheduleBlockClock.clockRangeOrNull(startBlock = 1, endBlock = 2))
+		assertEquals(570..630, ScheduleBlockClock.clockRangeOrNull(startBlock = 3, endBlock = 3))
+	}
+
+	@Test
+	fun clockRangeOrNull_isNullWhenEitherBlockFallsOutsideTheDay() {
+		assertNull(ScheduleBlockClock.clockRangeOrNull(startBlock = 17, endBlock = 17))
+		assertNull(ScheduleBlockClock.clockRangeOrNull(startBlock = 15, endBlock = 17))
+		assertNull(ScheduleBlockClock.clockRangeOrNull(startBlock = 0, endBlock = 1))
+		assertEquals(
+			ScheduleBlockClock.blockStartMinute(15)..ScheduleBlockClock.blockEndMinute(16),
+			ScheduleBlockClock.clockRangeOrNull(startBlock = 15, endBlock = 16)
+		)
 	}
 }

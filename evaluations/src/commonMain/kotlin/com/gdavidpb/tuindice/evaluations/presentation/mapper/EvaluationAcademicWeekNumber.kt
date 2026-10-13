@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MAX_A
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MIN_ACADEMIC_WEEK
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 
 /**
  * The week of the term this evaluation is listed under, or null when it has none (it is continuous
@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDat
 fun Evaluation.academicWeekNumber(currentTerm: EvaluationTermDescriptor?): Int? {
 	if (scheduleMode == EvaluationScheduleMode.CONTINUOUS) return null
 
-	val evaluationDate = date?.toEvaluationLocalDate() ?: return null
+	val evaluationDate = date?.toLocalDate() ?: return null
 	return currentTerm?.let { term ->
 		computeAcademicWeek(
 			term = term,

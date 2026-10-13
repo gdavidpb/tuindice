@@ -33,7 +33,7 @@ object AcademicWeekEngine {
 			?.takeIf { date -> isPlausibleClassesStartDate(periodYear, periodCode, date) }
 			?: LocalDate(year = periodYear, month = periodCode.startMonth, day = 1)
 
-		return anchor.mondayOfWeek()
+		return mondayOf(anchor)
 	}
 
 	/**
@@ -59,6 +59,11 @@ object AcademicWeekEngine {
 		return date >= previousMonthFirstDay && date <= endMonthLastDay
 	}
 
+	/** The Monday of the Monday-to-Sunday week that holds [date]: [date] itself when it is a Monday. */
+	fun mondayOf(date: LocalDate): LocalDate {
+		return date.minus(DatePeriod(days = date.dayOfWeek.ordinal))
+	}
+
 	/** The week [date] falls in, held between [MIN_ACADEMIC_WEEK] and [MAX_ACADEMIC_WEEK]. */
 	fun weekOf(weekOneStart: LocalDate, date: LocalDate): Int {
 		return min(MAX_ACADEMIC_WEEK, max(MIN_ACADEMIC_WEEK, rawWeekOf(weekOneStart, date)))
@@ -73,6 +78,4 @@ object AcademicWeekEngine {
 	private fun rawWeekOf(weekOneStart: LocalDate, date: LocalDate): Int {
 		return weekOneStart.daysUntil(date).floorDiv(DAYS_PER_WEEK) + 1
 	}
-
-	private fun LocalDate.mondayOfWeek(): LocalDate = minus(DatePeriod(days = dayOfWeek.ordinal))
 }

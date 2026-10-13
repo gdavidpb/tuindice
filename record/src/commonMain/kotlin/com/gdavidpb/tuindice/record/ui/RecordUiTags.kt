@@ -78,9 +78,16 @@ object RecordUiTags {
 	fun scheduleTableInProgress(attemptId: String, dayCode: Int): String =
 		"record_schedule_table_in_progress_${attemptId}_$dayCode"
 
+	// The button of a table meeting an evaluation of the week falls on (the cell itself), and the
+	// icon it carries.
 	fun scheduleTableEvaluation(attemptId: String, dayCode: Int): String =
 		"record_schedule_table_evaluation_${attemptId}_$dayCode"
 
+	fun scheduleTableEvaluationIcon(attemptId: String, dayCode: Int): String =
+		"record_schedule_table_evaluation_icon_${attemptId}_$dayCode"
+
+	// The icon of a week-grid block an evaluation falls on; the block itself, which is the button,
+	// answers to scheduleCell.
 	fun scheduleCellEvaluation(attemptId: String, dayCode: Int, startBlock: Int): String =
 		"record_schedule_cell_evaluation_${attemptId}_${dayCode}_$startBlock"
 

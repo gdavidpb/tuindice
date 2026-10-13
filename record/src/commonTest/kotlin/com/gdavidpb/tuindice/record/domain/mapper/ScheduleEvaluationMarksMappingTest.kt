@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.record.testing.scheduleEntry
 import com.gdavidpb.tuindice.record.testing.scheduleEvaluation
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -201,6 +203,25 @@ class ScheduleEvaluationMarksMappingTest {
 
 		assertEquals(monday, marks.weekStart)
 		assertTrue(marks.meetings.isEmpty())
+	}
+
+	@Test
+	fun anEvaluationAtLocalMidnightInAZoneAheadOfUtc_fallsOnThatLocalDay() {
+		val tokyo = TimeZone.of("Asia/Tokyo")
+		// Wednesday 2026-10-07 at 00:00 in Tokyo is still Tuesday in UTC, a day a1 has no class.
+		val atMidnight = wednesday.atStartOfDayIn(tokyo).toEpochMilliseconds()
+		val evaluation = scheduleEvaluation(attemptId = "a1", date = wednesday).copy(date = atMidnight)
+
+		val marks = clashingWeekAttempts().evaluationMarksOn(
+			evaluations = listOf(evaluation),
+			today = ScheduleTestDate,
+			timeZone = tokyo
+		)
+
+		assertEquals(
+			setOf(Triple("a1", ScheduleDay.Wednesday.code, 3)),
+			marks.meetings.map { Triple(it.attemptId, it.dayOfWeek, it.startBlock) }.toSet()
+		)
 	}
 
 	@Test

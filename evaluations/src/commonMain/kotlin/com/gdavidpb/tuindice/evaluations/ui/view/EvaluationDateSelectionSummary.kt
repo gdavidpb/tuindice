@@ -13,10 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationPlaceItem
+import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLine
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 /**
@@ -28,7 +29,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 fun EvaluationDateSelectionSummary(
 	modifier: Modifier = Modifier,
 	dateText: UiText,
-	classPlace: EvaluationPlaceItem?
+	classPlace: ClassPlaceItem?
 ) {
 	Column(
 		modifier = modifier
@@ -49,7 +50,7 @@ fun EvaluationDateSelectionSummary(
 		)
 
 		classPlace?.let { place ->
-			EvaluationPlaceLine(
+			ClassPlaceLine(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogSelectionPlace),
 				place = place
 			)

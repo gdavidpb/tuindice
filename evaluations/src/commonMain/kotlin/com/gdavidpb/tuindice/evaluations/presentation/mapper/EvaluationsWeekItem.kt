@@ -7,11 +7,11 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -28,7 +28,7 @@ fun buildEvaluationsWeekItems(
 		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) {
 			null
 		} else {
-			evaluation.date?.toEvaluationLocalDate()
+			evaluation.date?.toLocalDate()
 		}
 	}.toSet()
 	val continuousItem = if (evaluations.any { evaluation -> evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS }) {

@@ -73,11 +73,12 @@ class ScheduleTableRowViewUiTest {
 
 		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
 		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
-		onNode(
-			hasContentDescription(
-				"CI5311, sección 1, aula MYS-116, lunes bloques 1 a 2, miércoles bloque 3, con evaluación ese día"
-			)
-		).assertIsDisplayed()
+		// The marked meeting is a button of its own and says everything about itself, so the row does
+		// not say it again: it keeps to the meeting that is not a button.
+		onNode(hasContentDescription("CI5311, sección 1, aula MYS-116, lunes bloques 1 a 2")).assertIsDisplayed()
+		onNode(hasContentDescription("CI5311, miércoles, bloque 3, aula MYS-116, con evaluación ese día"))
+			.assertIsDisplayed()
+		onAllNodes(hasContentDescription("con evaluación ese día", substring = true)).assertCountEquals(1)
 	}
 
 	@Test

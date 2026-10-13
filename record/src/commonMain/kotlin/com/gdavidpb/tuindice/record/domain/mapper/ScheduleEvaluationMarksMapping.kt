@@ -1,17 +1,16 @@
 package com.gdavidpb.tuindice.record.domain.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicScheduleEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.record.domain.model.ScheduleEvaluationMarks
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Instant
 
 private const val DAYS_PER_WEEK = 7
 
@@ -28,13 +27,12 @@ internal fun List<AttemptProjection>.evaluationMarksOn(
 	today: LocalDate,
 	timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): ScheduleEvaluationMarks {
-	val weekStart = today.startOfCalendarWeek()
+	val weekStart = AcademicWeekEngine.mondayOf(today)
 	val week = weekStart..weekStart.plus(DatePeriod(days = DAYS_PER_WEEK - 1))
-	val meetingsByAttempt = filterNot { attempt -> attempt.withdrawn }
-		.associate { attempt -> attempt.id to attempt.validMeetings() }
+	val meetingsByAttempt = associate { attempt -> attempt.id to attempt.validMeetings() }
 	val marked = evaluations.mapNotNull { evaluation ->
 		val date = evaluation.date
-			?.let { millis -> Instant.fromEpochMilliseconds(millis).toLocalDateTime(timeZone).date }
+			?.toLocalDate(timeZone)
 			?.takeIf { day -> day in week }
 
 		meetingsByAttempt[evaluation.attemptId]?.let { meetings ->
@@ -48,6 +46,3 @@ internal fun List<AttemptProjection>.evaluationMarksOn(
 
 	return ScheduleEvaluationMarks(weekStart = weekStart, meetings = marked.toSet())
 }
-
-/** The Monday of the Monday-to-Sunday week that holds this date. */
-internal fun LocalDate.startOfCalendarWeek(): LocalDate = minus(DatePeriod(days = dayOfWeek.ordinal))

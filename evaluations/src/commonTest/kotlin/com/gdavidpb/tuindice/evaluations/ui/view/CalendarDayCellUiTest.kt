@@ -1,8 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -103,5 +110,47 @@ class CalendarDayCellUiTest {
 		}
 
 		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(13)).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_dayHasClass_then_itIsAnnouncedAsAClassDay() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CalendarDayCell(
+				date = LocalDate(2026, 10, 12),
+				selectedDate = null,
+				today = LocalDate(2026, 10, 1),
+				hasClass = true,
+				onDateSelected = {}
+			)
+		}
+
+		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
+			onAllNodes(hasContentDescription("12, día de clase")).fetchSemanticsNodes().isNotEmpty()
+		}
+		// The announcement is on the node that is tapped, and the dot stays decorative.
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(12)).assert(hasContentDescription("12, día de clase"))
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(12)).assertHasClickAction()
+	}
+
+	@Test
+	fun when_dayHasNoClass_then_itIsAnnouncedAsItsNumberAlone() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CalendarDayCell(
+				date = LocalDate(2026, 10, 13),
+				selectedDate = null,
+				today = LocalDate(2026, 10, 1),
+				onDateSelected = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(13)).assert(hasText("13"))
+		onAllNodes(hasContentDescription("día de clase", substring = true)).assertCountEquals(0)
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(13)).assert(
+			SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription)
+		)
+	}
+
+	private companion object {
+		const val RESOURCE_TIMEOUT_MILLIS = 5_000L
 	}
 }

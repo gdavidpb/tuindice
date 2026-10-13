@@ -36,7 +36,7 @@ class ScheduleTableMeetingBlocksViewUiTest {
 		}
 
 		onNodeWithText("1-2").assertIsDisplayed()
-		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code))
+		assertNodeHidden(RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Monday.code))
 		assertNodeHidden(RecordUiTags.scheduleTableInProgress("a1", ScheduleDay.Monday.code))
 	}
 
@@ -54,7 +54,7 @@ class ScheduleTableMeetingBlocksViewUiTest {
 		}
 
 		onNodeWithText("3").assertIsDisplayed()
-		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code))
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Wednesday.code))
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class ScheduleTableMeetingBlocksViewUiTest {
 		onNodeWithTag(inProgressTag).assertTextEquals("1-2")
 		assertEquals(FontWeight.Bold, onNodeWithTag(inProgressTag).textLayout().layoutInput.style.fontWeight)
 		// This week has one on the Monday meeting as well (see meetingOf).
-		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code))
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Monday.code))
 	}
 
 	private fun meetingOf(day: ScheduleDay, inProgress: Boolean = false): ScheduleCellItem {

@@ -95,36 +95,51 @@ class ScheduleItemEvaluationMarksTest {
 	}
 
 	@Test
-	fun theRowSaysWhichMeetingHasAnEvaluation_thenWhichIsInProgress() {
+	fun theRowLeavesOutTheMeetingThatHasAnEvaluation_becauseItIsAButtonThatSaysItAll() {
 		val item = clashingWeek(
 			now = MondayAtNine,
 			evaluationMarks = clashingWeekMarks(scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate))
 		)
 
+		assertEquals(
+			UiText.Resource(Res.string.schedule_table_description_meeting, listOf(subjectDescription(), wednesdayMeeting())),
+			item.table.rows.first { it.attemptId == "a1" }.description
+		)
+		// What the row leaves out, the button of the meeting says whole.
+		val meetings = item.table.rows.first { it.attemptId == "a1" }.meetings
+
+		assertTrue(meetings.getValue(ScheduleDay.Monday).single().hasEvaluation)
+	}
+
+	@Test
+	fun theRowSaysWhichMeetingIsInProgress_whenNoneHasAnEvaluation() {
+		val item = clashingWeek(now = MondayAtNine)
+
 		val monday = UiText.Resource(
 			Res.string.schedule_table_meeting_blocks,
 			listOf(UiText.Resource(Res.string.schedule_day_monday), 1, 2)
 		)
-		val mondayMeeting = UiText.Resource(
-			Res.string.schedule_table_meeting_in_progress,
-			listOf(UiText.Resource(Res.string.schedule_table_meeting_evaluation, listOf(monday)))
+		val mondayMeeting = UiText.Resource(Res.string.schedule_table_meeting_in_progress, listOf(monday))
+		val withMonday = UiText.Resource(
+			Res.string.schedule_table_description_meeting,
+			listOf(subjectDescription(), mondayMeeting)
 		)
-		val wednesdayMeeting = UiText.Resource(
-			Res.string.schedule_table_meeting_block,
-			listOf(UiText.Resource(Res.string.schedule_day_wednesday), 3)
-		)
-		val subject = UiText.Resource(
-			Res.string.schedule_table_description_classroom,
-			listOf(UiText.Resource(Res.string.schedule_table_description_section, listOf("CI5311", 1)), "MYS-116")
-		)
-
-		val withMonday = UiText.Resource(Res.string.schedule_table_description_meeting, listOf(subject, mondayMeeting))
 
 		assertEquals(
-			UiText.Resource(Res.string.schedule_table_description_meeting, listOf(withMonday, wednesdayMeeting)),
+			UiText.Resource(Res.string.schedule_table_description_meeting, listOf(withMonday, wednesdayMeeting())),
 			item.table.rows.first { it.attemptId == "a1" }.description
 		)
 	}
+
+	private fun wednesdayMeeting() = UiText.Resource(
+		Res.string.schedule_table_meeting_block,
+		listOf(UiText.Resource(Res.string.schedule_day_wednesday), 3)
+	)
+
+	private fun subjectDescription() = UiText.Resource(
+		Res.string.schedule_table_description_classroom,
+		listOf(UiText.Resource(Res.string.schedule_table_description_section, listOf("CI5311", 1)), "MYS-116")
+	)
 
 	@Test
 	fun withoutMarks_noCellOfTheGridCarriesOne_andTheGridExplainsNothing() {

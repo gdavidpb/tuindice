@@ -278,12 +278,8 @@ class KtorClientTest {
 			accessToken = "access-old",
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeaders += checkNotNull(request.headers[HttpHeaders.Authorization])
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -314,7 +310,7 @@ class KtorClientTest {
 
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 
@@ -326,13 +322,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -356,9 +347,9 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /messaging/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["GET /users/v1"])
 	}
 
 	@Test
@@ -369,13 +360,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -405,9 +391,9 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /messaging/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["GET /users/v1"])
 	}
 
 	@Test
@@ -418,13 +404,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(DefaultRequest) {
 				url("https://api.tuindice.app/")
@@ -441,8 +422,8 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertNull(authorizationHeadersByRequest["POST /auth/v2/token/exchange"])
-		assertNull(authorizationHeadersByRequest["POST /attestation/v5/sessions"])
+		assertNull(client.authorizationHeadersByRequest()["POST /auth/v2/token/exchange"])
+		assertNull(client.authorizationHeadersByRequest()["POST /attestation/v5/sessions"])
 	}
 
 	@Test
@@ -453,11 +434,9 @@ class KtorClientTest {
 			accessToken = "access-old",
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					sessionRepository.setSessionSnapshot(
@@ -497,7 +476,7 @@ class KtorClientTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 
@@ -511,7 +490,6 @@ class KtorClientTest {
 		)
 		val oldRequestsSeen = CompletableDeferred<Unit>()
 		var oldRequestCount = 0
-		val authorizationHeaders = mutableListOf<String>()
 		val authRepository = RefreshPersistingAuthRepository(
 			sessionRepository = sessionRepository,
 			beforeRefresh = { oldRequestsSeen.await() }
@@ -520,7 +498,6 @@ class KtorClientTest {
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					oldRequestCount++
@@ -563,8 +540,8 @@ class KtorClientTest {
 
 		assertEquals(1, authRepository.refreshCalls.size)
 		assertEquals(1, attestationRepository.requests.size)
-		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-old" })
-		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-new" })
+		assertEquals(2, client.authorizationHeaders().count { header -> header == "Bearer access-old" })
+		assertEquals(2, client.authorizationHeaders().count { header -> header == "Bearer access-new" })
 	}
 
 	@Test
@@ -577,14 +554,12 @@ class KtorClientTest {
 		)
 		val applicationRepository = RecordingApplicationRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
-		val authorizationHeaders = mutableListOf<String>()
 		val authRepository = FailingRefreshAfterSessionChangeAuthRepository(
 			sessionRepository = sessionRepository
 		)
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					respond(
@@ -620,7 +595,7 @@ class KtorClientTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 		assertFalse(sessionRepository.cleared)
 		assertEquals(0, applicationRepository.clearCalls)
@@ -634,13 +609,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByPath = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByPath[request.url.encodedPath] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -659,8 +629,8 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals(null, authorizationHeadersByPath["/auth/v1/token"])
-		assertEquals("Bearer access-token", authorizationHeadersByPath["/record/v5"])
+		assertEquals(null, client.authorizationHeadersByPath()["/auth/v1/token"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByPath()["/record/v5"])
 	}
 
 	@Test

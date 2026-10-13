@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 
 fun List<Evaluation>.toEvaluationItemList(
 	mapping: EvaluationItemMapping,
@@ -31,7 +31,7 @@ fun List<Evaluation>.toEvaluationItemList(
 			compareBy<Evaluation> { evaluation -> evaluation.date == null }
 				.thenBy { evaluation -> evaluation.date ?: Long.MAX_VALUE }
 		)
-		.groupBy { evaluation -> evaluation.date?.toEvaluationLocalDate() }
+		.groupBy { evaluation -> evaluation.date?.toLocalDate() }
 		.map { (_, evaluations) ->
 			EvaluationsGroupItem(
 				items = evaluations.mapNotNull { evaluation ->
@@ -74,7 +74,7 @@ fun Evaluation.toEvaluationItem(
 		place = inheritedEvaluationPlace(
 			attemptMeetings = attempt.meetings,
 			scheduleMode = scheduleMode,
-			date = date?.toEvaluationLocalDate()
+			date = date?.toLocalDate()
 		),
 		gradeText = gradeText,
 		gradesText = when (state) {

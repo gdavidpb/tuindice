@@ -27,8 +27,9 @@ import kotlinx.datetime.LocalDate
 /**
  * One subject of the table: its code and where it is taught on the left, then a cell per day.
  * A meeting that clashes with another subject's is outlined in the alert tone; nothing is written
- * under the row for it. A meeting with an evaluation this week is a button inside the row, and the row's
- * description (which merges its cells) says so; every such cell asks for the same week.
+ * under the row for it. A meeting with an evaluation this week is a button inside the row: the row's
+ * description (which merges its cells) leaves it out because the button says everything about itself;
+ * every such cell asks for the same week.
  */
 @Composable
 fun ScheduleTableRowView(

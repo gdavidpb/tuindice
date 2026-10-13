@@ -4,8 +4,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationPlaceItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -19,9 +19,9 @@ class EvaluationDateSelectionSummaryUiTest {
 		setTuIndiceTestContent {
 			EvaluationDateSelectionSummary(
 				dateText = UiText.Raw("Miércoles — 21/10/26"),
-				classPlace = EvaluationPlaceItem(
+				classPlace = ClassPlaceItem(
 					placeText = UiText.Raw("En clase · Bloques 1-2 · MYS-116"),
-					timeText = "7:30–9:30"
+					timeText = UiText.Raw("7:30–9:30 a. m.")
 				)
 			)
 		}
@@ -30,7 +30,7 @@ class EvaluationDateSelectionSummaryUiTest {
 		onNodeWithText("Miércoles — 21/10/26").assertIsDisplayed()
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelectionPlace)
 		onNodeWithText("En clase · Bloques 1-2 · MYS-116").assertIsDisplayed()
-		onNodeWithText("7:30–9:30").assertIsDisplayed()
+		onNodeWithText("7:30–9:30 a. m.").assertIsDisplayed()
 	}
 
 	@Test

@@ -12,6 +12,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
@@ -53,26 +56,24 @@ fun ScheduleTableMeetingView(
 		isClash -> warning.copy(alpha = TuIndiceAlpha.SurfaceTint)
 		else -> Color.Transparent
 	}
-	// The clash tag sits on the surface; the in-progress one on the text, so a meeting that is both
-	// answers to each.
-	val surfaceModifier = if (isClash) {
-		modifier.testTag(RecordUiTags.scheduleTableClash(attemptId, day.code))
-	} else {
-		modifier
-	}
-
 	val shape = RoundedCornerShape(TuIndiceRadius.ExtraSmall)
 	val evaluationWeekStart = meeting.evaluationWeekStart
 	val evaluationClickLabel = stringResource(Res.string.schedule_evaluation_click_label)
+	val description = meeting.description.asString()
 	val clickableModifier = if (evaluationWeekStart != null) {
-		// Clipped to the cell's shape so the ripple does not leave it; the row says what it is.
-		surfaceModifier
+		// Clipped to the cell's shape so the ripple does not leave it. Being a button it stands out of
+		// the row's merged description, so it says everything about itself (the day, the blocks, the
+		// evaluation, the clash, the class in progress) the way the week grid's block does, and
+		// carries its own tag; the clash and in-progress ones sit on its content.
+		modifier
+			.testTag(RecordUiTags.scheduleTableEvaluation(attemptId, day.code))
 			.clip(shape)
 			.clickable(onClickLabel = evaluationClickLabel, role = Role.Button) {
 				onEvaluationClick(evaluationWeekStart)
 			}
+			.semantics { contentDescription = description }
 	} else {
-		surfaceModifier
+		modifier
 	}
 
 	Surface(

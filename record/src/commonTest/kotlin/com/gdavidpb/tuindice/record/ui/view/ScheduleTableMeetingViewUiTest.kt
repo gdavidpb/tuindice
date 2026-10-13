@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -142,7 +143,7 @@ class ScheduleTableMeetingViewUiTest {
 		}
 
 		val icon = onNodeWithTag(
-			RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code),
+			RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Wednesday.code),
 			useUnmergedTree = true
 		)
 
@@ -185,6 +186,44 @@ class ScheduleTableMeetingViewUiTest {
 	}
 
 	@Test
+	fun when_anEvaluationFallsOnTheMeeting_then_theButtonCarriesItsOwnTag() = runTuIndiceUiTest {
+		val meeting = markedMeeting(ScheduleDay.Wednesday)
+
+		setTuIndiceTestContent {
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Wednesday,
+				meeting = meeting,
+				onEvaluationClick = {}
+			)
+		}
+
+		// The tag is on the node that is clicked, not on the decorative icon inside it.
+		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code))
+			.assertHasClickAction()
+	}
+
+	@Test
+	fun when_anEvaluationFallsOnTheMeeting_then_theButtonSaysAllOfItselfNotJustItsBlocks() = runTuIndiceUiTest {
+		val meeting = markedMeeting(ScheduleDay.Wednesday)
+
+		setTuIndiceTestContent {
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Wednesday,
+				meeting = meeting,
+				onEvaluationClick = {}
+			)
+		}
+
+		// Being a button it leaves the row's merged description, so a screen reader would stop on "3"
+		// alone: it says the day, the blocks and the evaluation, the words the week grid's block uses.
+		onNode(hasContentDescription("CI5311, miércoles, bloque 3, aula MYS-116, con evaluación ese día"))
+			.assertHasClickAction()
+		onNodeWithText("3").assertHasClickAction()
+	}
+
+	@Test
 	fun when_theMarkedMeetingClashesAndIsBeingTaught_then_itKeepsBothMarks_andTheIcon() = runTuIndiceUiTest {
 		val meeting = markedWeekMeeting(day = ScheduleDay.Monday, now = MondayAtNine)
 
@@ -198,10 +237,11 @@ class ScheduleTableMeetingViewUiTest {
 		}
 
 		// The cell is a button, so its descendants are merged into it: the tags inside are read from the
-		// unmerged tree.
-		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code))
+		// unmerged tree. The button answers to its own tag and the marks to theirs.
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code))
+		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 		assertNodeVisible(RecordUiTags.scheduleTableInProgress("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
-		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 		onNodeWithTag(RecordUiTags.scheduleTableInProgress("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 			.assertTextEquals("1-2")
 	}

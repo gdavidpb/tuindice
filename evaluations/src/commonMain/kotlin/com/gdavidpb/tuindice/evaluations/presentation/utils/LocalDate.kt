@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.academicWeekOneStart
 import kotlinx.datetime.*
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 fun LocalDate.toCalendarGrid(): List<LocalDate?> {
 	val leadingEmptyDays = dayOfWeek.ordinal
@@ -40,13 +39,6 @@ fun LocalDate.nextMonthStart() = if (month.ordinal == 11) {
 
 fun LocalDate.formatMonthYear(): UiText {
 	return formatLocalizedMonthYear()
-}
-
-fun Long.toEvaluationLocalDate(): LocalDate {
-	return Instant
-		.fromEpochMilliseconds(this)
-		.toLocalDateTime(TimeZone.currentSystemDefault())
-		.date
 }
 
 fun LocalDate.toEvaluationEpochMillis(): Long {

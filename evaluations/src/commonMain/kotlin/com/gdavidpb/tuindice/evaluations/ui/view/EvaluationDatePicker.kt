@@ -3,7 +3,9 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material3.*
@@ -19,6 +21,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.classPlaceOn
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
@@ -42,7 +45,7 @@ fun EvaluationDatePicker(
 ) {
 	val selectableRange = calendar.selectableRange
 	val clock = LocalTuIndiceClock.current
-	val committedDate = selectedDate?.toEvaluationLocalDate()
+	val committedDate = selectedDate?.toLocalDate()
 	val meetings = calendar.meetings
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
@@ -85,7 +88,12 @@ fun EvaluationDatePicker(
 				EvaluationDateDialogTitle(subjectCode = calendar.subjectCode)
 			},
 			text = {
-				Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+				// Scrolls: on a short screen a month of six rows leaves the chosen-day box no room, and
+				// it would lose its last line or vanish instead of staying reachable.
+				Column(
+					modifier = Modifier.verticalScroll(rememberScrollState()),
+					verticalArrangement = Arrangement.spacedBy(12.dp)
+				) {
 					EvaluationCalendarContent(
 						displayedMonth = displayedMonth.value,
 						selectedDate = draftSelectedDate.value,

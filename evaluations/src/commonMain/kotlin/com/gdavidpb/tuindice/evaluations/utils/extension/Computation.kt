@@ -5,12 +5,10 @@ package com.gdavidpb.tuindice.evaluations.utils.extension
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationStateEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
 	in 30 until 50 -> 2
@@ -34,8 +32,3 @@ fun computeEvaluationState(
 		today = clock.now().toEpochMilliseconds().toLocalDate()
 	)
 }
-
-private fun Long.toLocalDate() = Instant
-	.fromEpochMilliseconds(this)
-	.toLocalDateTime(TimeZone.currentSystemDefault())
-	.date

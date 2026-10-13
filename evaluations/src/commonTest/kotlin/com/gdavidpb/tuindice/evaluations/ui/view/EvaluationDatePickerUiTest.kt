@@ -14,9 +14,9 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.fixedClock
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -170,8 +170,8 @@ class EvaluationDatePickerUiTest {
 
 		val emittedDate = assertNotNull(selectedDate)
 		assertEquals(
-			committedDate.toEvaluationLocalDate(),
-			emittedDate.toEvaluationLocalDate()
+			committedDate.toLocalDate(),
+			emittedDate.toLocalDate()
 		)
 	}
 
@@ -228,7 +228,7 @@ class EvaluationDatePickerUiTest {
 			onAllNodesWithText("En clase · Bloques 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
 		}
 		onNodeWithText("Lunes — 12/10/26").assertIsDisplayed()
-		onNodeWithText("7:30\u20139:30").assertIsDisplayed()
+		onNodeWithText("7:30\u20139:30 a. m.").assertIsDisplayed()
 		// Mondays of October 2026 carry the dot, the days between them do not.
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(19))

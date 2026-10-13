@@ -134,4 +134,14 @@ class AcademicWeekEngineTest {
 		assertNull(AcademicWeekEngine.weekOrNull(weekOne, LocalDate(2026, 3, 23)))
 		assertNull(AcademicWeekEngine.weekOrNull(weekOne, LocalDate(2026, 1, 1)))
 	}
+
+	@Test
+	fun mondayOf_isTheMondayOfTheWeekThatHoldsTheDate() {
+		// 2026-10-12 is a Monday and 2026-10-18 the Sunday that closes its week.
+		assertEquals(LocalDate(2026, 10, 12), AcademicWeekEngine.mondayOf(LocalDate(2026, 10, 12)))
+		assertEquals(LocalDate(2026, 10, 12), AcademicWeekEngine.mondayOf(LocalDate(2026, 10, 15)))
+		assertEquals(LocalDate(2026, 10, 12), AcademicWeekEngine.mondayOf(LocalDate(2026, 10, 18)))
+		assertEquals(LocalDate(2026, 10, 19), AcademicWeekEngine.mondayOf(LocalDate(2026, 10, 19)))
+		assertEquals(LocalDate(2026, 12, 28), AcademicWeekEngine.mondayOf(LocalDate(2027, 1, 1)))
+	}
 }

@@ -106,6 +106,18 @@ class EvaluationItemMappingUiTest {
 		assertTrue(item.isClickable)
 	}
 
+	@Test
+	fun toEvaluationItemList_saysSinNotaForAnOverdueEvaluation() = runTest {
+		val evaluation = DEFAULT_PENDING_EVALUATION.copy(grade = null, state = EvaluationState.OVERDUE)
+		val item = listOf(evaluation).toEvaluationItemList(
+			mapping = getEvaluationItemMapping(),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+		).single().items.single()
+
+		// The same words the grade button of the row says, not the "Programada" of an evaluation to come.
+		assertEquals("Sin nota", item.statusText)
+	}
+
 	// It used to throw here, and the throw closed the app from the machine's job.
 	@Test
 	fun toEvaluationItemList_leavesOutAnEvaluationWhenItsLocalAttemptIsMissing() = runTest {

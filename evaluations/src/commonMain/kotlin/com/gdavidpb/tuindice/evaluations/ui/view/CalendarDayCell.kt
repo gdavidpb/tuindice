@@ -15,10 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.a11y_calendar_day_class
 
 @Composable
 fun CalendarDayCell(
@@ -66,7 +71,8 @@ fun CalendarDayCell(
 					if (date != null) {
 						onDateSelected(date)
 					}
-				},
+				}
+				.classDaySemantics(date = date, hasClass = hasClass),
 			contentAlignment = Alignment.Center
 		) {
 			if (date != null) {
@@ -81,4 +87,14 @@ fun CalendarDayCell(
 
 		CalendarDayClassDot(date = date, hasClass = hasClass, isSelectable = isSelectable)
 	}
+}
+
+// The dot under the day is decorative, so the day itself says it has class: "12, día de clase".
+@Composable
+private fun Modifier.classDaySemantics(date: LocalDate?, hasClass: Boolean): Modifier {
+	if (date == null || !hasClass) return this
+
+	val description = stringResource(Res.string.a11y_calendar_day_class, date.day)
+
+	return semantics { contentDescription = description }
 }
