@@ -103,7 +103,7 @@ class EvaluationsScreenUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.Empty,
+				state = Evaluations.State.Empty(),
 				onAddEvaluationClick = { addClicks++ },
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},

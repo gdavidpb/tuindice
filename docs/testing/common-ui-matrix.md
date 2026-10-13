@@ -1,12 +1,11 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-13 10:49:32 -0300_
+_Generated automatically on 2026-10-13 11:36:55 -0300_
 
 ## Summary by module
 
 | Module | when_ threshold | commonMain composable files | @Composable occurrences | commonTest UI tests | Nominal tests | UiTest files meeting threshold |
 |---|---:|---:|---:|---:|---:|---:|
-| `.claude` | 2 | 0 | 0 | 0 | 0 | 0 |
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
 | `base` | 2 | 35 | 47 | 36 | 34 | 34 |
@@ -20,11 +19,6 @@ _Generated automatically on 2026-10-13 10:49:32 -0300_
 | `wizard` | 2 | 2 | 3 | 2 | 2 | 2 |
 
 ## Detail by composable file
-
-### `.claude`
-
-| File | @Composable | Expected test | when_ cases | Status |
-|---|---:|---|---:|---|
 
 ### `about`
 

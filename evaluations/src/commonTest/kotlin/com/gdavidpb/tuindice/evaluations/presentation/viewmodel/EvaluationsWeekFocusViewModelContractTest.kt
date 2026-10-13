@@ -4,6 +4,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
@@ -34,6 +35,8 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -107,12 +110,12 @@ class EvaluationsWeekFocusViewModelContractTest {
 		}
 
 		assertNull(weekFocus.pendingWeekStart.value)
-		// It is a choice of the week like any other: it is what the next entry opens on.
-		assertEquals("academic:2026-09-28:5", selectionRepository.observeSelectedWeekKey().first())
+		// A jump is navigation, not a preference: the next entry follows the current week again.
+		assertNull(selectionRepository.observeSelectedWeekKey().first())
 	}
 
 	@Test
-	fun weekFocus_onAMondayOutsideTheWeeks_isConsumedWithoutMovingTheSelection() = runTest {
+	fun weekFocus_onAMondayOutsideTheWeeks_selectsTheFirstOrTheLastWeekLikeTheListFilesIt() = runTest {
 		val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
@@ -125,18 +128,103 @@ class EvaluationsWeekFocusViewModelContractTest {
 			awaitUntilState<Evaluations.State.Content>()
 
 			// Before week 1 and after week 12 (week 12 opens on Monday December 14th).
-			listOf(LocalDate(2026, 9, 21), LocalDate(2026, 12, 21)).forEach { monday ->
-				weekFocus.request(monday)
-				advanceUntilIdle()
+			weekFocus.request(LocalDate(2026, 9, 21))
+			awaitUntilState<Evaluations.State.Content> { state -> state.selectedWeekKey == EvaluationsWeekKey.Academic(1) }
 
-				assertNull(weekFocus.pendingWeekStart.value, "left pending: $monday")
-			}
+			weekFocus.request(LocalDate(2026, 12, 21))
+			awaitUntilState<Evaluations.State.Content> { state -> state.selectedWeekKey == EvaluationsWeekKey.Academic(12) }
+			advanceUntilIdle()
+			cancelAndIgnoreRemainingEvents()
+		}
 
+		assertNull(weekFocus.pendingWeekStart.value)
+	}
+
+	// Today is week 3 and the user had chosen week 10; the schedule asks for week 13, where an
+	// evaluation is marked. The list files it under week 12, so that is where the jump has to land.
+	@Test
+	fun weekFocus_onWeekThirteen_landsWhereTheMarkedEvaluationIsListed() = runTest {
+		val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
+		val evaluation = DEFAULT_PENDING_EVALUATION.copy(date = DEC_22_NOON_MILLIS)
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = repository(evaluations = listOf(evaluation)),
+			selectionRepository = InMemoryEvaluationsSelectionRepository(initialWeekKey = "academic:2026-09-28:10"),
+			weekFocusRepository = weekFocus
+		)
+
+		viewModel.state.test {
+			viewModel.loadEvaluationsAction()
+			val before = awaitUntilState<Evaluations.State.Content>()
+
+			assertEquals(EvaluationsWeekKey.Academic(10), before.selectedWeekKey)
+
+			weekFocus.request(LocalDate(2026, 12, 21))
+			awaitUntilState<Evaluations.State.Content> { state -> state.selectedWeekKey == EvaluationsWeekKey.Academic(12) }
+			advanceUntilIdle()
 			cancelAndIgnoreRemainingEvents()
 		}
 
 		val content = assertIs<Evaluations.State.Content>(viewModel.state.value)
-		assertEquals(EvaluationsWeekKey.Academic(3), content.selectedWeekKey)
+		assertEquals(listOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12)), content.evaluationWeekGroups.map { it.key })
+		assertEquals(content.selectedWeekKey, content.evaluationWeekGroups.single().key)
+	}
+
+	@Test
+	fun weekFocus_isNotSavedButASelectionIs() = runTest {
+		val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = repository(),
+			selectionRepository = selectionRepository,
+			weekFocusRepository = weekFocus
+		)
+
+		viewModel.state.test {
+			viewModel.loadEvaluationsAction()
+			awaitUntilState<Evaluations.State.Content>()
+
+			weekFocus.request(WEEK_FIVE_START)
+			awaitUntilState<Evaluations.State.Content> { state -> state.selectedWeekKey == EvaluationsWeekKey.Academic(5) }
+			advanceUntilIdle()
+
+			assertNull(selectionRepository.observeSelectedWeekKey().first())
+
+			viewModel.selectWeekAction(EvaluationsWeekKey.Academic(2))
+			awaitUntilState<Evaluations.State.Content> { state -> state.selectedWeekKey == EvaluationsWeekKey.Academic(2) }
+			advanceUntilIdle()
+
+			assertEquals("academic:2026-09-28:2", selectionRepository.observeSelectedWeekKey().first())
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// Each LoadEvaluations (the retry button sends one) used to start another collector of the focus.
+	@Test
+	fun loadingAgain_leavesASingleCollectorOfTheWeekFocus() = runTest {
+		val pending = MutableStateFlow<LocalDate?>(null)
+		val weekFocus = object : EvaluationsWeekFocusRepository {
+			override val pendingWeekStart: StateFlow<LocalDate?> = pending
+
+			override fun request(weekStart: LocalDate) {
+				pending.value = weekStart
+			}
+
+			override fun consume(weekStart: LocalDate) = pending.compareAndSet(weekStart, null)
+		}
+		val viewModel = createViewModel(testScheduler = testScheduler, weekFocusRepository = weekFocus)
+
+		viewModel.state.test {
+			awaitUntilState<Evaluations.State.Content>()
+			advanceUntilIdle()
+
+			repeat(3) { viewModel.loadEvaluationsAction() }
+			advanceUntilIdle()
+
+			assertEquals(1, pending.subscriptionCount.value)
+			cancelAndIgnoreRemainingEvents()
+		}
 	}
 
 	@Test
@@ -229,17 +317,34 @@ class EvaluationsWeekFocusViewModelContractTest {
 		}
 	}
 
+	@Test
+	fun topBar_offersTheScheduleWhenTheOnlyMeetingsAreOnSubjectsTheListDoesNotOffer() = runTest {
+		// The numeric subjects of the list have no meetings; a pass/fail subject of the term does.
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = repository(termHasSchedule = true)
+		)
+
+		viewModel.state.test {
+			viewModel.loadEvaluationsAction()
+			val content = awaitUntilState<Evaluations.State.Content>()
+
+			assertEquals(TopBarConfig.EvaluationsWithSchedule, content.topBarConfig)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
 	private fun repository(
 		availableSubjects: List<EditableAttemptDescriptor> =
 			listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
-		hasEvaluations: Boolean = true
-	): RecordingEvaluationRepository {
-		val evaluations = if (hasEvaluations) {
+		hasEvaluations: Boolean = true,
+		termHasSchedule: Boolean = availableSubjects.any { subject -> subject.meetings.isNotEmpty() },
+		evaluations: List<Evaluation> = if (hasEvaluations) {
 			listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION)
 		} else {
 			emptyList()
 		}
-
+	): RecordingEvaluationRepository {
 		return RecordingEvaluationRepository(
 			evaluationsFlow = flowOf(evaluations),
 			initialEvaluations = evaluations,
@@ -247,7 +352,8 @@ class EvaluationsWeekFocusViewModelContractTest {
 			currentTerm = DEFAULT_EVALUATION_TERM.copy(
 				periodCode = AcademicTermPeriod.SEP_DEC,
 				classesStartDate = CLASSES_START
-			)
+			),
+			hasSchedule = termHasSchedule
 		)
 	}
 
@@ -295,6 +401,9 @@ class EvaluationsWeekFocusViewModelContractTest {
 	private companion object {
 		// Monday September 28th, 2026 opens week 1 of the term.
 		val CLASSES_START = LocalDate(2026, 9, 28)
+
+		// Tuesday December 22nd, 2026, at noon UTC: a day of week 13 of that term.
+		val DEC_22_NOON_MILLIS = Instant.parse("2026-12-22T16:00:00Z").toEpochMilliseconds()
 
 		// Week 5 of that term.
 		val WEEK_FIVE_START = LocalDate(2026, 10, 26)

@@ -47,6 +47,8 @@ class TuIndiceNavDisplayScheduleUiTest {
 				ScheduleNavDisplay(navigator = navigator)
 			}
 
+			// The first test of a cold process pays for the whole host before Summary first appears.
+			waitUntil(timeoutMillis = StateTimeoutMillis) { onAllNodesWithTagExists(SummaryUiTags.ContentContainer) }
 			assertNodeVisible(SummaryUiTags.ContentContainer)
 			assertNodeHidden(RecordUiTags.ScheduleSheet)
 

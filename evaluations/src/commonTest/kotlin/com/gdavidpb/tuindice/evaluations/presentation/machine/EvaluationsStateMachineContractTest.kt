@@ -244,8 +244,8 @@ class EvaluationsStateMachineContractTest {
 						)
 					)
 				),
-				EvaluationsInternalEvent.EvaluationsEmptyObserved,
-				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
+				EvaluationsInternalEvent.EvaluationsEmptyObserved(hasSchedule = true),
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed(hasSchedule = false),
 				EvaluationsInternalEvent.EvaluationsObservationFailed(
 					message = "Comprueba tu conexión"
 				),

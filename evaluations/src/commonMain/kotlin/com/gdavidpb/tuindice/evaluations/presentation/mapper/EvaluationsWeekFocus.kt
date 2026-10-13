@@ -5,8 +5,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import kotlinx.datetime.LocalDate
 
 /**
- * The week of the screen that [date] falls in, or null when it falls in none: before week 1, after
- * the last week, or while the screen does not know where week 1 starts ([weekOneStart]).
+ * The week of the screen that the list files [date] under, or null while the screen does not know
+ * where week 1 starts ([weekOneStart]). It is the rule of the list itself: a date before week 1 is
+ * listed under week 1 and one after the last week under the last, so a jump to a Monday outside the
+ * term lands where the evaluations marked on that day are listed.
  */
 fun evaluationsWeekKeyContaining(
 	weekOneStart: LocalDate?,
@@ -14,6 +16,5 @@ fun evaluationsWeekKeyContaining(
 ): EvaluationsWeekKey? {
 	if (weekOneStart == null) return null
 
-	return AcademicWeekEngine.weekOrNull(weekOneStart = weekOneStart, date = date)
-		?.let { weekNumber -> EvaluationsWeekKey.Academic(weekNumber) }
+	return EvaluationsWeekKey.Academic(AcademicWeekEngine.weekOf(weekOneStart = weekOneStart, date = date))
 }

@@ -34,6 +34,8 @@ fun LocalEditableAttemptDescriptor.toEditableAttemptDescriptor() = EditableAttem
 	meetings = meetings
 )
 
+fun AcademicAttemptEntity.hasValidMeetings(): Boolean = validMeetingsOrEmpty().isNotEmpty()
+
 // The schedule is stored as text and read whole. A row that cannot be read has no place to inherit:
 // it must not take the list of evaluations down with it.
 private fun AcademicAttemptEntity.validMeetingsOrEmpty(): List<ScheduleMeeting> {

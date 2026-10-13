@@ -39,8 +39,10 @@ import tuindice.record.generated.resources.schedule_evaluation_click_label
 private val EvaluationIconInset = TuIndiceSpacing.XSmall
 
 // A cell of a single block is 32dp tall and 70dp wide, and a real subject code takes up to 53dp of
-// them: its icon is the compact one and sits closer to the corner so the code keeps its place.
-private val CompactEvaluationIconInset = TuIndiceSpacing.Two
+// them: its icon is the compact one and sits closer to the bottom edge so the code keeps its place;
+// from the end edge it keeps the regular inset, which is where the eye expects the mark.
+private val CompactEvaluationIconBottomInset = TuIndiceSpacing.Two
+private val CompactEvaluationIconEndInset = TuIndiceSpacing.XSmall
 
 /**
  * One meeting of a subject, in the colours of the subject's chip. A meeting that overlaps another
@@ -102,13 +104,14 @@ fun ScheduleCellView(
 			if (cell.hasEvaluation) {
 				// Decorative: the description already says "con evaluación ese día".
 				val isSingleBlock = cell.blockSpan == 1
-				val inset = if (isSingleBlock) CompactEvaluationIconInset else EvaluationIconInset
+				val endInset = if (isSingleBlock) CompactEvaluationIconEndInset else EvaluationIconInset
+				val bottomInset = if (isSingleBlock) CompactEvaluationIconBottomInset else EvaluationIconInset
 
 				ScheduleEvaluationMarkIcon(
 					size = if (isSingleBlock) TuIndiceComponentSizes.IconXSmall else TuIndiceComponentSizes.IconSmall,
 					modifier = Modifier
 						.align(Alignment.BottomEnd)
-						.offset(x = -inset, y = -inset)
+						.offset(x = -endInset, y = -bottomInset)
 						.testTag(RecordUiTags.scheduleCellEvaluation(cell.attemptId, day.code, cell.startBlock))
 				)
 			}

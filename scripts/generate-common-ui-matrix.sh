@@ -60,8 +60,9 @@ find_composable_files() {
 	done
 }
 
+# .claude/ holds local copies of the repository (agent worktrees), not modules of the project.
 modules="$(
-	find "$ROOT_DIR" -path '*/src/commonMain/kotlin/*.kt' -type f | while IFS= read -r file; do
+	find "$ROOT_DIR" -path "$ROOT_DIR/.claude" -prune -o -path '*/src/commonMain/kotlin/*.kt' -type f -print | while IFS= read -r file; do
 		if (( $(count_composables "$file") > 0 )); then
 			relative_path="${file#"$ROOT_DIR"/}"
 			echo "${relative_path%%/*}"

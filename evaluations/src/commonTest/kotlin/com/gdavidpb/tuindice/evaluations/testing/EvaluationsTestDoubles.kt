@@ -272,6 +272,8 @@ val NEXT_TERM_EVALUATION = DEFAULT_PENDING_EVALUATION.copy(
 	termId = NEXT_TERM.id
 )
 
+// hasSchedule: whether the term has a class schedule. By default it is read off the attempts, like the
+// numeric ones always told; a test passes it to say the meetings are on subjects the list does not offer.
 class RecordingEvaluationRepository(
 	initialEvaluations: List<Evaluation> = listOf(
 		DEFAULT_PENDING_EVALUATION,
@@ -293,14 +295,15 @@ class RecordingEvaluationRepository(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
 	),
-	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
+	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM,
+	hasSchedule: Boolean = availableSubjects.any { attempt -> attempt.meetings.isNotEmpty() }
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
 
 	// The term and its attempts are ONE state, like the real thing reads them: a test that moves both
 	// does it in one step (changeTermAndAttempts), and the pair is never half changed.
 	private val displayContextState = MutableStateFlow(
-		EvaluationDisplayContext(attempts = availableSubjects, currentTerm = currentTerm)
+		EvaluationDisplayContext(attempts = availableSubjects, currentTerm = currentTerm, hasSchedule = hasSchedule)
 	)
 
 	val addCalls = mutableListOf<EvaluationAdd>()
@@ -343,7 +346,8 @@ class RecordingEvaluationRepository(
 		return refreshResult ?: EvaluationsRefreshResult(
 			hasEvaluations = evaluationsState.value
 				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
-			hasAvailableAttempts = displayContextState.value.attempts.isNotEmpty()
+			hasAvailableAttempts = displayContextState.value.attempts.isNotEmpty(),
+			hasSchedule = displayContextState.value.hasSchedule
 		)
 	}
 
@@ -425,7 +429,11 @@ class RecordingEvaluationRepository(
 	}
 
 	fun changeTermAndAttempts(term: EvaluationTermDescriptor?, attempts: List<EditableAttemptDescriptor>) {
-		displayContextState.value = EvaluationDisplayContext(attempts = attempts, currentTerm = term)
+		displayContextState.value = displayContextState.value.copy(attempts = attempts, currentTerm = term)
+	}
+
+	fun changeHasSchedule(hasSchedule: Boolean) {
+		displayContextState.value = displayContextState.value.copy(hasSchedule = hasSchedule)
 	}
 }
 
@@ -441,7 +449,8 @@ class FakeDatabaseDataSource(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	),
-	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM
+	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM,
+	private val hasSchedule: Boolean = availableSubjects.any { attempt -> attempt.meetings.isNotEmpty() }
 ) : DatabaseDataRepository {
 	private val availableSubjectsState = MutableStateFlow(availableSubjects)
 	private val snapshotState = MutableStateFlow(initialSnapshot)
@@ -472,7 +481,11 @@ class FakeDatabaseDataSource(
 
 	override fun observeDisplayContextFlow(): Flow<LocalEvaluationDisplayContext> {
 		return availableSubjectsState.map { attempts ->
-			LocalEvaluationDisplayContext(currentTerm = currentTerm, attempts = attempts)
+			LocalEvaluationDisplayContext(
+				currentTerm = currentTerm,
+				attempts = attempts,
+				hasSchedule = hasSchedule
+			)
 		}
 	}
 

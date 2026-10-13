@@ -3,6 +3,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.transition
 
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
@@ -18,6 +20,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsInternalEvent
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsIllustration
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
@@ -27,10 +31,15 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -48,11 +57,27 @@ import kotlin.time.ExperimentalTime
  */
 class EvaluationsWeekTransitionsTest {
 	private val selectionRepository = InMemoryEvaluationsSelectionRepository()
+	private val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
 
-	private fun TestScope.definitionWith() = EvaluationsMachine(
+	private fun TestScope.definitionWith() = machine().define(host(scope = this))
+
+	private fun host(scope: CoroutineScope) = object : MachineHost<Evaluations.Effect> {
+		override fun sendEffect(effect: Evaluations.Effect) = Unit
+
+		override fun processInternalEvent(event: Any) = Unit
+
+		override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
+			return scope.launch(block = block)
+		}
+	}
+
+	private fun machine(
+		weekFocusRepository: EvaluationsWeekFocusRepository = weekFocus,
+		observedRepository: RecordingEvaluationRepository = RecordingEvaluationRepository()
+	) = EvaluationsMachine(
 		getEvaluationsUseCase = withReporting { reporting ->
 			GetEvaluationsUseCase(
-				evaluationRepository = RecordingEvaluationRepository(),
+				evaluationRepository = observedRepository,
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 				syncStatusRepository = RecordingSyncStatusRepository(),
 				evaluationsSelectionRepository = selectionRepository,
@@ -79,18 +104,8 @@ class EvaluationsWeekTransitionsTest {
 			evaluationsSelectionRepository = selectionRepository,
 			reportingRepository = RecordingReportingRepository()
 		),
-		weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
+		weekFocusRepository = weekFocusRepository,
 		clock = Clock.System
-	).define(
-		object : MachineHost<Evaluations.Effect> {
-			override fun sendEffect(effect: Evaluations.Effect) = Unit
-
-			override fun processInternalEvent(event: Any) = Unit
-
-			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
-				return launch(block = block)
-			}
-		}
 	)
 
 	private fun <T> withReporting(build: (RecordingReportingRepository) -> T): T {
@@ -109,12 +124,15 @@ class EvaluationsWeekTransitionsTest {
 		week(EvaluationsWeekKey.Academic(5))
 	)
 
+	private val allWeeks = (1..12).map { number -> week(EvaluationsWeekKey.Academic(number)) }
+
 	private fun content(
 		selected: EvaluationsWeekKey,
-		weekOneStart: LocalDate?
+		weekOneStart: LocalDate?,
+		weekItems: List<EvaluationsWeekItem> = weeks
 	) = Evaluations.State.Content(
-		weekItem = weeks.first { item -> item.key == selected },
-		weekItems = weeks,
+		weekItem = weekItems.first { item -> item.key == selected },
+		weekItems = weekItems,
 		selectedWeekKey = selected,
 		evaluationGroups = emptyList(),
 		evaluationWeekGroups = emptyList(),
@@ -231,6 +249,133 @@ class EvaluationsWeekTransitionsTest {
 		advanceUntilIdle()
 
 		assertNull(selectionRepository.observeSelectedWeekKey().first())
+	}
+
+	@Test
+	fun aWeekFocus_selectsTheWeekTheListFilesTheMondayUnder_heldToTheWeeksOfTheTerm() = runTest {
+		val definition = definitionWith()
+
+		// Monday of week 1 is September 28th: a Monday before it is filed under week 1, a Monday after
+		// week 12 (13 here) under week 12, like the evaluations of those days are listed.
+		listOf(
+			LocalDate(2026, 10, 26) to 5,
+			LocalDate(2026, 9, 21) to 1,
+			LocalDate(2026, 12, 14) to 12,
+			LocalDate(2026, 12, 21) to 12,
+			LocalDate(2027, 3, 1) to 12
+		).forEach { (monday, expectedWeek) ->
+			val state = content(
+				selected = EvaluationsWeekKey.Academic(10),
+				weekOneStart = FIRST_ANCHOR,
+				weekItems = allWeeks
+			)
+			weekFocus.request(monday)
+
+			val after = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+
+			val focused = assertIs<Evaluations.State.Content>(after)
+			assertEquals(EvaluationsWeekKey.Academic(expectedWeek), focused.selectedWeekKey, "for $monday")
+			assertEquals(EvaluationsWeekKey.Academic(expectedWeek), focused.weekItem.key, "for $monday")
+			assertNull(weekFocus.pendingWeekStart.value, "left pending: $monday")
+		}
+	}
+
+	@Test
+	fun aWeekFocus_withoutAnAnchor_isTakenWithoutMovingTheSelection() = runTest {
+		val definition = definitionWith()
+		val monday = LocalDate(2026, 10, 26)
+		val state = content(selected = EvaluationsWeekKey.Academic(3), weekOneStart = null)
+		weekFocus.request(monday)
+
+		val after = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+
+		assertEquals(state, after)
+		assertNull(weekFocus.pendingWeekStart.value)
+	}
+
+	@Test
+	fun aWeekFocus_isNotSavedAsTheWeekTheUserPicked_butASelectionIs() = runTest {
+		val definition = definitionWith()
+		val monday = LocalDate(2026, 10, 26)
+		val state = content(
+			selected = EvaluationsWeekKey.Academic(1),
+			weekOneStart = FIRST_ANCHOR,
+			weekItems = allWeeks
+		)
+		weekFocus.request(monday)
+
+		val focused = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+		advanceUntilIdle()
+
+		// Navigation is not a preference: the next opening of the tab follows the current week again.
+		assertEquals(EvaluationsWeekKey.Academic(5), assertIs<Evaluations.State.Content>(focused).selectedWeekKey)
+		assertNull(selectionRepository.observeSelectedWeekKey().first())
+
+		focused.after(definition, Evaluations.Action.SelectWeek(EvaluationsWeekKey.Academic(7)))
+		advanceUntilIdle()
+
+		assertEquals("academic:2026-09-28:7", selectionRepository.observeSelectedWeekKey().first())
+	}
+
+	@Test
+	fun aWeekFocus_staysPendingWhileTheScreenIsOnItsWay_andIsDroppedWhereNothingWillShowIt() = runTest {
+		val definition = definitionWith()
+		val monday = LocalDate(2026, 10, 26)
+		val explanation = EvaluationsExplanation(
+			title = UiText.Raw("title"),
+			message = UiText.Raw("message"),
+			illustration = EvaluationsIllustration.entries.first()
+		)
+
+		listOf(
+			Evaluations.State.Idle,
+			Evaluations.State.Loading,
+			Evaluations.State.Failed(message = "failed")
+		).forEach { state ->
+			weekFocus.request(monday)
+
+			assertEquals(state, state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday)))
+			assertEquals(monday, weekFocus.pendingWeekStart.value, "dropped in $state")
+		}
+
+		listOf(
+			Evaluations.State.Empty(),
+			Evaluations.State.NoAttempts(explanation = explanation),
+			Evaluations.State.RecordDataUnavailable(explanation = explanation)
+		).forEach { state ->
+			weekFocus.request(monday)
+
+			assertEquals(state, state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday)))
+			assertNull(weekFocus.pendingWeekStart.value, "left pending in $state")
+		}
+	}
+
+	@Test
+	fun startingTheObservationAgain_doesNotAddAnotherCollectorOfTheWeekFocus() = runTest {
+		val pending = MutableStateFlow<LocalDate?>(null)
+		val countingFocus = object : EvaluationsWeekFocusRepository {
+			override val pendingWeekStart: StateFlow<LocalDate?> = pending
+
+			override fun request(weekStart: LocalDate) {
+				pending.value = weekStart
+			}
+
+			override fun consume(weekStart: LocalDate) = pending.compareAndSet(weekStart, null)
+		}
+		// What the observation reads never settles, so it stays out of the way of the focus.
+		val machine = machine(
+			weekFocusRepository = countingFocus,
+			observedRepository = RecordingEvaluationRepository(
+				evaluationsSnapshotFlow = flow { awaitCancellation() }
+			)
+		)
+		val host = host(scope = backgroundScope)
+
+		// The retry button sends the load again; the focus collector never ends by itself.
+		repeat(3) { machine.startObservation(host) }
+		runCurrent()
+
+		assertEquals(1, pending.subscriptionCount.value)
 	}
 
 	private companion object {

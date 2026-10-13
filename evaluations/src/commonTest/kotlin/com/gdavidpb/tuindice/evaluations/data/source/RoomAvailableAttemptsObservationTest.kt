@@ -16,6 +16,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * The observation of the available attempts, with the two tables as plain sources: it tells "the
@@ -199,7 +201,67 @@ class RoomAvailableAttemptsObservationTest {
 
 		assertEquals(listOf("a", "b"), result.map { attempt -> attempt.id })
 	}
+
+	@Test
+	fun theTermHasASchedule_whenOnlyAQualitativeAttemptMeets() {
+		val terms = listOf(term(id = "t1", order = 20261))
+		val attempts = listOf(
+			attempt(id = "n", termId = "t1", code = "MAT-101"),
+			attempt(
+				id = "q",
+				termId = "t1",
+				code = "QUA-101",
+				gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL,
+				schedule = MONDAY_MEETING
+			)
+		)
+
+		// The numeric attempts are the ones the list offers; none of them meets, yet the sheet has content.
+		assertEquals(listOf("n"), RoomDatabaseDataSource.selectAvailableAttempts(terms, attempts).map { it.id })
+		assertTrue(RoomDatabaseDataSource.termHasSchedule(terms = terms, attempts = attempts))
+	}
+
+	@Test
+	fun theTermHasNoSchedule_whenNoAttemptOfTheCurrentTermHasAValidMeeting() {
+		val terms = listOf(term(id = "t1", order = 20261), term(id = "t0", order = 20253, kind = TermKind.HISTORICAL))
+		val attempts = listOf(
+			attempt(id = "none", termId = "t1", code = "MAT-101"),
+			attempt(id = "unreadable", termId = "t1", code = "INF-101", schedule = "not json"),
+			attempt(id = "invalid", termId = "t1", code = "FIS-101", schedule = OUT_OF_WEEK_MEETING),
+			attempt(id = "past", termId = "t0", code = "OLD-101", schedule = MONDAY_MEETING)
+		)
+
+		assertFalse(RoomDatabaseDataSource.termHasSchedule(terms = terms, attempts = attempts))
+		assertFalse(RoomDatabaseDataSource.termHasSchedule(terms = emptyList(), attempts = attempts))
+	}
+
+	@Test
+	fun theObservedContext_carriesWhetherTheTermHasASchedule() = runTest {
+		attempts = listOf(
+			attempt(
+				id = "q",
+				termId = "t1",
+				code = "QUA-101",
+				gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL,
+				schedule = MONDAY_MEETING
+			)
+		)
+		val emitted = mutableListOf<Pair<Int, Boolean>>()
+		termChanges.emit(terms)
+		attemptChanges.emit(attempts)
+
+		backgroundScope.launch {
+			observe().collect { context -> emitted += context.attempts.size to context.hasSchedule }
+		}
+		runCurrent()
+
+		assertEquals(listOf(0 to true), emitted)
+	}
 }
+
+private const val OUT_OF_WEEK_MEETING = """[{"day_of_week":9,"start_block":1,"end_block":2}]"""
+
+private const val MONDAY_MEETING = """[{"day_of_week":1,"start_block":1,"end_block":2}]"""
 
 private fun LocalEvaluationDisplayContext.pair() =
 	"${currentTerm?.id}${attempts.map { attempt -> attempt.id }}"
@@ -222,7 +284,8 @@ private fun attempt(
 	id: String,
 	termId: String,
 	code: String,
-	gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC
+	gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC,
+	schedule: String? = null
 ) = AcademicAttemptEntity(
 	id = id,
 	termId = termId,
@@ -231,8 +294,9 @@ private fun attempt(
 	credits = 3,
 	positionInTerm = 0,
 	gradingMode = gradingMode.name,
-	scoreKind = "NUMERIC",
-	scoreNumericValue = 15,
-	academicOutcome = "IN_PROGRESS",
-	academicBadge = "NONE"
+	scoreKind = "NONE",
+	academicOutcome = "PENDING",
+	academicBadge = "NONE",
+	section = 1,
+	schedule = schedule
 )

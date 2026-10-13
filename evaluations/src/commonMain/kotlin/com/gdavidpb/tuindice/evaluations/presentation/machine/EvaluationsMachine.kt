@@ -47,6 +47,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAt
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsWeekFocusTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.datetime.LocalDate
@@ -70,6 +71,11 @@ class EvaluationsMachine(
 	private val weekFocusRepository: EvaluationsWeekFocusRepository,
 	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
+	// Observation may restart from any state (the retry button re-dispatches the load) and
+	// launchMachineJob accumulates rather than replaces: the focus collector never ends on its own, so
+	// each restart would leave one more feeding the same machine.
+	private var weekFocusObservationJob: Job? = null
+
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
 	override fun define(host: MachineHost<Evaluations.Effect>): MachineDefinition<Evaluations.State> {
@@ -81,7 +87,7 @@ class EvaluationsMachine(
 			evaluationsNoAttemptsTransitions()
 			evaluationsFailedTransitions()
 			evaluationsRecordDataUnavailableTransitions()
-			evaluationsWeekFocusTransitions(machine = this@EvaluationsMachine, host = host)
+			evaluationsWeekFocusTransitions(machine = this@EvaluationsMachine)
 			evaluationsAnyStateTransitions(machine = this@EvaluationsMachine, host = host)
 		}
 	}
@@ -119,32 +125,7 @@ class EvaluationsMachine(
 							sendPendingWeekFocus(host = host)
 						}
 
-						is GetEvaluations.Content -> when (
-							resolveSyncedContentResolution(
-								// Counted over what the list will show: evaluations with no subject
-								// to be listed under are left out, and a screen left with none of
-								// them is the empty one, not a list with nothing in it.
-								hasContent = evaluations.listedEvaluations().isNotEmpty(),
-								hasSynced = evaluations.hasSyncedEvaluations,
-								keepCurrentWhileWaiting = false
-							)
-						) {
-							SyncedContentResolution.Content -> {
-								host.processInternalEvent(evaluations.toContentObservedEvent())
-								sendPendingWeekFocus(host = host)
-							}
-
-							SyncedContentResolution.Empty -> {
-								host.processInternalEvent(EvaluationsInternalEvent.EvaluationsEmptyObserved)
-								sendPendingWeekFocus(host = host)
-							}
-
-							SyncedContentResolution.Loading,
-							SyncedContentResolution.KeepCurrent,
-							-> host.processInternalEvent(
-								EvaluationsInternalEvent.EvaluationsWaitingObserved
-							)
-						}
+						is GetEvaluations.Content -> processObservedContent(host = host, evaluations = evaluations)
 					}
 
 					is UseCaseState.Error -> host.processInternalEvent(
@@ -157,11 +138,49 @@ class EvaluationsMachine(
 		}
 	}
 
+	private suspend fun processObservedContent(
+		host: MachineHost<Evaluations.Effect>,
+		evaluations: GetEvaluations.Content
+	) {
+		when (
+			resolveSyncedContentResolution(
+				// Counted over what the list will show: evaluations with no subject
+				// to be listed under are left out, and a screen left with none of
+				// them is the empty one, not a list with nothing in it.
+				hasContent = evaluations.listedEvaluations().isNotEmpty(),
+				hasSynced = evaluations.hasSyncedEvaluations,
+				keepCurrentWhileWaiting = false
+			)
+		) {
+			SyncedContentResolution.Content -> {
+				host.processInternalEvent(evaluations.toContentObservedEvent())
+				sendPendingWeekFocus(host = host)
+			}
+
+			SyncedContentResolution.Empty -> {
+				host.processInternalEvent(
+					EvaluationsInternalEvent.EvaluationsEmptyObserved(
+						hasSchedule = evaluations.displayContext.hasSchedule
+					)
+				)
+				sendPendingWeekFocus(host = host)
+			}
+
+			SyncedContentResolution.Loading,
+			SyncedContentResolution.KeepCurrent,
+			-> host.processInternalEvent(
+				EvaluationsInternalEvent.EvaluationsWaitingObserved
+			)
+		}
+	}
+
 	// A request made while the content is already up. One made earlier (before this screen existed or
 	// before its content loaded) is still in the state and is sent again each time an observation
 	// settles, below.
 	private fun observeWeekFocus(host: MachineHost<Evaluations.Effect>) {
-		host.launchMachineJob {
+		if (weekFocusObservationJob?.isActive == true) return
+
+		weekFocusObservationJob = host.launchMachineJob {
 			weekFocusRepository.pendingWeekStart.filterNotNull().collect { weekStart ->
 				host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(weekStart = weekStart))
 			}
@@ -255,7 +274,9 @@ class EvaluationsMachine(
 		refreshResult: EvaluationsRefreshResult
 	) {
 		if (!refreshResult.hasEvaluations && refreshResult.hasAvailableAttempts) {
-			host.processInternalEvent(EvaluationsInternalEvent.EvaluationsEmptyConfirmed)
+			host.processInternalEvent(
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed(hasSchedule = refreshResult.hasSchedule)
+			)
 		}
 	}
 
@@ -399,7 +420,7 @@ class EvaluationsMachine(
 				mapping = mapping
 			),
 			weekOneStart = weekOneStart,
-			hasSchedule = displayContext.attempts.any { attempt -> attempt.meetings.isNotEmpty() }
+			hasSchedule = displayContext.hasSchedule
 		)
 	}
 

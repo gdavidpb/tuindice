@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.screen
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -10,8 +11,10 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
@@ -145,6 +148,57 @@ class TuIndiceScreenEvaluationsActionUiTest {
 				actual = actions
 			)
 		}
+	}
+
+	@Test
+	fun when_evaluationsIsEmptyInATermWithASchedule_then_theBarOffersTheSchedule() = runTuIndiceUiTest {
+		withScreenKoin {
+			setTuIndiceTestContent {
+				ScreenWith(shellState = Evaluations.State.Empty(hasSchedule = true).toMainShellState())
+			}
+
+			assertNodeVisible(
+				tag = BaseUiTags.topBarActionButton(TopBarAction.EvaluationsScheduleAction),
+				useUnmergedTree = true
+			)
+		}
+	}
+
+	@Test
+	fun when_evaluationsIsEmptyInATermWithoutASchedule_then_theBarOffersNothing() = runTuIndiceUiTest {
+		withScreenKoin {
+			setTuIndiceTestContent {
+				ScreenWith(shellState = Evaluations.State.Empty(hasSchedule = false).toMainShellState())
+			}
+
+			assertNodeHidden(
+				tag = BaseUiTags.topBarActionButton(TopBarAction.EvaluationsScheduleAction),
+				useUnmergedTree = true
+			)
+		}
+	}
+
+	@Composable
+	private fun ScreenWith(shellState: MainShellState) {
+		TuIndiceScreen(
+			state = Main.State.Content(
+				startDestination = SummaryDestination.Summary
+			),
+			shellState = shellState,
+			onRetryStartUp = {},
+			onUpdateAppClick = {},
+			navigator = rememberTestNavigator(startKey = SummaryDestination.Summary),
+			snackbarHostState = remember { SnackbarHostState() },
+			onAction = {},
+			onRecordViewModeChange = null,
+			onRecordViewModeChangeAvailable = {},
+			onNavigateTo = {},
+			onNavigateBack = {},
+			onConfirmExitClick = {},
+			onNavigateToExternalResource = {},
+			onViewStateChanged = {},
+			showSnackBar = {}
+		)
 	}
 
 	private inline fun withScreenKoin(block: () -> Unit) {

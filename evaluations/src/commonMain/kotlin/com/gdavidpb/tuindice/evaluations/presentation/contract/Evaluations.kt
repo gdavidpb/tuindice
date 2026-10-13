@@ -46,7 +46,13 @@ object Evaluations {
 				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
 		}
 
-		data object Empty : State()
+		// The term has no evaluation yet, but its class schedule may be there to open from the bar.
+		data class Empty(
+			val hasSchedule: Boolean = false
+		) : State() {
+			override val topBarConfig: TopBarConfig?
+				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
+		}
 
 		// Both states below arrive with what they say already resolved: why there is nothing to
 		// list is decided where it is observed, and the screen only paints it.

@@ -81,12 +81,12 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			state.toObservedContent(event)
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsEmptyObserved, Evaluations.State.Empty> { _, _ ->
-			Evaluations.State.Empty
+		onTo<EvaluationsInternalEvent.EvaluationsEmptyObserved, Evaluations.State.Empty> { _, event ->
+			Evaluations.State.Empty(hasSchedule = event.hasSchedule)
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsEmptyConfirmed, Evaluations.State.Empty> { _, _ ->
-			Evaluations.State.Empty
+		onTo<EvaluationsInternalEvent.EvaluationsEmptyConfirmed, Evaluations.State.Empty> { _, event ->
+			Evaluations.State.Empty(hasSchedule = event.hasSchedule)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsObservationFailed, Evaluations.State.Failed> { _, event ->

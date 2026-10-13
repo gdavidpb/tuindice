@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.transition
 
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
-import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsInternalEvent
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
@@ -13,10 +12,12 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekKeyC
  * is going to show it and a request left pending would move the tab whenever content came back much
  * later. The states that are still on their way (idle, loading, failed) leave it pending: the
  * observation sends it again as soon as something settles.
+ *
+ * Content selects the week the list files the date under, held to the term's weeks like the list,
+ * and does not save it as the user's pick.
  */
 internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTransitions(
-	machine: EvaluationsMachine,
-	host: MachineHost<Evaluations.Effect>
+	machine: EvaluationsMachine
 ) {
 	from<Evaluations.State.Content> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
@@ -28,16 +29,13 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTra
 			}
 			val focusedWeekItem = state.weekItems.firstOrNull { item -> item.key == focusedWeekKey }
 
-			// A week outside the screen's (a Monday before week 1 or after the last) was taken
-			// all the same: it is not left pending, and the selection stays where it was.
+			// Without weeks to show (no anchor) the request was taken all the same: it is not left
+			// pending, and the selection stays where it was. A jump is navigation, not a preference:
+			// the week is selected for this visit and not saved, so the tab keeps following the
+			// current week the next time it opens.
 			if (focusedWeekItem == null) {
 				state
 			} else {
-				machine.persistSelectedWeek(
-					host = host,
-					weekKey = focusedWeekItem.key,
-					weekOneStart = state.weekOneStart
-				)
 				state.copy(
 					selectedWeekKey = focusedWeekItem.key,
 					weekItem = focusedWeekItem

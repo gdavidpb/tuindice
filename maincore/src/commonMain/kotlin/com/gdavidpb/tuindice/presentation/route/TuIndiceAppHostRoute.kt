@@ -21,7 +21,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
-import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -41,6 +40,7 @@ import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
+import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
@@ -259,8 +259,10 @@ fun TuIndiceAppHostRoute(
 				// and go there in one move. The request is state, so the tab applies it when it is ready.
 				// The jump does not write the section the app opens on.
 				onNavigateToEvaluationsWeek = { weekStart ->
-					evaluationsWeekFocusRepository.request(weekStart)
-					navigator?.popThenSwitchTab(MainSection.EVALUATIONS)
+					navigator?.showEvaluationsWeek(
+						weekFocus = evaluationsWeekFocusRepository,
+						weekStart = weekStart
+					)
 				},
 				onNavigateTo = { section ->
 					if (navigator != null && navigator.currentTab != section) {

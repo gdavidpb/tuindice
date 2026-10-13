@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
@@ -30,6 +31,7 @@ import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -161,6 +163,91 @@ class EvaluationsViewModelContractTest {
 		}
 	}
 
+	// The only subject of the list is numeric and has no meetings; the term still has a schedule
+	// (a pass/fail subject meets), which is what the sheet shows.
+	@Test
+	fun empty_whenTheRefreshConfirmsIt_offersTheScheduleOfTheTerm() = runTest {
+		val empty = confirmedEmpty(termHasSchedule = true)
+
+		assertEquals(true, empty.hasSchedule)
+		assertEquals(TopBarConfig.EvaluationsWithSchedule, empty.topBarConfig)
+	}
+
+	@Test
+	fun empty_whenTheRefreshConfirmsItWithoutASchedule_offersNothing() = runTest {
+		val empty = confirmedEmpty(termHasSchedule = false)
+
+		assertEquals(false, empty.hasSchedule)
+		assertEquals(null, empty.topBarConfig)
+	}
+
+	@Test
+	fun empty_followsTheScheduleOfTheTerm_asItIsObserved() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = emptyList(),
+			refreshedEvaluations = emptyList(),
+			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT),
+			hasSchedule = false
+		)
+		val viewModel = createViewModel(testScheduler = testScheduler, repository = repository)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				viewModel.loadEvaluationsAction()
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
+
+				assertEquals(null, awaitUntilState<Evaluations.State.Empty>().topBarConfig)
+
+				repository.changeHasSchedule(true)
+				val withSchedule = awaitUntilState<Evaluations.State.Empty> { state -> state.hasSchedule }
+
+				assertEquals(TopBarConfig.EvaluationsWithSchedule, withSchedule.topBarConfig)
+
+				repository.changeHasSchedule(false)
+
+				assertEquals(null, awaitUntilState<Evaluations.State.Empty> { state -> !state.hasSchedule }.topBarConfig)
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	private suspend fun TestScope.confirmedEmpty(termHasSchedule: Boolean): Evaluations.State.Empty {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = emptyList(),
+			refreshedEvaluations = emptyList(),
+			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT),
+			hasSchedule = termHasSchedule
+		)
+		val viewModel = createViewModel(testScheduler = testScheduler, repository = repository)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			var empty: Evaluations.State.Empty? = null
+
+			viewModel.state.test {
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
+
+				empty = awaitUntilState<Evaluations.State.Empty>()
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			return checkNotNull(empty)
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	@Test
 	fun ensureLoaded_whenLocalEmptyAndRefreshAddsContent_neverEmitsEmpty() = runTest {
 		val repository = RecordingEvaluationRepository(
@@ -191,7 +278,7 @@ class EvaluationsViewModelContractTest {
 							assertEquals(1, state.evaluationGroups.flatMap { group -> group.items }.size)
 						}
 
-						Evaluations.State.Empty -> fail("Refresh with content must not reduce through Empty")
+						is Evaluations.State.Empty -> fail("Refresh with content must not reduce through Empty")
 						else -> assertFalse(state is Evaluations.State.Empty)
 					}
 				}
@@ -266,7 +353,7 @@ class EvaluationsViewModelContractTest {
 					when (val state = awaitItem()) {
 						is Evaluations.State.NoAttempts -> reachedNoAttempts = true
 
-						Evaluations.State.Empty -> fail("No attempts must not reduce through Empty")
+						is Evaluations.State.Empty -> fail("No attempts must not reduce through Empty")
 						else -> assertFalse(state is Evaluations.State.Empty)
 					}
 				}

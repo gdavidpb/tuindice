@@ -38,9 +38,14 @@ sealed interface EvaluationsInternalEvent {
 		val weekStart: LocalDate
 	) : EvaluationsInternalEvent
 
-	data object EvaluationsEmptyObserved : EvaluationsInternalEvent
+	data class EvaluationsEmptyObserved(
+		// Whether some subject of the current term has a class schedule to open.
+		val hasSchedule: Boolean = false
+	) : EvaluationsInternalEvent
 
-	data object EvaluationsEmptyConfirmed : EvaluationsInternalEvent
+	data class EvaluationsEmptyConfirmed(
+		val hasSchedule: Boolean = false
+	) : EvaluationsInternalEvent
 
 	data class EvaluationsObservationFailed(
 		val message: String

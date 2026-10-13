@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.evaluations.data.mapper.hasValidMeetings
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
@@ -339,8 +340,22 @@ class RoomDatabaseDataSource(
 			attempts: List<AcademicAttemptEntity>
 		) = LocalEvaluationDisplayContext(
 			currentTerm = selectOfficialCurrentTerm(terms = terms)?.toLocalCurrentTermDescriptor(),
-			attempts = selectAvailableAttempts(terms = terms, attempts = attempts)
+			attempts = selectAvailableAttempts(terms = terms, attempts = attempts),
+			hasSchedule = termHasSchedule(terms = terms, attempts = attempts)
 		)
+
+		// Over every attempt of the current term, whatever its grading mode: the schedule sheet shows a
+		// pass/fail subject's meetings too, so the offer to open it cannot depend on the numeric ones.
+		fun termHasSchedule(
+			terms: List<AcademicTermEntity>,
+			attempts: List<AcademicAttemptEntity>
+		): Boolean {
+			val currentTermId = selectOfficialCurrentTermId(terms = terms) ?: return false
+
+			return attempts.any { attempt ->
+				attempt.termId == currentTermId && attempt.hasValidMeetings()
+			}
+		}
 
 		fun selectAvailableAttempts(
 			terms: List<AcademicTermEntity>,

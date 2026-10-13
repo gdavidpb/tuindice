@@ -170,7 +170,8 @@ class EvaluationDataSource(
 				?.any { evaluation -> evaluation.attemptId in availableAttemptIds } == true ||
 				visibleSnapshot.evaluations
 					.any { evaluation -> evaluation.attemptId in availableAttemptIds },
-			hasAvailableAttempts = availableAttemptIds.isNotEmpty()
+			hasAvailableAttempts = availableAttemptIds.isNotEmpty(),
+			hasSchedule = databaseDataSource.observeDisplayContextFlow().first().hasSchedule
 		)
 	}
 

@@ -29,5 +29,6 @@ fun LocalEvaluationDisplayContext.toEvaluationDisplayContext() = EvaluationDispl
 	attempts = attempts
 		.map { attempt -> attempt.toEditableAttemptDescriptor() }
 		.sortedBy(EditableAttemptDescriptor::code),
-	currentTerm = currentTerm?.toEvaluationTermDescriptor()
+	currentTerm = currentTerm?.toEvaluationTermDescriptor(),
+	hasSchedule = hasSchedule
 )

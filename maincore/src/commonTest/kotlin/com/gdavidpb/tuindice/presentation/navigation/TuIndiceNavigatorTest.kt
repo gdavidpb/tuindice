@@ -5,6 +5,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.presentation.mapper.toTabRootDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -299,11 +301,14 @@ class TuIndiceNavigatorTest {
 		navigator.openSchedule()
 		val sheetStoreKey = navigator.currentStoreKey
 		entryStores.viewModelStoreOwner(sheetStoreKey)
+		resultStore.publish(receiverStoreKey = sheetStoreKey, result = TestNavResult("stale"))
 		val removedKeys = mutableListOf<String>()
 		entryStores.addRemovalListener { storeKey -> removedKeys.add(storeKey) }
 
 		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
 		navigator.switchTab(MainSection.RECORD)
+
+		assertEquals(null, resultStore.peek(sheetStoreKey))
 
 		assertEquals(
 			listOf(SummaryDestination.Summary, RecordDestination.Record),
@@ -376,6 +381,7 @@ class TuIndiceNavigatorTest {
 		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
 
 		assertEquals(listOf(AuthDestination.SignIn), navigator.backStack)
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
 	}
 
 	@Test
@@ -399,5 +405,40 @@ class TuIndiceNavigatorTest {
 		navigator.openSchedule()
 
 		assertEquals(listOf(AuthDestination.SignIn), navigator.backStack)
+	}
+
+	@Test
+	fun when_aWeekOfEvaluationsIsShownFromTheSheet_then_theWeekIsRequestedAndOnlyTheSheetIsLeft() {
+		val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
+		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.RECORD)
+		val monday = LocalDate(2026, 10, 5)
+
+		navigator.openSchedule()
+		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday)
+
+		assertEquals(monday, weekFocus.pendingWeekStart.value)
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertEquals(MainSection.SUMMARY, navigator.startTab)
+		assertEquals(
+			listOf<NavKey>(SummaryDestination.Summary, EvaluationsDestination.Evaluations),
+			navigator.backStack
+		)
+	}
+
+	@Test
+	fun when_aWeekOfEvaluationsIsShownFromSummary_then_theWeekIsRequestedAndOnlyTheTabChanges() {
+		val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
+		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.SUMMARY)
+		val monday = LocalDate(2026, 10, 12)
+
+		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday)
+
+		assertEquals(monday, weekFocus.pendingWeekStart.value)
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertEquals(MainSection.SUMMARY, navigator.startTab)
+		assertEquals(
+			listOf<NavKey>(SummaryDestination.Summary, EvaluationsDestination.Evaluations),
+			navigator.backStack
+		)
 	}
 }

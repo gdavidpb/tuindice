@@ -170,18 +170,18 @@ class ScheduleCellViewUiTest {
 			assertDpEquals(cellWidth, cell.right - cell.left, "$code: width of the cell")
 			assertDpEquals(TuIndiceComponentSizes.IconXSmall, icon.right - icon.left, "$code: width of the icon")
 			assertDpEquals(TuIndiceComponentSizes.IconXSmall, icon.bottom - icon.top, "$code: height of the icon")
-			assertDpEquals(TuIndiceSpacing.Two, cell.right - icon.right, "$code: icon from the end edge")
+			assertDpEquals(TuIndiceSpacing.XSmall, cell.right - icon.right, "$code: icon from the end edge")
 			assertDpEquals(TuIndiceSpacing.Two, cell.bottom - icon.bottom, "$code: icon from the bottom edge")
-			// The code ends before the icon starts, or ends above where it starts. The widest code is the
-			// exception for the line's box, not for its ink: the box has 2dp of room below the letters for
-			// descenders, a code of capitals and digits has none, and the icon only enters that room.
-			val inkBottom = text.top + with(density) { baselineOf(code).toDp() }
+			// The widest code reaches under the icon's column, so its icon has to start below the code's
+			// baseline: the line's box has 2dp of room below the letters for descenders, a code of capitals
+			// and digits has none, and the icon only enters that room. The others do not touch the icon's box.
+			val baseline = text.top + with(density) { baselineOf(code).toDp() }
 			val clearOfBox = text.right <= icon.left || text.bottom <= icon.top
 
 			if (code == WIDEST_CODE) {
 				assertTrue(
-					clearOfBox || inkBottom <= icon.top,
-					"$code: the ink ends at $inkBottom and the icon starts at ${icon.top}, ${icon.left} of the text's ${text.right}"
+					baseline <= icon.top,
+					"$code: the baseline is at $baseline and the icon starts at ${icon.top}, ${icon.left} of the text's ${text.right}"
 				)
 			} else {
 				assertTrue(
