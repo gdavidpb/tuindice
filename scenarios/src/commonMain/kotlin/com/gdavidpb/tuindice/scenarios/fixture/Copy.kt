@@ -31,6 +31,8 @@ object Copy {
 	const val NoticeMessage = "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
 
 	// summary
+	/** The figure of the term's week line ("Semana 3 de 12"); the scenarios look for it with `contains`. */
+	const val SummaryTermWeek3 = "Semana 3"
 	const val NewStudentNoRecordTitle = "Aún no tienes expediente"
 	const val RecordAccessDeniedTitle = "No pudimos consultar tu expediente"
 	const val RecordAccessDeniedMessage =
@@ -64,6 +66,7 @@ object Copy {
 	const val TooltipApprovedIn = "Cursada en Sep - Dic 2021"
 	const val TooltipPlannedIn = "Planificada en Jul - Ago 2026"
 	const val TooltipMissingRequirements = "Faltan requisitos: EP1308, EP5855"
+	const val ScheduleSubtitleWeek3 = "Sep - Dic 2026 · Semana 3"
 	const val TermSepDec2026 = "Sep - Dic 2026"
 	const val TermJanMar2027 = "Ene - Mar 2027"
 
@@ -89,9 +92,35 @@ object Copy {
 			"Cuando se restablezca, tus evaluaciones aparecerán aquí."
 	const val EvaluationsNotEnrolledTitle = "No estás inscrito en este trimestre"
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
+	const val EvaluationNoGrade = "Sin nota"
+	const val InClassBlocks34Mys210 = "En clase · Bloques 3-4 · MYS-210"
+
+	// base: where a class meets, as an evaluation inherits it
+	const val PlaceBlocks12Mys116 = "Bloques 1-2 · MYS-116"
+	const val PlaceBlocks34Mys210 = "Bloques 3-4 · MYS-210"
+	const val TimeBlocks12 = "7:30–9:30 a. m."
+	const val TimeBlocks34 = "9:30–11:30 a. m."
 
 	/** The binding of every constant above. */
 	val bindings: List<CopyBinding> = listOf(
+		CopyBinding.Resource(SummaryTermWeek3, "summary", "summary_term_week_value", listOf("3")),
+		CopyBinding.Resource(
+			ScheduleSubtitleWeek3,
+			"record",
+			"schedule_subtitle_week",
+			listOf("Sep - Dic 2026", "3")
+		),
+		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
+		CopyBinding.Resource(
+			InClassBlocks34Mys210,
+			"evaluations",
+			"evaluation_place_in_class",
+			listOf("Bloques 3-4 · MYS-210")
+		),
+		CopyBinding.Resource(PlaceBlocks12Mys116, "base", "class_place_with_room", listOf("Bloques 1-2", "MYS-116")),
+		CopyBinding.Resource(PlaceBlocks34Mys210, "base", "class_place_with_room", listOf("Bloques 3-4", "MYS-210")),
+		CopyBinding.Resource(TimeBlocks12, "base", "class_time_range_same_period", listOf("7:30", "9:30", "a. m.")),
+		CopyBinding.Resource(TimeBlocks34, "base", "class_time_range_same_period", listOf("9:30", "11:30", "a. m.")),
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),
 		CopyBinding.Resource(InvalidUsbIdCredentials, "auth", "error_invalid_usb_id_credentials"),
 		CopyBinding.Resource(AccountDisabled, "auth", "error_account_disabled", listOf("info@tuindice.app")),

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-summary-hub-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NDEtNDE0MTQ6c3VtbWFyeS1odWItcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "summary-hub-user",
+      "usb_id": "41-41414",
+      "access_token": "bootstrap.mock.summary-hub.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

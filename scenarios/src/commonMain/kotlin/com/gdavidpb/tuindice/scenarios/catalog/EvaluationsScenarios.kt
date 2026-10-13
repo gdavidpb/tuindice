@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
@@ -21,6 +23,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.closeScheduleSheet
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
@@ -390,6 +393,96 @@ private val evaluationsAnnulledProvisionalNotice = scenario(
 	waitGone(text(Copy.EnrollmentAnnulledProvisionalTitle), Within.Assert)
 }
 
+// An evaluation inherits where its subject has class that day: blocks and room first and the hour after, in twelve
+// hours; one on a day without class says nothing of the sort. The week of the clock is the one the strip opens on.
+private val evaluationsInheritedPlace = scenario(
+	"evaluations-inherited-place",
+	"evaluations",
+	seeded(E2eAccounts.SummaryHub)
+) {
+	account(E2eAccounts.SummaryHub.id)
+
+	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Assert)
+	waitVisible(EvaluationsUiTags.EvaluationsWeekCurrentIndicator, Within.Assert)
+	// Monday: overdue and ungraded, and CI5311 meets that day.
+	waitVisible(EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
+	waitVisible(EvaluationsUiTags.evaluationPlace(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
+	waitVisible(text(Copy.PlaceBlocks12Mys116), Within.Assert)
+	waitVisible(text(Copy.TimeBlocks12), Within.Assert)
+	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
+	// Today: CI5437 meets at blocks 3 and 4.
+	scrollUntilVisible(
+		EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationToday.value),
+		Scroll.ContentDown,
+		Within.Wait
+	)
+	waitVisible(EvaluationsUiTags.evaluationPlace(E2eFixtures.HubEvaluationToday.value), Within.Assert)
+	waitVisible(text(Copy.PlaceBlocks34Mys210), Within.Assert)
+	waitVisible(text(Copy.TimeBlocks34), Within.Assert)
+	// Friday: EG1114 does not meet, so the row has no place line at all.
+	scrollUntilVisible(
+		EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationNoClass.value),
+		Scroll.ContentDown,
+		Within.Wait
+	)
+	waitGone(EvaluationsUiTags.evaluationPlace(E2eFixtures.HubEvaluationNoClass.value), Within.Assert)
+}
+
+// Editing a saved evaluation does not let its subject change, and the date picker marks the days the subject has class
+// and says where it meets when one is chosen: Thursday the 22nd has class of CI5437, Wednesday the 21st does not.
+private val evaluationsEditKeepsSubject = scenario(
+	"evaluations-edit-keeps-subject",
+	"evaluations",
+	seeded(E2eAccounts.SummaryHub)
+) {
+	account(E2eAccounts.SummaryHub.id)
+
+	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
+	scrollUntilVisible(
+		EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationToday.value),
+		Scroll.ContentDown,
+		Within.Wait
+	)
+	tap(EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationToday.value))
+	waitVisible(EvaluationsUiTags.EvaluationSwipeEditAction, Within.Action)
+	tap(EvaluationsUiTags.EvaluationSwipeEditAction)
+	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Wait)
+	waitVisible(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.HubAttemptCi5437.value), Within.Assert)
+	assertEnabled(EvaluationsUiTags.evaluationSubjectChip(E2eFixtures.HubAttemptCi5437.value), false)
+	tap(EvaluationsUiTags.EvaluationDateSelectButton)
+	waitVisible(EvaluationsUiTags.EvaluationCalendarContainer, Within.Action)
+	waitVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip, Within.Assert)
+	waitVisible(EvaluationsUiTags.calendarDayClassDot(E2eInputs.HubClassDay), Within.Assert)
+	waitGone(EvaluationsUiTags.calendarDayClassDot(E2eInputs.HubNoClassDay), Within.Assert)
+	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubClassDay))
+	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
+	waitVisible(text(Copy.InClassBlocks34Mys210), Within.Assert)
+	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubNoClassDay))
+	waitGone(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
+	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelection, Within.Assert)
+	tap(EvaluationsUiTags.EvaluationDateDialogCancelButton)
+	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Action)
+}
+
+// The bar of Evaluations opens the Schedule sheet over the tab, which stays the selected one.
+private val evaluationsOpenSchedule = scenario(
+	"evaluations-open-schedule",
+	"evaluations",
+	seeded(E2eAccounts.SummaryHub)
+) {
+	account(E2eAccounts.SummaryHub.id)
+
+	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
+	tap(BaseUiTags.topBarActionButton(TopBarAction.EvaluationsScheduleAction))
+	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
+	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
+	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Assert)
+	closeScheduleSheet()
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
+}
+
 /** The scenarios of this module; list every new one here. */
 val evaluationsScenarios: List<Scenario> = listOf(
 	evaluationsSmoke,
@@ -403,5 +496,8 @@ val evaluationsScenarios: List<Scenario> = listOf(
 	evaluationsEnrollmentUnavailable,
 	evaluationsAnnulledNoAttempts,
 	evaluationsNotEnrolled,
-	evaluationsAnnulledProvisionalNotice
+	evaluationsAnnulledProvisionalNotice,
+	evaluationsInheritedPlace,
+	evaluationsEditKeepsSubject,
+	evaluationsOpenSchedule
 )

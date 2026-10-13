@@ -54,6 +54,18 @@ class MockSyncFixturesContractTest {
 	}
 
 	@Test
+	fun summaryHubKeepsTheClassesStartDateOfItsCurrentTermAndTheClashOfOneSubject() {
+		val result = decodeSync("post-sync-summary-hub.json")
+		val current = result.record.record.terms.single { term -> term.kind == TermKind.CURRENT }
+		val withErrors = current.attempts.filter { attempt -> !attempt.enrollmentErrors.isNullOrEmpty() }
+
+		assertEquals("2026-09-28", current.classesStartDate)
+		assertEquals(SUMMARY_HUB_ATTEMPTS, current.attempts.size)
+		assertTrue(current.attempts.all { attempt -> !attempt.schedule.isNullOrEmpty() })
+		assertEquals(listOf("CHOQUE DE HORARIO"), withErrors.single().enrollmentErrors)
+	}
+
+	@Test
 	fun annulledFinalHasTheSituationAndNoCurrentTerm() {
 		val result = decodeSync("post-sync-annulled-final.json")
 
@@ -99,5 +111,6 @@ class MockSyncFixturesContractTest {
 		// Host tests of this module run from its directory.
 		const val SYNC_FIXTURES = "../mocks/__files/sync"
 		const val MIN_SUCCESSFUL_FIXTURES = 8
+		const val SUMMARY_HUB_ATTEMPTS = 4
 	}
 }

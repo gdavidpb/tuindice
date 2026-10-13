@@ -30,8 +30,10 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre y la carrera).
-- `record`: historial académico y cálculos de índice.
-- `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
+- `record`: historial académico, cálculos de índice y la hoja Horario (tabla y grilla por bloques, con la marca de las
+  evaluaciones de la semana, que lleva a Evaluaciones).
+- `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota; cada evaluación con fecha hereda del horario el
+  bloque y el aula de su materia ese día, el picker marca los días de clase y la barra abre la hoja Horario.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
 - `subjects`: estadísticas y detalle histórico de una materia.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.

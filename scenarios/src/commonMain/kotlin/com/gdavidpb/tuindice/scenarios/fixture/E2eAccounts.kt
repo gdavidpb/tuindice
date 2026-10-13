@@ -404,6 +404,41 @@ object E2eAccounts {
 		mockScenario = "auth-pensum-not-found-login"
 	)
 
+	/**
+	 * Session values of `auth-summary-hub-exchange-success.json`. The only account whose current term is the one the
+	 * frozen clock is in (September - December 2026, week 3), with classes on the day of the clock and evaluations in
+	 * its week; its pensum is the shared one, so the hub shows the career with its progress.
+	 */
+	val SummaryHub = E2eAccount(
+		id = "summary-hub",
+		usbIdDigits = "4141414",
+		usbIdFormatted = "41-41414",
+		password = "summary-hub-pass",
+		session = E2eSession(
+			sessionId = "summary-hub-session",
+			accessToken = "summary.hub.mock.access",
+			refreshToken = "summary.hub.mock.refresh"
+		),
+		mockScenario = "auth-summary-hub-login"
+	)
+
+	/**
+	 * Session values of `auth-summary-hub-no-pensum-exchange-success.json`. The same record and evaluations as
+	 * [SummaryHub], but its pensum answers 404, so no pensum is ever cached and the career invites to open it.
+	 */
+	val SummaryHubNoPensum = E2eAccount(
+		id = "summary-hub-no-pensum",
+		usbIdDigits = "4242424",
+		usbIdFormatted = "42-42424",
+		password = "summary-hub-no-pensum-pass",
+		session = E2eSession(
+			sessionId = "summary-hub-no-pensum-session",
+			accessToken = "summary.hub.nopensum.mock.access",
+			refreshToken = "summary.hub.nopensum.mock.refresh"
+		),
+		mockScenario = "auth-summary-hub-no-pensum-login"
+	)
+
 	val all: List<E2eAccount> = listOf(
 		Canonical,
 		CanonicalEmail,
@@ -434,6 +469,8 @@ object E2eAccounts {
 		PensumEquivalence,
 		PensumRecordUnavailable,
 		PensumRetry,
-		PensumNotFound
+		PensumNotFound,
+		SummaryHub,
+		SummaryHubNoPensum
 	)
 }

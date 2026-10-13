@@ -2,12 +2,16 @@ package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
+import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
@@ -18,10 +22,16 @@ import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
+import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
+import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.closeScheduleSheet
+import com.gdavidpb.tuindice.scenarios.shared.returnToSummaryTab
+import com.gdavidpb.tuindice.scenarios.shared.waitSummaryHub
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration.Companion.milliseconds
@@ -52,6 +62,9 @@ private val summarySmoke = scenario(
 	waitVisible(SummaryUiTags.ItemsList, Within.Assert)
 	waitVisible(SummaryUiTags.StatusRow, Within.Assert)
 	waitVisible(SummaryUiTags.StatusText, Within.Assert)
+	// The hub always has the career, whatever the term: the progress of the pensum or the invitation to open it.
+	scrollUntilVisible(SummaryUiTags.CareerSection, Scroll.ContentDown, Within.Long)
+	waitVisible(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection), Within.Assert)
 }
 
 private val summaryRefreshRetry = scenario(
@@ -258,6 +271,142 @@ private val summaryProfilePictureSources = scenario(
 	openPictureSourceAndCancel(SummaryUiTags.ProfilePictureTakeAction, IOS_CAMERA_LOADED, IOS_CAMERA_DISMISS)
 }
 
+/** Back at the top of the Summary tab, whatever the scroll it was left with: the profile is the first thing on it. */
+private fun StepBuilder.scrollSummaryToTop() {
+	scrollUntilVisible(SummaryUiTags.ProfilePictureContainer, Scroll.ContentUp, Within.Action)
+}
+
+private fun hubStart() = Start.Seeded(E2eAccounts.SummaryHub).toLaunchSpec()
+
+// The term the frozen clock is in, with classes today and evaluations this week (`testkit/e2e/fixture-contract.md`,
+// the hub accounts). The hub reads what the sync and the evaluations revalidation downloaded and asks for nothing.
+private val summaryHubOverview = scenario("summary-hub-overview", "summary", hubStart()) {
+	account(E2eAccounts.SummaryHub.id)
+
+	val ci5437 = E2eFixtures.SubjectCi5437.value
+	val today = E2eFixtures.HubEvaluationToday.value
+
+	waitSummaryHub()
+	// What needs attention: the ungraded evaluations (one line for all) and the enrollment error of a subject.
+	waitVisible(SummaryUiTags.attentionItem(E2eInputs.SummaryAttentionUngradedKey), Within.Assert)
+	waitVisible(SummaryUiTags.attentionItem(E2eInputs.summaryAttentionEnrollmentKey(ci5437)), Within.Assert)
+	// This week: a class today (in progress or the next, whatever the zone of the device) and the evaluations that
+	// have not gone by; the ones whose day went by are in the attention and not here.
+	scrollUntilVisible(SummaryUiTags.WeekClassRow, Scroll.ContentDown, Within.Wait)
+	waitVisible(SummaryUiTags.WeekClassRow, Within.Assert)
+	scrollUntilVisible(SummaryUiTags.weekEvaluationRow(today), Scroll.ContentDown, Within.Wait)
+	waitVisible(SummaryUiTags.weekEvaluationRow(E2eFixtures.HubEvaluationNoClass.value), Within.Assert)
+	waitGone(SummaryUiTags.weekEvaluationRow(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
+	waitGone(SummaryUiTags.weekEvaluationRow(E2eFixtures.HubEvaluationOldest.value), Within.Assert)
+	// The term: which week of the twelve it is, and the points of each subject.
+	scrollUntilVisible(SummaryUiTags.TermWeekText, Scroll.ContentDown, Within.Wait)
+	waitVisible(text(Copy.SummaryTermWeek3, contains = true), Within.Assert)
+	waitVisible(SummaryUiTags.TermWeekTrack, Within.Assert)
+	listOf(
+		E2eFixtures.SubjectCi5311.value,
+		ci5437,
+		E2eFixtures.SubjectEg1114.value,
+		E2eFixtures.SubjectCi4325.value
+	).forEach { code ->
+		scrollUntilVisible(SummaryUiTags.termPointsRow(code), Scroll.ContentDown, Within.Wait)
+	}
+	// The career: the pensum is cached, so it shows its progress and not the invitation.
+	scrollUntilVisible(SummaryUiTags.CareerCard, Scroll.ContentDown, Within.Long)
+	waitVisible(SummaryUiTags.CareerProgressBar, Within.Assert)
+	waitVisible(SummaryUiTags.CareerPercentText, Within.Assert)
+	waitGone(SummaryUiTags.CareerInviteCard, Within.Assert)
+}
+
+// The points of attention lead to the screen that owns what they say: the ungraded evaluations to the week of the
+// oldest of them (week 2, not the week of the clock), the enrollment error to Record. The jump does not save the tab
+// as the one the app opens on, so on Android the back key returns to Summary.
+private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "summary", hubStart()) {
+	covers("summary.Summary.OpenTarget")
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	tap(SummaryUiTags.attentionItem(E2eInputs.SummaryAttentionUngradedKey))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Wait)
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek2), Within.Long)
+	waitVisible(EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationOldest.value), Within.Assert)
+	waitGone(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Assert)
+	returnToSummaryTab()
+	scrollSummaryToTop()
+	tap(SummaryUiTags.attentionItem(E2eInputs.summaryAttentionEnrollmentKey(E2eFixtures.SubjectCi5437.value)))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+	onPlatform(Platform.Android) {
+		back()
+		waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Action)
+		waitVisible(SummaryUiTags.ContentContainer, Within.Action)
+	}
+}
+
+// This week: its link and the class row open the Schedule sheet over Summary (the tab does not change); an evaluation
+// of the week leads to that week of Evaluations.
+private val summaryHubWeekLinks = scenario("summary-hub-week-links", "summary", hubStart()) {
+	covers("summary.Summary.OpenTarget")
+	account(E2eAccounts.SummaryHub.id)
+
+	val today = E2eFixtures.HubEvaluationToday.value
+
+	waitSummaryHub()
+	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.WeekSection), Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.sectionLink(SummaryUiTags.WeekSection))
+	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
+	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
+	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Assert)
+	closeScheduleSheet()
+	scrollUntilVisible(SummaryUiTags.WeekClassRow, Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.WeekClassRow)
+	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
+	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
+	closeScheduleSheet()
+	scrollUntilVisible(SummaryUiTags.weekEvaluationRow(today), Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.weekEvaluationRow(today))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Wait)
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Long)
+	waitVisible(EvaluationsUiTags.evaluationItemCard(today), Within.Assert)
+	returnToSummaryTab()
+}
+
+// The term's link opens Record and the career's link opens Pensum, each on its own tab.
+private val summaryHubTermCareerLinks = scenario("summary-hub-term-career-links", "summary", hubStart()) {
+	covers("summary.Summary.OpenTarget")
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.TermSection), Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.sectionLink(SummaryUiTags.TermSection))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+	returnToSummaryTab()
+	scrollSummaryToTop()
+	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection), Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarPensumItemSelected, Within.Wait)
+	waitVisible(PensumUiTags.PensumScreen, Within.Long)
+}
+
+// A pensum that was never downloaded (the service answers 404 for this account) leaves the career as an invitation,
+// and the whole card leads to Pensum.
+private val summaryHubCareerInvite = scenario(
+	"summary-hub-career-invite",
+	"summary",
+	Start.Seeded(E2eAccounts.SummaryHubNoPensum).toLaunchSpec()
+) {
+	covers("summary.Summary.OpenTarget")
+	account(E2eAccounts.SummaryHubNoPensum.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	scrollUntilVisible(SummaryUiTags.CareerInviteCard, Scroll.ContentDown, Within.Long)
+	waitGone(SummaryUiTags.CareerCard, Within.Assert)
+	tap(SummaryUiTags.CareerInviteCard)
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarPensumItemSelected, Within.Wait)
+	waitVisible(BaseUiTags.EmptyViewContainer, Within.Long)
+}
+
 /** The scenarios of this module; list every new one here. */
 val summaryScenarios: List<Scenario> = listOf(
 	summarySmoke,
@@ -268,5 +417,10 @@ val summaryScenarios: List<Scenario> = listOf(
 	summaryPartialEnrollmentStatusDialog,
 	summaryOutdatedCredentials,
 	summaryNewStudentNoRecord,
-	summaryRecordAccessDenied
+	summaryRecordAccessDenied,
+	summaryHubOverview,
+	summaryHubAttentionLinks,
+	summaryHubWeekLinks,
+	summaryHubTermCareerLinks,
+	summaryHubCareerInvite
 )

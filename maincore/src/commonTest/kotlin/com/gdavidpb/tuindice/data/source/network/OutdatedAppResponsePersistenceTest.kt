@@ -17,6 +17,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -55,7 +56,9 @@ class OutdatedAppResponsePersistenceTest {
 				userAgentValue = "TuIndice;6.1.12;52;Android;17;37;id;Google;Pixel"
 			)
 		}
-		val event = async {
+		// The events flow keeps nothing for a late collector and the request runs on the client's own threads: the
+		// collector has to be subscribed before the request starts, not whenever the test scheduler gets to it.
+		val event = async(start = CoroutineStart.UNDISPATCHED) {
 			outdatedAppEventRepository.observeOutdatedApp().first()
 		}
 

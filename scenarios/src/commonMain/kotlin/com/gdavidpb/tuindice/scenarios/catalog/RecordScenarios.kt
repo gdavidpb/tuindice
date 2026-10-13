@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
+import com.gdavidpb.tuindice.scenarios.shared.waitEvaluationsOnTheWeekOfTheClock
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -107,6 +108,67 @@ private fun StepBuilder.submitTerm() {
 	tap(RecordUiTags.CreateSyntheticTermSubmitButton)
 	waitGone(RecordUiTags.CreateSyntheticTermScreen, Within.Action)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+}
+
+// The meetings an evaluation of this week falls on are buttons with the evaluation mark: CI5311 on Monday (its test of
+// the 12th) and CI5437 on Thursday (today's test); EG1114 has a test on Friday but no class that day, and CI4325's is
+// in another week, so neither marks anything. Tapping a marked cell closes the sheet and shows that week of
+// Evaluations.
+private val recordScheduleEvaluationMarks = scenario(
+	"record-schedule-evaluation-marks",
+	"record",
+	Start.Seeded(E2eAccounts.SummaryHub).toLaunchSpec()
+) {
+	covers("record.Schedule.EvaluationCellSelected")
+	account(E2eAccounts.SummaryHub.id)
+
+	val ci5311 = E2eFixtures.HubAttemptCi5311.value
+	val ci5437 = E2eFixtures.HubAttemptCi5437.value
+
+	openRecordTab()
+	tap(RecordUiTags.termChip(E2eFixtures.HubTerm.value))
+	tap(scheduleAction)
+	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
+	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
+	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
+	waitVisible(RecordUiTags.scheduleTableEvaluation(ci5311, E2eInputs.ScheduleMonday), Within.Assert)
+	waitVisible(RecordUiTags.scheduleTableEvaluation(ci5437, E2eInputs.ScheduleThursday), Within.Assert)
+	val eg1114 = E2eFixtures.HubAttemptEg1114.value
+	val ci4325 = E2eFixtures.HubAttemptCi4325.value
+
+	waitGone(RecordUiTags.scheduleTableEvaluation(eg1114, E2eInputs.ScheduleThursday), Within.Assert)
+	waitGone(RecordUiTags.scheduleTableEvaluation(ci4325, E2eInputs.ScheduleThursday), Within.Assert)
+	waitVisible(RecordUiTags.ScheduleEvaluationLegend, Within.Assert)
+	tap(RecordUiTags.scheduleTableEvaluation(ci5437, E2eInputs.ScheduleThursday))
+	waitEvaluationsOnTheWeekOfTheClock()
+}
+
+// The same on the week grid: the legend explains the mark, and the marked block is the button.
+private val recordScheduleEvaluationWeekJump = scenario(
+	"record-schedule-evaluation-week-jump",
+	"record",
+	Start.Seeded(E2eAccounts.SummaryHub).toLaunchSpec()
+) {
+	covers("record.Schedule.EvaluationCellSelected")
+	account(E2eAccounts.SummaryHub.id)
+
+	openRecordTab()
+	tap(RecordUiTags.termChip(E2eFixtures.HubTerm.value))
+	tap(scheduleAction)
+	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
+	tap(RecordUiTags.ScheduleViewWeekTab)
+	waitVisible(RecordUiTags.ScheduleGrid, Within.Action)
+	waitGone(RecordUiTags.ScheduleTable, Within.Assert)
+	waitVisible(RecordUiTags.ScheduleEvaluationLegend, Within.Assert)
+	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
+	tap(
+		RecordUiTags.scheduleCell(
+			E2eFixtures.HubAttemptCi5311.value,
+			E2eInputs.ScheduleMonday,
+			E2eInputs.HubMondayStartBlock
+		)
+	)
+	waitEvaluationsOnTheWeekOfTheClock()
 }
 
 private val recordSmoke = scenario(
@@ -659,5 +721,7 @@ val recordScenarios: List<Scenario> = listOf(
 	recordScheduleViewRemembered,
 	recordStaleEnrollmentNotice,
 	recordWithdrawnSubject,
-	recordAnnulledFinalNotice
+	recordAnnulledFinalNotice,
+	recordScheduleEvaluationMarks,
+	recordScheduleEvaluationWeekJump
 )

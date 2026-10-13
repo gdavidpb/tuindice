@@ -17,7 +17,7 @@ class AccountFixturesTest {
 	private val rejectedAccount = E2eAccounts.Invalid
 
 	@Test
-	fun thereAreThirtyAccountsWithUniqueKebabCaseIds() {
+	fun thereAreThirtyTwoAccountsWithUniqueKebabCaseIds() {
 		assertEquals(ACCOUNT_COUNT, accounts.size)
 		assertEquals(accounts.size, accounts.map { it.id }.toSet().size)
 		accounts.forEach { assertTrue(Regex("[a-z0-9-]+").matches(it.id), "'${it.id}' is not kebab-case") }
@@ -82,6 +82,6 @@ class AccountFixturesTest {
 	private fun basicCredential(account: E2eAccount): String = AccountCredentials.basic(account)
 
 	private companion object {
-		const val ACCOUNT_COUNT = 30
+		const val ACCOUNT_COUNT = 32
 	}
 }

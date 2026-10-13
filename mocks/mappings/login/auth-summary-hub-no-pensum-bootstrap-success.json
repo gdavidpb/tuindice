@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-summary-hub-no-pensum-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NDItNDI0MjQ6c3VtbWFyeS1odWItbm8tcGVuc3VtLXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "summary-hub-no-pensum-user",
+      "usb_id": "42-42424",
+      "access_token": "bootstrap.mock.summary-hub-no-pensum.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}
