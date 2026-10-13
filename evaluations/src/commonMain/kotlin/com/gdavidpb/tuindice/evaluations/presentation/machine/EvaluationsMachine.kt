@@ -76,6 +76,9 @@ class EvaluationsMachine(
 	// each restart would leave one more feeding the same machine.
 	private var weekFocusObservationJob: Job? = null
 
+	// The collector of the evaluations observation: a restart cancels it, so a load never leaves one behind.
+	private var observationJob: Job? = null
+
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
 	override fun define(host: MachineHost<Evaluations.Effect>): MachineDefinition<Evaluations.State> {
@@ -95,7 +98,8 @@ class EvaluationsMachine(
 	internal fun startObservation(host: MachineHost<Evaluations.Effect>) {
 		observeWeekFocus(host = host)
 
-		host.launchMachineJob {
+		observationJob?.cancel()
+		observationJob = host.launchMachineJob {
 			getEvaluationsUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit

@@ -28,8 +28,12 @@ import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -649,6 +653,32 @@ fun whenTheFirstDayOfClassesArrivesWithTheTabOpen_aNumberedWeekIsDroppedForTheCu
 		}
 
 		assertEquals(EvaluationsWeekKey.Academic(3), after.selectedWeekKey)
+		cancelAndIgnoreRemainingEvents()
+	}
+}
+
+// Each LoadEvaluations (the retry button sends one) used to add another collector of the evaluations.
+@Test
+fun loadingAgain_leavesASingleCollectorOfEvaluations() = runTest {
+	val collectors = MutableStateFlow(0)
+	val repository = RecordingEvaluationRepository(
+		evaluationsSnapshotFlow = flow {
+			collectors.update { count -> count + 1 }
+			try {
+				awaitCancellation()
+			} finally {
+				collectors.update { count -> count - 1 }
+			}
+		},
+		availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
+	)
+	val viewModel = createViewModel(testScheduler = testScheduler, repository = repository)
+
+	viewModel.state.test {
+		repeat(3) { viewModel.loadEvaluationsAction() }
+		advanceUntilIdle()
+
+		assertEquals(1, collectors.value)
 		cancelAndIgnoreRemainingEvents()
 	}
 }
