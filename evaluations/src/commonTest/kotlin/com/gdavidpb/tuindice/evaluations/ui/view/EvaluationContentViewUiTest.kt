@@ -217,4 +217,51 @@ class EvaluationContentViewUiTest {
 		assertEquals(0, gradeClicks)
 		assertEquals(state.maxGrade, maxGradePayload)
 	}
+
+	@Test
+	fun when_theEvaluationIsNew_then_theSubjectIsPickedFromTheChips() = runTuIndiceUiTest {
+		val state = evaluationContentState(isOverdue = false).copy(evaluationId = null)
+		var attemptChanges = 0
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = state,
+				onAttemptChange = { attemptChanges++ },
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _, _, _ -> },
+				onMaxGradeClick = { _, _, _ -> },
+				onDoneClick = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.evaluationSubjectChip(DEFAULT_EVALUATION_SUBJECT.id)).performClick()
+
+		// The only chip showing is the selected one: tapping it clears the choice.
+		assertEquals(1, attemptChanges)
+	}
+
+	@Test
+	fun when_theEvaluationIsBeingEdited_then_theSubjectChipCannotBeChanged() = runTuIndiceUiTest {
+		val state = evaluationContentState(isOverdue = false).copy(evaluationId = "evaluation-1")
+		var attemptChanges = 0
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = state,
+				onAttemptChange = { attemptChanges++ },
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _, _, _ -> },
+				onMaxGradeClick = { _, _, _ -> },
+				onDoneClick = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.evaluationSubjectChip(DEFAULT_EVALUATION_SUBJECT.id))
+			.assertIsNotEnabled()
+			.performClick()
+
+		assertEquals(0, attemptChanges)
+	}
 }

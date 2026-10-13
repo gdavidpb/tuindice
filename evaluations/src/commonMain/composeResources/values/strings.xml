@@ -47,10 +47,15 @@
 	<string name="evaluation_workshop">Taller</string>
 	<string name="evaluation_written_work">Trabajo escrito</string>
 	<string name="evaluation_other">Otra</string>
-	<string name="evaluation_status_pending">Pendiente</string>
+	<string name="evaluation_status_overdue">Sin nota</string>
 	<string name="evaluation_status_scheduled">Programada</string>
 	<string name="evaluation_status_completed">Completada</string>
 	<string name="evaluation_status_continuous">Continua</string>
+
+	<string name="evaluation_place_blocks">Bloques %1$d-%2$d</string>
+	<string name="evaluation_place_block">Bloque %1$d</string>
+	<string name="evaluation_place_with_room">%1$s · %2$s</string>
+	<string name="evaluation_place_in_class">En clase · %1$s</string>
 
 	<string name="label_add_evaluation_subject">Materia</string>
 	<string name="label_add_evaluation_type">Tipo</string>

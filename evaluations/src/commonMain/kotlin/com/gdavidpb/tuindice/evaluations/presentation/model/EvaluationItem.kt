@@ -21,6 +21,9 @@ data class EvaluationItem(
 	val typeIcon: ImageVector,
 	val dateText: UiText,
 	val dateIcon: ImageVector,
+	// Where the evaluation takes place, inherited from its subject's class that day; null when it
+	// inherits none, and then the row has no such line.
+	val place: EvaluationPlaceItem? = null,
 	val gradeText: String,
 	val gradesText: String,
 	val gradeActionText: String,

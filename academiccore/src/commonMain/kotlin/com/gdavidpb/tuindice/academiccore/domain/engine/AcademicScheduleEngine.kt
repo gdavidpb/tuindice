@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.academiccore.domain.engine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMoment
@@ -92,6 +93,22 @@ object AcademicScheduleEngine {
 		return attemptMeetings
 			.filter { meeting -> meeting.dayOfWeek == dayOfWeek }
 			.minWithOrNull(meetingOrder)
+	}
+
+	/**
+	 * The meeting an evaluation inherits as its place: the first one of its attempt on the weekday of
+	 * its [date] (see [meetingFor]). A continuous evaluation, one without a date and an attempt with
+	 * no meeting that day inherit nothing. It is the only rule for what "where is this evaluation"
+	 * means; nothing is stored, so changing the date or the schedule changes the answer.
+	 */
+	fun inheritedMeeting(
+		attemptMeetings: List<ScheduleMeeting>,
+		scheduleMode: EvaluationScheduleMode,
+		date: LocalDate?
+	): ScheduleMeeting? {
+		if (scheduleMode == EvaluationScheduleMode.CONTINUOUS || date == null) return null
+
+		return meetingFor(attemptMeetings = attemptMeetings, date = date)
 	}
 
 	/** The model's day (1 = Sunday ... 7 = Saturday) of [date]. */

@@ -174,6 +174,44 @@ class EvaluationViewModelContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun editEvaluation_ignoresAChangeOfSubject() = runTest {
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				viewModel.loadEvaluationAction(DEFAULT_PENDING_EVALUATION.id)
+
+				val loaded = awaitUntilState<Evaluation.State.Content> { state ->
+					state.initialDraft != null
+				}
+				assertEquals(DEFAULT_EVALUATION_SUBJECT, loaded.selectedAttempt)
+
+				// The subject of a saved evaluation is not edited: the change is not taken, instead of
+				// looking taken and being dropped when it is saved.
+				viewModel.setAttemptAction(SECOND_EVALUATION_SUBJECT)
+				viewModel.setTypeAction(EvaluationType.TEST)
+
+				val afterwards = awaitUntilState<Evaluation.State.Content> { state ->
+					state.type == EvaluationType.TEST
+				}
+				assertEquals(DEFAULT_EVALUATION_SUBJECT, afterwards.selectedAttempt)
+				assertEquals(1, afterwards.attemptItems.count { item -> item.isSelected })
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	private fun createViewModel(
 		dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 	): EvaluationViewModel {

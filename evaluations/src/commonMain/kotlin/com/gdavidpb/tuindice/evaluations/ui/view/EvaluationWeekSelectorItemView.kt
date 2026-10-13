@@ -54,6 +54,7 @@ fun EvaluationWeekSelectorItemView(
 		if (showCurrentIndicator && item.isCurrent) {
 			Box(
 				modifier = Modifier
+					.testTag(EvaluationsUiTags.EvaluationsWeekCurrentIndicator)
 					.padding(start = 8.dp)
 					.size(8.dp)
 					.clip(CircleShape)

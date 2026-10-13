@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMoment
@@ -324,5 +325,72 @@ class AcademicScheduleEngineTest {
 		assertEquals(meetings[2], AcademicScheduleEngine.meetingFor(meetings, LocalDate(2026, 10, 14)))
 		assertNull(AcademicScheduleEngine.meetingFor(meetings, LocalDate(2026, 10, 13)))
 		assertNull(AcademicScheduleEngine.meetingFor(emptyList(), LocalDate(2026, 10, 12)))
+	}
+
+	@Test
+	fun inheritedMeeting_ofADatedEvaluationIsTheFirstMeetingThatWeekday() {
+		val meetings = listOf(
+			meeting("AA", MONDAY, 5, 6),
+			meeting("AA", MONDAY, 2, 3),
+			meeting("AA", WEDNESDAY, 1)
+		)
+
+		// Monday 2026-10-12: two meetings, the earlier block wins whatever the list order is.
+		assertEquals(
+			meetings[1],
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, LocalDate(2026, 10, 12))
+		)
+		assertEquals(
+			meetings[2],
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, LocalDate(2026, 10, 14))
+		)
+	}
+
+	@Test
+	fun inheritedMeeting_isNullOnADayWithoutClass() {
+		val meetings = listOf(meeting("AA", MONDAY, 2, 3))
+
+		assertNull(
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, LocalDate(2026, 10, 13))
+		)
+	}
+
+	@Test
+	fun inheritedMeeting_isNullForAContinuousEvaluationEvenWithADate() {
+		val meetings = listOf(meeting("AA", MONDAY, 2, 3))
+
+		assertNull(
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.CONTINUOUS, LocalDate(2026, 10, 12))
+		)
+		assertNull(AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.CONTINUOUS, null))
+	}
+
+	@Test
+	fun inheritedMeeting_isNullWithoutADate() {
+		val meetings = listOf(meeting("AA", MONDAY, 2, 3))
+
+		assertNull(AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, null))
+	}
+
+	@Test
+	fun inheritedMeeting_isNullWhenTheTermHasNoSchedule() {
+		assertNull(
+			AcademicScheduleEngine.inheritedMeeting(emptyList(), EvaluationScheduleMode.DATED, LocalDate(2026, 10, 12))
+		)
+	}
+
+	@Test
+	fun inheritedMeeting_followsTheModelsSundayAndSaturday() {
+		val meetings = listOf(meeting("AA", SUNDAY, 1), meeting("AA", SATURDAY, 3, 4))
+
+		// 2026-10-11 is a Sunday and 2026-10-17 a Saturday.
+		assertEquals(
+			meetings[0],
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, LocalDate(2026, 10, 11))
+		)
+		assertEquals(
+			meetings[1],
+			AcademicScheduleEngine.inheritedMeeting(meetings, EvaluationScheduleMode.DATED, LocalDate(2026, 10, 17))
+		)
 	}
 }

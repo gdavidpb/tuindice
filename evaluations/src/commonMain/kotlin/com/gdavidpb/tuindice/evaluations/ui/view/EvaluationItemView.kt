@@ -164,21 +164,34 @@ fun EvaluationItemView(
 						.padding(top = EvaluationMetadataTopPadding),
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					Icon(
-						modifier = Modifier.size(18.dp),
-						imageVector = item.dateIcon,
-						tint = metadataColor,
-						contentDescription = null
-					)
+					Column {
+						Row(verticalAlignment = Alignment.CenterVertically) {
+							Icon(
+								modifier = Modifier.size(18.dp),
+								imageVector = item.dateIcon,
+								tint = metadataColor,
+								contentDescription = null
+							)
 
-					Text(
-						modifier = Modifier.padding(start = 8.dp),
-						text = item.dateText.asString(),
-						maxLines = 1,
-						softWrap = false,
-						color = metadataColor,
-						style = MaterialTheme.typography.bodyMedium
-					)
+							Text(
+								modifier = Modifier.padding(start = 8.dp),
+								text = item.dateText.asString(),
+								maxLines = 1,
+								softWrap = false,
+								color = metadataColor,
+								style = MaterialTheme.typography.bodyMedium
+							)
+						}
+
+						item.place?.let { place ->
+							EvaluationPlaceLine(
+								modifier = Modifier
+									.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId))
+									.padding(start = EvaluationPlaceStartPadding),
+								place = place
+							)
+						}
+					}
 
 					Spacer(modifier = Modifier.weight(1f))
 
@@ -220,6 +233,9 @@ private val EvaluationCardVerticalPadding = 6.dp
 private val EvaluationCardContentPadding = 14.dp
 private val EvaluationSubjectTopPadding = 8.dp
 private val EvaluationMetadataTopPadding = 12.dp
+
+// Under the date text: the date icon (18dp) and the gap after it (8dp).
+private val EvaluationPlaceStartPadding = 26.dp
 private val EvaluationGradeHorizontalPadding = 20.dp
 private val EvaluationGradeVerticalPadding = 8.dp
 

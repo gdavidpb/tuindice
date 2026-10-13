@@ -71,6 +71,11 @@ fun Evaluation.toEvaluationItem(
 		typeIcon = mapping.typeIcon(type),
 		dateText = mapping.dateText(this),
 		dateIcon = mapping.dateIcon(state),
+		place = inheritedEvaluationPlace(
+			attemptMeetings = attempt.meetings,
+			scheduleMode = scheduleMode,
+			date = date?.toEvaluationLocalDate()
+		),
 		gradeText = gradeText,
 		gradesText = when (state) {
 			EvaluationState.COMPLETED, EvaluationState.CONTINUOUS ->

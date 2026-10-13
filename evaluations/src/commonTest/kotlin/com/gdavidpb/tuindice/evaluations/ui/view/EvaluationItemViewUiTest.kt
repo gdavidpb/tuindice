@@ -6,6 +6,8 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationPlaceItem
 import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_OVERDUE_DATE_TEXT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -92,5 +94,38 @@ class EvaluationItemViewUiTest {
 		onNodeWithTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId)).performClick()
 
 		assertEquals(1, cardClicks)
+	}
+
+	@Test
+	fun when_theEvaluationInheritsAPlace_then_showsTheBlocksAndTheHourUnderTheDate() = runTuIndiceUiTest {
+		val item = evaluationItemFixture().copy(
+			place = EvaluationPlaceItem(
+				placeText = UiText.Raw("Bloques 1-2 · MYS-116"),
+				timeText = "7:30\u20139:30"
+			)
+		)
+
+		setTuIndiceTestContent {
+			EvaluationItemView(item = item)
+		}
+
+		// The card merges its children: the line is read from the unmerged tree, like the status chip.
+		onNodeWithTag(
+			testTag = EvaluationsUiTags.evaluationPlace(item.evaluationId),
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		onNodeWithText("Bloques 1-2 · MYS-116").assertIsDisplayed()
+		onNodeWithText("7:30\u20139:30").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theEvaluationInheritsNoPlace_then_hasNoPlaceLine() = runTuIndiceUiTest {
+		val item = evaluationItemFixture()
+
+		setTuIndiceTestContent {
+			EvaluationItemView(item = item)
+		}
+
+		assertNodeHidden(EvaluationsUiTags.evaluationPlace(item.evaluationId), useUnmergedTree = true)
 	}
 }

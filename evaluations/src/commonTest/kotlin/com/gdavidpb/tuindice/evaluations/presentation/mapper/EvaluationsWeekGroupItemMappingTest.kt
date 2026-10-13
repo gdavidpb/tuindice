@@ -295,7 +295,7 @@ class EvaluationsWeekGroupItemMappingTest {
 	}
 }
 
-private fun testEvaluationItemMapping() = EvaluationItemMapping(
+internal fun testEvaluationItemMapping() = EvaluationItemMapping(
 	evaluationName = { type, ordinal -> "${type.name} $ordinal" },
 	typeLabel = { type -> type.name },
 	gradesCompleted = { grade, maxGrade -> "${grade ?: 0.0} / $maxGrade" },

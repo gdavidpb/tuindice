@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 
 data class LocalEditableAttemptDescriptor(
 	val id: String,
@@ -9,5 +10,8 @@ data class LocalEditableAttemptDescriptor(
 	val name: String,
 	val credits: Int,
 	val grade: Int,
-	val gradingMode: GradingMode = GradingMode.NUMERIC
+	val gradingMode: GradingMode = GradingMode.NUMERIC,
+	// The attempt's valid weekly meetings: what an evaluation of it inherits as its place. Empty when
+	// the term has no schedule for it.
+	val meetings: List<ScheduleMeeting> = emptyList()
 )

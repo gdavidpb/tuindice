@@ -19,6 +19,10 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 ) {
 	from<Evaluation.State.Content> {
 		on<Evaluation.Action.SetAttempt> { state, action ->
+			// The subject of a saved evaluation is not editable: an edit does not carry it, so a change
+			// here would be dropped without a word. Only a new evaluation picks its subject.
+			if (state.evaluationId != null) return@on state
+
 			state.copy(
 				selectedAttempt = action.attempt,
 				attemptItems = state.attemptItems.withSelectedAttempt(action.attempt),

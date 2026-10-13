@@ -80,8 +80,7 @@ fun EvaluationsWeekStripView(
 		) { item, isSelected ->
 			EvaluationWeekSelectorItemView(
 				item = item,
-				isSelected = isSelected,
-				showCurrentIndicator = false
+				isSelected = isSelected
 			)
 		}
 

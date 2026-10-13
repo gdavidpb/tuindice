@@ -5,13 +5,19 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.fixedClock
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
@@ -185,5 +191,89 @@ class EvaluationDatePickerUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
 
 		onNodeWithTag(EvaluationsUiTags.EvaluationCalendarMonthLabel).assertTextEquals("octubre 2026")
+	}
+
+	@Test
+	fun when_subjectHasClassOnTheChosenDay_then_dialogSaysWhereAndMarksTheClassDays() = runTuIndiceUiTest {
+		// 2026-10-12 is a Monday; October 2026 opens because the committed date is in it.
+		val monday = LocalDate(2026, 10, 12)
+
+		setTuIndiceTestContent {
+			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
+				selectedDate = monday.toEvaluationEpochMillis(),
+				onDateChange = {},
+				calendar = EvaluationDateCalendarItem(
+					subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+					meetings = listOf(
+						ScheduleMeeting(
+							attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+							subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+							section = 1,
+							dayOfWeek = 2,
+							startBlock = 1,
+							endBlock = 2,
+							classroom = "MYS-116"
+						)
+					)
+				)
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip)
+		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelection)
+		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
+			onAllNodesWithText("En clase · Bloques 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+		}
+		onNodeWithText("Lunes — 12/10/26").assertIsDisplayed()
+		onNodeWithText("7:30\u20139:30").assertIsDisplayed()
+		// Mondays of October 2026 carry the dot, the days between them do not.
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(19))
+		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(13)).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_subjectHasNoClassOnTheChosenDay_then_dialogSaysOnlyTheDate() = runTuIndiceUiTest {
+		val tuesday = LocalDate(2026, 10, 13)
+
+		setTuIndiceTestContent {
+			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
+				selectedDate = tuesday.toEvaluationEpochMillis(),
+				onDateChange = {},
+				calendar = EvaluationDateCalendarItem(subjectCode = DEFAULT_EVALUATION_SUBJECT.code)
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
+
+		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
+			onAllNodesWithText("Martes — 13/10/26").fetchSemanticsNodes().isNotEmpty()
+		}
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateDialogSelectionPlace).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_noSubjectIsChosen_then_dialogHasNoChipAndNoDots() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
+				selectedDate = LocalDate(2026, 10, 12).toEvaluationEpochMillis(),
+				onDateChange = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogTitle)
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateDialogSubjectChip).assertDoesNotExist()
+		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(12)).assertDoesNotExist()
+	}
+
+	private companion object {
+		const val RESOURCE_TIMEOUT_MILLIS = 5_000L
 	}
 }

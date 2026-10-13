@@ -50,7 +50,7 @@ import tuindice.evaluations.generated.resources.evaluation_report
 import tuindice.evaluations.generated.resources.evaluation_score_grade
 import tuindice.evaluations.generated.resources.evaluation_status_completed
 import tuindice.evaluations.generated.resources.evaluation_status_continuous
-import tuindice.evaluations.generated.resources.evaluation_status_pending
+import tuindice.evaluations.generated.resources.evaluation_status_overdue
 import tuindice.evaluations.generated.resources.evaluation_status_scheduled
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
@@ -80,7 +80,7 @@ suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 		evaluationEmptyGradeLabel = getString(Res.string.evaluation_empty_grade),
 		evaluationPendingGradePattern = getString(Res.string.evaluation_pending_grade),
 		evaluationNotGradePattern = getString(Res.string.evaluation_not_grade),
-		evaluationPendingStatusLabel = getString(Res.string.evaluation_status_pending),
+		evaluationOverdueStatusLabel = getString(Res.string.evaluation_status_overdue),
 		evaluationScheduledStatusLabel = getString(Res.string.evaluation_status_scheduled),
 		evaluationCompletedStatusLabel = getString(Res.string.evaluation_status_completed),
 		evaluationContinuousStatusLabel = getString(Res.string.evaluation_status_continuous),
@@ -95,7 +95,7 @@ private fun buildEvaluationItemMapping(
 	evaluationEmptyGradeLabel: String,
 	evaluationPendingGradePattern: String,
 	evaluationNotGradePattern: String,
-	evaluationPendingStatusLabel: String,
+	evaluationOverdueStatusLabel: String,
 	evaluationScheduledStatusLabel: String,
 	evaluationCompletedStatusLabel: String,
 	evaluationContinuousStatusLabel: String,
@@ -135,7 +135,7 @@ private fun buildEvaluationItemMapping(
 		statusLabel = { state ->
 			when (state) {
 				EvaluationState.PENDING -> evaluationScheduledStatusLabel
-				EvaluationState.OVERDUE -> evaluationPendingStatusLabel
+				EvaluationState.OVERDUE -> evaluationOverdueStatusLabel
 				EvaluationState.COMPLETED -> evaluationCompletedStatusLabel
 				EvaluationState.CONTINUOUS -> evaluationContinuousStatusLabel
 			}

@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ fun CalendarDayCell(
 	selectedDate: LocalDate?,
 	today: LocalDate,
 	isSelectable: Boolean = true,
+	hasClass: Boolean = false,
 	onDateSelected: (LocalDate) -> Unit
 ) {
 	val isSelected = date != null && date == selectedDate
@@ -42,32 +45,40 @@ fun CalendarDayCell(
 		else -> MaterialTheme.colorScheme.onSurface
 	}
 
-	Box(
-		modifier = modifier
-			.testTag(
-				if (date != null) {
-					EvaluationsUiTags.calendarDayCell(date.day)
-				} else {
-					"evaluation_calendar_day_placeholder"
-				}
-			)
-			.aspectRatio(1f)
-			.clip(CircleShape)
-			.background(containerColor)
-			.clickable(enabled = date != null && isSelectable) {
-				if (date != null) {
-					onDateSelected(date)
-				}
-			},
-		contentAlignment = Alignment.Center
+	Column(
+		modifier = modifier,
+		horizontalAlignment = Alignment.CenterHorizontally
 	) {
-		if (date != null) {
-			Text(
-				text = date.day.toString(),
-				style = MaterialTheme.typography.bodyMedium,
-				color = textColor,
-				textAlign = TextAlign.Center
-			)
+		Box(
+			modifier = Modifier
+				.testTag(
+					if (date != null) {
+						EvaluationsUiTags.calendarDayCell(date.day)
+					} else {
+						"evaluation_calendar_day_placeholder"
+					}
+				)
+				.fillMaxWidth()
+				.aspectRatio(1f)
+				.clip(CircleShape)
+				.background(containerColor)
+				.clickable(enabled = date != null && isSelectable) {
+					if (date != null) {
+						onDateSelected(date)
+					}
+				},
+			contentAlignment = Alignment.Center
+		) {
+			if (date != null) {
+				Text(
+					text = date.day.toString(),
+					style = MaterialTheme.typography.bodyMedium,
+					color = textColor,
+					textAlign = TextAlign.Center
+				)
+			}
 		}
+
+		CalendarDayClassDot(date = date, hasClass = hasClass, isSelectable = isSelectable)
 	}
 }

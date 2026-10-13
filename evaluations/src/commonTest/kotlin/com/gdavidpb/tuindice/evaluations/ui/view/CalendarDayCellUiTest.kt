@@ -75,4 +75,33 @@ class CalendarDayCellUiTest {
 		onNodeWithTag("evaluation_calendar_day_placeholder").assertIsNotEnabled()
 		assertEquals(null, selectedDate)
 	}
+
+	@Test
+	fun when_dayHasClass_then_showsTheClassDotUnderIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CalendarDayCell(
+				date = LocalDate(2026, 10, 12),
+				selectedDate = null,
+				today = LocalDate(2026, 10, 1),
+				hasClass = true,
+				onDateSelected = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
+	}
+
+	@Test
+	fun when_dayHasNoClass_then_hasNoDot() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CalendarDayCell(
+				date = LocalDate(2026, 10, 13),
+				selectedDate = null,
+				today = LocalDate(2026, 10, 1),
+				onDateSelected = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(13)).assertDoesNotExist()
+	}
 }

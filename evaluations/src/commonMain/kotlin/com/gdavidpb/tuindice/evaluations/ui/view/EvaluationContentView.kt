@@ -87,6 +87,8 @@ fun EvaluationContentView(
 			)
 
 			EvaluationAttemptPicker(
+				// The subject of a saved evaluation is not changed from here: only a new one picks it.
+				enabled = state.evaluationId == null,
 				items = state.attemptItems,
 				onAttemptChange = onAttemptChange
 			)
@@ -135,7 +137,7 @@ fun EvaluationContentView(
 				selectedScheduleMode = state.scheduleMode,
 				selectedDate = state.date,
 				onDateChange = onDateChange,
-				selectableRange = state.selectableDateRange
+				calendar = state.dateCalendar
 			)
 
 			Text(

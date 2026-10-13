@@ -105,7 +105,7 @@ fun evaluationItemFixture(
 		} else {
 			EvaluationHighlightTone.Neutral
 		},
-		statusText = if (isOverdue) "Pendiente" else "Programada",
+		statusText = if (isOverdue) "Sin nota" else "Programada",
 		statusTone = if (isOverdue) EvaluationHighlightTone.Error else EvaluationHighlightTone.Neutral,
 		typeText = "Quiz",
 		typeNameText = "Quiz #1",
@@ -215,7 +215,7 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		},
 		statusText = when (state) {
 			EvaluationState.PENDING -> "Programada"
-			EvaluationState.OVERDUE -> "Pendiente"
+			EvaluationState.OVERDUE -> "Sin nota"
 			EvaluationState.COMPLETED -> "Completada"
 			EvaluationState.CONTINUOUS -> "Continua"
 		},

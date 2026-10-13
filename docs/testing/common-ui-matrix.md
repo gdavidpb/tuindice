@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-12 18:31:26 -0300_
+_Generated automatically on 2026-10-12 23:03:09 -0300_
 
 ## Summary by module
 
@@ -11,7 +11,7 @@ _Generated automatically on 2026-10-12 18:31:26 -0300_
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
 | `base` | 2 | 34 | 46 | 35 | 33 | 33 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
-| `evaluations` | 2 | 41 | 43 | 46 | 41 | 41 |
+| `evaluations` | 2 | 45 | 47 | 50 | 45 | 45 |
 | `maincore` | 3 | 14 | 17 | 15 | 14 | 14 |
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
 | `record` | 2 | 72 | 85 | 79 | 72 | 72 |
@@ -130,20 +130,24 @@ _Generated automatically on 2026-10-12 18:31:26 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialog.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialogUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreenUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreenUiTest.kt` | 10 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 3 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 5 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayClassDot.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayClassDotUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActions.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsContainer.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsContainerUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationAttemptPickerUiTest.kt` | 5 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContent.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContentUiTest.kt` | 3 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 7 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 7 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContent.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContentUiTest.kt` | 4 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 9 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateDialogTitle.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateDialogTitleUiTest.kt` | 2 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 10 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateSelectionSummary.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDateSelectionSummaryUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedViewUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPickerUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderViewUiTest.kt` | 2 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 4 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 6 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingViewUiTest.kt` | 2 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationPlaceLine.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationPlaceLineUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldError.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldErrorUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismiss.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismissUiTest.kt` | 5 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePickerUiTest.kt` | 3 | PASS threshold (2) |
@@ -157,7 +161,7 @@ _Generated automatically on 2026-10-12 18:31:26 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsIllustrationView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsIllustrationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsNoAttemptsView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsNoAttemptsViewUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsViewUiTest.kt` | 4 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsWeekStripView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsWeekStripViewUiTest.kt` | 5 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsWeekStripView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsWeekStripViewUiTest.kt` | 7 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/WeekdayHeaderRow.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/WeekdayHeaderRowUiTest.kt` | 3 | PASS threshold (2) |
 
 ### `maincore`
