@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
+import com.gdavidpb.tuindice.record.ui.model.nowLineCellSpans
 import kotlinx.datetime.LocalDate
 
 /**
  * One day of the weekly grid: each meeting placed at its blocks, on the lane the layout gave it.
- * While the hour falls inside the grid, today's column carries the "now" line across it.
+ * While the hour falls inside the grid, today's column carries the "now" line across it, and tells
+ * it which stretches run over a meeting.
  */
 @Composable
 fun ScheduleDayColumn(
@@ -51,7 +53,8 @@ fun ScheduleDayColumn(
 			ScheduleNowLineView(
 				modifier = Modifier
 					.offset(y = nowY - ScheduleGridDefaults.NowDotSize / 2)
-					.fillMaxWidth()
+					.fillMaxWidth(),
+				cellSpans = dayItem.nowLineCellSpans()
 			)
 		}
 	}
