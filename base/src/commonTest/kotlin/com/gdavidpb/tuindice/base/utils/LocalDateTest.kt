@@ -34,7 +34,11 @@ class LocalDateTest {
 	fun toLocalDate_withoutAZone_readsTheDevicesOwn() {
 		val zone = TimeZone.currentSystemDefault()
 		val startOfDay = LocalDateTime(2026, 10, 12, 0, 0).toInstant(zone).toEpochMilliseconds()
+		// Both edges of the day: west of UTC the start of the day is still that date in UTC, and east of
+		// it the last minute is, so a fixed zone passes one edge and only the device's own passes both.
+		val lastMinute = LocalDateTime(2026, 10, 12, 23, 59).toInstant(zone).toEpochMilliseconds()
 
 		assertEquals(LocalDate(2026, 10, 12), startOfDay.toLocalDate())
+		assertEquals(LocalDate(2026, 10, 12), lastMinute.toLocalDate())
 	}
 }

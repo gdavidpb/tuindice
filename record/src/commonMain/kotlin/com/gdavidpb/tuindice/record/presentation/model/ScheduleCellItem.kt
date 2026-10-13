@@ -14,7 +14,8 @@ data class ScheduleCellItem(
 	val classroomText: String?,
 	// The range of blocks the table prints: "1-2", or "3" for a single block.
 	val blocksText: String,
-	// What a screen reader says of the cell on the week grid (the table says its own, per row).
+	// What a screen reader says of the cell on the week grid, and of a marked cell of the table, which
+	// is a button on its own; the rest of the table is said by its row.
 	val description: UiText,
 	// The colours of the subject's chip, so a subject looks the same here as everywhere else.
 	val codeColor: Color,

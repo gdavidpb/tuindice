@@ -46,13 +46,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
 class KtorClientTest {
 	@Test
 	fun createSharedJson_ignoresUnknownTopLevelFields() {
@@ -489,7 +491,8 @@ class KtorClientTest {
 			refreshToken = "refresh-old"
 		)
 		val oldRequestsSeen = CompletableDeferred<Unit>()
-		var oldRequestCount = 0
+		// Both requests run the handler on the engine's threads at once: the count must not lose one.
+		val oldRequestCount = AtomicInt(0)
 		val authRepository = RefreshPersistingAuthRepository(
 			sessionRepository = sessionRepository,
 			beforeRefresh = { oldRequestsSeen.await() }
@@ -500,9 +503,7 @@ class KtorClientTest {
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
 
 				if (authorization == "Bearer access-old") {
-					oldRequestCount++
-
-					if (oldRequestCount == 2) {
+					if (oldRequestCount.addAndFetch(1) == 2) {
 						oldRequestsSeen.complete(Unit)
 					}
 

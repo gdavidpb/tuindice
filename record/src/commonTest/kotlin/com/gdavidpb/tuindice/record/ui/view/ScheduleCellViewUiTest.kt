@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -20,9 +21,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextLayoutResult
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
@@ -41,7 +44,9 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -128,33 +133,95 @@ class ScheduleCellViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnASingleBlockMeeting_then_theIconSitsAtTheBottomEnd_clearOfTheCode() = runTuIndiceUiTest {
-		val cell = markedCell(attemptId = "a1", day = ScheduleDay.Wednesday)
+	fun when_anEvaluationFallsOnASingleBlockMeeting_then_theCompactIconSitsAtTheEnd_clearOfTheCode() = runTuIndiceUiTest {
+		// The widest real code, one of the narrowest and the one the other tests use.
+		val codes = listOf("CO6345", "MA1111", "CI5311")
+		val dayItem = markedItem(
+			*codes.mapIndexed { index, code ->
+				scheduleAttempt(
+					id = code,
+					code = code,
+					schedule = listOf(scheduleEntry(day = ScheduleDay.Wednesday, blocks = (index * 2 + 1)..(index * 2 + 1)))
+				)
+			}.toTypedArray(),
+			evaluations = codes.map { code ->
+				scheduleEvaluation(attemptId = code, date = ScheduleTestDate.plus(DatePeriod(days = 2)))
+			}
+		).grid.days.first { day -> day.day == ScheduleDay.Wednesday }
+
+		// The grid's own column, so the cell is as wide as the grid makes it: a lane less the hairline
+		// padding at each side, which is 70dp and not 72.
+		setTuIndiceTestContent {
+			ScheduleDayColumn(dayItem = dayItem, onEvaluationClick = {})
+		}
+
+		codes.forEachIndexed { index, code ->
+			val startBlock = index * 2 + 1
+			val wednesday = ScheduleDay.Wednesday.code
+			val cell = onNodeWithTag(RecordUiTags.scheduleCell(code, wednesday, startBlock)).getUnclippedBoundsInRoot()
+			val icon = onNodeWithTag(
+				RecordUiTags.scheduleCellEvaluation(code, wednesday, startBlock),
+				useUnmergedTree = true
+			).getUnclippedBoundsInRoot()
+			val text = onNodeWithText(code, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+			val cellWidth = ScheduleGridDefaults.LaneWidth - TuIndiceSpacing.Hairline * 2
+
+			assertDpEquals(cellWidth, cell.right - cell.left, "$code: width of the cell")
+			assertDpEquals(TuIndiceComponentSizes.IconXSmall, icon.right - icon.left, "$code: width of the icon")
+			assertDpEquals(TuIndiceComponentSizes.IconXSmall, icon.bottom - icon.top, "$code: height of the icon")
+			assertDpEquals(TuIndiceSpacing.Two, cell.right - icon.right, "$code: icon from the end edge")
+			assertDpEquals(TuIndiceSpacing.Two, cell.bottom - icon.bottom, "$code: icon from the bottom edge")
+			// The code ends before the icon starts, or ends above where it starts. The widest code is the
+			// exception for the line's box, not for its ink: the box has 2dp of room below the letters for
+			// descenders, a code of capitals and digits has none, and the icon only enters that room.
+			val inkBottom = text.top + with(density) { baselineOf(code).toDp() }
+			val clearOfBox = text.right <= icon.left || text.bottom <= icon.top
+
+			if (code == WIDEST_CODE) {
+				assertTrue(
+					clearOfBox || inkBottom <= icon.top,
+					"$code: the ink ends at $inkBottom and the icon starts at ${icon.top}, ${icon.left} of the text's ${text.right}"
+				)
+			} else {
+				assertTrue(
+					clearOfBox,
+					"$code: the text is at $text and the icon at $icon"
+				)
+			}
+		}
+	}
+
+	@Test
+	fun when_anEvaluationFallsOnAMeetingOfTwoBlocks_then_theIconKeepsTheTokensSize() = runTuIndiceUiTest {
+		val cell = markedCell(
+			attemptId = "a1",
+			day = ScheduleDay.Tuesday,
+			attempt = scheduleAttempt(
+				id = "a1",
+				code = "CI5311",
+				schedule = listOf(scheduleEntry(day = ScheduleDay.Tuesday, blocks = 3..4, classroom = "MYS-116"))
+			)
+		)
 
 		setTuIndiceTestContent {
 			ScheduleCellView(
 				modifier = Modifier.cellSizeOf(cell),
-				day = ScheduleDay.Wednesday,
+				day = ScheduleDay.Tuesday,
 				cell = cell,
 				onEvaluationClick = {}
 			)
 		}
 
-		val bounds = onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3)).getUnclippedBoundsInRoot()
+		val bounds = onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Tuesday.code, 3)).getUnclippedBoundsInRoot()
 		val icon = onNodeWithTag(
-			RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Wednesday.code, 3),
+			RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Tuesday.code, 3),
 			useUnmergedTree = true
 		).getUnclippedBoundsInRoot()
-		val code = onNodeWithText("CI5311", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
-		// The icon is the token's size, inside the cell and at its bottom end.
 		assertDpEquals(TuIndiceComponentSizes.IconSmall, icon.right - icon.left, "width of the icon")
-		assertDpEquals(TuIndiceComponentSizes.IconSmall, icon.bottom - icon.top, "height of the icon")
-		assertTrue(icon.right < bounds.right && icon.bottom < bounds.bottom)
-		assertTrue(icon.left > bounds.left && icon.top > bounds.top)
-		assertTrue(icon.left > bounds.right / 2 && icon.bottom > bounds.bottom / 2)
-		// A code of six characters, the length the university's are, stops before the icon starts.
-		assertTrue(code.right <= icon.left, "the code ends at ${code.right} and the icon starts at ${icon.left}")
+		assertDpEquals(TuIndiceSpacing.XSmall, bounds.right - icon.right, "icon from the end edge")
+		assertDpEquals(TuIndiceSpacing.XSmall, bounds.bottom - icon.bottom, "icon from the bottom edge")
 	}
 
 	@Test
@@ -273,6 +340,16 @@ class ScheduleCellViewUiTest {
 		return item.grid.days.first { dayItem -> dayItem.day == day }.cells.single { it.attemptId == attemptId }
 	}
 
+	// The baseline of the first line of [code]'s text, in pixels from the top of its box.
+	private fun ComposeUiTest.baselineOf(code: String): Float {
+		val layout = mutableListOf<TextLayoutResult>()
+
+		onNodeWithText(code, useUnmergedTree = true).fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action
+			?.invoke(layout)
+
+		return layout.single().firstBaseline
+	}
+
 	// The size the grid gives the cell: a lane wide, as tall as its blocks.
 	private fun Modifier.cellSizeOf(cell: ScheduleCellItem): Modifier {
 		val height = ScheduleGridDefaults.BlockRowHeight * cell.blockSpan +
@@ -286,5 +363,10 @@ class ScheduleCellViewUiTest {
 			.first { dayItem -> dayItem.day == day }
 			.cells
 			.single { cell -> cell.attemptId == attemptId }
+	}
+
+	private companion object {
+		// 53dp of the 70 a cell has, the widest of the university's codes.
+		const val WIDEST_CODE = "CO6345"
 	}
 }

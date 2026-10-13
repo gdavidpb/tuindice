@@ -62,7 +62,7 @@ fun ScheduleTableMeetingBlocksView(
 		)
 
 		if (meeting.hasEvaluation) {
-			// Decorative: the row already says "con evaluación ese día".
+			// Decorative: the button this meeting sits in says "con evaluación ese día".
 			ScheduleEvaluationMarkIcon(
 				modifier = Modifier.testTag(RecordUiTags.scheduleTableEvaluationIcon(attemptId, day.code)),
 				tint = textColor

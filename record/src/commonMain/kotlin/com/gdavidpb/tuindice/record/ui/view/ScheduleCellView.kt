@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
@@ -36,6 +37,10 @@ import tuindice.record.generated.resources.schedule_evaluation_click_label
 
 // The space the evaluation icon leaves to the cell's edge: the cell's own vertical padding.
 private val EvaluationIconInset = TuIndiceSpacing.XSmall
+
+// A cell of a single block is 32dp tall and 70dp wide, and a real subject code takes up to 53dp of
+// them: its icon is the compact one and sits closer to the corner so the code keeps its place.
+private val CompactEvaluationIconInset = TuIndiceSpacing.Two
 
 /**
  * One meeting of a subject, in the colours of the subject's chip. A meeting that overlaps another
@@ -96,10 +101,14 @@ fun ScheduleCellView(
 
 			if (cell.hasEvaluation) {
 				// Decorative: the description already says "con evaluación ese día".
+				val isSingleBlock = cell.blockSpan == 1
+				val inset = if (isSingleBlock) CompactEvaluationIconInset else EvaluationIconInset
+
 				ScheduleEvaluationMarkIcon(
+					size = if (isSingleBlock) TuIndiceComponentSizes.IconXSmall else TuIndiceComponentSizes.IconSmall,
 					modifier = Modifier
 						.align(Alignment.BottomEnd)
-						.offset(x = -EvaluationIconInset, y = -EvaluationIconInset)
+						.offset(x = -inset, y = -inset)
 						.testTag(RecordUiTags.scheduleCellEvaluation(cell.attemptId, day.code, cell.startBlock))
 				)
 			}

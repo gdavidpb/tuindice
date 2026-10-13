@@ -8,7 +8,11 @@ import io.ktor.http.HttpHeaders
 // done. A handler runs on the engine's dispatcher with no exclusion, so a collection it fills races
 // with the test that reads it as soon as two requests overlap; the history does not.
 
-/** The Authorization header of every request, in the order they arrived; every request must carry one. */
+/**
+ * The Authorization header of every request, in the order the engine recorded them: each is added
+ * when its handler finishes, so overlapping requests may not be in the order they arrived. Every
+ * request must carry one.
+ */
 internal fun HttpClient.authorizationHeaders(): List<String> {
 	return (engine as MockEngine).requestHistory.map { request ->
 		checkNotNull(request.headers[HttpHeaders.Authorization])

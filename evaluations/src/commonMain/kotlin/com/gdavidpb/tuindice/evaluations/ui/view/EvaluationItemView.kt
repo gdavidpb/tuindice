@@ -178,8 +178,6 @@ fun EvaluationItemView(
 							Text(
 								modifier = Modifier.padding(start = 8.dp),
 								text = item.dateText.asString(),
-								maxLines = 1,
-								softWrap = false,
 								color = metadataColor,
 								style = MaterialTheme.typography.bodyMedium
 							)
