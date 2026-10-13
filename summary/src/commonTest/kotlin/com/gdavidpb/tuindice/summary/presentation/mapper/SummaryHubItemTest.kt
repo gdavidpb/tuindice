@@ -93,6 +93,25 @@ class SummaryHubItemTest {
 	}
 
 	@Test
+	fun anEnrollmentError_losesThePunctuationTheUniversityEndsItWith_andReadsAsOneSentence() {
+		fun textOf(error: String) = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = error)
+			.toSummaryAttentionItem()
+			.text
+
+		fun expected(error: String) = UiText.Resource(
+			Res.string.summary_attention_enrollment_error,
+			listOf(error, "CI5311")
+		)
+
+		assertEquals(expected("Choque de horario"), textOf("CHOQUE DE HORARIO."))
+		assertEquals(expected("Choque de horario"), textOf("  CHOQUE DE HORARIO . "))
+		assertEquals(
+			expected("Excede el límite de créditos del trimestre según DACE"),
+			textOf("EXCEDE EL LÍMITE DE CRÉDITOS DEL TRIMESTRE SEGÚN DACE.")
+		)
+	}
+
+	@Test
 	fun theEnrollmentError_isSaidInSentenceCase_withTheSubjectCode() {
 		val clash = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = "CHOQUE DE HORARIO")
 
@@ -100,12 +119,6 @@ class SummaryHubItemTest {
 			UiText.Resource(Res.string.summary_attention_enrollment_error, listOf("Choque de horario", "CI5311")),
 			clash.toSummaryAttentionItem().text
 		)
-	}
-
-	@Test
-	fun theSentenceCase_keepsCodesAndAcronymsInCapitals() {
-		assertEquals("Choque con MA1111", "CHOQUE CON MA1111".toSentenceCase())
-		assertEquals("Sin cupo en DACE", "  sin cupo   en dace ".toSentenceCase())
 	}
 
 	/* The week */
@@ -119,7 +132,8 @@ class SummaryHubItemTest {
 				date = LocalDate(2026, 10, 15),
 				isToday = true
 			),
-			evaluations = emptyList()
+			evaluations = emptyList(),
+			hasSchedule = true
 		)
 
 		val row = week.toSummaryWeekItem().classRow!!
@@ -141,8 +155,8 @@ class SummaryHubItemTest {
 		)
 		val monday = today.copy(date = LocalDate(2026, 10, 19), isToday = false)
 
-		val todayRow = SummaryWeek(today, emptyList()).toSummaryWeekItem().classRow!!
-		val mondayRow = SummaryWeek(monday, emptyList()).toSummaryWeekItem().classRow!!
+		val todayRow = SummaryWeek(today, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
+		val mondayRow = SummaryWeek(monday, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
 
 		assertEquals(UiText.Resource(Res.string.summary_day_today), todayRow.leadText)
 		assertEquals(false, todayRow.isInProgress)
@@ -154,7 +168,7 @@ class SummaryHubItemTest {
 		val late = meeting.copy(startBlock = 17, endBlock = 17)
 		val moment = SummaryClassMoment(late, isInProgress = false, date = LocalDate(2026, 10, 15), isToday = true)
 
-		assertNull(SummaryWeek(moment, emptyList()).toSummaryWeekItem().classRow!!.place.timeText)
+		assertNull(SummaryWeek(moment, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!.place.timeText)
 	}
 
 	@Test
@@ -169,7 +183,7 @@ class SummaryHubItemTest {
 			meeting = meeting
 		)
 
-		val row = SummaryWeek(null, listOf(evaluation)).toSummaryWeekItem().evaluations.single()
+		val row = SummaryWeek(null, listOf(evaluation), hasSchedule = true).toSummaryWeekItem().evaluations.single()
 
 		assertEquals(
 			UiText.Resource(
@@ -196,10 +210,19 @@ class SummaryHubItemTest {
 			meeting = null
 		)
 
-		val row = SummaryWeek(null, listOf(sunday)).toSummaryWeekItem().evaluations.single()
+		val row = SummaryWeek(null, listOf(sunday), hasSchedule = false).toSummaryWeekItem().evaluations.single()
 
 		assertNull(row.place)
 		assertEquals(LocalDate(2026, 10, 12), row.weekStart)
+	}
+
+	@Test
+	fun theWeek_offersTheScheduleOnlyWhenTheTermHasOne() {
+		val withSchedule = SummaryWeek(null, emptyList(), hasSchedule = true).toSummaryWeekItem()
+		val withoutSchedule = SummaryWeek(null, emptyList(), hasSchedule = false).toSummaryWeekItem()
+
+		assertTrue(withSchedule.hasSchedule)
+		assertEquals(false, withoutSchedule.hasSchedule)
 	}
 
 	/* The term */

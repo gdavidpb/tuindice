@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,15 @@ class SummaryPillViewUiTest {
 		}
 
 		onNodeWithTag("pill").assertWidthIsAtLeast(64.dp)
+	}
+
+	@Test
+	fun when_pillSaysEnCursoAtTheDefaultLetter_then_itIsExactlyTheWidthOfTheLeadColumn() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPillView(modifier = Modifier.testTag("pill"), text = "En curso", isAccent = true)
+		}
+
+		onNodeWithTag("pill").assertWidthIsEqualTo(64.dp)
 	}
 
 	@Test

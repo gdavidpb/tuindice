@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationOrdinalEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
@@ -16,15 +17,7 @@ fun List<Evaluation>.toEvaluationItemList(
 	val attemptsById = attempts.associateBy(EditableAttemptDescriptor::id)
 	// Filtered before grouping, so no date group is left with a header and nothing under it.
 	val listedEvaluations = listedUnder(attempts)
-	val ordinalsById = listedEvaluations
-		.sortedBy { evaluation -> evaluation.date }
-		.groupBy { evaluation -> evaluation.attemptId to evaluation.type }
-		.flatMap { (_, evaluations) ->
-			evaluations
-				.mapIndexed { index, evaluation ->
-					evaluation.id to index + 1
-				}
-		}.toMap()
+	val ordinalsById = EvaluationOrdinalEngine.ordinalsById(listedEvaluations)
 
 	return listedEvaluations
 		.sortedWith(

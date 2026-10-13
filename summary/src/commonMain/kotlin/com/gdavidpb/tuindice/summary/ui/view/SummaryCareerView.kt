@@ -34,6 +34,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
@@ -171,7 +172,7 @@ private fun CareerInviteCard(onClick: () -> Unit) {
 // invitation) it is only decoration.
 @Composable
 private fun CareerBar(fraction: Float, description: String?) {
-	val shape = RoundedCornerShape(CareerBarHeight / 2)
+	val shape = RoundedCornerShape(TuIndiceRadius.Full)
 	val semantics = if (description != null) {
 		Modifier
 			.testTag(SummaryUiTags.CareerProgressBar)

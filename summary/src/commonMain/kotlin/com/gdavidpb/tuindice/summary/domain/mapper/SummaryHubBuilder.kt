@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.domain.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicScheduleEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationOrdinalEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationPointsEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationStateEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
@@ -151,7 +152,11 @@ private fun weekOf(
 	return if (classMoment == null && weekEvaluations.isEmpty()) {
 		null
 	} else {
-		SummaryWeek(classMoment = classMoment, evaluations = weekEvaluations)
+		SummaryWeek(
+			classMoment = classMoment,
+			evaluations = weekEvaluations,
+			hasSchedule = meetingsByAttempt.values.any { meetings -> meetings.isNotEmpty() }
+		)
 	}
 }
 
@@ -181,7 +186,8 @@ private fun weekEvaluationsOf(
 	today: LocalDate
 ): List<SummaryWeekEvaluation> {
 	val weekEnd = AcademicWeekEngine.mondayOf(today).plus(DatePeriod(days = LAST_DAY_OF_WEEK_OFFSET))
-	val ordinals = ordinalsOf(evaluations)
+	// The number the Evaluations tab gives each evaluation, which must not depend on this week's filter.
+	val ordinals = EvaluationOrdinalEngine.ordinalsById(evaluations)
 
 	return evaluations
 		.filter { evaluation -> evaluation.scheduleMode == EvaluationScheduleMode.DATED }
@@ -210,19 +216,6 @@ private fun weekEvaluationsOf(
 				.thenBy(SummaryWeekEvaluation::ordinal)
 				.thenBy(SummaryWeekEvaluation::evaluationId)
 		)
-}
-
-// The number the Evaluations tab gives each evaluation: its place, by date, among those of the same
-// type of its attempt ("Parcial 1", "Parcial 2"). It must not depend on this week's filter.
-private fun ordinalsOf(evaluations: List<Evaluation>): Map<String, Int> {
-	return evaluations
-		.sortedBy { evaluation -> evaluation.date }
-		.groupBy { evaluation -> evaluation.attemptId to evaluation.type }
-		.values
-		.flatMap { sameType ->
-			sameType.mapIndexed { index, evaluation -> evaluation.id to index + 1 }
-		}
-		.toMap()
 }
 
 private fun termOf(

@@ -1,41 +1,20 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
-import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
-import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
-import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
-import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
-import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
-import com.gdavidpb.tuindice.summary.testing.hubAttempt
-import com.gdavidpb.tuindice.summary.testing.hubMeeting
-import com.gdavidpb.tuindice.summary.testing.hubRecord
-import com.gdavidpb.tuindice.summary.testing.hubTerm
-import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.summary.testing.awaitContent
+import com.gdavidpb.tuindice.summary.testing.awaitHubOutsideTheContent
+import com.gdavidpb.tuindice.summary.testing.createHubScenarioViewModel
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -49,20 +28,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class SummaryHubViewModelContractTest {
-	private val record = hubRecord(
-		hubTerm(
-			attempts = listOf(
-				hubAttempt(code = "CI5437", schedule = listOf(hubMeeting(day = HUB_THURSDAY, start = 3, end = 4)))
-			)
-		)
-	)
-
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun theHub_reachesTheContent_andSurvivesTheUserBeingObservedAgain() = runTest {
 		withMainDispatcher { dispatchers ->
 			val users = MutableStateFlow(DEFAULT_SUMMARY_USER)
-			val viewModel = createViewModel(dispatchers = dispatchers, users = users)
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers, users = users)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
@@ -88,7 +59,7 @@ class SummaryHubViewModelContractTest {
 	fun theHub_followsTheSourcesWhileTheContentStays() = runTest {
 		withMainDispatcher { dispatchers ->
 			val pensum = ControllablePensumProgressRepository()
-			val viewModel = createViewModel(dispatchers = dispatchers, pensum = pensum)
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers, pensum = pensum)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
@@ -107,18 +78,52 @@ class SummaryHubViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun theHubIsOnTheStateBeforeTheUserIs_andTheContentTakesItWhenTheUserArrives() = runTest {
+	fun theHubThatArrivesBeforeTheUser_isTheOneOfTheContentWhenTheUserArrives() = runTest {
 		withMainDispatcher { dispatchers ->
-			val users = MutableStateFlow(DEFAULT_SUMMARY_USER)
-			val viewModel = createViewModel(dispatchers = dispatchers, users = users)
+			val users = MutableSharedFlow<User>()
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers, users = users)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
+				val beforeTheUser = viewModel.awaitHubOutsideTheContent()
+
+				users.emit(DEFAULT_SUMMARY_USER)
+
 				val content = viewModel.awaitContent { true }
 
-				// Whichever of the two observations spoke first, the content has both.
 				assertEquals("Ana Diaz", content.name)
-				assertEquals(viewModel.state.value.hub, content.hub)
+				assertNotNull(content.hub.week)
+				assertEquals(beforeTheUser, content.hub)
+			} finally {
+				collector.cancel()
+			}
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun theHubThatArrivesBeforeTheUser_survivesTheRefreshThatIsRunning() = runTest {
+		withMainDispatcher { dispatchers ->
+			val users = MutableSharedFlow<User>()
+			val refreshGate = CompletableDeferred<Unit>()
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers, users = users, refreshGate = refreshGate)
+			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
+
+			try {
+				val beforeTheUser = viewModel.awaitHubOutsideTheContent()
+
+				viewModel.refreshSummaryAction()
+
+				val loading = withTimeout(3_000) {
+					viewModel.state.filterIsInstance<Summary.State.Loading>().first()
+				}
+
+				assertEquals(beforeTheUser, loading.hub)
+
+				refreshGate.complete(Unit)
+				users.emit(DEFAULT_SUMMARY_USER)
+
+				assertEquals(beforeTheUser, viewModel.awaitContent { true }.hub)
 			} finally {
 				collector.cancel()
 			}
@@ -129,7 +134,7 @@ class SummaryHubViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun eachLineOfTheHub_asksForTheScreenThatOwnsIt() = runTest {
 		withMainDispatcher { dispatchers ->
-			val viewModel = createViewModel(dispatchers = dispatchers)
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
@@ -162,7 +167,7 @@ class SummaryHubViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun aTargetOfTheHub_leadsToTheRecord_orToTheWeekItNames() = runTest {
 		withMainDispatcher { dispatchers ->
-			val viewModel = createViewModel(dispatchers = dispatchers)
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
@@ -186,7 +191,7 @@ class SummaryHubViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun withoutContentYet_aLineOfTheHubLeadsNowhere() = runTest {
 		withMainDispatcher { dispatchers ->
-			val viewModel = createViewModel(dispatchers = dispatchers, users = null)
+			val viewModel = createHubScenarioViewModel(dispatchers = dispatchers, users = null)
 			val collector = backgroundScope.launchStateCollector(viewModel.state, testScheduler)
 
 			try {
@@ -196,14 +201,6 @@ class SummaryHubViewModelContractTest {
 			} finally {
 				collector.cancel()
 			}
-		}
-	}
-
-	private suspend fun SummaryViewModel.awaitContent(
-		predicate: (Summary.State.Content) -> Boolean
-	): Summary.State.Content {
-		return withTimeout(3_000) {
-			state.filterIsInstance<Summary.State.Content>().first { content -> predicate(content) }
 		}
 	}
 
@@ -219,47 +216,5 @@ class SummaryHubViewModelContractTest {
 
 	private suspend fun withTimeoutOrNullEffect(viewModel: SummaryViewModel): Summary.Effect? {
 		return kotlinx.coroutines.withTimeoutOrNull(300) { viewModel.effect.first() }
-	}
-
-	private fun createViewModel(
-		dispatchers: TuIndiceDispatchers,
-		users: MutableStateFlow<User>? = MutableStateFlow(DEFAULT_SUMMARY_USER),
-		pensum: ControllablePensumProgressRepository = ControllablePensumProgressRepository()
-	): SummaryViewModel {
-		val userRepository = RecordingUserRepository(
-			users = users ?: kotlinx.coroutines.flow.emptyFlow()
-		)
-		val reporting = RecordingReportingRepository()
-
-		return SummaryViewModel(
-			screenMachine = SummaryMachine(
-				observations = SummaryObservations(
-					user = ObserveUserUseCase(userRepository, reporting),
-					sync = ObserveSyncUseCase(FakeSyncStatusRepository(), FakeSyncRepository(), reporting),
-					hub = createObserveSummaryHubUseCase(
-						record = ControllableVisibleAcademicRecordRepository(record),
-						pensumProgress = pensum
-					)
-				),
-				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(FakeDeviceInfoRepository(), reporting),
-				updateUserUseCase = UpdateUserUseCase(
-					userRepository = userRepository,
-					reportingRepository = reporting,
-					exceptionHandler = UpdateUserExceptionHandler(FakeNetworkRepository(isAvailable = true))
-				),
-				uploadProfilePictureUseCase = UploadProfilePictureUseCase(
-					userRepository = userRepository,
-					reportingRepository = reporting,
-					exceptionHandler = UploadProfilePictureExceptionHandler(FakeNetworkRepository(isAvailable = true))
-				),
-				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
-					userRepository = userRepository,
-					reportingRepository = reporting,
-					exceptionHandler = RemoveProfilePictureExceptionHandler(FakeNetworkRepository(isAvailable = true))
-				)
-			),
-			eventPublisher = NoOpEventPublisher,
-			dispatchers = dispatchers
-		)
 	}
 }

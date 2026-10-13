@@ -22,7 +22,9 @@ import tuindice.summary.generated.resources.summary_section_term
 /**
  * "Trimestre": which week of the term it is, with the track of its twelve weeks, and the points of
  * each subject. Its link, the name of the term, opens the Record. Outside weeks 1 to 12 the week and
- * its track are not there and only the points remain.
+ * its track are not there and only the points remain; with no points to show (nothing downloaded)
+ * only the week remains. Whichever of the two is there, the card keeps the same space above and
+ * below it.
  */
 @Composable
 fun SummaryTermView(
@@ -44,13 +46,20 @@ fun SummaryTermView(
 		)
 
 		SummaryHubCardView {
+			// Without the week the first row, which centers its content in a row taller than it, would
+			// leave the card with less space above than the closing spacer gives below.
+			if (term.week == null) {
+				Spacer(modifier = Modifier.height(TuIndiceSpacing.Medium))
+			}
+
 			term.week?.let { week ->
 				Column(
 					modifier = Modifier.padding(
 						start = TuIndiceSpacing.Screen,
 						top = TuIndiceSpacing.Screen,
 						end = TuIndiceSpacing.Screen,
-						bottom = TuIndiceSpacing.Medium
+						// With no rows under it the week is the last thing of the card.
+						bottom = if (term.subjects.isEmpty()) TuIndiceSpacing.Screen else TuIndiceSpacing.Medium
 					),
 					verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
 				) {

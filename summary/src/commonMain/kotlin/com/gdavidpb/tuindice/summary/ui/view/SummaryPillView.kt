@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
@@ -18,9 +19,12 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 /**
  * The mark at the start of the first row of the week. "En curso" ([isAccent]) takes the accent, as
- * everything in progress does; the day of the next class ("Hoy", "Lun 19") is a quiet outline. It is
- * as wide as its text needs and no narrower than the lead column of the rows under it, so the text
- * is never cut however large the letter is.
+ * everything in progress does; the day of the next class ("Hoy", "Lun 19") is a quiet outline.
+ *
+ * It is [SummaryLeadMinWidth] wide, padding included, and the day that leads an evaluation takes the
+ * same width and padding ([summaryLeadPadding]), so at the default letter size the content of the
+ * class row starts where the one of the evaluation rows does. With a larger letter it grows to its
+ * text instead of cutting it, and the lead column of the rows under it grows the same way.
  */
 @Composable
 fun SummaryPillView(
@@ -39,7 +43,7 @@ fun SummaryPillView(
 		modifier = modifier
 			.widthIn(min = SummaryLeadMinWidth)
 			.then(container)
-			.padding(horizontal = TuIndiceSpacing.Small, vertical = TuIndiceSpacing.XSmall),
+			.summaryLeadPadding(vertical = TuIndiceSpacing.XSmall),
 		text = text,
 		style = MaterialTheme.typography.labelMedium,
 		fontWeight = if (isAccent) FontWeight.Bold else FontWeight.Medium,
@@ -52,5 +56,9 @@ fun SummaryPillView(
 	)
 }
 
-/** The width the pill and the day that leads an evaluation share, so the rows line up. */
+/** The width, padding included, the pill and the day that leads an evaluation share, so the rows line up. */
 internal val SummaryLeadMinWidth = 64.dp
+
+/** The horizontal padding of the pill and of the day that leads an evaluation: the same on both. */
+internal fun Modifier.summaryLeadPadding(vertical: Dp = TuIndiceSpacing.None): Modifier =
+	padding(horizontal = TuIndiceSpacing.XSmall, vertical = vertical)

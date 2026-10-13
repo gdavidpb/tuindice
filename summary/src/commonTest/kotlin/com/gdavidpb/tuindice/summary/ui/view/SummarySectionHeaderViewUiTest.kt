@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
@@ -83,5 +86,24 @@ class SummarySectionHeaderViewUiTest {
 
 		assertTextIsWhole("Esta semana", singleLine = true)
 		assertTextIsWhole("Sep - Dic 2026", singleLine = true)
+	}
+
+	@Test
+	fun when_theSectionHasNoLinkText_then_noLinkIsShown_andTheHeadKeepsItsHeight() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Column {
+				SummarySectionHeaderView(
+					modifier = Modifier.testTag("head"),
+					title = "Esta semana",
+					linkText = null,
+					onLinkClick = {},
+					sectionTag = SummaryUiTags.WeekSection
+				)
+			}
+		}
+
+		onNodeWithText("Esta semana").assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.WeekSection)).assertDoesNotExist()
+		onNodeWithTag("head").assertHeightIsAtLeast(48.dp)
 	}
 }

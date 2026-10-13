@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,12 +30,14 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 /**
  * The head of a section of the hub: its title and, at the other end, the link to the screen that
  * owns it ("Horario", "Sep - Dic 2026", "Pensum"). The link is the text with its chevron and has a
- * touch target of the minimum size; [sectionTag] names both parts for the tests.
+ * touch target of the minimum size; [sectionTag] names both parts for the tests. A section whose
+ * screen has nothing to open says no [linkText] and shows no link, and its head keeps the height it
+ * would have with one, so the sections keep their rhythm.
  */
 @Composable
 fun SummarySectionHeaderView(
 	title: String,
-	linkText: String,
+	linkText: String?,
 	onLinkClick: () -> Unit,
 	sectionTag: String,
 	modifier: Modifier = Modifier
@@ -42,6 +45,7 @@ fun SummarySectionHeaderView(
 	Row(
 		modifier = modifier
 			.fillMaxWidth()
+			.heightIn(min = TuIndiceComponentSizes.IconButton)
 			.padding(horizontal = TuIndiceSpacing.XSmall),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
@@ -51,31 +55,32 @@ fun SummarySectionHeaderView(
 				.weight(1f, fill = false)
 				.testTag(SummaryUiTags.sectionTitle(sectionTag)),
 			text = title,
-			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.SemiBold
+			style = MaterialTheme.typography.titleMedium
 		)
 
-		Row(
-			modifier = Modifier
-				.clip(RoundedCornerShape(TuIndiceRadius.Small))
-				.clickable(role = Role.Button, onClick = onLinkClick)
-				.minimumInteractiveComponentSize()
-				.testTag(SummaryUiTags.sectionLink(sectionTag)),
-			verticalAlignment = Alignment.CenterVertically
-		) {
-			Text(
-				text = linkText,
-				style = MaterialTheme.typography.labelLarge,
-				fontWeight = FontWeight.Medium,
-				color = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
-			)
+		if (linkText != null) {
+			Row(
+				modifier = Modifier
+					.clip(RoundedCornerShape(TuIndiceRadius.Small))
+					.clickable(role = Role.Button, onClick = onLinkClick)
+					.minimumInteractiveComponentSize()
+					.testTag(SummaryUiTags.sectionLink(sectionTag)),
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Text(
+					text = linkText,
+					style = MaterialTheme.typography.labelLarge,
+					fontWeight = FontWeight.Medium,
+					color = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+				)
 
-			Icon(
-				modifier = Modifier.size(TuIndiceComponentSizes.IconMedium),
-				imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-				contentDescription = null,
-				tint = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
-			)
+				Icon(
+					modifier = Modifier.size(TuIndiceComponentSizes.IconMedium),
+					imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+					contentDescription = null,
+					tint = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+				)
+			}
 		}
 	}
 }

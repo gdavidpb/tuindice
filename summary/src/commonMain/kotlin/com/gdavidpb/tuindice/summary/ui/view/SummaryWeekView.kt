@@ -18,7 +18,7 @@ import tuindice.summary.generated.resources.summary_section_week
 
 /**
  * "Esta semana": the class in progress or next and the evaluations that have not gone by, in one
- * card; its link opens the Schedule sheet.
+ * card; its link opens the Schedule sheet, and is there only when the term has a schedule.
  */
 @Composable
 fun SummaryWeekView(
@@ -34,7 +34,7 @@ fun SummaryWeekView(
 	) {
 		SummarySectionHeaderView(
 			title = stringResource(Res.string.summary_section_week),
-			linkText = stringResource(Res.string.summary_link_schedule),
+			linkText = if (week.hasSchedule) stringResource(Res.string.summary_link_schedule) else null,
 			onLinkClick = { actions.onTargetClick(SummaryHubTarget.Schedule) },
 			sectionTag = SummaryUiTags.WeekSection
 		)

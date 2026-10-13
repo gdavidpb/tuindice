@@ -124,7 +124,8 @@ fun summaryHubItem(
 				subjectCode = "EG1114",
 				hasPlace = false
 			)
-		)
+		),
+		hasSchedule = true
 	),
 	term: SummaryTermItem? = SummaryTermItem(
 		nameText = UiText.Raw("Sep - Dic 2026"),

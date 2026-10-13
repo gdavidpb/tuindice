@@ -115,6 +115,54 @@ class SummaryHubBuilderTest {
 		assertNull(hub(attempts = listOf(withdrawn)).week)
 	}
 
+	@Test
+	fun aSubjectGradedPassOrFail_isStillAClassInProgress() {
+		val qualitative = classesOnThursday.copy(gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL)
+
+		val week = hub(attempts = listOf(qualitative)).week
+
+		val moment = week?.classMoment
+
+		assertNotNull(moment)
+		assertEquals("CI5437", moment.meeting.subjectCode)
+		assertTrue(moment.isInProgress)
+	}
+
+	@Test
+	fun aSubjectGradedPassOrFail_isTheNextClassWhenItIsTheOnlyOne() {
+		val qualitative = hubAttempt(
+			code = "CI5311",
+			schedule = listOf(hubMeeting(day = HUB_MONDAY, start = 1, end = 2, classroom = "MYS-116")),
+			gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL
+		)
+
+		val moment = hub(attempts = listOf(qualitative), now = scheduleNow(minuteOfDay = 12 * 60)).week?.classMoment
+
+		assertNotNull(moment)
+		assertEquals(false, moment.isInProgress)
+		assertEquals("CI5311", moment.meeting.subjectCode)
+	}
+
+	@Test
+	fun theWeek_saysWhetherTheTermHasAScheduleAtAll() {
+		val onlyAnEvaluation = hub(
+			attempts = listOf(hubAttempt(code = "EG1114")),
+			evaluations = listOf(hubEvaluation(id = "e1", code = "EG1114", date = hubDate(16)))
+		).week
+		val withClasses = hub().week
+		val onlyAQualitativeSubjectHasClasses = hub(
+			attempts = listOf(
+				hubAttempt(code = "EG1114"),
+				classesOnThursday.copy(gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL)
+			),
+			evaluations = listOf(hubEvaluation(id = "e1", code = "EG1114", date = hubDate(16)))
+		).week
+
+		assertEquals(false, onlyAnEvaluation?.hasSchedule)
+		assertEquals(true, withClasses?.hasSchedule)
+		assertEquals(true, onlyAQualitativeSubjectHasClasses?.hasSchedule)
+	}
+
 	/* The evaluations of the week */
 
 	@Test

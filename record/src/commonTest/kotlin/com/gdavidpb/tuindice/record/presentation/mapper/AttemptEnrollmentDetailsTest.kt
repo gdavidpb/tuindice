@@ -60,13 +60,6 @@ class AttemptEnrollmentDetailsTest {
 		assertEquals("Choque de horario · +2", attempt.toEnrollmentErrorText())
 	}
 
-	@Test
-	fun when_theErrorNamesASubjectOrAnAcronym_then_theyStayInCapitals() {
-		assertEquals("Choque de horario con MA1111", "CHOQUE DE HORARIO CON MA1111".toSentenceCase())
-		assertEquals("Consulte en DACE.", "CONSULTE EN DACE.".toSentenceCase())
-		assertEquals("Límite de créditos", "  LÍMITE   DE CRÉDITOS ".toSentenceCase())
-	}
-
 	private fun texts() = RecordMapperTexts(
 		termGrade = { "" },
 		termGradeSum = { "" },

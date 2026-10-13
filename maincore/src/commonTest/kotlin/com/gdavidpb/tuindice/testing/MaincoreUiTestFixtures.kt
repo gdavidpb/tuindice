@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -74,7 +75,8 @@ fun createSummaryViewModel(
 	userRepository: UserRepository = FakeUserRepository(),
 	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
-	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository()
+	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
+	hub: ObserveSummaryHubUseCase = createEmptyObserveSummaryHubUseCase()
 ): SummaryViewModel {
 	return SummaryViewModel(
 		screenMachine = SummaryMachine(
@@ -88,7 +90,7 @@ fun createSummaryViewModel(
 					syncRepository = syncRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
-				hub = createEmptyObserveSummaryHubUseCase()
+				hub = hub
 			),
 			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 				deviceInfoRepository = deviceInfoRepository,

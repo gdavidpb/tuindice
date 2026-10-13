@@ -2,12 +2,20 @@ package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
@@ -127,9 +135,35 @@ class SummaryRouteHubUiTest {
 		assertNodeVisible(SummaryUiTags.ContentContainer)
 	}
 
+	@Test
+	fun when_thePensumHasProgress_then_theCareerSaysItsPercentOnceInTheTextAndInTheDescription() = runTuIndiceUiTest {
+		val viewModel = createHubViewModel(
+			pensumProgress = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
+		)
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.hub?.career is SummaryCareerItem.Progress
+		}
+
+		// Through the real mapper and the real resources: the percent sign is written once.
+		onNodeWithText("65 %").performScrollTo().assertIsDisplayed()
+		onAllNodesWithText("65 %%").assertCountEquals(0)
+		onNodeWithTag(SummaryUiTags.CareerProgressBar)
+			.assertContentDescriptionEquals("Avance del pensum: 156 de 240 créditos, 65 %")
+	}
+
 	// A Thursday at ten with a class in progress, an evaluation on Friday, one that went by without a
 	// grade, and a subject the university refused part of the enrollment of.
-	private fun createHubViewModel(): SummaryViewModel {
+	private fun createHubViewModel(pensumProgress: PensumCreditsProgress? = null): SummaryViewModel {
 		val record = hubRecord(
 			hubTerm(
 				attempts = listOf(
@@ -145,6 +179,7 @@ class SummaryRouteHubUiTest {
 		return createSummaryViewModelWithHub(
 			hub = createObserveSummaryHubUseCase(
 				record = ControllableVisibleAcademicRecordRepository(record),
+				pensumProgress = ControllablePensumProgressRepository(pensumProgress),
 				evaluations = ControllableVisibleEvaluationsRepository(
 					initialEvaluations = listOf(
 						hubEvaluation(id = "friday", code = "CI5437", date = hubDate(16)),

@@ -36,7 +36,8 @@ import tuindice.summary.generated.resources.summary_evaluation_type_written_work
 fun SummaryWeek.toSummaryWeekItem(): SummaryWeekItem {
 	return SummaryWeekItem(
 		classRow = classMoment?.toSummaryClassRowItem(),
-		evaluations = evaluations.map { evaluation -> evaluation.toSummaryEvaluationRowItem() }
+		evaluations = evaluations.map { evaluation -> evaluation.toSummaryEvaluationRowItem() },
+		hasSchedule = hasSchedule
 	)
 }
 

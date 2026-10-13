@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 
 /**
  * The weeks of the term as a row of segments: the ones gone by, the one in progress (the accent, as
@@ -58,7 +59,7 @@ private fun RowScope.WeekSegment(color: Color) {
 		modifier = Modifier
 			.weight(1f)
 			.height(WeekSegmentHeight)
-			.background(color, RoundedCornerShape(WeekSegmentHeight / 2))
+			.background(color, RoundedCornerShape(TuIndiceRadius.Full))
 	)
 }
 
