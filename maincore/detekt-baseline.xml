@@ -83,35 +83,38 @@
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF23211D</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF241A04</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF2A2722</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF33302A</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF32312D</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF34312B</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF3B2C00</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF410002</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF4D4639</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF54514A</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF5B4300</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF690005</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF6B5D3F</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF6F695D</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF785900</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF7F7667</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF85827A</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF8C6700</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFF93000A</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFB9EAFF</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFBA1A1A</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFC9C3B6</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFD0C5B4</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFD8B44A</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFDDDBD3</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFE5E4DD</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFE8E3D7</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFEDE1CF</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFEBEAE4</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFECEAE3</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF1F0EB</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF3F2EE</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF4F1E8</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF5E0BB</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF7EFE7</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFF6F5F1</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFABD00</ID>
+    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFBFAF7</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFB4AB</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFDAD6</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFDF9E</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFF1BF</ID>
-    <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFFBFF</ID>
     <ID>MagicNumber:TuIndiceColorScheme.kt$TuIndiceColorScheme$0xFFFFFFFF</ID>
     <ID>MatchingDeclarationName:BrowserScreen.android.kt$AndroidBrowserScreenRenderer : BrowserScreenRenderer</ID>
     <ID>MatchingDeclarationName:BrowserScreen.ios.kt$IosBrowserScreenRenderer : BrowserScreenRenderer</ID>
