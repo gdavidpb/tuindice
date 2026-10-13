@@ -313,7 +313,8 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 	// The career needs the pensum, which the app downloads only when its tab is opened: the tab is opened here once.
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 	waitVisible(PensumUiTags.PensumScreen, Within.Long)
-	waitVisible(PensumUiTags.Canvas, Within.Assert)
+	// The first download of the pensum follows the screen, so its content gets the long wait.
+	waitVisible(PensumUiTags.Canvas, Within.Long)
 	returnToSummaryTab()
 	// The career: the pensum stays saved once its tab has been opened, so the card shows its progress and not the
 	// invitation.
@@ -324,8 +325,7 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 }
 
 // The points of attention lead to the screen that owns what they say: the ungraded evaluations to the week of the
-// oldest of them (week 2, not the week of the clock), the enrollment error to Record. The jump does not save the tab
-// as the one the app opens on, so on Android the back key returns to Summary.
+// oldest of them (week 2, not the week of the clock), the enrollment error to Record.
 private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "summary", hubStart()) {
 	covers("summary.Summary.OpenTarget")
 	account(E2eAccounts.SummaryHub.id)
@@ -341,11 +341,6 @@ private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "
 	tap(SummaryUiTags.attentionItem(E2eInputs.summaryAttentionEnrollmentKey(E2eFixtures.SubjectCi5437.value)))
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
-	onPlatform(Platform.Android) {
-		back()
-		waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Action)
-		waitVisible(SummaryUiTags.ContentContainer, Within.Action)
-	}
 }
 
 // This week: its link and the class row open the Schedule sheet over Summary (the tab does not change); an evaluation

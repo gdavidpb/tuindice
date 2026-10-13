@@ -12,7 +12,6 @@ class PlatformBranchBudget private constructor() {
 			"auth-terms-privacy-from-login" to 4,
 			"conformance-system" to 2,
 			"maincore-tab-stack-preservation" to 1,
-			"summary-hub-attention-links" to 1,
 			"summary-profile-picture" to 2,
 			"summary-profile-picture-sources" to 4
 		)
