@@ -19,9 +19,12 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_evaluation_legend
 
-/** What the evaluation icon of the table means, said once under the rows: "Evaluación esta semana". */
+/**
+ * What the evaluation icon of the schedule means, said once under the rows of the table or under the
+ * grid: "Evaluación esta semana".
+ */
 @Composable
-fun ScheduleTableEvaluationLegendView(
+fun ScheduleEvaluationLegendView(
 	modifier: Modifier = Modifier
 ) {
 	Row(

@@ -25,7 +25,8 @@ fun ScheduleViewsView(
 		ScheduleViewMode.Week ->
 			ScheduleWeekView(
 				modifier = modifier.fillMaxWidth(),
-				grid = state.schedule.grid
+				grid = state.schedule.grid,
+				onEvaluationClick = onEvaluationClick
 			)
 	}
 }

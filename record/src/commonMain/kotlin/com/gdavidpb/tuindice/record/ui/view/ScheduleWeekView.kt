@@ -13,12 +13,17 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import kotlinx.datetime.LocalDate
 
-/** The "Semana" view of the schedule: the weekly grid and the subjects still to be scheduled. */
+/**
+ * The "Semana" view of the schedule: the weekly grid, what its evaluation icon means when some
+ * meeting has one this week, and the subjects still to be scheduled.
+ */
 @Composable
 fun ScheduleWeekView(
 	modifier: Modifier = Modifier,
-	grid: ScheduleGridItem
+	grid: ScheduleGridItem,
+	onEvaluationClick: (weekStart: LocalDate) -> Unit
 ) {
 	Column(
 		modifier = modifier
@@ -29,8 +34,13 @@ fun ScheduleWeekView(
 		// The grid takes what the sheet leaves and scrolls inside it; the line below stays in sight.
 		ScheduleGridView(
 			modifier = Modifier.weight(1f, fill = false),
-			grid = grid
+			grid = grid,
+			onEvaluationClick = onEvaluationClick
 		)
+
+		if (grid.hasEvaluationMarks) {
+			ScheduleEvaluationLegendView()
+		}
 
 		if (grid.unscheduledText != null) {
 			Text(

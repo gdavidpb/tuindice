@@ -79,7 +79,25 @@ class ScheduleViewsViewUiTest {
 	}
 
 	@Test
-	fun when_theTableIsChosen_then_aMarkedCellAsksForItsWeek_andTheGridDoesNotMarkAnything() = runTuIndiceUiTest {
+	fun when_theTableIsChosen_then_aMarkedCellAsksForItsWeek_andTheLegendIsUnderTheRows() = runTuIndiceUiTest {
+		var asked: LocalDate? = null
+
+		setTuIndiceTestContent {
+			ScheduleViewsView(
+				state = content(ScheduleViewMode.Table, schedule = markedWeek()),
+				onEvaluationClick = { weekStart -> asked = weekStart }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
+		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+			.performClick()
+
+		assertEquals(ScheduleTestDate, asked)
+	}
+
+	@Test
+	fun when_theWeekIsChosen_then_aMarkedCellAsksForTheSameWeek_andTheLegendIsShown() = runTuIndiceUiTest {
 		var viewMode by mutableStateOf(ScheduleViewMode.Table)
 		var asked: LocalDate? = null
 
@@ -90,17 +108,34 @@ class ScheduleViewsViewUiTest {
 			)
 		}
 
-		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
-			.performClick()
+		viewMode = ScheduleViewMode.Week
+		waitForIdle()
+
+		assertNodeVisible(RecordUiTags.ScheduleGrid)
+		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
+		assertNodeVisible(RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Wednesday.code, 3), useUnmergedTree = true)
+		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+
+		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3)).performClick()
 
 		assertEquals(ScheduleTestDate, asked)
+	}
+
+	@Test
+	fun when_nothingIsMarked_then_neitherViewShowsTheLegend() = runTuIndiceUiTest {
+		var viewMode by mutableStateOf(ScheduleViewMode.Table)
+
+		setTuIndiceTestContent {
+			ScheduleViewsView(state = content(viewMode), onEvaluationClick = {})
+		}
+
+		assertNodeHidden(RecordUiTags.ScheduleEvaluationLegend)
 
 		viewMode = ScheduleViewMode.Week
 		waitForIdle()
 
 		assertNodeVisible(RecordUiTags.ScheduleGrid)
 		assertNodeHidden(RecordUiTags.ScheduleEvaluationLegend)
-		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
 	}
 
 	private fun content(viewMode: ScheduleViewMode, schedule: ScheduleItem = clashingWeek()) = Schedule.State.Content(

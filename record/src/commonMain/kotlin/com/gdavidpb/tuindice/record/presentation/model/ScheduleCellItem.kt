@@ -14,7 +14,7 @@ data class ScheduleCellItem(
 	val classroomText: String?,
 	// The range of blocks the table prints: "1-2", or "3" for a single block.
 	val blocksText: String,
-	// What a screen reader says of the cell on the week grid.
+	// What a screen reader says of the cell on the week grid (the table says its own, per row).
 	val description: UiText,
 	// The colours of the subject's chip, so a subject looks the same here as everywhere else.
 	val codeColor: Color,
@@ -26,7 +26,7 @@ data class ScheduleCellItem(
 	// Today's meeting whose blocks hold the current one: the class being taught right now.
 	val isInProgress: Boolean = false,
 	// The Monday that opens the calendar week of an evaluation that falls on this meeting, or null
-	// when none does. The table marks the cell and asks the Evaluations tab for that week.
+	// when none does. Both views mark the cell and ask the Evaluations tab for that week.
 	val evaluationWeekStart: LocalDate? = null
 ) {
 	val blockSpan: Int

@@ -55,7 +55,7 @@ internal fun AcademicRecord.hasScheduleOnTerm(termId: String): Boolean {
  * [now] is the moment being looked at. It marks today's column, the "now" line of the grid and the
  * class in progress, and leaves all three out when today is not one of the days shown or the hour
  * falls outside the blocks of the grid. [evaluationMarks] says which meetings have an evaluation
- * this calendar week: the table marks them (the grid does not).
+ * this calendar week: both views mark them.
  */
 internal fun List<AttemptProjection>.toScheduleItem(
 	now: ScheduleNow? = null,
@@ -235,7 +235,11 @@ private fun SchedulePlacement.toCell(lane: Int, laneCount: Int, isInProgress: Bo
 			day = day,
 			blocks = startBlock..endBlock,
 			classroom = classroom
-		).withCellMarks(isClash = laneCount > 1, isInProgress = isInProgress),
+		).withCellMarks(
+			isClash = laneCount > 1,
+			isInProgress = isInProgress,
+			hasEvaluation = evaluationWeekStart != null
+		),
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,
 		startBlock = startBlock,

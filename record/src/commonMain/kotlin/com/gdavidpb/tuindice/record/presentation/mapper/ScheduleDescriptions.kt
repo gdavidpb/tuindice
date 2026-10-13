@@ -48,17 +48,23 @@ internal fun scheduleCellDescription(
 }
 
 /**
- * Ends a cell's description with its marks: ". Choque de horario" when the meeting overlaps another
- * subject's that day, and ". En curso" for the class being taught right now.
+ * Ends a cell's description with its marks: ", con evaluación ese día" when an evaluation of this
+ * week falls on the meeting (the words the table says for it), ". Choque de horario" when the
+ * meeting overlaps another subject's that day, and ". En curso" for the class being taught right now.
  */
-internal fun UiText.withCellMarks(isClash: Boolean, isInProgress: Boolean): UiText {
+internal fun UiText.withCellMarks(isClash: Boolean, isInProgress: Boolean, hasEvaluation: Boolean): UiText {
+	val withEvaluation = if (hasEvaluation) {
+		UiText.Resource(Res.string.schedule_table_meeting_evaluation, listOf(this))
+	} else {
+		this
+	}
 	val withClash = if (isClash) {
 		UiText.Resource(
 			Res.string.schedule_cell_description_clash,
-			listOf(this, UiText.Resource(Res.string.schedule_clash))
+			listOf(withEvaluation, UiText.Resource(Res.string.schedule_clash))
 		)
 	} else {
-		this
+		withEvaluation
 	}
 
 	return if (isInProgress) {

@@ -121,6 +121,22 @@ fun markedWeek(now: ScheduleNow? = null, onMonday: Boolean = false): ScheduleIte
 	)
 }
 
+// [attempts] laid out with the marks of [evaluations] dated in the week of [ScheduleTestDate], for a
+// test that needs a meeting [clashingWeek] does not have (a long one in a room, with nothing around it).
+fun markedItem(
+	vararg attempts: AttemptProjection,
+	evaluations: List<Evaluation>,
+	now: ScheduleNow? = null
+): ScheduleItem = scheduleItem(
+	*attempts,
+	now = now,
+	evaluationMarks = attempts.toList().evaluationMarksOn(
+		evaluations = evaluations,
+		today = ScheduleTestDate,
+		timeZone = EvaluationTestZone
+	)
+)
+
 // The marks of [clashingWeek] when [evaluations] are the ones of the week of [ScheduleTestDate].
 fun clashingWeekMarks(vararg evaluations: Evaluation): ScheduleEvaluationMarks {
 	return clashingWeekAttempts().evaluationMarksOn(

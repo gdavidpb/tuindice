@@ -9,4 +9,8 @@ data class ScheduleGridItem(
 	val days: List<ScheduleDayItem>,
 	// "Sin horario: EP1420, CI2691", or null when every subject has a meeting placed.
 	val unscheduledText: UiText?
-)
+) {
+	// Some meeting has an evaluation this week: the grid explains the mark under its cells.
+	val hasEvaluationMarks: Boolean
+		get() = days.any { day -> day.cells.any(ScheduleCellItem::hasEvaluation) }
+}

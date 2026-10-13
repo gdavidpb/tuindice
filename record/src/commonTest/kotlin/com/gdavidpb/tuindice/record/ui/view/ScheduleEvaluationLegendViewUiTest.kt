@@ -12,11 +12,11 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class ScheduleTableEvaluationLegendViewUiTest {
+class ScheduleEvaluationLegendViewUiTest {
 	@Test
 	fun when_itIsShown_then_itSaysWhatTheEvaluationIconMeans() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleTableEvaluationLegendView()
+			ScheduleEvaluationLegendView()
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
@@ -26,7 +26,7 @@ class ScheduleTableEvaluationLegendViewUiTest {
 	@Test
 	fun when_itIsShown_then_theIconComesBeforeTheText_onTheSameLine() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleTableEvaluationLegendView()
+			ScheduleEvaluationLegendView()
 		}
 
 		val legend = onNodeWithTag(RecordUiTags.ScheduleEvaluationLegend).fetchSemanticsNode()

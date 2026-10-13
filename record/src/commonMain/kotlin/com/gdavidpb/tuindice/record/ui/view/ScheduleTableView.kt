@@ -60,7 +60,7 @@ fun ScheduleTableView(
 
 			if (table.hasEvaluationMarks) {
 				// Six of the gap between rows and ten more: the sheet's own spacing between blocks.
-				ScheduleTableEvaluationLegendView(modifier = Modifier.padding(top = TuIndiceSpacing.Large))
+				ScheduleEvaluationLegendView(modifier = Modifier.padding(top = TuIndiceSpacing.Large))
 			}
 		}
 	}
