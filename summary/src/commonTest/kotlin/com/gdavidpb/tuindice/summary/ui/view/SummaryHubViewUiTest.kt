@@ -119,7 +119,7 @@ class SummaryHubViewUiTest {
 		assertTextIsWhole("Trabajo escrito 12")
 		assertTextIsWhole("CI5437", singleLine = true)
 		assertTextIsWhole("CI5311", singleLine = true)
-		assertTextIsWhole("Bloques 3-4 · MYS-210")
+		assertTextIsWhole("3-4 · MYS-210")
 		assertTextIsWhole("Semana 3 de 12")
 		assertTextIsWhole("41 de 60 puntos")
 		assertTextIsWhole("156 de 240 créditos")

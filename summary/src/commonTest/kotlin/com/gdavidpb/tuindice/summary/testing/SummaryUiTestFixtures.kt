@@ -48,7 +48,7 @@ fun summaryClassRowItem(
 	isInProgress = isInProgress,
 	subjectCode = subjectCode,
 	place = ClassPlaceItem(
-		placeText = UiText.Raw("Bloques 3-4 · MYS-210"),
+		placeText = UiText.Raw("3-4 · MYS-210"),
 		timeText = UiText.Raw("9:30–11:30 a. m.")
 	)
 )
@@ -65,7 +65,7 @@ fun summaryEvaluationRowItem(
 	titleText = UiText.Raw(titleText),
 	subjectCode = subjectCode,
 	place = if (hasPlace) {
-		ClassPlaceItem(placeText = UiText.Raw("Bloques 3-4 · MYS-210"), timeText = null)
+		ClassPlaceItem(placeText = UiText.Raw("3-4 · MYS-210"), timeText = null)
 	} else {
 		null
 	},

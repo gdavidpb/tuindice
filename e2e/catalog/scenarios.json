@@ -25064,7 +25064,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "Bloques 1-2 · MYS-116"
+                        "value": "1-2 · MYS-116"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -25128,7 +25128,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "Bloques 3-4 · MYS-210"
+                        "value": "3-4 · MYS-210"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -25176,7 +25176,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "fde5968fbf880527",
+            "stepsHash": "18889a94d1a20e3d",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -25416,7 +25416,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "En clase · Bloques 3-4 · MYS-210"
+                        "value": "En clase · 3-4 · MYS-210"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -25477,7 +25477,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "En clase · Bloques 3-4 · MYS-210"
+                        "value": "En clase · 3-4 · MYS-210"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -25511,7 +25511,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "18b1c40e5d5eaf1d",
+            "stepsHash": "71200ebf0c977047",
             "tags": [],
             "timeoutSeconds": 180
         },

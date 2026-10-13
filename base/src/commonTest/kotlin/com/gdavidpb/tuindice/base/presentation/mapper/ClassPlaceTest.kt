@@ -26,27 +26,27 @@ class ClassPlaceTest {
 		assertEquals(
 			UiText.Resource(
 				Res.string.class_place_with_room,
-				listOf(UiText.Resource(Res.string.class_place_blocks, listOf(1, 2)), "MYS-116")
+				listOf("1-2", "MYS-116")
 			),
 			place.placeText
 		)
 	}
 
 	@Test
-	fun classPlaceItem_ofASingleBlock_saysBlockInTheSingular() {
+	fun classPlaceItem_ofASingleBlock_saysItsNumberAndTheRoom() {
 		val place = classPlaceItem(startBlock = 3, endBlock = 3, classroom = "MYS-116", clockRange = null)
 
 		assertEquals(
 			UiText.Resource(
 				Res.string.class_place_with_room,
-				listOf(UiText.Resource(Res.string.class_place_block, listOf(3)), "MYS-116")
+				listOf("3", "MYS-116")
 			),
 			place.placeText
 		)
 	}
 
 	@Test
-	fun classPlaceItem_withoutARoom_leavesTheRoomOut() {
+	fun classPlaceItem_withoutARoom_namesTheBlocksSoTheLineIsNotABareNumber() {
 		assertEquals(
 			UiText.Resource(Res.string.class_place_blocks, listOf(1, 2)),
 			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = null).placeText

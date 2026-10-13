@@ -97,7 +97,7 @@ class SummaryWeekViewUiTest {
 
 			// The blocks and the room are said by the class row and by the first evaluation row, each at the
 			// start of its content.
-			val places = onAllNodesWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNodes()
+			val places = onAllNodesWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNodes()
 			val starts = places.map { place -> place.boundsInRoot.left }
 
 			assertEquals(2, starts.size)

@@ -93,11 +93,11 @@ object Copy {
 	const val EvaluationsNotEnrolledTitle = "No estás inscrito en este trimestre"
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
 	const val EvaluationNoGrade = "Sin nota"
-	const val InClassBlocks34Mys210 = "En clase · Bloques 3-4 · MYS-210"
+	const val InClassBlocks34Mys210 = "En clase · 3-4 · MYS-210"
 
 	// base: where a class meets, as an evaluation inherits it
-	const val PlaceBlocks12Mys116 = "Bloques 1-2 · MYS-116"
-	const val PlaceBlocks34Mys210 = "Bloques 3-4 · MYS-210"
+	const val PlaceBlocks12Mys116 = "1-2 · MYS-116"
+	const val PlaceBlocks34Mys210 = "3-4 · MYS-210"
 	const val TimeBlocks12 = "7:30–9:30 a. m."
 	const val TimeBlocks34 = "9:30–11:30 a. m."
 
@@ -115,10 +115,10 @@ object Copy {
 			InClassBlocks34Mys210,
 			"evaluations",
 			"evaluation_place_in_class",
-			listOf("Bloques 3-4 · MYS-210")
+			listOf("3-4 · MYS-210")
 		),
-		CopyBinding.Resource(PlaceBlocks12Mys116, "base", "class_place_with_room", listOf("Bloques 1-2", "MYS-116")),
-		CopyBinding.Resource(PlaceBlocks34Mys210, "base", "class_place_with_room", listOf("Bloques 3-4", "MYS-210")),
+		CopyBinding.Resource(PlaceBlocks12Mys116, "base", "class_place_with_room", listOf("1-2", "MYS-116")),
+		CopyBinding.Resource(PlaceBlocks34Mys210, "base", "class_place_with_room", listOf("3-4", "MYS-210")),
 		CopyBinding.Resource(TimeBlocks12, "base", "class_time_range_same_period", listOf("7:30", "9:30", "a. m.")),
 		CopyBinding.Resource(TimeBlocks34, "base", "class_time_range_same_period", listOf("9:30", "11:30", "a. m.")),
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),

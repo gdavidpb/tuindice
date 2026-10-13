@@ -118,7 +118,7 @@ class EvaluationItemViewUiTest {
 	fun when_theEvaluationInheritsAPlace_then_showsTheBlocksAndTheHourUnderTheDate() = runTuIndiceUiTest {
 		val item = evaluationItemFixture().copy(
 			place = ClassPlaceItem(
-				placeText = UiText.Raw("Bloques 1-2 · MYS-116"),
+				placeText = UiText.Raw("1-2 · MYS-116"),
 				timeText = UiText.Raw("7:30\u20139:30 a. m.")
 			)
 		)
@@ -132,7 +132,7 @@ class EvaluationItemViewUiTest {
 			testTag = EvaluationsUiTags.evaluationPlace(item.evaluationId),
 			useUnmergedTree = true
 		).assertIsDisplayed()
-		onNodeWithText("Bloques 1-2 · MYS-116").assertIsDisplayed()
+		onNodeWithText("1-2 · MYS-116").assertIsDisplayed()
 		onNodeWithText("7:30\u20139:30 a. m.").assertIsDisplayed()
 	}
 
@@ -169,7 +169,7 @@ class EvaluationItemViewUiTest {
 	fun when_theRoomIsLong_then_thePlaceIsShownWhole_andTheGradeButtonKeepsItsSize() = runTuIndiceUiTest {
 		val plain = evaluationItemFixture(evaluationId = "plain")
 		val placed = evaluationItemFixture(evaluationId = "placed").copy(
-			place = classPlaceItem(startBlock = 10, endBlock = 11, classroom = "LAB-FIS-201", clockRange = 990..1110)
+			place = classPlaceItem(startBlock = 10, endBlock = 11, classroom = LONG_ROOM, clockRange = 990..1110)
 		)
 
 		setTuIndiceTestContent {
@@ -181,14 +181,8 @@ class EvaluationItemViewUiTest {
 
 		assertEquals(gradeButtonBounds("plain").size(), gradeButtonBounds("placed").size())
 
-		val place = onNodeWithText("Bloques 10-11 · LAB-FIS-201", useUnmergedTree = true)
-		val layout = mutableListOf<TextLayoutResult>()
-
-		place.assertIsDisplayed()
-		place.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layout)
-
 		// Whole: nothing cut with an ellipsis, however many lines it takes.
-		assertFalse(layout.single().hasVisualOverflow, "the place must not be cut")
+		assertTextIsWhole(text = "10-11 · $LONG_ROOM", evaluationId = "placed")
 		onNodeWithText("4:30–6:30 p. m.", useUnmergedTree = true).assertIsDisplayed()
 	}
 
@@ -226,34 +220,39 @@ class EvaluationItemViewUiTest {
 		assertDateIsWhole("long")
 	}
 
-	// The date laid out whole and inside the card that holds it: every character of it is in a line (a
-	// text held to one line that does not fit drops the rest), no line is cut with an ellipsis or runs
-	// past the box the row gave it, and the box lies inside the card.
 	private fun ComposeUiTest.assertDateIsWhole(evaluationId: String) {
-		val date = onNodeWithText(LONG_DATE, useUnmergedTree = true)
+		assertTextIsWhole(text = LONG_DATE, evaluationId = evaluationId)
+	}
+
+	// A text laid out whole and inside the card that holds it: every character of it is in a line (a
+	// text held to one line that does not fit drops the rest), no line is cut with an ellipsis or runs
+	// past the box the row gave it, and the box lies inside the card. It reads the lines and not
+	// hasVisualOverflow, which on iOS is also true of a single line narrower than the width it was given.
+	private fun ComposeUiTest.assertTextIsWhole(text: String, evaluationId: String) {
+		val node = onNodeWithText(text, useUnmergedTree = true)
 		val layout = mutableListOf<TextLayoutResult>()
 
-		date.assertIsDisplayed()
-		date.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layout)
+		node.assertIsDisplayed()
+		node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layout)
 
 		val result = layout.single()
-		val boxWidth = date.fetchSemanticsNode().size.width
+		val boxWidth = node.fetchSemanticsNode().size.width
 		val lines = (0 until result.lineCount)
 
-		assertFalse(result.multiParagraph.didExceedMaxLines, "the date must not lose its last lines")
-		assertEquals(LONG_DATE.length, result.getLineEnd(result.lineCount - 1), "the lines hold the whole date")
-		assertTrue(lines.none { line -> result.isLineEllipsized(line) }, "the date must not be cut with an ellipsis")
+		assertFalse(result.multiParagraph.didExceedMaxLines, "'$text' must not lose its last lines")
+		assertEquals(text.length, result.getLineEnd(result.lineCount - 1), "the lines hold the whole '$text'")
+		assertTrue(lines.none { line -> result.isLineEllipsized(line) }, "'$text' must not be cut with an ellipsis")
 		assertTrue(
 			lines.all { line -> result.getLineRight(line) <= boxWidth + 0.5f },
-			"every line of the date fits the box it was given: ${lines.map { line -> result.getLineRight(line) }} in $boxWidth"
+			"every line of '$text' fits the box it was given: ${lines.map { line -> result.getLineRight(line) }} in $boxWidth"
 		)
 
 		val card = onNodeWithTag(EvaluationsUiTags.evaluationItemCard(evaluationId)).getUnclippedBoundsInRoot()
-		val bounds = date.getUnclippedBoundsInRoot()
+		val bounds = node.getUnclippedBoundsInRoot()
 
 		assertTrue(
 			bounds.left >= card.left && bounds.right <= card.right && bounds.top >= card.top && bounds.bottom <= card.bottom,
-			"the date at $bounds lies inside the card at $card"
+			"'$text' at $bounds lies inside the card at $card"
 		)
 	}
 
@@ -266,5 +265,6 @@ class EvaluationItemViewUiTest {
 
 	private companion object {
 		const val LONG_DATE = "Miércoles — 25/11/26"
+		const val LONG_ROOM = "LAB-FIS-201 Edificio de Laboratorios"
 	}
 }

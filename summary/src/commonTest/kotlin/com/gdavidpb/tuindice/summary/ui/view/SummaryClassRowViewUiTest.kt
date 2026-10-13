@@ -33,7 +33,7 @@ class SummaryClassRowViewUiTest {
 
 		onNodeWithText("En curso", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5437", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertIsDisplayed()
 	}
 
@@ -86,7 +86,7 @@ class SummaryClassRowViewUiTest {
 
 		assertTextIsWhole("En curso", singleLine = true)
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTextIsWhole("Bloques 3-4 · MYS-210")
+		assertTextIsWhole("3-4 · MYS-210")
 		assertTextIsWhole("9:30–11:30 a. m.", singleLine = true)
 	}
 }

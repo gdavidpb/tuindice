@@ -225,7 +225,7 @@ class EvaluationDatePickerUiTest {
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelection)
 		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
-			onAllNodesWithText("En clase · Bloques 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+			onAllNodesWithText("En clase · 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
 		}
 		onNodeWithText("Lunes — 12/10/26").assertIsDisplayed()
 		onNodeWithText("7:30\u20139:30 a. m.").assertIsDisplayed()

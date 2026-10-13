@@ -29,11 +29,11 @@ class ClassPlaceLineUiTest {
 			ClassPlaceLine(place = classPlaceItem(1, 2, "MYS-116", clockRange = 450..570))
 		}
 
-		awaitText("Bloques 1-2 · MYS-116")
-		onNodeWithText("Bloques 1-2 · MYS-116").assertIsDisplayed()
+		awaitText("1-2 · MYS-116")
+		onNodeWithText("1-2 · MYS-116").assertIsDisplayed()
 		onNodeWithText("7:30–9:30 a. m.").assertIsDisplayed()
 
-		val blocks = onNodeWithText("Bloques 1-2 · MYS-116").getUnclippedBoundsInRoot()
+		val blocks = onNodeWithText("1-2 · MYS-116").getUnclippedBoundsInRoot()
 		val hours = onNodeWithText("7:30–9:30 a. m.").getUnclippedBoundsInRoot()
 
 		// The hours come after the blocks, never before them.
@@ -79,7 +79,7 @@ class ClassPlaceLineUiTest {
 
 	@Test
 	fun when_thePlaceDoesNotFit_then_itWrapsInsteadOfBeingCut() = runTuIndiceUiTest {
-		val place = "Bloques 10-11 · LAB-FIS-201 · Edificio de Laboratorios"
+		val place = "10-11 · LAB-FIS-201 · Edificio de Laboratorios"
 
 		setTuIndiceTestContent {
 			ClassPlaceLine(

@@ -31,8 +31,8 @@ fun List<ScheduleMeeting>.hasClassOn(date: LocalDate): Boolean {
 }
 
 /**
- * The place of the class on [date] for the day chosen in the date editor, said as "En clase · Bloques
- * 1-2 · MYS-116", or null when there is no class that day.
+ * The place of the class on [date] for the day chosen in the date editor, said as "En clase · 1-2 ·
+ * MYS-116", or null when there is no class that day.
  */
 fun List<ScheduleMeeting>.classPlaceOn(date: LocalDate): ClassPlaceItem? {
 	return AcademicScheduleEngine.meetingFor(attemptMeetings = this, date = date)?.let { meeting ->
@@ -42,7 +42,7 @@ fun List<ScheduleMeeting>.classPlaceOn(date: LocalDate): ClassPlaceItem? {
 	}
 }
 
-/** "Bloques 1-2 · MYS-116" (or "Bloque 3", with no room when the meeting has none) and its hours. */
+/** "1-2 · MYS-116" (or "Bloques 1-2", named only when the meeting has no room) and its hours. */
 fun ScheduleMeeting.toClassPlaceItem(): ClassPlaceItem {
 	return classPlaceItem(
 		startBlock = startBlock,

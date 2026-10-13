@@ -16,9 +16,11 @@ private const val NOON_HOUR = 12
 private const val HOURS_PER_HALF_DAY = 12
 
 /**
- * The place of a class from [startBlock] to [endBlock] in [classroom]: "Bloques 1-2 · MYS-116" (or
- * "Bloque 3", with no room when the class has none) and, when [clockRange] says where those blocks
- * fall in the day, their hours. It is the one way surfaces say "where is this class".
+ * The place of a class from [startBlock] to [endBlock] in [classroom]: "1-2 · MYS-116" ("3 · MYS-116"
+ * for a single block), the way the university says it, where the numbers before a room are known to
+ * be the blocks. Only a class with no room names them ("Bloques 1-2", "Bloque 3"), so the line is
+ * never a bare number. When [clockRange] says where those blocks fall in the day, their hours follow.
+ * It is the one way surfaces say "where is this class".
  */
 fun classPlaceItem(
 	startBlock: Int,
@@ -26,15 +28,16 @@ fun classPlaceItem(
 	classroom: String,
 	clockRange: IntRange?
 ): ClassPlaceItem {
-	val blocks = if (startBlock == endBlock) {
-		UiText.Resource(Res.string.class_place_block, listOf(startBlock))
-	} else {
-		UiText.Resource(Res.string.class_place_blocks, listOf(startBlock, endBlock))
-	}
-	val placeText = if (classroom.isBlank()) {
-		blocks
-	} else {
-		UiText.Resource(Res.string.class_place_with_room, listOf(blocks, classroom))
+	val isSingleBlock = startBlock == endBlock
+	val placeText = when {
+		classroom.isNotBlank() -> {
+			val blocks = if (isSingleBlock) "$startBlock" else "$startBlock-$endBlock"
+
+			UiText.Resource(Res.string.class_place_with_room, listOf(blocks, classroom))
+		}
+
+		isSingleBlock -> UiText.Resource(Res.string.class_place_block, listOf(startBlock))
+		else -> UiText.Resource(Res.string.class_place_blocks, listOf(startBlock, endBlock))
 	}
 
 	return ClassPlaceItem(placeText = placeText, timeText = clockRange?.toClockRangeText())

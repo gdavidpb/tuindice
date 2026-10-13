@@ -20,7 +20,7 @@ class EvaluationDateSelectionSummaryUiTest {
 			EvaluationDateSelectionSummary(
 				dateText = UiText.Raw("Miércoles — 21/10/26"),
 				classPlace = ClassPlaceItem(
-					placeText = UiText.Raw("En clase · Bloques 1-2 · MYS-116"),
+					placeText = UiText.Raw("En clase · 1-2 · MYS-116"),
 					timeText = UiText.Raw("7:30–9:30 a. m.")
 				)
 			)
@@ -29,7 +29,7 @@ class EvaluationDateSelectionSummaryUiTest {
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelection)
 		onNodeWithText("Miércoles — 21/10/26").assertIsDisplayed()
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelectionPlace)
-		onNodeWithText("En clase · Bloques 1-2 · MYS-116").assertIsDisplayed()
+		onNodeWithText("En clase · 1-2 · MYS-116").assertIsDisplayed()
 		onNodeWithText("7:30–9:30 a. m.").assertIsDisplayed()
 	}
 

@@ -18,7 +18,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class SummaryEntryViewUiTest {
 	private val place = ClassPlaceItem(
-		placeText = UiText.Raw("Bloques 3-4 · MYS-210"),
+		placeText = UiText.Raw("3-4 · MYS-210"),
 		timeText = UiText.Raw("9:30–11:30 a. m.")
 	)
 
@@ -30,7 +30,7 @@ class SummaryEntryViewUiTest {
 
 		onNodeWithText("Parcial 1").assertIsDisplayed()
 		onNodeWithText("CI5437").assertIsDisplayed()
-		onNodeWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertIsDisplayed()
 	}
 
@@ -41,7 +41,7 @@ class SummaryEntryViewUiTest {
 		}
 
 		onNodeWithText("EG1114").assertIsDisplayed()
-		onNodeWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
@@ -56,7 +56,7 @@ class SummaryEntryViewUiTest {
 
 		assertTextIsWhole("Trabajo escrito 12")
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTextIsWhole("Bloques 3-4 · MYS-210")
+		assertTextIsWhole("3-4 · MYS-210")
 		assertTextIsWhole("9:30–11:30 a. m.", singleLine = true)
 	}
 }

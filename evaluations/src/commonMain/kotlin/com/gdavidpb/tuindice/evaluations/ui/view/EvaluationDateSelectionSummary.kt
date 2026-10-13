@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 /**
  * What the date dialog says under its calendar about the chosen day: the date and, when the subject
- * has class that day, where ("En clase · Bloques 1-2 · MYS-116") with its hours after, lighter. On a
+ * has class that day, where ("En clase · 1-2 · MYS-116") with its hours after, lighter. On a
  * day without class it is only the date.
  */
 @Composable

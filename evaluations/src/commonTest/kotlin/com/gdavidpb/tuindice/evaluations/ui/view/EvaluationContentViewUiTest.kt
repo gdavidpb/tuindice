@@ -308,7 +308,7 @@ class EvaluationContentViewUiTest {
 		// The subject of the dialog is the one chosen in the form, with its meetings.
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip)
 		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
-			onAllNodesWithText("En clase · Bloques 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+			onAllNodesWithText("En clase · 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
 		}
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(19))

@@ -31,7 +31,7 @@ class SummaryEvaluationRowViewUiTest {
 		onNodeWithText("Hoy", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("Parcial 1", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5437", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertDoesNotExist()
 	}
 
@@ -51,7 +51,7 @@ class SummaryEvaluationRowViewUiTest {
 
 		onNodeWithText("Vie 16", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("Ensayo 1", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("Bloques 3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
@@ -93,6 +93,6 @@ class SummaryEvaluationRowViewUiTest {
 		assertTextIsWhole("Mié 28", singleLine = true)
 		assertTextIsWhole("Trabajo escrito 12")
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTextIsWhole("Bloques 3-4 · MYS-210")
+		assertTextIsWhole("3-4 · MYS-210")
 	}
 }
