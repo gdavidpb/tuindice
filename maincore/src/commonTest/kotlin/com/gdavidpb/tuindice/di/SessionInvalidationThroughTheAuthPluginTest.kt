@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.data.repository.sync.FakeSyncStatusRepository
@@ -135,6 +136,12 @@ private fun clientOf(
 // Every refresh is rejected, and each one is held where the story needs it: the first until the sync is
 // let go, the second until the wipe of the first has ended.
 private class RejectingAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	val firstRefreshStarted = CompletableDeferred<Unit>()
 	val firstRefresh = CompletableDeferred<Unit>()
 	val secondRefreshStarted = CompletableDeferred<Unit>()

@@ -265,6 +265,12 @@ private class SupersededRefreshAttestationRepository : AttestationRepository {
 }
 
 private object RejectedAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -297,6 +303,12 @@ private object RejectedAuthRepository : AuthRepository {
 private class RefreshingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -344,6 +356,12 @@ private class RefreshingAuthRepository(
 private class BootstrapExchangePersistingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = exchangeSignIn(bootstrapAccessToken, attestation)
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 

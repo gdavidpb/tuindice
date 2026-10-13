@@ -10,11 +10,13 @@ import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.data.repository.sync.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testing.CountingSessionInvalidationRepository
 import com.gdavidpb.tuindice.testing.ProductionLikeApplicationRepository
@@ -218,6 +220,67 @@ class SessionRecoveryDuringSignOutTest {
 		assertEquals(newSession, rig.store.repository.getActiveSessionSnapshot(), "the new session is intact")
 		assertEquals(0, rig.api.exchangeCalls, "the tokens of the old session were never asked for")
 	}
+
+	// The sign-out ends the session while the tokens the recovery asked for are on their way: they belong
+	// to the session that is gone, so they are not stored.
+	@Test
+	fun aSessionEndedWhileTheTokensAreOnTheirWay_isNotBroughtBackByTheRecovery() = runTest {
+		val rig = RecoveryRig(this)
+		val exchangeGate = CompletableDeferred<Unit>()
+		rig.api.onExchange = { exchangeGate.await() }
+
+		var recovered: SessionSnapshot? = null
+		val request = launch { recovered = rig.recovery.recoverUnauthorizedSession("access-old", null, null) }
+		runCurrent()
+		assertEquals(1, rig.api.exchangeCalls, "the request for the tokens is in flight")
+
+		rig.store.repository.clear()
+		exchangeGate.complete(Unit)
+		advanceUntilIdle()
+
+		assertTrue(request.isCompleted)
+		assertNull(recovered)
+		assertTrue(rig.store.isGone(), "the tokens did not bring the session back")
+		assertEquals(0, rig.invalidations.raised)
+		assertNull(rig.settings.sessionResetNotice)
+	}
+
+	// The same, with the session ended right before the request for the tokens leaves.
+	@Test
+	fun aSessionEndedRightBeforeTheExchangeRequestLeaves_isNotBroughtBackByTheRecovery() = runTest {
+		val rig = RecoveryRig(this)
+		rig.api.onExchange = { rig.store.repository.clear() }
+
+		var recovered: SessionSnapshot? = null
+		val request = launch { recovered = rig.recovery.recoverUnauthorizedSession("access-old", null, null) }
+		advanceUntilIdle()
+
+		assertTrue(request.isCompleted)
+		assertEquals(1, rig.api.exchangeCalls)
+		assertNull(recovered)
+		assertTrue(rig.store.isGone(), "the tokens did not bring the session back")
+		assertEquals(0, rig.invalidations.raised)
+		assertNull(rig.settings.sessionResetNotice)
+	}
+
+	// The session is ended right after the last check the recovery makes and before anything else reads
+	// it: the store of the tokens is the only thing left that can tell the session is gone.
+	@Test
+	fun aSessionEndedRightAfterTheLastCheckOfTheRecovery_isNotBroughtBackByIt() = runTest {
+		val rig = RecoveryRig(this)
+		rig.endTheSessionAfterTheLastCheck = true
+
+		var recovered: SessionSnapshot? = null
+		val request = launch { recovered = rig.recovery.recoverUnauthorizedSession("access-old", null, null) }
+		advanceUntilIdle()
+
+		assertTrue(request.isCompleted)
+		assertEquals(1, rig.api.exchangeCalls, "the check still saw the attempted session")
+		assertNull(recovered)
+		assertTrue(rig.store.isGone(), "the tokens did not bring the session back")
+		assertEquals(0, rig.invalidations.raised)
+		assertNull(rig.settings.sessionResetNotice)
+	}
 }
 
 private class RecoveryRig(testScope: TestScope) {
@@ -227,6 +290,23 @@ private class RecoveryRig(testScope: TestScope) {
 	val store = RealSessionStore(settings = settings, invalidations = invalidations).also { it.seed() }
 	val credentials = FakeCredentialsRepository(password = "secret")
 	val api = ServerAfterTheRevokeApi()
+
+	// Ends the session right after the first read that follows the attestation of the recovery, which is
+	// the last check it makes before asking for the tokens.
+	var endTheSessionAfterTheLastCheck = false
+	private var attested = false
+	private val sessionRepository: SessionRepository = object : SessionRepository by store.repository {
+		override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+			val snapshot = store.repository.getActiveSessionSnapshot()
+
+			if (endTheSessionAfterTheLastCheck && attested) {
+				endTheSessionAfterTheLastCheck = false
+				store.repository.clear()
+			}
+
+			return snapshot
+		}
+	}
 
 	private val dispatcher = StandardTestDispatcher(testScope.testScheduler)
 	val sessionScope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), null)
@@ -238,15 +318,18 @@ private class RecoveryRig(testScope: TestScope) {
 		database = { credentials.password = null }
 	)
 	private val attestation = object : AttestationRepository {
-		override suspend fun attest(request: AttestationRequest) = Attestation(token = "token")
+		override suspend fun attest(request: AttestationRequest): Attestation {
+			attested = attested || request.operationCode == ProtectedOperationCodes.AuthExchange
+			return Attestation(token = "token")
+		}
 	}
 	val auth = AuthDataSource(
 		authApiDataSource = api,
-		sessionRepository = store.repository,
+		sessionRepository = sessionRepository,
 		reportingRepository = reporting
 	)
 	val recovery = SessionRecoveryDataSource(
-		sessionRepository = store.repository,
+		sessionRepository = sessionRepository,
 		applicationRepository = application,
 		sessionInvalidationRepository = invalidations,
 		syncStatusRepository = FakeSyncStatusRepository(),
@@ -273,6 +356,7 @@ private class RecoveryRig(testScope: TestScope) {
 private class ServerAfterTheRevokeApi : AuthApiDataRepository {
 	var onBootstrap: suspend () -> Unit = {}
 	var onRevoke: suspend () -> Unit = {}
+	var onExchange: suspend () -> Unit = {}
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 
@@ -284,6 +368,7 @@ private class ServerAfterTheRevokeApi : AuthApiDataRepository {
 
 	override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation): IssueTokens {
 		exchangeCalls += 1
+		onExchange()
 		return IssueTokens(
 			uid = "uid",
 			usbId = "12-34567",

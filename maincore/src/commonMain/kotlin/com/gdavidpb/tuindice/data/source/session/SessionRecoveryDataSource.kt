@@ -434,9 +434,10 @@ class SessionRecoveryDataSource(
 				return@runCatching movedOn.current
 			}
 
-			authRepository.exchangeSignIn(
+			authRepository.exchangeRecoverySignIn(
 				bootstrapAccessToken = bootstrapTokens.accessToken,
-				attestation = attestation
+				attestation = attestation,
+				attemptedSnapshot = attemptedSnapshot
 			)
 
 			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)

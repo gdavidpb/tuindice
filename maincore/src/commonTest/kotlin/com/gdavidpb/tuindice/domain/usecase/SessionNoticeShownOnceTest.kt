@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.data.repository.sync.FakeSyncStatusRepository
@@ -245,6 +246,12 @@ class SessionNoticeShownOnceTest {
 }
 
 private object UnusedAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 
 	override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation) = error("unused")

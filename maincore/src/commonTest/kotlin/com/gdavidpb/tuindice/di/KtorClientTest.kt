@@ -757,6 +757,12 @@ private object ErrorAttestationRepository : AttestationRepository {
 }
 
 private object ErrorAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -799,6 +805,12 @@ private class RefreshPersistingAuthRepository(
 	private val sessionRepository: SessionRepository,
 	private val beforeRefresh: suspend () -> Unit = {}
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	val refreshCalls = mutableListOf<RefreshTokensCall>()
 
 	override suspend fun bootstrapSignIn(
@@ -854,6 +866,12 @@ private class RefreshPersistingAuthRepository(
 private class FailingRefreshAfterSessionChangeAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -896,6 +914,12 @@ private class FailingRefreshAfterSessionChangeAuthRepository(
 private class SupersededRefreshThenExchangePersistingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = exchangeSignIn(bootstrapAccessToken, attestation)
+
 	val bootstrapCalls = mutableListOf<BootstrapSignInCall>()
 	val exchangeCalls = mutableListOf<ExchangeSignInCall>()
 
@@ -959,6 +983,12 @@ private class SupersededRefreshThenExchangePersistingAuthRepository(
 }
 
 private class UnauthorizedRefreshAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 
@@ -1000,6 +1030,12 @@ private class UnauthorizedRefreshAuthRepository : AuthRepository {
 }
 
 private class RefreshTokenMismatchAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 

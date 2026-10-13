@@ -349,6 +349,12 @@ private class ProactiveRefreshAuthRepository(
 	private val newAccessToken: String = "access-new",
 	private val beforeRefresh: suspend () -> Unit = {}
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var refreshCalls = 0
 
 	override suspend fun bootstrapSignIn(
@@ -400,6 +406,12 @@ private class ProactiveRefreshAuthRepository(
 private class FailOnceThenRefreshAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var refreshCalls = 0
 
 	override suspend fun bootstrapSignIn(
@@ -451,6 +463,12 @@ private class FailOnceThenRefreshAuthRepository(
 }
 
 private class UnavailableRefreshAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var refreshCalls = 0
 
 	override suspend fun bootstrapSignIn(
@@ -486,6 +504,12 @@ private class UnavailableRefreshAuthRepository : AuthRepository {
 }
 
 private object UnusedAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String

@@ -565,6 +565,12 @@ private class SessionInvalidationRig(
 
 // The server rejects the refresh token: the session is over.
 private object RejectingRefreshAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 
 	override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation) = error("unused")
@@ -584,6 +590,12 @@ private object RejectingRefreshAuthRepository : AuthRepository {
 private class ScopeRefreshingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 
 	override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation) = error("unused")

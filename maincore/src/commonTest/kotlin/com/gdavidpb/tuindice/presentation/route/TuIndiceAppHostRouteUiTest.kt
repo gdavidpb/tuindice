@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -263,6 +264,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -513,6 +520,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -904,6 +917,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -1023,6 +1042,12 @@ class TuIndiceAppHostRouteUiTest {
 					module {
 						single<AuthRepository> {
 							object : AuthRepository {
+								override suspend fun exchangeRecoverySignIn(
+									bootstrapAccessToken: String,
+									attestation: Attestation,
+									attemptedSnapshot: SessionSnapshot
+								) = error("unused")
+
 								override suspend fun bootstrapSignIn(
 									usbId: String,
 									password: String
@@ -1250,6 +1275,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -1409,6 +1440,12 @@ private fun signedOutSessionRepository() = FakeSessionRepository(
 )
 
 private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String

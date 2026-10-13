@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.data.repository.sync.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
@@ -86,6 +87,12 @@ class IosSessionInvalidationRealWiringTest {
 }
 
 private object UnusedAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 
 	override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation) = error("unused")

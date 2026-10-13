@@ -567,6 +567,12 @@ private class SignOutRig(
 		override suspend fun attest(request: AttestationRequest) = Attestation(token = "token")
 	}
 	private val auth = object : AuthRepository {
+		override suspend fun exchangeRecoverySignIn(
+			bootstrapAccessToken: String,
+			attestation: Attestation,
+			attemptedSnapshot: SessionSnapshot
+		) = error("unused")
+
 		override suspend fun bootstrapSignIn(usbId: String, password: String): BootstrapTokens = error("unused")
 
 		override suspend fun exchangeSignIn(bootstrapAccessToken: String, attestation: Attestation) = error("unused")
