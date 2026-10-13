@@ -16,14 +16,19 @@ import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.scheduleEvaluation
 import com.gdavidpb.tuindice.record.testing.scheduleRouteFixture
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -42,7 +47,8 @@ class ScheduleRouteUiTest {
 
 		assertNodeVisible(RecordUiTags.ScheduleSheet)
 		onNodeWithTag(RecordUiTags.ScheduleTitle).assertTextEquals("Horario")
-		onNodeWithText("Sep - Dic 2026").assertIsDisplayed()
+		// Monday 2026-10-05, the day of the test clock, is week 6 of the term that opens on Monday 2026-08-31.
+		onNodeWithText("Sep - Dic 2026 · Semana 6").assertIsDisplayed()
 		// The view the student left chosen is the one the sheet opens on.
 		assertNodeVisible(RecordUiTags.ScheduleTable)
 		assertNodeHidden(RecordUiTags.ScheduleGrid)
@@ -123,6 +129,67 @@ class ScheduleRouteUiTest {
 		waitUntil(timeoutMillis = StateTimeoutMillis) { events.any { event -> event.isAction("resumed") } }
 
 		assertTrue(events.any { event -> event.isAction("resumed") })
+	}
+
+	@Test
+	fun when_aMarkedCellIsTapped_then_theHostIsAskedForTheEvaluationsOfThatWeek() = runTuIndiceUiTest {
+		val fixture = scheduleRouteFixture(
+			record = scheduledRecord(),
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				// Monday 2026-10-05 is the day of the test clock: CI5311 meets that day.
+				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+			)
+		)
+		var asked: LocalDate? = null
+
+		setTuIndiceTestContent {
+			ScheduleRoute(
+				viewModel = fixture.viewModel,
+				onDismissRequest = {},
+				onNavigateToEvaluationsWeek = { weekStart -> asked = weekStart }
+			)
+		}
+
+		waitUntil(timeoutMillis = StateTimeoutMillis) {
+			(fixture.viewModel.state.value as? Schedule.State.Content)?.schedule?.table?.hasEvaluationMarks == true
+		}
+		// 2026-10-05 is in week 6 of the term that opens on Monday 2026-08-31.
+		onNodeWithText("Sep - Dic 2026 · Semana 6").assertIsDisplayed()
+
+		onNodeWithTag(
+			RecordUiTags.scheduleTableEvaluation("attempt-CI5311", ScheduleDay.Monday.code),
+			useUnmergedTree = true
+		).performClick()
+
+		waitUntil(timeoutMillis = StateTimeoutMillis) { asked != null }
+		assertEquals(ScheduleTestDate, asked)
+	}
+
+	@Test
+	fun when_theHostConnectsNothing_then_tappingAMarkedCellDoesNothing() = runTuIndiceUiTest {
+		val fixture = scheduleRouteFixture(
+			record = scheduledRecord(),
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+			)
+		)
+
+		setTuIndiceTestContent {
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+		}
+
+		waitUntil(timeoutMillis = StateTimeoutMillis) {
+			(fixture.viewModel.state.value as? Schedule.State.Content)?.schedule?.table?.hasEvaluationMarks == true
+		}
+
+		onNodeWithTag(
+			RecordUiTags.scheduleTableEvaluation("attempt-CI5311", ScheduleDay.Monday.code),
+			useUnmergedTree = true
+		).performClick()
+
+		// The sheet is still there, as it was.
+		assertNodeVisible(RecordUiTags.ScheduleSheet)
+		assertNodeVisible(RecordUiTags.ScheduleTable)
 	}
 
 	private fun AppEvent.isAction(action: String) =

@@ -7,10 +7,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -181,6 +183,22 @@ class ControllableScheduleClockRepository(
 	val nowFlow = MutableStateFlow(initialNow)
 
 	override fun observeNow(): Flow<ScheduleNow> = nowFlow
+}
+
+// The evaluations the Evaluations tab lists, as the test sets them: none and downloaded unless told
+// otherwise. [failure] makes reading them fail, the way a broken local database would.
+class ControllableVisibleEvaluationsRepository(
+	initialEvaluations: List<Evaluation> = emptyList(),
+	initialHasSynced: Boolean = true,
+	var failure: Throwable? = null
+) : VisibleEvaluationsRepository {
+	val snapshotFlow = MutableStateFlow(ObservedSyncedSnapshot(initialEvaluations, initialHasSynced))
+
+	override fun observeVisibleEvaluationsFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
+		val throwable = failure ?: return snapshotFlow
+
+		return flow { throw throwable }
+	}
 }
 
 // A clock whose ticker is asleep: every observation reads the moment once and then says nothing,

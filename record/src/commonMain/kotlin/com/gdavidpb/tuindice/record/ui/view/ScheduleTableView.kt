@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
+import kotlinx.datetime.LocalDate
 
 // The narrowest the subject column can get and still fit a code. Five days fit a phone; with a
 // weekend day the table grows past the screen and scrolls sideways instead of squeezing the code.
@@ -24,12 +25,14 @@ private val MinSubjectWidth = 88.dp
 
 /**
  * The schedule as the university's enrollment proof prints it: one row per subject and one column
- * per day, each meeting reduced to the range of blocks it covers.
+ * per day, each meeting reduced to the range of blocks it covers. When some meeting has an evaluation
+ * this week, a line under the rows says what its icon means.
  */
 @Composable
 fun ScheduleTableView(
 	modifier: Modifier = Modifier,
-	table: ScheduleTableItem
+	table: ScheduleTableItem,
+	onEvaluationClick: (weekStart: LocalDate) -> Unit
 ) {
 	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleTable)) {
 		val daysWidth = (ScheduleTableDefaults.DayWidth + ScheduleTableDefaults.CellGap) * table.days.size
@@ -50,8 +53,14 @@ fun ScheduleTableView(
 				ScheduleTableRowView(
 					modifier = Modifier.fillMaxWidth(),
 					row = row,
-					days = table.days
+					days = table.days,
+					onEvaluationClick = onEvaluationClick
 				)
+			}
+
+			if (table.hasEvaluationMarks) {
+				// Six of the gap between rows and ten more: the sheet's own spacing between blocks.
+				ScheduleTableEvaluationLegendView(modifier = Modifier.padding(top = TuIndiceSpacing.Large))
 			}
 		}
 	}

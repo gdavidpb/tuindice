@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
@@ -42,6 +43,8 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermVi
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -228,6 +231,7 @@ class RecordStateMachineContractTest {
 			"empty",
 			"ObserveSchedule",
 			"SelectScheduleView",
+			"EvaluationCellSelected",
 			"ScheduleContentObserved",
 			"ScheduleEmptyObserved",
 			"ScheduleWaitingObserved"
@@ -377,8 +381,9 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				Schedule.Action.ObserveSchedule,
 				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
+				Schedule.Action.EvaluationCellSelected(weekStart = ScheduleTestDate),
 				ScheduleInternalEvent.ScheduleContentObserved(
-					termName = "SEP-DIC 2026",
+					subtitle = UiText.Raw("SEP-DIC 2026"),
 					schedule = ScheduleItem(
 						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
 						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
@@ -526,6 +531,7 @@ class RecordStateMachineContractTest {
 			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
 			// Overrides the module's clock: the real one ticks forever, and the walks wait for idle.
 			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
+			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }

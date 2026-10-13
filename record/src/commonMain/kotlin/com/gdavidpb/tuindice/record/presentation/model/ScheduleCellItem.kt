@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.model
 
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import kotlinx.datetime.LocalDate
 
 // One meeting of a subject placed on a day column, with everything it shows already resolved.
 // Blocks are 1-based and inclusive; the lane splits the width of the cell with the meetings that
@@ -23,7 +24,10 @@ data class ScheduleCellItem(
 	val lane: Int,
 	val laneCount: Int,
 	// Today's meeting whose blocks hold the current one: the class being taught right now.
-	val isInProgress: Boolean = false
+	val isInProgress: Boolean = false,
+	// The Monday that opens the calendar week of an evaluation that falls on this meeting, or null
+	// when none does. The table marks the cell and asks the Evaluations tab for that week.
+	val evaluationWeekStart: LocalDate? = null
 ) {
 	val blockSpan: Int
 		get() = endBlock - startBlock + 1
@@ -31,4 +35,8 @@ data class ScheduleCellItem(
 	// Overlaps another subject's meeting that day: both views mark it with the alert tone.
 	val isClash: Boolean
 		get() = laneCount > 1
+
+	// An evaluation of this calendar week falls on this meeting (one mark however many there are).
+	val hasEvaluation: Boolean
+		get() = evaluationWeekStart != null
 }

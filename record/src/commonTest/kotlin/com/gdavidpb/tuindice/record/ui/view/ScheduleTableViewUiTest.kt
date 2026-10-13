@@ -10,12 +10,15 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.clashingWeek
+import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleAttempt
 import com.gdavidpb.tuindice.record.testing.scheduleEntry
 import com.gdavidpb.tuindice.record.testing.scheduleItem
@@ -24,14 +27,16 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class ScheduleTableViewUiTest {
 	@Test
 	fun when_theTermHasSubjects_then_theWeekdaysHeadTheColumns_andEachSubjectHasItsRow() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleTableView(table = clashingWeek().table)
+			ScheduleTableView(table = clashingWeek().table, onEvaluationClick = {})
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTable)
@@ -59,7 +64,7 @@ class ScheduleTableViewUiTest {
 		).table
 
 		setTuIndiceTestContent {
-			ScheduleTableView(table = table)
+			ScheduleTableView(table = table, onEvaluationClick = {})
 		}
 
 		onNodeWithText("Sáb").assertIsDisplayed()
@@ -71,7 +76,7 @@ class ScheduleTableViewUiTest {
 	@Test
 	fun when_aClassIsBeingTaught_then_todayHeadsItsColumn_andTheRowSaysItIsInProgress() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleTableView(table = clashingWeek(now = MondayAtNine).table)
+			ScheduleTableView(table = clashingWeek(now = MondayAtNine).table, onEvaluationClick = {})
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTodayHeader)
@@ -91,7 +96,8 @@ class ScheduleTableViewUiTest {
 		setTuIndiceTestContent {
 			ScheduleTableView(
 				modifier = Modifier.width(200.dp),
-				table = clashingWeek().table
+				table = clashingWeek().table,
+				onEvaluationClick = {}
 			)
 		}
 
@@ -103,6 +109,41 @@ class ScheduleTableViewUiTest {
 		}
 
 		onNodeWithText("Vie").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_someMeetingHasAnEvaluation_then_theLegendExplainsTheIcon_underTheRows() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ScheduleTableView(table = markedWeek().table, onEvaluationClick = {})
+		}
+
+		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
+		onNodeWithText("Evaluación esta semana").assertIsDisplayed()
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+	}
+
+	@Test
+	fun when_noMeetingHasAnEvaluation_then_thereIsNoLegend() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ScheduleTableView(table = clashingWeek().table, onEvaluationClick = {})
+		}
+
+		assertNodeHidden(RecordUiTags.ScheduleEvaluationLegend)
+		onAllNodesWithText("Evaluación esta semana").assertCountEquals(0)
+	}
+
+	@Test
+	fun when_aMarkedCellIsTapped_then_itAsksForTheWeekOfTheMark() = runTuIndiceUiTest {
+		var asked: LocalDate? = null
+
+		setTuIndiceTestContent {
+			ScheduleTableView(table = markedWeek().table, onEvaluationClick = { weekStart -> asked = weekStart })
+		}
+
+		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+			.performClick()
+
+		assertEquals(ScheduleTestDate, asked)
 	}
 
 	private companion object {

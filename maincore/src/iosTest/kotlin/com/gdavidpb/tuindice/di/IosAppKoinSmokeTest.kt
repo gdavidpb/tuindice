@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRep
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
@@ -35,7 +36,9 @@ class IosAppKoinSmokeTest {
 				MainViewModel::class,
 				BrowserViewModel::class,
 				RecordViewModel::class,
-				// The read contracts of the summary hub: nobody consumes them yet.
+				ScheduleViewModel::class,
+				// The read contracts of the summary hub. The schedule sheet already consumes the clock and the
+				// visible evaluations; the rest are not consumed yet.
 				ScheduleClockRepository::class,
 				VisibleEvaluationsRepository::class,
 				PensumProgressRepository::class,

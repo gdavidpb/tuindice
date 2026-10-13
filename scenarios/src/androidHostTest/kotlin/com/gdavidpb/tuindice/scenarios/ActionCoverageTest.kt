@@ -133,7 +133,7 @@ class ActionCoverageTest {
 		const val MINIMUM_ACTIONS = 100
 		const val INTERNAL_COUNT = 26
 		const val PLATFORM_EDGE_COUNT = 5
-		const val PENDING_COUNT = 0
+		const val PENDING_COUNT = 1
 		val actionStart = Regex("""^\s*sealed\s+(class|interface)\s+Action(\s|:|\{|$)""")
 		val declaration = Regex("""^(?:data\s+)?(?:object|class)\s+([A-Za-z_][A-Za-z0-9_]*)""")
 	}

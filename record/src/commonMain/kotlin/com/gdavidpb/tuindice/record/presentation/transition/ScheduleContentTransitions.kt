@@ -16,5 +16,14 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleContentTransitions
 			machine.setViewMode(host = host, viewMode = action.viewMode)
 			state.copy(viewMode = action.viewMode)
 		}
+
+		// Only a table cell with an evaluation can be tapped, and it only asks to be taken there: the
+		// screen stays as it is until whoever hosts the sheet answers.
+		on<Schedule.Action.EvaluationCellSelected>(
+			emits = setOf(Schedule.Effect.NavigateToEvaluationsWeek::class)
+		) { state, action ->
+			host.sendEffect(Schedule.Effect.NavigateToEvaluationsWeek(weekStart = action.weekStart))
+			state
+		}
 	}
 }

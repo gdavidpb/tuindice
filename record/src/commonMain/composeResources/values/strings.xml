@@ -79,7 +79,11 @@
 	<string name="schedule_cell_description_classroom">%1$s, aula %2$s</string>
 	<string name="schedule_cell_description_clash">%1$s. %2$s</string>
 	<string name="schedule_clash">Choque de horario</string>
+	<string name="schedule_subtitle_week">%1$s · Semana %2$d</string>
+	<string name="schedule_evaluation_legend">Evaluación esta semana</string>
+	<string name="schedule_evaluation_click_label">Ver las evaluaciones de la semana</string>
 	<string name="schedule_cell_description_in_progress">%1$s. En curso</string>
+	<string name="schedule_table_meeting_evaluation">%1$s, con evaluación ese día</string>
 	<string name="schedule_table_meeting_in_progress">%1$s, en curso</string>
 	<string name="schedule_day_today">%1$s, hoy</string>
 	<string name="schedule_now_line">Ahora</string>

@@ -120,6 +120,13 @@ object ActionDispositions {
 			action = "record.Schedule.ObserveSchedule",
 			reason = "screen bootstrap"
 		),
+		ActionDisposition.Pending(
+			action = "record.Schedule.EvaluationCellSelected",
+			reason =
+				"a user taps a table cell marked with an evaluation, but until the host connects the sheet to " +
+				"the Evaluations tab the tap leads nowhere a scenario could check; its scenario (the mark, the " +
+				"tap and the way back to the week) is written with the E2E phase of the summary hub"
+		),
 		ActionDisposition.Internal(
 			action = "subjects.SubjectDetail.LoadSubjectDetail",
 			reason = "detail route bootstrap after user selects a subject"

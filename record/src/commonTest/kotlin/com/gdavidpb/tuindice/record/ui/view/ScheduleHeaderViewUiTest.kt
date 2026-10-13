@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
@@ -15,6 +16,8 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.schedule_subtitle_week
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -34,13 +37,32 @@ class ScheduleHeaderViewUiTest {
 	}
 
 	@Test
+	fun when_theDateIsInAWeekOfTheTerm_then_theSubtitleSaysWhichWeek() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ScheduleHeaderView(
+				content = Schedule.State.Content(
+					subtitle = UiText.Resource(Res.string.schedule_subtitle_week, listOf("Sep - Dic 2026", 3)),
+					schedule = ScheduleItem(
+						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
+						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
+					),
+					viewMode = ScheduleViewMode.Table
+				),
+				onViewModeSelected = {}
+			)
+		}
+
+		onNodeWithText("Sep - Dic 2026 · Semana 3").assertIsDisplayed()
+	}
+
+	@Test
 	fun when_thereIsASchedule_then_theTermSitsUnderTheTitle_andTheSwitchReportsTheViewTapped() = runTuIndiceUiTest {
 		var selected: ScheduleViewMode? = null
 
 		setTuIndiceTestContent {
 			ScheduleHeaderView(
 				content = Schedule.State.Content(
-					termName = "SEP-DIC 2026",
+					subtitle = UiText.Raw("SEP-DIC 2026"),
 					schedule = ScheduleItem(
 						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
 						table = ScheduleTableItem(days = emptyList(), rows = emptyList())

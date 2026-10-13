@@ -11,11 +11,21 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.record.domain.mapper.evaluationMarksOn
+import com.gdavidpb.tuindice.record.domain.model.ScheduleEvaluationMarks
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 import kotlin.math.abs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -34,15 +44,53 @@ fun scheduleNow(dayOfWeek: Int, minuteOfDay: Int) = ScheduleNow(
 
 // Laid out by the mapper, so what a schedule view is handed in a test is what the app resolves:
 // the cells, the lanes of a clash, the class in progress and every text shown or said.
-fun scheduleItem(vararg attempts: AttemptProjection, now: ScheduleNow? = null): ScheduleItem =
-	assertNotNull(attempts.toList().toScheduleItem(now = now))
+fun scheduleItem(
+	vararg attempts: AttemptProjection,
+	now: ScheduleNow? = null,
+	evaluationMarks: ScheduleEvaluationMarks? = null
+): ScheduleItem = assertNotNull(attempts.toList().toScheduleItem(now = now, evaluationMarks = evaluationMarks))
+
+// The zone the evaluations of these tests are read in, so what falls on which day does not depend on
+// where they run.
+val EvaluationTestZone: TimeZone = TimeZone.UTC
+
+// An evaluation of [attemptId] on [date] (at noon, away from the edges of the day), or one without a
+// date. A continuous one carries none either, which is what makes it continuous.
+fun scheduleEvaluation(
+	attemptId: String,
+	date: LocalDate?,
+	scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.DATED,
+	id: String = "evaluation-$attemptId-$date"
+) = Evaluation(
+	id = id,
+	attemptId = attemptId,
+	subjectCode = "",
+	termId = "now",
+	scheduleMode = scheduleMode,
+	grade = null,
+	maxGrade = 20.0,
+	date = date?.atStartOfDayIn(EvaluationTestZone)?.toEpochMilliseconds()?.plus(NOON_OFFSET_MILLIS),
+	type = EvaluationType.TEST,
+	state = EvaluationState.PENDING
+)
+
+private const val NOON_OFFSET_MILLIS = 12 * 60 * 60 * 1000L
 
 /**
  * The week most schedule tests draw: CI5311 meets Monday (blocks 1-2) and Wednesday (block 3) in
  * MYS-116, CI5437 meets Monday (blocks 2-3) with no room and so clashes with it on block 2, and
  * EG1114 has nothing placed yet.
  */
-fun clashingWeek(now: ScheduleNow? = null): ScheduleItem = scheduleItem(
+fun clashingWeek(
+	now: ScheduleNow? = null,
+	evaluationMarks: ScheduleEvaluationMarks? = null
+): ScheduleItem = scheduleItem(
+	*clashingWeekAttempts().toTypedArray(),
+	now = now,
+	evaluationMarks = evaluationMarks
+)
+
+fun clashingWeekAttempts(): List<AttemptProjection> = listOf(
 	scheduleAttempt(
 		id = "a1",
 		code = "CI5311",
@@ -58,9 +106,29 @@ fun clashingWeek(now: ScheduleNow? = null): ScheduleItem = scheduleItem(
 		section = 2,
 		schedule = listOf(scheduleEntry(day = ScheduleDay.Monday, blocks = 2..3))
 	),
-	scheduleAttempt(id = "a3", code = "EG1114"),
-	now = now
+	scheduleAttempt(id = "a3", code = "EG1114")
 )
+
+// [clashingWeek] with an evaluation of CI5311 (a1) on its Wednesday meeting, and on its Monday one that
+// clashes with CI5437's when [onMonday] is set.
+fun markedWeek(now: ScheduleNow? = null, onMonday: Boolean = false): ScheduleItem {
+	val wednesday = scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate.plus(DatePeriod(days = 2)))
+	val monday = scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate)
+
+	return clashingWeek(
+		now = now,
+		evaluationMarks = if (onMonday) clashingWeekMarks(wednesday, monday) else clashingWeekMarks(wednesday)
+	)
+}
+
+// The marks of [clashingWeek] when [evaluations] are the ones of the week of [ScheduleTestDate].
+fun clashingWeekMarks(vararg evaluations: Evaluation): ScheduleEvaluationMarks {
+	return clashingWeekAttempts().evaluationMarksOn(
+		evaluations = evaluations.toList(),
+		today = ScheduleTestDate,
+		timeZone = EvaluationTestZone
+	)
+}
 
 fun scheduleEntry(day: ScheduleDay, blocks: IntRange, classroom: String = "") = AcademicScheduleEntry(
 	dayOfWeek = day.code,

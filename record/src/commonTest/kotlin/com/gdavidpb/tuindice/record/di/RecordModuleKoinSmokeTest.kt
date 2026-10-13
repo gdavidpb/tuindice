@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -22,6 +23,7 @@ import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -47,6 +49,8 @@ class RecordModuleKoinSmokeTest {
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 			single<Clock> { Clock.System }
+			// Bound by the evaluations module in the app.
+			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
 			// Bound by maincore's common module in the app.
 			factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
 		}

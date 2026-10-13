@@ -48,6 +48,7 @@ object RecordUiTags {
 	const val ScheduleUnscheduled = "record_schedule_unscheduled"
 	const val ScheduleTodayHeader = "record_schedule_today_header"
 	const val ScheduleNowLine = "record_schedule_now_line"
+	const val ScheduleEvaluationLegend = "record_schedule_evaluation_legend"
 
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyTitle = "record_empty_title"
@@ -76,6 +77,9 @@ object RecordUiTags {
 
 	fun scheduleTableInProgress(attemptId: String, dayCode: Int): String =
 		"record_schedule_table_in_progress_${attemptId}_$dayCode"
+
+	fun scheduleTableEvaluation(attemptId: String, dayCode: Int): String =
+		"record_schedule_table_evaluation_${attemptId}_$dayCode"
 
 	fun scheduleTableUnscheduled(attemptId: String): String = "record_schedule_table_unscheduled_$attemptId"
 	fun scheduleCell(attemptId: String, dayCode: Int, startBlock: Int): String =

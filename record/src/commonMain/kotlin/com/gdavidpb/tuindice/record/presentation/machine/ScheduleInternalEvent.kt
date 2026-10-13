@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
 
@@ -9,7 +10,7 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
  */
 sealed interface ScheduleInternalEvent {
 	data class ScheduleContentObserved(
-		val termName: String,
+		val subtitle: UiText,
 		val schedule: ScheduleItem,
 		val viewMode: ScheduleViewMode
 	) : ScheduleInternalEvent

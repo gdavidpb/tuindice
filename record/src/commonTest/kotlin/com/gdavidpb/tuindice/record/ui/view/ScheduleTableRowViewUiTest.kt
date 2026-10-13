@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
@@ -15,12 +17,16 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
+import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
@@ -30,7 +36,7 @@ class ScheduleTableRowViewUiTest {
 		val table = table()
 
 		setTuIndiceTestContent {
-			ScheduleTableRowView(row = table.rows.first(), days = table.days)
+			ScheduleTableRowView(row = table.rows.first(), days = table.days, onEvaluationClick = {})
 		}
 
 		onNodeWithText("Sec. 1 · MYS-116").assertIsDisplayed()
@@ -47,13 +53,48 @@ class ScheduleTableRowViewUiTest {
 		val table = table()
 
 		setTuIndiceTestContent {
-			ScheduleTableRowView(row = table.rows.last(), days = table.days)
+			ScheduleTableRowView(row = table.rows.last(), days = table.days, onEvaluationClick = {})
 		}
 
 		onNodeWithText("Sin horario").assertIsDisplayed()
 		assertNodeVisible(RecordUiTags.scheduleTableUnscheduled("a3"), useUnmergedTree = true)
 		onAllNodesWithText("Choque de horario").assertCountEquals(0)
 		onNode(hasContentDescription("EG1114, sin horario")).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_aMeetingHasAnEvaluation_then_theRowMarksThatMeetingOnly_andSaysSo() = runTuIndiceUiTest {
+		val row = markedWeek().table.rows.first()
+		val days = markedWeek().table.days
+
+		setTuIndiceTestContent {
+			ScheduleTableRowView(row = row, days = days, onEvaluationClick = {})
+		}
+
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
+		onNode(
+			hasContentDescription(
+				"CI5311, sección 1, aula MYS-116, lunes bloques 1 a 2, miércoles bloque 3, con evaluación ese día"
+			)
+		).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theRowHasTwoMarkedMeetings_then_eachOneAsksForTheSameWeek() = runTuIndiceUiTest {
+		val row = markedWeek(onMonday = true).table.rows.first()
+		val days = markedWeek(onMonday = true).table.days
+		val asked = mutableListOf<LocalDate>()
+
+		setTuIndiceTestContent {
+			ScheduleTableRowView(row = row, days = days, onEvaluationClick = { weekStart -> asked += weekStart })
+		}
+
+		listOf(ScheduleDay.Monday, ScheduleDay.Wednesday).forEach { day ->
+			onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", day.code), useUnmergedTree = true).performClick()
+		}
+
+		assertEquals(listOf(ScheduleTestDate, ScheduleTestDate), asked)
 	}
 
 	// Laid out by the mapper, so the row draws what the app resolves.

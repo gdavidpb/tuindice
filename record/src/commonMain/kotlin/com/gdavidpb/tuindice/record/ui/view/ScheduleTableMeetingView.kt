@@ -1,39 +1,44 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.Role
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleClashDefaults
+import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.schedule_evaluation_click_label
 
 /**
  * One meeting in the schedule table, as the range of blocks it covers. A meeting that overlaps
  * another subject's that day takes the alert tone, the same clash the weekly grid borders. The
  * class being taught right now is filled with the accent, in bold over it. A meeting can be both:
- * the fill says "in progress" and the alert border still says "clash".
+ * the fill says "in progress" and the alert border still says "clash". One an evaluation of this
+ * week falls on carries the evaluation icon under its blocks, whatever else it is, and is a button
+ * that asks for that week of the Evaluations tab ([onEvaluationClick]); the others are not.
  */
 @Composable
 fun ScheduleTableMeetingView(
 	modifier: Modifier = Modifier,
 	attemptId: String,
 	day: ScheduleDay,
-	meeting: ScheduleCellItem
+	meeting: ScheduleCellItem,
+	onEvaluationClick: (weekStart: LocalDate) -> Unit
 ) {
 	val warning = AcademicStatusColors.warning()
 	val isClash = meeting.isClash
@@ -50,20 +55,29 @@ fun ScheduleTableMeetingView(
 	}
 	// The clash tag sits on the surface; the in-progress one on the text, so a meeting that is both
 	// answers to each.
-	val textModifier = if (isInProgress) {
-		Modifier.testTag(RecordUiTags.scheduleTableInProgress(attemptId, day.code))
-	} else {
-		Modifier
-	}
 	val surfaceModifier = if (isClash) {
 		modifier.testTag(RecordUiTags.scheduleTableClash(attemptId, day.code))
 	} else {
 		modifier
 	}
 
+	val shape = RoundedCornerShape(TuIndiceRadius.ExtraSmall)
+	val evaluationWeekStart = meeting.evaluationWeekStart
+	val evaluationClickLabel = stringResource(Res.string.schedule_evaluation_click_label)
+	val clickableModifier = if (evaluationWeekStart != null) {
+		// Clipped to the cell's shape so the ripple does not leave it; the row says what it is.
+		surfaceModifier
+			.clip(shape)
+			.clickable(onClickLabel = evaluationClickLabel, role = Role.Button) {
+				onEvaluationClick(evaluationWeekStart)
+			}
+	} else {
+		surfaceModifier
+	}
+
 	Surface(
-		modifier = surfaceModifier.fillMaxWidth(),
-		shape = RoundedCornerShape(TuIndiceRadius.ExtraSmall),
+		modifier = clickableModifier.fillMaxWidth(),
+		shape = shape,
 		color = fillColor,
 		border = if (isClash) {
 			BorderStroke(width = ScheduleClashDefaults.BorderWidth, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
@@ -71,14 +85,11 @@ fun ScheduleTableMeetingView(
 			null
 		}
 	) {
-		Text(
-			modifier = textModifier.padding(vertical = TuIndiceSpacing.XSmall),
-			text = meeting.blocksText,
-			style = MaterialTheme.typography.labelMedium,
-			fontWeight = if (isInProgress) FontWeight.Bold else null,
-			color = textColor,
-			textAlign = TextAlign.Center,
-			maxLines = 1
+		ScheduleTableMeetingBlocksView(
+			attemptId = attemptId,
+			day = day,
+			meeting = meeting,
+			textColor = textColor
 		)
 	}
 }

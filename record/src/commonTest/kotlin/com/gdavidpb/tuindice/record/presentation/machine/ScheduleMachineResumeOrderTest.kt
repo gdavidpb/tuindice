@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.testing.SleepingScheduleClockRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -66,6 +67,7 @@ class ScheduleMachineResumeOrderTest {
 				),
 				scheduleSelectionRepository = selection,
 				scheduleClockRepository = clock,
+				visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(),
 				reportingRepository = reporting
 			),
 			setScheduleViewModeUseCase = SetScheduleViewModeUseCase(

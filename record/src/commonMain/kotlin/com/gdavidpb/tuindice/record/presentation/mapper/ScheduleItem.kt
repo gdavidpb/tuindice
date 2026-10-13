@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.record.domain.model.ScheduleEvaluationMarks
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
@@ -17,6 +18,7 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
+import kotlinx.datetime.LocalDate
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_table_section
 import tuindice.record.generated.resources.schedule_table_section_classroom
@@ -52,14 +54,18 @@ internal fun AcademicRecord.hasScheduleOnTerm(termId: String): Boolean {
  *
  * [now] is the moment being looked at. It marks today's column, the "now" line of the grid and the
  * class in progress, and leaves all three out when today is not one of the days shown or the hour
- * falls outside the blocks of the grid.
+ * falls outside the blocks of the grid. [evaluationMarks] says which meetings have an evaluation
+ * this calendar week: the table marks them (the grid does not).
  */
-internal fun List<AttemptProjection>.toScheduleItem(now: ScheduleNow? = null): ScheduleItem? {
+internal fun List<AttemptProjection>.toScheduleItem(
+	now: ScheduleNow? = null,
+	evaluationMarks: ScheduleEvaluationMarks? = null
+): ScheduleItem? {
 	val active = filterNot { attempt -> attempt.withdrawn }
 	// The valid meetings are the engine's: placeable, with the room trimmed and the same meeting
 	// listed twice counted once, so it is still one cell.
 	val placed = active.flatMap { attempt ->
-		attempt.validMeetings().mapNotNull { meeting -> meeting.toPlacement() }
+		attempt.validMeetings().mapNotNull { meeting -> meeting.toPlacement(evaluationMarks) }
 	}
 
 	if (placed.isEmpty()) return null
@@ -154,12 +160,13 @@ private data class SchedulePlacement(
 	val classroom: String?,
 	val day: ScheduleDay,
 	val startBlock: Int,
-	val endBlock: Int
+	val endBlock: Int,
+	val evaluationWeekStart: LocalDate?
 )
 
 // The meetings arrive valid (see validMeetings), so every day has a column; one that does not is
 // dropped rather than drawn: a wrong cell is worse than none.
-private fun ScheduleMeeting.toPlacement(): SchedulePlacement? {
+private fun ScheduleMeeting.toPlacement(evaluationMarks: ScheduleEvaluationMarks?): SchedulePlacement? {
 	val day = ScheduleDay.fromCode(dayOfWeek) ?: return null
 
 	return SchedulePlacement(
@@ -168,7 +175,8 @@ private fun ScheduleMeeting.toPlacement(): SchedulePlacement? {
 		classroom = classroom.takeIf { room -> room.isNotEmpty() },
 		day = day,
 		startBlock = startBlock,
-		endBlock = endBlock
+		endBlock = endBlock,
+		evaluationWeekStart = evaluationMarks?.takeIf { marks -> this in marks.meetings }?.weekStart
 	)
 }
 
@@ -234,6 +242,7 @@ private fun SchedulePlacement.toCell(lane: Int, laneCount: Int, isInProgress: Bo
 		endBlock = endBlock,
 		lane = lane,
 		laneCount = laneCount,
-		isInProgress = isInProgress
+		isInProgress = isInProgress,
+		evaluationWeekStart = evaluationWeekStart
 	)
 }

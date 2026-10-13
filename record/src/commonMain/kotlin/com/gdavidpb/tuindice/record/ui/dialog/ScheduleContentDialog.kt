@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.view.ScheduleHeaderView
 import com.gdavidpb.tuindice.record.ui.view.ScheduleViewsView
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_empty_message
@@ -35,6 +36,7 @@ import tuindice.record.generated.resources.schedule_empty_message
 fun ScheduleContentDialog(
 	state: Schedule.State,
 	onViewModeSelected: (ScheduleViewMode) -> Unit,
+	onEvaluationClick: (weekStart: LocalDate) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	ConfirmationDialog(
@@ -68,7 +70,10 @@ fun ScheduleContentDialog(
 					}
 
 				is Schedule.State.Content ->
-					ScheduleViewsView(state = state)
+					ScheduleViewsView(
+						state = state,
+						onEvaluationClick = onEvaluationClick
+					)
 
 				is Schedule.State.Empty ->
 					Text(

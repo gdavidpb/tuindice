@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
+import com.gdavidpb.tuindice.record.presentation.mapper.scheduleSubtitleText
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.record.presentation.transition.scheduleAnyStateTransitions
@@ -92,11 +93,11 @@ class ScheduleMachine(
 		val term = currentTerm
 		// Mapped again with every minute the observation brings, so today, the "now" line and the
 		// class in progress re-enter the table as content like any other change.
-		val schedule = term?.attempts?.toScheduleItem(now = now)
+		val schedule = term?.attempts?.toScheduleItem(now = now, evaluationMarks = evaluationMarks)
 
 		return if (term != null && schedule != null) {
 			ScheduleInternalEvent.ScheduleContentObserved(
-				termName = term.toShortNameText(),
+				subtitle = scheduleSubtitleText(termName = term.toShortNameText(), academicWeek = academicWeek),
 				schedule = schedule,
 				viewMode = viewMode
 			)

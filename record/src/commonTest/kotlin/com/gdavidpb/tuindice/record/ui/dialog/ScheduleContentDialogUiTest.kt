@@ -16,16 +16,20 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
+import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleNow
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -38,6 +42,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -66,6 +71,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Week),
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -87,6 +93,7 @@ class ScheduleContentDialogUiTest {
 				// Monday 9:00, halfway through block 2: both Monday meetings hold it, and they clash.
 				state = content(ScheduleViewMode.Table, now = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -111,6 +118,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Week, now = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -129,6 +137,7 @@ class ScheduleContentDialogUiTest {
 				// A Sunday with nothing on Sunday, at an hour that would otherwise fall inside the grid.
 				state = content(ScheduleViewMode.Week, now = scheduleNow(dayOfWeek = 1, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -146,6 +155,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
 				onViewModeSelected = { selected = it },
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -156,11 +166,37 @@ class ScheduleContentDialogUiTest {
 	}
 
 	@Test
+	fun when_aWeekHasEvaluations_then_theSheetMarksThemAndAMarkedCellAsksForThatWeek() = runTuIndiceUiTest {
+		var asked: LocalDate? = null
+
+		setTuIndiceTestContent {
+			ScheduleContentDialog(
+				state = Schedule.State.Content(
+					subtitle = UiText.Raw("SEP-DIC 2026"),
+					viewMode = ScheduleViewMode.Table,
+					schedule = markedWeek()
+				),
+				onViewModeSelected = {},
+				onEvaluationClick = { weekStart -> asked = weekStart },
+				onDismissRequest = {}
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
+
+		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+			.performClick()
+
+		assertEquals(ScheduleTestDate, asked)
+	}
+
+	@Test
 	fun when_nothingIsScheduled_then_theEmptyCopyIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ScheduleContentDialog(
 				state = Schedule.State.Empty,
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -176,6 +212,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = Schedule.State.Loading,
 				onViewModeSelected = {},
+				onEvaluationClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -206,7 +243,7 @@ class ScheduleContentDialogUiTest {
 		)
 
 		return Schedule.State.Content(
-			termName = "SEP-DIC 2026",
+			subtitle = UiText.Raw("SEP-DIC 2026"),
 			viewMode = viewMode,
 			schedule = assertNotNull(attempts.toScheduleItem(now = now))
 		)

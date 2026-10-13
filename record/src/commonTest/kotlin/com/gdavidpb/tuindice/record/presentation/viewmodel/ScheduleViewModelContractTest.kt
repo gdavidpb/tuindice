@@ -3,9 +3,13 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
@@ -14,19 +18,26 @@ import com.gdavidpb.tuindice.record.presentation.machine.ScheduleMachine
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
+import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.SleepingScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.record.testing.scheduleEvaluation
 import com.gdavidpb.tuindice.record.testing.scheduleNow
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.schedule_subtitle_week
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 class ScheduleViewModelContractTest {
 	@Test
@@ -46,6 +57,136 @@ class ScheduleViewModelContractTest {
 
 				cancelAndIgnoreRemainingEvents()
 			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_withAnEvaluationThisWeek_marksItsCell_andSaysTheWeekOfTheTerm() = runTest {
+		val fixture = createFixture(
+			record = mondayRecord(),
+			hasSynced = true,
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val content = awaitUntilState<Schedule.State.Content>()
+				val meeting = content.schedule.table.rows.single().meetings.getValue(ScheduleDay.Monday).single()
+
+				assertEquals(ScheduleTestDate, meeting.evaluationWeekStart)
+				assertTrue(content.schedule.table.hasEvaluationMarks)
+				// Week 1 opens on Monday 2026-08-31: the Monday 2026-10-05 is week 6.
+				assertEquals(
+					UiText.Resource(Res.string.schedule_subtitle_week, listOf("Sep - Dic 2026", 6)),
+					content.subtitle
+				)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_whenTheEvaluationsAppearLater_theCellIsMarkedWithoutReopeningTheSheet() = runTest {
+		val evaluations = ControllableVisibleEvaluationsRepository()
+		val fixture = createFixture(record = mondayRecord(), hasSynced = true, visibleEvaluationsRepository = evaluations)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				assertFalse(awaitUntilState<Schedule.State.Content>().schedule.table.hasEvaluationMarks)
+
+				evaluations.snapshotFlow.value = ObservedSyncedSnapshot(
+					value = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate)),
+					hasSynced = true
+				)
+
+				val marked = awaitUntilState<Schedule.State.Content> { it.schedule.table.hasEvaluationMarks }
+
+				assertTrue(marked.schedule.table.hasEvaluationMarks)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_withTheEvaluationsFailing_theScheduleIsDrawnWithoutMarks() = runTest {
+		val fixture = createFixture(
+			record = mondayRecord(),
+			hasSynced = true,
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				failure = IllegalStateException("local database is gone")
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val content = awaitUntilState<Schedule.State.Content>()
+
+				assertEquals(listOf("CI5311"), content.schedule.table.rows.map { it.subjectCode })
+				assertFalse(content.schedule.table.hasEvaluationMarks)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun evaluationCellSelected_asksToGoToTheEvaluationsOfThatWeek_andLeavesTheSheetAsItIs() = runTest {
+		val fixture = createFixture(
+			record = mondayRecord(),
+			hasSynced = true,
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			var before: Schedule.State.Content? = null
+
+			fixture.viewModel.state.test {
+				before = awaitUntilState<Schedule.State.Content>()
+
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			fixture.viewModel.effect.test(timeout = 15.seconds) {
+				fixture.viewModel.evaluationCellSelectedAction(weekStart = ScheduleTestDate)
+
+				val effect = assertIs<Schedule.Effect.NavigateToEvaluationsWeek>(awaitItem())
+
+				assertEquals(ScheduleTestDate, effect.weekStart)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			assertEquals<Schedule.State?>(before, fixture.viewModel.state.value)
 		} finally {
 			stateCollector.cancel()
 		}
@@ -205,6 +346,27 @@ class ScheduleViewModelContractTest {
 		}
 	}
 
+	// CI5311 meets Monday (blocks 1-2) in the current term of 2026's SEP_DEC period.
+	private fun mondayRecord() = AcademicRecord(
+		id = "record",
+		terms = listOf(
+			academicTerm(
+				id = "now",
+				kind = TermKind.CURRENT,
+				periodYear = 2026,
+				periodCode = AcademicTermPeriod.SEP_DEC,
+				attempts = listOf(
+					academicAttempt(subjectCode = "CI5311").copy(
+						section = 1,
+						schedule = listOf(
+							AcademicScheduleEntry(dayOfWeek = 2, startBlock = 1, endBlock = 2, classroom = "MYS-116")
+						)
+					)
+				)
+			)
+		)
+	)
+
 	private fun scheduledRecord() = AcademicRecord(
 		id = "record",
 		terms = listOf(
@@ -226,7 +388,8 @@ class ScheduleViewModelContractTest {
 	private fun createFixture(
 		record: AcademicRecord,
 		hasSynced: Boolean,
-		clockRepository: ScheduleClockRepository = ControllableScheduleClockRepository()
+		clockRepository: ScheduleClockRepository = ControllableScheduleClockRepository(),
+		visibleEvaluationsRepository: VisibleEvaluationsRepository = ControllableVisibleEvaluationsRepository()
 	): ScheduleFixture {
 		val academicRecordRepository = ControllableAcademicRecordRepository(
 			initialRecord = record,
@@ -242,6 +405,7 @@ class ScheduleViewModelContractTest {
 						academicRecordRepository = academicRecordRepository,
 						scheduleSelectionRepository = selectionRepository,
 						scheduleClockRepository = clockRepository,
+						visibleEvaluationsRepository = visibleEvaluationsRepository,
 						reportingRepository = reportingRepository
 					),
 					setScheduleViewModeUseCase = SetScheduleViewModeUseCase(

@@ -22,17 +22,20 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
+import kotlinx.datetime.LocalDate
 
 /**
  * One subject of the table: its code and where it is taught on the left, then a cell per day.
  * A meeting that clashes with another subject's is outlined in the alert tone; nothing is written
- * under the row for it.
+ * under the row for it. A meeting with an evaluation this week is a button inside the row, and the row's
+ * description (which merges its cells) says so; every such cell asks for the same week.
  */
 @Composable
 fun ScheduleTableRowView(
 	modifier: Modifier = Modifier,
 	row: ScheduleTableRowItem,
-	days: List<ScheduleDay>
+	days: List<ScheduleDay>,
+	onEvaluationClick: (weekStart: LocalDate) -> Unit
 ) {
 	val description = row.description.asString()
 
@@ -74,7 +77,8 @@ fun ScheduleTableRowView(
 							modifier = Modifier.width(ScheduleTableDefaults.DayWidth),
 							attemptId = row.attemptId,
 							day = day,
-							meetings = row.meetings[day].orEmpty()
+							meetings = row.meetings[day].orEmpty(),
+							onEvaluationClick = onEvaluationClick
 						)
 					}
 				}

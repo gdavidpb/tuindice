@@ -25,7 +25,7 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleAnyStateTransition
 
 		onTo<ScheduleInternalEvent.ScheduleContentObserved, Schedule.State.Content> { _, event ->
 			Schedule.State.Content(
-				termName = event.termName,
+				subtitle = event.subtitle,
 				schedule = event.schedule,
 				viewMode = event.viewMode
 			)
