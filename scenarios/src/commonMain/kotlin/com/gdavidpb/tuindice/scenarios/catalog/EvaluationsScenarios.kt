@@ -455,12 +455,15 @@ private val evaluationsEditKeepsSubject = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip, Within.Assert)
 	waitVisible(EvaluationsUiTags.calendarDayClassDot(E2eInputs.HubClassDay), Within.Assert)
 	waitGone(EvaluationsUiTags.calendarDayClassDot(E2eInputs.HubNoClassDay), Within.Assert)
+	// The saved date, Thursday the 15th, has class, so its line is up before anything is touched: Wednesday goes first
+	// and must take the line away, then Thursday must bring it back.
+	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubNoClassDay))
+	waitGone(text(Copy.InClassBlocks34Mys210), Within.Action)
+	waitGone(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
+	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelection, Within.Assert)
 	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubClassDay))
 	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
 	waitVisible(text(Copy.InClassBlocks34Mys210), Within.Assert)
-	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubNoClassDay))
-	waitGone(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
-	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelection, Within.Assert)
 	tap(EvaluationsUiTags.EvaluationDateDialogCancelButton)
 	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Action)
 }

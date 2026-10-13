@@ -7,7 +7,7 @@ The accounts, tokens, texts and ids the scenarios use are Kotlin values in
 `Copy.kt`). Host tests in `scenarios/src/androidHostTest/` check them against the mappings (`AccountFixturesTest`,
 `AccountSessionFixturesTest`, `EntityFixturesTest`, `CopyTest`, `MockContractTest`, `MockRulesTest`,
 `PendingFlushMocksTest`, `RecordSearchFixturesTest`, `SubjectSearchFixturesTest`, `RetryOrderMocksTest`,
-`E2eClockFixtureTest`, `SummaryHubFixturesTest`) and run in `verifyE2eContract`. This document keeps the semantics; the values live there.
+`E2eClockFixtureTest`, `SummaryHubRecordFixturesTest`, `SummaryHubMocksTest`) and run in `verifyE2eContract`. This document keeps the semantics; the values live there.
 
 Rules:
 
@@ -76,14 +76,16 @@ Fixed clock:
   with the zone. Fixing the zone from the harness was looked at and not done: on Android it needs a device-level change
   (`cmd time_zone_detector`) no one can check without the emulator, it changes the toolchain fingerprint and the harness
   line budget, and on iOS it needs `TZ` in the launch environment, which only a run proves the Kotlin runtime honours; a debug
-  zone argument would put code in the app for it. `SummaryHubFixturesTest` checks the construction.
+  zone argument would put code in the app for it. `SummaryHubRecordFixturesTest` checks the construction.
 
 Summary hub fixture contract:
 
 - Two dedicated users, `summary-hub` (raw USBID digits `4141414`, password `summary-hub-pass`) and `summary-hub-no-pensum`
   (`4242424`, `summary-hub-no-pensum-pass`), share one record, one list of evaluations and one sync body; they differ in
-  what their pensum answers (the shared success for the first, 404 for the second, so no pensum is cached and the career
-  card is the invitation). Their mappings: `auth-summary-hub-*` and `auth-summary-hub-no-pensum-*` (bootstrap and exchange),
+  what their pensum answers. The first gets the shared success, so its career card is the invitation until its Pensum tab
+  has been opened once (that downloads the pensum and keeps it); from then on the card shows the progress. The second
+  gets 404, so no pensum is ever cached and its career card stays the invitation. Their mappings:
+  `auth-summary-hub-*` and `auth-summary-hub-no-pensum-*` (bootstrap and exchange),
   `post-sync-summary-hub*.json` (by password, both serve `sync/post-sync-summary-hub.json`), `get-record-summary-hub.json`
   and `get-evaluations-summary-hub.json` (priority 1, by the bearer of either user), `get-pensum-summary-hub-no-pensum.json`.
   The mock state is global to the profile, not to the account, so the evaluations of these users are a fixed list in a
@@ -101,7 +103,7 @@ Summary hub fixture contract:
   12 (overdue, class day), a test of CI5437 today (blocks 3-4) and a test of EG1114 on Friday 16 (no class that day). That
   gives the hub two points of attention (`2 evaluaciones sin nota`, leading to week 2, and the clash of CI5437, leading to
   Record), two evaluations in "Esta semana" (today and Friday, not the overdue ones), points for CI5311 and "Sin notas aún"
-  for the rest, and a schedule whose Monday and Thursday meetings of CI5311 and CI5437 carry the evaluation mark.
+  for the rest, and a week-3 schedule where only the Monday meeting of CI5311 and the Thursday meeting of CI5437 carry the evaluation mark.
 - The hub scenarios read the sheet and the hub through tags. A marked cell of the sheet, a row of the hub and a point of
   attention are buttons that merge their children, so the tags inside them (`scheduleCellEvaluation`,
   `scheduleTableEvaluationIcon`, `WeekClassPill`) are not asserted by the scenarios: the marked cell is found by its own tag

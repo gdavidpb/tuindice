@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.scenarios.catalog
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -125,7 +126,17 @@ private val recordScheduleEvaluationMarks = scenario(
 	val ci5311 = E2eFixtures.HubAttemptCi5311.value
 	val ci5437 = E2eFixtures.HubAttemptCi5437.value
 
-	openRecordTab()
+	// Evaluations opens on the week of the clock, the week the marks land on, so the tab is first moved to week 2:
+	// landing on week 3 at the end is then the jump's doing, not the tab's.
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Long)
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Assert)
+	tap(EvaluationsUiTags.evaluationsWeekChip(E2eInputs.HubWeek2))
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek2), Within.Action)
+	waitGone(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Action)
+	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	tap(RecordUiTags.termChip(E2eFixtures.HubTerm.value))
 	tap(scheduleAction)
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)

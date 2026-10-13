@@ -407,7 +407,8 @@ object E2eAccounts {
 	/**
 	 * Session values of `auth-summary-hub-exchange-success.json`. The only account whose current term is the one the
 	 * frozen clock is in (September - December 2026, week 3), with classes on the day of the clock and evaluations in
-	 * its week; its pensum is the shared one, so the hub shows the career with its progress.
+	 * its week; its pensum is the shared one, which the hub shows as the career's progress only after the Pensum tab
+	 * has been opened once (until then the career is the invitation to open it).
 	 */
 	val SummaryHub = E2eAccount(
 		id = "summary-hub",

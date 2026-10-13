@@ -303,14 +303,20 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 	waitVisible(text(Copy.SummaryTermWeek3, contains = true), Within.Assert)
 	waitVisible(SummaryUiTags.TermWeekTrack, Within.Assert)
 	listOf(
+		E2eFixtures.SubjectCi4325.value,
 		E2eFixtures.SubjectCi5311.value,
 		ci5437,
-		E2eFixtures.SubjectEg1114.value,
-		E2eFixtures.SubjectCi4325.value
+		E2eFixtures.SubjectEg1114.value
 	).forEach { code ->
 		scrollUntilVisible(SummaryUiTags.termPointsRow(code), Scroll.ContentDown, Within.Wait)
 	}
-	// The career: the pensum is cached, so it shows its progress and not the invitation.
+	// The career needs the pensum, which the app downloads only when its tab is opened: the tab is opened here once.
+	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
+	waitVisible(PensumUiTags.PensumScreen, Within.Long)
+	waitVisible(PensumUiTags.Canvas, Within.Assert)
+	returnToSummaryTab()
+	// The career: the pensum stays saved once its tab has been opened, so the card shows its progress and not the
+	// invitation.
 	scrollUntilVisible(SummaryUiTags.CareerCard, Scroll.ContentDown, Within.Long)
 	waitVisible(SummaryUiTags.CareerProgressBar, Within.Assert)
 	waitVisible(SummaryUiTags.CareerPercentText, Within.Assert)
@@ -399,7 +405,7 @@ private val summaryHubCareerInvite = scenario(
 	covers("summary.Summary.OpenTarget")
 	account(E2eAccounts.SummaryHubNoPensum.id)
 
-	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	waitSummaryHub()
 	scrollUntilVisible(SummaryUiTags.CareerInviteCard, Scroll.ContentDown, Within.Long)
 	waitGone(SummaryUiTags.CareerCard, Within.Assert)
 	tap(SummaryUiTags.CareerInviteCard)
