@@ -71,7 +71,7 @@ fun SubjectSearchResultCard(
 		trailingContent = {
 			Surface(
 				shape = RoundedCornerShape(TuIndiceRadius.Medium),
-				color = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
+				color = MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.48f),
 				border = BorderStroke(
 					width = 1.dp,
 					color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
@@ -176,7 +176,7 @@ private fun SubjectSearchStatusMarker(visual: SubjectSearchStatusVisual) {
 	Box(
 		modifier = Modifier
 			.size(20.dp)
-			.background(MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
+			.background(MaterialTheme.colorScheme.surfaceDim, CircleShape)
 			.border(1.2.dp, visual.color, CircleShape),
 		contentAlignment = Alignment.Center
 	) {

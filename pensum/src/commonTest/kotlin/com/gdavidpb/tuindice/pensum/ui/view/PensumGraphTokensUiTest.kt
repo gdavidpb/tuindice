@@ -48,7 +48,7 @@ class PensumGraphTokensUiTest {
 	fun when_anyThemeIsResolved_then_surfacesAndCurrentStatusComeFromTheColorScheme() =
 		runTuIndiceUiTest {
 			val palette = resolveGraphPalette(isDark = false)
-			val panelBackground = palette.colorScheme.surfaceContainerLow
+			val panelBackground = palette.colorScheme.surfaceVariant
 
 			assertEquals(palette.colorScheme.primary, palette.graphColors.current)
 			assertEquals(palette.colorScheme.background, palette.graphColors.screenBackground)

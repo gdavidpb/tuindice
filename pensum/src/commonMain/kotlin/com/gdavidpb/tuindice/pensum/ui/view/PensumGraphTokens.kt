@@ -40,7 +40,7 @@ internal data class PensumGraphColors(
 @Composable
 internal fun pensumGraphColors(): PensumGraphColors {
 	val colorScheme = MaterialTheme.colorScheme
-	val panelBackground = colorScheme.surfaceContainerLow
+	val panelBackground = colorScheme.surfaceVariant
 
 	return if (TuIndiceDarkTheme.isDark()) {
 		PensumGraphColors(

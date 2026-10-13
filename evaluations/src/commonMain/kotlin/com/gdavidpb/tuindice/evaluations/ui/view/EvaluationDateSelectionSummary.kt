@@ -36,7 +36,7 @@ fun EvaluationDateSelectionSummary(
 			.testTag(EvaluationsUiTags.EvaluationDateDialogSelection)
 			.fillMaxWidth()
 			.background(
-				color = MaterialTheme.colorScheme.surface,
+				color = MaterialTheme.colorScheme.surfaceVariant,
 				shape = RoundedCornerShape(TuIndiceRadius.Medium)
 			)
 			.padding(12.dp),

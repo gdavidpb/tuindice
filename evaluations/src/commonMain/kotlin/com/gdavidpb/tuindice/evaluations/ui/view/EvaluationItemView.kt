@@ -11,7 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,7 +61,11 @@ fun EvaluationItemView(
 	val editActionLabel = stringResource(Res.string.label_evaluation_swipe_edit)
 	val deleteActionLabel = stringResource(Res.string.label_evaluation_swipe_delete)
 
-	ElevatedCard(
+	Card(
+		colors = CardDefaults.cardColors(
+			containerColor = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurface
+		),
 		modifier = modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 			.clickable(
@@ -246,7 +251,7 @@ private data class StatusColors(
 private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
 	return when (tone) {
 		EvaluationHighlightTone.Success -> StatusColors(
-			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			container = MaterialTheme.colorScheme.surfaceDim,
 			content = MaterialTheme.colorScheme.onSurface
 		)
 
@@ -256,7 +261,7 @@ private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
 		)
 
 		EvaluationHighlightTone.Neutral -> StatusColors(
-			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			container = MaterialTheme.colorScheme.surfaceDim,
 			content = MaterialTheme.colorScheme.onSurface
 		)
 	}

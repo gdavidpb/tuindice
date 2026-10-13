@@ -93,13 +93,13 @@ private fun CareerProgressCard(career: SummaryCareerItem.Progress) {
 				verticalAlignment = Alignment.Top
 			) {
 				SummaryFigureText(
-					modifier = Modifier.weight(1f),
+					modifier = Modifier.weight(1f).alignByBaseline(),
 					figure = career.valueText,
 					rest = career.restText.asString()
 				)
 
 				Text(
-					modifier = Modifier.testTag(SummaryUiTags.CareerPercentText),
+					modifier = Modifier.testTag(SummaryUiTags.CareerPercentText).alignByBaseline(),
 					text = career.percentText.asString(),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)

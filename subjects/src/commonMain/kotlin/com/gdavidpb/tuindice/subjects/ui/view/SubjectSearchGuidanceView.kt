@@ -65,7 +65,7 @@ fun SubjectSearchGuidanceView(
 					modifier = Modifier.testTag(SubjectsUiTags.searchExample(index)),
 					onClick = { onExampleClick(example) },
 					colors = AssistChipDefaults.assistChipColors(
-						containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+						containerColor = MaterialTheme.colorScheme.surfaceVariant
 					),
 					label = {
 						Text(

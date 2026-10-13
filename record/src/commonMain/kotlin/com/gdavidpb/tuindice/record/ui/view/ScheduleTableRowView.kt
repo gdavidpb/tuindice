@@ -51,7 +51,8 @@ fun ScheduleTableRowView(
 				.semantics(mergeDescendants = true) { contentDescription = description },
 			shape = RoundedCornerShape(TuIndiceRadius.Small),
 			// One step above the sheet the table sits on, so each subject reads as its own row.
-			color = MaterialTheme.colorScheme.surfaceContainerHigh
+			color = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurface
 		) {
 			Row(
 				modifier = Modifier

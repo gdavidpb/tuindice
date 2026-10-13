@@ -284,7 +284,7 @@ private fun CreateTermSubjectStatusMarker(status: SubjectStatus) {
 	Box(
 		modifier = Modifier
 			.size(20.dp)
-			.background(MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
+			.background(MaterialTheme.colorScheme.surfaceDim, CircleShape)
 			.border(1.2.dp, status.color, CircleShape),
 		contentAlignment = Alignment.Center
 	) {

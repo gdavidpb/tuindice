@@ -29,7 +29,7 @@ fun EvaluationTypePicker(
 	items: List<EvaluationTypePickerItem>,
 	onTypeChange: (EvaluationType?) -> Unit
 ) {
-	val containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val containerColor = MaterialTheme.colorScheme.surfaceVariant
 	val selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
 
 	FlowRow(

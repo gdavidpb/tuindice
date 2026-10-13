@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 fun AttemptStatusBadge(
 	modifier: Modifier = Modifier,
 	text: String,
-	containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+	containerColor: Color = MaterialTheme.colorScheme.surfaceDim,
 	contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
 	Text(

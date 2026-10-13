@@ -36,7 +36,7 @@ fun ScheduleViewSwitchView(
 		activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
 		activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
 		activeBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted),
-		inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
+		inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
 		inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
 		inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
 	)

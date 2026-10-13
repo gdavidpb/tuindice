@@ -81,7 +81,7 @@ fun QualitativeStatusSelector(
 				modifier = Modifier
 					.padding(top = 6.dp),
 				shape = RoundedCornerShape(TuIndiceRadius.Medium),
-				color = MaterialTheme.colorScheme.surfaceContainerHigh
+				color = MaterialTheme.colorScheme.surfaceDim
 			) {
 				Column(
 					modifier = Modifier.padding(vertical = 4.dp)

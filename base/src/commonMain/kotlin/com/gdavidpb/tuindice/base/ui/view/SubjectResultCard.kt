@@ -49,7 +49,8 @@ fun SubjectResultCard(
 	Surface(
 		modifier = clickableModifier.fillMaxWidth(),
 		shape = RoundedCornerShape(TuIndiceRadius.Card),
-		color = MaterialTheme.colorScheme.surfaceContainerLow,
+		color = MaterialTheme.colorScheme.surfaceVariant,
+		contentColor = MaterialTheme.colorScheme.onSurface,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.42f)
