@@ -21,10 +21,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -64,6 +66,7 @@ fun TuIndiceAppHostRoute(
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
+	evaluationsWeekFocusRepository: EvaluationsWeekFocusRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
@@ -144,9 +147,6 @@ fun TuIndiceAppHostRoute(
 				mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 			}
 			val onRecordTermSelection = remember {
-				mutableStateOf<(() -> Unit)?>(null)
-			}
-			val onRecordSchedule = remember {
 				mutableStateOf<(() -> Unit)?>(null)
 			}
 			val backInterceptor = remember {
@@ -236,8 +236,10 @@ fun TuIndiceAppHostRoute(
 						is TopBarAction.RecordTermSelectionAction ->
 							onRecordTermSelection.value?.invoke()
 
-						is TopBarAction.RecordScheduleAction ->
-							onRecordSchedule.value?.invoke()
+						// One way to open the sheet, whichever tab's bar asked: over the tab on screen.
+						is TopBarAction.RecordScheduleAction,
+						is TopBarAction.EvaluationsScheduleAction,
+						-> navigator?.openSchedule()
 
 						is TopBarAction.SearchPensumAction ->
 							navigator?.push(SubjectsDestination.SubjectSearch)
@@ -250,11 +252,15 @@ fun TuIndiceAppHostRoute(
 				onRecordTermSelectionAvailable = { callback ->
 					onRecordTermSelection.value = callback
 				},
-				onRecordScheduleAvailable = { callback ->
-					onRecordSchedule.value = callback
-				},
 				onBackInterceptorAvailable = { interceptor ->
 					backInterceptor.value = interceptor
+				},
+				// A marked cell of the Schedule: ask for that week of Evaluations, then close the sheet
+				// and go there in one move. The request is state, so the tab applies it when it is ready.
+				// The jump does not write the section the app opens on.
+				onNavigateToEvaluationsWeek = { weekStart ->
+					evaluationsWeekFocusRepository.request(weekStart)
+					navigator?.popThenSwitchTab(MainSection.EVALUATIONS)
 				},
 				onNavigateTo = { section ->
 					if (navigator != null && navigator.currentTab != section) {

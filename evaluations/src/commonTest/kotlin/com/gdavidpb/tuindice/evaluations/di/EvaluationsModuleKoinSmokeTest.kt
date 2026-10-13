@@ -2,9 +2,11 @@
 
 package com.gdavidpb.tuindice.evaluations.di
 
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
@@ -48,6 +50,7 @@ class EvaluationsModuleKoinSmokeTest {
 		module {
 			single<EvaluationRepository> { RecordingEvaluationRepository() }
 			single<EvaluationsSelectionRepository> { InMemoryEvaluationsSelectionRepository() }
+			single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
 			single<IdentifierRepository> { FakeIdentifierRepository() }
 			single<RecordDataPrerequisiteRepository> { ReadyRecordDataPrerequisiteRepository() }
 			single<SyncStatusRepository> { RecordingSyncStatusRepository() }

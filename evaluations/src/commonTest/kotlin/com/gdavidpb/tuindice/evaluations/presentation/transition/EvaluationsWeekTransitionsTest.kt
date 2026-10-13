@@ -2,6 +2,7 @@
 
 package com.gdavidpb.tuindice.evaluations.presentation.transition
 
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
@@ -78,6 +79,7 @@ class EvaluationsWeekTransitionsTest {
 			evaluationsSelectionRepository = selectionRepository,
 			reportingRepository = RecordingReportingRepository()
 		),
+		weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 		clock = Clock.System
 	).define(
 		object : MachineHost<Evaluations.Effect> {

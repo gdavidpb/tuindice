@@ -43,6 +43,7 @@ import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceRetainedViewModelStor
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavForwardTransitionSpec
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPopTransitionSpec
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPredictivePopTransitionSpec
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun TuIndiceNavDisplay(
@@ -54,8 +55,8 @@ fun TuIndiceNavDisplay(
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
-	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -109,10 +110,10 @@ fun TuIndiceNavDisplay(
 				},
 				onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onTopBarScheduleAvailable = onRecordScheduleAvailable,
 				onNavigateToEnrollmentProof = {
 					navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
-				}
+				},
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek
 			)
 		)
 

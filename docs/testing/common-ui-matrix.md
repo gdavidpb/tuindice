@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-13 02:35:37 -0300_
+_Generated automatically on 2026-10-13 03:33:17 -0300_
 
 ## Summary by module
 
@@ -12,7 +12,7 @@ _Generated automatically on 2026-10-13 02:35:37 -0300_
 | `base` | 2 | 35 | 47 | 36 | 34 | 34 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
 | `evaluations` | 2 | 44 | 47 | 49 | 44 | 44 |
-| `maincore` | 3 | 14 | 17 | 15 | 14 | 14 |
+| `maincore` | 3 | 14 | 17 | 17 | 14 | 14 |
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
 | `record` | 2 | 75 | 89 | 82 | 75 | 75 |
 | `subjects` | 2 | 24 | 27 | 25 | 24 | 24 |
@@ -235,7 +235,7 @@ _Generated automatically on 2026-10-13 02:35:37 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/AttemptItem.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/AttemptItemUiTest.kt` | 6 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/TermItem.kt` | 3 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/TermItemUiTest.kt` | 6 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/CreateSyntheticTermRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/CreateSyntheticTermRouteUiTest.kt` | 7 | PASS threshold (2) |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRouteUiTest.kt` | 10 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRouteUiTest.kt` | 9 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/ScheduleRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/ScheduleRouteUiTest.kt` | 6 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationContentDialog.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationContentDialogUiTest.kt` | 3 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationDialog.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationDialogUiTest.kt` | 2 | PASS threshold (2) |

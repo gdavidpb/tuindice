@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
@@ -100,6 +102,12 @@ val commonModule = module {
 
 	singleOf(::InMemorySessionDataSource) {
 		bind<MemorySessionDataRepository>()
+		bind<SessionMemory>()
+	}
+	// The week of Evaluations a screen asked the host to show: the host writes it, the machine of
+	// that tab applies it.
+	singleOf(::InMemoryEvaluationsWeekFocusDataSource) {
+		bind<EvaluationsWeekFocusRepository>()
 		bind<SessionMemory>()
 	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {

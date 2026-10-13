@@ -26,7 +26,7 @@ fun EntryProviderScope<NavKey>.recordEntries(
 	dependencies: RecordNavDependencies
 ) {
 	recordEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
-	scheduleEntry(navActions = navActions)
+	scheduleEntry(navActions = navActions, dependencies = dependencies)
 	createSyntheticTermEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
 	deleteSyntheticTermConfirmationDialogEntry(navActions = navActions)
 }
@@ -65,10 +65,6 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 			},
 			onTopBarViewModeChangeAvailable = dependencies.onTopBarViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = dependencies.onTopBarTermSelectionAvailable,
-			onTopBarScheduleAvailable = dependencies.onTopBarScheduleAvailable,
-			onNavigateToSchedule = {
-				navActions.push(RecordDestination.ScheduleDialog)
-			},
 			onNavigateToEnrollmentProof = dependencies.onNavigateToEnrollmentProof,
 			showTopBarBanner = shellBindings.showTopBarBanner,
 			showSnackBar = shellBindings.showSnackBar,
@@ -78,14 +74,16 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 }
 
 private fun EntryProviderScope<NavKey>.scheduleEntry(
-	navActions: TuIndiceNavActions
+	navActions: TuIndiceNavActions,
+	dependencies: RecordNavDependencies
 ) {
 	entry<RecordDestination.ScheduleDialog>(metadata = dialogMetadata()) {
 		val viewModel = koinViewModel<ScheduleViewModel>()
 
 		ScheduleRoute(
 			viewModel = viewModel,
-			onDismissRequest = { navActions.pop() }
+			onDismissRequest = { navActions.pop() },
+			onNavigateToEvaluationsWeek = dependencies.onNavigateToEvaluationsWeek
 		)
 	}
 }

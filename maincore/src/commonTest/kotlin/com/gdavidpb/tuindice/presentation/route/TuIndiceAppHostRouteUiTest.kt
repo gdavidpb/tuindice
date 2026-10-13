@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
@@ -37,6 +38,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
@@ -1405,6 +1407,7 @@ class TuIndiceAppHostRouteUiTest {
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
+		single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
 	}
 }
 

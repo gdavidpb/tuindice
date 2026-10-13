@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -44,8 +45,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdle
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsWeekFocusTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -64,6 +67,7 @@ class EvaluationsMachine(
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val setSelectedWeekUseCase: SetSelectedWeekUseCase,
+	private val weekFocusRepository: EvaluationsWeekFocusRepository,
 	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
@@ -77,11 +81,14 @@ class EvaluationsMachine(
 			evaluationsNoAttemptsTransitions()
 			evaluationsFailedTransitions()
 			evaluationsRecordDataUnavailableTransitions()
+			evaluationsWeekFocusTransitions(machine = this@EvaluationsMachine, host = host)
 			evaluationsAnyStateTransitions(machine = this@EvaluationsMachine, host = host)
 		}
 	}
 
 	internal fun startObservation(host: MachineHost<Evaluations.Effect>) {
+		observeWeekFocus(host = host)
+
 		host.launchMachineJob {
 			getEvaluationsUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
@@ -92,19 +99,25 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsWaitingObserved
 						)
 
-						is GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
-								explanation = resolveRecordDataUnavailableExplanation(
-									isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+						is GetEvaluations.RecordDataUnavailable -> {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+									explanation = resolveRecordDataUnavailableExplanation(
+										isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+									)
 								)
 							)
-						)
+							sendPendingWeekFocus(host = host)
+						}
 
-						is GetEvaluations.NoAttempts -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-								explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
+						is GetEvaluations.NoAttempts -> {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+									explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
+								)
 							)
-						)
+							sendPendingWeekFocus(host = host)
+						}
 
 						is GetEvaluations.Content -> when (
 							resolveSyncedContentResolution(
@@ -116,13 +129,15 @@ class EvaluationsMachine(
 								keepCurrentWhileWaiting = false
 							)
 						) {
-							SyncedContentResolution.Content -> host.processInternalEvent(
-								evaluations.toContentObservedEvent()
-							)
+							SyncedContentResolution.Content -> {
+								host.processInternalEvent(evaluations.toContentObservedEvent())
+								sendPendingWeekFocus(host = host)
+							}
 
-							SyncedContentResolution.Empty -> host.processInternalEvent(
-								EvaluationsInternalEvent.EvaluationsEmptyObserved
-							)
+							SyncedContentResolution.Empty -> {
+								host.processInternalEvent(EvaluationsInternalEvent.EvaluationsEmptyObserved)
+								sendPendingWeekFocus(host = host)
+							}
 
 							SyncedContentResolution.Loading,
 							SyncedContentResolution.KeepCurrent,
@@ -140,6 +155,30 @@ class EvaluationsMachine(
 				}
 			}
 		}
+	}
+
+	// A request made while the content is already up. One made earlier (before this screen existed or
+	// before its content loaded) is still in the state and is sent again each time an observation
+	// settles, below.
+	private fun observeWeekFocus(host: MachineHost<Evaluations.Effect>) {
+		host.launchMachineJob {
+			weekFocusRepository.pendingWeekStart.filterNotNull().collect { weekStart ->
+				host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(weekStart = weekStart))
+			}
+		}
+	}
+
+	// The request to show a week that is still pending, sent again now that the screen has settled on
+	// something that can apply it or drop it.
+	private fun sendPendingWeekFocus(host: MachineHost<Evaluations.Effect>) {
+		weekFocusRepository.pendingWeekStart.value?.let { weekStart ->
+			host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(weekStart = weekStart))
+		}
+	}
+
+	/** Takes the pending request for the week [weekStart] opens: true only for the first caller. */
+	internal fun takeWeekFocus(weekStart: LocalDate): Boolean {
+		return weekFocusRepository.consume(weekStart = weekStart)
 	}
 
 	internal fun refresh(host: MachineHost<Evaluations.Effect>) {
@@ -359,7 +398,8 @@ class EvaluationsMachine(
 				attempts = displayContext.attempts,
 				mapping = mapping
 			),
-			weekOneStart = weekOneStart
+			weekOneStart = weekOneStart,
+			hasSchedule = displayContext.attempts.any { attempt -> attempt.meetings.isNotEmpty() }
 		)
 	}
 

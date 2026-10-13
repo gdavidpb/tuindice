@@ -41,6 +41,7 @@ class SessionMemoryBindingTest {
 
 		assertEquals(
 			listOf(
+				"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",
 				"base.data.source.usage.UsageDataConsentSettingsDataSource",
 				"data.source.credentials.CredentialsDataSource",

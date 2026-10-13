@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
@@ -37,8 +38,13 @@ object Evaluations {
 			),
 			// The Monday that opened week 1 when this content was laid out: what the week numbers hang
 			// from, saved with the selection and compared when the content is observed again.
-			val weekOneStart: LocalDate? = null
-		) : State()
+			val weekOneStart: LocalDate? = null,
+			// Some subject of the current term has meetings: the bar offers the class schedule.
+			val hasSchedule: Boolean = false
+		) : State() {
+			override val topBarConfig: TopBarConfig?
+				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
+		}
 
 		data object Empty : State()
 

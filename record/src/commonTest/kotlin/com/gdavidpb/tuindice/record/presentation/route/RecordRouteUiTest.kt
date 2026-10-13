@@ -61,7 +61,6 @@ class RecordRouteUiTest {
 			// The bar's icons live outside the route: this is how they reach it.
 			assertNotNull(host.onViewModeChange)
 			assertNotNull(host.onTermSelection)
-			assertNotNull(host.onSchedule)
 			assertTrue(host.navigations.isEmpty())
 			assertTrue(host.snackBars.isEmpty())
 			assertNodeHidden(RecordUiTags.TermSelectionSheet)
@@ -122,22 +121,6 @@ class RecordRouteUiTest {
 		waitUntil(timeoutMillis = StateTimeoutMillis) {
 			onAllNodesWithTag(RecordUiTags.TermSelectionSheet).fetchSemanticsNodes().isEmpty()
 		}
-	}
-
-	@Test
-	fun when_theBarOpensTheSchedule_then_theRouteNavigatesToIt() = runTuIndiceUiTest {
-		val fixture = recordRouteFixture(record = projectionRecord())
-		val host = RouteHost()
-
-		setTuIndiceTestContent {
-			Route(viewModel = fixture.viewModel, host = host)
-		}
-
-		awaitContent(fixture)
-
-		runOnIdle { assertNotNull(host.onSchedule).invoke() }
-
-		assertEquals(listOf("schedule"), host.navigations)
 	}
 
 	@Test
@@ -220,7 +203,6 @@ class RecordRouteUiTest {
 		}
 
 		awaitContent(fixture)
-		assertNotNull(host.onSchedule)
 
 		runOnIdle { isOnScreen.value = false }
 		waitForIdle()
@@ -228,7 +210,6 @@ class RecordRouteUiTest {
 		// An icon left wired to a route that is gone would act on a screen nobody sees.
 		assertNull(host.onViewModeChange)
 		assertNull(host.onTermSelection)
-		assertNull(host.onSchedule)
 	}
 
 	@Test
@@ -277,8 +258,6 @@ class RecordRouteUiTest {
 			onNavigateToDeleteSyntheticTermConfirmation = { termId -> host.navigations += "delete:$termId" },
 			onTopBarViewModeChangeAvailable = { action -> host.onViewModeChange = action },
 			onTopBarTermSelectionAvailable = { action -> host.onTermSelection = action },
-			onTopBarScheduleAvailable = { action -> host.onSchedule = action },
-			onNavigateToSchedule = { host.navigations += "schedule" },
 			onNavigateToEnrollmentProof = { host.navigations += "proof" },
 			showTopBarBanner = { behavior -> host.banners += behavior },
 			showSnackBar = { message -> host.snackBars += message },
@@ -290,7 +269,6 @@ class RecordRouteUiTest {
 	private class RouteHost {
 		var onViewModeChange: ((RecordViewMode) -> Unit)? = null
 		var onTermSelection: (() -> Unit)? = null
-		var onSchedule: (() -> Unit)? = null
 		val navigations = mutableListOf<String>()
 		val banners = mutableListOf<TopBarBannerBehavior>()
 		val snackBars = mutableListOf<SnackBarMessage>()

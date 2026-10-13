@@ -2,6 +2,7 @@
 
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
@@ -146,6 +147,7 @@ private class TabMachine(
 			evaluationsSelectionRepository = selectionRepository,
 			reportingRepository = RecordingReportingRepository()
 		),
+		weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 		clock = Clock.System
 	)
 	private val host: MachineHost<Evaluations.Effect> = object : MachineHost<Evaluations.Effect> {

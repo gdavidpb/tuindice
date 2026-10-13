@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -630,6 +631,7 @@ private fun createViewModel(
 						evaluationsSelectionRepository = selectionRepository,
 						reportingRepository = RecordingReportingRepository()
 					),
+				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = clock
 			),
 			eventPublisher = NoOpEventPublisher,

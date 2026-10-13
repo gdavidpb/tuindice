@@ -181,6 +181,7 @@ private fun Evaluations.State.toObservedContent(
 		selectedWeekKey = selectedWeekKey,
 		evaluationGroups = event.evaluationWeekGroups.flatMap { weekGroup -> weekGroup.groups },
 		evaluationWeekGroups = event.evaluationWeekGroups,
-		weekOneStart = event.weekOneStart
+		weekOneStart = event.weekOneStart,
+		hasSchedule = event.hasSchedule
 	)
 }

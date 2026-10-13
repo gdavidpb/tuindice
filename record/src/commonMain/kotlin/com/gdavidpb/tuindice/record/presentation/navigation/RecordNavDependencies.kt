@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.navigation
 
 import androidx.compose.runtime.Stable
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import kotlinx.datetime.LocalDate
 
 @Stable
 class RecordNavDependencies(
@@ -9,6 +10,7 @@ class RecordNavDependencies(
 	val onNavigateToSubjectDetail: (String) -> Unit,
 	val onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	val onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
-	val onTopBarScheduleAvailable: ((() -> Unit)?) -> Unit,
-	val onNavigateToEnrollmentProof: () -> Unit
+	val onNavigateToEnrollmentProof: () -> Unit,
+	// The Schedule sheet asks the host to show the Evaluations of the week that this Monday opens.
+	val onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit
 )

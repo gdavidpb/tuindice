@@ -35,7 +35,6 @@ class TuIndiceNavDisplayUiTest {
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
-					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -60,7 +59,6 @@ class TuIndiceNavDisplayUiTest {
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
-					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -86,7 +84,6 @@ class TuIndiceNavDisplayUiTest {
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
-					onRecordScheduleAvailable = {},
 					showTopBarBanner = {},
 					onViewStateChanged = {},
 					showSnackBar = {}

@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.presentation.mapper.toTabRootDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
@@ -258,5 +260,144 @@ class TuIndiceNavigatorTest {
 		entryStores.onRemoved("RECORD:key")
 
 		assertEquals(listOf("SUMMARY:key"), removedKeys)
+	}
+
+	@Test
+	fun when_popThenSwitchTab_then_theSheetIsClosedAndTheTabChangedInOneObservableChange() {
+		val navigator = createNavigator(currentTab = MainSection.RECORD)
+
+		navigator.openSchedule()
+		Snapshot.sendApplyNotifications()
+
+		val observed = mutableListOf<Pair<MainSection, List<NavKey>>>()
+		val handle = Snapshot.registerApplyObserver { _, _ ->
+			observed += navigator.currentTab to navigator.backStack
+		}
+
+		try {
+			navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+			// Already announced, without anyone flushing the global snapshot: a single mutation.
+			val expected: List<NavKey> = listOf(SummaryDestination.Summary, EvaluationsDestination.Evaluations)
+
+			assertEquals(listOf(MainSection.EVALUATIONS to expected), observed)
+		} finally {
+			handle.dispose()
+		}
+	}
+
+	@Test
+	fun when_popThenSwitchTab_then_theSheetIsNotLeftParkedOnTheTabItCameFrom() {
+		val entryStores = NavEntryStores()
+		val resultStore = NavResultStore()
+		val navigator = createNavigator(
+			currentTab = MainSection.RECORD,
+			entryStores = entryStores,
+			resultStore = resultStore
+		)
+
+		navigator.openSchedule()
+		val sheetStoreKey = navigator.currentStoreKey
+		entryStores.viewModelStoreOwner(sheetStoreKey)
+		val removedKeys = mutableListOf<String>()
+		entryStores.addRemovalListener { storeKey -> removedKeys.add(storeKey) }
+
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+		navigator.switchTab(MainSection.RECORD)
+
+		assertEquals(
+			listOf(SummaryDestination.Summary, RecordDestination.Record),
+			navigator.backStack
+		)
+		assertEquals(listOf(sheetStoreKey), removedKeys)
+	}
+
+	@Test
+	fun when_backIsPressedAfterTheJump_then_itReturnsToTheStartTab() {
+		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.RECORD)
+
+		navigator.openSchedule()
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertTrue(navigator.pop())
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+		assertEquals(listOf(SummaryDestination.Summary), navigator.backStack)
+	}
+
+	@Test
+	fun when_popThenSwitchTab_then_theStartTabIsNotChanged() {
+		val navigator = createNavigator(startTab = MainSection.PENSUM, currentTab = MainSection.PENSUM)
+
+		navigator.openSchedule()
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+		assertEquals(MainSection.PENSUM, navigator.startTab)
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+	}
+
+	@Test
+	fun when_popThenSwitchTabToTheActiveTab_then_onlyTheSheetIsClosed() {
+		val navigator = createNavigator(currentTab = MainSection.EVALUATIONS)
+
+		navigator.openSchedule()
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertEquals(
+			listOf(SummaryDestination.Summary, EvaluationsDestination.Evaluations),
+			navigator.backStack
+		)
+	}
+
+	@Test
+	fun when_popThenSwitchTabWithoutAnEntryOnTop_then_onlyTheTabChanges() {
+		val navigator = createNavigator(currentTab = MainSection.RECORD)
+
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+		assertEquals(
+			listOf(SummaryDestination.Summary, EvaluationsDestination.Evaluations),
+			navigator.backStack
+		)
+
+		navigator.switchTab(MainSection.RECORD)
+
+		assertEquals(
+			listOf(SummaryDestination.Summary, RecordDestination.Record),
+			navigator.backStack
+		)
+	}
+
+	@Test
+	fun when_popThenSwitchTabInAuthMode_then_itIsIgnored() {
+		val navigator = createNavigator(rootMode = TuIndiceRootMode.AUTH)
+
+		navigator.popThenSwitchTab(MainSection.EVALUATIONS)
+
+		assertEquals(listOf(AuthDestination.SignIn), navigator.backStack)
+	}
+
+	@Test
+	fun when_theScheduleIsOpened_then_itSitsOnTheActiveTabWhicheverItIs() {
+		listOf(MainSection.SUMMARY, MainSection.RECORD, MainSection.EVALUATIONS).forEach { section ->
+			val navigator = createNavigator(currentTab = section)
+
+			navigator.openSchedule()
+			navigator.openSchedule()
+
+			assertEquals(RecordDestination.ScheduleDialog, navigator.currentKey, "on $section")
+			assertEquals(section, navigator.currentTab)
+			assertEquals(1, navigator.backStack.count { key -> key == RecordDestination.ScheduleDialog }, "on $section")
+		}
+	}
+
+	@Test
+	fun when_theScheduleIsOpenedInAuthMode_then_itIsIgnored() {
+		val navigator = createNavigator(rootMode = TuIndiceRootMode.AUTH)
+
+		navigator.openSchedule()
+
+		assertEquals(listOf(AuthDestination.SignIn), navigator.backStack)
 	}
 }

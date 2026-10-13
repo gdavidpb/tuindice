@@ -86,6 +86,7 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
 import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
 import com.gdavidpb.tuindice.wizard.ui.anchor.coachmarkAnchor
 import com.gdavidpb.tuindice.wizard.ui.view.CoachmarkOverlayHost
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
@@ -119,8 +120,8 @@ fun TuIndiceScreen(
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
-	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit = {},
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {},
 	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
@@ -417,8 +418,8 @@ fun TuIndiceScreen(
 				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onRecordScheduleAvailable = onRecordScheduleAvailable,
 				onBackInterceptorAvailable = onBackInterceptorAvailable,
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
 				showSnackBar = showSnackBar,
@@ -456,6 +457,9 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_record_term_selection)
 		is TopBarAction.RecordScheduleAction ->
 			stringResource(Res.string.a11y_top_bar_record_schedule)
+		// The same schedule, the same words as Record's action: one icon says one thing across the app.
+		is TopBarAction.EvaluationsScheduleAction ->
+			stringResource(Res.string.a11y_top_bar_record_schedule)
 		is TopBarAction.SearchPensumAction ->
 			stringResource(Res.string.a11y_top_bar_search_pensum)
 		is TopBarAction.ChangePensumAction ->
@@ -474,6 +478,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 		is TopBarAction.RecordTermSelectionAction ->
 			Icons.Outlined.CalendarMonth
 		is TopBarAction.RecordScheduleAction ->
+			Icons.Outlined.TableChart
+		is TopBarAction.EvaluationsScheduleAction ->
 			Icons.Outlined.TableChart
 		is TopBarAction.SearchPensumAction ->
 			Icons.Outlined.Search

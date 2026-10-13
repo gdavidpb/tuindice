@@ -109,7 +109,6 @@ class TuIndiceNavRetentionUiTest {
 			onNavigateToExternalResource = {},
 			onRecordViewModeChangeAvailable = {},
 			onRecordTermSelectionAvailable = {},
-			onRecordScheduleAvailable = {},
 			showTopBarBanner = {},
 			onViewStateChanged = {},
 			showSnackBar = {}
