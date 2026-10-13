@@ -55,7 +55,7 @@ object TuIndiceColorScheme {
 		onPrimaryContainer = Color(0xFFFFF1BF),
 		secondary = Color(0xFFD8B44A),
 		onSecondary = Color(0xFF131311),
-		secondaryContainer = Color(0xFF23211D),
+		secondaryContainer = Color(0xFF34322C),
 		onSecondaryContainer = Color(0xFFF4F1E8),
 		tertiary = Color(0xFFE8E3D7),
 		onTertiary = Color(0xFF171613),

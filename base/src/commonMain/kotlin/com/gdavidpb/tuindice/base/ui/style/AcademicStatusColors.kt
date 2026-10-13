@@ -14,7 +14,7 @@ object AcademicStatusColors {
 	val SuccessDark = Color(0xFF91EE9A)
 	val SuccessLight = Color(0xFF00875A)
 	val WarningDark = Color(0xFFFFC400)
-	val WarningLight = Color(0xFF9A4F04)
+	val WarningLight = Color(0xFFC2500A)
 	val LoadBandLightDark = Color(0xFF8CCBFF)
 	val LoadBandLightLight = Color(0xFF1565C0)
 	val LoadBandManageableDark = Color(0xFF7DE7C6)

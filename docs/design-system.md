@@ -34,7 +34,7 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 | **Fondo**: pantalla, hoja inferior o diálogo | `surface` | `#FBFAF7` | `#131311` |
 | **Tarjeta**: toda tarjeta, fila o panel que va sobre un fondo | `surfaceVariant` | `#F1F0EB` | `#1D1D1A` |
 | **Elemento pequeño dentro de una tarjeta**: chip neutro, insignia, círculo de icono | `surfaceDim` | `#E5E4DD` | `#2A2A26` |
-| **Seleccionado**: segmento elegido, indicador de la barra inferior | `secondaryContainer` | `#DDDAD0` | `#23211D` |
+| **Seleccionado**: segmento elegido, indicador de la barra inferior | `secondaryContainer` | `#DDDAD0` | `#34322C` |
 
 - Detrás hay pantalla, hoja o diálogo: tarjeta (`surfaceVariant`). Detrás hay una tarjeta: `surfaceDim`. Es el contenedor de una hoja o de un diálogo: fondo (`surface`).
 - Las tarjetas no llevan sombra: `Card` plana con `containerColor = surfaceVariant`, no `ElevatedCard`. Una tarjeta con color de énfasis (p. ej. `primaryContainer` en la tarjeta destacada del detalle de materia) conserva ese color, también sin sombra.
