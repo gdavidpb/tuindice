@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.subjects.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +18,11 @@ fun SubjectDetailStandardKpiCard(
 	title: String,
 	value: String
 ) {
-	ElevatedCard(
+	Card(
 		modifier = modifier,
-		colors = CardDefaults.elevatedCardColors(
-			containerColor = MaterialTheme.colorScheme.secondaryContainer,
-			contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+		colors = CardDefaults.cardColors(
+			containerColor = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurface
 		)
 	) {
 		Column(
@@ -32,13 +32,13 @@ fun SubjectDetailStandardKpiCard(
 			Text(
 				text = title,
 				style = MaterialTheme.typography.labelMedium,
-				color = MaterialTheme.colorScheme.onSecondaryContainer
+				color = MaterialTheme.colorScheme.onSurface
 			)
 			Text(
 				text = value,
 				style = MaterialTheme.typography.headlineSmall,
 				fontWeight = FontWeight.SemiBold,
-				color = MaterialTheme.colorScheme.onSecondaryContainer
+				color = MaterialTheme.colorScheme.onSurface
 			)
 		}
 	}

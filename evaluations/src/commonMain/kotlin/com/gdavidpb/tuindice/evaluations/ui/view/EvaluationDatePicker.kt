@@ -64,7 +64,7 @@ fun EvaluationDatePicker(
 	val displayedMonth = remember(selectedDate, selectableRange) {
 		mutableStateOf(initialDisplayedMonth())
 	}
-	val pickerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val pickerContainerColor = MaterialTheme.colorScheme.surfaceVariant
 	val selectedPickerContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
 
 	val canGoPreviousMonth = selectableRange == null ||
