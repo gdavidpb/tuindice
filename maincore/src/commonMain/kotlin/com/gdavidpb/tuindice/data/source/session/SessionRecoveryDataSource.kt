@@ -241,8 +241,9 @@ class SessionRecoveryDataSource(
 	// its local end runs in the scope of the app like an invalidation does, and under the same lock and
 	// counter: a rejection that reaches a request in flight while the session is being wiped finds the end
 	// already served instead of wiping a second time and telling the user their session was closed. The
-	// mark of the intentional sign-out is withdrawn last, when the session is gone: left behind, it would
-	// silence the next invalidation, which is not this one's. The server has revoked the session by now,
+	// mark of the intentional sign-out is withdrawn once the steps are over, whether they ran or not, and
+	// before their failures are reported: left behind, it would silence the next invalidation, which is
+	// not this one's. The server has revoked the session by now,
 	// so the sign-out is done whatever happens to a step: each one is skipped if it fails, and its failure
 	// is reported instead of handed to a caller that cannot do anything about it.
 	override suspend fun endSignedOutSession(sessionId: String) {
