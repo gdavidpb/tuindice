@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
+import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies
 import com.gdavidpb.tuindice.record.presentation.navigation.recordEntries
@@ -93,9 +94,9 @@ fun TuIndiceNavDisplay(
 		summaryEntries(
 			navActions = navigator,
 			shellBindings = shellBindings,
-			onNavigateToUpdatePassword = {
-				navigator.push(AuthDestination.UpdatePasswordDialog)
-			}
+			navigation = navigator.toSummaryNavDependencies(
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek
+			)
 		)
 
 		recordEntries(

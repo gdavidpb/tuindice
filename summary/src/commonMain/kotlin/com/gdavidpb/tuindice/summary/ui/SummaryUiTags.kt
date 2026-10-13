@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui
 
 object SummaryUiTags {
-	const val StatusCardEmptyTrack = "summary_status_card_empty_track"
 	const val LoadingIndicator = "summary_loading_indicator"
 
 	const val NewStudentContainer = "summary_new_student_container"
@@ -19,7 +18,25 @@ object SummaryUiTags {
 	const val StatusIconHalo = "summary_status_icon_halo"
 	const val StatusText = "summary_status_text"
 	const val SyncStatusMessage = "summary_sync_status_message"
+
+	// The hub under the profile: the attention, the week, the term and the career.
 	const val ItemsList = "summary_items_list"
+
+	const val AttentionContainer = "summary_attention_container"
+
+	const val WeekSection = "summary_week_section"
+	const val WeekClassRow = "summary_week_class_row"
+	const val WeekClassPill = "summary_week_class_pill"
+
+	const val TermSection = "summary_term_section"
+	const val TermWeekText = "summary_term_week_text"
+	const val TermWeekTrack = "summary_term_week_track"
+
+	const val CareerSection = "summary_career_section"
+	const val CareerCard = "summary_career_card"
+	const val CareerProgressBar = "summary_career_progress_bar"
+	const val CareerPercentText = "summary_career_percent_text"
+	const val CareerInviteCard = "summary_career_invite_card"
 
 	const val ProfilePictureContainer = "summary_profile_picture_container"
 	const val ProfilePicturePlaceholderIcon = "summary_profile_picture_placeholder_icon"
@@ -34,5 +51,14 @@ object SummaryUiTags {
 	const val ProfilePictureRemoveAction = "summary_profile_picture_remove_action"
 	const val RemoveProfilePictureMessage = "summary_remove_profile_picture_message"
 
-	fun statusCard(index: Int): String = "summary_status_card_$index"
+	fun attentionItem(key: String): String = "summary_attention_item_$key"
+
+	fun weekEvaluationRow(evaluationId: String): String = "summary_week_evaluation_row_$evaluationId"
+
+	fun termPointsRow(subjectCode: String): String = "summary_term_points_row_$subjectCode"
+
+	// The header of a section: its title and its link, named after the section's own tag.
+	fun sectionTitle(sectionTag: String): String = "summary_section_title_$sectionTag"
+
+	fun sectionLink(sectionTag: String): String = "summary_section_link_$sectionTag"
 }

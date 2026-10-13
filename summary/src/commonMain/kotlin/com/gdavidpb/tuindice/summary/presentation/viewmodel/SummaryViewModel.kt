@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import io.github.vinceglb.filekit.PlatformFile
 
 class SummaryViewModel(
@@ -38,4 +39,10 @@ class SummaryViewModel(
 
 	fun openProfilePictureSettingsAction() =
 		sendAction(Summary.Action.OpenProfilePictureSettings)
+
+	fun resumedAction() =
+		sendAction(Summary.Action.Resumed)
+
+	fun openTargetAction(target: SummaryHubTarget) =
+		sendAction(Summary.Action.OpenTarget(target))
 }

@@ -3,13 +3,17 @@ package com.gdavidpb.tuindice.summary.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.ResumedEffect
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSyncStatusText
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -18,10 +22,10 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 
 @Composable
 fun SummaryRoute(
-	onNavigateToUpdatePassword: () -> Unit,
 	onNavigateToProfilePictureSettingsDialog: (showRemove: Boolean, isCameraAvailable: Boolean) -> Unit,
 	onNavigateToRemoveProfilePictureConfirmationDialog: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
+	navigation: SummaryNavDependencies = SummaryNavDependencies(),
 	viewModel: SummaryViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -33,6 +37,10 @@ fun SummaryRoute(
 		is Summary.State.Content -> currentState.copy(syncStatusText = syncStatusText)
 		else -> currentState
 	}
+
+	// The hub follows the clock, which sleeps with the process: reading it again is the first thing
+	// coming back does.
+	ResumedEffect(action = viewModel::resumedAction)
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -57,11 +65,24 @@ fun SummaryRoute(
 
 			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog ->
 				onNavigateToRemoveProfilePictureConfirmationDialog()
+
+			is Summary.Effect.NavigateToSchedule -> navigation.onOpenSchedule()
+
+			is Summary.Effect.NavigateToRecord -> navigation.onNavigateToRecord()
+
+			is Summary.Effect.NavigateToPensum -> navigation.onNavigateToPensum()
+
+			is Summary.Effect.NavigateToEvaluationsWeek ->
+				navigation.onNavigateToEvaluationsWeek(effect.weekStart)
 		}
 	}
 
 	LaunchedEffect(Unit) {
 		viewModel.refreshSummaryAction()
+	}
+
+	val hubActions = remember(viewModel) {
+		SummaryHubActions(onTargetClick = viewModel::openTargetAction)
 	}
 
 	SummaryScreen(
@@ -71,6 +92,7 @@ fun SummaryRoute(
 		isSyncing = sync.isSyncing,
 		onRetryClick = viewModel::refreshSummaryAction,
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
-		onUpdatePasswordClick = onNavigateToUpdatePassword
+		hubActions = hubActions,
+		onUpdatePasswordClick = navigation.onNavigateToUpdatePassword
 	)
 }

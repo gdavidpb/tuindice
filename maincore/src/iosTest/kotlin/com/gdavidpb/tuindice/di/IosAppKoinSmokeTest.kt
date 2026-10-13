@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
 import kotlin.test.Test
@@ -37,8 +38,9 @@ class IosAppKoinSmokeTest {
 				BrowserViewModel::class,
 				RecordViewModel::class,
 				ScheduleViewModel::class,
-				// The read contracts of the summary hub. The schedule sheet already consumes the clock and the
-				// visible evaluations; the rest are not consumed yet.
+				SummaryViewModel::class,
+				// The read contracts of the summary hub, which Summary's view model consumes through the
+				// use case of the hub (the record, its prerequisite and the evaluations among them).
 				ScheduleClockRepository::class,
 				VisibleEvaluationsRepository::class,
 				PensumProgressRepository::class,

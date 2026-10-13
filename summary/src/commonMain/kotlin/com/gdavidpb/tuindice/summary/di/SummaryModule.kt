@@ -12,9 +12,11 @@ import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -42,6 +44,8 @@ val summaryModule = module {
 
 	factoryOf(::ObserveUserUseCase)
 	factoryOf(::ObserveSyncUseCase)
+	factoryOf(::ObserveSummaryHubUseCase)
+	factoryOf(::SummaryObservations)
 	factoryOf(::GetCameraAvailabilityUseCase)
 	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)

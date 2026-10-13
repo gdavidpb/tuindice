@@ -6,11 +6,21 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableScheduleClockRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -33,6 +43,11 @@ class SummaryModuleKoinSmokeTest {
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
 			single<DeviceInfoRepository> { FakeDeviceInfoRepository() }
+			single<VisibleAcademicRecordRepository> { ControllableVisibleAcademicRecordRepository() }
+			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
+			single<PensumProgressRepository> { ControllablePensumProgressRepository() }
+			single<RecordDataPrerequisiteRepository> { ControllableRecordDataPrerequisiteRepository() }
+			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}

@@ -5,7 +5,7 @@
 	<string name="coachmark_next">Siguiente</string>
 
 	<string name="coachmark_summary_title">Resumen</string>
-	<string name="coachmark_summary_message">Revisa aquí tu índice, créditos, materias y estado de sincronización.</string>
+	<string name="coachmark_summary_message">Revisa aquí tu índice, tu semana, tu trimestre, tu avance en la carrera y el estado de sincronización.</string>
 	<string name="coachmark_record_title">Informe académico</string>
 	<string name="coachmark_record_message">Compara trimestre, acumulado y carga inscrita desde tu informe real.</string>
 	<string name="coachmark_record_controls_title">Controles del informe</string>

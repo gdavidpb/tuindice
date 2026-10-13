@@ -5,8 +5,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
@@ -29,10 +29,10 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
+import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.a11y_sync_status_details
@@ -45,7 +45,7 @@ fun SummaryContentView(
 	syncAttention: SyncAttention,
 	isSyncing: Boolean = false,
 	showSyncAttentionHalo: Boolean = false,
-	summaryItems: List<SummaryItem>,
+	hubActions: SummaryHubActions,
 	onEditProfilePictureClick: () -> Unit,
 	onStatusIconClick: () -> Unit
 ) {
@@ -109,6 +109,8 @@ fun SummaryContentView(
 		modifier = Modifier
 			.testTag(SummaryUiTags.ContentContainer)
 			.fillMaxSize()
+			// The whole screen scrolls, the profile with it: under it the hub is longer than a phone.
+			.verticalScroll(rememberScrollState())
 			.padding(top = InternalScreenDefaults.TopBarSpacing + 8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
@@ -188,21 +190,10 @@ fun SummaryContentView(
 			)
 		}
 
-		LazyColumn(
-			modifier = Modifier.testTag(SummaryUiTags.ItemsList)
-		) {
-			itemsIndexed(
-				items = summaryItems,
-				key = { _, item -> item.header },
-				contentType = { _, _ -> SummaryItemContentType }
-			) { index, item ->
-				StatusCardItemView(
-					modifier = Modifier.testTag(SummaryUiTags.statusCard(index)),
-					header = item.header,
-					entries = item.entries
-				)
-			}
-		}
+		SummaryHubView(
+			hub = state.hub,
+			actions = hubActions
+		)
 	}
 }
 
@@ -239,5 +230,4 @@ private fun syncIconStopDurationMillis(remainingDegrees: Float): Int {
 private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
-private const val SummaryItemContentType = "summary_item"
 internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = TuIndiceAnimation.StandardMillis

@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
@@ -112,8 +113,8 @@ class AndroidAppKoinSmokeTest {
 			PendingChangesRepository::class,
 			SessionInvalidationRepository::class,
 			PensumTopBarActionBus::class,
-			// The read contracts of the summary hub. The schedule sheet already consumes the clock and the
-			// visible evaluations; the rest are not consumed yet.
+			// The read contracts of the summary hub, which Summary's view model consumes through the
+			// use case of the hub (the record, its prerequisite and the evaluations among them).
 			ScheduleClockRepository::class,
 			VisibleEvaluationsRepository::class,
 			PensumProgressRepository::class,
@@ -122,7 +123,8 @@ class AndroidAppKoinSmokeTest {
 			MainViewModel::class,
 			BrowserViewModel::class,
 			RecordViewModel::class,
-			ScheduleViewModel::class
+			ScheduleViewModel::class,
+			SummaryViewModel::class
 		).forEach { type -> get<Any>(type) }
 	}
 

@@ -18,12 +18,12 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EntryProviderScope<NavKey>.summaryEntries(
 	navActions: TuIndiceNavActions,
 	shellBindings: NavShellBindings,
-	onNavigateToUpdatePassword: () -> Unit
+	navigation: SummaryNavDependencies
 ) {
 	summaryEntry(
 		navActions = navActions,
 		shellBindings = shellBindings,
-		onNavigateToUpdatePassword = onNavigateToUpdatePassword
+		navigation = navigation
 	)
 	profilePictureSettingsDialogEntry(navActions = navActions)
 	removeProfilePictureConfirmationDialogEntry(navActions = navActions)
@@ -32,7 +32,7 @@ fun EntryProviderScope<NavKey>.summaryEntries(
 private fun EntryProviderScope<NavKey>.summaryEntry(
 	navActions: TuIndiceNavActions,
 	shellBindings: NavShellBindings,
-	onNavigateToUpdatePassword: () -> Unit
+	navigation: SummaryNavDependencies
 ) {
 	entry<SummaryDestination.Summary> {
 		val viewModel = koinViewModel<SummaryViewModel>()
@@ -61,7 +61,6 @@ private fun EntryProviderScope<NavKey>.summaryEntry(
 		}
 
 		SummaryRoute(
-			onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 			onNavigateToProfilePictureSettingsDialog = { showRemove, isCameraAvailable ->
 				navActions.push(
 					SummaryDestination.ProfilePictureSettingsDialog(
@@ -74,6 +73,7 @@ private fun EntryProviderScope<NavKey>.summaryEntry(
 				navActions.push(SummaryDestination.RemoveProfilePictureConfirmationDialog)
 			},
 			showSnackBar = shellBindings.showSnackBar,
+			navigation = navigation,
 			viewModel = viewModel
 		)
 	}

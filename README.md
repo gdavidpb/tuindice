@@ -29,7 +29,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
-- `summary`: resumen del perfil y foto de perfil.
+- `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre y la carrera).
 - `record`: historial académico y cálculos de índice.
 - `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
@@ -101,7 +101,7 @@ Dependencias actuales:
 - `security`: depende de `:base`.
 - `about`: depende de `:base`.
 - `auth`: depende de `:base`, `:security`.
-- `summary`: depende de `:base`, `:persistence`.
+- `summary`: depende de `:academiccore`, `:base`, `:persistence`.
 - `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
 - `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.

@@ -40,6 +40,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -77,14 +78,17 @@ fun createSummaryViewModel(
 ): SummaryViewModel {
 	return SummaryViewModel(
 		screenMachine = SummaryMachine(
-			observeUserUseCase = ObserveUserUseCase(
-				userRepository = userRepository,
-				reportingRepository = RecordingReportingRepository()
-			),
-			observeSyncUseCase = ObserveSyncUseCase(
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = syncRepository,
-				reportingRepository = RecordingReportingRepository()
+			observations = SummaryObservations(
+				user = ObserveUserUseCase(
+					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				sync = ObserveSyncUseCase(
+					syncStatusRepository = syncStatusRepository,
+					syncRepository = syncRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				hub = createEmptyObserveSummaryHubUseCase()
 			),
 			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 				deviceInfoRepository = deviceInfoRepository,

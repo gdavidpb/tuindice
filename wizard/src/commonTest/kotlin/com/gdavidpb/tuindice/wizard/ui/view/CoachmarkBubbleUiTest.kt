@@ -35,8 +35,9 @@ class CoachmarkBubbleUiTest {
 		assertNodeVisible(CoachmarkUiTags.Bubble)
 		onNodeWithTag(CoachmarkUiTags.currentCoachmark(CoachmarkId.Summary))
 			.assertTextEquals("Resumen")
-		onNodeWithText("Revisa aquí tu índice, créditos, materias y estado de sincronización.")
-			.assertIsDisplayed()
+		onNodeWithText(
+			"Revisa aquí tu índice, tu semana, tu trimestre, tu avance en la carrera y el estado de sincronización."
+		).assertIsDisplayed()
 		onAllNodesWithTag(CoachmarkUiTags.currentCoachmark(CoachmarkId.Record))
 			.assertCountEquals(0)
 	}

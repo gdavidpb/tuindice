@@ -52,9 +52,20 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 			state
 		}
 
+		on<Summary.Action.Resumed> { state, _ ->
+			machine.resumed(host = host)
+			state
+		}
+
+		// The hub is a field of every state, so the one that says it can be any.
+		on<SummaryInternalEvent.HubObserved> { state, event ->
+			state.withHub(hub = event.hub)
+		}
+
 		onTo<SummaryInternalEvent.UserObserved, Summary.State.Content> { state, event ->
 			event.content.copy(
 				sync = state.sync,
+				hub = state.hub,
 				isUserRefreshing = state.isUserRefreshing,
 				isProfilePictureLoading =
 					(state as? Summary.State.Content)?.isProfilePictureLoading ?: false,
@@ -70,7 +81,8 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 
 			Summary.State.Failed(
 				isUserRefreshing = state.isUserRefreshing,
-				sync = state.sync
+				sync = state.sync,
+				hub = state.hub
 			)
 		}
 
@@ -79,7 +91,7 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 		) { state, event ->
 			host.sendEffect(Summary.Effect.ShowSnackBar(message = event.message))
 
-			Summary.State.Failed(sync = state.sync)
+			Summary.State.Failed(sync = state.sync, hub = state.hub)
 		}
 
 		on<SummaryInternalEvent.ProfilePictureUploadFailed>(

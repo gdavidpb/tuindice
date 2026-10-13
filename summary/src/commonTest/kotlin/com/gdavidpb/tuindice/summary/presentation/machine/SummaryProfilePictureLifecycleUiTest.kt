@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -16,6 +17,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -220,14 +222,17 @@ class SummaryProfilePictureLifecycleUiTest {
 	): SummaryViewModel {
 		return SummaryViewModel(
 			screenMachine = SummaryMachine(
-				observeUserUseCase = ObserveUserUseCase(
-					userRepository = userRepository,
-					reportingRepository = RecordingReportingRepository()
-				),
-				observeSyncUseCase = ObserveSyncUseCase(
-					syncStatusRepository = FakeSyncStatusRepository(),
-					syncRepository = FakeSyncRepository(),
-					reportingRepository = RecordingReportingRepository()
+				observations = SummaryObservations(
+					user = ObserveUserUseCase(
+						userRepository = userRepository,
+						reportingRepository = RecordingReportingRepository()
+					),
+					sync = ObserveSyncUseCase(
+						syncStatusRepository = FakeSyncStatusRepository(),
+						syncRepository = FakeSyncRepository(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					hub = createObserveSummaryHubUseCase()
 				),
 				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 					deviceInfoRepository = FakeDeviceInfoRepository(),

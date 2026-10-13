@@ -140,6 +140,18 @@ object ActionDispositions {
 			action = "summary.Summary.ObserveSummary",
 			reason = "screen bootstrap"
 		),
+		ActionDisposition.Internal(
+			action = "summary.Summary.Resumed",
+			reason = "the screen dispatches it each time it comes back in front, to read the clock again; no user performs it"
+		),
+		ActionDisposition.Pending(
+			action = "summary.Summary.OpenTarget",
+			reason =
+				"a user taps a line of the hub (the week, the term, the career or a point of attention) and the " +
+				"host takes them to the screen that owns it, but no account of the mocks has a current term " +
+				"with classes and evaluations on the days of the frozen clock; its scenarios are written with " +
+				"the E2E phase of the summary hub"
+		),
 		ActionDisposition.PlatformEdge(
 			action = "summary.Summary.UploadProfilePicture",
 			reason =

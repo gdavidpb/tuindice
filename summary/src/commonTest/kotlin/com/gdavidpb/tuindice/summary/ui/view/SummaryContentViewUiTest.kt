@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
@@ -21,11 +22,14 @@ import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SYNC_STATUS_TEXT
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
-import com.gdavidpb.tuindice.summary.testing.summaryItemsFor
+import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -38,14 +42,13 @@ class SummaryContentViewUiTest {
 	@Test
 	fun when_editProfilePictureTapped_then_invokesEditCallback() = runTuIndiceUiTest {
 		var editClicks = 0
-		val contentState = summaryContentState()
-		val items = summaryItemsFor(contentState)
+		val contentState = summaryContentState(hub = summaryHubItem())
 
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
-				summaryItems = items,
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = { editClicks++ },
 				onStatusIconClick = {}
 			)
@@ -57,12 +60,50 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.CareerText)
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.ItemsList)
-		assertNodeVisible(SummaryUiTags.statusCard(0))
-		assertNodeVisible(SummaryUiTags.statusCard(1))
+		// Under the profile the hub is longer than the screen: it is there, to be scrolled to.
+		onNodeWithTag(SummaryUiTags.CareerSection).assertExists()
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
 
 		assertEquals(1, editClicks)
+	}
+
+	@Test
+	fun when_theHubIsLongerThanTheScreen_then_theWholeContentScrollsToItsLastBlock() = runTuIndiceUiTest {
+		val contentState = summaryContentState(hub = summaryHubItem())
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
+				hubActions = SummaryHubActions(),
+				onEditProfilePictureClick = {},
+				onStatusIconClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.CareerSection).performScrollTo().assertIsDisplayed()
+		onNodeWithText("156 de 240 créditos").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_hubLinesAreTapped_then_theHubActionsAreCalled() = runTuIndiceUiTest {
+		val targets = mutableListOf<SummaryHubTarget>()
+		val contentState = summaryContentState(hub = summaryHubItem())
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
+				hubActions = SummaryHubActions(onTargetClick = { target -> targets += target }),
+				onEditProfilePictureClick = {},
+				onStatusIconClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection)).performScrollTo().performClick()
+
+		assertEquals(listOf<SummaryHubTarget>(SummaryHubTarget.Pensum), targets)
 	}
 
 	@Test
@@ -75,7 +116,7 @@ class SummaryContentViewUiTest {
 				SummaryContentView(
 					state = contentState,
 					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = { editClicks++ },
 					onStatusIconClick = {}
 				)
@@ -87,14 +128,14 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
-	fun when_summaryHasNoItems_then_rendersHeaderSectionWithoutStatusCards() = runTuIndiceUiTest {
-		val contentState = summaryContentState()
+	fun when_hubHasNothingYet_then_rendersHeaderSectionWithoutHubBlocks() = runTuIndiceUiTest {
+		val contentState = summaryContentState(hub = SummaryHubItem())
 
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
-				summaryItems = emptyList(),
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = {}
 			)
@@ -102,7 +143,8 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.ContentContainer)
 		assertNodeVisible(SummaryUiTags.NameText)
-		assertNodeHidden(SummaryUiTags.statusCard(0))
+		assertNodeHidden(SummaryUiTags.CareerSection)
+		assertNodeHidden(SummaryUiTags.WeekSection)
 	}
 
 	@Test
@@ -113,7 +155,7 @@ class SummaryContentViewUiTest {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
-				summaryItems = summaryItemsFor(contentState),
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = {}
 			)
@@ -142,7 +184,7 @@ class SummaryContentViewUiTest {
 					state = contentState,
 					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.success()),
 					isSyncing = true,
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = {},
 					onStatusIconClick = {}
 				)
@@ -213,7 +255,7 @@ class SummaryContentViewUiTest {
 					state = contentState,
 					syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.partialEnrollmentUnavailable()),
 					showSyncAttentionHalo = true,
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = {},
 					onStatusIconClick = { statusIconClicks++ }
 				)
@@ -238,7 +280,7 @@ class SummaryContentViewUiTest {
 						syncAttention = resolveSyncAttention(SyncStatus.Healthy, SyncReport.partialEnrollmentUnavailable()),
 						isSyncing = true,
 						showSyncAttentionHalo = true,
-						summaryItems = summaryItemsFor(contentState),
+						hubActions = SummaryHubActions(),
 						onEditProfilePictureClick = {},
 						onStatusIconClick = {}
 					)
@@ -289,7 +331,7 @@ class SummaryContentViewUiTest {
 						state = contentState,
 						syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
 						isSyncing = true,
-						summaryItems = summaryItemsFor(contentState),
+						hubActions = SummaryHubActions(),
 						onEditProfilePictureClick = {},
 						onStatusIconClick = { statusIconClicks++ }
 					)
@@ -315,7 +357,7 @@ class SummaryContentViewUiTest {
 						state = contentState,
 						syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
 						isSyncing = false,
-						summaryItems = summaryItemsFor(contentState),
+						hubActions = SummaryHubActions(),
 						onEditProfilePictureClick = {},
 						onStatusIconClick = { statusIconClicks++ }
 					)
@@ -337,7 +379,7 @@ class SummaryContentViewUiTest {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.Failed, SyncReport.success()),
-				summaryItems = summaryItemsFor(contentState),
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
 			)
@@ -360,7 +402,7 @@ class SummaryContentViewUiTest {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.Unavailable, SyncReport.success()),
-				summaryItems = summaryItemsFor(contentState),
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
 			)
@@ -383,7 +425,7 @@ class SummaryContentViewUiTest {
 			SummaryContentView(
 				state = contentState,
 				syncAttention = resolveSyncAttention(SyncStatus.OutdatedCredentials, SyncReport.success()),
-				summaryItems = summaryItemsFor(contentState),
+				hubActions = SummaryHubActions(),
 				onEditProfilePictureClick = {},
 				onStatusIconClick = { statusIconClicks++ }
 			)
@@ -409,7 +451,7 @@ class SummaryContentViewUiTest {
 					syncAttention = resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
 					// Even told to pulse, a row with no problem to announce has no halo.
 					showSyncAttentionHalo = true,
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = {},
 					onStatusIconClick = { statusIconClicks++ }
 				)
@@ -438,7 +480,7 @@ class SummaryContentViewUiTest {
 						enrollmentReport(SyncSourceStatus.NotEnrolled)
 					),
 					showSyncAttentionHalo = true,
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = {},
 					onStatusIconClick = { statusIconClicks++ }
 				)
@@ -465,7 +507,7 @@ class SummaryContentViewUiTest {
 						SyncReport.failedRecordUnavailable()
 					),
 					showSyncAttentionHalo = true,
-					summaryItems = summaryItemsFor(contentState),
+					hubActions = SummaryHubActions(),
 					onEditProfilePictureClick = {},
 					onStatusIconClick = { statusIconClicks++ }
 				)
@@ -493,7 +535,7 @@ class SummaryContentViewUiTest {
 							SyncReport.partialEnrollmentUnavailable().carryingEnrollmentFrom(annulledReport())
 						),
 						showSyncAttentionHalo = true,
-						summaryItems = summaryItemsFor(contentState),
+						hubActions = SummaryHubActions(),
 						onEditProfilePictureClick = {},
 						onStatusIconClick = { statusIconClicks++ }
 					)
