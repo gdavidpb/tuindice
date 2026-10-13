@@ -18,8 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 
 /**
- * The weeks of the term as a row of segments: the ones gone by, the one in progress (the accent, as
- * everything in progress takes it) and the ones to come. The row is one element for a screen reader,
+ * The weeks of the term as a row of segments: the ones gone by (the accent, faded: they read as the
+ * progress so far), the one in progress (the full accent, as everything in progress takes it) and the
+ * ones to come. The row is one element for a screen reader,
  * which hears [description] and not twelve unnamed shapes.
  */
 @Composable
@@ -29,8 +30,8 @@ fun SummaryWeekTrackView(
 	description: String,
 	modifier: Modifier = Modifier
 ) {
-	val past = MaterialTheme.colorScheme.onSurfaceVariant
 	val current = MaterialTheme.colorScheme.primary
+	val past = current.copy(alpha = PAST_WEEK_ALPHA)
 	val future = MaterialTheme.colorScheme.outlineVariant
 
 	Row(
@@ -65,3 +66,4 @@ private fun RowScope.WeekSegment(color: Color) {
 
 private val WeekSegmentGap = 3.dp
 private val WeekSegmentHeight = 6.dp
+private const val PAST_WEEK_ALPHA = 0.45f
