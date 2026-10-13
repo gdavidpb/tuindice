@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -131,9 +132,44 @@ class SignOutCutAfterTheRevokeTest {
 
 	// The sign-out is done once the server revoked the session: a step of the local end that fails is
 	// reported, not handed to a caller that can do nothing about it, and the rest of the steps still run.
+	// A cancellation that is not the job's is one more failure of the step, not the end of the sign-out.
 	@Test
 	fun aLocalStepThatFailsAfterTheRevoke_stillEndsTheSignOutAndReportsTheFailure() = runTest {
-		val rig = SignOutRig(this)
+		val failures = listOf<() -> Throwable>(
+			{ IllegalStateException("step failure") },
+			{ CancellationException("step failure") }
+		)
+
+		for (step in listOf(LocalStep.ClearData, LocalStep.ClearSession, LocalStep.ResetSyncStatus)) {
+			for (failure in failures) {
+				val label = "$step failing with ${failure()::class.simpleName}"
+				val rig = SignOutRig(this)
+
+				when (step) {
+					LocalStep.ClearData -> rig.onWipe = { throw failure() }
+					// After the stores were emptied: the step failed, the session is gone all the same.
+					LocalStep.ClearSession -> rig.onSessionCleared = { throw failure() }
+					LocalStep.ResetSyncStatus -> rig.onSyncStatusReset = { throw failure() }
+					LocalStep.CancelActiveWork -> Unit
+				}
+
+				val states = rig.signOut.execute(Unit).toList()
+				advanceUntilIdle()
+
+				assertTrue(states.last() is UseCaseState.Data, "$label: the caller is told the sign-out is done")
+				assertTrue(rig.store.isGone(), "$label: the session is absent")
+				assertEquals(0, rig.invalidations.raised, "$label: nobody is told the session was closed")
+				assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "$label: the mark is withdrawn")
+				assertTrue(rig.reporting.loggedExceptions.any { it.message == "step failure" }, "$label: the failure is reported")
+			}
+		}
+	}
+
+	// The report of a failed step does not keep the mark from being withdrawn: a reporter whose call throws a
+	// cancellation that is not the job's must not leave the mark behind to silence the next invalidation.
+	@Test
+	fun aReportThatThrowsACancellation_doesNotKeepTheMarkFromBeingWithdrawn() = runTest {
+		val rig = SignOutRig(this, endReporting = ForeignCancellationReporting())
 		rig.onWipe = { error("disk failure") }
 
 		val states = rig.signOut.execute(Unit).toList()
@@ -141,9 +177,7 @@ class SignOutCutAfterTheRevokeTest {
 
 		assertTrue(states.last() is UseCaseState.Data, "the caller is told the sign-out is done")
 		assertTrue(rig.store.isGone(), "the session is absent")
-		assertEquals(0, rig.invalidations.raised, "nobody is told the session was closed")
 		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark is withdrawn")
-		assertTrue(rig.reporting.loggedExceptions.any { it.message == "disk failure" }, "the failure is reported")
 	}
 
 	// The mark of the sign-out is what silences whatever ends "the same session" while the local end runs.
@@ -223,7 +257,7 @@ class SignOutCutAfterTheRevokeTest {
 
 	// The rejection lands while the revoke is still in flight (the mark is set, the local end has not
 	// started): the invalidation of the request goes first, silenced by the mark, and the local end of the
-	// sign-out runs afterwards, so the device is wiped by both and the user is told by neither.
+	// sign-out finds the session already gone, so the device is wiped once and the user is told by neither.
 	@Test
 	fun aRefreshRejectedWhileTheRevokeIsInFlight_isNotAnInvalidation() = runTest {
 		val rig = SignOutRig(this)
@@ -247,30 +281,180 @@ class SignOutCutAfterTheRevokeTest {
 		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark is not left behind")
 	}
 
-	// The same overlap, but the user signed in again before the sign-out reached its local end: the stored
-	// session is the new one, which the end of the previous one has no business wiping.
+	// Whatever session is stored when the local end runs is not the signed-out one, whether the user signed
+	// in again or a recovery by credentials of the same account stored one: the device must be left without it.
 	@Test
-	fun aStoredSessionThatIsAlreadyAnotherOne_isNotTouchedByTheLocalEndOfThePreviousSignOut() = runTest {
+	fun aStoredSessionThatIsAlreadyAnotherOne_isEndedByTheLocalEndOfTheSignOut() = runTest {
 		val rig = SignOutRig(this)
 		val revokeGate = CompletableDeferred<Unit>()
 		rig.onRevoke = { revokeGate.await() }
+		rig.credentials.password = "secret"
 
 		launch { rig.signOut.execute(Unit).toList() }
 		runCurrent()
 
-		val newSession = SessionSnapshot(
-			sessionId = "session-new",
-			accessToken = "access-new",
-			refreshToken = "refresh-new",
-			usbId = "12-34567"
+		rig.store.repository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-new",
+				accessToken = "access-new",
+				refreshToken = "refresh-new",
+				usbId = "12-34567"
+			)
 		)
-		rig.store.repository.setSessionSnapshot(newSession)
 		revokeGate.complete(Unit)
 		advanceUntilIdle()
 
-		assertEquals(newSession, rig.store.repository.getActiveSessionSnapshot(), "the new session is still there")
-		assertEquals(0, rig.application.clearCalls, "nothing was wiped")
+		assertTrue(rig.store.isGone(), "the device holds no session")
+		assertNull(rig.credentials.password, "and not the password it would open one with")
+		assertEquals(1, rig.application.clearCalls, "the device was wiped")
 		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark of the sign-out is withdrawn")
+	}
+
+	// The identity is read under the lock: an invalidation that was in the middle of its wipe when the revoke
+	// returned ends the session first, and the local end, which waited for it, finds nothing left to wipe.
+	@Test
+	fun aSessionEndedByAnInvalidationWhileTheLocalEndWaitsForTheLock_isNotWipedAgain() = runTest {
+		val rig = SignOutRig(this)
+		val revokeGate = CompletableDeferred<Unit>()
+		rig.onRevoke = { revokeGate.await() }
+		rig.holdTheWipe()
+
+		launch { rig.signOut.execute(Unit).toList() }
+		runCurrent()
+		val invalidation = launch { rig.recovery.invalidateSession(sessionId = "session-old") }
+		runCurrent()
+		assertTrue(rig.wipeStarted.isCompleted, "the invalidation is in the middle of its wipe")
+
+		revokeGate.complete(Unit)
+		runCurrent()
+		rig.releaseTheWipe()
+		advanceUntilIdle()
+
+		assertTrue(invalidation.isCompleted)
+		assertTrue(rig.store.isGone())
+		assertEquals(1, rig.application.clearCalls, "the session is wiped once")
+		assertEquals(0, rig.invalidations.raised, "no signal after a manual sign-out")
+		assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "and the mark is withdrawn")
+	}
+
+	// A local end that finds the session already gone wipes nothing, so it does not count as a wipe that
+	// serves the invalidations waiting behind it: one of them that has a session to end still does.
+	@Test
+	fun aLocalEndThatSkipsItsSteps_doesNotServeTheInvalidationWaitingBehindIt() = runTest {
+		val rig = SignOutRig(this)
+		val revokeGate = CompletableDeferred<Unit>()
+		val readGate = CompletableDeferred<Unit>()
+		rig.onRevoke = { revokeGate.await() }
+
+		launch { rig.signOut.execute(Unit).toList() }
+		runCurrent()
+		// An invalidation silenced by the mark ended the session while the revoke was in flight.
+		rig.store.repository.clear()
+		rig.onSnapshotRead = { readGate.await() }
+		revokeGate.complete(Unit)
+		runCurrent()
+
+		val waiting = launch { rig.recovery.invalidateSession(sessionId = null) }
+		runCurrent()
+		rig.onSnapshotRead = {}
+		readGate.complete(Unit)
+		advanceUntilIdle()
+
+		assertTrue(waiting.isCompleted)
+		assertEquals(1, rig.application.clearCalls, "the invalidation wiped: the skipped end did not serve it")
+		assertEquals(1, rig.invalidations.raised, "and told the user, the mark of the sign-out being gone")
+	}
+
+	// The rejection of a request of the signed-out session is released at every point of the sign-out, from
+	// a request outside the session scope and from one inside it.
+	@Test
+	fun aRejectionReleasedAtEveryPointOfTheSignOut_wipesOnceAndTellsNobody() = runTest {
+		for (insideTheScope in listOf(false, true)) for (releaseAt in ReleaseAt.entries) {
+			val label = "releaseAt=$releaseAt insideTheScope=$insideTheScope"
+			val rig = SignOutRig(this)
+			val refreshGate = CompletableDeferred<Unit>()
+			rig.onRefresh = {
+				refreshGate.await()
+				throw clientRequestException(HttpStatusCode.Unauthorized)
+			}
+			val release: suspend () -> Unit = {
+				refreshGate.complete(Unit)
+				repeat(20) { yield() }
+			}
+			val scope = if (insideTheScope) rig.sessionScope else this
+			val straggler = scope.launch { runCatching { rig.recovery.recoverUnauthorizedSession("access-old", null, null) } }
+			runCurrent()
+			assertEquals(1, rig.refreshCalls, "$label: refresh in flight")
+
+			when (releaseAt) {
+				ReleaseAt.RevokeInFlight -> rig.onRevoke = release
+				ReleaseAt.CancelActiveWork -> rig.sessionScope.launch {
+					try {
+						awaitCancellation()
+					} finally {
+						refreshGate.complete(Unit)
+					}
+				}
+				ReleaseAt.ClearData -> rig.onWipe = release
+				ReleaseAt.ClearSession -> rig.onSessionClear = release
+				ReleaseAt.ResetSyncStatus -> rig.onSyncStatusReset = release
+				ReleaseAt.AfterTheEnd -> Unit
+			}
+			runCurrent()
+
+			var states: List<Any>? = null
+			launch { states = rig.signOut.execute(Unit).toList() }
+			advanceUntilIdle()
+			if (releaseAt == ReleaseAt.AfterTheEnd) {
+				refreshGate.complete(Unit)
+				advanceUntilIdle()
+			}
+
+			assertTrue(straggler.isCompleted, "$label: the request ended")
+			assertTrue(states?.lastOrNull() is UseCaseState.Data<*>, "$label: the use case says the sign-out is done")
+			assertTrue(rig.store.isGone(), "$label: session gone")
+			assertEquals(1, rig.application.clearCalls, "$label: one wipe")
+			assertEquals(0, rig.invalidations.raised, "$label: no signal")
+			assertNull(rig.settings.sessionResetNotice, "$label: no notice")
+			assertTrue(rig.invalidations.notifySessionInvalidated(sessionId = null), "$label: mark withdrawn")
+		}
+	}
+
+	// A new sign-in right after the sign-out; the rejection of a request of the previous session lands then.
+	@Test
+	fun aNewSignInRightAfterTheSignOut_isNotTouchedByAStragglerOfThePreviousSession() = runTest {
+		val rig = SignOutRig(this)
+		val refreshGate = CompletableDeferred<Unit>()
+		rig.onRefresh = {
+			refreshGate.await()
+			throw clientRequestException(HttpStatusCode.Unauthorized)
+		}
+		val straggler = launch { runCatching { rig.recovery.recoverUnauthorizedSession("access-old", null, null) } }
+		runCurrent()
+
+		launch { rig.signOut.execute(Unit).toList() }
+		advanceUntilIdle()
+		assertTrue(rig.store.isGone())
+
+		val newSession = SessionSnapshot("session-new", "access-new", "refresh-new", "12-34567")
+		rig.store.repository.setSessionSnapshot(newSession)
+		refreshGate.complete(Unit)
+		advanceUntilIdle()
+		// and a direct invalidation that still names the previous session
+		launch { rig.recovery.invalidateSession(sessionId = "session-old") }
+		advanceUntilIdle()
+
+		assertTrue(straggler.isCompleted)
+		assertEquals(newSession, rig.store.repository.getActiveSessionSnapshot(), "the new session is intact")
+		assertEquals(1, rig.application.clearCalls, "one wipe: the sign-out's")
+		assertEquals(0, rig.invalidations.raised)
+		assertNull(rig.settings.sessionResetNotice)
+
+		// and the new session can still be ended and told
+		launch { rig.recovery.invalidateSession(sessionId = "session-new") }
+		advanceUntilIdle()
+		assertEquals(2, rig.application.clearCalls)
+		assertEquals(1, rig.invalidations.raised, "the invalidation of the new session is not silenced")
 	}
 
 	// A stored session that cannot be read is not proof that it is gone: the steps run.
@@ -338,7 +522,13 @@ class SignOutCutAfterTheRevokeTest {
 
 private enum class LocalStep { CancelActiveWork, ClearData, ClearSession, ResetSyncStatus }
 
-private class SignOutRig(testScope: TestScope, scopeReporting: ReportingRepository? = null) {
+private enum class ReleaseAt { RevokeInFlight, CancelActiveWork, ClearData, ClearSession, ResetSyncStatus, AfterTheEnd }
+
+private class SignOutRig(
+	testScope: TestScope,
+	scopeReporting: ReportingRepository? = null,
+	endReporting: ReportingRepository? = null
+) {
 	val settings = FakeSettingsRepository()
 	val invalidations = CountingSessionInvalidationRepository()
 	val reporting = RecordingReportingRepository()
@@ -347,11 +537,15 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 	private var wipeGate: CompletableDeferred<Unit>? = null
 	var onWipe: suspend () -> Unit = {}
 	var onSessionClear: suspend () -> Unit = {}
+	var onSessionCleared: suspend () -> Unit = {}
+	var onSnapshotRead: suspend () -> Unit = {}
 	var onSyncStatusReset: suspend () -> Unit = {}
 	var onRefresh: suspend () -> RefreshTokens = { error("unused") }
 	var onRevoke: suspend () -> Unit = {}
 	var refreshCalls = 0
 	var failSnapshotReads = false
+
+	val credentials = FakeCredentialsRepository()
 
 	private val dispatcher = StandardTestDispatcher(testScope.testScheduler)
 	val sessionScope = SessionCoroutineScope(TestTuIndiceDispatchers(dispatcher), scopeReporting)
@@ -359,7 +553,9 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 		settings = settings,
 		stores = listOf(store.active, store.legacy),
 		memory = listOf(store.memory),
+		// The wipe of the app empties the secure store the password lives in.
 		database = {
+			credentials.password = null
 			onWipe()
 			wipeGate?.let { gate ->
 				wipeStarted.complete(Unit)
@@ -394,6 +590,7 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 	val recovery = SessionRecoveryDataSource(
 		sessionRepository = object : SessionRepository by store.repository {
 			override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+				onSnapshotRead()
 				check(!failSnapshotReads) { "stored session unreadable" }
 				return store.repository.getActiveSessionSnapshot()
 			}
@@ -401,6 +598,7 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 			override suspend fun clear() {
 				onSessionClear()
 				store.repository.clear()
+				onSessionCleared()
 			}
 		},
 		applicationRepository = application,
@@ -412,9 +610,9 @@ private class SignOutRig(testScope: TestScope, scopeReporting: ReportingReposito
 		},
 		attestationRepository = attestation,
 		authRepository = auth,
-		credentialsRepository = FakeCredentialsRepository(),
+		credentialsRepository = credentials,
 		settingsRepository = settings,
-		reportingRepository = reporting,
+		reportingRepository = endReporting ?: reporting,
 		sessionCoroutineScope = sessionScope,
 		appCoroutineScope = testAppCoroutineScope(dispatcher)
 	)

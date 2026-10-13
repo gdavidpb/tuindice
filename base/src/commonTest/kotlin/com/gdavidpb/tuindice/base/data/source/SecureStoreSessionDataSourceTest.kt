@@ -200,6 +200,8 @@ class SecureStoreSessionDataSourceTest {
 
 			override fun clearIntentionalSignOut(sessionId: String) = Unit
 
+			override fun isIntentionalSignOut(sessionId: String) = false
+
 			override fun notifySessionInvalidated(sessionId: String?): Boolean {
 				noticeWhenSignalled = runBlocking { settings.getSessionResetNotice() }
 
@@ -299,6 +301,8 @@ private class RecordingSessionInvalidationRepository : SessionInvalidationReposi
 	override fun markIntentionalSignOut(sessionId: String) = Unit
 
 	override fun clearIntentionalSignOut(sessionId: String) = Unit
+
+	override fun isIntentionalSignOut(sessionId: String) = false
 
 	override fun notifySessionInvalidated(sessionId: String?): Boolean {
 		notifiedSessionIds += sessionId

@@ -183,8 +183,8 @@ class SessionRecoveryDataSource(
 	// serves it: both callers want the session gone and the notice emitted once. A caller outside the
 	// session scope gets its normal return when the session is gone. One inside it is cancelled with
 	// the rest of the scope's work, and unwinds as a cancellation without writing anything afterwards.
-	// This lock is taken by invalidations only: no request holds it, and the recovery lock is never
-	// needed to take it.
+	// This lock is taken by whatever ends the session locally (an invalidation, the local end of a
+	// sign-out): no request holds it, and the recovery lock is never needed to take it.
 	override suspend fun invalidateSession(
 		sessionId: String?,
 		reason: SessionInvalidationReason?,
@@ -250,13 +250,17 @@ class SessionRecoveryDataSource(
 			invalidationMutex.withLock {
 				// A rejection that reached a request in flight while the server was revoking the session can
 				// have run its whole invalidation first, silenced by the mark of this sign-out: then the
-				// session is already gone, or a new sign-in replaced it, and wiping again would empty the
-				// newer one. A stored session that cannot be read does not excuse the steps.
+				// session is already gone and the steps would find nothing to empty. Only that lets them be
+				// skipped. Any session that is stored, the one asked for or another one (a recovery by
+				// credentials of the same account stores one), is not the signed-out session, and the device
+				// must not stay authenticated after a sign-out. A stored session that cannot be read does not
+				// excuse the steps either.
 				val stored = attempt { sessionRepository.getActiveSessionSnapshot() }
-				val alreadyEnded = stored.isSuccess && stored.getOrNull()?.sessionId != sessionId
+				val alreadyEnded = stored.isSuccess && stored.getOrNull() == null
+				var failures = emptyList<Throwable>()
 
 				if (!alreadyEnded) {
-					val failures = listOf(
+					failures = listOfNotNull(
 						runStep { sessionCoroutineScope.cancelActiveWork() },
 						runStep { applicationRepository.clearData() },
 						runStep { sessionRepository.clear() },
@@ -264,12 +268,15 @@ class SessionRecoveryDataSource(
 					)
 
 					invalidationsCompleted.value += 1
-
-					failures.filterNotNull().forEach { failure -> attempt { reportingRepository.logException(failure) } }
 				}
 
-				// Withdrawn whether the steps ran or not: the sign-out is over either way.
+				// Withdrawn whether the steps ran or not, and before anything is reported: the sign-out is
+				// over either way, and the mark left behind would silence the next invalidation.
 				sessionInvalidationRepository.clearIntentionalSignOut(sessionId)
+
+				// The report does not suspend, so a cancellation it throws is not the one of this job: it
+				// cannot keep the end from finishing.
+				failures.forEach { failure -> runCatching { reportingRepository.logException(failure) } }
 			}
 		}.await()
 	}
@@ -344,7 +351,17 @@ class SessionRecoveryDataSource(
 	): SessionSnapshot? {
 		if (!throwable.isAccessRejected()) throw throwable
 
-		val recoveredSnapshot = sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)
+		val changedSnapshot = sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)
+
+		// The sign-out under way is the one that ends this session: recovering it would hand the device a
+		// session after the user asked to leave, and invalidating it would end it a second time.
+		val isBeingSignedOut = changedSnapshot == null &&
+				throwable.shouldAttemptCredentialRecovery() &&
+				sessionInvalidationRepository.isIntentionalSignOut(attemptedSnapshot.sessionId)
+
+		if (isBeingSignedOut) return null
+
+		val recoveredSnapshot = changedSnapshot
 			?: attemptCredentialRecovery(
 				throwable = throwable,
 				attemptedSnapshot = attemptedSnapshot,
@@ -386,8 +403,8 @@ class SessionRecoveryDataSource(
 		if (!hasPassword) return null
 
 		return runCatching {
-			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
-				return@runCatching snapshot
+			sessionRepository.getSessionMovedOn(attemptedSnapshot)?.let { movedOn ->
+				return@runCatching movedOn.current
 			}
 
 			val password = credentialsRepository.getPassword()
@@ -396,8 +413,8 @@ class SessionRecoveryDataSource(
 				password = password
 			)
 
-			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
-				return@runCatching snapshot
+			sessionRepository.getSessionMovedOn(attemptedSnapshot)?.let { movedOn ->
+				return@runCatching movedOn.current
 			}
 
 			val attestation = attestForRecovery(
@@ -413,8 +430,8 @@ class SessionRecoveryDataSource(
 				)
 			)
 
-			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
-				return@runCatching snapshot
+			sessionRepository.getSessionMovedOn(attemptedSnapshot)?.let { movedOn ->
+				return@runCatching movedOn.current
 			}
 
 			authRepository.exchangeSignIn(
@@ -507,6 +524,19 @@ private fun RefreshTokens.toSessionSnapshot(usbId: String): SessionSnapshot {
 		refreshToken = refreshToken,
 		usbId = usbId
 	)
+}
+
+// The attempted session is not the stored one any more: [current] is the session stored instead, or null
+// when there is none (it was ended). The tokens a recovery obtains belong to the attempted session, so
+// they are not written over either.
+private class SessionMovedOn(val current: SessionSnapshot?)
+
+private suspend fun SessionRepository.getSessionMovedOn(
+	attemptedSnapshot: SessionSnapshot
+): SessionMovedOn? {
+	val currentSnapshot = getActiveSessionSnapshot()
+
+	return if (currentSnapshot != attemptedSnapshot) SessionMovedOn(currentSnapshot) else null
 }
 
 private suspend fun SessionRepository.getSessionChangedSnapshot(

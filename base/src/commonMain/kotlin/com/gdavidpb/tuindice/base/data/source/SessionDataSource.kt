@@ -159,6 +159,13 @@ class SessionDataSource(
 		)
 	}
 
+	// Memory first, then the store. Every access goes through the session lock and the four keys of the
+	// store are written without suspending, so a cancellation cannot leave the store half written: the
+	// save is whole or it never starts. Only a failed write of the store leaves the memory with the new
+	// tokens and the store with the old ones. The process goes on with the memory and the next refresh
+	// writes the store again. If the process dies before that, the old refresh token is still accepted
+	// during the grace window of the server, and after it the server answers `refresh_token_mismatch`,
+	// which ends the session with a notice: there is no sign-in by credentials in that case.
 	private suspend fun writeSessionSnapshot(snapshot: SessionSnapshot) {
 		memorySessionDataSource.setUsbId(snapshot.usbId)
 		memorySessionDataSource.setSessionId(snapshot.sessionId)

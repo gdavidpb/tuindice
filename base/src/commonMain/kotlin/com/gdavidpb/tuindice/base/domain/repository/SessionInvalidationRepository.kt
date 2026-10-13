@@ -7,6 +7,10 @@ interface SessionInvalidationRepository {
 	fun markIntentionalSignOut(sessionId: String)
 	fun clearIntentionalSignOut(sessionId: String)
 
+	// True while the sign-out of this session is under way: whatever else would end or revive it leaves
+	// that to the sign-out.
+	fun isIntentionalSignOut(sessionId: String): Boolean
+
 	// True when the notice was raised, false when an intentional sign-out suppressed it.
 	fun notifySessionInvalidated(sessionId: String? = null): Boolean
 }
