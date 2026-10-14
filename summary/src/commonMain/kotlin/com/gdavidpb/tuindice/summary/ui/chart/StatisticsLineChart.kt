@@ -29,7 +29,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
  * A line through the points of a term's history, with a button on each point. The line runs through each point's line
  * value, and the marker of the point sits on its marker value, so the index of a term can mark its own value over the
  * cumulative line. Tapping a point opens its tooltip and closes the one that was open. Past six points the chart
- * scrolls, and it opens at its latest point.
+ * scrolls, labels and all, and it opens at its latest point. Each point is named under its column by its axis label.
  */
 @Composable
 fun StatisticsLineChart(
@@ -52,8 +52,14 @@ fun StatisticsLineChart(
 		val contentWidth = StatisticsChartGeometry.contentWidth(columnWidth, points.size)
 
 		StatisticsScrollFrame {
-			Box(modifier = Modifier.width(contentWidth.dp).height(StatisticsChartDefaults.ChartHeight)) {
-				LineTrace(points = points, range = range, columnWidth = columnWidth)
+			Box(modifier = Modifier.width(contentWidth.dp).height(StatisticsChartDefaults.ContentHeight)) {
+				StatisticsAxisLabels(
+						key = labels.key,
+						labels = points.map { point -> point.axisLabel },
+						columnWidth = columnWidth
+					)
+
+					LineTrace(points = points, range = range, columnWidth = columnWidth)
 
 				LineMarkers(
 					points = points,

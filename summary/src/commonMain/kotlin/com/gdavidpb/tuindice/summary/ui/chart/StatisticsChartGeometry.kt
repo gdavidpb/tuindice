@@ -66,6 +66,27 @@ object StatisticsChartGeometry {
 		}
 	}
 
+	// The touch areas of the drawn segments of a bar of [totalDp], in order. They cover the bar without overlap, and each
+	// is at least a finger wide where the bar has room for that. A segment narrower than a finger takes the room it lacks
+	// from the wider segments, which give up only what they can spare, so every segment can be tapped.
+	fun touchSpans(widthsDp: List<Float>, totalDp: Float): List<Span> {
+		if (widthsDp.isEmpty()) return emptyList()
+
+		val minimum = if (totalDp > 0f) min(MinTargetDp, totalDp / widthsDp.size) else 0f
+		val targets = widthsDp.map { width -> max(width, minimum) }
+		val excess = targets.sum() - totalDp
+		val spare = targets.fold(0f) { sum, target -> sum + (target - minimum) }
+		val areas = if (excess > 0f && spare > 0f) {
+			targets.map { target -> target - excess * (target - minimum) / spare }
+		} else {
+			targets
+		}
+
+		var start = 0f
+
+		return areas.map { width -> Span(startDp = start, widthDp = width).also { start += width } }
+	}
+
 	data class Span(
 		val startDp: Float,
 		val widthDp: Float

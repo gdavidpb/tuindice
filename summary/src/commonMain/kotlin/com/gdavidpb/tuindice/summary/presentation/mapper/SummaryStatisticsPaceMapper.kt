@@ -16,6 +16,8 @@ import tuindice.summary.generated.resources.summary_statistics_pace_empty
 import tuindice.summary.generated.resources.summary_statistics_pace_figure
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_message
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_title
+import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_many
+import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_one
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_many
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_one
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_pending
@@ -123,6 +125,12 @@ private fun projectionOf(
 				one = Res.string.summary_statistics_pace_projection_one,
 				many = Res.string.summary_statistics_pace_projection_many,
 				args = listOf(remainingTerms, pensum.totalCredits)
+			),
+			emphasis = countText(
+				quantity = remainingTerms,
+				one = Res.string.summary_statistics_pace_projection_emphasis_one,
+				many = Res.string.summary_statistics_pace_projection_emphasis_many,
+				args = listOf(remainingTerms)
 			),
 			tag = UiText.Resource(Res.string.summary_statistics_pace_projection_tag)
 		)

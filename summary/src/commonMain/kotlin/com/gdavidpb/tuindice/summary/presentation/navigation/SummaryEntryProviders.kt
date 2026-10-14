@@ -10,6 +10,8 @@ import com.gdavidpb.tuindice.base.presentation.navigation.dialogMetadata
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectNavResultWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
+import com.gdavidpb.tuindice.summary.presentation.route.SummaryStatisticsRoute
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.dialog.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.dialog.RemoveProfilePictureConfirmationContentDialog
@@ -22,6 +24,10 @@ fun EntryProviderScope<NavKey>.summaryEntries(
 ) {
 	summaryEntry(
 		navActions = navActions,
+		shellBindings = shellBindings,
+		navigation = navigation
+	)
+	statisticsEntry(
 		shellBindings = shellBindings,
 		navigation = navigation
 	)
@@ -73,6 +79,27 @@ private fun EntryProviderScope<NavKey>.summaryEntry(
 				navActions.push(SummaryDestination.RemoveProfilePictureConfirmationDialog)
 			},
 			showSnackBar = shellBindings.showSnackBar,
+			navigation = navigation,
+			viewModel = viewModel
+		)
+	}
+}
+
+// The Statistics screen, pushed over the hub: it is read-only, so it has no result to send back.
+private fun EntryProviderScope<NavKey>.statisticsEntry(
+	shellBindings: NavShellBindings,
+	navigation: SummaryNavDependencies
+) {
+	entry<SummaryDestination.Statistics> {
+		val viewModel = koinViewModel<SummaryStatisticsViewModel>()
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		CollectCurrentEntryValueWithLifecycle(
+			value = viewState,
+			onValue = shellBindings.onViewStateChanged
+		)
+
+		SummaryStatisticsRoute(
 			navigation = navigation,
 			viewModel = viewModel
 		)

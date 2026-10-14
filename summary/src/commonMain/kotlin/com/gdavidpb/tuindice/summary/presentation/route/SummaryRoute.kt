@@ -93,7 +93,7 @@ fun SummaryRoute(
 }
 
 // The effects that lead to another screen, each one through the host's connection of it.
-private fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
+internal fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
 	when (effect) {
 		is Summary.Effect.NavigateToSchedule -> onOpenSchedule()
 
@@ -109,6 +109,8 @@ private fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
 		is Summary.Effect.NavigateToAddEvaluation -> onOpenForm(SummaryForm.AddEvaluation)
 
 		is Summary.Effect.NavigateToCreateTerm -> onOpenForm(SummaryForm.CreateTerm)
+
+		is Summary.Effect.NavigateToEvaluations -> onNavigateToSection(MainSection.EVALUATIONS)
 
 		else -> Unit
 	}

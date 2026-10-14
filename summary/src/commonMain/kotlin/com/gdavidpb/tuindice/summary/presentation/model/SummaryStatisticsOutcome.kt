@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.summary.presentation.model
 
 /**
- * The outcome a segment of a stacked bar stands for. The screen gives each one its color: the approved and the failed
- * with the status colors, the withdrawn and the subjects without result with the neutral one.
+ * The outcome a segment of a stacked bar stands for: the approved, the failed and the withdrawn, each drawn in its own
+ * colour. The subjects without a result are no segment; they are counted in a line of text beside the bar.
  */
 enum class SummaryStatisticsOutcome {
 	APPROVED,
 	FAILED,
-	WITHDRAWN,
-	NO_RESULT
+	WITHDRAWN
 }

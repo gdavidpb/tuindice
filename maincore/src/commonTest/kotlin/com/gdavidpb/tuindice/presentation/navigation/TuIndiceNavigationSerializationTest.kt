@@ -59,6 +59,7 @@ class TuIndiceNavigationSerializationTest {
 			isCameraAvailable = false
 		),
 		SummaryDestination.RemoveProfilePictureConfirmationDialog,
+		SummaryDestination.Statistics,
 		RecordDestination.Record,
 		RecordDestination.CreateSyntheticTerm(termId = "term-1"),
 		RecordDestination.CreateSyntheticTerm(termId = null),

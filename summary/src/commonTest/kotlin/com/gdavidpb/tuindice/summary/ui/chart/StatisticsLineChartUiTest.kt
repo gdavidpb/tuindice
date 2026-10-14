@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -89,6 +90,28 @@ class StatisticsLineChartUiTest {
 		assertTrue(size.width >= MinTargetPx && size.height >= MinTargetPx, "Target measures $size")
 	}
 
+	@Test
+	fun when_moreThanSixPoints_then_theirAxisLabelsScrollWithTheirColumns() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			LineChartHost(count = 12)
+		}
+		waitForIdle()
+
+		assertNodeVisible(axisTag(11), useUnmergedTree = true)
+		onNodeWithTag(axisTag(0), useUnmergedTree = true).assertIsNotDisplayed()
+	}
+
+	@Test
+	fun when_rendered_then_eachPointNamesItsColumnUnderThePlot() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			LineChartHost(count = 3)
+		}
+		waitForIdle()
+
+		onNodeWithTag(axisTag(0), useUnmergedTree = true).assertTextEquals("Eje 0")
+		onNodeWithTag(axisTag(2), useUnmergedTree = true).assertTextEquals("Eje 2")
+	}
+
 	@Composable
 	private fun LineChartHost(count: Int) {
 		StatisticsLineChart(
@@ -111,11 +134,14 @@ class StatisticsLineChartUiTest {
 			tooltip = RichTooltipText(
 				title = "Trimestre $index",
 				lines = listOf("Índice ${2 + index}", "Acumulado 3.0")
-			)
+			),
+			axisLabel = "Eje $index"
 		)
 	}
 
 	private fun targetTag(index: Int): String = SummaryUiTags.statisticsTarget(ChartKey, index)
+
+	private fun axisTag(index: Int): String = StatisticsLabelTags.axis(ChartKey, index)
 
 	private companion object {
 		const val ChartKey = "line_test"

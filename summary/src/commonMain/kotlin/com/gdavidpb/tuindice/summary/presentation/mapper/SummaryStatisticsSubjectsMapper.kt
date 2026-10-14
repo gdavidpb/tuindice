@@ -17,28 +17,29 @@ import tuindice.summary.generated.resources.summary_statistics_subjects_figure_o
 import tuindice.summary.generated.resources.summary_statistics_subjects_first_try_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_first_try_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_no_repeated
-import tuindice.summary.generated.resources.summary_statistics_subjects_no_result
+import tuindice.summary.generated.resources.summary_statistics_subjects_no_result_many
+import tuindice.summary.generated.resources.summary_statistics_subjects_no_result_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_repeated_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_repeated_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_approved_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_approved_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_failed_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_failed_one
-import tuindice.summary.generated.resources.summary_statistics_subjects_share_no_result
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_withdrawn_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_withdrawn_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_title
 import tuindice.summary.generated.resources.summary_statistics_subjects_withdrawn_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_withdrawn_one
 
-// "Materias": every subject of the closed terms, once by its code, in one stacked bar. The whole is the sum of the four
-// outcomes, so the bar fills up to the figure. The notes say how many were approved on the first attempt, out of the
-// subjects with a result, and how many were repeated.
+// "Materias": every subject of the closed terms, once by its code. The figure counts all of them. The stacked bar holds
+// the approved, the failed and the withdrawn, so its whole is the subjects with a result, and its shares are out of it.
+// The subjects without a result are a line of their own. The notes say how many were approved on the first attempt, out
+// of the subjects with a result, and how many were repeated.
 internal fun subjectsItemOf(outcomes: SubjectOutcomes): SummaryStatisticsSubjectsItem {
 	val title = UiText.Resource(Res.string.summary_statistics_subjects_title)
-	val whole = outcomes.approved + outcomes.failed + outcomes.withdrawn + outcomes.noResult
+	val figure = outcomes.approved + outcomes.failed + outcomes.withdrawn + outcomes.noResult
 
-	if (whole == 0) {
+	if (figure == 0) {
 		return SummaryStatisticsSubjectsItem(
 			title = title,
 			content = SummaryStatisticsSubjectsItem.Content.Empty(
@@ -47,73 +48,57 @@ internal fun subjectsItemOf(outcomes: SubjectOutcomes): SummaryStatisticsSubject
 		)
 	}
 
+	val whole = outcomes.approved + outcomes.failed + outcomes.withdrawn
+
 	return SummaryStatisticsSubjectsItem(
 		title = title,
 		content = SummaryStatisticsSubjectsItem.Content.Data(
 			figure = SummaryStatisticsFigureItem(
-				value = whole.toString(),
+				value = figure.toString(),
 				label = countText(
-					quantity = whole,
+					quantity = figure,
 					one = Res.string.summary_statistics_subjects_figure_one,
 					many = Res.string.summary_statistics_subjects_figure_many,
 					args = emptyList()
 				)
 			),
 			segments = segmentsOf(outcomes = outcomes, whole = whole),
-			notes = notesOf(outcomes = outcomes)
+			notes = notesOf(outcomes = outcomes),
+			noResult = noResultOf(count = outcomes.noResult)
 		)
 	)
 }
 
 private fun segmentsOf(outcomes: SubjectOutcomes, whole: Int): List<SummaryStatisticsSegmentItem> {
-	return buildList {
-		add(
-			countSegmentOf(
-				outcome = SummaryStatisticsOutcome.APPROVED,
-				count = outcomes.approved,
-				whole = whole,
-				legend = Res.string.summary_statistics_subjects_approved_one to
-					Res.string.summary_statistics_subjects_approved_many,
-				share = Res.string.summary_statistics_subjects_share_approved_one to
-					Res.string.summary_statistics_subjects_share_approved_many
-			)
+	return listOf(
+		countSegmentOf(
+			outcome = SummaryStatisticsOutcome.APPROVED,
+			count = outcomes.approved,
+			whole = whole,
+			legend = Res.string.summary_statistics_subjects_approved_one to
+				Res.string.summary_statistics_subjects_approved_many,
+			share = Res.string.summary_statistics_subjects_share_approved_one to
+				Res.string.summary_statistics_subjects_share_approved_many
+		),
+		countSegmentOf(
+			outcome = SummaryStatisticsOutcome.FAILED,
+			count = outcomes.failed,
+			whole = whole,
+			legend = Res.string.summary_statistics_subjects_failed_one to
+				Res.string.summary_statistics_subjects_failed_many,
+			share = Res.string.summary_statistics_subjects_share_failed_one to
+				Res.string.summary_statistics_subjects_share_failed_many
+		),
+		countSegmentOf(
+			outcome = SummaryStatisticsOutcome.WITHDRAWN,
+			count = outcomes.withdrawn,
+			whole = whole,
+			legend = Res.string.summary_statistics_subjects_withdrawn_one to
+				Res.string.summary_statistics_subjects_withdrawn_many,
+			share = Res.string.summary_statistics_subjects_share_withdrawn_one to
+				Res.string.summary_statistics_subjects_share_withdrawn_many
 		)
-		add(
-			countSegmentOf(
-				outcome = SummaryStatisticsOutcome.FAILED,
-				count = outcomes.failed,
-				whole = whole,
-				legend = Res.string.summary_statistics_subjects_failed_one to
-					Res.string.summary_statistics_subjects_failed_many,
-				share = Res.string.summary_statistics_subjects_share_failed_one to
-					Res.string.summary_statistics_subjects_share_failed_many
-			)
-		)
-		add(
-			countSegmentOf(
-				outcome = SummaryStatisticsOutcome.WITHDRAWN,
-				count = outcomes.withdrawn,
-				whole = whole,
-				legend = Res.string.summary_statistics_subjects_withdrawn_one to
-					Res.string.summary_statistics_subjects_withdrawn_many,
-				share = Res.string.summary_statistics_subjects_share_withdrawn_one to
-					Res.string.summary_statistics_subjects_share_withdrawn_many
-			)
-		)
-
-		// The subjects without a result leave no legend when there are none, since they are none to count.
-		if (outcomes.noResult > 0) {
-			add(
-				plainSegmentOf(
-					outcome = SummaryStatisticsOutcome.NO_RESULT,
-					count = outcomes.noResult,
-					whole = whole,
-					legend = Res.string.summary_statistics_subjects_no_result,
-					share = Res.string.summary_statistics_subjects_share_no_result
-				)
-			)
-		}
-	}
+	)
 }
 
 private fun notesOf(outcomes: SubjectOutcomes): List<UiText> {
@@ -143,4 +128,16 @@ private fun notesOf(outcomes: SubjectOutcomes): List<UiText> {
 			}
 		)
 	}
+}
+
+// "1 materia sin resultado" or "3 materias sin resultado", and no line at all when there is none to count.
+private fun noResultOf(count: Int): UiText? {
+	if (count == 0) return null
+
+	return countText(
+		quantity = count,
+		one = Res.string.summary_statistics_subjects_no_result_one,
+		many = Res.string.summary_statistics_subjects_no_result_many,
+		args = listOf(count)
+	)
 }

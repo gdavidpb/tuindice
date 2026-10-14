@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.chart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -11,10 +12,12 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
@@ -130,14 +133,85 @@ class StatisticsBarChartUiTest {
 		assertEquals(ActionLabel, onClick.label)
 	}
 
+	@Test
+	fun when_moreThanSixBars_then_itsAxisLabelsScrollWithTheirColumns() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			BarChartHost(values = List(12) { 1f }, maxValue = 4f, reference = null)
+		}
+		waitForIdle()
+
+		assertNodeVisible(axisTag(11), useUnmergedTree = true)
+		onNodeWithTag(axisTag(0), useUnmergedTree = true).assertIsNotDisplayed()
+	}
+
+	@Test
+	fun when_barsAreGiven_then_eachColumnNamesItsBarUnderThePlot() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			BarChartHost(values = listOf(2f, 4f), maxValue = 4f, reference = null)
+		}
+		waitForIdle()
+
+		onNodeWithTag(axisTag(1), useUnmergedTree = true).assertTextEquals("Eje 1")
+		// The label starts where the baseline of the plot ends, so no bar reaches into the band.
+		assertTrue(boundsOf(axisTag(1)).top >= boundsOf(fillTag(1)).bottom - TolerancePx)
+	}
+
+	@Test
+	fun when_barHasAValueLabel_then_itIsWrittenAboveTheBar() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				BarChartHost(
+					values = listOf(2f, 4f),
+					maxValue = 4f,
+					reference = null,
+					valueLabel = { index -> "Cifra $index" }
+				)
+			}
+		}
+		waitForIdle()
+
+		onNodeWithTag(valueTag(1), useUnmergedTree = true).assertTextEquals("Cifra 1")
+		assertTrue(boundsOf(valueTag(1)).bottom <= boundsOf(fillTag(1)).top + TolerancePx)
+	}
+
+	@Test
+	fun when_animationsAreEnabled_then_theValueLabelClimbsWithItsBar() = runTuIndiceUiTest {
+		mainClock.autoAdvance = false
+		setTuIndiceTestContent {
+			BarChartHost(values = listOf(4f), maxValue = 4f, reference = null, valueLabel = { "Cifra" })
+		}
+		waitForIdle()
+		val atBaseline = boundsOf(valueTag(0)).top
+
+		mainClock.advanceTimeBy(GrowHalfMillis)
+		waitForIdle()
+		assertTrue(boundsOf(valueTag(0)).top < atBaseline, "The figure rises while its bar grows")
+
+		mainClock.advanceTimeBy(GrowMillis)
+		waitForIdle()
+		assertTrue(boundsOf(valueTag(0)).bottom <= boundsOf(fillTag(0)).top + TolerancePx)
+	}
+
+	@Test
+	fun when_barHasNoValueLabel_then_nothingIsWrittenOverIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			BarChartHost(values = listOf(2f, 4f), maxValue = 4f, reference = null)
+		}
+		waitForIdle()
+
+		onAllNodesWithTag(valueTag(0), useUnmergedTree = true).assertCountEquals(0)
+		onAllNodesWithTag(valueTag(1), useUnmergedTree = true).assertCountEquals(0)
+	}
+
 	@Composable
 	private fun BarChartHost(
 		values: List<Float>,
 		maxValue: Float?,
-		reference: StatisticsReference?
+		reference: StatisticsReference?,
+		valueLabel: (Int) -> String? = { null }
 	) {
 		StatisticsBarChart(
-			bars = values.mapIndexed { index, value -> bar(index, value) },
+			bars = values.mapIndexed { index, value -> bar(index, value, valueLabel(index)) },
 			maxValue = maxValue,
 			reference = reference,
 			labels = StatisticsChartLabels(
@@ -149,14 +223,16 @@ class StatisticsBarChartUiTest {
 		)
 	}
 
-	private fun bar(index: Int, value: Float): StatisticsBarPoint {
+	private fun bar(index: Int, value: Float, valueLabel: String?): StatisticsBarPoint {
 		return StatisticsBarPoint(
 			label = "Barra $index",
 			value = value,
 			tooltip = RichTooltipText(
 				title = "Barra $index",
 				lines = listOf("Valor $value")
-			)
+			),
+			axisLabel = "Eje $index",
+			valueLabel = valueLabel
 		)
 	}
 
@@ -168,7 +244,18 @@ class StatisticsBarChartUiTest {
 		).fetchSemanticsNode().size.height
 	}
 
+	// Where a node stands in the window, in pixels. The unmerged tree keeps the labels and the bars under their targets.
+	private fun ComposeUiTest.boundsOf(tag: String): Rect {
+		return onNodeWithTag(testTag = tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+	}
+
 	private fun targetTag(index: Int): String = SummaryUiTags.statisticsTarget(ChartKey, index)
+
+	private fun axisTag(index: Int): String = StatisticsLabelTags.axis(ChartKey, index)
+
+	private fun valueTag(index: Int): String = StatisticsLabelTags.value(ChartKey, index)
+
+	private fun fillTag(index: Int): String = SummaryUiTags.statisticsFill(ChartKey, index)
 
 	private companion object {
 		const val ChartKey = "bar_test"
@@ -180,5 +267,6 @@ class StatisticsBarChartUiTest {
 		const val HalfPlotPx = 74
 		const val GrowMillis = 300L
 		const val GrowHalfMillis = 150L
+		const val TolerancePx = 1f
 	}
 }

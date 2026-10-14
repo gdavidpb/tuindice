@@ -28,6 +28,12 @@ object StatisticsChartDefaults {
 	val LineInset = TargetMinSize / 2f
 	val LineBandHeight = ChartHeight - LineInset * 2f
 
+	// Under the plot, each column names its point in a band of one small line that scrolls with the columns. A value
+	// written above a bar takes one line of its own, which the bar's top leaves clear.
+	val AxisLabelBandHeight = 20.dp
+	val ValueLabelHeight = 16.dp
+	val ContentHeight = ChartHeight + AxisLabelBandHeight
+
 	val MarkerSize = 8.dp
 	val LineStrokeWidth = 2.dp
 	val SegmentHeight = 24.dp

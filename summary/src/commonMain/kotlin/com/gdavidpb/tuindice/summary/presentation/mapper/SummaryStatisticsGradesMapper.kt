@@ -50,6 +50,7 @@ internal fun gradesItemOf(histogram: GradeHistogram): SummaryStatisticsGradesIte
 private fun gradeBarOf(grade: Int, count: Int, graded: Int): SummaryStatisticsBarItem {
 	return SummaryStatisticsBarItem(
 		axisLabel = UiText.Raw(grade.toString()),
+		valueLabel = UiText.Raw(count.toString()),
 		value = count.toFloat(),
 		tooltip = SummaryStatisticsTooltipItem(
 			title = countText(

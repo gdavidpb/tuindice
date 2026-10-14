@@ -12,7 +12,8 @@ import kotlinx.datetime.LocalDate
 class SummaryNavDependencies(
 	// The sheet that asks the student to enter the password again (the sync status icon leads there).
 	val onNavigateToUpdatePassword: () -> Unit = {},
-	// The tab of the section: the Record tab (the term, and the enrollment errors) and the Pensum tab (the career).
+	// The tab of the section: the Record tab (the term, and the enrollment errors), the Pensum tab (the career) and
+	// the Evaluations tab as it opens by itself, on no week (the Statistics screen leads there from its link).
 	val onNavigateToSection: (section: MainSection) -> Unit = {},
 	// The Evaluations tab on the week that this Monday opens, with that evaluation brought into view.
 	val onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },

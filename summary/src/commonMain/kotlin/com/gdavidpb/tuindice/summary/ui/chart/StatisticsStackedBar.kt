@@ -29,13 +29,13 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import kotlin.math.max
 
 /**
  * One horizontal bar split into [segments], each as wide as its share of the whole and drawn in its own colour. The
  * bar grows from the left to its full width unless the animations are off. Tapping a segment opens its tooltip and
- * closes the one that was open. A segment with no value is not drawn and has no target; a segment that is drawn has
- * a target at least as wide as a finger.
+ * closes the one that was open. A segment with no value is not drawn and has no target. A drawn segment has a target at
+ * least as wide as a finger wherever the bar is wide enough to give each one that; the targets never overlap, so each
+ * drawn segment can be tapped.
  */
 @Composable
 fun StatisticsStackedBar(
@@ -75,7 +75,6 @@ fun StatisticsStackedBar(
 		StackedTargets(
 			segments = segments,
 			spans = spans,
-			progress = progress,
 			labels = labels,
 			openIndex = openIndex
 		)
@@ -124,36 +123,33 @@ private fun BoxScope.StackedTrack(
 	}
 }
 
-// The touch area of each drawn segment: at least a finger wide, centred on the segment but kept inside the bar, and
-// none for an empty one. A widened target reaches over its neighbours, so the narrowest are placed last and sit on top:
-// each segment keeps the part of the bar that only it can be told apart by.
+// The touch area of each drawn segment, from the final layout, so a tap during the growth lands where the segment
+// will be. The areas cover the bar in order without overlap: a narrow segment takes the room it lacks from the wider
+// segments beside it, so no segment is hidden under another. An empty segment has no area.
 @Composable
 private fun BoxScope.StackedTargets(
 	segments: List<StatisticsSegment>,
 	spans: List<StatisticsChartGeometry.Span>,
-	progress: Float,
 	labels: StatisticsChartLabels,
 	openIndex: MutableState<Int?>
 ) {
 	// The spans of a bar with something drawn share its whole width.
 	val barWidth = spans.fold(0f) { width, span -> width + span.widthDp }
-	val drawn = segments.indices
-		.filter { index -> segments[index].value > 0f }
-		.sortedByDescending { index -> spans[index].widthDp }
+	val drawn = segments.indices.filter { index -> segments[index].value > 0f }
+	val touches = StatisticsChartGeometry.touchSpans(
+		widthsDp = drawn.map { index -> spans[index].widthDp },
+		totalDp = barWidth
+	)
 
-	drawn.forEach { index ->
+	drawn.forEachIndexed { position, index ->
 		key(index) {
 			val segment = segments[index]
-			val span = spans[index]
-			val spanWidth = span.widthDp * progress
-			val targetWidth = max(spanWidth, StatisticsChartGeometry.MinTargetDp)
-			val center = (span.startDp * progress) + spanWidth / 2
-			val start = (center - targetWidth / 2).coerceIn(0f, max(barWidth - targetWidth, 0f))
+			val touch = touches[position]
 
 			Box(
 				modifier = Modifier
-					.offset(x = start.dp)
-					.size(width = targetWidth.dp, height = StatisticsChartDefaults.TargetMinSize)
+					.offset(x = touch.startDp.dp)
+					.size(width = touch.widthDp.dp, height = StatisticsChartDefaults.TargetMinSize)
 			) {
 				StatisticsTooltipTarget(
 					target = labels.targetOf(index, segment.label, segment.tooltip),

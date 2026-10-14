@@ -34,6 +34,34 @@ class SummaryNavigationTest {
 	}
 
 	@Test
+	fun theStatisticsRecordLink_leavesTheStatisticsScreenAndGoesToRecord() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigator.push(SummaryDestination.Statistics)
+		navigation.onNavigateToSection(MainSection.RECORD)
+
+		assertEquals(MainSection.RECORD, navigator.currentTab)
+		assertEquals(listOf(SummaryDestination.Summary, RecordDestination.Record), navigator.backStack)
+	}
+
+	@Test
+	fun theStatisticsEvaluationsLink_leavesTheStatisticsScreenAndGoesToEvaluations() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigator.push(SummaryDestination.Statistics)
+		navigation.onNavigateToSection(MainSection.EVALUATIONS)
+
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertEquals(listOf(SummaryDestination.Summary, EvaluationsDestination.Evaluations), navigator.backStack)
+	}
+
+	@Test
 	fun theScheduleLink_opensTheSheetOverSummary() {
 		val navigation = navigator.toSummaryNavDependencies(
 			onNavigateToEvaluationsWeek = { _, _ -> },

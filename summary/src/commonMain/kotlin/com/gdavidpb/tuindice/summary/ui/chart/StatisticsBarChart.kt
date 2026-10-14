@@ -29,7 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -37,8 +40,9 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 /**
  * A row of bars, one per point, each growing from the baseline to its share of the scale. The scale tops out at
  * [maxValue], or at the largest of the values and the reference when it is absent. A [reference] is a dashed line
- * across the chart, labelled above its end. Tapping a bar opens its tooltip and closes the one that was open. Past six
- * bars the chart scrolls, and it opens at its latest bar.
+ * across the chart, labelled above its end. Each column names its bar under the plot, and a bar that carries a value
+ * label shows that figure just above it. Tapping a bar opens its tooltip and closes the one that was open. Past six
+ * bars the chart scrolls, labels and all, and it opens at its latest bar.
  */
 @Composable
 fun StatisticsBarChart(
@@ -61,13 +65,19 @@ fun StatisticsBarChart(
 		val contentWidth = StatisticsChartGeometry.contentWidth(columnWidth, bars.size)
 
 		StatisticsScrollFrame {
-			Box(modifier = Modifier.width(contentWidth.dp).height(StatisticsChartDefaults.ChartHeight)) {
+			Box(modifier = Modifier.width(contentWidth.dp).height(StatisticsChartDefaults.ContentHeight)) {
 				BarColumns(
 					bars = bars,
 					scale = scale,
 					columnWidth = columnWidth,
 					labels = labels,
 					openIndex = openIndex
+				)
+
+				StatisticsAxisLabels(
+					key = labels.key,
+					labels = bars.map { bar -> bar.axisLabel },
+					columnWidth = columnWidth
 				)
 
 				reference?.let { line ->
@@ -104,6 +114,7 @@ private fun BoxScope.BarColumns(
 			val growth = remember { Animatable(0f) }
 			val fraction = StatisticsChartGeometry.barFraction(bar.value, scale)
 			val isOpen = openIndex.value == index
+			val shownFraction = if (animationsEnabled) growth.value else fraction
 
 			LaunchedEffect(fraction, animationsEnabled) {
 				if (animationsEnabled) {
@@ -116,13 +127,22 @@ private fun BoxScope.BarColumns(
 					.offset(x = (index * columnWidth).dp)
 					.size(width = columnWidth.dp, height = StatisticsChartDefaults.ChartHeight)
 			) {
+				bar.valueLabel?.let { valueLabel ->
+					StatisticsValueLabel(
+						text = valueLabel,
+						tag = StatisticsLabelTags.value(labels.key, index),
+						shownFraction = shownFraction,
+						columnWidth = columnWidth
+					)
+				}
+
 				StatisticsTooltipTarget(
 					target = labels.targetOf(index, bar.label, bar.tooltip),
 					isOpen = isOpen,
 					onOpenChange = { open -> openIndex.value = if (open) index else null }
 				) {
 					StatisticsBar(
-						shownFraction = if (animationsEnabled) growth.value else fraction,
+						shownFraction = shownFraction,
 						width = barWidth,
 						color = dataColor.copy(alpha = StatisticsChartDefaults.alphaOf(isOpen, hasSelection)),
 						tag = SummaryUiTags.statisticsFill(labels.key, index)
@@ -153,6 +173,37 @@ private fun BoxScope.StatisticsBar(
 				)
 			)
 			.testTag(tag)
+	)
+}
+
+// The figure written just above a bar. The bar stands on the baseline, so its top sits the drawn share of the
+// plot above
+// it; the figure's own line lies over that top. It is placed from the same share the bar is drawn with, so it climbs
+// with the bar while the bar grows.
+@Composable
+private fun BoxScope.StatisticsValueLabel(
+	text: String,
+	tag: String,
+	shownFraction: Float,
+	columnWidth: Float
+) {
+	val top = StatisticsChartDefaults.ChartHeight.value -
+		StatisticsChartDefaults.PlotHeight.value * shownFraction -
+		StatisticsChartDefaults.ValueLabelHeight.value
+
+	Text(
+		modifier = Modifier
+			.offset(y = top.dp)
+			.width(columnWidth.dp)
+			.height(StatisticsChartDefaults.ValueLabelHeight)
+			.testTag(tag)
+			.semantics { hideFromAccessibility() },
+		text = text,
+		maxLines = 1,
+		overflow = TextOverflow.Clip,
+		textAlign = TextAlign.Center,
+		style = MaterialTheme.typography.labelSmall,
+		color = MaterialTheme.colorScheme.onSurfaceVariant
 	)
 }
 

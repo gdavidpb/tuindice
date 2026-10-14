@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsOutcome
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSegmentItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
@@ -25,24 +24,6 @@ internal fun countSegmentOf(
 				many = share.second,
 				args = listOf(count, shareOf(part = count, whole = whole))
 			)
-		)
-	)
-}
-
-// The segment of a stacked bar that names its count, for the outcomes that have no noun to agree with.
-internal fun plainSegmentOf(
-	outcome: SummaryStatisticsOutcome,
-	count: Int,
-	whole: Int,
-	legend: StringResource,
-	share: StringResource
-): SummaryStatisticsSegmentItem {
-	return SummaryStatisticsSegmentItem(
-		outcome = outcome,
-		value = count.toFloat(),
-		legend = UiText.Resource(legend, listOf(count)),
-		tooltip = SummaryStatisticsTooltipItem(
-			title = UiText.Resource(share, listOf(count, shareOf(part = count, whole = whole)))
 		)
 	)
 }

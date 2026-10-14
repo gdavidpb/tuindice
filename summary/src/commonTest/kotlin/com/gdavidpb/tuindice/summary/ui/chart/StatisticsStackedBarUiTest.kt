@@ -97,6 +97,22 @@ class StatisticsStackedBarUiTest {
 	}
 
 	@Test
+	fun when_narrowSegmentsSitBesideEachOther_then_bothCanBeTapped() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			StackedBarHost(values = listOf(44f, 2f, 1f))
+		}
+		waitForIdle()
+
+		onNodeWithTag(targetTag(1)).performTouchInput { click() }
+		assertTooltipShows("Segmento 1")
+		assertNoTooltip("Segmento 2")
+
+		onNodeWithTag(targetTag(2)).performTouchInput { click() }
+		assertTooltipShows("Segmento 2")
+		assertNoTooltip("Segmento 1")
+	}
+
+	@Test
 	fun when_animationsAreDisabled_then_segmentsStandAtTheirFinalWidths() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {

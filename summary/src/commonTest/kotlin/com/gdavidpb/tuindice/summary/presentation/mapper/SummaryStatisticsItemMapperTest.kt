@@ -52,6 +52,8 @@ import tuindice.summary.generated.resources.summary_statistics_pace_empty
 import tuindice.summary.generated.resources.summary_statistics_pace_figure
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_message
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_title
+import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_many
+import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_one
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_many
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_one
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_pending
@@ -59,6 +61,8 @@ import tuindice.summary.generated.resources.summary_statistics_subjects_empty
 import tuindice.summary.generated.resources.summary_statistics_subjects_figure_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_first_try_many
 import tuindice.summary.generated.resources.summary_statistics_subjects_no_repeated
+import tuindice.summary.generated.resources.summary_statistics_subjects_no_result_many
+import tuindice.summary.generated.resources.summary_statistics_subjects_no_result_one
 import tuindice.summary.generated.resources.summary_statistics_subjects_share_approved_many
 import tuindice.summary.generated.resources.summary_statistics_type_quiz
 import tuindice.summary.generated.resources.summary_statistics_type_tooltip_quiz
@@ -619,6 +623,157 @@ class SummaryStatisticsItemMapperTest {
 	}
 
 	// One evaluation type with nothing graded yet: the term has its rows, so the block reads the overdue line.
+	@Test
+	fun when_someSubjectsHaveNoResult_then_theyAreALineOfTextOutOfTheBar() {
+		val statistics = statisticsOf(
+			subjects = SubjectOutcomes(
+				approved = 44,
+				failed = 2,
+				withdrawn = 1,
+				noResult = 2,
+				approvedFirstTry = 44,
+				firstTryBase = 46,
+				repeated = 0
+			)
+		)
+
+		val subjects = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.subjects
+
+		val data = assertIs<SummaryStatisticsSubjectsItem.Content.Data>(subjects.content)
+		assertEquals("49", data.figure.value)
+		assertEquals(
+			listOf(
+				SummaryStatisticsOutcome.APPROVED,
+				SummaryStatisticsOutcome.FAILED,
+				SummaryStatisticsOutcome.WITHDRAWN
+			),
+			data.segments.map { segment -> segment.outcome }
+		)
+		// The shares are out of the bar, which holds the subjects with a result: 44 of 47.
+		assertEquals(
+			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, "94 %")),
+			data.segments.first().tooltip.title
+		)
+		assertEquals(UiText.Resource(Res.string.summary_statistics_subjects_no_result_many, listOf(2)), data.noResult)
+	}
+
+	@Test
+	fun when_oneSubjectHasNoResult_then_itsLineIsTheSingularOne() {
+		val statistics = statisticsOf(
+			subjects = SubjectOutcomes(
+				approved = 44,
+				failed = 2,
+				withdrawn = 1,
+				noResult = 1,
+				approvedFirstTry = 44,
+				firstTryBase = 46,
+				repeated = 0
+			)
+		)
+
+		val subjects = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.subjects
+
+		val data = assertIs<SummaryStatisticsSubjectsItem.Content.Data>(subjects.content)
+		assertEquals(UiText.Resource(Res.string.summary_statistics_subjects_no_result_one, listOf(1)), data.noResult)
+	}
+
+	@Test
+	fun when_noSubjectHasNoResult_then_thereIsNoLineForIt() {
+		val statistics = statisticsOf(
+			subjects = SubjectOutcomes(
+				approved = 44,
+				failed = 2,
+				withdrawn = 1,
+				noResult = 0,
+				approvedFirstTry = 44,
+				firstTryBase = 46,
+				repeated = 0
+			)
+		)
+
+		val subjects = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.subjects
+
+		val data = assertIs<SummaryStatisticsSubjectsItem.Content.Data>(subjects.content)
+		assertNull(data.noResult)
+	}
+
+	@Test
+	fun when_gradesAreCounted_then_eachBarWritesItsCountAboveIt() {
+		val histogram = GradeHistogram(
+			countsByGrade = mapOf(1 to 0, 2 to 2, 3 to 7, 4 to 21, 5 to 16),
+			unreported = 3
+		)
+
+		val grades = statisticsHubOf(statistics = statisticsOf(grades = histogram))
+			.toSummaryStatisticsItem()!!
+			.grades
+
+		val data = assertIs<SummaryStatisticsGradesItem.Content.Data>(grades.content)
+		assertEquals(
+			listOf(UiText.Raw("0"), UiText.Raw("2"), UiText.Raw("7"), UiText.Raw("21"), UiText.Raw("16")),
+			data.bars.map { bar -> bar.valueLabel }
+		)
+	}
+
+	@Test
+	fun when_thePaceDrawsItsBars_then_noFigureIsWrittenOverThem() {
+		val statistics = statisticsOf(
+			terms = listOf(
+				statisticsTerm(year = 2024, approvedCredits = 15),
+				statisticsTerm(year = 2025, approvedCredits = 15)
+			)
+		).copy(pace = PaceStatistics(averageCredits = 15.0, remainingTerms = null))
+
+		val pace = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.pace
+
+		val data = pace.content as SummaryStatisticsPaceItem.Content.Data
+		assertTrue(data.bars.all { bar -> bar.valueLabel == null })
+	}
+
+	@Test
+	fun when_theRemainingTermsAreKnown_then_theEmphasisIsTheCountWithItsNoun() {
+		val statistics = statisticsOf(
+			terms = listOf(
+				statisticsTerm(year = 2024, approvedCredits = 15),
+				statisticsTerm(year = 2025, approvedCredits = 15)
+			)
+		).copy(
+			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = 4),
+			pensumProgress = PensumCreditsProgress(approvedCredits = 30, totalCredits = 205)
+		)
+
+		val pace = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.pace
+
+		val data = pace.content as SummaryStatisticsPaceItem.Content.Data
+		val projection = data.projection as SummaryStatisticsPaceItem.Projection.Remaining
+		assertEquals(
+			UiText.Resource(Res.string.summary_statistics_pace_projection_emphasis_many, listOf(4)),
+			projection.emphasis
+		)
+	}
+
+	@Test
+	fun when_oneTermIsLeftToProject_then_theEmphasisIsTheSingularCount() {
+		val statistics = statisticsOf(
+			terms = listOf(
+				statisticsTerm(year = 2024, approvedCredits = 15),
+				statisticsTerm(year = 2025, approvedCredits = 15)
+			)
+		).copy(
+			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = 1),
+			pensumProgress = PensumCreditsProgress(approvedCredits = 30, totalCredits = 205)
+		)
+
+		val pace = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.pace
+
+		val data = pace.content as SummaryStatisticsPaceItem.Content.Data
+		val projection = data.projection as SummaryStatisticsPaceItem.Projection.Remaining
+		assertEquals(
+			UiText.Resource(Res.string.summary_statistics_pace_projection_emphasis_one, listOf(1)),
+			projection.emphasis
+		)
+	}
+
 	private fun oneGradelessType() = listOf(
 		evaluationTypeOf(EvaluationType.TEST, earned = 0.0, evaluated = 0.0, graded = 0, total = 1)
 	)

@@ -17,4 +17,8 @@ sealed class SummaryDestination : Destination() {
 
 	@Serializable
 	data object RemoveProfilePictureConfirmationDialog : SummaryDestination(), DialogDestination
+
+	// The Statistics screen, pushed from the hub: read-only, over the tab it is opened from.
+	@Serializable
+	data object Statistics : SummaryDestination()
 }

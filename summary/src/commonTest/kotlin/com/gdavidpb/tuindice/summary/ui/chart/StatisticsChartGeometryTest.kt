@@ -93,4 +93,38 @@ class StatisticsChartGeometryTest {
 		assertEquals(5f, StatisticsChartGeometry.scaleOf(values = listOf(2f, 5f), reference = null))
 		assertEquals(0f, StatisticsChartGeometry.scaleOf(values = emptyList(), reference = null))
 	}
+
+	@Test
+	fun when_theBarHasRoomForEachTarget_then_theAreasAreTheSegmentsWithTheirMinimum() {
+		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(100f, 100f, 96f), totalDp = 296f)
+
+		assertEquals(listOf(0f, 100f, 200f), areas.map { area -> area.startDp })
+		assertEquals(listOf(100f, 100f, 96f), areas.map { area -> area.widthDp })
+	}
+
+	@Test
+	fun when_narrowSegmentsSitBesideEachOther_then_everyAreaIsAFingerAndTheAreasDoNotOverlap() {
+		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(280.9f, 12.8f, 6.4f), totalDp = 300.1f)
+
+		areas.forEach { area -> assertEquals(true, area.widthDp >= 47.9f, "Area is ${area.widthDp}dp") }
+		areas.zipWithNext().forEach { (left, right) ->
+			assertEquals(left.startDp + left.widthDp, right.startDp, 0.01f)
+		}
+		assertEquals(300.1f, areas.last().startDp + areas.last().widthDp, 0.01f)
+	}
+
+	@Test
+	fun when_theBarIsTooNarrowForAFingerEach_then_theAreasShareItAsTheyAre() {
+		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(1f, 1f, 1f), totalDp = 3f)
+
+		assertEquals(listOf(1f, 1f, 1f), areas.map { area -> area.widthDp })
+	}
+
+	@Test
+	fun when_thereIsNoDrawnSegment_then_thereIsNoArea() {
+		assertEquals(
+			emptyList<StatisticsChartGeometry.Span>(),
+			StatisticsChartGeometry.touchSpans(widthsDp = emptyList(), totalDp = 300f)
+		)
+	}
 }

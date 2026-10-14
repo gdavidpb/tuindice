@@ -27,9 +27,13 @@ data class SummaryStatisticsPaceItem(
 	}
 
 	sealed interface Projection {
-		/** The projection itself, marked with [tag] as a projection. */
+		/**
+		 * The projection itself, marked with [tag] as a projection. [emphasis] is the count that [text] names, which the
+		 * screen sets in bold.
+		 */
 		data class Remaining(
 			val text: UiText,
+			val emphasis: UiText,
 			val tag: UiText
 		) : Projection
 

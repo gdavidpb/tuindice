@@ -89,4 +89,31 @@ object SummaryUiTags {
 
 	// The coloured part of a point: a bar, or a segment of a stacked bar.
 	fun statisticsFill(key: String, index: Int): String = "summary_statistics_${key}_fill_$index"
+
+	// The Statistics screen: its content, its unavailable message, and the six blocks that hold its figures in order.
+	const val StatisticsContent = "summary_statistics_content"
+	const val StatisticsUnavailable = "summary_statistics_unavailable"
+	const val StatisticsUnavailableTitle = "summary_statistics_unavailable_title"
+	const val StatisticsUnavailableMessage = "summary_statistics_unavailable_message"
+	const val StatisticsCurrentTermBlock = "summary_statistics_current_term_block"
+	const val StatisticsIndexBlock = "summary_statistics_index_block"
+	const val StatisticsSubjectsBlock = "summary_statistics_subjects_block"
+	const val StatisticsCreditsBlock = "summary_statistics_credits_block"
+	const val StatisticsGradesBlock = "summary_statistics_grades_block"
+	const val StatisticsPaceBlock = "summary_statistics_pace_block"
+
+	// The parts a block is made of: its figure, the line that says what it lacks, its notes and its legend.
+	const val StatisticsFigure = "summary_statistics_figure"
+	const val StatisticsCaption = "summary_statistics_caption"
+	const val StatisticsEmpty = "summary_statistics_empty"
+	const val StatisticsEmptyAction = "summary_statistics_empty_action"
+	const val StatisticsNotes = "summary_statistics_notes"
+	const val StatisticsLegend = "summary_statistics_legend"
+	const val StatisticsOverdue = "summary_statistics_overdue"
+	const val StatisticsProjection = "summary_statistics_projection"
+	const val StatisticsProjectionTag = "summary_statistics_projection_tag"
+
+	// A track is a share of a whole drawn as a thin bar: the track itself and the part of it that is filled.
+	const val StatisticsTrackFill = "summary_statistics_track_fill"
+	const val StatisticsPensumTrack = "summary_statistics_pensum_track"
 }
