@@ -327,7 +327,7 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 // The points of attention lead to the screen that owns what they say: the ungraded evaluations to the week of the
 // oldest of them (week 2, not the week of the clock), the enrollment error to Record.
 private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "summary", hubStart()) {
-	covers("summary.Summary.OpenTarget")
+	covers("summary.Summary.OpenTarget", "evaluations.Evaluations.EvaluationArrivalTaken")
 	account(E2eAccounts.SummaryHub.id)
 
 	waitSummaryHub()
@@ -346,7 +346,7 @@ private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "
 // This week: its link and the class row open the Schedule sheet over Summary (the tab does not change); an evaluation
 // of the week leads to that week of Evaluations.
 private val summaryHubWeekLinks = scenario("summary-hub-week-links", "summary", hubStart()) {
-	covers("summary.Summary.OpenTarget")
+	covers("summary.Summary.OpenTarget", "evaluations.Evaluations.EvaluationArrivalTaken")
 	account(E2eAccounts.SummaryHub.id)
 
 	val today = E2eFixtures.HubEvaluationToday.value

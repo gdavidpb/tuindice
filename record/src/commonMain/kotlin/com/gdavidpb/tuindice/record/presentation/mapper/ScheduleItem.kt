@@ -161,13 +161,17 @@ private data class SchedulePlacement(
 	val day: ScheduleDay,
 	val startBlock: Int,
 	val endBlock: Int,
-	val evaluationWeekStart: LocalDate?
+	val evaluationWeekStart: LocalDate?,
+	val evaluationId: String?
 )
 
 // The meetings arrive valid (see validMeetings), so every day has a column; one that does not is
 // dropped rather than drawn: a wrong cell is worse than none.
 private fun ScheduleMeeting.toPlacement(evaluationMarks: ScheduleEvaluationMarks?): SchedulePlacement? {
 	val day = ScheduleDay.fromCode(dayOfWeek) ?: return null
+	// The evaluation the marked week places on this meeting, if one does, and the Monday of that week.
+	val evaluationId = evaluationMarks?.evaluationIdByMeeting?.get(this)
+	val evaluationWeekStart = evaluationMarks?.weekStart?.takeIf { evaluationId != null }
 
 	return SchedulePlacement(
 		attemptId = attemptId,
@@ -176,7 +180,8 @@ private fun ScheduleMeeting.toPlacement(evaluationMarks: ScheduleEvaluationMarks
 		day = day,
 		startBlock = startBlock,
 		endBlock = endBlock,
-		evaluationWeekStart = evaluationMarks?.takeIf { marks -> this in marks.meetings }?.weekStart
+		evaluationWeekStart = evaluationWeekStart,
+		evaluationId = evaluationId
 	)
 }
 
@@ -247,6 +252,7 @@ private fun SchedulePlacement.toCell(lane: Int, laneCount: Int, isInProgress: Bo
 		lane = lane,
 		laneCount = laneCount,
 		isInProgress = isInProgress,
-		evaluationWeekStart = evaluationWeekStart
+		evaluationWeekStart = evaluationWeekStart,
+		evaluationId = evaluationId
 	)
 }

@@ -28,7 +28,10 @@ data class ScheduleCellItem(
 	val isInProgress: Boolean = false,
 	// The Monday that opens the calendar week of an evaluation that falls on this meeting, or null
 	// when none does. Both views mark the cell and ask the Evaluations tab for that week.
-	val evaluationWeekStart: LocalDate? = null
+	val evaluationWeekStart: LocalDate? = null,
+	// The id of the evaluation that marks this meeting, the earliest one on it (see ScheduleEvaluationMarks),
+	// or null when none falls on it. It is asked for along with the week, so the tab opens on that evaluation.
+	val evaluationId: String? = null
 ) {
 	val blockSpan: Int
 		get() = endBlock - startBlock + 1

@@ -9705,7 +9705,8 @@
                 "scenarioArg": "summary-hub-attention-links"
             },
             "covers": [
-                "summary.Summary.OpenTarget"
+                "summary.Summary.OpenTarget",
+                "evaluations.Evaluations.EvaluationArrivalTaken"
             ],
             "id": "summary-hub-attention-links",
             "ios": {
@@ -9919,7 +9920,8 @@
                 "scenarioArg": "summary-hub-week-links"
             },
             "covers": [
-                "summary.Summary.OpenTarget"
+                "summary.Summary.OpenTarget",
+                "evaluations.Evaluations.EvaluationArrivalTaken"
             ],
             "id": "summary-hub-week-links",
             "ios": {
@@ -15921,7 +15923,8 @@
                 "scenarioArg": "record-schedule-evaluation-marks"
             },
             "covers": [
-                "record.Schedule.EvaluationCellSelected"
+                "record.Schedule.EvaluationCellSelected",
+                "evaluations.Evaluations.EvaluationArrivalTaken"
             ],
             "id": "record-schedule-evaluation-marks",
             "ios": {
@@ -16255,7 +16258,8 @@
                 "scenarioArg": "record-schedule-evaluation-week-jump"
             },
             "covers": [
-                "record.Schedule.EvaluationCellSelected"
+                "record.Schedule.EvaluationCellSelected",
+                "evaluations.Evaluations.EvaluationArrivalTaken"
             ],
             "id": "record-schedule-evaluation-week-jump",
             "ios": {
@@ -16473,7 +16477,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "evaluation_item_card_29ba9acf1f4750da615caa4dfdf81cb7"
+                        "value": "evaluation_item_card_f07ad77e4259171580e339784b1687de"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
@@ -16483,7 +16487,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "e984c1ac4a81ea6b",
+            "stepsHash": "78230bd168df0dad",
             "tags": [],
             "timeoutSeconds": 180
         },

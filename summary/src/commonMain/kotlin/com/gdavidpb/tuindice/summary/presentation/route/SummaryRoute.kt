@@ -73,7 +73,7 @@ fun SummaryRoute(
 			is Summary.Effect.NavigateToPensum -> navigation.onNavigateToPensum()
 
 			is Summary.Effect.NavigateToEvaluationsWeek ->
-				navigation.onNavigateToEvaluationsWeek(effect.weekStart)
+				navigation.onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
 		}
 	}
 

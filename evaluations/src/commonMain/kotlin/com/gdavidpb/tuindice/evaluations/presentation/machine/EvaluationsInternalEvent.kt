@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
@@ -31,11 +32,11 @@ sealed interface EvaluationsInternalEvent {
 		val hasSchedule: Boolean = false
 	) : EvaluationsInternalEvent
 
-	// A request to show the week that this Monday opens is pending: whoever sees it (the observation,
-	// the content having just loaded, or the request itself) sends it, and only the first to take it
-	// from the request applies it.
+	// A request to show the week (and the evaluation) it names is pending: whoever sees it (the
+	// observation, the content having just loaded, or the request itself) sends it, and only the first
+	// to take it from the repository applies it.
 	data class WeekFocusRequested(
-		val weekStart: LocalDate
+		val request: EvaluationsWeekFocusRequest
 	) : EvaluationsInternalEvent
 
 	data class EvaluationsEmptyObserved(

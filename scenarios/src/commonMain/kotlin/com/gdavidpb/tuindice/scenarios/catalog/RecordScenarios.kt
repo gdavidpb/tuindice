@@ -120,7 +120,7 @@ private val recordScheduleEvaluationMarks = scenario(
 	"record",
 	Start.Seeded(E2eAccounts.SummaryHub).toLaunchSpec()
 ) {
-	covers("record.Schedule.EvaluationCellSelected")
+	covers("record.Schedule.EvaluationCellSelected", "evaluations.Evaluations.EvaluationArrivalTaken")
 	account(E2eAccounts.SummaryHub.id)
 
 	val ci5311 = E2eFixtures.HubAttemptCi5311.value
@@ -151,7 +151,7 @@ private val recordScheduleEvaluationMarks = scenario(
 	waitGone(RecordUiTags.scheduleTableEvaluation(ci4325, E2eInputs.ScheduleThursday), Within.Assert)
 	waitVisible(RecordUiTags.ScheduleEvaluationLegend, Within.Assert)
 	tap(RecordUiTags.scheduleTableEvaluation(ci5437, E2eInputs.ScheduleThursday))
-	waitEvaluationsOnTheWeekOfTheClock()
+	waitEvaluationsOnTheWeekOfTheClock(E2eFixtures.HubEvaluationToday.value)
 }
 
 // The same on the week grid: the legend explains the mark, and the marked block is the button.
@@ -160,7 +160,7 @@ private val recordScheduleEvaluationWeekJump = scenario(
 	"record",
 	Start.Seeded(E2eAccounts.SummaryHub).toLaunchSpec()
 ) {
-	covers("record.Schedule.EvaluationCellSelected")
+	covers("record.Schedule.EvaluationCellSelected", "evaluations.Evaluations.EvaluationArrivalTaken")
 	account(E2eAccounts.SummaryHub.id)
 
 	openRecordTab()
@@ -179,7 +179,7 @@ private val recordScheduleEvaluationWeekJump = scenario(
 			E2eInputs.HubMondayStartBlock
 		)
 	)
-	waitEvaluationsOnTheWeekOfTheClock()
+	waitEvaluationsOnTheWeekOfTheClock(E2eFixtures.HubEvaluationOverdue.value)
 }
 
 private val recordSmoke = scenario(

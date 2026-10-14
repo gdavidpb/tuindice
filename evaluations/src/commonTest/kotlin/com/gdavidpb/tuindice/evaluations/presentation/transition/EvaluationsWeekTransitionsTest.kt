@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.transition
 
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
@@ -21,7 +22,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsInternalEvent
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsIllustration
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
@@ -29,6 +32,7 @@ import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepo
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
+import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
@@ -125,6 +129,70 @@ class EvaluationsWeekTransitionsTest {
 	)
 
 	private val allWeeks = (1..12).map { number -> week(EvaluationsWeekKey.Academic(number)) }
+
+	@Test
+	fun aWeekFocusNamingAnEvaluationOfThatWeek_arrivesWithIt() = runTest {
+		val definition = definitionWith()
+		val monday = LocalDate(2026, 10, 26)
+		val state = weekListing(evaluationId = "evaluation-5")
+		weekFocus.request(monday, evaluationId = "evaluation-5")
+
+		val focused = state.after(
+			definition,
+			EvaluationsInternalEvent.WeekFocusRequested(EvaluationsWeekFocusRequest(monday, "evaluation-5"))
+		)
+
+		val content = assertIs<Evaluations.State.Content>(focused)
+		assertEquals(EvaluationsWeekKey.Academic(5), content.selectedWeekKey)
+		assertEquals("evaluation-5", content.arrivalEvaluationId)
+	}
+
+	@Test
+	fun aWeekFocusNamingAnEvaluationNotListedInThatWeek_opensTheWeekWithoutArrival() = runTest {
+		val definition = definitionWith()
+		val monday = LocalDate(2026, 10, 26)
+		val state = weekListing(evaluationId = "evaluation-5")
+		weekFocus.request(monday, evaluationId = "evaluation-9")
+
+		val focused = state.after(
+			definition,
+			EvaluationsInternalEvent.WeekFocusRequested(EvaluationsWeekFocusRequest(monday, "evaluation-9"))
+		)
+
+		val content = assertIs<Evaluations.State.Content>(focused)
+		assertEquals(EvaluationsWeekKey.Academic(5), content.selectedWeekKey)
+		assertNull(content.arrivalEvaluationId)
+	}
+
+	@Test
+	fun theListTakingItsArrival_clearsOnlyThatEvaluation() = runTest {
+		val definition = definitionWith()
+		val arrived = weekListing(evaluationId = "evaluation-5").copy(arrivalEvaluationId = "evaluation-5")
+
+		val otherTaken = arrived.after(definition, Evaluations.Action.EvaluationArrivalTaken("evaluation-7"))
+		assertEquals("evaluation-5", assertIs<Evaluations.State.Content>(otherTaken).arrivalEvaluationId)
+
+		val taken = arrived.after(definition, Evaluations.Action.EvaluationArrivalTaken("evaluation-5"))
+		assertNull(assertIs<Evaluations.State.Content>(taken).arrivalEvaluationId)
+	}
+
+	private fun weekFocusEvent(weekStart: LocalDate) =
+		EvaluationsInternalEvent.WeekFocusRequested(EvaluationsWeekFocusRequest(weekStart))
+
+	// Content that lists one evaluation under week 5, with the selection on week 1.
+	private fun weekListing(evaluationId: String) = content(
+		selected = EvaluationsWeekKey.Academic(1),
+		weekOneStart = FIRST_ANCHOR,
+		weekItems = allWeeks
+	).copy(
+		evaluationWeekGroups = listOf(
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(5),
+				title = "Semana 5",
+				groups = listOf(EvaluationsGroupItem(items = listOf(evaluationItemFixture(evaluationId = evaluationId))))
+			)
+		)
+	)
 
 	private fun content(
 		selected: EvaluationsWeekKey,
@@ -271,12 +339,12 @@ class EvaluationsWeekTransitionsTest {
 			)
 			weekFocus.request(monday)
 
-			val after = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+			val after = state.after(definition, weekFocusEvent(monday))
 
 			val focused = assertIs<Evaluations.State.Content>(after)
 			assertEquals(EvaluationsWeekKey.Academic(expectedWeek), focused.selectedWeekKey, "for $monday")
 			assertEquals(EvaluationsWeekKey.Academic(expectedWeek), focused.weekItem.key, "for $monday")
-			assertNull(weekFocus.pendingWeekStart.value, "left pending: $monday")
+			assertNull(weekFocus.pending.value, "left pending: $monday")
 		}
 	}
 
@@ -287,10 +355,10 @@ class EvaluationsWeekTransitionsTest {
 		val state = content(selected = EvaluationsWeekKey.Academic(3), weekOneStart = null)
 		weekFocus.request(monday)
 
-		val after = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+		val after = state.after(definition, weekFocusEvent(monday))
 
 		assertEquals(state, after)
-		assertNull(weekFocus.pendingWeekStart.value)
+		assertNull(weekFocus.pending.value)
 	}
 
 	@Test
@@ -304,7 +372,7 @@ class EvaluationsWeekTransitionsTest {
 		)
 		weekFocus.request(monday)
 
-		val focused = state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday))
+		val focused = state.after(definition, weekFocusEvent(monday))
 		advanceUntilIdle()
 
 		// Navigation is not a preference: the next opening of the tab follows the current week again.
@@ -334,8 +402,8 @@ class EvaluationsWeekTransitionsTest {
 		).forEach { state ->
 			weekFocus.request(monday)
 
-			assertEquals(state, state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday)))
-			assertEquals(monday, weekFocus.pendingWeekStart.value, "dropped in $state")
+			assertEquals(state, state.after(definition, weekFocusEvent(monday)))
+			assertEquals(EvaluationsWeekFocusRequest(monday), weekFocus.pending.value, "dropped in $state")
 		}
 
 		listOf(
@@ -345,22 +413,22 @@ class EvaluationsWeekTransitionsTest {
 		).forEach { state ->
 			weekFocus.request(monday)
 
-			assertEquals(state, state.after(definition, EvaluationsInternalEvent.WeekFocusRequested(monday)))
-			assertNull(weekFocus.pendingWeekStart.value, "left pending in $state")
+			assertEquals(state, state.after(definition, weekFocusEvent(monday)))
+			assertNull(weekFocus.pending.value, "left pending in $state")
 		}
 	}
 
 	@Test
 	fun startingTheObservationAgain_doesNotAddAnotherCollectorOfTheWeekFocus() = runTest {
-		val pending = MutableStateFlow<LocalDate?>(null)
+		val requests = MutableStateFlow<EvaluationsWeekFocusRequest?>(null)
 		val countingFocus = object : EvaluationsWeekFocusRepository {
-			override val pendingWeekStart: StateFlow<LocalDate?> = pending
+			override val pending: StateFlow<EvaluationsWeekFocusRequest?> = requests
 
-			override fun request(weekStart: LocalDate) {
-				pending.value = weekStart
+			override fun request(weekStart: LocalDate, evaluationId: String?) {
+				requests.value = EvaluationsWeekFocusRequest(weekStart = weekStart, evaluationId = evaluationId)
 			}
 
-			override fun consume(weekStart: LocalDate) = pending.compareAndSet(weekStart, null)
+			override fun consume(request: EvaluationsWeekFocusRequest) = requests.compareAndSet(request, null)
 		}
 		// What the observation reads never settles, so it stays out of the way of the focus.
 		val machine = machine(
@@ -375,7 +443,7 @@ class EvaluationsWeekTransitionsTest {
 		repeat(3) { machine.startObservation(host) }
 		runCurrent()
 
-		assertEquals(1, pending.subscriptionCount.value)
+		assertEquals(1, requests.subscriptionCount.value)
 	}
 
 	private companion object {

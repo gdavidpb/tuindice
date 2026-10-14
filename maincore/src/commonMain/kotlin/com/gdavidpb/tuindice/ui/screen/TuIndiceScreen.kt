@@ -121,7 +121,7 @@ fun TuIndiceScreen(
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
-	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
 	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,

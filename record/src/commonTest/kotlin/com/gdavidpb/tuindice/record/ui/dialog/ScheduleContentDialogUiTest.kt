@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleNow
@@ -42,7 +43,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -71,7 +72,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Week),
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -93,7 +94,7 @@ class ScheduleContentDialogUiTest {
 				// Monday 9:00, halfway through block 2: both Monday meetings hold it, and they clash.
 				state = content(ScheduleViewMode.Table, now = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -118,7 +119,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Week, now = scheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -137,7 +138,7 @@ class ScheduleContentDialogUiTest {
 				// A Sunday with nothing on Sunday, at an hour that would otherwise fall inside the grid.
 				state = content(ScheduleViewMode.Week, now = scheduleNow(dayOfWeek = 1, minuteOfDay = 9 * 60)),
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -155,7 +156,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
 				onViewModeSelected = { selected = it },
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -168,6 +169,7 @@ class ScheduleContentDialogUiTest {
 	@Test
 	fun when_aWeekHasEvaluations_then_theSheetMarksThemAndAMarkedCellAsksForThatWeek() = runTuIndiceUiTest {
 		var asked: LocalDate? = null
+		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleContentDialog(
@@ -177,7 +179,10 @@ class ScheduleContentDialogUiTest {
 					schedule = markedWeek()
 				),
 				onViewModeSelected = {},
-				onEvaluationClick = { weekStart -> asked = weekStart },
+				onEvaluationClick = { weekStart, evaluationId ->
+					asked = weekStart
+					askedEvaluationId = evaluationId
+				},
 				onDismissRequest = {}
 			)
 		}
@@ -188,6 +193,7 @@ class ScheduleContentDialogUiTest {
 			.performClick()
 
 		assertEquals(ScheduleTestDate, asked)
+		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
 	@Test
@@ -196,7 +202,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = Schedule.State.Empty,
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}
@@ -212,7 +218,7 @@ class ScheduleContentDialogUiTest {
 			ScheduleContentDialog(
 				state = Schedule.State.Loading,
 				onViewModeSelected = {},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onDismissRequest = {}
 			)
 		}

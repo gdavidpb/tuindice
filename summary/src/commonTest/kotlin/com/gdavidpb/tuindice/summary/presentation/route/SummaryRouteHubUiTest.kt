@@ -71,7 +71,7 @@ class SummaryRouteHubUiTest {
 				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				navigation = SummaryNavDependencies(onNavigateToEvaluationsWeek = { weekStart -> weeks += weekStart }),
+				navigation = SummaryNavDependencies(onNavigateToEvaluationsWeek = { weekStart, _ -> weeks += weekStart }),
 				viewModel = viewModel
 			)
 		}

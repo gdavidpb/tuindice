@@ -15,8 +15,8 @@ class SummaryNavDependencies(
 	val onNavigateToRecord: () -> Unit = {},
 	// The Pensum tab (the career).
 	val onNavigateToPensum: () -> Unit = {},
-	// The Evaluations tab on the week that this Monday opens.
-	val onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {},
+	// The Evaluations tab on the week that this Monday opens, with that evaluation brought into view.
+	val onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
 	// The Schedule sheet, over Summary.
 	val onOpenSchedule: () -> Unit = {}
 )

@@ -154,9 +154,13 @@ class SummaryHubViewModelContractTest {
 				)
 
 				val week = LocalDate(2026, 10, 12)
-				val weekEffect = viewModel.effectAfter { openTargetAction(SummaryHubTarget.EvaluationsWeek(week)) }
+				val weekEffect = viewModel.effectAfter {
+					openTargetAction(SummaryHubTarget.EvaluationsWeek(week, evaluationId = "evaluation-1"))
+				}
 
-				assertEquals(week, assertIs<Summary.Effect.NavigateToEvaluationsWeek>(weekEffect).weekStart)
+				val toWeekEffect = assertIs<Summary.Effect.NavigateToEvaluationsWeek>(weekEffect)
+				assertEquals(week, toWeekEffect.weekStart)
+				assertEquals("evaluation-1", toWeekEffect.evaluationId)
 			} finally {
 				collector.cancel()
 			}
@@ -176,7 +180,7 @@ class SummaryHubViewModelContractTest {
 				val toRecord = viewModel.effectAfter { openTargetAction(SummaryHubTarget.Record) }
 				val week = LocalDate(2026, 10, 5)
 				val toWeek = viewModel.effectAfter {
-					openTargetAction(SummaryHubTarget.EvaluationsWeek(weekStart = week))
+					openTargetAction(SummaryHubTarget.EvaluationsWeek(weekStart = week, evaluationId = "evaluation-1"))
 				}
 
 				assertEquals(Summary.Effect.NavigateToRecord, toRecord)

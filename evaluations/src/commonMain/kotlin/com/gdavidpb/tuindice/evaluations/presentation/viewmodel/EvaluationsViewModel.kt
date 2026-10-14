@@ -30,6 +30,9 @@ class EvaluationsViewModel(
 	fun selectWeekAction(weekKey: EvaluationsWeekKey) =
 		sendAction(Evaluations.Action.SelectWeek(weekKey))
 
+	fun evaluationArrivalTakenAction(evaluationId: String) =
+		sendAction(Evaluations.Action.EvaluationArrivalTaken(evaluationId))
+
 	fun addEvaluationAction() =
 		sendAction(Evaluations.Action.AddEvaluation)
 

@@ -19,7 +19,10 @@ fun SummaryAttention.toSummaryAttentionItem(): SummaryAttentionItem {
 			} else {
 				UiText.Resource(Res.string.summary_attention_ungraded_many, listOf(count))
 			},
-			target = SummaryHubTarget.EvaluationsWeek(weekStart = oldestWeekStart)
+			target = SummaryHubTarget.EvaluationsWeek(
+				weekStart = oldestWeekStart,
+				evaluationId = oldestEvaluationId
+			)
 		)
 
 		is SummaryAttention.EnrollmentError -> SummaryAttentionItem(

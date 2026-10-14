@@ -27,7 +27,7 @@ class ScheduleViewModel(
 		sendAction(Schedule.Action.Resumed)
 	}
 
-	fun evaluationCellSelectedAction(weekStart: LocalDate) {
-		sendAction(Schedule.Action.EvaluationCellSelected(weekStart))
+	fun evaluationCellSelectedAction(weekStart: LocalDate, evaluationId: String) {
+		sendAction(Schedule.Action.EvaluationCellSelected(weekStart, evaluationId))
 	}
 }

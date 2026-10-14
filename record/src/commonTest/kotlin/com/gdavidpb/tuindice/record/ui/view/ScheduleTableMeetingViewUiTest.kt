@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
 import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.clashingWeek
@@ -47,7 +48,12 @@ class ScheduleTableMeetingViewUiTest {
 		val meeting = meetingOf(attemptId = "a1", day = ScheduleDay.Wednesday)
 
 		setTuIndiceTestContent {
-			ScheduleTableMeetingView(attemptId = "a1", day = ScheduleDay.Wednesday, meeting = meeting, onEvaluationClick = {})
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Wednesday,
+				meeting = meeting,
+				onEvaluationClick = { _, _ -> }
+			)
 		}
 
 		onNodeWithText("3").assertIsDisplayed()
@@ -61,7 +67,12 @@ class ScheduleTableMeetingViewUiTest {
 		val meeting = meetingOf(attemptId = "a1", day = ScheduleDay.Monday)
 
 		setTuIndiceTestContent {
-			ScheduleTableMeetingView(attemptId = "a1", day = ScheduleDay.Monday, meeting = meeting, onEvaluationClick = {})
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meeting = meeting,
+				onEvaluationClick = { _, _ -> }
+			)
 		}
 
 		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code))
@@ -82,7 +93,12 @@ class ScheduleTableMeetingViewUiTest {
 		).table.rows.single().meetings.getValue(ScheduleDay.Monday).single()
 
 		setTuIndiceTestContent {
-			ScheduleTableMeetingView(attemptId = "a1", day = ScheduleDay.Monday, meeting = meeting, onEvaluationClick = {})
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meeting = meeting,
+				onEvaluationClick = { _, _ -> }
+			)
 		}
 
 		val inProgressTag = RecordUiTags.scheduleTableInProgress("a1", ScheduleDay.Monday.code)
@@ -98,7 +114,12 @@ class ScheduleTableMeetingViewUiTest {
 		val meeting = meetingOf(attemptId = "a1", day = ScheduleDay.Monday, now = MondayAtNine)
 
 		setTuIndiceTestContent {
-			ScheduleTableMeetingView(attemptId = "a1", day = ScheduleDay.Monday, meeting = meeting, onEvaluationClick = {})
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meeting = meeting,
+				onEvaluationClick = { _, _ -> }
+			)
 		}
 
 		val clashTag = RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code)
@@ -121,7 +142,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -138,7 +159,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -156,16 +177,20 @@ class ScheduleTableMeetingViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatWeek() = runTuIndiceUiTest {
+	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatWeekAndThatEvaluation() = runTuIndiceUiTest {
 		val meeting = markedMeeting(ScheduleDay.Wednesday)
 		var asked: LocalDate? = null
+		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleTableMeetingView(
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { weekStart -> asked = weekStart }
+				onEvaluationClick = { weekStart, evaluationId ->
+					asked = weekStart
+					askedEvaluationId = evaluationId
+				}
 			)
 		}
 
@@ -183,6 +208,7 @@ class ScheduleTableMeetingViewUiTest {
 		button.performClick()
 
 		assertEquals(ScheduleTestDate, asked)
+		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
 	@Test
@@ -194,7 +220,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -212,7 +238,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -232,7 +258,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meeting = meeting,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -244,6 +270,23 @@ class ScheduleTableMeetingViewUiTest {
 		assertNodeVisible(RecordUiTags.scheduleTableEvaluationIcon("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 		onNodeWithTag(RecordUiTags.scheduleTableInProgress("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 			.assertTextEquals("1-2")
+	}
+
+	@Test
+	fun when_theWeekIsKnownButNotTheEvaluation_then_itIsNotAButton() = runTuIndiceUiTest {
+		// The mark and its week are there, but nothing names the evaluation to ask for: no button.
+		val meeting = markedMeeting(ScheduleDay.Wednesday).copy(evaluationId = null)
+
+		setTuIndiceTestContent {
+			ScheduleTableMeetingView(
+				attemptId = "a1",
+				day = ScheduleDay.Wednesday,
+				meeting = meeting,
+				onEvaluationClick = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("3").assertHasNoClickAction()
 	}
 
 	private fun markedMeeting(day: ScheduleDay): ScheduleCellItem = markedWeekMeeting(day = day, now = null)

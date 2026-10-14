@@ -381,7 +381,7 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				Schedule.Action.ObserveSchedule,
 				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
-				Schedule.Action.EvaluationCellSelected(weekStart = ScheduleTestDate),
+				Schedule.Action.EvaluationCellSelected(weekStart = ScheduleTestDate, evaluationId = "evaluation-1"),
 				ScheduleInternalEvent.ScheduleContentObserved(
 					subtitle = UiText.Raw("SEP-DIC 2026"),
 					schedule = ScheduleItem(

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -13,24 +14,31 @@ class InMemoryEvaluationsWeekFocusDataSourceTest {
 
 	@Test
 	fun nothingIsPendingAtFirst() {
-		assertNull(focus.pendingWeekStart.value)
+		assertNull(focus.pending.value)
 	}
 
 	@Test
 	fun aRequestStaysPendingUntilSomeoneConsumesIt() {
 		focus.request(MONDAY)
 
-		assertEquals(MONDAY, focus.pendingWeekStart.value)
-		assertEquals(MONDAY, focus.pendingWeekStart.value)
+		assertEquals(EvaluationsWeekFocusRequest(MONDAY), focus.pending.value)
+		assertEquals(EvaluationsWeekFocusRequest(MONDAY), focus.pending.value)
+	}
+
+	@Test
+	fun aRequestCarriesTheEvaluationToBringIntoView() {
+		focus.request(MONDAY, evaluationId = EVALUATION_ID)
+
+		assertEquals(EvaluationsWeekFocusRequest(MONDAY, EVALUATION_ID), focus.pending.value)
 	}
 
 	@Test
 	fun aRequestIsConsumedByTheFirstCallerOnly() {
-		focus.request(MONDAY)
+		focus.request(MONDAY, evaluationId = EVALUATION_ID)
 
-		assertTrue(focus.consume(MONDAY))
-		assertFalse(focus.consume(MONDAY))
-		assertNull(focus.pendingWeekStart.value)
+		assertTrue(focus.consume(EvaluationsWeekFocusRequest(MONDAY, EVALUATION_ID)))
+		assertFalse(focus.consume(EvaluationsWeekFocusRequest(MONDAY, EVALUATION_ID)))
+		assertNull(focus.pending.value)
 	}
 
 	@Test
@@ -38,18 +46,27 @@ class InMemoryEvaluationsWeekFocusDataSourceTest {
 		focus.request(MONDAY)
 		focus.request(NEXT_MONDAY)
 
-		assertFalse(focus.consume(MONDAY))
-		assertEquals(NEXT_MONDAY, focus.pendingWeekStart.value)
-		assertTrue(focus.consume(NEXT_MONDAY))
+		assertFalse(focus.consume(EvaluationsWeekFocusRequest(MONDAY)))
+		assertEquals(EvaluationsWeekFocusRequest(NEXT_MONDAY), focus.pending.value)
+		assertTrue(focus.consume(EvaluationsWeekFocusRequest(NEXT_MONDAY)))
+	}
+
+	@Test
+	fun aNewerRequestForTheSameWeekDoesNotLetTheOlderOneBeTaken() {
+		focus.request(MONDAY, evaluationId = EVALUATION_ID)
+		focus.request(MONDAY, evaluationId = OTHER_EVALUATION_ID)
+
+		assertFalse(focus.consume(EvaluationsWeekFocusRequest(MONDAY, EVALUATION_ID)))
+		assertEquals(EvaluationsWeekFocusRequest(MONDAY, OTHER_EVALUATION_ID), focus.pending.value)
 	}
 
 	@Test
 	fun theSameWeekCanBeAskedForAgainOnceConsumed() {
 		focus.request(MONDAY)
-		focus.consume(MONDAY)
+		focus.consume(EvaluationsWeekFocusRequest(MONDAY))
 		focus.request(MONDAY)
 
-		assertEquals(MONDAY, focus.pendingWeekStart.value)
+		assertEquals(EvaluationsWeekFocusRequest(MONDAY), focus.pending.value)
 	}
 
 	@Test
@@ -58,12 +75,14 @@ class InMemoryEvaluationsWeekFocusDataSourceTest {
 
 		focus.clearSessionMemory()
 
-		assertNull(focus.pendingWeekStart.value)
-		assertFalse(focus.consume(MONDAY))
+		assertNull(focus.pending.value)
+		assertFalse(focus.consume(EvaluationsWeekFocusRequest(MONDAY)))
 	}
 
 	private companion object {
 		val MONDAY = LocalDate(2026, 10, 26)
 		val NEXT_MONDAY = LocalDate(2026, 11, 2)
+		const val EVALUATION_ID = "evaluation-1"
+		const val OTHER_EVALUATION_ID = "evaluation-2"
 	}
 }

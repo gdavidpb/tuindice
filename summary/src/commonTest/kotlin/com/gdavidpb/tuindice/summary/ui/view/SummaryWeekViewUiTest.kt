@@ -80,7 +80,10 @@ class SummaryWeekViewUiTest {
 			listOf(
 				SummaryHubTarget.Schedule,
 				SummaryHubTarget.Schedule,
-				SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 12))
+				SummaryHubTarget.EvaluationsWeek(
+					weekStart = LocalDate(2026, 10, 12),
+					evaluationId = "evaluation-1"
+				)
 			),
 			targets
 		)

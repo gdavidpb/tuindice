@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
@@ -185,8 +186,8 @@ class EvaluationsMachine(
 		if (weekFocusObservationJob?.isActive == true) return
 
 		weekFocusObservationJob = host.launchMachineJob {
-			weekFocusRepository.pendingWeekStart.filterNotNull().collect { weekStart ->
-				host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(weekStart = weekStart))
+			weekFocusRepository.pending.filterNotNull().collect { request ->
+				host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(request = request))
 			}
 		}
 	}
@@ -194,14 +195,14 @@ class EvaluationsMachine(
 	// The request to show a week that is still pending, sent again now that the screen has settled on
 	// something that can apply it or drop it.
 	private fun sendPendingWeekFocus(host: MachineHost<Evaluations.Effect>) {
-		weekFocusRepository.pendingWeekStart.value?.let { weekStart ->
-			host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(weekStart = weekStart))
+		weekFocusRepository.pending.value?.let { request ->
+			host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(request = request))
 		}
 	}
 
-	/** Takes the pending request for the week [weekStart] opens: true only for the first caller. */
-	internal fun takeWeekFocus(weekStart: LocalDate): Boolean {
-		return weekFocusRepository.consume(weekStart = weekStart)
+	/** Takes the pending [request]: true only for the first caller. */
+	internal fun takeWeekFocus(request: EvaluationsWeekFocusRequest): Boolean {
+		return weekFocusRepository.consume(request = request)
 	}
 
 	internal fun refresh(host: MachineHost<Evaluations.Effect>) {

@@ -12,7 +12,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleViewsView(
 	modifier: Modifier = Modifier,
 	state: Schedule.State.Content,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	when (state.viewMode) {
 		ScheduleViewMode.Table ->

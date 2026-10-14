@@ -27,14 +27,15 @@ class ScheduleEvaluationMarksMappingTest {
 	private val sunday = LocalDate(2026, 10, 11)
 
 	@Test
-	fun anEvaluationOfTheWeekOnAClassDay_marksTheMeetingItInherits() {
-		val marks = marksOf(scheduleEvaluation(attemptId = "a1", date = wednesday))
+	fun anEvaluationOfTheWeekOnAClassDay_marksTheMeetingItInherits_withItsId() {
+		val marks = marksOf(scheduleEvaluation(attemptId = "a1", date = wednesday, id = "wednesday-exam"))
 
 		assertEquals(monday, marks.weekStart)
 		assertEquals(
 			setOf(Triple("a1", ScheduleDay.Wednesday.code, 3)),
-			marks.meetings.map { Triple(it.attemptId, it.dayOfWeek, it.startBlock) }.toSet()
+			marks.evaluationIdByMeeting.keys.map { Triple(it.attemptId, it.dayOfWeek, it.startBlock) }.toSet()
 		)
+		assertEquals(listOf("wednesday-exam"), marks.evaluationIdByMeeting.values.toList())
 	}
 
 	@Test
@@ -58,7 +59,7 @@ class ScheduleEvaluationMarksMappingTest {
 
 		assertEquals(
 			setOf(ScheduleDay.Monday.code, ScheduleDay.Sunday.code),
-			marks.meetings.map { it.dayOfWeek }.toSet()
+			marks.evaluationIdByMeeting.keys.map { it.dayOfWeek }.toSet()
 		)
 	}
 
@@ -82,7 +83,7 @@ class ScheduleEvaluationMarksMappingTest {
 			scheduleEvaluation(attemptId = "a1", date = sunday.plus(DatePeriod(days = 1)))
 		)
 
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
@@ -98,7 +99,7 @@ class ScheduleEvaluationMarksMappingTest {
 			)
 
 			assertEquals(monday, marks.weekStart, "today: $today")
-			assertEquals(1, marks.meetings.size, "today: $today")
+			assertEquals(1, marks.evaluationIdByMeeting.keys.size, "today: $today")
 		}
 
 		val nextMonday = attempts.evaluationMarksOn(
@@ -108,7 +109,7 @@ class ScheduleEvaluationMarksMappingTest {
 		)
 
 		assertEquals(sunday.plus(DatePeriod(days = 1)), nextMonday.weekStart)
-		assertTrue(nextMonday.meetings.isEmpty())
+		assertTrue(nextMonday.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
@@ -123,7 +124,7 @@ class ScheduleEvaluationMarksMappingTest {
 			scheduleEvaluation(attemptId = "a1", date = null, id = "undated")
 		)
 
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
@@ -131,35 +132,43 @@ class ScheduleEvaluationMarksMappingTest {
 		// a1 has class Monday and Wednesday; this is a Thursday.
 		val marks = marksOf(scheduleEvaluation(attemptId = "a1", date = LocalDate(2026, 10, 8)))
 
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
 	fun anEvaluationOfASubjectWithoutSchedule_marksNothing() {
 		val marks = marksOf(scheduleEvaluation(attemptId = "a3", date = wednesday))
 
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
-	fun twoEvaluationsOnTheSameMeeting_leaveOneMark() {
-		val marks = marksOf(
-			scheduleEvaluation(attemptId = "a1", date = wednesday, id = "first"),
-			scheduleEvaluation(attemptId = "a1", date = wednesday, id = "second")
-		)
+	fun twoEvaluationsOnTheSameMeeting_leaveOneMark_andTheSmallestIdMarksIt() {
+		val listedFirst = scheduleEvaluation(attemptId = "a1", date = wednesday, id = "b-exam")
+		val listedSecond = scheduleEvaluation(attemptId = "a1", date = wednesday, id = "a-exam")
 
-		assertEquals(1, marks.meetings.size)
+		val marks = marksOf(listedFirst, listedSecond)
+
+		assertEquals(1, marks.evaluationIdByMeeting.size)
+		assertEquals(listOf("a-exam"), marks.evaluationIdByMeeting.values.toList())
+		// The order they are given in does not change which one marks the meeting.
+		assertEquals(marks, marksOf(listedSecond, listedFirst))
 	}
 
 	@Test
 	fun twoEvaluationsOnTwoMeetingsOfTheSameClash_markBoth() {
 		// a1 and a2 both meet Monday: each evaluation marks the meeting of its own subject.
 		val marks = marksOf(
-			scheduleEvaluation(attemptId = "a1", date = monday),
-			scheduleEvaluation(attemptId = "a2", date = monday)
+			scheduleEvaluation(attemptId = "a1", date = monday, id = "a1-exam"),
+			scheduleEvaluation(attemptId = "a2", date = monday, id = "a2-exam")
 		)
 
-		assertEquals(setOf("a1", "a2"), marks.meetings.map { it.attemptId }.toSet())
+		assertEquals(setOf("a1", "a2"), marks.evaluationIdByMeeting.keys.map { it.attemptId }.toSet())
+		// Each meeting carries the evaluation of its own subject, not the other one's.
+		assertEquals(
+			mapOf("a1" to "a1-exam", "a2" to "a2-exam"),
+			marks.evaluationIdByMeeting.entries.associate { (meeting, id) -> meeting.attemptId to id }
+		)
 	}
 
 	@Test
@@ -177,7 +186,7 @@ class ScheduleEvaluationMarksMappingTest {
 
 		val marks = marksIn(attempts, scheduleEvaluation(attemptId = "a1", date = monday))
 
-		assertEquals(listOf(1), marks.meetings.map { it.startBlock })
+		assertEquals(listOf(1), marks.evaluationIdByMeeting.keys.map { it.startBlock })
 	}
 
 	@Test
@@ -194,7 +203,7 @@ class ScheduleEvaluationMarksMappingTest {
 			scheduleEvaluation(attemptId = "nobody", date = wednesday)
 		)
 
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
@@ -202,7 +211,7 @@ class ScheduleEvaluationMarksMappingTest {
 		val marks = marksOf()
 
 		assertEquals(monday, marks.weekStart)
-		assertTrue(marks.meetings.isEmpty())
+		assertTrue(marks.evaluationIdByMeeting.keys.isEmpty())
 	}
 
 	@Test
@@ -220,7 +229,7 @@ class ScheduleEvaluationMarksMappingTest {
 
 		assertEquals(
 			setOf(Triple("a1", ScheduleDay.Wednesday.code, 3)),
-			marks.meetings.map { Triple(it.attemptId, it.dayOfWeek, it.startBlock) }.toSet()
+			marks.evaluationIdByMeeting.keys.map { Triple(it.attemptId, it.dayOfWeek, it.startBlock) }.toSet()
 		)
 	}
 

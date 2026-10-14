@@ -40,7 +40,10 @@ object Evaluations {
 			// from, saved with the selection and compared when the content is observed again.
 			val weekOneStart: LocalDate? = null,
 			// Some subject of the current term has meetings: the bar offers the class schedule.
-			val hasSchedule: Boolean = false
+			val hasSchedule: Boolean = false,
+			// The evaluation a jump asked to bring into view, when it is listed under the week the jump
+			// selected. The list takes it once (EvaluationArrivalTaken) and plays the arrival from there.
+			val arrivalEvaluationId: String? = null
 		) : State() {
 			override val topBarConfig: TopBarConfig?
 				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
@@ -81,6 +84,11 @@ object Evaluations {
 
 		class SelectWeek(
 			val weekKey: EvaluationsWeekKey
+		) : Action()
+
+		// The list has taken the evaluation a jump brought in: it is no longer pending in the content.
+		class EvaluationArrivalTaken(
+			val evaluationId: String
 		) : Action()
 
 		data object AddEvaluation : Action()

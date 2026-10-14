@@ -167,7 +167,7 @@ class ObserveScheduleUseCaseTest {
 		)
 
 		assertEquals(LocalDate(2026, 10, 5), observed.evaluationMarks.weekStart)
-		assertEquals(listOf(4), observed.evaluationMarks.meetings.map { it.dayOfWeek })
+		assertEquals(listOf(4), observed.evaluationMarks.evaluationIdByMeeting.keys.map { it.dayOfWeek })
 	}
 
 	@Test
@@ -182,7 +182,7 @@ class ObserveScheduleUseCaseTest {
 		)
 
 		assertEquals("now", observed.currentTerm?.id)
-		assertTrue(observed.evaluationMarks.meetings.isEmpty())
+		assertTrue(observed.evaluationMarks.evaluationIdByMeeting.isEmpty())
 	}
 
 	@Test
@@ -206,7 +206,7 @@ class ObserveScheduleUseCaseTest {
 			val observed = awaitLoadingThenData(this)
 
 			assertEquals("now", observed.currentTerm?.id)
-			assertTrue(observed.evaluationMarks.meetings.isEmpty())
+			assertTrue(observed.evaluationMarks.evaluationIdByMeeting.isEmpty())
 			assertEquals(listOf<Throwable>(failure), reporting.loggedExceptions)
 
 			cancelAndIgnoreRemainingEvents()
@@ -228,7 +228,7 @@ class ObserveScheduleUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitLoadingThenData(this).evaluationMarks.meetings.isEmpty())
+			assertTrue(awaitLoadingThenData(this).evaluationMarks.evaluationIdByMeeting.isEmpty())
 
 			evaluations.snapshotFlow.value = ObservedSyncedSnapshot(
 				value = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = LocalDate(2026, 10, 7))),
@@ -237,7 +237,7 @@ class ObserveScheduleUseCaseTest {
 
 			val next = assertIs<UseCaseState.Data<ObservedSchedule>>(awaitItem())
 
-			assertEquals(1, next.value.evaluationMarks.meetings.size)
+			assertEquals(1, next.value.evaluationMarks.evaluationIdByMeeting.size)
 
 			cancelAndIgnoreRemainingEvents()
 		}

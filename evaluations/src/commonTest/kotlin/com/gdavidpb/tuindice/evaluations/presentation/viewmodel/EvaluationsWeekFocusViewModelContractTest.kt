@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
@@ -83,7 +84,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		assertNull(weekFocus.pendingWeekStart.value)
+		assertNull(weekFocus.pending.value)
 	}
 
 	@Test
@@ -109,7 +110,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		assertNull(weekFocus.pendingWeekStart.value)
+		assertNull(weekFocus.pending.value)
 		// A jump is navigation, not a preference: the next entry follows the current week again.
 		assertNull(selectionRepository.observeSelectedWeekKey().first())
 	}
@@ -137,7 +138,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		assertNull(weekFocus.pendingWeekStart.value)
+		assertNull(weekFocus.pending.value)
 	}
 
 	// Today is week 3 and the user had chosen week 10; the schedule asks for week 13, where an
@@ -203,15 +204,15 @@ class EvaluationsWeekFocusViewModelContractTest {
 	// Each LoadEvaluations (the retry button sends one) used to start another collector of the focus.
 	@Test
 	fun loadingAgain_leavesASingleCollectorOfTheWeekFocus() = runTest {
-		val pending = MutableStateFlow<LocalDate?>(null)
+		val requests = MutableStateFlow<EvaluationsWeekFocusRequest?>(null)
 		val weekFocus = object : EvaluationsWeekFocusRepository {
-			override val pendingWeekStart: StateFlow<LocalDate?> = pending
+			override val pending: StateFlow<EvaluationsWeekFocusRequest?> = requests
 
-			override fun request(weekStart: LocalDate) {
-				pending.value = weekStart
+			override fun request(weekStart: LocalDate, evaluationId: String?) {
+				requests.value = EvaluationsWeekFocusRequest(weekStart = weekStart, evaluationId = evaluationId)
 			}
 
-			override fun consume(weekStart: LocalDate) = pending.compareAndSet(weekStart, null)
+			override fun consume(request: EvaluationsWeekFocusRequest) = requests.compareAndSet(request, null)
 		}
 		val viewModel = createViewModel(testScheduler = testScheduler, weekFocusRepository = weekFocus)
 
@@ -222,7 +223,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 			repeat(3) { viewModel.loadEvaluationsAction() }
 			advanceUntilIdle()
 
-			assertEquals(1, pending.subscriptionCount.value)
+			assertEquals(1, requests.subscriptionCount.value)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -255,7 +256,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 				EvaluationsWeekKey.Academic(2),
 				assertIs<Evaluations.State.Content>(viewModel.state.value).selectedWeekKey
 			)
-			assertFalse(weekFocus.consume(WEEK_FIVE_START))
+			assertFalse(weekFocus.consume(EvaluationsWeekFocusRequest(WEEK_FIVE_START)))
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -281,7 +282,7 @@ class EvaluationsWeekFocusViewModelContractTest {
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		assertNull(weekFocus.pendingWeekStart.value)
+		assertNull(weekFocus.pending.value)
 	}
 
 	@Test

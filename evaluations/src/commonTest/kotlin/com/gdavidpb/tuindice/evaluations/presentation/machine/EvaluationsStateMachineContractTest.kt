@@ -214,6 +214,7 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EnsureEvaluationsLoaded,
 				Evaluations.Action.RefreshEvaluations,
 				Evaluations.Action.SelectWeek(weekKey = weekKey),
+				Evaluations.Action.EvaluationArrivalTaken(evaluationId = "evaluation-1"),
 				Evaluations.Action.AddEvaluation,
 				Evaluations.Action.ShowEvaluationGradeDialog(
 					evaluationId = "evaluation-1",

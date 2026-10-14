@@ -57,7 +57,12 @@ fun SummaryWeekView(
 					modifier = Modifier.testTag(SummaryUiTags.weekEvaluationRow(evaluation.evaluationId)),
 					item = evaluation,
 					onClick = {
-						actions.onTargetClick(SummaryHubTarget.EvaluationsWeek(weekStart = evaluation.weekStart))
+						actions.onTargetClick(
+							SummaryHubTarget.EvaluationsWeek(
+								weekStart = evaluation.weekStart,
+								evaluationId = evaluation.evaluationId
+							)
+						)
 					}
 				)
 			}

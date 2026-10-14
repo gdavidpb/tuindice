@@ -48,15 +48,15 @@ private val CompactEvaluationIconEndInset = TuIndiceSpacing.XSmall
  * One meeting of a subject, in the colours of the subject's chip. A meeting that overlaps another
  * subject's that day gains the alert border, the same rule the table follows. One an evaluation of
  * this week falls on carries the evaluation icon in its bottom corner, whatever else it is, and is a
- * button that asks for that week of the Evaluations tab ([onEvaluationClick]), like the table's
- * cell; the others are not.
+ * button that asks the Evaluations tab for that week and that evaluation ([onEvaluationClick]), like
+ * the table's cell; the others are not.
  */
 @Composable
 fun ScheduleCellView(
 	modifier: Modifier = Modifier,
 	day: ScheduleDay,
 	cell: ScheduleCellItem,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	val warning = AcademicStatusColors.warning()
 	val description = cell.description.asString()
@@ -64,7 +64,7 @@ fun ScheduleCellView(
 	val cellModifier = modifier
 		.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
 		.semantics(mergeDescendants = true) { contentDescription = description }
-		.evaluationButton(shape, cell.evaluationWeekStart, onEvaluationClick)
+		.evaluationButton(shape, cell.evaluationWeekStart, cell.evaluationId, onEvaluationClick)
 
 	Surface(
 		modifier = cellModifier,
@@ -119,17 +119,18 @@ fun ScheduleCellView(
 	}
 }
 
-// The cell as a button for the week of its evaluation, or as it is when it has none. Clipped to the
-// cell's shape so the ripple does not leave it; the cell says what it is.
+// The cell as a button for the week and the evaluation of its mark, or as it is when it has neither.
+// Clipped to the cell's shape so the ripple does not leave it; the cell says what it is.
 @Composable
 private fun Modifier.evaluationButton(
 	shape: Shape,
 	weekStart: LocalDate?,
-	onClick: (weekStart: LocalDate) -> Unit
+	evaluationId: String?,
+	onClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ): Modifier {
 	val label = stringResource(Res.string.schedule_evaluation_click_label)
 
-	if (weekStart == null) return this
+	if (weekStart == null || evaluationId == null) return this
 
-	return clip(shape).clickable(onClickLabel = label, role = Role.Button) { onClick(weekStart) }
+	return clip(shape).clickable(onClickLabel = label, role = Role.Button) { onClick(weekStart, evaluationId) }
 }

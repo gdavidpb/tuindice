@@ -17,12 +17,14 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleContentTransitions
 			state.copy(viewMode = action.viewMode)
 		}
 
-		// Only a table cell with an evaluation can be tapped, and it only asks to be taken there: the
-		// screen stays as it is until whoever hosts the sheet answers.
+		// Only a cell with an evaluation can be tapped, in the table or on the grid, and it only asks to be
+		// taken there: the screen stays as it is until whoever hosts the sheet answers.
 		on<Schedule.Action.EvaluationCellSelected>(
 			emits = setOf(Schedule.Effect.NavigateToEvaluationsWeek::class)
 		) { state, action ->
-			host.sendEffect(Schedule.Effect.NavigateToEvaluationsWeek(weekStart = action.weekStart))
+			host.sendEffect(
+				Schedule.Effect.NavigateToEvaluationsWeek(weekStart = action.weekStart, evaluationId = action.evaluationId)
+			)
 			state
 		}
 	}

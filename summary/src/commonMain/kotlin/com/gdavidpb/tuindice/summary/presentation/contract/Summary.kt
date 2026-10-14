@@ -103,7 +103,10 @@ object Summary {
 		data object NavigateToRecord : Effect()
 		data object NavigateToPensum : Effect()
 
-		// The Evaluations tab, on the week that [weekStart] (a Monday) opens.
-		class NavigateToEvaluationsWeek(val weekStart: LocalDate) : Effect()
+		// The Evaluations tab, on the week that [weekStart] (a Monday) opens, with [evaluationId] in view.
+		class NavigateToEvaluationsWeek(
+			val weekStart: LocalDate,
+			val evaluationId: String
+		) : Effect()
 	}
 }

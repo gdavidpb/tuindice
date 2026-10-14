@@ -46,16 +46,20 @@ class ScheduleItemEvaluationMarksTest {
 	}
 
 	@Test
-	fun theMarkedMeetingCarriesTheWeekItAsksFor_andNoOtherDoes() {
+	fun theMarkedMeetingCarriesTheWeekAndTheEvaluationItAsksFor_andNoOtherDoes() {
 		val item = clashingWeek(
-			evaluationMarks = clashingWeekMarks(scheduleEvaluation(attemptId = "a1", date = wednesday))
+			evaluationMarks = clashingWeekMarks(
+				scheduleEvaluation(attemptId = "a1", date = wednesday, id = "wednesday-exam")
+			)
 		)
 
 		val a1 = item.table.rows.first { row -> row.attemptId == "a1" }
 		val marked = a1.meetings.getValue(ScheduleDay.Wednesday).single()
 
 		assertEquals(ScheduleTestDate, marked.evaluationWeekStart)
+		assertEquals("wednesday-exam", marked.evaluationId)
 		assertTrue(marked.hasEvaluation)
+		assertNull(a1.meetings.getValue(ScheduleDay.Monday).single().evaluationId)
 		assertFalse(a1.meetings.getValue(ScheduleDay.Monday).single().hasEvaluation)
 		assertTrue(item.table.hasEvaluationMarks)
 		// The other subjects stay as they were.
@@ -151,14 +155,17 @@ class ScheduleItemEvaluationMarksTest {
 	}
 
 	@Test
-	fun theMarkedCellOfTheGridCarriesTheWeekItAsksFor_andSaysSo_andNoOtherDoes() {
+	fun theMarkedCellOfTheGridCarriesTheWeekAndTheEvaluationItAsksFor_andSaysSo_andNoOtherDoes() {
 		val item = clashingWeek(
-			evaluationMarks = clashingWeekMarks(scheduleEvaluation(attemptId = "a1", date = wednesday))
+			evaluationMarks = clashingWeekMarks(
+				scheduleEvaluation(attemptId = "a1", date = wednesday, id = "wednesday-exam")
+			)
 		)
 
 		val marked = gridCell(item, ScheduleDay.Wednesday, "a1")
 
 		assertEquals(ScheduleTestDate, marked.evaluationWeekStart)
+		assertEquals("wednesday-exam", marked.evaluationId)
 		assertTrue(item.grid.hasEvaluationMarks)
 		assertEquals(
 			UiText.Resource(Res.string.schedule_table_meeting_evaluation, listOf(wednesdayDescription())),
@@ -251,6 +258,8 @@ class ScheduleItemEvaluationMarksTest {
 		val marked = gridCell(item, ScheduleDay.Wednesday, "a1")
 
 		assertEquals(ScheduleTestDate, marked.evaluationWeekStart)
+		// Of the two, the smallest id marks the cell.
+		assertEquals("first", marked.evaluationId)
 		assertEquals(1, item.grid.days.flatMap { day -> day.cells }.count { cell -> cell.hasEvaluation })
 		assertEquals(
 			UiText.Resource(Res.string.schedule_table_meeting_evaluation, listOf(wednesdayDescription())),

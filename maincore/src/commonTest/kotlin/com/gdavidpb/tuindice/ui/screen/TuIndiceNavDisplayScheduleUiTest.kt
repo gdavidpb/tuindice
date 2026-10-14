@@ -79,7 +79,7 @@ class TuIndiceNavDisplayScheduleUiTest {
 
 				ScheduleNavDisplay(
 					navigator = navigator,
-					onNavigateToEvaluationsWeek = { weekStart ->
+					onNavigateToEvaluationsWeek = { weekStart, _ ->
 						asked = weekStart
 						navigator.popThenSwitchTab(navigator.currentTab)
 					}
@@ -116,7 +116,7 @@ class TuIndiceNavDisplayScheduleUiTest {
 
 				ScheduleNavDisplay(
 					navigator = navigator,
-					onNavigateToEvaluationsWeek = { weekStart -> asked = weekStart }
+					onNavigateToEvaluationsWeek = { weekStart, _ -> asked = weekStart }
 				)
 			}
 
@@ -140,7 +140,7 @@ class TuIndiceNavDisplayScheduleUiTest {
 	@Composable
 	private fun ScheduleNavDisplay(
 		navigator: TuIndiceNavigator,
-		onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {}
+		onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> }
 	) {
 		TuIndiceNavDisplay(
 			navigator = navigator,

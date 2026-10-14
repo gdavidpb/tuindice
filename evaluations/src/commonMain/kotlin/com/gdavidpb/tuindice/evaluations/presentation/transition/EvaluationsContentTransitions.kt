@@ -27,6 +27,16 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsContentTrans
 				} ?: state
 		}
 
+		// The list has taken the arrival it was given. A later one (another jump) is not the one taken,
+		// so the state keeps it.
+		on<Evaluations.Action.EvaluationArrivalTaken> { state, action ->
+			if (state.arrivalEvaluationId == action.evaluationId) {
+				state.copy(arrivalEvaluationId = null)
+			} else {
+				state
+			}
+		}
+
 		// Content stays on screen through observation errors and refresh cycles; the
 		// machine-level rows move every other state instead.
 		on<EvaluationsInternalEvent.EvaluationsObservationFailed> { state, _ -> state }

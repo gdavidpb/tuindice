@@ -105,19 +105,30 @@ private fun attentionOf(
 	return (listOfNotNull(ungraded) + enrollmentErrors).take(MAX_ATTENTION_POINTS)
 }
 
+// The oldest is the first by its day, then by subject code, its number on the Evaluations tab and its
+// id: the order the week lists use, so the same evaluation is the one the jump lands on from any line.
 private fun ungradedEvaluationsOf(
 	evaluations: List<Evaluation>,
 	today: LocalDate
 ): SummaryAttention.UngradedEvaluations? {
-	val overdueDates = evaluations
+	val overdue = evaluations
 		.filter { evaluation -> evaluation.stateOn(today) == EvaluationState.OVERDUE }
-		.mapNotNull { evaluation -> evaluation.date?.toLocalDate() }
+		.mapNotNull { evaluation -> evaluation.date?.toLocalDate()?.let { date -> evaluation to date } }
 
-	val oldest = overdueDates.minOrNull() ?: return null
+	val ordinals = EvaluationOrdinalEngine.ordinalsById(evaluations)
+	val (oldest, oldestDate) = overdue.minWithOrNull(
+		compareBy<Pair<Evaluation, LocalDate>>(
+			{ (_, date) -> date },
+			{ (evaluation, _) -> evaluation.subjectCode },
+			{ (evaluation, _) -> ordinals[evaluation.id] ?: 1 },
+			{ (evaluation, _) -> evaluation.id }
+		)
+	) ?: return null
 
 	return SummaryAttention.UngradedEvaluations(
-		count = overdueDates.size,
-		oldestWeekStart = AcademicWeekEngine.mondayOf(oldest)
+		count = overdue.size,
+		oldestWeekStart = AcademicWeekEngine.mondayOf(oldestDate),
+		oldestEvaluationId = oldest.id
 	)
 }
 

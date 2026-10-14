@@ -7,23 +7,25 @@ import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekKeyContaining
 
 /**
- * The request to show a week. Only content can show one, so only it applies the request. The states
- * that settle without weeks (empty, no attempts, record data unavailable) drop it, because nothing
- * is going to show it and a request left pending would move the tab whenever content came back much
- * later. The states that are still on their way (idle, loading, failed) leave it pending: the
- * observation sends it again as soon as something settles.
+ * The request to show a week, and the evaluation it may bring into view. Only content can show one, so
+ * only it applies the request. The states that settle without weeks (empty, no attempts, record data
+ * unavailable) drop it, because nothing is going to show it and a request left pending would move the
+ * tab whenever content came back much later. The states that are still on their way (idle, loading,
+ * failed) leave it pending: the observation sends it again as soon as something settles.
  *
  * Content selects the week the list files the date under, held to the term's weeks like the list,
- * and does not save it as the user's pick.
+ * and does not save it as the user's pick. The evaluation is kept for the list only when the week
+ * lists it: a jump to an evaluation that is not there still opens its week.
  */
 internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTransitions(
 	machine: EvaluationsMachine
 ) {
 	from<Evaluations.State.Content> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			val isTaken = machine.takeWeekFocus(weekStart = event.weekStart)
+			val request = event.request
+			val isTaken = machine.takeWeekFocus(request = request)
 			val focusedWeekKey = if (isTaken) {
-				evaluationsWeekKeyContaining(weekOneStart = state.weekOneStart, date = event.weekStart)
+				evaluationsWeekKeyContaining(weekOneStart = state.weekOneStart, date = request.weekStart)
 			} else {
 				null
 			}
@@ -36,9 +38,17 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTra
 			if (focusedWeekItem == null) {
 				state
 			} else {
+				val focusedWeekGroup = state.evaluationWeekGroups.firstOrNull { group -> group.key == focusedWeekItem.key }
+				val arrivalEvaluationId = request.evaluationId?.takeIf { evaluationId ->
+					focusedWeekGroup?.groups.orEmpty().any { group ->
+						group.items.any { item -> item.evaluationId == evaluationId }
+					}
+				}
+
 				state.copy(
 					selectedWeekKey = focusedWeekItem.key,
-					weekItem = focusedWeekItem
+					weekItem = focusedWeekItem,
+					arrivalEvaluationId = arrivalEvaluationId
 				)
 			}
 		}
@@ -46,21 +56,21 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTra
 
 	from<Evaluations.State.Empty> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(weekStart = event.weekStart)
+			machine.takeWeekFocus(request = event.request)
 			state
 		}
 	}
 
 	from<Evaluations.State.NoAttempts> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(weekStart = event.weekStart)
+			machine.takeWeekFocus(request = event.request)
 			state
 		}
 	}
 
 	from<Evaluations.State.RecordDataUnavailable> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(weekStart = event.weekStart)
+			machine.takeWeekFocus(request = event.request)
 			state
 		}
 	}

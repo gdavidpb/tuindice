@@ -23,7 +23,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleDayColumn(
 	modifier: Modifier = Modifier,
 	dayItem: ScheduleDayItem,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	Box(modifier = modifier) {
 		dayItem.cells.forEach { cell ->

@@ -69,7 +69,11 @@ class SummaryHubItemTest {
 
 	@Test
 	fun oneUngradedEvaluation_isSaidInTheSingular_andManyInThePlural() {
-		val one = SummaryAttention.UngradedEvaluations(count = 1, oldestWeekStart = LocalDate(2026, 10, 5))
+		val one = SummaryAttention.UngradedEvaluations(
+			count = 1,
+			oldestWeekStart = LocalDate(2026, 10, 5),
+			oldestEvaluationId = "oldest"
+		)
 		val many = one.copy(count = 2)
 
 		assertEquals(UiText.Resource(Res.string.summary_attention_ungraded_one), one.toSummaryAttentionItem().text)
@@ -81,11 +85,15 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theUngradedPoint_leadsToTheWeekOfTheOldest_andTheEnrollmentErrorToTheRecord() {
-		val ungraded = SummaryAttention.UngradedEvaluations(count = 3, oldestWeekStart = LocalDate(2026, 10, 5))
+		val ungraded = SummaryAttention.UngradedEvaluations(
+			count = 3,
+			oldestWeekStart = LocalDate(2026, 10, 5),
+			oldestEvaluationId = "oldest"
+		)
 		val clash = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = "CHOQUE DE HORARIO")
 
 		assertEquals(
-			SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 5)),
+			SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 5), evaluationId = "oldest"),
 			ungraded.toSummaryAttentionItem().target
 		)
 		assertEquals(SummaryHubTarget.Record, clash.toSummaryAttentionItem().target)

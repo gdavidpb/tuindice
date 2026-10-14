@@ -11,6 +11,7 @@ class RecordNavDependencies(
 	val onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	val onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
 	val onNavigateToEnrollmentProof: () -> Unit,
-	// The Schedule sheet asks the host to show the Evaluations of the week that this Monday opens.
-	val onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit
+	// The Schedule sheet asks the host to show the Evaluations of the week that this Monday opens, on the
+	// evaluation with this id.
+	val onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit
 )

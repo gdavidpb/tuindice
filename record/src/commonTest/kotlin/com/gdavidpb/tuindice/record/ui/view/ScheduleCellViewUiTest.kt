@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
 import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.assertDpEquals
@@ -65,7 +66,7 @@ class ScheduleCellViewUiTest {
 		).grid.days.first { dayItem -> dayItem.day == ScheduleDay.Tuesday }.cells.single()
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Tuesday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Tuesday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		val tag = RecordUiTags.scheduleCell("a1", ScheduleDay.Tuesday.code, 3)
@@ -81,7 +82,7 @@ class ScheduleCellViewUiTest {
 		val cell = cellOf(attemptId = "a1", day = ScheduleDay.Wednesday)
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		// One block is one line tall: only the code fits, and the room stays in what is read aloud.
@@ -96,7 +97,7 @@ class ScheduleCellViewUiTest {
 		val cell = cellOf(attemptId = "a2", day = ScheduleDay.Monday)
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Monday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Monday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		// The outline is all the eye gets, so the words are only in what is read aloud. No room
@@ -112,7 +113,7 @@ class ScheduleCellViewUiTest {
 		val cell = cellOf(attemptId = "a1", day = ScheduleDay.Monday, now = MondayAtNine)
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Monday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Monday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Monday.code, 1))
@@ -125,7 +126,7 @@ class ScheduleCellViewUiTest {
 		val cell = cellOf(attemptId = "a1", day = ScheduleDay.Wednesday)
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		assertNodeHidden(RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Wednesday.code, 3), useUnmergedTree = true)
@@ -152,7 +153,7 @@ class ScheduleCellViewUiTest {
 		// The grid's own column, so the cell is as wide as the grid makes it: a lane less the hairline
 		// padding at each side, which is 70dp and not 72.
 		setTuIndiceTestContent {
-			ScheduleDayColumn(dayItem = dayItem, onEvaluationClick = {})
+			ScheduleDayColumn(dayItem = dayItem, onEvaluationClick = { _, _ -> })
 		}
 
 		codes.forEachIndexed { index, code ->
@@ -209,7 +210,7 @@ class ScheduleCellViewUiTest {
 				modifier = Modifier.cellSizeOf(cell),
 				day = ScheduleDay.Tuesday,
 				cell = cell,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -241,7 +242,7 @@ class ScheduleCellViewUiTest {
 				modifier = Modifier.cellSizeOf(cell),
 				day = ScheduleDay.Tuesday,
 				cell = cell,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -261,7 +262,7 @@ class ScheduleCellViewUiTest {
 		val cell = markedCell(attemptId = "a1", day = ScheduleDay.Wednesday)
 
 		setTuIndiceTestContent {
-			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = {})
+			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = { _, _ -> })
 		}
 
 		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3))
@@ -280,7 +281,7 @@ class ScheduleCellViewUiTest {
 				modifier = Modifier.cellSizeOf(cell),
 				day = ScheduleDay.Monday,
 				cell = cell,
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -293,15 +294,19 @@ class ScheduleCellViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatWeek() = runTuIndiceUiTest {
+	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatWeekAndThatEvaluation() = runTuIndiceUiTest {
 		val cell = markedCell(attemptId = "a1", day = ScheduleDay.Wednesday)
 		var asked: LocalDate? = null
+		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleCellView(
 				day = ScheduleDay.Wednesday,
 				cell = cell,
-				onEvaluationClick = { weekStart -> asked = weekStart }
+				onEvaluationClick = { weekStart, evaluationId ->
+					asked = weekStart
+					askedEvaluationId = evaluationId
+				}
 			)
 		}
 
@@ -319,6 +324,21 @@ class ScheduleCellViewUiTest {
 		button.performClick()
 
 		assertEquals(ScheduleTestDate, asked)
+		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
+	}
+
+	@Test
+	fun when_theWeekIsKnownButNotTheEvaluation_then_itHasTheIcon_andIsNotAButton() = runTuIndiceUiTest {
+		// A cell that says which week a mark is in but names no evaluation: the icon is there, and the tap
+		// has nowhere to go.
+		val cell = cellOf(attemptId = "a1", day = ScheduleDay.Wednesday).copy(evaluationWeekStart = ScheduleTestDate)
+
+		setTuIndiceTestContent {
+			ScheduleCellView(day = ScheduleDay.Wednesday, cell = cell, onEvaluationClick = { _, _ -> })
+		}
+
+		assertNodeVisible(RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Wednesday.code, 3), useUnmergedTree = true)
+		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3)).assertHasNoClickAction()
 	}
 
 	// The meeting of [attemptId] on [day] in the week of the other tests, with an evaluation of CI5311

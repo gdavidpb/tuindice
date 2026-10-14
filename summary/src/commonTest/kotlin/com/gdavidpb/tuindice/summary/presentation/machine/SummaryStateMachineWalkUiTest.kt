@@ -131,7 +131,10 @@ class SummaryStateMachineWalkUiTest {
 				Summary.Action.OpenTarget(target = SummaryHubTarget.Record),
 				Summary.Action.OpenTarget(target = SummaryHubTarget.Pensum),
 				Summary.Action.OpenTarget(
-					target = SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 12))
+					target = SummaryHubTarget.EvaluationsWeek(
+						weekStart = LocalDate(2026, 10, 12),
+						evaluationId = "evaluation-1"
+					)
 				),
 				SummaryInternalEvent.HubObserved(hub = summaryHubItem()),
 				SummaryInternalEvent.UserObserved(content = content),

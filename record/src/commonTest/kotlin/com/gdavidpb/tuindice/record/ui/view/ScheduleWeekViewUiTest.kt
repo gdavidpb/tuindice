@@ -46,7 +46,7 @@ class ScheduleWeekViewUiTest {
 					attempt(id = "a2", code = "CI3725", day = ScheduleDay.Monday, blocks = LastBlock - 1..LastBlock),
 					attempt(id = "a3", code = "EG1114")
 				),
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -69,7 +69,7 @@ class ScheduleWeekViewUiTest {
 			ScheduleWeekView(
 				modifier = Modifier.width(200.dp),
 				grid = grid(attempt(id = "a2", code = "FS2211", day = ScheduleDay.Saturday, blocks = 1..2)),
-				onEvaluationClick = {}
+				onEvaluationClick = { _, _ -> }
 			)
 		}
 
@@ -87,7 +87,7 @@ class ScheduleWeekViewUiTest {
 	@Test
 	fun when_someMeetingHasAnEvaluation_then_theLegendExplainsTheIcon_underTheGrid() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleWeekView(grid = markedWeek().grid, onEvaluationClick = {})
+			ScheduleWeekView(grid = markedWeek().grid, onEvaluationClick = { _, _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleEvaluationLegend)
@@ -101,7 +101,7 @@ class ScheduleWeekViewUiTest {
 	@Test
 	fun when_noMeetingHasAnEvaluation_then_noLegendIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleWeekView(grid = clashingWeek().grid, onEvaluationClick = {})
+			ScheduleWeekView(grid = clashingWeek().grid, onEvaluationClick = { _, _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleGrid)

@@ -71,7 +71,10 @@ class SummaryScreenUiTest {
 		assertEquals(
 			listOf(
 				SummaryHubTarget.Record,
-				SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 12))
+				SummaryHubTarget.EvaluationsWeek(
+					weekStart = LocalDate(2026, 10, 12),
+					evaluationId = "evaluation-2"
+				)
 			),
 			targets
 		)

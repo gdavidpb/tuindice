@@ -16,7 +16,7 @@ class SummaryNavigationTest {
 
 	@Test
 	fun theRecordAndThePensumLinks_changeTheTab() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = {})
+		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
 
 		navigation.onNavigateToRecord()
 
@@ -30,7 +30,7 @@ class SummaryNavigationTest {
 
 	@Test
 	fun theScheduleLink_opensTheSheetOverSummary() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = {})
+		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
 
 		navigation.onOpenSchedule()
 
@@ -40,18 +40,20 @@ class SummaryNavigationTest {
 
 	@Test
 	fun theEvaluationsWeek_isLeftToTheHost() {
-		val asked = mutableListOf<LocalDate>()
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { asked += it })
+		val asked = mutableListOf<Pair<LocalDate, String>>()
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { weekStart, evaluationId -> asked += weekStart to evaluationId }
+		)
 
-		navigation.onNavigateToEvaluationsWeek(LocalDate(2026, 10, 12))
+		navigation.onNavigateToEvaluationsWeek(LocalDate(2026, 10, 12), "evaluation-1")
 
-		assertEquals(listOf(LocalDate(2026, 10, 12)), asked)
+		assertEquals(listOf(LocalDate(2026, 10, 12) to "evaluation-1"), asked)
 		assertEquals(MainSection.SUMMARY, navigator.currentTab)
 	}
 
 	@Test
 	fun theUpdatePasswordLink_opensTheDialog() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = {})
+		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
 
 		navigation.onNavigateToUpdatePassword()
 

@@ -23,7 +23,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleWeekView(
 	modifier: Modifier = Modifier,
 	grid: ScheduleGridItem,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	Column(
 		modifier = modifier

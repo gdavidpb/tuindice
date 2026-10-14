@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
@@ -414,9 +415,9 @@ class TuIndiceNavigatorTest {
 		val monday = LocalDate(2026, 10, 5)
 
 		navigator.openSchedule()
-		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday)
+		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday, evaluationId = EVALUATION_ID)
 
-		assertEquals(monday, weekFocus.pendingWeekStart.value)
+		assertEquals(EvaluationsWeekFocusRequest(monday, EVALUATION_ID), weekFocus.pending.value)
 		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
 		assertEquals(MainSection.SUMMARY, navigator.startTab)
 		assertEquals(
@@ -431,14 +432,18 @@ class TuIndiceNavigatorTest {
 		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.SUMMARY)
 		val monday = LocalDate(2026, 10, 12)
 
-		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday)
+		navigator.showEvaluationsWeek(weekFocus = weekFocus, weekStart = monday, evaluationId = EVALUATION_ID)
 
-		assertEquals(monday, weekFocus.pendingWeekStart.value)
+		assertEquals(EvaluationsWeekFocusRequest(monday, EVALUATION_ID), weekFocus.pending.value)
 		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
 		assertEquals(MainSection.SUMMARY, navigator.startTab)
 		assertEquals(
 			listOf<NavKey>(SummaryDestination.Summary, EvaluationsDestination.Evaluations),
 			navigator.backStack
 		)
+	}
+
+	private companion object {
+		const val EVALUATION_ID = "evaluation-1"
 	}
 }

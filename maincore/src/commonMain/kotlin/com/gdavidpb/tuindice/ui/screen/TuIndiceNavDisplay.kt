@@ -57,7 +57,7 @@ fun TuIndiceNavDisplay(
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
-	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,

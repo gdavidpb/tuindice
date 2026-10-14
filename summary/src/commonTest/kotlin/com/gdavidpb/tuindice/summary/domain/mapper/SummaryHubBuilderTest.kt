@@ -334,7 +334,13 @@ class SummaryHubBuilderTest {
 		val attention = hub(evaluations = evaluations).attention
 
 		assertEquals(
-			listOf(SummaryAttention.UngradedEvaluations(count = 1, oldestWeekStart = hubDate(5))),
+			listOf(
+				SummaryAttention.UngradedEvaluations(
+					count = 1,
+					oldestWeekStart = hubDate(5),
+					oldestEvaluationId = "late"
+				)
+			),
 			attention
 		)
 	}
@@ -354,7 +360,36 @@ class SummaryHubBuilderTest {
 		val attention = hub(evaluations = evaluations).attention
 
 		assertEquals(
-			listOf(SummaryAttention.UngradedEvaluations(count = 3, oldestWeekStart = hubDate(5))),
+			listOf(
+				SummaryAttention.UngradedEvaluations(
+					count = 3,
+					oldestWeekStart = hubDate(5),
+					oldestEvaluationId = "oldest"
+				)
+			),
+			attention
+		)
+	}
+
+	@Test
+	fun aTieOnTheDay_takesTheOldestBySubjectCode_andTheJumpLandsOnThatEvaluation() {
+		val evaluations = listOf(
+			hubEvaluation(id = "later-code", code = "CI5437", date = hubDate(7)),
+			hubEvaluation(id = "earlier-code", code = "CI5311", date = hubDate(7))
+		)
+		val attention = hub(
+			attempts = listOf(classesOnThursday, hubAttempt(code = "CI5311")),
+			evaluations = evaluations
+		).attention
+
+		assertEquals(
+			listOf(
+				SummaryAttention.UngradedEvaluations(
+					count = 2,
+					oldestWeekStart = hubDate(5),
+					oldestEvaluationId = "earlier-code"
+				)
+			),
 			attention
 		)
 	}

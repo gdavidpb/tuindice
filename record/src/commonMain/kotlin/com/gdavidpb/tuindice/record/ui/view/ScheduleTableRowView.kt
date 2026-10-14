@@ -36,7 +36,7 @@ fun ScheduleTableRowView(
 	modifier: Modifier = Modifier,
 	row: ScheduleTableRowItem,
 	days: List<ScheduleDay>,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	val description = row.description.asString()
 

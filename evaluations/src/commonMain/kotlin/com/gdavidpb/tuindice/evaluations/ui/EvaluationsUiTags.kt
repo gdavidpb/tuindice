@@ -8,6 +8,7 @@ object EvaluationsUiTags {
 	const val EvaluationsWeekLabel = "evaluations_week_label"
 	const val EvaluationsWeekCurrentIndicator = "evaluations_week_current_indicator"
 	const val EvaluationsList = "evaluations_list"
+	const val EvaluationsListTail = "evaluations_list_tail"
 	const val EvaluationsAddFab = "evaluations_add_fab"
 	const val EvaluationsLoadingIndicator = "evaluations_loading_indicator"
 

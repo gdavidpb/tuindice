@@ -94,7 +94,7 @@ class TuIndiceNavDisplaySummaryHubUiTest {
 
 				HubNavDisplay(
 					navigator = navigator,
-					onNavigateToEvaluationsWeek = { weekStart -> asked += weekStart }
+					onNavigateToEvaluationsWeek = { weekStart, _ -> asked += weekStart }
 				)
 			}
 
@@ -113,7 +113,7 @@ class TuIndiceNavDisplaySummaryHubUiTest {
 	@Composable
 	private fun HubNavDisplay(
 		navigator: TuIndiceNavigator,
-		onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {}
+		onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> }
 	) {
 		TuIndiceNavDisplay(
 			navigator = navigator,

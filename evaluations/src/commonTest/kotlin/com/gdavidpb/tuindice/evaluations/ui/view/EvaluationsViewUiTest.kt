@@ -6,8 +6,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -153,5 +155,42 @@ class EvaluationsViewUiTest {
 
 		assertNodeVisible(EvaluationsUiTags.evaluationsWeekHeader(EvaluationsWeekKey.Continuous))
 		assertNodeVisible(EvaluationsUiTags.evaluationHeader("Continuas"))
+	}
+
+	@Test
+	fun when_arrivalIsGivenBelowTheViewport_then_itsCardIsBroughtIntoViewAndTheListTakesIt() = runTuIndiceUiTest {
+		val weeks = (1..12).map { number ->
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(number),
+				title = "Semana $number",
+				groups = listOf(
+					EvaluationsGroupItem(
+						items = (1..12).map { index ->
+							evaluationItemFixture(evaluationId = "week-$number-evaluation-$index")
+						}
+					)
+				)
+			)
+		}
+		val arrival = "week-10-evaluation-12"
+		var taken: String? = null
+
+		setTuIndiceTestContent {
+			EvaluationsView(
+				lazyListState = rememberLazyListState(),
+				weekGroups = weeks,
+				selectedWeekKey = EvaluationsWeekKey.Academic(10),
+				onVisibleWeekChange = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {},
+				arrivalEvaluationId = arrival,
+				onArrivalTaken = { evaluationId -> taken = evaluationId }
+			)
+		}
+
+		waitForIdle()
+		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(arrival))
+		assertEquals(arrival, taken)
 	}
 }

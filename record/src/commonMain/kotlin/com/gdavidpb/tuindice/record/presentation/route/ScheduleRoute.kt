@@ -14,9 +14,9 @@ import kotlinx.datetime.LocalDate
 fun ScheduleRoute(
 	viewModel: ScheduleViewModel,
 	onDismissRequest: () -> Unit,
-	// What a cell with an evaluation asks for: the Evaluations tab on the week that opens on that Monday.
-	// Whoever hosts the sheet connects it; until then tapping does nothing.
-	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit = {}
+	// What a cell with an evaluation asks for: the Evaluations tab on the week that opens on that Monday,
+	// on that evaluation. Whoever hosts the sheet connects it; until then tapping does nothing.
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> }
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -25,7 +25,8 @@ fun ScheduleRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Schedule.Effect.NavigateToEvaluationsWeek -> onNavigateToEvaluationsWeek(effect.weekStart)
+			is Schedule.Effect.NavigateToEvaluationsWeek ->
+				onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
 		}
 	}
 

@@ -91,7 +91,10 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 					SummaryHubTarget.Pensum -> Summary.Effect.NavigateToPensum
 
 					is SummaryHubTarget.EvaluationsWeek ->
-						Summary.Effect.NavigateToEvaluationsWeek(weekStart = target.weekStart)
+						Summary.Effect.NavigateToEvaluationsWeek(
+							weekStart = target.weekStart,
+							evaluationId = target.evaluationId
+						)
 				}
 			)
 			state

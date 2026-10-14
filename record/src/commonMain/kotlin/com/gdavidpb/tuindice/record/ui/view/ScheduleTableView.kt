@@ -32,7 +32,7 @@ private val MinSubjectWidth = 88.dp
 fun ScheduleTableView(
 	modifier: Modifier = Modifier,
 	table: ScheduleTableItem,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleTable)) {
 		val daysWidth = (ScheduleTableDefaults.DayWidth + ScheduleTableDefaults.CellGap) * table.days.size

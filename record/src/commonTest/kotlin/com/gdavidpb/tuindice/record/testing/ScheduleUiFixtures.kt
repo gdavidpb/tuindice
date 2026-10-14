@@ -109,11 +109,20 @@ fun clashingWeekAttempts(): List<AttemptProjection> = listOf(
 	scheduleAttempt(id = "a3", code = "EG1114")
 )
 
+// The ids of the evaluations markedWeek is drawn with: the one on CI5311's Wednesday meeting, and the one
+// on its Monday meeting when [onMonday] is set.
+const val MARKED_WEDNESDAY_EVALUATION_ID = "wednesday-evaluation"
+const val MARKED_MONDAY_EVALUATION_ID = "monday-evaluation"
+
 // [clashingWeek] with an evaluation of CI5311 (a1) on its Wednesday meeting, and on its Monday one that
 // clashes with CI5437's when [onMonday] is set.
 fun markedWeek(now: ScheduleNow? = null, onMonday: Boolean = false): ScheduleItem {
-	val wednesday = scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate.plus(DatePeriod(days = 2)))
-	val monday = scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate)
+	val wednesday = scheduleEvaluation(
+		attemptId = "a1",
+		date = ScheduleTestDate.plus(DatePeriod(days = 2)),
+		id = MARKED_WEDNESDAY_EVALUATION_ID
+	)
+	val monday = scheduleEvaluation(attemptId = "a1", date = ScheduleTestDate, id = MARKED_MONDAY_EVALUATION_ID)
 
 	return clashingWeek(
 		now = now,

@@ -48,7 +48,10 @@ class SummaryAttentionViewUiTest {
 
 		assertEquals(
 			listOf(
-				SummaryHubTarget.EvaluationsWeek(weekStart = HUB_FIXTURE_ATTENTION_WEEK_START),
+				SummaryHubTarget.EvaluationsWeek(
+						weekStart = HUB_FIXTURE_ATTENTION_WEEK_START,
+						evaluationId = "evaluation-1"
+					),
 				SummaryHubTarget.Record
 			),
 			targets

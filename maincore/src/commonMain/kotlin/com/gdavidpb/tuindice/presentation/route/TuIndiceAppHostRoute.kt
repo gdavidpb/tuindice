@@ -255,13 +255,14 @@ fun TuIndiceAppHostRoute(
 				onBackInterceptorAvailable = { interceptor ->
 					backInterceptor.value = interceptor
 				},
-				// A marked cell of the Schedule: ask for that week of Evaluations, then close the sheet
-				// and go there in one move. The request is state, so the tab applies it when it is ready.
-				// The jump does not write the section the app opens on.
-				onNavigateToEvaluationsWeek = { weekStart ->
+				// A marked cell of the Schedule: ask for that week of Evaluations and for its evaluation, then
+				// close the sheet and go there in one move. The request is state, so the tab applies it when it
+				// is ready. The jump does not write the section the app opens on.
+				onNavigateToEvaluationsWeek = { weekStart, evaluationId ->
 					navigator?.showEvaluationsWeek(
 						weekFocus = evaluationsWeekFocusRepository,
-						weekStart = weekStart
+						weekStart = weekStart,
+						evaluationId = evaluationId
 					)
 				},
 				onNavigateTo = { section ->

@@ -12,7 +12,7 @@ import kotlinx.datetime.LocalDate
  * and then moves there, which is not the navigator's to do alone.
  */
 internal fun TuIndiceNavigator.toSummaryNavDependencies(
-	onNavigateToEvaluationsWeek: (weekStart: LocalDate) -> Unit
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) = SummaryNavDependencies(
 	onNavigateToUpdatePassword = { push(AuthDestination.UpdatePasswordDialog) },
 	onNavigateToRecord = { switchTab(MainSection.RECORD) },

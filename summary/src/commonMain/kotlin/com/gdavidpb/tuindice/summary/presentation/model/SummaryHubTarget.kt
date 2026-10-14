@@ -13,6 +13,12 @@ sealed interface SummaryHubTarget {
 	/** The Pensum tab (the career). */
 	data object Pensum : SummaryHubTarget
 
-	/** The Evaluations tab, on the week that [weekStart] (a Monday) opens. */
-	data class EvaluationsWeek(val weekStart: LocalDate) : SummaryHubTarget
+	/**
+	 * The Evaluations tab, on the week that [weekStart] (a Monday) opens, with [evaluationId] brought
+	 * into view inside it.
+	 */
+	data class EvaluationsWeek(
+		val weekStart: LocalDate,
+		val evaluationId: String
+	) : SummaryHubTarget
 }

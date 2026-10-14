@@ -25,7 +25,7 @@ fun ScheduleTableDayCellView(
 	attemptId: String,
 	day: ScheduleDay,
 	meetings: List<ScheduleCellItem>,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	Box(
 		modifier = modifier.testTag(RecordUiTags.scheduleTableCell(attemptId, day.code)),

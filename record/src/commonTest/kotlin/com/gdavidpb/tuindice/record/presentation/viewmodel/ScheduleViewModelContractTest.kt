@@ -68,7 +68,9 @@ class ScheduleViewModelContractTest {
 			record = mondayRecord(),
 			hasSynced = true,
 			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
-				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+				initialEvaluations = listOf(
+					scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate, id = "ci5311-exam")
+				)
 			)
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -82,6 +84,7 @@ class ScheduleViewModelContractTest {
 				val meeting = content.schedule.table.rows.single().meetings.getValue(ScheduleDay.Monday).single()
 
 				assertEquals(ScheduleTestDate, meeting.evaluationWeekStart)
+				assertEquals("ci5311-exam", meeting.evaluationId)
 				assertTrue(content.schedule.table.hasEvaluationMarks)
 				// Week 1 opens on Monday 2026-08-31: the Monday 2026-10-05 is week 6.
 				assertEquals(
@@ -154,12 +157,14 @@ class ScheduleViewModelContractTest {
 	}
 
 	@Test
-	fun evaluationCellSelected_asksToGoToTheEvaluationsOfThatWeek_andLeavesTheSheetAsItIs() = runTest {
+	fun evaluationCellSelected_asksToGoToTheEvaluationOfThatWeek_andLeavesTheSheetAsItIs() = runTest {
 		val fixture = createFixture(
 			record = mondayRecord(),
 			hasSynced = true,
 			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
-				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+				initialEvaluations = listOf(
+					scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate, id = "ci5311-exam")
+				)
 			)
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -176,12 +181,18 @@ class ScheduleViewModelContractTest {
 				cancelAndIgnoreRemainingEvents()
 			}
 
+			// The mark on the cell is the evaluation the tap asks for.
+			val content = requireNotNull(before)
+			val marked = content.schedule.table.rows.single().meetings.getValue(ScheduleDay.Monday).single()
+			assertEquals("ci5311-exam", marked.evaluationId)
+
 			fixture.viewModel.effect.test(timeout = 15.seconds) {
-				fixture.viewModel.evaluationCellSelectedAction(weekStart = ScheduleTestDate)
+				fixture.viewModel.evaluationCellSelectedAction(weekStart = ScheduleTestDate, evaluationId = "ci5311-exam")
 
 				val effect = assertIs<Schedule.Effect.NavigateToEvaluationsWeek>(awaitItem())
 
 				assertEquals(ScheduleTestDate, effect.weekStart)
+				assertEquals("ci5311-exam", effect.evaluationId)
 
 				cancelAndIgnoreRemainingEvents()
 			}

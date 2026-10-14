@@ -40,7 +40,8 @@ fun EvaluationsScreen(
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
-	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
+	onEvaluationArrivalTaken: (evaluationId: String) -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -67,7 +68,8 @@ fun EvaluationsScreen(
 						scrollEnabled = scrollEnabled,
 						openActionsEvaluationId = openActionsEvaluationId,
 						focusEvaluationId = focusEvaluationId,
-						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
+						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange,
+						onEvaluationArrivalTaken = onEvaluationArrivalTaken
 					)
 
 				is Evaluations.State.RecordDataUnavailable ->

@@ -33,12 +33,14 @@ object Schedule {
 		data object Resumed : Action()
 
 		// A cell marked with an evaluation was tapped: the Evaluations tab is asked for the week that
-		// opens on [weekStart], the Monday of the calendar week the mark is about.
-		class EvaluationCellSelected(val weekStart: LocalDate) : Action()
+		// opens on [weekStart], the Monday of the calendar week the mark is about, and for the evaluation
+		// [evaluationId] that the mark stands for.
+		class EvaluationCellSelected(val weekStart: LocalDate, val evaluationId: String) : Action()
 	}
 
 	sealed class Effect : ViewEffect {
-		// Take the student to the Evaluations tab, on the week that opens on [weekStart].
-		class NavigateToEvaluationsWeek(val weekStart: LocalDate) : Effect()
+		// Take the student to the Evaluations tab, on the week that opens on [weekStart] and on the
+		// evaluation [evaluationId].
+		class NavigateToEvaluationsWeek(val weekStart: LocalDate, val evaluationId: String) : Effect()
 	}
 }

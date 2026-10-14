@@ -105,7 +105,10 @@ fun summaryHubItem(
 		SummaryAttentionItem(
 			key = "ungraded",
 			text = UiText.Raw("2 evaluaciones sin nota"),
-			target = SummaryHubTarget.EvaluationsWeek(weekStart = HUB_FIXTURE_ATTENTION_WEEK_START)
+			target = SummaryHubTarget.EvaluationsWeek(
+					weekStart = HUB_FIXTURE_ATTENTION_WEEK_START,
+					evaluationId = "evaluation-1"
+				)
 		),
 		SummaryAttentionItem(
 			key = "enrollment-CI5311",

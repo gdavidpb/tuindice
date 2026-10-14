@@ -28,7 +28,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleGridView(
 	modifier: Modifier = Modifier,
 	grid: ScheduleGridItem,
-	onEvaluationClick: (weekStart: LocalDate) -> Unit
+	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	val gridHeight = ScheduleGridDefaults.BlockRowHeight * grid.blockCount +
 		ScheduleGridDefaults.BlockRowGap * (grid.blockCount - 1)

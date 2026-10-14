@@ -137,16 +137,22 @@ class ScheduleRouteUiTest {
 			record = scheduledRecord(),
 			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
 				// Monday 2026-10-05 is the day of the test clock: CI5311 meets that day.
-				initialEvaluations = listOf(scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate))
+				initialEvaluations = listOf(
+					scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate, id = "ci5311-exam")
+				)
 			)
 		)
 		var asked: LocalDate? = null
+		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleRoute(
 				viewModel = fixture.viewModel,
 				onDismissRequest = {},
-				onNavigateToEvaluationsWeek = { weekStart -> asked = weekStart }
+				onNavigateToEvaluationsWeek = { weekStart, evaluationId ->
+					asked = weekStart
+					askedEvaluationId = evaluationId
+				}
 			)
 		}
 
@@ -163,6 +169,7 @@ class ScheduleRouteUiTest {
 
 		waitUntil(timeoutMillis = StateTimeoutMillis) { asked != null }
 		assertEquals(ScheduleTestDate, asked)
+		assertEquals("ci5311-exam", askedEvaluationId)
 	}
 
 	@Test

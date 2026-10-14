@@ -60,6 +60,7 @@ fun EvaluationsRoute(
 		onEvaluationEdit = viewModel::editEvaluationAction,
 		onEvaluationDelete = onNavigateToDeleteEvaluationConfirmation,
 		onWeekClick = viewModel::selectWeekAction,
+		onEvaluationArrivalTaken = viewModel::evaluationArrivalTakenAction,
 		onRetryClick = {
 			viewModel.loadEvaluationsAction()
 			viewModel.refreshEvaluationsAction()
