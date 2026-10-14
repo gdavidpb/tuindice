@@ -32,4 +32,10 @@ sealed interface SummaryHubTarget {
 
 	/** The Record tab, at the form that plans a term. */
 	data object CreateTerm : SummaryHubTarget
+
+	/**
+	 * The Evaluations tab as it opens by itself, on no week and with no evaluation brought into view. No line of the
+	 * hub leads there; the Statistics screen does, from its link to the evaluations that are not here.
+	 */
+	data object Evaluations : SummaryHubTarget
 }

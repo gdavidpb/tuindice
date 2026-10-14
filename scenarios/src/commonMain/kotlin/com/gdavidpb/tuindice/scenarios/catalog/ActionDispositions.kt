@@ -143,6 +143,21 @@ object ActionDispositions {
 				"file in them; the upload path needs a debug-only source of that file"
 		),
 		ActionDisposition.Internal(
+			action = "summary.SummaryStatistics.ObserveStatistics",
+			reason = "screen bootstrap"
+		),
+		ActionDisposition.Internal(
+			action = "summary.SummaryStatistics.Resumed",
+			reason =
+				"the screen dispatches it each time it comes back in front, to read the clock again; no user " +
+				"performs it"
+		),
+		ActionDisposition.Pending(
+			action = "summary.SummaryStatistics.OpenTarget",
+			reason =
+				"the student taps the links of the Statistics screen; the scenario that taps them is written in F10"
+		),
+		ActionDisposition.Internal(
 			action = "wizard.CoachmarkOverlay.SurfaceChanged",
 			reason = "host bridge from active real ViewState to contextual onboarding eligibility"
 		)

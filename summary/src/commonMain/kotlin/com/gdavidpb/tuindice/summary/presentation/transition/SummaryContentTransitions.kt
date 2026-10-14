@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryInternalEvent
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.mapper.profilePictureIdentity
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryEffect
 
 internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 	machine: SummaryMachine,
@@ -82,31 +82,11 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 				Summary.Effect.NavigateToEvaluationsWeek::class,
 				Summary.Effect.NavigateToRecordAttempt::class,
 				Summary.Effect.NavigateToAddEvaluation::class,
-				Summary.Effect.NavigateToCreateTerm::class
+				Summary.Effect.NavigateToCreateTerm::class,
+				Summary.Effect.NavigateToEvaluations::class
 			)
 		) { state, action ->
-			host.sendEffect(
-				when (val target = action.target) {
-					SummaryHubTarget.Schedule -> Summary.Effect.NavigateToSchedule
-
-					SummaryHubTarget.Record -> Summary.Effect.NavigateToRecord
-
-					SummaryHubTarget.Pensum -> Summary.Effect.NavigateToPensum
-
-					is SummaryHubTarget.EvaluationsWeek ->
-						Summary.Effect.NavigateToEvaluationsWeek(
-							weekStart = target.weekStart,
-							evaluationId = target.evaluationId
-						)
-
-					is SummaryHubTarget.RecordAttempt ->
-						Summary.Effect.NavigateToRecordAttempt(attemptId = target.attemptId)
-
-					SummaryHubTarget.AddEvaluation -> Summary.Effect.NavigateToAddEvaluation
-
-					SummaryHubTarget.CreateTerm -> Summary.Effect.NavigateToCreateTerm
-				}
-			)
+			host.sendEffect(action.target.toSummaryEffect())
 			state
 		}
 

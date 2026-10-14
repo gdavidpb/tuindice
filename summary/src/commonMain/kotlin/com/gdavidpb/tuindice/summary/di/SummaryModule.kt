@@ -23,6 +23,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfi
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
+import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -35,10 +37,12 @@ val summaryModule = module {
 	/* View models */
 
 	viewModelOf(::SummaryViewModel)
+	viewModelOf(::SummaryStatisticsViewModel)
 
 	/* State machines */
 
 	factoryOf(::SummaryMachine)
+	factoryOf(::SummaryStatisticsMachine)
 
 	/* Use cases */
 

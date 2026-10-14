@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressReposit
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
@@ -36,22 +37,33 @@ class SummaryModuleKoinSmokeTest {
 	@Test
 	fun resolvesSummaryViewModel() = withKoinSmokeTest(
 		summaryModule,
-		module {
-			single<UserRepository> { RecordingUserRepository() }
-			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
-			single<ReportingRepository> { RecordingReportingRepository() }
-			single<SyncStatusRepository> { FakeSyncStatusRepository() }
-			single<SyncRepository> { FakeSyncRepository() }
-			single<DeviceInfoRepository> { FakeDeviceInfoRepository() }
-			single<VisibleAcademicRecordRepository> { ControllableVisibleAcademicRecordRepository() }
-			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
-			single<PensumProgressRepository> { ControllablePensumProgressRepository() }
-			single<RecordDataPrerequisiteRepository> { ControllableRecordDataPrerequisiteRepository() }
-			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
-			single<EventPublisher> { NoOpEventPublisher }
-			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
-		}
+		summaryTestRepositories
 	) {
 		assertResolves(SummaryViewModel::class)
 	}
+
+	@Test
+	fun resolvesSummaryStatisticsViewModel() = withKoinSmokeTest(
+		summaryModule,
+		summaryTestRepositories
+	) {
+		assertResolves(SummaryStatisticsViewModel::class)
+	}
+}
+
+// What the summary module reads from the outside, replaced by the test doubles of the hub and of the profile.
+private val summaryTestRepositories = module {
+	single<UserRepository> { RecordingUserRepository() }
+	single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+	single<ReportingRepository> { RecordingReportingRepository() }
+	single<SyncStatusRepository> { FakeSyncStatusRepository() }
+	single<SyncRepository> { FakeSyncRepository() }
+	single<DeviceInfoRepository> { FakeDeviceInfoRepository() }
+	single<VisibleAcademicRecordRepository> { ControllableVisibleAcademicRecordRepository() }
+	single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
+	single<PensumProgressRepository> { ControllablePensumProgressRepository() }
+	single<RecordDataPrerequisiteRepository> { ControllableRecordDataPrerequisiteRepository() }
+	single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
+	single<EventPublisher> { NoOpEventPublisher }
+	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 }
