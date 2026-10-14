@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarPoint
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsReference
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
+import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 
 /**
  * "Ritmo": the approved credits of each closed term as a bar, with the average of the regular terms as a reference line
@@ -119,7 +122,10 @@ private fun ColumnScope.PaceProjection(projection: SummaryStatisticsPaceItem.Pro
 		)
 
 		is SummaryStatisticsPaceItem.Projection.NoPensum -> SummaryStatisticsEmptyView(
-			title = projection.title.asString(),
+			heading = SummaryStatisticsEmptyHeading(
+				title = projection.title.asString(),
+				icon = Icons.Outlined.AccountTree
+			),
 			message = projection.message.asString()
 		)
 

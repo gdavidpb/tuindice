@@ -6,4 +6,7 @@ object StatisticsLabelTags {
 	fun axis(key: String, index: Int): String = "summary_statistics_${key}_axis_$index"
 
 	fun value(key: String, index: Int): String = "summary_statistics_${key}_value_$index"
+
+	// The ring a line chart draws around the point its block names apart.
+	fun ring(key: String, index: Int): String = "summary_statistics_${key}_ring_$index"
 }

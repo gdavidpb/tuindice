@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-14 16:33:50 -0300_
+_Generated automatically on 2026-10-14 16:47:47 -0300_
 
 ## Summary by module
 
@@ -15,7 +15,7 @@ _Generated automatically on 2026-10-14 16:33:50 -0300_
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
 | `record` | 2 | 75 | 90 | 82 | 75 | 75 |
 | `subjects` | 2 | 24 | 27 | 25 | 24 | 24 |
-| `summary` | 2 | 58 | 90 | 66 | 58 | 58 |
+| `summary` | 2 | 58 | 92 | 66 | 58 | 58 |
 | `wizard` | 2 | 2 | 3 | 2 | 2 | 2 |
 
 ## Detail by composable file
@@ -342,7 +342,7 @@ _Generated automatically on 2026-10-14 16:33:50 -0300_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsAxisLabels.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsAxisLabelsUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsBarChart.kt` | 5 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsBarChartUiTest.kt` | 12 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsChartDefaults.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsChartDefaultsUiTest.kt` | 2 | PASS threshold (2) |
-| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsLineChart.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsLineChartUiTest.kt` | 7 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsLineChart.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsLineChartUiTest.kt` | 8 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsScrollFrame.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsScrollFrameUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsStackedBar.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsStackedBarUiTest.kt` | 8 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsTooltipTarget.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/chart/StatisticsTooltipTargetUiTest.kt` | 2 | PASS threshold (2) |
@@ -381,10 +381,10 @@ _Generated automatically on 2026-10-14 16:33:50 -0300_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsBlockView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsBlockViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsCreditsView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsCreditsViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsCurrentTermView.kt` | 5 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsCurrentTermViewUiTest.kt` | 6 | PASS threshold (2) |
-| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsEmptyView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsEmptyViewUiTest.kt` | 2 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsEmptyView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsEmptyViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsFigureView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsFigureViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsGradesView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsGradesViewUiTest.kt` | 2 | PASS threshold (2) |
-| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsIndexView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsIndexViewUiTest.kt` | 3 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsIndexView.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsIndexViewUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsLegendView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsLegendViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsNotesView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsNotesViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsOutcomeColor.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryStatisticsOutcomeColorUiTest.kt` | 3 | PASS threshold (2) |

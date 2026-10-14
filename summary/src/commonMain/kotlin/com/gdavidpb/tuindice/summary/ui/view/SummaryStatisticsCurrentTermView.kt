@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +39,7 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsTarget
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsTooltipTarget
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
+import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 
 /**
  * "Este trimestre": the term in progress as its evaluations tell it. Its link, the name of the term, leads to Record.
@@ -62,12 +65,18 @@ fun SummaryStatisticsCurrentTermView(
 	SummaryStatisticsBlockView(head = head, modifier = modifier) {
 		when (val content = item.content) {
 			is SummaryStatisticsCurrentTermItem.Content.NoTerm -> SummaryStatisticsEmptyView(
-				title = content.title.asString(),
+				heading = SummaryStatisticsEmptyHeading(
+					title = content.title.asString(),
+					icon = Icons.Outlined.CalendarMonth
+				),
 				message = content.message.asString()
 			)
 
 			is SummaryStatisticsCurrentTermItem.Content.NotSynced -> SummaryStatisticsEmptyView(
-				title = content.title.asString(),
+				heading = SummaryStatisticsEmptyHeading(
+					title = content.title.asString(),
+					icon = Icons.AutoMirrored.Outlined.Assignment
+				),
 				message = content.message.asString(),
 				actionText = content.action.asString(),
 				onActionClick = { actions.onTargetClick(content.target) }

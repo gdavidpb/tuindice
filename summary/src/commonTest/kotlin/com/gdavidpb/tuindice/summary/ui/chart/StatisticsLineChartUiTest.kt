@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.ui.chart
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -9,10 +10,12 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
@@ -112,10 +115,24 @@ class StatisticsLineChartUiTest {
 		onNodeWithTag(axisTag(2), useUnmergedTree = true).assertTextEquals("Eje 2")
 	}
 
+	@Test
+	fun when_aPointHasARingColor_then_onlyThatPointIsRinged() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			LineChartHost(count = 3, ringedIndex = 1)
+		}
+		waitForIdle()
+
+		assertNodeVisible(StatisticsLabelTags.ring(ChartKey, 1), useUnmergedTree = true)
+		onAllNodesWithTag(StatisticsLabelTags.ring(ChartKey, 0), useUnmergedTree = true).assertCountEquals(0)
+		onAllNodesWithTag(StatisticsLabelTags.ring(ChartKey, 2), useUnmergedTree = true).assertCountEquals(0)
+	}
+
 	@Composable
-	private fun LineChartHost(count: Int) {
+	private fun LineChartHost(count: Int, ringedIndex: Int? = null) {
 		StatisticsLineChart(
-			points = (0 until count).map { index -> point(index) },
+			points = (0 until count).map { index ->
+				point(index).copy(ringColor = if (index == ringedIndex) Color(0xFF2E7D32) else null)
+			},
 			minValue = 1f,
 			maxValue = 5f,
 			labels = StatisticsChartLabels(

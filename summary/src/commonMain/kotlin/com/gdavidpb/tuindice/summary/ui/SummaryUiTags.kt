@@ -107,6 +107,8 @@ object SummaryUiTags {
 	const val StatisticsCaption = "summary_statistics_caption"
 	const val StatisticsEmpty = "summary_statistics_empty"
 	const val StatisticsEmptyAction = "summary_statistics_empty_action"
+	const val StatisticsEmptyIcon = "summary_statistics_empty_icon"
+	const val StatisticsBestTerm = "summary_statistics_best_term"
 	const val StatisticsNotes = "summary_statistics_notes"
 	const val StatisticsLegend = "summary_statistics_legend"
 	const val StatisticsOverdue = "summary_statistics_overdue"

@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsLinePoi
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelTags
 import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -32,6 +35,12 @@ class SummaryStatisticsIndexViewUiTest {
 			useUnmergedTree = true
 		).assertTextEquals("E-M 24")
 		onNodeWithText("Mejor: Ene - Mar 2024 · 4.5714").assertIsDisplayed()
+		assertNodeVisible(SummaryUiTags.StatisticsBestTerm)
+		assertNodeVisible(StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 1), useUnmergedTree = true)
+		onAllNodesWithTag(
+			testTag = StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 0),
+			useUnmergedTree = true
+		).assertCountEquals(0)
 	}
 
 	@Test
@@ -71,7 +80,7 @@ class SummaryStatisticsIndexViewUiTest {
 				caption = words("al cierre de Ene - Mar 2026"),
 				points = listOf(
 					point(axisLabel = "S-D 23", title = "Sep - Dic 2023", line = 4.1f, marker = 4.2f),
-					point(axisLabel = "E-M 24", title = "Ene - Mar 2024", line = 4.2068f, marker = 4.5714f),
+					point(axisLabel = "E-M 24", title = "Ene - Mar 2024", line = 4.2068f, marker = 4.5714f).copy(isBest = true),
 					point(axisLabel = "S-D 24", title = "Sep - Dic 2024", line = 4.125f, marker = 4.1f)
 				),
 				minValue = 4.1f,

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.ui.chart
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -135,6 +136,19 @@ private fun BoxScope.LineMarkers(
 					isOpen = isOpen,
 					onOpenChange = { open -> openIndex.value = if (open) index else null }
 				) {
+					point.ringColor?.let { ringColor ->
+						Box(
+							modifier = Modifier
+								.size(StatisticsChartDefaults.RingSize)
+								.border(
+									width = StatisticsChartDefaults.RingStrokeWidth,
+									color = ringColor,
+									shape = CircleShape
+								)
+								.testTag(StatisticsLabelTags.ring(labels.key, index))
+						)
+					}
+
 					Box(
 						modifier = Modifier
 							.size(StatisticsChartDefaults.MarkerSize)

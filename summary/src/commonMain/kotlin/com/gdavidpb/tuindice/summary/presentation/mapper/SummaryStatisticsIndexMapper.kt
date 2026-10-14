@@ -29,7 +29,10 @@ private const val MIN_RANKED_TERMS_FOR_WORST = 2
 internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String, String>): SummaryStatisticsIndexItem {
 	val title = UiText.Resource(Res.string.summary_statistics_index_title)
 	val indexed = summary.closed.terms.filter { term -> term.index != null }
-	val points = indexed.mapNotNull { term -> linePointOf(term = term, axisLabels = axisLabels) }
+	val bestKey = summary.bestTerm?.termKey
+	val points = indexed.mapNotNull { term ->
+		linePointOf(term = term, axisLabels = axisLabels)?.let { point -> point.copy(isBest = term.termKey == bestKey) }
+	}
 	val last = indexed.lastOrNull()
 	val lastPoint = points.lastOrNull()
 

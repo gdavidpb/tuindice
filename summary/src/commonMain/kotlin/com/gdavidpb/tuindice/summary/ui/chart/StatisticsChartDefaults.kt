@@ -35,6 +35,8 @@ object StatisticsChartDefaults {
 	val ContentHeight = ChartHeight + AxisLabelBandHeight
 
 	val MarkerSize = 8.dp
+	val RingSize = 19.dp
+	val RingStrokeWidth = 1.5.dp
 	val LineStrokeWidth = 2.dp
 	val SegmentHeight = 24.dp
 	val EdgeFadeWidth = 24.dp
