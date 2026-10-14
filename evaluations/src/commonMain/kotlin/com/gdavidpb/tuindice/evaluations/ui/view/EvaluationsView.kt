@@ -78,14 +78,9 @@ fun EvaluationsView(
 		)
 	}
 	val lastWeekHeight = remember(weekGroups) { mutableStateOf<Int?>(null) }
-	// The room the list ends with below the last week: what the viewport leaves once that week is measured, and
-	// the whole viewport until then. Never negative.
-	val tailHeight by remember(lazyListState, lastWeekHeight) {
-		derivedStateOf {
-			val viewportHeight = lazyListState.layoutInfo.viewportSize.height
-
-			lastWeekHeight.value?.let { height -> (viewportHeight - height).coerceAtLeast(0) } ?: viewportHeight
-		}
+	// Read apart from the layout info so the list end is not composed again on every scroll.
+	val viewportHeight by remember(lazyListState) {
+		derivedStateOf { lazyListState.layoutInfo.viewportSize.height }
 	}
 
 	LaunchedEffect(arrivalEvaluationId) {
@@ -215,7 +210,14 @@ fun EvaluationsView(
 				Spacer(
 					modifier = Modifier
 						.testTag(EvaluationsUiTags.EvaluationsListTail)
-						.height(with(density) { tailHeight.toDp() })
+						// What the viewport leaves below the last week once it is measured, never negative. Until then the
+						// whole viewport, taken from the list itself so it is there from the first layout: the viewport the
+						// list state reports is empty until then, and the first scroll to the last week would stop short.
+						.then(
+							lastWeekHeight.value?.let { measured ->
+								Modifier.height(with(density) { (viewportHeight - measured).coerceAtLeast(0).toDp() })
+							} ?: Modifier.fillParentMaxHeight()
+						)
 				)
 			}
 		}

@@ -1,11 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -17,8 +22,10 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationsViewUiTest {
@@ -192,5 +199,49 @@ class EvaluationsViewUiTest {
 		waitForIdle()
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(arrival))
 		assertEquals(arrival, taken)
+	}
+
+	@Test
+	fun when_theLastWeekIsSelectedOnTheFirstLayout_then_itsHeaderReachesTheTopOfTheList() = runTuIndiceUiTest {
+		val earlier = evaluationItemFixture(evaluationId = "week-7-evaluation")
+		val last = evaluationItemFixture(evaluationId = "week-8-evaluation")
+		val weekGroups = listOf(
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(7),
+				title = "Semana 7",
+				groups = listOf(EvaluationsGroupItem(items = listOf(earlier)))
+			),
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(8),
+				title = "Semana 8",
+				groups = listOf(EvaluationsGroupItem(items = listOf(last)))
+			)
+		)
+
+		// The last week is far shorter than the list: only the room left at the end lets its header go up.
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.height(640.dp)) {
+				EvaluationsView(
+					lazyListState = rememberLazyListState(),
+					weekGroups = weekGroups,
+					selectedWeekKey = EvaluationsWeekKey.Academic(8),
+					onVisibleWeekChange = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
+			}
+		}
+
+		waitForIdle()
+
+		val list = onNodeWithTag(EvaluationsUiTags.EvaluationsList).getUnclippedBoundsInRoot()
+		val header = onNodeWithTag(EvaluationsUiTags.evaluationsWeekHeader(8)).getUnclippedBoundsInRoot()
+
+		assertTrue(
+			abs((header.top - list.top).value) < 1f,
+			"the header of the last week at ${header.top} is at the top of the list at ${list.top}"
+		)
+		assertNodeHidden(EvaluationsUiTags.evaluationsWeekHeader(7))
 	}
 }
