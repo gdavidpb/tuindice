@@ -18,6 +18,7 @@ wiremock_main_class="com.gdavidpb.tuindice.mocks.RunMockEnvironment"
 extension_factory_classes=(
 	"com.gdavidpb.tuindice.mocks.RecordResponseTransformerFactory"
 	"com.gdavidpb.tuindice.mocks.EvaluationsResponseTransformerFactory"
+	"com.gdavidpb.tuindice.mocks.ShareBackgroundsResponseTransformerFactory"
 )
 
 if lsof -nP -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1; then

@@ -1,0 +1,24 @@
+{
+  "priority": 1,
+  "scenarioName": "share-backgrounds",
+  "requiredScenarioState": "Unavailable",
+  "request": {
+    "method": "GET",
+    "urlPath": "/users/v1/share-backgrounds",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "share backgrounds temporarily unavailable"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

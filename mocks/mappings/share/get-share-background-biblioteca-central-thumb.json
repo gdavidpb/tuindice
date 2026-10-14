@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/tu-indice-share-backgrounds/biblioteca-central/v1/thumb.webp"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "image/webp"
+    },
+    "bodyFileName": "share/biblioteca-central/v1/thumb.webp"
+  }
+}

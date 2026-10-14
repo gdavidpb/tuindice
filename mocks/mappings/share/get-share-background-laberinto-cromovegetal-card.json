@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/tu-indice-share-backgrounds/laberinto-cromovegetal/v1/card.webp"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "image/webp"
+    },
+    "bodyFileName": "share/laberinto-cromovegetal/v1/card.webp"
+  }
+}
