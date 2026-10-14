@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.presentation.navigation
 
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryForm
 import com.gdavidpb.tuindice.testing.createTestNavigator
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -21,11 +23,11 @@ class SummaryNavigationTest {
 			onNavigateToRecordAttempt = {}
 		)
 
-		navigation.onNavigateToRecord()
+		navigation.onNavigateToSection(MainSection.RECORD)
 
 		assertEquals(MainSection.RECORD, navigator.currentTab)
 
-		navigation.onNavigateToPensum()
+		navigation.onNavigateToSection(MainSection.PENSUM)
 
 		assertEquals(MainSection.PENSUM, navigator.currentTab)
 		assertEquals(listOf(SummaryDestination.Summary, PensumDestination.Pensum), navigator.backStack)
@@ -82,5 +84,47 @@ class SummaryNavigationTest {
 		navigation.onNavigateToUpdatePassword()
 
 		assertEquals(AuthDestination.UpdatePasswordDialog, navigator.currentKey)
+	}
+
+	@Test
+	fun theAddEvaluationLink_opensTheFormOverEvaluations_andBackReturnsToSummary() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigation.onOpenForm(SummaryForm.AddEvaluation)
+
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+		assertEquals(EvaluationsDestination.Evaluation(evaluationId = null), navigator.currentKey)
+
+		navigator.pop()
+
+		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
+
+		navigator.pop()
+
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+	}
+
+	@Test
+	fun theCreateTermLink_opensTheFormOverRecord_andAnAlreadyOpenFormIsNotPushedTwice() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigation.onOpenForm(SummaryForm.CreateTerm)
+		navigation.onOpenForm(SummaryForm.CreateTerm)
+
+		assertEquals(MainSection.RECORD, navigator.currentTab)
+		assertEquals(
+			listOf(
+				SummaryDestination.Summary,
+				RecordDestination.Record,
+				RecordDestination.CreateSyntheticTerm()
+			),
+			navigator.backStack
+		)
 	}
 }

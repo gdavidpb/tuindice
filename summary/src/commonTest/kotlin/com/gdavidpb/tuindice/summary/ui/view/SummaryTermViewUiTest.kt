@@ -14,7 +14,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryFinishedTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermItem
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.summary.testing.summaryPointsItem
 import com.gdavidpb.tuindice.summary.testing.summaryTermWeekItem
@@ -174,6 +178,74 @@ class SummaryTermViewUiTest {
 	}
 
 	// The card starts one spacing under the header, which is as tall as its link.
+	@Test
+	fun when_noTermIsInProgress_then_theLinkAsksForRecord_theLastFinishedOneLeadsThere_andThePlanAsksForItsForm() =
+		runTuIndiceUiTest {
+			val targets = mutableListOf<SummaryHubTarget>()
+
+			setTuIndiceTestContent {
+				SummaryTermView(
+					term = SummaryTermItem(
+						linkText = UiText.Raw("Registro"),
+						week = null,
+						summaryText = null,
+						subjects = emptyList(),
+						finished = SummaryFinishedTermItem(
+							nameText = UiText.Raw("Abr - Jul 2026"),
+							stateText = UiText.Raw("terminado"),
+							indexLabel = UiText.Raw("Índice del trimestre"),
+							indexText = "14.5000",
+							creditsLabel = UiText.Raw("Créditos aprobados"),
+							creditsText = UiText.Raw("16 UC")
+						),
+						card = SummaryCardItem(
+							icon = SummaryCardIcon.NewTerm,
+							titleText = UiText.Raw("Planifica tu próximo trimestre"),
+							messageText = UiText.Raw("Arma un trimestre con las materias que puedes inscribir."),
+							action = SummaryCardItem.Action(
+								text = UiText.Raw("Planificar"),
+								target = SummaryHubTarget.CreateTerm
+							)
+						)
+					),
+					actions = SummaryHubActions(onTargetClick = { target -> targets += target })
+				)
+			}
+
+			assertNodeVisible(SummaryUiTags.TermFinishedCard)
+			assertNodeVisible(SummaryUiTags.TermCard)
+			onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.TermSection)).performClick()
+			onNodeWithTag(SummaryUiTags.TermFinishedCard).performClick()
+			onNodeWithTag(SummaryUiTags.CardAction).performClick()
+			assertEquals(
+				listOf(SummaryHubTarget.Record, SummaryHubTarget.Record, SummaryHubTarget.CreateTerm),
+				targets
+			)
+		}
+
+	@Test
+	fun when_theTermHasNothingToShowYet_then_itsCardSaysWhatIsStillToCome() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryTermView(
+				term = term.copy(
+					week = null,
+					subjects = emptyList(),
+					summaryText = null,
+					card = SummaryCardItem(
+						icon = SummaryCardIcon.Evaluations,
+						titleText = UiText.Raw("Tus evaluaciones"),
+						messageText = UiText.Raw("Ábrelas en Evaluaciones para verlas aquí.")
+					)
+				),
+				actions = SummaryHubActions()
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.TermCard)
+		onNodeWithTag(SummaryUiTags.TermWeekText).assertDoesNotExist()
+		onNodeWithText("Ábrelas en Evaluaciones para verlas aquí.").assertIsDisplayed()
+	}
+
 	private fun ComposeUiTest.cardTop(density: Density): Float {
 		val link = onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.TermSection)).fetchSemanticsNode()
 

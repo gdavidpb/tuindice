@@ -166,6 +166,16 @@ class SummaryHubViewModelContractTest {
 					openTargetAction(SummaryHubTarget.RecordAttempt(attemptId = "attempt-CI5311"))
 				}
 				assertEquals("attempt-CI5311", assertIs<Summary.Effect.NavigateToRecordAttempt>(toAttempt).attemptId)
+
+				// The invitations of the week and of the term open their forms, each on its own tab.
+				assertEquals(
+					Summary.Effect.NavigateToAddEvaluation,
+					viewModel.effectAfter { openTargetAction(SummaryHubTarget.AddEvaluation) }
+				)
+				assertEquals(
+					Summary.Effect.NavigateToCreateTerm,
+					viewModel.effectAfter { openTargetAction(SummaryHubTarget.CreateTerm) }
+				)
 			} finally {
 				collector.cancel()
 			}

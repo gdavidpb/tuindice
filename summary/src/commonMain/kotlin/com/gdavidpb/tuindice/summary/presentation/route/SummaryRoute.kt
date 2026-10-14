@@ -5,12 +5,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.ResumedEffect
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSyncStatusText
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryForm
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
@@ -66,17 +68,7 @@ fun SummaryRoute(
 			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog ->
 				onNavigateToRemoveProfilePictureConfirmationDialog()
 
-			is Summary.Effect.NavigateToSchedule -> navigation.onOpenSchedule()
-
-			is Summary.Effect.NavigateToRecord -> navigation.onNavigateToRecord()
-
-			is Summary.Effect.NavigateToPensum -> navigation.onNavigateToPensum()
-
-			is Summary.Effect.NavigateToEvaluationsWeek ->
-				navigation.onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
-
-			is Summary.Effect.NavigateToRecordAttempt ->
-				navigation.onNavigateToRecordAttempt(effect.attemptId)
+			else -> navigation.leadTo(effect)
 		}
 	}
 
@@ -98,4 +90,26 @@ fun SummaryRoute(
 		hubActions = hubActions,
 		onUpdatePasswordClick = navigation.onNavigateToUpdatePassword
 	)
+}
+
+// The effects that lead to another screen, each one through the host's connection of it.
+private fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
+	when (effect) {
+		is Summary.Effect.NavigateToSchedule -> onOpenSchedule()
+
+		is Summary.Effect.NavigateToRecord -> onNavigateToSection(MainSection.RECORD)
+
+		is Summary.Effect.NavigateToPensum -> onNavigateToSection(MainSection.PENSUM)
+
+		is Summary.Effect.NavigateToEvaluationsWeek ->
+			onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
+
+		is Summary.Effect.NavigateToRecordAttempt -> onNavigateToRecordAttempt(effect.attemptId)
+
+		is Summary.Effect.NavigateToAddEvaluation -> onOpenForm(SummaryForm.AddEvaluation)
+
+		is Summary.Effect.NavigateToCreateTerm -> onOpenForm(SummaryForm.CreateTerm)
+
+		else -> Unit
+	}
 }

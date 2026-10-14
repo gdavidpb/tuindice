@@ -85,7 +85,7 @@ class SummaryStateMachineContractTest {
 			"HubObserved",
 			"Resumed",
 			"OpenTarget / NavigateToSchedule · NavigateToRecord · NavigateToPensum · " +
-				"NavigateToEvaluationsWeek · NavigateToRecordAttempt"
+				"NavigateToEvaluationsWeek · NavigateToRecordAttempt · NavigateToAddEvaluation · NavigateToCreateTerm"
 		)
 
 		for (fragment in expectedFragments) {

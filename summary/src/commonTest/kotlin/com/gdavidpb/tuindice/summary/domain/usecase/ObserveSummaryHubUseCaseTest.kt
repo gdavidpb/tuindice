@@ -5,6 +5,8 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
+import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
+import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableScheduleClockRepository
@@ -53,9 +55,9 @@ class ObserveSummaryHubUseCaseTest {
 		useCase.execute(Unit).test {
 			val hub = awaitLoadingThenData(this)
 
-			assertTrue(hub.week!!.classMoment!!.isInProgress)
+			assertTrue(hub.inProgressWeek().classMoment!!.isInProgress)
 			assertEquals(1, hub.attention.size)
-			assertEquals(3, hub.term?.academicWeek)
+			assertEquals(3, hub.inProgressTerm().academicWeek)
 			assertEquals(progress, hub.career)
 			cancelAndIgnoreRemainingEvents()
 		}
@@ -70,11 +72,11 @@ class ObserveSummaryHubUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitLoadingThenData(this).week!!.classMoment!!.isInProgress)
+			assertTrue(awaitLoadingThenData(this).inProgressWeek().classMoment!!.isInProgress)
 
 			clock.nowFlow.value = scheduleNow(minuteOfDay = 14 * 60)
 
-			assertEquals(false, expectData().week!!.classMoment!!.isInProgress)
+			assertEquals(false, expectData().inProgressWeek().classMoment!!.isInProgress)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -93,7 +95,7 @@ class ObserveSummaryHubUseCaseTest {
 
 			prerequisite.stateFlow.value = prerequisite.stateFlow.value.copy(isReady = true)
 
-			assertEquals(3, expectData().term?.academicWeek)
+			assertEquals(3, expectData().inProgressTerm().academicWeek)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -115,8 +117,8 @@ class ObserveSummaryHubUseCaseTest {
 			val hub = awaitLoadingThenData(this)
 
 			assertNull(hub.career)
-			assertTrue(hub.term!!.subjects.isEmpty())
-			assertEquals(3, hub.term.academicWeek)
+			assertTrue(hub.inProgressTerm().subjects.isEmpty())
+			assertEquals(3, hub.inProgressTerm().academicWeek)
 			cancelAndIgnoreRemainingEvents()
 		}
 
@@ -141,3 +143,8 @@ class ObserveSummaryHubUseCaseTest {
 		return assertIs<UseCaseState.Data<SummaryHub>>(awaitItem()).value
 	}
 }
+
+// The week and the term of a hub whose record is ready and has a term in progress.
+private fun SummaryHub.inProgressWeek(): SummaryWeek.InProgress = assertIs<SummaryWeek.InProgress>(week)
+
+private fun SummaryHub.inProgressTerm(): SummaryTerm.InProgress = assertIs<SummaryTerm.InProgress>(term)

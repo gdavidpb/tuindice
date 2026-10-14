@@ -62,6 +62,11 @@ private val summarySmoke = scenario(
 	waitVisible(SummaryUiTags.ItemsList, Within.Assert)
 	waitVisible(SummaryUiTags.StatusRow, Within.Assert)
 	waitVisible(SummaryUiTags.StatusText, Within.Assert)
+	// The term is in progress, with no class and no evaluation this week, and all its evaluations have gone by.
+	// Its card says nothing is pending once the sync has revalidated the evaluations. Until then, it says where
+	// to look for them.
+	scrollUntilVisible(SummaryUiTags.WeekCard, Scroll.ContentDown, Within.Long)
+	waitVisible(text(Copy.SummaryWeekIdleTitle), Within.Long)
 	// The hub always has the career, whatever the term: the progress of the pensum or the invitation to open it.
 	scrollUntilVisible(SummaryUiTags.CareerSection, Scroll.ContentDown, Within.Long)
 	waitVisible(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection), Within.Assert)

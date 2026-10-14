@@ -157,10 +157,11 @@ fun summaryHubItem(
 				hasPlace = false
 			)
 		),
-		hasSchedule = true
+		hasSchedule = true,
+		card = null
 	),
 	term: SummaryTermItem? = SummaryTermItem(
-		nameText = UiText.Raw("Sep - Dic 2026"),
+		linkText = UiText.Raw("Sep - Dic 2026"),
 		week = summaryTermWeekItem(),
 		// The three subjects of the rows below, with 4 + 4 + 3 credits.
 		summaryText = UiText.Raw("3 materias · 11 UC"),
@@ -168,7 +169,9 @@ fun summaryHubItem(
 			summaryPointsItem(subjectCode = "CI5311", earned = "41", nextText = "Próx.: Parcial 2 · lun 26"),
 			summaryPointsItem(subjectCode = "CI5437", earned = "18", evaluated = "25"),
 			summaryPointsItem(subjectCode = "EG1114")
-		)
+		),
+		finished = null,
+		card = null
 	),
 	career: SummaryCareerItem? = summaryCareerProgressItem()
 ) = SummaryHubItem(attention = attention, week = week, term = term, career = career)

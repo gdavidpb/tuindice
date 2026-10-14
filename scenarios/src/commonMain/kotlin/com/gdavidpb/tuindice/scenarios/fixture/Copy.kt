@@ -39,6 +39,9 @@ object Copy {
 
 	/** The line under the track: the subjects of the term and their credits ("4 materias · 16 UC"). */
 	const val SummaryTermSubjects = "4 materias · 16 UC"
+
+	/** The card of a week with nothing in it and none pending ("Nada pendiente esta semana"), looked for whole. */
+	const val SummaryWeekIdleTitle = "Nada pendiente esta semana"
 	const val NewStudentNoRecordTitle = "Aún no tienes expediente"
 	const val RecordAccessDeniedTitle = "No pudimos consultar tu expediente"
 	const val RecordAccessDeniedMessage =
@@ -112,6 +115,7 @@ object Copy {
 		CopyBinding.Resource(SummaryTermWeek3, "summary", "summary_term_week_value", listOf("3")),
 		CopyBinding.Resource(SummaryTermWeeksLeft, "summary", "summary_term_week_remaining_many", listOf("9")),
 		CopyBinding.Resource(SummaryTermSubjects, "summary", "summary_term_subjects_many", listOf("4", "16")),
+		CopyBinding.Resource(SummaryWeekIdleTitle, "summary", "summary_week_idle_title"),
 		CopyBinding.Resource(
 			ScheduleSubtitleWeek3,
 			"record",

@@ -6,13 +6,14 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
+import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
+import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.testing.HUB_CLASSES_START
 import com.gdavidpb.tuindice.summary.testing.HUB_FRIDAY
 import com.gdavidpb.tuindice.summary.testing.HUB_MONDAY
@@ -28,10 +29,11 @@ import com.gdavidpb.tuindice.summary.testing.scheduleNow
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-
 class SummaryHubBuilderTest {
 	private val today = hubDate(15)
 
@@ -54,11 +56,18 @@ class SummaryHubBuilderTest {
 		pensumProgress = null
 	)
 
+	// The week and the term of a hub that has a term in progress, read as that kind.
+	private val SummaryHub.progressWeek: SummaryWeek.InProgress?
+		get() = week as? SummaryWeek.InProgress
+
+	private val SummaryHub.progressTerm: SummaryTerm.InProgress?
+		get() = term as? SummaryTerm.InProgress
+
 	/* The class of the week */
 
 	@Test
 	fun theClassInProgress_isTheFirstThingOfTheWeek() {
-		val moment = hub().week?.classMoment
+		val moment = hub().progressWeek?.classMoment
 
 		assertNotNull(moment)
 		assertTrue(moment.isInProgress)
@@ -69,7 +78,7 @@ class SummaryHubBuilderTest {
 
 	@Test
 	fun withNoClassInProgress_theNextOneOfTodayIsTheClass() {
-		val moment = hub(now = scheduleNow(minuteOfDay = 7 * 60)).week?.classMoment
+		val moment = hub(now = scheduleNow(minuteOfDay = 7 * 60)).progressWeek?.classMoment
 
 		assertNotNull(moment)
 		assertEquals(false, moment.isInProgress)
@@ -84,7 +93,7 @@ class SummaryHubBuilderTest {
 			schedule = listOf(hubMeeting(day = HUB_MONDAY, start = 1, end = 2, classroom = "MYS-116"))
 		)
 
-		val moment = hub(attempts = listOf(mondayOnly), now = scheduleNow(minuteOfDay = 12 * 60)).week?.classMoment
+		val moment = hub(attempts = listOf(mondayOnly), now = scheduleNow(minuteOfDay = 12 * 60)).progressWeek?.classMoment
 
 		assertNotNull(moment)
 		assertEquals(false, moment.isInProgress)
@@ -94,8 +103,14 @@ class SummaryHubBuilderTest {
 	}
 
 	@Test
-	fun withNoScheduleAndNoEvaluationsThisWeek_thereIsNoWeek() {
-		assertNull(hub(attempts = listOf(hubAttempt(code = "EG1114"))).week)
+	fun withNoScheduleAndNoEvaluationsThisWeek_theWeekHasNoClassAndNoEvaluations() {
+		val week = hub(attempts = listOf(hubAttempt(code = "EG1114"))).week
+
+		assertIs<SummaryWeek.InProgress>(week)
+		assertNull(week.classMoment)
+		assertTrue(week.evaluations.isEmpty())
+		assertFalse(week.hasSchedule)
+		assertFalse(week.hasEvaluations)
 	}
 
 	@Test
@@ -103,7 +118,7 @@ class SummaryHubBuilderTest {
 		val week = hub(
 			attempts = listOf(hubAttempt(code = "EG1114")),
 			evaluations = listOf(hubEvaluation(id = "e1", code = "EG1114", date = hubDate(16)))
-		).week
+		).progressWeek
 
 		assertNotNull(week)
 		assertNull(week.classMoment)
@@ -113,15 +128,18 @@ class SummaryHubBuilderTest {
 	@Test
 	fun aWithdrawnSubject_hasNoClass() {
 		val withdrawn = classesOnThursday.copy(withdrawn = true)
+		val week = hub(attempts = listOf(withdrawn)).week
 
-		assertNull(hub(attempts = listOf(withdrawn)).week)
+		assertIs<SummaryWeek.InProgress>(week)
+		assertNull(week.classMoment)
+		assertFalse(week.hasSchedule)
 	}
 
 	@Test
 	fun aSubjectGradedPassOrFail_isStillAClassInProgress() {
 		val qualitative = classesOnThursday.copy(gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL)
 
-		val week = hub(attempts = listOf(qualitative)).week
+		val week = hub(attempts = listOf(qualitative)).progressWeek
 
 		val moment = week?.classMoment
 
@@ -138,7 +156,7 @@ class SummaryHubBuilderTest {
 			gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL
 		)
 
-		val moment = hub(attempts = listOf(qualitative), now = scheduleNow(minuteOfDay = 12 * 60)).week?.classMoment
+		val moment = hub(attempts = listOf(qualitative), now = scheduleNow(minuteOfDay = 12 * 60)).progressWeek?.classMoment
 
 		assertNotNull(moment)
 		assertEquals(false, moment.isInProgress)
@@ -150,15 +168,15 @@ class SummaryHubBuilderTest {
 		val onlyAnEvaluation = hub(
 			attempts = listOf(hubAttempt(code = "EG1114")),
 			evaluations = listOf(hubEvaluation(id = "e1", code = "EG1114", date = hubDate(16)))
-		).week
-		val withClasses = hub().week
+		).progressWeek
+		val withClasses = hub().progressWeek
 		val onlyAQualitativeSubjectHasClasses = hub(
 			attempts = listOf(
 				hubAttempt(code = "EG1114"),
 				classesOnThursday.copy(gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL)
 			),
 			evaluations = listOf(hubEvaluation(id = "e1", code = "EG1114", date = hubDate(16)))
-		).week
+		).progressWeek
 
 		assertEquals(false, onlyAnEvaluation?.hasSchedule)
 		assertEquals(true, withClasses?.hasSchedule)
@@ -178,7 +196,7 @@ class SummaryHubBuilderTest {
 			hubEvaluation(id = "monday", code = "CI5437", date = hubDate(12))
 		)
 
-		val week = hub(evaluations = evaluations).week
+		val week = hub(evaluations = evaluations).progressWeek
 
 		assertNotNull(week)
 		assertEquals(listOf("today", "tomorrow", "sunday"), week.evaluations.map { it.evaluationId })
@@ -191,7 +209,7 @@ class SummaryHubBuilderTest {
 			.copy(scheduleMode = EvaluationScheduleMode.CONTINUOUS)
 		val undated = hubEvaluation(id = "undated", code = "CI5437", date = null)
 
-		val week = hub(evaluations = listOf(continuous, undated)).week
+		val week = hub(evaluations = listOf(continuous, undated)).progressWeek
 
 		assertNotNull(week)
 		assertTrue(week.evaluations.isEmpty())
@@ -213,7 +231,7 @@ class SummaryHubBuilderTest {
 		)
 
 		val byId = hub(attempts = listOf(twoDays), evaluations = evaluations)
-			.week!!.evaluations.associateBy { it.evaluationId }
+			.progressWeek!!.evaluations.associateBy { it.evaluationId }
 
 		assertEquals(3, byId.getValue("thursday").meeting?.startBlock)
 		assertEquals("MYS-210", byId.getValue("thursday").meeting?.classroom)
@@ -230,7 +248,7 @@ class SummaryHubBuilderTest {
 			hubEvaluation(id = "essay", code = "CI5437", date = hubDate(17), type = EvaluationType.ESSAY)
 		)
 
-		val byId = hub(evaluations = evaluations).week!!.evaluations.associateBy { it.evaluationId }
+		val byId = hub(evaluations = evaluations).progressWeek!!.evaluations.associateBy { it.evaluationId }
 
 		assertEquals(setOf("second", "essay"), byId.keys)
 		assertEquals(2, byId.getValue("second").ordinal)
@@ -244,7 +262,7 @@ class SummaryHubBuilderTest {
 
 		val result = hub(evaluations = listOf(orphan, overdueOrphan))
 
-		assertTrue(result.week!!.evaluations.isEmpty())
+		assertTrue(result.progressWeek!!.evaluations.isEmpty())
 		assertTrue(result.attention.isEmpty())
 	}
 
@@ -252,13 +270,13 @@ class SummaryHubBuilderTest {
 
 	@Test
 	fun theWeekOfTheTerm_isCountedFromTheDayClassesStarted() {
-		assertEquals(3, hub().term?.academicWeek)
-		assertEquals(1, hub(now = scheduleNow(date = hubDate(4), dayOfWeek = HUB_FRIDAY)).term?.academicWeek)
+		assertEquals(3, hub().progressTerm?.academicWeek)
+		assertEquals(1, hub(now = scheduleNow(date = hubDate(4), dayOfWeek = HUB_FRIDAY)).progressTerm?.academicWeek)
 	}
 
 	@Test
 	fun withoutAStartDate_theWeekIsCountedFromThePeriodsFirstMonth() {
-		assertEquals(7, hub(classesStartDate = null).term?.academicWeek)
+		assertEquals(7, hub(classesStartDate = null).progressTerm?.academicWeek)
 	}
 
 	@Test
@@ -266,9 +284,9 @@ class SummaryHubBuilderTest {
 		val afterTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 12, 28), dayOfWeek = HUB_MONDAY))
 		val beforeTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 9, 20), dayOfWeek = 1))
 
-		assertNull(afterTheTerm.term?.academicWeek)
-		assertNull(beforeTheTerm.term?.academicWeek)
-		assertEquals(AcademicTermPeriod.SEP_DEC, afterTheTerm.term?.periodCode)
+		assertNull(afterTheTerm.progressTerm?.academicWeek)
+		assertNull(beforeTheTerm.progressTerm?.academicWeek)
+		assertEquals(AcademicTermPeriod.SEP_DEC, afterTheTerm.progressTerm?.periodCode)
 	}
 
 	@Test
@@ -279,7 +297,7 @@ class SummaryHubBuilderTest {
 			hubEvaluation(id = "e3", code = "CI5437", date = hubDate(30)).copy(maxGrade = 30.0)
 		)
 
-		val points = hub(evaluations = evaluations).term!!.subjects.single().points
+		val points = hub(evaluations = evaluations).progressTerm!!.subjects.single().points
 
 		assertNotNull(points)
 		assertEquals(18.0, points.earned)
@@ -290,7 +308,7 @@ class SummaryHubBuilderTest {
 	fun aSubjectWithEvaluationsButNoGrade_hasPointsWithNoneGraded() {
 		val evaluations = listOf(hubEvaluation(id = "e1", code = "CI5437", date = hubDate(30)))
 
-		val points = hub(evaluations = evaluations).term!!.subjects.single().points
+		val points = hub(evaluations = evaluations).progressTerm!!.subjects.single().points
 
 		assertNotNull(points)
 		assertEquals(0, points.gradedCount)
@@ -299,7 +317,7 @@ class SummaryHubBuilderTest {
 
 	@Test
 	fun aSubjectWithNoEvaluationRegistered_hasNoPoints() {
-		val subject = hub(attempts = listOf(classesOnThursday)).term!!.subjects.single()
+		val subject = hub(attempts = listOf(classesOnThursday)).progressTerm!!.subjects.single()
 
 		assertNull(subject.points)
 	}
@@ -308,8 +326,8 @@ class SummaryHubBuilderTest {
 	fun withTheEvaluationsNotDownloaded_noSubjectSaysItHasNoGrades() {
 		val result = hub(evaluations = emptyList(), hasSyncedEvaluations = false)
 
-		assertTrue(result.term!!.subjects.isEmpty())
-		assertEquals(3, result.term.academicWeek)
+		assertTrue(result.progressTerm!!.subjects.isEmpty())
+		assertEquals(3, result.progressTerm!!.academicWeek)
 	}
 
 	@Test
@@ -321,7 +339,7 @@ class SummaryHubBuilderTest {
 			hubAttempt(code = "FS1111", gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL)
 		)
 
-		val subjects = hub(attempts = attempts).term!!.subjects
+		val subjects = hub(attempts = attempts).progressTerm!!.subjects
 
 		assertEquals(listOf("CI5311", "MA1111"), subjects.map { it.subjectCode })
 	}
@@ -335,7 +353,7 @@ class SummaryHubBuilderTest {
 			hubAttempt(code = "MA1111", withdrawn = true).copy(credits = 9)
 		)
 
-		val term = hub(attempts = attempts).term!!
+		val term = hub(attempts = attempts).progressTerm!!
 
 		assertEquals(listOf(4, 4, 3), term.subjects.map { it.credits })
 		assertEquals(11, term.credits)
@@ -344,7 +362,7 @@ class SummaryHubBuilderTest {
 	@Test
 	fun theWeeksLeft_areTheWeeksAfterTheOneTheTermIsIn_andZeroInTheTwelfth() {
 		fun weeksLeftOn(date: LocalDate, dayOfWeek: Int) =
-			hub(now = scheduleNow(date = date, dayOfWeek = dayOfWeek)).term?.weeksLeft
+			hub(now = scheduleNow(date = date, dayOfWeek = dayOfWeek)).progressTerm?.weeksLeft
 
 		assertEquals(9, weeksLeftOn(today, HUB_THURSDAY))
 		assertEquals(1, weeksLeftOn(LocalDate(2026, 12, 9), HUB_WEDNESDAY))
@@ -356,8 +374,8 @@ class SummaryHubBuilderTest {
 		val afterTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 12, 28), dayOfWeek = HUB_MONDAY))
 		val beforeTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 9, 20), dayOfWeek = 1))
 
-		assertNull(afterTheTerm.term?.weeksLeft)
-		assertNull(beforeTheTerm.term?.weeksLeft)
+		assertNull(afterTheTerm.progressTerm?.weeksLeft)
+		assertNull(beforeTheTerm.progressTerm?.weeksLeft)
 	}
 
 	@Test
@@ -369,7 +387,7 @@ class SummaryHubBuilderTest {
 		val ungraded = hubEvaluation(id = "u", code = "CI5437", date = hubDate(30))
 
 		fun evaluatedOf(evaluations: List<Evaluation>) =
-			hub(evaluations = evaluations).term!!.subjects.single().evaluatedOfTotal
+			hub(evaluations = evaluations).progressTerm!!.subjects.single().evaluatedOfTotal
 
 		assertEquals(60.0, evaluatedOf(graded.take(3) + ungraded))
 		assertEquals(100.0, evaluatedOf(graded))
@@ -387,7 +405,7 @@ class SummaryHubBuilderTest {
 				.copy(scheduleMode = EvaluationScheduleMode.CONTINUOUS)
 		)
 
-		val next = hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation
+		val next = hub(evaluations = evaluations).progressTerm!!.subjects.single().nextEvaluation
 
 		assertEquals("today", next?.evaluationId)
 		assertEquals(true, next?.isToday)
@@ -401,11 +419,12 @@ class SummaryHubBuilderTest {
 			hubEvaluation(id = "essay", code = "CI5437", date = hubDate(27), type = EvaluationType.ESSAY)
 		)
 
-		val next = hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation
+		val next = hub(evaluations = evaluations).progressTerm!!.subjects.single().nextEvaluation
 
 		assertEquals(
 			SummaryNextEvaluation(
 				evaluationId = "test-2",
+				subjectCode = "CI5437",
 				type = EvaluationType.TEST,
 				ordinal = 2,
 				date = hubDate(26),
@@ -418,7 +437,7 @@ class SummaryHubBuilderTest {
 	@Test
 	fun aTieOnTheDayOfTheNextEvaluation_goesToItsNumberThenItsId_whateverTheOrderGiven() {
 		fun nextOf(evaluations: List<Evaluation>) =
-			hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation?.evaluationId
+			hub(evaluations = evaluations).progressTerm!!.subjects.single().nextEvaluation?.evaluationId
 
 		// The essay is the first of its day by number (1 against the second test's 2), whatever its id.
 		val byNumber = listOf(
@@ -444,7 +463,7 @@ class SummaryHubBuilderTest {
 			hubEvaluation(id = "graded", code = "CI5437", date = hubDate(30), grade = 10.0)
 		)
 
-		assertNull(hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation)
+		assertNull(hub(evaluations = evaluations).progressTerm!!.subjects.single().nextEvaluation)
 	}
 
 	/* What needs attention */
@@ -585,25 +604,6 @@ class SummaryHubBuilderTest {
 	}
 
 	@Test
-	fun withNoCurrentTerm_onlyTheCareerRemains() {
-		val progress = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
-		val historical = hubTerm(attempts = listOf(classesOnThursday), kind = TermKind.HISTORICAL)
-
-		val result = buildSummaryHub(
-			record = hubRecord(historical),
-			isRecordReady = true,
-			evaluations = ObservedSyncedSnapshot(
-				value = listOf(hubEvaluation(id = "late", code = "CI5437", date = hubDate(8))),
-				hasSynced = true
-			),
-			now = scheduleNow(),
-			pensumProgress = progress
-		)
-
-		assertEquals(SummaryHub.Empty.copy(career = progress), result)
-	}
-
-	@Test
 	fun withNoRecord_orARecordNotReady_onlyTheCareerRemains() {
 		val progress = PensumCreditsProgress(approvedCredits = 10, totalCredits = 20)
 		val record = hubRecord(hubTerm(attempts = listOf(classesOnThursday)))
@@ -632,6 +632,6 @@ class SummaryHubBuilderTest {
 			pensumProgress = null
 		)
 
-		assertEquals(listOf("NEW1111"), result.term!!.subjects.map { it.subjectCode })
+		assertEquals(listOf("NEW1111"), result.progressTerm!!.subjects.map { it.subjectCode })
 	}
 }

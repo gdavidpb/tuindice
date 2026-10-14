@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
@@ -99,8 +100,13 @@ class SummaryRouteHubUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				navigation = SummaryNavDependencies(
-					onNavigateToRecord = { recordOpens++ },
-					onNavigateToPensum = { pensumOpens++ },
+					onNavigateToSection = { section ->
+						when (section) {
+							MainSection.RECORD -> recordOpens++
+							MainSection.PENSUM -> pensumOpens++
+							else -> Unit
+						}
+					},
 					onNavigateToRecordAttempt = { attemptId -> recordAttempts += attemptId }
 				),
 				viewModel = viewModel

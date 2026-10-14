@@ -27,12 +27,21 @@ object SummaryUiTags {
 	const val WeekSection = "summary_week_section"
 	const val WeekClassRow = "summary_week_class_row"
 	const val WeekClassPill = "summary_week_class_pill"
+	const val WeekCard = "summary_week_card"
 
 	const val TermSection = "summary_term_section"
 	const val TermWeekText = "summary_term_week_text"
 	const val TermWeekTrack = "summary_term_week_track"
 	const val TermWeekRemaining = "summary_term_week_remaining"
 	const val TermSummary = "summary_term_summary"
+	const val TermCard = "summary_term_card"
+	const val TermFinishedCard = "summary_term_finished_card"
+	const val TermFinishedName = "summary_term_finished_name"
+	const val TermFinishedIndex = "summary_term_finished_index"
+	const val TermFinishedCredits = "summary_term_finished_credits"
+
+	// The button of a card that offers one (the invitations to add an evaluation or to plan a term).
+	const val CardAction = "summary_card_action"
 
 	const val CareerSection = "summary_career_section"
 	const val CareerCard = "summary_career_card"

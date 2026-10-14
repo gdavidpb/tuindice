@@ -4,13 +4,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryWeekItem
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
@@ -38,6 +43,59 @@ class SummaryWeekViewUiTest {
 		assertNodeVisible(SummaryUiTags.WeekClassRow)
 		assertNodeVisible(SummaryUiTags.weekEvaluationRow("evaluation-1"))
 		assertNodeVisible(SummaryUiTags.weekEvaluationRow("evaluation-2"))
+	}
+
+	@Test
+	fun when_theTermHasNoEvaluationYet_then_theCardUnderTheClassInvitesToAddOne_andItsButtonAsksForTheForm() =
+		runTuIndiceUiTest {
+			val asked = mutableListOf<SummaryHubTarget>()
+
+			setTuIndiceTestContent {
+				SummaryWeekView(
+					week = week.copy(
+						evaluations = emptyList(),
+						card = SummaryCardItem(
+							icon = SummaryCardIcon.Evaluations,
+							titleText = UiText.Raw("Agrega tus evaluaciones"),
+							messageText = UiText.Raw("Parciales, quices y proyectos: los verás aquí y llevarás tus puntos."),
+							action = SummaryCardItem.Action(
+								text = UiText.Raw("Agregar evaluación"),
+								target = SummaryHubTarget.AddEvaluation
+							)
+						)
+					),
+					actions = SummaryHubActions(onTargetClick = { target -> asked += target })
+				)
+			}
+
+			assertNodeVisible(SummaryUiTags.WeekClassRow)
+			assertNodeVisible(SummaryUiTags.WeekCard)
+			onNodeWithText("Agrega tus evaluaciones").assertIsDisplayed()
+			onNodeWithTag(SummaryUiTags.CardAction).performClick()
+			assertEquals(listOf<SummaryHubTarget>(SummaryHubTarget.AddEvaluation), asked)
+		}
+
+	@Test
+	fun when_theWeekHasNoRows_then_itsCardSaysWhatItLacks_andNoRowIsThere() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryWeekView(
+				week = SummaryWeekItem(
+					classRow = null,
+					evaluations = emptyList(),
+					hasSchedule = false,
+					card = SummaryCardItem(
+						icon = SummaryCardIcon.Calendar,
+						titleText = UiText.Raw("Sin clases esta semana"),
+						messageText = UiText.Raw("Cuando inscribas, aquí verás tus clases y evaluaciones.")
+					)
+				),
+				actions = SummaryHubActions()
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.WeekClassRow).assertDoesNotExist()
+		onNodeWithTag(SummaryUiTags.WeekCard).assertHasNoClickAction()
+		onNodeWithText("Sin clases esta semana").assertIsDisplayed()
 	}
 
 	@Test

@@ -28,8 +28,9 @@ import tuindice.summary.generated.resources.summary_section_term
  * "Trimestre": which week of the term it is, with the track of its twelve weeks and what is left of them, how many
  * subjects it has and their credits, and the points of each subject. Its link, the name of the term, opens the
  * Record; each subject's row opens the Record on that subject's attempt. Outside weeks 1 to 12 the week, what is
- * left of it and its track are not there, and the subjects remain with their line. With no subject to show (nothing
- * downloaded) only the week remains. Whichever of the two is there, the card keeps the same space above and below it.
+ * left of it and its track are not there, and the subjects remain with their line. With no term in progress the
+ * link leads to the Record, the last term that is over comes first and then the invitation to plan the next one, or
+ * the first one to come. A term with nothing to show yet says so in a card of its own.
  */
 @Composable
 fun SummaryTermView(
@@ -37,8 +38,6 @@ fun SummaryTermView(
 	actions: SummaryHubActions,
 	modifier: Modifier = Modifier
 ) {
-	val secondary = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
-
 	Column(
 		modifier = modifier
 			.fillMaxWidth()
@@ -47,47 +46,75 @@ fun SummaryTermView(
 	) {
 		SummarySectionHeaderView(
 			title = stringResource(Res.string.summary_section_term),
-			linkText = term.nameText.asString(),
+			linkText = term.linkText?.asString(),
 			onLinkClick = { actions.onTargetClick(SummaryHubTarget.Record) },
 			sectionTag = SummaryUiTags.TermSection
 		)
 
-		SummaryHubCardView {
-			Column(
-				modifier = Modifier.padding(
-					start = TuIndiceSpacing.Screen,
-					top = if (term.week != null) TuIndiceSpacing.Screen else TermTopWithoutWeek,
-					end = TuIndiceSpacing.Screen,
-					// With no rows under them the week and the line are the last thing of the card.
-					bottom = if (term.subjects.isEmpty()) TuIndiceSpacing.Screen else TuIndiceSpacing.Small
-				),
-				verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
-			) {
-				term.week?.let { week -> TermWeekView(week = week) }
+		term.finished?.let { finished ->
+			SummaryFinishedTermView(
+				item = finished,
+				onClick = { actions.onTargetClick(SummaryHubTarget.Record) }
+			)
+		}
 
-				term.summaryText?.let { summary ->
-					Text(
-						modifier = Modifier.testTag(SummaryUiTags.TermSummary),
-						text = summary.asString(),
-						style = MaterialTheme.typography.bodyMedium,
-						color = secondary
-					)
-				}
-			}
+		if (term.card == null) {
+			TermCardView(term = term, actions = actions)
+		}
 
-			term.subjects.forEach { subject ->
-				SummaryPointsRowView(
-					modifier = Modifier.testTag(SummaryUiTags.termPointsRow(subject.subjectCode)),
-					item = subject,
-					onClick = {
-						actions.onTargetClick(SummaryHubTarget.RecordAttempt(attemptId = subject.attemptId))
-					}
+		term.card?.let { card ->
+			SummaryCardView(
+				item = card,
+				actions = actions,
+				modifier = Modifier.testTag(SummaryUiTags.TermCard)
+			)
+		}
+	}
+}
+
+// The card of the term in progress with something to show: its week, its summary line and the points of each subject.
+@Composable
+private fun TermCardView(
+	term: SummaryTermItem,
+	actions: SummaryHubActions
+) {
+	val secondary = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+
+	SummaryHubCardView {
+		Column(
+			modifier = Modifier.padding(
+				start = TuIndiceSpacing.Screen,
+				top = if (term.week != null) TuIndiceSpacing.Screen else TermTopWithoutWeek,
+				end = TuIndiceSpacing.Screen,
+				// With no rows under them the week and the line are the last thing of the card.
+				bottom = if (term.subjects.isEmpty()) TuIndiceSpacing.Screen else TuIndiceSpacing.Small
+			),
+			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
+		) {
+			term.week?.let { week -> TermWeekView(week = week) }
+
+			term.summaryText?.let { summary ->
+				Text(
+					modifier = Modifier.testTag(SummaryUiTags.TermSummary),
+					text = summary.asString(),
+					style = MaterialTheme.typography.bodyMedium,
+					color = secondary
 				)
 			}
+		}
 
-			if (term.subjects.isNotEmpty()) {
-				Spacer(modifier = Modifier.height(TuIndiceSpacing.Medium))
-			}
+		term.subjects.forEach { subject ->
+			SummaryPointsRowView(
+				modifier = Modifier.testTag(SummaryUiTags.termPointsRow(subject.subjectCode)),
+				item = subject,
+				onClick = {
+					actions.onTargetClick(SummaryHubTarget.RecordAttempt(attemptId = subject.attemptId))
+				}
+			)
+		}
+
+		if (term.subjects.isNotEmpty()) {
+			Spacer(modifier = Modifier.height(TuIndiceSpacing.Medium))
 		}
 	}
 }

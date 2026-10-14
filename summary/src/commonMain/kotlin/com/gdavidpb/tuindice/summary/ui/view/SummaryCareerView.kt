@@ -10,12 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.AccountTree
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,14 +23,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -78,7 +74,18 @@ fun SummaryCareerView(
 				onClick = { actions.onTargetClick(SummaryHubTarget.Pensum) }
 			)
 
-			SummaryCareerItem.Invite -> CareerInviteCard(onClick = { actions.onTargetClick(SummaryHubTarget.Pensum) })
+			SummaryCareerItem.Invite -> SummaryCardView(
+				item = SummaryCardItem(
+					icon = SummaryCardIcon.Career,
+					titleText = UiText.Resource(Res.string.summary_career_invite_title),
+					messageText = UiText.Resource(Res.string.summary_career_invite_message),
+					target = SummaryHubTarget.Pensum,
+					targetLabel = UiText.Resource(Res.string.a11y_summary_open_pensum)
+				),
+				actions = actions,
+				modifier = Modifier.testTag(SummaryUiTags.CareerInviteCard),
+				footer = { CareerBar(fraction = 0f, description = null) }
+			)
 		}
 	}
 }
@@ -121,62 +128,6 @@ private fun CareerProgressCard(
 			}
 
 			CareerBar(fraction = career.fraction, description = career.description.asString())
-		}
-	}
-}
-
-@Composable
-private fun CareerInviteCard(onClick: () -> Unit) {
-	SummaryHubCardView(
-		modifier = Modifier
-			.testTag(SummaryUiTags.CareerInviteCard)
-			.clickable(
-				onClickLabel = stringResource(Res.string.a11y_summary_open_pensum),
-				role = Role.Button,
-				onClick = onClick
-			)
-	) {
-		Column(
-			modifier = Modifier.padding(TuIndiceSpacing.Screen),
-			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
-		) {
-			Row(
-				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge),
-				verticalAlignment = Alignment.CenterVertically
-			) {
-				Icon(
-					modifier = Modifier.size(TuIndiceComponentSizes.Icon),
-					imageVector = Icons.Outlined.AccountTree,
-					contentDescription = null,
-					tint = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-
-				Column(
-					modifier = Modifier.weight(1f),
-					verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Two)
-				) {
-					Text(
-						text = stringResource(Res.string.summary_career_invite_title),
-						style = MaterialTheme.typography.bodyLarge,
-						fontWeight = FontWeight.SemiBold
-					)
-
-					Text(
-						text = stringResource(Res.string.summary_career_invite_message),
-						style = MaterialTheme.typography.bodyMedium,
-						color = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
-					)
-				}
-
-				Icon(
-					modifier = Modifier.size(TuIndiceComponentSizes.IconMedium),
-					imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-					contentDescription = null,
-					tint = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Muted)
-				)
-			}
-
-			CareerBar(fraction = 0f, description = null)
 		}
 	}
 }

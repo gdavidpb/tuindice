@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
 import androidx.compose.runtime.Stable
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import kotlinx.datetime.LocalDate
 
 /**
@@ -11,14 +12,14 @@ import kotlinx.datetime.LocalDate
 class SummaryNavDependencies(
 	// The sheet that asks the student to enter the password again (the sync status icon leads there).
 	val onNavigateToUpdatePassword: () -> Unit = {},
-	// The Record tab (the term, and the enrollment errors).
-	val onNavigateToRecord: () -> Unit = {},
-	// The Pensum tab (the career).
-	val onNavigateToPensum: () -> Unit = {},
+	// The tab of the section: the Record tab (the term, and the enrollment errors) and the Pensum tab (the career).
+	val onNavigateToSection: (section: MainSection) -> Unit = {},
 	// The Evaluations tab on the week that this Monday opens, with that evaluation brought into view.
 	val onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
 	// The Record tab on the term of that attempt, with its card brought into view.
 	val onNavigateToRecordAttempt: (attemptId: String) -> Unit = {},
 	// The Schedule sheet, over Summary.
-	val onOpenSchedule: () -> Unit = {}
+	val onOpenSchedule: () -> Unit = {},
+	// The form, on the tab it belongs to.
+	val onOpenForm: (form: SummaryForm) -> Unit = {}
 )

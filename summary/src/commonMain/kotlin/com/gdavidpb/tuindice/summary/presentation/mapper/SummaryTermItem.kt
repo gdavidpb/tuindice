@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermWeekItem
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_evaluation_name
+import tuindice.summary.generated.resources.summary_link_record
 import tuindice.summary.generated.resources.summary_points_evaluated
 import tuindice.summary.generated.resources.summary_points_no_evaluations
 import tuindice.summary.generated.resources.summary_points_none
@@ -30,22 +31,42 @@ import tuindice.summary.generated.resources.summary_term_week_rest
 import tuindice.summary.generated.resources.summary_term_week_value
 
 /**
- * The term as the screen shows it, or null when it would have nothing under its name: no week to
- * say (outside weeks 1 to 12) and no subject whose points are known.
+ * The term as the screen shows it. A term in progress with nothing to show (no week and no subject whose points are
+ * known) says what is still to come in its card; with none in progress, the link leads to Registro, the last finished
+ * term comes first if there is one, and then the invitation to plan the next one (or the first one, for a new student).
  */
-fun SummaryTerm.toSummaryTermItemOrNull(): SummaryTermItem? {
-	if (academicWeek == null && subjects.isEmpty()) return null
+fun SummaryTerm.toSummaryTermItem(): SummaryTermItem {
+	return when (this) {
+		is SummaryTerm.InProgress -> toInProgressItem()
+
+		is SummaryTerm.Idle -> SummaryTermItem(
+			linkText = if (hasTerms) UiText.Resource(Res.string.summary_link_record) else null,
+			week = null,
+			summaryText = null,
+			subjects = emptyList(),
+			finished = finished?.toSummaryFinishedTermItem(),
+			card = if (hasTerms) planTermCard() else firstTermCard()
+		)
+	}
+}
+
+private fun SummaryTerm.InProgress.toInProgressItem(): SummaryTermItem {
+	val week = toSummaryTermWeekItemOrNull()
+	val subjectItems = subjects.map { subject -> subject.toSummarySubjectPointsItem() }
+	val hasContent = week != null || subjectItems.isNotEmpty()
 
 	return SummaryTermItem(
-		nameText = UiText.Raw("${periodCode.shortLabel} $periodYear"),
-		week = toSummaryTermWeekItemOrNull(),
+		linkText = UiText.Raw("${periodCode.shortLabel} $periodYear"),
+		week = week,
 		summaryText = toSummaryTextOrNull(),
-		subjects = subjects.map { subject -> subject.toSummarySubjectPointsItem() }
+		subjects = subjectItems,
+		finished = null,
+		card = if (hasContent) null else evaluationsPendingCard()
 	)
 }
 
 // The week and what is left of the term come together or not at all: both are counted from the week it is in.
-private fun SummaryTerm.toSummaryTermWeekItemOrNull(): SummaryTermWeekItem? {
+private fun SummaryTerm.InProgress.toSummaryTermWeekItemOrNull(): SummaryTermWeekItem? {
 	val week = academicWeek
 	val weeksLeft = weeksLeft
 
@@ -75,7 +96,7 @@ private fun Int.toRemainingText(): UiText {
 }
 
 // "4 materias · 16 UC": how many subjects the rows are, and the credits they add up to. Absent with no rows.
-private fun SummaryTerm.toSummaryTextOrNull(): UiText? {
+private fun SummaryTerm.InProgress.toSummaryTextOrNull(): UiText? {
 	val count = subjects.size
 	if (count == 0) return null
 
@@ -113,17 +134,24 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 
 // "Próx.: Parcial 2 · lun 26": the name of the evaluation, then its day the way the hub writes a day ("hoy" today).
 private fun SummaryNextEvaluation.toNextText(): UiText {
-	val name = UiText.Resource(
+	return UiText.Resource(Res.string.summary_term_next_evaluation, listOf(toNameText(), toDayText()))
+}
+
+// The name an evaluation has on the hub: its type and its number among those of its subject ("Parcial 2").
+internal fun SummaryNextEvaluation.toNameText(): UiText {
+	return UiText.Resource(
 		Res.string.summary_evaluation_name,
 		listOf(UiText.Resource(type.toLabelResource()), ordinal)
 	)
-	val day = if (isToday) {
+}
+
+// The day of an evaluation the way the hub writes a day in a sentence: "hoy" for today, "lun 26" for any other.
+internal fun SummaryNextEvaluation.toDayText(): UiText {
+	return if (isToday) {
 		UiText.Resource(Res.string.summary_term_next_today)
 	} else {
 		UiText.Resource(Res.string.summary_day_date, listOf(date.dayOfWeek.toShortNameText(), date.day))
 	}
-
-	return UiText.Resource(Res.string.summary_term_next_evaluation, listOf(name, day))
 }
 
 // 41 and not 41.00, the way the Evaluations tab writes a grade that has no decimals.

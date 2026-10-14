@@ -15,32 +15,25 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
-import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMoment
 import com.gdavidpb.tuindice.academiccore.domain.model.classesStartLocalDate
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
-import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
-import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
-import com.gdavidpb.tuindice.summary.domain.model.SummaryWeekEvaluation
-import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
-
-private const val MAX_ATTENTION_POINTS = 3
-private const val LAST_DAY_OF_WEEK_OFFSET = 6
 
 /**
  * Reads everything the hub says from what is stored and the moment it is asked, with no clock of its
- * own: [now] carries both the instant and the day, and the state of every evaluation is told for
- * that day. Without a ready record or a current term in it there is nothing to say about the term,
- * and only the career remains.
+ * own: [now] carries both the instant and the day, and the state of every evaluation is told for that day.
+ *
+ * Without a ready record there is nothing to say about the week or the term, and only the career remains.
+ * With a ready record both are always there: the term in progress when the record has one, and otherwise
+ * what the record says of the terms it has (the last one that is over, and whether it has any at all).
  */
 fun buildSummaryHub(
 	record: AcademicRecord?,
@@ -49,12 +42,37 @@ fun buildSummaryHub(
 	now: ScheduleNow,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
-	val term = record
-		?.takeIf { isRecordReady }
-		?.terms
-		?.currentTermOrNull(kind = AcademicTerm::kind, termOrder = AcademicTerm::termOrder, id = AcademicTerm::id)
+	val readyRecord = record?.takeIf { isRecordReady }
 		?: return SummaryHub.Empty.copy(career = pensumProgress)
 
+	val term = readyRecord.terms
+		.currentTermOrNull(kind = AcademicTerm::kind, termOrder = AcademicTerm::termOrder, id = AcademicTerm::id)
+
+	return if (term == null) {
+		idleHubOf(readyRecord = readyRecord, pensumProgress = pensumProgress)
+	} else {
+		inProgressHubOf(term = term, evaluations = evaluations, now = now, pensumProgress = pensumProgress)
+	}
+}
+
+// No term in progress: nothing is attended to, and the week and the term say only what the record has of its terms.
+private fun idleHubOf(readyRecord: AcademicRecord, pensumProgress: PensumCreditsProgress?): SummaryHub {
+	val hasTerms = readyRecord.terms.isNotEmpty()
+
+	return SummaryHub(
+		attention = emptyList(),
+		week = SummaryWeek.Idle(hasTerms = hasTerms),
+		term = SummaryTerm.Idle(hasTerms = hasTerms, finished = finishedTermOf(readyRecord)),
+		career = pensumProgress
+	)
+}
+
+private fun inProgressHubOf(
+	term: AcademicTerm,
+	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
+	now: ScheduleNow,
+	pensumProgress: PensumCreditsProgress?
+): SummaryHub {
 	// Those of an attempt the record no longer has (or one that was withdrawn, or is not graded in
 	// numbers) are not the term's: they stay out of everything below.
 	val subjects = term.attempts.filter { attempt -> attempt.isEvaluable() }
@@ -66,6 +84,7 @@ fun buildSummaryHub(
 		attention = attentionOf(term = term, evaluations = termEvaluations, today = now.date),
 		week = weekOf(
 			evaluations = termEvaluations,
+			hasSyncedEvaluations = evaluations.hasSynced,
 			meetingsByAttempt = meetingsByAttempt,
 			now = now
 		),
@@ -84,63 +103,8 @@ private fun AcademicAttempt.isEvaluable(): Boolean {
 	return !withdrawn && gradingMode == AttemptGradingMode.NUMERIC
 }
 
-// The ungraded ones go first (they are the most urgent and there is a single line for all), then the
-// subjects the university refused part of, by code; three at most.
-private fun attentionOf(
-	term: AcademicTerm,
-	evaluations: List<Evaluation>,
-	today: LocalDate
-): List<SummaryAttention> {
-	val ungraded = ungradedEvaluationsOf(evaluations = evaluations, today = today)
-	val enrollmentErrors = term.attempts
-		.filter { attempt -> !attempt.withdrawn }
-		.mapNotNull { attempt ->
-			attempt.enrollmentErrors
-				.orEmpty()
-				.map { error -> error.trim() }
-				.firstOrNull { error -> error.isNotEmpty() }
-				?.let { error ->
-					SummaryAttention.EnrollmentError(
-						subjectCode = attempt.subjectCode,
-						error = error,
-						attemptId = attempt.id
-					)
-				}
-		}
-		.sortedBy(SummaryAttention.EnrollmentError::subjectCode)
-
-	return (listOfNotNull(ungraded) + enrollmentErrors).take(MAX_ATTENTION_POINTS)
-}
-
-// The oldest is the first by its day, then by subject code, its number on the Evaluations tab and its
-// id: the order the week lists use, so the same evaluation is the one the jump lands on from any line.
-private fun ungradedEvaluationsOf(
-	evaluations: List<Evaluation>,
-	today: LocalDate
-): SummaryAttention.UngradedEvaluations? {
-	val overdue = evaluations
-		.filter { evaluation -> evaluation.stateOn(today) == EvaluationState.OVERDUE }
-		.mapNotNull { evaluation -> evaluation.date?.toLocalDate()?.let { date -> evaluation to date } }
-
-	val ordinals = EvaluationOrdinalEngine.ordinalsById(evaluations)
-	val (oldest, oldestDate) = overdue.minWithOrNull(
-		compareBy<Pair<Evaluation, LocalDate>>(
-			{ (_, date) -> date },
-			{ (evaluation, _) -> evaluation.subjectCode },
-			{ (evaluation, _) -> ordinals[evaluation.id] ?: 1 },
-			{ (evaluation, _) -> evaluation.id }
-		)
-	) ?: return null
-
-	return SummaryAttention.UngradedEvaluations(
-		count = overdue.size,
-		oldestWeekStart = AcademicWeekEngine.mondayOf(oldestDate),
-		oldestEvaluationId = oldest.id
-	)
-}
-
 // The state stored with an evaluation does not advance with the clock: it is told again for [today].
-private fun Evaluation.stateOn(today: LocalDate): EvaluationState {
+internal fun Evaluation.stateOn(today: LocalDate): EvaluationState {
 	return EvaluationStateEngine.stateOf(
 		scheduleMode = scheduleMode,
 		hasGrade = grade != null,
@@ -149,11 +113,14 @@ private fun Evaluation.stateOn(today: LocalDate): EvaluationState {
 	)
 }
 
+// The week of the term in progress: its class (the one in progress or the next), the evaluations that have not gone by,
+// and what the week needs from the rest of the term: whether any evaluation is registered and the next one to come.
 private fun weekOf(
 	evaluations: List<Evaluation>,
+	hasSyncedEvaluations: Boolean,
 	meetingsByAttempt: Map<String, List<ScheduleMeeting>>,
 	now: ScheduleNow
-): SummaryWeek? {
+): SummaryWeek.InProgress {
 	val classMoment = AcademicScheduleEngine
 		.currentOrNext(
 			meetings = meetingsByAttempt.values.flatten(),
@@ -161,79 +128,19 @@ private fun weekOf(
 			minuteOfDay = now.minuteOfDay
 		)
 		?.toClassMoment(today = now.date)
-	val weekEvaluations = weekEvaluationsOf(
-		evaluations = evaluations,
-		meetingsByAttempt = meetingsByAttempt,
-		today = now.date
+
+	return SummaryWeek.InProgress(
+		classMoment = classMoment,
+		evaluations = weekEvaluationsOf(
+			evaluations = evaluations,
+			meetingsByAttempt = meetingsByAttempt,
+			today = now.date
+		),
+		hasSchedule = meetingsByAttempt.values.any { meetings -> meetings.isNotEmpty() },
+		hasSyncedEvaluations = hasSyncedEvaluations,
+		hasEvaluations = evaluations.isNotEmpty(),
+		nextEvaluation = upcomingEvaluationOf(evaluations = evaluations, today = now.date)
 	)
-
-	return if (classMoment == null && weekEvaluations.isEmpty()) {
-		null
-	} else {
-		SummaryWeek(
-			classMoment = classMoment,
-			evaluations = weekEvaluations,
-			hasSchedule = meetingsByAttempt.values.any { meetings -> meetings.isNotEmpty() }
-		)
-	}
-}
-
-private fun ScheduleMoment.toClassMoment(today: LocalDate): SummaryClassMoment {
-	return when (this) {
-		is ScheduleMoment.InProgress -> SummaryClassMoment(
-			meeting = meeting,
-			isInProgress = true,
-			date = today,
-			isToday = true
-		)
-
-		is ScheduleMoment.Next -> SummaryClassMoment(
-			meeting = meeting,
-			isInProgress = false,
-			date = today.plus(DatePeriod(days = daysAhead)),
-			isToday = daysAhead == 0
-		)
-	}
-}
-
-// The dated evaluations from today to the Sunday that closes this calendar week. A continuous one
-// has no day, and one of an earlier day has gone by.
-private fun weekEvaluationsOf(
-	evaluations: List<Evaluation>,
-	meetingsByAttempt: Map<String, List<ScheduleMeeting>>,
-	today: LocalDate
-): List<SummaryWeekEvaluation> {
-	val weekEnd = AcademicWeekEngine.mondayOf(today).plus(DatePeriod(days = LAST_DAY_OF_WEEK_OFFSET))
-	// The number the Evaluations tab gives each evaluation, which must not depend on this week's filter.
-	val ordinals = EvaluationOrdinalEngine.ordinalsById(evaluations)
-
-	return evaluations
-		.filter { evaluation -> evaluation.scheduleMode == EvaluationScheduleMode.DATED }
-		.mapNotNull { evaluation ->
-			val date = evaluation.date?.toLocalDate() ?: return@mapNotNull null
-
-			if (date < today || date > weekEnd) return@mapNotNull null
-
-			SummaryWeekEvaluation(
-				evaluationId = evaluation.id,
-				subjectCode = evaluation.subjectCode,
-				type = evaluation.type,
-				ordinal = ordinals[evaluation.id] ?: 1,
-				date = date,
-				isToday = date == today,
-				meeting = AcademicScheduleEngine.inheritedMeeting(
-					attemptMeetings = meetingsByAttempt[evaluation.attemptId].orEmpty(),
-					scheduleMode = evaluation.scheduleMode,
-					date = date
-				)
-			)
-		}
-		.sortedWith(
-			compareBy(SummaryWeekEvaluation::date)
-				.thenBy(SummaryWeekEvaluation::subjectCode)
-				.thenBy(SummaryWeekEvaluation::ordinal)
-				.thenBy(SummaryWeekEvaluation::evaluationId)
-		)
 }
 
 private fun termOf(
@@ -242,11 +149,11 @@ private fun termOf(
 	evaluations: List<Evaluation>,
 	hasSyncedEvaluations: Boolean,
 	today: LocalDate
-): SummaryTerm {
+): SummaryTerm.InProgress {
 	val points = EvaluationPointsEngine.pointsByAttempt(evaluations)
 	val nextEvaluations = nextEvaluationsOf(evaluations = evaluations, today = today)
 
-	return SummaryTerm(
+	return SummaryTerm.InProgress(
 		periodCode = term.periodCode,
 		periodYear = term.periodYear,
 		academicWeek = AcademicWeekEngine.weekOrNull(
@@ -272,7 +179,8 @@ private fun termOf(
 				}
 		} else {
 			emptyList()
-		}
+		},
+		hasSyncedEvaluations = hasSyncedEvaluations
 	)
 }
 
@@ -300,6 +208,7 @@ private fun nextEvaluationsOf(
 
 			SummaryNextEvaluation(
 				evaluationId = next.id,
+				subjectCode = next.subjectCode,
 				type = next.type,
 				ordinal = ordinals[next.id] ?: 1,
 				date = day,

@@ -26,4 +26,10 @@ sealed interface SummaryHubTarget {
 		val weekStart: LocalDate,
 		val evaluationId: String
 	) : SummaryHubTarget
+
+	/** The Evaluations tab, at the form that adds an evaluation. */
+	data object AddEvaluation : SummaryHubTarget
+
+	/** The Record tab, at the form that plans a term. */
+	data object CreateTerm : SummaryHubTarget
 }

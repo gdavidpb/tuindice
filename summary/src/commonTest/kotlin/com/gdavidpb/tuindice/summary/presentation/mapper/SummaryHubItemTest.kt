@@ -10,18 +10,22 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
+import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeekEvaluation
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.a11y_summary_open_evaluations_week
 import tuindice.summary.generated.resources.summary_attention_enrollment_error
 import tuindice.summary.generated.resources.summary_attention_ungraded_many
 import tuindice.summary.generated.resources.summary_attention_ungraded_one
@@ -32,12 +36,27 @@ import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
 import tuindice.summary.generated.resources.summary_evaluation_type_test
+import tuindice.summary.generated.resources.summary_evaluations_invite_action
+import tuindice.summary.generated.resources.summary_evaluations_invite_message
+import tuindice.summary.generated.resources.summary_evaluations_invite_title
+import tuindice.summary.generated.resources.summary_evaluations_pending_message
+import tuindice.summary.generated.resources.summary_evaluations_pending_title
+import tuindice.summary.generated.resources.summary_link_record
 import tuindice.summary.generated.resources.summary_points_evaluated
 import tuindice.summary.generated.resources.summary_points_no_evaluations
 import tuindice.summary.generated.resources.summary_points_none
 import tuindice.summary.generated.resources.summary_points_rest
+import tuindice.summary.generated.resources.summary_term_credits_label
+import tuindice.summary.generated.resources.summary_term_credits_value
+import tuindice.summary.generated.resources.summary_term_finished_state
+import tuindice.summary.generated.resources.summary_term_first_message
+import tuindice.summary.generated.resources.summary_term_first_title
+import tuindice.summary.generated.resources.summary_term_index_label
 import tuindice.summary.generated.resources.summary_term_next_evaluation
 import tuindice.summary.generated.resources.summary_term_next_today
+import tuindice.summary.generated.resources.summary_term_plan_action
+import tuindice.summary.generated.resources.summary_term_plan_message
+import tuindice.summary.generated.resources.summary_term_plan_title
 import tuindice.summary.generated.resources.summary_term_subjects_many
 import tuindice.summary.generated.resources.summary_term_subjects_one
 import tuindice.summary.generated.resources.summary_term_week_description
@@ -46,9 +65,17 @@ import tuindice.summary.generated.resources.summary_term_week_remaining_many
 import tuindice.summary.generated.resources.summary_term_week_remaining_one
 import tuindice.summary.generated.resources.summary_term_week_rest
 import tuindice.summary.generated.resources.summary_term_week_value
+import tuindice.summary.generated.resources.summary_week_idle_title
+import tuindice.summary.generated.resources.summary_week_next_evaluation
+import tuindice.summary.generated.resources.summary_week_no_class_message
+import tuindice.summary.generated.resources.summary_week_no_class_title
+import tuindice.summary.generated.resources.summary_week_no_term_message
+import tuindice.summary.generated.resources.summary_week_no_term_title
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -68,11 +95,37 @@ class SummaryHubItemTest {
 		listOf(UiText.Capitalized(DayOfWeek.MONDAY.toShortNameText()), 19)
 	)
 
-	private fun term(week: Int?, subjects: List<SummarySubjectPoints> = emptyList()) = SummaryTerm(
+	private fun term(week: Int?, subjects: List<SummarySubjectPoints> = emptyList()) = SummaryTerm.InProgress(
 		periodCode = AcademicTermPeriod.SEP_DEC,
 		periodYear = 2026,
 		academicWeek = week,
-		subjects = subjects
+		subjects = subjects,
+		hasSyncedEvaluations = true
+	)
+
+	// A week of a term in progress whose evaluations are downloaded: the common case. The cases that tell
+	// otherwise build the week with its constructor.
+	private fun inProgress(
+		classMoment: SummaryClassMoment? = null,
+		evaluations: List<SummaryWeekEvaluation> = emptyList(),
+		hasSchedule: Boolean = true
+	) = SummaryWeek.InProgress(
+		classMoment = classMoment,
+		evaluations = evaluations,
+		hasSchedule = hasSchedule,
+		hasSyncedEvaluations = true,
+		hasEvaluations = evaluations.isNotEmpty(),
+		nextEvaluation = null
+	)
+
+	// A week of a term whose evaluations are registered, none of them in the week, and with no class in it.
+	private fun noneThisWeek(nextEvaluation: SummaryNextEvaluation? = null) = SummaryWeek.InProgress(
+		classMoment = null,
+		evaluations = emptyList(),
+		hasSchedule = true,
+		hasSyncedEvaluations = true,
+		hasEvaluations = true,
+		nextEvaluation = nextEvaluation
 	)
 
 	private fun subject(
@@ -88,7 +141,7 @@ class SummaryHubItemTest {
 		nextEvaluation = nextEvaluation
 	)
 
-	private fun week(number: Int) = term(week = number).toSummaryTermItemOrNull()!!.week!!
+	private fun week(number: Int) = term(week = number).toSummaryTermItem().week!!
 
 	/* Attention */
 
@@ -172,7 +225,7 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theClassInProgress_isLedByEnCurso_andCarriesTheHour() {
-		val week = SummaryWeek(
+		val week = inProgress(
 			classMoment = SummaryClassMoment(
 				meeting = meeting,
 				isInProgress = true,
@@ -202,8 +255,8 @@ class SummaryHubItemTest {
 		)
 		val monday = today.copy(date = LocalDate(2026, 10, 19), isToday = false)
 
-		val todayRow = SummaryWeek(today, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
-		val mondayRow = SummaryWeek(monday, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
+		val todayRow = inProgress(today, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
+		val mondayRow = inProgress(monday, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!
 
 		assertEquals(UiText.Resource(Res.string.summary_day_today), todayRow.leadText)
 		assertEquals(false, todayRow.isInProgress)
@@ -215,7 +268,7 @@ class SummaryHubItemTest {
 		val late = meeting.copy(startBlock = 17, endBlock = 17)
 		val moment = SummaryClassMoment(late, isInProgress = false, date = LocalDate(2026, 10, 15), isToday = true)
 
-		assertNull(SummaryWeek(moment, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!.place.timeText)
+		assertNull(inProgress(moment, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!.place.timeText)
 	}
 
 	@Test
@@ -230,7 +283,7 @@ class SummaryHubItemTest {
 			meeting = meeting
 		)
 
-		val row = SummaryWeek(null, listOf(evaluation), hasSchedule = true).toSummaryWeekItem().evaluations.single()
+		val row = inProgress(null, listOf(evaluation), hasSchedule = true).toSummaryWeekItem().evaluations.single()
 
 		assertEquals(
 			UiText.Resource(
@@ -257,7 +310,7 @@ class SummaryHubItemTest {
 			meeting = null
 		)
 
-		val row = SummaryWeek(null, listOf(sunday), hasSchedule = false).toSummaryWeekItem().evaluations.single()
+		val row = inProgress(null, listOf(sunday), hasSchedule = false).toSummaryWeekItem().evaluations.single()
 
 		assertNull(row.place)
 		assertEquals(LocalDate(2026, 10, 12), row.weekStart)
@@ -265,8 +318,8 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theWeek_offersTheScheduleOnlyWhenTheTermHasOne() {
-		val withSchedule = SummaryWeek(null, emptyList(), hasSchedule = true).toSummaryWeekItem()
-		val withoutSchedule = SummaryWeek(null, emptyList(), hasSchedule = false).toSummaryWeekItem()
+		val withSchedule = inProgress(null, emptyList(), hasSchedule = true).toSummaryWeekItem()
+		val withoutSchedule = inProgress(null, emptyList(), hasSchedule = false).toSummaryWeekItem()
 
 		assertTrue(withSchedule.hasSchedule)
 		assertEquals(false, withoutSchedule.hasSchedule)
@@ -276,9 +329,9 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theTerm_isNamedByItsPeriodAndYear_andSaysItsWeekOutOfTwelve() {
-		val item = term(week = 3).toSummaryTermItemOrNull()!!
+		val item = term(week = 3).toSummaryTermItem()
 
-		assertEquals(UiText.Raw("Sep - Dic 2026"), item.nameText)
+		assertEquals(UiText.Raw("Sep - Dic 2026"), item.linkText)
 		assertEquals(3, item.week?.week)
 		assertEquals(12, item.week?.totalWeeks)
 		assertEquals(UiText.Resource(Res.string.summary_term_week_value, listOf(3)), item.week?.valueText)
@@ -290,15 +343,26 @@ class SummaryHubItemTest {
 	fun outsideTheTwelveWeeks_onlyThePointsRemain() {
 		val subjects = listOf(subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), credits = 4))
 
-		val item = term(week = null, subjects = subjects).toSummaryTermItemOrNull()!!
+		val item = term(week = null, subjects = subjects).toSummaryTermItem()
 
 		assertNull(item.week)
 		assertEquals(listOf("CI5311"), item.subjects.map { it.subjectCode })
 	}
 
 	@Test
-	fun withNeitherAWeekNorPoints_thereIsNoTermToShow() {
-		assertNull(term(week = null).toSummaryTermItemOrNull())
+	fun withNeitherAWeekNorPoints_theTermSaysWhatIsStillToCome_andClaimsNoPoints() {
+		val item = term(week = null).toSummaryTermItem()
+
+		assertNull(item.week)
+		assertTrue(item.subjects.isEmpty())
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.Evaluations,
+				titleText = UiText.Resource(Res.string.summary_evaluations_pending_title),
+				messageText = UiText.Resource(Res.string.summary_evaluations_pending_message)
+			),
+			item.card
+		)
 	}
 
 	@Test
@@ -309,7 +373,7 @@ class SummaryHubItemTest {
 			subject("EG1114", points = null)
 		)
 
-		val items = term(week = 3, subjects = subjects).toSummaryTermItemOrNull()!!.subjects
+		val items = term(week = 3, subjects = subjects).toSummaryTermItem().subjects
 
 		assertEquals("41", items[0].valueText)
 		assertEquals(UiText.Resource(Res.string.summary_points_rest, listOf("60")), items[0].restText)
@@ -339,13 +403,13 @@ class SummaryHubItemTest {
 
 		assertEquals(
 			UiText.Resource(Res.string.summary_term_subjects_many, listOf(2, 7)),
-			two.toSummaryTermItemOrNull()!!.summaryText
+			two.toSummaryTermItem().summaryText
 		)
 		assertEquals(
 			UiText.Resource(Res.string.summary_term_subjects_one, listOf(1, 4)),
-			one.toSummaryTermItemOrNull()!!.summaryText
+			one.toSummaryTermItem().summaryText
 		)
-		assertNull(term(week = 3).toSummaryTermItemOrNull()!!.summaryText)
+		assertNull(term(week = 3).toSummaryTermItem().summaryText)
 	}
 
 	@Test
@@ -353,7 +417,7 @@ class SummaryHubItemTest {
 		val items = term(
 			week = 3,
 			subjects = listOf(subject("CI5311", EvaluationPoints(0.0, 0.0, 0, 2)), subject("EG1114", points = null))
-		).toSummaryTermItemOrNull()!!.subjects
+		).toSummaryTermItem().subjects
 
 		assertNull(items[0].valueText)
 		assertEquals(UiText.Resource(Res.string.summary_points_none), items[0].restText)
@@ -370,7 +434,7 @@ class SummaryHubItemTest {
 				subject("CI5437", EvaluationPoints(100.0, 120.0, 6, 6)),
 				subject("EG1114", points = null)
 			)
-		).toSummaryTermItemOrNull()!!.subjects
+		).toSummaryTermItem().subjects
 
 		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("60", "100")), items[0].evaluatedText)
 		assertEquals(0.6f, items[0].evaluatedFraction)
@@ -384,6 +448,7 @@ class SummaryHubItemTest {
 	fun theNextEvaluation_isNamedAsTheEvaluationsTabNamesIt_andSaysTodayOrItsDay_andIsOmittedWhenNone() {
 		val next = SummaryNextEvaluation(
 			evaluationId = "e1",
+			subjectCode = "CI5437",
 			type = EvaluationType.TEST,
 			ordinal = 2,
 			date = LocalDate(2026, 10, 26),
@@ -402,7 +467,7 @@ class SummaryHubItemTest {
 				subject("CI5437", points = null, nextEvaluation = todays),
 				subject("EG1114", points = null)
 			)
-		).toSummaryTermItemOrNull()!!.subjects
+		).toSummaryTermItem().subjects
 
 		assertEquals(
 			UiText.Resource(
@@ -459,7 +524,229 @@ class SummaryHubItemTest {
 		)
 	}
 
+	/* The cards that say what a section lacks */
+
+	@Test
+	fun withNoEvaluationRegistered_theWeekInvitesToAddOne_underItsClass() {
+		val week = inProgress(
+			classMoment = SummaryClassMoment(
+				meeting = meeting,
+				isInProgress = false,
+				date = LocalDate(2026, 10, 16),
+				isToday = false
+			)
+		).toSummaryWeekItem()
+
+		assertNotNull(week.classRow)
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.Evaluations,
+				titleText = UiText.Resource(Res.string.summary_evaluations_invite_title),
+				messageText = UiText.Resource(Res.string.summary_evaluations_invite_message),
+				action = SummaryCardItem.Action(
+					text = UiText.Resource(Res.string.summary_evaluations_invite_action),
+					target = SummaryHubTarget.AddEvaluation
+				)
+			),
+			week.card
+		)
+	}
+
+	@Test
+	fun withNothingThisWeek_andAnEvaluationNext_theCardNamesItAndLeadsToItsWeek() {
+		val next = SummaryNextEvaluation(
+			evaluationId = "e1",
+			subjectCode = "CI5437",
+			type = EvaluationType.TEST,
+			ordinal = 2,
+			date = LocalDate(2026, 10, 26),
+			isToday = false
+		)
+
+		val card = assertNotNull(noneThisWeek(nextEvaluation = next).toSummaryWeekItem().card)
+
+		assertEquals(SummaryCardIcon.Done, card.icon)
+		assertEquals(UiText.Resource(Res.string.summary_week_idle_title), card.titleText)
+		assertEquals(
+			UiText.Resource(
+				Res.string.summary_week_next_evaluation,
+				listOf(
+					UiText.Resource(
+						Res.string.summary_evaluation_name,
+						listOf(UiText.Resource(Res.string.summary_evaluation_type_test), 2)
+					),
+					"CI5437",
+					UiText.Resource(Res.string.summary_day_date, listOf(DayOfWeek.MONDAY.toShortNameText(), 26))
+				)
+			),
+			card.messageText
+		)
+		assertEquals(
+			SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 26), evaluationId = "e1"),
+			card.target
+		)
+		assertEquals(UiText.Resource(Res.string.a11y_summary_open_evaluations_week), card.targetLabel)
+	}
+
+	@Test
+	fun withNothingThisWeek_andNoEvaluationNext_theCardIsInformative() {
+		val card = assertNotNull(noneThisWeek().toSummaryWeekItem().card)
+
+		assertEquals(UiText.Resource(Res.string.summary_week_idle_title), card.titleText)
+		assertNull(card.messageText)
+		assertNull(card.target)
+		assertNull(card.targetLabel)
+	}
+
+	@Test
+	fun withTheEvaluationsNotDownloaded_theWeekClaimsNothing_andSaysWhereToFindThem() {
+		val week = SummaryWeek.InProgress(
+			classMoment = null,
+			evaluations = emptyList(),
+			hasSchedule = true,
+			hasSyncedEvaluations = false,
+			hasEvaluations = false,
+			nextEvaluation = null
+		)
+		val card = assertNotNull(week.toSummaryWeekItem().card)
+
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.Evaluations,
+				titleText = UiText.Resource(Res.string.summary_evaluations_pending_title),
+				messageText = UiText.Resource(Res.string.summary_evaluations_pending_message)
+			),
+			card
+		)
+	}
+
+	@Test
+	fun withAClassOfItsOwn_theWeekNeedsNoCardWhileTheEvaluationsAreNotDownloaded() {
+		val moment = SummaryClassMoment(
+			meeting = meeting,
+			isInProgress = false,
+			date = LocalDate(2026, 10, 16),
+			isToday = false
+		)
+		val week = SummaryWeek.InProgress(
+			classMoment = moment,
+			evaluations = emptyList(),
+			hasSchedule = true,
+			hasSyncedEvaluations = false,
+			hasEvaluations = false,
+			nextEvaluation = null
+		)
+
+		assertNull(week.toSummaryWeekItem().card)
+	}
+
+	@Test
+	fun withNoTermInProgress_theWeekSaysNoClassWithTerms_andWhenTheFirstWillShowAsANewStudent() {
+		val withTerms = SummaryWeek.Idle(hasTerms = true).toSummaryWeekItem()
+		val newStudent = SummaryWeek.Idle(hasTerms = false).toSummaryWeekItem()
+
+		assertNull(withTerms.classRow)
+		assertTrue(withTerms.evaluations.isEmpty())
+		assertFalse(withTerms.hasSchedule)
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.Calendar,
+				titleText = UiText.Resource(Res.string.summary_week_no_class_title),
+				messageText = UiText.Resource(Res.string.summary_week_no_class_message)
+			),
+			withTerms.card
+		)
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.Calendar,
+				titleText = UiText.Resource(Res.string.summary_week_no_term_title),
+				messageText = UiText.Resource(Res.string.summary_week_no_term_message)
+			),
+			newStudent.card
+		)
+	}
+
+	@Test
+	fun withNoTermInProgress_theTermLinksToRecord_andInvitesToPlanTheNextOne() {
+		val item = SummaryTerm.Idle(hasTerms = true, finished = null).toSummaryTermItem()
+
+		assertEquals(UiText.Resource(Res.string.summary_link_record), item.linkText)
+		assertNull(item.week)
+		assertNull(item.finished)
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.NewTerm,
+				titleText = UiText.Resource(Res.string.summary_term_plan_title),
+				messageText = UiText.Resource(Res.string.summary_term_plan_message),
+				action = SummaryCardItem.Action(
+					text = UiText.Resource(Res.string.summary_term_plan_action),
+					target = SummaryHubTarget.CreateTerm
+				)
+			),
+			item.card
+		)
+	}
+
+	@Test
+	fun withNoTerm_aNewStudent_theTermHasNoLink_andTheFirstOneToCome() {
+		val item = SummaryTerm.Idle(hasTerms = false, finished = null).toSummaryTermItem()
+
+		assertNull(item.linkText)
+		assertEquals(
+			SummaryCardItem(
+				icon = SummaryCardIcon.NewTerm,
+				titleText = UiText.Resource(Res.string.summary_term_first_title),
+				messageText = UiText.Resource(Res.string.summary_term_first_message)
+			),
+			item.card
+		)
+	}
+
+	@Test
+	fun theFinishedTerm_isItsNameAsAFigure_itsIndexWithFourDecimals_andItsApprovedCredits() {
+		val finished = SummaryTerm.Idle(
+			hasTerms = true,
+			finished = SummaryFinishedTerm(
+				periodCode = AcademicTermPeriod.SEP_DEC,
+				periodYear = 2026,
+				index = 14.5,
+				approvedCredits = 16
+			)
+		).toSummaryTermItem().finished
+
+		assertEquals(UiText.Raw("Sep - Dic 2026"), finished?.nameText)
+		assertEquals(UiText.Resource(Res.string.summary_term_finished_state), finished?.stateText)
+		assertEquals(UiText.Resource(Res.string.summary_term_index_label), finished?.indexLabel)
+		assertEquals("14.5000", finished?.indexText)
+		assertEquals(UiText.Resource(Res.string.summary_term_credits_label), finished?.creditsLabel)
+		assertEquals(UiText.Resource(Res.string.summary_term_credits_value, listOf(16)), finished?.creditsText)
+	}
+
+	@Test
+	fun theTermInProgress_linksToItsName_andTheFinishedTermIsNotThere() {
+		val item = term(week = 3).toSummaryTermItem()
+
+		assertEquals(UiText.Raw("Sep - Dic 2026"), item.linkText)
+		assertNull(item.finished)
+		assertNull(item.card)
+	}
+
 	/* The whole */
+
+	@Test
+	fun theHubOfAReadyRecord_hasTheWeekAndTheTerm_andOfANotReadyOneNeitherIsThere() {
+		val ready = SummaryHub(
+			attention = emptyList(),
+			week = SummaryWeek.Idle(hasTerms = false),
+			term = SummaryTerm.Idle(hasTerms = false, finished = null),
+			career = null
+		).toSummaryHubItem()
+
+		assertNotNull(ready.week)
+		assertNotNull(ready.term)
+		assertNull(SummaryHub.Empty.toSummaryHubItem().week)
+		assertNull(SummaryHub.Empty.toSummaryHubItem().term)
+	}
 
 	@Test
 	fun theHubWithNothingToSay_hasOnlyTheInvitationToThePensum() {

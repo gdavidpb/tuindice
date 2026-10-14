@@ -17,8 +17,9 @@ import tuindice.summary.generated.resources.summary_link_schedule
 import tuindice.summary.generated.resources.summary_section_week
 
 /**
- * "Esta semana": the class in progress or next and the evaluations that have not gone by, in one
- * card; its link opens the Schedule sheet, and is there only when the term has a schedule.
+ * "Esta semana": the class in progress or next and the evaluations that have not gone by, in one card; its link opens
+ * the Schedule sheet, and is there only when the term has a schedule. What the rows leave out is a card of its own
+ * under them: the invitation to add the first evaluation, what is pending, or what the week lacks.
  */
 @Composable
 fun SummaryWeekView(
@@ -39,33 +40,43 @@ fun SummaryWeekView(
 			sectionTag = SummaryUiTags.WeekSection
 		)
 
-		SummaryHubCardView {
-			week.classRow?.let { classRow ->
-				SummaryClassRowView(
-					modifier = Modifier.testTag(SummaryUiTags.WeekClassRow),
-					item = classRow,
-					onClick = { actions.onTargetClick(SummaryHubTarget.Schedule) }
-				)
-			}
-
-			week.evaluations.forEachIndexed { index, evaluation ->
-				if (index > 0 || week.classRow != null) {
-					SummaryHubDividerView()
+		if (week.classRow != null || week.evaluations.isNotEmpty()) {
+			SummaryHubCardView {
+				week.classRow?.let { classRow ->
+					SummaryClassRowView(
+						modifier = Modifier.testTag(SummaryUiTags.WeekClassRow),
+						item = classRow,
+						onClick = { actions.onTargetClick(SummaryHubTarget.Schedule) }
+					)
 				}
 
-				SummaryEvaluationRowView(
-					modifier = Modifier.testTag(SummaryUiTags.weekEvaluationRow(evaluation.evaluationId)),
-					item = evaluation,
-					onClick = {
-						actions.onTargetClick(
-							SummaryHubTarget.EvaluationsWeek(
-								weekStart = evaluation.weekStart,
-								evaluationId = evaluation.evaluationId
-							)
-						)
+				week.evaluations.forEachIndexed { index, evaluation ->
+					if (index > 0 || week.classRow != null) {
+						SummaryHubDividerView()
 					}
-				)
+
+					SummaryEvaluationRowView(
+						modifier = Modifier.testTag(SummaryUiTags.weekEvaluationRow(evaluation.evaluationId)),
+						item = evaluation,
+						onClick = {
+							actions.onTargetClick(
+								SummaryHubTarget.EvaluationsWeek(
+									weekStart = evaluation.weekStart,
+									evaluationId = evaluation.evaluationId
+								)
+							)
+						}
+					)
+				}
 			}
+		}
+
+		week.card?.let { card ->
+			SummaryCardView(
+				item = card,
+				actions = actions,
+				modifier = Modifier.testTag(SummaryUiTags.WeekCard)
+			)
 		}
 	}
 }

@@ -113,5 +113,9 @@ object Summary {
 		class NavigateToRecordAttempt(
 			val attemptId: String
 		) : Effect()
+
+		// The form that adds an evaluation, on the Evaluations tab, and the form that plans a term, on the Record tab.
+		data object NavigateToAddEvaluation : Effect()
+		data object NavigateToCreateTerm : Effect()
 	}
 }

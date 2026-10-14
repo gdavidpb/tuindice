@@ -4,14 +4,18 @@ import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 /**
- * "Trimestre": [nameText] is the link to the Record ("Sep - Dic 2026"); [week] is absent outside weeks 1 to 12,
- * [summaryText] says how many subjects there are and their credits ("4 materias · 16 UC") and is absent with no
- * subject, and [subjects] are the points of each subject, absent while not known.
+ * "Trimestre": [linkText] is the link of its header, the name of the term in progress ("Sep - Dic 2026"), "Registro"
+ * when there is none, and absent for a new student. [week] is absent outside weeks 1 to 12, [summaryText] says how many
+ * subjects there are and their credits, and [subjects] are the points of each subject, absent while not known.
+ * [finished] is the last term that is over, when no term is in progress and there is one. [card] is there when the term
+ * has nothing else to show: the invitation to plan a term, the first one to come, or what is still to download.
  */
 @Immutable
 data class SummaryTermItem(
-	val nameText: UiText,
+	val linkText: UiText?,
 	val week: SummaryTermWeekItem?,
 	val summaryText: UiText?,
-	val subjects: List<SummarySubjectPointsItem>
+	val subjects: List<SummarySubjectPointsItem>,
+	val finished: SummaryFinishedTermItem?,
+	val card: SummaryCardItem?
 )

@@ -34,10 +34,35 @@ import tuindice.summary.generated.resources.summary_evaluation_type_workshop
 import tuindice.summary.generated.resources.summary_evaluation_type_written_work
 
 fun SummaryWeek.toSummaryWeekItem(): SummaryWeekItem {
+	return when (this) {
+		is SummaryWeek.InProgress -> toInProgressItem()
+
+		is SummaryWeek.Idle -> SummaryWeekItem(
+			classRow = null,
+			evaluations = emptyList(),
+			hasSchedule = false,
+			card = if (hasTerms) noClassCard() else noTermCard()
+		)
+	}
+}
+
+// The rows of the week are its class and its evaluations; the card says what they leave out. Until the evaluations are
+// downloaded the week says nothing of them, and with no evaluation registered in the term it invites to add one.
+private fun SummaryWeek.InProgress.toInProgressItem(): SummaryWeekItem {
+	val classRow = classMoment?.toSummaryClassRowItem()
+	val evaluationRows = evaluations.map { evaluation -> evaluation.toSummaryEvaluationRowItem() }
+	val hasRows = classRow != null || evaluationRows.isNotEmpty()
+
 	return SummaryWeekItem(
-		classRow = classMoment?.toSummaryClassRowItem(),
-		evaluations = evaluations.map { evaluation -> evaluation.toSummaryEvaluationRowItem() },
-		hasSchedule = hasSchedule
+		classRow = classRow,
+		evaluations = evaluationRows,
+		hasSchedule = hasSchedule,
+		card = when {
+			!hasSyncedEvaluations -> if (hasRows) null else evaluationsPendingCard()
+			!hasEvaluations -> addEvaluationCard()
+			!hasRows -> nothingPendingCard(next = nextEvaluation)
+			else -> null
+		}
 	)
 }
 
