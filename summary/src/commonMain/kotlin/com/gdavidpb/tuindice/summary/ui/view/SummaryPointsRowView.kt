@@ -29,7 +29,8 @@ import tuindice.summary.generated.resources.a11y_summary_open_record_attempt
 /**
  * A subject of the term: its chip and its points on the first line ("41 de 60 puntos", "Sin notas aún" or
  * "Sin evaluaciones"), the bar of what it has evaluated of its 100 points under them, and a last line with its
- * next evaluation without a grade, when there is one, and the evaluated figure ("10 de 100 evaluados"). The points
+ * next evaluation without a grade, when there is one, and the evaluated figure ("10 de 100 evaluados"). A subject
+ * with no evaluations has neither the bar nor the last line. The points
  * take what the chip leaves and wrap instead of squeezing it. The row is a button: it leads to the subject's
  * attempt in Record ([onClick]).
  */
@@ -70,35 +71,38 @@ fun SummaryPointsRowView(
 			)
 		}
 
-		SummaryEvaluatedBarView(
-			subjectCode = item.subjectCode,
-			fraction = item.evaluatedFraction
-		)
-
-		Row(
-			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
-			verticalAlignment = Alignment.Top
-		) {
-			val nextText = item.nextText
-
-			if (nextText != null) {
-				Text(
-					modifier = Modifier.weight(1f),
-					text = nextText.asString(),
-					style = MaterialTheme.typography.bodySmall,
-					color = secondary
-				)
-			} else {
-				// Without a next evaluation the evaluated figure still sits at the end of the line.
-				Spacer(modifier = Modifier.weight(1f))
-			}
-
-			Text(
-				text = item.evaluatedText.asString(),
-				style = MaterialTheme.typography.bodySmall,
-				color = secondary,
-				textAlign = TextAlign.End
+		// A subject with no evaluations is only its chip and "Sin evaluaciones": no bar and no line under them.
+		item.evaluatedText?.let { evaluatedText ->
+			SummaryEvaluatedBarView(
+				subjectCode = item.subjectCode,
+				fraction = item.evaluatedFraction
 			)
+
+			Row(
+				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
+				verticalAlignment = Alignment.Top
+			) {
+				val nextText = item.nextText
+
+				if (nextText != null) {
+					Text(
+						modifier = Modifier.weight(1f),
+						text = nextText.asString(),
+						style = MaterialTheme.typography.bodySmall,
+						color = secondary
+					)
+				} else {
+					// Without a next evaluation the evaluated figure still sits at the end of the line.
+					Spacer(modifier = Modifier.weight(1f))
+				}
+
+				Text(
+					text = evaluatedText.asString(),
+					style = MaterialTheme.typography.bodySmall,
+					color = secondary,
+					textAlign = TextAlign.End
+				)
+			}
 		}
 	}
 }

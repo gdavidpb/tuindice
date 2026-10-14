@@ -7,12 +7,14 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.testing.summaryPointsItem
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -41,7 +43,7 @@ class SummaryPointsRowViewUiTest {
 	}
 
 	@Test
-	fun when_subjectHasNoEvaluations_then_rowSaysSinEvaluacionesAndNothingIsEvaluated() = runTuIndiceUiTest {
+	fun when_subjectHasNoEvaluations_then_rowSaysOnlySinEvaluaciones() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryPointsRowView(
 				item = summaryPointsItem(subjectCode = "CI4325", hasEvaluations = false),
@@ -50,7 +52,8 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onNodeWithText("Sin evaluaciones").assertIsDisplayed()
-		onNodeWithText("0 de 100 evaluados").assertIsDisplayed()
+		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
+		onNodeWithTag(SummaryUiTags.termPointsBar("CI4325"), useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test

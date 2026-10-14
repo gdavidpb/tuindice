@@ -438,7 +438,8 @@ class SummaryHubItemTest {
 		assertEquals(0.6f, items[0].evaluatedFraction)
 		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("100", "100")), items[1].evaluatedText)
 		assertEquals(1f, items[1].evaluatedFraction)
-		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("0", "100")), items[2].evaluatedText)
+		// Nothing is registered for EG1114: no evaluated line at all, not "0 de 100".
+		assertEquals(null, items[2].evaluatedText)
 		assertEquals(0f, items[2].evaluatedFraction)
 	}
 

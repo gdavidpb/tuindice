@@ -123,10 +123,13 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 			else -> UiText.Resource(Res.string.summary_points_no_evaluations)
 		},
 		attemptId = attemptId,
-		evaluatedText = UiText.Resource(
-			Res.string.summary_points_evaluated,
-			listOf(evaluatedOfTotal.formatCompactPoints(), SUBJECT_POINTS_TOTAL.formatCompactPoints())
-		),
+		// Nothing is said of what is evaluated before anything is registered: "Sin evaluaciones" says it all.
+		evaluatedText = points?.let {
+			UiText.Resource(
+				Res.string.summary_points_evaluated,
+				listOf(evaluatedOfTotal.formatCompactPoints(), SUBJECT_POINTS_TOTAL.formatCompactPoints())
+			)
+		},
 		evaluatedFraction = (evaluatedOfTotal / SUBJECT_POINTS_TOTAL).toFloat(),
 		nextText = nextEvaluation?.toNextText()
 	)

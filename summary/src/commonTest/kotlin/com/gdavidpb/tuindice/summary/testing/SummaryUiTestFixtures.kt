@@ -114,7 +114,7 @@ fun summaryPointsItem(
 			}
 		),
 		attemptId = "attempt-$subjectCode",
-		evaluatedText = UiText.Raw("$evaluatedShown de 100 evaluados"),
+		evaluatedText = UiText.Raw("$evaluatedShown de 100 evaluados").takeIf { hasEvaluations },
 		evaluatedFraction = evaluatedShown.toFloat() / 100f,
 		nextText = nextText?.let { text -> UiText.Raw(text) }
 	)
