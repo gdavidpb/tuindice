@@ -79,6 +79,31 @@ class SummaryStatisticsBuilderTest {
 	}
 
 	@Test
+	fun theJulyAugustTerm_isNeitherTheBestNorTheWorst_whateverItsIndex() {
+		val summary = statisticsOf(
+			regularTerm(year = 2023, prefix = "A", index = 12.0),
+			hubClosedTerm(
+				year = 2023,
+				attempts = listOf(hubPassedAttempt(code = "B1")),
+				index = 20.0,
+				periodCode = AcademicTermPeriod.JUL_AUG
+			),
+			regularTerm(year = 2024, prefix = "C", index = 14.0),
+			hubClosedTerm(
+				year = 2024,
+				attempts = listOf(hubPassedAttempt(code = "D1")),
+				index = 6.0,
+				periodCode = AcademicTermPeriod.JUL_AUG
+			)
+		)
+
+		assertEquals(AcademicTermPeriod.SEP_DEC, summary.bestTerm?.periodCode)
+		assertEquals(2024, summary.bestTerm?.periodYear)
+		assertEquals(2023, summary.worstTerm?.periodYear)
+		assertEquals(AcademicTermPeriod.SEP_DEC, summary.worstTerm?.periodCode)
+	}
+
+	@Test
 	fun withNoClosedTerm_thereIsNoBestWorstOrLastOne() {
 		val summary = statisticsOf()
 

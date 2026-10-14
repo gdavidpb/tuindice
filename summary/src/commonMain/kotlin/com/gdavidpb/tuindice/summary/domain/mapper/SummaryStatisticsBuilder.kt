@@ -42,20 +42,23 @@ internal fun summaryStatisticsOf(
 	)
 }
 
-// The highest index among the terms that have one; on a tie, the most recent term. A term with no index counts
-// neither as the best nor as the worst.
+// The highest index among the regular terms that have one; on a tie, the most recent term. A term with no index counts
+// neither as the best nor as the worst, and neither does the July - August term: one or two intensive subjects are no
+// fair match for a full term.
 private fun bestTermOf(terms: List<TermStatistic>): TermStatistic? {
 	return terms
-		.filter { term -> term.index != null }
+		.filter(::isRankable)
 		.maxWithOrNull(compareBy<TermStatistic>({ term -> term.index }, { term -> term.termOrder }))
 }
 
-// The lowest index among the terms that have one; on a tie, the most recent term.
+// The lowest index among the regular terms that have one; on a tie, the most recent term.
 private fun worstTermOf(terms: List<TermStatistic>): TermStatistic? {
 	return terms
-		.filter { term -> term.index != null }
+		.filter(::isRankable)
 		.minWithOrNull(compareBy<TermStatistic>({ term -> term.index }).thenByDescending { term -> term.termOrder })
 }
+
+private fun isRankable(term: TermStatistic): Boolean = term.isRegular && term.index != null
 
 // What the term in progress says of its evaluations, for the day it is read on. These are the evaluations of the term's
 // subjects, the same the hub reads. Until they were downloaded nothing is known of them: the lists are left empty and

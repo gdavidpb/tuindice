@@ -7,9 +7,10 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 
 /**
  * What the Statistics screen reads, for the moment it was read. [closed] is what the closed terms of the record say,
- * and [pace] how the regular ones pace the pensum. [bestTerm] and [worstTerm] are the closed terms with the highest
- * and the lowest index, null when none has one. [lastClosedTerm] is the one that closed last, which the screen names
- * as "al cierre de". [pensumProgress] is the other source of credits, the pensum's own, null when none is cached.
+ * and [pace] how the regular ones pace the pensum. [bestTerm] and [worstTerm] are the regular closed terms with
+ * the highest and the lowest index, null when none has one: the July - August term is never either. [lastClosedTerm]
+ * is the one that closed last, which the screen names as "al cierre de". [pensumProgress] is the other source of
+ * credits, the pensum's own, null when none is cached.
  * [currentTerm] is the term in progress, null when there is none.
  */
 data class SummaryStatistics(
