@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import kotlinx.coroutines.flow.drop
 
 /**
  * A rich tooltip anchored to [content], whose visibility belongs to the caller. [tooltip] holds its words.
@@ -51,9 +52,10 @@ fun RichTooltipBox(
 	}
 
 	// The toolkit closes a tooltip by itself when another one takes over. Reporting that keeps the caller's
-	// flag in step with the screen, so tapping the same anchor again opens it.
+	// flag in step with the screen, so tapping the same anchor again opens it. Only changes count: the first
+	// reading is not a dismissal, whichever of the two effects starts first, so a box composed open stays open.
 	LaunchedEffect(tooltipState) {
-		snapshotFlow { tooltipState.isVisible }.collect { tooltipIsVisible ->
+		snapshotFlow { tooltipState.isVisible }.drop(1).collect { tooltipIsVisible ->
 			if (!tooltipIsVisible && currentIsVisible) {
 				currentOnDismissRequest()
 			}

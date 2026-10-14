@@ -29,6 +29,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
 class RichTooltipBoxUiTest {
@@ -72,6 +73,27 @@ class RichTooltipBoxUiTest {
 		assertNodeVisible(bodyTag(0), useUnmergedTree = true)
 		onNodeWithText("Índice 4.2", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("UC 20", useUnmergedTree = true).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_composedAlreadyVisible_then_itStaysOpenAndTheCallerFlagIsKept() = runTuIndiceUiTest {
+		val isVisible = mutableStateOf(true)
+
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+				RichTooltipBox(
+					isVisible = isVisible.value,
+					onDismissRequest = { isVisible.value = false },
+					tooltip = RichTooltipText(lines = listOf("Índice 4.2"), testTag = bodyTag(0))
+				) {
+					Box(modifier = Modifier.size(48.dp).testTag(targetTag(0)))
+				}
+			}
+		}
+		waitForIdle()
+
+		assertNodeVisible(bodyTag(0), useUnmergedTree = true)
+		assertTrue(isVisible.value)
 	}
 
 	@Test

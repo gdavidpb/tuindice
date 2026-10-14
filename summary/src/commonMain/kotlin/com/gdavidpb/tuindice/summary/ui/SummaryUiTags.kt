@@ -62,6 +62,11 @@ object SummaryUiTags {
 	const val ProfilePictureRemoveAction = "summary_profile_picture_remove_action"
 	const val RemoveProfilePictureMessage = "summary_remove_profile_picture_message"
 
+	// The edges a statistics chart fades where more of it lies beyond, and the label of its reference line.
+	const val StatisticsLeadingEdge = "summary_statistics_leading_edge"
+	const val StatisticsTrailingEdge = "summary_statistics_trailing_edge"
+	const val StatisticsReferenceLabel = "summary_statistics_reference_label"
+
 	fun attentionItem(key: String): String = "summary_attention_item_$key"
 
 	fun weekEvaluationRow(evaluationId: String): String = "summary_week_evaluation_row_$evaluationId"
@@ -76,4 +81,12 @@ object SummaryUiTags {
 	fun sectionTitle(sectionTag: String): String = "summary_section_title_$sectionTag"
 
 	fun sectionLink(sectionTag: String): String = "summary_section_link_$sectionTag"
+
+	// A statistics chart is named by its key, and so are the touch targets and the drawn fills of its points.
+	fun statisticsChart(key: String): String = "summary_statistics_$key"
+
+	fun statisticsTarget(key: String, index: Int): String = "summary_statistics_${key}_target_$index"
+
+	// The coloured part of a point: a bar, or a segment of a stacked bar.
+	fun statisticsFill(key: String, index: Int): String = "summary_statistics_${key}_fill_$index"
 }
