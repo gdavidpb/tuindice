@@ -69,6 +69,7 @@ object SummaryUiTags {
 
 	// The shared card of a term: the card itself, its index and its credit line.
 	const val ShareTermCard = "summary_share_term_card"
+	const val ShareTermCardLogo = "summary_share_term_card_logo"
 	const val ShareTermCardIndex = "summary_share_term_card_index"
 	const val ShareTermCardCredit = "summary_share_term_card_credit"
 

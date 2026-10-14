@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
@@ -13,19 +12,17 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
-// It runs on iOS because an ImageBitmap is only a bitmap where the platform draws it: the Android host has no
-// bitmap to hand the use case, and the encoding of the bitmap has its own test there.
 class ShareTermImageUseCaseTest {
 	@Test
-	fun when_theCardIsShared_then_itGoesToTheSheetAsAPngWithoutPersonalData() = runTest {
+	fun when_theCardIsShared_then_itsPngGoesToTheSheetUnderANameWithoutPersonalData() = runTest {
 		val repository = RecordingImageShareRepository()
 
-		val states = useCase(repository).execute(ImageBitmap(width = 2, height = 2)).toList()
+		val states = useCase(repository).execute(PNG_BYTES).toList()
 
 		assertEquals(UseCaseState.Data(Unit), states.last())
 		val image = repository.shared.single()
 		assertEquals("mi-trimestre.png", image.fileName)
-		assertContentEquals(PNG_SIGNATURE, image.content.copyOf(PNG_SIGNATURE.size))
+		assertContentEquals(PNG_BYTES, image.content)
 	}
 
 	@Test
@@ -34,7 +31,7 @@ class ShareTermImageUseCaseTest {
 			failure = IllegalStateException("La hoja no se pudo mostrar.")
 		}
 
-		val states = useCase(repository).execute(ImageBitmap(width = 2, height = 2)).toList()
+		val states = useCase(repository).execute(PNG_BYTES).toList()
 
 		assertEquals(
 			UseCaseState.Error(ShareTermImageUseCaseError.ImageUnavailable),
@@ -60,7 +57,7 @@ class ShareTermImageUseCaseTest {
 	}
 
 	private companion object {
-		// The first bytes of every PNG: the signature that says what the sheet is handed.
-		val PNG_SIGNATURE = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
+		// The first bytes of a PNG, which is what the card's capture hands over.
+		val PNG_BYTES = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
 	}
 }

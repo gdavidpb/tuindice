@@ -22,6 +22,7 @@ import tuindice.summary.generated.resources.share_term_card_career
 import tuindice.summary.generated.resources.share_term_card_credits_many
 import tuindice.summary.generated.resources.share_term_card_cumulative_label
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class ShareableTermCardUiTest {
@@ -60,6 +61,9 @@ class ShareableTermCardUiTest {
 		onNodeWithText("acumulado").assertIsDisplayed()
 		onNodeWithText("Ingeniería de Computación · USB").assertIsDisplayed()
 		onNodeWithText("TuIndice").assertIsDisplayed()
+		// The university's logo signs the header: a missing drawable would measure nothing.
+		val logo = onNodeWithTag(SummaryUiTags.ShareTermCardLogo, useUnmergedTree = true).fetchSemanticsNode()
+		assertTrue(logo.size.width > 0 && logo.size.height > 0)
 	}
 
 	@Test

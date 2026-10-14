@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +41,7 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.view.universityLogoPainter
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
@@ -73,8 +75,8 @@ private const val BOTTOM_FADE_MIDDLE = 0.5f
 
 /**
  * The "Mi trimestre" card of one closed term over the [background] artwork. It carries the figures of the term and the
- * credit of the artwork, and never the name or the code of the student. [logo] is drawn at the right of the header when
- * there is one, and [onArtReady] is called once the artwork is on screen: at once for the one the app ships with, and
+ * credit of the artwork, and never the name or the code of the student. The university's logo signs the header at its
+ * right, and [onArtReady] is called once the artwork is on screen: at once for the one the app ships with, and
  * when a remote artwork has loaded, or has failed and fallen back to the one the app ships with.
  */
 @Composable
@@ -82,7 +84,6 @@ fun ShareableTermCard(
 	item: ShareableTermCardItem,
 	background: ShareBackground,
 	modifier: Modifier = Modifier,
-	logo: (@Composable () -> Unit)? = null,
 	onArtReady: () -> Unit = {}
 ) {
 	val description = stringResource(Res.string.a11y_share_term_card)
@@ -124,7 +125,7 @@ fun ShareableTermCard(
 				)
 		)
 
-		ShareableTermCardHeader(term = item, logo = logo)
+		ShareableTermCardHeader(term = item)
 		ShareableTermCardFigures(item = item)
 		ShareableTermCardFooter(item = item, background = background)
 	}
@@ -168,8 +169,7 @@ private fun ShareableTermCardArt(
 
 @Composable
 private fun BoxScope.ShareableTermCardHeader(
-	term: ShareableTermCardItem,
-	logo: (@Composable () -> Unit)?
+	term: ShareableTermCardItem
 ) {
 	Row(
 		modifier = Modifier
@@ -192,11 +192,14 @@ private fun BoxScope.ShareableTermCardHeader(
 			)
 		}
 
-		if (logo != null) {
-			Box(modifier = Modifier.size(40.dp)) {
-				logo()
-			}
-		}
+		Icon(
+			modifier = Modifier
+				.size(40.dp)
+				.testTag(SummaryUiTags.ShareTermCardLogo),
+			painter = universityLogoPainter(),
+			contentDescription = null,
+			tint = CardInk
+		)
 	}
 }
 

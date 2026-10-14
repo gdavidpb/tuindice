@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-14 16:47:47 -0300_
+_Generated automatically on 2026-10-14 16:55:56 -0300_
 
 ## Summary by module
 
@@ -8,14 +8,14 @@ _Generated automatically on 2026-10-14 16:47:47 -0300_
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
-| `base` | 2 | 37 | 50 | 38 | 36 | 36 |
+| `base` | 2 | 38 | 51 | 38 | 36 | 36 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
 | `evaluations` | 2 | 44 | 47 | 49 | 44 | 44 |
 | `maincore` | 3 | 14 | 17 | 18 | 14 | 14 |
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
 | `record` | 2 | 75 | 90 | 82 | 75 | 75 |
 | `subjects` | 2 | 24 | 27 | 25 | 24 | 24 |
-| `summary` | 2 | 58 | 92 | 66 | 58 | 58 |
+| `summary` | 2 | 60 | 99 | 68 | 60 | 60 |
 | `wizard` | 2 | 2 | 3 | 2 | 2 | 2 |
 
 ## Detail by composable file
@@ -92,6 +92,7 @@ _Generated automatically on 2026-10-14 16:47:47 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectResultCard.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectResultCardUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarActionsView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarActionsViewUiTest.kt` | 4 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarAnimatedTitleView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarAnimatedTitleViewUiTest.kt` | 2 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/UniversityLogo.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/UniversityLogoUiTest.kt` | 0 | MISSING TEST |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/WheelPicker.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/WheelPickerUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/CollectNavResultWithLifecycle.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/CollectNavResultWithLifecycleUiTest.kt` | 5 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Compose.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/ComposeUiTest.kt` | 2 | PASS threshold (2) |
@@ -355,6 +356,8 @@ _Generated automatically on 2026-10-14 16:47:47 -0300_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/SyncStatusInfoDialog.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/SyncStatusInfoDialogUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreen.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreenUiTest.kt` | 18 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryStatisticsScreen.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryStatisticsScreenUiTest.kt` | 3 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCard.kt` | 6 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardUiTest.kt` | 4 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardCapture.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardCaptureUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/AnimatedSyncStatusText.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/AnimatedSyncStatusTextUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/GradeTextView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/GradeTextViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureEditButton.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureEditButtonUiTest.kt` | 4 | PASS threshold (2) |
