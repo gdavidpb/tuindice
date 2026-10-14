@@ -20,8 +20,10 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
+import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
@@ -31,38 +33,65 @@ import kotlinx.datetime.LocalDate
  * Reads everything the hub says from what is stored and the moment it is asked, with no clock of its
  * own: [now] carries both the instant and the day, and the state of every evaluation is told for that day.
  *
- * Without a ready record there is nothing to say about the week or the term, and only the career remains.
- * With a ready record both are always there: the term in progress when the record has one, and otherwise
- * what the record says of the terms it has (the last one that is over, and whether it has any at all).
+ * A ready record has both the week and the term: the term in progress when the record has one, and otherwise
+ * what the record says of the terms it has (the last one that is over, and whether it has any at all). A new
+ * student the university has no record for yet has no term yet. Any other state of the record leaves only the career.
  */
 fun buildSummaryHub(
-	record: AcademicRecord?,
-	isRecordReady: Boolean,
+	recordState: SummaryRecordState,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
-	val readyRecord = record?.takeIf { isRecordReady }
-		?: return SummaryHub.Empty.copy(career = pensumProgress)
+	return when (recordState) {
+		is SummaryRecordState.Ready -> readyHubOf(
+			record = recordState.record,
+			evaluations = evaluations,
+			now = now,
+			pensumProgress = pensumProgress
+		)
 
-	val term = readyRecord.terms
+		SummaryRecordState.NewStudentWithoutRecord -> idleHubOf(
+			hasTerms = false,
+			finished = null,
+			pensumProgress = pensumProgress
+		)
+
+		SummaryRecordState.NotReady -> SummaryHub.Empty.copy(career = pensumProgress)
+	}
+}
+
+private fun readyHubOf(
+	record: AcademicRecord,
+	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
+	now: ScheduleNow,
+	pensumProgress: PensumCreditsProgress?
+): SummaryHub {
+	val term = record.terms
 		.currentTermOrNull(kind = AcademicTerm::kind, termOrder = AcademicTerm::termOrder, id = AcademicTerm::id)
 
 	return if (term == null) {
-		idleHubOf(readyRecord = readyRecord, pensumProgress = pensumProgress)
+		idleHubOf(
+			hasTerms = record.terms.isNotEmpty(),
+			finished = finishedTermOf(record),
+			pensumProgress = pensumProgress
+		)
 	} else {
 		inProgressHubOf(term = term, evaluations = evaluations, now = now, pensumProgress = pensumProgress)
 	}
 }
 
-// No term in progress: nothing is attended to, and the week and the term say only what the record has of its terms.
-private fun idleHubOf(readyRecord: AcademicRecord, pensumProgress: PensumCreditsProgress?): SummaryHub {
-	val hasTerms = readyRecord.terms.isNotEmpty()
-
+// No term in progress: nothing is attended to, and the week and the term say only what the record has of its terms,
+// or that there is nothing yet for a new student.
+private fun idleHubOf(
+	hasTerms: Boolean,
+	finished: SummaryFinishedTerm?,
+	pensumProgress: PensumCreditsProgress?
+): SummaryHub {
 	return SummaryHub(
 		attention = emptyList(),
 		week = SummaryWeek.Idle(hasTerms = hasTerms),
-		term = SummaryTerm.Idle(hasTerms = hasTerms, finished = finishedTermOf(readyRecord)),
+		term = SummaryTerm.Idle(hasTerms = hasTerms, finished = finished),
 		career = pensumProgress
 	)
 }

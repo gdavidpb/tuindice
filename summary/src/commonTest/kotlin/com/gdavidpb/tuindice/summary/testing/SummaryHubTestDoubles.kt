@@ -69,9 +69,16 @@ class ControllablePensumProgressRepository(
 }
 
 class ControllableRecordDataPrerequisiteRepository(
-	isReady: Boolean = true
+	isReady: Boolean = true,
+	isNewStudentWithoutRecord: Boolean = false
 ) : RecordDataPrerequisiteRepository {
-	val stateFlow = MutableStateFlow(RecordDataPrerequisiteState(isReady = isReady, hasFailed = false))
+	val stateFlow = MutableStateFlow(
+		RecordDataPrerequisiteState(
+			isReady = isReady,
+			hasFailed = false,
+			isNewStudentWithoutRecord = isNewStudentWithoutRecord
+		)
+	)
 
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = stateFlow
 

@@ -172,6 +172,12 @@ private val summaryNewStudentNoRecord = scenario(
 	tap(tag(SummaryUiTags.StatusIconButton), requireEnabled = false)
 	waitGone(SummaryUiTags.SyncStatusMessage, Within.Assert)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Assert)
+	// The profile loaded, so the hub is on the content: a new student the university has no record for yet has no
+	// week and no term to show, and the term names the first one to come.
+	scrollUntilVisible(SummaryUiTags.WeekCard, Scroll.ContentDown, Within.Long)
+	waitVisible(text(Copy.SummaryNoTermWeekTitle), Within.Long)
+	scrollUntilVisible(SummaryUiTags.TermCard, Scroll.ContentDown, Within.Long)
+	waitVisible(text(Copy.SummaryFirstTermTitle), Within.Long)
 }
 
 // The account has data from before; the university just refuses the record today. The content stays and the

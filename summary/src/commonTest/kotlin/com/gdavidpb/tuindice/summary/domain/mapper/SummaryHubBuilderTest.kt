@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
+import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.testing.HUB_CLASSES_START
@@ -49,8 +50,7 @@ class SummaryHubBuilderTest {
 		now: ScheduleNow = scheduleNow(),
 		classesStartDate: String? = HUB_CLASSES_START
 	) = buildSummaryHub(
-		record = hubRecord(hubTerm(attempts = attempts, classesStartDate = classesStartDate)),
-		isRecordReady = true,
+		recordState = SummaryRecordState.Ready(hubRecord(hubTerm(attempts = attempts, classesStartDate = classesStartDate))),
 		evaluations = ObservedSyncedSnapshot(value = evaluations, hasSynced = hasSyncedEvaluations),
 		now = now,
 		pensumProgress = null
@@ -599,8 +599,8 @@ class SummaryHubBuilderTest {
 		val record = hubRecord(hubTerm(attempts = listOf(classesOnThursday)))
 		val evaluations = ObservedSyncedSnapshot(emptyList<Evaluation>(), true)
 
-		assertEquals(progress, buildSummaryHub(record, true, evaluations, scheduleNow(), progress).career)
-		assertNull(buildSummaryHub(record, true, evaluations, scheduleNow(), null).career)
+		assertEquals(progress, buildSummaryHub(SummaryRecordState.Ready(record), evaluations, scheduleNow(), progress).career)
+		assertNull(buildSummaryHub(SummaryRecordState.Ready(record), evaluations, scheduleNow(), null).career)
 	}
 
 	@Test
@@ -609,8 +609,8 @@ class SummaryHubBuilderTest {
 		val record = hubRecord(hubTerm(attempts = listOf(classesOnThursday)))
 		val evaluations = ObservedSyncedSnapshot(emptyList<Evaluation>(), true)
 
-		val noRecord = buildSummaryHub(null, true, evaluations, scheduleNow(), progress)
-		val notReady = buildSummaryHub(record, false, evaluations, scheduleNow(), progress)
+		val noRecord = buildSummaryHub(SummaryRecordState.NotReady, evaluations, scheduleNow(), progress)
+		val notReady = buildSummaryHub(SummaryRecordState.NotReady, evaluations, scheduleNow(), progress)
 
 		assertEquals(SummaryHub.Empty.copy(career = progress), noRecord)
 		assertEquals(SummaryHub.Empty.copy(career = progress), notReady)
@@ -625,8 +625,7 @@ class SummaryHubBuilderTest {
 		val latest = hubTerm(attempts = listOf(hubAttempt(code = "NEW1111")))
 
 		val result = buildSummaryHub(
-			record = hubRecord(old, latest),
-			isRecordReady = true,
+			recordState = SummaryRecordState.Ready(hubRecord(old, latest)),
 			evaluations = ObservedSyncedSnapshot(emptyList(), true),
 			now = scheduleNow(),
 			pensumProgress = null

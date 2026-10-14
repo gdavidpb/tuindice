@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
 import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
-import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
@@ -20,7 +19,6 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryWeekEvaluation
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -729,29 +727,5 @@ class SummaryHubItemTest {
 		assertEquals(UiText.Raw("Sep - Dic 2026"), item.linkText)
 		assertNull(item.finished)
 		assertNull(item.card)
-	}
-
-	/* The whole */
-
-	@Test
-	fun theHubOfAReadyRecord_hasTheWeekAndTheTerm_andOfANotReadyOneNeitherIsThere() {
-		val ready = SummaryHub(
-			attention = emptyList(),
-			week = SummaryWeek.Idle(hasTerms = false),
-			term = SummaryTerm.Idle(hasTerms = false, finished = null),
-			career = null
-		).toSummaryHubItem()
-
-		assertNotNull(ready.week)
-		assertNotNull(ready.term)
-		assertNull(SummaryHub.Empty.toSummaryHubItem().week)
-		assertNull(SummaryHub.Empty.toSummaryHubItem().term)
-	}
-
-	@Test
-	fun theHubWithNothingToSay_hasOnlyTheInvitationToThePensum() {
-		val item = SummaryHub.Empty.toSummaryHubItem()
-
-		assertEquals(SummaryHubItem(career = SummaryCareerItem.Invite), item)
 	}
 }

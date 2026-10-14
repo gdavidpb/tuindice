@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
+import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.testing.HUB_CLASSES_START
@@ -42,8 +43,7 @@ class SummaryHubBuilderTermStatesTest {
 		now: ScheduleNow = scheduleNow(),
 		classesStartDate: String? = HUB_CLASSES_START
 	) = buildSummaryHub(
-		record = hubRecord(hubTerm(attempts = attempts, classesStartDate = classesStartDate)),
-		isRecordReady = true,
+		recordState = SummaryRecordState.Ready(hubRecord(hubTerm(attempts = attempts, classesStartDate = classesStartDate))),
 		evaluations = ObservedSyncedSnapshot(value = evaluations, hasSynced = hasSyncedEvaluations),
 		now = now,
 		pensumProgress = null
@@ -68,8 +68,7 @@ class SummaryHubBuilderTermStatesTest {
 		val historical = hubTerm(attempts = listOf(classesOnThursday), kind = TermKind.HISTORICAL)
 
 		val result = buildSummaryHub(
-			record = hubRecord(historical),
-			isRecordReady = true,
+			recordState = SummaryRecordState.Ready(hubRecord(historical)),
 			evaluations = ObservedSyncedSnapshot(
 				value = listOf(hubEvaluation(id = "late", code = "CI5437", date = hubDate(8))),
 				hasSynced = true
@@ -87,8 +86,7 @@ class SummaryHubBuilderTermStatesTest {
 	@Test
 	fun withNoTermAtAll_aNewStudent_hasNoTermForTheWeekOrTheTermToSay() {
 		val result = buildSummaryHub(
-			record = hubRecord(),
-			isRecordReady = true,
+			recordState = SummaryRecordState.Ready(hubRecord()),
 			evaluations = ObservedSyncedSnapshot(emptyList(), true),
 			now = scheduleNow(),
 			pensumProgress = null
@@ -99,12 +97,33 @@ class SummaryHubBuilderTermStatesTest {
 	}
 
 	@Test
+	fun aNewStudentWithoutRecord_isTheFirstTermCase_andTheCareerStays() {
+		val progress = PensumCreditsProgress(approvedCredits = 0, totalCredits = 240)
+
+		val result = buildSummaryHub(
+			recordState = SummaryRecordState.NewStudentWithoutRecord,
+			evaluations = ObservedSyncedSnapshot(emptyList(), true),
+			now = scheduleNow(),
+			pensumProgress = progress
+		)
+
+		assertEquals(
+			SummaryHub(
+				attention = emptyList(),
+				week = SummaryWeek.Idle(hasTerms = false),
+				term = SummaryTerm.Idle(hasTerms = false, finished = null),
+				career = progress
+			),
+			result
+		)
+	}
+
+	@Test
 	fun withOnlyPlannedTerms_theRecordHasTerms_butNoneIsFinished() {
 		val planned = hubTerm(attempts = listOf(passedAttempt(code = "CI5437")), kind = TermKind.SYNTHETIC)
 
 		val result = buildSummaryHub(
-			record = hubRecord(planned),
-			isRecordReady = true,
+			recordState = SummaryRecordState.Ready(hubRecord(planned)),
 			evaluations = ObservedSyncedSnapshot(emptyList(), true),
 			now = scheduleNow(),
 			pensumProgress = null
@@ -127,8 +146,7 @@ class SummaryHubBuilderTermStatesTest {
 			.copy(id = "planned", termOrder = 3)
 
 		val result = buildSummaryHub(
-			record = hubRecord(older, newer, planned),
-			isRecordReady = true,
+			recordState = SummaryRecordState.Ready(hubRecord(older, newer, planned)),
 			evaluations = ObservedSyncedSnapshot(emptyList(), true),
 			now = scheduleNow(),
 			pensumProgress = null
@@ -147,9 +165,13 @@ class SummaryHubBuilderTermStatesTest {
 			kind = TermKind.HISTORICAL
 		).copy(officialPeriodAverage = 14.5678)
 
-		val finished = assertIs<SummaryTerm.Idle>(
-			buildSummaryHub(hubRecord(historical), true, ObservedSyncedSnapshot(emptyList(), true), scheduleNow(), null).term
-		).finished
+		val result = buildSummaryHub(
+			recordState = SummaryRecordState.Ready(hubRecord(historical)),
+			evaluations = ObservedSyncedSnapshot(emptyList(), true),
+			now = scheduleNow(),
+			pensumProgress = null
+		)
+		val finished = assertIs<SummaryTerm.Idle>(result.term).finished
 
 		assertEquals(14.5678, finished?.index)
 	}
@@ -168,9 +190,13 @@ class SummaryHubBuilderTermStatesTest {
 			kind = TermKind.HISTORICAL
 		)
 
-		val finished = assertIs<SummaryTerm.Idle>(
-			buildSummaryHub(hubRecord(historical), true, ObservedSyncedSnapshot(emptyList(), true), scheduleNow(), null).term
-		).finished
+		val result = buildSummaryHub(
+			recordState = SummaryRecordState.Ready(hubRecord(historical)),
+			evaluations = ObservedSyncedSnapshot(emptyList(), true),
+			now = scheduleNow(),
+			pensumProgress = null
+		)
+		val finished = assertIs<SummaryTerm.Idle>(result.term).finished
 
 		assertEquals(4, finished?.approvedCredits)
 	}

@@ -82,6 +82,27 @@ class ObserveSummaryHubUseCaseTest {
 	}
 
 	@Test
+	fun aNewStudentWithoutRecord_isTheFirstTermCase_notAnError() = runTest {
+		val useCase = createObserveSummaryHubUseCase(
+			pensumProgress = ControllablePensumProgressRepository(progress),
+			prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = false, isNewStudentWithoutRecord = true)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				SummaryHub(
+					attention = emptyList(),
+					week = SummaryWeek.Idle(hasTerms = false),
+					term = SummaryTerm.Idle(hasTerms = false, finished = null),
+					career = progress
+				),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
 	fun theHub_hasNoTermWhileTheRecordIsNotReady_andGainsItWhenItIs() = runTest {
 		val prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = false)
 		val useCase = createObserveSummaryHubUseCase(
