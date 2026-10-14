@@ -29,7 +29,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
-- `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre y la carrera).
+- `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre, la carrera y las estadísticas), la pantalla Estadísticas con sus gráficos y la hoja para compartir un trimestre como imagen.
 - `record`: historial académico, cálculos de índice y la hoja Horario (tabla y grilla por bloques, con la marca de las
   evaluaciones de la semana, que lleva a Evaluaciones).
 - `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota; cada evaluación con fecha hereda del horario el
