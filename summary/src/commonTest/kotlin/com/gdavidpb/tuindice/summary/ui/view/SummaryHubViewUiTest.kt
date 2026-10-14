@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryAttentionItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSectionItem
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.testing.summaryCareerProgressItem
@@ -78,6 +79,39 @@ class SummaryHubViewUiTest {
 		}
 
 		onNodeWithTag(SummaryUiTags.CareerSection).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_theRecordIsReady_then_theStatisticsSectionFollowsTheCareer() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
+				SummaryHubView(
+					hub = SummaryHubItem(
+						career = SummaryCareerItem.Invite,
+						statistics = SummaryStatisticsSectionItem.Empty
+					),
+					actions = SummaryHubActions()
+				)
+			}
+		}
+
+		val tops = listOf(SummaryUiTags.CareerSection, SummaryUiTags.StatisticsSection)
+			.map { tag -> onNodeWithTag(tag).fetchSemanticsNode().positionInRoot.y }
+
+		check(tops == tops.sorted() && tops.distinct().size == 2) { "blocks out of order: $tops" }
+	}
+
+	@Test
+	fun when_theRecordIsNotReady_then_thereIsNoStatisticsSection() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryHubView(
+				hub = SummaryHubItem(career = SummaryCareerItem.Invite, statistics = null),
+				actions = SummaryHubActions()
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatisticsSection).assertDoesNotExist()
+		assertNodeVisible(SummaryUiTags.CareerSection)
 	}
 
 	@Test

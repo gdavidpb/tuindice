@@ -23,14 +23,27 @@ class SummaryNavigationTest {
 			onNavigateToRecordAttempt = {}
 		)
 
-		navigation.onNavigateToSection(MainSection.RECORD)
+		navigation.screens.onNavigateToSection(MainSection.RECORD)
 
 		assertEquals(MainSection.RECORD, navigator.currentTab)
 
-		navigation.onNavigateToSection(MainSection.PENSUM)
+		navigation.screens.onNavigateToSection(MainSection.PENSUM)
 
 		assertEquals(MainSection.PENSUM, navigator.currentTab)
 		assertEquals(listOf(SummaryDestination.Summary, PensumDestination.Pensum), navigator.backStack)
+	}
+
+	@Test
+	fun theStatisticsLink_pushesTheStatisticsScreenOverTheSummaryTab() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigation.screens.onNavigateToStatistics()
+
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+		assertEquals(listOf(SummaryDestination.Summary, SummaryDestination.Statistics), navigator.backStack)
 	}
 
 	@Test
@@ -41,7 +54,7 @@ class SummaryNavigationTest {
 		)
 
 		navigator.push(SummaryDestination.Statistics)
-		navigation.onNavigateToSection(MainSection.RECORD)
+		navigation.screens.onNavigateToSection(MainSection.RECORD)
 
 		assertEquals(MainSection.RECORD, navigator.currentTab)
 		assertEquals(listOf(SummaryDestination.Summary, RecordDestination.Record), navigator.backStack)
@@ -55,7 +68,7 @@ class SummaryNavigationTest {
 		)
 
 		navigator.push(SummaryDestination.Statistics)
-		navigation.onNavigateToSection(MainSection.EVALUATIONS)
+		navigation.screens.onNavigateToSection(MainSection.EVALUATIONS)
 
 		assertEquals(MainSection.EVALUATIONS, navigator.currentTab)
 		assertEquals(listOf(SummaryDestination.Summary, EvaluationsDestination.Evaluations), navigator.backStack)
@@ -82,7 +95,7 @@ class SummaryNavigationTest {
 			onNavigateToRecordAttempt = {}
 		)
 
-		navigation.onNavigateToEvaluationsWeek(LocalDate(2026, 10, 12), "evaluation-1")
+		navigation.screens.onNavigateToEvaluationsWeek(LocalDate(2026, 10, 12), "evaluation-1")
 
 		assertEquals(listOf(LocalDate(2026, 10, 12) to "evaluation-1"), asked)
 		assertEquals(MainSection.SUMMARY, navigator.currentTab)
@@ -96,7 +109,7 @@ class SummaryNavigationTest {
 			onNavigateToRecordAttempt = { attemptId -> asked += attemptId }
 		)
 
-		navigation.onNavigateToRecordAttempt("attempt-1")
+		navigation.screens.onNavigateToRecordAttempt("attempt-1")
 
 		assertEquals(listOf("attempt-1"), asked)
 		assertEquals(MainSection.SUMMARY, navigator.currentTab)

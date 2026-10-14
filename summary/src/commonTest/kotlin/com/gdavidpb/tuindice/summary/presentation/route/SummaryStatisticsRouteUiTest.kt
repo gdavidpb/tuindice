@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.SummaryStatistics
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryScreenLinks
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
@@ -55,7 +56,9 @@ class SummaryStatisticsRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryStatisticsRoute(
 				navigation = SummaryNavDependencies(
-					onNavigateToSection = { section -> sections += section }
+					screens = SummaryScreenLinks(
+						onNavigateToSection = { section -> sections += section }
+					)
 				),
 				viewModel = viewModel
 			)

@@ -92,26 +92,33 @@ fun SummaryRoute(
 	)
 }
 
-// The effects that lead to another screen, each one through the host's connection of it.
+// The effects that lead to another screen, each one through the host's connection of it. The effects the route answers
+// itself, before they reach here, lead nowhere, and are named so that a new effect cannot slip past this function.
 internal fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
 	when (effect) {
 		is Summary.Effect.NavigateToSchedule -> onOpenSchedule()
 
-		is Summary.Effect.NavigateToRecord -> onNavigateToSection(MainSection.RECORD)
+		is Summary.Effect.NavigateToRecord -> screens.onNavigateToSection(MainSection.RECORD)
 
-		is Summary.Effect.NavigateToPensum -> onNavigateToSection(MainSection.PENSUM)
+		is Summary.Effect.NavigateToPensum -> screens.onNavigateToSection(MainSection.PENSUM)
 
 		is Summary.Effect.NavigateToEvaluationsWeek ->
-			onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
+			screens.onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
 
-		is Summary.Effect.NavigateToRecordAttempt -> onNavigateToRecordAttempt(effect.attemptId)
+		is Summary.Effect.NavigateToRecordAttempt -> screens.onNavigateToRecordAttempt(effect.attemptId)
 
 		is Summary.Effect.NavigateToAddEvaluation -> onOpenForm(SummaryForm.AddEvaluation)
 
 		is Summary.Effect.NavigateToCreateTerm -> onOpenForm(SummaryForm.CreateTerm)
 
-		is Summary.Effect.NavigateToEvaluations -> onNavigateToSection(MainSection.EVALUATIONS)
+		is Summary.Effect.NavigateToEvaluations -> screens.onNavigateToSection(MainSection.EVALUATIONS)
 
-		else -> Unit
+		is Summary.Effect.NavigateToStatistics -> screens.onNavigateToStatistics()
+
+		Summary.Effect.OpenCamera,
+		Summary.Effect.OpenPicker,
+		is Summary.Effect.ShowSnackBar,
+		is Summary.Effect.ShowProfilePictureSettingsDialog,
+		Summary.Effect.ShowRemoveProfilePictureConfirmationDialog -> Unit
 	}
 }

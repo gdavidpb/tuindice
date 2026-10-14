@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryForm
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryScreenLinks
 import kotlinx.datetime.LocalDate
 
 /**
@@ -18,9 +20,13 @@ internal fun TuIndiceNavigator.toSummaryNavDependencies(
 	onNavigateToRecordAttempt: (attemptId: String) -> Unit
 ) = SummaryNavDependencies(
 	onNavigateToUpdatePassword = { push(AuthDestination.UpdatePasswordDialog) },
-	onNavigateToSection = { section -> popThenSwitchTab(section) },
-	onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
-	onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+	screens = SummaryScreenLinks(
+		onNavigateToSection = { section -> popThenSwitchTab(section) },
+		onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+		onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+		// The Statistics screen is pushed over the hub: its back returns to the Summary tab.
+		onNavigateToStatistics = { push(SummaryDestination.Statistics) }
+	),
 	onOpenSchedule = { openSchedule() },
 	onOpenForm = { form ->
 		when (form) {

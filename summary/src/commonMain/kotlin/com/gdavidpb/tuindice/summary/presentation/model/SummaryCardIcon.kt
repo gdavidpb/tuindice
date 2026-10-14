@@ -15,5 +15,8 @@ enum class SummaryCardIcon {
 	NewTerm,
 
 	/** The pensum: the invitation to open it, when no pensum was ever calculated. */
-	Career
+	Career,
+
+	/** A bar chart: the statistics have nothing to show yet, or the invitation to read them when the term is over. */
+	Statistics
 }

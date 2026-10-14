@@ -41,8 +41,10 @@
     <string name="summary_section_week">Esta semana</string>
     <string name="summary_section_term">Trimestre</string>
     <string name="summary_section_career">Carrera</string>
+    <string name="summary_section_statistics">Estadísticas</string>
     <string name="summary_link_schedule">Horario</string>
     <string name="summary_link_pensum">Pensum</string>
+    <string name="summary_link_statistics">Ver todo</string>
     <string name="summary_class_in_progress">En curso</string>
     <string name="summary_day_today">Hoy</string>
     <string name="summary_day_date">%1$s %2$d</string>
@@ -85,6 +87,7 @@
     <string name="a11y_summary_open_schedule">Abrir horario</string>
     <string name="a11y_summary_open_evaluations_week">Ver las evaluaciones de esa semana</string>
     <string name="a11y_summary_open_pensum">Abrir pensum</string>
+    <string name="a11y_summary_open_statistics">Abrir Estadísticas</string>
     <string name="a11y_summary_open_record_attempt">Ver la materia en Registro</string>
     <string name="a11y_summary_open_record">Abrir Registro</string>
     <string name="summary_link_record">Registro</string>
@@ -156,6 +159,12 @@
     <string name="summary_statistics_index_title">Índice</string>
     <string name="summary_statistics_index_empty">Tu índice aparecerá cuando termines tu primer trimestre.</string>
     <string name="summary_statistics_index_suffix">acumulado</string>
+    <string name="summary_statistics_section_empty_title">Aún no hay estadísticas</string>
+    <string name="summary_statistics_section_empty_message">Tus estadísticas aparecerán cuando termines tu primer trimestre.</string>
+    <string name="summary_statistics_section_first_title">Tu primer trimestre está en curso</string>
+    <string name="summary_statistics_section_first_message">Cuando termine verás aquí tu índice, tus notas y tu ritmo.</string>
+    <string name="summary_statistics_section_approved_best_one">%1$d aprobada · mejor trimestre %2$s</string>
+    <string name="summary_statistics_section_approved_best_many">%1$d aprobadas · mejor trimestre %2$s</string>
     <string name="summary_statistics_index_caption">al cierre de %1$s</string>
     <string name="summary_statistics_index_best">Mejor: %1$s · %2$s</string>
     <string name="summary_statistics_index_worst">Peor: %1$s · %2$s</string>

@@ -13,9 +13,9 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 
 /**
- * What Summary says under the profile, in this order: what needs attention, the week, the term and
- * the career. Each is absent when it has nothing to say, and every line leads to the screen that
- * owns what it says.
+ * What Summary says under the profile, in this order: what needs attention, the week, the term, the
+ * career and the statistics. Each is absent when it has nothing to say, and every line leads to the
+ * screen that owns what it says.
  */
 @Composable
 fun SummaryHubView(
@@ -48,6 +48,10 @@ fun SummaryHubView(
 
 		hub.career?.let { career ->
 			SummaryCareerView(career = career, actions = actions)
+		}
+
+		hub.statistics?.let { statistics ->
+			SummaryStatisticsSectionView(item = statistics, actions = actions)
 		}
 	}
 }

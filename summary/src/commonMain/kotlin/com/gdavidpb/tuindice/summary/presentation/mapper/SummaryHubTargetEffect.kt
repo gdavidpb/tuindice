@@ -24,5 +24,7 @@ internal fun SummaryHubTarget.toSummaryEffect(): Summary.Effect {
 		SummaryHubTarget.CreateTerm -> Summary.Effect.NavigateToCreateTerm
 
 		SummaryHubTarget.Evaluations -> Summary.Effect.NavigateToEvaluations
+
+		SummaryHubTarget.Statistics -> Summary.Effect.NavigateToStatistics
 	}
 }

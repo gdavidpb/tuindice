@@ -38,4 +38,7 @@ sealed interface SummaryHubTarget {
 	 * hub leads there; the Statistics screen does, from its link to the evaluations that are not here.
 	 */
 	data object Evaluations : SummaryHubTarget
+
+	/** The Statistics screen, pushed over the hub: the section's link and its card lead there. */
+	data object Statistics : SummaryHubTarget
 }

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryEffect
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryScreenLinks
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,10 +51,22 @@ class SummaryStatisticsNavigationTest {
 		assertEquals(listOf("section:${MainSection.PENSUM.name}"), calls)
 	}
 
+	@Test
+	fun when_theStatisticsAreAsked_then_theStatisticsScreenIsPushed() {
+		val calls = mutableListOf<String>()
+
+		recordingNavigation(calls).leadTo(SummaryHubTarget.Statistics.toSummaryEffect())
+
+		assertEquals(listOf("statistics"), calls)
+	}
+
 	private fun recordingNavigation(calls: MutableList<String>): SummaryNavDependencies {
 		return SummaryNavDependencies(
-			onNavigateToSection = { section -> calls += "section:${section.name}" },
-			onNavigateToEvaluationsWeek = { weekStart, evaluationId -> calls += "week:$weekStart:$evaluationId" }
+			screens = SummaryScreenLinks(
+				onNavigateToSection = { section -> calls += "section:${section.name}" },
+				onNavigateToEvaluationsWeek = { weekStart, evaluationId -> calls += "week:$weekStart:$evaluationId" },
+				onNavigateToStatistics = { calls += "statistics" }
+			)
 		)
 	}
 }

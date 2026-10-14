@@ -176,6 +176,12 @@ class SummaryHubViewModelContractTest {
 					Summary.Effect.NavigateToCreateTerm,
 					viewModel.effectAfter { openTargetAction(SummaryHubTarget.CreateTerm) }
 				)
+
+				// The section of the statistics leads to its own screen, pushed over the hub.
+				assertEquals(
+					Summary.Effect.NavigateToStatistics,
+					viewModel.effectAfter { openTargetAction(SummaryHubTarget.Statistics) }
+				)
 			} finally {
 				collector.cancel()
 			}

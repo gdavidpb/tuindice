@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
@@ -140,4 +141,5 @@ private fun SummaryCardIcon.toImageVector(): ImageVector = when (this) {
 	SummaryCardIcon.Calendar -> Icons.Outlined.CalendarMonth
 	SummaryCardIcon.NewTerm -> Icons.AutoMirrored.Outlined.NoteAdd
 	SummaryCardIcon.Career -> Icons.Outlined.AccountTree
+	SummaryCardIcon.Statistics -> Icons.Outlined.BarChart
 }

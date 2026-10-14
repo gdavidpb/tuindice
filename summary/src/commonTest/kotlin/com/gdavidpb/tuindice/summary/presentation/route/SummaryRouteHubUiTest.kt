@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryScreenLinks
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
@@ -72,7 +73,9 @@ class SummaryRouteHubUiTest {
 				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				navigation = SummaryNavDependencies(onNavigateToEvaluationsWeek = { weekStart, _ -> weeks += weekStart }),
+				navigation = SummaryNavDependencies(
+					screens = SummaryScreenLinks(onNavigateToEvaluationsWeek = { weekStart, _ -> weeks += weekStart })
+				),
 				viewModel = viewModel
 			)
 		}
@@ -100,14 +103,16 @@ class SummaryRouteHubUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				navigation = SummaryNavDependencies(
-					onNavigateToSection = { section ->
-						when (section) {
-							MainSection.RECORD -> recordOpens++
-							MainSection.PENSUM -> pensumOpens++
-							else -> Unit
-						}
-					},
-					onNavigateToRecordAttempt = { attemptId -> recordAttempts += attemptId }
+					screens = SummaryScreenLinks(
+						onNavigateToSection = { section ->
+							when (section) {
+								MainSection.RECORD -> recordOpens++
+								MainSection.PENSUM -> pensumOpens++
+								else -> Unit
+							}
+						},
+						onNavigateToRecordAttempt = { attemptId -> recordAttempts += attemptId }
+					)
 				),
 				viewModel = viewModel
 			)
@@ -169,6 +174,32 @@ class SummaryRouteHubUiTest {
 		onAllNodesWithText("65 %%").assertCountEquals(0)
 		onNodeWithTag(SummaryUiTags.CareerProgressBar, useUnmergedTree = true)
 			.assertContentDescriptionEquals("Avance del pensum: 156 de 240 créditos, 65 %")
+	}
+
+	@Test
+	fun when_theStatisticsInvitationAndItsLinkAreTapped_then_routeAsksForTheStatisticsScreen() = runTuIndiceUiTest {
+		var statisticsOpens = 0
+		val viewModel = createHubViewModel()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				navigation = SummaryNavDependencies(
+					screens = SummaryScreenLinks(onNavigateToStatistics = { statisticsOpens++ })
+				),
+				viewModel = viewModel
+			)
+		}
+
+		awaitHub(viewModel)
+
+		// The hub has a term in progress and none over, so the section invites to the statistics.
+		onNodeWithTag(SummaryUiTags.StatisticsInviteCard).performScrollTo().performClick()
+		onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.StatisticsSection)).performScrollTo().performClick()
+
+		waitUntil(timeoutMillis = 2_000) { statisticsOpens == 2 }
 	}
 
 	// A Thursday at ten with a class in progress, an evaluation on Friday, one that went by without a

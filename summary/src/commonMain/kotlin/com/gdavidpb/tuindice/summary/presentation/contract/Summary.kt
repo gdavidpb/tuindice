@@ -120,5 +120,8 @@ object Summary {
 
 		// The Evaluations tab as it opens by itself. The hub has no line that leads there; the Statistics screen does.
 		data object NavigateToEvaluations : Effect()
+
+		// The Statistics screen, pushed over the hub: the section's link and its card ask for it.
+		data object NavigateToStatistics : Effect()
 	}
 }

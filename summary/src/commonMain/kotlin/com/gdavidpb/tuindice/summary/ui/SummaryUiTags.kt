@@ -49,6 +49,16 @@ object SummaryUiTags {
 	const val CareerPercentText = "summary_career_percent_text"
 	const val CareerInviteCard = "summary_career_invite_card"
 
+	// The section of the statistics under the career: its card with figures, its invitation and its informative card, and
+	// what the card holds: the figure of the cumulative average, its line and its phrase.
+	const val StatisticsSection = "summary_statistics_section"
+	const val StatisticsCard = "summary_statistics_card"
+	const val StatisticsInviteCard = "summary_statistics_invite_card"
+	const val StatisticsEmptyCard = "summary_statistics_empty_card"
+	const val StatisticsFigureText = "summary_statistics_figure_text"
+	const val StatisticsSparkline = "summary_statistics_sparkline"
+	const val StatisticsPhrase = "summary_statistics_phrase"
+
 	const val ProfilePictureContainer = "summary_profile_picture_container"
 	const val ProfilePicturePlaceholderIcon = "summary_profile_picture_placeholder_icon"
 	const val ProfilePicturePreviewImage = "summary_profile_picture_preview_image"
