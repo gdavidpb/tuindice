@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.contract.SummaryStatistics
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
@@ -16,8 +19,10 @@ import com.gdavidpb.tuindice.summary.testing.hubPassedAttempt
 import com.gdavidpb.tuindice.summary.testing.hubRecord
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import tuindice.summary.generated.resources.Res
@@ -64,6 +69,26 @@ class SummaryStatisticsViewModelContractTest {
 
 	@Test
 	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theObservationFails_then_theScreenIsUnavailable_insteadOfLoadingForever() = runTest {
+		withMainDispatcher { dispatchers ->
+			val viewModel = createStatisticsViewModel(
+				dispatchers = dispatchers,
+				record = closedRecord(),
+				clock = object : ScheduleClockRepository {
+					override fun observeNow(): Flow<ScheduleNow> = flow { error("the clock failed") }
+				}
+			)
+
+			val unavailable = withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<SummaryStatistics.State.Unavailable>().first()
+			}
+
+			assertEquals(UiText.Resource(Res.string.summary_statistics_unavailable_title), unavailable.title)
+		}
+	}
+
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
 	fun when_aLinkIsOpened_then_theScreenAsksForItsTarget_andStaysAsItIs() = runTest {
 		withMainDispatcher { dispatchers ->
 			val viewModel = createStatisticsViewModel(
@@ -85,13 +110,15 @@ class SummaryStatisticsViewModelContractTest {
 	private fun createStatisticsViewModel(
 		dispatchers: TuIndiceDispatchers,
 		record: AcademicRecord?,
-		isReady: Boolean = true
+		isReady: Boolean = true,
+		clock: ScheduleClockRepository = ControllableScheduleClockRepository()
 	): SummaryStatisticsViewModel {
 		return SummaryStatisticsViewModel(
 			screenMachine = SummaryStatisticsMachine(
 				observeSummaryHubUseCase = createObserveSummaryHubUseCase(
 					record = ControllableVisibleAcademicRecordRepository(initialRecord = record),
-					prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = isReady)
+					prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = isReady),
+					clock = clock
 				)
 			),
 			eventPublisher = NoOpEventPublisher,

@@ -41,22 +41,28 @@ class SummaryStatisticsMachine(
 	}
 
 	// What the hub says the statistics are, read as the hub reads them: the hub has none only when the record is not
-	// ready.
+	// ready. An observation that fails has none to give either, so the screen says so instead of loading forever.
 	internal fun startObservation(host: MachineHost<SummaryStatistics.Effect>) {
 		if (observationJob?.isActive == true) return
 
 		observationJob = host.launchMachineJob {
 			observeSummaryHubUseCase.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					val statistics = useCaseState.value.toSummaryStatisticsItem()
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
 
-					host.processInternalEvent(
-						if (statistics == null) {
-							SummaryStatisticsInternalEvent.StatisticsUnavailable
-						} else {
-							SummaryStatisticsInternalEvent.StatisticsObserved(statistics = statistics)
-						}
-					)
+					is UseCaseState.Data -> {
+						val statistics = useCaseState.value.toSummaryStatisticsItem()
+
+						host.processInternalEvent(
+							if (statistics == null) {
+								SummaryStatisticsInternalEvent.StatisticsUnavailable
+							} else {
+								SummaryStatisticsInternalEvent.StatisticsObserved(statistics = statistics)
+							}
+						)
+					}
+
+					is UseCaseState.Error -> host.processInternalEvent(SummaryStatisticsInternalEvent.StatisticsUnavailable)
 				}
 			}
 		}
