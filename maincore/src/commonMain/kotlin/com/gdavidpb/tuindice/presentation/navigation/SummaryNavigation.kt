@@ -25,7 +25,9 @@ internal fun TuIndiceNavigator.toSummaryNavDependencies(
 		onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
 		onNavigateToRecordAttempt = onNavigateToRecordAttempt,
 		// The Statistics screen is pushed over the hub: its back returns to the Summary tab.
-		onNavigateToStatistics = { push(SummaryDestination.Statistics) }
+		onNavigateToStatistics = { push(SummaryDestination.Statistics) },
+		// The sheet that shares a closed term is pushed over the hub too, opened on the term that its button names.
+		onNavigateToShareTerm = { termKey -> push(SummaryDestination.ShareTermDialog(termKey = termKey)) }
 	),
 	onOpenSchedule = { openSchedule() },
 	onOpenForm = { form ->

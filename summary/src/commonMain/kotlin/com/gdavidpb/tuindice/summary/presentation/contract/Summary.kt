@@ -123,5 +123,11 @@ object Summary {
 
 		// The Statistics screen, pushed over the hub: the section's link and its card ask for it.
 		data object NavigateToStatistics : Effect()
+
+		// The sheet that shares a closed term as an image, pushed over the hub on the term of [termKey]: the share button of
+		// the last term that is over asks for it.
+		class NavigateToShareTerm(
+			val termKey: String
+		) : Effect()
 	}
 }

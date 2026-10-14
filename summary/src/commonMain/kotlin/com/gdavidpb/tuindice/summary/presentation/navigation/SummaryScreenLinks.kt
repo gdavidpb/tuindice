@@ -6,8 +6,8 @@ import kotlinx.datetime.LocalDate
 
 /**
  * The screens the lines of the hub lead to, each one connected by the host: a tab of a section, the Evaluations tab on
- * a week, the Record tab on an attempt, and the Statistics screen, pushed over the hub. Until the host connects one,
- * tapping the line that leads there does nothing.
+ * a week, the Record tab on an attempt, the Statistics screen and the sheet that shares a closed term, both pushed over
+ * the hub. Until the host connects one, tapping the line that leads there does nothing.
  */
 @Stable
 class SummaryScreenLinks(
@@ -19,5 +19,7 @@ class SummaryScreenLinks(
 	// The Record tab on the term of that attempt, with its card brought into view.
 	val onNavigateToRecordAttempt: (attemptId: String) -> Unit = {},
 	// The Statistics screen, pushed over the hub.
-	val onNavigateToStatistics: () -> Unit = {}
+	val onNavigateToStatistics: () -> Unit = {},
+	// The sheet that shares a closed term as an image, pushed over the hub, opened on the term of that key.
+	val onNavigateToShareTerm: (termKey: String) -> Unit = {}
 )

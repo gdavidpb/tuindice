@@ -26,5 +26,7 @@ internal fun SummaryHubTarget.toSummaryEffect(): Summary.Effect {
 		SummaryHubTarget.Evaluations -> Summary.Effect.NavigateToEvaluations
 
 		SummaryHubTarget.Statistics -> Summary.Effect.NavigateToStatistics
+
+		is SummaryHubTarget.ShareTerm -> Summary.Effect.NavigateToShareTerm(termKey = termKey)
 	}
 }

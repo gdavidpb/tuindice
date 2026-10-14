@@ -702,14 +702,16 @@ class SummaryHubItemTest {
 	}
 
 	@Test
-	fun theFinishedTerm_isItsNameAsAFigure_itsIndexWithFourDecimals_andItsApprovedCredits() {
+	fun theFinishedTerm_isItsNameAsAFigure_itsIndexWithFourDecimals_itsApprovedCredits_andItsKey() {
 		val finished = SummaryTerm.Idle(
 			hasTerms = true,
 			finished = SummaryFinishedTerm(
+				termKey = "2026-SEP_DEC",
 				periodCode = AcademicTermPeriod.SEP_DEC,
 				periodYear = 2026,
 				index = 14.5,
-				approvedCredits = 16
+				approvedCredits = 16,
+				isShareable = true
 			)
 		).toSummaryTermItem().finished
 
@@ -719,6 +721,8 @@ class SummaryHubItemTest {
 		assertEquals("14.5000", finished?.indexText)
 		assertEquals(UiText.Resource(Res.string.summary_term_credits_label), finished?.creditsLabel)
 		assertEquals(UiText.Resource(Res.string.summary_term_credits_value, listOf(16)), finished?.creditsText)
+		assertEquals("2026-SEP_DEC", finished?.termKey)
+		assertEquals(true, finished?.isShareable)
 	}
 
 	@Test

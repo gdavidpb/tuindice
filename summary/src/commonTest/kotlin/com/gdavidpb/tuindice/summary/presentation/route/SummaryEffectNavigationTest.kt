@@ -40,6 +40,14 @@ class SummaryEffectNavigationTest {
 	}
 
 	@Test
+	fun when_theShareTermEffectIsLed_then_theShareSheetIsOpenedOnItsTerm() {
+		assertEquals(
+			listOf("shareTerm:2026-SEP_DEC"),
+			leadingTo(Summary.Effect.NavigateToShareTerm(termKey = "2026-SEP_DEC"))
+		)
+	}
+
+	@Test
 	fun when_anEvaluationsWeekEffectIsLed_then_theWeekAndItsEvaluationAreAsked() {
 		val effect = Summary.Effect.NavigateToEvaluationsWeek(
 			weekStart = LocalDate(2026, 10, 5),
@@ -90,7 +98,8 @@ class SummaryEffectNavigationTest {
 				onNavigateToSection = { section -> calls += "section:${section.name}" },
 				onNavigateToEvaluationsWeek = { weekStart, evaluationId -> calls += "week:$weekStart:$evaluationId" },
 				onNavigateToRecordAttempt = { attemptId -> calls += "attempt:$attemptId" },
-				onNavigateToStatistics = { calls += "statistics" }
+				onNavigateToStatistics = { calls += "statistics" },
+				onNavigateToShareTerm = { termKey -> calls += "shareTerm:$termKey" }
 			),
 			onOpenSchedule = { calls += "schedule" },
 			onOpenForm = { form -> calls += "form:${form.name}" }

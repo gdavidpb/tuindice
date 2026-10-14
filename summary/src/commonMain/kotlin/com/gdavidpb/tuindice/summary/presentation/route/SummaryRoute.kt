@@ -115,6 +115,8 @@ internal fun SummaryNavDependencies.leadTo(effect: Summary.Effect) {
 
 		is Summary.Effect.NavigateToStatistics -> screens.onNavigateToStatistics()
 
+		is Summary.Effect.NavigateToShareTerm -> screens.onNavigateToShareTerm(effect.termKey)
+
 		Summary.Effect.OpenCamera,
 		Summary.Effect.OpenPicker,
 		is Summary.Effect.ShowSnackBar,

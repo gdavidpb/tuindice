@@ -10,7 +10,8 @@ import tuindice.summary.generated.resources.summary_term_credits_value
 import tuindice.summary.generated.resources.summary_term_finished_state
 import tuindice.summary.generated.resources.summary_term_index_label
 
-// "Abr - Jul 2026" with "terminado", its index with four decimals as Registro shows it, and the credits it approved.
+// "Abr - Jul 2026" with "terminado", its index with four decimals as Registro shows it, the credits it approved,
+// and the key and the share flag the share sheet is opened with.
 internal fun SummaryFinishedTerm.toSummaryFinishedTermItem(): SummaryFinishedTermItem {
 	return SummaryFinishedTermItem(
 		nameText = UiText.Raw("${periodCode.shortLabel} $periodYear"),
@@ -18,6 +19,8 @@ internal fun SummaryFinishedTerm.toSummaryFinishedTermItem(): SummaryFinishedTer
 		indexLabel = UiText.Resource(Res.string.summary_term_index_label),
 		indexText = index.formatGrade(decimals = 4),
 		creditsLabel = UiText.Resource(Res.string.summary_term_credits_label),
-		creditsText = UiText.Resource(Res.string.summary_term_credits_value, listOf(approvedCredits))
+		creditsText = UiText.Resource(Res.string.summary_term_credits_value, listOf(approvedCredits)),
+		termKey = termKey,
+		isShareable = isShareable
 	)
 }

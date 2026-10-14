@@ -10,7 +10,7 @@ import androidx.compose.runtime.Stable
 class SummaryNavDependencies(
 	// The sheet that asks the student to enter the password again (the sync status icon leads there).
 	val onNavigateToUpdatePassword: () -> Unit = {},
-	// The screens the lines of the hub lead to: the tabs, the week and the attempt, and the Statistics screen.
+	// The screens the lines of the hub lead to: the tabs, the week and the attempt, and the Statistics and share sheets.
 	val screens: SummaryScreenLinks = SummaryScreenLinks(),
 	// The Schedule sheet, over Summary.
 	val onOpenSchedule: () -> Unit = {},

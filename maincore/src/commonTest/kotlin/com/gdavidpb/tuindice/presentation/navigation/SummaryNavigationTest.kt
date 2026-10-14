@@ -47,6 +47,22 @@ class SummaryNavigationTest {
 	}
 
 	@Test
+	fun theShareTermLink_pushesTheShareSheetOnThatTerm_overTheSummaryTab() {
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
+
+		navigation.screens.onNavigateToShareTerm("2026-SEP_DEC")
+
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+		assertEquals(
+			listOf(SummaryDestination.Summary, SummaryDestination.ShareTermDialog(termKey = "2026-SEP_DEC")),
+			navigator.backStack
+		)
+	}
+
+	@Test
 	fun theStatisticsRecordLink_leavesTheStatisticsScreenAndGoesToRecord() {
 		val navigation = navigator.toSummaryNavDependencies(
 			onNavigateToEvaluationsWeek = { _, _ -> },

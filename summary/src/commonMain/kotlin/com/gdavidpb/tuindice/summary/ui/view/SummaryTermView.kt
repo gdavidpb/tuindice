@@ -30,7 +30,8 @@ import tuindice.summary.generated.resources.summary_section_term
  * Record; each subject's row opens the Record on that subject's attempt. Outside weeks 1 to 12 the week, what is
  * left of it and its track are not there, and the subjects remain with their line. With no term in progress the
  * link leads to the Record, the last term that is over comes first and then the invitation to plan the next one, or
- * the first one to come. A term with nothing to show yet says so in a card of its own.
+ * the first one to come. A term with nothing to show yet says so in a card of its own. The last term that is over has a
+ * button that opens the share sheet on that term, when the sheet has a card for it.
  */
 @Composable
 fun SummaryTermView(
@@ -54,7 +55,10 @@ fun SummaryTermView(
 		term.finished?.let { finished ->
 			SummaryFinishedTermView(
 				item = finished,
-				onClick = { actions.onTargetClick(SummaryHubTarget.Record) }
+				onClick = { actions.onTargetClick(SummaryHubTarget.Record) },
+				onShareClick = { termKey ->
+					actions.onTargetClick(SummaryHubTarget.ShareTerm(termKey = termKey))
+				}
 			)
 		}
 

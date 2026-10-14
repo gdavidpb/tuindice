@@ -196,7 +196,9 @@ class SummaryTermViewUiTest {
 							indexLabel = UiText.Raw("Índice del trimestre"),
 							indexText = "14.5000",
 							creditsLabel = UiText.Raw("Créditos aprobados"),
-							creditsText = UiText.Raw("16 UC")
+							creditsText = UiText.Raw("16 UC"),
+							termKey = "2026-APR_JUL",
+							isShareable = true
 						),
 						card = SummaryCardItem(
 							icon = SummaryCardIcon.NewTerm,
@@ -222,6 +224,39 @@ class SummaryTermViewUiTest {
 				targets
 			)
 		}
+
+	// The share button of the last term that is over asks for the sheet on that term; the card still leads to Registro.
+	@Test
+	fun when_theFinishedTermCanBeShared_then_itsButtonAsksForTheSheetOnThatTerm() = runTuIndiceUiTest {
+		val targets = mutableListOf<SummaryHubTarget>()
+
+		setTuIndiceTestContent {
+			SummaryTermView(
+				term = SummaryTermItem(
+					linkText = UiText.Raw("Registro"),
+					week = null,
+					summaryText = null,
+					subjects = emptyList(),
+					finished = SummaryFinishedTermItem(
+						nameText = UiText.Raw("Abr - Jul 2026"),
+						stateText = UiText.Raw("terminado"),
+						indexLabel = UiText.Raw("Índice del trimestre"),
+						indexText = "14.5000",
+						creditsLabel = UiText.Raw("Créditos aprobados"),
+						creditsText = UiText.Raw("16 UC"),
+						termKey = "2026-APR_JUL",
+						isShareable = true
+					),
+					card = null
+				),
+				actions = SummaryHubActions(onTargetClick = { target -> targets += target })
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.TermFinishedShare).performClick()
+
+		assertEquals(listOf<SummaryHubTarget>(SummaryHubTarget.ShareTerm(termKey = "2026-APR_JUL")), targets)
+	}
 
 	@Test
 	fun when_theTermHasNothingToShowYet_then_itsCardSaysWhatIsStillToCome() = runTuIndiceUiTest {

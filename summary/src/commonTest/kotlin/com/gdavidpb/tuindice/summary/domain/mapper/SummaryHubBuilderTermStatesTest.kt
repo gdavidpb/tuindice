@@ -16,9 +16,11 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.testing.HUB_CLASSES_START
 import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
 import com.gdavidpb.tuindice.summary.testing.hubAttempt
+import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
 import com.gdavidpb.tuindice.summary.testing.hubDate
 import com.gdavidpb.tuindice.summary.testing.hubEvaluation
 import com.gdavidpb.tuindice.summary.testing.hubMeeting
+import com.gdavidpb.tuindice.summary.testing.hubQualitativeAttempt
 import com.gdavidpb.tuindice.summary.testing.hubRecord
 import com.gdavidpb.tuindice.summary.testing.hubTerm
 import com.gdavidpb.tuindice.summary.testing.scheduleNow
@@ -205,6 +207,40 @@ class SummaryHubBuilderTermStatesTest {
 		val finished = assertIs<SummaryTerm.Idle>(result.term).finished
 
 		assertEquals(4, finished?.approvedCredits)
+	}
+
+	@Test
+	fun theFinishedTerm_isKeyedAsTheShareSheetKnowsIt_andShareable_whenItHasAnIndex() {
+		val historical = hubClosedTerm(year = 2026, attempts = listOf(passedAttempt(code = "CI5437")), index = 14.5678)
+
+		val result = buildSummaryHub(
+			recordState = SummaryRecordState.Ready(hubRecord(historical)),
+			evaluations = ObservedSyncedSnapshot(emptyList(), true),
+			now = scheduleNow(),
+			pensumProgress = null
+		)
+		val finished = assertIs<SummaryTerm.Idle>(result.term).finished
+
+		assertNotNull(finished)
+		assertEquals("2026-SEP_DEC", finished.termKey)
+		assertTrue(finished.isShareable)
+	}
+
+	// A closed term with nothing graded has no index: the share sheet has no card for it, so it is not shareable.
+	@Test
+	fun theFinishedTerm_isNotShareable_whenItHasNoIndex() {
+		val historical = hubClosedTerm(year = 2026, attempts = listOf(hubQualitativeAttempt(code = "CI5437")))
+
+		val result = buildSummaryHub(
+			recordState = SummaryRecordState.Ready(hubRecord(historical)),
+			evaluations = ObservedSyncedSnapshot(emptyList(), true),
+			now = scheduleNow(),
+			pensumProgress = null
+		)
+		val finished = assertIs<SummaryTerm.Idle>(result.term).finished
+
+		assertNotNull(finished)
+		assertFalse(finished.isShareable)
 	}
 
 	/* The week with nothing in it, and what the term says of its evaluations */

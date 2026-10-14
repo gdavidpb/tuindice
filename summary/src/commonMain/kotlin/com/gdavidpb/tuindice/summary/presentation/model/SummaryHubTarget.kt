@@ -41,4 +41,9 @@ sealed interface SummaryHubTarget {
 
 	/** The Statistics screen, pushed over the hub: the section's link and its card lead there. */
 	data object Statistics : SummaryHubTarget
+
+	/** The sheet that shares a closed term as an image, pushed over the hub, opened on the term of [termKey]. */
+	data class ShareTerm(
+		val termKey: String
+	) : SummaryHubTarget
 }

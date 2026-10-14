@@ -182,6 +182,12 @@ class SummaryHubViewModelContractTest {
 					Summary.Effect.NavigateToStatistics,
 					viewModel.effectAfter { openTargetAction(SummaryHubTarget.Statistics) }
 				)
+
+				// The share button of the last term that is over asks for the sheet on that term.
+				val toShare = viewModel.effectAfter {
+					openTargetAction(SummaryHubTarget.ShareTerm(termKey = "2026-SEP_DEC"))
+				}
+				assertEquals("2026-SEP_DEC", assertIs<Summary.Effect.NavigateToShareTerm>(toShare).termKey)
 			} finally {
 				collector.cancel()
 			}

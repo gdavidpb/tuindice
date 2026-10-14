@@ -96,7 +96,7 @@ private fun readyHubOf(
 	return if (term == null) {
 		idleHubOf(
 			hasTerms = reading.record.terms.isNotEmpty(),
-			finished = finishedTermOf(reading.projection),
+			finished = finishedTermOf(projection = reading.projection, closed = reading.closed),
 			closed = reading.closed,
 			pensumProgress = pensumProgress
 		)

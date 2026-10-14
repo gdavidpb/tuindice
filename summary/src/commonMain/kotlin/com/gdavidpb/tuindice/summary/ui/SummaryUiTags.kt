@@ -39,6 +39,7 @@ object SummaryUiTags {
 	const val TermFinishedName = "summary_term_finished_name"
 	const val TermFinishedIndex = "summary_term_finished_index"
 	const val TermFinishedCredits = "summary_term_finished_credits"
+	const val TermFinishedShare = "summary_term_finished_share"
 
 	// The button of a card that offers one (the invitations to add an evaluation or to plan a term).
 	const val CardAction = "summary_card_action"
