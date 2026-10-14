@@ -187,6 +187,7 @@ object RecordProjectionEngine {
 			includeProjectionBehavior && attemptOverride?.score != null -> attemptOverride.score
 			includeProjectionBehavior &&
 				termKind.isEditable &&
+				!attempt.withdrawn &&
 				attempt.gradingMode == AttemptGradingMode.NUMERIC &&
 				attempt.academicOutcome == AttemptOutcome.PENDING &&
 				attempt.academicScore is AttemptScore.Empty ->
@@ -229,6 +230,20 @@ object RecordProjectionEngine {
 				score = score,
 				outcome = resolvedOutcome
 			)
+		).withoutWeightWhenWithdrawn()
+	}
+
+	// A withdrawn subject stays in its term but weighs on nothing, whatever grade it carries: as a retired one, it adds
+	// no credits and no grade anywhere, and no approval to its subject.
+	private fun EffectiveAttemptState.withoutWeightWhenWithdrawn(): EffectiveAttemptState {
+		if (!attempt.withdrawn) return this
+
+		return copy(
+			countsTowardPeriodAverage = false,
+			countsTowardDisplayedPeriodCredits = false,
+			countsTowardCumulativeAverage = false,
+			approvalEvent = false,
+			countsTowardRetakeTimeline = false
 		)
 	}
 

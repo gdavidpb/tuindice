@@ -175,6 +175,59 @@ class RecordProjectionEngineTest {
 		assertEquals(listOf("synthetic-2", "synthetic-1"), projection.terms.map { term -> term.id })
 		assertEquals(listOf("fis-pending"), projection.terms.first().attempts.map { attempt -> attempt.id })
 	}
+
+	@Test
+	fun projectProjection_leavesAWithdrawnSubjectWithoutAGrade_outOfTheTerm_insteadOfAssumingItsFive() {
+		val projection = projectSingleTerm(
+			attempt(id = "withdrawn-pending", credits = 3).copy(withdrawn = true),
+			attempt(
+				id = "numeric-approved",
+				credits = 4,
+				score = AttemptScore.numeric(3),
+				outcome = AttemptOutcome.APPROVED
+			)
+		)
+
+		assertEquals(3.0, projection.periodAverage)
+		assertEquals(4, projection.periodCredits)
+		assertEquals(3.0, projection.cumulativeAverage)
+		assertEquals(4, projection.cumulativeCredits)
+		val withdrawn = projection.attempts.single { attempt -> attempt.id == "withdrawn-pending" }
+
+		assertEquals(true, withdrawn.withdrawn)
+		assertEquals(AttemptScore.empty(), withdrawn.score)
+	}
+
+	@Test
+	fun projectAcademic_leavesAWithdrawnSubjectWithAGrade_outOfTheTerm() {
+		val projection = RecordProjectionEngine.projectAcademic(
+			record(
+				terms = listOf(
+					term(
+						id = "term-1",
+						startAtMillis = 1L,
+						endAtMillis = 2L,
+						kind = TermKind.CURRENT,
+						attempts = listOf(
+							attempt(id = "withdrawn-graded", credits = 3, score = AttemptScore.numeric(1))
+								.copy(withdrawn = true),
+							attempt(
+								id = "numeric-approved",
+								credits = 4,
+								score = AttemptScore.numeric(4),
+								outcome = AttemptOutcome.APPROVED
+							)
+						)
+					)
+				)
+			)
+		).terms.single()
+
+		assertEquals(4.0, projection.periodAverage)
+		assertEquals(4, projection.periodCredits)
+		assertEquals(4.0, projection.cumulativeAverage)
+		assertEquals(4, projection.cumulativeCredits)
+	}
 }
 
 private fun projectSingleTerm(vararg attempts: AcademicAttempt) = RecordProjectionEngine.projectProjection(
