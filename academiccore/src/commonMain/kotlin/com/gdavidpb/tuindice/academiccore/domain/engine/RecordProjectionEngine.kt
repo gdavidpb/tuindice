@@ -254,7 +254,12 @@ object RecordProjectionEngine {
 		}
 	}
 
-	private fun countsTowardPeriodAverage(
+	/**
+	 * Whether an attempt counts toward the period average of its term: a numeric attempt that was approved or failed,
+	 * with a grade above zero, or an unreported one. The latter adds its credits with no grade, so it pulls the average
+	 * down. Decided by the outcome and the grade alone; the withdrawn flag is not looked at.
+	 */
+	fun countsTowardPeriodAverage(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
 		outcome: AttemptOutcome
@@ -302,7 +307,12 @@ object RecordProjectionEngine {
 		}
 	}
 
-	private fun countsTowardRetakeTimeline(
+	/**
+	 * Whether an attempt is a result in the retake timeline of its subject: an approved or failed numeric attempt with a
+	 * grade above zero, or a qualitative one that was approved or failed. Decided by the outcome and the grade alone, the
+	 * withdrawn flag is not looked at.
+	 */
+	fun countsTowardRetakeTimeline(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
 		outcome: AttemptOutcome
