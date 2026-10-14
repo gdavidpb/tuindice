@@ -60,6 +60,8 @@ class TuIndiceNavigationSerializationTest {
 		),
 		SummaryDestination.RemoveProfilePictureConfirmationDialog,
 		SummaryDestination.Statistics,
+		SummaryDestination.ShareTermDialog(termKey = null),
+		SummaryDestination.ShareTermDialog(termKey = "2026-JAN_MAR"),
 		RecordDestination.Record,
 		RecordDestination.CreateSyntheticTerm(termId = "term-1"),
 		RecordDestination.CreateSyntheticTerm(termId = null),

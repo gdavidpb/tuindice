@@ -11,7 +11,6 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,6 +24,7 @@ import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.about.ui.view.AboutHeader
 import com.gdavidpb.tuindice.about.ui.view.AboutItem
 import com.gdavidpb.tuindice.about.ui.view.AboutSwitchItem
+import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
 import com.gdavidpb.tuindice.base.ui.view.universityLogoPainter
@@ -130,7 +130,7 @@ fun AboutContentView(
 			) { onXClick() }
 
 			AboutItem(
-				icon = rememberVectorPainter(Icons.Outlined.Share),
+				icon = rememberVectorPainter(ShareIcon),
 				text = stringResource(Res.string.about_share),
 				testTag = AboutUiTags.ShareApp,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant

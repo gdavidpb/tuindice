@@ -38,6 +38,26 @@ class TopAppBarActionsViewUiTest {
 	}
 
 	@Test
+	fun when_statisticsConfigHasTheShareAction_then_rendersItAndDispatchesIt() = runTuIndiceUiTest {
+		var selectedAction: TopBarAction? = null
+
+		setTuIndiceTestContent {
+			TopAppBarActionsView(
+				topBarConfig = TopBarConfig.Statistics,
+				onAction = { action -> selectedAction = action }
+			) { action ->
+				Text(action.action)
+			}
+		}
+
+		val shareTag = BaseUiTags.topBarActionButton(TopBarAction.StatisticsShareAction)
+		assertNodeVisible(shareTag)
+
+		onNodeWithTag(shareTag).performClick()
+		assertEquals(TopBarAction.StatisticsShareAction, selectedAction)
+	}
+
+	@Test
 	fun when_configIsNull_then_hidesActionsContainer() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TopAppBarActionsView(

@@ -66,6 +66,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -96,6 +97,7 @@ import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
 import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
+import tuindice.maincore.generated.resources.a11y_top_bar_statistics_share
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.bottom_bar_about
@@ -466,6 +468,8 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_search_pensum)
 		is TopBarAction.ChangePensumAction ->
 			stringResource(Res.string.a11y_top_bar_change_pensum)
+		is TopBarAction.StatisticsShareAction ->
+			stringResource(Res.string.a11y_top_bar_statistics_share)
 	}
 }
 
@@ -487,6 +491,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.Outlined.Search
 		is TopBarAction.ChangePensumAction ->
 			Icons.Outlined.Tune
+		is TopBarAction.StatisticsShareAction ->
+			ShareIcon
 	}
 }
 

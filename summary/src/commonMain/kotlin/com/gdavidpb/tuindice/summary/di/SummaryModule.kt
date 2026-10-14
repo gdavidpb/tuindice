@@ -18,10 +18,12 @@ import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -30,8 +32,11 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfi
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ShareTermImageExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.presentation.machine.ShareTermMachine
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.ShareTermViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
@@ -46,11 +51,17 @@ val summaryModule = module {
 
 	viewModelOf(::SummaryViewModel)
 	viewModelOf(::SummaryStatisticsViewModel)
+	viewModelOf(::ShareTermViewModel)
+
+	/* Top bar actions the Statistics screen listens to */
+
+	singleOf(::StatisticsTopBarActionBus)
 
 	/* State machines */
 
 	factoryOf(::SummaryMachine)
 	factoryOf(::SummaryStatisticsMachine)
+	factoryOf(::ShareTermMachine)
 
 	/* Use cases */
 
@@ -63,6 +74,8 @@ val summaryModule = module {
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
 	factoryOf(::ShareTermImageUseCase)
+	factoryOf(::ObserveShareTermUseCase)
+	factoryOf(::SetShareBackgroundPreferenceUseCase)
 
 	/* Repositories */
 

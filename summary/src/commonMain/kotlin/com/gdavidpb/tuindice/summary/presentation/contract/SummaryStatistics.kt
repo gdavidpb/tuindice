@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsItem
@@ -25,7 +26,10 @@ object SummaryStatistics {
 
 		data class Content(
 			val statistics: SummaryStatisticsItem
-		) : State()
+		) : State() {
+			// The closed terms of the statistics can be shared as an image, from the top bar.
+			override val topBarConfig: TopBarConfig = TopBarConfig.Statistics
+		}
 
 		// The record is not ready to be read, so there are no statistics: the screen says so and does not retry.
 		data class Unavailable(

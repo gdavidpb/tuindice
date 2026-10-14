@@ -30,4 +30,5 @@
 	<string name="a11y_top_bar_record_schedule">Ver horario</string>
 	<string name="a11y_top_bar_search_pensum">Buscar materias</string>
 	<string name="a11y_top_bar_change_pensum">Cambiar pensum</string>
+	<string name="a11y_top_bar_statistics_share">Compartir un trimestre</string>
 </resources>

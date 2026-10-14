@@ -247,4 +247,11 @@
     <string name="share_term_card_career">%1$s · USB</string>
     <string name="share_term_card_brand">TuIndice</string>
     <string name="a11y_share_term_card">Mi trimestre, tarjeta para compartir</string>
+    <string name="share_term_sheet_title">Compartir un trimestre</string>
+    <string name="share_term_background_label">Fondo</string>
+    <string name="share_term_share_action">Compartir</string>
+    <string name="share_term_empty_message">Podrás compartir un trimestre cuando termines el primero.</string>
+    <string name="share_term_failed_message">No pudimos preparar la imagen. Inténtalo de nuevo.</string>
+    <string name="share_term_unavailable_title">Compartir no disponible</string>
+    <string name="share_term_unavailable_message">No pudimos leer tu registro en este momento.</string>
 </resources>

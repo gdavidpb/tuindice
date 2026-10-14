@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.wizard.presentation.mapper.toCoachmarkSurface
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
@@ -74,6 +75,7 @@ fun TuIndiceAppHostRoute(
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val clock = koinInject<Clock>()
+	val statisticsTopBarActionBus = koinInject<StatisticsTopBarActionBus>()
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -249,6 +251,9 @@ fun TuIndiceAppHostRoute(
 
 						is TopBarAction.ChangePensumAction ->
 							pensumTopBarActionBus.dispatch(action)
+
+						is TopBarAction.StatisticsShareAction ->
+							statisticsTopBarActionBus.dispatch(action)
 					}
 				},
 				onRecordViewModeChange = onRecordViewModeChange.value,

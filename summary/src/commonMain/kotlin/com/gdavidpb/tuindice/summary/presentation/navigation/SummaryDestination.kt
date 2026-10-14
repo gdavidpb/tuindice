@@ -21,4 +21,11 @@ sealed class SummaryDestination : Destination() {
 	// The Statistics screen, pushed from the hub: read-only, over the tab it is opened from.
 	@Serializable
 	data object Statistics : SummaryDestination()
+
+	// The sheet that shares a closed term as an image, over the screen it is opened from. [termKey] is the term it opens
+	// on, or null for the newest one.
+	@Serializable
+	data class ShareTermDialog(
+		val termKey: String?
+	) : SummaryDestination(), DialogDestination
 }

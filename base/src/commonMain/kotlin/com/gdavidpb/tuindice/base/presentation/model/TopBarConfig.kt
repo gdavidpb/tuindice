@@ -35,4 +35,11 @@ sealed class TopBarConfig(
 			TopBarAction.SearchPensumAction
 		)
 	)
+
+	// The closed terms of the Statistics screen can be shared as an image.
+	data object Statistics : TopBarConfig(
+		actions = listOf(
+			TopBarAction.StatisticsShareAction
+		)
+	)
 }

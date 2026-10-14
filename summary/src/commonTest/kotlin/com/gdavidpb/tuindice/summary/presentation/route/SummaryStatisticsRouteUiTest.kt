@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.summary.presentation.contract.SummaryStatistics
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryScreenLinks
@@ -22,9 +24,11 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class SummaryStatisticsRouteUiTest {
@@ -35,7 +39,9 @@ class SummaryStatisticsRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryStatisticsRoute(
 				navigation = SummaryNavDependencies(),
-				viewModel = viewModel
+				viewModel = viewModel,
+				topBarActionBus = StatisticsTopBarActionBus(),
+				onNavigateToShareTerm = {}
 			)
 		}
 
@@ -60,7 +66,9 @@ class SummaryStatisticsRouteUiTest {
 						onNavigateToSection = { section -> sections += section }
 					)
 				),
-				viewModel = viewModel
+				viewModel = viewModel,
+				topBarActionBus = StatisticsTopBarActionBus(),
+				onNavigateToShareTerm = {}
 			)
 		}
 
@@ -75,6 +83,32 @@ class SummaryStatisticsRouteUiTest {
 		}
 
 		assertEquals(listOf(MainSection.RECORD), sections)
+	}
+
+	@Test
+	fun when_theShareActionIsDispatched_then_theRouteOpensTheShareSheet() = runTuIndiceUiTest {
+		val viewModel = createStatisticsViewModel()
+		val topBarActionBus = StatisticsTopBarActionBus()
+		val opened = CompletableDeferred<Unit>()
+
+		setTuIndiceTestContent {
+			SummaryStatisticsRoute(
+				navigation = SummaryNavDependencies(),
+				viewModel = viewModel,
+				topBarActionBus = topBarActionBus,
+				onNavigateToShareTerm = { opened.complete(Unit) }
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is SummaryStatistics.State.Content
+		}
+		runOnIdle {
+			topBarActionBus.dispatch(TopBarAction.StatisticsShareAction)
+		}
+		waitUntil(timeoutMillis = 2_000) { opened.isCompleted }
+
+		assertTrue(opened.isCompleted)
 	}
 
 	private fun createStatisticsViewModel(

@@ -63,6 +63,7 @@ import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
@@ -1409,6 +1410,7 @@ class TuIndiceAppHostRouteUiTest {
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
+		single { StatisticsTopBarActionBus() }
 		single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
 		single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
 	}

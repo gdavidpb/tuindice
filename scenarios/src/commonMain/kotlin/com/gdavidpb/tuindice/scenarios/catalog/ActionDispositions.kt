@@ -129,6 +129,25 @@ object ActionDispositions {
 			reason = "search query observation"
 		),
 		ActionDisposition.Internal(
+			action = "summary.ShareTerm.ObserveShareTerm",
+			reason = "the sheet asks for its terms when it opens, on the term its opener names; no user performs it"
+		),
+		ActionDisposition.Pending(
+			action = "summary.ShareTerm.SelectBackground",
+			reason =
+				"the student taps a background of the share sheet; the scenario that taps it is written in F10"
+		),
+		ActionDisposition.Pending(
+			action = "summary.ShareTerm.SelectTerm",
+			reason = "the student taps a term of the share sheet; the scenario that taps it is written in F10"
+		),
+		ActionDisposition.Pending(
+			action = "summary.ShareTerm.ShareImage",
+			reason =
+				"the student taps the share button, which hands the image to the system sheet; the scenario that taps it is " +
+				"written in F10"
+		),
+		ActionDisposition.Internal(
 			action = "summary.Summary.ObserveSummary",
 			reason = "screen bootstrap"
 		),

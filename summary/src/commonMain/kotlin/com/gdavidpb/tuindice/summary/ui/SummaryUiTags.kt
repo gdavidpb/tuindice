@@ -83,6 +83,18 @@ object SummaryUiTags {
 	const val ShareTermCardIndex = "summary_share_term_card_index"
 	const val ShareTermCardCredit = "summary_share_term_card_credit"
 
+	// The sheet that shares a closed term: its terms, its card, its backgrounds and its share button.
+	const val ShareTermSheet = "summary_share_term_sheet"
+	const val ShareTermLoadingIndicator = "summary_share_term_loading_indicator"
+	const val ShareTermTerms = "summary_share_term_terms"
+	const val ShareTermEmpty = "summary_share_term_empty"
+	const val ShareTermPreview = "summary_share_term_preview"
+	const val ShareTermBackgrounds = "summary_share_term_backgrounds"
+	const val ShareTermShareButton = "summary_share_term_share_button"
+	const val ShareTermUnavailable = "summary_share_term_unavailable"
+	const val ShareTermUnavailableTitle = "summary_share_term_unavailable_title"
+	const val ShareTermUnavailableMessage = "summary_share_term_unavailable_message"
+
 	fun attentionItem(key: String): String = "summary_attention_item_$key"
 
 	fun weekEvaluationRow(evaluationId: String): String = "summary_week_evaluation_row_$evaluationId"

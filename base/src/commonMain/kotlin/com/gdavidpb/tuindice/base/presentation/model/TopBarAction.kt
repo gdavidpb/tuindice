@@ -30,4 +30,9 @@ sealed class TopBarAction(
 	data object ChangePensumAction : TopBarAction(
 		action = "change_pensum"
 	)
+
+	// The Statistics screen offers to share one of its closed terms as an image.
+	data object StatisticsShareAction : TopBarAction(
+		action = "statistics_share"
+	)
 }
