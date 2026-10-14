@@ -78,20 +78,47 @@ fun summaryTermWeekItem(week: Int = 3) = SummaryTermWeekItem(
 	totalWeeks = 12,
 	valueText = UiText.Raw("Semana $week"),
 	restText = UiText.Raw("de 12"),
-	description = UiText.Raw("Semana $week de 12")
+	description = UiText.Raw("Semana $week de 12"),
+	remainingText = UiText.Raw(
+		when (val left = 12 - week) {
+			0 -> "última semana"
+			1 -> "falta 1 semana"
+			else -> "faltan $left semanas"
+		}
+	)
 )
 
+// "evaluated" is the maximum of the graded evaluations; the line and the bar show what is evaluated of the 100 points,
+// which is nothing before a grade and 100 at most.
 fun summaryPointsItem(
 	subjectCode: String,
 	earned: String? = null,
 	evaluated: String = "60",
-	attemptId: String = "attempt-$subjectCode"
-) = SummarySubjectPointsItem(
-	subjectCode = subjectCode,
-	valueText = earned,
-	restText = UiText.Raw(if (earned == null) "Sin notas aún" else "de $evaluated puntos"),
-	attemptId = attemptId
-)
+	hasEvaluations: Boolean = true,
+	nextText: String? = null
+): SummarySubjectPointsItem {
+	val evaluatedShown = when {
+		earned == null -> "0"
+		evaluated.toDouble() > 100.0 -> "100"
+		else -> evaluated
+	}
+
+	return SummarySubjectPointsItem(
+		subjectCode = subjectCode,
+		valueText = earned,
+		restText = UiText.Raw(
+			when {
+				!hasEvaluations -> "Sin evaluaciones"
+				earned == null -> "Sin notas aún"
+				else -> "de $evaluated puntos"
+			}
+		),
+		attemptId = "attempt-$subjectCode",
+		evaluatedText = UiText.Raw("$evaluatedShown de 100 evaluados"),
+		evaluatedFraction = evaluatedShown.toFloat() / 100f,
+		nextText = nextText?.let { text -> UiText.Raw(text) }
+	)
+}
 
 fun summaryCareerProgressItem() = SummaryCareerItem.Progress(
 	valueText = "156",
@@ -135,8 +162,10 @@ fun summaryHubItem(
 	term: SummaryTermItem? = SummaryTermItem(
 		nameText = UiText.Raw("Sep - Dic 2026"),
 		week = summaryTermWeekItem(),
+		// The three subjects of the rows below, with 4 + 4 + 3 credits.
+		summaryText = UiText.Raw("3 materias · 11 UC"),
 		subjects = listOf(
-			summaryPointsItem(subjectCode = "CI5311", earned = "41"),
+			summaryPointsItem(subjectCode = "CI5311", earned = "41", nextText = "Próx.: Parcial 2 · lun 26"),
 			summaryPointsItem(subjectCode = "CI5437", earned = "18", evaluated = "25"),
 			summaryPointsItem(subjectCode = "EG1114")
 		)

@@ -31,6 +31,8 @@ object SummaryUiTags {
 	const val TermSection = "summary_term_section"
 	const val TermWeekText = "summary_term_week_text"
 	const val TermWeekTrack = "summary_term_week_track"
+	const val TermWeekRemaining = "summary_term_week_remaining"
+	const val TermSummary = "summary_term_summary"
 
 	const val CareerSection = "summary_career_section"
 	const val CareerCard = "summary_career_card"
@@ -56,6 +58,10 @@ object SummaryUiTags {
 	fun weekEvaluationRow(evaluationId: String): String = "summary_week_evaluation_row_$evaluationId"
 
 	fun termPointsRow(subjectCode: String): String = "summary_term_points_row_$subjectCode"
+
+	fun termPointsBar(subjectCode: String): String = "summary_term_points_bar_$subjectCode"
+
+	fun termPointsBarFill(subjectCode: String): String = "summary_term_points_bar_fill_$subjectCode"
 
 	// The header of a section: its title and its link, named after the section's own tag.
 	fun sectionTitle(sectionTag: String): String = "summary_section_title_$sectionTag"

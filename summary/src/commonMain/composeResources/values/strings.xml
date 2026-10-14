@@ -66,8 +66,17 @@
     <string name="summary_term_week_value">Semana %1$d</string>
     <string name="summary_term_week_rest">de %1$d</string>
     <string name="summary_term_week_description">Semana %1$d de %2$d</string>
+    <string name="summary_term_week_remaining_one">falta 1 semana</string>
+    <string name="summary_term_week_remaining_many">faltan %1$d semanas</string>
+    <string name="summary_term_week_last">última semana</string>
+    <string name="summary_term_subjects_one">%1$d materia · %2$d UC</string>
+    <string name="summary_term_subjects_many">%1$d materias · %2$d UC</string>
+    <string name="summary_term_next_evaluation">Próx.: %1$s · %2$s</string>
+    <string name="summary_term_next_today">hoy</string>
     <string name="summary_points_rest">de %1$s puntos</string>
     <string name="summary_points_none">Sin notas aún</string>
+    <string name="summary_points_no_evaluations">Sin evaluaciones</string>
+    <string name="summary_points_evaluated">%1$s de %2$s evaluados</string>
     <string name="summary_career_credits_rest">de %1$d créditos</string>
     <string name="summary_career_percent">%1$d %</string>
     <string name="summary_career_description">Avance del pensum: %1$d de %2$d créditos, %3$d %</string>

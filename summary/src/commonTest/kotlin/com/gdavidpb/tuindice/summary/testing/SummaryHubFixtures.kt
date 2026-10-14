@@ -19,6 +19,7 @@ import kotlinx.datetime.atStartOfDayIn
 // started on Monday 28/09/2026. The model's days of the week are 1 = Sunday ... 7 = Saturday.
 const val HUB_THURSDAY = 5
 const val HUB_MONDAY = 2
+const val HUB_WEDNESDAY = 4
 const val HUB_FRIDAY = 6
 
 const val HUB_CLASSES_START = "2026-09-28"

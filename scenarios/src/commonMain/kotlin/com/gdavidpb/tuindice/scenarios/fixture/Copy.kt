@@ -33,6 +33,12 @@ object Copy {
 	// summary
 	/** The figure of the term's week line ("Semana 3 de 12"); the scenarios look for it with `contains`. */
 	const val SummaryTermWeek3 = "Semana 3"
+
+	/** What is left of the term in week 3, on the same line ("faltan 9 semanas"); the scenarios look for it whole. */
+	const val SummaryTermWeeksLeft = "faltan 9 semanas"
+
+	/** The line under the track: the subjects of the term and their credits ("4 materias · 16 UC"). */
+	const val SummaryTermSubjects = "4 materias · 16 UC"
 	const val NewStudentNoRecordTitle = "Aún no tienes expediente"
 	const val RecordAccessDeniedTitle = "No pudimos consultar tu expediente"
 	const val RecordAccessDeniedMessage =
@@ -104,6 +110,8 @@ object Copy {
 	/** The binding of every constant above. */
 	val bindings: List<CopyBinding> = listOf(
 		CopyBinding.Resource(SummaryTermWeek3, "summary", "summary_term_week_value", listOf("3")),
+		CopyBinding.Resource(SummaryTermWeeksLeft, "summary", "summary_term_week_remaining_many", listOf("9")),
+		CopyBinding.Resource(SummaryTermSubjects, "summary", "summary_term_subjects_many", listOf("4", "16")),
 		CopyBinding.Resource(
 			ScheduleSubtitleWeek3,
 			"record",

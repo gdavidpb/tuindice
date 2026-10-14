@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
+import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
@@ -243,6 +244,7 @@ private fun termOf(
 	today: LocalDate
 ): SummaryTerm {
 	val points = EvaluationPointsEngine.pointsByAttempt(evaluations)
+	val nextEvaluations = nextEvaluationsOf(evaluations = evaluations, today = today)
 
 	return SummaryTerm(
 		periodCode = term.periodCode,
@@ -262,12 +264,46 @@ private fun termOf(
 				.map { attempt ->
 					SummarySubjectPoints(
 						subjectCode = attempt.subjectCode,
-						points = points[attempt.id]?.takeIf { attemptPoints -> attemptPoints.gradedCount > 0 },
-						attemptId = attempt.id
+						points = points[attempt.id],
+						attemptId = attempt.id,
+						credits = attempt.credits,
+						nextEvaluation = nextEvaluations[attempt.id]
 					)
 				}
 		} else {
 			emptyList()
 		}
 	)
+}
+
+// The next evaluation of each subject: the earliest of its dated evaluations that has no grade and has not gone by.
+// A tie on the day goes to the one the week lists put first (its number, then its id), so any line names the same one.
+private fun nextEvaluationsOf(
+	evaluations: List<Evaluation>,
+	today: LocalDate
+): Map<String, SummaryNextEvaluation> {
+	val ordinals = EvaluationOrdinalEngine.ordinalsById(evaluations)
+
+	return evaluations
+		.filter { evaluation -> evaluation.scheduleMode == EvaluationScheduleMode.DATED }
+		.filter { evaluation -> evaluation.stateOn(today) == EvaluationState.PENDING }
+		.mapNotNull { evaluation -> evaluation.date?.toLocalDate()?.let { date -> evaluation to date } }
+		.groupBy { (evaluation, _) -> evaluation.attemptId }
+		.mapValues { (_, dated) ->
+			val (next, day) = dated.minWith(
+				compareBy<Pair<Evaluation, LocalDate>>(
+					{ (_, date) -> date },
+					{ (evaluation, _) -> ordinals[evaluation.id] ?: 1 },
+					{ (evaluation, _) -> evaluation.id }
+				)
+			)
+
+			SummaryNextEvaluation(
+				evaluationId = next.id,
+				type = next.type,
+				ordinal = ordinals[next.id] ?: 1,
+				date = day,
+				isToday = day == today
+			)
+		}
 }

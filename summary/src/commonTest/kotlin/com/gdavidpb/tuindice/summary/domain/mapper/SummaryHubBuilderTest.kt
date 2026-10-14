@@ -12,10 +12,12 @@ import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
+import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.testing.HUB_CLASSES_START
 import com.gdavidpb.tuindice.summary.testing.HUB_FRIDAY
 import com.gdavidpb.tuindice.summary.testing.HUB_MONDAY
 import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
+import com.gdavidpb.tuindice.summary.testing.HUB_WEDNESDAY
 import com.gdavidpb.tuindice.summary.testing.hubAttempt
 import com.gdavidpb.tuindice.summary.testing.hubDate
 import com.gdavidpb.tuindice.summary.testing.hubEvaluation
@@ -285,10 +287,19 @@ class SummaryHubBuilderTest {
 	}
 
 	@Test
-	fun aSubjectWithNoGradedEvaluation_hasNoPoints() {
+	fun aSubjectWithEvaluationsButNoGrade_hasPointsWithNoneGraded() {
 		val evaluations = listOf(hubEvaluation(id = "e1", code = "CI5437", date = hubDate(30)))
 
-		val subject = hub(evaluations = evaluations).term!!.subjects.single()
+		val points = hub(evaluations = evaluations).term!!.subjects.single().points
+
+		assertNotNull(points)
+		assertEquals(0, points.gradedCount)
+		assertEquals(1, points.totalCount)
+	}
+
+	@Test
+	fun aSubjectWithNoEvaluationRegistered_hasNoPoints() {
+		val subject = hub(attempts = listOf(classesOnThursday)).term!!.subjects.single()
 
 		assertNull(subject.points)
 	}
@@ -313,6 +324,127 @@ class SummaryHubBuilderTest {
 		val subjects = hub(attempts = attempts).term!!.subjects
 
 		assertEquals(listOf("CI5311", "MA1111"), subjects.map { it.subjectCode })
+	}
+
+	@Test
+	fun theCredits_areThoseOfTheRows_andTheTermAddsThemUp() {
+		val attempts = listOf(
+			hubAttempt(code = "EG1114"),
+			hubAttempt(code = "CI5437").copy(credits = 4),
+			hubAttempt(code = "CI5311").copy(credits = 4),
+			hubAttempt(code = "MA1111", withdrawn = true).copy(credits = 9)
+		)
+
+		val term = hub(attempts = attempts).term!!
+
+		assertEquals(listOf(4, 4, 3), term.subjects.map { it.credits })
+		assertEquals(11, term.credits)
+	}
+
+	@Test
+	fun theWeeksLeft_areTheWeeksAfterTheOneTheTermIsIn_andZeroInTheTwelfth() {
+		fun weeksLeftOn(date: LocalDate, dayOfWeek: Int) =
+			hub(now = scheduleNow(date = date, dayOfWeek = dayOfWeek)).term?.weeksLeft
+
+		assertEquals(9, weeksLeftOn(today, HUB_THURSDAY))
+		assertEquals(1, weeksLeftOn(LocalDate(2026, 12, 9), HUB_WEDNESDAY))
+		assertEquals(0, weeksLeftOn(LocalDate(2026, 12, 16), HUB_WEDNESDAY))
+	}
+
+	@Test
+	fun outsideTheTwelveWeeks_thereAreNoWeeksLeftToSay() {
+		val afterTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 12, 28), dayOfWeek = HUB_MONDAY))
+		val beforeTheTerm = hub(now = scheduleNow(date = LocalDate(2026, 9, 20), dayOfWeek = 1))
+
+		assertNull(afterTheTerm.term?.weeksLeft)
+		assertNull(beforeTheTerm.term?.weeksLeft)
+	}
+
+	@Test
+	fun theEvaluatedOfASubject_isTheMaxGradesOfItsGradedOnes_andItStopsAtOneHundred() {
+		// The fixtures give every evaluation a maximum of 20: six graded ones would make 120.
+		val graded = (1..6).map { day ->
+			hubEvaluation(id = "g$day", code = "CI5437", date = hubDate(day), grade = 10.0)
+		}
+		val ungraded = hubEvaluation(id = "u", code = "CI5437", date = hubDate(30))
+
+		fun evaluatedOf(evaluations: List<Evaluation>) =
+			hub(evaluations = evaluations).term!!.subjects.single().evaluatedOfTotal
+
+		assertEquals(60.0, evaluatedOf(graded.take(3) + ungraded))
+		assertEquals(100.0, evaluatedOf(graded))
+		assertEquals(0.0, evaluatedOf(listOf(ungraded)))
+	}
+
+	@Test
+	fun theNextEvaluation_isTheEarliestUngradedOneThatHasNotGoneBy_andTodayCounts() {
+		val evaluations = listOf(
+			hubEvaluation(id = "overdue", code = "CI5437", date = hubDate(14)),
+			hubEvaluation(id = "graded", code = "CI5437", date = hubDate(16), grade = 12.0),
+			hubEvaluation(id = "later", code = "CI5437", date = hubDate(26)),
+			hubEvaluation(id = "today", code = "CI5437", date = today),
+			hubEvaluation(id = "continuous", code = "CI5437", date = hubDate(20))
+				.copy(scheduleMode = EvaluationScheduleMode.CONTINUOUS)
+		)
+
+		val next = hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation
+
+		assertEquals("today", next?.evaluationId)
+		assertEquals(true, next?.isToday)
+	}
+
+	@Test
+	fun theNextEvaluation_namesItsTypeAndNumber_andCarriesItsDay() {
+		val evaluations = listOf(
+			hubEvaluation(id = "test-1", code = "CI5437", date = hubDate(2), grade = 9.0),
+			hubEvaluation(id = "test-2", code = "CI5437", date = hubDate(26)),
+			hubEvaluation(id = "essay", code = "CI5437", date = hubDate(27), type = EvaluationType.ESSAY)
+		)
+
+		val next = hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation
+
+		assertEquals(
+			SummaryNextEvaluation(
+				evaluationId = "test-2",
+				type = EvaluationType.TEST,
+				ordinal = 2,
+				date = hubDate(26),
+				isToday = false
+			),
+			next
+		)
+	}
+
+	@Test
+	fun aTieOnTheDayOfTheNextEvaluation_goesToItsNumberThenItsId_whateverTheOrderGiven() {
+		fun nextOf(evaluations: List<Evaluation>) =
+			hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation?.evaluationId
+
+		// The essay is the first of its day by number (1 against the second test's 2), whatever its id.
+		val byNumber = listOf(
+			hubEvaluation(id = "test-1", code = "CI5437", date = hubDate(2), grade = 9.0),
+			hubEvaluation(id = "test-2", code = "CI5437", date = hubDate(26)),
+			hubEvaluation(id = "zeta", code = "CI5437", date = hubDate(26), type = EvaluationType.ESSAY)
+		)
+		// Both are the first of their type on the same day: the id decides, the same in either order.
+		val byId = listOf(
+			hubEvaluation(id = "test-b", code = "CI5437", date = hubDate(26)),
+			hubEvaluation(id = "essay-a", code = "CI5437", date = hubDate(26), type = EvaluationType.ESSAY)
+		)
+
+		assertEquals("zeta", nextOf(byNumber))
+		assertEquals("essay-a", nextOf(byId))
+		assertEquals("essay-a", nextOf(byId.reversed()))
+	}
+
+	@Test
+	fun withNothingLeftToGrade_thereIsNoNextEvaluation() {
+		val evaluations = listOf(
+			hubEvaluation(id = "late", code = "CI5437", date = hubDate(8)),
+			hubEvaluation(id = "graded", code = "CI5437", date = hubDate(30), grade = 10.0)
+		)
+
+		assertNull(hub(evaluations = evaluations).term!!.subjects.single().nextEvaluation)
 	}
 
 	/* What needs attention */

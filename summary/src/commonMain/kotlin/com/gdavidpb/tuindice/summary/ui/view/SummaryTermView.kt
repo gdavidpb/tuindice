@@ -2,17 +2,22 @@ package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermWeekItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import org.jetbrains.compose.resources.stringResource
@@ -20,11 +25,11 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_section_term
 
 /**
- * "Trimestre": which week of the term it is, with the track of its twelve weeks, and the points of
- * each subject. Its link, the name of the term, opens the Record; each subject's row opens the Record
- * on that subject's attempt. Outside weeks 1 to 12 the week and its track are not there and only the
- * points remain; with no points to show (nothing downloaded) only the week remains. Whichever of the
- * two is there, the card keeps the same space above and below it.
+ * "Trimestre": which week of the term it is, with the track of its twelve weeks and what is left of them, how many
+ * subjects it has and their credits, and the points of each subject. Its link, the name of the term, opens the
+ * Record; each subject's row opens the Record on that subject's attempt. Outside weeks 1 to 12 the week, what is
+ * left of it and its track are not there, and the subjects remain with their line. With no subject to show (nothing
+ * downloaded) only the week remains. Whichever of the two is there, the card keeps the same space above and below it.
  */
 @Composable
 fun SummaryTermView(
@@ -32,6 +37,8 @@ fun SummaryTermView(
 	actions: SummaryHubActions,
 	modifier: Modifier = Modifier
 ) {
+	val secondary = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+
 	Column(
 		modifier = modifier
 			.fillMaxWidth()
@@ -46,34 +53,24 @@ fun SummaryTermView(
 		)
 
 		SummaryHubCardView {
-			// Without the week the first row, which centers its content in a row taller than it, would
-			// leave the card with less space above than the closing spacer gives below.
-			if (term.week == null) {
-				Spacer(modifier = Modifier.height(TuIndiceSpacing.Medium))
-			}
+			Column(
+				modifier = Modifier.padding(
+					start = TuIndiceSpacing.Screen,
+					top = if (term.week != null) TuIndiceSpacing.Screen else TermTopWithoutWeek,
+					end = TuIndiceSpacing.Screen,
+					// With no rows under them the week and the line are the last thing of the card.
+					bottom = if (term.subjects.isEmpty()) TuIndiceSpacing.Screen else TuIndiceSpacing.Small
+				),
+				verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
+			) {
+				term.week?.let { week -> TermWeekView(week = week) }
 
-			term.week?.let { week ->
-				Column(
-					modifier = Modifier.padding(
-						start = TuIndiceSpacing.Screen,
-						top = TuIndiceSpacing.Screen,
-						end = TuIndiceSpacing.Screen,
-						// With no rows under it the week is the last thing of the card.
-						bottom = if (term.subjects.isEmpty()) TuIndiceSpacing.Screen else TuIndiceSpacing.Medium
-					),
-					verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
-				) {
-					SummaryFigureText(
-						modifier = Modifier.testTag(SummaryUiTags.TermWeekText),
-						figure = week.valueText.asString(),
-						rest = week.restText.asString()
-					)
-
-					SummaryWeekTrackView(
-						modifier = Modifier.testTag(SummaryUiTags.TermWeekTrack),
-						week = week.week,
-						totalWeeks = week.totalWeeks,
-						description = week.description.asString()
+				term.summaryText?.let { summary ->
+					Text(
+						modifier = Modifier.testTag(SummaryUiTags.TermSummary),
+						text = summary.asString(),
+						style = MaterialTheme.typography.bodyMedium,
+						color = secondary
 					)
 				}
 			}
@@ -94,3 +91,44 @@ fun SummaryTermView(
 		}
 	}
 }
+
+// The line "Semana 3 de 12" with what is left of the term at its end, on the same baseline, and the track under it.
+@Composable
+private fun TermWeekView(week: SummaryTermWeekItem) {
+	Column(
+		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
+	) {
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			horizontalArrangement = Arrangement.SpaceBetween
+		) {
+			SummaryFigureText(
+				modifier = Modifier
+					.alignByBaseline()
+					.testTag(SummaryUiTags.TermWeekText),
+				figure = week.valueText.asString(),
+				rest = week.restText.asString()
+			)
+
+			Text(
+				modifier = Modifier
+					.alignByBaseline()
+					.testTag(SummaryUiTags.TermWeekRemaining),
+				text = week.remainingText.asString(),
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+			)
+		}
+
+		SummaryWeekTrackView(
+			modifier = Modifier.testTag(SummaryUiTags.TermWeekTrack),
+			week = week.week,
+			totalWeeks = week.totalWeeks,
+			description = week.description.asString()
+		)
+	}
+}
+
+// Without a week the card opens with the space it closes with below its last row: the closing spacer and the
+// row's own bottom padding, so the first line and the last row keep the same distance from the card's edges.
+private val TermTopWithoutWeek = TuIndiceSpacing.Medium + TuIndiceSpacing.Small

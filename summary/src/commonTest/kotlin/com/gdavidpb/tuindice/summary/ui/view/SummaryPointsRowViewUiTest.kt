@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -39,12 +41,57 @@ class SummaryPointsRowViewUiTest {
 	}
 
 	@Test
-	fun when_theLetterIsLargeOnANarrowScreen_then_theChipIsNotSqueezedAndThePointsAreWhole() = runTuIndiceUiTest {
+	fun when_subjectHasNoEvaluations_then_rowSaysSinEvaluacionesAndNothingIsEvaluated() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(
+				item = summaryPointsItem(subjectCode = "CI4325", hasEvaluations = false),
+				onClick = {}
+			)
+		}
+
+		onNodeWithText("Sin evaluaciones").assertIsDisplayed()
+		onNodeWithText("0 de 100 evaluados").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_thereIsANextEvaluation_then_rowNamesItAndItsDay_besideWhatIsEvaluated() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(
+				item = summaryPointsItem(
+					subjectCode = "CI5311",
+					earned = "41",
+					nextText = "Próx.: Parcial 2 · lun 26"
+				),
+				onClick = {}
+			)
+		}
+
+		onNodeWithText("Próx.: Parcial 2 · lun 26").assertIsDisplayed()
+		onNodeWithText("60 de 100 evaluados").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_thereIsNoNextEvaluation_then_rowSaysNothingOfOne() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(item = summaryPointsItem(subjectCode = "CI5311", earned = "41"), onClick = {})
+		}
+
+		onAllNodesWithText("Próx.", substring = true).assertCountEquals(0)
+		onNodeWithText("60 de 100 evaluados").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theLetterIsLargeOnANarrowScreen_then_theChipIsNotSqueezedAndEachLineIsWhole() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WithLargeLetter {
 				Box(modifier = Modifier.width(360.dp)) {
 					SummaryPointsRowView(
-						item = summaryPointsItem(subjectCode = "CI5437", earned = "18.50", evaluated = "125.50"),
+						item = summaryPointsItem(
+							subjectCode = "CI5437",
+							earned = "18.50",
+							evaluated = "125.50",
+							nextText = "Próx.: Parcial 2 · lun 26"
+						),
 						onClick = {}
 					)
 				}
@@ -53,6 +100,8 @@ class SummaryPointsRowViewUiTest {
 
 		assertTextIsWhole("CI5437", singleLine = true)
 		assertTextIsWhole("18.50 de 125.50 puntos")
+		assertTextIsWhole("Próx.: Parcial 2 · lun 26")
+		assertTextIsWhole("100 de 100 evaluados")
 	}
 
 	@Test

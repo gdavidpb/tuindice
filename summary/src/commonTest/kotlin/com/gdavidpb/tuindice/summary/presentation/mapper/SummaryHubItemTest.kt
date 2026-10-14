@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
+import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
@@ -31,9 +32,18 @@ import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
 import tuindice.summary.generated.resources.summary_evaluation_type_test
+import tuindice.summary.generated.resources.summary_points_evaluated
+import tuindice.summary.generated.resources.summary_points_no_evaluations
 import tuindice.summary.generated.resources.summary_points_none
 import tuindice.summary.generated.resources.summary_points_rest
+import tuindice.summary.generated.resources.summary_term_next_evaluation
+import tuindice.summary.generated.resources.summary_term_next_today
+import tuindice.summary.generated.resources.summary_term_subjects_many
+import tuindice.summary.generated.resources.summary_term_subjects_one
 import tuindice.summary.generated.resources.summary_term_week_description
+import tuindice.summary.generated.resources.summary_term_week_last
+import tuindice.summary.generated.resources.summary_term_week_remaining_many
+import tuindice.summary.generated.resources.summary_term_week_remaining_one
 import tuindice.summary.generated.resources.summary_term_week_rest
 import tuindice.summary.generated.resources.summary_term_week_value
 import kotlin.test.Test
@@ -64,6 +74,21 @@ class SummaryHubItemTest {
 		academicWeek = week,
 		subjects = subjects
 	)
+
+	private fun subject(
+		code: String,
+		points: EvaluationPoints?,
+		credits: Int = 3,
+		nextEvaluation: SummaryNextEvaluation? = null
+	) = SummarySubjectPoints(
+		subjectCode = code,
+		points = points,
+		attemptId = "attempt-$code",
+		credits = credits,
+		nextEvaluation = nextEvaluation
+	)
+
+	private fun week(number: Int) = term(week = number).toSummaryTermItemOrNull()!!.week!!
 
 	/* Attention */
 
@@ -263,7 +288,7 @@ class SummaryHubItemTest {
 
 	@Test
 	fun outsideTheTwelveWeeks_onlyThePointsRemain() {
-		val subjects = listOf(SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), "attempt-CI5311"))
+		val subjects = listOf(subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), credits = 4))
 
 		val item = term(week = null, subjects = subjects).toSummaryTermItemOrNull()!!
 
@@ -279,9 +304,9 @@ class SummaryHubItemTest {
 	@Test
 	fun thePoints_areEarnedOverEvaluated_withoutDecimalsWhenThereAreNone() {
 		val subjects = listOf(
-			SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), "attempt-CI5311"),
-			SummarySubjectPoints("CI5437", EvaluationPoints(18.5, 25.0, 2, 2), "attempt-CI5437"),
-			SummarySubjectPoints("EG1114", points = null, attemptId = "attempt-EG1114")
+			subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)),
+			subject("CI5437", EvaluationPoints(18.5, 25.0, 2, 2)),
+			subject("EG1114", points = null)
 		)
 
 		val items = term(week = 3, subjects = subjects).toSummaryTermItemOrNull()!!.subjects
@@ -291,7 +316,109 @@ class SummaryHubItemTest {
 		assertEquals("18.50", items[1].valueText)
 		assertEquals(UiText.Resource(Res.string.summary_points_rest, listOf("25")), items[1].restText)
 		assertNull(items[2].valueText)
-		assertEquals(UiText.Resource(Res.string.summary_points_none), items[2].restText)
+		assertEquals(UiText.Resource(Res.string.summary_points_no_evaluations), items[2].restText)
+	}
+
+	@Test
+	fun theWeekLeft_isSaidInThePluralOrTheSingular_andAsTheLastWeekInTheTwelfth() {
+		assertEquals(UiText.Resource(Res.string.summary_term_week_remaining_many, listOf(9)), week(3).remainingText)
+		assertEquals(UiText.Resource(Res.string.summary_term_week_remaining_one), week(11).remainingText)
+		assertEquals(UiText.Resource(Res.string.summary_term_week_last), week(12).remainingText)
+	}
+
+	@Test
+	fun theSubjectsLine_countsTheRows_addsTheirCredits_andIsAbsentWithNone() {
+		val two = term(
+			week = 3,
+			subjects = listOf(
+				subject("CI5311", points = null, credits = 4),
+				subject("EG1114", points = null, credits = 3)
+			)
+		)
+		val one = term(week = 3, subjects = listOf(subject("CI5311", points = null, credits = 4)))
+
+		assertEquals(
+			UiText.Resource(Res.string.summary_term_subjects_many, listOf(2, 7)),
+			two.toSummaryTermItemOrNull()!!.summaryText
+		)
+		assertEquals(
+			UiText.Resource(Res.string.summary_term_subjects_one, listOf(1, 4)),
+			one.toSummaryTermItemOrNull()!!.summaryText
+		)
+		assertNull(term(week = 3).toSummaryTermItemOrNull()!!.summaryText)
+	}
+
+	@Test
+	fun aSubjectWithEvaluationsButNoGrade_saysSinNotasAun_andOneWithNoEvaluationSaysSinEvaluaciones() {
+		val items = term(
+			week = 3,
+			subjects = listOf(subject("CI5311", EvaluationPoints(0.0, 0.0, 0, 2)), subject("EG1114", points = null))
+		).toSummaryTermItemOrNull()!!.subjects
+
+		assertNull(items[0].valueText)
+		assertEquals(UiText.Resource(Res.string.summary_points_none), items[0].restText)
+		assertEquals(UiText.Resource(Res.string.summary_points_no_evaluations), items[1].restText)
+	}
+
+	@Test
+	fun theEvaluatedLine_isWhatIsEvaluatedOfOneHundred_andTheBarFillsWithIt() {
+		val items = term(
+			week = 3,
+			subjects = listOf(
+				subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)),
+				// Six graded evaluations of 20 make 120 evaluated: the line and the bar stop at the total.
+				subject("CI5437", EvaluationPoints(100.0, 120.0, 6, 6)),
+				subject("EG1114", points = null)
+			)
+		).toSummaryTermItemOrNull()!!.subjects
+
+		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("60", "100")), items[0].evaluatedText)
+		assertEquals(0.6f, items[0].evaluatedFraction)
+		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("100", "100")), items[1].evaluatedText)
+		assertEquals(1f, items[1].evaluatedFraction)
+		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("0", "100")), items[2].evaluatedText)
+		assertEquals(0f, items[2].evaluatedFraction)
+	}
+
+	@Test
+	fun theNextEvaluation_isNamedAsTheEvaluationsTabNamesIt_andSaysTodayOrItsDay_andIsOmittedWhenNone() {
+		val next = SummaryNextEvaluation(
+			evaluationId = "e1",
+			type = EvaluationType.TEST,
+			ordinal = 2,
+			date = LocalDate(2026, 10, 26),
+			isToday = false
+		)
+		val todays = next.copy(date = LocalDate(2026, 10, 15), isToday = true)
+		val name = UiText.Resource(
+			Res.string.summary_evaluation_name,
+			listOf(UiText.Resource(Res.string.summary_evaluation_type_test), 2)
+		)
+
+		val items = term(
+			week = 3,
+			subjects = listOf(
+				subject("CI5311", points = null, nextEvaluation = next),
+				subject("CI5437", points = null, nextEvaluation = todays),
+				subject("EG1114", points = null)
+			)
+		).toSummaryTermItemOrNull()!!.subjects
+
+		assertEquals(
+			UiText.Resource(
+				Res.string.summary_term_next_evaluation,
+				listOf(name, UiText.Resource(Res.string.summary_day_date, listOf(DayOfWeek.MONDAY.toShortNameText(), 26)))
+			),
+			items[0].nextText
+		)
+		assertEquals(
+			UiText.Resource(
+				Res.string.summary_term_next_evaluation,
+				listOf(name, UiText.Resource(Res.string.summary_term_next_today))
+			),
+			items[1].nextText
+		)
+		assertNull(items[2].nextText)
 	}
 
 	/* The career */

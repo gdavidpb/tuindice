@@ -97,7 +97,8 @@ private fun LocalDate.toDayLeadText(isToday: Boolean): UiText {
 	}
 }
 
-private fun EvaluationType.toLabelResource(): StringResource = when (this) {
+// The name an evaluation has on the hub and in "Próx.": its type, then its number among those of its subject.
+internal fun EvaluationType.toLabelResource(): StringResource = when (this) {
 	EvaluationType.TEST -> Res.string.summary_evaluation_type_test
 	EvaluationType.ESSAY -> Res.string.summary_evaluation_type_essay
 	EvaluationType.ATTENDANCE -> Res.string.summary_evaluation_type_attendance

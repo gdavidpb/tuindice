@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -8,17 +9,21 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.summary.testing.summaryPointsItem
+import com.gdavidpb.tuindice.summary.testing.summaryTermWeekItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -37,7 +42,9 @@ class SummaryTermViewUiTest {
 		onNodeWithText("Trimestre").assertIsDisplayed()
 		onNodeWithText("Sep - Dic 2026").assertIsDisplayed()
 		onNodeWithText("Semana 3 de 12").assertIsDisplayed()
+		onNodeWithText("faltan 9 semanas").assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.TermWeekTrack).assertContentDescriptionEquals("Semana 3 de 12")
+		onNodeWithText("3 materias · 11 UC").assertIsDisplayed()
 		onNodeWithText("41 de 60 puntos").assertIsDisplayed()
 		onNodeWithText("18 de 25 puntos").assertIsDisplayed()
 		onNodeWithText("Sin notas aún").assertIsDisplayed()
@@ -45,24 +52,58 @@ class SummaryTermViewUiTest {
 	}
 
 	@Test
-	fun when_termHasNoWeek_then_onlyThePointsRemain() = runTuIndiceUiTest {
+	fun when_termHasNoWeek_then_onlyThePointsAndTheirLineRemain() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryTermView(term = term.copy(week = null), actions = SummaryHubActions())
 		}
 
 		onNodeWithTag(SummaryUiTags.TermWeekText).assertDoesNotExist()
+		onNodeWithTag(SummaryUiTags.TermWeekRemaining).assertDoesNotExist()
 		onNodeWithTag(SummaryUiTags.TermWeekTrack).assertDoesNotExist()
+		onNodeWithText("3 materias · 11 UC").assertIsDisplayed()
 		onNodeWithText("41 de 60 puntos").assertIsDisplayed()
 	}
 
 	@Test
 	fun when_termHasNoPointsYet_then_itSaysNothingOfTheSubjects() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SummaryTermView(term = term.copy(subjects = emptyList()), actions = SummaryHubActions())
+			SummaryTermView(term = term.copy(subjects = emptyList(), summaryText = null), actions = SummaryHubActions())
 		}
 
 		onNodeWithText("Semana 3 de 12").assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.TermSummary).assertDoesNotExist()
 		onNodeWithText("Sin notas aún").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_termHasAWeek_then_theWeeksLeftSitOnTheBaselineOfTheFigure() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryTermView(term = term, actions = SummaryHubActions())
+		}
+
+		val figure = baselineOf(SummaryUiTags.TermWeekText)
+		val remaining = baselineOf(SummaryUiTags.TermWeekRemaining)
+
+		assertTrue(abs(figure - remaining) <= 1f, "the weeks left sit at $remaining, the figure at $figure")
+	}
+
+	@Test
+	fun when_termIsInItsEleventhWeek_then_itSaysOneWeekIsLeft() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryTermView(term = term.copy(week = summaryTermWeekItem(week = 11)), actions = SummaryHubActions())
+		}
+
+		onNodeWithText("falta 1 semana").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_termIsInItsLastWeek_then_itSaysThatItIsTheLastOne() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryTermView(term = term.copy(week = summaryTermWeekItem(week = 12)), actions = SummaryHubActions())
+		}
+
+		onNodeWithText("Semana 12 de 12").assertIsDisplayed()
+		onNodeWithText("última semana").assertIsDisplayed()
 	}
 
 	@Test
@@ -95,9 +136,10 @@ class SummaryTermViewUiTest {
 	}
 
 	@Test
-	fun when_termHasNoWeek_then_theCardKeepsTheSameSpaceAboveItsFirstRowAndBelowItsLast() = runTuIndiceUiTest {
+	fun when_termHasNoWeek_then_theCardKeepsTheSameSpaceAboveItsFirstLineAndBelowItsLastRow() = runTuIndiceUiTest {
 		val pointsOnly = term.copy(
 			week = null,
+			summaryText = UiText.Raw("2 materias · 7 UC"),
 			subjects = listOf(
 				summaryPointsItem(subjectCode = "CI5311", earned = "41"),
 				summaryPointsItem(subjectCode = "CI5437", earned = "18", evaluated = "25")
@@ -110,7 +152,7 @@ class SummaryTermViewUiTest {
 			SummaryTermView(term = pointsOnly, actions = SummaryHubActions())
 		}
 
-		val spaces = cardSpaces(density = density, firstText = "41 de 60 puntos", lastText = "18 de 25 puntos")
+		val spaces = cardSpaces(density = density, firstTag = SummaryUiTags.TermSummary, lastText = "25 de 100 evaluados")
 
 		assertSameSpace(spaces, density)
 	}
@@ -121,7 +163,7 @@ class SummaryTermViewUiTest {
 
 		setTuIndiceTestContent {
 			density = LocalDensity.current
-			SummaryTermView(term = term.copy(subjects = emptyList()), actions = SummaryHubActions())
+			SummaryTermView(term = term.copy(subjects = emptyList(), summaryText = null), actions = SummaryHubActions())
 		}
 
 		val track = onNodeWithTag(SummaryUiTags.TermWeekTrack).fetchSemanticsNode().boundsInRoot
@@ -142,22 +184,33 @@ class SummaryTermViewUiTest {
 		return onNodeWithTag(SummaryUiTags.TermSection).fetchSemanticsNode().boundsInRoot.bottom
 	}
 
+	// The spaces are measured to the texts themselves: a row's box keeps the padding it has inside it.
 	private fun ComposeUiTest.cardSpaces(
 		density: Density,
-		firstText: String,
+		firstTag: String,
 		lastText: String
 	): Pair<Float, Float> {
-		val first = onNodeWithText(firstText).fetchSemanticsNode().boundsInRoot
-		val last = onNodeWithText(lastText).fetchSemanticsNode().boundsInRoot
+		val first = onNodeWithTag(firstTag).fetchSemanticsNode().boundsInRoot
+		val last = onNodeWithText(lastText, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		return Pair(first.top - cardTop(density), sectionBottom() - last.bottom)
+	}
+
+	// The baseline of the first line of a text, measured from the top of the screen.
+	private fun ComposeUiTest.baselineOf(tag: String): Float {
+		val node = onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode()
+		val layouts = mutableListOf<TextLayoutResult>()
+
+		node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+
+		return node.boundsInRoot.top + layouts.single().getLineBaseline(0)
 	}
 
 	private fun assertSameSpace(spaces: Pair<Float, Float>, density: Density) {
 		val (above, below) = spaces
 
 		assertTrue(
-			kotlin.math.abs(above - below) <= with(density) { 1.dp.toPx() },
+			abs(above - below) <= with(density) { 1.dp.toPx() },
 			"the card leaves $above px above its content and $below px below it"
 		)
 	}
