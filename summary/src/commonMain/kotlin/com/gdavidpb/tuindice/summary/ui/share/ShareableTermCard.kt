@@ -17,7 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -77,7 +80,7 @@ private const val BOTTOM_FADE_MIDDLE = 0.5f
  * The "Mi trimestre" card of one closed term over the [background] artwork. It carries the figures of the term and the
  * credit of the artwork, and never the name or the code of the student. The university's logo signs the header at its
  * right, and [onArtReady] is called once the artwork is on screen: at once for the one the app ships with, and
- * when a remote artwork has loaded, or has failed and fallen back to the one the app ships with.
+ * when a remote artwork has loaded, or has failed and the card has turned to the one the app ships with.
  */
 @Composable
 fun ShareableTermCard(
@@ -87,6 +90,10 @@ fun ShareableTermCard(
 	onArtReady: () -> Unit = {}
 ) {
 	val description = stringResource(Res.string.a11y_share_term_card)
+	// A remote artwork that cannot be loaded gives way to the one the app ships with, credit and all: the card never
+	// shows one work under the name of another.
+	var hasArtFailed by remember(background.id) { mutableStateOf(false) }
+	val shown = if (hasArtFailed) ShareBackground.included else background
 
 	Box(
 		modifier = modifier
@@ -95,7 +102,7 @@ fun ShareableTermCard(
 			.testTag(SummaryUiTags.ShareTermCard)
 			.semantics { contentDescription = description }
 	) {
-		ShareableTermCardArt(background = background, onArtReady = onArtReady)
+		ShareableTermCardArt(background = shown, onArtReady = onArtReady, onArtFailed = { hasArtFailed = true })
 
 		Box(
 			modifier = Modifier
@@ -127,14 +134,15 @@ fun ShareableTermCard(
 
 		ShareableTermCardHeader(term = item)
 		ShareableTermCardFigures(item = item)
-		ShareableTermCardFooter(item = item, background = background)
+		ShareableTermCardFooter(item = item, background = shown)
 	}
 }
 
 @Composable
 private fun ShareableTermCardArt(
 	background: ShareBackground,
-	onArtReady: () -> Unit
+	onArtReady: () -> Unit,
+	onArtFailed: () -> Unit
 ) {
 	when (val art = background.art) {
 		ShareBackgroundArt.Bundled -> {
@@ -158,10 +166,9 @@ private fun ShareableTermCardArt(
 				imageLoader = imageLoader,
 				contentDescription = null,
 				modifier = Modifier.fillMaxSize(),
-				error = painterResource(Res.drawable.share_background_laberinto_cromovegetal_card),
 				contentScale = ContentScale.Crop,
 				onSuccess = { onArtReady() },
-				onError = { onArtReady() }
+				onError = { onArtFailed() }
 			)
 		}
 	}

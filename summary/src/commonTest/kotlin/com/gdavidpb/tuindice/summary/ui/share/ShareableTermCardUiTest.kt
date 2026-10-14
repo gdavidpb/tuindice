@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,21 @@ class ShareableTermCardUiTest {
 		}
 
 		onNodeWithTag(SummaryUiTags.ShareTermCardCredit).assertTextEquals("Biblioteca Central")
+	}
+
+	@Test
+	fun when_aRemoteArtworkCannotBeLoaded_then_theCardTurnsToTheBundledOneCreditAndAll() = runTuIndiceUiTest {
+		var readyCount = 0
+
+		setTuIndiceTestContent {
+			ShareableTermCard(item = termItem(), background = unreachable(), onArtReady = { readyCount++ })
+		}
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
+			onAllNodesWithText("Laberinto Cromovegetal · Carlos Cruz-Diez").fetchSemanticsNodes().isNotEmpty()
+		}
+		onAllNodesWithText("Espejo Solar · Alejandro Otero").assertCountEquals(0)
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { readyCount == 1 }
 	}
 
 	@Test
@@ -97,6 +114,22 @@ class ShareableTermCardUiTest {
 			listOf("Ingeniería de Computación")
 		)
 	)
+
+	// A remote artwork on a port nothing listens on, so its load fails at once.
+	private fun unreachable() = ShareBackground(
+		id = "espejo-solar",
+		title = "Espejo Solar",
+		author = "Alejandro Otero",
+		shortName = "Espejo",
+		art = ShareBackgroundArt.Remote(
+			cardUrl = "http://127.0.0.1:9/espejo-solar/v1/card.webp",
+			thumbUrl = "http://127.0.0.1:9/espejo-solar/v1/thumb.webp"
+		)
+	)
+
+	private companion object {
+		const val LOAD_TIMEOUT_MILLIS = 10_000L
+	}
 
 	// The bundled artwork keeps this test off the network: only the credit of a work without an author is under test.
 	private fun biblioteca() = ShareBackground(

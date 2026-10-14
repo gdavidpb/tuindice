@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -10,6 +11,9 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
@@ -85,6 +89,38 @@ class ShareTermContentDialogUiTest {
 		waitForIdle()
 
 		assertEquals(CARD_WIDTH_PIXELS, checkNotNull(shared).width)
+	}
+
+	@Test
+	fun when_thePreviewIsSwipedLeftThenRight_then_itAsksForTheNextBackgroundAndThenThePreviousOne() = runTuIndiceUiTest {
+		val asked = mutableListOf<String>()
+		val chosen = mutableStateOf(ShareBackground.included.id)
+
+		setTuIndiceTestContent {
+			ShareTermContentDialog(
+				state = ShareTerm.State.Content(
+					terms = terms(),
+					backgrounds = backgrounds().map { item -> item.copy(selected = item.background.id == chosen.value) }
+				),
+				snackbarHostState = remember { SnackbarHostState() },
+				actions = ShareTermSheetActions(
+					onTermClick = {},
+					onBackgroundClick = { id ->
+						asked += id
+						chosen.value = id
+					},
+					onShareClick = {}
+				),
+				onDismissRequest = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.ShareTermPreview).performTouchInput { swipeLeft() }
+		waitForIdle()
+		onNodeWithTag(SummaryUiTags.ShareTermPreview).performTouchInput { swipeRight() }
+		waitForIdle()
+
+		assertEquals(listOf(otherShareBackground.id, ShareBackground.included.id), asked)
 	}
 
 	private fun terms() = listOf(

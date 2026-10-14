@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermBackgroundStrip
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermPreview
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermTermChips
+import com.gdavidpb.tuindice.summary.ui.share.swipeBetweenBackgrounds
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.share_term_background_label
@@ -137,7 +138,12 @@ private fun ShareTermSheetContent(
 
 		if (selectedTerm != null && selectedBackground != null) {
 			Box(
-				modifier = Modifier.fillMaxWidth(),
+				modifier = Modifier
+					.fillMaxWidth()
+					.swipeBetweenBackgrounds(
+						backgrounds = content.backgrounds,
+						onBackgroundClick = actions.onBackgroundClick
+					),
 				contentAlignment = Alignment.Center
 			) {
 				ShareTermPreview(

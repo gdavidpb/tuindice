@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.summary.presentation.transition.shareTermIdleTransi
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermLoadingTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermUnavailableTransitions
 import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
+import kotlinx.coroutines.CancellationException
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.share_term_unavailable_message
 import tuindice.summary.generated.resources.share_term_unavailable_title
@@ -56,7 +57,9 @@ class ShareTermMachine(
 	// only then handed to the platform's share sheet. A card that cannot be encoded is a failed share.
 	internal fun shareImage(host: MachineHost<ShareTerm.Effect>, bitmap: ImageBitmap) {
 		host.launchMachineJob {
-			val content = runCatching { bitmap.toPngBytes() }.getOrNull()
+			val content = runCatching { bitmap.toPngBytes() }
+				.onFailure { failure -> if (failure is CancellationException) throw failure }
+				.getOrNull()
 
 			if (content == null) {
 				host.processInternalEvent(ShareTermInternalEvent.ImageShareFailed)

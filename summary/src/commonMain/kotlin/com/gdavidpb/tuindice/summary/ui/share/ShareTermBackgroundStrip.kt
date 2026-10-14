@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -145,8 +146,10 @@ private fun ShareTermThumbnail(art: ShareBackgroundArt) {
 				model = art.thumbUrl,
 				imageLoader = imageLoader,
 				contentDescription = null,
-				modifier = Modifier.fillMaxSize(),
-				error = painterResource(Res.drawable.share_background_laberinto_cromovegetal_thumb),
+				// A thumbnail that cannot be loaded stays the frame's plain surface, never another work's picture.
+				modifier = Modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.surfaceVariant),
 				contentScale = ContentScale.Crop
 			)
 		}
