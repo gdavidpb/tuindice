@@ -3,7 +3,8 @@ package com.gdavidpb.tuindice.summary.data.source
 import android.content.Intent
 import android.net.Uri
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
-import com.gdavidpb.tuindice.summary.testing.UnconfinedTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import kotlinx.coroutines.Dispatchers
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -23,7 +24,7 @@ class AndroidImageShareDataSourceTest {
 
 	private val dataSource = AndroidImageShareDataSource(
 		context = context,
-		dispatchers = UnconfinedTuIndiceDispatchers
+		dispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
 	)
 
 	@Test

@@ -28,7 +28,6 @@
     <ID>NoBlankLineBeforeRbrace:AboutModule.kt$ </ID>
     <ID>NoConsecutiveBlankLines:AndroidShareTextHandler.kt$ </ID>
     <ID>NoConsecutiveBlankLines:EnvironmentDataRepository.kt$ </ID>
-    <ID>NoConsecutiveBlankLines:IosShareTextHandler.kt$ </ID>
     <ID>NoUnusedImports:AboutContentView.kt$com.gdavidpb.tuindice.about.ui.view.AboutContentView.kt</ID>
     <ID>NoWildcardImports:SendSupportEmailUseCase.kt$import io.ktor.http.*</ID>
     <ID>TooManyFunctions:AboutMachine.kt$AboutMachine : ScreenMachine</ID>

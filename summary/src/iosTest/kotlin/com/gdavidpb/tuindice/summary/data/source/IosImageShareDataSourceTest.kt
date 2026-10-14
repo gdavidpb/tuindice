@@ -2,8 +2,9 @@ package com.gdavidpb.tuindice.summary.data.source
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
-import com.gdavidpb.tuindice.summary.testing.UnconfinedTuIndiceDispatchers
 import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
@@ -51,7 +52,7 @@ class IosImageShareDataSourceTest {
 	private fun dataSource(directory: Path, presenter: ImageSharePresenter): IosImageShareDataSource {
 		return IosImageShareDataSource(
 			storageDirectory = directory,
-			dispatchers = UnconfinedTuIndiceDispatchers,
+			dispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined),
 			presenter = presenter
 		)
 	}
