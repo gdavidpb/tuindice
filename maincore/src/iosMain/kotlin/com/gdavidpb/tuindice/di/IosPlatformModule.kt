@@ -53,11 +53,16 @@ import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
+import com.gdavidpb.tuindice.platform.temporaryStorageRoot
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.IMAGE_SHARE_DIRECTORY_NAME
+import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
+import com.gdavidpb.tuindice.summary.data.source.UIKitImageSharePresenter
+import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import com.russhwolf.settings.NSUserDefaultsSettings
@@ -194,6 +199,13 @@ val iosPlatformModule = module {
 		bind<SessionResidue>()
 	}
 	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	single<ImageShareRepository> {
+		IosImageShareDataSource(
+			storageDirectory = temporaryStorageRoot().resolve(IMAGE_SHARE_DIRECTORY_NAME),
+			dispatchers = get(),
+			presenter = UIKitImageSharePresenter()
+		)
+	}
 
 	single(named(IDENTITY_HTTP_CLIENT_QUALIFIER)) {
 		createIdentityHttpClient(

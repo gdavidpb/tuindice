@@ -12,7 +12,9 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
@@ -68,5 +70,22 @@ class IosAppKoinSmokeTest {
 	) {
 		assertTrue(getAll<SessionMemory>().any { holder -> holder is IosProfilePictureInputDataSource })
 		assertTrue(getAll<SessionResidue>().any { holder -> holder is IosProfilePictureInputDataSource })
+	}
+
+	// The statistics image goes to the share sheet through the iOS implementation, never a stand-in.
+	@Test
+	fun bindsTheImageShareToTheIosSheet() = withStartedKoin(
+		start = {
+			startAppKoin(
+				AppKoinBootstrapRequest(
+					platformBootstrap = IosKoinBootstrap(
+						iOSContext = iosSmokeTestContext(),
+						platformVariantModules = emptyList()
+					)
+				)
+			)
+		}
+	) {
+		assertTrue(get<ImageShareRepository>() is IosImageShareDataSource)
 	}
 }

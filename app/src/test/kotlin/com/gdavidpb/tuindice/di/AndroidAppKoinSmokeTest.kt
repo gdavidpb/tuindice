@@ -36,6 +36,8 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -129,6 +131,12 @@ class AndroidAppKoinSmokeTest {
 			ScheduleViewModel::class,
 			SummaryViewModel::class
 		).forEach { type -> get<Any>(type) }
+	}
+
+	// The statistics image goes to the share sheet through the Android implementation, never a stand-in.
+	@Test
+	fun bindsTheImageShareToTheAndroidSheet() = hostGraph.start {
+		assertTrue(get<ImageShareRepository>() is AndroidImageShareDataSource)
 	}
 
 	// Release reads the system clock: nothing in the production graph can freeze it.
