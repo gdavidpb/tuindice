@@ -6,10 +6,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -176,7 +179,9 @@ class RecordStateMachineContractTest {
 			"RecordRefreshFailed / NavigateToOutdatedCredentials",
 			"RecordViewModeSet / ShowTopBarBanner",
 			"SyntheticTermDeleted / ShowSnackBar",
-			"SyntheticTermRejected / ShowSnackBar"
+			"SyntheticTermRejected / ShowSnackBar",
+			"AttemptFocusRequested",
+			"AttemptArrivalTaken"
 		)
 
 		for (fragment in expectedRecordFragments) {
@@ -294,7 +299,11 @@ class RecordStateMachineContractTest {
 					message = "No se pudo eliminar",
 					navigateToOutdatedCredentials = false
 				),
-				RecordInternalEvent.SyntheticTermRejected(message = "Cambio rechazado")
+				RecordInternalEvent.SyntheticTermRejected(message = "Cambio rechazado"),
+				Record.Action.AttemptArrivalTaken(attemptId = "attempt-1"),
+				RecordInternalEvent.AttemptFocusRequested(
+					request = RecordAttemptFocusRequest(attemptId = "attempt-1")
+				)
 			),
 			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
@@ -531,6 +540,7 @@ class RecordStateMachineContractTest {
 			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
 			// Overrides the module's clock: the real one ticks forever, and the walks wait for idle.
 			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
+			single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
 			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }

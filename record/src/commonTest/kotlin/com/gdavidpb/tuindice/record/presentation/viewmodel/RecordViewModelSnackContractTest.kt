@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
@@ -83,7 +84,8 @@ class RecordViewModelSnackContractTest {
 					academicRecordRepository = academicRecordRepository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = exceptionHandler
-				)
+				),
+				attemptFocusRepository = InMemoryRecordAttemptFocusDataSource()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

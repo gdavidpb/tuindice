@@ -325,9 +325,13 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 }
 
 // The points of attention lead to the screen that owns what they say: the ungraded evaluations to the week of the
-// oldest of them (week 2, not the week of the clock), the enrollment error to Record.
+// oldest of them (week 2, not the week of the clock), the enrollment error to the attempt it names in Record.
 private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "summary", hubStart()) {
-	covers("summary.Summary.OpenTarget", "evaluations.Evaluations.EvaluationArrivalTaken")
+	covers(
+		"summary.Summary.OpenTarget",
+		"evaluations.Evaluations.EvaluationArrivalTaken",
+		"record.Record.AttemptArrivalTaken"
+	)
 	account(E2eAccounts.SummaryHub.id)
 
 	waitSummaryHub()
@@ -341,6 +345,7 @@ private val summaryHubAttentionLinks = scenario("summary-hub-attention-links", "
 	tap(SummaryUiTags.attentionItem(E2eInputs.summaryAttentionEnrollmentKey(E2eFixtures.SubjectCi5437.value)))
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+	waitVisible(RecordUiTags.attemptCard(E2eFixtures.HubAttemptCi5437.value), Within.Assert)
 }
 
 // This week: its link and the class row open the Schedule sheet over Summary (the tab does not change); an evaluation
@@ -372,12 +377,21 @@ private val summaryHubWeekLinks = scenario("summary-hub-week-links", "summary", 
 	returnToSummaryTab()
 }
 
-// The term's link opens Record and the career's link opens Pensum, each on its own tab.
+// The term's link opens Record, a subject's row opens that subject's attempt on Record, and the career's link opens
+// Pensum, as does its progress card, each on its own tab.
 private val summaryHubTermCareerLinks = scenario("summary-hub-term-career-links", "summary", hubStart()) {
-	covers("summary.Summary.OpenTarget")
+	covers("summary.Summary.OpenTarget", "record.Record.AttemptArrivalTaken")
 	account(E2eAccounts.SummaryHub.id)
 
+	val ci5437 = E2eFixtures.SubjectCi5437.value
+
 	waitSummaryHub()
+	scrollUntilVisible(SummaryUiTags.termPointsRow(ci5437), Scroll.ContentDown, Within.Wait)
+	tap(SummaryUiTags.termPointsRow(ci5437))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+	waitVisible(RecordUiTags.attemptCard(E2eFixtures.HubAttemptCi5437.value), Within.Assert)
+	returnToSummaryTab()
 	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.TermSection), Scroll.ContentDown, Within.Wait)
 	tap(SummaryUiTags.sectionLink(SummaryUiTags.TermSection))
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
@@ -386,6 +400,13 @@ private val summaryHubTermCareerLinks = scenario("summary-hub-term-career-links"
 	scrollSummaryToTop()
 	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection), Scroll.ContentDown, Within.Wait)
 	tap(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection))
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarPensumItemSelected, Within.Wait)
+	waitVisible(PensumUiTags.PensumScreen, Within.Long)
+	// The pensum is cached once its tab has been opened: the card then shows the progress, which leads to Pensum.
+	waitVisible(PensumUiTags.Canvas, Within.Long)
+	returnToSummaryTab()
+	scrollUntilVisible(SummaryUiTags.CareerCard, Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.CareerCard)
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarPensumItemSelected, Within.Wait)
 	waitVisible(PensumUiTags.PensumScreen, Within.Long)
 }

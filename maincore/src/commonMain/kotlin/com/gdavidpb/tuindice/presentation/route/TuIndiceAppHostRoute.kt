@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -41,6 +42,7 @@ import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
+import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
@@ -67,6 +69,7 @@ fun TuIndiceAppHostRoute(
 	updateRepository: UpdateRepository = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
 	evaluationsWeekFocusRepository: EvaluationsWeekFocusRepository = koinInject(),
+	recordAttemptFocusRepository: RecordAttemptFocusRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
@@ -263,6 +266,14 @@ fun TuIndiceAppHostRoute(
 						weekFocus = evaluationsWeekFocusRepository,
 						weekStart = weekStart,
 						evaluationId = evaluationId
+					)
+				},
+				// An attempt the summary hub points at: ask Registro for it, then go there in one move. Like the
+				// week jump, it does not write the section the app opens on.
+				onNavigateToRecordAttempt = { attemptId ->
+					navigator?.showRecordAttempt(
+						attemptFocus = recordAttemptFocusRepository,
+						attemptId = attemptId
 					)
 				},
 				onNavigateTo = { section ->

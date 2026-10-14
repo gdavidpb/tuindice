@@ -79,7 +79,8 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 				Summary.Effect.NavigateToSchedule::class,
 				Summary.Effect.NavigateToRecord::class,
 				Summary.Effect.NavigateToPensum::class,
-				Summary.Effect.NavigateToEvaluationsWeek::class
+				Summary.Effect.NavigateToEvaluationsWeek::class,
+				Summary.Effect.NavigateToRecordAttempt::class
 			)
 		) { state, action ->
 			host.sendEffect(
@@ -95,6 +96,9 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 							weekStart = target.weekStart,
 							evaluationId = target.evaluationId
 						)
+
+					is SummaryHubTarget.RecordAttempt ->
+						Summary.Effect.NavigateToRecordAttempt(attemptId = target.attemptId)
 				}
 			)
 			state

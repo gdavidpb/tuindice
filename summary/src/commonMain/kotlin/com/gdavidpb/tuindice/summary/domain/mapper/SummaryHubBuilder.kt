@@ -98,7 +98,13 @@ private fun attentionOf(
 				.orEmpty()
 				.map { error -> error.trim() }
 				.firstOrNull { error -> error.isNotEmpty() }
-				?.let { error -> SummaryAttention.EnrollmentError(subjectCode = attempt.subjectCode, error = error) }
+				?.let { error ->
+					SummaryAttention.EnrollmentError(
+						subjectCode = attempt.subjectCode,
+						error = error,
+						attemptId = attempt.id
+					)
+				}
 		}
 		.sortedBy(SummaryAttention.EnrollmentError::subjectCode)
 
@@ -256,7 +262,8 @@ private fun termOf(
 				.map { attempt ->
 					SummarySubjectPoints(
 						subjectCode = attempt.subjectCode,
-						points = points[attempt.id]?.takeIf { attemptPoints -> attemptPoints.gradedCount > 0 }
+						points = points[attempt.id]?.takeIf { attemptPoints -> attemptPoints.gradedCount > 0 },
+						attemptId = attempt.id
 					)
 				}
 		} else {

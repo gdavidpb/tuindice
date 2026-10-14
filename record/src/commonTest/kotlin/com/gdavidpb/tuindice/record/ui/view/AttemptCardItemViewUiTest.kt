@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
@@ -16,12 +17,15 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.record.testing.attemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.AttemptArrivalHighlight
+import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -66,6 +70,44 @@ class AttemptCardItemViewUiTest {
 	}
 
 	@Test
+	fun when_anArrivalHighlightIsGiven_then_itPlaysOnTheCard_andReportsItsEnd() = runTuIndiceUiTest {
+		val finished = mutableStateOf(false)
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
+				onGradeChange = { _, _, _ -> },
+				arrivalHighlight = AttemptArrivalHighlight(
+					trigger = "arrival-1",
+					onFinished = { finished.value = true }
+				)
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.attemptCard("attempt-1"))
+		advanceAnimationsBy(FULL_HIGHLIGHT_MILLIS)
+		waitForIdle()
+		assertTrue(finished.value)
+	}
+
+	@Test
+	fun when_noArrivalHighlightIsGiven_then_nothingPlays() = runTuIndiceUiTest {
+		val finished = mutableStateOf(false)
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
+				onGradeChange = { _, _, _ -> },
+				arrivalHighlight = null
+			)
+		}
+
+		advanceAnimationsBy(FULL_HIGHLIGHT_MILLIS)
+		waitForIdle()
+		assertFalse(finished.value)
+	}
+
+	@Test
 	fun when_aStatusIsChosenOnTheCard_then_theChoiceReachesTheCaller() = runTuIndiceUiTest {
 		val reported = mutableListOf<Triple<Int?, AttemptOutcome?, Boolean>>()
 
@@ -81,5 +123,10 @@ class AttemptCardItemViewUiTest {
 
 		// No grade goes with a status, and choosing one commits it at once.
 		assertEquals(listOf<Triple<Int?, AttemptOutcome?, Boolean>>(Triple(null, AttemptOutcome.FAILED, true)), reported)
+	}
+
+	// The arrival highlight runs on the test clock: 250 ms in, 700 ms held, 600 ms out.
+	private companion object {
+		const val FULL_HIGHLIGHT_MILLIS = 1_600L
 	}
 }

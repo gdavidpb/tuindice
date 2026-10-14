@@ -20,5 +20,7 @@ data class TermItem(
 	val attempts: List<AttemptItem>,
 	// The notice this term's page carries: only the current term has one, and only when it speaks
 	// of that term.
-	val notice: RecordNotice? = null
+	val notice: RecordNotice? = null,
+	// The attempt a jump brought in, when this term lists it: its page takes it once.
+	val arrivalAttemptId: String? = null
 )

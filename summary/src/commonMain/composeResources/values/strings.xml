@@ -76,6 +76,7 @@
     <string name="a11y_summary_open_schedule">Abrir horario</string>
     <string name="a11y_summary_open_evaluations_week">Ver las evaluaciones de esa semana</string>
     <string name="a11y_summary_open_pensum">Abrir pensum</string>
+    <string name="a11y_summary_open_record_attempt">Ver la materia en Registro</string>
     <string name="dialog_title_record_access_denied">No pudimos consultar tu expediente</string>
     <string name="dialog_message_record_access_denied">La universidad no nos permite consultar tu expediente ahora. Mantenemos tus datos anteriores.</string>
 </resources>

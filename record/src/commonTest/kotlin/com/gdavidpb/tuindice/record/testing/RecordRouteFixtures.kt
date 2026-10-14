@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.record.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
@@ -190,7 +191,8 @@ private fun recordMachine(
 			academicRecordRepository = academicRecordRepository,
 			reportingRepository = reportingRepository,
 			exceptionHandler = exceptionHandler
-		)
+		),
+		attemptFocusRepository = InMemoryRecordAttemptFocusDataSource()
 	)
 }
 

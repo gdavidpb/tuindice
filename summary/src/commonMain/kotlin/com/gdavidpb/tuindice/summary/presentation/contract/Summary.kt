@@ -108,5 +108,10 @@ object Summary {
 			val weekStart: LocalDate,
 			val evaluationId: String
 		) : Effect()
+
+		// The Record tab, on the term of [attemptId], with that attempt in view.
+		class NavigateToRecordAttempt(
+			val attemptId: String
+		) : Effect()
 	}
 }

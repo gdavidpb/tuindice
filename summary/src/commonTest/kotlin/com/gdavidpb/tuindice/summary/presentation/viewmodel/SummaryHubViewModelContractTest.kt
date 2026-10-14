@@ -161,6 +161,11 @@ class SummaryHubViewModelContractTest {
 				val toWeekEffect = assertIs<Summary.Effect.NavigateToEvaluationsWeek>(weekEffect)
 				assertEquals(week, toWeekEffect.weekStart)
 				assertEquals("evaluation-1", toWeekEffect.evaluationId)
+
+				val toAttempt = viewModel.effectAfter {
+					openTargetAction(SummaryHubTarget.RecordAttempt(attemptId = "attempt-CI5311"))
+				}
+				assertEquals("attempt-CI5311", assertIs<Summary.Effect.NavigateToRecordAttempt>(toAttempt).attemptId)
 			} finally {
 				collector.cancel()
 			}

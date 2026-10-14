@@ -90,6 +90,7 @@ class SummaryRouteHubUiTest {
 	fun when_theTermAndCareerLinksAndAnEnrollmentErrorAreTapped_then_routeOpensRecordAndPensum() = runTuIndiceUiTest {
 		var recordOpens = 0
 		var pensumOpens = 0
+		val recordAttempts = mutableListOf<String>()
 		val viewModel = createHubViewModel()
 
 		setTuIndiceTestContent {
@@ -99,7 +100,8 @@ class SummaryRouteHubUiTest {
 				showSnackBar = {},
 				navigation = SummaryNavDependencies(
 					onNavigateToRecord = { recordOpens++ },
-					onNavigateToPensum = { pensumOpens++ }
+					onNavigateToPensum = { pensumOpens++ },
+					onNavigateToRecordAttempt = { attemptId -> recordAttempts += attemptId }
 				),
 				viewModel = viewModel
 			)
@@ -112,7 +114,9 @@ class SummaryRouteHubUiTest {
 		onNodeWithTag(SummaryUiTags.CareerInviteCard).performScrollTo().performClick()
 		onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.CareerSection)).performScrollTo().performClick()
 
-		waitUntil(timeoutMillis = 2_000) { recordOpens == 2 && pensumOpens == 2 }
+		// The enrollment error asks for its own attempt; the term's link alone opens the tab.
+		waitUntil(timeoutMillis = 2_000) { recordOpens == 1 && pensumOpens == 2 && recordAttempts.size == 1 }
+		assertEquals(listOf("attempt-CI5311"), recordAttempts)
 	}
 
 	@Test
@@ -157,7 +161,7 @@ class SummaryRouteHubUiTest {
 		// Through the real mapper and the real resources: the percent sign is written once.
 		onNodeWithText("65 %").performScrollTo().assertIsDisplayed()
 		onAllNodesWithText("65 %%").assertCountEquals(0)
-		onNodeWithTag(SummaryUiTags.CareerProgressBar)
+		onNodeWithTag(SummaryUiTags.CareerProgressBar, useUnmergedTree = true)
 			.assertContentDescriptionEquals("Avance del pensum: 156 de 240 créditos, 65 %")
 	}
 

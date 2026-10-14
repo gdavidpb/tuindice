@@ -15,9 +15,13 @@ sealed interface SummaryAttention {
 		val oldestEvaluationId: String
 	) : SummaryAttention
 
-	/** The university refused part of the enrollment of [subjectCode]; [error] is what it printed. */
+	/**
+	 * The university refused part of the enrollment of [subjectCode], on the attempt [attemptId]; [error] is what
+	 * it printed. The line leads to that attempt in Record.
+	 */
 	data class EnrollmentError(
 		val subjectCode: String,
-		val error: String
+		val error: String,
+		val attemptId: String
 	) : SummaryAttention
 }

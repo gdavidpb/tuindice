@@ -401,7 +401,13 @@ class SummaryHubBuilderTest {
 		val attention = hub(attempts = listOf(classesOnThursday, clash)).attention
 
 		assertEquals(
-			listOf(SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = "CHOQUE DE HORARIO")),
+			listOf(
+				SummaryAttention.EnrollmentError(
+					subjectCode = "CI5311",
+					error = "CHOQUE DE HORARIO",
+					attemptId = "attempt-CI5311"
+				)
+			),
 			attention
 		)
 	}

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
@@ -167,7 +168,8 @@ class RecordRefreshFailureUiTest {
 				academicRecordRepository = academicRecordRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
-			)
+			),
+			attemptFocusRepository = InMemoryRecordAttemptFocusDataSource()
 		)
 	}
 

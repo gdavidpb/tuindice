@@ -79,6 +79,22 @@ class SummaryTermViewUiTest {
 	}
 
 	@Test
+	fun when_aSubjectRowIsTapped_then_itsAttemptIsAskedForOnRecord() = runTuIndiceUiTest {
+		val targets = mutableListOf<SummaryHubTarget>()
+
+		setTuIndiceTestContent {
+			SummaryTermView(term = term, actions = SummaryHubActions(onTargetClick = { target -> targets += target }))
+		}
+
+		onNodeWithTag(SummaryUiTags.termPointsRow("CI5437")).performClick()
+
+		assertEquals(
+			listOf<SummaryHubTarget>(SummaryHubTarget.RecordAttempt(attemptId = "attempt-CI5437")),
+			targets
+		)
+	}
+
+	@Test
 	fun when_termHasNoWeek_then_theCardKeepsTheSameSpaceAboveItsFirstRowAndBelowItsLast() = runTuIndiceUiTest {
 		val pointsOnly = term.copy(
 			week = null,

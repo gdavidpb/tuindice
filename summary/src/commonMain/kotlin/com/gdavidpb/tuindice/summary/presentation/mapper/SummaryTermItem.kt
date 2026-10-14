@@ -46,13 +46,15 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 		SummarySubjectPointsItem(
 			subjectCode = subjectCode,
 			valueText = null,
-			restText = UiText.Resource(Res.string.summary_points_none)
+			restText = UiText.Resource(Res.string.summary_points_none),
+			attemptId = attemptId
 		)
 	} else {
 		SummarySubjectPointsItem(
 			subjectCode = subjectCode,
 			valueText = points.earned.formatCompactPoints(),
-			restText = UiText.Resource(Res.string.summary_points_rest, listOf(points.evaluated.formatCompactPoints()))
+			restText = UiText.Resource(Res.string.summary_points_rest, listOf(points.evaluated.formatCompactPoints())),
+			attemptId = attemptId
 		)
 	}
 }

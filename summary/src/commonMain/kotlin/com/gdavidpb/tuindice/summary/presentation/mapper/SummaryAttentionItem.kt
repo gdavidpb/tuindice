@@ -31,7 +31,7 @@ fun SummaryAttention.toSummaryAttentionItem(): SummaryAttentionItem {
 				Res.string.summary_attention_enrollment_error,
 				listOf(error.withoutFinalPunctuation().toSentenceCase(), subjectCode)
 			),
-			target = SummaryHubTarget.Record
+			target = SummaryHubTarget.RecordAttempt(attemptId = attemptId)
 		)
 	}
 }

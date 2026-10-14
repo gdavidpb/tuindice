@@ -7,8 +7,13 @@ sealed interface SummaryHubTarget {
 	/** The Schedule sheet, over Summary. */
 	data object Schedule : SummaryHubTarget
 
-	/** The Record tab (the term, and the enrollment errors). */
+	/** The Record tab, on the term it shows. */
 	data object Record : SummaryHubTarget
+
+	/** The Record tab, on the term of the attempt [attemptId], with that attempt's card brought into view. */
+	data class RecordAttempt(
+		val attemptId: String
+	) : SummaryHubTarget
 
 	/** The Pensum tab (the career). */
 	data object Pensum : SummaryHubTarget

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRe
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
@@ -33,6 +34,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
@@ -108,6 +110,11 @@ val commonModule = module {
 	// that tab applies it.
 	singleOf(::InMemoryEvaluationsWeekFocusDataSource) {
 		bind<EvaluationsWeekFocusRepository>()
+		bind<SessionMemory>()
+	}
+	// The attempt of Registro a screen asked the host to show: the host writes it, the machine of that tab applies it.
+	singleOf(::InMemoryRecordAttemptFocusDataSource) {
+		bind<RecordAttemptFocusRepository>()
 		bind<SessionMemory>()
 	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {

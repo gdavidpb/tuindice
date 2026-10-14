@@ -90,21 +90,31 @@ class SummaryHubItemTest {
 			oldestWeekStart = LocalDate(2026, 10, 5),
 			oldestEvaluationId = "oldest"
 		)
-		val clash = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = "CHOQUE DE HORARIO")
+		val clash = SummaryAttention.EnrollmentError(
+			subjectCode = "CI5311",
+			error = "CHOQUE DE HORARIO",
+			attemptId = "attempt-CI5311"
+		)
 
 		assertEquals(
 			SummaryHubTarget.EvaluationsWeek(weekStart = LocalDate(2026, 10, 5), evaluationId = "oldest"),
 			ungraded.toSummaryAttentionItem().target
 		)
-		assertEquals(SummaryHubTarget.Record, clash.toSummaryAttentionItem().target)
+		// The enrollment error leads to its own attempt in Record, not to the tab as a whole.
+		assertEquals(
+			SummaryHubTarget.RecordAttempt(attemptId = "attempt-CI5311"),
+			clash.toSummaryAttentionItem().target
+		)
 		assertEquals("enrollment-CI5311", clash.toSummaryAttentionItem().key)
 	}
 
 	@Test
 	fun anEnrollmentError_losesThePunctuationTheUniversityEndsItWith_andReadsAsOneSentence() {
-		fun textOf(error: String) = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = error)
-			.toSummaryAttentionItem()
-			.text
+		fun textOf(error: String) = SummaryAttention.EnrollmentError(
+			subjectCode = "CI5311",
+			error = error,
+			attemptId = "attempt-CI5311"
+		).toSummaryAttentionItem().text
 
 		fun expected(error: String) = UiText.Resource(
 			Res.string.summary_attention_enrollment_error,
@@ -121,7 +131,11 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theEnrollmentError_isSaidInSentenceCase_withTheSubjectCode() {
-		val clash = SummaryAttention.EnrollmentError(subjectCode = "CI5311", error = "CHOQUE DE HORARIO")
+		val clash = SummaryAttention.EnrollmentError(
+			subjectCode = "CI5311",
+			error = "CHOQUE DE HORARIO",
+			attemptId = "attempt-CI5311"
+		)
 
 		assertEquals(
 			UiText.Resource(Res.string.summary_attention_enrollment_error, listOf("Choque de horario", "CI5311")),
@@ -249,7 +263,7 @@ class SummaryHubItemTest {
 
 	@Test
 	fun outsideTheTwelveWeeks_onlyThePointsRemain() {
-		val subjects = listOf(SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)))
+		val subjects = listOf(SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), "attempt-CI5311"))
 
 		val item = term(week = null, subjects = subjects).toSummaryTermItemOrNull()!!
 
@@ -265,9 +279,9 @@ class SummaryHubItemTest {
 	@Test
 	fun thePoints_areEarnedOverEvaluated_withoutDecimalsWhenThereAreNone() {
 		val subjects = listOf(
-			SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)),
-			SummarySubjectPoints("CI5437", EvaluationPoints(18.5, 25.0, 2, 2)),
-			SummarySubjectPoints("EG1114", points = null)
+			SummarySubjectPoints("CI5311", EvaluationPoints(41.0, 60.0, 3, 4), "attempt-CI5311"),
+			SummarySubjectPoints("CI5437", EvaluationPoints(18.5, 25.0, 2, 2), "attempt-CI5437"),
+			SummarySubjectPoints("EG1114", points = null, attemptId = "attempt-EG1114")
 		)
 
 		val items = term(week = 3, subjects = subjects).toSummaryTermItemOrNull()!!.subjects

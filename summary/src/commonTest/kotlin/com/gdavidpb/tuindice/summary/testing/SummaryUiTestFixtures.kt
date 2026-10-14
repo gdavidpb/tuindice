@@ -84,11 +84,13 @@ fun summaryTermWeekItem(week: Int = 3) = SummaryTermWeekItem(
 fun summaryPointsItem(
 	subjectCode: String,
 	earned: String? = null,
-	evaluated: String = "60"
+	evaluated: String = "60",
+	attemptId: String = "attempt-$subjectCode"
 ) = SummarySubjectPointsItem(
 	subjectCode = subjectCode,
 	valueText = earned,
-	restText = UiText.Raw(if (earned == null) "Sin notas aún" else "de $evaluated puntos")
+	restText = UiText.Raw(if (earned == null) "Sin notas aún" else "de $evaluated puntos"),
+	attemptId = attemptId
 )
 
 fun summaryCareerProgressItem() = SummaryCareerItem.Progress(

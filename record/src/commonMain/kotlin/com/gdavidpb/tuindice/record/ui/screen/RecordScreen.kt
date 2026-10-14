@@ -46,6 +46,7 @@ fun RecordScreen(
 	state: Record.State,
 	selectedTermId: String?,
 	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
 	onRetryClick: () -> Unit,
 	onAttemptSelectionChange: (
 		attemptId: String,
@@ -103,6 +104,7 @@ fun RecordScreen(
 						state = targetState,
 						selectedTermId = selectedTermId,
 						onSelectedTermChange = onSelectedTermChange,
+						onAttemptArrivalTaken = onAttemptArrivalTaken,
 						onAttemptSelectionChange = onAttemptSelectionChange,
 						showTermSelection = showTermSelection,
 						onDismissTermSelection = onDismissTermSelection,

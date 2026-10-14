@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -96,6 +97,29 @@ class RecordTermPagerViewUiTest {
 		assertNodeVisible(RecordUiTags.SelectedTermSummary)
 	}
 
+	@Test
+	fun when_anArrivalIsOnTheSelectedPage_then_thePageBringsItsCardIntoView_andTakesIt() = runTuIndiceUiTest {
+		var taken: String? = null
+
+		setTuIndiceTestContent {
+			RecordTermPagerView(
+				terms = listOf(
+					termItem(termId = "term-a", attemptId = "attempt-a"),
+					termItem(termId = "term-b", attemptId = "attempt-b", arrivalAttemptId = "attempt-b")
+				),
+				selectedTermId = "term-b",
+				onAttemptArrivalTaken = { attemptId -> taken = attemptId },
+				onSelectedTermChange = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onScrollInProgressChange = {}
+			)
+		}
+
+		waitForIdle()
+		assertNodeVisible(RecordUiTags.attemptCard("attempt-b"))
+		assertEquals("attempt-b", taken)
+	}
+
 	@Composable
 	private fun TermPager(notice: RecordNotice?) {
 		RecordTermPagerView(
@@ -115,8 +139,12 @@ class RecordTermPagerViewUiTest {
 		kind = RecordNoticeKind.AnnulledFinal
 	)
 
-	private fun termItem() = TermItem(
-		termId = "historical-term",
+	private fun termItem(
+		termId: String = "historical-term",
+		attemptId: String = "attempt-1",
+		arrivalAttemptId: String? = null
+	) = TermItem(
+		termId = termId,
 		periodYear = 2024,
 		termOrder = 1,
 		shortNameText = "ENE-MAR 2024",
@@ -132,7 +160,7 @@ class RecordTermPagerViewUiTest {
 		canEdit = false,
 		attempts = listOf(
 			AttemptItem(
-				attemptId = "attempt-1",
+				attemptId = attemptId,
 				subjectCode = "MA2115",
 				grade = 4,
 				codeText = "MA2115",
@@ -143,6 +171,7 @@ class RecordTermPagerViewUiTest {
 				codeContainerColor = Color(0xFFDCE8F5),
 				isReadOnly = true
 			)
-		)
+		),
+		arrivalAttemptId = arrivalAttemptId
 	)
 }

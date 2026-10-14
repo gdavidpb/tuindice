@@ -84,7 +84,8 @@ class SummaryStateMachineContractTest {
 			"RemoveProfilePicture / ShowRemoveProfilePictureConfirmationDialog",
 			"HubObserved",
 			"Resumed",
-			"OpenTarget / NavigateToSchedule · NavigateToRecord · NavigateToPensum · NavigateToEvaluationsWeek"
+			"OpenTarget / NavigateToSchedule · NavigateToRecord · NavigateToPensum · " +
+				"NavigateToEvaluationsWeek · NavigateToRecordAttempt"
 		)
 
 		for (fragment in expectedFragments) {

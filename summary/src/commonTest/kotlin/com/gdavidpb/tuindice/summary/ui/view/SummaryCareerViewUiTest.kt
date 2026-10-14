@@ -34,14 +34,31 @@ class SummaryCareerViewUiTest {
 		onNodeWithText("Pensum").assertIsDisplayed()
 		onNodeWithText("156 de 240 créditos").assertIsDisplayed()
 		onNodeWithText("65 %").assertIsDisplayed()
-		onNodeWithTag(SummaryUiTags.CareerProgressBar)
+		// The card is one button, so the bar is read from the tree that keeps each node apart.
+		onNodeWithTag(SummaryUiTags.CareerProgressBar, useUnmergedTree = true)
 			.assertContentDescriptionEquals("Avance del pensum: 156 de 240 créditos, 65 %")
 		assertEquals(
 			0.65f,
-			onNodeWithTag(SummaryUiTags.CareerProgressBar)
+			onNodeWithTag(SummaryUiTags.CareerProgressBar, useUnmergedTree = true)
 				.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current
 		)
 		onNodeWithTag(SummaryUiTags.CareerInviteCard).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_theProgressCardIsTapped_then_itAsksForPensum() = runTuIndiceUiTest {
+		val targets = mutableListOf<SummaryHubTarget>()
+
+		setTuIndiceTestContent {
+			SummaryCareerView(
+				career = summaryCareerProgressItem(),
+				actions = SummaryHubActions(onTargetClick = { target -> targets += target })
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.CareerCard).performClick()
+
+		assertEquals(listOf<SummaryHubTarget>(SummaryHubTarget.Pensum), targets)
 	}
 
 	@Test

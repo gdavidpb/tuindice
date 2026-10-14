@@ -16,7 +16,10 @@ class SummaryNavigationTest {
 
 	@Test
 	fun theRecordAndThePensumLinks_changeTheTab() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
 
 		navigation.onNavigateToRecord()
 
@@ -30,7 +33,10 @@ class SummaryNavigationTest {
 
 	@Test
 	fun theScheduleLink_opensTheSheetOverSummary() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
 
 		navigation.onOpenSchedule()
 
@@ -42,7 +48,8 @@ class SummaryNavigationTest {
 	fun theEvaluationsWeek_isLeftToTheHost() {
 		val asked = mutableListOf<Pair<LocalDate, String>>()
 		val navigation = navigator.toSummaryNavDependencies(
-			onNavigateToEvaluationsWeek = { weekStart, evaluationId -> asked += weekStart to evaluationId }
+			onNavigateToEvaluationsWeek = { weekStart, evaluationId -> asked += weekStart to evaluationId },
+			onNavigateToRecordAttempt = {}
 		)
 
 		navigation.onNavigateToEvaluationsWeek(LocalDate(2026, 10, 12), "evaluation-1")
@@ -52,8 +59,25 @@ class SummaryNavigationTest {
 	}
 
 	@Test
+	fun theRecordAttemptLink_isLeftToTheHost() {
+		val asked = mutableListOf<String>()
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = { attemptId -> asked += attemptId }
+		)
+
+		navigation.onNavigateToRecordAttempt("attempt-1")
+
+		assertEquals(listOf("attempt-1"), asked)
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+	}
+
+	@Test
 	fun theUpdatePasswordLink_opensTheDialog() {
-		val navigation = navigator.toSummaryNavDependencies(onNavigateToEvaluationsWeek = { _, _ -> })
+		val navigation = navigator.toSummaryNavDependencies(
+			onNavigateToEvaluationsWeek = { _, _ -> },
+			onNavigateToRecordAttempt = {}
+		)
 
 		navigation.onNavigateToUpdatePassword()
 

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -29,6 +30,7 @@ import com.gdavidpb.tuindice.record.presentation.mapper.recordRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordNotice
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
+import com.gdavidpb.tuindice.record.presentation.transition.recordAttemptFocusTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordContentTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordEmptyTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordFailedTransitions
@@ -51,7 +53,8 @@ class RecordMachine(
 	private val setRecordViewModeUseCase: SetRecordViewModeUseCase,
 	private val setSelectedTermUseCase: SetSelectedTermUseCase,
 	private val upsertAttemptSelectionUseCase: UpsertAttemptSelectionUseCase,
-	private val deleteSyntheticTermUseCase: DeleteSyntheticTermUseCase
+	private val deleteSyntheticTermUseCase: DeleteSyntheticTermUseCase,
+	attemptFocusRepository: RecordAttemptFocusRepository
 ) : ScreenMachine<Record.State, Record.Effect> {
 	// ObserveRecord is an Idle self-loop, and launchMachineJob accumulates rather than
 	// replaces: a second dispatch would leave two observers acknowledging and announcing
@@ -61,6 +64,9 @@ class RecordMachine(
 	private var syntheticTermRejectionObservationJob: Job? = null
 	private var newStudentObservationJob: Job? = null
 
+	// The request to show an attempt of this tab, observed while the screen lives and applied by its content.
+	internal val attemptFocus = RecordAttemptFocusObserver(repository = attemptFocusRepository)
+
 	override fun initialState(): Record.State = Record.State.Idle
 
 	override fun define(host: MachineHost<Record.Effect>): MachineDefinition<Record.State> {
@@ -69,12 +75,14 @@ class RecordMachine(
 			recordContentTransitions(machine = this@RecordMachine, host = host)
 			recordEmptyTransitions(host = host)
 			recordFailedTransitions()
+			recordAttemptFocusTransitions(machine = this@RecordMachine)
 			recordAnyStateTransitions(machine = this@RecordMachine, host = host)
 		}
 	}
 
 	internal fun startObservation(host: MachineHost<Record.Effect>) {
 		startSideObservations(host = host)
+		attemptFocus.observe(host = host)
 
 		if (recordObservationJob?.isActive == true) return
 
@@ -94,18 +102,24 @@ class RecordMachine(
 								keepCurrentWhileWaiting = false
 							)
 						) {
-							SyncedContentResolution.Content -> host.processInternalEvent(
-								RecordInternalEvent.RecordContentObserved(
-									viewMode = record.viewMode,
-									record = record.record,
-									selectedTermId = requireNotNull(record.selectedTermId),
-									notice = notice
+							SyncedContentResolution.Content -> {
+								host.processInternalEvent(
+									RecordInternalEvent.RecordContentObserved(
+										viewMode = record.viewMode,
+										record = record.record,
+										selectedTermId = requireNotNull(record.selectedTermId),
+										notice = notice
+									)
 								)
-							)
+								attemptFocus.sendPending(host = host)
+							}
 
-							SyncedContentResolution.Empty -> host.processInternalEvent(
-								RecordInternalEvent.RecordEmptyObserved(notice = notice)
-							)
+							SyncedContentResolution.Empty -> {
+								host.processInternalEvent(
+									RecordInternalEvent.RecordEmptyObserved(notice = notice)
+								)
+								attemptFocus.sendPending(host = host)
+							}
 
 							SyncedContentResolution.Loading,
 							SyncedContentResolution.KeepCurrent,

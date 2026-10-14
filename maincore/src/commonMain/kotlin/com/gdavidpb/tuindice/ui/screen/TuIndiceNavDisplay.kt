@@ -58,6 +58,7 @@ fun TuIndiceNavDisplay(
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
 	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
+	onNavigateToRecordAttempt: (attemptId: String) -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -95,7 +96,8 @@ fun TuIndiceNavDisplay(
 			navActions = navigator,
 			shellBindings = shellBindings,
 			navigation = navigator.toSummaryNavDependencies(
-				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+				onNavigateToRecordAttempt = onNavigateToRecordAttempt
 			)
 		)
 

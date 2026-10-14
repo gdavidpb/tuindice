@@ -21,10 +21,10 @@ import tuindice.summary.generated.resources.summary_section_term
 
 /**
  * "Trimestre": which week of the term it is, with the track of its twelve weeks, and the points of
- * each subject. Its link, the name of the term, opens the Record. Outside weeks 1 to 12 the week and
- * its track are not there and only the points remain; with no points to show (nothing downloaded)
- * only the week remains. Whichever of the two is there, the card keeps the same space above and
- * below it.
+ * each subject. Its link, the name of the term, opens the Record; each subject's row opens the Record
+ * on that subject's attempt. Outside weeks 1 to 12 the week and its track are not there and only the
+ * points remain; with no points to show (nothing downloaded) only the week remains. Whichever of the
+ * two is there, the card keeps the same space above and below it.
  */
 @Composable
 fun SummaryTermView(
@@ -81,7 +81,10 @@ fun SummaryTermView(
 			term.subjects.forEach { subject ->
 				SummaryPointsRowView(
 					modifier = Modifier.testTag(SummaryUiTags.termPointsRow(subject.subjectCode)),
-					item = subject
+					item = subject,
+					onClick = {
+						actions.onTargetClick(SummaryHubTarget.RecordAttempt(attemptId = subject.attemptId))
+					}
 				)
 			}
 

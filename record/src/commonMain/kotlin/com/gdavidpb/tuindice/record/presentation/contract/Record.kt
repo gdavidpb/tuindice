@@ -35,7 +35,14 @@ object Record {
 			val notice: RecordNotice? = null,
 			// Whether the selected term is the current one with something scheduled: what puts the
 			// schedule icon on the bar. Resolved with the observation, so nothing asks it while drawing.
-			val hasSelectedTermSchedule: Boolean = false
+			val hasSelectedTermSchedule: Boolean = false,
+			// The term the store selected when this content was observed last. A selection of the screen that
+			// differs from it was made on this visit (a tap, or a jump to an attempt), and an observation that
+			// brings the same stored term keeps it; one that brings another term takes the store's.
+			val storedSelectedTermId: String? = null,
+			// The attempt a jump asked to bring into view, when the term the screen shows lists it. The list
+			// takes it once (AttemptArrivalTaken) and plays the arrival from there.
+			val arrivalAttemptId: String? = null
 		) : State() {
 			/**
 			 * Lo que la pantalla proyecta: el expediente observado más el override del
@@ -75,6 +82,11 @@ object Record {
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
 		class SelectTerm(
 			val termId: String
+		) : Action()
+
+		// The list has taken the attempt a jump brought in: it is no longer pending in the content.
+		class AttemptArrivalTaken(
+			val attemptId: String
 		) : Action()
 
 		class UpsertAttemptSelection(

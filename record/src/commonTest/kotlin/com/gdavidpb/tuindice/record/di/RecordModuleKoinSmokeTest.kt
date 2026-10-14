@@ -5,11 +5,13 @@ package com.gdavidpb.tuindice.record.di
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -53,6 +55,7 @@ class RecordModuleKoinSmokeTest {
 			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
 			// Bound by maincore's common module in the app.
 			factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
+			single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
 		}
 	) {
 		assertResolves(RecordViewModel::class)

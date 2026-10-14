@@ -51,7 +51,7 @@ import tuindice.summary.generated.resources.summary_section_career
 /**
  * "Carrera": how much of the pensum the student has approved, in credits and as a share, with a
  * bar. When no pensum was ever calculated the card invites to open it, with the bar empty. Its link,
- * and the invitation itself, open Pensum.
+ * the progress card and the invitation itself, open Pensum.
  */
 @Composable
 fun SummaryCareerView(
@@ -73,7 +73,10 @@ fun SummaryCareerView(
 		)
 
 		when (career) {
-			is SummaryCareerItem.Progress -> CareerProgressCard(career = career)
+			is SummaryCareerItem.Progress -> CareerProgressCard(
+				career = career,
+				onClick = { actions.onTargetClick(SummaryHubTarget.Pensum) }
+			)
 
 			SummaryCareerItem.Invite -> CareerInviteCard(onClick = { actions.onTargetClick(SummaryHubTarget.Pensum) })
 		}
@@ -81,8 +84,19 @@ fun SummaryCareerView(
 }
 
 @Composable
-private fun CareerProgressCard(career: SummaryCareerItem.Progress) {
-	SummaryHubCardView(modifier = Modifier.testTag(SummaryUiTags.CareerCard)) {
+private fun CareerProgressCard(
+	career: SummaryCareerItem.Progress,
+	onClick: () -> Unit
+) {
+	SummaryHubCardView(
+		modifier = Modifier
+			.testTag(SummaryUiTags.CareerCard)
+			.clickable(
+				onClickLabel = stringResource(Res.string.a11y_summary_open_pensum),
+				role = Role.Button,
+				onClick = onClick
+			)
+	) {
 		Column(
 			modifier = Modifier.padding(TuIndiceSpacing.Screen),
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)

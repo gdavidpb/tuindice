@@ -74,6 +74,9 @@ fun SummaryRoute(
 
 			is Summary.Effect.NavigateToEvaluationsWeek ->
 				navigation.onNavigateToEvaluationsWeek(effect.weekStart, effect.evaluationId)
+
+			is Summary.Effect.NavigateToRecordAttempt ->
+				navigation.onNavigateToRecordAttempt(effect.attemptId)
 		}
 	}
 

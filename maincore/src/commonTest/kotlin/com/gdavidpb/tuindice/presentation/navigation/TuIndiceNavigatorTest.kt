@@ -6,8 +6,10 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
@@ -443,7 +445,41 @@ class TuIndiceNavigatorTest {
 		)
 	}
 
+	@Test
+	fun when_anAttemptIsShownFromSummary_then_itIsRequestedAndOnlyTheTabChanges() {
+		val attemptFocus = InMemoryRecordAttemptFocusDataSource()
+		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.SUMMARY)
+
+		navigator.showRecordAttempt(attemptFocus = attemptFocus, attemptId = ATTEMPT_ID)
+
+		assertEquals(RecordAttemptFocusRequest(ATTEMPT_ID), attemptFocus.pending.value)
+		assertEquals(MainSection.RECORD, navigator.currentTab)
+		assertEquals(MainSection.SUMMARY, navigator.startTab)
+		assertEquals(
+			listOf<NavKey>(SummaryDestination.Summary, RecordDestination.Record),
+			navigator.backStack
+		)
+	}
+
+	@Test
+	fun when_anAttemptIsShownFromTheSheet_then_theAttemptIsRequestedAndOnlyTheSheetIsLeft() {
+		val attemptFocus = InMemoryRecordAttemptFocusDataSource()
+		val navigator = createNavigator(startTab = MainSection.SUMMARY, currentTab = MainSection.EVALUATIONS)
+
+		navigator.openSchedule()
+		navigator.showRecordAttempt(attemptFocus = attemptFocus, attemptId = ATTEMPT_ID)
+
+		assertEquals(RecordAttemptFocusRequest(ATTEMPT_ID), attemptFocus.pending.value)
+		assertEquals(MainSection.RECORD, navigator.currentTab)
+		assertEquals(MainSection.SUMMARY, navigator.startTab)
+		assertEquals(
+			listOf<NavKey>(SummaryDestination.Summary, RecordDestination.Record),
+			navigator.backStack
+		)
+	}
+
 	private companion object {
 		const val EVALUATION_ID = "evaluation-1"
+		const val ATTEMPT_ID = "attempt-1"
 	}
 }
