@@ -12,22 +12,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.view.RichTooltipBox
+import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_banner_historical
@@ -51,11 +51,10 @@ fun RecordTopBarViewModeBannerView(
 		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_info_message_historical)
 		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_info_message_projection)
 	}
-	val tooltipState = rememberTooltipState(isPersistent = true)
-	val tooltipScope = rememberCoroutineScope()
+	var isTooltipVisible by remember { mutableStateOf(false) }
 
 	LaunchedEffect(selectedMode) {
-		tooltipState.dismiss()
+		isTooltipVisible = false
 	}
 
 	Box(
@@ -90,34 +89,19 @@ fun RecordTopBarViewModeBannerView(
 		Box(
 			modifier = Modifier.align(Alignment.CenterEnd),
 		) {
-			TooltipBox(
-				positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-					TooltipAnchorPosition.Below
+			RichTooltipBox(
+				isVisible = isTooltipVisible,
+				onDismissRequest = { isTooltipVisible = false },
+				tooltip = RichTooltipText(
+					lines = listOf(infoMessageText),
+					testTag = RecordUiTags.ViewModeInfoMessage
 				),
-				tooltip = {
-					PlainTooltip(
-						caretShape = TooltipDefaults.caretShape()
-					) {
-						Text(
-							modifier = Modifier.testTag(RecordUiTags.ViewModeInfoMessage),
-							text = infoMessageText
-						)
-					}
-				},
-				state = tooltipState,
-				onDismissRequest = tooltipState::dismiss,
-				enableUserInput = false
+				anchorPosition = TooltipAnchorPosition.Below
 			) {
 				IconButton(
 					modifier = Modifier.testTag(RecordUiTags.TopBarViewModeInfoButton),
 					onClick = {
-						if (tooltipState.isVisible) {
-							tooltipState.dismiss()
-						} else {
-							tooltipScope.launch {
-								tooltipState.show()
-							}
-						}
+						isTooltipVisible = !isTooltipVisible
 					}
 				) {
 					Icon(
