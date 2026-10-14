@@ -9,6 +9,7 @@ object E2eFixtures {
 	private const val SYNC_ANNULLED_PROVISIONAL = "mocks/__files/sync/post-sync-annulled-provisional.json"
 	private const val SYNC_SUMMARY_HUB = "mocks/__files/sync/post-sync-summary-hub.json"
 	private const val EVALUATIONS_SUMMARY_HUB = "mocks/__files/evaluations/get-evaluations-summary-hub.json"
+	private const val SHARE_BACKGROUNDS_CATALOG = "mocks/__files/share/get-share-backgrounds-catalog.json"
 	private val HUB_FILES = listOf(SYNC_SUMMARY_HUB, EVALUATIONS_SUMMARY_HUB)
 	private const val SEARCH_CATALOG = "mocks/__files/subjects/search-subjects-catalog.json"
 	private const val SEARCH_PRIORITY = "mocks/__files/subjects/search-subjects-priority.json"
@@ -78,6 +79,19 @@ object E2eFixtures {
 	val HubEvaluationOverdue = E2eFixture("f07ad77e4259171580e339784b1687de", listOf(EVALUATIONS_SUMMARY_HUB))
 	val HubEvaluationToday = E2eFixture("29ba9acf1f4750da615caa4dfdf81cb7", listOf(EVALUATIONS_SUMMARY_HUB))
 	val HubEvaluationNoClass = E2eFixture("8f596f65f45d2c1829cd131689a0f9f9", listOf(EVALUATIONS_SUMMARY_HUB))
+
+	/**
+	 * The newest and the second newest closed terms of the hub record (`StatisticsHubFixturesTest` checks the order). The
+	 * finished term of the hub shares the first, and the share sheet opens on it; the second is its next chip.
+	 */
+	val HubNewestClosedTermKey = E2eFixture("2026-JAN_MAR", listOf(SYNC_SUMMARY_HUB))
+	val HubPreviousClosedTermKey = E2eFixture("2024-SEP_DEC", listOf(SYNC_SUMMARY_HUB))
+
+	/** The background the app ships (and the catalog serves too): what the sheet keeps without the catalog. */
+	val ShareBackgroundIncluded = E2eFixture("laberinto-cromovegetal", listOf(SHARE_BACKGROUNDS_CATALOG))
+
+	/** The catalog's second background, the first one the strip shows after the included one, in view without a swipe. */
+	val ShareBackgroundSecond = E2eFixture("fuente-hidrocinetica", listOf(SHARE_BACKGROUNDS_CATALOG))
 
 	val SyntheticDegreeProjectTerm = E2eFixture("synthetic-2026-jul-aug-degree-project", listOf(SYNC_SUCCESS))
 	val SyntheticEp1308Attempt = E2eFixture("synthetic-2026-jul-aug-ep1308", listOf(SYNC_SUCCESS))
@@ -173,6 +187,10 @@ object E2eFixtures {
 		HubEvaluationOverdue,
 		HubEvaluationToday,
 		HubEvaluationNoClass,
+		HubNewestClosedTermKey,
+		HubPreviousClosedTermKey,
+		ShareBackgroundIncluded,
+		ShareBackgroundSecond,
 		SubjectCi5311,
 		SubjectCi5437,
 		SubjectEc5333,

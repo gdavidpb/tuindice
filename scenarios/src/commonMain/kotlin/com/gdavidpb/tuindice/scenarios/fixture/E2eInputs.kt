@@ -82,6 +82,24 @@ object E2eInputs {
 	const val ScheduleThursday = 5
 	const val HubMondayStartBlock = 1
 
+	/** The keys the Statistics screen gives its charts (`SummaryStatisticsChartKey`); their tags carry them. */
+	const val StatisticsIndexChartKey = "index"
+	const val StatisticsSubjectsChartKey = "subjects"
+	const val StatisticsGradesChartKey = "grades"
+
+	/**
+	 * The point of the index line that is the newest closed term of the hub record: the line runs oldest first over its
+	 * eleven closed terms (`StatisticsHubFixturesTest` checks the count), and [StatisticsEarlierIndexPoint] is two back.
+	 */
+	const val StatisticsNewestIndexPoint = 10
+	const val StatisticsEarlierIndexPoint = 8
+
+	/** The approved segment of the subjects bar, the first of its segments. */
+	const val StatisticsApprovedSegment = 0
+
+	/** The bar of the grade 4 of the grades histogram, whose bars run from grade 1. */
+	const val StatisticsGradeFourBar = 3
+
 	/** `EvaluationType.TEST`, as the type chip tag spells it (the tag lowercases the name). */
 	val EvaluationTypeTest: String = EvaluationType.TEST.name.lowercase()
 

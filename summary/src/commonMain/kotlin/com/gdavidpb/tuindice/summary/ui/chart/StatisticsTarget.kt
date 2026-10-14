@@ -14,7 +14,8 @@ internal data class StatisticsTarget(
 	val tooltip: RichTooltipText
 )
 
-// The target of the point at [index] of the chart, named by the chart's key.
+// The target of the point at [index] of the chart, named by the chart's key. Its tooltip carries the tag of that point,
+// so a test sees which point the tooltip belongs to.
 internal fun StatisticsChartLabels.targetOf(
 	index: Int,
 	description: String,
@@ -24,6 +25,6 @@ internal fun StatisticsChartLabels.targetOf(
 		tag = SummaryUiTags.statisticsTarget(key, index),
 		description = description,
 		actionLabel = actionLabel,
-		tooltip = tooltip
+		tooltip = tooltip.copy(testTag = StatisticsTooltipUiTags.point(key, index))
 	)
 }

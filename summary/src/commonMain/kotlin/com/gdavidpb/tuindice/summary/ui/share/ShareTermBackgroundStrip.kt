@@ -76,6 +76,23 @@ private fun ShareTermBackgroundThumb(
 	item: ShareTermBackgroundItem,
 	onClick: () -> Unit
 ) {
+	// The chosen background is marked on the box around its tile, a node of its own that the E2E driver reads.
+	Box(
+		modifier = if (item.selected) {
+			Modifier.testTag(ShareTermUiTags.backgroundSelected(item.background.id))
+		} else {
+			Modifier
+		}
+	) {
+		ShareTermBackgroundTile(item = item, onClick = onClick)
+	}
+}
+
+@Composable
+private fun ShareTermBackgroundTile(
+	item: ShareTermBackgroundItem,
+	onClick: () -> Unit
+) {
 	Column(
 		modifier = Modifier
 			.width(FrameWidth)

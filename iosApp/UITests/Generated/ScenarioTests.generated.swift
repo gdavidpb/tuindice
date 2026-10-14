@@ -149,6 +149,7 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_hub_attention_links() { runScenario("summary-hub-attention-links") }
     func test_summary_hub_career_invite() { runScenario("summary-hub-career-invite") }
     func test_summary_hub_overview() { runScenario("summary-hub-overview") }
+    func test_summary_hub_share_finished_term() { runScenario("summary-hub-share-finished-term") }
     func test_summary_hub_term_career_links() { runScenario("summary-hub-term-career-links") }
     func test_summary_hub_week_links() { runScenario("summary-hub-week-links") }
     func test_summary_new_student_no_record() { runScenario("summary-new-student-no-record") }
@@ -159,5 +160,10 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_record_access_denied() { runScenario("summary-record-access-denied") }
     func test_summary_refresh_retry() { runScenario("summary-refresh-retry") }
     func test_summary_smoke() { runScenario("summary-smoke") }
+    func test_summary_statistics_links() { runScenario("summary-statistics-links") }
+    func test_summary_statistics_overview() { runScenario("summary-statistics-overview") }
+    func test_summary_statistics_share() { runScenario("summary-statistics-share") }
+    func test_summary_statistics_share_no_catalog() { runScenario("summary-statistics-share-no-catalog") }
+    func test_summary_statistics_tooltips() { runScenario("summary-statistics-tooltips") }
     func test_summary_status_dialog() { runScenario("summary-status-dialog") }
 }

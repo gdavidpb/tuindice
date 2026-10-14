@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,17 +33,26 @@ fun ShareTermTermChips(
 		horizontalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 		items(items = terms, key = { term -> term.key }) { term ->
-			FilterChip(
-				selected = term.selected,
-				onClick = { onTermClick(term.key) },
-				label = { Text(text = term.label.asString()) },
-				leadingIcon = if (term.selected) {
-					{ SelectedTermCheck() }
+			// The chosen term is marked on the box around its chip, a node of its own that the E2E driver reads.
+			Box(
+				modifier = if (term.selected) {
+					Modifier.testTag(ShareTermUiTags.termSelected(term.key))
 				} else {
-					null
-				},
-				modifier = Modifier.testTag(ShareTermUiTags.term(term.key))
-			)
+					Modifier
+				}
+			) {
+				FilterChip(
+					selected = term.selected,
+					onClick = { onTermClick(term.key) },
+					label = { Text(text = term.label.asString()) },
+					leadingIcon = if (term.selected) {
+						{ SelectedTermCheck() }
+					} else {
+						null
+					},
+					modifier = Modifier.testTag(ShareTermUiTags.term(term.key))
+				)
+			}
 		}
 	}
 }

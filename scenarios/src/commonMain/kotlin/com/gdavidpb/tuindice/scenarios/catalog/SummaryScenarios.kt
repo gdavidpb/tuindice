@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -9,17 +10,21 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
+import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.system
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
+import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
@@ -28,11 +33,14 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
+import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.closeScheduleSheet
 import com.gdavidpb.tuindice.scenarios.shared.returnToSummaryTab
 import com.gdavidpb.tuindice.scenarios.shared.waitSummaryHub
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.chart.StatisticsTooltipUiTags
+import com.gdavidpb.tuindice.summary.ui.share.ShareTermUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -443,6 +451,155 @@ private val summaryHubCareerInvite = scenario(
 	waitVisible(BaseUiTags.EmptyViewContainer, Within.Long)
 }
 
+/** From the hub, opens the Statistics screen through the card of its section, the way a student does. */
+private fun StepBuilder.openStatistics() {
+	scrollUntilVisible(SummaryUiTags.StatisticsCard, Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.StatisticsCard)
+	waitVisible(SummaryUiTags.StatisticsContent, Within.Wait)
+}
+
+// The card of the statistics under the career opens the Statistics screen: its six blocks hold the figures in order.
+private val summaryStatisticsOverview = scenario("summary-statistics-overview", "summary", hubStart()) {
+	covers("summary.Summary.OpenTarget")
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	openStatistics()
+	listOf(
+		SummaryUiTags.StatisticsCurrentTermBlock,
+		SummaryUiTags.StatisticsIndexBlock,
+		SummaryUiTags.StatisticsSubjectsBlock,
+		SummaryUiTags.StatisticsCreditsBlock,
+		SummaryUiTags.StatisticsGradesBlock,
+		SummaryUiTags.StatisticsPaceBlock
+	).forEach { block ->
+		scrollUntilVisible(block, Scroll.ContentDown, Within.Long)
+		waitVisible(block, Within.Assert)
+	}
+	// The screen has no bottom bar: its top bar's back button takes the student back to the hub.
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
+}
+
+// Each chart opens the tooltip of a point with a tap, and a tap on another point of that chart closes the first one.
+private val summaryStatisticsTooltips = scenario("summary-statistics-tooltips", "summary", hubStart()) {
+	account(E2eAccounts.SummaryHub.id)
+
+	val index = E2eInputs.StatisticsIndexChartKey
+	val newest = E2eInputs.StatisticsNewestIndexPoint
+	val earlier = E2eInputs.StatisticsEarlierIndexPoint
+
+	waitSummaryHub()
+	openStatistics()
+	scrollUntilVisible(SummaryUiTags.statisticsTarget(index, newest), Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.statisticsTarget(index, newest))
+	waitVisible(StatisticsTooltipUiTags.point(index, newest), Within.Action)
+	tap(SummaryUiTags.statisticsTarget(index, earlier))
+	waitVisible(StatisticsTooltipUiTags.point(index, earlier), Within.Action)
+	waitGone(StatisticsTooltipUiTags.point(index, newest), Within.Action)
+
+	val subjects = E2eInputs.StatisticsSubjectsChartKey
+	val approved = E2eInputs.StatisticsApprovedSegment
+	scrollUntilVisible(SummaryUiTags.statisticsTarget(subjects, approved), Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.statisticsTarget(subjects, approved))
+	waitVisible(StatisticsTooltipUiTags.point(subjects, approved), Within.Action)
+
+	val grades = E2eInputs.StatisticsGradesChartKey
+	val gradeFour = E2eInputs.StatisticsGradeFourBar
+	scrollUntilVisible(SummaryUiTags.statisticsTarget(grades, gradeFour), Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.statisticsTarget(grades, gradeFour))
+	waitVisible(StatisticsTooltipUiTags.point(grades, gradeFour), Within.Action)
+}
+
+// The overdue evaluations of the term lead to the week of the oldest one, with that evaluation brought into view.
+private val summaryStatisticsLinks = scenario("summary-statistics-links", "summary", hubStart()) {
+	covers("summary.SummaryStatistics.OpenTarget")
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	openStatistics()
+	scrollUntilVisible(SummaryUiTags.StatisticsOverdue, Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.StatisticsOverdue)
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Wait)
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek2), Within.Long)
+	waitVisible(EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationOldest.value), Within.Assert)
+	waitGone(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Assert)
+}
+
+// The Statistics screen shares a closed term as an image: the sheet opens on the newest term, the student picks the
+// previous one and the second background, and the share button hands the picture to the system's sheet, which the app
+// gets back from. The sheet of the terms is still open afterwards, and it is closed by dragging its title.
+private val summaryStatisticsShare = scenario("summary-statistics-share", "summary", hubStart()) {
+	covers("summary.ShareTerm.SelectTerm", "summary.ShareTerm.SelectBackground", "summary.ShareTerm.ShareImage")
+	account(E2eAccounts.SummaryHub.id)
+
+	val newest = E2eFixtures.HubNewestClosedTermKey.value
+	val previous = E2eFixtures.HubPreviousClosedTermKey.value
+	val second = E2eFixtures.ShareBackgroundSecond.value
+
+	waitSummaryHub()
+	openStatistics()
+	tap(BaseUiTags.topBarActionButton(TopBarAction.StatisticsShareAction))
+	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
+	waitVisible(ShareTermUiTags.termSelected(newest), Within.Assert)
+	tap(ShareTermUiTags.term(previous))
+	waitVisible(ShareTermUiTags.termSelected(previous), Within.Action)
+	tap(ShareTermUiTags.background(second))
+	waitVisible(ShareTermUiTags.backgroundSelected(second), Within.Action)
+	tap(SummaryUiTags.ShareTermShareButton)
+	onPlatform(Platform.Android) {
+		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
+		// The chooser is in front of the app: the exit is announced before the app is brought back.
+		waitBackgrounded()
+	}
+	onPlatform(Platform.Ios) {
+		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
+		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
+		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
+	}
+	foreground()
+	waitVisible(SummaryUiTags.ShareTermSheet, Within.Action)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
+	waitVisible(SummaryUiTags.StatisticsContent, Within.Assert)
+}
+
+// The finished term of the hub shares that term: its sheet opens with the term chosen, and the student closes it.
+private val summaryHubShareFinishedTerm = scenario("summary-hub-share-finished-term", "summary", hubStart()) {
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	scrollUntilVisible(SummaryUiTags.TermFinishedShare, Scroll.ContentDown, Within.Long)
+	tap(SummaryUiTags.TermFinishedShare)
+	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
+	waitVisible(ShareTermUiTags.termSelected(E2eFixtures.HubNewestClosedTermKey.value), Within.Assert)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Assert)
+}
+
+// With the catalog of backgrounds unavailable, the sheet still works, and the included background is its only one.
+private val summaryStatisticsShareWithoutCatalog = scenario(
+	"summary-statistics-share-no-catalog",
+	"summary",
+	Start.Seeded(
+		E2eAccounts.SummaryHub,
+		mockStates = listOf(MockState("share-backgrounds", "Unavailable"))
+	).toLaunchSpec()
+) {
+	account(E2eAccounts.SummaryHub.id)
+
+	waitSummaryHub()
+	openStatistics()
+	tap(BaseUiTags.topBarActionButton(TopBarAction.StatisticsShareAction))
+	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
+	waitVisible(ShareTermUiTags.backgroundSelected(E2eFixtures.ShareBackgroundIncluded.value), Within.Long)
+	waitGone(ShareTermUiTags.background(E2eFixtures.ShareBackgroundSecond.value), Within.Assert)
+	assertEnabled(SummaryUiTags.ShareTermShareButton, true)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
+}
+
 /** The scenarios of this module; list every new one here. */
 val summaryScenarios: List<Scenario> = listOf(
 	summarySmoke,
@@ -458,5 +615,11 @@ val summaryScenarios: List<Scenario> = listOf(
 	summaryHubAttentionLinks,
 	summaryHubWeekLinks,
 	summaryHubTermCareerLinks,
-	summaryHubCareerInvite
+	summaryHubCareerInvite,
+	summaryStatisticsOverview,
+	summaryStatisticsTooltips,
+	summaryStatisticsLinks,
+	summaryStatisticsShare,
+	summaryHubShareFinishedTerm,
+	summaryStatisticsShareWithoutCatalog
 )
