@@ -108,7 +108,8 @@ private fun ColumnScope.TermData(
 	data.figure?.let { figure -> SummaryStatisticsFigureView(figure = figure) }
 
 	data.fraction?.let { fraction ->
-		SummaryStatisticsTrackView(fraction = fraction, color = MaterialTheme.colorScheme.onSurface)
+		// The data blue of the statistics, as every chart of the screen draws its figures.
+		SummaryStatisticsTrackView(fraction = fraction, color = StatisticsChartDefaults.dataColor())
 	}
 
 	data.rows.forEachIndexed { index, row ->
@@ -174,7 +175,7 @@ private fun TypeRowContent(row: SummaryStatisticsEvaluationTypeItem) {
 			color = onSurface
 		)
 
-		SummaryStatisticsTrackView(fraction = row.fraction, color = onSurface)
+		SummaryStatisticsTrackView(fraction = row.fraction, color = StatisticsChartDefaults.dataColor())
 
 		Row(
 			modifier = Modifier.fillMaxWidth(),

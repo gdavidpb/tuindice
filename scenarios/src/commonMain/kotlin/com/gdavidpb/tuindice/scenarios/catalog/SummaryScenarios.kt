@@ -564,8 +564,16 @@ private val summaryStatisticsShare = scenario("summary-statistics-share", "summa
 	waitVisible(SummaryUiTags.StatisticsContent, Within.Assert)
 }
 
-// The finished term of the hub shares that term: its sheet opens with the term chosen, and the student closes it.
-private val summaryHubShareFinishedTerm = scenario("summary-hub-share-finished-term", "summary", hubStart()) {
+// The finished term of the hub shares that term: its sheet opens with the term chosen, and the student closes it. The
+// hub shows its finished term only between terms, so the record is served without its term in progress.
+private val summaryHubShareFinishedTerm = scenario(
+	"summary-hub-share-finished-term",
+	"summary",
+	Start.Seeded(
+		E2eAccounts.SummaryHub,
+		mockStates = listOf(MockState("summary-hub-record", "NoCurrentTerm"))
+	).toLaunchSpec()
+) {
 	account(E2eAccounts.SummaryHub.id)
 
 	waitSummaryHub()

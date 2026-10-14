@@ -34,7 +34,8 @@ import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 /**
  * "Ritmo": the approved credits of each closed term as a bar, with the average of the regular terms as a reference line
  * written at its end. Under the chart, the projection says how many regular terms the pensum still takes at that pace,
- * with the count set apart in bold and the projection's tag beside it, or why it cannot say yet.
+ * with the count set apart in a medium weight and the darker ink, and the projection's tag beside it, or why it
+ * cannot say yet.
  */
 @Composable
 fun SummaryStatisticsPaceView(
@@ -133,7 +134,7 @@ private fun ColumnScope.PaceProjection(projection: SummaryStatisticsPaceItem.Pro
 	}
 }
 
-// The projection's sentence, with its count in bold, and its tag in an outline beside it.
+// The projection's sentence, with its count in a medium weight and the darker ink, and its tag in an outline beside it.
 @Composable
 private fun RemainingProjection(projection: SummaryStatisticsPaceItem.Projection.Remaining) {
 	val emphasisStyle = SpanStyle(

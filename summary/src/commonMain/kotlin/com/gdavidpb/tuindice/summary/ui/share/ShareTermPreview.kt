@@ -3,9 +3,11 @@ package com.gdavidpb.tuindice.summary.ui.share
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
@@ -36,8 +39,12 @@ fun ShareTermPreview(
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
-	// The card lays out at the density it is captured at, so its width in those pixels is what the scale comes from.
-	val scale = with(density) { PreviewWidth.toPx() } / (ShareableTermCardSize.width.value * SHARE_DENSITY)
+	// The card lays out at the density it is captured at: its box takes exactly the pixels of the shared picture on
+	// this screen, and the scale brings those pixels down to the preview's width.
+	val cardWidthPx = ShareableTermCardSize.width.value * SHARE_DENSITY
+	val cardHeightPx = ShareableTermCardSize.height.value * SHARE_DENSITY
+	val cardSize = with(density) { DpSize(width = cardWidthPx.toDp(), height = cardHeightPx.toDp()) }
+	val scale = with(density) { PreviewWidth.toPx() } / cardWidthPx
 
 	Box(
 		modifier = modifier
@@ -48,7 +55,10 @@ fun ShareTermPreview(
 	) {
 		Box(
 			modifier = Modifier
-				.requiredSize(ShareableTermCardSize)
+				// A box larger than the preview would be centred on it; held at the top start, the scale around that corner
+				// lays the whole card over the preview.
+				.wrapContentSize(align = Alignment.TopStart, unbounded = true)
+				.requiredSize(cardSize)
 				.graphicsLayer {
 					scaleX = scale
 					scaleY = scale

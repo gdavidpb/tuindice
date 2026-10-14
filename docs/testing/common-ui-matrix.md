@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-14 19:06:33 -0300_
+_Generated automatically on 2026-10-14 20:24:25 -0300_
 
 ## Summary by module
 
@@ -359,7 +359,7 @@ _Generated automatically on 2026-10-14 19:06:33 -0300_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreen.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreenUiTest.kt` | 18 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryStatisticsScreen.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryStatisticsScreenUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermBackgroundStrip.kt` | 4 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermBackgroundStripUiTest.kt` | 2 | PASS threshold (2) |
-| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermPreview.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermPreviewUiTest.kt` | 2 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermPreview.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermPreviewUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermTermChips.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareTermTermChipsUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCard.kt` | 6 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardUiTest.kt` | 5 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardCapture.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/share/ShareableTermCardCaptureUiTest.kt` | 2 | PASS threshold (2) |

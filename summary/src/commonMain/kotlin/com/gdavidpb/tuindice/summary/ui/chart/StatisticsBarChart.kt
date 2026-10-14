@@ -237,6 +237,9 @@ private fun BoxScope.StatisticsReferenceLine(
 			.align(Alignment.TopEnd)
 			.offset(y = (y - StatisticsChartDefaults.ReferenceLabelHeight.value).dp)
 			.padding(end = StatisticsChartDefaults.EdgeFadeWidth)
+			// On the card's own surface, so a bar that rises behind the label never hides its words.
+			.background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(4.dp))
+			.padding(horizontal = 4.dp)
 			.testTag(SummaryUiTags.StatisticsReferenceLabel),
 		text = label,
 		style = MaterialTheme.typography.labelSmall,

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -45,8 +46,10 @@ private val ThumbHeight: Dp = 87.dp
 private val RingWidth: Dp = 3.dp
 private val FrameWidth: Dp = ThumbWidth + RingWidth * 2
 private val FrameHeight: Dp = ThumbHeight + RingWidth * 2
-private val ThumbShape = RoundedCornerShape(10.dp)
-private val RingShape = RoundedCornerShape(13.dp)
+private val ThumbShape = RoundedCornerShape(TuIndiceRadius.Medium)
+
+// The ring follows the thumbnail's corner, out by its own width, so the two curves stay concentric.
+private val RingShape = RoundedCornerShape(TuIndiceRadius.Medium + RingWidth)
 
 /**
  * The backgrounds of the card as a strip of thumbnails, each with its short name above it: the artwork alone, as in a
