@@ -15,9 +15,11 @@ import com.gdavidpb.tuindice.summary.testing.ControllableVisibleEvaluationsRepos
 import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.testing.hubAttempt
+import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
 import com.gdavidpb.tuindice.summary.testing.hubDate
 import com.gdavidpb.tuindice.summary.testing.hubEvaluation
 import com.gdavidpb.tuindice.summary.testing.hubMeeting
+import com.gdavidpb.tuindice.summary.testing.hubPassedAttempt
 import com.gdavidpb.tuindice.summary.testing.hubRecord
 import com.gdavidpb.tuindice.summary.testing.hubTerm
 import com.gdavidpb.tuindice.summary.testing.scheduleNow
@@ -27,11 +29,23 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class ObserveSummaryHubUseCaseTest {
 	private val progress = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
+
+	// A term that is over, with a subject passed, and the term in progress of the same record.
+	private val recordWithAClosedTerm = hubRecord(
+		hubClosedTerm(year = 2025, attempts = listOf(hubPassedAttempt(code = "MA1111")), index = 13.0),
+		hubTerm(
+			attempts = listOf(
+				hubAttempt(code = "CI5437", schedule = listOf(hubMeeting(day = HUB_THURSDAY, start = 3, end = 4)))
+			)
+		)
+	)
 
 	private val record = hubRecord(
 		hubTerm(
@@ -89,15 +103,19 @@ class ObserveSummaryHubUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
+			val hub = awaitLoadingThenData(this)
+
 			assertEquals(
 				SummaryHub(
 					attention = emptyList(),
 					week = SummaryWeek.Idle(hasTerms = false),
 					term = SummaryTerm.Idle(hasTerms = false, finished = null),
-					career = progress
+					career = progress,
+					statistics = null
 				),
-				awaitLoadingThenData(this)
+				hub.copy(statistics = null)
 			)
+			assertTrue(assertNotNull(hub.statistics).closed.terms.isEmpty())
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -138,6 +156,8 @@ class ObserveSummaryHubUseCaseTest {
 			val hub = awaitLoadingThenData(this)
 
 			assertNull(hub.career)
+			assertNull(hub.statistics?.pensumProgress)
+			assertEquals(false, hub.statistics?.currentTerm?.hasSyncedEvaluations)
 			assertTrue(hub.inProgressTerm().subjects.isEmpty())
 			assertEquals(3, hub.inProgressTerm().academicWeek)
 			cancelAndIgnoreRemainingEvents()
@@ -156,6 +176,49 @@ class ObserveSummaryHubUseCaseTest {
 
 		useCase.execute(Unit).test {
 			assertEquals(SummaryHub.Empty.copy(career = progress), awaitLoadingThenData(this))
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun theClockMovesTheDay_butTheClosedStatisticsAreNotReadAgain() = runTest {
+		val clock = ControllableScheduleClockRepository(scheduleNow(minuteOfDay = 10 * 60))
+		val useCase = createObserveSummaryHubUseCase(
+			record = ControllableVisibleAcademicRecordRepository(recordWithAClosedTerm),
+			clock = clock
+		)
+
+		useCase.execute(Unit).test {
+			val first = assertNotNull(awaitLoadingThenData(this).statistics)
+
+			clock.nowFlow.value = scheduleNow(minuteOfDay = 14 * 60)
+
+			val second = assertNotNull(expectData().statistics)
+			// The same instance: the closed terms were read from the record once, not again for the minute that passed.
+			assertSame(first.closed, second.closed)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun theFinishedTerm_andTheLastClosedStatistic_areReadFromOneProjection_fromTheRecordTheUseCaseObserves() = runTest {
+		val useCase = createObserveSummaryHubUseCase(
+			record = ControllableVisibleAcademicRecordRepository(
+				hubRecord(
+					hubClosedTerm(year = 2024, attempts = listOf(hubPassedAttempt(code = "MA1111")), index = 13.5),
+					hubClosedTerm(year = 2025, attempts = listOf(hubPassedAttempt(code = "CI5311")), index = 12.0)
+				)
+			)
+		)
+
+		useCase.execute(Unit).test {
+			val hub = awaitLoadingThenData(this)
+			val finished = assertNotNull(assertIs<SummaryTerm.Idle>(hub.term).finished)
+			val last = assertNotNull(assertNotNull(hub.statistics).lastClosedTerm)
+
+			assertEquals(last.periodYear, finished.periodYear)
+			assertEquals(last.index ?: 0.0, finished.index)
+			assertEquals(last.approvedCredits, finished.approvedCredits)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

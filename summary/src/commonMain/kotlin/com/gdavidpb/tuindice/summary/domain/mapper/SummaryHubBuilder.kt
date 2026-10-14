@@ -5,15 +5,17 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationOrdinalEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationPointsEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationStateEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.RecordStatisticsEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.RecordStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.academiccore.domain.model.classesStartLocalDate
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
@@ -23,6 +25,7 @@ import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
+import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
@@ -36,6 +39,10 @@ import kotlinx.datetime.LocalDate
  * A ready record has both the week and the term: the term in progress when the record has one, and otherwise
  * what the record says of the terms it has (the last one that is over, and whether it has any at all). A new
  * student the university has no record for yet has no term yet. Any other state of the record leaves only the career.
+ *
+ * This reads the record on its own, once, through [recordReadingOf]. The observed hub reads it once for each emission
+ * of the record instead, and builds the hub over that reading for each minute, so a minute that passes never projects
+ * the record again.
  */
 fun buildSummaryHub(
 	recordState: SummaryRecordState,
@@ -43,56 +50,81 @@ fun buildSummaryHub(
 	now: ScheduleNow,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
-	return when (recordState) {
-		is SummaryRecordState.Ready -> readyHubOf(
-			record = recordState.record,
+	return buildSummaryHub(
+		reading = recordReadingOf(recordState),
+		evaluations = evaluations,
+		now = now,
+		pensumProgress = pensumProgress
+	)
+}
+
+// The hub over a record already read: none of its parts projects the record again, whatever the moment it is asked on.
+internal fun buildSummaryHub(
+	reading: SummaryRecordReading,
+	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
+	now: ScheduleNow,
+	pensumProgress: PensumCreditsProgress?
+): SummaryHub {
+	return when (reading) {
+		is SummaryRecordReading.Ready -> readyHubOf(
+			reading = reading,
 			evaluations = evaluations,
 			now = now,
 			pensumProgress = pensumProgress
 		)
 
-		SummaryRecordState.NewStudentWithoutRecord -> idleHubOf(
+		SummaryRecordReading.NewStudentWithoutRecord -> idleHubOf(
 			hasTerms = false,
 			finished = null,
+			closed = RecordStatisticsEngine.statisticsOf(RecordProjection()),
 			pensumProgress = pensumProgress
 		)
 
-		SummaryRecordState.NotReady -> SummaryHub.Empty.copy(career = pensumProgress)
+		SummaryRecordReading.NotReady -> SummaryHub.Empty.copy(career = pensumProgress)
 	}
 }
 
 private fun readyHubOf(
-	record: AcademicRecord,
+	reading: SummaryRecordReading.Ready,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
-	val term = record.terms
+	val term = reading.record.terms
 		.currentTermOrNull(kind = AcademicTerm::kind, termOrder = AcademicTerm::termOrder, id = AcademicTerm::id)
 
 	return if (term == null) {
 		idleHubOf(
-			hasTerms = record.terms.isNotEmpty(),
-			finished = finishedTermOf(record),
+			hasTerms = reading.record.terms.isNotEmpty(),
+			finished = finishedTermOf(reading.projection),
+			closed = reading.closed,
 			pensumProgress = pensumProgress
 		)
 	} else {
-		inProgressHubOf(term = term, evaluations = evaluations, now = now, pensumProgress = pensumProgress)
+		inProgressHubOf(
+			term = term,
+			evaluations = evaluations,
+			now = now,
+			pensumProgress = pensumProgress,
+			closed = reading.closed
+		)
 	}
 }
 
 // No term in progress: nothing is attended to, and the week and the term say only what the record has of its terms,
-// or that there is nothing yet for a new student.
+// or that there is nothing yet for a new student. The statistics are those of the closed terms alone.
 private fun idleHubOf(
 	hasTerms: Boolean,
 	finished: SummaryFinishedTerm?,
+	closed: RecordStatistics,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
 	return SummaryHub(
 		attention = emptyList(),
 		week = SummaryWeek.Idle(hasTerms = hasTerms),
 		term = SummaryTerm.Idle(hasTerms = hasTerms, finished = finished),
-		career = pensumProgress
+		career = pensumProgress,
+		statistics = summaryStatisticsOf(closed = closed, pensumProgress = pensumProgress, currentTerm = null)
 	)
 }
 
@@ -100,7 +132,8 @@ private fun inProgressHubOf(
 	term: AcademicTerm,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
-	pensumProgress: PensumCreditsProgress?
+	pensumProgress: PensumCreditsProgress?,
+	closed: RecordStatistics
 ): SummaryHub {
 	// Those of an attempt the record no longer has (or one that was withdrawn, or is not graded in
 	// numbers) are not the term's: they stay out of everything below.
@@ -108,6 +141,13 @@ private fun inProgressHubOf(
 	val subjectIds = subjects.mapTo(HashSet(), AcademicAttempt::id)
 	val termEvaluations = evaluations.value.filter { evaluation -> evaluation.attemptId in subjectIds }
 	val meetingsByAttempt = term.attempts.associate { attempt -> attempt.id to attempt.validMeetings() }
+	val termInProgress = termOf(
+		term = term,
+		subjects = subjects,
+		evaluations = termEvaluations,
+		hasSyncedEvaluations = evaluations.hasSynced,
+		today = now.date
+	)
 
 	return SummaryHub(
 		attention = attentionOf(term = term, evaluations = termEvaluations, today = now.date),
@@ -117,14 +157,14 @@ private fun inProgressHubOf(
 			meetingsByAttempt = meetingsByAttempt,
 			now = now
 		),
-		term = termOf(
-			term = term,
-			subjects = subjects,
-			evaluations = termEvaluations,
-			hasSyncedEvaluations = evaluations.hasSynced,
-			today = now.date
-		),
-		career = pensumProgress
+		term = termInProgress,
+		career = pensumProgress,
+		// The statistics count the same subjects and evaluations as the term above, so they cannot count another set.
+		statistics = summaryStatisticsOf(
+			closed = closed,
+			pensumProgress = pensumProgress,
+			currentTerm = currentTermStatisticsOf(term = termInProgress, evaluations = termEvaluations, today = now.date)
+		)
 	)
 }
 

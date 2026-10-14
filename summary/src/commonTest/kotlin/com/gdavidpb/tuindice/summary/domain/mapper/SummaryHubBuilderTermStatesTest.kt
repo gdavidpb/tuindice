@@ -112,10 +112,16 @@ class SummaryHubBuilderTermStatesTest {
 				attention = emptyList(),
 				week = SummaryWeek.Idle(hasTerms = false),
 				term = SummaryTerm.Idle(hasTerms = false, finished = null),
-				career = progress
+				career = progress,
+				statistics = null
 			),
-			result
+			result.copy(statistics = null)
 		)
+		// Its statistics are empty, with the pensum as it was read: a new student has no closed term yet.
+		val statistics = assertNotNull(result.statistics)
+		assertTrue(statistics.closed.terms.isEmpty())
+		assertEquals(progress, statistics.pensumProgress)
+		assertNull(statistics.currentTerm)
 	}
 
 	@Test

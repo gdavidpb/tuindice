@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
@@ -61,6 +63,38 @@ fun hubTerm(
 )
 
 fun hubRecord(vararg terms: AcademicTerm) = AcademicRecord(id = "record", terms = terms.toList())
+
+// A subject passed with the grade the record stores for a graded attempt: its credits count as approved.
+fun hubPassedAttempt(code: String, credits: Int = 3) = hubAttempt(code = code).copy(
+	credits = credits,
+	academicScore = AttemptScore.numeric(4),
+	academicOutcome = AttemptOutcome.APPROVED
+)
+
+// A subject passed on a qualitative grade: its credits count, but it has no grade to average.
+fun hubQualitativeAttempt(code: String, credits: Int = 3) = hubAttempt(
+	code = code,
+	gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL
+).copy(
+	credits = credits,
+	academicScore = AttemptScore.symbolic("A"),
+	academicOutcome = AttemptOutcome.APPROVED
+)
+
+// A term that is over, with the average Registro printed for it. Without one, the term has no index.
+fun hubClosedTerm(
+	year: Int,
+	attempts: List<AcademicAttempt>,
+	index: Double? = null,
+	periodCode: AcademicTermPeriod = AcademicTermPeriod.SEP_DEC
+) = AcademicTerm(
+	id = "term-$year-${periodCode.name}",
+	periodYear = year,
+	periodCode = periodCode,
+	kind = TermKind.HISTORICAL,
+	attempts = attempts,
+	officialPeriodAverage = index
+)
 
 fun hubEvaluation(
 	id: String,

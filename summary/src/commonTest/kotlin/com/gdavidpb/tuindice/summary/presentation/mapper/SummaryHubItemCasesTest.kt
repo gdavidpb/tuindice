@@ -29,7 +29,8 @@ class SummaryHubItemCasesTest {
 			attention = emptyList(),
 			week = SummaryWeek.Idle(hasTerms = false),
 			term = SummaryTerm.Idle(hasTerms = false, finished = null),
-			career = null
+			career = null,
+			statistics = null
 		).toSummaryHubItem()
 
 		assertEquals(
@@ -69,7 +70,8 @@ class SummaryHubItemCasesTest {
 			attention = emptyList(),
 			week = SummaryWeek.Idle(hasTerms = false),
 			term = SummaryTerm.Idle(hasTerms = false, finished = null),
-			career = null
+			career = null,
+			statistics = null
 		).toSummaryHubItem()
 
 		assertNotNull(ready.week)
