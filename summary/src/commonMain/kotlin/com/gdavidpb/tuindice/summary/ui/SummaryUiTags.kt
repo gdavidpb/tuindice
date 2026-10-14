@@ -67,6 +67,11 @@ object SummaryUiTags {
 	const val StatisticsTrailingEdge = "summary_statistics_trailing_edge"
 	const val StatisticsReferenceLabel = "summary_statistics_reference_label"
 
+	// The shared card of a term: the card itself, its index and its credit line.
+	const val ShareTermCard = "summary_share_term_card"
+	const val ShareTermCardIndex = "summary_share_term_card_index"
+	const val ShareTermCardCredit = "summary_share_term_card_credit"
+
 	fun attentionItem(key: String): String = "summary_attention_item_$key"
 
 	fun weekEvaluationRow(evaluationId: String): String = "summary_week_evaluation_row_$evaluationId"

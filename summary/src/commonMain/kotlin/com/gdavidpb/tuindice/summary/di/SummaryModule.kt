@@ -2,24 +2,32 @@ package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
+import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundRemoteDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundSettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.ProfilePictureImageLoaderDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundDataSource
+import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ShareTermImageExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
@@ -54,15 +62,19 @@ val summaryModule = module {
 	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
+	factoryOf(::ShareTermImageUseCase)
 
 	/* Repositories */
 
 	factoryOf(::UserDataSource) { bind<UserRepository>() }
+	factoryOf(::ShareBackgroundDataSource) { bind<ShareBackgroundRepository>() }
 
 	/* Data sources */
 
 	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
+	factoryOf(::ShareBackgroundApiDataSource) { bind<ShareBackgroundRemoteDataRepository>() }
+	singleOf(::ShareBackgroundSettingsDataSource) { bind<ShareBackgroundSettingsDataRepository>() }
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
 		bind<SessionMemory>()
@@ -78,6 +90,7 @@ val summaryModule = module {
 	factoryOf(::UpdateUserExceptionHandler)
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
+	factoryOf(::ShareTermImageExceptionHandler)
 }
 
 private const val PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER = "summaryProfilePictureImageLoaderTask"

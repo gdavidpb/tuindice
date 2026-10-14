@@ -228,4 +228,14 @@
     <string name="summary_statistics_pace_complete">Ya completaste tu pensum.</string>
     <string name="summary_statistics_pace_invite_title">Calcula cuánto te falta</string>
     <string name="summary_statistics_pace_invite_message">Abre tu pensum para calcular tu ritmo.</string>
+    <string name="share_term_card_title">Mi trimestre</string>
+    <string name="share_term_card_index_label">índice del trimestre</string>
+    <string name="share_term_card_approved_one">aprobada</string>
+    <string name="share_term_card_approved_many">aprobadas</string>
+    <string name="share_term_card_credits_one">crédito</string>
+    <string name="share_term_card_credits_many">créditos</string>
+    <string name="share_term_card_cumulative_label">acumulado</string>
+    <string name="share_term_card_career">%1$s · USB</string>
+    <string name="share_term_card_brand">TuIndice</string>
+    <string name="a11y_share_term_card">Mi trimestre, tarjeta para compartir</string>
 </resources>
