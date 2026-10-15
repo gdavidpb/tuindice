@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.data.source
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
+import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
@@ -11,9 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : SettingsDataRepository, SessionMemory {
+) : SettingsDataRepository, ShareBackgroundSelectionRepository, SessionMemory {
 	private val profilePictureVersion = MutableStateFlow(
 		settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
+	)
+
+	private val preferredBackgroundId = MutableStateFlow(
+		settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUND_ID)
 	)
 
 	override suspend fun isGetUserOnCooldown(): Boolean {
@@ -39,8 +44,18 @@ class LocalSettingsDataSource(
 		profilePictureVersion.value = nextVersion
 	}
 
-	// The mirror goes back to what is stored, which the wipe has just emptied.
+	override fun observePreferredBackgroundId(): Flow<String?> {
+		return preferredBackgroundId
+	}
+
+	override suspend fun setPreferredBackgroundId(id: String) {
+		settings.putString(PreferencesKeys.SHARE_BACKGROUND_ID, id)
+		preferredBackgroundId.value = id
+	}
+
+	// The mirrors go back to what is stored, which the wipe has just emptied.
 	override suspend fun clearSessionMemory() {
 		profilePictureVersion.value = settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
+		preferredBackgroundId.value = settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUND_ID)
 	}
 }

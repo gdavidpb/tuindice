@@ -50,6 +50,16 @@ class ObserveShareTermUseCaseTest {
 		assertEquals(2, source.backgrounds.size)
 	}
 
+	@Test
+	fun when_theSheetIsObserved_then_noBackgroundIsAskedFromTheServer() = runTest {
+		val backgrounds = RecordingShareBackgroundRepository()
+		val useCase = useCase(record = hubRecord(), backgrounds = backgrounds)
+
+		withTimeout(TIMEOUT_MILLIS) { useCase.executeOnBackground(Unit).first() }
+
+		assertEquals(0, backgrounds.refreshes)
+	}
+
 	private fun useCase(
 		record: com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord,
 		user: User = DEFAULT_SUMMARY_USER,
@@ -60,6 +70,7 @@ class ObserveShareTermUseCaseTest {
 		),
 		userRepository = RecordingUserRepository(users = flowOf(user)),
 		shareBackgroundRepository = backgrounds,
+		shareBackgroundSelectionRepository = backgrounds,
 		reportingRepository = RecordingReportingRepository()
 	)
 

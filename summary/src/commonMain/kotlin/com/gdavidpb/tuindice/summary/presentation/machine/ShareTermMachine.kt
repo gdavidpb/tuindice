@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
 import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermContentTransitions
@@ -21,6 +22,7 @@ import tuindice.summary.generated.resources.share_term_unavailable_title
 
 class ShareTermMachine(
 	private val observeShareTermUseCase: ObserveShareTermUseCase,
+	private val updateShareBackgroundsUseCase: UpdateShareBackgroundsUseCase,
 	private val setShareBackgroundPreferenceUseCase: SetShareBackgroundPreferenceUseCase,
 	private val shareTermImageUseCase: ShareTermImageUseCase
 ) : ScreenMachine<ShareTerm.State, ShareTerm.Effect> {
@@ -35,7 +37,8 @@ class ShareTermMachine(
 		}
 	}
 
-	// The terms are read once when the sheet opens, and again each time the hub says them again (each minute).
+	// The sheet observes its terms and its backgrounds as they are saved locally: the terms again each time the hub says
+	// them (each minute), and the backgrounds each time a catalog or a choice is saved.
 	internal fun startObservation(host: MachineHost<ShareTerm.Effect>) {
 		host.launchMachineJob {
 			observeShareTermUseCase.execute(Unit).collect { useCaseState ->
@@ -49,6 +52,14 @@ class ShareTermMachine(
 					is UseCaseState.Error -> host.processInternalEvent(ShareTermInternalEvent.TermsUnavailable)
 				}
 			}
+		}
+	}
+
+	// The catalog is asked for each time the sheet opens. A catalog that cannot be read keeps the one that was saved, so a
+	// refresh that fails is no failure of the sheet.
+	internal fun refreshBackgrounds(host: MachineHost<ShareTerm.Effect>) {
+		host.launchMachineJob {
+			updateShareBackgroundsUseCase.execute(Unit).collect { }
 		}
 	}
 

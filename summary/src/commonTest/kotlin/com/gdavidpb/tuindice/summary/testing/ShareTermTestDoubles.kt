@@ -6,15 +6,18 @@ import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
+import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ShareTermImageExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.ShareTermMachine
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 // A second background of the catalog, with no author to credit: its card credits only its title.
@@ -38,19 +41,33 @@ val unreachableShareBackground = ShareBackground(
 	)
 )
 
+// The catalog a test serves and the choice the student made. The catalog is a flow, so a test can make a refresh land
+// while the sheet is open. [refreshes] counts the asks that the sheet made of the server.
 class RecordingShareBackgroundRepository(
-	private val backgrounds: List<ShareBackground> = listOf(ShareBackground.included, otherShareBackground),
-	private var preferredId: String? = null
-) : ShareBackgroundRepository {
+	initialCatalog: List<ShareBackground> = listOf(ShareBackground.included, otherShareBackground),
+	preferredId: String? = null
+) : ShareBackgroundRepository, ShareBackgroundSelectionRepository {
+	val catalog = MutableStateFlow(initialCatalog)
 	val saved = mutableListOf<String>()
+	var refreshes = 0
 
-	override suspend fun getShareBackgrounds(): List<ShareBackground> = backgrounds
+	// Completes at the first ask of the server, for a test that waits for the sheet to make it.
+	val firstRefresh = CompletableDeferred<Unit>()
 
-	override suspend fun getPreferredBackgroundId(): String? = preferredId
+	private val preferred = MutableStateFlow(preferredId)
+
+	override fun observeShareBackgrounds(): Flow<List<ShareBackground>> = catalog
+
+	override suspend fun refreshShareBackgrounds() {
+		refreshes++
+		firstRefresh.complete(Unit)
+	}
+
+	override fun observePreferredBackgroundId(): Flow<String?> = preferred
 
 	override suspend fun setPreferredBackgroundId(id: String) {
 		saved += id
-		preferredId = id
+		preferred.value = id
 	}
 }
 
@@ -84,10 +101,15 @@ fun shareTermMachineOf(
 			observeSummaryHubUseCase = hub,
 			userRepository = RecordingUserRepository(users = users),
 			shareBackgroundRepository = backgrounds,
+			shareBackgroundSelectionRepository = backgrounds,
+			reportingRepository = reporting
+		),
+		updateShareBackgroundsUseCase = UpdateShareBackgroundsUseCase(
+			shareBackgroundRepository = backgrounds,
 			reportingRepository = reporting
 		),
 		setShareBackgroundPreferenceUseCase = SetShareBackgroundPreferenceUseCase(
-			shareBackgroundRepository = backgrounds,
+			shareBackgroundSelectionRepository = backgrounds,
 			reportingRepository = reporting
 		),
 		shareTermImageUseCase = ShareTermImageUseCase(

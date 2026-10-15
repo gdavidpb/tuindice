@@ -1,18 +1,23 @@
 package com.gdavidpb.tuindice.summary.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.summary.data.model.ShareBackgroundResponse
 import com.gdavidpb.tuindice.summary.data.model.ShareBackgroundsResponse
 import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundSettingsDataRepository
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 
 class ShareBackgroundSettingsDataSource(
 	private val settings: Settings
-) : ShareBackgroundSettingsDataRepository {
-	override suspend fun getLastCatalog(): List<ShareBackgroundResponse>? {
-		return settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUNDS_CATALOG)
-			?.let { content -> decodeShareBackgroundsCatalog(content) }
+) : ShareBackgroundSettingsDataRepository, SessionMemory {
+	// The catalog that was saved last, read from the store once and written through on each save.
+	private val lastCatalog = MutableStateFlow(readLastCatalog())
+
+	override fun observeLastCatalog(): Flow<List<ShareBackgroundResponse>?> {
+		return lastCatalog
 	}
 
 	override suspend fun saveLastCatalog(backgrounds: List<ShareBackgroundResponse>) {
@@ -20,14 +25,17 @@ class ShareBackgroundSettingsDataSource(
 			PreferencesKeys.SHARE_BACKGROUNDS_CATALOG,
 			encodeShareBackgroundsCatalog(backgrounds)
 		)
+		lastCatalog.value = backgrounds
 	}
 
-	override suspend fun getPreferredBackgroundId(): String? {
-		return settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUND_ID)
+	// The mirror goes back to what is stored, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		lastCatalog.value = readLastCatalog()
 	}
 
-	override suspend fun setPreferredBackgroundId(id: String) {
-		settings.putString(PreferencesKeys.SHARE_BACKGROUND_ID, id)
+	private fun readLastCatalog(): List<ShareBackgroundResponse>? {
+		return settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUNDS_CATALOG)
+			?.let { content -> decodeShareBackgroundsCatalog(content) }
 	}
 }
 

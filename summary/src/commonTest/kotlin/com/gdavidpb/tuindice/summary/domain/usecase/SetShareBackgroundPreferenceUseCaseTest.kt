@@ -13,7 +13,7 @@ class SetShareBackgroundPreferenceUseCaseTest {
 	fun when_aBackgroundIsChosen_then_itIsKeptAsThePreference() = runTest {
 		val repository = RecordingShareBackgroundRepository()
 		val useCase = SetShareBackgroundPreferenceUseCase(
-			shareBackgroundRepository = repository,
+			shareBackgroundSelectionRepository = repository,
 			reportingRepository = RecordingReportingRepository()
 		)
 

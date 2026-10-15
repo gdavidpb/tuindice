@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
 import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
@@ -155,6 +157,46 @@ class ShareTermViewModelContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theSheetOpens_then_theCatalogIsAskedFromTheServer() = runTest {
+		withMainDispatcher { dispatchers ->
+			val backgrounds = RecordingShareBackgroundRepository()
+			val viewModel = createShareViewModel(dispatchers, record = closedRecord(), backgrounds = backgrounds)
+
+			openedContent(viewModel)
+
+			withTimeout(TIMEOUT_MILLIS) { backgrounds.firstRefresh.await() }
+		}
+	}
+
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theCatalogArrivesWhileTheSheetIsOpen_then_theStripFollowsIt_andTheChosenBackgroundStays() = runTest {
+		withMainDispatcher { dispatchers ->
+			val backgrounds = RecordingShareBackgroundRepository()
+			val viewModel = createShareViewModel(dispatchers, record = closedRecord(), backgrounds = backgrounds)
+			openedContent(viewModel)
+			viewModel.selectBackgroundAction(backgroundId = otherShareBackground.id)
+			withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<ShareTerm.State.Content>().first { state ->
+					state.backgrounds.single { item -> item.selected }.background.id == otherShareBackground.id
+				}
+			}
+
+			backgrounds.catalog.value = listOf(ShareBackground.included, otherShareBackground, arrivedBackground)
+
+			val content = withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<ShareTerm.State.Content>().first { state -> state.backgrounds.size == 3 }
+			}
+			assertEquals(
+				listOf(ShareBackground.included.id, otherShareBackground.id, arrivedBackground.id),
+				content.backgrounds.map { item -> item.background.id }
+			)
+			assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.background.id)
+		}
+	}
+
 	private suspend fun openedContent(
 		viewModel: ShareTermViewModel,
 		termKey: String? = null
@@ -207,5 +249,14 @@ class ShareTermViewModelContractTest {
 		const val INDEX_NEWEST = "4.0000"
 		const val INDEX_OLDEST = "3.0000"
 		val PNG_BYTES = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
+
+		// A background that a refresh of the catalog brings in while the sheet is open.
+		val arrivedBackground = ShareBackground(
+			id = "llegada",
+			title = "Llegada",
+			author = null,
+			shortName = "Llegada",
+			art = ShareBackgroundArt.Bundled
+		)
 	}
 }

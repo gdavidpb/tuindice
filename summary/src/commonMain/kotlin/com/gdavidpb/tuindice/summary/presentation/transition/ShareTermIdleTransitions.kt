@@ -12,6 +12,7 @@ internal fun MachineDefinitionBuilder<ShareTerm.State>.shareTermIdleTransitions(
 	from<ShareTerm.State.Idle> {
 		onTo<ShareTerm.Action.ObserveShareTerm, ShareTerm.State.Loading> { _, action ->
 			machine.startObservation(host = host)
+			machine.refreshBackgrounds(host = host)
 			ShareTerm.State.Loading(requestedTermKey = action.termKey)
 		}
 	}

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundSettingsDataSour
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
+import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -76,6 +78,7 @@ val summaryModule = module {
 	factoryOf(::ShareTermImageUseCase)
 	factoryOf(::ObserveShareTermUseCase)
 	factoryOf(::SetShareBackgroundPreferenceUseCase)
+	factoryOf(::UpdateShareBackgroundsUseCase)
 
 	/* Repositories */
 
@@ -87,9 +90,13 @@ val summaryModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
 	factoryOf(::ShareBackgroundApiDataSource) { bind<ShareBackgroundRemoteDataRepository>() }
-	singleOf(::ShareBackgroundSettingsDataSource) { bind<ShareBackgroundSettingsDataRepository>() }
+	singleOf(::ShareBackgroundSettingsDataSource) {
+		bind<ShareBackgroundSettingsDataRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
+		bind<ShareBackgroundSelectionRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::ProfilePictureImageLoaderDataSource) { bind<SessionMemory>() }

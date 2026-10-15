@@ -6,107 +6,115 @@ import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundSettin
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 
 class ShareBackgroundDataSourceTest {
 	@Test
-	fun when_theCatalogIsRead_then_theIncludedBackgroundComesFirstAndTheRestByOrder() = runTest {
-		val remote = FakeRemote {
-			listOf(response(id = "tercero", order = 3), response(id = "primero", order = 1), response(id = "segundo", order = 2))
-		}
+	fun when_theCatalogIsObserved_then_theIncludedBackgroundComesFirstAndTheRestByOrder() = runTest {
+		val settings = FakeCatalogSettings(
+			catalog = listOf(
+				response(id = "tercero", order = 3),
+				response(id = "primero", order = 1),
+				response(id = "segundo", order = 2)
+			)
+		)
 
-		val ids = dataSource(remote = remote).getShareBackgrounds().map { background -> background.id }
+		val ids = dataSource(settings = settings).observeShareBackgrounds().first().map { background -> background.id }
 
 		assertEquals(listOf(ShareBackground.INCLUDED_ID, "primero", "segundo", "tercero"), ids)
 	}
 
 	@Test
 	fun when_theCatalogRepeatsTheIncludedBackground_then_itAppearsOnceAsTheAppShipsIt() = runTest {
-		val remote = FakeRemote {
-			listOf(response(id = ShareBackground.INCLUDED_ID, order = 1, title = "Otro título"))
-		}
+		val settings = FakeCatalogSettings(
+			catalog = listOf(response(id = ShareBackground.INCLUDED_ID, order = 1, title = "Otro título"))
+		)
 
-		val backgrounds = dataSource(remote = remote).getShareBackgrounds()
+		val backgrounds = dataSource(settings = settings).observeShareBackgrounds().first()
 
 		assertEquals(listOf(ShareBackground.included), backgrounds)
 	}
 
 	@Test
-	fun when_theCatalogIsRead_then_thatListIsKeptAsTheLastCatalog() = runTest {
-		val settings = FakeSettings()
-		val catalog = listOf(response(id = "primero", order = 1))
+	fun when_noCatalogWasSaved_then_onlyTheIncludedBackgroundIsObserved() = runTest {
+		val backgrounds = dataSource().observeShareBackgrounds().first()
 
-		dataSource(remote = FakeRemote { catalog }, settings = settings).getShareBackgrounds()
-
-		assertEquals(catalog, settings.lastCatalog)
+		assertEquals(listOf(ShareBackground.included), backgrounds)
 	}
 
 	@Test
-	fun when_theCatalogFails_then_theLastCatalogThatWasReadIsServed() = runTest {
+	fun when_theCatalogIsRefreshed_then_thatListIsSavedAndObserved() = runTest {
+		val settings = FakeCatalogSettings()
 		val remote = FakeRemote { listOf(response(id = "primero", order = 1)) }
-		val dataSource = dataSource(remote = remote)
-		dataSource.getShareBackgrounds()
+		val dataSource = dataSource(remote = remote, settings = settings)
+
+		dataSource.refreshShareBackgrounds()
+
+		assertEquals(1, settings.saves)
+		assertEquals(
+			listOf(ShareBackground.INCLUDED_ID, "primero"),
+			dataSource.observeShareBackgrounds().first().map { background -> background.id }
+		)
+	}
+
+	@Test
+	fun when_theCatalogFails_then_theLastSavedCatalogIsKept() = runTest {
+		val remote = FakeRemote { listOf(response(id = "primero", order = 1)) }
+		val settings = FakeCatalogSettings()
+		val dataSource = dataSource(remote = remote, settings = settings)
+		dataSource.refreshShareBackgrounds()
 
 		remote.answer = { throw IllegalStateException("503") }
+		dataSource.refreshShareBackgrounds()
 
-		val ids = dataSource.getShareBackgrounds().map { background -> background.id }
-
-		assertEquals(listOf(ShareBackground.INCLUDED_ID, "primero"), ids)
+		assertEquals(1, settings.saves)
+		assertEquals(
+			listOf(ShareBackground.INCLUDED_ID, "primero"),
+			dataSource.observeShareBackgrounds().first().map { background -> background.id }
+		)
 	}
 
 	@Test
-	fun when_theCatalogFailsWithoutALastCatalog_then_onlyTheIncludedBackgroundIsServed() = runTest {
+	fun when_theCatalogFailsWithoutALastCatalog_then_onlyTheIncludedBackgroundIsObserved() = runTest {
 		val remote = FakeRemote { throw IllegalStateException("sin red") }
+		val dataSource = dataSource(remote = remote)
 
-		val backgrounds = dataSource(remote = remote).getShareBackgrounds()
+		dataSource.refreshShareBackgrounds()
 
-		assertEquals(listOf(ShareBackground.included), backgrounds)
+		assertEquals(listOf(ShareBackground.included), dataSource.observeShareBackgrounds().first())
 	}
 
 	@Test
-	fun when_theReadIsCancelled_then_theCancellationIsNotHiddenByTheLastCatalog() = runTest {
-		val settings = FakeSettings().apply {
-			lastCatalog = listOf(response(id = "primero", order = 1))
-		}
+	fun when_theRefreshIsCancelled_then_theCancellationIsNotHiddenByTheLastCatalog() = runTest {
 		val remote = FakeRemote { throw CancellationException("cancelado") }
 
 		assertFailsWith<CancellationException> {
-			dataSource(remote = remote, settings = settings).getShareBackgrounds()
+			dataSource(remote = remote).refreshShareBackgrounds()
 		}
-	}
-
-	@Test
-	fun when_aBackgroundIsPreferred_then_thatPreferenceIsWhatIsRead() = runTest {
-		val dataSource = dataSource(remote = FakeRemote { emptyList() })
-
-		dataSource.setPreferredBackgroundId("primero")
-
-		assertEquals("primero", dataSource.getPreferredBackgroundId())
-	}
-
-	@Test
-	fun when_noBackgroundWasPreferred_then_thereIsNoPreference() = runTest {
-		assertNull(dataSource(remote = FakeRemote { emptyList() }).getPreferredBackgroundId())
 	}
 
 	@Test
 	fun when_aCatalogBackgroundIsServed_then_itsArtIsRemoteWithItsCardAndThumb() = runTest {
 		val remote = FakeRemote { listOf(response(id = "primero", order = 1)) }
+		val dataSource = dataSource(remote = remote)
+		dataSource.refreshShareBackgrounds()
 
-		val background = dataSource(remote = remote).getShareBackgrounds().last()
+		val background = dataSource.observeShareBackgrounds().first().last()
 
 		assertIs<ShareBackgroundArt.Remote>(background.art)
 		assertEquals("https://cdn.example/primero/card.webp", background.art.cardUrl)
 	}
 
 	private fun dataSource(
-		remote: ShareBackgroundRemoteDataRepository,
-		settings: ShareBackgroundSettingsDataRepository = FakeSettings()
+		remote: ShareBackgroundRemoteDataRepository = FakeRemote { emptyList() },
+		settings: FakeCatalogSettings = FakeCatalogSettings()
 	) = ShareBackgroundDataSource(remoteDataSource = remote, settingsDataSource = settings)
 
 	private fun response(id: String, order: Int, title: String = "Título $id") = ShareBackgroundResponse(
@@ -126,20 +134,19 @@ class ShareBackgroundDataSourceTest {
 		override suspend fun getShareBackgrounds(): List<ShareBackgroundResponse> = answer()
 	}
 
-	private class FakeSettings : ShareBackgroundSettingsDataRepository {
-		var lastCatalog: List<ShareBackgroundResponse>? = null
-		var preferredId: String? = null
+	private class FakeCatalogSettings(
+		catalog: List<ShareBackgroundResponse>? = null
+	) : ShareBackgroundSettingsDataRepository {
+		private val lastCatalog = MutableStateFlow(catalog)
 
-		override suspend fun getLastCatalog() = lastCatalog
+		var saves = 0
+			private set
+
+		override fun observeLastCatalog(): Flow<List<ShareBackgroundResponse>?> = lastCatalog
 
 		override suspend fun saveLastCatalog(backgrounds: List<ShareBackgroundResponse>) {
-			lastCatalog = backgrounds
-		}
-
-		override suspend fun getPreferredBackgroundId() = preferredId
-
-		override suspend fun setPreferredBackgroundId(id: String) {
-			preferredId = id
+			saves++
+			lastCatalog.value = backgrounds
 		}
 	}
 }
