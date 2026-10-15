@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
 
 // The Monday that opens week 1: it follows the real first day of classes when the backend served a
 // plausible one, and the calendar month of the period otherwise. Every week number and the strip of
@@ -22,7 +20,7 @@ internal fun evaluationsWeekOneStart(
 	currentDate: LocalDate
 ): LocalDate {
 	return currentTerm?.academicWeekOneStart()
-		?: currentDate.minus(DatePeriod(days = currentDate.dayOfWeek.ordinal))
+		?: AcademicWeekEngine.mondayOf(currentDate)
 }
 
 internal fun computeAcademicWeek(
