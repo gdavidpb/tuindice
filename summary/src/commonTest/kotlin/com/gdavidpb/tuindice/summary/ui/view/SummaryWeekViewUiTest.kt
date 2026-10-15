@@ -148,7 +148,7 @@ class SummaryWeekViewUiTest {
 	}
 
 	@Test
-	fun when_theClassIsInProgressOnANarrowScreen_then_itsContentStartsWhereTheOnesOfTheEvaluationsDo() =
+	fun when_theClassIsInProgressOnANarrowScreen_then_theLeadsAreOneWidth_andTheContentStartsAfterIt() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				Box(modifier = Modifier.width(360.dp)) {
@@ -156,15 +156,27 @@ class SummaryWeekViewUiTest {
 				}
 			}
 
-			// The blocks and the room are said by the class row and by the first evaluation row, each at the
-			// start of its content.
-			val places = onAllNodesWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNodes()
-			val starts = places.map { place -> place.boundsInRoot.left }
+			// The pill of the class and the day that leads the evaluation are one width, and the content of each row
+			// starts after its lead: the subject of the class, the type icon of the evaluation. The place of the
+			// evaluation is indented under its name, as it is in Evaluations.
+			val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode()
+			val day = onNodeWithTag(SummaryEvaluationRowUiTags.lead("evaluation-1"), useUnmergedTree = true)
+				.fetchSemanticsNode()
+			val subject = onAllNodesWithText("CI5437", useUnmergedTree = true).fetchSemanticsNodes().first()
+			val icon = onNodeWithTag(SummaryEvaluationRowUiTags.typeIcon("evaluation-1"), useUnmergedTree = true)
+				.fetchSemanticsNode()
 
-			assertEquals(2, starts.size)
 			assertTrue(
-				kotlin.math.abs(starts[0] - starts[1]) < 0.5f,
-				"the class row starts its content at ${starts[0]} px and the evaluation row at ${starts[1]} px"
+				kotlin.math.abs(pill.boundsInRoot.width - day.boundsInRoot.width) < 0.5f,
+				"the pill is ${pill.boundsInRoot.width} px wide and the day of the evaluation ${day.boundsInRoot.width} px"
+			)
+			assertTrue(
+				subject.boundsInRoot.left >= pill.boundsInRoot.right,
+				"the class starts its content at ${subject.boundsInRoot.left} px, after its pill"
+			)
+			assertTrue(
+				icon.boundsInRoot.left >= day.boundsInRoot.right,
+				"the evaluation starts its content at ${icon.boundsInRoot.left} px, after its day"
 			)
 		}
 }

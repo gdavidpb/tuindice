@@ -1,6 +1,22 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.AreaChart
+import androidx.compose.material.icons.outlined.BackHand
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CoPresent
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.HistoryEdu
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.Quiz
+import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
@@ -19,6 +35,10 @@ import tuindice.summary.generated.resources.summary_class_in_progress
 import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
+import tuindice.summary.generated.resources.summary_evaluation_status_completed
+import tuindice.summary.generated.resources.summary_evaluation_status_continuous
+import tuindice.summary.generated.resources.summary_evaluation_status_overdue
+import tuindice.summary.generated.resources.summary_evaluation_status_scheduled
 import tuindice.summary.generated.resources.summary_evaluation_type_attendance
 import tuindice.summary.generated.resources.summary_evaluation_type_essay
 import tuindice.summary.generated.resources.summary_evaluation_type_interventions
@@ -88,15 +108,21 @@ private fun SummaryClassMoment.toSummaryClassRowItem(): SummaryClassRowItem {
 	)
 }
 
-// An evaluation says where, not when: its hour is the class's and the evaluation tab owns it.
+// An evaluation says where, not when: its hour is the class's and the evaluation tab owns it. Its row reads as the one
+// of the Evaluations tab: the icon of its type, its name in capitals and its state in words.
 private fun SummaryWeekEvaluation.toSummaryEvaluationRowItem(): SummaryEvaluationRowItem {
 	return SummaryEvaluationRowItem(
 		evaluationId = evaluationId,
 		leadText = date.toDayLeadText(isToday = isToday),
-		titleText = UiText.Resource(
-			Res.string.summary_evaluation_name,
-			listOf(UiText.Resource(type.toLabelResource()), ordinal)
+		typeIcon = type.toIcon(),
+		titleText = UiText.Uppercase(
+			UiText.Resource(
+				Res.string.summary_evaluation_name,
+				listOf(UiText.Resource(type.toLabelResource()), ordinal)
+			)
 		),
+		statusText = UiText.Resource(state.toStatusLabelResource()),
+		isOverdue = state == EvaluationState.OVERDUE,
 		subjectCode = subjectCode,
 		place = meeting?.let { inherited ->
 			classPlaceItem(
@@ -137,4 +163,29 @@ internal fun EvaluationType.toLabelResource(): StringResource = when (this) {
 	EvaluationType.WORKSHOP -> Res.string.summary_evaluation_type_workshop
 	EvaluationType.WRITTEN_WORK -> Res.string.summary_evaluation_type_written_work
 	EvaluationType.OTHER -> Res.string.summary_evaluation_type_other
+}
+
+// The icon of each type is the one the Evaluations tab gives it; a test in scenarios keeps the two lists equal.
+fun EvaluationType.toIcon(): ImageVector = when (this) {
+	EvaluationType.TEST -> Icons.Outlined.FileCopy
+	EvaluationType.ESSAY -> Icons.Outlined.HistoryEdu
+	EvaluationType.ATTENDANCE -> Icons.Outlined.BackHand
+	EvaluationType.INTERVENTIONS -> Icons.Outlined.ModeComment
+	EvaluationType.LABORATORY -> Icons.Outlined.Science
+	EvaluationType.MODEL -> Icons.Outlined.Apartment
+	EvaluationType.PRESENTATION -> Icons.Outlined.CoPresent
+	EvaluationType.PROJECT -> Icons.Outlined.AccountTree
+	EvaluationType.QUIZ -> Icons.Outlined.Quiz
+	EvaluationType.REPORT -> Icons.Outlined.AreaChart
+	EvaluationType.WORKSHOP -> Icons.Outlined.Build
+	EvaluationType.WRITTEN_WORK -> Icons.Outlined.Edit
+	EvaluationType.OTHER -> Icons.Outlined.Tag
+}
+
+// The state an evaluation has in the Evaluations tab, in the same words.
+internal fun EvaluationState.toStatusLabelResource(): StringResource = when (this) {
+	EvaluationState.PENDING -> Res.string.summary_evaluation_status_scheduled
+	EvaluationState.OVERDUE -> Res.string.summary_evaluation_status_overdue
+	EvaluationState.COMPLETED -> Res.string.summary_evaluation_status_completed
+	EvaluationState.CONTINUOUS -> Res.string.summary_evaluation_status_continuous
 }

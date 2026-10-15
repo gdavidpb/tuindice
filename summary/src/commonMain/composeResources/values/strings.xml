@@ -65,6 +65,10 @@
     <string name="summary_evaluation_type_workshop">Taller</string>
     <string name="summary_evaluation_type_written_work">Trabajo escrito</string>
     <string name="summary_evaluation_type_other">Otra</string>
+    <string name="summary_evaluation_status_scheduled">Programada</string>
+    <string name="summary_evaluation_status_completed">Completada</string>
+    <string name="summary_evaluation_status_overdue">Sin nota</string>
+    <string name="summary_evaluation_status_continuous">Continua</string>
     <string name="summary_term_week_value">Semana %1$d</string>
     <string name="summary_term_week_rest">de %1$d</string>
     <string name="summary_term_week_description">Semana %1$d de %2$d</string>

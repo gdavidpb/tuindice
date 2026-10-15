@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-14 20:24:25 -0300_
+_Generated automatically on 2026-10-14 21:50:16 -0300_
 
 ## Summary by module
 
@@ -15,7 +15,7 @@ _Generated automatically on 2026-10-14 20:24:25 -0300_
 | `pensum` | 2 | 40 | 47 | 40 | 40 | 40 |
 | `record` | 2 | 75 | 90 | 82 | 75 | 75 |
 | `subjects` | 2 | 24 | 27 | 25 | 24 | 24 |
-| `summary` | 2 | 66 | 117 | 75 | 65 | 65 |
+| `summary` | 2 | 66 | 119 | 75 | 65 | 65 |
 | `wizard` | 2 | 2 | 3 | 2 | 2 | 2 |
 
 ## Detail by composable file
@@ -374,7 +374,7 @@ _Generated automatically on 2026-10-14 20:24:25 -0300_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryContentView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryContentViewUiTest.kt` | 23 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEntryView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEntryViewUiTest.kt` | 3 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluatedBarView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluatedBarViewUiTest.kt` | 3 | PASS threshold (2) |
-| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluationRowView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluationRowViewUiTest.kt` | 4 | PASS threshold (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluationRowView.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryEvaluationRowViewUiTest.kt` | 6 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedViewUiTest.kt` | 2 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFigureText.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFigureTextUiTest.kt` | 4 | PASS threshold (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFinishedTermView.kt` | 3 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFinishedTermViewUiTest.kt` | 5 | PASS threshold (2) |

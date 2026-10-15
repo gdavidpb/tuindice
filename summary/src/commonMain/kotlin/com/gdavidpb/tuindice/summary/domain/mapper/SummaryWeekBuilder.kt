@@ -65,7 +65,8 @@ internal fun weekEvaluationsOf(
 					attemptMeetings = meetingsByAttempt[evaluation.attemptId].orEmpty(),
 					scheduleMode = evaluation.scheduleMode,
 					date = date
-				)
+				),
+				state = evaluation.stateOn(today)
 			)
 		}
 		.sortedWith(

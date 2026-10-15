@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.summary.testing
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FileCopy
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -56,13 +58,16 @@ fun summaryClassRowItem(
 fun summaryEvaluationRowItem(
 	evaluationId: String = "evaluation-1",
 	leadText: String = "Hoy",
-	titleText: String = "Parcial 1",
+	titleText: String = "PARCIAL 1",
 	subjectCode: String = "CI5437",
 	hasPlace: Boolean = true
 ) = SummaryEvaluationRowItem(
 	evaluationId = evaluationId,
 	leadText = UiText.Raw(leadText),
+	typeIcon = Icons.Outlined.FileCopy,
 	titleText = UiText.Raw(titleText),
+	statusText = UiText.Raw("Programada"),
+	isOverdue = false,
 	subjectCode = subjectCode,
 	place = if (hasPlace) {
 		ClassPlaceItem(placeText = UiText.Raw("3-4 · MYS-210"), timeText = null)
@@ -152,7 +157,7 @@ fun summaryHubItem(
 			summaryEvaluationRowItem(
 				evaluationId = "evaluation-2",
 				leadText = "Vie 16",
-				titleText = "Ensayo 1",
+				titleText = "ENSAYO 1",
 				subjectCode = "EG1114",
 				hasPlace = false
 			)

@@ -7,17 +7,26 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 /**
- * The name of an evaluation is written the same on the summary hub and in Evaluations. Each of the two modules keeps
- * its own copy of those texts: a module cannot read another module's resources without exposing base's, so this test
- * is what keeps the copies equal.
+ * The name, the type labels and the states of an evaluation are written the same on the summary hub and in
+ * Evaluations. Each of the two modules keeps its own copy of those texts: a module cannot read another module's
+ * resources without exposing base's, so this test is what keeps the copies equal.
  */
 class HubAndEvaluationsNameParityTest {
 	@Test
 	fun theNameAndTheTypeLabelsOfAnEvaluationReadTheSameOnTheHubAndInEvaluations() {
+		assertSameTexts(PAIRS)
+	}
+
+	@Test
+	fun theStateOfAnEvaluationReadsTheSameOnTheHubAndInEvaluations() {
+		assertSameTexts(STATES)
+	}
+
+	private fun assertSameTexts(pairs: List<Pair<String, String>>) {
 		val evaluations = stringsOf("evaluations")
 		val summary = stringsOf("summary")
 
-		PAIRS.forEach { (evaluationsName, summaryName) ->
+		pairs.forEach { (evaluationsName, summaryName) ->
 			assertEquals(
 				textOf(evaluations, evaluationsName, "evaluations"),
 				textOf(summary, summaryName, "summary"),
@@ -53,5 +62,13 @@ class HubAndEvaluationsNameParityTest {
 		// The name of an evaluation, then each of its 13 type labels: the summary keeps them under its own names.
 		val PAIRS = listOf("evaluation_name" to "summary_evaluation_name") +
 			TYPES.map { type -> "evaluation_$type" to "summary_evaluation_type_$type" }
+
+		// The four states an evaluation can have in its row, with the words the Evaluations tab gives them.
+		val STATES = listOf(
+			"evaluation_status_scheduled" to "summary_evaluation_status_scheduled",
+			"evaluation_status_completed" to "summary_evaluation_status_completed",
+			"evaluation_status_overdue" to "summary_evaluation_status_overdue",
+			"evaluation_status_continuous" to "summary_evaluation_status_continuous"
+		)
 	}
 }

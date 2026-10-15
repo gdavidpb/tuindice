@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FileCopy
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationPoints
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
@@ -33,6 +36,9 @@ import tuindice.summary.generated.resources.summary_class_in_progress
 import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
+import tuindice.summary.generated.resources.summary_evaluation_status_completed
+import tuindice.summary.generated.resources.summary_evaluation_status_overdue
+import tuindice.summary.generated.resources.summary_evaluation_status_scheduled
 import tuindice.summary.generated.resources.summary_evaluation_type_test
 import tuindice.summary.generated.resources.summary_evaluations_invite_action
 import tuindice.summary.generated.resources.summary_evaluations_invite_message
@@ -270,7 +276,7 @@ class SummaryHubItemTest {
 	}
 
 	@Test
-	fun anEvaluation_isNamedByTypeAndOrdinal_ledByItsDay_andPlacedWithoutTheHour() {
+	fun anEvaluation_isNamedInCapitalsByTypeAndOrdinal_ledByItsDay_andPlacedWithoutTheHour() {
 		val evaluation = SummaryWeekEvaluation(
 			evaluationId = "e1",
 			subjectCode = "CI5437",
@@ -278,15 +284,18 @@ class SummaryHubItemTest {
 			ordinal = 1,
 			date = LocalDate(2026, 10, 19),
 			isToday = false,
-			meeting = meeting
+			meeting = meeting,
+			state = EvaluationState.PENDING
 		)
 
 		val row = inProgress(null, listOf(evaluation), hasSchedule = true).toSummaryWeekItem().evaluations.single()
 
 		assertEquals(
-			UiText.Resource(
-				Res.string.summary_evaluation_name,
-				listOf(UiText.Resource(Res.string.summary_evaluation_type_test), 1)
+			UiText.Uppercase(
+				UiText.Resource(
+					Res.string.summary_evaluation_name,
+					listOf(UiText.Resource(Res.string.summary_evaluation_type_test), 1)
+				)
 			),
 			row.titleText
 		)
@@ -294,6 +303,32 @@ class SummaryHubItemTest {
 		assertEquals(classPlaceItem(3, 4, "MYS-210", clockRange = null), row.place)
 		assertNull(row.place?.timeText)
 		assertEquals(LocalDate(2026, 10, 19), row.weekStart)
+	}
+
+	@Test
+	fun anEvaluation_hasTheIconOfItsType_andItsStateAsTheEvaluationsTabWritesIt() {
+		val pending = SummaryWeekEvaluation(
+			evaluationId = "e1",
+			subjectCode = "CI5437",
+			type = EvaluationType.TEST,
+			ordinal = 1,
+			date = LocalDate(2026, 10, 19),
+			isToday = false,
+			meeting = null,
+			state = EvaluationState.PENDING
+		)
+		val completed = pending.copy(evaluationId = "e2", type = EvaluationType.QUIZ, state = EvaluationState.COMPLETED)
+		val overdue = pending.copy(evaluationId = "e3", state = EvaluationState.OVERDUE)
+
+		val rows = inProgress(null, listOf(pending, completed, overdue), hasSchedule = true)
+			.toSummaryWeekItem()
+			.evaluations
+
+		assertEquals(Icons.Outlined.FileCopy.name, rows[0].typeIcon.name)
+		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_scheduled), rows[0].statusText)
+		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_completed), rows[1].statusText)
+		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_overdue), rows[2].statusText)
+		assertEquals(listOf(false, false, true), rows.map { row -> row.isOverdue })
 	}
 
 	@Test
@@ -305,7 +340,8 @@ class SummaryHubItemTest {
 			ordinal = 2,
 			date = LocalDate(2026, 10, 18),
 			isToday = false,
-			meeting = null
+			meeting = null,
+			state = EvaluationState.PENDING
 		)
 
 		val row = inProgress(null, listOf(sunday), hasSchedule = false).toSummaryWeekItem().evaluations.single()
