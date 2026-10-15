@@ -85,7 +85,7 @@ class ScheduleTableDayCellViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnTheMeeting_then_theCellShowsTheIcon_andTappingItAsksForTheEvaluation() = runTuIndiceUiTest {
+	fun when_anEvaluationFallsOnTheMeeting_then_theCellShowsTheIcon_andTappingItAsksForIt() = runTuIndiceUiTest {
 		val meetings = markedWeek().table.rows.first().meetings.getValue(ScheduleDay.Wednesday)
 		var askedEvaluationId: String? = null
 

@@ -27,7 +27,7 @@ data class ScheduleCellItem(
 	// Today's meeting whose blocks hold the current one: the class being taught right now.
 	val isInProgress: Boolean = false,
 	// The Monday that opens the calendar week of an evaluation that falls on this meeting, or null
-	// when none does. Both views mark the cell, and a tap on it asks the Evaluations tab for the week the content has for it.
+	// when none does. Both views mark the cell; a tap asks the Evaluations tab for that week, read from the content.
 	val evaluationWeekStart: LocalDate? = null,
 	// The id of the evaluation that marks this meeting, the earliest one on it (see ScheduleEvaluationMarks),
 	// or null when none falls on it. A tap asks the Evaluations tab for it, so the tab opens on that evaluation.

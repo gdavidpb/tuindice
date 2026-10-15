@@ -56,11 +56,7 @@ fun ScheduleCellView(
 	val cellModifier = modifier
 		.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
 		.semantics(mergeDescendants = true) { contentDescription = description }
-		.scheduleEvaluationButton(
-			shape = shape,
-			evaluationId = cell.evaluationId,
-			onClick = onEvaluationClick
-		)
+		.scheduleEvaluationButton(shape = shape, evaluationId = cell.evaluationId, onClick = onEvaluationClick)
 
 	Surface(
 		modifier = cellModifier,
