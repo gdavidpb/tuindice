@@ -22,7 +22,6 @@ object AcademicScheduleEngine {
 
 	private const val FIRST_DAY = 1
 	private const val LAST_DAY = 7
-	private const val DAYS_PER_WEEK = 7
 	private const val MAX_DAYS_AHEAD = 7
 	private val SEARCH_DAYS_AHEAD = 1..MAX_DAYS_AHEAD
 
@@ -113,7 +112,7 @@ object AcademicScheduleEngine {
 
 	/** The model's day (1 = Sunday ... 7 = Saturday) of [date]. */
 	fun dayOfWeekOf(date: LocalDate): Int {
-		return date.dayOfWeek.isoDayNumber % DAYS_PER_WEEK + FIRST_DAY
+		return date.dayOfWeek.isoDayNumber % AcademicWeekEngine.DAYS_PER_WEEK + FIRST_DAY
 	}
 
 	private fun requireValidDay(dayOfWeek: Int) {
@@ -122,7 +121,7 @@ object AcademicScheduleEngine {
 
 	private fun nextOnFollowingDays(meetings: List<ScheduleMeeting>, dayOfWeek: Int): ScheduleMoment.Next? {
 		return SEARCH_DAYS_AHEAD.firstNotNullOfOrNull { daysAhead ->
-			val day = (dayOfWeek - FIRST_DAY + daysAhead) % DAYS_PER_WEEK + FIRST_DAY
+			val day = (dayOfWeek - FIRST_DAY + daysAhead) % AcademicWeekEngine.DAYS_PER_WEEK + FIRST_DAY
 
 			meetingsOn(meetings, day).firstOrNull()
 				?.let { meeting -> ScheduleMoment.Next(meeting = meeting, daysAhead = daysAhead) }
