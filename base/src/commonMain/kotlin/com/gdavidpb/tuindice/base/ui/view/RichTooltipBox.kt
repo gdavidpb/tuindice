@@ -13,6 +13,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
 import kotlinx.coroutines.flow.drop
@@ -36,6 +38,7 @@ fun RichTooltipBox(
 	content: @Composable () -> Unit
 ) {
 	val tooltipState = rememberTooltipState(isPersistent = true)
+	val shown = tooltip.withTitleAsBodyWhenAlone()
 	val currentIsVisible by rememberUpdatedState(isVisible)
 	val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
 
@@ -62,7 +65,9 @@ fun RichTooltipBox(
 		positionProvider = TooltipDefaults.rememberTooltipPositionProvider(anchorPosition),
 		tooltip = {
 			RichTooltip(
-				title = tooltip.title?.let(::richTooltipTitle),
+				// The tooltip lives in a window of its own, which does not inherit the flag that shows the tags to UI Automator.
+				modifier = Modifier.exposeTestTagsAsResourceId(),
+				title = shown.title?.let(::richTooltipTitle),
 				caretShape = TooltipDefaults.caretShape(),
 				shape = TuIndiceShapes.medium,
 				colors = TooltipDefaults.richTooltipColors(
@@ -71,7 +76,7 @@ fun RichTooltipBox(
 					contentColor = MaterialTheme.colorScheme.onSurfaceVariant
 				),
 				text = {
-					RichTooltipLines(tooltip = tooltip)
+					RichTooltipLines(tooltip = shown)
 				}
 			)
 		},
@@ -82,6 +87,11 @@ fun RichTooltipBox(
 		content()
 	}
 }
+
+// The toolkit always lays out a body under the title, so a tooltip of a title alone would leave a blank space and
+// its tag on a body with no size. The title then becomes the one line of the body.
+private fun RichTooltipText.withTitleAsBodyWhenAlone(): RichTooltipText =
+	if (lines.isEmpty() && title != null) copy(title = null, lines = listOf(title)) else this
 
 private fun richTooltipTitle(title: String): @Composable () -> Unit = {
 	Text(text = title)

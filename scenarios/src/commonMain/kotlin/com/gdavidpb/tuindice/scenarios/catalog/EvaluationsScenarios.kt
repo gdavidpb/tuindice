@@ -482,8 +482,8 @@ private val evaluationsOpenSchedule = scenario(
 	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
 	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
 	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
-	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Assert)
 	closeScheduleSheet()
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Assert)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 }
 

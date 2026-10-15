@@ -384,8 +384,8 @@ private val summaryHubWeekLinks = scenario("summary-hub-week-links", "summary", 
 	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
 	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
 	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
-	waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Assert)
 	closeScheduleSheet()
+	waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Assert)
 	scrollUntilVisible(SummaryUiTags.WeekClassRow, Scroll.ContentDown, Within.Wait)
 	tap(SummaryUiTags.WeekClassRow)
 	waitVisible(RecordUiTags.ScheduleSheet, Within.Wait)
@@ -497,12 +497,17 @@ private val summaryStatisticsTooltips = scenario("summary-statistics-tooltips", 
 	tap(SummaryUiTags.statisticsTarget(index, earlier))
 	waitVisible(StatisticsTooltipUiTags.point(index, earlier), Within.Action)
 	waitGone(StatisticsTooltipUiTags.point(index, newest), Within.Action)
+	// A tap outside a tooltip closes it.
+	tap(BaseUiTags.TopAppBarTitle)
+	waitGone(StatisticsTooltipUiTags.point(index, earlier), Within.Action)
 
 	val subjects = E2eInputs.StatisticsSubjectsChartKey
 	val approved = E2eInputs.StatisticsApprovedSegment
 	scrollUntilVisible(SummaryUiTags.statisticsTarget(subjects, approved), Scroll.ContentDown, Within.Long)
 	tap(SummaryUiTags.statisticsTarget(subjects, approved))
 	waitVisible(StatisticsTooltipUiTags.point(subjects, approved), Within.Action)
+	tap(BaseUiTags.TopAppBarTitle)
+	waitGone(StatisticsTooltipUiTags.point(subjects, approved), Within.Action)
 
 	val grades = E2eInputs.StatisticsGradesChartKey
 	val gradeFour = E2eInputs.StatisticsGradeFourBar
@@ -576,7 +581,8 @@ private val summaryHubShareFinishedTerm = scenario(
 ) {
 	account(E2eAccounts.SummaryHub.id)
 
-	waitSummaryHub()
+	// With no current term the hub has no ungraded evaluations to wait for, so the content container is the signal.
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	scrollUntilVisible(SummaryUiTags.TermFinishedShare, Scroll.ContentDown, Within.Long)
 	tap(SummaryUiTags.TermFinishedShare)
 	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)

@@ -89,10 +89,12 @@ object E2eInputs {
 
 	/**
 	 * The point of the index line that is the newest closed term of the hub record: the line runs oldest first over its
-	 * eleven closed terms (`StatisticsHubFixturesTest` checks the count), and [StatisticsEarlierIndexPoint] is two back.
+	 * eleven closed terms (`StatisticsHubFixturesTest` checks the count). [StatisticsEarlierIndexPoint] is the leftmost
+	 * target fully on screen on both platforms: the tooltip of the newest point covers the points beside it, and a tap
+	 * there would hit the tooltip.
 	 */
 	const val StatisticsNewestIndexPoint = 10
-	const val StatisticsEarlierIndexPoint = 8
+	const val StatisticsEarlierIndexPoint = 4
 
 	/** The approved segment of the subjects bar, the first of its segments. */
 	const val StatisticsApprovedSegment = 0

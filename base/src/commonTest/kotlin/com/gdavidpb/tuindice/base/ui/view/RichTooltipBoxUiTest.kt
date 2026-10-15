@@ -77,6 +77,28 @@ class RichTooltipBoxUiTest {
 	}
 
 	@Test
+	fun when_theTooltipHasATitleAlone_then_theTitleIsTheTaggedBody() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Column(
+				modifier = Modifier.fillMaxSize(),
+				verticalArrangement = Arrangement.Center,
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				RichTooltipBox(
+					isVisible = true,
+					onDismissRequest = {},
+					tooltip = RichTooltipText(title = "44 aprobadas", lines = emptyList(), testTag = bodyTag(0))
+				) {
+					Box(modifier = Modifier.size(48.dp).testTag(targetTag(0)))
+				}
+			}
+		}
+
+		assertNodeVisible(bodyTag(0), useUnmergedTree = true)
+		onNodeWithText("44 aprobadas", useUnmergedTree = true).assertIsDisplayed()
+	}
+
+	@Test
 	fun when_composedAlreadyVisible_then_itStaysOpenAndTheCallerFlagIsKept() = runTuIndiceUiTest {
 		val isVisible = mutableStateOf(true)
 
