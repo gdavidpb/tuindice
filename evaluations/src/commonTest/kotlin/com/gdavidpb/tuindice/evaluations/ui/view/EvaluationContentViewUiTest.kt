@@ -288,6 +288,7 @@ class EvaluationContentViewUiTest {
 		)
 		val state = evaluationContentState(isOverdue = false).copy(
 			selectedAttempt = subject,
+			selectableDateRange = LocalDate(2026, 10, 1)..LocalDate(2026, 10, 31),
 			date = monday.toEvaluationEpochMillis()
 		)
 

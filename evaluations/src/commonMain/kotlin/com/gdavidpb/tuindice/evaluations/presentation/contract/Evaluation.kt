@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
@@ -65,9 +66,9 @@ object Evaluation {
 			val hasDraftChanges: Boolean
 				get() = initialDraft?.let { draft -> draft != this.draft } ?: (evaluationId == null)
 
-			// What the date dialog needs: the allowed days and the chosen subject's meetings.
+			// What the date dialog needs: the allowed days and, for the chosen subject, its class days and places.
 			val dateCalendar: EvaluationDateCalendarItem
-				get() = EvaluationDateCalendarItem(
+				get() = getEvaluationDateCalendarItem(
 					selectableRange = selectableDateRange,
 					subjectCode = selectedAttempt?.code,
 					meetings = selectedAttempt?.meetings.orEmpty()

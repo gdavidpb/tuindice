@@ -22,10 +22,8 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.base.utils.toLocalDate
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.classPlaceOn
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.hasClassOn
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.utils.*
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
@@ -46,7 +44,6 @@ fun EvaluationDatePicker(
 	val selectableRange = calendar.selectableRange
 	val clock = LocalTuIndiceClock.current
 	val committedDate = selectedDate?.toLocalDate()
-	val meetings = calendar.meetings
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
 
@@ -113,13 +110,13 @@ fun EvaluationDatePicker(
 						selectableRange = selectableRange,
 						canGoPreviousMonth = canGoPreviousMonth,
 						canGoNextMonth = canGoNextMonth,
-						hasClassOn = { date -> meetings.hasClassOn(date) }
+						hasClassOn = { date -> date in calendar.classDates }
 					)
 
 					draftSelectedDate.value?.let { date ->
 						EvaluationDateSelectionSummary(
 							dateText = date.toEvaluationEpochMillis().formatAsDayOfWeekAndDate(),
-							classPlace = meetings.classPlaceOn(date)
+							classPlace = calendar.classPlaces[date]
 						)
 					}
 				}

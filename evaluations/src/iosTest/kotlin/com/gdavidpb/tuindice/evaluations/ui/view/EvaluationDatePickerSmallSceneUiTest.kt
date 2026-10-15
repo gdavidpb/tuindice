@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -39,7 +39,8 @@ class EvaluationDatePickerSmallSceneUiTest {
 					selectedScheduleMode = EvaluationScheduleMode.DATED,
 					selectedDate = monday.toEvaluationEpochMillis(),
 					onDateChange = {},
-					calendar = EvaluationDateCalendarItem(
+					calendar = getEvaluationDateCalendarItem(
+						selectableRange = LocalDate(2026, 11, 1)..LocalDate(2026, 11, 30),
 						subjectCode = "CI5311",
 						meetings = listOf(
 							ScheduleMeeting(
