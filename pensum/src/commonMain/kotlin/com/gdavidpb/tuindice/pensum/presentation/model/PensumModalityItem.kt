@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.pensum.presentation.model
 
-import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
+import com.gdavidpb.tuindice.base.presentation.model.DropdownMenuItem
 
 data class PensumModalityItem(
 	val id: String,
