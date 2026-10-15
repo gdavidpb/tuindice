@@ -17,11 +17,14 @@ import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.testing.summaryClassRowItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class SummaryClassRowViewUiTest {
@@ -48,6 +51,55 @@ class SummaryClassRowViewUiTest {
 
 		onNodeWithText("Lun 19", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5311", useUnmergedTree = true).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_rowIsDrawn_then_itIsTitledClaseWithItsIcon() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
+		}
+
+		onNodeWithTag(SummaryClassRowUiTags.TitleIcon, useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("CLASE", useUnmergedTree = true).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_rowIsDrawn_then_titleIsAboveTheSubject_andSubjectAndPlaceShareALine() = runTuIndiceUiTest {
+		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
+			Box(modifier = Modifier.width(600.dp)) {
+				SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
+			}
+		}
+
+		val icon = onNodeWithTag(SummaryClassRowUiTags.TitleIcon, useUnmergedTree = true)
+			.fetchSemanticsNode().boundsInRoot
+		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val place = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(title.left > icon.left, "the title is written after the icon")
+		assertTrue(subject.top >= title.bottom, "the subject is on the line under the title")
+		// The chip's box starts where the icon does, and its code sits inside the padding, less than the icon wide.
+		assertTrue(
+			subject.left >= icon.left - 1f && subject.left - icon.left < icon.width,
+			"the subject starts at the edge of the column, its code inside the chip's padding"
+		)
+		assertTrue(place.left >= subject.right, "the place is written after the subject")
+		assertTrue(abs(place.center.y - subject.center.y) <= 1f, "the place shares the line of the subject")
+	}
+
+	@Test
+	fun when_rowIsDrawn_then_thePillIsCenteredWithTheTitle_notWithTheWholeRow() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
+		}
+
+		val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(abs(pill.center.y - title.center.y) <= 1f, "the pill is centered with the title")
+		assertTrue(pill.center.y < subject.top, "the pill is not centered with the whole row")
 	}
 
 	@Test
@@ -85,6 +137,7 @@ class SummaryClassRowViewUiTest {
 		}
 
 		assertTextIsWhole("En curso", singleLine = true)
+		assertTextIsWhole("CLASE", singleLine = true)
 		assertTextIsWhole("CI5437", singleLine = true)
 		assertTextIsWhole("3-4 · MYS-210")
 		assertTextIsWhole("9:30–11:30 a. m.", singleLine = true)

@@ -10,4 +10,7 @@ object SummaryEvaluationRowUiTags {
 
 	/** The day that leads the row, at the width the pill of the class row has. */
 	fun lead(evaluationId: String): String = "summary_week_evaluation_lead_$evaluationId"
+
+	/** The chip of the state, which a scheduled evaluation does not have. */
+	fun statusChip(evaluationId: String): String = "summary_week_evaluation_status_chip_$evaluationId"
 }

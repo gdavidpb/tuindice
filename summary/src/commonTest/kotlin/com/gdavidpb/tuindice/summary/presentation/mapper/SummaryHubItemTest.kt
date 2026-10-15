@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.School
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationPoints
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
@@ -33,12 +34,12 @@ import tuindice.summary.generated.resources.summary_attention_ungraded_one
 import tuindice.summary.generated.resources.summary_career_credits_rest
 import tuindice.summary.generated.resources.summary_career_percent
 import tuindice.summary.generated.resources.summary_class_in_progress
+import tuindice.summary.generated.resources.summary_class_name
 import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
 import tuindice.summary.generated.resources.summary_evaluation_status_completed
 import tuindice.summary.generated.resources.summary_evaluation_status_overdue
-import tuindice.summary.generated.resources.summary_evaluation_status_scheduled
 import tuindice.summary.generated.resources.summary_evaluation_type_test
 import tuindice.summary.generated.resources.summary_evaluations_invite_action
 import tuindice.summary.generated.resources.summary_evaluations_invite_message
@@ -241,6 +242,8 @@ class SummaryHubItemTest {
 		assertEquals(UiText.Resource(Res.string.summary_class_in_progress), row.leadText)
 		assertTrue(row.isInProgress)
 		assertEquals("CI5437", row.subjectCode)
+		assertEquals(UiText.Uppercase(UiText.Resource(Res.string.summary_class_name)), row.titleText)
+		assertEquals(Icons.Outlined.School.name, row.icon.name)
 		assertEquals(classPlaceItem(3, 4, "MYS-210", clockRange = 570..690), row.place)
 		assertTrue(row.place.timeText != null)
 	}
@@ -302,7 +305,7 @@ class SummaryHubItemTest {
 	}
 
 	@Test
-	fun anEvaluation_hasTheIconOfItsType_andItsStateAsTheEvaluationsTabWritesIt() {
+	fun anEvaluation_hasTheIconOfItsType_andItsStateOnlyWhenItIsNotScheduled() {
 		val pending = SummaryWeekEvaluation(
 			evaluationId = "e1",
 			subjectCode = "CI5437",
@@ -321,7 +324,8 @@ class SummaryHubItemTest {
 			.evaluations
 
 		assertEquals(Icons.Outlined.FileCopy.name, rows[0].typeIcon.name)
-		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_scheduled), rows[0].statusText)
+		// A scheduled evaluation has no state to show, so it has no chip; the others say their state as Evaluations does.
+		assertNull(rows[0].statusText)
 		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_completed), rows[1].statusText)
 		assertEquals(UiText.Resource(Res.string.summary_evaluation_status_overdue), rows[2].statusText)
 		assertEquals(listOf(false, false, true), rows.map { row -> row.isOverdue })

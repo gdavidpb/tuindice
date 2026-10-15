@@ -46,6 +46,20 @@ class SummaryWeekViewUiTest {
 	}
 
 	@Test
+	fun when_weekHasAClassAndScheduledEvaluations_then_theClassIsTitledClase_andNoRowHasAChip() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				SummaryWeekView(week = week, actions = SummaryHubActions())
+			}
+
+			onNodeWithText("CLASE", useUnmergedTree = true).assertIsDisplayed()
+			onNodeWithTag(SummaryEvaluationRowUiTags.statusChip("evaluation-1"), useUnmergedTree = true)
+				.assertDoesNotExist()
+			onNodeWithTag(SummaryEvaluationRowUiTags.statusChip("evaluation-2"), useUnmergedTree = true)
+				.assertDoesNotExist()
+		}
+
+	@Test
 	fun when_theTermHasNoEvaluationYet_then_theCardUnderTheClassInvitesToAddOne_andItsButtonAsksForTheForm() =
 		runTuIndiceUiTest {
 			val asked = mutableListOf<SummaryHubTarget>()
@@ -157,8 +171,8 @@ class SummaryWeekViewUiTest {
 			}
 
 			// The pill of the class and the day that leads the evaluation are one width, and the content of each row
-			// starts after its lead: the subject of the class, the type icon of the evaluation. The place of the
-			// evaluation is indented under its name, as it is in Evaluations.
+			// starts after its lead: the subject of the class, the type icon of the evaluation. The subject of the
+			// evaluation sits under its name with no indent, and its place beside the chip.
 			val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode()
 			val day = onNodeWithTag(SummaryEvaluationRowUiTags.lead("evaluation-1"), useUnmergedTree = true)
 				.fetchSemanticsNode()

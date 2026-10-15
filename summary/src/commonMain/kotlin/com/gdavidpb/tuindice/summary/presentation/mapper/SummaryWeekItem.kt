@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
 import androidx.compose.material.icons.outlined.Quiz
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,6 +33,7 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.StringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_class_in_progress
+import tuindice.summary.generated.resources.summary_class_name
 import tuindice.summary.generated.resources.summary_day_date
 import tuindice.summary.generated.resources.summary_day_today
 import tuindice.summary.generated.resources.summary_evaluation_name
@@ -86,7 +88,8 @@ private fun SummaryWeek.InProgress.toInProgressItem(): SummaryWeekItem {
 	)
 }
 
-// The class carries its hour: it is the only row of the week that is about the clock.
+// The class carries its hour: it is the only row of the week that is about the clock. Its title is the name of the
+// class, in capitals as the name of an evaluation is.
 private fun SummaryClassMoment.toSummaryClassRowItem(): SummaryClassRowItem {
 	return SummaryClassRowItem(
 		leadText = if (isInProgress) {
@@ -95,6 +98,8 @@ private fun SummaryClassMoment.toSummaryClassRowItem(): SummaryClassRowItem {
 			date.toDayLeadText(isToday = isToday)
 		},
 		isInProgress = isInProgress,
+		icon = Icons.Outlined.School,
+		titleText = UiText.Uppercase(UiText.Resource(Res.string.summary_class_name)),
 		subjectCode = meeting.subjectCode,
 		place = classPlaceItem(
 			startBlock = meeting.startBlock,
@@ -109,7 +114,8 @@ private fun SummaryClassMoment.toSummaryClassRowItem(): SummaryClassRowItem {
 }
 
 // An evaluation says where, not when: its hour is the class's and the evaluation tab owns it. Its row reads as the one
-// of the Evaluations tab: the icon of its type, its name in capitals and its state in words.
+// of the Evaluations tab: the icon of its type, its name in capitals and its state in words. A scheduled evaluation has
+// no state to tell, since every evaluation starts scheduled, so its row has no state chip.
 private fun SummaryWeekEvaluation.toSummaryEvaluationRowItem(): SummaryEvaluationRowItem {
 	return SummaryEvaluationRowItem(
 		evaluationId = evaluationId,
@@ -121,7 +127,11 @@ private fun SummaryWeekEvaluation.toSummaryEvaluationRowItem(): SummaryEvaluatio
 				listOf(UiText.Resource(type.toLabelResource()), ordinal)
 			)
 		),
-		statusText = UiText.Resource(state.toStatusLabelResource()),
+		statusText = if (state == EvaluationState.PENDING) {
+			null
+		} else {
+			UiText.Resource(state.toStatusLabelResource())
+		},
 		isOverdue = state == EvaluationState.OVERDUE,
 		subjectCode = subjectCode,
 		place = meeting?.let { inherited ->

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.testing
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.School
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -48,6 +49,8 @@ fun summaryClassRowItem(
 ) = SummaryClassRowItem(
 	leadText = UiText.Raw(leadText),
 	isInProgress = isInProgress,
+	icon = Icons.Outlined.School,
+	titleText = UiText.Raw("CLASE"),
 	subjectCode = subjectCode,
 	place = ClassPlaceItem(
 		placeText = UiText.Raw("3-4 · MYS-210"),
@@ -66,7 +69,8 @@ fun summaryEvaluationRowItem(
 	leadText = UiText.Raw(leadText),
 	typeIcon = Icons.Outlined.FileCopy,
 	titleText = UiText.Raw(titleText),
-	statusText = UiText.Raw("Programada"),
+	// A scheduled evaluation has no state to show, so its row has no chip; a test that needs one copies the item.
+	statusText = null,
 	isOverdue = false,
 	subjectCode = subjectCode,
 	place = if (hasPlace) {

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.testing.summaryEvaluationRowItem
+import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.math.abs
@@ -26,7 +27,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryEvaluationRowViewUiTest {
 	@Test
-	fun when_evaluationHasAPlace_then_rowShowsDayIconNameStatusSubjectAndBlocksButNoHour() = runTuIndiceUiTest {
+	fun when_evaluationHasAPlace_then_rowShowsDayIconNameSubjectAndBlocksButNoHour() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(item = summaryEvaluationRowItem(), onClick = {})
 		}
@@ -34,16 +35,46 @@ class SummaryEvaluationRowViewUiTest {
 		onNodeWithText("Hoy", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithTag(SummaryEvaluationRowUiTags.typeIcon("evaluation-1"), useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("PARCIAL 1", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("Programada", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5437", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
-	fun when_theRowIsDrawn_then_theSubjectIsUnderTheNameAndThePlaceStartsWhereTheSubjectStarts() = runTuIndiceUiTest {
+	fun when_evaluationIsScheduled_then_itHasNoStatusChip_andNoProgramadaWord() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(item = summaryEvaluationRowItem(), onClick = {})
+		}
+
+		onNodeWithTag(SummaryEvaluationRowUiTags.statusChip("evaluation-1"), useUnmergedTree = true)
+			.assertDoesNotExist()
+		onNodeWithText("Programada", useUnmergedTree = true).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_evaluationIsCompleted_then_itsStatusChipSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryEvaluationRowView(
+				item = summaryEvaluationRowItem().copy(statusText = UiText.Raw("Completada")),
+				onClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryEvaluationRowUiTags.statusChip("evaluation-1"), useUnmergedTree = true)
+			.assertIsDisplayed()
+		onNodeWithText("Completada", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("Programada", useUnmergedTree = true).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_theRowIsDrawn_then_theSubjectStartsWhereTheNameStarts_andThePlaceSharesItsLine() = runTuIndiceUiTest {
+		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
+			Box(modifier = Modifier.width(600.dp)) {
+				SummaryEvaluationRowView(
+					item = summaryEvaluationRowItem().copy(statusText = UiText.Raw("Completada")),
+					onClick = {}
+				)
+			}
 		}
 
 		val icon = onNodeWithTag(SummaryEvaluationRowUiTags.typeIcon("evaluation-1"), useUnmergedTree = true)
@@ -54,14 +85,17 @@ class SummaryEvaluationRowViewUiTest {
 
 		assertTrue(name.left > icon.left, "the name is written after the icon")
 		assertTrue(subject.top >= name.bottom, "the subject is on the line under the name")
-		assertTrue(place.top >= subject.bottom, "the place is under the subject")
-		// Nothing above the place carries an icon to line up with, so it starts at the edge of the column, where the
-		// icon and the subject's chip start; the chip's code sits inside its padding.
-		assertTrue(abs(place.left - icon.left) <= 1f, "the place starts at the edge of the column, not indented")
+		// The chip's box starts where the icon does, and its code sits inside the padding, less than the icon wide.
+		assertTrue(
+			subject.left >= icon.left - 1f && subject.left - icon.left < icon.width,
+			"the subject starts at the edge of the column, its code inside the chip's padding"
+		)
+		assertTrue(place.left >= subject.right, "the place is written after the subject")
+		assertTrue(abs(place.center.y - subject.center.y) <= 1f, "the place shares the line of the subject")
 	}
 
 	@Test
-	fun when_evaluationIsCompleted_then_itsStatusSaysSoInsteadOfScheduled() = runTuIndiceUiTest {
+	fun when_theLeadIsDrawn_then_itIsCenteredWithTheName_notWithTheWholeRow() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(
 				item = summaryEvaluationRowItem().copy(statusText = UiText.Raw("Completada")),
@@ -69,8 +103,13 @@ class SummaryEvaluationRowViewUiTest {
 			)
 		}
 
-		onNodeWithText("Completada", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("Programada", useUnmergedTree = true).assertDoesNotExist()
+		val day = onNodeWithTag(SummaryEvaluationRowUiTags.lead("evaluation-1"), useUnmergedTree = true)
+			.fetchSemanticsNode().boundsInRoot
+		val name = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(abs(day.center.y - name.center.y) <= 1f, "the day is centered with the name")
+		assertTrue(day.center.y < subject.top, "the day is not centered with the whole row")
 	}
 
 	@Test
@@ -121,7 +160,8 @@ class SummaryEvaluationRowViewUiTest {
 			WithLargeLetter {
 				Box(modifier = Modifier.width(360.dp)) {
 					SummaryEvaluationRowView(
-						item = summaryEvaluationRowItem(titleText = "TRABAJO ESCRITO 12", leadText = "Mié 28"),
+						item = summaryEvaluationRowItem(titleText = "TRABAJO ESCRITO 12", leadText = "Mié 28")
+							.copy(statusText = UiText.Raw("Sin nota")),
 						onClick = {}
 					)
 				}
@@ -130,7 +170,7 @@ class SummaryEvaluationRowViewUiTest {
 
 		assertTextIsWhole("Mié 28", singleLine = true)
 		assertTextIsWhole("TRABAJO ESCRITO 12")
-		assertTextIsWhole("Programada", singleLine = true)
+		assertTextIsWhole("Sin nota", singleLine = true)
 		assertTextIsWhole("CI5437", singleLine = true)
 		assertTextIsWhole("3-4 · MYS-210")
 	}
