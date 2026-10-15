@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 // content, so the labels scroll with their columns. A point already says its own name to a screen reader, so the label
 // is hidden from it rather than read a second time.
 @Composable
-internal fun BoxScope.StatisticsAxisLabels(
+fun BoxScope.StatisticsAxisLabels(
 	key: String,
 	labels: List<String>,
 	columnWidth: Float

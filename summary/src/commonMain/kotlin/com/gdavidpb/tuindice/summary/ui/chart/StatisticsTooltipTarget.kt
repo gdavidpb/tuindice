@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.base.ui.view.RichTooltipBox
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun StatisticsTooltipTarget(
+fun StatisticsTooltipTarget(
 	target: StatisticsTarget,
 	isOpen: Boolean,
 	onOpenChange: (Boolean) -> Unit,

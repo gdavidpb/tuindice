@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
  * The touch area of one point: its [tag], the [description] and [actionLabel] a screen reader hears for it, and the
  * [tooltip] it shows when it is open.
  */
-internal data class StatisticsTarget(
+data class StatisticsTarget(
 	val tag: String,
 	val description: String,
 	val actionLabel: String,

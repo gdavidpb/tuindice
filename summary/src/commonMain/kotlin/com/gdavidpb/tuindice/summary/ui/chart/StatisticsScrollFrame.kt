@@ -1,11 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -17,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 /**
@@ -25,7 +20,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
  * beyond a side, a fade in the card's surface marks that edge, so nothing that sits at the edge is read under the fade.
  */
 @Composable
-internal fun StatisticsScrollFrame(
+fun StatisticsScrollFrame(
 	modifier: Modifier = Modifier,
 	content: @Composable () -> Unit
 ) {
@@ -62,20 +57,4 @@ internal fun StatisticsScrollFrame(
 			)
 		}
 	}
-}
-
-@Composable
-private fun BoxScope.StatisticsEdgeFade(
-	alignment: Alignment,
-	brush: Brush,
-	tag: String
-) {
-	Box(
-		modifier = Modifier
-			.align(alignment)
-			.fillMaxHeight()
-			.width(StatisticsChartDefaults.EdgeFadeWidth)
-			.background(brush)
-			.testTag(tag)
-	)
 }
