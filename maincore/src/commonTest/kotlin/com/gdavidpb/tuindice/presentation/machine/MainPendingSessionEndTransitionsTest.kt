@@ -4,7 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import kotlinx.coroutines.test.runTest

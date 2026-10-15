@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 
 /**
  * Internal machine inputs for the app host: the startup lifecycle split per outcome,

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.presentation.machine
+package com.gdavidpb.tuindice.presentation.model
 
 /** The notice owed to the user about a session that was reset, told: its [stamp] and what it says. */
 data class SessionNoticeText(

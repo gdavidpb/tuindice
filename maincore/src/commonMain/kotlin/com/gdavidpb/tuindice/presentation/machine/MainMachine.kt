@@ -20,9 +20,10 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
-import com.gdavidpb.tuindice.presentation.mapper.toNoticeText
+import com.gdavidpb.tuindice.presentation.mapper.toSessionNoticeText
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -131,9 +132,7 @@ class MainMachine(
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						MainInternalEvent.SessionInvalidationObserved(
-							sessionNotice = useCaseState.value?.let { notice ->
-								SessionNoticeText(stamp = notice.stamp, message = notice.reason.toNoticeText())
-							}
+							sessionNotice = useCaseState.value?.toSessionNoticeText()
 						)
 					)
 				}
@@ -230,9 +229,7 @@ class MainMachine(
 		return when (this) {
 			is StartUpResult.Available -> MainInternalEvent.StartUpCompleted(
 				startDestination = startTarget.toDestination(),
-				sessionNotice = sessionResetNotice?.let { notice ->
-					SessionNoticeText(stamp = notice.stamp, message = notice.reason.toNoticeText())
-				}
+				sessionNotice = sessionResetNotice?.toSessionNoticeText()
 			)
 			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
 				notice = notice

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.machine
 
-import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 
 /**
  * What the interface owes the user once the session ended behind their back: the way to the sign-in,

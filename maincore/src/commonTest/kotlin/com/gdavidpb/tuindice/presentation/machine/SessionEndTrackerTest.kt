@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.machine
 
-import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

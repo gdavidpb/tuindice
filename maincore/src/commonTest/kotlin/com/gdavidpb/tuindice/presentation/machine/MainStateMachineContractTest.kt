@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository

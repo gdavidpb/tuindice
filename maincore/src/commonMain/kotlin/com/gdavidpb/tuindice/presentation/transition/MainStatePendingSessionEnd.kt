@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.presentation.transition
 
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.contract.PendingSessionEnd
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
 
 // The same state with another pending end of the session: the way every transition between states
 // carries it over.
