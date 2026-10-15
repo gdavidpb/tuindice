@@ -28,7 +28,7 @@ fun ShareableTermCardCredit(artwork: ShareTermArtwork?) {
 		modifier = Modifier
 			.testTag(SummaryUiTags.ShareTermCardCredit)
 			.padding(bottom = 6.dp),
-		color = CardInk.copy(alpha = 0.72f),
+		color = CardInk.copy(alpha = CREDIT_INK_ALPHA),
 		style = TextStyle(fontSize = 11.sp, lineHeight = 14.sp),
 		maxLines = 1,
 		overflow = TextOverflow.Ellipsis
@@ -45,3 +45,7 @@ private fun creditText(artwork: ShareTermArtwork): AnnotatedString {
 		artwork.author?.let { author -> append(" · $author") }
 	}
 }
+
+// The credit is the smallest text of the card and sits over the foot's fade: at this share of the ink it reads at 4.5:1
+// or more over every artwork, while it still stays quieter than the career line under it.
+private const val CREDIT_INK_ALPHA = 0.85f

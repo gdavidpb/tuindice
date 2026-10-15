@@ -14,8 +14,9 @@ import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 private const val TOP_FADE_FRACTION = 0.52f
 private const val BOTTOM_FADE_FRACTION = 0.24f
 
-// Where each fade is at half its opacity, between its edge and the edge of the card.
-private const val TOP_FADE_MIDDLE = 0.55f
+// Where each fade changes its slope, between its edge and the edge of the card. The top fade holds most of its opacity
+// down to the labels of the figures, so they read at 4.5:1 or more over every artwork, and only then gives way to it.
+private const val TOP_FADE_MIDDLE = 0.70f
 private const val BOTTOM_FADE_MIDDLE = 0.5f
 
 /**
