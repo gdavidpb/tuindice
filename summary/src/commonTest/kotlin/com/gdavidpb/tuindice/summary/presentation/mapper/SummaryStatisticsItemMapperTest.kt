@@ -177,7 +177,7 @@ class SummaryStatisticsItemMapperTest {
 		assertEquals(
 			listOf(
 				SummaryStatisticsFactItem(
-					value = "44/46",
+					value = "44 / 46",
 					label = UiText.Resource(Res.string.summary_statistics_subjects_first_try)
 				),
 				SummaryStatisticsFactItem(

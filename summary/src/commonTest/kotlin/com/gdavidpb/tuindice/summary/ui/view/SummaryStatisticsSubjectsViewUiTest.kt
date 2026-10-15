@@ -27,7 +27,7 @@ class SummaryStatisticsSubjectsViewUiTest {
 		onNodeWithText("47").assertIsDisplayed()
 		onNodeWithText("materias cursadas").assertIsDisplayed()
 		onNodeWithText("44 aprobadas").assertIsDisplayed()
-		onNodeWithText("44/46").assertIsDisplayed()
+		onNodeWithText("44 / 46").assertIsDisplayed()
 		onNodeWithText("al primer intento").assertIsDisplayed()
 		onNodeWithText("0").assertIsDisplayed()
 		onNodeWithText("repetidas").assertIsDisplayed()
@@ -68,7 +68,7 @@ class SummaryStatisticsSubjectsViewUiTest {
 					segmentOf(SummaryStatisticsOutcome.WITHDRAWN, 1f, "1 retirada", "1 retirada · 2 %")
 				),
 				facts = listOfNotNull(
-					SummaryStatisticsFactItem(value = "44/46", label = words("al primer intento")),
+					SummaryStatisticsFactItem(value = "44 / 46", label = words("al primer intento")),
 					SummaryStatisticsFactItem(value = "0", label = words("repetidas")),
 					SummaryStatisticsFactItem(value = "$noResult", label = words("sin resultado"))
 						.takeIf { noResult > 0 }

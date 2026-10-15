@@ -19,14 +19,14 @@ class SummaryStatisticsFactsViewUiTest {
 			SummaryStatisticsFactsView(facts = facts())
 		}
 
-		onNodeWithText("44/46").assertIsDisplayed()
+		onNodeWithText("44 / 46").assertIsDisplayed()
 		onNodeWithText("al primer intento").assertIsDisplayed()
 		onNodeWithText("0").assertIsDisplayed()
 		onNodeWithText("repetidas").assertIsDisplayed()
 		onNodeWithText("2").assertIsDisplayed()
 		onNodeWithText("sin resultado").assertIsDisplayed()
 		assertTrue(
-			onNodeWithText("44/46").fetchSemanticsNode().boundsInRoot.left <
+			onNodeWithText("44 / 46").fetchSemanticsNode().boundsInRoot.left <
 				onNodeWithText("sin resultado").fetchSemanticsNode().boundsInRoot.left
 		)
 	}
@@ -42,7 +42,7 @@ class SummaryStatisticsFactsViewUiTest {
 
 	private fun facts(): List<SummaryStatisticsFactItem> {
 		return listOf(
-			SummaryStatisticsFactItem(value = "44/46", label = words("al primer intento")),
+			SummaryStatisticsFactItem(value = "44 / 46", label = words("al primer intento")),
 			SummaryStatisticsFactItem(value = "0", label = words("repetidas")),
 			SummaryStatisticsFactItem(value = "2", label = words("sin resultado"))
 		)

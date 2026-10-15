@@ -110,7 +110,7 @@ private fun factsOf(outcomes: SubjectOutcomes): List<SummaryStatisticsFactItem> 
 		if (outcomes.firstTryBase > 0) {
 			add(
 				SummaryStatisticsFactItem(
-					value = "${outcomes.approvedFirstTry}/${outcomes.firstTryBase}",
+					value = "${outcomes.approvedFirstTry} / ${outcomes.firstTryBase}",
 					label = UiText.Resource(Res.string.summary_statistics_subjects_first_try)
 				)
 			)

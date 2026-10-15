@@ -34,7 +34,7 @@ class SummaryStatisticsSubjectsDataUiTest {
 		}
 		waitForIdle()
 
-		onNodeWithText("44/46").assertIsDisplayed()
+		onNodeWithText("44 / 46").assertIsDisplayed()
 		onNodeWithText("al primer intento").assertIsDisplayed()
 	}
 
@@ -47,7 +47,7 @@ class SummaryStatisticsSubjectsDataUiTest {
 					segments = listOf(
 						segmentOf(SummaryStatisticsOutcome.APPROVED, 44f, "44 aprobadas", "44 aprobadas · 94 %")
 					),
-					facts = listOf(SummaryStatisticsFactItem(value = "44/46", label = words("al primer intento"))),
+					facts = listOf(SummaryStatisticsFactItem(value = "44 / 46", label = words("al primer intento"))),
 					chartSummary = words("47 materias cursadas")
 				),
 				chartActionLabel = "Ver detalle"

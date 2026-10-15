@@ -46,7 +46,7 @@ class SummaryStatisticsSubjectsMapperTest {
 			)
 		)
 
-		assertEquals(listOf("2/3", "1", "2"), data.facts.map { fact -> fact.value })
+		assertEquals(listOf("2 / 3", "1", "2"), data.facts.map { fact -> fact.value })
 	}
 
 	@Test
