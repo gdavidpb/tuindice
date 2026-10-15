@@ -3,7 +3,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
@@ -50,7 +49,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsWeek
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -69,13 +67,11 @@ class EvaluationsMachine(
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val setSelectedWeekUseCase: SetSelectedWeekUseCase,
-	private val weekFocusRepository: EvaluationsWeekFocusRepository,
+	weekFocusRepository: EvaluationsWeekFocusRepository,
 	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
-	// Observation may restart from any state (the retry button re-dispatches the load) and
-	// launchMachineJob accumulates rather than replaces: the focus collector never ends on its own, so
-	// each restart would leave one more feeding the same machine.
-	private var weekFocusObservationJob: Job? = null
+	// The request to show a week of this tab, observed while the screen lives and applied by its content.
+	internal val weekFocus = EvaluationsWeekFocusObserver(repository = weekFocusRepository)
 
 	// The collector of the evaluations observation: a restart cancels it, so a load never leaves one behind.
 	private var observationJob: Job? = null
@@ -97,7 +93,7 @@ class EvaluationsMachine(
 	}
 
 	internal fun startObservation(host: MachineHost<Evaluations.Effect>) {
-		observeWeekFocus(host = host)
+		weekFocus.observe(host = host)
 
 		observationJob?.cancel()
 		observationJob = host.launchMachineJob {
@@ -118,7 +114,7 @@ class EvaluationsMachine(
 									)
 								)
 							)
-							sendPendingWeekFocus(host = host)
+							weekFocus.sendPending(host = host)
 						}
 
 						is GetEvaluations.NoAttempts -> {
@@ -127,7 +123,7 @@ class EvaluationsMachine(
 									explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
 								)
 							)
-							sendPendingWeekFocus(host = host)
+							weekFocus.sendPending(host = host)
 						}
 
 						is GetEvaluations.Content -> processObservedContent(host = host, evaluations = evaluations)
@@ -159,7 +155,7 @@ class EvaluationsMachine(
 		) {
 			SyncedContentResolution.Content -> {
 				host.processInternalEvent(evaluations.toContentObservedEvent())
-				sendPendingWeekFocus(host = host)
+				weekFocus.sendPending(host = host)
 			}
 
 			SyncedContentResolution.Empty -> {
@@ -168,7 +164,7 @@ class EvaluationsMachine(
 						hasSchedule = evaluations.displayContext.hasSchedule
 					)
 				)
-				sendPendingWeekFocus(host = host)
+				weekFocus.sendPending(host = host)
 			}
 
 			SyncedContentResolution.Loading,
@@ -177,32 +173,6 @@ class EvaluationsMachine(
 				EvaluationsInternalEvent.EvaluationsWaitingObserved
 			)
 		}
-	}
-
-	// A request made while the content is already up. One made earlier (before this screen existed or
-	// before its content loaded) is still in the state and is sent again each time an observation
-	// settles, below.
-	private fun observeWeekFocus(host: MachineHost<Evaluations.Effect>) {
-		if (weekFocusObservationJob?.isActive == true) return
-
-		weekFocusObservationJob = host.launchMachineJob {
-			weekFocusRepository.pending.filterNotNull().collect { request ->
-				host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(request = request))
-			}
-		}
-	}
-
-	// The request to show a week that is still pending, sent again now that the screen has settled on
-	// something that can apply it or drop it.
-	private fun sendPendingWeekFocus(host: MachineHost<Evaluations.Effect>) {
-		weekFocusRepository.pending.value?.let { request ->
-			host.processInternalEvent(EvaluationsInternalEvent.WeekFocusRequested(request = request))
-		}
-	}
-
-	/** Takes the pending [request]: true only for the first caller. */
-	internal fun takeWeekFocus(request: EvaluationsWeekFocusRequest): Boolean {
-		return weekFocusRepository.consume(request = request)
 	}
 
 	internal fun refresh(host: MachineHost<Evaluations.Effect>) {

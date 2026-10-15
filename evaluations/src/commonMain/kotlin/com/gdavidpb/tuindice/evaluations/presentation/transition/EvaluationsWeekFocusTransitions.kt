@@ -23,7 +23,7 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTra
 	from<Evaluations.State.Content> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
 			val request = event.request
-			val isTaken = machine.takeWeekFocus(request = request)
+			val isTaken = machine.weekFocus.take(request = request)
 			val focusedWeekKey = if (isTaken) {
 				evaluationsWeekKeyContaining(weekOneStart = state.weekOneStart, date = request.weekStart)
 			} else {
@@ -56,21 +56,21 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsWeekFocusTra
 
 	from<Evaluations.State.Empty> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(request = event.request)
+			machine.weekFocus.take(request = event.request)
 			state
 		}
 	}
 
 	from<Evaluations.State.NoAttempts> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(request = event.request)
+			machine.weekFocus.take(request = event.request)
 			state
 		}
 	}
 
 	from<Evaluations.State.RecordDataUnavailable> {
 		on<EvaluationsInternalEvent.WeekFocusRequested> { state, event ->
-			machine.takeWeekFocus(request = event.request)
+			machine.weekFocus.take(request = event.request)
 			state
 		}
 	}
