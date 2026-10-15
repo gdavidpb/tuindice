@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartDefaults
@@ -27,8 +27,6 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLineChart
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLinePoint
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
-
-private const val GRADE_DECIMALS = 4
 
 /**
  * "Índice": the cumulative average of the closed terms as a line, with the index of each term as its marker and each
@@ -106,7 +104,7 @@ private fun ColumnScope.IndexData(
 			maxValue = data.maxValue,
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Index,
-				summary = "${data.grade.formatGrade(decimals = GRADE_DECIMALS)} $label",
+				summary = data.chartSummary.asString(),
 				actionLabel = chartActionLabel
 			)
 		)

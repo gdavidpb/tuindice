@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.summary.presentation.mapper.toBlockInfo
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarChart

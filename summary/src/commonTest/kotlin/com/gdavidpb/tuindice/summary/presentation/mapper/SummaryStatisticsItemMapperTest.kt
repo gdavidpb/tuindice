@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.summary.testing.statisticsOf
 import com.gdavidpb.tuindice.summary.testing.statisticsTerm
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_career_percent
+import tuindice.summary.generated.resources.summary_percent_format
 import tuindice.summary.generated.resources.summary_statistics_credits_approved_many
 import tuindice.summary.generated.resources.summary_statistics_credits_empty
 import tuindice.summary.generated.resources.summary_statistics_credits_figure_many
@@ -170,7 +171,7 @@ class SummaryStatisticsItemMapperTest {
 			data.segments.map { segment -> segment.outcome }
 		)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, "94 %")),
+			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, UiText.Resource(Res.string.summary_percent_format, listOf(94)))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -244,7 +245,7 @@ class SummaryStatisticsItemMapperTest {
 		)
 		// The shares are out of the bar, which holds the subjects with a result: 44 of 47.
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, "94 %")),
+			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, UiText.Resource(Res.string.summary_percent_format, listOf(94)))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -320,7 +321,7 @@ class SummaryStatisticsItemMapperTest {
 		assertEquals("164", data.figure.value)
 		assertEquals(UiText.Resource(Res.string.summary_statistics_credits_figure_many), data.figure.label)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_credits_share_approved_many, listOf(152, "93 %")),
+			UiText.Resource(Res.string.summary_statistics_credits_share_approved_many, listOf(152, UiText.Resource(Res.string.summary_percent_format, listOf(93)))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -397,7 +398,7 @@ class SummaryStatisticsItemMapperTest {
 			.content as SummaryStatisticsGradesItem.Content.Data
 
 		assertEquals(
-			listOf(UiText.Resource(Res.string.summary_statistics_grades_share_one, listOf("100 %"))),
+			listOf(UiText.Resource(Res.string.summary_statistics_grades_share_one, listOf(UiText.Resource(Res.string.summary_percent_format, listOf(100))))),
 			data.bars[3].tooltip.lines
 		)
 	}

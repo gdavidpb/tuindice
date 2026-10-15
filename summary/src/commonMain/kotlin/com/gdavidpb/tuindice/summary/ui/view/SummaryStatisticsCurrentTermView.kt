@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsEvaluationTypeItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags

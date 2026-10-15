@@ -18,10 +18,12 @@ data class SummaryStatisticsCreditsItem(
 			val text: UiText
 		) : Content
 
+		/** [chartSummary] is what a screen reader hears of the bar: the figure and what it counts, as one phrase. */
 		data class Data(
 			val figure: SummaryStatisticsFigureItem,
 			val segments: List<SummaryStatisticsSegmentItem>,
-			val pensum: Pensum?
+			val pensum: Pensum?,
+			val chartSummary: UiText
 		) : Content
 	}
 

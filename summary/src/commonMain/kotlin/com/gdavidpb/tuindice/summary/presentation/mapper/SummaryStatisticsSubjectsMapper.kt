@@ -48,20 +48,23 @@ internal fun subjectsItemOf(outcomes: SubjectOutcomes): SummaryStatisticsSubject
 
 	val whole = outcomes.approved + outcomes.failed + outcomes.withdrawn
 
+	val shown = SummaryStatisticsFigureItem(
+		value = figure.toString(),
+		label = countText(
+			quantity = figure,
+			one = Res.string.summary_statistics_subjects_figure_one,
+			many = Res.string.summary_statistics_subjects_figure_many,
+			args = emptyList()
+		)
+	)
+
 	return SummaryStatisticsSubjectsItem(
 		title = title,
 		content = SummaryStatisticsSubjectsItem.Content.Data(
-			figure = SummaryStatisticsFigureItem(
-				value = figure.toString(),
-				label = countText(
-					quantity = figure,
-					one = Res.string.summary_statistics_subjects_figure_one,
-					many = Res.string.summary_statistics_subjects_figure_many,
-					args = emptyList()
-				)
-			),
+			figure = shown,
 			segments = segmentsOf(outcomes = outcomes, whole = whole),
-			facts = factsOf(outcomes = outcomes)
+			facts = factsOf(outcomes = outcomes),
+			chartSummary = chartSummaryOf(shown)
 		)
 	)
 }

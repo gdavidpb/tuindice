@@ -102,7 +102,8 @@ class SummaryStatisticsIndexViewUiTest {
 				minValue = 4.1f,
 				maxValue = 4.5714f,
 				best = words("Más alto: Ene - Mar 2024 · 4.5714"),
-				worst = if (worstIsNamed) words("Más bajo: Sep - Dic 2023 · 4.2000") else null
+				worst = if (worstIsNamed) words("Más bajo: Sep - Dic 2023 · 4.2000") else null,
+				chartSummary = words("4.1250 acumulado")
 			)
 		)
 	}

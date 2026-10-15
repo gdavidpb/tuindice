@@ -46,20 +46,23 @@ internal fun creditsItemOf(
 		)
 	}
 
+	val figure = SummaryStatisticsFigureItem(
+		value = whole.toString(),
+		label = countText(
+			quantity = whole,
+			one = Res.string.summary_statistics_credits_figure_one,
+			many = Res.string.summary_statistics_credits_figure_many,
+			args = emptyList()
+		)
+	)
+
 	return SummaryStatisticsCreditsItem(
 		title = title,
 		content = SummaryStatisticsCreditsItem.Content.Data(
-			figure = SummaryStatisticsFigureItem(
-				value = whole.toString(),
-				label = countText(
-					quantity = whole,
-					one = Res.string.summary_statistics_credits_figure_one,
-					many = Res.string.summary_statistics_credits_figure_many,
-					args = emptyList()
-				)
-			),
+			figure = figure,
 			segments = segmentsOf(outcomes = outcomes, whole = whole),
-			pensum = pensumOf(progress = pensum)
+			pensum = pensumOf(progress = pensum),
+			chartSummary = chartSummaryOf(figure)
 		)
 	)
 }

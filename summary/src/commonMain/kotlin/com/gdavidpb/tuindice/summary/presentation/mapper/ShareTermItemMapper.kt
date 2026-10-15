@@ -22,8 +22,6 @@ import tuindice.summary.generated.resources.share_term_card_credits_many
 import tuindice.summary.generated.resources.share_term_card_credits_one
 import tuindice.summary.generated.resources.share_term_card_cumulative_label
 
-private const val INDEX_DECIMALS = 4
-
 /**
  * The card of a closed term, in the words of the card: its figures, its index and cumulative average with four
  * decimals, and the career of the student. Null for a term without an index, which has nothing to put on a card.

@@ -72,7 +72,8 @@ class SummaryStatisticsSubjectsViewUiTest {
 					SummaryStatisticsFactItem(value = "0", label = words("repetidas")),
 					SummaryStatisticsFactItem(value = "$noResult", label = words("sin resultado"))
 						.takeIf { noResult > 0 }
-				)
+				),
+				chartSummary = words("47 materias cursadas")
 			)
 		)
 	}

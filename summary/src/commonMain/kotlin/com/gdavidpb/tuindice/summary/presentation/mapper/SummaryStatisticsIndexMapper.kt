@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsLinePoi
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
 import org.jetbrains.compose.resources.StringResource
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.summary_statistics_chart_summary
 import tuindice.summary.generated.resources.summary_statistics_index_best
 import tuindice.summary.generated.resources.summary_statistics_index_caption
 import tuindice.summary.generated.resources.summary_statistics_index_empty
@@ -19,7 +20,6 @@ import tuindice.summary.generated.resources.summary_statistics_index_tooltip_ind
 import tuindice.summary.generated.resources.summary_statistics_index_worst
 import com.gdavidpb.tuindice.summary.domain.model.SummaryStatistics as SummaryStatisticsModel
 
-private const val INDEX_DECIMALS = 4
 private const val MIN_RANKED_TERMS_FOR_WORST = 2
 
 // "Índice": one point per closed term that has an index, in order. The line runs through the cumulative average, and
@@ -54,12 +54,13 @@ internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String
 	}
 
 	val values = points.flatMap { point -> listOf(point.lineValue, point.markerValue) }
+	val label = UiText.Resource(Res.string.summary_statistics_index_suffix)
 
 	return SummaryStatisticsIndexItem(
 		title = title,
 		content = SummaryStatisticsIndexItem.Content.Data(
 			grade = lastPoint.lineValue,
-			label = UiText.Resource(Res.string.summary_statistics_index_suffix),
+			label = label,
 			caption = UiText.Resource(
 				Res.string.summary_statistics_index_caption,
 				listOf(last.fullLabel())
@@ -68,7 +69,11 @@ internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String
 			minValue = values.min(),
 			maxValue = values.max(),
 			best = summary.bestTerm?.let { best -> rankedLabelOf(Res.string.summary_statistics_index_best, best) },
-			worst = worst?.let { term -> rankedLabelOf(Res.string.summary_statistics_index_worst, term) }
+			worst = worst?.let { term -> rankedLabelOf(Res.string.summary_statistics_index_worst, term) },
+			chartSummary = UiText.Resource(
+				Res.string.summary_statistics_chart_summary,
+				listOf(lastPoint.lineValue.formatGrade(decimals = INDEX_DECIMALS), label)
+			)
 		)
 	)
 }

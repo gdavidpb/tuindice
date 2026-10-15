@@ -20,7 +20,8 @@ data class SummaryStatisticsIndexItem(
 
 		/**
 		 * [grade] is the cumulative average at the last closed term, which [label] names beside it and [caption] dates.
-		 * The chart runs from [minValue] to [maxValue] on its scale.
+		 * The chart runs from [minValue] to [maxValue] on its scale, and [chartSummary] is what a screen reader hears of
+		 * it: the grade and its label as one phrase.
 		 */
 		data class Data(
 			val grade: Float,
@@ -30,7 +31,8 @@ data class SummaryStatisticsIndexItem(
 			val minValue: Float,
 			val maxValue: Float,
 			val best: UiText?,
-			val worst: UiText?
+			val worst: UiText?,
+			val chartSummary: UiText
 		) : Content
 	}
 }

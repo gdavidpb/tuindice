@@ -47,7 +47,8 @@ class SummaryStatisticsCreditsViewUiTest {
 					segmentOf(SummaryStatisticsOutcome.FAILED, 8f, "8 reprobados", "8 reprobados · 5 %"),
 					segmentOf(SummaryStatisticsOutcome.WITHDRAWN, 4f, "4 retirados", "4 retirados · 2 %")
 				),
-				pensum = pensum
+				pensum = pensum,
+				chartSummary = words("164 créditos cursados según tu registro")
 			)
 		)
 	}

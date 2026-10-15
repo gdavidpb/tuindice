@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSubjectsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
@@ -64,7 +65,7 @@ private fun ColumnScope.SubjectsData(
 			},
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Subjects,
-				summary = data.figure.summaryText(),
+				summary = data.chartSummary.asString(),
 				actionLabel = chartActionLabel
 			)
 		)

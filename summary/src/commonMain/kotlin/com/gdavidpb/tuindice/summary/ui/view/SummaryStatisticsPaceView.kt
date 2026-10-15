@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.summary.presentation.mapper.toBlockInfo
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarChart

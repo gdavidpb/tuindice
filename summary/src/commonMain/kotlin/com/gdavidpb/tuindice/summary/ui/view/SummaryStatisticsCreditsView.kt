@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
@@ -69,7 +70,7 @@ private fun ColumnScope.CreditsData(
 			},
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Credits,
-				summary = data.figure.summaryText(),
+				summary = data.chartSummary.asString(),
 				actionLabel = chartActionLabel
 			)
 		)

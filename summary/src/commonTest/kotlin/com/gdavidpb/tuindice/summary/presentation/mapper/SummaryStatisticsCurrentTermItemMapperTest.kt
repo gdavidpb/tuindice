@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.summary.testing.ungradedAttentionOf
 import kotlinx.datetime.LocalDate
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_career_percent
+import tuindice.summary.generated.resources.summary_percent_format
 import tuindice.summary.generated.resources.summary_points_none
 import tuindice.summary.generated.resources.summary_statistics_current_figure
 import tuindice.summary.generated.resources.summary_statistics_current_graded_one
@@ -96,11 +97,11 @@ class SummaryStatisticsCurrentTermItemMapperTest {
 		assertEquals(UiText.Resource(Res.string.summary_statistics_type_quiz), row.name)
 		assertEquals(UiText.Resource(Res.string.summary_statistics_current_graded_one, listOf(1, 1)), row.gradedText)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_current_score, listOf("8", "10", "80 %")),
+			UiText.Resource(Res.string.summary_statistics_current_score, listOf("8", "10", UiText.Resource(Res.string.summary_percent_format, listOf(80)))),
 			row.scoreText
 		)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_type_tooltip_quiz, listOf("8", "10", "80 %")),
+			UiText.Resource(Res.string.summary_statistics_type_tooltip_quiz, listOf("8", "10", UiText.Resource(Res.string.summary_percent_format, listOf(80)))),
 			row.tooltip?.title
 		)
 	}
