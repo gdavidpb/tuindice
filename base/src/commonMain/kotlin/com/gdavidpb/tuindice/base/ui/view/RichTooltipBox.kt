@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import kotlinx.coroutines.flow.drop

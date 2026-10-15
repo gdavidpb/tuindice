@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 
 /**
  * A bar of a [StatisticsBarChart]: its [value] on the chart's scale, its [label] for a screen reader, the [axisLabel]

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 /**

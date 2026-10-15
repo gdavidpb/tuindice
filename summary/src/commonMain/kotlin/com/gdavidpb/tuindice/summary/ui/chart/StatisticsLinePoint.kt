@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
 import androidx.compose.ui.graphics.Color
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 
 /**
  * A point of a [StatisticsLineChart]. The line runs through [lineValue], and the point's marker sits on [markerValue],

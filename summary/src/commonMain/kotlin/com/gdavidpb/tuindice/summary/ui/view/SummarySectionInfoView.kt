@@ -22,8 +22,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.base.ui.view.RichTooltipBox
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.a11y_summary_statistics_info

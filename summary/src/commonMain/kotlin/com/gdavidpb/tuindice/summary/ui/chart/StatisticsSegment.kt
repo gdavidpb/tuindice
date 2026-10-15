@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
 import androidx.compose.ui.graphics.Color
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 
 /**
  * A segment of a [StatisticsStackedBar]: its [value] out of the whole bar, drawn in [color]. [label] names it for a

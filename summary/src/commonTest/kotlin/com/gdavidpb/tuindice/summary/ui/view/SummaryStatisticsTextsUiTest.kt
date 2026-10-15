@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test

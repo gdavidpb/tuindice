@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.model
 
 import androidx.compose.runtime.Stable
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 
 /**
  * The head of a block of the Statistics screen: the [tag] that names the block, its [title], and the [linkText] of the

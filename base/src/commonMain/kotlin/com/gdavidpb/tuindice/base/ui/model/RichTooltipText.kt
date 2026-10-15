@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.ui.view
+package com.gdavidpb.tuindice.base.ui.model
 
 /**
  * The words of a [RichTooltipBox], already formatted: an optional [title] and the body [lines]. [testTag]

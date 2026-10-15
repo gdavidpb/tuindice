@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.view
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
 
