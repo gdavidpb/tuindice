@@ -55,6 +55,8 @@ class MainMachine(
 	// open the dialog twice.
 	private var signOutPreparationJob: Job? = null
 
+	// The EFSM guard over the session ends: the stamps of the notices offered and pending, which the state does
+	// not carry. See SessionEndTracker for what it decides and why it lives here.
 	private val sessionEnds = SessionEndTracker()
 
 	override fun initialState(): Main.State = Main.State.Starting()
@@ -163,7 +165,8 @@ class MainMachine(
 		}
 	}
 
-	// The way to the sign-in is owed whatever the notice brings; see SessionEndTracker.
+	// The way to the sign-in is owed whatever the notice brings. Whether the signal starts a new pending end, and
+	// with which notice, is decided by the guard of SessionEndTracker.
 	internal fun beginSessionEnd(current: PendingSessionEnd?, notice: SessionNoticeText?): PendingSessionEnd {
 		return sessionEnds.begin(current = current, notice = notice)
 	}
