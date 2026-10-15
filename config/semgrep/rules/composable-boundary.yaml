@@ -95,7 +95,8 @@ rules:
       Los objetos de tags de ui/ se llaman *UiTags: el inventario E2E solo lee los archivos *UiTags.kt, así que un tag
       con otro sufijo no entra en scenarios.json y su selector queda sin dueño (testkit/e2e/selector-policy.md;
       skill "the module's *UiTags").
-    pattern-regex: '^\s*(?:(?:public|internal|private)\s+)?object\s+(?!\w*UiTags\b)\w*Tags\b'
+    # [ \t] y no \s: ver data-source-no-interface sobre el desplazamiento de línea.
+    pattern-regex: '^[ \t]*(?:(?:public|internal|private)\s+)?object\s+(?!\w*UiTags\b)\w*Tags\b'
     paths:
       include:
         - '**/ui/**'

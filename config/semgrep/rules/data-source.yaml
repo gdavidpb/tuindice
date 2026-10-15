@@ -6,7 +6,8 @@ rules:
       data/source contiene solo implementaciones concretas. Una interfaz, de cualquier nombre, va en data/repository
       (contrato interno de la capa data) o en domain/repository (contrato de negocio), y la clase concreta se queda
       en data/source (README "Capas por feature > Data"; skill "data/source contains concrete implementations").
-    pattern-regex: '^\s*(?:(?:public|internal|private|protected)\s+)?(?:fun\s+)?interface\b'
+    # [ \t] y no \s: con \s el inicio de línea consumiría el salto de una línea en blanco previa y el hallazgo caería una línea arriba.
+    pattern-regex: '^[ \t]*(?:(?:public|internal|private|protected)\s+)?(?:fun\s+)?interface\b'
     paths:
       include:
         - '**/data/source/**'
