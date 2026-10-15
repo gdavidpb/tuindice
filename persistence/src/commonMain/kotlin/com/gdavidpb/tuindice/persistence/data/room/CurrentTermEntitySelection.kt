@@ -1,7 +1,8 @@
-package com.gdavidpb.tuindice.persistence.data.room.entity
+package com.gdavidpb.tuindice.persistence.data.room
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 
 /**
  * The official current term among stored terms, chosen with the one definition the whole app

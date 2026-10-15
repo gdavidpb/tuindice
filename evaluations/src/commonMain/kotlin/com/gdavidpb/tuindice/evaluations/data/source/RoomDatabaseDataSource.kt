@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.persistence.data.room.currentTermEntityOrNull
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
@@ -23,7 +24,6 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.currentTermEntityOrNull
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
