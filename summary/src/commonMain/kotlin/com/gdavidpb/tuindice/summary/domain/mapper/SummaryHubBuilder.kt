@@ -44,7 +44,7 @@ import kotlinx.datetime.LocalDate
  * of the record instead, and builds the hub over that reading for each minute, so a minute that passes never projects
  * the record again.
  */
-fun buildSummaryHub(
+internal fun buildSummaryHub(
 	recordState: SummaryRecordState,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
