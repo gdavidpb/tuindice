@@ -3,9 +3,13 @@ package com.gdavidpb.tuindice.summary.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -40,7 +44,7 @@ class SummaryPointsRowViewUiTest {
 
 		onNodeWithText("EG1114").assertIsDisplayed()
 		onNodeWithText("Sin notas aún").assertIsDisplayed()
-		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
+		onAllNodesWithContentDescription("evaluados", substring = true, useUnmergedTree = true).assertCountEquals(0)
 	}
 
 	@Test
@@ -50,8 +54,8 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onNodeWithTag(SummaryUiTags.termPointsBar("EG1114"), useUnmergedTree = true).assertIsDisplayed()
-		val fill = onNodeWithTag(SummaryUiTags.termPointsBarFill("EG1114"), useUnmergedTree = true)
-		assertEquals(0, fill.fetchSemanticsNode().size.width)
+		assertEquals(0, partWidth(SummaryEvaluatedBarUiTags.earned("EG1114")))
+		assertEquals(0, partWidth(SummaryUiTags.termPointsBarFill("EG1114")))
 	}
 
 	@Test
@@ -64,7 +68,7 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onNodeWithText("Próx.: Parcial 1 · mar 20").assertIsDisplayed()
-		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
+		onAllNodesWithContentDescription("evaluados", substring = true, useUnmergedTree = true).assertCountEquals(0)
 	}
 
 	@Test
@@ -77,12 +81,22 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onNodeWithText("Sin evaluaciones").assertIsDisplayed()
-		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
+		onAllNodesWithContentDescription("evaluados", substring = true, useUnmergedTree = true).assertCountEquals(0)
 		onNodeWithTag(SummaryUiTags.termPointsBar("CI4325"), useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
-	fun when_thereIsANextEvaluation_then_rowNamesItAndItsDay_besideWhatIsEvaluated() = runTuIndiceUiTest {
+	fun when_subjectHasGrades_then_theReaderHearsWhatIsEvaluatedWithThePointsOfTheRow() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(item = summaryPointsItem(subjectCode = "CI5311", earned = "41"), onClick = {})
+		}
+
+		// The row is one element for the reader: its points and what it has evaluated are in it together.
+		onNode(hasText("41 de 60 puntos") and hasContentDescription("60 de 100 evaluados")).assertExists()
+	}
+
+	@Test
+	fun when_thereIsANextEvaluation_then_rowNamesItAndItsDay_andDoesNotDrawWhatIsEvaluated() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryPointsRowView(
 				item = summaryPointsItem(
@@ -95,7 +109,7 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onNodeWithText("Próx.: Parcial 2 · lun 26").assertIsDisplayed()
-		onNodeWithText("60 de 100 evaluados").assertIsDisplayed()
+		onNodeWithText("60 de 100 evaluados", useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
@@ -105,7 +119,8 @@ class SummaryPointsRowViewUiTest {
 		}
 
 		onAllNodesWithText("Próx.", substring = true).assertCountEquals(0)
-		onNodeWithText("60 de 100 evaluados").assertIsDisplayed()
+		onNodeWithText("60 de 100 evaluados", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithTag(SummaryUiTags.termPointsBar("CI5311"), useUnmergedTree = true).assertIsDisplayed()
 	}
 
 	@Test
@@ -129,7 +144,6 @@ class SummaryPointsRowViewUiTest {
 		assertTextIsWhole("CI5437", singleLine = true)
 		assertTextIsWhole("18.50 de 125.50 puntos")
 		assertTextIsWhole("Próx.: Parcial 2 · lun 26")
-		assertTextIsWhole("100 de 100 evaluados")
 	}
 
 	@Test
@@ -146,5 +160,10 @@ class SummaryPointsRowViewUiTest {
 		onNodeWithText("41 de 60 puntos").performClick()
 
 		assertEquals(1, taps)
+	}
+
+	// The width of a part of the bar, in pixels: a part with no share of the track has none.
+	private fun ComposeUiTest.partWidth(tag: String): Int {
+		return onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().size.width
 	}
 }

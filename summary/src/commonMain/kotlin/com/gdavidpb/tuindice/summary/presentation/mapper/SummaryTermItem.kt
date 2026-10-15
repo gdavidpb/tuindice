@@ -124,6 +124,7 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 		},
 		attemptId = attemptId,
 		// What is evaluated is said once a grade is in: "Sin notas aún" already says that nothing is, without a "0 de 100".
+		// The row does not draw it; the bar says it to a screen reader.
 		evaluatedText = if (graded == null) {
 			null
 		} else {
@@ -132,6 +133,8 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 				listOf(evaluatedOfTotal.formatCompactPoints(), SUBJECT_POINTS_TOTAL.formatCompactPoints())
 			)
 		},
+		// What is earned of the bar, which is nothing where there is no bar.
+		earnedFraction = (earnedOfTotal / SUBJECT_POINTS_TOTAL).toFloat(),
 		// A subject with no evaluations has no bar: there is nothing of its points to show.
 		evaluatedFraction = if (points == null) null else (evaluatedOfTotal / SUBJECT_POINTS_TOTAL).toFloat(),
 		nextText = nextEvaluation?.toNextText()

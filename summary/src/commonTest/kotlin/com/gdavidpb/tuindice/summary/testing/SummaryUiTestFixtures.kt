@@ -93,8 +93,9 @@ fun summaryTermWeekItem(week: Int = 3) = SummaryTermWeekItem(
 	)
 )
 
-// "evaluated" is the maximum of the graded evaluations: the bar shows what is evaluated of the 100 points, which is
-// nothing before a grade and 100 at most, and the line says it only once a grade is in.
+// "evaluated" is the maximum of the graded evaluations and "earned" what they add up to. The bar shows both out of
+// the 100 points: what is evaluated at 100 at most, and what is earned at what is evaluated. The evaluated figure is
+// said only once a grade is in, and the row does not draw it.
 fun summaryPointsItem(
 	subjectCode: String,
 	earned: String? = null,
@@ -107,6 +108,7 @@ fun summaryPointsItem(
 		evaluated.toDouble() > 100.0 -> "100"
 		else -> evaluated
 	}
+	val earnedShown = minOf(earned?.toDouble() ?: 0.0, evaluatedShown.toDouble())
 
 	return SummarySubjectPointsItem(
 		subjectCode = subjectCode,
@@ -120,6 +122,7 @@ fun summaryPointsItem(
 		),
 		attemptId = "attempt-$subjectCode",
 		evaluatedText = UiText.Raw("$evaluatedShown de 100 evaluados").takeIf { earned != null },
+		earnedFraction = (earnedShown / 100.0).toFloat(),
 		evaluatedFraction = if (hasEvaluations) evaluatedShown.toFloat() / 100f else null,
 		nextText = nextText?.let { text -> UiText.Raw(text) }
 	)

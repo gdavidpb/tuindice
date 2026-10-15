@@ -156,7 +156,11 @@ class SummaryTermViewUiTest {
 			SummaryTermView(term = pointsOnly, actions = SummaryHubActions())
 		}
 
-		val spaces = cardSpaces(density = density, firstTag = SummaryUiTags.TermSummary, lastText = "25 de 100 evaluados")
+		val spaces = cardSpaces(
+			density = density,
+			firstTag = SummaryUiTags.TermSummary,
+			lastTag = SummaryUiTags.termPointsBar("CI5437")
+		)
 
 		assertSameSpace(spaces, density)
 	}
@@ -291,14 +295,15 @@ class SummaryTermViewUiTest {
 		return onNodeWithTag(SummaryUiTags.TermSection).fetchSemanticsNode().boundsInRoot.bottom
 	}
 
-	// The spaces are measured to the texts themselves: a row's box keeps the padding it has inside it.
+	// The spaces are measured to the content itself, the last one being the bar of the last row: a row's box keeps the
+	// padding it has inside it.
 	private fun ComposeUiTest.cardSpaces(
 		density: Density,
 		firstTag: String,
-		lastText: String
+		lastTag: String
 	): Pair<Float, Float> {
 		val first = onNodeWithTag(firstTag).fetchSemanticsNode().boundsInRoot
-		val last = onNodeWithText(lastText, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val last = onNodeWithTag(lastTag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		return Pair(first.top - cardTop(density), sectionBottom() - last.bottom)
 	}

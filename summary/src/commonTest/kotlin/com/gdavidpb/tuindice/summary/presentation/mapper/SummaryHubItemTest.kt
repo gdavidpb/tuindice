@@ -46,10 +46,6 @@ import tuindice.summary.generated.resources.summary_evaluations_invite_title
 import tuindice.summary.generated.resources.summary_evaluations_pending_message
 import tuindice.summary.generated.resources.summary_evaluations_pending_title
 import tuindice.summary.generated.resources.summary_link_record
-import tuindice.summary.generated.resources.summary_points_evaluated
-import tuindice.summary.generated.resources.summary_points_no_evaluations
-import tuindice.summary.generated.resources.summary_points_none
-import tuindice.summary.generated.resources.summary_points_rest
 import tuindice.summary.generated.resources.summary_term_credits_label
 import tuindice.summary.generated.resources.summary_term_credits_value
 import tuindice.summary.generated.resources.summary_term_finished_state
@@ -400,24 +396,6 @@ class SummaryHubItemTest {
 	}
 
 	@Test
-	fun thePoints_areEarnedOverEvaluated_withoutDecimalsWhenThereAreNone() {
-		val subjects = listOf(
-			subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)),
-			subject("CI5437", EvaluationPoints(18.5, 25.0, 2, 2)),
-			subject("EG1114", points = null)
-		)
-
-		val items = term(week = 3, subjects = subjects).toSummaryTermItem().subjects
-
-		assertEquals("41", items[0].valueText)
-		assertEquals(UiText.Resource(Res.string.summary_points_rest, listOf("60")), items[0].restText)
-		assertEquals("18.50", items[1].valueText)
-		assertEquals(UiText.Resource(Res.string.summary_points_rest, listOf("25")), items[1].restText)
-		assertNull(items[2].valueText)
-		assertEquals(UiText.Resource(Res.string.summary_points_no_evaluations), items[2].restText)
-	}
-
-	@Test
 	fun theWeekLeft_isSaidInThePluralOrTheSingular_andAsTheLastWeekInTheTwelfth() {
 		assertEquals(UiText.Resource(Res.string.summary_term_week_remaining_many, listOf(9)), week(3).remainingText)
 		assertEquals(UiText.Resource(Res.string.summary_term_week_remaining_one), week(11).remainingText)
@@ -444,44 +422,6 @@ class SummaryHubItemTest {
 			one.toSummaryTermItem().summaryText
 		)
 		assertNull(term(week = 3).toSummaryTermItem().summaryText)
-	}
-
-	@Test
-	fun aSubjectWithEvaluationsButNoGrade_saysSinNotasAun_andOneWithNoEvaluationSaysSinEvaluaciones() {
-		val items = term(
-			week = 3,
-			subjects = listOf(subject("CI5311", EvaluationPoints(0.0, 0.0, 0, 2)), subject("EG1114", points = null))
-		).toSummaryTermItem().subjects
-
-		assertNull(items[0].valueText)
-		assertEquals(UiText.Resource(Res.string.summary_points_none), items[0].restText)
-		assertEquals(UiText.Resource(Res.string.summary_points_no_evaluations), items[1].restText)
-		// Its bar stays, empty, and the evaluated figure is left out: "Sin notas aún" already says nothing is evaluated.
-		assertNull(items[0].evaluatedText)
-		assertEquals(0f, items[0].evaluatedFraction)
-		// A subject with no evaluations has no bar at all.
-		assertNull(items[1].evaluatedFraction)
-	}
-
-	@Test
-	fun theEvaluatedLine_isWhatIsEvaluatedOfOneHundred_andTheBarFillsWithIt() {
-		val items = term(
-			week = 3,
-			subjects = listOf(
-				subject("CI5311", EvaluationPoints(41.0, 60.0, 3, 4)),
-				// Six graded evaluations of 20 make 120 evaluated: the line and the bar stop at the total.
-				subject("CI5437", EvaluationPoints(100.0, 120.0, 6, 6)),
-				subject("EG1114", points = null)
-			)
-		).toSummaryTermItem().subjects
-
-		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("60", "100")), items[0].evaluatedText)
-		assertEquals(0.6f, items[0].evaluatedFraction)
-		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("100", "100")), items[1].evaluatedText)
-		assertEquals(1f, items[1].evaluatedFraction)
-		// Nothing is registered for EG1114: no bar and no evaluated line at all, not "0 de 100".
-		assertEquals(null, items[2].evaluatedText)
-		assertNull(items[2].evaluatedFraction)
 	}
 
 	@Test

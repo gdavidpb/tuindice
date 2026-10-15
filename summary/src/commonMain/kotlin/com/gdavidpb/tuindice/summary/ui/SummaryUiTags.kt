@@ -104,6 +104,8 @@ object SummaryUiTags {
 
 	fun termPointsBar(subjectCode: String): String = "summary_term_points_bar_$subjectCode"
 
+	// The part of the bar evaluated but not earned yet, which follows the earned part at a lighter tint. The earned part
+	// has its own tag, in SummaryEvaluatedBarUiTags.
 	fun termPointsBarFill(subjectCode: String): String = "summary_term_points_bar_fill_$subjectCode"
 
 	// The header of a section: its title and its link, named after the section's own tag.

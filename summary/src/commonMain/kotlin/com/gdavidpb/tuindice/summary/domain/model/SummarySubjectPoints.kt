@@ -24,4 +24,11 @@ data class SummarySubjectPoints(
 	 */
 	val evaluatedOfTotal: Double
 		get() = min(points?.evaluated ?: 0.0, SUBJECT_POINTS_TOTAL)
+
+	/**
+	 * What the subject has earned of its [SUBJECT_POINTS_TOTAL]: the points its graded evaluations add up to, held at
+	 * what it has evaluated, since a subject cannot have earned more than it is evaluated of.
+	 */
+	val earnedOfTotal: Double
+		get() = min(points?.earned ?: 0.0, evaluatedOfTotal)
 }
