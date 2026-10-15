@@ -437,7 +437,7 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   flujos locales (sin repositorios de refresco ni getters `get*`).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
-  extension functions de la tabla; las `data class` de `machine/` y `contract/` van en `presentation/model`.
+  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`.
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;

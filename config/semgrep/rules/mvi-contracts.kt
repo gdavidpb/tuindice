@@ -17,6 +17,9 @@ class RouteChromeState(val title: String) : ViewState
 data class RogueNotice(val text: String)
 
 // ruleid: presentation-no-toplevel-data-class
+internal data class RogueInternalNotice(val text: String)
+
+// ok: presentation-no-toplevel-data-class
 private data class RoguePrivateNotice(val text: String)
 
 class SampleHostMachine(
