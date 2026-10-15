@@ -34,10 +34,12 @@ import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermBackgroundStrip
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermPreview
 import com.gdavidpb.tuindice.summary.ui.share.ShareTermTermChips
@@ -194,7 +196,7 @@ private fun ShareTermShareButton(
 	term: ShareTermTermItem?,
 	background: ShareBackground?,
 	isSharing: Boolean,
-	onShareClick: (bitmap: ImageBitmap) -> Unit
+	onShareClick: (picture: ShareCardPicture) -> Unit
 ) {
 	var isPreparing by remember { mutableStateOf(false) }
 	val isBusy = isPreparing || isSharing
@@ -233,7 +235,7 @@ private fun ShareTermShareButton(
 					background = background,
 					onCaptured = { bitmap ->
 						isPreparing = false
-						onShareClick(bitmap)
+						onShareClick(ShareCardPicture { bitmap.toPngBytes() })
 					}
 				)
 			}

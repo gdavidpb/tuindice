@@ -4,11 +4,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingShareImageRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.testing.shareTermMachineOf
+import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterIsInstance
@@ -29,7 +31,7 @@ class ShareTermViewModelUiTest {
 			val viewModel = createShareViewModel(dispatchers, images)
 			openSheet(viewModel)
 
-			viewModel.shareImageAction(bitmap = ImageBitmap(width = WIDTH, height = HEIGHT))
+			viewModel.shareImageAction(picture = cardPicture())
 
 			val image = withTimeout(TIMEOUT_MILLIS) { images.firstImage.await() }
 			assertEquals("mi-trimestre.png", image.fileName)
@@ -46,7 +48,7 @@ class ShareTermViewModelUiTest {
 			val viewModel = createShareViewModel(dispatchers, images)
 			openSheet(viewModel)
 
-			viewModel.shareImageAction(bitmap = ImageBitmap(width = WIDTH, height = HEIGHT))
+			viewModel.shareImageAction(picture = cardPicture())
 
 			val effect = withTimeout(TIMEOUT_MILLIS) { viewModel.effect.first() }
 			assertEquals(ShareTerm.Effect.ImageShareFailed, effect)
@@ -60,6 +62,9 @@ class ShareTermViewModelUiTest {
 			viewModel.state.filterIsInstance<ShareTerm.State.Content>().first()
 		}
 	}
+
+	// The card is encoded with the platform's own encoder when the sheet asks for its bytes.
+	private fun cardPicture() = ShareCardPicture { ImageBitmap(width = WIDTH, height = HEIGHT).toPngBytes() }
 
 	private fun createShareViewModel(
 		dispatchers: TuIndiceDispatchers,

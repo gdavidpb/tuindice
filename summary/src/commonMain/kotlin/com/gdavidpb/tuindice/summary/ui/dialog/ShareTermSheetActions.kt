@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.dialog
 
-import androidx.compose.ui.graphics.ImageBitmap
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 
 /**
  * What the share sheet hands on when the student acts in it: the term that was tapped, the background that was tapped,
@@ -9,5 +9,5 @@ import androidx.compose.ui.graphics.ImageBitmap
 data class ShareTermSheetActions(
 	val onTermClick: (termKey: String) -> Unit,
 	val onBackgroundClick: (backgroundId: String) -> Unit,
-	val onShareClick: (bitmap: ImageBitmap) -> Unit
+	val onShareClick: (picture: ShareCardPicture) -> Unit
 )

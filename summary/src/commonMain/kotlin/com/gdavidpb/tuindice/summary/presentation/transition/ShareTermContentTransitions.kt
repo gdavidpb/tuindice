@@ -44,7 +44,7 @@ internal fun MachineDefinitionBuilder<ShareTerm.State>.shareTermContentTransitio
 			if (state.isSharing) {
 				state
 			} else {
-				machine.shareImage(host = host, bitmap = action.bitmap)
+				machine.shareImage(host = host, picture = action.picture)
 				state.copy(isSharing = true)
 			}
 		}

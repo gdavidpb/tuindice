@@ -5,9 +5,11 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingShareBackgroundRepository
+import com.gdavidpb.tuindice.summary.testing.RecordingShareImageRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
 import com.gdavidpb.tuindice.summary.testing.hubPassedAttempt
@@ -24,6 +26,7 @@ import kotlinx.coroutines.withTimeout
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.share_term_unavailable_title
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -137,6 +140,21 @@ class ShareTermViewModelContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theCardIsShared_then_thePictureEncodedAsPngIsWhatReachesTheShare() = runTest {
+		withMainDispatcher { dispatchers ->
+			val images = RecordingShareImageRepository()
+			val viewModel = createShareViewModel(dispatchers, record = closedRecord(), images = images)
+			openedContent(viewModel)
+
+			viewModel.shareImageAction(picture = ShareCardPicture { PNG_BYTES })
+
+			val image = withTimeout(TIMEOUT_MILLIS) { images.firstImage.await() }
+			assertContentEquals(PNG_BYTES, image.content)
+		}
+	}
+
 	private suspend fun openedContent(
 		viewModel: ShareTermViewModel,
 		termKey: String? = null
@@ -151,7 +169,8 @@ class ShareTermViewModelContractTest {
 	private fun createShareViewModel(
 		dispatchers: TuIndiceDispatchers,
 		record: AcademicRecord?,
-		backgrounds: RecordingShareBackgroundRepository = RecordingShareBackgroundRepository()
+		backgrounds: RecordingShareBackgroundRepository = RecordingShareBackgroundRepository(),
+		images: RecordingShareImageRepository = RecordingShareImageRepository()
 	): ShareTermViewModel {
 		return ShareTermViewModel(
 			screenMachine = shareTermMachineOf(
@@ -159,7 +178,8 @@ class ShareTermViewModelContractTest {
 					record = ControllableVisibleAcademicRecordRepository(initialRecord = record),
 					prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = true)
 				),
-				backgrounds = backgrounds
+				backgrounds = backgrounds,
+				images = images
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers
@@ -186,5 +206,6 @@ class ShareTermViewModelContractTest {
 		const val TIMEOUT_MILLIS = 3_000L
 		const val INDEX_NEWEST = "4.0000"
 		const val INDEX_OLDEST = "3.0000"
+		val PNG_BYTES = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)
 	}
 }

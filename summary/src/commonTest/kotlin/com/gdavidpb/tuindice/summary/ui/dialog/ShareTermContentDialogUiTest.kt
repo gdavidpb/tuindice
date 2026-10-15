@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.summary.ui.dialog
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
@@ -20,6 +19,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShareableTermCardItem
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.summary.ui.share.ShareTermUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
@@ -71,7 +72,7 @@ class ShareTermContentDialogUiTest {
 
 	@Test
 	fun when_theCardIsCaptured_then_sharingHandsItsPictureOver() = runTuIndiceUiTest {
-		val shared = mutableListOf<ImageBitmap>()
+		val shared = mutableListOf<ShareCardPicture>()
 
 		setTuIndiceTestContent {
 			ShareTermContentDialog(
@@ -80,7 +81,7 @@ class ShareTermContentDialogUiTest {
 				actions = ShareTermSheetActions(
 					onTermClick = {},
 					onBackgroundClick = {},
-					onShareClick = { bitmap -> shared += bitmap }
+					onShareClick = { picture -> shared += picture }
 				),
 				onDismissRequest = {}
 			)
@@ -90,7 +91,7 @@ class ShareTermContentDialogUiTest {
 		onNodeWithTag(SummaryUiTags.ShareTermShareButton).assertIsEnabled().performClick()
 		waitUntil(timeoutMillis = CAPTURE_TIMEOUT_MILLIS) { shared.isNotEmpty() }
 
-		assertEquals(CARD_WIDTH_PIXELS, shared.single().width)
+		assertEquals(CARD_WIDTH_PIXELS, shared.single().encodePng().pngWidth())
 	}
 
 	@Test
@@ -180,7 +181,7 @@ class ShareTermContentDialogUiTest {
 
 	@Test
 	fun when_theBackgroundChangesBeforeSharing_then_thePictureSharedIsTheNewCard() = runTuIndiceUiTest {
-		val shared = mutableListOf<ImageBitmap>()
+		val shared = mutableListOf<ShareCardPicture>()
 		val chosen = mutableStateOf(ShareBackground.included.id)
 
 		setTuIndiceTestContent {
@@ -190,7 +191,7 @@ class ShareTermContentDialogUiTest {
 				actions = ShareTermSheetActions(
 					onTermClick = {},
 					onBackgroundClick = { id -> chosen.value = id },
-					onShareClick = { bitmap -> shared += bitmap }
+					onShareClick = { picture -> shared += picture }
 				),
 				onDismissRequest = {}
 			)
@@ -204,14 +205,17 @@ class ShareTermContentDialogUiTest {
 		onNodeWithTag(SummaryUiTags.ShareTermShareButton).assertIsEnabled().performClick()
 		waitUntil(timeoutMillis = CAPTURE_TIMEOUT_MILLIS) { shared.size == 2 }
 
-		assertEquals(CARD_WIDTH_PIXELS, shared[1].width)
+		assertEquals(CARD_WIDTH_PIXELS, shared[1].encodePng().pngWidth())
 		// The two cards differ in their credit alone: a picture of the card before the change would be the same as the first.
-		assertFalse(shared[0].pixels().contentEquals(shared[1].pixels()), "The picture shared is the card before the change.")
+		assertFalse(
+			shared[0].encodePng().contentEquals(shared[1].encodePng()),
+			"The picture shared is the card before the change."
+		)
 	}
 
 	@Test
 	fun when_aRemoteBackgroundCannotBeLoaded_then_thePictureSharedIsTheBundledCard() = runTuIndiceUiTest {
-		val shared = mutableListOf<ImageBitmap>()
+		val shared = mutableListOf<ShareCardPicture>()
 		val chosen = mutableStateOf(ShareBackground.included.id)
 		val all = listOf(ShareBackground.included, otherShareBackground, unreachableShareBackground)
 
@@ -225,7 +229,7 @@ class ShareTermContentDialogUiTest {
 				actions = ShareTermSheetActions(
 					onTermClick = {},
 					onBackgroundClick = { id -> chosen.value = id },
-					onShareClick = { bitmap -> shared += bitmap }
+					onShareClick = { picture -> shared += picture }
 				),
 				onDismissRequest = {}
 			)
@@ -240,10 +244,10 @@ class ShareTermContentDialogUiTest {
 		waitUntil(timeoutMillis = REMOTE_TIMEOUT_MILLIS) { shared.size == 2 }
 
 		// The artwork that cannot be loaded gives way to the one the app ships with, credit and all: the picture is the same.
-		assertEquals(CARD_WIDTH_PIXELS, shared[1].width)
-		assertEquals(
-			0,
-			shared[0].pixels().differencesFrom(shared[1].pixels()),
+		assertEquals(CARD_WIDTH_PIXELS, shared[1].encodePng().pngWidth())
+		assertContentEquals(
+			shared[0].encodePng(),
+			shared[1].encodePng(),
 			"The remote artwork is not shared as the bundled card."
 		)
 	}
@@ -281,13 +285,23 @@ class ShareTermContentDialogUiTest {
 		ShareTermBackgroundItem(background = background, selected = background.id == chosenId)
 	}
 
-	private fun ImageBitmap.pixels(): IntArray = IntArray(width * height).also { pixels -> readPixels(pixels) }
+	// The width of a PNG is written in its header, after the signature and the length and name of the header chunk.
+	private fun ByteArray.pngWidth(): Int {
+		var width = 0
 
-	// Counted rather than compared whole: a failing array of a million pixels would not fit in the report of the run.
-	private fun IntArray.differencesFrom(other: IntArray): Int = indices.count { index -> this[index] != other[index] }
+		for (index in PNG_WIDTH_OFFSET until PNG_WIDTH_OFFSET + PNG_WIDTH_BYTES) {
+			width = (width shl BYTE_BITS) or (this[index].toInt() and BYTE_MASK)
+		}
+
+		return width
+	}
 
 	private companion object {
 		const val CARD_WIDTH_PIXELS = 1080
+		const val PNG_WIDTH_OFFSET = 16
+		const val PNG_WIDTH_BYTES = 4
+		const val BYTE_BITS = 8
+		const val BYTE_MASK = 0xFF
 		const val CAPTURE_TIMEOUT_MILLIS = 5_000L
 
 		// A remote artwork that cannot be loaded is asked for before its card is shared, so its failure is waited for too.

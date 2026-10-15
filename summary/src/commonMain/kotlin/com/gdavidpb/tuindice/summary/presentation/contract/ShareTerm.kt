@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermTermItem
 
@@ -54,7 +54,7 @@ object ShareTerm {
 
 		// The card that the screen captured: it is encoded as a PNG and handed to the platform's share sheet.
 		class ShareImage(
-			val bitmap: ImageBitmap
+			val picture: ShareCardPicture
 		) : Action()
 	}
 

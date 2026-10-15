@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
 import com.gdavidpb.tuindice.summary.presentation.machine.ShareTermMachine
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 
 class ShareTermViewModel(
 	override val screenMachine: ShareTermMachine,
@@ -27,6 +27,6 @@ class ShareTermViewModel(
 		sendAction(ShareTerm.Action.SelectBackground(backgroundId = backgroundId))
 
 	// The captured card goes to the machine, which encodes it as a PNG on the background dispatcher before sharing it.
-	fun shareImageAction(bitmap: ImageBitmap) =
-		sendAction(ShareTerm.Action.ShareImage(bitmap = bitmap))
+	fun shareImageAction(picture: ShareCardPicture) =
+		sendAction(ShareTerm.Action.ShareImage(picture = picture))
 }

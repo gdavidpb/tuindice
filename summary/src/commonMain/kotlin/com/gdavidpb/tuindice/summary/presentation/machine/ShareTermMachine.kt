@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
@@ -10,11 +9,11 @@ import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermContentTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermIdleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermLoadingTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermUnavailableTransitions
-import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
 import kotlinx.coroutines.CancellationException
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.share_term_unavailable_message
@@ -55,9 +54,9 @@ class ShareTermMachine(
 
 	// The card is encoded as a PNG in the job of the machine, which runs on the view model's background dispatcher, and
 	// only then handed to the platform's share sheet. A card that cannot be encoded is a failed share.
-	internal fun shareImage(host: MachineHost<ShareTerm.Effect>, bitmap: ImageBitmap) {
+	internal fun shareImage(host: MachineHost<ShareTerm.Effect>, picture: ShareCardPicture) {
 		host.launchMachineJob {
-			val content = runCatching { bitmap.toPngBytes() }
+			val content = runCatching { picture.encodePng() }
 				.onFailure { failure -> if (failure is CancellationException) throw failure }
 				.getOrNull()
 

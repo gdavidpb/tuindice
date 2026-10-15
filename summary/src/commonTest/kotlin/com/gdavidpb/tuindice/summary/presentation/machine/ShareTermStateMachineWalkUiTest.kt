@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareTermSource
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.testing.otherShareBackground
 import com.gdavidpb.tuindice.summary.testing.shareTermMachineOf
 import com.gdavidpb.tuindice.summary.testing.statisticsTerm
@@ -49,7 +49,7 @@ class ShareTermStateMachineWalkUiTest {
 				ShareTerm.Action.ObserveShareTerm(termKey = null),
 				ShareTerm.Action.SelectTerm(termKey = source.closedTerms.first().termKey),
 				ShareTerm.Action.SelectBackground(backgroundId = otherShareBackground.id),
-				ShareTerm.Action.ShareImage(bitmap = ImageBitmap(width = 1, height = 1)),
+				ShareTerm.Action.ShareImage(picture = ShareCardPicture { ByteArray(0) }),
 				ShareTermInternalEvent.TermsObserved(source = source),
 				ShareTermInternalEvent.ImageShared,
 				ShareTermInternalEvent.ImageShareFailed
