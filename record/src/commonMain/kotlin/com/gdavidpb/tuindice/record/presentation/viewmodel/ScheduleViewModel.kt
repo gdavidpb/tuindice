@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.machine.ScheduleMachine
-import kotlinx.datetime.LocalDate
 
 class ScheduleViewModel(
 	override val screenMachine: ScheduleMachine,
@@ -27,7 +26,7 @@ class ScheduleViewModel(
 		sendAction(Schedule.Action.Resumed)
 	}
 
-	fun evaluationCellSelectedAction(weekStart: LocalDate, evaluationId: String) {
-		sendAction(Schedule.Action.EvaluationCellSelected(weekStart, evaluationId))
+	fun evaluationCellSelectedAction(evaluationId: String) {
+		sendAction(Schedule.Action.EvaluationCellSelected(evaluationId))
 	}
 }

@@ -22,7 +22,6 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleClashDefaults
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_evaluation_click_label
@@ -33,8 +32,7 @@ import tuindice.record.generated.resources.schedule_evaluation_click_label
  * class being taught right now is filled with the accent, in bold over it. A meeting can be both:
  * the fill says "in progress" and the alert border still says "clash". One an evaluation of this
  * week falls on carries the evaluation icon under its blocks, whatever else it is, and is a button
- * that asks the Evaluations tab for that week and that evaluation ([onEvaluationClick]); the others
- * are not.
+ * that asks the Evaluations tab for that evaluation ([onEvaluationClick]); the others are not.
  */
 @Composable
 fun ScheduleTableMeetingView(
@@ -42,7 +40,7 @@ fun ScheduleTableMeetingView(
 	attemptId: String,
 	day: ScheduleDay,
 	meeting: ScheduleCellItem,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val warning = AcademicStatusColors.warning()
 	val isClash = meeting.isClash
@@ -58,11 +56,10 @@ fun ScheduleTableMeetingView(
 		else -> Color.Transparent
 	}
 	val shape = RoundedCornerShape(TuIndiceRadius.ExtraSmall)
-	val evaluationWeekStart = meeting.evaluationWeekStart
 	val evaluationId = meeting.evaluationId
 	val evaluationClickLabel = stringResource(Res.string.schedule_evaluation_click_label)
 	val description = meeting.description.asString()
-	val clickableModifier = if (evaluationWeekStart != null && evaluationId != null) {
+	val clickableModifier = if (evaluationId != null) {
 		// Clipped to the cell's shape so the ripple does not leave it. Being a button it stands out of
 		// the row's merged description, so it says everything about itself (the day, the blocks, the
 		// evaluation, the clash, the class in progress) the way the week grid's block does, and
@@ -71,7 +68,7 @@ fun ScheduleTableMeetingView(
 			.testTag(RecordUiTags.scheduleTableEvaluation(attemptId, day.code))
 			.clip(shape)
 			.clickable(onClickLabel = evaluationClickLabel, role = Role.Button) {
-				onEvaluationClick(evaluationWeekStart, evaluationId)
+				onEvaluationClick(evaluationId)
 			}
 			.semantics { contentDescription = description }
 	} else {

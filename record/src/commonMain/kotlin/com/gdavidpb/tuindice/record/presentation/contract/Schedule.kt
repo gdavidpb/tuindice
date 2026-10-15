@@ -32,10 +32,9 @@ object Schedule {
 		// The screen is back in front: the clock is read again instead of waiting for its next tick.
 		data object Resumed : Action()
 
-		// A cell marked with an evaluation was tapped: the Evaluations tab is asked for the week that
-		// opens on [weekStart], the Monday of the calendar week the mark is about, and for the evaluation
-		// [evaluationId] that the mark stands for.
-		class EvaluationCellSelected(val weekStart: LocalDate, val evaluationId: String) : Action()
+		// A cell marked with an evaluation was tapped: the Evaluations tab is asked for the evaluation
+		// [evaluationId] that the mark stands for. The week it opens on is read from the content, not sent.
+		class EvaluationCellSelected(val evaluationId: String) : Action()
 	}
 
 	sealed class Effect : ViewEffect {

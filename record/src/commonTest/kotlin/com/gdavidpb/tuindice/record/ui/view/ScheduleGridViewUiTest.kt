@@ -12,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.assertDpEquals
 import com.gdavidpb.tuindice.record.testing.clashingWeek
 import com.gdavidpb.tuindice.record.testing.markedWeek
@@ -23,7 +22,6 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -33,7 +31,7 @@ class ScheduleGridViewUiTest {
 	@Test
 	fun when_theWeekIsLaidOut_then_itsDaysBlocksAndMeetingsAreDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleGridView(grid = clashingWeek().grid, onEvaluationClick = { _, _ -> })
+			ScheduleGridView(grid = clashingWeek().grid, onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleGrid)
@@ -57,7 +55,7 @@ class ScheduleGridViewUiTest {
 	@Test
 	fun when_twoSubjectsClash_then_eachKeepsAWholeCell_sideBySide() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleGridView(grid = clashingWeek().grid, onEvaluationClick = { _, _ -> })
+			ScheduleGridView(grid = clashingWeek().grid, onEvaluationClick = { _ -> })
 		}
 
 		val first = onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Monday.code, 1))
@@ -74,15 +72,13 @@ class ScheduleGridViewUiTest {
 	}
 
 	@Test
-	fun when_aMeetingHasAnEvaluation_then_itsCellAsksForThatWeek_andTheOthersDoNot() = runTuIndiceUiTest {
-		var asked: LocalDate? = null
+	fun when_aMeetingHasAnEvaluation_then_itsCellAsksForThatEvaluation_andTheOthersDoNot() = runTuIndiceUiTest {
 		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleGridView(
 				grid = markedWeek().grid,
-				onEvaluationClick = { weekStart, evaluationId ->
-					asked = weekStart
+				onEvaluationClick = { evaluationId ->
 					askedEvaluationId = evaluationId
 				}
 			)
@@ -93,18 +89,17 @@ class ScheduleGridViewUiTest {
 
 		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Monday.code, 1)).performClick()
 
-		assertNull(asked)
+		assertNull(askedEvaluationId)
 
 		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3)).performClick()
 
-		assertEquals(ScheduleTestDate, asked)
 		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
 	@Test
 	fun when_theHourFallsInsideTheGrid_then_todayIsMarked_andTheNowLineCrossesIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleGridView(grid = clashingWeek(now = MondayAtNine).grid, onEvaluationClick = { _, _ -> })
+			ScheduleGridView(grid = clashingWeek(now = MondayAtNine).grid, onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTodayHeader)
@@ -119,7 +114,7 @@ class ScheduleGridViewUiTest {
 			// Monday at 20:00: the grid ends at block 3, hours before.
 			ScheduleGridView(
 				grid = clashingWeek(now = scheduleNow(dayOfWeek = 2, minuteOfDay = 20 * 60)).grid,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 

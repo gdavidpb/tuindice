@@ -47,7 +47,6 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -390,7 +389,7 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				Schedule.Action.ObserveSchedule,
 				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
-				Schedule.Action.EvaluationCellSelected(weekStart = ScheduleTestDate, evaluationId = "evaluation-1"),
+				Schedule.Action.EvaluationCellSelected(evaluationId = "evaluation-1"),
 				ScheduleInternalEvent.ScheduleContentObserved(
 					subtitle = UiText.Raw("SEP-DIC 2026"),
 					schedule = ScheduleItem(

@@ -19,14 +19,12 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.testing.MARKED_MONDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -38,7 +36,7 @@ class ScheduleTableRowViewUiTest {
 		val table = table()
 
 		setTuIndiceTestContent {
-			ScheduleTableRowView(row = table.rows.first(), days = table.days, onEvaluationClick = { _, _ -> })
+			ScheduleTableRowView(row = table.rows.first(), days = table.days, onEvaluationClick = { _ -> })
 		}
 
 		onNodeWithText("Sec. 1 · MYS-116").assertIsDisplayed()
@@ -55,7 +53,7 @@ class ScheduleTableRowViewUiTest {
 		val table = table()
 
 		setTuIndiceTestContent {
-			ScheduleTableRowView(row = table.rows.last(), days = table.days, onEvaluationClick = { _, _ -> })
+			ScheduleTableRowView(row = table.rows.last(), days = table.days, onEvaluationClick = { _ -> })
 		}
 
 		onNodeWithText("Sin horario").assertIsDisplayed()
@@ -70,7 +68,7 @@ class ScheduleTableRowViewUiTest {
 		val days = markedWeek().table.days
 
 		setTuIndiceTestContent {
-			ScheduleTableRowView(row = row, days = days, onEvaluationClick = { _, _ -> })
+			ScheduleTableRowView(row = row, days = days, onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
@@ -84,16 +82,16 @@ class ScheduleTableRowViewUiTest {
 	}
 
 	@Test
-	fun when_theRowHasTwoMarkedMeetings_then_eachOneAsksForTheSameWeek() = runTuIndiceUiTest {
+	fun when_theRowHasTwoMarkedMeetings_then_eachOneAsksForItsEvaluation() = runTuIndiceUiTest {
 		val row = markedWeek(onMonday = true).table.rows.first()
 		val days = markedWeek(onMonday = true).table.days
-		val asked = mutableListOf<Pair<LocalDate, String>>()
+		val asked = mutableListOf<String>()
 
 		setTuIndiceTestContent {
 			ScheduleTableRowView(
 				row = row,
 				days = days,
-				onEvaluationClick = { weekStart, evaluationId -> asked += (weekStart to evaluationId) }
+				onEvaluationClick = { evaluationId -> asked += evaluationId }
 			)
 		}
 
@@ -102,7 +100,7 @@ class ScheduleTableRowViewUiTest {
 		}
 
 		assertEquals(
-			listOf(ScheduleTestDate to MARKED_MONDAY_EVALUATION_ID, ScheduleTestDate to MARKED_WEDNESDAY_EVALUATION_ID),
+			listOf(MARKED_MONDAY_EVALUATION_ID, MARKED_WEDNESDAY_EVALUATION_ID),
 			asked
 		)
 	}

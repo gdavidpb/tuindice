@@ -112,7 +112,7 @@ class ScheduleDayColumnUiTest {
 				.width(ScheduleGridDefaults.LaneWidth * dayItem.laneCount)
 				.height(GridHeight),
 			dayItem = dayItem,
-			onEvaluationClick = { _, _ -> }
+			onEvaluationClick = { _ -> }
 		)
 	}
 

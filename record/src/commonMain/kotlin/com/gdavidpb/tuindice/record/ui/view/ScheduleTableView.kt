@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
-import kotlinx.datetime.LocalDate
 
 // The narrowest the subject column can get and still fit a code. Five days fit a phone; with a
 // weekend day the table grows past the screen and scrolls sideways instead of squeezing the code.
@@ -32,7 +31,7 @@ private val MinSubjectWidth = 88.dp
 fun ScheduleTableView(
 	modifier: Modifier = Modifier,
 	table: ScheduleTableItem,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleTable)) {
 		val daysWidth = (ScheduleTableDefaults.DayWidth + ScheduleTableDefaults.CellGap) * table.days.size

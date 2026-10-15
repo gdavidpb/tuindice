@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
 import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.clashingWeek
 import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -22,7 +21,6 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,7 +29,7 @@ class ScheduleViewsViewUiTest {
 	@Test
 	fun when_theChosenViewIsTable_then_onlyTheTableIsComposed_withTheSubjectsOfTheState() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleViewsView(state = content(ScheduleViewMode.Table), onEvaluationClick = { _, _ -> })
+			ScheduleViewsView(state = content(ScheduleViewMode.Table), onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTable)
@@ -45,7 +43,7 @@ class ScheduleViewsViewUiTest {
 	@Test
 	fun when_theChosenViewIsWeek_then_onlyTheWeekIsComposed_withTheMeetingsOfTheState() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleViewsView(state = content(ScheduleViewMode.Week), onEvaluationClick = { _, _ -> })
+			ScheduleViewsView(state = content(ScheduleViewMode.Week), onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleContainer)
@@ -61,7 +59,7 @@ class ScheduleViewsViewUiTest {
 		var viewMode by mutableStateOf(ScheduleViewMode.Table)
 
 		setTuIndiceTestContent {
-			ScheduleViewsView(state = content(viewMode), onEvaluationClick = { _, _ -> })
+			ScheduleViewsView(state = content(viewMode), onEvaluationClick = { _ -> })
 		}
 
 		assertNodeVisible(RecordUiTags.ScheduleTable)
@@ -80,15 +78,13 @@ class ScheduleViewsViewUiTest {
 	}
 
 	@Test
-	fun when_theTableIsChosen_then_aMarkedCellAsksForItsWeek_andTheLegendIsUnderTheRows() = runTuIndiceUiTest {
-		var asked: LocalDate? = null
+	fun when_theTableIsChosen_then_aMarkedCellAsksForItsEvaluation_andTheLegendIsUnderTheRows() = runTuIndiceUiTest {
 		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleViewsView(
 				state = content(ScheduleViewMode.Table, schedule = markedWeek()),
-				onEvaluationClick = { weekStart, evaluationId ->
-					asked = weekStart
+				onEvaluationClick = { evaluationId ->
 					askedEvaluationId = evaluationId
 				}
 			)
@@ -98,21 +94,18 @@ class ScheduleViewsViewUiTest {
 		onNodeWithTag(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
 			.performClick()
 
-		assertEquals(ScheduleTestDate, asked)
 		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
 	@Test
-	fun when_theWeekIsChosen_then_aMarkedCellAsksForTheSameWeek_andTheLegendIsShown() = runTuIndiceUiTest {
+	fun when_theWeekIsChosen_then_aMarkedCellAsksForItsEvaluation_andTheLegendIsShown() = runTuIndiceUiTest {
 		var viewMode by mutableStateOf(ScheduleViewMode.Table)
-		var asked: LocalDate? = null
 		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
 			ScheduleViewsView(
 				state = content(viewMode, schedule = markedWeek()),
-				onEvaluationClick = { weekStart, evaluationId ->
-					asked = weekStart
+				onEvaluationClick = { evaluationId ->
 					askedEvaluationId = evaluationId
 				}
 			)
@@ -128,7 +121,6 @@ class ScheduleViewsViewUiTest {
 
 		onNodeWithTag(RecordUiTags.scheduleCell("a1", ScheduleDay.Wednesday.code, 3)).performClick()
 
-		assertEquals(ScheduleTestDate, asked)
 		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
@@ -137,7 +129,7 @@ class ScheduleViewsViewUiTest {
 		var viewMode by mutableStateOf(ScheduleViewMode.Table)
 
 		setTuIndiceTestContent {
-			ScheduleViewsView(state = content(viewMode), onEvaluationClick = { _, _ -> })
+			ScheduleViewsView(state = content(viewMode), onEvaluationClick = { _ -> })
 		}
 
 		assertNodeHidden(RecordUiTags.ScheduleEvaluationLegend)

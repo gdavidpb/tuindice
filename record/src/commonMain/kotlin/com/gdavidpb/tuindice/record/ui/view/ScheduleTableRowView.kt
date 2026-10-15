@@ -22,7 +22,6 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
-import kotlinx.datetime.LocalDate
 
 /**
  * One subject of the table: its code and where it is taught on the left, then a cell per day.
@@ -36,7 +35,7 @@ fun ScheduleTableRowView(
 	modifier: Modifier = Modifier,
 	row: ScheduleTableRowItem,
 	days: List<ScheduleDay>,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val description = row.description.asString()
 

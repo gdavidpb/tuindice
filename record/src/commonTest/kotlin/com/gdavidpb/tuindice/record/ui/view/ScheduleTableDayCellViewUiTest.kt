@@ -14,7 +14,6 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleAttempt
 import com.gdavidpb.tuindice.record.testing.scheduleEntry
@@ -24,7 +23,6 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -39,7 +37,7 @@ class ScheduleTableDayCellViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meetings = meetings,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -58,7 +56,7 @@ class ScheduleTableDayCellViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meetings = meetings,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -76,7 +74,7 @@ class ScheduleTableDayCellViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Tuesday,
 				meetings = emptyList(),
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -87,9 +85,8 @@ class ScheduleTableDayCellViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnTheMeeting_then_theCellShowsTheIcon_andTappingItAsksForTheWeek() = runTuIndiceUiTest {
+	fun when_anEvaluationFallsOnTheMeeting_then_theCellShowsTheIcon_andTappingItAsksForTheEvaluation() = runTuIndiceUiTest {
 		val meetings = markedWeek().table.rows.first().meetings.getValue(ScheduleDay.Wednesday)
-		var asked: LocalDate? = null
 		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
@@ -97,8 +94,7 @@ class ScheduleTableDayCellViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meetings = meetings,
-				onEvaluationClick = { weekStart, evaluationId ->
-					asked = weekStart
+				onEvaluationClick = { evaluationId ->
 					askedEvaluationId = evaluationId
 				}
 			)
@@ -108,7 +104,6 @@ class ScheduleTableDayCellViewUiTest {
 
 		onNodeWithText("3").performClick()
 
-		assertEquals(ScheduleTestDate, asked)
 		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
@@ -121,7 +116,7 @@ class ScheduleTableDayCellViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meetings = meetings,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 

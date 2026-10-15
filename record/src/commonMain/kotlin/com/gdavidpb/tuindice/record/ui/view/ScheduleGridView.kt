@@ -16,19 +16,18 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
-import kotlinx.datetime.LocalDate
 
 /**
  * Weekly grid of the university's class blocks: the block numbers on the left, one column per day
  * and each meeting as a cell of a fixed width spanning its blocks. It scrolls both ways, with the
  * day names and the block numbers staying in place. A cell an evaluation of this week falls on asks
- * for that week of the Evaluations tab ([onEvaluationClick]).
+ * for it on the Evaluations tab ([onEvaluationClick]).
  */
 @Composable
 fun ScheduleGridView(
 	modifier: Modifier = Modifier,
 	grid: ScheduleGridItem,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val gridHeight = ScheduleGridDefaults.BlockRowHeight * grid.blockCount +
 		ScheduleGridDefaults.BlockRowGap * (grid.blockCount - 1)

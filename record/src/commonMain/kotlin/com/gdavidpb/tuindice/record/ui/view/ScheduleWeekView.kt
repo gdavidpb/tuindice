@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import kotlinx.datetime.LocalDate
 
 /**
  * The "Semana" view of the schedule: the weekly grid, what its evaluation icon means when some
@@ -23,7 +22,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleWeekView(
 	modifier: Modifier = Modifier,
 	grid: ScheduleGridItem,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	Column(
 		modifier = modifier

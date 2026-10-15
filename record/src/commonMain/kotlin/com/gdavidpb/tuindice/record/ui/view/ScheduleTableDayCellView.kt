@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import kotlinx.datetime.LocalDate
 
 /**
  * What one subject has on one day: the range of blocks of each meeting ("1-2", or "3" for a single
@@ -25,7 +24,7 @@ fun ScheduleTableDayCellView(
 	attemptId: String,
 	day: ScheduleDay,
 	meetings: List<ScheduleCellItem>,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	Box(
 		modifier = modifier.testTag(RecordUiTags.scheduleTableCell(attemptId, day.code)),

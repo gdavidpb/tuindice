@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
-import com.gdavidpb.tuindice.record.testing.ScheduleTestDate
 import com.gdavidpb.tuindice.record.testing.clashingWeek
 import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleAttempt
@@ -35,7 +34,6 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -52,7 +50,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -71,7 +69,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -97,7 +95,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -118,7 +116,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -142,7 +140,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -159,7 +157,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -177,9 +175,8 @@ class ScheduleTableMeetingViewUiTest {
 	}
 
 	@Test
-	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatWeekAndThatEvaluation() = runTuIndiceUiTest {
+	fun when_anEvaluationFallsOnTheMeeting_then_itIsAButtonThatAsksForThatEvaluation() = runTuIndiceUiTest {
 		val meeting = markedMeeting(ScheduleDay.Wednesday)
-		var asked: LocalDate? = null
 		var askedEvaluationId: String? = null
 
 		setTuIndiceTestContent {
@@ -187,8 +184,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { weekStart, evaluationId ->
-					asked = weekStart
+				onEvaluationClick = { evaluationId ->
 					askedEvaluationId = evaluationId
 				}
 			)
@@ -207,7 +203,6 @@ class ScheduleTableMeetingViewUiTest {
 
 		button.performClick()
 
-		assertEquals(ScheduleTestDate, asked)
 		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
 	}
 
@@ -220,7 +215,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -238,7 +233,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -258,7 +253,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Monday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 
@@ -282,7 +277,7 @@ class ScheduleTableMeetingViewUiTest {
 				attemptId = "a1",
 				day = ScheduleDay.Wednesday,
 				meeting = meeting,
-				onEvaluationClick = { _, _ -> }
+				onEvaluationClick = { _ -> }
 			)
 		}
 

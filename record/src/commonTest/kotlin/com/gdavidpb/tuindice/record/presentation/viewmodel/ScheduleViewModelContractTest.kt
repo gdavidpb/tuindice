@@ -187,7 +187,7 @@ class ScheduleViewModelContractTest {
 			assertEquals("ci5311-exam", marked.evaluationId)
 
 			fixture.viewModel.effect.test(timeout = 15.seconds) {
-				fixture.viewModel.evaluationCellSelectedAction(weekStart = ScheduleTestDate, evaluationId = "ci5311-exam")
+				fixture.viewModel.evaluationCellSelectedAction(evaluationId = "ci5311-exam")
 
 				val effect = assertIs<Schedule.Effect.NavigateToEvaluationsWeek>(awaitItem())
 
@@ -198,6 +198,47 @@ class ScheduleViewModelContractTest {
 			}
 
 			assertEquals<Schedule.State?>(before, fixture.viewModel.state.value)
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun evaluationCellSelected_forAnEvaluationTheContentDoesNotMark_asksForNothing() = runTest {
+		val fixture = createFixture(
+			record = mondayRecord(),
+			hasSynced = true,
+			visibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(
+				initialEvaluations = listOf(
+					scheduleEvaluation(attemptId = "attempt-CI5311", date = ScheduleTestDate, id = "ci5311-exam")
+				)
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				awaitUntilState<Schedule.State.Content>()
+
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			fixture.viewModel.effect.test(timeout = 15.seconds) {
+				// Nothing marks this evaluation, so the tap has no week to ask for and asks for nothing. The tap
+				// after it, on an evaluation the content does mark, is therefore the first request the tab hears.
+				fixture.viewModel.evaluationCellSelectedAction(evaluationId = "not-marked")
+				fixture.viewModel.evaluationCellSelectedAction(evaluationId = "ci5311-exam")
+
+				val effect = assertIs<Schedule.Effect.NavigateToEvaluationsWeek>(awaitItem())
+
+				assertEquals(ScheduleTestDate, effect.weekStart)
+				assertEquals("ci5311-exam", effect.evaluationId)
+
+				cancelAndIgnoreRemainingEvents()
+			}
 		} finally {
 			stateCollector.cancel()
 		}

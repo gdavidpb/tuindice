@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
 import com.gdavidpb.tuindice.record.ui.model.nowLineCellSpans
-import kotlinx.datetime.LocalDate
 
 /**
  * One day of the weekly grid: each meeting placed at its blocks, on the lane the layout gave it.
@@ -23,7 +22,7 @@ import kotlinx.datetime.LocalDate
 fun ScheduleDayColumn(
 	modifier: Modifier = Modifier,
 	dayItem: ScheduleDayItem,
-	onEvaluationClick: (weekStart: LocalDate, evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	Box(modifier = modifier) {
 		dayItem.cells.forEach { cell ->
