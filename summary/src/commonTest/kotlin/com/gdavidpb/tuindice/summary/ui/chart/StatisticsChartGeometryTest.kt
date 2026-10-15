@@ -127,4 +127,19 @@ class StatisticsChartGeometryTest {
 			StatisticsChartGeometry.touchSpans(widthsDp = emptyList(), totalDp = 300f)
 		)
 	}
+
+	@Test
+	fun when_aSegmentHasNoValue_then_itIsNotDrawnAndTheDrawnSharesAddUpToOne() {
+		val drawn = StatisticsChartGeometry.drawnSegments(listOf(3f, 0f, 1f))
+
+		assertEquals(listOf(0, 2), drawn.map { segment -> segment.index })
+		assertEquals(listOf(0.75f, 0.25f), drawn.map { segment -> segment.fraction })
+	}
+
+	@Test
+	fun when_noSegmentIsDrawn_then_thereAreNoShares() {
+		val drawn = StatisticsChartGeometry.drawnSegments(listOf(0f, -2f, Float.NaN))
+
+		assertEquals(emptyList<StatisticsChartGeometry.DrawnSegment>(), drawn)
+	}
 }

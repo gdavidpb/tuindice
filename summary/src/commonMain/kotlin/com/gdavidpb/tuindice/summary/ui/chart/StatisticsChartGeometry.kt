@@ -66,6 +66,15 @@ object StatisticsChartGeometry {
 		}
 	}
 
+	// The segments a stacked bar draws, in order: those with a value above zero, each with its share of their total. A
+	// segment with no value is not drawn and has no target, so the shares of the drawn segments add up to one.
+	fun drawnSegments(values: List<Float>): List<DrawnSegment> {
+		val drawn = values.withIndex().filter { (_, value) -> value > 0f }
+		val total = drawn.sumOf { (_, value) -> value.toDouble() }.toFloat()
+
+		return drawn.map { (index, value) -> DrawnSegment(index = index, fraction = value / total) }
+	}
+
 	// The touch areas of the drawn segments of a bar of [totalDp], in order. They cover the bar without overlap, and each
 	// is at least a finger wide where the bar has room for that. A segment narrower than a finger takes the room it lacks
 	// from the wider segments, which give up only what they can spare, so every segment can be tapped.
@@ -90,5 +99,11 @@ object StatisticsChartGeometry {
 	data class Span(
 		val startDp: Float,
 		val widthDp: Float
+	)
+
+	// A drawn segment: its [index] in the values it came from, and its [fraction] of the drawn total.
+	data class DrawnSegment(
+		val index: Int,
+		val fraction: Float
 	)
 }

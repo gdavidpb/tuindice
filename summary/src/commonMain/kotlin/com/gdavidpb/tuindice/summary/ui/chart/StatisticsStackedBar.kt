@@ -90,14 +90,13 @@ private fun BoxScope.StackedTrack(
 	openIndex: MutableState<Int?>
 ) {
 	val hasSelection = openIndex.value != null
-	val drawn = segments.withIndex().filter { (_, segment) -> segment.value > 0f }
-	val total = drawn.sumOf { (_, segment) -> segment.value.toDouble() }.toFloat()
+	val drawn = StatisticsChartGeometry.drawnSegments(segments.map { segment -> segment.value })
 
 	TuIndiceProgressBar(
-		segments = drawn.map { (index, segment) ->
+		segments = drawn.map { (index, fraction) ->
 			TuIndiceProgressSegment(
-				fraction = segment.value / total,
-				color = segment.color.copy(
+				fraction = fraction,
+				color = segments[index].color.copy(
 					alpha = StatisticsChartDefaults.alphaOf(openIndex.value == index, hasSelection)
 				),
 				tag = SummaryUiTags.statisticsFill(labels.key, index)
@@ -120,13 +119,13 @@ private fun BoxScope.StackedTargets(
 ) {
 	// The spans of a bar with something drawn share its whole width.
 	val barWidth = spans.fold(0f) { width, span -> width + span.widthDp }
-	val drawn = segments.indices.filter { index -> segments[index].value > 0f }
+	val drawn = StatisticsChartGeometry.drawnSegments(segments.map { segment -> segment.value })
 	val touches = StatisticsChartGeometry.touchSpans(
-		widthsDp = drawn.map { index -> spans[index].widthDp },
+		widthsDp = drawn.map { (index, _) -> spans[index].widthDp },
 		totalDp = barWidth
 	)
 
-	drawn.forEachIndexed { position, index ->
+	drawn.forEachIndexed { position, (index, _) ->
 		key(index) {
 			val segment = segments[index]
 			val touch = touches[position]
