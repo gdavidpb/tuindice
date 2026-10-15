@@ -10,7 +10,7 @@ import kotlinx.datetime.LocalDate
  * An evaluation of the week, shown the way its row reads in the Evaluations tab: [typeIcon] is the icon
  * of its type, [titleText] its name in capitals and [statusText] its state, with [isOverdue] for the
  * error tone. [statusText] is null when the evaluation is scheduled: its row then has no state chip. [place]
- * is where its subject has class that day (blocks and room, with no hour), null when it has none; [weekStart]
+ * is where its subject has class that day (room and blocks, with no hour), null when it has none; [weekStart]
  * is the Monday of its week, where the Evaluations tab takes the student.
  */
 @Immutable

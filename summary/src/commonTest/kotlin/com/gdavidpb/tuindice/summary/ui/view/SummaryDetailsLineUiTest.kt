@@ -20,52 +20,50 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryDetailsLineUiTest {
 	private val place = ClassPlaceItem(
-		placeText = UiText.Raw("3-4 · MYS-210"),
-		timeText = UiText.Raw("9:30–11:30 a. m.")
+		room = "MYS-210",
+		scheduleText = UiText.Raw("3-4 · 9:30–11:30 a. m.")
 	)
 
 	@Test
-	fun when_theLineIsWide_then_thePlaceIsBesideTheChip_onItsLine() = runTuIndiceUiTest {
+	fun when_thePlaceIsGiven_then_theRoomIsOnItsOwnLine_andTheScheduleUnderIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
 			Box(modifier = Modifier.width(600.dp)) {
-				SummaryDetailsLine(subjectCode = "CI5437", place = place)
+				SummaryDetailsLine(place = place)
 			}
 		}
 
-		val chip = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val blocks = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val room = onNodeWithText("MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val schedule = onNodeWithText("3-4 · 9:30–11:30 a. m.", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(blocks.left >= chip.right, "the place is written after the chip")
-		assertTrue(abs(blocks.center.y - chip.center.y) <= 1f, "the place shares the line of the chip")
+		assertTrue(schedule.top >= room.bottom, "the schedule goes under the room")
+		assertTrue(abs(schedule.left - room.left) <= 1f, "both lines start at the same edge")
 	}
 
 	@Test
-	fun when_theLineIsNarrow_then_thePlaceGoesDownWhole_andNothingIsCut() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			Box(modifier = Modifier.width(160.dp)) {
-				SummaryDetailsLine(subjectCode = "CI5437", place = place)
-			}
-		}
-
-		val chip = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val blocks = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-
-		assertTrue(blocks.top >= chip.bottom, "the place does not fit beside the chip, so it goes down under it")
-		assertTextIsWhole("3-4 · MYS-210")
-		assertTextIsWhole("9:30–11:30 a. m.", singleLine = true)
-	}
-
-	@Test
-	fun when_theSubjectHasNoClassThatDay_then_onlyTheChipIsDrawn_andItStaysWhole() = runTuIndiceUiTest {
+	fun when_theLetterIsLargeOnANarrowLine_then_nothingIsCut() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WithLargeLetter {
-				Box(modifier = Modifier.width(200.dp)) {
-					SummaryDetailsLine(subjectCode = "CI5437", place = null)
+				Box(modifier = Modifier.width(160.dp)) {
+					SummaryDetailsLine(place = place)
 				}
 			}
 		}
 
-		assertTextIsWhole("CI5437", singleLine = true)
-		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		assertTextIsWhole("MYS-210", singleLine = true)
+		assertTextIsWhole("3-4 · 9:30–11:30 a. m.")
+	}
+
+	@Test
+	fun when_theSubjectHasNoClassThatDay_then_nothingIsDrawnUnderTheTitle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			WithLargeLetter {
+				Box(modifier = Modifier.width(200.dp)) {
+					SummaryDetailsLine(place = null)
+				}
+			}
+		}
+
+		onNodeWithText("MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText("3-4 · 9:30–11:30 a. m.", useUnmergedTree = true).assertDoesNotExist()
 	}
 }

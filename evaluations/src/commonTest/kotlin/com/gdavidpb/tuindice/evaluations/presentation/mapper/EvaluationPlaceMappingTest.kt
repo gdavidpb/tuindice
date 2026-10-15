@@ -41,12 +41,12 @@ class EvaluationPlaceMappingTest {
 	)
 
 	@Test
-	fun toClassPlaceItem_ofSeveralBlocks_saysTheRangeTheRoomAndTheHours() {
+	fun toClassPlaceItem_ofSeveralBlocks_saysTheRoomAndTheRangeWithItsHours() {
 		val place = meeting(day = MONDAY, start = 1, end = 2).toClassPlaceItem()
 
 		// Block 1 starts at 7:30 and every block lasts an hour: the last block ends at 9:30. How the
-		// blocks, the room and the hours are said is the base's (ClassPlaceTest); this is that the
-		// meeting's own numbers reach it.
+		// room and the schedule are said is the base's (ClassPlaceTest); this is that the meeting's
+		// own numbers reach it.
 		assertEquals(
 			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = 450..570),
 			place
@@ -67,18 +67,19 @@ class EvaluationPlaceMappingTest {
 	fun toClassPlaceItem_withoutARoom_leavesTheRoomOut() {
 		val place = meeting(day = MONDAY, start = 1, end = 2, classroom = "").toClassPlaceItem()
 
+		assertNull(place.room)
 		assertEquals(
-			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = 450..570).placeText,
-			place.placeText
+			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = 450..570).scheduleText,
+			place.scheduleText
 		)
 	}
 
 	@Test
 	fun toClassPlaceItem_ofABlockPastTheDay_hasNoHours() {
 		// Block 17 starts at 23:30 and ends past midnight: an hour for it would be wrong.
-		assertNull(meeting(day = MONDAY, start = 17).toClassPlaceItem().timeText)
-		assertNull(meeting(day = MONDAY, start = 15, end = 17).toClassPlaceItem().timeText)
-		assertNotNull(meeting(day = MONDAY, start = 15, end = 16).toClassPlaceItem().timeText)
+		assertEquals(UiText.Raw("17"), meeting(day = MONDAY, start = 17).toClassPlaceItem().scheduleText)
+		assertEquals(UiText.Raw("15-17"), meeting(day = MONDAY, start = 15, end = 17).toClassPlaceItem().scheduleText)
+		assertTrue(meeting(day = MONDAY, start = 15, end = 16).toClassPlaceItem().scheduleText is UiText.Resource)
 	}
 
 	@Test
@@ -117,10 +118,10 @@ class EvaluationPlaceMappingTest {
 		val place = assertNotNull(meetings.classPlaceOn(MONDAY_DATE))
 
 		assertEquals(
-			UiText.Resource(Res.string.evaluation_place_in_class, listOf(meetings[0].toClassPlaceItem().placeText)),
-			place.placeText
+			UiText.Resource(Res.string.evaluation_place_in_class, listOf(meetings[0].toClassPlaceItem().scheduleText)),
+			place.scheduleText
 		)
-		assertEquals(meetings[0].toClassPlaceItem().timeText, place.timeText)
+		assertEquals(meetings[0].toClassPlaceItem().room, place.room)
 		assertNull(meetings.classPlaceOn(TUESDAY_DATE))
 	}
 

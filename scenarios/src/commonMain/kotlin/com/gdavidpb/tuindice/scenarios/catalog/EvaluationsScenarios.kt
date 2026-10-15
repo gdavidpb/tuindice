@@ -393,8 +393,9 @@ private val evaluationsAnnulledProvisionalNotice = scenario(
 	waitGone(text(Copy.EnrollmentAnnulledProvisionalTitle), Within.Assert)
 }
 
-// An evaluation inherits where its subject has class that day: blocks and room first and the hour after, in twelve
-// hours; one on a day without class says nothing of the sort. The week of the clock is the one the strip opens on.
+// An evaluation inherits where its subject has class that day: the room on a line of its own, and the blocks with the
+// hours under them, in twelve hours; one on a day without class says nothing of the sort.
+// The week of the clock is the one the strip opens on.
 private val evaluationsInheritedPlace = scenario(
 	"evaluations-inherited-place",
 	"evaluations",
@@ -408,8 +409,8 @@ private val evaluationsInheritedPlace = scenario(
 	// Monday: overdue and ungraded, and CI5311 meets that day.
 	waitVisible(EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
 	waitVisible(EvaluationsUiTags.evaluationPlace(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
-	waitVisible(text(Copy.PlaceBlocks12Mys116), Within.Assert)
-	waitVisible(text(Copy.TimeBlocks12), Within.Assert)
+	waitVisible(text(Copy.RoomMys116), Within.Assert)
+	waitVisible(text(Copy.ScheduleBlocks12), Within.Assert)
 	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
 	// Today: CI5437 meets at blocks 3 and 4.
 	scrollUntilVisible(
@@ -418,8 +419,8 @@ private val evaluationsInheritedPlace = scenario(
 		Within.Wait
 	)
 	waitVisible(EvaluationsUiTags.evaluationPlace(E2eFixtures.HubEvaluationToday.value), Within.Assert)
-	waitVisible(text(Copy.PlaceBlocks34Mys210), Within.Assert)
-	waitVisible(text(Copy.TimeBlocks34), Within.Assert)
+	waitVisible(text(Copy.RoomMys210), Within.Assert)
+	waitVisible(text(Copy.ScheduleBlocks34), Within.Assert)
 	// Friday: EG1114 does not meet, so the row has no place line at all.
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.HubEvaluationNoClass.value),
@@ -458,12 +459,12 @@ private val evaluationsEditKeepsSubject = scenario(
 	// The saved date, Thursday the 15th, has class, so its line is up before anything is touched: Wednesday goes first
 	// and must take the line away, then Thursday must bring it back.
 	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubNoClassDay))
-	waitGone(text(Copy.InClassBlocks34Mys210), Within.Action)
+	waitGone(text(Copy.InClassBlocks34), Within.Action)
 	waitGone(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
 	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelection, Within.Assert)
 	tap(EvaluationsUiTags.calendarDayCell(E2eInputs.HubClassDay))
 	waitVisible(EvaluationsUiTags.EvaluationDateDialogSelectionPlace, Within.Action)
-	waitVisible(text(Copy.InClassBlocks34Mys210), Within.Assert)
+	waitVisible(text(Copy.InClassBlocks34), Within.Assert)
 	tap(EvaluationsUiTags.EvaluationDateDialogCancelButton)
 	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Action)
 }

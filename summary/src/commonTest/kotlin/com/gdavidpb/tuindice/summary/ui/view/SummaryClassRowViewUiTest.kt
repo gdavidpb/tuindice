@@ -31,15 +31,15 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryClassRowViewUiTest {
 	@Test
-	fun when_classIsInProgress_then_rowShowsEnCursoChipBlocksAndTheHourAfter() = runTuIndiceUiTest {
+	fun when_classIsInProgress_then_rowShowsEnCursoChipRoomAndTheScheduleWithItsHours() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
 		}
 
 		onNodeWithText("En curso", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5437", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3-4 · 9:30–11:30 a. m.", useUnmergedTree = true).assertIsDisplayed()
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class SummaryClassRowViewUiTest {
 	}
 
 	@Test
-	fun when_rowIsDrawn_then_titleIsAboveTheSubject_andSubjectAndPlaceShareALine() = runTuIndiceUiTest {
+	fun when_rowIsDrawn_then_theSubjectIsBesideTheTitle_andTheRoomAndScheduleAreUnderIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
 			Box(modifier = Modifier.width(600.dp)) {
 				SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
@@ -77,17 +77,15 @@ class SummaryClassRowViewUiTest {
 			.fetchSemanticsNode().boundsInRoot
 		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val place = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val room = onNodeWithText("MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val schedule = onNodeWithText("3-4 · 9:30–11:30 a. m.", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		assertTrue(title.left > icon.left, "the title is written after the icon")
-		assertTrue(subject.top >= title.bottom, "the subject is on the line under the title")
-		// The chip's box starts where the icon does, and its code sits inside the padding, less than the icon wide.
-		assertTrue(
-			subject.left >= icon.left - 1f && subject.left - icon.left < icon.width,
-			"the subject starts at the edge of the column, its code inside the chip's padding"
-		)
-		assertTrue(place.left >= subject.right, "the place is written after the subject")
-		assertTrue(abs(place.center.y - subject.center.y) <= 1f, "the place shares the line of the subject")
+		assertTrue(subject.left >= title.right, "the subject is written after the title")
+		assertTrue(abs(subject.center.y - title.center.y) <= 1f, "the subject shares the line of the title")
+		assertTrue(room.top >= title.bottom, "the room is on the line under the title")
+		assertTrue(abs(room.left - title.left) <= 1f, "the room starts where the title starts")
+		assertTrue(schedule.top >= room.bottom, "the schedule is under the room")
 	}
 
 	@Test
@@ -98,7 +96,7 @@ class SummaryClassRowViewUiTest {
 
 		val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode()
 		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode()
-		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val room = onNodeWithText("MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		val pillBaseline = pill.firstBaselineInRoot(paddingTop = TuIndiceSpacing.XSmall.value)
 		val titleBaseline = title.firstBaselineInRoot()
@@ -107,7 +105,7 @@ class SummaryClassRowViewUiTest {
 			abs(pillBaseline - titleBaseline) <= 1f,
 			"the pill's baseline is $pillBaseline and the title's is $titleBaseline"
 		)
-		assertTrue(pillBaseline < subject.top, "the pill's baseline is on the first line, above the subject")
+		assertTrue(pillBaseline < room.top, "the pill's baseline is on the first line, above the room")
 	}
 
 	@Test
@@ -147,7 +145,7 @@ class SummaryClassRowViewUiTest {
 		assertTextIsWhole("En curso", singleLine = true)
 		assertTextIsWhole("CLASE", singleLine = true)
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTextIsWhole("3-4 · MYS-210")
-		assertTextIsWhole("9:30–11:30 a. m.", singleLine = true)
+		assertTextIsWhole("MYS-210", singleLine = true)
+		assertTextIsWhole("3-4 · 9:30–11:30 a. m.")
 	}
 }

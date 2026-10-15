@@ -26739,7 +26739,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 406
+                        "line": 407
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26751,7 +26751,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 407
+                        "line": 408
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26763,7 +26763,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 409
+                        "line": 410
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26772,19 +26772,6 @@
                     "q": {
                         "type": "tag",
                         "value": "evaluation_place_f07ad77e4259171580e339784b1687de"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 410
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "contains": false,
-                        "type": "text",
-                        "value": "1-2 · MYS-116"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -26797,7 +26784,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "7:30–9:30 a. m."
+                        "value": "MYS-116"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -26810,11 +26797,24 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "Sin nota"
+                        "value": "1-2 · 7:30–9:30 a. m."
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
                         "line": 413
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "Sin nota"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 414
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26827,7 +26827,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 415
+                        "line": 416
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -26836,19 +26836,6 @@
                     "q": {
                         "type": "tag",
                         "value": "evaluation_place_29ba9acf1f4750da615caa4dfdf81cb7"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 420
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "contains": false,
-                        "type": "text",
-                        "value": "3-4 · MYS-210"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -26861,11 +26848,24 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "9:30–11:30 a. m."
+                        "value": "MYS-210"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
                         "line": 422
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "3-4 · 9:30–11:30 a. m."
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 423
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26878,7 +26878,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 424
+                        "line": 425
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -26890,13 +26890,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 429
+                        "line": 430
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "18889a94d1a20e3d",
+            "stepsHash": "e143461a9c485dab",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -26982,7 +26982,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 442
+                        "line": 443
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -26995,7 +26995,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 447
+                        "line": 448
                     },
                     "type": "tap"
                 },
@@ -27006,7 +27006,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 448
+                        "line": 449
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27019,7 +27019,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 449
+                        "line": 450
                     },
                     "type": "tap"
                 },
@@ -27030,7 +27030,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 450
+                        "line": 451
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -27042,7 +27042,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 451
+                        "line": 452
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27055,7 +27055,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 452
+                        "line": 453
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -27068,7 +27068,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 453
+                        "line": 454
                     },
                     "type": "tap"
                 },
@@ -27079,7 +27079,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 454
+                        "line": 455
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27091,7 +27091,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 455
+                        "line": 456
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27103,7 +27103,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 456
+                        "line": 457
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27115,7 +27115,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 457
+                        "line": 458
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -27128,7 +27128,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 460
+                        "line": 461
                     },
                     "type": "tap"
                 },
@@ -27136,19 +27136,7 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "En clase · 3-4 · MYS-210"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 461
-                    },
-                    "timeoutMs": 10000,
-                    "type": "waitGone"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_date_dialog_selection_place"
+                        "value": "En clase · 3-4 · 9:30–11:30 a. m."
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
@@ -27160,11 +27148,23 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "evaluation_date_dialog_selection"
+                        "value": "evaluation_date_dialog_selection_place"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
                         "line": 463
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitGone"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_date_dialog_selection"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 464
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27177,7 +27177,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 464
+                        "line": 465
                     },
                     "type": "tap"
                 },
@@ -27188,7 +27188,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 465
+                        "line": 466
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27197,11 +27197,11 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "En clase · 3-4 · MYS-210"
+                        "value": "En clase · 3-4 · 9:30–11:30 a. m."
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 466
+                        "line": 467
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27214,7 +27214,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 467
+                        "line": 468
                     },
                     "type": "tap"
                 },
@@ -27225,13 +27225,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 468
+                        "line": 469
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "71200ebf0c977047",
+            "stepsHash": "8360c38953880925",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -27317,7 +27317,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 480
+                        "line": 481
                     },
                     "type": "tap"
                 },
@@ -27328,7 +27328,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 481
+                        "line": 482
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -27340,7 +27340,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 482
+                        "line": 483
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27353,7 +27353,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 483
+                        "line": 484
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27365,7 +27365,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 484
+                        "line": 485
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -27405,7 +27405,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 486
+                        "line": 487
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"

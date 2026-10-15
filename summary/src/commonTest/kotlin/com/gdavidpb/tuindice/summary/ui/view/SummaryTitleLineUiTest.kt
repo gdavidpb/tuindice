@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileCopy
-import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -27,7 +26,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryTitleLineUiTest {
 	@Test
-	fun when_theTitleIsLongOnANarrowLine_then_itWrapsWhole_andTheStateStaysAtItsEnd() = runTuIndiceUiTest {
+	fun when_theTitleIsLongOnANarrowLine_then_itWrapsWhole_andTheSubjectStaysBesideIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WithLargeLetter {
 				Box(modifier = Modifier.width(240.dp)) {
@@ -35,71 +34,60 @@ class SummaryTitleLineUiTest {
 						icon = Icons.Outlined.FileCopy,
 						iconTag = "icon",
 						titleText = "TRABAJO ESCRITO 12",
-						modifier = Modifier.testTag("line"),
-						trailing = {
-							Box(modifier = Modifier.testTag("chip")) {
-								Text("Sin nota")
-							}
-						}
+						subjectCode = "CI5437",
+						modifier = Modifier.testTag("line")
 					)
 				}
 			}
 		}
 
-		val line = onNodeWithTag("line", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val chip = onNodeWithTag("chip", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 		val title = onNodeWithText("TRABAJO ESCRITO 12", useUnmergedTree = true).fetchSemanticsNode()
+		val line = onNodeWithTag("line", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val chip = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		assertTextIsWhole("TRABAJO ESCRITO 12")
-		assertTextIsWhole("Sin nota", singleLine = true)
+		assertTextIsWhole("CI5437", singleLine = true)
 		assertTrue(linesOf(title) >= 2, "the title takes two lines on a narrow line, it has ${linesOf(title)}")
-		assertTrue(abs(chip.right - line.right) <= 1f, "the state ends the line: chip ${chip.right}, line ${line.right}")
+		assertTrue(chip.right <= line.right + 1f, "the chip stays inside the line: chip ${chip.right}, line ${line.right}")
 	}
 
 	@Test
-	fun when_thereIsNoState_then_theTitleIsOnOneLine_andNothingFollowsIt() = runTuIndiceUiTest {
+	fun when_theSubjectIsGiven_then_itsChipIsBesideTheTitle_onItsLine() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			Box(modifier = Modifier.width(360.dp)) {
 				SummaryTitleLine(
 					icon = Icons.Outlined.FileCopy,
 					iconTag = "icon",
 					titleText = "PARCIAL 1",
-					modifier = Modifier.testTag("line")
+					subjectCode = "CI5437"
+				)
+			}
+		}
+
+		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val chip = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
+		assertTrue(chip.left >= title.right, "the chip is written after the title")
+		assertTrue(abs(chip.center.y - title.center.y) <= 1f, "the chip shares the line of the title")
+	}
+
+	@Test
+	fun when_theTitleIsShort_then_itKeepsOneLine() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.width(360.dp)) {
+				SummaryTitleLine(
+					icon = Icons.Outlined.FileCopy,
+					iconTag = "icon",
+					titleText = "PARCIAL 1",
+					subjectCode = "CI5437"
 				)
 			}
 		}
 
 		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode()
 
-		onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
 		assertEquals(1, linesOf(title), "a short title keeps one line")
-		onNodeWithTag("chip", useUnmergedTree = true).assertDoesNotExist()
-	}
-
-	@Test
-	fun when_theStateIsGiven_then_itIsAtTheEndOfTheLine_andTheTitleStaysBeforeIt() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			Box(modifier = Modifier.width(360.dp)) {
-				SummaryTitleLine(
-					icon = Icons.Outlined.FileCopy,
-					iconTag = "icon",
-					titleText = "PARCIAL 1",
-					modifier = Modifier.testTag("line"),
-					trailing = {
-						Box(modifier = Modifier.testTag("chip")) {
-							Text("Completada")
-						}
-					}
-				)
-			}
-		}
-
-		val line = onNodeWithTag("line", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val chip = onNodeWithTag("chip", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-
-		assertTrue(abs(chip.right - line.right) <= 1f, "the state ends the line: chip ${chip.right}, line ${line.right}")
-		assertTrue(title.right <= chip.left, "the title is written before the state")
 	}
 
 	// How many lines the text of the node lays out to, as the layout of the text reports them.

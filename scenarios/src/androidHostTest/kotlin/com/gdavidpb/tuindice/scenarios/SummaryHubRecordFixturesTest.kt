@@ -117,7 +117,7 @@ class SummaryHubRecordFixturesTest {
 		val monday = meetings.single { it.attempt == E2eFixtures.HubAttemptCi5311.value && it.day == MONDAY_CODE }
 		val thursday = meetings.single { it.attempt == E2eFixtures.HubAttemptCi5437.value && it.day == THURSDAY_CODE }
 
-		// Copy.PlaceBlocks12Mys116 and Copy.PlaceBlocks34Mys210.
+		// Copy.RoomMys116 and Copy.RoomMys210, with their schedules Copy.ScheduleBlocks12 and Copy.ScheduleBlocks34.
 		assertEquals(listOf(1, 2, "MYS-116"), listOf(monday.start, monday.end, monday.room))
 		assertEquals(
 			listOf(THURSDAY_FIRST_BLOCK, THURSDAY_LAST_BLOCK, "MYS-210"),

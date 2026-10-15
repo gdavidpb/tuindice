@@ -17,13 +17,13 @@ import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
-import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLine
+import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLines
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 /**
- * What the date dialog says under its calendar about the chosen day: the date and, when the subject
- * has class that day, where ("En clase · 1-2 · MYS-116") with its hours after, lighter. On a
- * day without class it is only the date.
+ * What the date dialog says under its calendar about the chosen day: the date and, when the subject has class that day,
+ * where it meets, in the same lines an evaluation's place has in the list: the room, and under it the schedule, said as
+ * "En clase" on that day. On a day without class it is only the date.
  */
 @Composable
 fun EvaluationDateSelectionSummary(
@@ -50,7 +50,7 @@ fun EvaluationDateSelectionSummary(
 		)
 
 		classPlace?.let { place ->
-			ClassPlaceLine(
+			ClassPlaceLines(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogSelectionPlace),
 				place = place
 			)

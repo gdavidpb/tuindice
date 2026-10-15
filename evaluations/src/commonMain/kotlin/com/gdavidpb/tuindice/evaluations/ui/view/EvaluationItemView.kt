@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +27,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
-import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLine
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLines
+import com.gdavidpb.tuindice.base.ui.view.MetadataLine
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
@@ -123,15 +125,22 @@ fun EvaluationItemView(
 							contentDescription = null
 						)
 
+						// The name wraps when the room beside it runs out, and the subject's chip is never cut.
 						Text(
 							modifier = Modifier
-								.weight(1f)
+								.weight(1f, fill = false)
 								.padding(start = 8.dp),
 							text = item.typeNameText,
-							maxLines = 1,
-							overflow = TextOverflow.Ellipsis,
 							color = MaterialTheme.colorScheme.onBackground,
 							style = MaterialTheme.typography.titleMedium,
+						)
+
+						SubjectCodeChip(
+							modifier = Modifier.padding(start = 8.dp),
+							subjectCode = item.subjectCodeText,
+							variant = SubjectCodeChipVariant.Dense,
+							containerColor = item.subjectCodeContainerColor,
+							contentColor = item.subjectCodeColor
 						)
 					}
 
@@ -155,47 +164,24 @@ fun EvaluationItemView(
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(top = EvaluationSubjectTopPadding),
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					SubjectCodeChip(
-						subjectCode = item.subjectCodeText,
-						variant = SubjectCodeChipVariant.Dense,
-						containerColor = item.subjectCodeContainerColor,
-						contentColor = item.subjectCodeColor
-					)
-				}
-
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
 						.padding(top = EvaluationMetadataTopPadding),
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					// It takes only what the grade button leaves: the place line wraps inside it instead of
-					// squeezing the button, which keeps the size it has on a row without a place.
-					Column(modifier = Modifier.weight(1f)) {
-						Row(verticalAlignment = Alignment.CenterVertically) {
-							Icon(
-								modifier = Modifier.size(18.dp),
-								imageVector = item.dateIcon,
-								tint = metadataColor,
-								contentDescription = null
-							)
-
-							Text(
-								modifier = Modifier.padding(start = 8.dp),
-								text = item.dateText.asString(),
-								color = metadataColor,
-								style = MaterialTheme.typography.bodyMedium
-							)
-						}
+					// It takes only what the grade button leaves: the lines wrap inside it instead of squeezing the
+					// button, which keeps the size it has on a row without a place.
+					Column(
+						modifier = Modifier.weight(1f),
+						verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
+					) {
+						MetadataLine(
+							icon = item.dateIcon,
+							text = item.dateText.asString(),
+							color = metadataColor
+						)
 
 						item.place?.let { place ->
-							ClassPlaceLine(
-								modifier = Modifier
-									.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId))
-									.padding(start = EvaluationPlaceStartPadding),
+							ClassPlaceLines(
+								modifier = Modifier.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId)),
 								place = place
 							)
 						}
@@ -237,11 +223,7 @@ fun EvaluationItemView(
 private val EvaluationCardHorizontalPadding = 16.dp
 private val EvaluationCardVerticalPadding = 6.dp
 private val EvaluationCardContentPadding = 14.dp
-private val EvaluationSubjectTopPadding = 8.dp
-private val EvaluationMetadataTopPadding = 12.dp
-
-// Under the date text: the date icon (18dp) and the gap after it (8dp).
-private val EvaluationPlaceStartPadding = 26.dp
+private val EvaluationMetadataTopPadding = 8.dp
 private val EvaluationGradeHorizontalPadding = 20.dp
 private val EvaluationGradeVerticalPadding = 8.dp
 

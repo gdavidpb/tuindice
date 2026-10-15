@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryEvaluationRowViewUiTest {
 	@Test
-	fun when_evaluationHasAPlace_then_rowShowsDayIconNameSubjectAndBlocksButNoHour() = runTuIndiceUiTest {
+	fun when_evaluationHasAPlace_then_rowShowsDayIconNameSubjectRoomAndBlocksButNoHour() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(item = summaryEvaluationRowItem(), onClick = {})
 		}
@@ -37,7 +37,8 @@ class SummaryEvaluationRowViewUiTest {
 		onNodeWithTag(SummaryEvaluationRowUiTags.typeIcon("evaluation-1"), useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("PARCIAL 1", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("CI5437", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("MYS-210", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3-4", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("9:30–11:30 a. m.", useUnmergedTree = true).assertDoesNotExist()
 	}
 
@@ -68,7 +69,7 @@ class SummaryEvaluationRowViewUiTest {
 	}
 
 	@Test
-	fun when_theRowIsDrawn_then_theSubjectStartsWhereTheNameStarts_andThePlaceSharesItsLine() = runTuIndiceUiTest {
+	fun when_theRowIsDrawn_then_theSubjectIsBesideTheName_andThePlaceStartsUnderIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
 			Box(modifier = Modifier.width(600.dp)) {
 				SummaryEvaluationRowView(
@@ -82,21 +83,19 @@ class SummaryEvaluationRowViewUiTest {
 			.fetchSemanticsNode().boundsInRoot
 		val name = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val place = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val room = onNodeWithText("MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val schedule = onNodeWithText("3-4", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		assertTrue(name.left > icon.left, "the name is written after the icon")
-		assertTrue(subject.top >= name.bottom, "the subject is on the line under the name")
-		// The chip's box starts where the icon does, and its code sits inside the padding, less than the icon wide.
-		assertTrue(
-			subject.left >= icon.left - 1f && subject.left - icon.left < icon.width,
-			"the subject starts at the edge of the column, its code inside the chip's padding"
-		)
-		assertTrue(place.left >= subject.right, "the place is written after the subject")
-		assertTrue(abs(place.center.y - subject.center.y) <= 1f, "the place shares the line of the subject")
+		assertTrue(subject.left >= name.right, "the subject is written after the name")
+		assertTrue(abs(subject.center.y - name.center.y) <= 1f, "the subject shares the line of the name")
+		assertTrue(room.top >= name.bottom, "the room is on the line under the name")
+		assertTrue(abs(room.left - name.left) <= 1f, "the room starts where the name starts")
+		assertTrue(schedule.top >= room.bottom, "the schedule is under the room")
 	}
 
 	@Test
-	fun when_theLeadIsDrawn_then_itsBaselineIsTheBaselineOfTheName_aboveTheSubject() = runTuIndiceUiTest {
+	fun when_theLeadIsDrawn_then_itsBaselineIsTheBaselineOfTheName_aboveThePlace() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(
 				item = summaryEvaluationRowItem().copy(statusText = UiText.Raw("Completada")),
@@ -107,7 +106,7 @@ class SummaryEvaluationRowViewUiTest {
 		val day = onNodeWithTag(SummaryEvaluationRowUiTags.lead("evaluation-1"), useUnmergedTree = true)
 			.fetchSemanticsNode()
 		val name = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode()
-		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val room = onNodeWithText("MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		val dayBaseline = day.firstBaselineInRoot()
 		val nameBaseline = name.firstBaselineInRoot()
@@ -116,7 +115,7 @@ class SummaryEvaluationRowViewUiTest {
 			abs(dayBaseline - nameBaseline) <= 1f,
 			"the day's baseline is $dayBaseline and the name's is $nameBaseline"
 		)
-		assertTrue(dayBaseline < subject.top, "the day's baseline is on the first line, above the subject")
+		assertTrue(dayBaseline < room.top, "the day's baseline is on the first line, above the place")
 	}
 
 	@Test
@@ -135,7 +134,8 @@ class SummaryEvaluationRowViewUiTest {
 
 		onNodeWithText("Vie 16", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("ENSAYO 1", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText("MYS-210", useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText("3-4", useUnmergedTree = true).assertDoesNotExist()
 	}
 
 	@Test
@@ -179,6 +179,7 @@ class SummaryEvaluationRowViewUiTest {
 		assertTextIsWhole("TRABAJO ESCRITO 12")
 		assertTextIsWhole("Sin nota", singleLine = true)
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTextIsWhole("3-4 · MYS-210")
+		assertTextIsWhole("MYS-210", singleLine = true)
+		assertTextIsWhole("3-4", singleLine = true)
 	}
 }

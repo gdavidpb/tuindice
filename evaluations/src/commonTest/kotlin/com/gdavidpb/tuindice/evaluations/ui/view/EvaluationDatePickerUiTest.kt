@@ -227,10 +227,10 @@ class EvaluationDatePickerUiTest {
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSubjectChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDateDialogSelection)
 		waitUntil(timeoutMillis = RESOURCE_TIMEOUT_MILLIS) {
-			onAllNodesWithText("En clase · 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+			onAllNodesWithText("En clase · 1-2 · 7:30–9:30 a. m.").fetchSemanticsNodes().isNotEmpty()
 		}
 		onNodeWithText("Lunes — 12/10/26").assertIsDisplayed()
-		onNodeWithText("7:30\u20139:30 a. m.").assertIsDisplayed()
+		onNodeWithText("MYS-116").assertIsDisplayed()
 		// Mondays of October 2026 carry the dot, the days between them do not.
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(12))
 		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(19))

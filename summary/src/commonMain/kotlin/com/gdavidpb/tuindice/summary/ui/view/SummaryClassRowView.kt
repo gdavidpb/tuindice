@@ -19,9 +19,10 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.a11y_summary_open_schedule
 
 /**
- * The class in progress or next, first row of the week, drawn in the shape of an evaluation row: its icon and its title
- * ("CLASE") first, and under them the chip of its subject with its blocks, its room and its hour beside it. Tapping it
- * opens the Schedule sheet; it announces itself as one thing and says where the tap leads.
+ * The class in progress or next, first row of the week, drawn in the shape of an evaluation row: its icon
+ * and its title ("CLASE") first, with the chip of its subject beside the title, and under them its room and
+ * its schedule with the hours. Tapping it opens the Schedule sheet; it announces itself as one thing and
+ * says where the tap leads.
  */
 @Composable
 fun SummaryClassRowView(
@@ -52,10 +53,10 @@ fun SummaryClassRowView(
 			SummaryTitleLine(
 				icon = item.icon,
 				iconTag = SummaryClassRowUiTags.TitleIcon,
-				titleText = item.titleText.asString()
+				titleText = item.titleText.asString(),
+				subjectCode = item.subjectCode
 			)
 		},
-		subjectCode = item.subjectCode,
 		place = item.place
 	)
 }

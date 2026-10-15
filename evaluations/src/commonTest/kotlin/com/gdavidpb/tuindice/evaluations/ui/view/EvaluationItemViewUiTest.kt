@@ -41,6 +41,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -124,11 +125,26 @@ class EvaluationItemViewUiTest {
 	}
 
 	@Test
-	fun when_theEvaluationInheritsAPlace_then_showsTheBlocksAndTheHourUnderTheDate() = runTuIndiceUiTest {
-		val item = evaluationItemFixture().copy(
+	fun when_theSubjectIsGiven_then_itsChipIsBesideTheNameOnItsLine() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "chip")
+
+		setTuIndiceTestContent {
+			EvaluationItemView(item = item)
+		}
+
+		val name = onNodeWithText(item.typeNameText, useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val chip = onNodeWithText(item.subjectCodeText, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+		assertTrue(chip.left >= name.right, "the subject's chip is written after the name")
+		assertTrue(abs(centerY(chip) - centerY(name)) <= 4f, "the chip shares the line of the name")
+	}
+
+	@Test
+	fun when_theEvaluationInheritsAPlace_then_showsTheRoomAndTheScheduleUnderTheDate() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(isOverdue = true).copy(
 			place = ClassPlaceItem(
-				placeText = UiText.Raw("1-2 · MYS-116"),
-				timeText = UiText.Raw("7:30\u20139:30 a. m.")
+				room = "MYS-116",
+				scheduleText = UiText.Raw("1-2 · 7:30–9:30 a. m.")
 			)
 		)
 
@@ -136,13 +152,24 @@ class EvaluationItemViewUiTest {
 			EvaluationItemView(item = item)
 		}
 
-		// The card merges its children: the line is read from the unmerged tree, like the status chip.
+		// The card merges its children: the lines are read from the unmerged tree, like the status chip.
 		onNodeWithTag(
 			testTag = EvaluationsUiTags.evaluationPlace(item.evaluationId),
 			useUnmergedTree = true
 		).assertIsDisplayed()
-		onNodeWithText("1-2 · MYS-116").assertIsDisplayed()
-		onNodeWithText("7:30\u20139:30 a. m.").assertIsDisplayed()
+		onNodeWithText("MYS-116", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("1-2 · 7:30–9:30 a. m.", useUnmergedTree = true).assertIsDisplayed()
+
+		val date = onNodeWithText(FIXTURE_OVERDUE_DATE_TEXT, useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val name = onNodeWithText(item.typeNameText, useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val room = onNodeWithText("MYS-116", useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val schedule = onNodeWithText("1-2 · 7:30–9:30 a. m.", useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+		// The room goes under the date and the schedule under the room, and each one starts where the name starts.
+		assertTrue(room.top >= date.bottom, "the room must be under the date")
+		assertTrue(schedule.top >= room.bottom, "the schedule must be under the room")
+		assertTrue(abs(room.left.value - name.left.value) <= 0.5f, "the room must start where the name starts")
+		assertTrue(abs(schedule.left.value - name.left.value) <= 0.5f, "the schedule must start where the name starts")
 	}
 
 	@Test
@@ -170,7 +197,7 @@ class EvaluationItemViewUiTest {
 			}
 		}
 
-		// The place line wraps inside the space the button leaves, it never squeezes the button.
+		// The place lines wrap inside the space the button leaves, they never squeeze the button.
 		assertEquals(gradeButtonBounds("plain").size(), gradeButtonBounds("placed").size())
 	}
 
@@ -191,8 +218,8 @@ class EvaluationItemViewUiTest {
 		assertEquals(gradeButtonBounds("plain").size(), gradeButtonBounds("placed").size())
 
 		// Whole: nothing cut with an ellipsis, however many lines it takes.
-		assertTextIsWhole(text = "10-11 · $LONG_ROOM", evaluationId = "placed")
-		onNodeWithText("4:30–6:30 p. m.", useUnmergedTree = true).assertIsDisplayed()
+		assertTextIsWhole(text = LONG_ROOM, evaluationId = "placed")
+		assertTextIsWhole(text = "10-11 · 4:30–6:30 p. m.", evaluationId = "placed")
 	}
 
 	@Test
@@ -212,6 +239,22 @@ class EvaluationItemViewUiTest {
 		assertDateIsWhole("long")
 		// The button takes what it needs first; a long date goes to the next line instead of narrowing it.
 		assertEquals(gradeButtonBounds("short").size(), gradeButtonBounds("long").size())
+	}
+
+	@Test
+	fun when_theNameIsLongAndTheLetterIsLarge_then_theNameWraps_andTheChipStaysWhole() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "long-name").copy(typeNameText = LONG_NAME)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
+				Box(modifier = Modifier.width(360.dp)) {
+					EvaluationItemView(item = item)
+				}
+			}
+		}
+
+		assertTextIsWhole(text = LONG_NAME, evaluationId = "long-name")
+		assertTextIsWhole(text = item.subjectCodeText, evaluationId = "long-name")
 	}
 
 	@Test
@@ -307,11 +350,14 @@ class EvaluationItemViewUiTest {
 			.getUnclippedBoundsInRoot()
 	}
 
+	private fun centerY(bounds: DpRect): Float = (bounds.top.value + bounds.bottom.value) / 2f
+
 	private fun DpRect.size() = DpSize(width = width, height = height)
 
 	private companion object {
 		const val LONG_DATE = "Miércoles — 25/11/26"
 		const val LONG_ROOM = "LAB-FIS-201 Edificio de Laboratorios"
+		const val LONG_NAME = "Examen de recuperación del segundo parcial"
 		const val HostTag = "evaluation_arrival_host"
 		const val ARRIVAL = "arrival-1"
 		const val FADE_IN_MILLIS = 300L

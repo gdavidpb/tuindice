@@ -3,9 +3,7 @@ package com.gdavidpb.tuindice.base.presentation.mapper
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.base.generated.resources.Res
-import tuindice.base.generated.resources.class_place_block
-import tuindice.base.generated.resources.class_place_blocks
-import tuindice.base.generated.resources.class_place_with_room
+import tuindice.base.generated.resources.class_place_with_time
 import tuindice.base.generated.resources.class_time_range
 import tuindice.base.generated.resources.class_time_range_same_period
 import tuindice.base.generated.resources.date_time_am
@@ -16,11 +14,11 @@ private const val NOON_HOUR = 12
 private const val HOURS_PER_HALF_DAY = 12
 
 /**
- * The place of a class from [startBlock] to [endBlock] in [classroom]: "1-2 · MYS-116" ("3 · MYS-116"
- * for a single block), the way the university says it, where the numbers before a room are known to
- * be the blocks. Only a class with no room names them ("Bloques 1-2", "Bloque 3"), so the line is
- * never a bare number. When [clockRange] says where those blocks fall in the day, their hours follow.
- * It is the one way surfaces say "where is this class".
+ * The place of a class from [startBlock] to [endBlock] in [classroom]. The room is [classroom] itself, or none
+ * when it is blank. The schedule is the blocks ("1-2", or "3" for a single block) and, when [clockRange] says
+ * where those blocks fall in the day, their hours after them ("1-2 · 7:30–9:30 a. m."). The blocks are always
+ * there, so a class is never left without a time, and a block is never named with a word: the line is the
+ * number, or the number and the hours.
  */
 fun classPlaceItem(
 	startBlock: Int,
@@ -28,19 +26,15 @@ fun classPlaceItem(
 	classroom: String,
 	clockRange: IntRange?
 ): ClassPlaceItem {
-	val isSingleBlock = startBlock == endBlock
-	val placeText = when {
-		classroom.isNotBlank() -> {
-			val blocks = if (isSingleBlock) "$startBlock" else "$startBlock-$endBlock"
+	val blocks = if (startBlock == endBlock) "$startBlock" else "$startBlock-$endBlock"
+	val scheduleText = clockRange?.let { range ->
+		UiText.Resource(Res.string.class_place_with_time, listOf(blocks, range.toClockRangeText()))
+	} ?: UiText.Raw(blocks)
 
-			UiText.Resource(Res.string.class_place_with_room, listOf(blocks, classroom))
-		}
-
-		isSingleBlock -> UiText.Resource(Res.string.class_place_block, listOf(startBlock))
-		else -> UiText.Resource(Res.string.class_place_blocks, listOf(startBlock, endBlock))
-	}
-
-	return ClassPlaceItem(placeText = placeText, timeText = clockRange?.toClockRangeText())
+	return ClassPlaceItem(
+		room = classroom.takeIf { room -> room.isNotBlank() },
+		scheduleText = scheduleText
+	)
 }
 
 /**

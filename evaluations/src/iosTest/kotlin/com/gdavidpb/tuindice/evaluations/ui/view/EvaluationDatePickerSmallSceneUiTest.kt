@@ -59,7 +59,7 @@ class EvaluationDatePickerSmallSceneUiTest {
 
 			onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).performClick()
 			waitUntil(timeoutMillis = 5_000L) {
-				onAllNodesWithText("En clase · 1-2 · MYS-116").fetchSemanticsNodes().isNotEmpty()
+				onAllNodesWithText("En clase · 1-2 · 7:30–9:30 a. m.").fetchSemanticsNodes().isNotEmpty()
 			}
 
 			val summary = onNodeWithTag(EvaluationsUiTags.EvaluationDateDialogSelection)

@@ -248,7 +248,7 @@ class SummaryHubItemTest {
 		assertEquals(UiText.Uppercase(UiText.Resource(Res.string.summary_class_name)), row.titleText)
 		assertEquals(Icons.Outlined.School.name, row.icon.name)
 		assertEquals(classPlaceItem(3, 4, "MYS-210", clockRange = 570..690), row.place)
-		assertTrue(row.place.timeText != null)
+		assertTrue(row.place.room == "MYS-210")
 	}
 
 	@Test
@@ -274,7 +274,10 @@ class SummaryHubItemTest {
 		val late = meeting.copy(startBlock = 17, endBlock = 17)
 		val moment = SummaryClassMoment(late, isInProgress = false, date = LocalDate(2026, 10, 15), isToday = true)
 
-		assertNull(inProgress(moment, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!.place.timeText)
+		assertEquals(
+			UiText.Raw("17"),
+			inProgress(moment, emptyList(), hasSchedule = true).toSummaryWeekItem().classRow!!.place.scheduleText
+		)
 	}
 
 	@Test
@@ -303,7 +306,7 @@ class SummaryHubItemTest {
 		)
 		assertEquals(mondayLead(), row.leadText)
 		assertEquals(classPlaceItem(3, 4, "MYS-210", clockRange = null), row.place)
-		assertNull(row.place?.timeText)
+		assertEquals(UiText.Raw("3-4"), row.place?.scheduleText)
 		assertEquals(LocalDate(2026, 10, 19), row.weekStart)
 	}
 

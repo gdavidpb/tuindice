@@ -108,13 +108,17 @@ object Copy {
 	const val EvaluationsNotEnrolledTitle = "No estás inscrito en este trimestre"
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
 	const val EvaluationNoGrade = "Sin nota"
-	const val InClassBlocks34Mys210 = "En clase · 3-4 · MYS-210"
 
-	// base: where a class meets, as an evaluation inherits it
-	const val PlaceBlocks12Mys116 = "1-2 · MYS-116"
-	const val PlaceBlocks34Mys210 = "3-4 · MYS-210"
+	// base: where a class meets, as an evaluation inherits it: the room on a line of its own, the schedule under it
+	const val RoomMys116 = "MYS-116"
+	const val RoomMys210 = "MYS-210"
 	const val TimeBlocks12 = "7:30–9:30 a. m."
 	const val TimeBlocks34 = "9:30–11:30 a. m."
+	const val ScheduleBlocks12 = "1-2 · $TimeBlocks12"
+	const val ScheduleBlocks34 = "3-4 · $TimeBlocks34"
+
+	// evaluations: the place of a class day, as the date picker says it under the calendar
+	const val InClassBlocks34 = "En clase · $ScheduleBlocks34"
 
 	/** The binding of every constant above. */
 	val bindings: List<CopyBinding> = listOf(
@@ -132,13 +136,15 @@ object Copy {
 		),
 		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
 		CopyBinding.Resource(
-			InClassBlocks34Mys210,
+			InClassBlocks34,
 			"evaluations",
 			"evaluation_place_in_class",
-			listOf("3-4 · MYS-210")
+			listOf(ScheduleBlocks34)
 		),
-		CopyBinding.Resource(PlaceBlocks12Mys116, "base", "class_place_with_room", listOf("1-2", "MYS-116")),
-		CopyBinding.Resource(PlaceBlocks34Mys210, "base", "class_place_with_room", listOf("3-4", "MYS-210")),
+		CopyBinding.MockData(RoomMys116, "mocks/__files/record/get-record-summary-hub.json"),
+		CopyBinding.MockData(RoomMys210, "mocks/__files/record/get-record-summary-hub.json"),
+		CopyBinding.Resource(ScheduleBlocks12, "base", "class_place_with_time", listOf("1-2", TimeBlocks12)),
+		CopyBinding.Resource(ScheduleBlocks34, "base", "class_place_with_time", listOf("3-4", TimeBlocks34)),
 		CopyBinding.Resource(TimeBlocks12, "base", "class_time_range_same_period", listOf("7:30", "9:30", "a. m.")),
 		CopyBinding.Resource(TimeBlocks34, "base", "class_time_range_same_period", listOf("9:30", "11:30", "a. m.")),
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),

@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.base.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.base.generated.resources.Res
-import tuindice.base.generated.resources.class_place_block
-import tuindice.base.generated.resources.class_place_blocks
-import tuindice.base.generated.resources.class_place_with_room
+import tuindice.base.generated.resources.class_place_with_time
 import tuindice.base.generated.resources.class_time_range
 import tuindice.base.generated.resources.class_time_range_same_period
 import tuindice.base.generated.resources.date_time_am
@@ -14,60 +12,60 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 // What classPlaceItem and toClockRangeText describe: the template, its numbers and the half of the
-// day by their place in the resources. The Spanish they read as is asserted in ClassPlaceLineUiTest.
+// day by their place in the resources. The Spanish they read as is asserted in ClassPlaceLinesUiTest.
 class ClassPlaceTest {
 	private val am = UiText.Resource(Res.string.date_time_am)
 	private val pm = UiText.Resource(Res.string.date_time_pm)
 
 	@Test
-	fun classPlaceItem_ofSeveralBlocks_saysTheRangeAndTheRoom() {
+	fun classPlaceItem_withARoom_carriesTheRoomAlone() {
 		val place = classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = null)
 
+		assertEquals("MYS-116", place.room)
+	}
+
+	@Test
+	fun classPlaceItem_withoutARoom_hasNoRoom_whetherTheRoomIsEmptyOrBlank() {
+		assertNull(classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = null).room)
+		assertNull(classPlaceItem(startBlock = 5, endBlock = 5, classroom = "  ", clockRange = null).room)
+	}
+
+	@Test
+	fun classPlaceItem_ofSeveralBlocks_withoutHours_isTheRangeAlone() {
 		assertEquals(
-			UiText.Resource(
-				Res.string.class_place_with_room,
-				listOf("1-2", "MYS-116")
-			),
-			place.placeText
+			UiText.Raw("1-2"),
+			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = null).scheduleText
 		)
 	}
 
 	@Test
-	fun classPlaceItem_ofASingleBlock_saysItsNumberAndTheRoom() {
-		val place = classPlaceItem(startBlock = 3, endBlock = 3, classroom = "MYS-116", clockRange = null)
-
+	fun classPlaceItem_ofASingleBlock_withoutHours_isItsNumberAlone() {
 		assertEquals(
-			UiText.Resource(
-				Res.string.class_place_with_room,
-				listOf("3", "MYS-116")
-			),
-			place.placeText
+			UiText.Raw("3"),
+			classPlaceItem(startBlock = 3, endBlock = 3, classroom = "MYS-116", clockRange = null).scheduleText
 		)
 	}
 
 	@Test
-	fun classPlaceItem_withoutARoom_namesTheBlocksSoTheLineIsNotABareNumber() {
-		assertEquals(
-			UiText.Resource(Res.string.class_place_blocks, listOf(1, 2)),
-			classPlaceItem(startBlock = 1, endBlock = 2, classroom = "", clockRange = null).placeText
-		)
-		assertEquals(
-			UiText.Resource(Res.string.class_place_block, listOf(5)),
-			classPlaceItem(startBlock = 5, endBlock = 5, classroom = "  ", clockRange = null).placeText
-		)
-	}
-
-	@Test
-	fun classPlaceItem_withoutAClockRange_hasNoHours() {
-		// A block that falls outside the day has no range: an hour for it would be wrong, not late.
-		assertNull(classPlaceItem(startBlock = 17, endBlock = 17, classroom = "MYS-116", clockRange = null).timeText)
-	}
-
-	@Test
-	fun classPlaceItem_withAClockRange_carriesItsHours() {
+	fun classPlaceItem_withAClockRange_saysTheBlocksAndTheirHours() {
 		val place = classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = 450..570)
 
-		assertEquals((450..570).toClockRangeText(), place.timeText)
+		assertEquals(
+			UiText.Resource(
+				Res.string.class_place_with_time,
+				listOf("1-2", (450..570).toClockRangeText())
+			),
+			place.scheduleText
+		)
+	}
+
+	@Test
+	fun classPlaceItem_outsideTheDay_hasTheBlocksAloneAndNoHours() {
+		// A block that falls outside the day has no range: an hour for it would be wrong, not late.
+		assertEquals(
+			UiText.Raw("17"),
+			classPlaceItem(startBlock = 17, endBlock = 17, classroom = "MYS-116", clockRange = null).scheduleText
+		)
 	}
 
 	@Test

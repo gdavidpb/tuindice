@@ -31,18 +31,21 @@ fun List<ScheduleMeeting>.hasClassOn(date: LocalDate): Boolean {
 }
 
 /**
- * The place of the class on [date] for the day chosen in the date editor, said as "En clase · 1-2 ·
- * MYS-116", or null when there is no class that day.
+ * The place of the class on [date] for the day chosen in the date editor: its room, and its schedule said as
+ * "En clase · 1-2 · 7:30–9:30 a. m.", or null when there is no class that day.
  */
 fun List<ScheduleMeeting>.classPlaceOn(date: LocalDate): ClassPlaceItem? {
 	return AcademicScheduleEngine.meetingFor(attemptMeetings = this, date = date)?.let { meeting ->
 		val place = meeting.toClassPlaceItem()
 
-		place.copy(placeText = UiText.Resource(Res.string.evaluation_place_in_class, listOf(place.placeText)))
+		place.copy(scheduleText = UiText.Resource(Res.string.evaluation_place_in_class, listOf(place.scheduleText)))
 	}
 }
 
-/** "1-2 · MYS-116" (or "Bloques 1-2", named only when the meeting has no room) and its hours. */
+/**
+ * The room of the meeting and its schedule: "1-2 · 7:30–9:30 a. m.", with the hours only when the blocks
+ * fall in the day.
+ */
 fun ScheduleMeeting.toClassPlaceItem(): ClassPlaceItem {
 	return classPlaceItem(
 		startBlock = startBlock,

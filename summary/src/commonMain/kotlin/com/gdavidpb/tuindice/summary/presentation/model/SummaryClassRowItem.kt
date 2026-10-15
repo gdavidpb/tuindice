@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 /**
  * The first row of the week: [leadText] is "En curso" ([isInProgress]) or the day of the next class
  * ("Hoy", "Lun 19"). [icon] and [titleText] title the row as an evaluation's are titled ("CLASE" in capitals);
- * [place] carries the blocks, the room and, after them, the hour.
+ * [place] carries the room, and the schedule with its blocks and, after them, its hours.
  */
 @Immutable
 data class SummaryClassRowItem(
