@@ -21,13 +21,12 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.presentation.mapper.toBlockInfo
-import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarChart
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarPoint
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsReference
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsBarPoints
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsReference
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 
@@ -73,18 +72,8 @@ private fun ColumnScope.PaceData(
 	summary: String,
 	chartActionLabel: String
 ) {
-	val bars = data.bars.map { bar ->
-		StatisticsBarPoint(
-			label = bar.tooltip.title.asString(),
-			value = bar.value,
-			tooltip = bar.tooltip.toRichText(),
-			axisLabel = bar.axisLabel.asString()
-		)
-	}
-	val reference = StatisticsReference(
-		value = data.reference.value,
-		label = data.reference.label.asString()
-	)
+	val bars = data.bars.toStatisticsBarPoints()
+	val reference = data.reference.toStatisticsReference()
 
 	SummaryStatisticsFigureView(figure = data.figure)
 

@@ -130,7 +130,7 @@ private fun BoxScope.BarColumns(
 				bar.valueLabel?.let { valueLabel ->
 					StatisticsValueLabel(
 						text = valueLabel,
-						tag = StatisticsLabelTags.value(labels.key, index),
+						tag = StatisticsLabelUiTags.value(labels.key, index),
 						shownFraction = shownFraction,
 						columnWidth = columnWidth
 					)

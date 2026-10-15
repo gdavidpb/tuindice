@@ -6,12 +6,11 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.summary.presentation.mapper.toBlockInfo
-import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarChart
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarPoint
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsBarPoints
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -55,15 +54,7 @@ private fun ColumnScope.GradesData(
 	summary: String,
 	chartActionLabel: String
 ) {
-	val bars = data.bars.map { bar ->
-		StatisticsBarPoint(
-			label = bar.tooltip.title.asString(),
-			value = bar.value,
-			tooltip = bar.tooltip.toRichText(),
-			axisLabel = bar.axisLabel.asString(),
-			valueLabel = bar.valueLabel?.asString()
-		)
-	}
+	val bars = data.bars.toStatisticsBarPoints()
 
 	key(bars) {
 		StatisticsBarChart(

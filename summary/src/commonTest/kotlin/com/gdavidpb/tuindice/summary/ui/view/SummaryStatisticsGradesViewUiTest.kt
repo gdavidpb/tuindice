@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelTags
+import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -27,11 +27,11 @@ class SummaryStatisticsGradesViewUiTest {
 		waitForIdle()
 
 		onNodeWithTag(
-			testTag = StatisticsLabelTags.value(SummaryStatisticsChartKey.Grades, 3),
+			testTag = StatisticsLabelUiTags.value(SummaryStatisticsChartKey.Grades, 3),
 			useUnmergedTree = true
 		).assertTextEquals("21")
 		onNodeWithTag(
-			testTag = StatisticsLabelTags.axis(SummaryStatisticsChartKey.Grades, 3),
+			testTag = StatisticsLabelUiTags.axis(SummaryStatisticsChartKey.Grades, 3),
 			useUnmergedTree = true
 		).assertTextEquals("4")
 		assertNodeVisible(SummaryUiTags.StatisticsFacts)

@@ -137,7 +137,7 @@ Los gráficos viven en `summary/.../ui/chart/` y se dibujan con composables de l
 - `StatisticsChartGeometry`: la aritmética de los gráficos como funciones puras, sin Compose (columnas, anchos, fracciones y reparto de objetivos), probada como números.
 - `StatisticsChartDefaults`: medidas y duraciones. Los colores, las opacidades, los radios y la duración salen de `AcademicStatusColors`, `TuIndiceAlpha`, `TuIndiceRadius` y `TuIndiceAnimation`; el alto del gráfico (168 dp), los marcadores (8 dp), la línea (2 dp) son propios del gráfico; la barra apilada toma la altura de `TuIndiceProgressBar` (6 dp).
 - `StatisticsScrollFrame`: el desplazamiento horizontal y el fundido de los bordes.
-- `StatisticsAxisLabels` y `StatisticsChartLabels` (clave, resumen y acción de cada gráfico); las etiquetas de prueba están en `StatisticsLabelTags` y `StatisticsTooltipUiTags`.
+- `StatisticsAxisLabels` y `StatisticsChartLabels` (clave, resumen y acción de cada gráfico); las etiquetas de prueba están en `StatisticsLabelUiTags` y `StatisticsTooltipUiTags`.
 
 Comportamiento:
 

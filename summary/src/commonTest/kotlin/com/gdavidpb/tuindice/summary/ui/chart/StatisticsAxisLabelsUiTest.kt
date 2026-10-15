@@ -62,7 +62,7 @@ class StatisticsAxisLabelsUiTest {
 	private fun ComposeUiTest.boundsOf(tag: String) =
 		onNodeWithTag(testTag = tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-	private fun axisTag(index: Int): String = StatisticsLabelTags.axis(CHART_KEY, index)
+	private fun axisTag(index: Int): String = StatisticsLabelUiTags.axis(CHART_KEY, index)
 
 	private companion object {
 		const val CHART_KEY = "axis_test"

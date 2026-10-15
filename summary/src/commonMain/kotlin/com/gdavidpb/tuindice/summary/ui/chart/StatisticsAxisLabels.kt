@@ -30,7 +30,7 @@ internal fun BoxScope.StatisticsAxisLabels(
 				.offset(x = (index * columnWidth).dp, y = StatisticsChartDefaults.AxisLabelTop)
 				.width(columnWidth.dp)
 				.height(StatisticsChartDefaults.AxisLabelBandHeight)
-				.testTag(StatisticsLabelTags.axis(key, index))
+				.testTag(StatisticsLabelUiTags.axis(key, index))
 				.semantics { hideFromAccessibility() },
 			text = text,
 			maxLines = 1,

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.chart
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 
@@ -9,6 +10,7 @@ import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
  * point shows when it is open, and [axisLabel] is written under its column. A [ringColor] draws a ring around the
  * marker, for the one point the chart's block names apart.
  */
+@Immutable
 data class StatisticsLinePoint(
 	val label: String,
 	val lineValue: Float,

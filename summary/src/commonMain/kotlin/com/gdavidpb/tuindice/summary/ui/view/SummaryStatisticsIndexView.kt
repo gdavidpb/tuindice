@@ -19,13 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartDefaults
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLineChart
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLinePoint
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsLinePoints
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -68,20 +67,7 @@ private fun ColumnScope.IndexData(
 	val bestColor = AcademicStatusColors.approved()
 	val worstColor = MaterialTheme.colorScheme.error
 	val label = data.label.asString()
-	val points = data.points.map { point ->
-		StatisticsLinePoint(
-			label = point.tooltip.title.asString(),
-			lineValue = point.lineValue,
-			tooltip = point.tooltip.toRichText(),
-			axisLabel = point.axisLabel.asString(),
-			markerValue = point.markerValue,
-			ringColor = when {
-				point.isBest -> bestColor
-				point.isWorst -> worstColor
-				else -> null
-			}
-		)
-	}
+	val points = data.points.toStatisticsLinePoints()
 
 	SummaryGradeFigureView(
 		grade = data.grade,

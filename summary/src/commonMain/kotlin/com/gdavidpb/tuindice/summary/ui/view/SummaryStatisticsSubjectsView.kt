@@ -5,12 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSubjectsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsSegment
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsStackedBar
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsSegments
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -55,14 +54,7 @@ private fun ColumnScope.SubjectsData(
 
 	key(segments) {
 		StatisticsStackedBar(
-			segments = segments.map { segment ->
-				StatisticsSegment(
-					label = segment.legend.asString(),
-					value = segment.value,
-					color = segment.outcome.color(),
-					tooltip = segment.tooltip.toRichText()
-				)
-			},
+			segments = segments.toStatisticsSegments(),
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Subjects,
 				summary = data.chartSummary.asString(),

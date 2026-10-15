@@ -251,9 +251,9 @@ class StatisticsBarChartUiTest {
 
 	private fun targetTag(index: Int): String = SummaryUiTags.statisticsTarget(ChartKey, index)
 
-	private fun axisTag(index: Int): String = StatisticsLabelTags.axis(ChartKey, index)
+	private fun axisTag(index: Int): String = StatisticsLabelUiTags.axis(ChartKey, index)
 
-	private fun valueTag(index: Int): String = StatisticsLabelTags.value(ChartKey, index)
+	private fun valueTag(index: Int): String = StatisticsLabelUiTags.value(ChartKey, index)
 
 	private fun fillTag(index: Int): String = SummaryUiTags.statisticsFill(ChartKey, index)
 

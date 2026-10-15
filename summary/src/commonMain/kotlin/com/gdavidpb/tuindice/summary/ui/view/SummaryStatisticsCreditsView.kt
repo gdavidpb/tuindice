@@ -10,12 +10,11 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
-import com.gdavidpb.tuindice.summary.presentation.mapper.toRichText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsSegment
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsStackedBar
+import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsSegments
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -60,14 +59,7 @@ private fun ColumnScope.CreditsData(
 
 	key(segments) {
 		StatisticsStackedBar(
-			segments = segments.map { segment ->
-				StatisticsSegment(
-					label = segment.legend.asString(),
-					value = segment.value,
-					color = segment.outcome.color(),
-					tooltip = segment.tooltip.toRichText()
-				)
-			},
+			segments = segments.toStatisticsSegments(),
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Credits,
 				summary = data.chartSummary.asString(),

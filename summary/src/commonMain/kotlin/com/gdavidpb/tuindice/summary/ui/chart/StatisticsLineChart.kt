@@ -145,7 +145,7 @@ private fun BoxScope.LineMarkers(
 									color = ringColor,
 									shape = CircleShape
 								)
-								.testTag(StatisticsLabelTags.ring(labels.key, index))
+								.testTag(StatisticsLabelUiTags.ring(labels.key, index))
 						)
 					}
 

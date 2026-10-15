@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsLinePointItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelTags
+import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -32,14 +32,14 @@ class SummaryStatisticsIndexViewUiTest {
 		onNodeWithText("acumulado").assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.StatisticsCaption).assertTextEquals("al cierre de Ene - Mar 2026")
 		onNodeWithTag(
-			testTag = StatisticsLabelTags.axis(SummaryStatisticsChartKey.Index, 1),
+			testTag = StatisticsLabelUiTags.axis(SummaryStatisticsChartKey.Index, 1),
 			useUnmergedTree = true
 		).assertTextEquals("E-M 24")
 		onNodeWithText("Más alto: Ene - Mar 2024 · 4.5714").assertIsDisplayed()
 		assertNodeVisible(SummaryUiTags.StatisticsBestTerm)
-		assertNodeVisible(StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 1), useUnmergedTree = true)
+		assertNodeVisible(StatisticsLabelUiTags.ring(SummaryStatisticsChartKey.Index, 1), useUnmergedTree = true)
 		onAllNodesWithTag(
-			testTag = StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 0),
+			testTag = StatisticsLabelUiTags.ring(SummaryStatisticsChartKey.Index, 0),
 			useUnmergedTree = true
 		).assertCountEquals(0)
 	}
@@ -53,7 +53,7 @@ class SummaryStatisticsIndexViewUiTest {
 
 		onNodeWithText("Más bajo: Sep - Dic 2023 · 4.2000").assertIsDisplayed()
 		assertNodeVisible(SummaryUiTags.StatisticsWorstTerm)
-		assertNodeVisible(StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 0), useUnmergedTree = true)
+		assertNodeVisible(StatisticsLabelUiTags.ring(SummaryStatisticsChartKey.Index, 0), useUnmergedTree = true)
 	}
 
 	@Test

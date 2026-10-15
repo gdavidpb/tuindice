@@ -122,9 +122,9 @@ class StatisticsLineChartUiTest {
 		}
 		waitForIdle()
 
-		assertNodeVisible(StatisticsLabelTags.ring(ChartKey, 1), useUnmergedTree = true)
-		onAllNodesWithTag(StatisticsLabelTags.ring(ChartKey, 0), useUnmergedTree = true).assertCountEquals(0)
-		onAllNodesWithTag(StatisticsLabelTags.ring(ChartKey, 2), useUnmergedTree = true).assertCountEquals(0)
+		assertNodeVisible(StatisticsLabelUiTags.ring(ChartKey, 1), useUnmergedTree = true)
+		onAllNodesWithTag(StatisticsLabelUiTags.ring(ChartKey, 0), useUnmergedTree = true).assertCountEquals(0)
+		onAllNodesWithTag(StatisticsLabelUiTags.ring(ChartKey, 2), useUnmergedTree = true).assertCountEquals(0)
 	}
 
 	@Composable
@@ -158,7 +158,7 @@ class StatisticsLineChartUiTest {
 
 	private fun targetTag(index: Int): String = SummaryUiTags.statisticsTarget(ChartKey, index)
 
-	private fun axisTag(index: Int): String = StatisticsLabelTags.axis(ChartKey, index)
+	private fun axisTag(index: Int): String = StatisticsLabelUiTags.axis(ChartKey, index)
 
 	private companion object {
 		const val ChartKey = "line_test"
