@@ -4,9 +4,8 @@ import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 /**
- * "Créditos": the credits of the closed terms by outcome, as one stacked bar, each credit counted once by its subject.
- * The pensum's own progress comes after it, when a pensum is cached: [pensum] has its own figure and its track
- * [Pensum.fraction].
+ * "Créditos": the credits the pensum has approved out of its total, as one figure with its share and a bar that follows
+ * it. When there is nothing to measure yet, [Content.Empty] says what the block lacks.
  */
 @Immutable
 data class SummaryStatisticsCreditsItem(
@@ -18,17 +17,14 @@ data class SummaryStatisticsCreditsItem(
 			val text: UiText
 		) : Content
 
-		/** [chartSummary] is what a screen reader hears of the bar: the figure and what it counts, as one phrase. */
+		/**
+		 * [figure] is the approved credits with what they are out of, and its share at the end. [fraction] fills the
+		 * bar, and [description] is what a screen reader hears of it: the same sentence the career card says.
+		 */
 		data class Data(
 			val figure: SummaryStatisticsFigureItem,
-			val segments: List<SummaryStatisticsSegmentItem>,
-			val pensum: Pensum?,
-			val chartSummary: UiText
+			val fraction: Float,
+			val description: UiText
 		) : Content
 	}
-
-	data class Pensum(
-		val figure: SummaryStatisticsFigureItem,
-		val fraction: Float
-	)
 }

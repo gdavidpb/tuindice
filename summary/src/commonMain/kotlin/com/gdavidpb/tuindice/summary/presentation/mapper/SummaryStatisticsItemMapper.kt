@@ -20,7 +20,7 @@ fun SummaryHub.toSummaryStatisticsItem(): SummaryStatisticsItem? {
 		currentTerm = currentTermItemOf(hub = this, current = summary.currentTerm),
 		index = indexItemOf(summary = summary, axisLabels = axisLabels),
 		subjects = subjectsItemOf(outcomes = summary.closed.subjects),
-		credits = creditsItemOf(outcomes = summary.closed.credits, pensum = summary.pensumProgress),
+		credits = creditsItemOf(closedTerms = summary.closed.terms, pensum = summary.pensumProgress),
 		grades = gradesItemOf(histogram = summary.closed.grades),
 		pace = paceItemOf(summary = summary, axisLabels = axisLabels),
 		chartActionLabel = UiText.Resource(Res.string.summary_statistics_chart_action)

@@ -55,8 +55,7 @@ fun SummaryStatisticsContent(
 		)
 
 		SummaryStatisticsCreditsView(
-			item = statistics.credits,
-			chartActionLabel = chartActionLabel
+			item = statistics.credits
 		)
 
 		SummaryStatisticsGradesView(

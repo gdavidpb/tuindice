@@ -8,14 +8,12 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
- * "Créditos": the credits of the closed terms by outcome, as one stacked bar with its legend. When a pensum is cached,
- * its own progress follows the bar: the approved credits out of the pensum's total, with their share and a track in the
- * approved colour.
+ * "Créditos": the credits the pensum has approved out of its total, as one figure with its share and a bar that follows
+ * it. With no pensum cached, or no closed term yet, the block says what it lacks.
  */
 @Composable
 fun SummaryStatisticsCreditsView(
 	item: SummaryStatisticsCreditsItem,
-	chartActionLabel: String,
 	modifier: Modifier = Modifier
 ) {
 	SummaryStatisticsBlockView(
@@ -31,8 +29,7 @@ fun SummaryStatisticsCreditsView(
 			)
 
 			is SummaryStatisticsCreditsItem.Content.Data -> SummaryStatisticsCreditsData(
-				data = content,
-				chartActionLabel = chartActionLabel
+				data = content
 			)
 		}
 	}

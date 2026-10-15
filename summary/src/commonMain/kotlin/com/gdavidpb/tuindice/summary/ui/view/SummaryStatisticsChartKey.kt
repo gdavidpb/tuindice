@@ -8,7 +8,6 @@ internal object SummaryStatisticsChartKey {
 	const val CurrentTerm = "current_term"
 	const val Index = "index"
 	const val Subjects = "subjects"
-	const val Credits = "credits"
 	const val Grades = "grades"
 	const val Pace = "pace"
 }

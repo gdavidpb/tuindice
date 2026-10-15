@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureI
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_percent_format
 import tuindice.summary.generated.resources.summary_statistics_chart_summary
-import tuindice.summary.generated.resources.summary_statistics_credits_approved_many
-import tuindice.summary.generated.resources.summary_statistics_credits_approved_one
+import tuindice.summary.generated.resources.summary_statistics_subjects_approved_many
+import tuindice.summary.generated.resources.summary_statistics_subjects_approved_one
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,8 +37,8 @@ class SummaryStatisticsFormatTest {
 
 	@Test
 	fun when_aCountIsGiven_then_ItsSingularOrItsPluralIsChosenByTheNumber() {
-		val one = Res.string.summary_statistics_credits_approved_one
-		val many = Res.string.summary_statistics_credits_approved_many
+		val one = Res.string.summary_statistics_subjects_approved_one
+		val many = Res.string.summary_statistics_subjects_approved_many
 
 		assertEquals(UiText.Resource(one, listOf(1)), countText(quantity = 1, one = one, many = many, args = listOf(1)))
 		assertEquals(UiText.Resource(many, listOf(2)), countText(quantity = 2, one = one, many = many, args = listOf(2)))

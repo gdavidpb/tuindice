@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
-import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
 import com.gdavidpb.tuindice.academiccore.domain.model.SubjectOutcomes
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -18,13 +17,11 @@ import com.gdavidpb.tuindice.summary.testing.statisticsHubOf
 import com.gdavidpb.tuindice.summary.testing.statisticsOf
 import com.gdavidpb.tuindice.summary.testing.statisticsTerm
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.summary_career_credits_rest
 import tuindice.summary.generated.resources.summary_career_percent
 import tuindice.summary.generated.resources.summary_percent_format
-import tuindice.summary.generated.resources.summary_statistics_credits_approved_many
 import tuindice.summary.generated.resources.summary_statistics_credits_empty
-import tuindice.summary.generated.resources.summary_statistics_credits_figure_many
-import tuindice.summary.generated.resources.summary_statistics_credits_pensum
-import tuindice.summary.generated.resources.summary_statistics_credits_share_approved_many
+import tuindice.summary.generated.resources.summary_statistics_credits_invite_message
 import tuindice.summary.generated.resources.summary_statistics_current_title
 import tuindice.summary.generated.resources.summary_statistics_grades_empty
 import tuindice.summary.generated.resources.summary_statistics_grades_info
@@ -308,40 +305,31 @@ class SummaryStatisticsItemMapperTest {
 	}
 
 	@Test
-	fun when_theRecordHasCreditsAndAPensum_then_theBarIsFollowedByThePensumShare() {
-		val statistics = statisticsOf(
-			credits = CreditOutcomes(approved = 152, failed = 8, withdrawn = 4)
-		).copy(
+	fun when_aPensumIsCached_then_theCreditsAreItsApprovedCreditsWithTheirShare() {
+		val statistics = statisticsOf(terms = listOf(statisticsTerm(year = 2024))).copy(
 			pensumProgress = SummaryCreditsProgress(approvedCredits = 152, totalCredits = 205)
 		)
 
 		val credits = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.credits
 
 		val data = assertIs<SummaryStatisticsCreditsItem.Content.Data>(credits.content)
-		assertEquals("164", data.figure.value)
-		assertEquals(UiText.Resource(Res.string.summary_statistics_credits_figure_many), data.figure.label)
-		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_credits_share_approved_many, listOf(152, percent(93))),
-			data.segments.first().tooltip.title
-		)
-		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_credits_approved_many, listOf(152)),
-			data.segments.first().legend
-		)
-		val pensum = data.pensum!!
-		assertEquals("152", pensum.figure.value)
-		assertEquals(UiText.Resource(Res.string.summary_statistics_credits_pensum, listOf(205)), pensum.figure.label)
-		assertEquals(UiText.Resource(Res.string.summary_career_percent, listOf(74)), pensum.figure.trailing)
+		assertEquals("152", data.figure.value)
+		assertEquals(UiText.Resource(Res.string.summary_career_credits_rest, listOf(205)), data.figure.label)
+		assertEquals(UiText.Resource(Res.string.summary_career_percent, listOf(74)), data.figure.trailing)
 	}
 
 	@Test
-	fun when_noPensumIsCached_then_theCreditsLeaveThePensumOut() {
-		val statistics = statisticsOf(credits = CreditOutcomes(approved = 15, failed = 0, withdrawn = 0))
+	fun when_noPensumIsCached_then_theCreditsInviteToOpenIt() {
+		val statistics = statisticsOf(terms = listOf(statisticsTerm(year = 2024)))
 
 		val credits = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.credits
 
-		val data = assertIs<SummaryStatisticsCreditsItem.Content.Data>(credits.content)
-		assertNull(data.pensum)
+		assertEquals(
+			SummaryStatisticsCreditsItem.Content.Empty(
+				UiText.Resource(Res.string.summary_statistics_credits_invite_message)
+			),
+			credits.content
+		)
 	}
 
 	/* Tus notas */
