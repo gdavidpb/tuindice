@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasNoClickAction
@@ -12,7 +15,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryWeekItem
@@ -69,7 +71,7 @@ class SummaryWeekViewUiTest {
 					week = week.copy(
 						evaluations = emptyList(),
 						card = SummaryCardItem(
-							icon = SummaryCardIcon.Evaluations,
+							icon = Icons.AutoMirrored.Outlined.Assignment,
 							titleText = UiText.Raw("Agrega tus evaluaciones"),
 							messageText = UiText.Raw("Parciales, quices y proyectos: los verás aquí y llevarás tus puntos."),
 							action = SummaryCardItem.Action(
@@ -98,7 +100,7 @@ class SummaryWeekViewUiTest {
 					evaluations = emptyList(),
 					hasSchedule = false,
 					card = SummaryCardItem(
-						icon = SummaryCardIcon.Calendar,
+						icon = Icons.Outlined.CalendarMonth,
 						titleText = UiText.Raw("Sin clases esta semana"),
 						messageText = UiText.Raw("Cuando inscribas, aquí verás tus clases y evaluaciones.")
 					)

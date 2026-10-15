@@ -5,13 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.outlined.NoteAdd
-import androidx.compose.material.icons.outlined.AccountTree
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -19,14 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
@@ -47,7 +39,7 @@ fun SummaryCardRowView(
 	) {
 		Icon(
 			modifier = Modifier.size(TuIndiceComponentSizes.Icon),
-			imageVector = item.icon.toImageVector(),
+			imageVector = item.icon,
 			contentDescription = null,
 			tint = MaterialTheme.colorScheme.onSurfaceVariant
 		)
@@ -93,13 +85,4 @@ fun SummaryCardRowView(
 			)
 		}
 	}
-}
-
-private fun SummaryCardIcon.toImageVector(): ImageVector = when (this) {
-	SummaryCardIcon.Evaluations -> Icons.AutoMirrored.Outlined.Assignment
-	SummaryCardIcon.Done -> Icons.Outlined.CheckCircle
-	SummaryCardIcon.Calendar -> Icons.Outlined.CalendarMonth
-	SummaryCardIcon.NewTerm -> Icons.AutoMirrored.Outlined.NoteAdd
-	SummaryCardIcon.Career -> Icons.Outlined.AccountTree
-	SummaryCardIcon.Statistics -> Icons.Outlined.BarChart
 }

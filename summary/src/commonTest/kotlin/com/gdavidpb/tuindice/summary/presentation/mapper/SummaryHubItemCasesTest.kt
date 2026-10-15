@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.NoteAdd
+import androidx.compose.material.icons.outlined.CalendarMonth
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
@@ -39,7 +41,7 @@ class SummaryHubItemCasesTest {
 				evaluations = emptyList(),
 				hasSchedule = false,
 				card = SummaryCardItem(
-					icon = SummaryCardIcon.Calendar,
+					icon = Icons.Outlined.CalendarMonth,
 					titleText = UiText.Resource(Res.string.summary_week_no_term_title),
 					messageText = UiText.Resource(Res.string.summary_week_no_term_message)
 				)
@@ -54,7 +56,7 @@ class SummaryHubItemCasesTest {
 				subjects = emptyList(),
 				finished = null,
 				card = SummaryCardItem(
-					icon = SummaryCardIcon.NewTerm,
+					icon = Icons.AutoMirrored.Outlined.NoteAdd,
 					titleText = UiText.Resource(Res.string.summary_term_first_title),
 					messageText = UiText.Resource(Res.string.summary_term_first_message)
 				)

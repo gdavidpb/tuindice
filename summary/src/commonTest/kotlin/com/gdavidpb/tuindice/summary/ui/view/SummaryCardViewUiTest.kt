@@ -1,5 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -11,7 +16,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -32,7 +36,7 @@ class SummaryCardViewUiTest {
 		setTuIndiceTestContent {
 			SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Done,
+					icon = Icons.Outlined.CheckCircle,
 					titleText = UiText.Raw("Nada pendiente esta semana"),
 					messageText = UiText.Raw("Próxima: Parcial 2 de CI5437 · lun 26"),
 					target = target,
@@ -56,7 +60,7 @@ class SummaryCardViewUiTest {
 		setTuIndiceTestContent {
 			SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Evaluations,
+					icon = Icons.AutoMirrored.Outlined.Assignment,
 					titleText = UiText.Raw("Agrega tus evaluaciones"),
 					messageText = UiText.Raw("Parciales, quices y proyectos: los verás aquí y llevarás tus puntos."),
 					action = SummaryCardItem.Action(
@@ -81,7 +85,7 @@ class SummaryCardViewUiTest {
 		setTuIndiceTestContent {
 			SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Calendar,
+					icon = Icons.Outlined.CalendarMonth,
 					titleText = UiText.Raw("Sin clases esta semana"),
 					messageText = UiText.Raw("Cuando inscribas, aquí verás tus clases y evaluaciones.")
 				),
@@ -100,7 +104,7 @@ class SummaryCardViewUiTest {
 		setTuIndiceTestContent {
 			SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Career,
+					icon = Icons.Outlined.AccountTree,
 					titleText = UiText.Raw("Mira cuánto llevas"),
 					messageText = UiText.Raw("Abre tu pensum para calcular tu avance.")
 				),

@@ -3,12 +3,13 @@ package com.gdavidpb.tuindice.summary.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
@@ -54,7 +55,7 @@ fun SummaryCareerView(
 
 			SummaryCareerItem.Invite -> SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Career,
+					icon = Icons.Outlined.AccountTree,
 					titleText = UiText.Resource(Res.string.summary_career_invite_title),
 					messageText = UiText.Resource(Res.string.summary_career_invite_message),
 					target = SummaryHubTarget.Pensum,

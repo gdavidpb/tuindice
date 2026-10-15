@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.outlined.CheckCircle
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import tuindice.summary.generated.resources.Res
@@ -17,7 +19,7 @@ class SummaryCardItemTest {
 	fun when_theEvaluationsAreNotDownloadedYet_then_TheCardClaimsNothingAndOffersNoAction() {
 		val card = evaluationsPendingCard()
 
-		assertEquals(SummaryCardIcon.Evaluations, card.icon)
+		assertEquals(Icons.AutoMirrored.Outlined.Assignment, card.icon)
 		assertEquals(UiText.Resource(Res.string.summary_evaluations_pending_title), card.titleText)
 		assertNull(card.action)
 	}
@@ -39,7 +41,7 @@ class SummaryCardItemTest {
 	fun when_nothingIsPendingAndNoEvaluationIsNextNamed_then_TheCardSaysSoWithTheDoneIcon() {
 		val card = nothingPendingCard(next = null)
 
-		assertEquals(SummaryCardIcon.Done, card.icon)
+		assertEquals(Icons.Outlined.CheckCircle, card.icon)
 		assertEquals(UiText.Resource(Res.string.summary_week_idle_title), card.titleText)
 	}
 }

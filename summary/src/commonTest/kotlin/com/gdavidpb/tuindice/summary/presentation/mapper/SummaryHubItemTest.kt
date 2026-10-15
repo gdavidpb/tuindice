@@ -1,6 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.automirrored.outlined.NoteAdd
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.School
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -20,7 +24,6 @@ import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeekEvaluation
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
@@ -391,7 +394,7 @@ class SummaryHubItemTest {
 		assertTrue(item.subjects.isEmpty())
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.Evaluations,
+				icon = Icons.AutoMirrored.Outlined.Assignment,
 				titleText = UiText.Resource(Res.string.summary_evaluations_pending_title),
 				messageText = UiText.Resource(Res.string.summary_evaluations_pending_message)
 			),
@@ -524,7 +527,7 @@ class SummaryHubItemTest {
 		assertNotNull(week.classRow)
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.Evaluations,
+				icon = Icons.AutoMirrored.Outlined.Assignment,
 				titleText = UiText.Resource(Res.string.summary_evaluations_invite_title),
 				messageText = UiText.Resource(Res.string.summary_evaluations_invite_message),
 				action = SummaryCardItem.Action(
@@ -549,7 +552,7 @@ class SummaryHubItemTest {
 
 		val card = assertNotNull(noneThisWeek(nextEvaluation = next).toSummaryWeekItem().card)
 
-		assertEquals(SummaryCardIcon.Done, card.icon)
+		assertEquals(Icons.Outlined.CheckCircle, card.icon)
 		assertEquals(UiText.Resource(Res.string.summary_week_idle_title), card.titleText)
 		assertEquals(
 			UiText.Resource(
@@ -596,7 +599,7 @@ class SummaryHubItemTest {
 
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.Evaluations,
+				icon = Icons.AutoMirrored.Outlined.Assignment,
 				titleText = UiText.Resource(Res.string.summary_evaluations_pending_title),
 				messageText = UiText.Resource(Res.string.summary_evaluations_pending_message)
 			),
@@ -634,7 +637,7 @@ class SummaryHubItemTest {
 		assertFalse(withTerms.hasSchedule)
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.Calendar,
+				icon = Icons.Outlined.CalendarMonth,
 				titleText = UiText.Resource(Res.string.summary_week_no_class_title),
 				messageText = UiText.Resource(Res.string.summary_week_no_class_message)
 			),
@@ -642,7 +645,7 @@ class SummaryHubItemTest {
 		)
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.Calendar,
+				icon = Icons.Outlined.CalendarMonth,
 				titleText = UiText.Resource(Res.string.summary_week_no_term_title),
 				messageText = UiText.Resource(Res.string.summary_week_no_term_message)
 			),
@@ -659,7 +662,7 @@ class SummaryHubItemTest {
 		assertNull(item.finished)
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.NewTerm,
+				icon = Icons.AutoMirrored.Outlined.NoteAdd,
 				titleText = UiText.Resource(Res.string.summary_term_plan_title),
 				messageText = UiText.Resource(Res.string.summary_term_plan_message),
 				action = SummaryCardItem.Action(
@@ -678,7 +681,7 @@ class SummaryHubItemTest {
 		assertNull(item.linkText)
 		assertEquals(
 			SummaryCardItem(
-				icon = SummaryCardIcon.NewTerm,
+				icon = Icons.AutoMirrored.Outlined.NoteAdd,
 				titleText = UiText.Resource(Res.string.summary_term_first_title),
 				messageText = UiText.Resource(Res.string.summary_term_first_message)
 			),

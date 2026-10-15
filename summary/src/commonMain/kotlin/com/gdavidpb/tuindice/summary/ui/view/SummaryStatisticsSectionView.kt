@@ -3,12 +3,13 @@ package com.gdavidpb.tuindice.summary.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSectionItem
@@ -54,7 +55,7 @@ fun SummaryStatisticsSectionView(
 		when (item) {
 			SummaryStatisticsSectionItem.Empty -> SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Statistics,
+					icon = Icons.Outlined.BarChart,
 					titleText = UiText.Resource(Res.string.summary_statistics_section_empty_title),
 					messageText = UiText.Resource(Res.string.summary_statistics_section_empty_message)
 				),
@@ -64,7 +65,7 @@ fun SummaryStatisticsSectionView(
 
 			SummaryStatisticsSectionItem.Invite -> SummaryCardView(
 				item = SummaryCardItem(
-					icon = SummaryCardIcon.Statistics,
+					icon = Icons.Outlined.BarChart,
 					titleText = UiText.Resource(Res.string.summary_statistics_section_first_title),
 					messageText = UiText.Resource(Res.string.summary_statistics_section_first_message),
 					target = SummaryHubTarget.Statistics,

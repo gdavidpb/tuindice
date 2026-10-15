@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
@@ -14,7 +17,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryFinishedTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
@@ -205,7 +207,7 @@ class SummaryTermViewUiTest {
 							isShareable = true
 						),
 						card = SummaryCardItem(
-							icon = SummaryCardIcon.NewTerm,
+							icon = Icons.AutoMirrored.Outlined.NoteAdd,
 							titleText = UiText.Raw("Planifica tu próximo trimestre"),
 							messageText = UiText.Raw("Arma un trimestre con las materias que puedes inscribir."),
 							action = SummaryCardItem.Action(
@@ -271,7 +273,7 @@ class SummaryTermViewUiTest {
 					subjects = emptyList(),
 					summaryText = null,
 					card = SummaryCardItem(
-						icon = SummaryCardIcon.Evaluations,
+						icon = Icons.AutoMirrored.Outlined.Assignment,
 						titleText = UiText.Raw("Tus evaluaciones"),
 						messageText = UiText.Raw("Ábrelas en Evaluaciones para verlas aquí.")
 					)

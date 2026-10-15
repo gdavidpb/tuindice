@@ -1,12 +1,13 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -49,7 +50,7 @@ class SummaryCardRowViewUiTest {
 	}
 
 	private fun card() = SummaryCardItem(
-		icon = SummaryCardIcon.Done,
+		icon = Icons.Outlined.CheckCircle,
 		titleText = UiText.Raw("Todo listo"),
 		messageText = UiText.Raw("Nada pendiente"),
 		action = SummaryCardItem.Action(text = UiText.Raw("Ver registro"), target = SummaryHubTarget.Record)
