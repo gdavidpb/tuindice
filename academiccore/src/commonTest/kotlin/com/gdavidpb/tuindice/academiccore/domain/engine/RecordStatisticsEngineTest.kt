@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
@@ -43,7 +42,6 @@ class RecordStatisticsEngineTest {
 		assertEquals(0, stats.subjects.approvedFirstTry)
 		assertEquals(1, stats.subjects.firstTryBase)
 		assertEquals(1, stats.subjects.repeated)
-		assertEquals(3, stats.credits.approved)
 		assertEquals(listOf(2.0, 4.0), stats.terms.map(TermStatistic::index))
 		assertEquals(listOf(2.0, 4.0), stats.terms.map(TermStatistic::cumulativeIndex))
 		assertEquals(listOf(0, 1), stats.terms.map(TermStatistic::approvedSubjects))
@@ -103,7 +101,6 @@ class RecordStatisticsEngineTest {
 
 		assertEquals(1, stats.subjects.failed)
 		assertEquals(0, stats.subjects.withdrawn)
-		assertEquals(3, stats.credits.failed)
 		assertEquals(0, stats.subjects.repeated)
 	}
 
@@ -122,8 +119,6 @@ class RecordStatisticsEngineTest {
 		assertEquals(1, stats.subjects.withdrawn)
 		assertEquals(0, stats.subjects.failed)
 		assertEquals(0, stats.subjects.noResult)
-		assertEquals(3, stats.credits.withdrawn)
-		assertEquals(0, stats.credits.failed)
 		assertEquals(mapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0), stats.grades.countsByGrade)
 	}
 
@@ -155,7 +150,6 @@ class RecordStatisticsEngineTest {
 		)
 
 		assertEquals(1, stats.subjects.withdrawn)
-		assertEquals(3, stats.credits.withdrawn)
 		assertNull(stats.terms.single().index)
 		assertNull(stats.terms.single().cumulativeIndex)
 	}
@@ -208,7 +202,6 @@ class RecordStatisticsEngineTest {
 
 		assertEquals(1, stats.subjects.approved)
 		assertEquals(1, stats.subjects.approvedFirstTry)
-		assertEquals(2, stats.credits.approved)
 		assertEquals(2, stats.terms.single().approvedCredits)
 		assertEquals(1, stats.terms.single().approvedSubjects)
 		assertEquals(mapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0), stats.grades.countsByGrade)
@@ -225,7 +218,6 @@ class RecordStatisticsEngineTest {
 		)
 
 		assertEquals(1, stats.subjects.withdrawn)
-		assertEquals(2, stats.credits.withdrawn)
 		assertEquals(0, stats.subjects.approved)
 		assertEquals(mapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0), stats.grades.countsByGrade)
 	}
@@ -241,7 +233,6 @@ class RecordStatisticsEngineTest {
 
 		assertEquals(1, stats.subjects.noResult)
 		assertEquals(0, stats.subjects.failed)
-		assertEquals(0, stats.credits.failed)
 		assertEquals(0, stats.grades.unreported)
 		assertEquals(mapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0), stats.grades.countsByGrade)
 		assertNull(stats.terms.single().index)
@@ -435,7 +426,7 @@ class RecordStatisticsEngineTest {
 	}
 
 	@Test
-	fun creditsOfASubject_countOnce_whateverItsAttempts() {
+	fun aSubjectCountsOnce_whateverItsAttempts() {
 		val stats = statisticsOf(
 			term(
 				id = "t1",
@@ -450,7 +441,6 @@ class RecordStatisticsEngineTest {
 		)
 
 		assertEquals(1, stats.subjects.failed)
-		assertEquals(3, stats.credits.failed)
 		assertEquals(1, stats.subjects.repeated)
 		assertEquals(2, stats.grades.countsByGrade.getValue(2))
 	}
@@ -490,7 +480,6 @@ class RecordStatisticsEngineTest {
 			),
 			stats.subjects
 		)
-		assertEquals(CreditOutcomes(approved = 0, failed = 0, withdrawn = 0), stats.credits)
 		assertEquals(
 			GradeHistogram(countsByGrade = (1..MAX_SUBJECT_GRADE).associateWith { 0 }, unreported = 0),
 			stats.grades

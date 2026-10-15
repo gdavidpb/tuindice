@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
@@ -47,11 +46,6 @@ object RecordStatisticsEngine {
 				firstTryBase = standings.count { standing -> standing.resultCount > 0 },
 				repeated = standings.count { standing -> standing.resultCount > 1 }
 			),
-			credits = CreditOutcomes(
-				approved = creditsOf(standings, SubjectState.APPROVED),
-				failed = creditsOf(standings, SubjectState.FAILED),
-				withdrawn = creditsOf(standings, SubjectState.WITHDRAWN)
-			),
 			grades = gradesOf(closedAttempts)
 		)
 	}
@@ -79,7 +73,7 @@ object RecordStatisticsEngine {
 	private fun averageToShow(average: Double): Double? = average.takeIf { value -> value != 0.0 }
 
 	// The history holds the attempts of one subject in chronological order. The state is decided by the first result
-	// that settles it, and the credits are the ones of that same attempt.
+	// that settles it.
 	private fun standingOf(history: List<AttemptProjection>): SubjectStanding {
 		val results = history.filter { attempt -> isResult(attempt) }
 		val approval = results.firstOrNull { attempt -> attempt.outcome == AttemptOutcome.APPROVED }
@@ -90,25 +84,12 @@ object RecordStatisticsEngine {
 			withdrawal != null -> SubjectState.WITHDRAWN
 			else -> SubjectState.NO_RESULT
 		}
-		val deciding = when (state) {
-			SubjectState.APPROVED -> approval
-			SubjectState.FAILED -> results.first()
-			SubjectState.WITHDRAWN -> withdrawal
-			SubjectState.NO_RESULT -> null
-		}
 
 		return SubjectStanding(
 			state = state,
-			credits = deciding?.credits ?: 0,
 			resultCount = results.size,
 			firstResultApproved = results.firstOrNull()?.outcome == AttemptOutcome.APPROVED
 		)
-	}
-
-	private fun creditsOf(standings: List<SubjectStanding>, state: SubjectState): Int {
-		return standings
-			.filter { standing -> standing.state == state }
-			.sumOf { standing -> standing.credits }
 	}
 
 	private fun gradesOf(attempts: List<AttemptProjection>): GradeHistogram {
@@ -153,7 +134,6 @@ object RecordStatisticsEngine {
 
 	private data class SubjectStanding(
 		val state: SubjectState,
-		val credits: Int,
 		val resultCount: Int,
 		val firstResultApproved: Boolean
 	)

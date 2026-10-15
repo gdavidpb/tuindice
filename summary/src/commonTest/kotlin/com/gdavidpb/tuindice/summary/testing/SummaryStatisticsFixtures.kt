@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
-import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationPoints
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
@@ -56,13 +55,12 @@ fun statisticsOf(
 		firstTryBase = 0,
 		repeated = 0
 	),
-	credits: CreditOutcomes = CreditOutcomes(approved = 0, failed = 0, withdrawn = 0),
 	grades: GradeHistogram = GradeHistogram(countsByGrade = (1..MAX_GRADE).associateWith { 0 }, unreported = 0)
 ): SummaryStatistics {
 	val ranked = terms.filter { term -> term.isRegular && term.index != null }
 
 	return SummaryStatistics(
-		closed = RecordStatistics(terms = terms, subjects = subjects, credits = credits, grades = grades),
+		closed = RecordStatistics(terms = terms, subjects = subjects, grades = grades),
 		pace = PaceStatistics(averageCredits = null, remainingTerms = null),
 		bestTerm = ranked.maxWithOrNull(
 			compareBy<TermStatistic>({ term -> term.index ?: 0.0 }, { term -> term.termOrder })
