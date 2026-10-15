@@ -10,6 +10,7 @@ import tuindice.summary.generated.resources.summary_statistics_chart_summary
 import kotlin.math.roundToInt
 
 private const val PERCENT = 100
+private const val PERCENT_SIGN = "%"
 
 // The decimal places of an index and of a cumulative average, as the statistics and the share cards write them.
 internal const val INDEX_DECIMALS = 4
@@ -25,8 +26,8 @@ internal fun percentOf(part: Int, whole: Int): Int {
 	return if (whole == 0) 0 else (part * PERCENT.toDouble() / whole).roundToInt()
 }
 
-// A part of a whole as a share: "4 %". The number is the only argument, and the format escapes its percent sign, so
-// the text is built by the resources like every other.
+// A part of a whole as a share: "4 %". The percent sign is an argument too, so the format holds no literal percent
+// sign, which a format would read as the start of a conversion.
 internal fun shareOf(part: Int, whole: Int): UiText = percentText(percentOf(part = part, whole = whole))
 
 // What a screen reader hears of a chart that its figure leads: the figure's value and what it counts, as one phrase.
@@ -37,7 +38,9 @@ internal fun chartSummaryOf(figure: SummaryStatisticsFigureItem): UiText {
 // A fraction of the whole as a share, rounded the same way.
 internal fun shareOf(fraction: Double): UiText = percentText((fraction * PERCENT).roundToInt())
 
-private fun percentText(percent: Int): UiText = UiText.Resource(Res.string.summary_percent_format, listOf(percent))
+private fun percentText(percent: Int): UiText {
+	return UiText.Resource(Res.string.summary_percent_format, listOf(percent, PERCENT_SIGN))
+}
 
 // Points the way the Evaluations tab shows them: a whole number without a decimal place, any other with one.
 internal fun Double.formatPoints(): String {

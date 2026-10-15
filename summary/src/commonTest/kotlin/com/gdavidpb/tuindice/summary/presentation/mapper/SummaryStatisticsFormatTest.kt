@@ -20,9 +20,9 @@ class SummaryStatisticsFormatTest {
 	}
 
 	@Test
-	fun when_aShareIsGiven_then_TheNumberIsTheOnlyArgumentOfItsPercentResource() {
-		assertEquals(UiText.Resource(Res.string.summary_percent_format, listOf(25)), shareOf(part = 1, whole = 4))
-		assertEquals(UiText.Resource(Res.string.summary_percent_format, listOf(50)), shareOf(fraction = 0.5))
+	fun when_aShareIsGiven_then_ItsNumberAndItsSignAreTheArgumentsOfThePercentResource() {
+		assertEquals(UiText.Resource(Res.string.summary_percent_format, listOf(25, "%")), shareOf(part = 1, whole = 4))
+		assertEquals(UiText.Resource(Res.string.summary_percent_format, listOf(50, "%")), shareOf(fraction = 0.5))
 	}
 
 	@Test

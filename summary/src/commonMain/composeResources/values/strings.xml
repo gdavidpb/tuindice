@@ -85,9 +85,9 @@
     <string name="summary_points_no_evaluations">Sin evaluaciones</string>
     <string name="summary_points_evaluated">%1$s de %2$s evaluados</string>
     <string name="summary_career_credits_rest">de %1$d créditos</string>
-    <string name="summary_career_percent">%1$d %%</string>
-    <string name="summary_percent_format">%1$d %%</string>
-    <string name="summary_career_description">Avance del pensum: %1$d de %2$d créditos, %3$d %%</string>
+    <string name="summary_career_percent">%1$d %</string>
+    <string name="summary_percent_format">%1$d %2$s</string>
+    <string name="summary_career_description">Avance del pensum: %1$d de %2$d créditos, %3$d %</string>
     <string name="summary_career_invite_title">Mira cuánto llevas</string>
     <string name="summary_career_invite_message">Abre tu pensum para calcular tu avance.</string>
     <string name="a11y_summary_open_schedule">Abrir horario</string>

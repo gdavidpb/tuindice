@@ -38,7 +38,7 @@ class SummaryStatisticsGradesMapperTest {
 			listOf(
 				UiText.Resource(
 					Res.string.summary_statistics_grades_share_one,
-					listOf(UiText.Resource(Res.string.summary_percent_format, listOf(100)))
+					listOf(UiText.Resource(Res.string.summary_percent_format, listOf(100, "%")))
 				)
 			),
 			lines

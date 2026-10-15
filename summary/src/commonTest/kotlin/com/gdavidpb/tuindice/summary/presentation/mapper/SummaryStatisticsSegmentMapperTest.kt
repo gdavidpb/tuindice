@@ -30,7 +30,7 @@ class SummaryStatisticsSegmentMapperTest {
 			SummaryStatisticsTooltipItem(
 				title = UiText.Resource(
 					Res.string.summary_statistics_credits_share_approved_one,
-					listOf(1, UiText.Resource(Res.string.summary_percent_format, listOf(25)))
+					listOf(1, UiText.Resource(Res.string.summary_percent_format, listOf(25, "%")))
 				)
 			),
 			segment.tooltip
@@ -53,7 +53,7 @@ class SummaryStatisticsSegmentMapperTest {
 		assertEquals(
 			UiText.Resource(
 				Res.string.summary_statistics_credits_share_approved_many,
-				listOf(3, UiText.Resource(Res.string.summary_percent_format, listOf(75)))
+				listOf(3, UiText.Resource(Res.string.summary_percent_format, listOf(75, "%")))
 			),
 			segment.tooltip.title
 		)

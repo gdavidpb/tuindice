@@ -422,4 +422,4 @@ class SummaryStatisticsItemMapperTest {
 	}
 }
 
-private fun percent(value: Int): UiText = UiText.Resource(Res.string.summary_percent_format, listOf(value))
+private fun percent(value: Int): UiText = UiText.Resource(Res.string.summary_percent_format, listOf(value, "%"))
