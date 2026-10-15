@@ -411,12 +411,13 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(44 reglas en 11 archivos por área):
+(48 reglas en 12 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
 - `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
-  sin interfaces `*DataSource`; `data/repository` solo interfaces.
+  sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de render de
+  Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`.
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
@@ -437,6 +438,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
+- `session-recovery`: ni `nonCancellableRefresh = true` ni `NonCancellable` en el camino de recuperación de
+  sesión; un contexto no cancelable deja colgado el cierre de sesión.
 
 Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
 sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo
