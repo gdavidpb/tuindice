@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -26,16 +25,16 @@ fun EnrollmentProofRoute(
 	onRetryRequest: () -> Unit = {}
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
-	var dismissed by remember { mutableStateOf(false) }
+	val dismissed = remember { mutableStateOf(false) }
 	val retryActionLabel = stringResource(Res.string.enrollment_proof_retry)
 
 	val dismiss = {
-		dismissed = true
+		dismissed.value = true
 		onDismissRequest()
 	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
-		if (dismissed) return@CollectEffectWithLifecycle
+		if (dismissed.value) return@CollectEffectWithLifecycle
 
 		when (effect) {
 			is Enrollment.Effect.NavigateToOutdatedCredentials ->
