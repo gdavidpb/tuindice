@@ -13,6 +13,8 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.presentation.mapper.hasScheduleOnTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.isCurrentTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.isSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordEmpty
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
 
@@ -87,6 +89,8 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 					},
 				notice = event.notice,
 				hasSelectedTermSchedule = event.record.hasScheduleOnTerm(termId = selectedTermId),
+				isSelectedTermCurrent = event.record.isCurrentTerm(termId = selectedTermId),
+				isSelectedTermSynthetic = event.record.isSyntheticTerm(termId = selectedTermId),
 				storedSelectedTermId = event.selectedTermId,
 				// A jump still waiting for the list to take it is kept: an observation must not cost it.
 				arrivalAttemptId = (state as? Record.State.Content)?.arrivalAttemptId

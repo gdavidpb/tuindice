@@ -20,15 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
@@ -63,27 +59,8 @@ fun RecordScreen(
 ) {
 	val contentScrollInProgress = remember { mutableStateOf(false) }
 	val contentState = state as? Record.State.Content
-	val selectedTermIdValue = selectedTermId ?: contentState?.selectedTermId
-	val selectedSyntheticTerm = contentState
-		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
-		?.visibleRecord
-		?.filteredProjectionFor(RecordViewMode.Projection)
-		?.terms
-		?.firstOrNull { term ->
-			term.id == selectedTermIdValue && term.kind.isSynthetic
-		}
-	val isEnrollmentProofVisible = contentState
-		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
-		?.visibleRecord
-		?.filteredProjectionFor(RecordViewMode.Projection)
-		?.terms
-		?.currentTermOrNull(
-			kind = TermProjection::kind,
-			termOrder = TermProjection::termOrder,
-			id = TermProjection::id
-		)
-		?.let { currentTerm -> currentTerm.id == selectedTermIdValue }
-		?: false
+	// The actions of the selected term are offered in the projection only.
+	val projectionContent = contentState?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
 
 	Box(
 		modifier = Modifier
@@ -144,15 +121,15 @@ fun RecordScreen(
 			exit = fadeOut()
 		) {
 			Column(horizontalAlignment = Alignment.End) {
-				selectedSyntheticTerm?.let { term ->
+				if (projectionContent != null && projectionContent.isSelectedTermSynthetic) {
 					RecordSyntheticTermActionsView(
-						termId = term.id,
+						termId = projectionContent.selectedTermId,
 						onEditClick = onUpdateSyntheticTermClick,
 						onDeleteClick = onDeleteSyntheticTermClick
 					)
 				}
 
-				if (isEnrollmentProofVisible) {
+				if (projectionContent != null && projectionContent.isSelectedTermCurrent) {
 					RecordEnrollmentProofActionView(onClick = onEnrollmentProofClick)
 				}
 

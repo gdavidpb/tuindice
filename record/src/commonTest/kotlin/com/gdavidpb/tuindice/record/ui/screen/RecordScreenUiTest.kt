@@ -17,6 +17,8 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.isCurrentTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.isSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.mapper.recordNotice
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordEmpty
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
@@ -144,6 +146,25 @@ class RecordScreenUiTest {
 			.performClick()
 
 		assertEquals(1, enrollmentProofClicks)
+	}
+
+	@Test
+	fun when_selectedTermIsNotCurrent_then_enrollmentProofActionIsHidden() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					termId = "past-term",
+					termKind = TermKind.HISTORICAL
+				),
+				selectedTermId = "past-term",
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		assertNodeHidden(RecordUiTags.EnrollmentProofButton)
 	}
 
 	@Test
@@ -388,13 +409,17 @@ class RecordScreenUiTest {
 		selectedTermId: String,
 		notice: RecordNotice? = null
 	): Record.State.Content {
+		val record = AcademicRecord(
+			id = "record",
+			terms = terms
+		)
+
 		return Record.State.Content(
 			viewMode = viewMode,
-			record = AcademicRecord(
-				id = "record",
-				terms = terms
-			),
+			record = record,
 			selectedTermId = selectedTermId,
+			isSelectedTermCurrent = record.isCurrentTerm(termId = selectedTermId),
+			isSelectedTermSynthetic = record.isSyntheticTerm(termId = selectedTermId),
 			notice = notice
 		)
 	}

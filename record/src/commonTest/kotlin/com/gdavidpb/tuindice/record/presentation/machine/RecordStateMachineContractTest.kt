@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
@@ -47,6 +48,7 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -67,6 +69,7 @@ import org.koin.core.Koin
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -529,6 +532,63 @@ class RecordStateMachineContractTest {
 		// must not bring them back until the next snapshot.
 		val tooShort = CreateSyntheticTerm.State(query = "f", searchResults = emptyList())
 		assertEquals(emptyList(), next(tooShort, snapshotOf(query = "fisica", results = queued)).searchResults)
+	}
+
+	@Test
+	fun recordMachine_marksTheSelectedTermWhenTheContentIsObserved_andWhenAnotherTermIsChosen() = runTest {
+		var resolvedMachine: RecordMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<Record.Effect> {
+			override fun sendEffect(effect: Record.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		val record = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(id = "past", kind = TermKind.HISTORICAL, periodYear = 2025),
+				academicTerm(id = "now", kind = TermKind.CURRENT, periodYear = 2026),
+				academicTerm(id = "made-by-me", kind = TermKind.SYNTHETIC, periodYear = 2026)
+			)
+		)
+
+		suspend fun next(state: Record.State, event: Any): Record.State.Content {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<Record.State>>(result)
+
+			return assertIs<Record.State.Content>(result.toState)
+		}
+
+		val observed = next(
+			state = Record.State.Idle,
+			event = RecordInternalEvent.RecordContentObserved(
+				viewMode = RecordViewMode.Projection,
+				record = record,
+				selectedTermId = "now",
+				notice = null
+			)
+		)
+		assertTrue(observed.isSelectedTermCurrent)
+		assertFalse(observed.isSelectedTermSynthetic)
+
+		val past = next(observed, Record.Action.SelectTerm(termId = "past"))
+		assertFalse(past.isSelectedTermCurrent)
+
+		val synthetic = next(past, Record.Action.SelectTerm(termId = "made-by-me"))
+		assertTrue(synthetic.isSelectedTermSynthetic)
+		assertFalse(synthetic.isSelectedTermCurrent)
+
+		val current = next(synthetic, Record.Action.SelectTerm(termId = "now"))
+		assertTrue(current.isSelectedTermCurrent)
+		assertFalse(current.isSelectedTermSynthetic)
 	}
 
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(

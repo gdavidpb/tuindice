@@ -36,6 +36,10 @@ object Record {
 			// Whether the selected term is the current one with something scheduled: what puts the
 			// schedule icon on the bar. Resolved with the observation, so nothing asks it while drawing.
 			val hasSelectedTermSchedule: Boolean = false,
+			// Whether the selected term is the current one, the one the enrollment proof is about, and whether it is
+			// one the student created. Resolved with the observation and with each choice, as the schedule's is.
+			val isSelectedTermCurrent: Boolean = false,
+			val isSelectedTermSynthetic: Boolean = false,
 			// The term the store selected when this content was observed last. A selection of the screen that
 			// differs from it was made on this visit (a tap, or a jump to an attempt), and an observation that
 			// brings the same stored term keeps it; one that brings another term takes the store's.

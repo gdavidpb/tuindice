@@ -172,7 +172,8 @@ class RecordRtlA11yUiTest {
 					)
 				)
 			),
-			selectedTermId = RtlSyntheticTermId
+			selectedTermId = RtlSyntheticTermId,
+			isSelectedTermSynthetic = true
 		)
 	}
 }
