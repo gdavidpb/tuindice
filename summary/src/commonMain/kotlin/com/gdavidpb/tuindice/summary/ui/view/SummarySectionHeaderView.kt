@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 /**
@@ -32,7 +33,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
  * owns it ("Horario", "Sep - Dic 2026", "Pensum"). The link is the text with its chevron and has a
  * touch target of the minimum size; [sectionTag] names both parts for the tests. A section whose
  * screen has nothing to open says no [linkText] and shows no link, and its head keeps the height it
- * would have with one, so the sections keep their rhythm.
+ * would have with one, so the sections keep their rhythm. An [info] puts its mark beside the title.
  */
 @Composable
 fun SummarySectionHeaderView(
@@ -40,23 +41,33 @@ fun SummarySectionHeaderView(
 	linkText: String?,
 	onLinkClick: () -> Unit,
 	sectionTag: String,
-	modifier: Modifier = Modifier
+	info: RichTooltipText? = null
 ) {
 	Row(
-		modifier = modifier
+		modifier = Modifier
 			.fillMaxWidth()
 			.heightIn(min = TuIndiceComponentSizes.IconButton)
 			.padding(horizontal = TuIndiceSpacing.XSmall),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		Text(
-			modifier = Modifier
-				.weight(1f, fill = false)
-				.testTag(SummaryUiTags.sectionTitle(sectionTag)),
-			text = title,
-			style = MaterialTheme.typography.titleMedium
-		)
+		Row(
+			modifier = Modifier.weight(1f, fill = false),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Text(
+				modifier = Modifier.testTag(SummaryUiTags.sectionTitle(sectionTag)),
+				text = title,
+				style = MaterialTheme.typography.titleMedium
+			)
+
+			info?.let { tooltip ->
+				SummarySectionInfoView(
+					info = tooltip,
+					tag = SummarySectionUiTags.info(sectionTag)
+				)
+			}
+		}
 
 		if (linkText != null) {
 			Row(

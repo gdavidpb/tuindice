@@ -36,13 +36,13 @@ private fun figuresOf(summary: SummaryStatistics): SummaryStatisticsSectionItem.
 
 	return when (content) {
 		is SummaryStatisticsIndexItem.Content.Data -> SummaryStatisticsSectionItem.Figures(
-			figure = content.figure.value,
+			grade = content.grade,
 			line = content.points.map { point -> point.lineValue },
 			phrase = phrase
 		)
 
 		is SummaryStatisticsIndexItem.Content.Empty -> SummaryStatisticsSectionItem.Figures(
-			figure = null,
+			grade = null,
 			line = emptyList(),
 			phrase = phrase
 		)

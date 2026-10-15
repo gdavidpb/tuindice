@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.summary.presentation.mapper
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsLinePointItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
@@ -24,14 +23,23 @@ private const val INDEX_DECIMALS = 4
 private const val MIN_RANKED_TERMS_FOR_WORST = 2
 
 // "Índice": one point per closed term that has an index, in order. The line runs through the cumulative average, and
-// the marker of each point sits on the index of its term. The figure is the cumulative average at the last of them,
-// which the caption names. The best regular term is named under the chart, and the worst from two ranked terms on.
+// the marker of each point sits on the index of its term. The grade is the cumulative average at the last of them,
+// which the caption names. The best regular term is named under the chart, and the worst from two ranked terms on; the
+// chart rings those same two points.
 internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String, String>): SummaryStatisticsIndexItem {
 	val title = UiText.Resource(Res.string.summary_statistics_index_title)
 	val indexed = summary.closed.terms.filter { term -> term.index != null }
+	val rankedTerms = summary.closed.terms.count { term -> term.isRegular && term.index != null }
 	val bestKey = summary.bestTerm?.termKey
+	// The worst is named, and ringed, only from two ranked terms on, and never when it is the best one: with every ranked
+	// term on the same index both name the same term, and that term is only the best.
+	val worst = summary.worstTerm?.takeIf { term ->
+		rankedTerms >= MIN_RANKED_TERMS_FOR_WORST && term.termKey != bestKey
+	}
 	val points = indexed.mapNotNull { term ->
-		linePointOf(term = term, axisLabels = axisLabels)?.let { point -> point.copy(isBest = term.termKey == bestKey) }
+		linePointOf(term = term, axisLabels = axisLabels)?.let { point ->
+			point.copy(isBest = term.termKey == bestKey, isWorst = term.termKey == worst?.termKey)
+		}
 	}
 	val last = indexed.lastOrNull()
 	val lastPoint = points.lastOrNull()
@@ -46,15 +54,12 @@ internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String
 	}
 
 	val values = points.flatMap { point -> listOf(point.lineValue, point.markerValue) }
-	val rankedTerms = summary.closed.terms.count { term -> term.isRegular && term.index != null }
 
 	return SummaryStatisticsIndexItem(
 		title = title,
 		content = SummaryStatisticsIndexItem.Content.Data(
-			figure = SummaryStatisticsFigureItem(
-				value = lastPoint.lineValue.toDouble().formatGrade(decimals = INDEX_DECIMALS),
-				label = UiText.Resource(Res.string.summary_statistics_index_suffix)
-			),
+			grade = lastPoint.lineValue,
+			label = UiText.Resource(Res.string.summary_statistics_index_suffix),
 			caption = UiText.Resource(
 				Res.string.summary_statistics_index_caption,
 				listOf(last.fullLabel())
@@ -63,9 +68,7 @@ internal fun indexItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String
 			minValue = values.min(),
 			maxValue = values.max(),
 			best = summary.bestTerm?.let { best -> rankedLabelOf(Res.string.summary_statistics_index_best, best) },
-			worst = summary.worstTerm
-				?.takeIf { rankedTerms >= MIN_RANKED_TERMS_FOR_WORST }
-				?.let { worst -> rankedLabelOf(Res.string.summary_statistics_index_worst, worst) }
+			worst = worst?.let { term -> rankedLabelOf(Res.string.summary_statistics_index_worst, term) }
 		)
 	)
 }

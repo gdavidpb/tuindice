@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsReferenceItem
@@ -14,15 +15,14 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_statistics_pace_complete
 import tuindice.summary.generated.resources.summary_statistics_pace_empty
 import tuindice.summary.generated.resources.summary_statistics_pace_figure
+import tuindice.summary.generated.resources.summary_statistics_pace_info
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_message
 import tuindice.summary.generated.resources.summary_statistics_pace_invite_title
-import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_many
-import tuindice.summary.generated.resources.summary_statistics_pace_projection_emphasis_one
-import tuindice.summary.generated.resources.summary_statistics_pace_projection_many
-import tuindice.summary.generated.resources.summary_statistics_pace_projection_one
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_pending
 import tuindice.summary.generated.resources.summary_statistics_pace_projection_tag
 import tuindice.summary.generated.resources.summary_statistics_pace_reference
+import tuindice.summary.generated.resources.summary_statistics_pace_remaining_many
+import tuindice.summary.generated.resources.summary_statistics_pace_remaining_one
 import tuindice.summary.generated.resources.summary_statistics_pace_title
 import tuindice.summary.generated.resources.summary_statistics_pace_tooltip_subjects_many
 import tuindice.summary.generated.resources.summary_statistics_pace_tooltip_subjects_one
@@ -34,7 +34,7 @@ private const val MIN_REGULAR_TERMS_FOR_PROJECTION = 2
 
 // "Ritmo": one bar per closed term with the credits it approved, the July - August term included. The reference line is
 // the average of the regular terms, which is the only pace the projection uses. Without a regular term there is no pace
-// to draw: the block says it will appear.
+// to draw: the block says it will appear. Its info explains the line and the projection beside the title.
 internal fun paceItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String, String>): SummaryStatisticsPaceItem {
 	val title = UiText.Resource(Res.string.summary_statistics_pace_title)
 	val terms = summary.closed.terms
@@ -70,7 +70,8 @@ internal fun paceItemOf(summary: SummaryStatisticsModel, axisLabels: Map<String,
 				pensum = summary.pensumProgress,
 				regularTerms = regularTerms
 			)
-		)
+		),
+		info = UiText.Resource(Res.string.summary_statistics_pace_info)
 	)
 }
 
@@ -95,10 +96,10 @@ private fun barOf(term: TermStatistic, axisLabels: Map<String, String>): Summary
 	)
 }
 
-// What the pensum still takes at this pace, or why it cannot say yet. A pensum that is not cached cannot be projected,
-// so the block invites to open it; a complete one has nothing left to project. The domain gives no projection for
-// either, so the pensum tells them apart. With two regular terms and no credit approved there is no pace to project
-// from, and the block says nothing of it.
+// What the pensum still takes at this pace, or why it cannot say yet. A pensum that is not cached cannot be
+// projected, so the block invites to open it; a complete one has nothing left to project. The domain gives no
+// projection for either, so the pensum tells them apart. With two regular terms and no credit approved there is no
+// pace to project from, and the block says nothing of it.
 private fun projectionOf(
 	pace: PaceStatistics,
 	pensum: PensumCreditsProgress?,
@@ -120,17 +121,14 @@ private fun projectionOf(
 		)
 
 		remainingTerms != null -> SummaryStatisticsPaceItem.Projection.Remaining(
-			text = countText(
-				quantity = remainingTerms,
-				one = Res.string.summary_statistics_pace_projection_one,
-				many = Res.string.summary_statistics_pace_projection_many,
-				args = listOf(remainingTerms, pensum.totalCredits)
-			),
-			emphasis = countText(
-				quantity = remainingTerms,
-				one = Res.string.summary_statistics_pace_projection_emphasis_one,
-				many = Res.string.summary_statistics_pace_projection_emphasis_many,
-				args = listOf(remainingTerms)
+			fact = SummaryStatisticsFactItem(
+				value = remainingTerms.toString(),
+				label = countText(
+					quantity = remainingTerms,
+					one = Res.string.summary_statistics_pace_remaining_one,
+					many = Res.string.summary_statistics_pace_remaining_many,
+					args = emptyList()
+				)
 			),
 			tag = UiText.Resource(Res.string.summary_statistics_pace_projection_tag)
 		)

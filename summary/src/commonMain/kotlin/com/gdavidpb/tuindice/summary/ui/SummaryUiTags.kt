@@ -131,14 +131,15 @@ object SummaryUiTags {
 	const val StatisticsGradesBlock = "summary_statistics_grades_block"
 	const val StatisticsPaceBlock = "summary_statistics_pace_block"
 
-	// The parts a block is made of: its figure, the line that says what it lacks, its notes and its legend.
+	// The parts a block is made of: its figure, its compact facts, the line that says what it lacks, and its legend.
 	const val StatisticsFigure = "summary_statistics_figure"
 	const val StatisticsCaption = "summary_statistics_caption"
 	const val StatisticsEmpty = "summary_statistics_empty"
 	const val StatisticsEmptyAction = "summary_statistics_empty_action"
 	const val StatisticsEmptyIcon = "summary_statistics_empty_icon"
 	const val StatisticsBestTerm = "summary_statistics_best_term"
-	const val StatisticsNotes = "summary_statistics_notes"
+	const val StatisticsWorstTerm = "summary_statistics_worst_term"
+	const val StatisticsFacts = "summary_statistics_facts"
 	const val StatisticsLegend = "summary_statistics_legend"
 	const val StatisticsOverdue = "summary_statistics_overdue"
 	const val StatisticsProjection = "summary_statistics_projection"

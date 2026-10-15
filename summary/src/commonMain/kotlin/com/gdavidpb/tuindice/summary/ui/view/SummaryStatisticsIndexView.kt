@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartDefaults
@@ -27,10 +28,13 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLineChart
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLinePoint
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
+private const val GRADE_DECIMALS = 4
+
 /**
  * "Índice": the cumulative average of the closed terms as a line, with the index of each term as its marker and each
- * term named under its column. Its figure is the cumulative average at the last closed term, which the caption names.
- * The best and the worst regular terms are written under the chart.
+ * term named under its column. Its figure is the cumulative average at the last closed term, written as the header
+ * writes a grade, and the caption names that term. The best and the worst regular terms are written under the chart,
+ * each beside a ring in the colour of its point.
  */
 @Composable
 fun SummaryStatisticsIndexView(
@@ -63,8 +67,9 @@ private fun ColumnScope.IndexData(
 	data: SummaryStatisticsIndexItem.Content.Data,
 	chartActionLabel: String
 ) {
-	val figure = data.figure
 	val bestColor = AcademicStatusColors.approved()
+	val worstColor = MaterialTheme.colorScheme.error
+	val label = data.label.asString()
 	val points = data.points.map { point ->
 		StatisticsLinePoint(
 			label = point.tooltip.title.asString(),
@@ -72,11 +77,20 @@ private fun ColumnScope.IndexData(
 			tooltip = point.tooltip.toRichText(),
 			axisLabel = point.axisLabel.asString(),
 			markerValue = point.markerValue,
-			ringColor = if (point.isBest) bestColor else null
+			ringColor = when {
+				point.isBest -> bestColor
+				point.isWorst -> worstColor
+				else -> null
+			}
 		)
 	}
 
-	SummaryStatisticsFigureView(figure = figure)
+	SummaryGradeFigureView(
+		grade = data.grade,
+		label = label,
+		style = MaterialTheme.typography.headlineMedium,
+		tag = SummaryUiTags.StatisticsFigure
+	)
 
 	Text(
 		modifier = Modifier.testTag(SummaryUiTags.StatisticsCaption),
@@ -92,28 +106,37 @@ private fun ColumnScope.IndexData(
 			maxValue = data.maxValue,
 			labels = StatisticsChartLabels(
 				key = SummaryStatisticsChartKey.Index,
-				summary = figure.summaryText(),
+				summary = "${data.grade.formatGrade(decimals = GRADE_DECIMALS)} $label",
 				actionLabel = chartActionLabel
 			)
 		)
 	}
 
-	data.best?.let { best -> BestTermNote(text = best.asString(), color = bestColor) }
+	data.best?.let { best ->
+		RankedTermNote(text = best.asString(), color = bestColor, tag = SummaryUiTags.StatisticsBestTerm)
+	}
 
-	data.worst?.let { worst -> SummaryStatisticsNotesView(notes = listOf(worst)) }
+	data.worst?.let { worst ->
+		RankedTermNote(text = worst.asString(), color = worstColor, tag = SummaryUiTags.StatisticsWorstTerm)
+	}
 }
 
-// "◯ Mejor: Ene - Mar 2024 · 4.5714": the ring before the words is the one around that term's point on the chart.
+// "◯ Mejor: Ene - Mar 2024 · 4.5714" and "◯ Peor: …": the ring before the words is the one around that point
+// on the chart, in the same colour.
 @Composable
-private fun BestTermNote(text: String, color: Color) {
+private fun RankedTermNote(
+	text: String,
+	color: Color,
+	tag: String
+) {
 	Row(
-		modifier = Modifier.testTag(SummaryUiTags.StatisticsBestTerm),
+		modifier = Modifier.testTag(tag),
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
 	) {
 		Box(
 			modifier = Modifier
-				.size(BestRingSize)
+				.size(NoteRingSize)
 				.border(width = StatisticsChartDefaults.RingStrokeWidth, color = color, shape = CircleShape)
 		)
 
@@ -125,4 +148,4 @@ private fun BestTermNote(text: String, color: Color) {
 	}
 }
 
-private val BestRingSize = 10.dp
+private val NoteRingSize = 10.dp

@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -19,6 +21,7 @@ import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
+import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -70,11 +73,13 @@ class SummaryStatisticsSectionViewUiTest {
 		setTuIndiceTestContent {
 			SummaryStatisticsSectionView(item = figuresWithLine(), actions = SummaryHubActions())
 		}
+		advanceAnimationsBy(1_000)
 
 		assertNodeVisible(SummaryUiTags.StatisticsCard)
 		assertNodeVisible(SummaryUiTags.StatisticsSparkline, useUnmergedTree = true)
 		onNodeWithTag(SummaryUiTags.StatisticsFigureText, useUnmergedTree = true)
-			.assertTextEquals("4.1250 acumulado")
+			.assertTextEquals("4.1250 / 5.0")
+		onNodeWithText("acumulado", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.StatisticsPhrase, useUnmergedTree = true)
 			.assertTextEquals(FIGURES_PHRASE)
 		onNodeWithTag(SummaryUiTags.StatisticsEmptyCard).assertDoesNotExist()
@@ -120,7 +125,7 @@ class SummaryStatisticsSectionViewUiTest {
 		setTuIndiceTestContent {
 			SummaryStatisticsSectionView(
 				item = SummaryStatisticsSectionItem.Figures(
-					figure = null,
+					grade = null,
 					line = emptyList(),
 					phrase = UiText.Raw("2 aprobadas")
 				),
@@ -130,7 +135,7 @@ class SummaryStatisticsSectionViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatisticsCard)
 		onNodeWithTag(SummaryUiTags.StatisticsPhrase, useUnmergedTree = true).assertTextEquals("2 aprobadas")
-		onNodeWithTag(SummaryUiTags.StatisticsFigureText, useUnmergedTree = true).assertDoesNotExist()
+		onAllNodesWithTag(SummaryUiTags.StatisticsFigureText, useUnmergedTree = true).assertCountEquals(0)
 		onNodeWithTag(SummaryUiTags.StatisticsSparkline, useUnmergedTree = true).assertDoesNotExist()
 	}
 
@@ -143,14 +148,16 @@ class SummaryStatisticsSectionViewUiTest {
 				}
 			}
 		}
+		advanceAnimationsBy(1_000)
 
-		assertTextIsWhole("4.1250 acumulado")
+		assertTextIsWhole("4.1250 / 5.0")
+		assertTextIsWhole("acumulado")
 		assertTextIsWhole(FIGURES_PHRASE)
 	}
 
 	private fun figuresWithLine(): SummaryStatisticsSectionItem.Figures {
 		return SummaryStatisticsSectionItem.Figures(
-			figure = "4.1250",
+			grade = 4.125f,
 			line = listOf(3.5f, 4.0f, 4.25f),
 			phrase = UiText.Raw(FIGURES_PHRASE)
 		)

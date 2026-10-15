@@ -6,12 +6,14 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 /**
  * "Ritmo": the approved credits of each closed term as a bar, with the average of the regular ones as a reference line.
  * The July - August term is drawn but leaves the average out. [Projection] says how many regular terms the pensum still
- * takes at that pace, or why it cannot say yet.
+ * takes at that pace, or why it cannot say yet. [info] explains the line and the projection, beside the title, when the
+ * block has data.
  */
 @Immutable
 data class SummaryStatisticsPaceItem(
 	val title: UiText,
-	val content: Content
+	val content: Content,
+	val info: UiText? = null
 ) {
 	sealed interface Content {
 		data class Empty(
@@ -28,12 +30,11 @@ data class SummaryStatisticsPaceItem(
 
 	sealed interface Projection {
 		/**
-		 * The projection itself, marked with [tag] as a projection. [emphasis] is the count that [text] names, which the
-		 * screen sets in bold.
+		 * The projection itself: [fact] counts the regular terms that the pensum still takes at this pace, and [tag] marks
+		 * it as a projection, beside the count.
 		 */
 		data class Remaining(
-			val text: UiText,
-			val emphasis: UiText,
+			val fact: SummaryStatisticsFactItem,
 			val tag: UiText
 		) : Projection
 

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 /**
  * The look of the statistics charts: their data colour, sizes and durations. The data is the load band's light blue,
@@ -28,11 +29,14 @@ object StatisticsChartDefaults {
 	val LineInset = TargetMinSize / 2f
 	val LineBandHeight = ChartHeight - LineInset * 2f
 
-	// Under the plot, each column names its point in a band of one small line that scrolls with the columns. A value
-	// written above a bar takes one line of its own, which the bar's top leaves clear.
+	// Under the plot, a gap keeps the labels off the columns, and another gap follows the labels before what comes next.
+	// Each column names its point in a band of one small line that scrolls with the columns. A value written above a bar
+	// takes one line of its own, which the bar's top leaves clear.
+	val AxisLabelGap = TuIndiceSpacing.Medium
+	val AxisLabelTop = ChartHeight + AxisLabelGap
 	val AxisLabelBandHeight = 20.dp
 	val ValueLabelHeight = 16.dp
-	val ContentHeight = ChartHeight + AxisLabelBandHeight
+	val ContentHeight = AxisLabelTop + AxisLabelBandHeight + AxisLabelGap
 
 	val MarkerSize = 8.dp
 	val RingSize = 19.dp

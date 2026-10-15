@@ -31,7 +31,8 @@ fun SummaryStatisticsBlockView(
 			title = head.title,
 			linkText = head.linkText,
 			onLinkClick = head.onLinkClick,
-			sectionTag = head.tag
+			sectionTag = head.tag,
+			info = head.info
 		)
 
 		SummaryHubCardView {

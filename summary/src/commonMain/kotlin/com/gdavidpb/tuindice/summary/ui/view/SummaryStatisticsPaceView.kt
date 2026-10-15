@@ -16,8 +16,6 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
@@ -33,9 +31,9 @@ import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 
 /**
  * "Ritmo": the approved credits of each closed term as a bar, with the average of the regular terms as a reference line
- * written at its end. Under the chart, the projection says how many regular terms the pensum still takes at that pace,
- * with the count set apart in a medium weight and the darker ink, and the projection's tag beside it, or why it
- * cannot say yet.
+ * written at its end. Under the chart, the projection counts as a compact figure how many regular terms the pensum
+ * still takes at that pace, with the projection's tag beside it, or says why it cannot say yet. The mark beside the
+ * title explains the line and the projection.
  */
 @Composable
 fun SummaryStatisticsPaceView(
@@ -48,7 +46,8 @@ fun SummaryStatisticsPaceView(
 	SummaryStatisticsBlockView(
 		head = SummaryStatisticsBlockHead(
 			tag = SummaryUiTags.StatisticsPaceBlock,
-			title = title
+			title = title,
+			info = item.info.toBlockInfo()
 		),
 		modifier = modifier
 	) {
@@ -134,30 +133,19 @@ private fun ColumnScope.PaceProjection(projection: SummaryStatisticsPaceItem.Pro
 	}
 }
 
-// The projection's sentence, with its count in a medium weight and the darker ink, and its tag in an outline beside it.
+// The projection's count as a compact figure, with its tag in an outline beside it.
 @Composable
 private fun RemainingProjection(projection: SummaryStatisticsPaceItem.Projection.Remaining) {
-	val emphasisStyle = SpanStyle(
-		color = MaterialTheme.colorScheme.onSurface,
-		fontWeight = FontWeight.Medium
-	)
-
 	Row(
-		modifier = Modifier.fillMaxWidth(),
+		modifier = Modifier
+			.fillMaxWidth()
+			.testTag(SummaryUiTags.StatisticsProjection),
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		Text(
-			modifier = Modifier
-				.weight(1f)
-				.testTag(SummaryUiTags.StatisticsProjection),
-			text = emphasizedText(
-				text = projection.text.asString(),
-				emphasis = projection.emphasis.asString(),
-				emphasisStyle = emphasisStyle
-			),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurfaceVariant
+		SummaryStatisticsFactsView(
+			facts = listOf(projection.fact),
+			modifier = Modifier.weight(1f)
 		)
 
 		Text(

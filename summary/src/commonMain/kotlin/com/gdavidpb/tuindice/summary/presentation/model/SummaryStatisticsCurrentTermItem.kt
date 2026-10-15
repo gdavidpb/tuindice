@@ -48,11 +48,11 @@ data class SummaryStatisticsCurrentTermItem(
 	}
 
 	/**
-	 * The evaluations that went by without a grade: [text] counts them, and [target] leads to the week and the
+	 * The evaluations that went by without a grade: [fact] counts them, and [target] leads to the week and the
 	 * evaluation of the oldest, the same line the hub shows for them, or null when the hub does not have it.
 	 */
 	data class Overdue(
-		val text: UiText,
+		val fact: SummaryStatisticsFactItem,
 		val target: SummaryHubTarget.EvaluationsWeek?
 	)
 }

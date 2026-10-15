@@ -8,7 +8,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -44,17 +46,44 @@ class SummaryStatisticsBlockViewUiTest {
 		onNodeWithText("Contenido del bloque").assertIsDisplayed()
 	}
 
+	@Test
+	fun when_anExplanationIsGiven_then_itsMarkIsBesideTheTitleAndOpensTheExplanation() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			BlockHost(
+				linkText = null,
+				onLinkClick = {},
+				info = RichTooltipText(lines = listOf(EXPLANATION))
+			)
+		}
+
+		onNodeWithTag(SummarySectionUiTags.info(BlockTag)).assertIsDisplayed()
+		onNodeWithTag(SummarySectionUiTags.info(BlockTag)).performClick()
+
+		assertTooltipShows(EXPLANATION)
+	}
+
+	@Test
+	fun when_noExplanationIsGiven_then_noMarkIsWrittenAtTheHead() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			BlockHost(linkText = null, onLinkClick = {})
+		}
+
+		onAllNodesWithTag(SummarySectionUiTags.info(BlockTag)).assertCountEquals(0)
+	}
+
 	@Composable
 	private fun BlockHost(
 		linkText: String?,
-		onLinkClick: () -> Unit
+		onLinkClick: () -> Unit,
+		info: RichTooltipText? = null
 	) {
 		SummaryStatisticsBlockView(
 			head = SummaryStatisticsBlockHead(
 				tag = BlockTag,
 				title = "Este trimestre",
 				linkText = linkText,
-				onLinkClick = onLinkClick
+				onLinkClick = onLinkClick,
+				info = info
 			)
 		) {
 			SummaryStatisticsEmptyView(message = "Contenido del bloque")
@@ -63,5 +92,6 @@ class SummaryStatisticsBlockViewUiTest {
 
 	private companion object {
 		const val BlockTag = "summary_statistics_test_block"
+		const val EXPLANATION = "Explica lo que muestra el bloque."
 	}
 }

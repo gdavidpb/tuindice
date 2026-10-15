@@ -17,13 +17,13 @@ sealed interface SummaryStatisticsSectionItem {
 	data object Invite : SummaryStatisticsSectionItem
 
 	/**
-	 * The terms over. [figure] is the cumulative average at the last of them that has an average, null when none has one,
-	 * and [line] those averages in order, which is empty with no figure. [phrase] says how many subjects are approved and
+	 * The terms over. [grade] is the cumulative average at the last of them that has an average, null when none has one,
+	 * and [line] those averages in order, which is empty with no grade. [phrase] says how many subjects are approved and
 	 * names the best regular term when there is one.
 	 */
 	@Immutable
 	data class Figures(
-		val figure: String?,
+		val grade: Float?,
 		val line: List<Float>,
 		val phrase: UiText
 	) : SummaryStatisticsSectionItem

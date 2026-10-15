@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -92,13 +93,14 @@ class SummarySectionHeaderViewUiTest {
 	fun when_theSectionHasNoLinkText_then_noLinkIsShown_andTheHeadKeepsItsHeight() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			Column {
-				SummarySectionHeaderView(
-					modifier = Modifier.testTag("head"),
-					title = "Esta semana",
-					linkText = null,
-					onLinkClick = {},
-					sectionTag = SummaryUiTags.WeekSection
-				)
+				Box(modifier = Modifier.testTag("head")) {
+					SummarySectionHeaderView(
+						title = "Esta semana",
+						linkText = null,
+						onLinkClick = {},
+						sectionTag = SummaryUiTags.WeekSection
+					)
+				}
 			}
 		}
 

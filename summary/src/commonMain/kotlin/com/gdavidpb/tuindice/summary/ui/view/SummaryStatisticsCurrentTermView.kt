@@ -206,7 +206,8 @@ private fun TypeRowContent(row: SummaryStatisticsEvaluationTypeItem) {
 	}
 }
 
-// The evaluations that went by without a grade, as a line with its warning and a rule above it. The line leads to the
+// The evaluations that went by without a grade, as a compact figure with its warning and a rule above it. The line
+// leads to the
 // week of the oldest one when the hub has it, and then it shows an arrow.
 @Composable
 private fun OverdueRow(
@@ -239,12 +240,19 @@ private fun OverdueRow(
 			tint = AcademicStatusColors.warning()
 		)
 
-		Text(
-			modifier = Modifier.weight(1f),
-			text = overdue.text.asString(),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
+		Column(modifier = Modifier.weight(1f)) {
+			Text(
+				text = overdue.fact.value,
+				style = MaterialTheme.typography.titleMedium,
+				color = MaterialTheme.colorScheme.onSurface
+			)
+
+			Text(
+				text = overdue.fact.label.asString(),
+				style = MaterialTheme.typography.labelSmall,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
+		}
 
 		if (target != null) {
 			Icon(

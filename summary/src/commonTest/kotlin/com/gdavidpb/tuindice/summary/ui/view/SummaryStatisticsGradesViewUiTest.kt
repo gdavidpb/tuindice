@@ -7,10 +7,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsLabelTags
 import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -18,7 +20,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class SummaryStatisticsGradesViewUiTest {
 	@Test
-	fun when_gradesAreCounted_then_eachBarWritesItsCountAboveItAndItsGradeBelow() = runTuIndiceUiTest {
+	fun when_gradesAreCounted_then_eachBarWritesItsCountAndTheUnreportedAreFigured() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryStatisticsGradesView(item = gradesWithCounts(), chartActionLabel = "Ver detalle")
 		}
@@ -32,8 +34,20 @@ class SummaryStatisticsGradesViewUiTest {
 			testTag = StatisticsLabelTags.axis(SummaryStatisticsChartKey.Grades, 3),
 			useUnmergedTree = true
 		).assertTextEquals("4")
-		onNodeWithText("La más frecuente: 4.").assertIsDisplayed()
-		onNodeWithText("3 sin reportar").assertIsDisplayed()
+		assertNodeVisible(SummaryUiTags.StatisticsFacts)
+		onNodeWithText("sin reportar").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theInfoMarkIsTapped_then_itsTooltipExplainsWhatTheBarsCount() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryStatisticsGradesView(item = gradesWithCounts(), chartActionLabel = "Ver detalle")
+		}
+		waitForIdle()
+
+		onNodeWithTag(SummarySectionUiTags.info(SummaryUiTags.StatisticsGradesBlock)).performClick()
+
+		assertTooltipShows("Una nota por materia cursada, repetidas incluidas.")
 	}
 
 	@Test
@@ -59,12 +73,9 @@ class SummaryStatisticsGradesViewUiTest {
 					bar(grade = "4", count = "21", title = "Nota 4: 21 materias"),
 					bar(grade = "5", count = "16", title = "Nota 5: 16 materias")
 				),
-				notes = listOf(
-					words("Una nota por materia cursada, repetidas incluidas."),
-					words("La más frecuente: 4.")
-				),
-				unreported = words("3 sin reportar")
-			)
+				facts = listOf(SummaryStatisticsFactItem(value = "3", label = words("sin reportar")))
+			),
+			info = words("Una nota por materia cursada, repetidas incluidas.")
 		)
 	}
 

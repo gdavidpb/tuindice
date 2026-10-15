@@ -125,11 +125,12 @@ private fun FiguresCard(
 			modifier = Modifier.padding(TuIndiceSpacing.Screen),
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 		) {
-			item.figure?.let { figure ->
-				SummaryFigureText(
-					modifier = Modifier.testTag(SummaryUiTags.StatisticsFigureText),
-					figure = figure,
-					rest = stringResource(Res.string.summary_statistics_index_suffix)
+			item.grade?.let { grade ->
+				SummaryGradeFigureView(
+					tag = SummaryUiTags.StatisticsFigureText,
+					grade = grade,
+					label = stringResource(Res.string.summary_statistics_index_suffix),
+						style = MaterialTheme.typography.titleLarge
 				)
 			}
 

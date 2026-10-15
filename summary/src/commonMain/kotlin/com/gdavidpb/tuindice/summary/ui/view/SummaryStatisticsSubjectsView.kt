@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
  * "Materias": the subjects of the closed terms by outcome, as one stacked bar with its legend. The figure counts every
- * subject; the bar holds the approved, the failed and the withdrawn, and the subjects without a result are a line of
- * text among the notes. The notes say how many were approved on the first attempt, and how many were repeated.
+ * subject; the bar holds the approved, the failed and the withdrawn, and the subjects without a result are a compact
+ * figure among the facts, which also say how many were approved on the first attempt and how many were repeated.
  */
 @Composable
 fun SummaryStatisticsSubjectsView(
@@ -49,7 +49,6 @@ private fun ColumnScope.SubjectsData(
 	chartActionLabel: String
 ) {
 	val segments = data.segments
-	val notes = data.notes + listOfNotNull(data.noResult)
 
 	SummaryStatisticsFigureView(figure = data.figure)
 
@@ -73,5 +72,5 @@ private fun ColumnScope.SubjectsData(
 
 	SummaryStatisticsLegendView(segments = segments)
 
-	SummaryStatisticsNotesView(notes = notes)
+	SummaryStatisticsFactsView(facts = data.facts)
 }

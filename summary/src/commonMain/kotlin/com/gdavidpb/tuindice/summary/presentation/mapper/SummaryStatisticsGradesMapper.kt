@@ -4,24 +4,23 @@ import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_statistics_grades_empty
-import tuindice.summary.generated.resources.summary_statistics_grades_mode
-import tuindice.summary.generated.resources.summary_statistics_grades_note
+import tuindice.summary.generated.resources.summary_statistics_grades_info
 import tuindice.summary.generated.resources.summary_statistics_grades_share_many
 import tuindice.summary.generated.resources.summary_statistics_grades_share_one
 import tuindice.summary.generated.resources.summary_statistics_grades_title
 import tuindice.summary.generated.resources.summary_statistics_grades_tooltip_many
 import tuindice.summary.generated.resources.summary_statistics_grades_tooltip_one
-import tuindice.summary.generated.resources.summary_statistics_grades_unreported_many
-import tuindice.summary.generated.resources.summary_statistics_grades_unreported_one
+import tuindice.summary.generated.resources.summary_statistics_grades_unreported
 
 private const val LOWEST_GRADE = 1
 
-// "Tus notas": one bar per grade, counting the attempts that carry it, repeated subjects included. The most frequent
-// grade is named under the bars; on a tie, the highest of the tied grades.
+// "Tus notas": one bar per grade, counting the attempts that carry it, repeated subjects included. The attempts whose
+// grade the university never reported are a compact figure of their own, and the info says what the bars count.
 internal fun gradesItemOf(histogram: GradeHistogram): SummaryStatisticsGradesItem {
 	val title = UiText.Resource(Res.string.summary_statistics_grades_title)
 	val graded = histogram.countsByGrade.values.sum()
@@ -41,9 +40,9 @@ internal fun gradesItemOf(histogram: GradeHistogram): SummaryStatisticsGradesIte
 			bars = (LOWEST_GRADE..MAX_SUBJECT_GRADE).map { grade ->
 				gradeBarOf(grade = grade, count = histogram.countsByGrade[grade] ?: 0, graded = graded)
 			},
-			notes = notesOf(histogram = histogram, graded = graded),
-			unreported = unreportedOf(count = histogram.unreported)
-		)
+			facts = factsOf(count = histogram.unreported)
+		),
+		info = UiText.Resource(Res.string.summary_statistics_grades_info)
 	)
 }
 
@@ -76,32 +75,15 @@ private fun shareLineOf(count: Int, graded: Int): UiText {
 	}
 }
 
-private fun notesOf(histogram: GradeHistogram, graded: Int): List<UiText> {
-	return buildList {
-		add(UiText.Resource(Res.string.summary_statistics_grades_note))
+// "3 sin reportar": the attempts whose grade the record never reported, as a compact figure, and none when there are
+// none.
+private fun factsOf(count: Int): List<SummaryStatisticsFactItem> {
+	if (count == 0) return emptyList()
 
-		if (graded > 0) {
-			modeOf(countsByGrade = histogram.countsByGrade)?.let { grade ->
-				add(UiText.Resource(Res.string.summary_statistics_grades_mode, listOf(grade)))
-			}
-		}
-	}
-}
-
-// The grade with the most attempts; on a tie, the highest grade of those tied.
-private fun modeOf(countsByGrade: Map<Int, Int>): Int? {
-	return countsByGrade.entries
-		.maxWithOrNull(compareBy<Map.Entry<Int, Int>>({ entry -> entry.value }, { entry -> entry.key }))
-		?.key
-}
-
-private fun unreportedOf(count: Int): UiText? {
-	if (count == 0) return null
-
-	return countText(
-		quantity = count,
-		one = Res.string.summary_statistics_grades_unreported_one,
-		many = Res.string.summary_statistics_grades_unreported_many,
-		args = listOf(count)
+	return listOf(
+		SummaryStatisticsFactItem(
+			value = count.toString(),
+			label = UiText.Resource(Res.string.summary_statistics_grades_unreported)
+		)
 	)
 }

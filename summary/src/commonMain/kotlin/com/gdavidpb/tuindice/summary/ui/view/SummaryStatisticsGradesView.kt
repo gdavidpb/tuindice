@@ -13,8 +13,9 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
- * "Tus notas": one bar for each grade from 1 to 5, with the attempts that carry it written above the bar and
- * the grade under it. The notes name the most frequent grade and say what the record did not report, when anything.
+ * "Tus notas": one bar for each grade from 1 to 5, with the attempts that carry it written above the bar and the grade
+ * under it. The mark beside the title explains what the bars count, and the figure under them says what the record did
+ * not report, when anything.
  */
 @Composable
 fun SummaryStatisticsGradesView(
@@ -27,7 +28,8 @@ fun SummaryStatisticsGradesView(
 	SummaryStatisticsBlockView(
 		head = SummaryStatisticsBlockHead(
 			tag = SummaryUiTags.StatisticsGradesBlock,
-			title = title
+			title = title,
+			info = item.info.toBlockInfo()
 		),
 		modifier = modifier
 	) {
@@ -60,7 +62,6 @@ private fun ColumnScope.GradesData(
 			valueLabel = bar.valueLabel?.asString()
 		)
 	}
-	val notes = data.notes + listOfNotNull(data.unreported)
 
 	key(bars) {
 		StatisticsBarChart(
@@ -75,5 +76,5 @@ private fun ColumnScope.GradesData(
 		)
 	}
 
-	SummaryStatisticsNotesView(notes = notes)
+	SummaryStatisticsFactsView(facts = data.facts)
 }

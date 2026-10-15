@@ -127,6 +127,7 @@ fun SummaryContentView(
 		)
 
 		GradeTextView(
+			modifier = Modifier.padding(vertical = 8.dp),
 			grade = state.grade
 		)
 

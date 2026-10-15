@@ -70,7 +70,7 @@ class SummaryStatisticsSectionItemTest {
 	}
 
 	@Test
-	fun when_termsAreOver_then_theFigureIsTheIndexOfTheScreenAndThePhraseNamesTheBestTerm() {
+	fun when_termsAreOver_then_theGradeIsTheIndexOfTheScreenAndThePhraseNamesTheBestTerm() {
 		val first = statisticsTerm(year = 2023, periodCode = AcademicTermPeriod.SEP_DEC, index = 4.0)
 		val second = statisticsTerm(year = 2024, periodCode = AcademicTermPeriod.JAN_MAR, index = 4.5)
 			.copy(cumulativeIndex = 4.25)
@@ -80,7 +80,7 @@ class SummaryStatisticsSectionItemTest {
 
 		assertEquals(
 			SummaryStatisticsSectionItem.Figures(
-				figure = "4.2500",
+				grade = 4.25f,
 				line = listOf(4.0f, 4.25f),
 				phrase = UiText.Resource(
 					Res.string.summary_statistics_section_approved_best_many,
@@ -98,7 +98,7 @@ class SummaryStatisticsSectionItemTest {
 
 		assertEquals(
 			SummaryStatisticsSectionItem.Figures(
-				figure = "4.0000",
+				grade = 4.0f,
 				line = listOf(4.0f),
 				phrase = UiText.Resource(
 					Res.string.summary_statistics_section_approved_best_one,
@@ -116,7 +116,7 @@ class SummaryStatisticsSectionItemTest {
 
 		assertEquals(
 			SummaryStatisticsSectionItem.Figures(
-				figure = "4.0000",
+				grade = 4.0f,
 				line = listOf(4.0f),
 				phrase = UiText.Resource(Res.string.summary_statistics_subjects_approved_one, listOf(1))
 			),
@@ -125,13 +125,13 @@ class SummaryStatisticsSectionItemTest {
 	}
 
 	@Test
-	fun when_theTermsOverHaveNoAverage_then_thereIsNoFigureNorLineAndTheCountRemains() {
+	fun when_theTermsOverHaveNoAverage_then_thereIsNoGradeNorLineAndTheCountRemains() {
 		val ungraded = statisticsTerm(year = 2024, periodCode = AcademicTermPeriod.JAN_MAR, index = null)
 		val hub = statisticsHubOf(statistics = statisticsOf(terms = listOf(ungraded), subjects = subjectsApproved(2)))
 
 		assertEquals(
 			SummaryStatisticsSectionItem.Figures(
-				figure = null,
+				grade = null,
 				line = emptyList(),
 				phrase = UiText.Resource(Res.string.summary_statistics_subjects_approved_many, listOf(2))
 			),
@@ -150,7 +150,7 @@ class SummaryStatisticsSectionItemTest {
 
 		assertEquals(
 			SummaryStatisticsSectionItem.Figures(
-				figure = "4.0000",
+				grade = 4.0f,
 				line = listOf(4.0f),
 				phrase = UiText.Resource(
 					Res.string.summary_statistics_section_approved_best_many,

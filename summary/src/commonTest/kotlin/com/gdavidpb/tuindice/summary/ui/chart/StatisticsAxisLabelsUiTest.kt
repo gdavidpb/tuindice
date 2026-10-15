@@ -28,9 +28,11 @@ class StatisticsAxisLabelsUiTest {
 		waitForIdle()
 
 		onNodeWithTag(axisTag(1), useUnmergedTree = true).assertTextEquals("S-D 24")
-		// Each label starts one column after the last, and the band starts where the plot ends, one chart height down.
+		// Each label starts one column after the last. The band starts one gap below the plot, which ends one chart height
+		// down, and another gap follows the band.
 		assertEquals(COLUMN_PX, boundsOf(axisTag(1)).left - boundsOf(axisTag(0)).left, 1f)
-		assertEquals(PLOT_PX, boundsOf(axisTag(0)).top - boundsOf(HOST_TAG).top, 1f)
+		assertEquals(PLOT_PX + GAP_PX, boundsOf(axisTag(0)).top - boundsOf(HOST_TAG).top, 1f)
+		assertEquals(GAP_PX, boundsOf(HOST_TAG).bottom - boundsOf(axisTag(0)).bottom, 1f)
 	}
 
 	@Test
@@ -68,7 +70,8 @@ class StatisticsAxisLabelsUiTest {
 		const val WIDTH_DP = 200
 		const val COLUMN_PX = 48f
 
-		// The plot is the chart's height, which the band under it starts at, at a density of 1.
+		// The plot is the chart's height, and the gap is the medium spacing, both at a density of 1.
 		const val PLOT_PX = 168f
+		const val GAP_PX = 8f
 	}
 }

@@ -27,7 +27,7 @@ internal fun BoxScope.StatisticsAxisLabels(
 	labels.forEachIndexed { index, text ->
 		Text(
 			modifier = Modifier
-				.offset(x = (index * columnWidth).dp, y = StatisticsChartDefaults.ChartHeight)
+				.offset(x = (index * columnWidth).dp, y = StatisticsChartDefaults.AxisLabelTop)
 				.width(columnWidth.dp)
 				.height(StatisticsChartDefaults.AxisLabelBandHeight)
 				.testTag(StatisticsLabelTags.axis(key, index))
