@@ -1,0 +1,37 @@
+rules:
+  - id: data-source-no-interface
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      data/source contiene solo implementaciones concretas. Una interfaz, de cualquier nombre, va en data/repository
+      (contrato interno de la capa data) o en domain/repository (contrato de negocio), y la clase concreta se queda
+      en data/source (README "Capas por feature > Data"; skill "data/source contains concrete implementations").
+    pattern-regex: '^\s*(?:(?:public|internal|private|protected)\s+)?(?:fun\s+)?interface\b'
+    paths:
+      include:
+        - '**/data/source/**'
+      exclude:
+        # Seam de prueba del proveedor AEAD de Tink: la interfaz interna la implementa la clase privada de su mismo
+        # archivo y los tests de app la sustituyen por un fake. No es un contrato de datos, y data/repository exige
+        # el sufijo DataRepository para abstracciones internas reales sobre varios orígenes.
+        - '**/data/source/secure/AndroidTinkSecureKeyValueDataSource.kt'
+    metadata:
+      area: data-source
+      referencia: 'README.md § Capas por feature > Data'
+
+  - id: data-source-no-flow-wrapper
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      flow { emitAll(x) } es un envoltorio sin efecto: produce exactamente lo que produce x. Devuelve x directamente
+      o añade el paso que justifique el envoltorio. Un flow con más sentencias (emit, validación, un paso previo) sí es
+      lógica y no entra aquí (README "Capas por feature > Data").
+    pattern-either:
+      - pattern: flow { emitAll($X) }
+      - pattern: flow<$T> { emitAll($X) }
+    paths:
+      include:
+        - '**/data/**'
+    metadata:
+      area: data-source
+      referencia: 'README.md § Capas por feature > Data'

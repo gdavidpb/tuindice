@@ -411,13 +411,15 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(48 reglas en 12 archivos por área):
+(50 reglas en 13 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
 - `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
   sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de render de
   Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`.
+- `data-source`: en `data/source` no hay interfaces (van en `data/repository` o `domain/repository`) y no hay
+  envoltorios `flow { emitAll(x) }` sin efecto.
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
