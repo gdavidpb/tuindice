@@ -73,7 +73,8 @@ rules:
       area: layering
       referencia: 'README.md § Capas por feature'
 
-  # route/ y navigation/ montan pantallas: quedan fuera de estas tres reglas por no estar en su alcance.
+  # route/ y navigation/ montan pantallas: las dos primeras reglas no las cubren (su alcance son contract, machine,
+  # viewmodel, transition, mapper y model); la de persistence sí, porque ninguna pantalla debe importarla.
   - id: presentation-no-compose-render-import
     languages: [kotlin]
     severity: ERROR
