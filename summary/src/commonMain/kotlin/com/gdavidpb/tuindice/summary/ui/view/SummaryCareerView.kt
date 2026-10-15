@@ -1,35 +1,28 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardIcon
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
@@ -132,12 +125,11 @@ private fun CareerProgressCard(
 	}
 }
 
-// The track with the share of it that is approved, in the green of "approved" everywhere else. With
-// a description it is a progress element for a screen reader; without one (the empty bar of the
-// invitation) it is only decoration.
+// The shared bar with the share of the pensum that is approved, in the green of "approved" everywhere else. With a
+// description it is a progress element for a screen reader; without one (the empty bar of the invitation) it is only
+// decoration.
 @Composable
 private fun CareerBar(fraction: Float, description: String?) {
-	val shape = RoundedCornerShape(TuIndiceRadius.Full)
 	val semantics = if (description != null) {
 		Modifier
 			.testTag(SummaryUiTags.CareerProgressBar)
@@ -149,21 +141,9 @@ private fun CareerBar(fraction: Float, description: String?) {
 		Modifier.clearAndSetSemantics { }
 	}
 
-	Box(
-		modifier = Modifier
-			.fillMaxWidth()
-			.height(CareerBarHeight)
-			.clip(shape)
-			.background(MaterialTheme.colorScheme.outlineVariant)
-			.then(semantics)
-	) {
-		Box(
-			modifier = Modifier
-				.fillMaxHeight()
-				.fillMaxWidth(fraction.coerceIn(0f, 1f))
-				.background(AcademicStatusColors.approved())
-		)
-	}
+	TuIndiceProgressBar(
+		fraction = fraction,
+		color = AcademicStatusColors.approved(),
+		modifier = semantics
+	)
 }
-
-private val CareerBarHeight = 6.dp

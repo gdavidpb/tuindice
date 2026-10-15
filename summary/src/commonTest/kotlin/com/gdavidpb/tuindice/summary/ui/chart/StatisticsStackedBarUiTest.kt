@@ -13,10 +13,12 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.view.RichTooltipText
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -139,6 +141,19 @@ class StatisticsStackedBarUiTest {
 
 		val onClick = onNodeWithTag(targetTag(0)).fetchSemanticsNode().config[SemanticsActions.OnClick]
 		assertEquals(ActionLabel, onClick.label)
+	}
+
+	@Test
+	fun when_rendered_then_theBarIsTheSharedHeightAndItsTargetsStayAFingerTall() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			StackedBarHost(values = listOf(1f, 3f))
+		}
+		waitForIdle()
+
+		onNodeWithTag(SummaryUiTags.statisticsFill(ChartKey, 0), useUnmergedTree = true)
+			.assertHeightIsEqualTo(TuIndiceComponentSizes.ProgressBarHeight)
+		onNodeWithTag(targetTag(0)).assertHeightIsEqualTo(StatisticsChartDefaults.TargetMinSize)
+		onNodeWithTag(targetTag(1)).assertHeightIsEqualTo(StatisticsChartDefaults.TargetMinSize)
 	}
 
 	@Composable

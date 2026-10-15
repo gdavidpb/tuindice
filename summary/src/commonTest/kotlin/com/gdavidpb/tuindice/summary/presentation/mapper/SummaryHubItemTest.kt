@@ -456,6 +456,11 @@ class SummaryHubItemTest {
 		assertNull(items[0].valueText)
 		assertEquals(UiText.Resource(Res.string.summary_points_none), items[0].restText)
 		assertEquals(UiText.Resource(Res.string.summary_points_no_evaluations), items[1].restText)
+		// Its bar stays, empty, and the evaluated figure is left out: "Sin notas aún" already says nothing is evaluated.
+		assertNull(items[0].evaluatedText)
+		assertEquals(0f, items[0].evaluatedFraction)
+		// A subject with no evaluations has no bar at all.
+		assertNull(items[1].evaluatedFraction)
 	}
 
 	@Test
@@ -474,9 +479,9 @@ class SummaryHubItemTest {
 		assertEquals(0.6f, items[0].evaluatedFraction)
 		assertEquals(UiText.Resource(Res.string.summary_points_evaluated, listOf("100", "100")), items[1].evaluatedText)
 		assertEquals(1f, items[1].evaluatedFraction)
-		// Nothing is registered for EG1114: no evaluated line at all, not "0 de 100".
+		// Nothing is registered for EG1114: no bar and no evaluated line at all, not "0 de 100".
 		assertEquals(null, items[2].evaluatedText)
-		assertEquals(0f, items[2].evaluatedFraction)
+		assertNull(items[2].evaluatedFraction)
 	}
 
 	@Test

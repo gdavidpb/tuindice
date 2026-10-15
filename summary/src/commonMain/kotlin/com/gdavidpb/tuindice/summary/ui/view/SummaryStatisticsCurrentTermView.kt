@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsEvaluationTypeItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -109,7 +110,11 @@ private fun ColumnScope.TermData(
 
 	data.fraction?.let { fraction ->
 		// The data blue of the statistics, as every chart of the screen draws its figures.
-		SummaryStatisticsTrackView(fraction = fraction, color = StatisticsChartDefaults.dataColor())
+		TuIndiceProgressBar(
+			fraction = fraction,
+			color = StatisticsChartDefaults.dataColor(),
+			fillTag = SummaryUiTags.StatisticsTrackFill
+		)
 	}
 
 	data.rows.forEachIndexed { index, row ->
@@ -175,7 +180,11 @@ private fun TypeRowContent(row: SummaryStatisticsEvaluationTypeItem) {
 			color = onSurface
 		)
 
-		SummaryStatisticsTrackView(fraction = row.fraction, color = StatisticsChartDefaults.dataColor())
+		TuIndiceProgressBar(
+			fraction = row.fraction,
+			color = StatisticsChartDefaults.dataColor(),
+			fillTag = SummaryUiTags.StatisticsTrackFill
+		)
 
 		Row(
 			modifier = Modifier.fillMaxWidth(),

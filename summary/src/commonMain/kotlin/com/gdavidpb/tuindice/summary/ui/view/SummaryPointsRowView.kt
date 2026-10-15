@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
@@ -28,11 +29,10 @@ import tuindice.summary.generated.resources.a11y_summary_open_record_attempt
 
 /**
  * A subject of the term: its chip and its points on the first line ("41 de 60 puntos", "Sin notas aún" or
- * "Sin evaluaciones"), the bar of what it has evaluated of its 100 points under them, and a last line with its
- * next evaluation without a grade, when there is one, and the evaluated figure ("10 de 100 evaluados"). A subject
- * with no evaluations has neither the bar nor the last line. The points
- * take what the chip leaves and wrap instead of squeezing it. The row is a button: it leads to the subject's
- * attempt in Record ([onClick]).
+ * "Sin evaluaciones"), the bar of what it has evaluated of its 100 points under them, and a last line with its next
+ * evaluation without a grade, when there is one, and the evaluated figure ("10 de 100 evaluados") once a grade is in.
+ * A subject with no evaluations has neither the bar nor the last line. The points take what the chip leaves and wrap
+ * instead of squeezing it. The row is a button: it leads to the subject's attempt in Record ([onClick]).
  */
 @Composable
 fun SummaryPointsRowView(
@@ -40,8 +40,6 @@ fun SummaryPointsRowView(
 	onClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val secondary = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
-
 	Column(
 		modifier = modifier
 			.fillMaxWidth()
@@ -71,38 +69,52 @@ fun SummaryPointsRowView(
 			)
 		}
 
-		// A subject with no evaluations is only its chip and "Sin evaluaciones": no bar and no line under them.
-		item.evaluatedText?.let { evaluatedText ->
+		// The bar of what the subject has evaluated, which a subject with no evaluations does not have.
+		item.evaluatedFraction?.let { fraction ->
 			SummaryEvaluatedBarView(
 				subjectCode = item.subjectCode,
-				fraction = item.evaluatedFraction
+				fraction = fraction
 			)
+		}
 
-			Row(
-				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
-				verticalAlignment = Alignment.Top
-			) {
-				val nextText = item.nextText
+		PointsLine(nextText = item.nextText, evaluatedText = item.evaluatedText)
+	}
+}
 
-				if (nextText != null) {
-					Text(
-						modifier = Modifier.weight(1f),
-						text = nextText.asString(),
-						style = MaterialTheme.typography.bodySmall,
-						color = secondary
-					)
-				} else {
-					// Without a next evaluation the evaluated figure still sits at the end of the line.
-					Spacer(modifier = Modifier.weight(1f))
-				}
+// The last line of the row: the next evaluation without a grade on the left and the evaluated figure at the end, each
+// one when there is one. With neither there is no line at all.
+@Composable
+private fun PointsLine(
+	nextText: UiText?,
+	evaluatedText: UiText?
+) {
+	if (nextText == null && evaluatedText == null) return
 
-				Text(
-					text = evaluatedText.asString(),
-					style = MaterialTheme.typography.bodySmall,
-					color = secondary,
-					textAlign = TextAlign.End
-				)
-			}
+	val secondary = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+
+	Row(
+		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
+		verticalAlignment = Alignment.Top
+	) {
+		if (nextText != null) {
+			Text(
+				modifier = Modifier.weight(1f),
+				text = nextText.asString(),
+				style = MaterialTheme.typography.bodySmall,
+				color = secondary
+			)
+		} else {
+			// Without a next evaluation the evaluated figure still sits at the end of the line.
+			Spacer(modifier = Modifier.weight(1f))
+		}
+
+		if (evaluatedText != null) {
+			Text(
+				text = evaluatedText.asString(),
+				style = MaterialTheme.typography.bodySmall,
+				color = secondary,
+				textAlign = TextAlign.End
+			)
 		}
 	}
 }

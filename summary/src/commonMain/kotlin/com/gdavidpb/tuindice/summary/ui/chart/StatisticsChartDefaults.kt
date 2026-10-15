@@ -38,7 +38,6 @@ object StatisticsChartDefaults {
 	val RingSize = 19.dp
 	val RingStrokeWidth = 1.5.dp
 	val LineStrokeWidth = 2.dp
-	val SegmentHeight = 24.dp
 	val EdgeFadeWidth = 24.dp
 	val ReferenceDashLength = 6.dp
 	val ReferenceGapLength = 4.dp

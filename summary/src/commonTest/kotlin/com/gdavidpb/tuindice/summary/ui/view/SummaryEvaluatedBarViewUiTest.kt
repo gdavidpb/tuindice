@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -47,6 +49,19 @@ class SummaryEvaluatedBarViewUiTest {
 		}
 
 		assertFillShare(expected = 0f)
+	}
+
+	@Test
+	fun when_rendered_then_itIsTheSharedHeight() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.width(200.dp)) {
+				SummaryEvaluatedBarView(subjectCode = "CI5311", fraction = 0.5f)
+			}
+		}
+		waitForIdle()
+
+		onNodeWithTag(SummaryUiTags.termPointsBar("CI5311"))
+			.assertHeightIsEqualTo(TuIndiceComponentSizes.ProgressBarHeight)
 	}
 
 	private fun ComposeUiTest.assertFillShare(expected: Float) {

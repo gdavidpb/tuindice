@@ -33,13 +33,38 @@ class SummaryPointsRowViewUiTest {
 	}
 
 	@Test
-	fun when_subjectHasNoGrades_then_rowSaysSinNotasAun() = runTuIndiceUiTest {
+	fun when_subjectHasNoGrades_then_rowSaysSinNotasAunAndNotAnEvaluatedFigure() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryPointsRowView(item = summaryPointsItem(subjectCode = "EG1114"), onClick = {})
 		}
 
 		onNodeWithText("EG1114").assertIsDisplayed()
 		onNodeWithText("Sin notas aún").assertIsDisplayed()
+		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_subjectHasNoGradesYetHasABar_then_theBarStaysEmpty() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(item = summaryPointsItem(subjectCode = "EG1114"), onClick = {})
+		}
+
+		onNodeWithTag(SummaryUiTags.termPointsBar("EG1114"), useUnmergedTree = true).assertIsDisplayed()
+		val fill = onNodeWithTag(SummaryUiTags.termPointsBarFill("EG1114"), useUnmergedTree = true)
+		assertEquals(0, fill.fetchSemanticsNode().size.width)
+	}
+
+	@Test
+	fun when_subjectHasNoGradesButANextEvaluation_then_theNextLineStays() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryPointsRowView(
+				item = summaryPointsItem(subjectCode = "EG1114", nextText = "Próx.: Parcial 1 · mar 20"),
+				onClick = {}
+			)
+		}
+
+		onNodeWithText("Próx.: Parcial 1 · mar 20").assertIsDisplayed()
+		onNodeWithText("0 de 100 evaluados").assertDoesNotExist()
 	}
 
 	@Test

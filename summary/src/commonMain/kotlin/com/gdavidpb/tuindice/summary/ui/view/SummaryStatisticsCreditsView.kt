@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
@@ -81,10 +82,11 @@ private fun ColumnScope.CreditsData(
 
 		SummaryStatisticsFigureView(figure = pensum.figure)
 
-		SummaryStatisticsTrackView(
+		TuIndiceProgressBar(
 			fraction = pensum.fraction,
 			color = AcademicStatusColors.approved(),
-			modifier = Modifier.testTag(SummaryUiTags.StatisticsPensumTrack)
+			modifier = Modifier.testTag(SummaryUiTags.StatisticsPensumTrack),
+			fillTag = SummaryUiTags.StatisticsTrackFill
 		)
 	}
 }

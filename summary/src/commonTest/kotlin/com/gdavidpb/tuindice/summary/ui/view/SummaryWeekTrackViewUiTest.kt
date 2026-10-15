@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -42,7 +43,7 @@ class SummaryWeekTrackViewUiTest {
 		}
 
 		onNodeWithTag("track").assertWidthIsEqualTo(360.dp)
-		onNodeWithTag("track").assertHeightIsEqualTo(6.dp)
+		onNodeWithTag("track").assertHeightIsEqualTo(TuIndiceComponentSizes.ProgressBarHeight)
 	}
 
 	@Test

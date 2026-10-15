@@ -10,4 +10,11 @@ object TuIndiceComponentSizes {
 	val IconButton = 48.dp
 	val TopBarHeight = 56.dp
 	val BottomBarHeight = 56.dp
+
+	/**
+	 * The height of every progress bar of the app, the one TuIndiceProgressBar draws. It is 6 dp because the bar of the
+	 * career and the week track of the term already had that height, the two bars of the summary that agreed on one; the
+	 * stacked bar of the statistics was drawn at 24 dp, the thickest of them.
+	 */
+	val ProgressBarHeight = 6.dp
 }

@@ -123,14 +123,17 @@ private fun SummarySubjectPoints.toSummarySubjectPointsItem(): SummarySubjectPoi
 			else -> UiText.Resource(Res.string.summary_points_no_evaluations)
 		},
 		attemptId = attemptId,
-		// Nothing is said of what is evaluated before anything is registered: "Sin evaluaciones" says it all.
-		evaluatedText = points?.let {
+		// What is evaluated is said once a grade is in: "Sin notas aún" already says that nothing is, without a "0 de 100".
+		evaluatedText = if (graded == null) {
+			null
+		} else {
 			UiText.Resource(
 				Res.string.summary_points_evaluated,
 				listOf(evaluatedOfTotal.formatCompactPoints(), SUBJECT_POINTS_TOTAL.formatCompactPoints())
 			)
 		},
-		evaluatedFraction = (evaluatedOfTotal / SUBJECT_POINTS_TOTAL).toFloat(),
+		// A subject with no evaluations has no bar: there is nothing of its points to show.
+		evaluatedFraction = if (points == null) null else (evaluatedOfTotal / SUBJECT_POINTS_TOTAL).toFloat(),
 		nextText = nextEvaluation?.toNextText()
 	)
 }
