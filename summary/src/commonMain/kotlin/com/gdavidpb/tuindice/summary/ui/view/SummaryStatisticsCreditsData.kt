@@ -16,8 +16,8 @@ import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
 import com.gdavidpb.tuindice.summary.ui.chart.StatisticsStackedBar
 import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsSegments
 
-// The credits of the closed terms by outcome: their figure and the stacked bar with its legend. When a pensum is cached,
-// its own progress follows the bar, with its share and a track in the approved colour.
+// The credits of the closed terms by outcome: their figure and the stacked bar with its legend. When a pensum is
+// cached, its own progress follows the bar, with its share and a track in the approved colour.
 @Composable
 fun ColumnScope.SummaryStatisticsCreditsData(
 	data: SummaryStatisticsCreditsItem.Content.Data,

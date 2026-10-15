@@ -29,10 +29,12 @@ class SummaryStatisticsCreditsDataUiTest {
 	@Test
 	fun when_aPensumIsCached_then_ItsProgressIsWrittenUnderTheBar() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			DataHost(pensum = SummaryStatisticsCreditsItem.Pensum(
-				figure = figureOf(value = "152", label = "de 205 según el pensum", trailing = "74 %"),
-				fraction = 0.74f
-			))
+			DataHost(
+				pensum = SummaryStatisticsCreditsItem.Pensum(
+					figure = figureOf(value = "152", label = "de 205 según el pensum", trailing = "74 %"),
+					fraction = 0.74f
+				)
+			)
 		}
 		waitForIdle()
 

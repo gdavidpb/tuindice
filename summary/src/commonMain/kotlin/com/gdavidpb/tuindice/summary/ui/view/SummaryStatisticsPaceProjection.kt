@@ -13,8 +13,8 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceIte
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsEmptyHeading
 
-// What the pensum still takes at the pace of the closed terms: the count of its regular terms, or the words that say why
-// it cannot be counted yet, or that it is complete. Without a cached pensum it invites to open one.
+// What the pensum still takes at the pace of the closed terms: the count of its regular terms, or the words that say
+// why it cannot be counted yet, or that it is complete. Without a cached pensum it invites to open one.
 @Composable
 fun ColumnScope.SummaryStatisticsPaceProjection(projection: SummaryStatisticsPaceItem.Projection) {
 	when (projection) {

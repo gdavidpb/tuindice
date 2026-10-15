@@ -171,7 +171,7 @@ class SummaryStatisticsItemMapperTest {
 			data.segments.map { segment -> segment.outcome }
 		)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, UiText.Resource(Res.string.summary_percent_format, listOf(94)))),
+			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, percent(94))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -245,7 +245,7 @@ class SummaryStatisticsItemMapperTest {
 		)
 		// The shares are out of the bar, which holds the subjects with a result: 44 of 47.
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, UiText.Resource(Res.string.summary_percent_format, listOf(94)))),
+			UiText.Resource(Res.string.summary_statistics_subjects_share_approved_many, listOf(44, percent(94))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -321,7 +321,7 @@ class SummaryStatisticsItemMapperTest {
 		assertEquals("164", data.figure.value)
 		assertEquals(UiText.Resource(Res.string.summary_statistics_credits_figure_many), data.figure.label)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_credits_share_approved_many, listOf(152, UiText.Resource(Res.string.summary_percent_format, listOf(93)))),
+			UiText.Resource(Res.string.summary_statistics_credits_share_approved_many, listOf(152, percent(93))),
 			data.segments.first().tooltip.title
 		)
 		assertEquals(
@@ -398,7 +398,7 @@ class SummaryStatisticsItemMapperTest {
 			.content as SummaryStatisticsGradesItem.Content.Data
 
 		assertEquals(
-			listOf(UiText.Resource(Res.string.summary_statistics_grades_share_one, listOf(UiText.Resource(Res.string.summary_percent_format, listOf(100))))),
+			listOf(UiText.Resource(Res.string.summary_statistics_grades_share_one, listOf(percent(100)))),
 			data.bars[3].tooltip.lines
 		)
 	}
@@ -421,3 +421,5 @@ class SummaryStatisticsItemMapperTest {
 		)
 	}
 }
+
+private fun percent(value: Int): UiText = UiText.Resource(Res.string.summary_percent_format, listOf(value))

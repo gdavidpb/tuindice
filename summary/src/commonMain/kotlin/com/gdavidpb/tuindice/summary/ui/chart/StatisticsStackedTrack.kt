@@ -19,7 +19,7 @@ fun BoxScope.StatisticsStackedTrack(
 	openIndex: MutableState<Int?>
 ) {
 	val hasSelection = openIndex.value != null
-	val drawn = StatisticsChartGeometry.drawnSegments(segments.map { segment -> segment.value })
+	val drawn = StatisticsStackGeometry.drawnSegments(segments.map { segment -> segment.value })
 
 	TuIndiceProgressBar(
 		segments = drawn.map { (index, fraction) ->

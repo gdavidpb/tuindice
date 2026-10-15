@@ -97,11 +97,11 @@ class SummaryStatisticsCurrentTermItemMapperTest {
 		assertEquals(UiText.Resource(Res.string.summary_statistics_type_quiz), row.name)
 		assertEquals(UiText.Resource(Res.string.summary_statistics_current_graded_one, listOf(1, 1)), row.gradedText)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_current_score, listOf("8", "10", UiText.Resource(Res.string.summary_percent_format, listOf(80)))),
+			UiText.Resource(Res.string.summary_statistics_current_score, listOf("8", "10", percent(80))),
 			row.scoreText
 		)
 		assertEquals(
-			UiText.Resource(Res.string.summary_statistics_type_tooltip_quiz, listOf("8", "10", UiText.Resource(Res.string.summary_percent_format, listOf(80)))),
+			UiText.Resource(Res.string.summary_statistics_type_tooltip_quiz, listOf("8", "10", percent(80))),
 			row.tooltip?.title
 		)
 	}
@@ -169,3 +169,5 @@ class SummaryStatisticsCurrentTermItemMapperTest {
 		evaluationTypeOf(EvaluationType.TEST, earned = 0.0, evaluated = 0.0, graded = 0, total = 1)
 	)
 }
+
+private fun percent(value: Int): UiText = UiText.Resource(Res.string.summary_percent_format, listOf(value))

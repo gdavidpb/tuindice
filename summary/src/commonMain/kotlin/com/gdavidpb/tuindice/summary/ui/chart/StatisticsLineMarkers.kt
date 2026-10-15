@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
-// The button of each point of a line chart: its marker, a dot on the marker value, with the ring of the point when it has
-// one, and the touch area that opens its tooltip. Tapping a point closes the tooltip of the one that was open, so one
-// tooltip is open at a time.
+// The button of each point of a line chart: its marker, a dot on the marker value, with the ring of the point when it
+// has one, and the touch area that opens its tooltip. Tapping a point closes the tooltip of the one that was open, so
+// one tooltip is open at a time.
 @Composable
 fun BoxScope.StatisticsLineMarkers(
 	points: List<StatisticsLinePoint>,

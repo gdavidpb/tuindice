@@ -17,14 +17,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BoxScope.StatisticsStackedTargets(
 	segments: List<StatisticsSegment>,
-	spans: List<StatisticsChartGeometry.Span>,
+	spans: List<StatisticsStackGeometry.Span>,
 	labels: StatisticsChartLabels,
 	openIndex: MutableState<Int?>
 ) {
 	// The spans of a bar with something drawn share its whole width.
 	val barWidth = spans.fold(0f) { width, span -> width + span.widthDp }
-	val drawn = StatisticsChartGeometry.drawnSegments(segments.map { segment -> segment.value })
-	val touches = StatisticsChartGeometry.touchSpans(
+	val drawn = StatisticsStackGeometry.drawnSegments(segments.map { segment -> segment.value })
+	val touches = StatisticsStackGeometry.touchSpans(
 		widthsDp = drawn.map { (index, _) -> spans[index].widthDp },
 		totalDp = barWidth
 	)

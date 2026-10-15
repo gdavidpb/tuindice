@@ -11,8 +11,8 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsReferen
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSegmentItem
 import com.gdavidpb.tuindice.summary.ui.view.color
 
-// The conversions from the presentation items of the statistics to the models the charts draw. Each kind of item has one
-// conversion, which every view that draws it uses. They resolve the words and colours of the screen, so they run in
+// The conversions from the presentation items of the statistics to the models the charts draw. Each kind of item has
+// one conversion, which every view that draws it uses. They resolve the words and colours of the screen, so they run in
 // composition.
 
 // The segments of a stacked bar: each in the colour of its outcome, with its legend and its tooltip.

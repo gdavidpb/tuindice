@@ -42,7 +42,12 @@ class StatisticsLineMarkersUiTest {
 	@Test
 	fun when_aPointHasARing_then_theRingIsDrawnAroundItsMarker() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			MarkersHost(points = listOf(point(index = 0, markerValue = 4f, ringColor = Color.Red), point(index = 1, markerValue = 5f)))
+			MarkersHost(
+				points = listOf(
+					point(index = 0, markerValue = 4f, ringColor = Color.Red),
+					point(index = 1, markerValue = 5f)
+				)
+			)
 		}
 		waitForIdle()
 

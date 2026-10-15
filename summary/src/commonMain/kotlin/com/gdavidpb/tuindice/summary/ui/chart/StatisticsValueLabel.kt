@@ -15,8 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-// The figure written just above a bar. The bar stands on the baseline, so its top sits the drawn share of the
-// plot above it; the figure's own line lies over that top. It is placed from the same share the bar is drawn with, so it
+// The figure written just above a bar. The bar stands on the baseline, so its top sits the drawn share of the plot
+// above it; the figure's own line lies over that top. It is placed from the same share the bar is drawn with, so it
 // climbs with the bar while the bar grows.
 @Composable
 fun BoxScope.StatisticsValueLabel(

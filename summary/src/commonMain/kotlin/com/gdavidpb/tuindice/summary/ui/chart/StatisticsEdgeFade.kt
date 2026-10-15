@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.testTag
 
-// The fade that marks one edge of a scroll frame: a band of the card's surface, painted with [brush] along the edge that
-// [alignment] names, and kept under the [tag] of that edge.
+// The fade that marks one edge of a scroll frame: a band of the card's surface, painted with [brush] along the edge
+// that [alignment] names, and kept under the [tag] of that edge.
 @Composable
 fun BoxScope.StatisticsEdgeFade(
 	alignment: Alignment,

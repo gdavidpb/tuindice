@@ -12,8 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
-// The words of an empty block: its [title] when it has one, the [message] under it, and the action that leads to what the
-// block lacks when it has one.
+// The words of an empty block: its [title] when it has one, the [message] under it, and the action that leads to what
+// the block lacks when it has one.
 @Composable
 fun SummaryStatisticsEmptyWords(
 	message: String,

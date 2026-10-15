@@ -52,7 +52,7 @@ fun StatisticsStackedBar(
 			.testTag(SummaryUiTags.statisticsChart(labels.key))
 			.semantics { contentDescription = labels.summary }
 	) {
-		val spans = StatisticsChartGeometry.segmentSpans(segments.map { segment -> segment.value }, maxWidth.value)
+		val spans = StatisticsStackGeometry.segmentSpans(segments.map { segment -> segment.value }, maxWidth.value)
 
 		StatisticsStackedTrack(
 			segments = segments,

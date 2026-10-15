@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StatisticsChartGeometryTest {
+
 	@Test
 	fun when_countIsAboveTheDenseThreshold_then_everyColumnIsTheMinimumTarget() {
 		assertEquals(48f, StatisticsChartGeometry.columnWidth(availableWidthDp = 1_000f, count = 7))
@@ -43,39 +44,6 @@ class StatisticsChartGeometryTest {
 	}
 
 	@Test
-	fun when_segmentsAreProportional_then_theySplitTheWidthInOrder() {
-		val spans = StatisticsChartGeometry.segmentSpans(values = listOf(1f, 3f), widthDp = 200f)
-
-		assertEquals(
-			listOf(
-				StatisticsChartGeometry.Span(startDp = 0f, widthDp = 50f),
-				StatisticsChartGeometry.Span(startDp = 50f, widthDp = 150f)
-			),
-			spans
-		)
-	}
-
-	@Test
-	fun when_segmentsAddToNothing_then_everySpanHasNoWidth() {
-		val spans = StatisticsChartGeometry.segmentSpans(values = listOf(0f, 0f), widthDp = 300f)
-
-		assertEquals(listOf(0f, 0f), spans.map { span -> span.widthDp })
-	}
-
-	@Test
-	fun when_segmentIsNegative_then_itTakesNoWidthOfItsOwn() {
-		val spans = StatisticsChartGeometry.segmentSpans(values = listOf(-2f, 2f), widthDp = 100f)
-
-		assertEquals(
-			listOf(
-				StatisticsChartGeometry.Span(startDp = 0f, widthDp = 0f),
-				StatisticsChartGeometry.Span(startDp = 0f, widthDp = 100f)
-			),
-			spans
-		)
-	}
-
-	@Test
 	fun when_valueIsTheMaximum_then_itsYIsTheTopOfTheBand() {
 		assertEquals(24f, StatisticsChartGeometry.yOf(fraction = 1f, topDp = 24f, heightDp = 120f))
 		assertEquals(144f, StatisticsChartGeometry.yOf(fraction = 0f, topDp = 24f, heightDp = 120f))
@@ -92,54 +60,5 @@ class StatisticsChartGeometryTest {
 		assertEquals(13.8f, StatisticsChartGeometry.scaleOf(values = listOf(2f, 5f), reference = 13.8f))
 		assertEquals(5f, StatisticsChartGeometry.scaleOf(values = listOf(2f, 5f), reference = null))
 		assertEquals(0f, StatisticsChartGeometry.scaleOf(values = emptyList(), reference = null))
-	}
-
-	@Test
-	fun when_theBarHasRoomForEachTarget_then_theAreasAreTheSegmentsWithTheirMinimum() {
-		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(100f, 100f, 96f), totalDp = 296f)
-
-		assertEquals(listOf(0f, 100f, 200f), areas.map { area -> area.startDp })
-		assertEquals(listOf(100f, 100f, 96f), areas.map { area -> area.widthDp })
-	}
-
-	@Test
-	fun when_narrowSegmentsSitBesideEachOther_then_everyAreaIsAFingerAndTheAreasDoNotOverlap() {
-		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(280.9f, 12.8f, 6.4f), totalDp = 300.1f)
-
-		areas.forEach { area -> assertEquals(true, area.widthDp >= 47.9f, "Area is ${area.widthDp}dp") }
-		areas.zipWithNext().forEach { (left, right) ->
-			assertEquals(left.startDp + left.widthDp, right.startDp, 0.01f)
-		}
-		assertEquals(300.1f, areas.last().startDp + areas.last().widthDp, 0.01f)
-	}
-
-	@Test
-	fun when_theBarIsTooNarrowForAFingerEach_then_theAreasShareItAsTheyAre() {
-		val areas = StatisticsChartGeometry.touchSpans(widthsDp = listOf(1f, 1f, 1f), totalDp = 3f)
-
-		assertEquals(listOf(1f, 1f, 1f), areas.map { area -> area.widthDp })
-	}
-
-	@Test
-	fun when_thereIsNoDrawnSegment_then_thereIsNoArea() {
-		assertEquals(
-			emptyList<StatisticsChartGeometry.Span>(),
-			StatisticsChartGeometry.touchSpans(widthsDp = emptyList(), totalDp = 300f)
-		)
-	}
-
-	@Test
-	fun when_aSegmentHasNoValue_then_itIsNotDrawnAndTheDrawnSharesAddUpToOne() {
-		val drawn = StatisticsChartGeometry.drawnSegments(listOf(3f, 0f, 1f))
-
-		assertEquals(listOf(0, 2), drawn.map { segment -> segment.index })
-		assertEquals(listOf(0.75f, 0.25f), drawn.map { segment -> segment.fraction })
-	}
-
-	@Test
-	fun when_noSegmentIsDrawn_then_thereAreNoShares() {
-		val drawn = StatisticsChartGeometry.drawnSegments(listOf(0f, -2f, Float.NaN))
-
-		assertEquals(emptyList<StatisticsChartGeometry.DrawnSegment>(), drawn)
 	}
 }

@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
-// The line through the points of a line chart: each point's line value, in its column, drawn in the data colour over the
-// band of the chart. The line is decoration beside the markers, so it takes no touch and no tag.
+// The line through the points of a line chart: each point's line value, in its column, drawn in the data colour over
+// the band of the chart. The line is decoration beside the markers, so it takes no touch and no tag.
 @Composable
 fun BoxScope.StatisticsLineTrace(
 	points: List<StatisticsLinePoint>,
