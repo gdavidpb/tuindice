@@ -16,10 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -51,10 +49,10 @@ fun RecordTopBarViewModeBannerView(
 		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_info_message_historical)
 		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_info_message_projection)
 	}
-	var isTooltipVisible by remember { mutableStateOf(false) }
+	val isTooltipVisible = remember { mutableStateOf(false) }
 
 	LaunchedEffect(selectedMode) {
-		isTooltipVisible = false
+		isTooltipVisible.value = false
 	}
 
 	Box(
@@ -90,8 +88,8 @@ fun RecordTopBarViewModeBannerView(
 			modifier = Modifier.align(Alignment.CenterEnd),
 		) {
 			RichTooltipBox(
-				isVisible = isTooltipVisible,
-				onDismissRequest = { isTooltipVisible = false },
+				isVisible = isTooltipVisible.value,
+				onDismissRequest = { isTooltipVisible.value = false },
 				tooltip = RichTooltipText(
 					lines = listOf(infoMessageText),
 					testTag = RecordUiTags.ViewModeInfoMessage
@@ -101,7 +99,7 @@ fun RecordTopBarViewModeBannerView(
 				IconButton(
 					modifier = Modifier.testTag(RecordUiTags.TopBarViewModeInfoButton),
 					onClick = {
-						isTooltipVisible = !isTooltipVisible
+						isTooltipVisible.value = !isTooltipVisible.value
 					}
 				) {
 					Icon(

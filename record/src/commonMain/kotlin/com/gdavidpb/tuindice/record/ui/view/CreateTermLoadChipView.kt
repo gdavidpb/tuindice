@@ -24,10 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -159,15 +157,15 @@ private fun CreateTermLoadInfoButton(
 	message: String,
 	color: Color
 ) {
-	var isTooltipVisible by remember { mutableStateOf(false) }
+	val isTooltipVisible = remember { mutableStateOf(false) }
 
 	LaunchedEffect(message) {
-		isTooltipVisible = false
+		isTooltipVisible.value = false
 	}
 
 	RichTooltipBox(
-		isVisible = isTooltipVisible,
-		onDismissRequest = { isTooltipVisible = false },
+		isVisible = isTooltipVisible.value,
+		onDismissRequest = { isTooltipVisible.value = false },
 		tooltip = RichTooltipText(
 			lines = listOf(message),
 			testTag = RecordUiTags.CreateSyntheticTermLoadInfoMessage
@@ -179,7 +177,7 @@ private fun CreateTermLoadInfoButton(
 				.size(28.dp)
 				.testTag(RecordUiTags.CreateSyntheticTermLoadInfoButton),
 			onClick = {
-				isTooltipVisible = !isTooltipVisible
+				isTooltipVisible.value = !isTooltipVisible.value
 			}
 		) {
 			Icon(
