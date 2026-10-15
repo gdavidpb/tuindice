@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
  */
 class CoachmarkCoverageTest {
 	private val surfaceSource =
-		RepoFiles.file("wizard/src/commonMain/kotlin/com/gdavidpb/tuindice/wizard/presentation/mapper/CoachmarkSurface.kt")
+		RepoFiles.file("maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/mapper/CoachmarkSurface.kt")
 	private val clean = LaunchSpec(emptyMap())
 
 	/** Each `listOf(CoachmarkId.A, CoachmarkId.B)` of the source: the coachmarks one screen lists, in order. */

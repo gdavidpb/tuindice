@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.wizard.presentation.mapper
+package com.gdavidpb.tuindice.presentation.mapper
 
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.presentation.ViewState

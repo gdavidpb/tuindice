@@ -38,7 +38,7 @@ These bullets mirror `scripts/module-graph.txt`, the source of truth that `./gra
 - `evaluations`: depends on `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depends on `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depends on `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects`, and `:about`.
+- `wizard`: depends on `:base`.
 - `maincore`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
 - `app`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
 - `testkit`: depends on `:base` and `:security`.
@@ -47,7 +47,7 @@ These bullets mirror `scripts/module-graph.txt`, the source of truth that `./gra
 - `scenarios`: depends on `:about`, `:academiccore`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:record`, `:scenariokit`, `:subjects`, `:summary`, and `:wizard`.
 
 Default rule: features should point to shared infrastructure, not to each other.
-Current intentional exception: `wizard -> features`, because `wizard` owns contextual coachmarks anchored to eligible real screens.
+There is no feature-to-feature exception: `wizard` owns the coachmarks and their overlay, and `maincore` (the composition root) maps each screen's state to its coachmarks (`presentation/mapper/CoachmarkSurface.kt`). The semgrep rule `feature-module-no-cross-import` enforces it.
 
 ## Root Files That Define The Architecture
 

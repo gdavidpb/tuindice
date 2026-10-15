@@ -69,7 +69,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 ## Non-Negotiable Project Rules
 
-- Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. There are no feature-to-feature exceptions today besides the intentional `wizard -> features` orchestration. The module graph is enforced by `./gradlew verifyModuleGraph`; update `scripts/validate-module-graph.sh` together with `README.md` when a module boundary changes.
+- Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. There are no feature-to-feature exceptions: a mapping that needs several features (such as which coachmarks a screen shows) lives in `maincore`, the composition root. The module graph is enforced by `./gradlew verifyModuleGraph` and the imports by the semgrep rule `feature-module-no-cross-import`; update `scripts/module-graph.txt` together with `README.md` when a module boundary changes.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
 - Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/source -> di`.
 - `domain/repository` contains business-facing contracts used by action processors, use cases, or view models. These interfaces should end with `Repository`.

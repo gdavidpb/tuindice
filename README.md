@@ -109,7 +109,7 @@ Dependencias actuales:
 - `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
+- `wizard`: depende de `:base`.
 - `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore` y aporta en `androidPlatformModule` los bindings de plataforma
   Android de cada feature, por lo que en el grafo depende de todos los módulos.
@@ -128,8 +128,9 @@ Dependencias actuales:
 Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
-- La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino una capa de coachmarks
-  contextuales que detecta pantallas reales elegibles y muestra overlays anclados.
+- No hay excepciones feature -> feature. `wizard` es dueño de los coachmarks y de su overlay, pero qué coachmarks
+  corresponden a qué pantalla (`CoachmarkSurface.kt`) lo decide `maincore`, la raíz de composición, que ya conoce
+  todas las pantallas. La regla semgrep `feature-module-no-cross-import` lo impone.
 - Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
 
 ## Capas por feature
@@ -411,7 +412,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(56 reglas en 14 archivos por área):
+(57 reglas en 15 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -447,6 +448,10 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
 - `session-recovery`: ni `nonCancellableRefresh = true` ni `NonCancellable` en el camino de recuperación de
   sesión; un contexto no cancelable deja colgado el cierre de sesión.
+- `module-boundaries`: ninguna feature importa a otra. El módulo de un archivo es el segmento de su `package`
+  tras `com.gdavidpb.tuindice`; quedan permitidos los transversales (`base`, `persistence`, `academiccore`,
+  `security`, `testkit`, `scenariokit`) y exentas por ruta las raíces de composición (`app`, `maincore`,
+  `scenarios`), cada uno con su argumento escrito en la regla.
 
 Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
 sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo

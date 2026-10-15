@@ -1,0 +1,36 @@
+rules:
+  - id: feature-module-no-cross-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un módulo importa clases de $TARGET desde $SRC: las features no se conocen entre sí (README "Acuerdo de
+      límites": no agregar dependencias feature -> feature). Lo que necesita a varias features se decide en la
+      raíz de composición (maincore), y lo compartido se mueve a un módulo transversal (base, persistence,
+      academiccore). El módulo de un archivo es el segmento de su `package` tras `com.gdavidpb.tuindice`.
+    patterns:
+      # El archivo pertenece al módulo $SRC (su package) y el import nombra al módulo $TARGET.
+      - pattern-regex: '(?s)^package com\.gdavidpb\.tuindice\.(?P<SRC>[a-z]+)\b.*'
+      - pattern-regex: '(?m)^import com\.gdavidpb\.tuindice\.(?P<TARGET>[a-z]+)\.'
+      - metavariable-comparison:
+          comparison: str($SRC) != str($TARGET)
+      # Módulos transversales, que cualquier módulo puede importar por definición:
+      # - base: runtime compartido de toda la app (contratos, MVI, UI común, utilidades).
+      # - persistence: almacenamiento local y contratos de lectura que una feature implementa y otras consumen.
+      # - academiccore: motores académicos puros, sin UI ni IO, que comparten las features.
+      # - security: almacenamiento seguro y criptografía que comparten auth y la raíz.
+      # - testkit y scenariokit: soporte de pruebas y del catálogo E2E; nunca código de producto.
+      - metavariable-regex:
+          metavariable: $TARGET
+          regex: '^(?!(?:base|persistence|academiccore|security|testkit|scenariokit)$)'
+    paths:
+      exclude:
+        # Raíces de composición, que por definición ensamblan todas las features:
+        # - app: el host Android, que arranca Koin con todos los módulos.
+        # - maincore: la raíz compartida (navegación, host de la app, módulos de plataforma, coachmarks por pantalla).
+        # - scenarios: el catálogo E2E, que recorre las pantallas de todas las features.
+        - 'app/**'
+        - 'maincore/**'
+        - 'scenarios/**'
+    metadata:
+      area: module-boundaries
+      referencia: 'README.md § Acuerdo de límites; scripts/module-graph.txt'

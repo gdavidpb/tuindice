@@ -26,4 +26,4 @@ security=:base
 subjects=:academiccore :base :persistence
 summary=:academiccore :base :persistence
 testkit=:base :security
-wizard=:about :base :evaluations :pensum :record :subjects :summary
+wizard=:base
