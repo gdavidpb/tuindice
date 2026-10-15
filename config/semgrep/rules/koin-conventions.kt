@@ -28,3 +28,13 @@ val sampleModule = module {
 }
 
 fun single(block: () -> String): String = block()
+
+val optionalModule = module {
+	// ruleid: koin-no-getornull
+	single { getOrNull<String>() }
+}
+
+val runtimeModule = module {
+	// ok: koin-no-getornull
+	single { runCatching { 1 }.getOrNull() }
+}

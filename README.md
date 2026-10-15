@@ -411,7 +411,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(55 reglas en 13 archivos por área):
+(56 reglas en 13 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -425,7 +425,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
   propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
   directos).
-- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature.
+- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
+  `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
 - `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
   try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).

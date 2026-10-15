@@ -11,3 +11,8 @@ val sampleFlowCoreModule = module {
 val sampleFlowAndroidModule = module {
 	single { "platform" }
 }
+
+// Disparo de koin-no-getornull: un binding ausente devolvería null en silencio.
+val sampleFlowOptionalModule = module {
+	single { getOrNull<String>() }
+}
