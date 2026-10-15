@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.scenarios.shared
 
-/** The system's share surface of About, which the two scenarios that open it find and close the same way (YE-1). */
+/**
+ * The system's share surface, which every scenario that opens it (About, the conformance suite and the share of
+ * Statistics) finds and closes the same way (YE-1).
+ */
 object ShareSheet {
 	/** An element of Android's chooser; it goes when the app is brought back. */
 	const val ANDROID_ELEMENT = "com.android.intentresolver:id/chooser_container"

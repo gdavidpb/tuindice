@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.QualitativeStatusDropdownItem
 
 @Composable
 fun QualitativeStatusSelector(

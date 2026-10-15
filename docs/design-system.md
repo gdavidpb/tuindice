@@ -105,7 +105,7 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 La pantalla **Estadísticas** (`summary/.../ui/screen/SummaryStatisticsScreen.kt`) se abre desde la sección del Resumen y tiene seis bloques, en el orden en que los dibuja el código: «Este trimestre», «Índice», «Materias», «Créditos», «Tus notas» y «Ritmo». Cada bloque es un `SummaryStatisticsBlockView`: su cabecera y una tarjeta del hub. Las cifras históricas salen de una sola proyección del registro (`RecordProjectionEngine.projectAcademic`), y `RecordStatisticsEngine` solo cuenta trimestres históricos: el trimestre en curso aparece únicamente en «Este trimestre».
 
 - **Sección del Resumen** (`SummaryStatisticsSectionView`, debajo de Carrera; no aparece si el registro no está listo):
-  - Con trimestres terminados, es una tarjeta que lleva a la pantalla (botón «Abrir Estadísticas»): la cifra del índice acumulado con «acumulado», la mini línea de esos acumulados y la frase «44 aprobadas · índice más alto en Ene - Mar 2024». Sin mejor trimestre regular, la frase es solo «44 aprobadas».
+  - Con trimestres terminados, es una tarjeta que lleva a la pantalla (botón «Abrir Estadísticas»): la cifra del índice acumulado con «acumulado», la mini línea de esos acumulados y la frase «44 aprobadas · índice más alto en Ene - Mar 2024». Sin trimestre regular con índice, la frase es solo «44 aprobadas».
   - Sin trimestres terminados y con uno en curso: «Tu primer trimestre está en curso» / «Cuando termine verás aquí tu índice, tus notas y tu ritmo.», con el enlace «Ver todo».
   - Estudiante nuevo, o registro listo sin trimestres: «Aún no hay estadísticas» / «Tus estadísticas aparecerán cuando termines tu primer trimestre.», sin enlace.
 - **Pantalla**:
@@ -130,7 +130,7 @@ La pantalla **Estadísticas** (`summary/.../ui/screen/SummaryStatisticsScreen.kt
 
 Los gráficos viven en `summary/.../ui/chart/` y se dibujan con composables de layout: las barras son `Box` de altura fraccional, la línea es un `Canvas` y cada punto es un objetivo tocable encima. Ningún gráfico de Estadísticas usa Vico; `subjects` sí lo usa, en sus gráficos de notas por materia. Decisión de diseño: Vico 3.3.1 no da semántica, no respeta `LocalTuIndiceAnimationsEnabled` y tiene un estilo ajeno al de la app.
 
-- `StatisticsLineChart`: la línea y los marcadores de un punto por trimestre. En el índice, el marcador es el índice del trimestre sobre la línea del acumulado, y el mejor trimestre regular lleva un anillo (`ringColor`).
+- `StatisticsLineChart`: la línea y los marcadores de un punto por trimestre. En el índice, el marcador es el índice del trimestre sobre la línea del acumulado, y los trimestres regulares de índice más alto y más bajo llevan un anillo (`ringColor`).
 - `StatisticsBarChart`: barras que crecen desde la base, con su cifra encima cuando la lleva, y una referencia discontinua opcional (`StatisticsReference`).
 - `StatisticsStackedBar`: una barra horizontal con un segmento por resultado, dibujada por `TuIndiceProgressBar` a la altura compartida y con sus objetivos de 48 dp encima.
 - `StatisticsTooltipTarget` (interno): el objetivo de un punto, barra o segmento, que abre su `RichTooltipBox`.
@@ -157,7 +157,7 @@ Comportamiento:
 - **Un solo tooltip abierto en toda la app**: M3 comparte un `MutatorMutex` global entre todos los `TooltipState` (`GlobalMutatorMutex` en M3 1.4.0), así que abrir uno cierra el que estuviera abierto. `RichTooltipBox` avisa a quien lo aloja por `onDismissRequest` cuando el sistema lo cierra, para que su bandera siga lo que hay en pantalla; por eso volver a tocar el mismo ancla lo reabre.
 - **Toques**: la `TooltipBox` interna va con `enableUserInput = false`; los toques sobre el ancla son de quien lo aloja.
 - **Aspecto**: superficie `surfaceDim`, título en `onSurface`, cuerpo en `onSurfaceVariant`, forma `TuIndiceShapes.medium` y la cola por defecto de M3. Se abre arriba de su ancla (`TooltipAnchorPosition.Above`), salvo que quien lo aloja indique otra posición.
-- **Migrados**: los cuatro tooltips que existían, tres de Registro (`CreateTermLoadChipView`, `RecordTopBarViewModeBannerView` y `CreateTermSubjectStatusRowView`) y uno de Materias (`SubjectDetailSummaryMetric`). Los puntos de Estadísticas también lo usan, por `StatisticsTooltipTarget`. Fuera de `RichTooltipBox` no queda ningún `TooltipBox`, `PlainTooltip` ni `RichTooltip` de M3.
+- **Migrados**: los cuatro tooltips que existían, tres de Registro (`CreateTermLoadChip`, `RecordTopBarViewModeBannerView` y `CreateTermSubjectStatusRow`) y uno de Materias (`SubjectDetailSummaryMetric`). Los puntos de Estadísticas también lo usan, por `StatisticsTooltipTarget`. Fuera de `RichTooltipBox` no queda ningún `TooltipBox`, `PlainTooltip` ni `RichTooltip` de M3.
 
 ## Mi trimestre (imagen para compartir)
 

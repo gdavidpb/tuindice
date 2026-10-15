@@ -13,8 +13,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 
-private const val DAYS_PER_WEEK = 7
-
 /**
  * The meetings of these attempts that an evaluation of [evaluations] falls on in the calendar week
  * (Monday to Sunday) that holds [today], each mapped to the id of the evaluation that marks it (see
@@ -32,7 +30,7 @@ internal fun List<AttemptProjection>.evaluationMarksOn(
 	timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): ScheduleEvaluationMarks {
 	val weekStart = AcademicWeekEngine.mondayOf(today)
-	val week = weekStart..weekStart.plus(DatePeriod(days = DAYS_PER_WEEK - 1))
+	val week = weekStart..weekStart.plus(DatePeriod(days = AcademicWeekEngine.DAYS_PER_WEEK - 1))
 	val meetingsByAttempt = associate { attempt -> attempt.id to attempt.validMeetings() }
 	val marked = evaluations.mapNotNull { evaluation ->
 		val date = evaluation.date

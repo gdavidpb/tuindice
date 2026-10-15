@@ -318,12 +318,12 @@ private val summaryHubOverview = scenario("summary-hub-overview", "summary", hub
 	waitGone(SummaryUiTags.weekEvaluationRow(E2eFixtures.HubEvaluationOverdue.value), Within.Assert)
 	waitGone(SummaryUiTags.weekEvaluationRow(E2eFixtures.HubEvaluationOldest.value), Within.Assert)
 	// The term: which week of the twelve it is and what is left of them, the subjects with their credits, and the
-		// points of each subject.
+	// points of each subject.
 	scrollUntilVisible(SummaryUiTags.TermWeekText, Scroll.ContentDown, Within.Wait)
 	waitVisible(text(Copy.SummaryTermWeek3, contains = true), Within.Assert)
-		waitVisible(text(Copy.SummaryTermWeeksLeft), Within.Assert)
+	waitVisible(text(Copy.SummaryTermWeeksLeft), Within.Assert)
 	waitVisible(SummaryUiTags.TermWeekTrack, Within.Assert)
-		waitVisible(text(Copy.SummaryTermSubjects), Within.Assert)
+	waitVisible(text(Copy.SummaryTermSubjects), Within.Assert)
 	listOf(
 		E2eFixtures.SubjectCi4325.value,
 		E2eFixtures.SubjectCi5311.value,

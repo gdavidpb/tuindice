@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.ui.model.RecordViewModeBannerColors
 
 @Composable
 fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {

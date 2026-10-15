@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.ui.model.RecordViewModeBannerColors
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test

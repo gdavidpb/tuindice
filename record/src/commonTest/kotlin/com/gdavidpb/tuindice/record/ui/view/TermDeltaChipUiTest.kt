@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
 import com.gdavidpb.tuindice.record.testing.textLayout
+import com.gdavidpb.tuindice.record.ui.model.TermDeltaChipColors
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test

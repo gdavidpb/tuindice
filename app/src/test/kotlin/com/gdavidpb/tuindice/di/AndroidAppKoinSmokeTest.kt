@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
@@ -120,6 +121,8 @@ class AndroidAppKoinSmokeTest {
 			StatisticsTopBarActionBus::class,
 			// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
 			EvaluationsWeekFocusRepository::class,
+			// The jump to an attempt in Record that the host asks for from Summary.
+			RecordAttemptFocusRepository::class,
 			// The read contracts of the summary hub, which Summary's view model consumes through the
 			// use case of the hub (the record, its prerequisite and the evaluations among them).
 			ScheduleClockRepository::class,
