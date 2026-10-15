@@ -26,6 +26,18 @@ val otherShareBackground = ShareBackground(
 	art = ShareBackgroundArt.Bundled
 )
 
+// A remote background on a port nothing listens on, so its artwork fails to load at once.
+val unreachableShareBackground = ShareBackground(
+	id = "espejo-solar",
+	title = "Espejo Solar",
+	author = "Alejandro Otero",
+	shortName = "Espejo",
+	art = ShareBackgroundArt.Remote(
+		cardUrl = "http://127.0.0.1:9/espejo-solar/v1/card.webp",
+		thumbUrl = "http://127.0.0.1:9/espejo-solar/v1/thumb.webp"
+	)
+)
+
 class RecordingShareBackgroundRepository(
 	private val backgrounds: List<ShareBackground> = listOf(ShareBackground.included, otherShareBackground),
 	private var preferredId: String? = null

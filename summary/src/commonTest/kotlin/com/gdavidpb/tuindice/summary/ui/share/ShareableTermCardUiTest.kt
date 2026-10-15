@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -11,11 +13,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
+import com.gdavidpb.tuindice.summary.testing.unreachableShareBackground
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import tuindice.summary.generated.resources.Res
@@ -51,7 +57,7 @@ class ShareableTermCardUiTest {
 		var readyCount = 0
 
 		setTuIndiceTestContent {
-			ShareableTermCard(item = termItem(), background = unreachable(), onArtReady = { readyCount++ })
+			ShareableTermCard(item = termItem(), background = unreachableShareBackground, onArtReady = { readyCount++ })
 		}
 
 		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
@@ -94,9 +100,48 @@ class ShareableTermCardUiTest {
 			.assertHeightIsEqualTo(540.dp)
 	}
 
-	private fun termItem() = ShareableTermCardItem(
+	@Test
+	fun when_theTermChangesWithoutAnimations_then_itsFiguresChangeAtOnce() = runTuIndiceUiTest {
+		val item = mutableStateOf(termItem(index = "3.6875"))
+
+		mainClock.autoAdvance = false
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				ShareableTermCard(item = item.value, background = ShareBackground.included)
+			}
+		}
+		item.value = termItem(index = "2.5000")
+		// The change is composed on the first frame, and with no animation the figures of the term before are gone at once.
+		advanceAnimationsBy(ONE_FRAME_MILLIS)
+
+		onAllNodesWithText("3.6875").assertCountEquals(0)
+		onNodeWithTag(SummaryUiTags.ShareTermCardIndex).assertTextEquals("2.5000")
+	}
+
+	@Test
+	fun when_theTermChangesWithAnimations_then_theFiguresBeforeStayUntilTheTransitionEnds() = runTuIndiceUiTest {
+		val item = mutableStateOf(termItem(index = "3.6875"))
+
+		mainClock.autoAdvance = false
+		setTuIndiceTestContent {
+			ShareableTermCard(item = item.value, background = ShareBackground.included)
+		}
+		item.value = termItem(index = "2.5000")
+		advanceAnimationsBy(ONE_FRAME_MILLIS)
+
+		// One frame into the transition, the figures of the term before stay on screen under the new ones.
+		onAllNodesWithText("3.6875").assertCountEquals(1)
+		onAllNodesWithText("2.5000").assertCountEquals(1)
+
+		advanceAnimationsBy(TuIndiceAnimation.StandardMillis.toLong())
+
+		onAllNodesWithText("3.6875").assertCountEquals(0)
+		onAllNodesWithText("2.5000").assertCountEquals(1)
+	}
+
+	private fun termItem(index: String = "3.6875") = ShareableTermCardItem(
 		term = UiText.Raw("Enero - Marzo 2026"),
-		index = "3.6875",
+		index = index,
 		approved = SummaryStatisticsFigureItem(
 			value = "3",
 			label = UiText.Resource(Res.string.share_term_card_approved_many)
@@ -115,20 +160,11 @@ class ShareableTermCardUiTest {
 		)
 	)
 
-	// A remote artwork on a port nothing listens on, so its load fails at once.
-	private fun unreachable() = ShareBackground(
-		id = "espejo-solar",
-		title = "Espejo Solar",
-		author = "Alejandro Otero",
-		shortName = "Espejo",
-		art = ShareBackgroundArt.Remote(
-			cardUrl = "http://127.0.0.1:9/espejo-solar/v1/card.webp",
-			thumbUrl = "http://127.0.0.1:9/espejo-solar/v1/thumb.webp"
-		)
-	)
-
 	private companion object {
 		const val LOAD_TIMEOUT_MILLIS = 10_000L
+
+		// The clock of a test frame by frame: one frame at 60 Hz.
+		const val ONE_FRAME_MILLIS = 16L
 	}
 
 	// The bundled artwork keeps this test off the network: only the credit of a work without an author is under test.

@@ -6,16 +6,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
@@ -28,14 +28,15 @@ private val PreviewHeight = 348.dp
 private val PreviewShape = RoundedCornerShape(12.dp)
 
 /**
- * The card of a term, scaled down to the sheet. The card is captured where it is shown, so the picture that is
- * shared is the one the student sees: [onCaptured] receives its bitmap once its artwork has loaded.
+ * The card of a term, scaled down to the sheet. The card is laid out at the density its picture is taken at, so what
+ * the student sees is the picture that is shared, only smaller. It stays in place as the term or the background
+ * changes (see [ShareableTermCard]); the picture itself is taken by [ShareableTermCardCapture] when the student asks to
+ * share.
  */
 @Composable
 fun ShareTermPreview(
 	card: ShareableTermCardItem,
 	background: ShareBackground,
-	onCaptured: (bitmap: ImageBitmap) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -65,12 +66,10 @@ fun ShareTermPreview(
 					transformOrigin = TransformOrigin(0f, 0f)
 				}
 		) {
-			// A card is captured for each term and background: the capture of another one is not this card's.
-			key(card, background.id) {
-				ShareableTermCardCapture(
+			CompositionLocalProvider(LocalDensity provides Density(density = SHARE_DENSITY, fontScale = 1f)) {
+				ShareableTermCard(
 					item = card,
-					background = background,
-					onCaptured = onCaptured
+					background = background
 				)
 			}
 		}

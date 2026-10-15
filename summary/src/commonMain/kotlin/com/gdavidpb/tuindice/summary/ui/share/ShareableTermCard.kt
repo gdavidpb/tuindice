@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,13 +33,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +43,7 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.view.universityLogoPainter
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
@@ -79,8 +79,14 @@ private const val BOTTOM_FADE_MIDDLE = 0.5f
 /**
  * The "Mi trimestre" card of one closed term over the [background] artwork. It carries the figures of the term and the
  * credit of the artwork, and never the name or the code of the student. The university's logo signs the header at its
- * right, and [onArtReady] is called once the artwork is on screen: at once for the one the app ships with, and
- * when a remote artwork has loaded, or has failed and the card has turned to the one the app ships with.
+ * right.
+ *
+ * The card stays in place as the student moves between terms and backgrounds: the figures of a term change by a short
+ * fade and slide, and a new artwork fades in over the one before it. A remote artwork takes the place of the one on
+ * screen only once it has loaded, so the card never goes bare meanwhile; one that cannot be loaded gives way to the
+ * one the app ships with, credit and all. [onArtReady] is called once the artwork on screen is drawn: at once for the
+ * one the app ships with, and when a remote artwork has loaded, or has failed and the card has turned to the one the
+ * app ships with.
  */
 @Composable
 fun ShareableTermCard(
@@ -90,10 +96,15 @@ fun ShareableTermCard(
 	onArtReady: () -> Unit = {}
 ) {
 	val description = stringResource(Res.string.a11y_share_term_card)
-	// A remote artwork that cannot be loaded gives way to the one the app ships with, credit and all: the card never
-	// shows one work under the name of another.
-	var hasArtFailed by remember(background.id) { mutableStateOf(false) }
-	val shown = if (hasArtFailed) ShareBackground.included else background
+	val platformContext = LocalPlatformContext.current
+	// The app-wide loader, the same one the profile picture reads: its memory holds the artwork between visits.
+	val imageLoader = remember(platformContext) { SingletonImageLoader.get(platformContext) }
+	// The artwork on screen: the one the app ships with at once, and otherwise nothing until the chosen one is known.
+	var shown by remember { mutableStateOf(background.takeIf { chosen -> chosen.art is ShareBackgroundArt.Bundled }) }
+
+	LaunchedEffect(background) {
+		shown = background.resolvedBy(imageLoader = imageLoader, platformContext = platformContext)
+	}
 
 	Box(
 		modifier = modifier
@@ -102,7 +113,11 @@ fun ShareableTermCard(
 			.testTag(SummaryUiTags.ShareTermCard)
 			.semantics { contentDescription = description }
 	) {
-		ShareableTermCardArt(background = shown, onArtReady = onArtReady, onArtFailed = { hasArtFailed = true })
+		ShareableTermCardArt(
+			shown = shown,
+			onArtReady = onArtReady,
+			onArtFailed = { failed -> if (shown?.id == failed.id) shown = ShareBackground.included }
+		)
 
 		Box(
 			modifier = Modifier
@@ -138,15 +153,61 @@ fun ShareableTermCard(
 	}
 }
 
+// A part of the card that changes with the term or the background. With the animations on it changes by its transition;
+// with them off it is drawn at once, with no transition wrapper at all, so the picture never depends on how the part
+// got its content. Its size changes at once in both cases: a size that animates would still be moving when a picture
+// is taken.
+@Composable
+private fun <T> ChangingCardContent(
+	targetState: T,
+	modifier: Modifier,
+	label: String,
+	transitionSpec: AnimatedContentTransitionScope<T>.() -> ContentTransform,
+	content: @Composable (T) -> Unit
+) {
+	if (LocalTuIndiceAnimationsEnabled.current) {
+		AnimatedContent(
+			targetState = targetState,
+			modifier = modifier,
+			transitionSpec = { transitionSpec().using(sizeTransform = null) },
+			label = label
+		) { shownState ->
+			content(shownState)
+		}
+	} else {
+		Box(modifier = modifier) {
+			content(targetState)
+		}
+	}
+}
+
 @Composable
 private fun ShareableTermCardArt(
-	background: ShareBackground,
+	shown: ShareBackground?,
 	onArtReady: () -> Unit,
-	onArtFailed: () -> Unit
+	onArtFailed: (ShareBackground) -> Unit
 ) {
-	when (val art = background.art) {
+	ChangingCardContent(
+		targetState = shown,
+		modifier = Modifier.fillMaxSize(),
+		label = "ShareableTermCardArtAnimatedContent",
+		transitionSpec = { artTransform() }
+	) { art ->
+		if (art != null) {
+			ShareableTermCardArtLayer(art = art, onArtReady = onArtReady, onArtFailed = onArtFailed)
+		}
+	}
+}
+
+@Composable
+private fun ShareableTermCardArtLayer(
+	art: ShareBackground,
+	onArtReady: () -> Unit,
+	onArtFailed: (ShareBackground) -> Unit
+) {
+	when (val source = art.art) {
 		ShareBackgroundArt.Bundled -> {
-			LaunchedEffect(background) { onArtReady() }
+			LaunchedEffect(art) { onArtReady() }
 
 			Image(
 				painter = painterResource(Res.drawable.share_background_laberinto_cromovegetal_card),
@@ -158,17 +219,19 @@ private fun ShareableTermCardArt(
 
 		is ShareBackgroundArt.Remote -> {
 			val platformContext = LocalPlatformContext.current
-			// The app-wide loader, the same one the profile picture reads: its memory holds the artwork between visits.
 			val imageLoader = remember(platformContext) { SingletonImageLoader.get(platformContext) }
+			val request = remember(platformContext, source.cardUrl) {
+				remoteArtRequest(platformContext = platformContext, url = source.cardUrl)
+			}
 
 			AsyncImage(
-				model = art.cardUrl,
+				model = request,
 				imageLoader = imageLoader,
 				contentDescription = null,
 				modifier = Modifier.fillMaxSize(),
 				contentScale = ContentScale.Crop,
 				onSuccess = { onArtReady() },
-				onError = { onArtFailed() }
+				onError = { onArtFailed(art) }
 			)
 		}
 	}
@@ -192,11 +255,18 @@ private fun BoxScope.ShareableTermCardHeader(
 				color = CardInk,
 				style = TextStyle(fontSize = 17.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold)
 			)
-			Text(
-				text = term.term.asString(),
-				color = CardInk.copy(alpha = 0.75f),
-				style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
-			)
+			ChangingCardContent(
+				targetState = term.term,
+				modifier = Modifier,
+				label = "ShareableTermCardTermAnimatedContent",
+				transitionSpec = { dissolveTransform() }
+			) { shownTerm ->
+				Text(
+					text = shownTerm.asString(),
+					color = CardInk.copy(alpha = 0.75f),
+					style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
+				)
+			}
 		}
 
 		Icon(
@@ -212,31 +282,36 @@ private fun BoxScope.ShareableTermCardHeader(
 
 @Composable
 private fun BoxScope.ShareableTermCardFigures(item: ShareableTermCardItem) {
-	Column(
+	ChangingCardContent(
+		targetState = item,
 		modifier = Modifier
 			.align(Alignment.TopStart)
 			.fillMaxWidth()
-			.padding(start = 24.dp, top = 82.dp, end = 24.dp)
-	) {
-		Text(
-			text = item.index,
-			modifier = Modifier.testTag(SummaryUiTags.ShareTermCardIndex),
-			color = CardInk,
-			style = TextStyle(fontSize = 54.sp, lineHeight = 54.sp)
-		)
-		Text(
-			text = stringResource(Res.string.share_term_card_index_label),
-			modifier = Modifier.padding(top = 2.dp),
-			color = CardInk.copy(alpha = 0.75f),
-			style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
-		)
-		Row(
-			modifier = Modifier.padding(top = 10.dp),
-			horizontalArrangement = Arrangement.spacedBy(24.dp)
-		) {
-			ShareableTermCardFigure(figure = item.approved)
-			ShareableTermCardFigure(figure = item.credits)
-			ShareableTermCardFigure(figure = item.cumulative)
+			.padding(start = 24.dp, top = 82.dp, end = 24.dp),
+		label = "ShareableTermCardFiguresAnimatedContent",
+		transitionSpec = { figuresTransform() }
+	) { figures ->
+		Column {
+			Text(
+				text = figures.index,
+				modifier = Modifier.testTag(SummaryUiTags.ShareTermCardIndex),
+				color = CardInk,
+				style = TextStyle(fontSize = 54.sp, lineHeight = 54.sp)
+			)
+			Text(
+				text = stringResource(Res.string.share_term_card_index_label),
+				modifier = Modifier.padding(top = 2.dp),
+				color = CardInk.copy(alpha = 0.75f),
+				style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
+			)
+			Row(
+				modifier = Modifier.padding(top = 10.dp),
+				horizontalArrangement = Arrangement.spacedBy(24.dp)
+			) {
+				ShareableTermCardFigure(figure = figures.approved)
+				ShareableTermCardFigure(figure = figures.credits)
+				ShareableTermCardFigure(figure = figures.cumulative)
+			}
 		}
 	}
 }
@@ -260,7 +335,7 @@ private fun ShareableTermCardFigure(figure: SummaryStatisticsFigureItem) {
 @Composable
 private fun BoxScope.ShareableTermCardFooter(
 	item: ShareableTermCardItem,
-	background: ShareBackground
+	background: ShareBackground?
 ) {
 	Column(
 		modifier = Modifier
@@ -268,16 +343,15 @@ private fun BoxScope.ShareableTermCardFooter(
 			.fillMaxWidth()
 			.padding(start = 24.dp, end = 24.dp, bottom = 20.dp)
 	) {
-		Text(
-			text = artCredit(background),
-			modifier = Modifier
-				.testTag(SummaryUiTags.ShareTermCardCredit)
-				.padding(bottom = 6.dp),
-			color = CardInk.copy(alpha = 0.72f),
-			style = TextStyle(fontSize = 11.sp, lineHeight = 14.sp),
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis
-		)
+		ChangingCardContent(
+			targetState = background,
+			modifier = Modifier,
+			label = "ShareableTermCardCreditAnimatedContent",
+			transitionSpec = { creditTransform() }
+		) { credited ->
+			ShareableTermCardCredit(credited = credited)
+		}
+
 		Row(
 			modifier = Modifier.fillMaxWidth(),
 			verticalAlignment = Alignment.CenterVertically,
@@ -302,13 +376,17 @@ private fun BoxScope.ShareableTermCardFooter(
 	}
 }
 
-// The title in italics, then the author when the work has one: the credit reads as the work is named in the catalogs.
-private fun artCredit(background: ShareBackground): AnnotatedString {
-	return buildAnnotatedString {
-		withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-			append(background.title)
-		}
-
-		background.author?.let { author -> append(" · $author") }
-	}
+@Composable
+private fun ShareableTermCardCredit(credited: ShareBackground?) {
+	Text(
+		// A blank line holds the place of the credit until the artwork is known, so the footer does not move.
+		text = credited?.let(::artCredit) ?: AnnotatedString(" "),
+		modifier = Modifier
+			.testTag(SummaryUiTags.ShareTermCardCredit)
+			.padding(bottom = 6.dp),
+		color = CardInk.copy(alpha = 0.72f),
+		style = TextStyle(fontSize = 11.sp, lineHeight = 14.sp),
+		maxLines = 1,
+		overflow = TextOverflow.Ellipsis
+	)
 }

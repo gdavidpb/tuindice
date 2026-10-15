@@ -12,21 +12,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 
 /**
- * Draws the term card and hands its bitmap to [onCaptured] once for each background.
+ * Draws the term card into a picture and hands it to [onCaptured] once, when the artwork on screen is drawn: at the
+ * shared size, 1080 by 1620 pixels whatever the screen it is composed on.
  *
- * The card is drawn at its shared size and in its own density, so the bitmap is 1080 by 1620 pixels whatever the
- * screen it is drawn on. It is captured only after its artwork has finished loading: at once for the one the app ships
- * with, and when a remote artwork has loaded or has fallen back to the one the app ships with. The card is drawn
- * wherever it is placed, so the caller places it where the student does not see it, or where it is part of what is
- * shown.
+ * The card is drawn into the picture only, never on the screen, so the caller places it where the student does not see
+ * it. The picture is still: no animation runs in it, so it is the card of [item] over [background] at rest.
  */
 @Composable
 fun ShareableTermCardCapture(
@@ -37,7 +35,10 @@ fun ShareableTermCardCapture(
 	val graphicsLayer = rememberGraphicsLayer()
 	var isArtReady by remember(background) { mutableStateOf(false) }
 
-	CompositionLocalProvider(LocalDensity provides Density(density = SHARE_DENSITY, fontScale = 1f)) {
+	CompositionLocalProvider(
+		LocalDensity provides Density(density = SHARE_DENSITY, fontScale = 1f),
+		LocalTuIndiceAnimationsEnabled provides false
+	) {
 		ShareableTermCard(
 			item = item,
 			background = background,
@@ -60,10 +61,9 @@ fun ShareableTermCardCapture(
 // Three pixels per dp: the 360 by 540 dp card is 1080 by 1620 pixels.
 internal const val SHARE_DENSITY = 3f
 
-// Records what the card draws into the layer, and draws the layer where the card is, so the card is both seen and kept.
+// Records what the card draws into the layer and draws nothing on the screen: the layer is the picture of the card.
 private fun Modifier.recordInto(graphicsLayer: GraphicsLayer): Modifier {
 	return drawWithContent {
 		graphicsLayer.record { this@drawWithContent.drawContent() }
-		drawLayer(graphicsLayer)
 	}
 }

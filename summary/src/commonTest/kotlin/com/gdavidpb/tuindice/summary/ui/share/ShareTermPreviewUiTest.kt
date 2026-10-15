@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShareableTermCardItem
+import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
+import com.gdavidpb.tuindice.summary.testing.otherShareBackground
 import com.gdavidpb.tuindice.summary.testing.statisticsTerm
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -18,30 +21,11 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class ShareTermPreviewUiTest {
 	@Test
-	fun when_theArtworkIsReady_then_theCardIsCapturedAtItsSharedSize() = runTuIndiceUiTest {
-		var captured: ImageBitmap? = null
-
-		setTuIndiceTestContent {
-			ShareTermPreview(
-				card = card(),
-				background = ShareBackground.included,
-				onCaptured = { bitmap -> captured = bitmap }
-			)
-		}
-
-		waitUntil(timeoutMillis = CAPTURE_TIMEOUT_MILLIS) { captured != null }
-
-		// 360 by 540 dp at three pixels per dp: the same 1080 pixels wide as the card that is shared.
-		assertEquals(CARD_WIDTH_PIXELS, checkNotNull(captured).width)
-	}
-
-	@Test
 	fun when_theCardIsShown_then_itIsDrawnInThePreview() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = card(),
-				background = ShareBackground.included,
-				onCaptured = {}
+				background = ShareBackground.included
 			)
 		}
 
@@ -54,8 +38,7 @@ class ShareTermPreviewUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = card(),
-				background = ShareBackground.included,
-				onCaptured = {}
+				background = ShareBackground.included
 			)
 		}
 		waitForIdle()
@@ -69,14 +52,52 @@ class ShareTermPreviewUiTest {
 		assertEquals(preview.bottom, shown.bottom, absoluteTolerance = EDGE_TOLERANCE_PX)
 	}
 
-	private fun card() = checkNotNull(
-		statisticsTerm(year = 2024, periodCode = AcademicTermPeriod.JAN_MAR, index = 4.0)
+	@Test
+	fun when_theTermChanges_then_thePreviewShowsTheFiguresOfTheNewTerm() = runTuIndiceUiTest {
+		val chosen = mutableStateOf(card())
+		val newer = card(year = 2023, periodCode = AcademicTermPeriod.SEP_DEC, index = 2.5)
+
+		setTuIndiceTestContent {
+			ShareTermPreview(
+				card = chosen.value,
+				background = ShareBackground.included
+			)
+		}
+		chosen.value = newer
+
+		waitUntil(timeoutMillis = NODE_TIMEOUT_MILLIS) {
+			runCatching { onNodeWithTag(SummaryUiTags.ShareTermCardIndex).assertTextEquals(newer.index) }.isSuccess
+		}
+	}
+
+	@Test
+	fun when_theBackgroundChanges_then_thePreviewShowsItsCredit() = runTuIndiceUiTest {
+		val chosen = mutableStateOf(ShareBackground.included)
+
+		setTuIndiceTestContent {
+			ShareTermPreview(
+				card = card(),
+				background = chosen.value
+			)
+		}
+		chosen.value = otherShareBackground
+
+		waitUntil(timeoutMillis = NODE_TIMEOUT_MILLIS) {
+			runCatching { onNodeWithTag(SummaryUiTags.ShareTermCardCredit).assertTextEquals("Otra obra") }.isSuccess
+		}
+	}
+
+	private fun card(
+		year: Int = 2024,
+		periodCode: AcademicTermPeriod = AcademicTermPeriod.JAN_MAR,
+		index: Double = 4.0
+	): ShareableTermCardItem = checkNotNull(
+		statisticsTerm(year = year, periodCode = periodCode, index = index)
 			.toShareableTermCardItem(careerName = "Ingeniería de Computación")
 	)
 
 	private companion object {
-		const val CARD_WIDTH_PIXELS = 1080
-		const val CAPTURE_TIMEOUT_MILLIS = 5_000L
+		const val NODE_TIMEOUT_MILLIS = 5_000L
 
 		// The card is scaled to the preview's width, so its edges may land a pixel off the preview's.
 		const val EDGE_TOLERANCE_PX = 2f
