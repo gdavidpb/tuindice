@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalForeignApi::class)
 
-package com.gdavidpb.tuindice.persistence.data.room
+package com.gdavidpb.tuindice.persistence.data.source
 
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
-import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceTransactionRunner
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope

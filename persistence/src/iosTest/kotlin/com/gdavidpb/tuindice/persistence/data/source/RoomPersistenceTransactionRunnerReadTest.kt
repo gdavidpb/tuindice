@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.persistence.data.room
+package com.gdavidpb.tuindice.persistence.data.source
 
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.daos.createInMemoryTuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
-import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceTransactionRunner
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
