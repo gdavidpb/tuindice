@@ -14,8 +14,9 @@ import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
-// The credits the pensum has approved: their figure with the share at its end, and the bar that follows them in the
-// approved colour. The bar is a progress element for a screen reader, which hears the figure and its share as one sentence.
+// The credits the pensum has approved: their figure with the share at its end, and the bar that follows them in
+// the approved colour. The bar is a progress element for a screen reader, which hears the figure and its share as
+// one sentence.
 @Composable
 fun ColumnScope.SummaryStatisticsCreditsData(
 	data: SummaryStatisticsCreditsItem.Content.Data
