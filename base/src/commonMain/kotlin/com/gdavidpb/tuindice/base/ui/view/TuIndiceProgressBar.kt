@@ -23,7 +23,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 
 /**
- * The bar of one share of a whole, the one every progress bar of the app is: a track of
+ * The bar of one share of a whole, the proportion bar of the summary and its statistics: a track of
  * [TuIndiceComponentSizes.ProgressBarHeight] in `outlineVariant`, with rounded ends. [fraction] of it is filled in
  * [color], from its start; the share is held between nothing and all of it. [fillTag] names the fill for a test.
  */
