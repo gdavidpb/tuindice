@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.summary.data.repository.ImageSharePresenterDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import kotlinx.coroutines.withContext
@@ -14,7 +15,7 @@ import okio.Path
 class IosImageShareDataSource(
 	private val storageDirectory: Path,
 	private val dispatchers: TuIndiceDispatchers,
-	private val presenter: ImageSharePresenter
+	private val presenter: ImageSharePresenterDataRepository
 ) : ImageShareRepository {
 	override suspend fun shareImage(image: ShareableImage) {
 		val file = withContext(dispatchers.io) { writeImage(image) }

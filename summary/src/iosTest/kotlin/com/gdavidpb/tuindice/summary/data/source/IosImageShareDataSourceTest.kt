@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.gdavidpb.tuindice.summary.data.repository.ImageSharePresenterDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ShareableImage
 import com.gdavidpb.tuindice.summary.ui.image.toPngBytes
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
@@ -49,7 +50,7 @@ class IosImageShareDataSourceTest {
 		}
 	}
 
-	private fun dataSource(directory: Path, presenter: ImageSharePresenter): IosImageShareDataSource {
+	private fun dataSource(directory: Path, presenter: ImageSharePresenterDataRepository): IosImageShareDataSource {
 		return IosImageShareDataSource(
 			storageDirectory = directory,
 			dispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined),
@@ -63,7 +64,7 @@ class IosImageShareDataSourceTest {
 		return FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve(name)
 	}
 
-	private class RecordingImageSharePresenter : ImageSharePresenter {
+	private class RecordingImageSharePresenter : ImageSharePresenterDataRepository {
 		val presentedFiles = mutableListOf<Path>()
 
 		override fun present(file: Path) {
