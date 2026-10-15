@@ -58,7 +58,7 @@ expected = set(filter(None, os.environ["EXPECTED_RULE_IDS"].split(",")))
 fired = set()
 control_findings = []
 # Controles negativos: piezas que el ruleset exime por path o por patrón (*Control.kt prueba las exenciones de ruta).
-CONTROL_SUFFIXES = ("Draft.kt", "FakeDispatchers.kt", "IosPlatformModule.kt", "Control.kt", "AndroidTinkSecureKeyValueDataSource.kt")
+CONTROL_SUFFIXES = ("Draft.kt", "FakeDispatchers.kt", "IosPlatformModule.kt", "Control.kt", "AndroidTinkSecureKeyValueDataSource.kt", "ObserveSessionInvalidationUseCase.kt")
 for result in data["results"]:
     rule_id = result["check_id"].split(".")[-1]
     fired.add(rule_id)

@@ -50,3 +50,25 @@ rules:
     metadata:
       area: base-components
       referencia: 'README.md § Capas por feature'
+
+  - id: observe-usecase-local-only
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un Observe*UseCase lee solo flujos locales: no llama a repositorios que refrescan del servidor
+      (refresh*, update*, fetch*, download*, sync*) ni a getters get* que leen una vez. El refresco va en un
+      Update*UseCase que persiste en local, y un valor local que cambia se expone como flujo observe*Flow()
+      (skill "observe use cases should read local flows only"; README "Capas por feature > Domain").
+    # El receptor se identifica por el sufijo Repository de la propiedad, que es la convención de los contratos de dominio.
+    pattern-regex: '\b\w*[Rr]epository\??\.(?:refresh|update|fetch|download|sync|get)\w*\s*\('
+    paths:
+      include:
+        - '**/domain/usecase/Observe*UseCase.kt'
+        - '**/domain/usecase/**/Observe*UseCase.kt'
+      exclude:
+        # Lectura puntual por diseño, documentada en su KDoc: el aviso pendiente se lee al llegar la señal, así que
+        # cada emisión entrega el motivo vigente sin refresco remoto de por medio.
+        - '**/domain/usecase/ObserveSessionInvalidationUseCase.kt'
+    metadata:
+      area: usecase-discipline
+      referencia: '.codex/skills/implement-tuindice-module § Workflow (paso 6)'

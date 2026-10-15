@@ -40,3 +40,20 @@ object MisplacedExceptionHandler
 
 // ok: exceptionhandler-location
 object SampleErrorMapper
+
+// Observe*UseCase: los repositorios de refresco y los getters puntuales no entran; los flujos sí.
+class ObserveSampleUseCase(
+	private val sampleRepository: SampleRepository,
+	private val settingsRepository: SampleSettingsRepository
+) : FlowUseCase<Unit, String, Nothing>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<String> {
+		// ruleid: observe-usecase-local-only
+		sampleRepository.refreshSample()
+		// ruleid: observe-usecase-local-only
+		val notice = settingsRepository.getSampleNotice()
+		// ruleid: observe-usecase-local-only
+		val fresh = sampleRepository.fetchSample()
+		// ok: observe-usecase-local-only
+		return sampleRepository.observeSampleFlow()
+	}
+}

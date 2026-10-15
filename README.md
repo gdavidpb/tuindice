@@ -411,7 +411,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(50 reglas en 13 archivos por área):
+(51 reglas en 13 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -430,7 +430,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
 - `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
-  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`.
+  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`; un `Observe*UseCase` lee solo
+  flujos locales (sin repositorios de refresco ni getters `get*`).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
   extension functions de la tabla.
