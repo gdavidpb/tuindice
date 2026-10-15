@@ -46,18 +46,11 @@ fun BoxScope.ShareableTermCardHeader(
 				color = CardInk,
 				style = TextStyle(fontSize = 17.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold)
 			)
-			ChangingCardContent(
-				targetState = term.term,
-				modifier = Modifier,
-				label = "ShareableTermCardTermAnimatedContent",
-				transitionSpec = { dissolveTransform() }
-			) { shownTerm ->
-				Text(
-					text = shownTerm.asString(),
-					color = CardInk.copy(alpha = 0.75f),
-					style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
-				)
-			}
+			Text(
+				text = term.term.asString(),
+				color = CardInk.copy(alpha = 0.75f),
+				style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
+			)
 		}
 
 		Icon(

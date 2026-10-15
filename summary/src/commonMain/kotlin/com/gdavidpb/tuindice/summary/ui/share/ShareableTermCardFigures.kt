@@ -22,40 +22,36 @@ import tuindice.summary.generated.resources.share_term_card_index_label
 
 /**
  * The figures of the card: the index of the term in large, with its label, and the three figures under it: the approved
- * subjects, the approved credits and the cumulative average. They change with the term as one block.
+ * subjects, the approved credits and the cumulative average. They change with the term as one block, in the fade of the
+ * whole card.
  */
 @Composable
 fun BoxScope.ShareableTermCardFigures(item: ShareableTermCardItem) {
-	ChangingCardContent(
-		targetState = item,
+	Column(
 		modifier = Modifier
 			.align(Alignment.TopStart)
 			.fillMaxWidth()
-			.padding(start = 24.dp, top = 82.dp, end = 24.dp),
-		label = "ShareableTermCardFiguresAnimatedContent",
-		transitionSpec = { figuresTransform() }
-	) { figures ->
-		Column {
-			Text(
-				text = figures.index,
-				modifier = Modifier.testTag(SummaryUiTags.ShareTermCardIndex),
-				color = CardInk,
-				style = TextStyle(fontSize = 54.sp, lineHeight = 54.sp)
-			)
-			Text(
-				text = stringResource(Res.string.share_term_card_index_label),
-				modifier = Modifier.padding(top = 2.dp),
-				color = CardInk.copy(alpha = 0.75f),
-				style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
-			)
-			Row(
-				modifier = Modifier.padding(top = 10.dp),
-				horizontalArrangement = Arrangement.spacedBy(24.dp)
-			) {
-				ShareableTermCardFigure(figure = figures.approved)
-				ShareableTermCardFigure(figure = figures.credits)
-				ShareableTermCardFigure(figure = figures.cumulative)
-			}
+			.padding(start = 24.dp, top = 82.dp, end = 24.dp)
+	) {
+		Text(
+			text = item.index,
+			modifier = Modifier.testTag(SummaryUiTags.ShareTermCardIndex),
+			color = CardInk,
+			style = TextStyle(fontSize = 54.sp, lineHeight = 54.sp)
+		)
+		Text(
+			text = stringResource(Res.string.share_term_card_index_label),
+			modifier = Modifier.padding(top = 2.dp),
+			color = CardInk.copy(alpha = 0.75f),
+			style = TextStyle(fontSize = 14.sp, lineHeight = 19.sp)
+		)
+		Row(
+			modifier = Modifier.padding(top = 10.dp),
+			horizontalArrangement = Arrangement.spacedBy(24.dp)
+		) {
+			ShareableTermCardFigure(figure = item.approved)
+			ShareableTermCardFigure(figure = item.credits)
+			ShareableTermCardFigure(figure = item.cumulative)
 		}
 	}
 }

@@ -37,14 +37,7 @@ fun BoxScope.ShareableTermCardFooter(
 			.fillMaxWidth()
 			.padding(start = 24.dp, end = 24.dp, bottom = 20.dp)
 	) {
-		ChangingCardContent(
-			targetState = artwork,
-			modifier = Modifier,
-			label = "ShareableTermCardCreditAnimatedContent",
-			transitionSpec = { creditTransform() }
-		) { credited ->
-			ShareableTermCardCredit(artwork = credited)
-		}
+		ShareableTermCardCredit(artwork = artwork)
 
 		Row(
 			modifier = Modifier.fillMaxWidth(),
