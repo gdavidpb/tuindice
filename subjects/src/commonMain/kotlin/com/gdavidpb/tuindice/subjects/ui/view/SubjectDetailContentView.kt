@@ -12,10 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -44,7 +42,7 @@ fun SubjectDetailContentView(
 	val chartsEnterThresholdPx = with(density) { 220.dp.roundToPx() }
 	val chartsExitThresholdPx = with(density) { 160.dp.roundToPx() }
 	val scrollState = rememberScrollState(initial = initialScrollOffsetPx)
-	var areChartsVisible by remember(initialScrollOffsetPx) {
+	val areChartsVisible = remember(initialScrollOffsetPx) {
 		mutableStateOf(initialScrollOffsetPx >= chartsEnterThresholdPx)
 	}
 
@@ -62,13 +60,13 @@ fun SubjectDetailContentView(
 			((dynamicEnterThresholdPx * 7) / 10).coerceAtLeast(0)
 		)
 		val nextChartsVisible = when {
-			areChartsVisible && scrollState.value <= dynamicExitThresholdPx -> false
-			!areChartsVisible && scrollState.value >= dynamicEnterThresholdPx -> true
-			else -> areChartsVisible
+			areChartsVisible.value && scrollState.value <= dynamicExitThresholdPx -> false
+			!areChartsVisible.value && scrollState.value >= dynamicEnterThresholdPx -> true
+			else -> areChartsVisible.value
 		}
 
-		if (nextChartsVisible != areChartsVisible) {
-			areChartsVisible = nextChartsVisible
+		if (nextChartsVisible != areChartsVisible.value) {
+			areChartsVisible.value = nextChartsVisible
 			onChartsVisibilityChange(nextChartsVisible)
 		}
 	}
