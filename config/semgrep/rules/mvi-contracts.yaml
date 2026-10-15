@@ -35,3 +35,19 @@ rules:
     metadata:
       area: mvi-contracts
       referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § sendEffect'
+
+  - id: presentation-no-toplevel-data-class
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Las data class de machine/ y contract/ son modelos de presentación: van en presentation/model, un archivo por
+      clase con su nombre (skill "Keep presentation models in presentation/model"; README "Capas por feature >
+      Presentation"). Una declaración de nivel superior aquí es un modelo fuera de su sitio, sea privada o no.
+    pattern-regex: '^(?:(?:public|internal|private)\s+)?data\s+class\b'
+    paths:
+      include:
+        - '**/presentation/machine/**'
+        - '**/presentation/contract/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'README.md § Capas por feature > Presentation'

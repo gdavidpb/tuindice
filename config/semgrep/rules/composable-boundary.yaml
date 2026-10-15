@@ -71,3 +71,19 @@ rules:
     metadata:
       area: composable-boundary
       referencia: 'base/presentation/navigation/TuIndiceNavActions.kt'
+
+  - id: ui-view-no-shared-data-class
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Una data class de ui/view que no es private es un tipo de ayuda compartido o mal ubicado: si la usan varios
+      componentes va en ui/model; si la usa uno solo se queda private en el archivo de su vista (skill "Move UI-only
+      enums or small display helper types shared by multiple view files into ui/model; keep helper types private in
+      the view file when only one component uses them").
+    pattern-regex: '^(?:(?:public|internal)\s+)?data\s+class\b'
+    paths:
+      include:
+        - '**/ui/view/**'
+    metadata:
+      area: composable-boundary
+      referencia: '.codex/skills/implement-tuindice-module § composable boundary'

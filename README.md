@@ -411,7 +411,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(51 reglas en 13 archivos por área):
+(53 reglas en 13 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -434,10 +434,11 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   flujos locales (sin repositorios de refresco ni getters `get*`).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
-  extension functions de la tabla.
+  extension functions de la tabla; las `data class` de `machine/` y `contract/` van en `presentation/model`.
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
-  importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`.
+  importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;
+  las `data class` no privadas de `ui/view` van en `ui/model`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").

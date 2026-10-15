@@ -25,3 +25,9 @@ fun EntryProviderScope<Any>.sampleEntries(viewModel: Any): Any = viewModel
 
 // ok: entryprovider-only-in-navigation
 fun sampleEntriesHost(scope: Any): Any = scope
+
+// ruleid: ui-view-no-shared-data-class
+data class SampleViewHelper(val label: String)
+
+// ok: ui-view-no-shared-data-class
+private data class SamplePrivateHelper(val label: String)
