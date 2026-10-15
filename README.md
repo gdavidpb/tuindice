@@ -411,7 +411,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(53 reglas en 13 archivos por área):
+(55 reglas en 13 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -438,7 +438,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;
-  las `data class` no privadas de `ui/view` van en `ui/model`.
+  las `data class` no privadas de `ui/view` van en `ui/model`; los objetos de tags de `ui/` se llaman `*UiTags` y
+  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
