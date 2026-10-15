@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,6 +17,7 @@ import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
+import com.gdavidpb.tuindice.summary.testing.firstBaselineInRoot
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -60,17 +63,40 @@ class SummaryEntryViewUiTest {
 	}
 
 	@Test
-	fun when_leadIsDrawn_then_itIsCenteredWithTheFirstLine_notWithTheWholeEntry() = runTuIndiceUiTest {
+	fun when_leadIsDrawn_then_itsBaselineIsTheBaselineOfTheFirstLine() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			Entry(subjectCode = "CI5437", place = place)
 		}
 
-		val lead = onNodeWithTag("lead", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val lead = onNodeWithTag("lead", useUnmergedTree = true).fetchSemanticsNode()
+		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode()
 		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(abs(lead.center.y - title.center.y) <= 1f, "the lead is centered with the title")
-		assertTrue(lead.center.y < subject.top, "the lead is not centered with the whole entry")
+		val leadBaseline = lead.firstBaselineInRoot()
+		val titleBaseline = title.firstBaselineInRoot()
+
+		assertTrue(
+			abs(leadBaseline - titleBaseline) <= 1f,
+			"the lead's baseline is $leadBaseline and the title's is $titleBaseline"
+		)
+		assertTrue(leadBaseline < subject.top, "the lead's baseline is on the first line, above the chip")
+	}
+
+	@Test
+	fun when_theEntryIsTallerThanItsContent_then_itsBlockIsCenteredInIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Entry(subjectCode = "CI5437", place = place, modifier = Modifier.testTag("entry").height(160.dp))
+		}
+
+		val entry = onNodeWithTag("entry", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val title = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val blocks = onNodeWithText("3-4 · MYS-210", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		val above = title.top - entry.top
+		val below = entry.bottom - blocks.bottom
+
+		assertTrue(above > 20f, "the block is not at the top of the taller row: $above px above it")
+		assertTrue(abs(above - below) <= 8f, "the block is centered: $above px above it and $below px below it")
 	}
 
 	@Test
@@ -95,10 +121,14 @@ class SummaryEntryViewUiTest {
 
 	// The shape with fixed parts: a day as the lead and a type icon with a name as the title line.
 	@Composable
-	private fun Entry(subjectCode: String, place: ClassPlaceItem?) {
+	private fun Entry(subjectCode: String, place: ClassPlaceItem?, modifier: Modifier = Modifier) {
 		SummaryEntryView(
+			modifier = modifier,
 			lead = {
-				SummaryLeadTextView(modifier = Modifier.testTag("lead"), text = "Hoy")
+				SummaryLeadTextView(
+					modifier = Modifier.alignBy(FirstBaseline).testTag("lead"),
+					text = "Hoy"
+				)
 			},
 			titleLine = {
 				SummaryTitleLine(

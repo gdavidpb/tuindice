@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,9 @@ fun SummaryClassRowView(
 			.padding(horizontal = TuIndiceSpacing.Screen, vertical = TuIndiceSpacing.Large),
 		lead = {
 			SummaryPillView(
-				modifier = Modifier.testTag(SummaryUiTags.WeekClassPill),
+				modifier = Modifier
+					.alignBy(FirstBaseline)
+					.testTag(SummaryUiTags.WeekClassPill),
 				text = item.leadText.asString(),
 				isAccent = item.isInProgress
 			)

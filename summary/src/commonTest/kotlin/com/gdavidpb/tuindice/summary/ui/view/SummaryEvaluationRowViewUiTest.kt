@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
+import com.gdavidpb.tuindice.summary.testing.firstBaselineInRoot
 import com.gdavidpb.tuindice.summary.testing.summaryEvaluationRowItem
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -95,7 +96,7 @@ class SummaryEvaluationRowViewUiTest {
 	}
 
 	@Test
-	fun when_theLeadIsDrawn_then_itIsCenteredWithTheName_notWithTheWholeRow() = runTuIndiceUiTest {
+	fun when_theLeadIsDrawn_then_itsBaselineIsTheBaselineOfTheName_aboveTheSubject() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(
 				item = summaryEvaluationRowItem().copy(statusText = UiText.Raw("Completada")),
@@ -104,12 +105,18 @@ class SummaryEvaluationRowViewUiTest {
 		}
 
 		val day = onNodeWithTag(SummaryEvaluationRowUiTags.lead("evaluation-1"), useUnmergedTree = true)
-			.fetchSemanticsNode().boundsInRoot
-		val name = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+			.fetchSemanticsNode()
+		val name = onNodeWithText("PARCIAL 1", useUnmergedTree = true).fetchSemanticsNode()
 		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(abs(day.center.y - name.center.y) <= 1f, "the day is centered with the name")
-		assertTrue(day.center.y < subject.top, "the day is not centered with the whole row")
+		val dayBaseline = day.firstBaselineInRoot()
+		val nameBaseline = name.firstBaselineInRoot()
+
+		assertTrue(
+			abs(dayBaseline - nameBaseline) <= 1f,
+			"the day's baseline is $dayBaseline and the name's is $nameBaseline"
+		)
+		assertTrue(dayBaseline < subject.top, "the day's baseline is on the first line, above the subject")
 	}
 
 	@Test

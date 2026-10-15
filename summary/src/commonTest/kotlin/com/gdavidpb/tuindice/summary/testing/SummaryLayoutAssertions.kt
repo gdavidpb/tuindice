@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithText
@@ -22,6 +23,18 @@ fun WithLargeLetter(content: @Composable () -> Unit) {
 	CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = LARGE_LETTER_SCALE)) {
 		content()
 	}
+}
+
+/**
+ * The y of the first baseline of the text of this node, in the root: the top of the node, the padding above its text
+ * ([paddingTop]) and the baseline its layout gives the text.
+ */
+fun SemanticsNode.firstBaselineInRoot(paddingTop: Float = 0f): Float {
+	val layouts = mutableListOf<TextLayoutResult>()
+
+	config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+
+	return boundsInRoot.top + paddingTop + layouts.single().firstBaseline
 }
 
 /**

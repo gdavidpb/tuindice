@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -26,8 +27,8 @@ import tuindice.summary.generated.resources.a11y_summary_open_evaluations_week
  * An evaluation of the week, drawn the way its row reads in the Evaluations tab, in its compact form: the icon of its
  * type and its name first, with its state at the end of that line only when it has one (a scheduled evaluation has
  * none). Under them, the chip of its subject, with the place beside it where its subject has class that day (blocks and
- * room, with no hour). Its day leads the row, at the width of the pill of the class row and centered with the first
- * line; nothing is cut, and a long name wraps. Tapping it opens the Evaluations tab on its week.
+ * room, with no hour). Its day leads the row, at the width of the pill of the class row and on the baseline of the
+ * name; nothing is cut, and a long name wraps. Tapping it opens the Evaluations tab on its week.
  */
 @Composable
 fun SummaryEvaluationRowView(
@@ -47,7 +48,9 @@ fun SummaryEvaluationRowView(
 			.padding(horizontal = TuIndiceSpacing.Screen, vertical = TuIndiceSpacing.Large),
 		lead = {
 			SummaryLeadTextView(
-				modifier = Modifier.testTag(SummaryEvaluationRowUiTags.lead(item.evaluationId)),
+				modifier = Modifier
+					.alignBy(FirstBaseline)
+					.testTag(SummaryEvaluationRowUiTags.lead(item.evaluationId)),
 				text = item.leadText.asString()
 			)
 		},

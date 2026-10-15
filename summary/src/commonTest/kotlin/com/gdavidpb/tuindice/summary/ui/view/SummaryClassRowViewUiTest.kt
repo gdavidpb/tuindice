@@ -13,8 +13,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.testing.WithLargeLetter
 import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
+import com.gdavidpb.tuindice.summary.testing.firstBaselineInRoot
 import com.gdavidpb.tuindice.summary.testing.summaryClassRowItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
@@ -89,17 +91,23 @@ class SummaryClassRowViewUiTest {
 	}
 
 	@Test
-	fun when_rowIsDrawn_then_thePillIsCenteredWithTheTitle_notWithTheWholeRow() = runTuIndiceUiTest {
+	fun when_rowIsDrawn_then_thePillSitsOnTheBaselineOfTheTitle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryClassRowView(item = summaryClassRowItem(), onClick = {})
 		}
 
-		val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val pill = onNodeWithTag(SummaryUiTags.WeekClassPill, useUnmergedTree = true).fetchSemanticsNode()
+		val title = onNodeWithText("CLASE", useUnmergedTree = true).fetchSemanticsNode()
 		val subject = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(abs(pill.center.y - title.center.y) <= 1f, "the pill is centered with the title")
-		assertTrue(pill.center.y < subject.top, "the pill is not centered with the whole row")
+		val pillBaseline = pill.firstBaselineInRoot(paddingTop = TuIndiceSpacing.XSmall.value)
+		val titleBaseline = title.firstBaselineInRoot()
+
+		assertTrue(
+			abs(pillBaseline - titleBaseline) <= 1f,
+			"the pill's baseline is $pillBaseline and the title's is $titleBaseline"
+		)
+		assertTrue(pillBaseline < subject.top, "the pill's baseline is on the first line, above the subject")
 	}
 
 	@Test
