@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.summary.data.mapper.toShareBackground
 import com.gdavidpb.tuindice.summary.data.model.ShareBackgroundResponse
 import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundRemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundSettingsDataRepository
+import com.gdavidpb.tuindice.summary.domain.mapper.shareBackgroundsOf
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
 import kotlinx.coroutines.CancellationException
@@ -16,9 +17,8 @@ class ShareBackgroundDataSource(
 		val catalog = readCatalog()
 			.sortedBy { background -> background.order }
 			.map { background -> background.toShareBackground() }
-			.filter { background -> background.id != ShareBackground.INCLUDED_ID }
 
-		return listOf(ShareBackground.included) + catalog
+		return shareBackgroundsOf(catalog)
 	}
 
 	override suspend fun getPreferredBackgroundId(): String? {
