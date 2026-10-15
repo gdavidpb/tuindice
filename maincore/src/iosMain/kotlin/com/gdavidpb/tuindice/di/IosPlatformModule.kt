@@ -61,7 +61,7 @@ import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSo
 import com.gdavidpb.tuindice.summary.data.source.IMAGE_SHARE_DIRECTORY_NAME
 import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
-import com.gdavidpb.tuindice.summary.data.source.UIKitImageSharePresenter
+import com.gdavidpb.tuindice.summary.data.source.UIKitImageSharePresenterDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
@@ -203,7 +203,7 @@ val iosPlatformModule = module {
 		IosImageShareDataSource(
 			storageDirectory = temporaryStorageRoot().resolve(IMAGE_SHARE_DIRECTORY_NAME),
 			dispatchers = get(),
-			presenter = UIKitImageSharePresenter()
+			presenter = UIKitImageSharePresenterDataSource()
 		)
 	}
 
