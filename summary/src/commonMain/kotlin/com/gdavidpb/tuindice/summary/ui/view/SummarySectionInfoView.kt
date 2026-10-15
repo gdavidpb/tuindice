@@ -11,10 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -40,12 +38,12 @@ fun SummarySectionInfoView(
 	tag: String,
 	modifier: Modifier = Modifier
 ) {
-	var isOpen by remember { mutableStateOf(false) }
+	val isOpen = remember { mutableStateOf(false) }
 	val description = stringResource(Res.string.a11y_summary_statistics_info)
 
 	RichTooltipBox(
-		isVisible = isOpen,
-		onDismissRequest = { isOpen = false },
+		isVisible = isOpen.value,
+		onDismissRequest = { isOpen.value = false },
 		tooltip = info,
 		anchorPosition = TooltipAnchorPosition.Below
 	) {
@@ -54,7 +52,7 @@ fun SummarySectionInfoView(
 				.minimumInteractiveComponentSize()
 				.testTag(tag)
 				.semantics { contentDescription = description }
-				.clickable(role = Role.Button) { isOpen = !isOpen },
+				.clickable(role = Role.Button) { isOpen.value = !isOpen.value },
 			contentAlignment = Alignment.Center
 		) {
 			Icon(

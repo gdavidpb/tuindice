@@ -10,11 +10,18 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
  * [Figures] shows what they have and leads to the Statistics screen.
  */
 sealed interface SummaryStatisticsSectionItem {
+	/** Whether the section leads to the Statistics screen: every section does but [Empty], which has nothing to open. */
+	val hasLink: Boolean
+
 	/** No term is in progress and none is over: the statistics have nothing to read yet, and the card says so. */
-	data object Empty : SummaryStatisticsSectionItem
+	data object Empty : SummaryStatisticsSectionItem {
+		override val hasLink: Boolean = false
+	}
 
 	/** A term is in progress and none is over: the invitation to read the statistics once it is over. */
-	data object Invite : SummaryStatisticsSectionItem
+	data object Invite : SummaryStatisticsSectionItem {
+		override val hasLink: Boolean = true
+	}
 
 	/**
 	 * The terms over. [grade] is the cumulative average at the last of them that has an average, null when none has one,
@@ -26,5 +33,7 @@ sealed interface SummaryStatisticsSectionItem {
 		val grade: Float?,
 		val line: List<Float>,
 		val phrase: UiText
-	) : SummaryStatisticsSectionItem
+	) : SummaryStatisticsSectionItem {
+		override val hasLink: Boolean = true
+	}
 }

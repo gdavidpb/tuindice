@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
@@ -231,4 +230,3 @@ private fun syncIconStopDurationMillis(remainingDegrees: Float): Int {
 private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
-internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = TuIndiceAnimation.StandardMillis

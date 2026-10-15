@@ -18,7 +18,9 @@ import tuindice.summary.generated.resources.summary_statistics_subjects_approved
 import tuindice.summary.generated.resources.summary_statistics_subjects_approved_one
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SummaryStatisticsSectionItemTest {
 	@Test
@@ -47,6 +49,7 @@ class SummaryStatisticsSectionItemTest {
 		)
 
 		assertEquals(SummaryStatisticsSectionItem.Empty, hub.toSummaryStatisticsSectionItem())
+		assertFalse(hub.toSummaryStatisticsSectionItem()!!.hasLink)
 	}
 
 	@Test
@@ -57,6 +60,7 @@ class SummaryStatisticsSectionItemTest {
 		)
 
 		assertEquals(SummaryStatisticsSectionItem.Empty, hub.toSummaryStatisticsSectionItem())
+		assertFalse(hub.toSummaryStatisticsSectionItem()!!.hasLink)
 	}
 
 	@Test
@@ -67,6 +71,7 @@ class SummaryStatisticsSectionItemTest {
 		)
 
 		assertEquals(SummaryStatisticsSectionItem.Invite, hub.toSummaryStatisticsSectionItem())
+		assertTrue(hub.toSummaryStatisticsSectionItem()!!.hasLink)
 	}
 
 	@Test

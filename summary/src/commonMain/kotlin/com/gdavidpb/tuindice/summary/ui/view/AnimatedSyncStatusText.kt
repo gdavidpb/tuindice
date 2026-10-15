@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 @Composable
@@ -62,3 +63,5 @@ fun AnimatedSyncStatusText(
 		)
 	}
 }
+
+private const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = TuIndiceAnimation.StandardMillis

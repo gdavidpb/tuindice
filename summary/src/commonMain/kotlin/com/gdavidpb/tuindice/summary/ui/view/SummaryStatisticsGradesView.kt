@@ -1,16 +1,11 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.summary.presentation.mapper.toBlockInfo
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsGradesItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsBarChart
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
-import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsBarPoints
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -39,35 +34,11 @@ fun SummaryStatisticsGradesView(
 				message = content.text.asString()
 			)
 
-			is SummaryStatisticsGradesItem.Content.Data -> GradesData(
+			is SummaryStatisticsGradesItem.Content.Data -> SummaryStatisticsGradesData(
 				data = content,
 				summary = title,
 				chartActionLabel = chartActionLabel
 			)
 		}
 	}
-}
-
-@Composable
-private fun ColumnScope.GradesData(
-	data: SummaryStatisticsGradesItem.Content.Data,
-	summary: String,
-	chartActionLabel: String
-) {
-	val bars = data.bars.toStatisticsBarPoints()
-
-	key(bars) {
-		StatisticsBarChart(
-			bars = bars,
-			maxValue = null,
-			reference = null,
-			labels = StatisticsChartLabels(
-				key = SummaryStatisticsChartKey.Grades,
-				summary = summary,
-				actionLabel = chartActionLabel
-			)
-		)
-	}
-
-	SummaryStatisticsFactsView(facts = data.facts)
 }

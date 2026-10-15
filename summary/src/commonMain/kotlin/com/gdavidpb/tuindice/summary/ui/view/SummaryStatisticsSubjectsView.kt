@@ -1,15 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSubjectsItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsChartLabels
-import com.gdavidpb.tuindice.summary.ui.chart.StatisticsStackedBar
-import com.gdavidpb.tuindice.summary.ui.chart.toStatisticsSegments
 import com.gdavidpb.tuindice.summary.ui.model.SummaryStatisticsBlockHead
 
 /**
@@ -35,35 +30,10 @@ fun SummaryStatisticsSubjectsView(
 				message = content.text.asString()
 			)
 
-			is SummaryStatisticsSubjectsItem.Content.Data -> SubjectsData(
+			is SummaryStatisticsSubjectsItem.Content.Data -> SummaryStatisticsSubjectsData(
 				data = content,
 				chartActionLabel = chartActionLabel
 			)
 		}
 	}
-}
-
-@Composable
-private fun ColumnScope.SubjectsData(
-	data: SummaryStatisticsSubjectsItem.Content.Data,
-	chartActionLabel: String
-) {
-	val segments = data.segments
-
-	SummaryStatisticsFigureView(figure = data.figure)
-
-	key(segments) {
-		StatisticsStackedBar(
-			segments = segments.toStatisticsSegments(),
-			labels = StatisticsChartLabels(
-				key = SummaryStatisticsChartKey.Subjects,
-				summary = data.chartSummary.asString(),
-				actionLabel = chartActionLabel
-			)
-		)
-	}
-
-	SummaryStatisticsLegendView(segments = segments)
-
-	SummaryStatisticsFactsView(facts = data.facts)
 }
