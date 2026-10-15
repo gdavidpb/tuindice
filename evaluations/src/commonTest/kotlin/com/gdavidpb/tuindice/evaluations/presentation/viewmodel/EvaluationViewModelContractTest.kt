@@ -38,7 +38,11 @@ class EvaluationViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_loadAttempts_updateSelection_andEmitGradePickerEffect() = runTest {
-		val viewModel = createViewModel()
+		// On the test scheduler, like the other cases: on the real dispatchers the loading step raced the
+		// collector's timeout when the class ran on its own.
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
 			testScheduler = testScheduler
