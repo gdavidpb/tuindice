@@ -133,8 +133,8 @@
     <string name="summary_statistics_current_graded_one">%1$d de %2$d calificada</string>
     <string name="summary_statistics_current_graded_many">%1$d de %2$d calificadas</string>
     <string name="summary_statistics_current_score">%1$s de %2$s · %3$s</string>
-    <string name="summary_statistics_current_overdue_one">vencida sin nota</string>
-    <string name="summary_statistics_current_overdue_many">vencidas sin nota</string>
+    <string name="summary_statistics_current_overdue_one">%1$d vencida sin nota</string>
+    <string name="summary_statistics_current_overdue_many">%1$d vencidas sin nota</string>
     <string name="summary_statistics_type_test">Parciales</string>
     <string name="summary_statistics_type_essay">Ensayos</string>
     <string name="summary_statistics_type_attendance">Asistencias</string>
@@ -168,11 +168,11 @@
     <string name="summary_statistics_section_empty_message">Tus estadísticas aparecerán cuando termines tu primer trimestre.</string>
     <string name="summary_statistics_section_first_title">Tu primer trimestre está en curso</string>
     <string name="summary_statistics_section_first_message">Cuando termine verás aquí tu índice, tus notas y tu ritmo.</string>
-    <string name="summary_statistics_section_approved_best_one">%1$d aprobada · mejor trimestre %2$s</string>
-    <string name="summary_statistics_section_approved_best_many">%1$d aprobadas · mejor trimestre %2$s</string>
+    <string name="summary_statistics_section_approved_best_one">%1$d aprobada · índice más alto en %2$s</string>
+    <string name="summary_statistics_section_approved_best_many">%1$d aprobadas · índice más alto en %2$s</string>
     <string name="summary_statistics_index_caption">al cierre de %1$s</string>
-    <string name="summary_statistics_index_best">Mejor: %1$s · %2$s</string>
-    <string name="summary_statistics_index_worst">Peor: %1$s · %2$s</string>
+    <string name="summary_statistics_index_best">Más alto: %1$s · %2$s</string>
+    <string name="summary_statistics_index_worst">Más bajo: %1$s · %2$s</string>
     <string name="summary_statistics_index_tooltip_index">Índice %1$s · acumulado %2$s</string>
     <string name="summary_statistics_index_tooltip_credits_one">%1$d UC aprobada</string>
     <string name="summary_statistics_index_tooltip_credits_many">%1$d UC aprobadas</string>

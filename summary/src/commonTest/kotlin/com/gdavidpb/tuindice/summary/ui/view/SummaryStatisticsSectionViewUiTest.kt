@@ -164,6 +164,6 @@ class SummaryStatisticsSectionViewUiTest {
 	}
 
 	private companion object {
-		const val FIGURES_PHRASE = "44 aprobadas · mejor trimestre Ene - Mar 2024"
+		const val FIGURES_PHRASE = "44 aprobadas · índice más alto en Ene - Mar 2024"
 	}
 }

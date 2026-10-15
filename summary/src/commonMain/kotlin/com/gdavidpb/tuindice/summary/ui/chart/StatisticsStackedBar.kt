@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.model.TuIndiceProgressSegment
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
@@ -31,8 +32,8 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
  * The bar is drawn at the height of the app's progress bars and grows from the left to its full width unless the
  * animations are off. Tapping a segment opens its tooltip and closes the one that was open. A segment with no value
  * is not drawn and has no target. A drawn segment has a target at least as wide as a finger wherever the bar is wide
- * enough to give each one that, and as tall as a finger around the thinner bar; the targets never overlap, so each
- * drawn segment can be tapped.
+ * enough to give each one that, and as tall as a finger around the thinner bar, reaching past it without taking room
+ * in the layout; the targets never overlap, so each drawn segment can be tapped.
  */
 @Composable
 fun StatisticsStackedBar(
@@ -55,7 +56,9 @@ fun StatisticsStackedBar(
 	BoxWithConstraints(
 		modifier = modifier
 			.fillMaxWidth()
-			.height(StatisticsChartDefaults.TargetMinSize)
+			// The bar takes only its own height: the targets reach past it, so a finger can hit them without the
+			// bar leaving room around itself.
+			.height(TuIndiceComponentSizes.ProgressBarHeight)
 			.testTag(SummaryUiTags.statisticsChart(labels.key))
 			.semantics { contentDescription = labels.summary }
 	) {
@@ -130,8 +133,10 @@ private fun BoxScope.StackedTargets(
 
 			Box(
 				modifier = Modifier
+					.align(Alignment.CenterStart)
 					.offset(x = touch.startDp.dp)
-					.size(width = touch.widthDp.dp, height = StatisticsChartDefaults.TargetMinSize)
+					// As tall as a finger, centred on the thinner bar and reaching past it above and below.
+					.requiredSize(width = touch.widthDp.dp, height = StatisticsChartDefaults.TargetMinSize)
 			) {
 				StatisticsTooltipTarget(
 					target = labels.targetOf(index, segment.label, segment.tooltip),

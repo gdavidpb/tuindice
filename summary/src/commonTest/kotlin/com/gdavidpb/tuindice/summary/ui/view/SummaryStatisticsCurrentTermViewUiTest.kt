@@ -16,7 +16,6 @@ import androidx.compose.ui.test.performScrollTo
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsEvaluationTypeItem
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.chart.assertTooltipShows
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
@@ -39,7 +38,7 @@ class SummaryStatisticsCurrentTermViewUiTest {
 		onNodeWithText("Parciales").assertIsDisplayed()
 		onNodeWithText("8 de 10 · 80 %").assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.StatisticsOverdue).performScrollTo().assertIsDisplayed()
-		onNodeWithText("vencidas sin nota").performScrollTo().assertIsDisplayed()
+		onNodeWithText("2 vencidas sin nota").performScrollTo().assertIsDisplayed()
 	}
 
 	@Test
@@ -175,7 +174,7 @@ class SummaryStatisticsCurrentTermViewUiTest {
 
 	private fun overdueOf(target: SummaryHubTarget.EvaluationsWeek?): SummaryStatisticsCurrentTermItem.Overdue {
 		return SummaryStatisticsCurrentTermItem.Overdue(
-			fact = SummaryStatisticsFactItem(value = "2", label = words("vencidas sin nota")),
+			text = words("2 vencidas sin nota"),
 			target = target
 		)
 	}

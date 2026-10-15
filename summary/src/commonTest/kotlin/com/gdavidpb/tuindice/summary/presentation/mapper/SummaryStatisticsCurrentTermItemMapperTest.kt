@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.testing.currentTermOf
 import com.gdavidpb.tuindice.summary.testing.evaluationTypeOf
 import com.gdavidpb.tuindice.summary.testing.progressTermOf
@@ -141,11 +140,8 @@ class SummaryStatisticsCurrentTermItemMapperTest {
 		val overdue = (content as SummaryStatisticsCurrentTermItem.Content.Data).overdue!!
 
 		assertEquals(
-			SummaryStatisticsFactItem(
-				value = "2",
-				label = UiText.Resource(Res.string.summary_statistics_current_overdue_many)
-			),
-			overdue.fact
+			UiText.Resource(Res.string.summary_statistics_current_overdue_many, listOf(2)),
+			overdue.text
 		)
 		assertEquals(
 			SummaryHubTarget.EvaluationsWeek(

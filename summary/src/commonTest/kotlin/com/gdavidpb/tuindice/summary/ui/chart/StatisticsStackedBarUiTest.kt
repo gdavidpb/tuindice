@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.chart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -154,6 +155,29 @@ class StatisticsStackedBarUiTest {
 			.assertHeightIsEqualTo(TuIndiceComponentSizes.ProgressBarHeight)
 		onNodeWithTag(targetTag(0)).assertHeightIsEqualTo(StatisticsChartDefaults.TargetMinSize)
 		onNodeWithTag(targetTag(1)).assertHeightIsEqualTo(StatisticsChartDefaults.TargetMinSize)
+	}
+
+	@Test
+	fun when_rendered_then_theChartTakesOnlyTheBarsHeightInTheLayout() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			StackedBarHost(values = listOf(1f, 3f))
+		}
+		waitForIdle()
+
+		onNodeWithTag(SummaryUiTags.statisticsChart(ChartKey))
+			.assertHeightIsEqualTo(TuIndiceComponentSizes.ProgressBarHeight)
+	}
+
+	@Test
+	fun when_theTargetIsTappedAboveTheBar_then_itsTooltipShows() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			StackedBarHost(values = listOf(1f, 3f))
+		}
+
+		// Near the top of the target, well above the thin bar: the part of the target that reaches past it.
+		onNodeWithTag(targetTag(1)).performTouchInput { click(Offset(x = centerX, y = 2f)) }
+
+		assertTooltipShows("Segmento 1")
 	}
 
 	@Composable

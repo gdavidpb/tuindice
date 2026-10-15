@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.summary.testing.assertTextIsWhole
 import com.gdavidpb.tuindice.summary.testing.summaryEvaluationRowItem
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -40,7 +41,7 @@ class SummaryEvaluationRowViewUiTest {
 	}
 
 	@Test
-	fun when_theRowIsDrawn_then_theSubjectIsUnderTheNameAndThePlaceIsIndentedUnderTheIcon() = runTuIndiceUiTest {
+	fun when_theRowIsDrawn_then_theSubjectIsUnderTheNameAndThePlaceStartsWhereTheSubjectStarts() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryEvaluationRowView(item = summaryEvaluationRowItem(), onClick = {})
 		}
@@ -54,7 +55,9 @@ class SummaryEvaluationRowViewUiTest {
 		assertTrue(name.left > icon.left, "the name is written after the icon")
 		assertTrue(subject.top >= name.bottom, "the subject is on the line under the name")
 		assertTrue(place.top >= subject.bottom, "the place is under the subject")
-		assertTrue(place.left > icon.left, "the place is indented under the name, as in Evaluations")
+		// Nothing above the place carries an icon to line up with, so it starts at the edge of the column, where the
+		// icon and the subject's chip start; the chip's code sits inside its padding.
+		assertTrue(abs(place.left - icon.left) <= 1f, "the place starts at the edge of the column, not indented")
 	}
 
 	@Test

@@ -34,8 +34,9 @@ import tuindice.summary.generated.resources.a11y_summary_open_evaluations_week
 /**
  * An evaluation of the week, drawn the way its row reads in the Evaluations tab: the icon of its type and its name
  * first, the status chip at the end of that line, the chip of its subject under them and, where its subject has class
- * that day, the place (blocks and room, never the hour) indented under the name. Its day leads the row, at the width of
- * the pill of the class row, and nothing is cut: a long name wraps. Tapping it opens the Evaluations tab on its week.
+ * that day, the place (blocks and room, never the hour) under the chip, starting where it starts. Its day leads the
+ * row, at the width of the pill of the class row, and nothing is cut: a long name wraps. Tapping it opens the
+ * Evaluations tab on its week.
  */
 @Composable
 fun SummaryEvaluationRowView(
@@ -72,7 +73,7 @@ fun SummaryEvaluationRowView(
 
 			item.place?.let { place ->
 				ClassPlaceLine(
-					modifier = Modifier.padding(start = PlaceStartPadding, top = MetadataTopPadding),
+					modifier = Modifier.padding(top = MetadataTopPadding),
 					place = place
 				)
 			}
@@ -150,7 +151,3 @@ private val StatusHorizontalPadding = 10.dp
 private val StatusVerticalPadding = 5.dp
 private val SubjectTopPadding = 8.dp
 private val MetadataTopPadding = 12.dp
-
-// Under the name: the icon (18dp) and the gap after it (8dp), so the place lines up with the name, as the place
-// does under the date in Evaluations.
-private val PlaceStartPadding = 26.dp

@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsEvaluationTypeItem
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
 import org.jetbrains.compose.resources.StringResource
@@ -183,14 +182,11 @@ private fun overdueOf(count: Int, attention: List<SummaryAttention>): SummarySta
 		.firstOrNull()
 
 	return SummaryStatisticsCurrentTermItem.Overdue(
-		fact = SummaryStatisticsFactItem(
-			value = count.toString(),
-			label = countText(
-				quantity = count,
-				one = Res.string.summary_statistics_current_overdue_one,
-				many = Res.string.summary_statistics_current_overdue_many,
-				args = emptyList()
-			)
+		text = countText(
+			quantity = count,
+			one = Res.string.summary_statistics_current_overdue_one,
+			many = Res.string.summary_statistics_current_overdue_many,
+			args = listOf(count)
 		),
 		target = oldest?.let { ungraded ->
 			SummaryHubTarget.EvaluationsWeek(

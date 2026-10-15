@@ -35,7 +35,7 @@ class SummaryStatisticsIndexViewUiTest {
 			testTag = StatisticsLabelTags.axis(SummaryStatisticsChartKey.Index, 1),
 			useUnmergedTree = true
 		).assertTextEquals("E-M 24")
-		onNodeWithText("Mejor: Ene - Mar 2024 · 4.5714").assertIsDisplayed()
+		onNodeWithText("Más alto: Ene - Mar 2024 · 4.5714").assertIsDisplayed()
 		assertNodeVisible(SummaryUiTags.StatisticsBestTerm)
 		assertNodeVisible(StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 1), useUnmergedTree = true)
 		onAllNodesWithTag(
@@ -51,7 +51,7 @@ class SummaryStatisticsIndexViewUiTest {
 		}
 		waitForIdle()
 
-		onNodeWithText("Peor: Sep - Dic 2023 · 4.2000").assertIsDisplayed()
+		onNodeWithText("Más bajo: Sep - Dic 2023 · 4.2000").assertIsDisplayed()
 		assertNodeVisible(SummaryUiTags.StatisticsWorstTerm)
 		assertNodeVisible(StatisticsLabelTags.ring(SummaryStatisticsChartKey.Index, 0), useUnmergedTree = true)
 	}
@@ -101,8 +101,8 @@ class SummaryStatisticsIndexViewUiTest {
 				),
 				minValue = 4.1f,
 				maxValue = 4.5714f,
-				best = words("Mejor: Ene - Mar 2024 · 4.5714"),
-				worst = if (worstIsNamed) words("Peor: Sep - Dic 2023 · 4.2000") else null
+				best = words("Más alto: Ene - Mar 2024 · 4.5714"),
+				worst = if (worstIsNamed) words("Más bajo: Sep - Dic 2023 · 4.2000") else null
 			)
 		)
 	}
