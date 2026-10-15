@@ -563,15 +563,15 @@ run_detector_fixture() {
 			;;
 		persistence-runtime)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "persistence" "impacted modules"
-			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "pensum" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "subjects" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,module-runtime" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":pensum:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyLaunchArgumentContract" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eArtifactsFresh" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":persistence:iosSimulatorArm64Test" "iOS test tasks"
-			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":wizard:compileKotlinIosSimulatorArm64" "iOS test tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":pensum:compileKotlinIosSimulatorArm64" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS test tasks"
 			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
@@ -580,14 +580,14 @@ run_detector_fixture() {
 			;;
 		feature-module-dependents)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "record" "impacted modules"
-			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "maincore" "impacted modules"
 			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" \
 				"android,local-certification-suite,module-runtime" \
 				"ios,local-certification-suite,module-runtime"
-			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
-			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:detekt" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":record:compileKotlinIosSimulatorArm64" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":record:iosSimulatorArm64Test" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
