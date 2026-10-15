@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SUBJECT_POINTS_TOTAL
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryCurrentTermStatistics
 import com.gdavidpb.tuindice.summary.domain.model.SummaryEvaluationTypeStatistic
 import com.gdavidpb.tuindice.summary.domain.model.SummaryStatistics
@@ -19,7 +19,7 @@ import kotlinx.datetime.LocalDate
 // progress. The term in progress comes as it is read, and it is absent when none is in progress.
 internal fun summaryStatisticsOf(
 	closed: RecordStatistics,
-	pensumProgress: PensumCreditsProgress?,
+	pensumProgress: SummaryCreditsProgress?,
 	currentTerm: SummaryCurrentTermStatistics?
 ): SummaryStatistics {
 	val terms = closed.terms

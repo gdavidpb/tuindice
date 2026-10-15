@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.RecordStatisticsEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryStatistics
 import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
 import com.gdavidpb.tuindice.summary.testing.hubPassedAttempt
@@ -16,12 +16,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
 class SummaryStatisticsBuilderTest {
-	private val pensum = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
+	private val pensum = SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240)
 
 	// The statistics of a record whose terms are all closed: there is no term in progress.
 	private fun statisticsOf(
 		vararg terms: AcademicTerm,
-		pensumProgress: PensumCreditsProgress? = null
+		pensumProgress: SummaryCreditsProgress? = null
 	): SummaryStatistics {
 		return summaryStatisticsOf(
 			closed = RecordStatisticsEngine.statisticsOf(RecordProjectionEngine.projectAcademic(hubRecord(*terms))),

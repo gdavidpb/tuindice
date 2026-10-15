@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsOutcome
@@ -32,7 +32,7 @@ import tuindice.summary.generated.resources.summary_statistics_credits_withdrawn
 // the block says what it lacks and leaves the pensum out with it.
 internal fun creditsItemOf(
 	outcomes: CreditOutcomes,
-	pensum: PensumCreditsProgress?
+	pensum: SummaryCreditsProgress?
 ): SummaryStatisticsCreditsItem {
 	val title = UiText.Resource(Res.string.summary_statistics_credits_title)
 	val whole = outcomes.approved + outcomes.failed + outcomes.withdrawn
@@ -98,7 +98,7 @@ private fun segmentsOf(outcomes: CreditOutcomes, whole: Int): List<SummaryStatis
 
 // The pensum's own progress, out of its total: the approved credits, the share of them and the track's fraction. Null
 // when no pensum is cached, or when it has no credits to be out of.
-private fun pensumOf(progress: PensumCreditsProgress?): SummaryStatisticsCreditsItem.Pensum? {
+private fun pensumOf(progress: SummaryCreditsProgress?): SummaryStatisticsCreditsItem.Pensum? {
 	if (progress == null || progress.totalCredits <= 0) return null
 
 	return SummaryStatisticsCreditsItem.Pensum(

@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.summary.domain.model
 
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
-
 /**
  * What Summary says beyond the profile, for the moment it was read: what needs attention, the week, the term, the
  * career and the statistics. [week] and [term] are null only when the record is not ready for any reason but a new
@@ -14,7 +12,7 @@ data class SummaryHub(
 	val attention: List<SummaryAttention>,
 	val week: SummaryWeek?,
 	val term: SummaryTerm?,
-	val career: PensumCreditsProgress?,
+	val career: SummaryCreditsProgress?,
 	val statistics: SummaryStatistics?
 ) {
 	companion object {

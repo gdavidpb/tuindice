@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.CreditOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.GradeHistogram
 import com.gdavidpb.tuindice.academiccore.domain.model.SubjectOutcomes
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCurrentTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
@@ -311,7 +311,7 @@ class SummaryStatisticsItemMapperTest {
 		val statistics = statisticsOf(
 			credits = CreditOutcomes(approved = 152, failed = 8, withdrawn = 4)
 		).copy(
-			pensumProgress = PensumCreditsProgress(approvedCredits = 152, totalCredits = 205)
+			pensumProgress = SummaryCreditsProgress(approvedCredits = 152, totalCredits = 205)
 		)
 
 		val credits = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.credits

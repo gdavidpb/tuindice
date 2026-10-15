@@ -4,6 +4,7 @@ import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
@@ -36,6 +37,7 @@ import kotlin.test.assertTrue
 
 class ObserveSummaryHubUseCaseTest {
 	private val progress = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
+	private val expectedCareer = SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240)
 
 	// A term that is over, with a subject passed, and the term in progress of the same record.
 	private val recordWithAClosedTerm = hubRecord(
@@ -72,7 +74,7 @@ class ObserveSummaryHubUseCaseTest {
 			assertTrue(hub.inProgressWeek().classMoment!!.isInProgress)
 			assertEquals(1, hub.attention.size)
 			assertEquals(3, hub.inProgressTerm().academicWeek)
-			assertEquals(progress, hub.career)
+			assertEquals(expectedCareer, hub.career)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}
@@ -110,7 +112,7 @@ class ObserveSummaryHubUseCaseTest {
 					attention = emptyList(),
 					week = SummaryWeek.Idle(hasTerms = false),
 					term = SummaryTerm.Idle(hasTerms = false, finished = null),
-					career = progress,
+					career = expectedCareer,
 					statistics = null
 				),
 				hub.copy(statistics = null)
@@ -130,7 +132,7 @@ class ObserveSummaryHubUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(SummaryHub.Empty.copy(career = progress), awaitLoadingThenData(this))
+			assertEquals(SummaryHub.Empty.copy(career = expectedCareer), awaitLoadingThenData(this))
 
 			prerequisite.stateFlow.value = prerequisite.stateFlow.value.copy(isReady = true)
 
@@ -175,7 +177,7 @@ class ObserveSummaryHubUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(SummaryHub.Empty.copy(career = progress), awaitLoadingThenData(this))
+			assertEquals(SummaryHub.Empty.copy(career = expectedCareer), awaitLoadingThenData(this))
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

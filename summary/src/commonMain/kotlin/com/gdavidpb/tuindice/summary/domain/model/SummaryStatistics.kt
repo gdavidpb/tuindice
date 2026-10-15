@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.summary.domain.model
 import com.gdavidpb.tuindice.academiccore.domain.model.PaceStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 
 /**
  * What the Statistics screen reads, for the moment it was read. [closed] is what the closed terms of the record say,
@@ -19,6 +18,6 @@ data class SummaryStatistics(
 	val bestTerm: TermStatistic?,
 	val worstTerm: TermStatistic?,
 	val lastClosedTerm: TermStatistic?,
-	val pensumProgress: PensumCreditsProgress?,
+	val pensumProgress: SummaryCreditsProgress?,
 	val currentTerm: SummaryCurrentTermStatistics?
 )

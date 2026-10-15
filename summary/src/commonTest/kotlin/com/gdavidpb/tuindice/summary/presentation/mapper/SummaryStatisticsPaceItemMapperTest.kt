@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.summary.presentation.mapper
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.PaceStatistics
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceItem
 import com.gdavidpb.tuindice.summary.testing.statisticsHubOf
@@ -88,7 +88,7 @@ class SummaryStatisticsPaceItemMapperTest {
 			terms = listOf(statisticsTerm(year = 2024, approvedCredits = 15))
 		).copy(
 			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = null),
-			pensumProgress = PensumCreditsProgress(approvedCredits = 15, totalCredits = 205)
+			pensumProgress = SummaryCreditsProgress(approvedCredits = 15, totalCredits = 205)
 		)
 
 		val data = statisticsHubOf(statistics = statistics)
@@ -115,7 +115,7 @@ class SummaryStatisticsPaceItemMapperTest {
 			)
 		).copy(
 			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = 4),
-			pensumProgress = PensumCreditsProgress(approvedCredits = 30, totalCredits = 205)
+			pensumProgress = SummaryCreditsProgress(approvedCredits = 30, totalCredits = 205)
 		)
 
 		val pace = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.pace
@@ -141,7 +141,7 @@ class SummaryStatisticsPaceItemMapperTest {
 			)
 		).copy(
 			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = 1),
-			pensumProgress = PensumCreditsProgress(approvedCredits = 190, totalCredits = 205)
+			pensumProgress = SummaryCreditsProgress(approvedCredits = 190, totalCredits = 205)
 		)
 
 		val pace = statisticsHubOf(statistics = statistics).toSummaryStatisticsItem()!!.pace
@@ -166,7 +166,7 @@ class SummaryStatisticsPaceItemMapperTest {
 			)
 		).copy(
 			pace = PaceStatistics(averageCredits = 15.0, remainingTerms = null),
-			pensumProgress = PensumCreditsProgress(approvedCredits = 205, totalCredits = 205)
+			pensumProgress = SummaryCreditsProgress(approvedCredits = 205, totalCredits = 205)
 		)
 
 		val data = statisticsHubOf(statistics = statistics)

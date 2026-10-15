@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.PaceStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFactItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
@@ -102,7 +102,7 @@ private fun barOf(term: TermStatistic, axisLabels: Map<String, String>): Summary
 // pace to project from, and the block says nothing of it.
 private fun projectionOf(
 	pace: PaceStatistics,
-	pensum: PensumCreditsProgress?,
+	pensum: SummaryCreditsProgress?,
 	regularTerms: Int
 ): SummaryStatisticsPaceItem.Projection {
 	if (pensum == null) {

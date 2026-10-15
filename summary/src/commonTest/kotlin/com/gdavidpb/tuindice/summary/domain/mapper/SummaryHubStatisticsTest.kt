@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.domain.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
@@ -58,7 +59,7 @@ class SummaryHubStatisticsTest {
 		assertEquals(2023, statistics.bestTerm?.periodYear)
 		assertEquals(2024, statistics.worstTerm?.periodYear)
 		assertEquals(2024, statistics.lastClosedTerm?.periodYear)
-		assertEquals(progress, statistics.pensumProgress)
+		assertEquals(SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240), statistics.pensumProgress)
 		// Three credits a regular term, and the 84 credits the pensum has left: 28 terms at that pace.
 		assertEquals(3.0, statistics.pace.averageCredits)
 		assertEquals(28, statistics.pace.remainingTerms)
@@ -76,7 +77,7 @@ class SummaryHubStatisticsTest {
 		assertNull(statistics.worstTerm)
 		assertNull(statistics.lastClosedTerm)
 		assertNull(statistics.currentTerm)
-		assertEquals(progress, statistics.pensumProgress)
+		assertEquals(SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240), statistics.pensumProgress)
 	}
 
 	@Test

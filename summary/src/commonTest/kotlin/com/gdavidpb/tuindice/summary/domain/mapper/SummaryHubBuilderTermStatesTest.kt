@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
@@ -82,7 +83,7 @@ class SummaryHubBuilderTermStatesTest {
 		assertTrue(result.attention.isEmpty())
 		assertEquals(SummaryWeek.Idle(hasTerms = true), result.week)
 		assertIs<SummaryTerm.Idle>(result.term)
-		assertEquals(progress, result.career)
+		assertEquals(SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240), result.career)
 	}
 
 	@Test
@@ -114,7 +115,7 @@ class SummaryHubBuilderTermStatesTest {
 				attention = emptyList(),
 				week = SummaryWeek.Idle(hasTerms = false),
 				term = SummaryTerm.Idle(hasTerms = false, finished = null),
-				career = progress,
+				career = SummaryCreditsProgress(approvedCredits = 0, totalCredits = 240),
 				statistics = null
 			),
 			result.copy(statistics = null)
@@ -122,7 +123,7 @@ class SummaryHubBuilderTermStatesTest {
 		// Its statistics are empty, with the pensum as it was read: a new student has no closed term yet.
 		val statistics = assertNotNull(result.statistics)
 		assertTrue(statistics.closed.terms.isEmpty())
-		assertEquals(progress, statistics.pensumProgress)
+		assertEquals(SummaryCreditsProgress(approvedCredits = 0, totalCredits = 240), statistics.pensumProgress)
 		assertNull(statistics.currentTerm)
 	}
 

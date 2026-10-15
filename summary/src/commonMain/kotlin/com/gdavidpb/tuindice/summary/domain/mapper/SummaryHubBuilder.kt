@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
@@ -65,22 +66,28 @@ internal fun buildSummaryHub(
 	now: ScheduleNow,
 	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
+	// The pensum's progress enters the domain here, as the summary's own figure, and every hub and statistics below
+	// carries that figure.
+	val career = pensumProgress?.let { progress ->
+		SummaryCreditsProgress(approvedCredits = progress.approvedCredits, totalCredits = progress.totalCredits)
+	}
+
 	return when (reading) {
 		is SummaryRecordReading.Ready -> readyHubOf(
 			reading = reading,
 			evaluations = evaluations,
 			now = now,
-			pensumProgress = pensumProgress
+			pensumProgress = career
 		)
 
 		SummaryRecordReading.NewStudentWithoutRecord -> idleHubOf(
 			hasTerms = false,
 			finished = null,
 			closed = RecordStatisticsEngine.statisticsOf(RecordProjection()),
-			pensumProgress = pensumProgress
+			pensumProgress = career
 		)
 
-		SummaryRecordReading.NotReady -> SummaryHub.Empty.copy(career = pensumProgress)
+		SummaryRecordReading.NotReady -> SummaryHub.Empty.copy(career = career)
 	}
 }
 
@@ -88,7 +95,7 @@ private fun readyHubOf(
 	reading: SummaryRecordReading.Ready,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
-	pensumProgress: PensumCreditsProgress?
+	pensumProgress: SummaryCreditsProgress?
 ): SummaryHub {
 	val term = reading.record.terms
 		.currentTermOrNull(kind = AcademicTerm::kind, termOrder = AcademicTerm::termOrder, id = AcademicTerm::id)
@@ -117,7 +124,7 @@ private fun idleHubOf(
 	hasTerms: Boolean,
 	finished: SummaryFinishedTerm?,
 	closed: RecordStatistics,
-	pensumProgress: PensumCreditsProgress?
+	pensumProgress: SummaryCreditsProgress?
 ): SummaryHub {
 	return SummaryHub(
 		attention = emptyList(),
@@ -132,7 +139,7 @@ private fun inProgressHubOf(
 	term: AcademicTerm,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
-	pensumProgress: PensumCreditsProgress?,
+	pensumProgress: SummaryCreditsProgress?,
 	closed: RecordStatistics
 ): SummaryHub {
 	// Those of an attempt the record no longer has (or one that was withdrawn, or is not graded in

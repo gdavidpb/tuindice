@@ -11,9 +11,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
 import com.gdavidpb.tuindice.summary.domain.model.SummaryClassMoment
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryFinishedTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
@@ -475,7 +475,7 @@ class SummaryHubItemTest {
 	@Test
 	fun theCareer_isTheCreditsApprovedOutOfTheTotal_withItsShare() {
 		val item = assertIs<SummaryCareerItem.Progress>(
-			PensumCreditsProgress(approvedCredits = 156, totalCredits = 240).toSummaryCareerItem()
+			SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240).toSummaryCareerItem()
 		)
 
 		assertEquals("156", item.valueText)
@@ -486,9 +486,9 @@ class SummaryHubItemTest {
 
 	@Test
 	fun theShare_isRounded_andHeldBetweenNothingAndAll() {
-		val third = PensumCreditsProgress(approvedCredits = 80, totalCredits = 240).toSummaryCareerItem()
-		val none = PensumCreditsProgress(approvedCredits = 0, totalCredits = 240).toSummaryCareerItem()
-		val over = PensumCreditsProgress(approvedCredits = 250, totalCredits = 240).toSummaryCareerItem()
+		val third = SummaryCreditsProgress(approvedCredits = 80, totalCredits = 240).toSummaryCareerItem()
+		val none = SummaryCreditsProgress(approvedCredits = 0, totalCredits = 240).toSummaryCareerItem()
+		val over = SummaryCreditsProgress(approvedCredits = 250, totalCredits = 240).toSummaryCareerItem()
 
 		assertEquals(
 			UiText.Resource(Res.string.summary_career_percent, listOf(33)),
@@ -501,10 +501,10 @@ class SummaryHubItemTest {
 
 	@Test
 	fun withNoPensumInTheCache_orOneWithNoCredits_theCareerInvitesToOpenIt() {
-		assertEquals(SummaryCareerItem.Invite, (null as PensumCreditsProgress?).toSummaryCareerItem())
+		assertEquals(SummaryCareerItem.Invite, (null as SummaryCreditsProgress?).toSummaryCareerItem())
 		assertEquals(
 			SummaryCareerItem.Invite,
-			PensumCreditsProgress(approvedCredits = 0, totalCredits = 0).toSummaryCareerItem()
+			SummaryCreditsProgress(approvedCredits = 0, totalCredits = 0).toSummaryCareerItem()
 		)
 	}
 

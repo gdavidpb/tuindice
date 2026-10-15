@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryAttention
+import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
@@ -599,7 +600,9 @@ class SummaryHubBuilderTest {
 		val record = hubRecord(hubTerm(attempts = listOf(classesOnThursday)))
 		val evaluations = ObservedSyncedSnapshot(emptyList<Evaluation>(), true)
 
-		assertEquals(progress, buildSummaryHub(SummaryRecordState.Ready(record), evaluations, scheduleNow(), progress).career)
+		val career = buildSummaryHub(SummaryRecordState.Ready(record), evaluations, scheduleNow(), progress).career
+
+		assertEquals(SummaryCreditsProgress(approvedCredits = 156, totalCredits = 240), career)
 		assertNull(buildSummaryHub(SummaryRecordState.Ready(record), evaluations, scheduleNow(), null).career)
 	}
 
@@ -612,8 +615,10 @@ class SummaryHubBuilderTest {
 		val noRecord = buildSummaryHub(SummaryRecordState.NotReady, evaluations, scheduleNow(), progress)
 		val notReady = buildSummaryHub(SummaryRecordState.NotReady, evaluations, scheduleNow(), progress)
 
-		assertEquals(SummaryHub.Empty.copy(career = progress), noRecord)
-		assertEquals(SummaryHub.Empty.copy(career = progress), notReady)
+		val expected = SummaryHub.Empty.copy(career = SummaryCreditsProgress(approvedCredits = 10, totalCredits = 20))
+
+		assertEquals(expected, noRecord)
+		assertEquals(expected, notReady)
 	}
 
 	@Test
