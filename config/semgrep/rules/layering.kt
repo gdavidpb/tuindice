@@ -40,6 +40,8 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
 // ruleid: presentation-no-persistence-import
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
+// ok: presentation-no-persistence-import
+import com.gdavidpb.tuindice.sample.domain.model.PensumCreditsProgress
 
 // ruleid: no-datasource-interface
 interface SampleDataSource {
