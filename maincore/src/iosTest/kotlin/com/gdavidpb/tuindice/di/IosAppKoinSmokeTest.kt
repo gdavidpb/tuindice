@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
@@ -42,6 +43,8 @@ class IosAppKoinSmokeTest {
 				RecordViewModel::class,
 				ScheduleViewModel::class,
 				SummaryViewModel::class,
+				// The bus of the Statistics top bar, which the shared route asks for on both platforms.
+				StatisticsTopBarActionBus::class,
 				// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
 				EvaluationsWeekFocusRepository::class,
 				// The read contracts of the summary hub, which Summary's view model consumes through the

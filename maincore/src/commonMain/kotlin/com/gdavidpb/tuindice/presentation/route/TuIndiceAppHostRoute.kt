@@ -69,13 +69,13 @@ fun TuIndiceAppHostRoute(
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
+	statisticsTopBarActionBus: StatisticsTopBarActionBus = koinInject(),
 	evaluationsWeekFocusRepository: EvaluationsWeekFocusRepository = koinInject(),
 	recordAttemptFocusRepository: RecordAttemptFocusRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val clock = koinInject<Clock>()
-	val statisticsTopBarActionBus = koinInject<StatisticsTopBarActionBus>()
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }

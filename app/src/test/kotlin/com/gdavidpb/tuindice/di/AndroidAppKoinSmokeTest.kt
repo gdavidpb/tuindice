@@ -38,6 +38,7 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -116,6 +117,7 @@ class AndroidAppKoinSmokeTest {
 			PendingChangesRepository::class,
 			SessionInvalidationRepository::class,
 			PensumTopBarActionBus::class,
+			StatisticsTopBarActionBus::class,
 			// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
 			EvaluationsWeekFocusRepository::class,
 			// The read contracts of the summary hub, which Summary's view model consumes through the
