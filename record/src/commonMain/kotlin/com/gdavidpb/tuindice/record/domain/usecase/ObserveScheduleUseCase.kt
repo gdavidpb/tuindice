@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
+import com.gdavidpb.tuindice.academiccore.domain.mapper.classesStartLocalDate
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.classesStartLocalDate
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository

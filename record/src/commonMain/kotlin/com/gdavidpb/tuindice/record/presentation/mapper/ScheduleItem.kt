@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.presentation.model.UiText

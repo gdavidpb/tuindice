@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationStateEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.RecordStatisticsEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.currentTermOrNull
 import com.gdavidpb.tuindice.academiccore.domain.engine.validMeetings
+import com.gdavidpb.tuindice.academiccore.domain.mapper.classesStartLocalDate
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
@@ -17,7 +18,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
-import com.gdavidpb.tuindice.academiccore.domain.model.classesStartLocalDate
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.base.utils.toLocalDate

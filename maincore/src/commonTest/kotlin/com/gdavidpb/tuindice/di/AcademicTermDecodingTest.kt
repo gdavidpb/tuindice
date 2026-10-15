@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.academiccore.domain.mapper.classesStartLocalDate
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
-import com.gdavidpb.tuindice.academiccore.domain.model.classesStartLocalDate
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals

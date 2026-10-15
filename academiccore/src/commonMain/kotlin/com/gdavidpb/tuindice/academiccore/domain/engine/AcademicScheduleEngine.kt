@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.academiccore.domain.engine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMoment
 import kotlinx.datetime.LocalDate

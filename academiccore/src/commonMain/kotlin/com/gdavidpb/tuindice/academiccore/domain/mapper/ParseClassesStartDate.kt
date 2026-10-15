@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.academiccore.domain.model
+package com.gdavidpb.tuindice.academiccore.domain.mapper
 
 import kotlinx.datetime.LocalDate
 

@@ -1,5 +1,8 @@
-package com.gdavidpb.tuindice.academiccore.domain.model
+package com.gdavidpb.tuindice.academiccore.domain.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals

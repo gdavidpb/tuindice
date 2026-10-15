@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicScheduleEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem

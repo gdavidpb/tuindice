@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.academiccore.domain.model
+package com.gdavidpb.tuindice.academiccore.domain.engine
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

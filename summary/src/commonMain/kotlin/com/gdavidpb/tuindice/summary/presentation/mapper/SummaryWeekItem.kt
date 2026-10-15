@@ -16,9 +16,9 @@ import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.ScheduleBlockClock
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
-import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleBlockClock
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText

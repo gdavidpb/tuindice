@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.mapper.parseClassesStartDate
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
-import com.gdavidpb.tuindice.academiccore.domain.model.parseClassesStartDate
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor

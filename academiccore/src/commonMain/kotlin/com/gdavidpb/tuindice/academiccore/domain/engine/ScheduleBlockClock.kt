@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.academiccore.domain.model
+package com.gdavidpb.tuindice.academiccore.domain.engine
 
 /**
  * The equivalence between the university's class blocks and the clock: block 1 starts at 7:30 and
