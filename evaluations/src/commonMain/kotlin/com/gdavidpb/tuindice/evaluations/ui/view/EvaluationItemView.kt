@@ -66,7 +66,7 @@ fun EvaluationItemView(
 			containerColor = MaterialTheme.colorScheme.surfaceVariant,
 			contentColor = MaterialTheme.colorScheme.onSurface
 		),
-		modifier = modifier
+		modifier = Modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 			.clickable(
 				onClickLabel = showActionsLabel,
@@ -95,6 +95,9 @@ fun EvaluationItemView(
 				horizontal = EvaluationCardHorizontalPadding,
 				vertical = EvaluationCardVerticalPadding
 			)
+			// The caller's modifier goes last, inside the margin, so an arrival highlight frames the card
+			// and not the space around it.
+			.then(modifier)
 	) {
 		Box(
 			modifier = Modifier

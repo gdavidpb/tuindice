@@ -27,6 +27,9 @@ import kotlinx.coroutines.delay
  *
  * With animations disabled nothing is drawn and [onFinished] runs at once. The border sits inside the
  * bounds of the composable, so the layout around it does not move while it plays.
+ *
+ * It is drawn within the bounds it is given, so apply it last in the container's modifier chain, after
+ * the container's margins and padding: a margin applied before it is framed by the border too.
  */
 @Composable
 fun Modifier.arrivalHighlight(

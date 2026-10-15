@@ -1,15 +1,22 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -25,9 +32,11 @@ import androidx.compose.ui.unit.width
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_OVERDUE_DATE_TEXT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -220,6 +229,43 @@ class EvaluationItemViewUiTest {
 		assertDateIsWhole("long")
 	}
 
+	@Test
+	fun when_anArrivalIsGiven_then_itsBorderLiesOnTheCardsEdge_andNotInTheMarginAroundIt() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "arrived")
+
+		setTuIndiceTestContent {
+			MaterialTheme(colorScheme = lightColorScheme(primary = Accent, surfaceVariant = CardSurface)) {
+				Box(modifier = Modifier.testTag(HostTag).background(Backdrop)) {
+					EvaluationItemView(
+						item = item,
+						modifier = Modifier.arrivalHighlight(
+							trigger = ARRIVAL,
+							shape = MaterialTheme.shapes.medium,
+							onFinished = {}
+						)
+					)
+				}
+			}
+		}
+
+		advanceAnimationsBy(FADE_IN_MILLIS)
+
+		// The row keeps a 16dp margin on each side of the card; the border must not reach into it.
+		assertEquals(Accent, pixelAtDp(xDp = MarginDp + BorderDp / 2), "the border is drawn on the card's edge")
+		// Where a border drawn on the padded bounds would sit, at the row's outer edge.
+		assertEquals(Backdrop, pixelAtDp(xDp = BorderDp / 2), "the outer edge of the margin stays clear")
+	}
+
+	// The pixel of the host's capture at [xDp] from its left edge, at the middle of its height. The test runs at
+	// density 1, so a dp is a pixel: the root of the content is 360 x 640 pixels and a denser one would not fit.
+	private fun ComposeUiTest.pixelAtDp(xDp: Float): Color {
+		waitForIdle()
+
+		val pixels = onNodeWithTag(HostTag).captureToImage().toPixelMap()
+
+		return pixels[xDp.toInt(), pixels.height / 2]
+	}
+
 	private fun ComposeUiTest.assertDateIsWhole(evaluationId: String) {
 		assertTextIsWhole(text = LONG_DATE, evaluationId = evaluationId)
 	}
@@ -266,5 +312,13 @@ class EvaluationItemViewUiTest {
 	private companion object {
 		const val LONG_DATE = "Miércoles — 25/11/26"
 		const val LONG_ROOM = "LAB-FIS-201 Edificio de Laboratorios"
+		const val HostTag = "evaluation_arrival_host"
+		const val ARRIVAL = "arrival-1"
+		const val FADE_IN_MILLIS = 300L
+		const val MarginDp = 16f
+		const val BorderDp = 2f
+		val Accent = Color.Red
+		val CardSurface = Color.Blue
+		val Backdrop = Color.White
 	}
 }
