@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-15 00:27:51 -0300_
+_Generated automatically on 2026-10-15 01:27:44 -0300_
 
 ## Summary by module
 
@@ -8,7 +8,7 @@ _Generated automatically on 2026-10-15 00:27:51 -0300_
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
-| `base` | 2 | 40 | 53 | 42 | 40 | 40 |
+| `base` | 2 | 41 | 54 | 43 | 41 | 41 |
 | `config` | 2 | 0 | 0 | 0 | 0 | 0 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
 | `evaluations` | 2 | 44 | 47 | 49 | 44 | 44 |
@@ -72,7 +72,7 @@ _Generated automatically on 2026-10-15 00:27:51 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceShellColors.kt` | 4 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/style/TuIndiceShellColorsUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/AppLogoView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/AppLogoViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ArrivalHighlight.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ArrivalHighlightUiTest.kt` | 6 | PASS threshold (2) |
-| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLine.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLineUiTest.kt` | 8 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLines.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ClassPlaceLinesUiTest.kt` | 9 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyStateAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyStateAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorStateAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorStateAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
@@ -80,6 +80,7 @@ _Generated automatically on 2026-10-15 00:27:51 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/IllustratedMessageView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/IllustratedMessageViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/LoadingView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/LoadingViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationViewUiTest.kt` | 6 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/MetadataLine.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/MetadataLineUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/NoticeView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/NoticeViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppScreen.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppScreenUiTest.kt` | 4 | PASS threshold (2) |
@@ -151,7 +152,7 @@ _Generated automatically on 2026-10-15 00:27:51 -0300_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeActionButtonUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPickerUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderViewUiTest.kt` | 2 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 11 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 13 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingViewUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldError.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationRequiredFieldErrorUiTest.kt` | 2 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismiss.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismissUiTest.kt` | 5 | PASS threshold (2) |
