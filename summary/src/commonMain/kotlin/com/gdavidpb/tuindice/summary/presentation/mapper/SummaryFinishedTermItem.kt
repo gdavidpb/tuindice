@@ -17,7 +17,7 @@ internal fun SummaryFinishedTerm.toSummaryFinishedTermItem(): SummaryFinishedTer
 		nameText = UiText.Raw("${periodCode.shortLabel} $periodYear"),
 		stateText = UiText.Resource(Res.string.summary_term_finished_state),
 		indexLabel = UiText.Resource(Res.string.summary_term_index_label),
-		indexText = index.formatGrade(decimals = 4),
+		indexText = index.formatGrade(decimals = INDEX_DECIMALS),
 		creditsLabel = UiText.Resource(Res.string.summary_term_credits_label),
 		creditsText = UiText.Resource(Res.string.summary_term_credits_value, listOf(approvedCredits)),
 		termKey = termKey,
