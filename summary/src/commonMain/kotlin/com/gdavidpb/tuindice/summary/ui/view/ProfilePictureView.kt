@@ -1,33 +1,19 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
-import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -91,56 +77,9 @@ fun ProfilePictureView(
 	}
 }
 
-@Composable
-private fun ProfilePictureLayerStack(
-	layers: List<ProfilePictureLayer>,
-	imageLoader: ImageLoader,
-	placeholderPainter: Painter,
-	contentDescription: String
-) {
-	Box(
-		modifier = Modifier
-			.size(128.dp)
-			.clip(CircleShape)
-			.background(MaterialTheme.colorScheme.surfaceVariant)
-			.semantics { this.contentDescription = contentDescription },
-		contentAlignment = Alignment.Center
-	) {
-		layers.forEach { layer ->
-			// Keyed by role so a layer entering or leaving the stack never re-binds a
-			// sibling's painter to a different request mid-transition.
-			key(layer.tag) {
-				AsyncImage(
-					modifier = Modifier
-						.testTag(layer.tag)
-						.fillMaxSize(),
-					model = layer.request,
-					imageLoader = imageLoader,
-					placeholder = if (layer.showsPlaceholder) placeholderPainter else null,
-					error = if (layer.showsPlaceholder) placeholderPainter else null,
-					fallback = if (layer.showsFallback) placeholderPainter else null,
-					contentDescription = null,
-					contentScale = ContentScale.Crop,
-					onLoading = layer.onState?.let { onState -> { state -> onState(state) } },
-					onSuccess = layer.onState?.let { onState -> { state -> onState(state) } },
-					onError = layer.onState?.let { onState -> { state -> onState(state) } }
-				)
-			}
-		}
-	}
-}
-
 private class ProfilePictureViewState(
 	val layers: List<ProfilePictureLayer>,
 	val isColdLoading: Boolean
-)
-
-private class ProfilePictureLayer(
-	val tag: String,
-	val request: ImageRequest,
-	val showsPlaceholder: Boolean = false,
-	val showsFallback: Boolean = false,
-	val onState: ((AsyncImagePainter.State) -> Unit)? = null
 )
 
 @Composable
@@ -148,8 +87,8 @@ private fun rememberProfilePictureViewState(
 	display: ProfilePictureDisplay
 ): ProfilePictureViewState {
 	val platformContext = LocalPlatformContext.current
-	// Last model that actually rendered; it backs the picture while the remote
-	// request swaps identity so the swap itself never flashes a placeholder.
+	// Last model that actually rendered; it backs the picture while the remote request swaps identity so the swap itself
+	// never flashes a placeholder.
 	val lastShownImage = remember {
 		mutableStateOf<ProfilePictureShownImage?>(null)
 	}
@@ -202,9 +141,8 @@ private class ProfilePictureLayerContext(
 	val hasCoveringImage = previewImageData != null || continuityImage != null
 }
 
-// Bottom-to-top stack: continuity (last rendered pixels), the remote picture, and
-// the optimistic local preview; upper layers drop their placeholders so a covered
-// load never flashes the owl.
+// Bottom-to-top stack: continuity (last rendered pixels), the remote picture, and the optimistic local preview; upper
+// layers drop their placeholders so a covered load never flashes the owl.
 private fun profilePictureLayerPresentation(
 	platformContext: PlatformContext,
 	display: ProfilePictureDisplay,
@@ -215,9 +153,8 @@ private fun profilePictureLayerPresentation(
 	val layerContext = ProfilePictureLayerContext(
 		platformContext = platformContext,
 		remoteImageData = remoteImageData,
-		// The cache identity ignores the rotating signed-URL signature and keys on
-		// the version so a re-upload behind a stable path still invalidates the
-		// previously cached bitmap, while a signature-only rotation keeps hitting it.
+		// The cache identity ignores the rotating signed-URL signature and keys on the version so a re-upload behind a stable
+		// path still invalidates the previously cached bitmap, while a signature-only rotation keeps hitting it.
 		remoteCacheKey = remoteImageData?.let { "${display.identity}#v${display.cacheVersion}" },
 		previewImageData = display.localPreviewPath?.takeIf { it.isNotBlank() },
 		lastShownImage = lastShownImage,
