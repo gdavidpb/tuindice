@@ -18,6 +18,7 @@ class VisibleEvaluationsDataSource(
 	private val evaluationRepository: EvaluationRepository
 ) : VisibleEvaluationsRepository {
 	override fun observeVisibleEvaluationsFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
+		// flow {} is what lets observeEvaluationsSnapshotFlow(), a suspend function, be called before combine.
 		return flow {
 			emitAll(
 				combine(
