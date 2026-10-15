@@ -58,11 +58,13 @@ class EvaluationViewModelContractTest {
 				viewModel.setAttemptAction(SECOND_EVALUATION_SUBJECT)
 				val selected = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(SECOND_EVALUATION_SUBJECT, selected.selectedAttempt)
+				assertEquals(SECOND_EVALUATION_SUBJECT.code, selected.dateCalendar.subjectCode)
 				assertEquals(1, selected.attemptItems.count { item -> item.isSelected })
 
 				viewModel.setAttemptAction(null)
 				val cleared = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(null, cleared.selectedAttempt)
+				assertEquals(null, cleared.dateCalendar.subjectCode)
 				assertEquals(0, cleared.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
@@ -193,6 +195,7 @@ class EvaluationViewModelContractTest {
 					state.initialDraft != null
 				}
 				assertEquals(DEFAULT_EVALUATION_SUBJECT, loaded.selectedAttempt)
+				assertEquals(DEFAULT_EVALUATION_SUBJECT.code, loaded.dateCalendar.subjectCode)
 
 				// The subject of a saved evaluation is not edited: the change is not taken, instead of
 				// looking taken and being dropped when it is saved.
@@ -203,6 +206,7 @@ class EvaluationViewModelContractTest {
 					state.type == EvaluationType.TEST
 				}
 				assertEquals(DEFAULT_EVALUATION_SUBJECT, afterwards.selectedAttempt)
+				assertEquals(DEFAULT_EVALUATION_SUBJECT.code, afterwards.dateCalendar.subjectCode)
 				assertEquals(1, afterwards.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()

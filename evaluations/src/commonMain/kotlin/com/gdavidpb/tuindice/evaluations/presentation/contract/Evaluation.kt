@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
@@ -40,6 +39,9 @@ object Evaluation {
 			// Dates outside this range are disabled in the picker; null means unbounded
 			// (no current term resolved).
 			val selectableDateRange: ClosedRange<LocalDate>? = null,
+			// The date dialog's calendar: the class days of the chosen subject within the selectable range. It is
+			// worked out where the subject or the range changes, not on every read.
+			val dateCalendar: EvaluationDateCalendarItem = EvaluationDateCalendarItem(),
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
@@ -65,14 +67,6 @@ object Evaluation {
 
 			val hasDraftChanges: Boolean
 				get() = initialDraft?.let { draft -> draft != this.draft } ?: (evaluationId == null)
-
-			// What the date dialog needs: the allowed days and, for the chosen subject, its class days and places.
-			val dateCalendar: EvaluationDateCalendarItem
-				get() = getEvaluationDateCalendarItem(
-					selectableRange = selectableDateRange,
-					subjectCode = selectedAttempt?.code,
-					meetings = selectedAttempt?.meetings.orEmpty()
-				)
 
 			val canSubmit: Boolean
 				get() = !isSubmitting && hasDraftChanges

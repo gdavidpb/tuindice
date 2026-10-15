@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withDateCalendar
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -10,6 +11,8 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class EvaluationContentStateTest {
+	private val range = LocalDate(2026, 9, 1)..LocalDate(2026, 12, 31)
+
 	private val meeting = ScheduleMeeting(
 		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
 		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
@@ -21,12 +24,11 @@ class EvaluationContentStateTest {
 	)
 
 	@Test
-	fun dateCalendar_carriesTheClassDaysAndTheCodeOfTheChosenSubjectAndTheSelectableRange() {
-		val range = LocalDate(2026, 9, 1)..LocalDate(2026, 12, 31)
+	fun withDateCalendar_carriesTheClassDaysOfTheChosenSubjectAndTheSelectableRange() {
 		val state = Evaluation.State.Content(
 			selectedAttempt = DEFAULT_EVALUATION_SUBJECT.copy(meetings = listOf(meeting)),
 			selectableDateRange = range
-		)
+		).withDateCalendar()
 
 		val calendar = state.dateCalendar
 
@@ -39,7 +41,23 @@ class EvaluationContentStateTest {
 	}
 
 	@Test
-	fun dateCalendar_withoutAChosenSubject_hasNoCodeAndNoClassDays() {
+	fun withDateCalendar_followsTheSubjectWhenItChanges() {
+		val withClassDays = Evaluation.State.Content(
+			selectedAttempt = DEFAULT_EVALUATION_SUBJECT.copy(meetings = listOf(meeting)),
+			selectableDateRange = range
+		).withDateCalendar()
+
+		val withoutClassDays = withClassDays.copy(
+			selectedAttempt = DEFAULT_EVALUATION_SUBJECT.copy(meetings = emptyList())
+		).withDateCalendar()
+
+		assertEquals(range, withoutClassDays.dateCalendar.selectableRange)
+		assertTrue(withoutClassDays.dateCalendar.classDates.isEmpty())
+		assertTrue(withoutClassDays.dateCalendar.classPlaces.isEmpty())
+	}
+
+	@Test
+	fun dateCalendar_ofAContentWithoutAChosenSubject_hasNoCodeAndNoClassDays() {
 		val calendar = Evaluation.State.Content().dateCalendar
 
 		assertNull(calendar.subjectCode)

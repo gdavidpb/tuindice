@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEditSubmitErrorMe
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGetEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withDateCalendar
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationAnyStateTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationContentTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
@@ -70,7 +71,7 @@ class EvaluationMachine(
 									grade = null,
 									maxGrade = null
 								)
-							)
+							).withDateCalendar()
 						)
 					)
 
@@ -125,7 +126,7 @@ class EvaluationMachine(
 								grade = evaluation?.grade,
 								maxGrade = evaluation?.maxGrade
 							)
-						)
+						).withDateCalendar()
 
 						host.processInternalEvent(
 							EvaluationInternalEvent.EditorContentLoaded(

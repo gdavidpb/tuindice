@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.ScheduleMeeting
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withDateCalendar
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -290,7 +291,7 @@ class EvaluationContentViewUiTest {
 			selectedAttempt = subject,
 			selectableDateRange = LocalDate(2026, 10, 1)..LocalDate(2026, 10, 31),
 			date = monday.toEvaluationEpochMillis()
-		)
+		).withDateCalendar()
 
 		setTuIndiceTestContent {
 			EvaluationContentView(

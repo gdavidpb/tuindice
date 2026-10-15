@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationInternalEvent
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.updated
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withDateCalendar
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedAttempt
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedType
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
@@ -31,7 +32,7 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 				} else {
 					state.missingFields
 				}
-			)
+			).withDateCalendar()
 		}
 
 		on<Evaluation.Action.SetType> { state, action ->

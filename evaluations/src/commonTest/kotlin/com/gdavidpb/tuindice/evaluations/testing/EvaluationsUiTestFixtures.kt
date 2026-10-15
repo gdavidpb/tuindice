@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationTypePickerItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withDateCalendar
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
@@ -68,7 +69,7 @@ fun evaluationContentState(
 			grade = grade,
 			maxGrade = maxGrade
 		)
-	)
+	).withDateCalendar()
 }
 
 fun evaluationsContentState(
