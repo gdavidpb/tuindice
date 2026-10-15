@@ -130,14 +130,14 @@ La pantalla **Estadísticas** (`summary/.../ui/screen/SummaryStatisticsScreen.kt
 
 Los gráficos viven en `summary/.../ui/chart/` y se dibujan con composables de layout: las barras son `Box` de altura fraccional, la línea es un `Canvas` y cada punto es un objetivo tocable encima. Ningún gráfico de Estadísticas usa Vico; `subjects` sí lo usa, en sus gráficos de notas por materia. Decisión de diseño: Vico 3.3.1 no da semántica, no respeta `LocalTuIndiceAnimationsEnabled` y tiene un estilo ajeno al de la app.
 
-- `StatisticsLineChart`: la línea y los marcadores de un punto por trimestre. En el índice, el marcador es el índice del trimestre sobre la línea del acumulado, y los trimestres regulares de índice más alto y más bajo llevan un anillo (`ringColor`).
-- `StatisticsBarChart`: barras que crecen desde la base, con su cifra encima cuando la lleva, y una referencia discontinua opcional (`StatisticsReference`).
-- `StatisticsStackedBar`: una barra horizontal con un segmento por resultado, dibujada por `TuIndiceProgressBar` a la altura compartida y con sus objetivos de 48 dp encima.
-- `StatisticsTooltipTarget` (interno): el objetivo de un punto, barra o segmento, que abre su `RichTooltipBox`.
-- `StatisticsChartGeometry`: la aritmética de los gráficos como funciones puras, sin Compose (columnas, anchos, fracciones y reparto de objetivos), probada como números.
+- `StatisticsLineChart`: la línea y los marcadores de un punto por trimestre, con `StatisticsLineTrace` (la línea, sin tacto) y `StatisticsLineMarkers` (el botón de cada punto y su anillo). En el índice, el marcador es el índice del trimestre sobre la línea del acumulado, y los trimestres regulares de índice más alto y más bajo llevan un anillo (`ringColor`).
+- `StatisticsBarChart`: barras que crecen desde la base, con su cifra encima cuando la lleva, y una referencia discontinua opcional (`StatisticsReference`). Sus piezas son `StatisticsBarColumns` (una columna por punto), `StatisticsBar`, `StatisticsValueLabel` y `StatisticsReferenceLine`.
+- `StatisticsStackedBar`: una barra horizontal con un segmento por resultado, dibujada por `TuIndiceProgressBar` a la altura compartida y con sus objetivos de 48 dp encima. Sus piezas son `StatisticsStackedTrack` (la pista coloreada) y `StatisticsStackedTargets` (los objetivos).
+- `StatisticsTooltipTarget`: el objetivo de un punto, barra o segmento, que abre su `RichTooltipBox`.
+- `StatisticsChartGeometry`: la aritmética de los gráficos como funciones puras, sin Compose (columnas, anchos, fracciones y escalas), probada como números. El reparto de un apilado (los tramos, los segmentos dibujados y los objetivos) está en `StatisticsStackGeometry`.
 - `StatisticsChartDefaults`: medidas y duraciones. Los colores, las opacidades, los radios y la duración salen de `AcademicStatusColors`, `TuIndiceAlpha`, `TuIndiceRadius` y `TuIndiceAnimation`; el alto del gráfico (168 dp), los marcadores (8 dp), la línea (2 dp) son propios del gráfico; la barra apilada toma la altura de `TuIndiceProgressBar` (6 dp).
-- `StatisticsScrollFrame`: el desplazamiento horizontal y el fundido de los bordes.
-- `StatisticsAxisLabels` y `StatisticsChartLabels` (clave, resumen y acción de cada gráfico); las etiquetas de prueba están en `StatisticsLabelUiTags` y `StatisticsTooltipUiTags`.
+- `StatisticsScrollFrame`: el desplazamiento horizontal, que abre en su extremo más reciente, y `StatisticsEdgeFade`, el fundido de cada borde.
+- `StatisticsAxisLabels` y `StatisticsChartLabels` (clave, resumen y acción de cada gráfico); las etiquetas de prueba están en `StatisticsLabelUiTags` y `StatisticsTooltipUiTags`. Los objetivos de los puntos se nombran con `SummaryUiTags`.
 
 Comportamiento:
 
