@@ -10,14 +10,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
-import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 
 // The figures of a term slide up by a part of their own height, as they fade in.
 private const val FIGURES_SLIDE_DIVISOR = 8
 
 // The new artwork fades in over the one before it, which stays under it until the fade is done, so the card never shows
 // the bone between two artworks. It changes at once when the card had no artwork yet.
-internal fun AnimatedContentTransitionScope<ShareBackground?>.artTransform(): ContentTransform {
+internal fun AnimatedContentTransitionScope<ShareTermArtwork?>.artTransform(): ContentTransform {
 	if (initialState == null) {
 		return EnterTransition.None togetherWith ExitTransition.None
 	}
@@ -28,7 +28,7 @@ internal fun AnimatedContentTransitionScope<ShareBackground?>.artTransform(): Co
 }
 
 // The credit is text, so it dissolves into the new one; it changes at once when the card had no artwork yet.
-internal fun AnimatedContentTransitionScope<ShareBackground?>.creditTransform(): ContentTransform {
+internal fun AnimatedContentTransitionScope<ShareTermArtwork?>.creditTransform(): ContentTransform {
 	if (initialState == null) {
 		return EnterTransition.None togetherWith ExitTransition.None
 	}

@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
@@ -29,19 +29,18 @@ private val PreviewShape = RoundedCornerShape(12.dp)
 
 /**
  * The card of a term, scaled down to the sheet. The card is laid out at the density its picture is taken at, so what
- * the student sees is the picture that is shared, only smaller. It stays in place as the term or the background
- * changes (see [ShareableTermCard]); the picture itself is taken by [ShareableTermCardCapture] when the student asks to
- * share.
+ * the student sees is the picture that is shared, only smaller. It stays in place as the term or the background changes
+ * (see [ShareableTermCard]); the picture itself is taken by [ShareableTermCardCapture] when the student asks to share.
  */
 @Composable
 fun ShareTermPreview(
 	card: ShareableTermCardItem,
-	background: ShareBackground,
+	artwork: ShareTermArtwork,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
-	// The card lays out at the density it is captured at: its box takes exactly the pixels of the shared picture on
-	// this screen, and the scale brings those pixels down to the preview's width.
+	// The card lays out at the density it is captured at: its box takes exactly the pixels of the shared picture on this
+	// screen, and the scale brings those pixels down to the preview's width.
 	val cardWidthPx = ShareableTermCardSize.width.value * SHARE_DENSITY
 	val cardHeightPx = ShareableTermCardSize.height.value * SHARE_DENSITY
 	val cardSize = with(density) { DpSize(width = cardWidthPx.toDp(), height = cardHeightPx.toDp()) }
@@ -56,8 +55,8 @@ fun ShareTermPreview(
 	) {
 		Box(
 			modifier = Modifier
-				// A box larger than the preview would be centred on it; held at the top start, the scale around that corner
-				// lays the whole card over the preview.
+				// A box larger than the preview would be centred on it; held at the top start, the scale around that corner lays
+				// the whole card over the preview.
 				.wrapContentSize(align = Alignment.TopStart, unbounded = true)
 				.requiredSize(cardSize)
 				.graphicsLayer {
@@ -69,7 +68,7 @@ fun ShareTermPreview(
 			CompositionLocalProvider(LocalDensity provides Density(density = SHARE_DENSITY, fontScale = 1f)) {
 				ShareableTermCard(
 					item = card,
-					background = background
+					artwork = artwork
 				)
 			}
 		}

@@ -4,38 +4,30 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import kotlin.math.abs
 
 // How far a finger has to travel across the preview before it means the next background, as a photo filter does.
 private val SwipeThreshold = 48.dp
 
 /**
- * The background beside the chosen one in the strip: the next one for a swipe to the left ([towardsNext]), the
- * previous one for a swipe to the right. Null at either end of the strip, or when nothing is chosen.
- */
-internal fun neighbourBackgroundId(backgrounds: List<ShareTermBackgroundItem>, towardsNext: Boolean): String? {
-	val chosen = backgrounds.indexOfFirst { item -> item.selected }
-
-	if (chosen < 0) return null
-
-	return backgrounds.getOrNull(if (towardsNext) chosen + 1 else chosen - 1)?.background?.id
-}
-
-/**
- * Swiping across the preview moves the card to the background beside the chosen one, as the strip under it would.
+ * Swiping across the preview moves the card to the background beside the chosen one, as the strip under it would: to
+ * [nextId] for a swipe to the left, and to [previousId] for a swipe to the right. Both come from the sheet's state,
+ * where they are null at either end of the strip and when nothing is chosen, so a swipe past an end leads nowhere.
  */
 internal fun Modifier.swipeBetweenBackgrounds(
-	backgrounds: List<ShareTermBackgroundItem>,
+	previousId: String?,
+	nextId: String?,
 	onBackgroundClick: (backgroundId: String) -> Unit
-): Modifier = pointerInput(backgrounds) {
+): Modifier = pointerInput(previousId, nextId) {
 	var travelled = 0f
 
 	detectHorizontalDragGestures(
 		onDragStart = { travelled = 0f },
 		onDragEnd = {
 			if (abs(travelled) >= SwipeThreshold.toPx()) {
-				neighbourBackgroundId(backgrounds = backgrounds, towardsNext = travelled < 0f)?.let(onBackgroundClick)
+				val target = if (travelled < 0f) nextId else previousId
+
+				target?.let(onBackgroundClick)
 			}
 		},
 		onHorizontalDrag = { change, amount ->

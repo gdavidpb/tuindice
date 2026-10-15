@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShareableTermCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.testing.otherShareBackground
@@ -25,7 +26,7 @@ class ShareTermPreviewUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = card(),
-				background = ShareBackground.included
+				artwork = ShareBackground.included.toShareTermArtwork()
 			)
 		}
 
@@ -38,7 +39,7 @@ class ShareTermPreviewUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = card(),
-				background = ShareBackground.included
+				artwork = ShareBackground.included.toShareTermArtwork()
 			)
 		}
 		waitForIdle()
@@ -60,7 +61,7 @@ class ShareTermPreviewUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = chosen.value,
-				background = ShareBackground.included
+				artwork = ShareBackground.included.toShareTermArtwork()
 			)
 		}
 		chosen.value = newer
@@ -77,7 +78,7 @@ class ShareTermPreviewUiTest {
 		setTuIndiceTestContent {
 			ShareTermPreview(
 				card = card(),
-				background = chosen.value
+				artwork = chosen.value.toShareTermArtwork()
 			)
 		}
 		chosen.value = otherShareBackground

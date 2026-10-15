@@ -102,7 +102,7 @@ class ShareTermItemMapperTest {
 			preferredBackgroundId = otherShareBackground.id
 		).toShareTermContent(requestedTermKey = null, current = null)
 
-		assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.background.id)
+		assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.artwork.id)
 	}
 
 	@Test
@@ -112,14 +112,14 @@ class ShareTermItemMapperTest {
 			preferredBackgroundId = null
 		)
 		val first = source.toShareTermContent(requestedTermKey = null, current = null)
-		assertEquals(ShareBackground.included.id, first.backgrounds.single { item -> item.selected }.background.id)
+		assertEquals(ShareBackground.included.id, first.backgrounds.single { item -> item.selected }.artwork.id)
 
 		val chosen = first.copy(
-			backgrounds = first.backgrounds.map { item -> item.copy(selected = item.background.id == otherShareBackground.id) }
+			backgrounds = first.backgrounds.map { item -> item.copy(selected = item.artwork.id == otherShareBackground.id) }
 		)
 		val refreshed = source.toShareTermContent(requestedTermKey = null, current = chosen)
 
-		assertEquals(otherShareBackground.id, refreshed.backgrounds.single { item -> item.selected }.background.id)
+		assertEquals(otherShareBackground.id, refreshed.backgrounds.single { item -> item.selected }.artwork.id)
 	}
 
 	private fun source(

@@ -2,13 +2,9 @@ package com.gdavidpb.tuindice.summary.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -55,13 +51,4 @@ fun ShareTermTermChips(
 			}
 		}
 	}
-}
-
-@Composable
-private fun SelectedTermCheck() {
-	Icon(
-		imageVector = Icons.Filled.Check,
-		contentDescription = null,
-		modifier = Modifier.size(18.dp)
-	)
 }

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.testing.otherShareBackground
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -55,6 +56,6 @@ class ShareTermBackgroundStripUiTest {
 		ShareBackground.included,
 		otherShareBackground
 	).map { background ->
-		ShareTermBackgroundItem(background = background, selected = background.id == chosenId)
+		ShareTermBackgroundItem(artwork = background.toShareTermArtwork(), selected = background.id == chosenId)
 	}
 }

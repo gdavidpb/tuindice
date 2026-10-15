@@ -31,7 +31,7 @@ internal fun MachineDefinitionBuilder<ShareTerm.State>.shareTermContentTransitio
 		}
 
 		on<ShareTerm.Action.SelectBackground> { state, action ->
-			if (state.backgrounds.none { item -> item.background.id == action.backgroundId }) {
+			if (state.backgrounds.none { item -> item.artwork.id == action.backgroundId }) {
 				state
 			} else {
 				machine.rememberBackground(host = host, backgroundId = action.backgroundId)
@@ -68,5 +68,5 @@ private fun ShareTerm.State.Content.withTermSelected(termKey: String): ShareTerm
 }
 
 private fun ShareTerm.State.Content.withBackgroundSelected(backgroundId: String): ShareTerm.State.Content {
-	return copy(backgrounds = backgrounds.map { item -> item.copy(selected = item.background.id == backgroundId) })
+	return copy(backgrounds = backgrounds.map { item -> item.copy(selected = item.artwork.id == backgroundId) })
 }

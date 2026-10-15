@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.testing.unreachableShareBackground
@@ -27,7 +28,7 @@ class ShareableTermCardCaptureUiTest {
 		setTuIndiceTestContent {
 			ShareableTermCardCapture(
 				item = termItem(),
-				background = ShareBackground.included,
+				artwork = ShareBackground.included.toShareTermArtwork(),
 				onCaptured = { bitmap -> captures += bitmap }
 			)
 		}
@@ -58,7 +59,7 @@ class ShareableTermCardCaptureUiTest {
 		setTuIndiceTestContent {
 			ShareableTermCardCapture(
 				item = termItem(),
-				background = ShareBackground.included,
+				artwork = ShareBackground.included.toShareTermArtwork(),
 				onCaptured = { bitmap -> captures += bitmap }
 			)
 		}
@@ -75,7 +76,7 @@ class ShareableTermCardCaptureUiTest {
 		setTuIndiceTestContent {
 			ShareableTermCardCapture(
 				item = termItem(),
-				background = unreachableShareBackground,
+				artwork = unreachableShareBackground.toShareTermArtwork(),
 				onCaptured = { bitmap -> captures += bitmap }
 			)
 		}

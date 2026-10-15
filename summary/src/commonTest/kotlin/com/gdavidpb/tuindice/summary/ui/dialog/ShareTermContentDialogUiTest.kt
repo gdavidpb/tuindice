@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShareableTermCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
@@ -282,7 +283,7 @@ class ShareTermContentDialogUiTest {
 		chosenId: String = ShareBackground.included.id,
 		all: List<ShareBackground> = listOf(ShareBackground.included, otherShareBackground)
 	) = all.map { background ->
-		ShareTermBackgroundItem(background = background, selected = background.id == chosenId)
+		ShareTermBackgroundItem(artwork = background.toShareTermArtwork(), selected = background.id == chosenId)
 	}
 
 	// The width of a PNG is written in its header, after the signature and the length and name of the header chunk.

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
+import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermTermItem
 
@@ -28,7 +29,24 @@ object ShareTerm {
 			val terms: List<ShareTermTermItem>,
 			val backgrounds: List<ShareTermBackgroundItem>,
 			val isSharing: Boolean = false
-		) : State()
+		) : State() {
+			// The term and the background the card shows, resolved from the selected items each time the content is built, so a
+			// copy with other selections resolves them again. The previous and next backgrounds are the ones beside the selected
+			// one in the strip: a swipe across the card moves to them.
+			val selectedTerm: ShareTermTermItem? = terms.firstOrNull { item -> item.selected }
+
+			val selectedBackground: ShareTermArtwork? = backgrounds.firstOrNull { item -> item.selected }?.artwork
+
+			private val selectedIndex: Int = backgrounds.indexOfFirst { item -> item.selected }
+
+			val previousBackgroundId: String? = backgrounds.getOrNull(selectedIndex - 1)?.artwork?.id
+
+			val nextBackgroundId: String? = if (selectedIndex < 0) {
+				null
+			} else {
+				backgrounds.getOrNull(selectedIndex + 1)?.artwork?.id
+			}
+		}
 
 		// The statistics cannot be read, so there is no term to share: the sheet says so and does not retry.
 		data class Unavailable(

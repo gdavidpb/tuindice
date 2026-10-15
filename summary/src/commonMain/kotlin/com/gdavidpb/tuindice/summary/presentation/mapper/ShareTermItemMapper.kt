@@ -4,8 +4,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.summary.domain.mapper.selectShareBackground
+import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
+import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
 import com.gdavidpb.tuindice.summary.domain.model.ShareTermSource
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArt
+import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermTermItem
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
@@ -60,8 +64,8 @@ internal fun TermStatistic.toShareableTermCardItem(careerName: String): Shareabl
 /**
  * What the share sheet shows of [this] source: the closed terms that have an index, newest first, with one of them
  * selected (the one [current] already selects, else the one [requestedTermKey] asks for, else the newest), and the
- * backgrounds with one selected (the one [current] already selects, else the one the student chose last, else the
- * first of them).
+ * backgrounds with one selected (the one [current] already selects, else the one the student chose last, else the first
+ * of them).
  */
 internal fun ShareTermSource.toShareTermContent(
 	requestedTermKey: String?,
@@ -81,7 +85,7 @@ internal fun ShareTermSource.toShareTermContent(
 	val selectedTermKey = termItems.firstOrNull { item -> item.key == chosenTermKey }?.key
 		?: termItems.firstOrNull()?.key
 
-	val chosenBackgroundId = current?.backgrounds?.firstOrNull { item -> item.selected }?.background?.id
+	val chosenBackgroundId = current?.backgrounds?.firstOrNull { item -> item.selected }?.artwork?.id
 		?: preferredBackgroundId
 	val selectedBackgroundId = backgrounds.selectShareBackground(preferredId = chosenBackgroundId)?.id
 
@@ -89,12 +93,35 @@ internal fun ShareTermSource.toShareTermContent(
 		terms = termItems.map { item -> item.copy(selected = item.key == selectedTermKey) },
 		backgrounds = backgrounds.map { background ->
 			ShareTermBackgroundItem(
-				background = background,
+				artwork = background.toShareTermArtwork(),
 				selected = background.id == selectedBackgroundId
 			)
 		},
 		isSharing = current?.isSharing == true
 	)
+}
+
+// The artwork a background wears on the card and in the picker: a remote one falls back to the one the app ships with,
+// credit and all, so the card has one rule for an artwork that cannot be loaded and one credit for each artwork.
+internal fun ShareBackground.toShareTermArtwork(): ShareTermArtwork {
+	return when (val source = art) {
+		ShareBackgroundArt.Bundled -> ShareTermArtwork(
+			id = id,
+			shortName = shortName,
+			title = title,
+			author = author,
+			art = ShareTermArt.Bundled
+		)
+
+		is ShareBackgroundArt.Remote -> ShareTermArtwork(
+			id = id,
+			shortName = shortName,
+			title = title,
+			author = author,
+			art = ShareTermArt.Remote(cardUrl = source.cardUrl, thumbUrl = source.thumbUrl),
+			fallback = ShareBackground.included.toShareTermArtwork()
+		)
+	}
 }
 
 // "Ingeniería de Computación · USB", or the brand alone when the career has no name to give.

@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackground
 import com.gdavidpb.tuindice.summary.domain.model.ShareBackgroundArt
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareableTermCardItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsFigureItem
 import com.gdavidpb.tuindice.summary.testing.unreachableShareBackground
@@ -37,7 +38,7 @@ class ShareableTermCardUiTest {
 	@Test
 	fun when_theArtworkHasAnAuthor_then_itsCreditNamesTheWorkAndItsAuthor() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ShareableTermCard(item = termItem(), background = ShareBackground.included)
+			ShareableTermCard(item = termItem(), artwork = ShareBackground.included.toShareTermArtwork())
 		}
 
 		onNodeWithTag(SummaryUiTags.ShareTermCardCredit).assertTextEquals("Laberinto Cromovegetal · Carlos Cruz-Diez")
@@ -46,7 +47,7 @@ class ShareableTermCardUiTest {
 	@Test
 	fun when_theArtworkHasNoAuthor_then_itsCreditIsOnlyItsTitle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ShareableTermCard(item = termItem(), background = biblioteca())
+			ShareableTermCard(item = termItem(), artwork = biblioteca().toShareTermArtwork())
 		}
 
 		onNodeWithTag(SummaryUiTags.ShareTermCardCredit).assertTextEquals("Biblioteca Central")
@@ -57,7 +58,11 @@ class ShareableTermCardUiTest {
 		var readyCount = 0
 
 		setTuIndiceTestContent {
-			ShareableTermCard(item = termItem(), background = unreachableShareBackground, onArtReady = { readyCount++ })
+			ShareableTermCard(
+				item = termItem(),
+				artwork = unreachableShareBackground.toShareTermArtwork(),
+				onArtReady = { readyCount++ }
+			)
 		}
 
 		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
@@ -70,7 +75,7 @@ class ShareableTermCardUiTest {
 	@Test
 	fun when_itIsShown_then_itShowsTheTermItsFiguresAndItsCareer() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ShareableTermCard(item = termItem(), background = ShareBackground.included)
+			ShareableTermCard(item = termItem(), artwork = ShareBackground.included.toShareTermArtwork())
 		}
 
 		onNodeWithText("Mi trimestre").assertIsDisplayed()
@@ -92,7 +97,7 @@ class ShareableTermCardUiTest {
 	@Test
 	fun when_itIsShown_then_itKeepsItsSharedSizeWhateverTheScreen() = runTuIndiceUiTest {
 		setTuIndiceTestContent(density = 2.625f) {
-			ShareableTermCard(item = termItem(), background = ShareBackground.included)
+			ShareableTermCard(item = termItem(), artwork = ShareBackground.included.toShareTermArtwork())
 		}
 
 		onNodeWithTag(SummaryUiTags.ShareTermCard)
@@ -107,7 +112,7 @@ class ShareableTermCardUiTest {
 		mainClock.autoAdvance = false
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
-				ShareableTermCard(item = item.value, background = ShareBackground.included)
+				ShareableTermCard(item = item.value, artwork = ShareBackground.included.toShareTermArtwork())
 			}
 		}
 		item.value = termItem(index = "2.5000")
@@ -124,7 +129,7 @@ class ShareableTermCardUiTest {
 
 		mainClock.autoAdvance = false
 		setTuIndiceTestContent {
-			ShareableTermCard(item = item.value, background = ShareBackground.included)
+			ShareableTermCard(item = item.value, artwork = ShareBackground.included.toShareTermArtwork())
 		}
 		item.value = termItem(index = "2.5000")
 		advanceAnimationsBy(ONE_FRAME_MILLIS)

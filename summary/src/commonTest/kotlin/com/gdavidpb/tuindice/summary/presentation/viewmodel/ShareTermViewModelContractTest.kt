@@ -115,10 +115,10 @@ class ShareTermViewModelContractTest {
 
 			val content = withTimeout(TIMEOUT_MILLIS) {
 				viewModel.state.filterIsInstance<ShareTerm.State.Content>().first { state ->
-					state.backgrounds.single { item -> item.selected }.background.id == otherShareBackground.id
+					state.backgrounds.single { item -> item.selected }.artwork.id == otherShareBackground.id
 				}
 			}
-			assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.background.id)
+			assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.artwork.id)
 			assertEquals(listOf(otherShareBackground.id), backgrounds.saved)
 		}
 	}
@@ -180,7 +180,7 @@ class ShareTermViewModelContractTest {
 			viewModel.selectBackgroundAction(backgroundId = otherShareBackground.id)
 			withTimeout(TIMEOUT_MILLIS) {
 				viewModel.state.filterIsInstance<ShareTerm.State.Content>().first { state ->
-					state.backgrounds.single { item -> item.selected }.background.id == otherShareBackground.id
+					state.backgrounds.single { item -> item.selected }.artwork.id == otherShareBackground.id
 				}
 			}
 
@@ -191,9 +191,9 @@ class ShareTermViewModelContractTest {
 			}
 			assertEquals(
 				listOf(ShareBackground.included.id, otherShareBackground.id, arrivedBackground.id),
-				content.backgrounds.map { item -> item.background.id }
+				content.backgrounds.map { item -> item.artwork.id }
 			)
-			assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.background.id)
+			assertEquals(otherShareBackground.id, content.backgrounds.single { item -> item.selected }.artwork.id)
 		}
 	}
 
