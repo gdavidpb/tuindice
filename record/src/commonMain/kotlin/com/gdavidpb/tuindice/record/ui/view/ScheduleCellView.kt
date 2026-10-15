@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
@@ -13,10 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,9 +26,6 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleClashDefaults
-import org.jetbrains.compose.resources.stringResource
-import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.schedule_evaluation_click_label
 
 // The space the evaluation icon leaves to the cell's edge: the cell's own vertical padding.
 private val EvaluationIconInset = TuIndiceSpacing.XSmall
@@ -63,7 +56,11 @@ fun ScheduleCellView(
 	val cellModifier = modifier
 		.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
 		.semantics(mergeDescendants = true) { contentDescription = description }
-		.evaluationButton(shape, cell.evaluationId, onEvaluationClick)
+		.scheduleEvaluationButton(
+			shape = shape,
+			evaluationId = cell.evaluationId,
+			onClick = onEvaluationClick
+		)
 
 	Surface(
 		modifier = cellModifier,
@@ -116,19 +113,4 @@ fun ScheduleCellView(
 			}
 		}
 	}
-}
-
-// The cell as a button for the evaluation of its mark, or as it is when it has none. Clipped to the cell's
-// shape so the ripple does not leave it; the cell says what it is.
-@Composable
-private fun Modifier.evaluationButton(
-	shape: Shape,
-	evaluationId: String?,
-	onClick: (evaluationId: String) -> Unit
-): Modifier {
-	val label = stringResource(Res.string.schedule_evaluation_click_label)
-
-	if (evaluationId == null) return this
-
-	return clip(shape).clickable(onClickLabel = label, role = Role.Button) { onClick(evaluationId) }
 }
