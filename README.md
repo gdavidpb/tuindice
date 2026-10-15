@@ -411,7 +411,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(56 reglas en 13 archivos por área):
+(57 reglas en 14 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -427,6 +427,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   directos).
 - `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
   `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
+- `academiccore`: el lunes de la semana académica se calcula solo con `AcademicWeekEngine.mondayOf`; ningún
+  otro módulo resta `dayOfWeek` a mano.
 - `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
   try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).

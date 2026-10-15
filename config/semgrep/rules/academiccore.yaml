@@ -1,0 +1,19 @@
+rules:
+  - id: academic-week-monday-reimplemented
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El lunes de una fecha ya lo calcula AcademicWeekEngine.mondayOf (academiccore). Restar dayOfWeek.ordinal días en
+      otro módulo duplica la regla de inicio de semana y se desincroniza si la regla cambia. Usa
+      AcademicWeekEngine.mondayOf(fecha) (README "Módulos del workspace").
+    pattern-either:
+      - pattern: $D.minus(DatePeriod(days = $D.dayOfWeek.ordinal))
+      - pattern: $D.minus(DatePeriod(days = $D.dayOfWeek.isoDayNumber - 1))
+      - pattern: $D.minus($D.dayOfWeek.ordinal, DateTimeUnit.DAY)
+    paths:
+      exclude:
+        # academiccore es el dueño del cálculo de la semana académica: AcademicWeekEngine.mondayOf vive ahí.
+        - '**/academiccore/**'
+    metadata:
+      area: academiccore
+      referencia: 'README.md § Módulos del workspace'
