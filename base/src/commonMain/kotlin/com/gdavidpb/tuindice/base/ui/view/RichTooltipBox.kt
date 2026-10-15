@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.base.ui.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RichTooltip
@@ -15,11 +13,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import kotlinx.coroutines.flow.drop
 
 /**
@@ -91,23 +86,3 @@ fun RichTooltipBox(
 private fun richTooltipTitle(title: String): @Composable () -> Unit = {
 	Text(text = title)
 }
-
-// A single line carries the tag itself, so a test can read its text. Several lines share one stack instead.
-@Composable
-private fun RichTooltipLines(tooltip: RichTooltipText) {
-	val isSingleLine = tooltip.lines.size == 1
-
-	Column(
-		modifier = Modifier.optionalTag(if (isSingleLine) null else tooltip.testTag),
-		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Two)
-	) {
-		tooltip.lines.forEach { line ->
-			Text(
-				text = line,
-				modifier = Modifier.optionalTag(if (isSingleLine) tooltip.testTag else null)
-			)
-		}
-	}
-}
-
-private fun Modifier.optionalTag(tag: String?): Modifier = if (tag == null) this else testTag(tag)
