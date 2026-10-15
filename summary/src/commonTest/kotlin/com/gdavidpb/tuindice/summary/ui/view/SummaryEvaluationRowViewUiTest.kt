@@ -182,4 +182,31 @@ class SummaryEvaluationRowViewUiTest {
 		assertTextIsWhole("MYS-210", singleLine = true)
 		assertTextIsWhole("3-4", singleLine = true)
 	}
+
+	@Test
+	fun when_theLetterIsLargeOnA320dpScreen_then_theNameKeepsItsWidth_andNothingIsCut() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			WithLargeLetter {
+				Box(modifier = Modifier.width(320.dp)) {
+					SummaryEvaluationRowView(
+						item = summaryEvaluationRowItem(titleText = "TRABAJO ESCRITO 12", leadText = "Mié 28")
+							.copy(statusText = UiText.Raw("Sin nota")),
+						onClick = {}
+					)
+				}
+			}
+		}
+
+		val name = onNodeWithText("TRABAJO ESCRITO 12", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		assertTextIsWhole("Mié 28", singleLine = true)
+		assertTextIsWhole("TRABAJO ESCRITO 12")
+		assertTextIsWhole("CI5437", singleLine = true)
+		assertTextIsWhole("Sin nota", singleLine = true)
+		assertTrue(name.width >= NAME_MIN_WIDTH, "the name keeps its width: ${name.width}")
+	}
+
+	private companion object {
+		const val NAME_MIN_WIDTH = 40f
+	}
 }

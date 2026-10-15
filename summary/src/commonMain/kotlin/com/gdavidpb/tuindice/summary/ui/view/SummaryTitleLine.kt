@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,9 +19,9 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 
 /**
- * The first line of a week row: the icon of what the row is, its title in capitals and, beside the
- * title, the chip of the subject. The title takes the room the icon and the chip leave and wraps
- * instead of being cut; the chip is never cut.
+ * The first line of a week row: the icon of what the row is, then its title in capitals and the chip of the
+ * subject in one flow. The chip goes under the title only when it does not fit beside it, and the title keeps
+ * the width the icon leaves it, so it wraps instead of being squeezed; the chip is never cut.
  */
 @Composable
 fun SummaryTitleLine(
@@ -42,20 +44,25 @@ fun SummaryTitleLine(
 			contentDescription = null
 		)
 
-		Text(
+		FlowRow(
 			modifier = Modifier
-				.weight(1f, fill = false)
+				.weight(1f)
 				.padding(start = TuIndiceSpacing.Medium),
-			text = titleText,
-			style = MaterialTheme.typography.titleSmall,
-			color = MaterialTheme.colorScheme.onBackground
-		)
+			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
+			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall),
+			itemVerticalAlignment = Alignment.CenterVertically
+		) {
+			Text(
+				text = titleText,
+				style = MaterialTheme.typography.titleSmall,
+				color = MaterialTheme.colorScheme.onBackground
+			)
 
-		SubjectCodeChip(
-			modifier = Modifier.padding(start = TuIndiceSpacing.Medium),
-			subjectCode = subjectCode,
-			variant = SubjectCodeChipVariant.Dense
-		)
+			SubjectCodeChip(
+				subjectCode = subjectCode,
+				variant = SubjectCodeChipVariant.Dense
+			)
+		}
 	}
 }
 

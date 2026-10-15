@@ -247,7 +247,7 @@ class EvaluationItemViewUiTest {
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
-				Box(modifier = Modifier.width(360.dp)) {
+				Box(modifier = Modifier.width(320.dp)) {
 					EvaluationItemView(item = item)
 				}
 			}
@@ -255,6 +255,59 @@ class EvaluationItemViewUiTest {
 
 		assertTextIsWhole(text = LONG_NAME, evaluationId = "long-name")
 		assertTextIsWhole(text = item.subjectCodeText, evaluationId = "long-name")
+
+		// Beside the name there is no room at this width: the subject goes under it, and the name keeps its width.
+		val name = onNodeWithText(LONG_NAME, useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val chip = onNodeWithText(item.subjectCodeText, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+		assertTrue(chip.top >= name.bottom, "the subject goes under the name when it does not fit beside it")
+		assertTrue(name.width >= NameMinWidth, "the name keeps the width the icon and the state leave it: ${name.width}")
+	}
+
+	@Test
+	fun when_theNameWrapsAtA320dpScreen_then_theStateStaysOnTheFirstLineOfTheName() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "state-first-line").copy(typeNameText = LONG_NAME)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
+				Box(modifier = Modifier.width(320.dp)) {
+					EvaluationItemView(item = item)
+				}
+			}
+		}
+
+		val name = onNodeWithText(LONG_NAME, useUnmergedTree = true)
+		val layout = mutableListOf<TextLayoutResult>()
+
+		name.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layout)
+
+		val result = layout.single()
+		val firstLineCenter = name.getUnclippedBoundsInRoot().top.value +
+			(result.getLineTop(0) + result.getLineBottom(0)) / 2f
+		val state = onNodeWithTag(EvaluationsUiTags.EvaluationStatusChip, useUnmergedTree = true)
+			.getUnclippedBoundsInRoot()
+
+		assertTrue(
+			abs(centerY(state) - firstLineCenter) <= 6f,
+			"the state is centered at ${centerY(state)}, not on the first line of the name at $firstLineCenter"
+		)
+	}
+
+	@Test
+	fun when_theSubjectIsBesideTheName_then_theStateIsLevelWithTheName() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "state-level")
+
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.width(360.dp)) {
+				EvaluationItemView(item = item)
+			}
+		}
+
+		val name = onNodeWithText(item.typeNameText, useUnmergedTree = true).getUnclippedBoundsInRoot()
+		val state = onNodeWithTag(EvaluationsUiTags.EvaluationStatusChip, useUnmergedTree = true)
+			.getUnclippedBoundsInRoot()
+
+		assertTrue(abs(centerY(state) - centerY(name)) <= 1.5f, "the state and the name share the line")
 	}
 
 	@Test
@@ -366,5 +419,6 @@ class EvaluationItemViewUiTest {
 		val Accent = Color.Red
 		val CardSurface = Color.Blue
 		val Backdrop = Color.White
+		val NameMinWidth = 40.dp
 	}
 }

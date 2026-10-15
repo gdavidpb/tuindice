@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryTitleLineUiTest {
 	@Test
-	fun when_theTitleIsLongOnANarrowLine_then_itWrapsWhole_andTheSubjectStaysBesideIt() = runTuIndiceUiTest {
+	fun when_theTitleIsLongOnANarrowLine_then_itWrapsWhole_andTheSubjectGoesUnderItWhenItDoesNotFit() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WithLargeLetter {
 				Box(modifier = Modifier.width(240.dp)) {
@@ -43,12 +43,14 @@ class SummaryTitleLineUiTest {
 
 		val title = onNodeWithText("TRABAJO ESCRITO 12", useUnmergedTree = true).fetchSemanticsNode()
 		val line = onNodeWithTag("line", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val titleBounds = title.boundsInRoot
 		val chip = onNodeWithText("CI5437", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		assertTextIsWhole("TRABAJO ESCRITO 12")
 		assertTextIsWhole("CI5437", singleLine = true)
-		assertTrue(linesOf(title) >= 2, "the title takes two lines on a narrow line, it has ${linesOf(title)}")
+		assertTrue(titleBounds.width >= NAME_MIN_WIDTH, "the title keeps its width: ${titleBounds.width}")
 		assertTrue(chip.right <= line.right + 1f, "the chip stays inside the line: chip ${chip.right}, line ${line.right}")
+		assertTrue(chip.top >= titleBounds.bottom, "the chip goes under the title when there is no room beside it")
 	}
 
 	@Test
@@ -97,5 +99,9 @@ class SummaryTitleLineUiTest {
 		node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
 
 		return layouts.single().lineCount
+	}
+
+	private companion object {
+		const val NAME_MIN_WIDTH = 40f
 	}
 }

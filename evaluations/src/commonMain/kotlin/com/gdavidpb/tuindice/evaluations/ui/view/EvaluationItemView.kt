@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -107,9 +108,11 @@ fun EvaluationItemView(
 				.padding(EvaluationCardContentPadding)
 		) {
 			Column {
+				// The state stays on the first line: both chips are as tall as each other, so the state lines up with
+				// the name when they share the line, and with the first line of the name when the subject goes under it.
 				Row(
 					modifier = Modifier.fillMaxWidth(),
-					verticalAlignment = Alignment.CenterVertically
+					verticalAlignment = Alignment.Top
 				) {
 					Row(
 						modifier = Modifier
@@ -125,23 +128,29 @@ fun EvaluationItemView(
 							contentDescription = null
 						)
 
-						// The name wraps when the room beside it runs out, and the subject's chip is never cut.
-						Text(
+						// The name and the subject share a flow: the subject goes under the name only when it does not
+						// fit beside it, and the name keeps the width that the icon and the state leave it.
+						FlowRow(
 							modifier = Modifier
-								.weight(1f, fill = false)
+								.weight(1f)
 								.padding(start = 8.dp),
-							text = item.typeNameText,
-							color = MaterialTheme.colorScheme.onBackground,
-							style = MaterialTheme.typography.titleMedium,
-						)
+							horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
+							verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall),
+							itemVerticalAlignment = Alignment.CenterVertically
+						) {
+							Text(
+								text = item.typeNameText,
+								color = MaterialTheme.colorScheme.onBackground,
+								style = MaterialTheme.typography.titleMedium,
+							)
 
-						SubjectCodeChip(
-							modifier = Modifier.padding(start = 8.dp),
-							subjectCode = item.subjectCodeText,
-							variant = SubjectCodeChipVariant.Dense,
-							containerColor = item.subjectCodeContainerColor,
-							contentColor = item.subjectCodeColor
-						)
+							SubjectCodeChip(
+								subjectCode = item.subjectCodeText,
+								variant = SubjectCodeChipVariant.Dense,
+								containerColor = item.subjectCodeContainerColor,
+								contentColor = item.subjectCodeColor
+							)
+						}
 					}
 
 					Box(
