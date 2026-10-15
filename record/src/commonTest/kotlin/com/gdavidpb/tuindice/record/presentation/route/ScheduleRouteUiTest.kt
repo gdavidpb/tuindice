@@ -40,7 +40,7 @@ class ScheduleRouteUiTest {
 		val fixture = scheduleRouteFixture(record = scheduledRecord())
 
 		setTuIndiceTestContent {
-			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {}, onNavigateToEvaluationsWeek = { _, _ -> })
 		}
 
 		waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.viewModel.state.value is Schedule.State.Content }
@@ -61,7 +61,7 @@ class ScheduleRouteUiTest {
 		val fixture = scheduleRouteFixture(record = scheduledRecord())
 
 		setTuIndiceTestContent {
-			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {}, onNavigateToEvaluationsWeek = { _, _ -> })
 		}
 
 		waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.viewModel.state.value is Schedule.State.Content }
@@ -88,7 +88,7 @@ class ScheduleRouteUiTest {
 			val fixture = scheduleRouteFixture(record = AcademicRecord(id = "record"), hasSynced = false)
 
 			setTuIndiceTestContent {
-				ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+				ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {}, onNavigateToEvaluationsWeek = { _, _ -> })
 			}
 
 			waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.viewModel.state.value is Schedule.State.Loading }
@@ -122,7 +122,7 @@ class ScheduleRouteUiTest {
 		)
 
 		setTuIndiceTestContent {
-			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {}, onNavigateToEvaluationsWeek = { _, _ -> })
 		}
 
 		waitUntil(timeoutMillis = StateTimeoutMillis) { fixture.viewModel.state.value is Schedule.State.Content }
@@ -182,7 +182,7 @@ class ScheduleRouteUiTest {
 		)
 
 		setTuIndiceTestContent {
-			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {})
+			ScheduleRoute(viewModel = fixture.viewModel, onDismissRequest = {}, onNavigateToEvaluationsWeek = { _, _ -> })
 		}
 
 		waitUntil(timeoutMillis = StateTimeoutMillis) {

@@ -15,8 +15,8 @@ fun ScheduleRoute(
 	viewModel: ScheduleViewModel,
 	onDismissRequest: () -> Unit,
 	// What a cell with an evaluation asks for: the Evaluations tab on the week that opens on that Monday,
-	// on that evaluation. Whoever hosts the sheet connects it; until then tapping does nothing.
-	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> }
+	// on that evaluation. The host of the sheet has to take the student there.
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
