@@ -86,7 +86,7 @@ val commonModule = module {
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 	single { AppCoroutineScope(dispatchers = get()) }
-	single { SessionCoroutineScope(dispatchers = get(), reportingRepository = getOrNull()) }
+	single { SessionCoroutineScope(dispatchers = get(), reportingRepository = get()) }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
 	singleOf(::UsageDataConsentSettingsDataSource) {

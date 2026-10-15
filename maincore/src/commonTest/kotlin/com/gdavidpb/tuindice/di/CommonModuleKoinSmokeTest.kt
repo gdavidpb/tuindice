@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepos
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordOutboxDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import org.koin.dsl.module
@@ -32,6 +34,9 @@ class CommonModuleKoinSmokeTest {
 	fun resolvesSyncRepositoryWithItsPostSyncCollaborators() = withKoinSmokeTest(
 		commonModule,
 		module {
+			// The session scope reports through the ReportingRepository that the platform binds (the app and the iOS
+			// host); this graph has none of its own, so the recording one stands in.
+			single<ReportingRepository> { RecordingReportingRepository() }
 			single<SyncSettingsLocalDataRepository> { FakeSyncSettingsLocalDataSource(onCooldown = false) }
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<SyncRemoteDataRepository> { FakeSyncRemoteDataSource() }
