@@ -7,7 +7,8 @@ rules:
       un archivo por estado origen (README "Capas por feature > Presentation").
       Clases, objects o interfaces ahí indican lógica que pertenece a la máquina,
       al contract o a presentation/model.
-    pattern-regex: '^\s*(?:(?:public|internal|private)\s+)?(?:(?:sealed|abstract|open|data|enum|value)\s+)*(?:class|object|interface)\b'
+    # [ \t] y no \s: ver data-repository-interfaces-only en layering.yaml (línea en blanco previa).
+    pattern-regex: '^[ \t]*(?:(?:public|internal|private)\s+)?(?:(?:sealed|abstract|open|data|enum|value)\s+)*(?:class|object|interface)\b'
     paths:
       include:
         - '**/presentation/transition/**'

@@ -65,7 +65,8 @@ rules:
       data/repository no debe contener DTOs, modelos, mutaciones, resolvers ni clases concretas
       (README "Capas por feature > Data"). Solo interfaces *DataRepository; las implementaciones
       viven en data/source y los helpers en paquetes explícitos (data/model, data/mutation, ...).
-    pattern-regex: '^\s*(?:(?:public|internal|private|protected)\s+)?(?:(?:sealed|abstract|open|data|enum|annotation|value)\s+)*(?:class|object)\b'
+    # [ \t] y no \s: con \s el inicio de línea consumiría el salto de una línea en blanco previa y el hallazgo caería una línea arriba.
+    pattern-regex: '^[ \t]*(?:(?:public|internal|private|protected)\s+)?(?:(?:sealed|abstract|open|data|enum|annotation|value)\s+)*(?:class|object)\b'
     paths:
       include:
         - '**/data/repository/**'
