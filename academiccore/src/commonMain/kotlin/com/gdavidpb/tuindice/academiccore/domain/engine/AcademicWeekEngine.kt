@@ -40,7 +40,7 @@ object AcademicWeekEngine {
 	 * Whether [date] can be the first day of classes of the period: from the 1st of the month before
 	 * the period's start month to the last day of the month the period ends in.
 	 */
-	fun isPlausibleClassesStartDate(
+	internal fun isPlausibleClassesStartDate(
 		periodYear: Int,
 		periodCode: AcademicTermPeriod,
 		date: LocalDate

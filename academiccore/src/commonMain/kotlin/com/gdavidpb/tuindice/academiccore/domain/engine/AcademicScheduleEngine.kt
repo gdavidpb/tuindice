@@ -14,11 +14,11 @@ import kotlinx.datetime.isoDayNumber
  * (1 = Sunday ... 7 = Saturday) and the clock of a block is [ScheduleBlockClock].
  */
 object AcademicScheduleEngine {
-	const val FIRST_BLOCK = 1
+	private const val FIRST_BLOCK = 1
 
 	// Far above the 11 blocks the university has used so far: anything beyond it is a malformed entry,
 	// and drawing it would stretch a grid into dozens of empty rows.
-	const val LAST_BLOCK = 24
+	private const val LAST_BLOCK = 24
 
 	private const val FIRST_DAY = 1
 	private const val LAST_DAY = 7
@@ -33,7 +33,7 @@ object AcademicScheduleEngine {
 	 * at [FIRST_BLOCK] or later, does not end before it starts and ends by [LAST_BLOCK]). A malformed
 	 * entry is dropped rather than shown: a wrong cell is worse than none.
 	 */
-	fun isPlaceable(entry: AcademicScheduleEntry): Boolean {
+	internal fun isPlaceable(entry: AcademicScheduleEntry): Boolean {
 		return entry.dayOfWeek in FIRST_DAY..LAST_DAY &&
 			entry.startBlock >= FIRST_BLOCK &&
 			entry.endBlock >= entry.startBlock &&
@@ -44,7 +44,7 @@ object AcademicScheduleEngine {
 	 * The meetings that happen on [dayOfWeek] (1..7, otherwise [IllegalArgumentException]), by start
 	 * block and then by subject code.
 	 */
-	fun meetingsOn(meetings: List<ScheduleMeeting>, dayOfWeek: Int): List<ScheduleMeeting> {
+	internal fun meetingsOn(meetings: List<ScheduleMeeting>, dayOfWeek: Int): List<ScheduleMeeting> {
 		requireValidDay(dayOfWeek)
 
 		return meetings

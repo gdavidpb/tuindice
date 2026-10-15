@@ -274,7 +274,7 @@ object RecordProjectionEngine {
 	 * with a grade above zero, or an unreported one. The latter adds its credits with no grade, so it pulls the average
 	 * down. Decided by the outcome and the grade alone; the withdrawn flag is not looked at.
 	 */
-	fun countsTowardPeriodAverage(
+	private fun countsTowardPeriodAverage(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
 		outcome: AttemptOutcome
@@ -327,7 +327,7 @@ object RecordProjectionEngine {
 	 * grade above zero, or a qualitative one that was approved or failed. Decided by the outcome and the grade alone, the
 	 * withdrawn flag is not looked at.
 	 */
-	fun countsTowardRetakeTimeline(
+	internal fun countsTowardRetakeTimeline(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
 		outcome: AttemptOutcome

@@ -7,9 +7,9 @@ package com.gdavidpb.tuindice.academiccore.domain.model
  * class (the "now" line of the week grid, the class in progress, the next class of the day) with it.
  */
 object ScheduleBlockClock {
-	const val FIRST_BLOCK_START_MINUTE = 7 * 60 + 30
+	internal const val FIRST_BLOCK_START_MINUTE = 7 * 60 + 30
 	const val BLOCK_MINUTES = 60
-	const val MINUTES_PER_DAY = 24 * 60
+	internal const val MINUTES_PER_DAY = 24 * 60
 
 	/**
 	 * How many blocks have gone by since block 1 started, as a fraction: 0.0 at 7:30, 1.5 at 9:00.
@@ -36,7 +36,7 @@ object ScheduleBlockClock {
 	 * starts at 23:30 and ends past midnight, and later ones start on the next day. Whoever shows the
 	 * hour of a block should check it first.
 	 */
-	fun isWithinDay(block: Int): Boolean {
+	internal fun isWithinDay(block: Int): Boolean {
 		return block >= 1 && blockEndMinute(block) <= MINUTES_PER_DAY
 	}
 
@@ -45,7 +45,7 @@ object ScheduleBlockClock {
 	 * a plain offset from block 1, so for blocks from 17 on it is [MINUTES_PER_DAY] or more (a minute
 	 * of the following day); see [isWithinDay].
 	 */
-	fun blockStartMinute(block: Int): Int {
+	internal fun blockStartMinute(block: Int): Int {
 		return FIRST_BLOCK_START_MINUTE + (block - 1) * BLOCK_MINUTES
 	}
 
@@ -53,7 +53,7 @@ object ScheduleBlockClock {
 	 * The minute at which [block] ends, which is the minute the next block starts. Like
 	 * [blockStartMinute] it can reach [MINUTES_PER_DAY] or more; see [isWithinDay].
 	 */
-	fun blockEndMinute(block: Int): Int {
+	internal fun blockEndMinute(block: Int): Int {
 		return blockStartMinute(block) + BLOCK_MINUTES
 	}
 
