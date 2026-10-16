@@ -42,8 +42,20 @@ private fun StepBuilder.openAddForm() {
 	waitVisible(EvaluationsUiTags.EvaluationContentContainer, Within.Wait)
 }
 
+/**
+ * The graded evaluation of the fixtures is on the week before the last one, and the strip opens on the last one: the
+ * frozen clock is past the term's last week. Picking the week before it brings the evaluation's list in.
+ */
+private fun StepBuilder.showWeekOfGradedEvaluation() {
+	val week = E2eInputs.LastAcademicWeek - 1
+
+	tap(EvaluationsUiTags.evaluationsWeekChip(week))
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(week), Within.Action)
+}
+
 /** Scrolls to the graded evaluation of the fixtures and taps its card to reveal the swipe actions. */
 private fun StepBuilder.revealGradedEvaluationActions(action: String) {
+	showWeekOfGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
@@ -197,6 +209,7 @@ private val evaluationsGradeFromList = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
+	showWeekOfGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
@@ -256,6 +269,7 @@ private val evaluationsSwipeDelete = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Long)
+	showWeekOfGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
