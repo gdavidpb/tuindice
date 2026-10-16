@@ -60,7 +60,7 @@ bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`.
 8. After the final push, rerun the helper: every required platform is `current`.
 9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
 10. Stop the devices: `python3 e2e/scripts/shared/e2e.py stop-devices` (`--platform <p>` for one).
-11. Deliver the Spanish store-copy proposal in the session (runbook section 8), never in the PR body.
+11. Deliver the Spanish store-copy proposal, in a marketing tone, in the session (runbook section 8), never in the PR body.
 12. Close with a short retrospective grounded in what happened; apply the maintenance rules below.
 
 ## Failure handling by class

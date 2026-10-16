@@ -292,7 +292,10 @@ Wrap-up:
    production..HEAD`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 max). End-user
    language in the app's voice; external functionality only (never tests, CI, harness, E2E, refactors, state
    machines, dependencies); new screens, flows, copy and fixes a user would notice. With no user-visible change, say
-   so and propose keeping the current texts.
+   so and propose keeping the current texts. Marketing tone, never a flat inventory: talk to the student as «tú»,
+   lead with the benefit, not the feature. The Promotional Text is one hook about the headline changes. What's New
+   opens with a hook, gives each change a short headline and one or two lively sentences, and closes with a call to
+   update. Every claim is true of the diff: no promise the app does not keep.
 3. Retrospective: a short prioritized list, each item naming a concrete moment of this run (a failure that took
    several rounds, a false lead and the signal that would have prevented it, a rule here that was missing or
    contradicted, a manual step a script could do). No filler. Apply what is mechanical under section 9; what
