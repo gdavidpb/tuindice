@@ -284,8 +284,6 @@ class PensumDataSourceTest {
 	@Test
 	fun theManualSelections_whenTheSessionEndsWhileValidating_saveNothing() = runTest {
 		val selections = listOf<suspend (PensumDataSource) -> Unit>(
-			{ dataSource -> dataSource.selectPensum(year = 2018) },
-			{ dataSource -> dataSource.selectModality(modalityId = "long_internship") },
 			{ dataSource -> dataSource.selectSelection(year = 2018, modalityId = "long_internship") }
 		)
 
@@ -398,28 +396,6 @@ class PensumDataSourceTest {
 		assertEquals(null, local.lastInferredSelection)
 	}
 
-	@Test
-	fun selectPensum_whenRemoteFails_persistsNothing() = runTest {
-		val local = FakePensumLocalDataRepository(
-			selection = PensumSelectionParams(year = 2019, modalityId = "degree_project")
-		)
-		val remote = FakePensumRemoteDataRepository(
-			throwable = IllegalStateException("pensum not found")
-		)
-		val dataSource = createDataSource(local = local, remote = remote)
-
-		assertFailsWith<IllegalStateException> {
-			dataSource.selectPensum(year = 1999)
-		}
-
-		assertEquals(
-			listOf(PensumSelectionParams(year = 1999, modalityId = "degree_project")),
-			remote.requestedSelections
-		)
-		assertEquals(null, local.lastSelectedPensumYear)
-		assertEquals(null, local.lastInferredSelection)
-	}
-
 	private fun createDataSource(
 		local: FakePensumLocalDataRepository,
 		remote: FakePensumRemoteDataRepository
@@ -451,8 +427,6 @@ internal class FakePensumLocalDataRepository(
 	private val onWrite: suspend () -> Unit = {}
 ) : PensumLocalDataRepository {
 	var lastInferredSelection: Boolean? = null
-	var lastSelectedPensumYear: Int? = null
-	var lastSelectedModalityId: String? = null
 	var lastSelectedSelection: Pair<Int, String>? = null
 	val writes = mutableListOf<String>()
 
@@ -470,16 +444,6 @@ internal class FakePensumLocalDataRepository(
 		onWrite()
 		lastInferredSelection = inferredSelection
 		writes += "save inferred=$inferredSelection"
-	}
-
-	override suspend fun selectPensum(year: Int) {
-		lastSelectedPensumYear = year
-		writes += "select $year"
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		lastSelectedModalityId = modalityId
-		writes += "select modality $modalityId"
 	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {
@@ -514,8 +478,6 @@ private class FakeRecordDataPrerequisiteRepository : RecordDataPrerequisiteRepos
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> {
 		return flowOf(RecordDataPrerequisiteState(isReady = true, hasFailed = false))
 	}
-
-	override suspend fun isRecordDataReady(): Boolean = true
 }
 
 private fun sampleResponse(): GetPensumResponse {

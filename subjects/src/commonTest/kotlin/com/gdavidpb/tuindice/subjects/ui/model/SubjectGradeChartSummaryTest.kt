@@ -21,7 +21,6 @@ class SubjectGradeChartSummaryTest {
 		)
 
 		assertEquals(listOf(3, 4), summary.modalGrades)
-		assertEquals("3·4", summary.modeLabel)
 		assertEquals("3", summary.medianLabel)
 		assertEquals("0.9", summary.stddevLabel)
 	}
@@ -53,7 +52,6 @@ class SubjectGradeChartSummaryTest {
 		)
 
 		assertEquals(emptyList(), summary.modalGrades)
-		assertNull(summary.modeLabel)
 		assertNull(summary.medianLabel)
 		assertNull(summary.stddevLabel)
 	}

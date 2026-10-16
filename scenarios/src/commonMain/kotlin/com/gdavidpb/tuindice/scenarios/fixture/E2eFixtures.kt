@@ -162,8 +162,6 @@ object E2eFixtures {
 	val SubjectSearchQa = SearchExpectation("qa", listOf(SubjectQa.value))
 	val SubjectSearchQb = SearchExpectation("qb", listOf(SubjectQb.value))
 	val SubjectSearchRx = SearchExpectation("rx", listOf(SubjectRx.value))
-	val subjectSearches: List<SearchExpectation> =
-		listOf(SubjectSearchCi, SubjectSearchQa, SubjectSearchQb, SubjectSearchRx)
 
 	/** Every fixture that names a mock file, for the tests that check them. */
 	val all: List<E2eFixture> = listOf(

@@ -26,10 +26,6 @@ class DebugRemoteConfigDataSource(
 		}
 	}
 
-	fun clearStringOverrides() {
-		stringOverrides.clear()
-	}
-
 	override fun getString(key: String): String? {
 		val value = stringOverrides[key] ?: when (key) {
 			RemoteConfigKeys.TIME_OUT_CONNECTION -> defaults.timeoutMillis.toString()

@@ -24,8 +24,6 @@ object BaseUiTags {
 	const val OutdatedAppUpdateButton = "base_outdated_app_update_button"
 	const val OutdatedAppAnimation = "base_outdated_app_animation"
 
-	const val DropdownMenuError = "base_dropdown_error"
-
 	const val TopAppBarActionsContainer = "base_top_app_bar_actions_container"
 	const val TopAppBarTitle = "base_top_app_bar_title"
 
@@ -48,9 +46,6 @@ object BaseUiTags {
 
 	fun topBarActionButton(action: TopBarAction): String =
 		"base_top_app_bar_action_${action.action}"
-
-	fun dropdownItem(index: Int): String =
-		"base_dropdown_item_$index"
 
 	fun wheelPickerItem(index: Int): String =
 		"base_wheel_picker_item_$index"

@@ -15,9 +15,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -184,16 +182,6 @@ private fun createPensumViewModel(repository: RecordingPensumRepository): Pensum
 				exceptionHandler = exceptionHandler
 			),
 			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumUseCase = SelectPensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumModalityUseCase = SelectPensumModalityUseCase(
 				pensumRepository = repository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler

@@ -126,13 +126,10 @@ class SyncRecordResponseMapperTest {
 				enrolledCredits = 0,
 				approvedSubjects = 0,
 				approvedCredits = 0,
-				approvedRelation = 0.0,
 				retiredSubjects = 0,
 				retiredCredits = 0,
-				retiredRelation = 0.0,
 				failedSubjects = 0,
 				failedCredits = 0,
-				failedRelation = 0.0,
 				lastUpdate = 123L
 			),
 			sync = sync

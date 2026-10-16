@@ -7,7 +7,5 @@ interface PensumRepository {
 	fun observePensumFlow(): Flow<PensumObservation>
 	suspend fun hasSelectedPensumResponse(): Boolean
 	suspend fun refreshPensum(forceRemote: Boolean)
-	suspend fun selectPensum(year: Int)
-	suspend fun selectModality(modalityId: String)
 	suspend fun selectSelection(year: Int, modalityId: String)
 }

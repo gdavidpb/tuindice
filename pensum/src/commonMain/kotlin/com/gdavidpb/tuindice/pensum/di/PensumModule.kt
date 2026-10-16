@@ -14,9 +14,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -38,8 +36,6 @@ val pensumModule = module {
 	factoryOf(::ObservePensumUseCase)
 	factoryOf(::EnsurePensumLoadedUseCase)
 	factoryOf(::UpdatePensumUseCase)
-	factoryOf(::SelectPensumUseCase)
-	factoryOf(::SelectPensumModalityUseCase)
 	factoryOf(::SelectPensumSelectionUseCase)
 	factoryOf(::SetPensumSummaryCollapsedUseCase)
 

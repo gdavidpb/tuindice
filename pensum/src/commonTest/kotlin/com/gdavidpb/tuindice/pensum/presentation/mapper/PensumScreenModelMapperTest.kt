@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -241,8 +242,8 @@ class PensumScreenModelMapperTest {
 			nodesById.getValue(approvedNode.id).visualStyle.containerArgb,
 			nodesById.getValue(blockedNode.id).visualStyle.containerArgb
 		)
-		assertEquals(false, nodesById.getValue(approvedNode.id).isBlocked)
-		assertEquals(true, nodesById.getValue(blockedNode.id).isBlocked)
+		assertEquals(false, nodesById.getValue(approvedNode.id).status.type == PensumNodeStatusType.BLOCKED)
+		assertEquals(true, nodesById.getValue(blockedNode.id).status.type == PensumNodeStatusType.BLOCKED)
 		assertEquals(true, model.edges.single().isDisconnected)
 	}
 

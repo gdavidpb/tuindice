@@ -122,7 +122,8 @@ Record synthetic term search fixture contract:
 
 Subject search and enum-named inputs:
 
-- The subjects scenarios type the queries of `E2eFixtures.subjectSearches`: the catalog mock lists `ci`, and the debug
+- The subjects scenarios type the queries of `E2eFixtures.SubjectSearchCi`, `SubjectSearchQa`, `SubjectSearchQb` and
+  `SubjectSearchRx`: the catalog mock lists `ci`, and the debug
   source of the subjects module lists `qa`, `qb` and `rx`; `E2eInputs.SubjectQueryTooShort` is under the minimum length
   the search takes and `E2eInputs.SubjectQueryNoMatch` matches no subject. `SubjectSearchFixturesTest` reads both
   sources and fails a query that does not list its subject.

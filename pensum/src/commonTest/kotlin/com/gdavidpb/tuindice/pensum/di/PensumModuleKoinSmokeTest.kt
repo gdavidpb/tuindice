@@ -84,8 +84,6 @@ private class FakePensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 	override suspend fun hasSelectedPensumResponse(): Boolean = false
 	override suspend fun refreshPensum(forceRemote: Boolean) = Unit
-	override suspend fun selectPensum(year: Int) = Unit
-	override suspend fun selectModality(modalityId: String) = Unit
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }
 
@@ -93,8 +91,6 @@ private class FakeRecordDataPrerequisiteRepository : RecordDataPrerequisiteRepos
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> {
 		return flowOf(RecordDataPrerequisiteState(isReady = true, hasFailed = false))
 	}
-
-	override suspend fun isRecordDataReady(): Boolean = true
 }
 
 private class FakeNetworkRepository : NetworkRepository {

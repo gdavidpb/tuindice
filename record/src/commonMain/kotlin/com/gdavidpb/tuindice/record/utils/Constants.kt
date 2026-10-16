@@ -9,7 +9,6 @@ object Ranges {
 }
 
 object PreferencesKeys {
-	const val COOLDOWN_GET_QUARTERS = "cooldownGetQuarters"
 	const val COOLDOWN_GET_RECORD = "cooldownGetRecord"
 	const val SELECTED_HISTORICAL_TERM_ID = "selectedHistoricalTermId"
 	const val SELECTED_PROJECTION_TERM_ID = "selectedProjectionTermId"

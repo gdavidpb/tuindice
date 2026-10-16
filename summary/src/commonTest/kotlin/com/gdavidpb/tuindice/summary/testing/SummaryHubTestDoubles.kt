@@ -81,8 +81,6 @@ class ControllableRecordDataPrerequisiteRepository(
 	)
 
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = stateFlow
-
-	override suspend fun isRecordDataReady(): Boolean = stateFlow.value.isReady
 }
 
 class ControllableScheduleClockRepository(

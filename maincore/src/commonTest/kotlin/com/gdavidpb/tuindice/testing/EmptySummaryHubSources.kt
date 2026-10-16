@@ -33,8 +33,6 @@ fun createEmptyObserveSummaryHubUseCase() = ObserveSummaryHubUseCase(
 	recordDataPrerequisiteRepository = object : RecordDataPrerequisiteRepository {
 		override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> =
 			flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = false))
-
-		override suspend fun isRecordDataReady(): Boolean = false
 	},
 	scheduleClockRepository = object : ScheduleClockRepository {
 		override fun observeNow(): Flow<ScheduleNow> =

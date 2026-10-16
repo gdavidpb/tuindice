@@ -30,7 +30,6 @@ object EvaluationsUiTags {
 	const val EvaluationTypePickerRow = "evaluation_type_picker_row"
 	const val EvaluationGradeChip = "evaluation_grade_chip"
 	const val EvaluationMaxGradeChip = "evaluation_max_grade_chip"
-	const val EvaluationTypeLeadingIcon = "evaluation_type_leading_icon"
 	const val EvaluationTypeInlineIcon = "evaluation_type_inline_icon"
 	const val EvaluationStatusChip = "evaluation_status_chip"
 	const val EvaluationGradeActionButton = "evaluation_grade_action_button"

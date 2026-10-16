@@ -21,8 +21,6 @@ class RecordingPensumRepository(
 	val refreshForceRemote = mutableListOf<Boolean>()
 	var hasSelectedPensumResponseCalls = 0
 		private set
-	val selectedPensumYears = mutableListOf<Int>()
-	val selectedModalityIds = mutableListOf<String>()
 	val selectedSelections = mutableListOf<Pair<Int, String>>()
 
 	override fun observePensumFlow(): Flow<PensumObservation> = flow {
@@ -45,16 +43,6 @@ class RecordingPensumRepository(
 	override suspend fun hasSelectedPensumResponse(): Boolean {
 		hasSelectedPensumResponseCalls++
 		return hasCachedPensum
-	}
-
-	override suspend fun selectPensum(year: Int) {
-		selectionThrowable?.let { throwable -> throw throwable }
-		selectedPensumYears += year
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		selectionThrowable?.let { throwable -> throw throwable }
-		selectedModalityIds += modalityId
 	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {

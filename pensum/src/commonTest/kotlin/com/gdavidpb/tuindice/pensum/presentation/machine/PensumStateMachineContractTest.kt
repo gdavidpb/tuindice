@@ -11,9 +11,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -123,16 +121,6 @@ class PensumStateMachineContractTest {
 				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
-			selectPensumUseCase = SelectPensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumModalityUseCase = SelectPensumModalityUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
 			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
 				pensumRepository = repository,
 				reportingRepository = reportingRepository,
@@ -181,8 +169,6 @@ class PensumStateMachineContractTest {
 				Pensum.Action.ObservePensum,
 				Pensum.Action.EnsurePensumLoaded,
 				Pensum.Action.RefreshPensum,
-				Pensum.Action.SelectPensum(year = 1970),
-				Pensum.Action.SelectModality(modalityId = "modality-diurna"),
 				Pensum.Action.SelectSelection(year = 1970, modalityId = "modality-diurna"),
 				Pensum.Action.ToggleSummaryCollapsed,
 				PensumInternalEvent.PensumContentObserved(
@@ -229,16 +215,6 @@ class PensumStateMachineContractTest {
 					reportingRepository = reportingRepository,
 					exceptionHandler = exceptionHandler
 				),
-				selectPensumUseCase = SelectPensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				selectPensumModalityUseCase = SelectPensumModalityUseCase(
-					pensumRepository = repository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
 				selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository,
@@ -260,10 +236,6 @@ private class StaticPensumRepository : PensumRepository {
 	override suspend fun hasSelectedPensumResponse(): Boolean = false
 
 	override suspend fun refreshPensum(forceRemote: Boolean) = Unit
-
-	override suspend fun selectPensum(year: Int) = Unit
-
-	override suspend fun selectModality(modalityId: String) = Unit
 
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }

@@ -11,9 +11,6 @@
 	<string name="record_notice_stale_message_unknown">No pudimos actualizar tu inscripción. Mostramos la última guardada.</string>
 	<string name="record_empty_title">Informe académico</string>
 	<string name="record_empty_message">Cuando tengas periodos académicos disponibles, los verás aquí.</string>
-	<string name="record_view_mode_historical">Histórico</string>
-	<string name="record_view_mode_projection">Proyección</string>
-	<string name="record_view_mode_toggle">Cambiar modo de vista</string>
 	<string name="record_view_mode_toggle_to_historical">Cambiar a Histórico</string>
 	<string name="record_view_mode_toggle_to_projection">Cambiar a Proyección</string>
 	<string name="record_view_mode_state_historical">Modo Histórico: solo trimestres cerrados</string>
@@ -23,7 +20,6 @@
 	<string name="record_view_mode_info_button_description">Información sobre este modo de vista</string>
 	<string name="record_view_mode_info_message_historical">Histórico: solo trimestres cerrados. Solo lectura.</string>
 	<string name="record_view_mode_info_message_projection">Proyección: trimestre actual y simulaciones. No modifica el historial académico.</string>
-	<string name="term_selector_expanded_content_description">Ver todos los trimestres</string>
 	<string name="term_selection_title">Todos los trimestres</string>
 	<string name="term_selection_mode_historical_description">Histórico: solo trimestres cerrados</string>
 	<string name="term_selection_mode_projection_description">Proyección: trimestre actual y simulaciones</string>
@@ -40,7 +36,6 @@
 	<string name="term_credits_sum_label">UC inscritas</string>
 	<string name="term_attempt_grade_pattern">%1$d / 5</string>
 	<string name="term_attempt_credits_pattern">%1$d UC</string>
-    <string name="attempt_pending">Pendiente</string>
     <string name="attempt_unreported">Sin acta</string>
     <string name="attempt_approved">Aprobada</string>
     <string name="attempt_failed">Reprobada</string>
@@ -150,13 +145,11 @@
 	<string name="create_term_error_subject_already_planned">Una materia seleccionada ya está planificada.</string>
 	<string name="create_term_error_generic">No pudimos crear el trimestre. Revisa la selección.</string>
 	<string name="create_term_subject_available">Disponible</string>
-	<string name="create_term_subject_requirements_met">Disponible</string>
 	<string name="create_term_subject_not_in_pensum">Fuera de tu pensum</string>
 	<string name="create_term_subject_requirement_pending">Bloqueada</string>
 	<string name="create_term_subject_approved">Aprobada</string>
 	<string name="create_term_subject_current">En curso</string>
 	<string name="create_term_subject_already_planned">Ya planificada</string>
-	<string name="create_term_subject_unavailable">Bloqueada</string>
 	<string name="create_term_subject_tooltip_approved">Cursada en %1$s</string>
 	<string name="create_term_subject_tooltip_current">En curso en %1$s</string>
 	<string name="create_term_subject_tooltip_already_planned">Planificada en %1$s</string>

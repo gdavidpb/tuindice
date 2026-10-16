@@ -21,13 +21,6 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	abstract suspend fun getEvaluation(eid: String): EvaluationEntity?
 
 	@Query(
-		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ATTEMPT_ID} = :attemptId " +
-				"ORDER BY ${EvaluationTable.DATE} ASC"
-	)
-	abstract fun getAttemptEvaluations(attemptId: String): Flow<List<EvaluationEntity>>
-
-	@Query(
 		"DELETE FROM ${EvaluationTable.TABLE_NAME} " +
 				"WHERE ${EvaluationTable.ID} = :eid"
 	)

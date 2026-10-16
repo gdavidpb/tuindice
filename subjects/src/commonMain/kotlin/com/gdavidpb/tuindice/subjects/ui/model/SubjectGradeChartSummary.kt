@@ -12,9 +12,6 @@ data class SubjectGradeChartSummary(
 	val stddevRangeStart: Double? = null,
 	val stddevRangeEnd: Double? = null
 ) {
-	val modeLabel: String?
-		get() = modalGrades.takeIf(List<Int>::isNotEmpty)?.joinToString("·")
-
 	companion object {
 		private const val MIN_GRADE = 1.0
 		private const val MAX_GRADE = 5.0

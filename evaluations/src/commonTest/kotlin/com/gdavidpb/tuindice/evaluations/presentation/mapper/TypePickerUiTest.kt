@@ -3,7 +3,11 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -17,25 +21,26 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 
-// The two composables of TypePicker.kt: the labels of every type read from the resources, and
-// the picker items built from them. Both are rendered the way a picker would, one node per type.
+// The labels of every type read from the resources, and the picker items built from them, as the suspend functions of
+// TypePicker.kt return them. Both are rendered the way a picker would, one node per type.
 @OptIn(ExperimentalTestApi::class)
 class TypePickerUiTest {
 	@Test
 	fun when_typeLabelsAreRemembered_then_everyTypeReadsItsOwnSpanishLabel() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			val typeLabels = rememberEvaluationTypeLabels()
+			val typeLabels = rememberEvaluationTypeLabelsForTest()
 
 			Column {
 				EvaluationType.entries.forEach { type ->
 					Text(
 						modifier = Modifier.testTag(typeTag(type)),
-						text = typeLabels.getValue(type)
+						text = typeLabels[type].orEmpty()
 					)
 				}
 			}
@@ -112,7 +117,7 @@ class TypePickerUiTest {
 
 @Composable
 private fun TypePickerItems(selectedType: EvaluationType?) {
-	val items = rememberEvaluationTypePickerItemList(selectedType = selectedType)
+	val items = rememberEvaluationTypePickerItemListForTest(selectedType = selectedType)
 
 	Column {
 		items
@@ -131,3 +136,33 @@ private fun TypePickerItems(selectedType: EvaluationType?) {
 private fun typeTag(type: EvaluationType) = "type_picker_item_${type.name}"
 
 private const val RESOURCE_TIMEOUT_MILLIS = 5_000L
+
+// The labels the live suspend function reads, once they are there: empty until then.
+@Composable
+private fun rememberEvaluationTypeLabelsForTest(): Map<EvaluationType, String> {
+	var labels by remember { mutableStateOf(emptyMap<EvaluationType, String>()) }
+
+	LaunchedEffect(Unit) {
+		labels = getEvaluationTypeLabels()
+	}
+
+	return labels
+}
+
+@Composable
+internal fun rememberEvaluationTypePickerItemListForTest(
+	selectedType: EvaluationType?
+): List<EvaluationTypePickerItem> {
+	val typeLabels = rememberEvaluationTypeLabelsForTest()
+
+	return remember(selectedType, typeLabels) {
+		if (typeLabels.isEmpty()) {
+			emptyList()
+		} else {
+			EvaluationType.entries.toEvaluationTypePickerItemList(
+				selectedType = selectedType,
+				typeLabels = typeLabels
+			)
+		}
+	}
+}

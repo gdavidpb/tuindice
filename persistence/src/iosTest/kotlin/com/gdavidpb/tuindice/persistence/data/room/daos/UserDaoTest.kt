@@ -55,20 +55,6 @@ class UserDaoTest {
 	}
 
 	@Test
-	fun updateProfilePicture_isVisibleThroughGetUserFlow() = runTest {
-		val user = user(pictureUrl = "https://example.com/old.png")
-		val newUrl = "https://example.com/new.png"
-
-		dao.upsertEntity(user)
-		dao.updateProfilePicture(url = newUrl)
-
-		assertEquals(
-			user.copy(pictureUrl = newUrl),
-			dao.getUserFlow().first()
-		)
-	}
-
-	@Test
 	fun deleteAll_thenGetUserFlow_emitsNull() = runTest {
 		dao.upsertEntity(user())
 

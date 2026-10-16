@@ -113,41 +113,6 @@ class PensumRoomDataSource(
 		}
 	}
 
-	override suspend fun selectPensum(year: Int) {
-		writeMutex.withLock {
-			pensumSelectionDao.upsertEntity(
-				PensumSelectionEntity(
-					id = PensumSelectionTable.DEFAULT_ID,
-					year = year,
-					modalityId = null,
-					inferred = false,
-					cacheKey = null,
-					updatedAt = currentTimeMillis()
-				)
-			)
-		}
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		writeMutex.withLock {
-			val currentSelection = pensumSelectionDao.getSelection() ?: return@withLock
-			val cacheKey = currentSelection.year?.let { year ->
-				pensumCacheDao.getPensum(
-					year = year,
-					modalityId = modalityId
-				)?.cacheKey
-			}
-			pensumSelectionDao.upsertEntity(
-				currentSelection.copy(
-					modalityId = modalityId,
-					inferred = false,
-					cacheKey = cacheKey,
-					updatedAt = currentTimeMillis()
-				)
-			)
-		}
-	}
-
 	override suspend fun selectSelection(year: Int, modalityId: String) {
 		writeMutex.withLock {
 			val cacheKey = pensumCacheDao.getPensum(

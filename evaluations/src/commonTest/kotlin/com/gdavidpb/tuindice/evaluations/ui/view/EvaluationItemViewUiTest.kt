@@ -75,7 +75,6 @@ class EvaluationItemViewUiTest {
 			testTag = EvaluationsUiTags.EvaluationTypeInlineIcon,
 			useUnmergedTree = true
 		).assertIsDisplayed()
-		assertNodeHidden(EvaluationsUiTags.EvaluationTypeLeadingIcon, useUnmergedTree = true)
 		assertNodeVisible(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 	}
 

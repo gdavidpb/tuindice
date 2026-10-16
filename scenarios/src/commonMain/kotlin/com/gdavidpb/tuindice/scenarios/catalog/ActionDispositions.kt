@@ -89,18 +89,6 @@ object ActionDispositions {
 			reason = "screen bootstrap"
 		),
 		ActionDisposition.Internal(
-			action = "pensum.Pensum.SelectPensum",
-			reason =
-				"current bottom sheet keeps version as local UI state and dispatches SelectSelection on " +
-				"apply"
-		),
-		ActionDisposition.Internal(
-			action = "pensum.Pensum.SelectModality",
-			reason =
-				"current bottom sheet keeps modality as local UI state and dispatches SelectSelection on " +
-				"apply"
-		),
-		ActionDisposition.Internal(
 			action = "record.CreateSyntheticTerm.Observe",
 			reason = "screen bootstrap and local state observation"
 		),

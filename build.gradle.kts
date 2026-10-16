@@ -419,21 +419,3 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 	)
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
 }
-
-tasks.register<Exec>("reportWorktreeHealth") {
-	group = "help"
-	description = "Generates a worktree health report with suggested atomic commit batches."
-	val reportScript = file("${rootDir}/scripts/report-worktree-health.sh")
-
-	onlyIf {
-		reportScript.exists()
-	}
-
-	doFirst {
-		check(reportScript.exists()) {
-			"Missing worktree report script: ${reportScript.absolutePath}"
-		}
-	}
-
-	commandLine("bash", reportScript.absolutePath)
-}

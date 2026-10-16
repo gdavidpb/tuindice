@@ -148,22 +148,6 @@ class PensumDataSource(
 	override suspend fun hasSelectedPensumResponse(): Boolean =
 		localDataRepository.hasSelectedPensumResponse()
 
-	override suspend fun selectPensum(year: Int) {
-		applySelection(
-			selection = localDataRepository.getSelectionParams().copy(year = year)
-		) {
-			localDataRepository.selectPensum(year = year)
-		}
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		applySelection(
-			selection = localDataRepository.getSelectionParams().copy(modalityId = modalityId)
-		) {
-			localDataRepository.selectModality(modalityId)
-		}
-	}
-
 	override suspend fun selectSelection(year: Int, modalityId: String) {
 		applySelection(
 			selection = PensumSelectionParams(

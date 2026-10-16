@@ -214,11 +214,3 @@ private fun selectedSubjectRouteScrollOffset(
 		0.dp
 	}
 }
-
-internal fun routeNavigationOriginIsInAfterItems(
-	navigationOriginNodeId: String?,
-	afterItems: List<PensumSubjectRelationItem>
-): Boolean {
-	return navigationOriginNodeId != null &&
-		afterItems.any { item -> item.nodeId == navigationOriginNodeId }
-}

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="screen_title_evaluations">Evaluaciones</string>
-	<string name="screen_title_evaluation">Evaluación</string>
 	<string name="top_bar_add_evaluation">Crear evaluación</string>
 	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
 
@@ -61,8 +60,6 @@
 	<string name="label_add_evaluation_max_grade">Nota máxima</string>
 	<string name="label_evaluation_date">Elige una fecha</string>
 	<string name="label_evaluation_no_date">Evaluación continua</string>
-	<string name="label_evaluation_assign_grade">Sin nota</string>
-	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Modificar</string>
 

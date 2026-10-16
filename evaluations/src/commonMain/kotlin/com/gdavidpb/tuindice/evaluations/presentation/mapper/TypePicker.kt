@@ -1,11 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluation_attendance
 import tuindice.evaluations.generated.resources.evaluation_essay
@@ -20,72 +17,6 @@ import tuindice.evaluations.generated.resources.evaluation_report
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
-
-@Composable
-fun rememberEvaluationTypePickerItemList(
-	selectedType: EvaluationType?
-): List<EvaluationTypePickerItem> {
-	val typeLabels = rememberEvaluationTypeLabels()
-
-	return remember(
-		selectedType,
-		typeLabels
-	) {
-		EvaluationType.entries.toEvaluationTypePickerItemList(
-			selectedType = selectedType,
-			typeLabels = typeLabels
-		)
-	}
-}
-
-@Composable
-fun rememberEvaluationTypeLabels(): Map<EvaluationType, String> {
-	val testLabel = stringResource(Res.string.evaluation_test)
-	val essayLabel = stringResource(Res.string.evaluation_essay)
-	val attendanceLabel = stringResource(Res.string.evaluation_attendance)
-	val interventionsLabel = stringResource(Res.string.evaluation_interventions)
-	val laboratoryLabel = stringResource(Res.string.evaluation_laboratory)
-	val modelLabel = stringResource(Res.string.evaluation_model)
-	val presentationLabel = stringResource(Res.string.evaluation_presentation)
-	val projectLabel = stringResource(Res.string.evaluation_project)
-	val quizLabel = stringResource(Res.string.evaluation_quiz)
-	val reportLabel = stringResource(Res.string.evaluation_report)
-	val workshopLabel = stringResource(Res.string.evaluation_workshop)
-	val writtenWorkLabel = stringResource(Res.string.evaluation_written_work)
-	val otherLabel = stringResource(Res.string.evaluation_other)
-
-	return remember(
-		testLabel,
-		essayLabel,
-		attendanceLabel,
-		interventionsLabel,
-		laboratoryLabel,
-		modelLabel,
-		presentationLabel,
-		projectLabel,
-		quizLabel,
-		reportLabel,
-		workshopLabel,
-		writtenWorkLabel,
-		otherLabel
-	) {
-		buildEvaluationTypeLabels(
-			testLabel = testLabel,
-			essayLabel = essayLabel,
-			attendanceLabel = attendanceLabel,
-			interventionsLabel = interventionsLabel,
-			laboratoryLabel = laboratoryLabel,
-			modelLabel = modelLabel,
-			presentationLabel = presentationLabel,
-			projectLabel = projectLabel,
-			quizLabel = quizLabel,
-			reportLabel = reportLabel,
-			workshopLabel = workshopLabel,
-			writtenWorkLabel = writtenWorkLabel,
-			otherLabel = otherLabel
-		)
-	}
-}
 
 suspend fun getEvaluationTypeLabels(): Map<EvaluationType, String> {
 	return buildEvaluationTypeLabels(

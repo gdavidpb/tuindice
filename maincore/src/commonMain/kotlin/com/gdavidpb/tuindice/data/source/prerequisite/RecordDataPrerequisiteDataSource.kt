@@ -21,10 +21,6 @@ class RecordDataPrerequisiteDataSource(
 			recordDataPrerequisiteStateOf(isReady = syncState?.hasSynced == true, syncStatus = syncStatus)
 		}.distinctUntilChanged()
 	}
-
-	override suspend fun isRecordDataReady(): Boolean {
-		return academicRecordSyncStateDao.getSyncState()?.hasSynced == true
-	}
 }
 
 // What the sync says of the record data. Without the record stored, a blocking status fails it for every reader of it,

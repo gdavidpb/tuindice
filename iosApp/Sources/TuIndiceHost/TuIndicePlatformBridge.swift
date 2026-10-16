@@ -119,16 +119,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
-    func remoteConfigStringList(key: String) -> [String]? {
-        guard let raw = remoteConfigString(key: key),
-              let data = raw.data(using: .utf8),
-              let list = try? JSONDecoder().decode([String].self, from: data) else {
-            return nil
-        }
-
-        return list
-    }
-
     func resolveAttestationKeyId(completionHandler: @escaping (String?, Error?) -> Void) {
         resolveAppAttestKeyId(completionHandler: completionHandler)
     }
@@ -431,22 +421,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         openUrl(url: raw)
     }
 
-    func shareText(subject: String, text: String) {
-        let activity = UIActivityViewController(
-            activityItems: [text],
-            applicationActivities: nil
-        )
-
-        activity.setValue(subject, forKey: "subject")
-
-        guard let topController = Self.topViewController() else {
-            sendEmail(email: "", subject: subject, text: text)
-            return
-        }
-
-        topController.present(activity, animated: true)
-    }
-
     func appVersionName() -> String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
     }
@@ -545,29 +519,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         guard isFirebaseConfigured else { return }
         Crashlytics.crashlytics().setCustomValue(value, forKey: key)
         #endif
-    }
-
-    private static func topViewController(
-        from root: UIViewController? = UIApplication.shared
-            .connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: { $0.isKeyWindow })?
-            .rootViewController
-    ) -> UIViewController? {
-        if let navigation = root as? UINavigationController {
-            return topViewController(from: navigation.visibleViewController)
-        }
-
-        if let tab = root as? UITabBarController {
-            return topViewController(from: tab.selectedViewController)
-        }
-
-        if let presented = root?.presentedViewController {
-            return topViewController(from: presented)
-        }
-
-        return root
     }
 
     private static func isVersion(_ lhs: String, newerThan rhs: String) -> Bool {

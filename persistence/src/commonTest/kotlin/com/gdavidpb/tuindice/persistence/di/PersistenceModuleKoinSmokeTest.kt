@@ -85,8 +85,6 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 	override val users: UserDao = object : UserDao() {
 		override fun getUserFlow(): Flow<UserEntity?> = emptyFlow()
 
-		override suspend fun updateProfilePicture(url: String) = Unit
-
 		override suspend fun deleteAll() = Unit
 
 		override suspend fun upsertEntity(entity: UserEntity) = Unit
@@ -135,8 +133,6 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 
 		override suspend fun getOverrides(): List<AcademicAttemptOverrideEntity> = emptyList()
 
-		override suspend fun deleteByAttemptId(attemptId: String) = Unit
-
 		override suspend fun deleteAll() = Unit
 
 		override suspend fun upsertEntity(entity: AcademicAttemptOverrideEntity) = Unit
@@ -160,8 +156,6 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override fun observeEvaluationsFlow(): Flow<List<EvaluationEntity>> = emptyFlow()
 
 		override suspend fun getEvaluation(eid: String): EvaluationEntity? = null
-
-		override fun getAttemptEvaluations(attemptId: String): Flow<List<EvaluationEntity>> = emptyFlow()
 
 		override suspend fun deleteEvaluation(eid: String): Int = 0
 

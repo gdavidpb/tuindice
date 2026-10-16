@@ -71,8 +71,6 @@ class ReadyRecordDataPrerequisiteRepository(
 	)
 ) : RecordDataPrerequisiteRepository {
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = states
-
-	override suspend fun isRecordDataReady(): Boolean = states.first().isReady
 }
 
 class RecordingSyncStatusRepository(

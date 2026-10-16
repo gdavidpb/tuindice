@@ -174,8 +174,6 @@ private class RecordingUserDao(
 ) : UserDao() {
 	override fun getUserFlow(): Flow<UserEntity?> = emptyFlow()
 
-	override suspend fun updateProfilePicture(url: String) = Unit
-
 	override suspend fun deleteAll() {
 		calls += "users"
 	}
@@ -256,8 +254,6 @@ private class RecordingAcademicAttemptOverrideDao(
 
 	override suspend fun getOverrides(): List<AcademicAttemptOverrideEntity> = emptyList()
 
-	override suspend fun deleteByAttemptId(attemptId: String) = Unit
-
 	override suspend fun deleteAll() {
 		calls += "academic_attempt_override"
 	}
@@ -273,8 +269,6 @@ private class RecordingEvaluationDao(
 	override fun observeEvaluationsFlow(): Flow<List<EvaluationEntity>> = emptyFlow()
 
 	override suspend fun getEvaluation(eid: String): EvaluationEntity? = null
-
-	override fun getAttemptEvaluations(attemptId: String): Flow<List<EvaluationEntity>> = emptyFlow()
 
 	override suspend fun deleteEvaluation(eid: String): Int = 0
 
