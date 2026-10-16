@@ -414,6 +414,7 @@ private val summaryHubTermCareerLinks = scenario("summary-hub-term-career-links"
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	waitVisible(RecordUiTags.attemptCard(E2eFixtures.HubAttemptCi5437.value), Within.Assert)
 	returnToSummaryTab()
+	scrollSummaryToTop()
 	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.TermSection), Scroll.ContentDown, Within.Wait)
 	tap(SummaryUiTags.sectionLink(SummaryUiTags.TermSection))
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItemSelected, Within.Wait)
