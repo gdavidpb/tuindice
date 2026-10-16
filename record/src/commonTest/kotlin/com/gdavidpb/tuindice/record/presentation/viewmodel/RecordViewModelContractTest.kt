@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
@@ -38,12 +39,14 @@ import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -254,8 +257,13 @@ class RecordViewModelContractTest {
 
 				fixture.viewModel.selectTermAction(termId = otherTermId)
 
+				// The screen follows the choice at once; the store is written from another coroutine, so the test
+				// waits for the write itself before it reads what was saved.
 				awaitUntilState<Record.State.Content> { state ->
 					state.selectedTermId == otherTermId
+				}
+				fixture.selectionRepository.observeSelectedTermId(RecordViewMode.Historical).first { termId ->
+					termId == otherTermId
 				}
 
 				cancelAndIgnoreRemainingEvents()
@@ -442,6 +450,108 @@ class RecordViewModelContractTest {
 		)
 	}
 
+	@Test
+	fun attemptFocus_fromContent_selectsTheTermThatHoldsTheAttempt_withoutSavingIt() = runTest {
+		val fixture = createFixture(
+			record = recordWithTwoTerms(),
+			hasSynced = true,
+			viewMode = RecordViewMode.Projection
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val initial = awaitUntilState<Record.State.Content>()
+				val target = if (initial.selectedTermId == TERM_A) ATTEMPT_B else ATTEMPT_A
+				val targetTerm = if (target == ATTEMPT_A) TERM_A else TERM_B
+				val savedBefore = fixture.selectionRepository.setSelectedTermCalls.size
+
+				fixture.attemptFocus.request(attemptId = target)
+
+				val content = awaitUntilState<Record.State.Content> { state -> state.arrivalAttemptId == target }
+				assertEquals(targetTerm, content.selectedTermId)
+				// A jump is navigation, not a preference: nothing is written.
+				assertEquals(savedBefore, fixture.selectionRepository.setSelectedTermCalls.size)
+
+				fixture.viewModel.attemptArrivalTakenAction(attemptId = target)
+
+				awaitUntilState<Record.State.Content> { state -> state.arrivalAttemptId == null }
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun attemptFocus_whileEmpty_isDropped_soItDoesNotApplyWhenContentComesLater() = runTest {
+		val fixture = createFixture(
+			record = AcademicRecord(id = "record"),
+			hasSynced = true,
+			viewMode = RecordViewMode.Projection
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				awaitUntilState<Record.State.Empty>()
+
+				fixture.attemptFocus.request(attemptId = ATTEMPT_B)
+				// The request is consumed by the empty state before any content exists.
+				fixture.attemptFocus.pending.test {
+					while (awaitItem() != null) Unit
+					cancelAndIgnoreRemainingEvents()
+				}
+
+				fixture.academicRecordRepository.recordFlow.value = recordWithTwoTerms()
+
+				val content = awaitUntilState<Record.State.Content>()
+				assertNull(content.arrivalAttemptId)
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun attemptFocus_ofAnAttemptTheRecordDoesNotShow_isTakenAndChangesNothing() = runTest {
+		val fixture = createFixture(
+			record = recordWithTwoTerms(),
+			hasSynced = true,
+			viewMode = RecordViewMode.Projection
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				val initial = awaitUntilState<Record.State.Content>()
+
+				fixture.attemptFocus.request(attemptId = "attempt-ghost")
+				fixture.attemptFocus.pending.test {
+					while (awaitItem() != null) Unit
+					cancelAndIgnoreRemainingEvents()
+				}
+
+				val afterwards = assertIs<Record.State.Content>(fixture.viewModel.state.value)
+				assertEquals(initial.selectedTermId, afterwards.selectedTermId)
+				assertNull(afterwards.arrivalAttemptId)
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	private fun createFixture(
 		record: AcademicRecord,
 		hasSynced: Boolean,
@@ -458,12 +568,14 @@ class RecordViewModelContractTest {
 		)
 		val selectionRepository = RecordingRecordSelectionRepository(initialViewMode = viewMode)
 		val syncStatusRepository = FakeSyncStatusRepository()
+		val attemptFocus = InMemoryRecordAttemptFocusDataSource()
 
 		val viewModel = RecordViewModel(
 			screenMachine = createMachine(
 				academicRecordRepository = academicRecordRepository,
 				selectionRepository = selectionRepository,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				attemptFocus = attemptFocus
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers
@@ -473,14 +585,16 @@ class RecordViewModelContractTest {
 			viewModel = viewModel,
 			academicRecordRepository = academicRecordRepository,
 			selectionRepository = selectionRepository,
-			syncStatusRepository = syncStatusRepository
+			syncStatusRepository = syncStatusRepository,
+			attemptFocus = attemptFocus
 		)
 	}
 
 	private fun createMachine(
 		academicRecordRepository: ControllableAcademicRecordRepository,
 		selectionRepository: RecordingRecordSelectionRepository,
-		syncStatusRepository: FakeSyncStatusRepository
+		syncStatusRepository: FakeSyncStatusRepository,
+		attemptFocus: InMemoryRecordAttemptFocusDataSource
 	): RecordMachine {
 		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = RecordExceptionHandler()
@@ -527,7 +641,8 @@ class RecordViewModelContractTest {
 				academicRecordRepository = academicRecordRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
-			)
+			),
+			attemptFocusRepository = attemptFocus
 		)
 	}
 }
@@ -536,5 +651,28 @@ private data class RecordFixture(
 	val viewModel: RecordViewModel,
 	val academicRecordRepository: ControllableAcademicRecordRepository,
 	val selectionRepository: RecordingRecordSelectionRepository,
-	val syncStatusRepository: FakeSyncStatusRepository
+	val syncStatusRepository: FakeSyncStatusRepository,
+	val attemptFocus: InMemoryRecordAttemptFocusDataSource
+)
+
+private const val TERM_A = "term-a"
+private const val TERM_B = "term-b"
+private const val ATTEMPT_A = "attempt-a"
+private const val ATTEMPT_B = "attempt-b"
+
+// Two terms of different years: term A is the one with the subject MAT101, term B the one with FIS101.
+private fun recordWithTwoTerms(): AcademicRecord = AcademicRecord(
+	id = "record",
+	terms = listOf(
+		academicTerm(
+			id = TERM_A,
+			periodYear = 2024,
+			attempts = listOf(academicAttempt(subjectCode = "MAT101", id = ATTEMPT_A))
+		),
+		academicTerm(
+			id = TERM_B,
+			periodYear = 2023,
+			attempts = listOf(academicAttempt(subjectCode = "FIS101", id = ATTEMPT_B))
+		)
+	)
 )

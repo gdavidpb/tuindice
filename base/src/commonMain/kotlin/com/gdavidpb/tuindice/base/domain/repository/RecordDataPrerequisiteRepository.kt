@@ -5,5 +5,4 @@ import kotlinx.coroutines.flow.Flow
 
 interface RecordDataPrerequisiteRepository {
 	fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState>
-	suspend fun isRecordDataReady(): Boolean
 }

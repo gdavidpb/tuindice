@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
@@ -38,6 +39,9 @@ object Evaluation {
 			// Dates outside this range are disabled in the picker; null means unbounded
 			// (no current term resolved).
 			val selectableDateRange: ClosedRange<LocalDate>? = null,
+			// The date dialog's calendar: the class days of the chosen subject within the selectable range. It is
+			// worked out where the subject or the range changes, not on every read.
+			val dateCalendar: EvaluationDateCalendarItem = EvaluationDateCalendarItem(),
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null,

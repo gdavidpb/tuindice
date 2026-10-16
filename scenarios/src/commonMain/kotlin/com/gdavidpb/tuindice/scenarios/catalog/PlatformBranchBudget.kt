@@ -13,7 +13,8 @@ class PlatformBranchBudget private constructor() {
 			"conformance-system" to 2,
 			"maincore-tab-stack-preservation" to 1,
 			"summary-profile-picture" to 2,
-			"summary-profile-picture-sources" to 4
+			"summary-profile-picture-sources" to 4,
+			"summary-statistics-share" to 2
 		)
 
 		fun of(scenarioId: String): Int = perScenario[scenarioId] ?: 0

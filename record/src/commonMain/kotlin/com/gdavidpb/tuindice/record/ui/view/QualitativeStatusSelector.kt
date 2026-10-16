@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.QualitativeStatusDropdownItem
 
 @Composable
 fun QualitativeStatusSelector(
@@ -81,7 +82,7 @@ fun QualitativeStatusSelector(
 				modifier = Modifier
 					.padding(top = 6.dp),
 				shape = RoundedCornerShape(TuIndiceRadius.Medium),
-				color = MaterialTheme.colorScheme.surfaceContainerHigh
+				color = MaterialTheme.colorScheme.surfaceDim
 			) {
 				Column(
 					modifier = Modifier.padding(vertical = 4.dp)

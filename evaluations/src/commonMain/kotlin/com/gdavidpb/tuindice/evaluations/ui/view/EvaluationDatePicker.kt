@@ -3,7 +3,9 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material3.*
@@ -19,7 +21,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
+import com.gdavidpb.tuindice.base.utils.toLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDateCalendarItem
 import com.gdavidpb.tuindice.evaluations.presentation.utils.*
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -34,23 +39,29 @@ fun EvaluationDatePicker(
 	selectedScheduleMode: EvaluationScheduleMode,
 	selectedDate: Long?,
 	onDateChange: (date: Long?) -> Unit,
-	selectableRange: ClosedRange<LocalDate>? = null
+	calendar: EvaluationDateCalendarItem = EvaluationDateCalendarItem()
 ) {
+	val selectableRange = calendar.selectableRange
 	val clock = LocalTuIndiceClock.current
-	val committedDate = selectedDate?.toEvaluationLocalDate()
+	val committedDate = selectedDate?.toLocalDate()
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
 
-	// Open on the committed date's month, or today's, clamped into the term range so
-	// the picker never lands on a fully-disabled month.
+	// Open on the committed date's month when it is inside the term range (the day stays in view),
+	// otherwise on today's, clamped into the range so the picker never lands on a fully-disabled
+	// month.
 	fun initialDisplayedMonth(): LocalDate {
-		return (committedDate ?: clock.currentEvaluationLocalDate()).clampToMonthRange(selectableRange)
+		return initialPickerMonth(
+			chosenDate = committedDate,
+			today = clock.currentEvaluationLocalDate(),
+			range = selectableRange
+		)
 	}
 
 	val displayedMonth = remember(selectedDate, selectableRange) {
 		mutableStateOf(initialDisplayedMonth())
 	}
-	val pickerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val pickerContainerColor = MaterialTheme.colorScheme.surfaceVariant
 	val selectedPickerContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
 
 	val canGoPreviousMonth = selectableRange == null ||
@@ -71,32 +82,44 @@ fun EvaluationDatePicker(
 				isPickerDialogOpen.value = false
 			},
 			title = {
-				Text(
-					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogTitle),
-					text = stringResource(Res.string.label_add_evaluation_date)
-				)
+				EvaluationDateDialogTitle(subjectCode = calendar.subjectCode)
 			},
 			text = {
-				EvaluationCalendarContent(
-					displayedMonth = displayedMonth.value,
-					selectedDate = draftSelectedDate.value,
-					onPreviousMonthClick = {
-						if (canGoPreviousMonth) {
-							displayedMonth.value = displayedMonth.value.previousMonthStart()
-						}
-					},
-					onNextMonthClick = {
-						if (canGoNextMonth) {
-							displayedMonth.value = displayedMonth.value.nextMonthStart()
-						}
-					},
-					onDateSelected = { date ->
-						draftSelectedDate.value = date
-					},
-					selectableRange = selectableRange,
-					canGoPreviousMonth = canGoPreviousMonth,
-					canGoNextMonth = canGoNextMonth
-				)
+				// Scrolls: on a short screen a month of six rows leaves the chosen-day box no room, and
+				// it would lose its last line or vanish instead of staying reachable.
+				Column(
+					modifier = Modifier.verticalScroll(rememberScrollState()),
+					verticalArrangement = Arrangement.spacedBy(12.dp)
+				) {
+					EvaluationCalendarContent(
+						displayedMonth = displayedMonth.value,
+						selectedDate = draftSelectedDate.value,
+						onPreviousMonthClick = {
+							if (canGoPreviousMonth) {
+								displayedMonth.value = displayedMonth.value.previousMonthStart()
+							}
+						},
+						onNextMonthClick = {
+							if (canGoNextMonth) {
+								displayedMonth.value = displayedMonth.value.nextMonthStart()
+							}
+						},
+						onDateSelected = { date ->
+							draftSelectedDate.value = date
+						},
+						selectableRange = selectableRange,
+						canGoPreviousMonth = canGoPreviousMonth,
+						canGoNextMonth = canGoNextMonth,
+						hasClassOn = { date -> date in calendar.classDates }
+					)
+
+					draftSelectedDate.value?.let { date ->
+						EvaluationDateSelectionSummary(
+							dateText = date.toEvaluationEpochMillis().formatAsDayOfWeekAndDate(),
+							classPlace = calendar.classPlaces[date]
+						)
+					}
+				}
 			},
 			confirmButton = {
 				TextButton(

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isInsufficientScope
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.base.utils.extension.isTransient
@@ -133,7 +134,14 @@ class AcademicRecordMutationSyncSpec(
 		// is judged by its code alone: 426, 429, 502, 503, 504; plus the retry window and a refused
 		// attestation), leaves the row Pending so the next drain sends it again. 408, 500 and the 4xx
 		// answers stay out: they are about the request itself, whatever their body says.
-		if (throwable.isTransient()) {
+		//
+		// So does a token that lacks the scope (403 insufficient_scope), and it says something about the
+		// token, not about the change. From the background (a drain of the session scope) it does not
+		// end the session, and the change is kept for a later attempt. Sent from the screen (a student's
+		// edit, AcademicRecordDataSource.submitTrackedMutation) it does end it: that is an action of the
+		// user and the rule is the same as for any other request of a screen; the wipe that follows
+		// removes the row.
+		if (throwable.isTransient() || throwable.isInsufficientScope()) {
 			return MutationFailureResolution.Defer()
 		}
 

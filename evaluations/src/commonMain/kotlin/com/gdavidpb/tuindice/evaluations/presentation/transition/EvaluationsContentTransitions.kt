@@ -15,12 +15,26 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsContentTrans
 			state.weekItems
 				.firstOrNull { item -> item.key == action.weekKey }
 				?.let { selectedWeekItem ->
-					machine.persistSelectedWeek(host = host, weekKey = selectedWeekItem.key)
+					machine.persistSelectedWeek(
+						host = host,
+						weekKey = selectedWeekItem.key,
+						weekOneStart = state.weekOneStart
+					)
 					state.copy(
 						selectedWeekKey = selectedWeekItem.key,
 						weekItem = selectedWeekItem
 					)
 				} ?: state
+		}
+
+		// The list has taken the arrival it was given. A later one (another jump) is not the one taken,
+		// so the state keeps it.
+		on<Evaluations.Action.EvaluationArrivalTaken> { state, action ->
+			if (state.arrivalEvaluationId == action.evaluationId) {
+				state.copy(arrivalEvaluationId = null)
+			} else {
+				state
+			}
 		}
 
 		// Content stays on screen through observation errors and refresh cycles; the

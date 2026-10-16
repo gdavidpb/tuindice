@@ -36,6 +36,14 @@ Helpers disponibles:
 - `assertNodeEnabled(tag)`
 - `assertNodeDisabled(tag)`
 
+Excepción: la prueba que necesita fijar el tamaño de la escena misma (no el de la caja de
+contenido que fija `setTuIndiceTestContent`) usa `runSkikoComposeUiTest(size = ..., density = ...)`
+en `iosTest` y llama igual a `setTuIndiceTestContent` dentro. Se permite solo cuando lo que se mide
+vive fuera de esa caja: un diálogo o una hoja, cuya ventana es del tamaño de la escena, y por eso un
+teléfono bajo solo se reproduce dimensionando la escena. Todo lo demás, incluido un ancho o una
+escala de letra, se fija con el harness común. Hoy la usa
+`EvaluationDatePickerSmallSceneUiTest`.
+
 Nota de locale: en Compose Multiplatform, el locale del entorno se toma del sistema; el parámetro
 `locale` del host de test se usa para dirección de layout (LTR/RTL) y escenarios estructurales.
 

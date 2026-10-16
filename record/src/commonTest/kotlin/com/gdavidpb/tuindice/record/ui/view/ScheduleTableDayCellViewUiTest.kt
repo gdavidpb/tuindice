@@ -10,8 +10,11 @@ import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.testing.MARKED_WEDNESDAY_EVALUATION_ID
+import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.testing.scheduleAttempt
 import com.gdavidpb.tuindice.record.testing.scheduleEntry
 import com.gdavidpb.tuindice.record.testing.scheduleItem
@@ -21,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class ScheduleTableDayCellViewUiTest {
@@ -29,7 +33,12 @@ class ScheduleTableDayCellViewUiTest {
 		val meetings = mondayMeetings()
 
 		setTuIndiceTestContent {
-			ScheduleTableDayCellView(attemptId = "a1", day = ScheduleDay.Monday, meetings = meetings)
+			ScheduleTableDayCellView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meetings = meetings,
+				onEvaluationClick = { _ -> }
+			)
 		}
 
 		assertNodeVisible(RecordUiTags.scheduleTableCell("a1", ScheduleDay.Monday.code))
@@ -43,7 +52,12 @@ class ScheduleTableDayCellViewUiTest {
 		val meetings = mondayMeetings()
 
 		setTuIndiceTestContent {
-			ScheduleTableDayCellView(attemptId = "a1", day = ScheduleDay.Monday, meetings = meetings)
+			ScheduleTableDayCellView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meetings = meetings,
+				onEvaluationClick = { _ -> }
+			)
 		}
 
 		// assertNodeVisible also proves the mark is on one meeting only: the other has no clash.
@@ -56,13 +70,57 @@ class ScheduleTableDayCellViewUiTest {
 	@Test
 	fun when_theSubjectDoesNotMeetThatDay_then_theCellStaysEmpty() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleTableDayCellView(attemptId = "a1", day = ScheduleDay.Tuesday, meetings = emptyList())
+			ScheduleTableDayCellView(
+				attemptId = "a1",
+				day = ScheduleDay.Tuesday,
+				meetings = emptyList(),
+				onEvaluationClick = { _ -> }
+			)
 		}
 
 		// The cell keeps its place in the row, with nothing written in it.
 		onNodeWithTag(RecordUiTags.scheduleTableCell("a1", ScheduleDay.Tuesday.code)).assertExists()
 		onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).assertCountEquals(0)
 		assertNodeHidden(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Tuesday.code))
+	}
+
+	@Test
+	fun when_anEvaluationFallsOnTheMeeting_then_theCellShowsTheIcon_andTappingItAsksForIt() = runTuIndiceUiTest {
+		val meetings = markedWeek().table.rows.first().meetings.getValue(ScheduleDay.Wednesday)
+		var askedEvaluationId: String? = null
+
+		setTuIndiceTestContent {
+			ScheduleTableDayCellView(
+				attemptId = "a1",
+				day = ScheduleDay.Wednesday,
+				meetings = meetings,
+				onEvaluationClick = { evaluationId ->
+					askedEvaluationId = evaluationId
+				}
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
+
+		onNodeWithText("3").performClick()
+
+		assertEquals(MARKED_WEDNESDAY_EVALUATION_ID, askedEvaluationId)
+	}
+
+	@Test
+	fun when_noEvaluationFallsOnTheDay_then_theCellHasNoIcon() = runTuIndiceUiTest {
+		val meetings = mondayMeetings()
+
+		setTuIndiceTestContent {
+			ScheduleTableDayCellView(
+				attemptId = "a1",
+				day = ScheduleDay.Monday,
+				meetings = meetings,
+				onEvaluationClick = { _ -> }
+			)
+		}
+
+		assertNodeHidden(RecordUiTags.scheduleTableEvaluation("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 	}
 
 	// CI5311 meets twice on Monday, blocks 1-2 and block 4; CI5437 overlaps only the first one.

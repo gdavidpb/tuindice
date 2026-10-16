@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
+import com.gdavidpb.tuindice.record.ui.model.TermDeltaChipColors
 
 private val PositiveTermDeltaContainerColor = Color(0xFFC6F0B7)
 private val PositiveTermDeltaContentColor = Color(0xFF479A21)
@@ -81,8 +82,3 @@ internal fun termDeltaChipColors(
 		contentColor = onPrimaryContainer
 	)
 }
-
-internal data class TermDeltaChipColors(
-	val containerColor: Color,
-	val contentColor: Color
-)

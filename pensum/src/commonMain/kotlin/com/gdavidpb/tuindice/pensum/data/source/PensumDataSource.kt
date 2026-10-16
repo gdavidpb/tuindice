@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
+import com.gdavidpb.tuindice.base.utils.isWithinWindow
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailableModalities
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailablePensums
 import com.gdavidpb.tuindice.pensum.data.mapper.toGraph
@@ -20,12 +21,12 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.pensum.utils.CooldownTimes
-import com.gdavidpb.tuindice.pensum.utils.isWithinWindow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.concurrent.Volatile
 
 class PensumDataSource(
 	private val localDataRepository: PensumLocalDataRepository,
@@ -37,15 +38,32 @@ class PensumDataSource(
 	// student switched pensum would otherwise write back the selection they just left.
 	private val remoteWriteMutex = Mutex()
 
+	// Held ONLY while a download's answer is written locally, never during a request: the epoch is
+	// checked and the answer saved under it, and clearSessionMemory changes the epoch under it. A
+	// write therefore ends before the session does (and the wipe that follows removes it) or finds
+	// the new epoch and writes nothing. It is not remoteWriteMutex, which a request holds.
+	private val writeGate = Mutex()
+
 	// When the last automatic revalidation failed; the next one waits COOLDOWN_RETRY_PENSUM. In
-	// memory on purpose: a fresh process is a fair moment to try again. Guarded by remoteWriteMutex.
+	// memory on purpose: a fresh process is a fair moment to try again. Written only by a fetch of
+	// the current epoch.
+	@Volatile
 	private var lastRevalidationFailureAt: Long? = null
+
+	// Bumped by clearSessionMemory. A fetch remembers the one it started in: a request that ends the
+	// session (a 401) clears the memory first and only then throws, so without this the failure
+	// would stamp the hold again and the next account would start held off.
+	@Volatile
+	private var sessionEpoch: Int = 0
 
 	// The hold belongs to the account whose revalidation failed; the next one starts without it.
 	// Not under remoteWriteMutex: a request made while holding it can end the session, and the
-	// wipe would then wait for its own caller.
+	// wipe would then wait for its own caller. Under writeGate, which only a local write holds.
 	override suspend fun clearSessionMemory() {
-		lastRevalidationFailureAt = null
+		writeGate.withLock {
+			sessionEpoch += 1
+			lastRevalidationFailureAt = null
+		}
 	}
 
 	override fun observePensumFlow(): Flow<PensumObservation> {
@@ -106,10 +124,16 @@ class PensumDataSource(
 
 			if (!forceRemote && (isFresh || isRetryOnHold)) return@withLock
 
-			runCatching { fetchAndSave(cached = cached) }
-				.onSuccess { lastRevalidationFailureAt = null }
+			val epoch = sessionEpoch
+
+			runCatching { fetchAndSave(cached = cached, epoch = epoch) }
+				.onSuccess {
+					writeGate.withLock { if (epoch == sessionEpoch) lastRevalidationFailureAt = null }
+				}
 				.onFailure { throwable ->
-					if (throwable !is CancellationException) lastRevalidationFailureAt = now
+					if (throwable !is CancellationException) {
+						writeGate.withLock { if (epoch == sessionEpoch) lastRevalidationFailureAt = now }
+					}
 					throw throwable
 				}
 		}
@@ -123,22 +147,6 @@ class PensumDataSource(
 
 	override suspend fun hasSelectedPensumResponse(): Boolean =
 		localDataRepository.hasSelectedPensumResponse()
-
-	override suspend fun selectPensum(year: Int) {
-		applySelection(
-			selection = localDataRepository.getSelectionParams().copy(year = year)
-		) {
-			localDataRepository.selectPensum(year = year)
-		}
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		applySelection(
-			selection = localDataRepository.getSelectionParams().copy(modalityId = modalityId)
-		) {
-			localDataRepository.selectModality(modalityId)
-		}
-	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {
 		applySelection(
@@ -157,22 +165,37 @@ class PensumDataSource(
 	// An inferred selection is revalidated as the same year and modality, still marked inferred:
 	// letting the backend infer again could move the student to another pensum on a routine
 	// revalidation. Only if that pensum is gone does it fall back to a fresh inference.
-	private suspend fun fetchAndSave(cached: SelectedPensumCacheState?) {
+	//
+	// Saves only if the session it started in is still the current one: the download can outlive it
+	// (a request that ends the session), and the previous account's pensum must not reach the next.
+	private suspend fun fetchAndSave(cached: SelectedPensumCacheState?, epoch: Int) {
 		val pinnedInferredSelection = cached
 			?.takeIf { state -> state.inferred && state.year != null && state.modalityId != null }
 			?.let { state -> PensumSelectionParams(year = state.year, modalityId = state.modalityId) }
 
 		if (pinnedInferredSelection == null) {
 			val selection = localDataRepository.getSelectionParams()
-			localDataRepository.savePensumResponse(
-				response = remoteDataRepository.getPensum(selection),
-				inferredSelection = selection.year == null && selection.modalityId == null
-			)
+			val response = remoteDataRepository.getPensum(selection)
+
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return
+
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = selection.year == null && selection.modalityId == null
+				)
+			}
 		} else {
-			localDataRepository.savePensumResponse(
-				response = getPensumOrInfer(pinnedInferredSelection),
-				inferredSelection = true
-			)
+			val response = getPensumOrInfer(pinnedInferredSelection)
+
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return
+
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = true
+				)
+			}
 		}
 	}
 
@@ -186,20 +209,27 @@ class PensumDataSource(
 	}
 
 	// The candidate selection is validated against the backend before persisting,
-	// so a not-found selection never becomes the sticky default.
+	// so a not-found selection never becomes the sticky default. Like a revalidation, it saves only
+	// if the session it started in is still the current one: the request can outlive it, and the
+	// previous account's choice must not reach the next.
 	private suspend fun applySelection(
 		selection: PensumSelectionParams,
 		persistSelection: suspend () -> Unit
 	) {
 		remoteWriteMutex.withLock {
+			val epoch = sessionEpoch
 			val response = remoteDataRepository.getPensum(selection)
 
-			persistSelection()
-			localDataRepository.savePensumResponse(
-				response = response,
-				inferredSelection = selection.year == null && selection.modalityId == null
-			)
-			lastRevalidationFailureAt = null
+			writeGate.withLock {
+				if (epoch != sessionEpoch) return@withLock
+
+				persistSelection()
+				localDataRepository.savePensumResponse(
+					response = response,
+					inferredSelection = selection.year == null && selection.modalityId == null
+				)
+				lastRevalidationFailureAt = null
+			}
 		}
 	}
 }

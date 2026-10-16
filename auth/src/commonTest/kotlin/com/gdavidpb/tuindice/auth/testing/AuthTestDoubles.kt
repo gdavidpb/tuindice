@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
@@ -60,6 +61,12 @@ class RecordingAuthRepository(
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var bootstrapSignInCalls = mutableListOf<BootstrapSignInCall>()
 	var exchangeSignInCalls = mutableListOf<ExchangeSignInCall>()
 	var reissueTokensCalls = mutableListOf<ReissueTokensCall>()

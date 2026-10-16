@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -21,8 +22,10 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserE
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -53,7 +56,7 @@ class SummaryRtlA11yUiTest {
 
 		setTuIndiceTestContent(locale = Locale("ar")) {
 			SummaryRoute(
-				onNavigateToUpdatePassword = {},
+				navigation = SummaryNavDependencies(onNavigateToUpdatePassword = {}),
 				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
@@ -84,7 +87,7 @@ class SummaryRtlA11yUiTest {
 
 		setTuIndiceTestContent(locale = Locale("ar")) {
 			SummaryRoute(
-				onNavigateToUpdatePassword = {},
+				navigation = SummaryNavDependencies(onNavigateToUpdatePassword = {}),
 				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
@@ -114,7 +117,7 @@ class SummaryRtlA11yUiTest {
 
 		setTuIndiceTestContent {
 			SummaryRoute(
-				onNavigateToUpdatePassword = {},
+				navigation = SummaryNavDependencies(onNavigateToUpdatePassword = {}),
 				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
@@ -151,7 +154,7 @@ class SummaryRtlA11yUiTest {
 			locale = Locale("ar")
 		) {
 			SummaryRoute(
-				onNavigateToUpdatePassword = {},
+				navigation = SummaryNavDependencies(onNavigateToUpdatePassword = {}),
 				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
@@ -175,14 +178,17 @@ class SummaryRtlA11yUiTest {
 
 		return SummaryViewModel(
 			screenMachine = SummaryMachine(
-				observeUserUseCase = ObserveUserUseCase(
-					userRepository = userRepository,
-					reportingRepository = RecordingReportingRepository()
-				),
-				observeSyncUseCase = ObserveSyncUseCase(
-					syncStatusRepository = FakeSyncStatusRepository(),
-					syncRepository = FakeSyncRepository(),
-					reportingRepository = RecordingReportingRepository()
+				observations = SummaryObservations(
+					user = ObserveUserUseCase(
+						userRepository = userRepository,
+						reportingRepository = RecordingReportingRepository()
+					),
+					sync = ObserveSyncUseCase(
+						syncStatusRepository = FakeSyncStatusRepository(),
+						syncRepository = FakeSyncRepository(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					hub = createObserveSummaryHubUseCase()
 				),
 				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 					deviceInfoRepository = FakeDeviceInfoRepository(),

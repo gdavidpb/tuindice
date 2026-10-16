@@ -2,13 +2,20 @@ package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -169,16 +176,63 @@ class SecureStoreSessionDataSourceTest {
 		assertEquals(listOf<String?>("legacy-session-id"), invalidationRepository.notifiedSessionIds)
 	}
 
+	// The wipe of the session must not turn the cancellation of whoever runs it into a step that failed.
+	@Test
+	fun clear_doesNotSwallowACancellation() = runTest {
+		val dataSource = secureStoreSessionDataSource(
+			activeStore = FakeSecureKeyValueDataRepository(removeFailure = CancellationException("cancelled")),
+			legacyStore = FakeSecureKeyValueDataRepository()
+		)
+
+		assertFailsWith<CancellationException> { dataSource.clear() }
+	}
+
+	// A session found half written ends from the store: the notice that explains the sign-in is
+	// persisted before the signal, and taken back when the signal is suppressed.
+	@Test
+	fun aHalfWrittenSession_persistsItsNoticeBeforeTheSignal() = runTest {
+		val settings = FakeSettingsRepository()
+		var noticeWhenSignalled: SessionResetNotice? = null
+		val invalidationRepository = object : SessionInvalidationRepository {
+			override fun observeSessionInvalidation(): Flow<Unit> = emptyFlow()
+
+			override fun markIntentionalSignOut(sessionId: String) = Unit
+
+			override fun clearIntentionalSignOut(sessionId: String) = Unit
+
+			override fun isIntentionalSignOut(sessionId: String) = false
+
+			override fun notifySessionInvalidated(sessionId: String?): Boolean {
+				noticeWhenSignalled = runBlocking { settings.getSessionResetNotice() }
+
+				return true
+			}
+		}
+		val dataSource = SecureStoreSessionDataSource(
+			secureStore = FakeSecureKeyValueDataRepository(initialValues = partialSessionValues()),
+			legacySecureStore = FakeSecureKeyValueDataRepository(),
+			sessionInvalidationRepository = invalidationRepository,
+			settingsRepository = settings
+		)
+
+		assertFalse(dataSource.hasActiveSession())
+
+		assertEquals(SessionResetNoticeReason.UnreadableData, noticeWhenSignalled?.reason)
+		assertEquals(noticeWhenSignalled, settings.getSessionResetNotice())
+	}
+
 	private fun secureStoreSessionDataSource(
 		activeStore: FakeSecureKeyValueDataRepository,
 		legacyStore: FakeSecureKeyValueDataRepository,
 		invalidationRepository: RecordingSessionInvalidationRepository =
-			RecordingSessionInvalidationRepository()
+			RecordingSessionInvalidationRepository(),
+		settingsRepository: SettingsRepository = FakeSettingsRepository()
 	): SecureStoreSessionDataSource {
 		return SecureStoreSessionDataSource(
 			secureStore = activeStore,
 			legacySecureStore = legacyStore,
-			sessionInvalidationRepository = invalidationRepository
+			sessionInvalidationRepository = invalidationRepository,
+			settingsRepository = settingsRepository
 		)
 	}
 
@@ -203,7 +257,8 @@ private class FakeSecureKeyValueDataRepository(
 	initialValues: Map<String, String> = emptyMap(),
 	private var readFailures: Int = 0,
 	private var unavailableReads: Int = 0,
-	private val dropWrites: Boolean = false
+	private val dropWrites: Boolean = false,
+	private val removeFailure: Throwable? = null
 ) : SecureKeyValueDataRepository {
 	val values = initialValues.toMutableMap()
 	var clearCalls = 0
@@ -228,6 +283,7 @@ private class FakeSecureKeyValueDataRepository(
 	}
 
 	override suspend fun remove(key: String) {
+		removeFailure?.let { throw it }
 		values.remove(key)
 	}
 
@@ -246,7 +302,11 @@ private class RecordingSessionInvalidationRepository : SessionInvalidationReposi
 
 	override fun clearIntentionalSignOut(sessionId: String) = Unit
 
-	override fun notifySessionInvalidated(sessionId: String?) {
+	override fun isIntentionalSignOut(sessionId: String) = false
+
+	override fun notifySessionInvalidated(sessionId: String?): Boolean {
 		notifiedSessionIds += sessionId
+
+		return true
 	}
 }

@@ -60,7 +60,9 @@ import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -239,6 +241,7 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	singleOf(::AndroidImageShareDataSource) { bind<ImageShareRepository>() }
 
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
 	factory<AuthApiDataRepository> {
@@ -285,6 +288,7 @@ val androidPlatformModule = module {
 			sessionRepository = get(),
 			settingsRepository = get(),
 			sessionRecoveryRepository = get(),
+			sessionCoroutineScope = get(),
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),

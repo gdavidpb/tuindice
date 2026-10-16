@@ -84,4 +84,24 @@ class EvaluationCalendarContentUiTest {
 
 		assertEquals(LocalDate(2026, 1, 15), selectedDate)
 	}
+
+	@Test
+	fun when_theSubjectMeetsOnSomeDays_then_onlyThoseDaysCarryTheDot() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationCalendarContent(
+				displayedMonth = LocalDate(2026, 10, 1),
+				selectedDate = null,
+				onPreviousMonthClick = {},
+				onNextMonthClick = {},
+				onDateSelected = {},
+				// October 2026 starts on a Thursday: the 5th and the 7th are a Monday and a Wednesday.
+				hasClassOn = { date -> date.day == 5 || date.day == 7 }
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(5))
+		assertNodeVisible(EvaluationsUiTags.calendarDayClassDot(7))
+		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(6)).assertDoesNotExist()
+		onNodeWithTag(EvaluationsUiTags.calendarDayClassDot(12)).assertDoesNotExist()
+	}
 }

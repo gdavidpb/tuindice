@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryInternalEvent
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.mapper.profilePictureIdentity
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryEffect
 
 internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 	machine: SummaryMachine,
@@ -62,12 +63,33 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 					state.profilePictureLocalPreview
 				},
 				isUserRefreshing = state.isUserRefreshing,
-				sync = state.sync
+				sync = state.sync,
+				hub = state.hub
 			)
 		}
 
 		on<SummaryInternalEvent.SyncObserved> { state, event ->
 			state.copy(sync = event.sync)
+		}
+
+		// Each line of the hub only asks to be taken to the screen that owns what it says: the
+		// screen stays as it is until whoever hosts it answers.
+		on<Summary.Action.OpenTarget>(
+			emits = setOf(
+				Summary.Effect.NavigateToSchedule::class,
+				Summary.Effect.NavigateToRecord::class,
+				Summary.Effect.NavigateToPensum::class,
+				Summary.Effect.NavigateToEvaluationsWeek::class,
+				Summary.Effect.NavigateToRecordAttempt::class,
+				Summary.Effect.NavigateToAddEvaluation::class,
+				Summary.Effect.NavigateToCreateTerm::class,
+				Summary.Effect.NavigateToEvaluations::class,
+				Summary.Effect.NavigateToStatistics::class,
+				Summary.Effect.NavigateToShareTerm::class
+			)
+		) { state, action ->
+			host.sendEffect(action.target.toSummaryEffect())
+			state
 		}
 
 		on<SummaryInternalEvent.ObservationFailed>(

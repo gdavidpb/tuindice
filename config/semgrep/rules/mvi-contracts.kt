@@ -7,11 +7,20 @@ package com.gdavidpb.tuindice.sample.presentation.route
 // ruleid: mvi-actions-effects-in-contract
 object RogueAction : ViewAction
 
-// ruleid: mvi-actions-effects-in-contract
+// ruleid: mvi-actions-effects-in-contract, presentation-no-toplevel-data-class
 data class RogueEffect(val url: String) : ViewEffect
 
 // ok: mvi-actions-effects-in-contract
-data class RouteChromeState(val title: String) : ViewState
+class RouteChromeState(val title: String) : ViewState
+
+// ruleid: presentation-no-toplevel-data-class
+data class RogueNotice(val text: String)
+
+// ruleid: presentation-no-toplevel-data-class
+internal data class RogueInternalNotice(val text: String)
+
+// ok: presentation-no-toplevel-data-class
+private data class RoguePrivateNotice(val text: String)
 
 class SampleHostMachine(
 	// ruleid: machine-no-host-property
@@ -22,4 +31,9 @@ class SampleHostMachine(
 
 	// ok: machine-no-host-property
 	fun define(host: Any): Any = host
+}
+
+class SampleNoticeHolder {
+	// ok: presentation-no-toplevel-data-class
+	data class SampleNestedNotice(val text: String)
 }

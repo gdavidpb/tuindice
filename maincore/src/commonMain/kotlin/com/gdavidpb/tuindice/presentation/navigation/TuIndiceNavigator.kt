@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.presentation.mapper.toTabRootDestination
+import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 
 /**
  * Owner of the app's navigation state: one auth stack plus one stack per
@@ -116,6 +117,42 @@ class TuIndiceNavigator(
 		if (rootModeState.value != TuIndiceRootMode.SIGNED_IN) return
 
 		currentTabState.value = section
+	}
+
+	/**
+	 * Closes the entry on top of the current tab (the Schedule sheet) and goes to [section] in one
+	 * change of the observable stack: no frame shows the sheet parked on the tab it came from, nor
+	 * the tab with the sheet still on it. Like [switchTab] it leaves the start tab alone, so the
+	 * preference of the last section is not touched (it is the host that writes it, when the user
+	 * picks a tab from the bar) and back from [section] still returns to where the app started. When
+	 * [section] is the current tab only the entry is closed.
+	 */
+	fun popThenSwitchTab(section: MainSection) {
+		if (rootModeState.value != TuIndiceRootMode.SIGNED_IN) return
+
+		val stack = activeStack()
+		val removedStoreKey = if (stack.size > 1) storeKeyOf(stack.last()) else null
+
+		Snapshot.withMutableSnapshot {
+			if (removedStoreKey != null) stack.removeAt(stack.lastIndex)
+
+			currentTabState.value = section
+		}
+
+		if (removedStoreKey != null) {
+			entryStores.onRemoved(removedStoreKey)
+			resultStore.consume(removedStoreKey)
+		}
+	}
+
+	/**
+	 * Opens the Schedule sheet over the current tab, whichever it is: the one place that pushes it,
+	 * for the bar's action in Record and in Evaluations and for the screens that offer it.
+	 */
+	fun openSchedule() {
+		if (rootModeState.value != TuIndiceRootMode.SIGNED_IN) return
+
+		push(RecordDestination.ScheduleDialog)
 	}
 
 	fun replaceAllForSignIn() {

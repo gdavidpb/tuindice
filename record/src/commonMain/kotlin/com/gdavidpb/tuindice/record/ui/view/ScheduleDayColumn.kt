@@ -11,15 +11,18 @@ import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
+import com.gdavidpb.tuindice.record.ui.model.nowLineCellSpans
 
 /**
  * One day of the weekly grid: each meeting placed at its blocks, on the lane the layout gave it.
- * While the hour falls inside the grid, today's column carries the "now" line across it.
+ * While the hour falls inside the grid, today's column carries the "now" line across it, and tells
+ * it which stretches run over a meeting.
  */
 @Composable
 fun ScheduleDayColumn(
 	modifier: Modifier = Modifier,
-	dayItem: ScheduleDayItem
+	dayItem: ScheduleDayItem,
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	Box(modifier = modifier) {
 		dayItem.cells.forEach { cell ->
@@ -34,7 +37,8 @@ fun ScheduleDayColumn(
 					.height(height)
 					.padding(horizontal = TuIndiceSpacing.Hairline),
 				day = dayItem.day,
-				cell = cell
+				cell = cell,
+				onEvaluationClick = onEvaluationClick
 			)
 		}
 
@@ -48,7 +52,8 @@ fun ScheduleDayColumn(
 			ScheduleNowLineView(
 				modifier = Modifier
 					.offset(y = nowY - ScheduleGridDefaults.NowDotSize / 2)
-					.fillMaxWidth()
+					.fillMaxWidth(),
+				cellSpans = dayItem.nowLineCellSpans()
 			)
 		}
 	}

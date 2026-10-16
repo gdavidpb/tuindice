@@ -31,8 +31,6 @@ class SelectPensumSelectionUseCaseContractTest {
 		}
 
 		assertEquals(listOf(2019 to "degree_project"), repository.selectedSelections)
-		assertEquals(emptyList(), repository.selectedPensumYears)
-		assertEquals(emptyList(), repository.selectedModalityIds)
 	}
 
 	@Test

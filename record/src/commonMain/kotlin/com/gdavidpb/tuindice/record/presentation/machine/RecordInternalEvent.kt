@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 
@@ -40,6 +41,12 @@ sealed interface RecordInternalEvent {
 		val message: String,
 		val navigateToOutdatedCredentials: Boolean,
 		val isNewStudentNoRecord: Boolean
+	) : RecordInternalEvent
+
+	// A request to show an attempt is pending: whoever sees it (the observation, the content having just
+	// loaded, or the request itself) sends it, and only the first to take it from the repository applies it.
+	data class AttemptFocusRequested(
+		val request: RecordAttemptFocusRequest
 	) : RecordInternalEvent
 
 	data class RecordViewModeSet(

@@ -28,12 +28,6 @@ kotlin {
 		val commonMain by getting {
 			dependencies {
 				implementation(project(":base"))
-				implementation(project(":summary"))
-				implementation(project(":record"))
-				implementation(project(":evaluations"))
-				implementation(project(":pensum"))
-				implementation(project(":about"))
-				implementation(project(":subjects"))
 				implementation(libs.koin.core.viewmodel)
 				implementation(libs.koin.compose.viewmodel)
 				implementation(libs.components.resources)

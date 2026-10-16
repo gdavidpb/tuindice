@@ -170,7 +170,6 @@ dependencies {
 	testImplementation(libs.kotlinx.coroutines.test)
 	testImplementation(libs.robolectric)
 	androidTestImplementation(libs.bundles.testing.android)
-	androidTestImplementation(libs.test.ext.junit)
 
 	implementation(project(":base"))
 	implementation(project(":maincore"))

@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefres
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
@@ -23,8 +25,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekOneStart
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
@@ -43,8 +45,11 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdle
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsWeekFocusTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluations_continuous_label
@@ -62,8 +67,15 @@ class EvaluationsMachine(
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val setSelectedWeekUseCase: SetSelectedWeekUseCase,
+	weekFocusRepository: EvaluationsWeekFocusRepository,
 	private val clock: Clock
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
+	// The request to show a week of this tab, observed while the screen lives and applied by its content.
+	internal val weekFocus = EvaluationsWeekFocusObserver(repository = weekFocusRepository)
+
+	// The collector of the evaluations observation: a restart cancels it, so a load never leaves one behind.
+	private var observationJob: Job? = null
+
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
 	override fun define(host: MachineHost<Evaluations.Effect>): MachineDefinition<Evaluations.State> {
@@ -75,12 +87,16 @@ class EvaluationsMachine(
 			evaluationsNoAttemptsTransitions()
 			evaluationsFailedTransitions()
 			evaluationsRecordDataUnavailableTransitions()
+			evaluationsWeekFocusTransitions(machine = this@EvaluationsMachine)
 			evaluationsAnyStateTransitions(machine = this@EvaluationsMachine, host = host)
 		}
 	}
 
 	internal fun startObservation(host: MachineHost<Evaluations.Effect>) {
-		host.launchMachineJob {
+		weekFocus.observe(host = host)
+
+		observationJob?.cancel()
+		observationJob = host.launchMachineJob {
 			getEvaluationsUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
@@ -90,44 +106,27 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsWaitingObserved
 						)
 
-						is GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
-								explanation = resolveRecordDataUnavailableExplanation(
-									isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+						is GetEvaluations.RecordDataUnavailable -> {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+									explanation = resolveRecordDataUnavailableExplanation(
+										isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+									)
 								)
 							)
-						)
-
-						is GetEvaluations.NoAttempts -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-								explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
-							)
-						)
-
-						is GetEvaluations.Content -> when (
-							resolveSyncedContentResolution(
-								// Counted over what the list will show: evaluations with no subject
-								// to be listed under are left out, and a screen left with none of
-								// them is the empty one, not a list with nothing in it.
-								hasContent = evaluations.listedEvaluations().isNotEmpty(),
-								hasSynced = evaluations.hasSyncedEvaluations,
-								keepCurrentWhileWaiting = false
-							)
-						) {
-							SyncedContentResolution.Content -> host.processInternalEvent(
-								evaluations.toContentObservedEvent()
-							)
-
-							SyncedContentResolution.Empty -> host.processInternalEvent(
-								EvaluationsInternalEvent.EvaluationsEmptyObserved
-							)
-
-							SyncedContentResolution.Loading,
-							SyncedContentResolution.KeepCurrent,
-							-> host.processInternalEvent(
-								EvaluationsInternalEvent.EvaluationsWaitingObserved
-							)
+							weekFocus.sendPending(host = host)
 						}
+
+						is GetEvaluations.NoAttempts -> {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+									explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
+								)
+							)
+							weekFocus.sendPending(host = host)
+						}
+
+						is GetEvaluations.Content -> processObservedContent(host = host, evaluations = evaluations)
 					}
 
 					is UseCaseState.Error -> host.processInternalEvent(
@@ -137,6 +136,42 @@ class EvaluationsMachine(
 					)
 				}
 			}
+		}
+	}
+
+	private suspend fun processObservedContent(
+		host: MachineHost<Evaluations.Effect>,
+		evaluations: GetEvaluations.Content
+	) {
+		when (
+			resolveSyncedContentResolution(
+				// Counted over what the list will show: evaluations with no subject
+				// to be listed under are left out, and a screen left with none of
+				// them is the empty one, not a list with nothing in it.
+				hasContent = evaluations.listedEvaluations().isNotEmpty(),
+				hasSynced = evaluations.hasSyncedEvaluations,
+				keepCurrentWhileWaiting = false
+			)
+		) {
+			SyncedContentResolution.Content -> {
+				host.processInternalEvent(evaluations.toContentObservedEvent())
+				weekFocus.sendPending(host = host)
+			}
+
+			SyncedContentResolution.Empty -> {
+				host.processInternalEvent(
+					EvaluationsInternalEvent.EvaluationsEmptyObserved(
+						hasSchedule = evaluations.displayContext.hasSchedule
+					)
+				)
+				weekFocus.sendPending(host = host)
+			}
+
+			SyncedContentResolution.Loading,
+			SyncedContentResolution.KeepCurrent,
+			-> host.processInternalEvent(
+				EvaluationsInternalEvent.EvaluationsWaitingObserved
+			)
 		}
 	}
 
@@ -214,7 +249,9 @@ class EvaluationsMachine(
 		refreshResult: EvaluationsRefreshResult
 	) {
 		if (!refreshResult.hasEvaluations && refreshResult.hasAvailableAttempts) {
-			host.processInternalEvent(EvaluationsInternalEvent.EvaluationsEmptyConfirmed)
+			host.processInternalEvent(
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed(hasSchedule = refreshResult.hasSchedule)
+			)
 		}
 	}
 
@@ -286,10 +323,14 @@ class EvaluationsMachine(
 
 	internal fun persistSelectedWeek(
 		host: MachineHost<Evaluations.Effect>,
-		weekKey: EvaluationsWeekKey
+		weekKey: EvaluationsWeekKey,
+		weekOneStart: LocalDate?
 	) {
+		// An academic week is saved with the Monday that opens week 1; without it there is nothing to save.
+		val storageValue = weekKey.toStorageValue(weekOneStart = weekOneStart) ?: return
+
 		host.launchMachineJob {
-			setSelectedWeekUseCase.execute(weekKey.toStorageValue()).collect()
+			setSelectedWeekUseCase.execute(storageValue).collect()
 		}
 	}
 
@@ -322,19 +363,22 @@ class EvaluationsMachine(
 		// Filtered once, here, so the week strip, the default week and the list all describe the
 		// same evaluations: one left out of the list must not leave a dot on its day behind.
 		val listedEvaluations = listedEvaluations()
+		val currentDate = clock.currentEvaluationLocalDate()
+		val weekOneStart = evaluationsWeekOneStart(currentTerm = displayContext.currentTerm, currentDate = currentDate)
 		val weekItems = buildEvaluationsWeekItems(
 			currentTerm = displayContext.currentTerm,
 			evaluations = listedEvaluations,
 			weekLabelPattern = weekLabelPattern,
 			continuousLabel = continuousLabel,
-			currentDate = clock.currentEvaluationLocalDate()
+			currentDate = currentDate
 		)
 
 		// EFSM guard: la semana persistida (plegada en la observación) siembra el default
-		// solo si sigue siendo una semana válida del término actual; si quedó obsoleta,
-		// el default vuelve a la semana corriente en vez de caer a la primera de la lista.
+		// solo si sigue siendo una semana válida del término actual y de la misma ancla (el lunes
+		// de la semana 1); si quedó obsoleta, o se guardó con otra ancla o sin ella, el default
+		// vuelve a la semana corriente en vez de caer a la primera de la lista.
 		val persistedWeekKey = selectedWeekKey
-			?.toEvaluationsWeekKeyOrNull()
+			?.toEvaluationsWeekKeyOrNull(weekOneStart = weekOneStart)
 			?.takeIf { key -> weekItems.any { item -> item.key == key } }
 
 		return EvaluationsInternalEvent.EvaluationsContentObserved(
@@ -342,14 +386,16 @@ class EvaluationsMachine(
 			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
 				evaluations = listedEvaluations,
-				currentDate = clock.currentEvaluationLocalDate()
+				currentDate = currentDate
 			),
 			evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
 				evaluations = listedEvaluations,
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
-			)
+			),
+			weekOneStart = weekOneStart,
+			hasSchedule = displayContext.hasSchedule
 		)
 	}
 

@@ -6,4 +6,8 @@ data class ScheduleTableItem(
 	val rows: List<ScheduleTableRowItem>,
 	// The column to highlight, or null when today is not one of the days shown.
 	val today: ScheduleDay? = null
-)
+) {
+	// Some meeting has an evaluation this week: the table explains the mark under the rows.
+	val hasEvaluationMarks: Boolean
+		get() = rows.any { row -> row.meetings.values.any { cells -> cells.any(ScheduleCellItem::hasEvaluation) } }
+}

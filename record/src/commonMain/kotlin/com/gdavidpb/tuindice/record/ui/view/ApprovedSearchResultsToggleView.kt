@@ -43,7 +43,8 @@ fun ApprovedSearchResultsToggle(
             .clickable(role = Role.Button, onClick = onClick)
             .testTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle),
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)

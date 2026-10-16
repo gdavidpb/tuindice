@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.VisibleEvaluationsDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
@@ -38,6 +40,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -94,7 +97,7 @@ val evaluationsModule = module {
 			coroutineScope = get<SessionCoroutineScope>()
 		)
 	} bind SessionMemory::class
-	single<EvaluationRepository> {
+	single {
 		EvaluationDataSource(
 			databaseDataSource = get(),
 			evaluationsApiDataSource = get(),
@@ -103,7 +106,13 @@ val evaluationsModule = module {
 			identifierRepository = get(),
 			clock = get()
 		)
-	}
+	} binds arrayOf(
+		EvaluationRepository::class,
+		EvaluationsRevalidationRepository::class,
+		SessionMemory::class
+	)
+	// The read-only contract the other features consume (Koin's graph is flat).
+	singleOf(::VisibleEvaluationsDataSource) { bind<VisibleEvaluationsRepository>() }
 
 	/* Data sources */
 

@@ -21,6 +21,5 @@ data class PensumNodeItem(
 ) {
 	val isCurrent: Boolean get() = status.type == PensumNodeStatusType.CURRENT
 	val isApproved: Boolean get() = status.type == PensumNodeStatusType.APPROVED
-	val isBlocked: Boolean get() = status.type == PensumNodeStatusType.BLOCKED
 	val hasSubjectStatsAction: Boolean get() = subjectStatsCode != null
 }

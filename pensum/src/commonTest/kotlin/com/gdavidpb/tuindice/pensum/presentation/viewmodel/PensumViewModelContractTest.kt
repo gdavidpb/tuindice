@@ -9,9 +9,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -583,12 +581,6 @@ class PensumViewModelContractTest {
 				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
 				awaitUntilState<Pensum.State.Content> { true }
 
-				viewModel.selectPensumAction(year = 2023)
-				assertEquals(2023, fixture.repository.awaitSelectPensumCall())
-
-				viewModel.selectModalityAction(modalityId = "thesis")
-				assertEquals("thesis", fixture.repository.awaitSelectModalityCall())
-
 				viewModel.selectSelectionAction(year = 2019, modalityId = "degree_project")
 				assertEquals(
 					2019 to "degree_project",
@@ -626,16 +618,6 @@ class PensumViewModelContractTest {
 					exceptionHandler = exceptionHandler
 				),
 				updatePensumUseCase = UpdatePensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				selectPensumUseCase = SelectPensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = exceptionHandler
-				),
-				selectPensumModalityUseCase = SelectPensumModalityUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = exceptionHandler
@@ -685,8 +667,6 @@ private class ControllablePensumSettingsRepository : PensumSelectionRepository {
 private class ControllablePensumRepository : PensumRepository {
 	private val observations = Channel<Result<PensumObservation>>(Channel.UNLIMITED)
 	private val refreshGate = Channel<Unit>(Channel.UNLIMITED)
-	private val selectPensumCalls = Channel<Int>(Channel.UNLIMITED)
-	private val selectModalityCalls = Channel<String>(Channel.UNLIMITED)
 	private val selectSelectionCalls = Channel<Pair<Int, String>>(Channel.UNLIMITED)
 
 	var hasCachedPensum = false
@@ -710,10 +690,6 @@ private class ControllablePensumRepository : PensumRepository {
 		refreshGate.trySend(Unit)
 	}
 
-	suspend fun awaitSelectPensumCall(): Int = selectPensumCalls.receive()
-
-	suspend fun awaitSelectModalityCall(): String = selectModalityCalls.receive()
-
 	suspend fun awaitSelectSelectionCall(): Pair<Int, String> = selectSelectionCalls.receive()
 
 	override fun observePensumFlow(): Flow<PensumObservation> = flow {
@@ -732,14 +708,6 @@ private class ControllablePensumRepository : PensumRepository {
 	override suspend fun hasSelectedPensumResponse(): Boolean {
 		hasSelectedPensumResponseCalls++
 		return hasCachedPensum
-	}
-
-	override suspend fun selectPensum(year: Int) {
-		selectPensumCalls.trySend(year)
-	}
-
-	override suspend fun selectModality(modalityId: String) {
-		selectModalityCalls.trySend(modalityId)
 	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {

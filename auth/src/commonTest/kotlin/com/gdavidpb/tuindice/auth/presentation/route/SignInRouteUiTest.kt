@@ -27,6 +27,8 @@ import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -39,6 +41,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
@@ -47,6 +50,9 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -55,8 +61,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class SignInRouteUiTest {
+	// What the view model runs on. A test that has to own the clock of a wait the service asked for
+	// replaces it before it builds the view model (each test runs on its own instance of the class).
+	private var dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+
 	private data class SignInRouteFixture(
 		val viewModel: SignInViewModel,
 		val authRepository: RecordingAuthRepository
@@ -596,6 +606,11 @@ class SignInRouteUiTest {
 
 	@Test
 	fun when_theServiceAskedForAWait_then_signInWaitsWithoutASnackBarAndComesBack() = runTuIndiceUiTest {
+		// The wait the service asked for runs on a clock the test owns, so it ends when the test says and
+		// not while nobody is looking: with the main thread busy, a wait of real time can start and end
+		// between two looks of the test.
+		val scheduler = TestCoroutineScheduler()
+		dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(scheduler))
 		val retryWindow = FakeAuthRetryWindowRepository(signInWaitMillis = 400L)
 		val fixture = createSignInViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
@@ -619,12 +634,15 @@ class SignInRouteUiTest {
 			fixture.viewModel.signInAction()
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
+		waitUntil(timeoutMillis = 10_000) {
 			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isNotEmpty()
 		}
 
 		assertNodeDisabled(AuthUiTags.SignInButton)
 		assertTrue(shownSnackBars.isEmpty())
+
+		// The 400 ms the service asked for elapse now.
+		runOnIdle { scheduler.advanceUntilIdle() }
 
 		waitUntil(timeoutMillis = 4_000) {
 			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isEmpty()
@@ -674,7 +692,8 @@ class SignInRouteUiTest {
 					),
 					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 				),
-				eventPublisher = NoOpEventPublisher
+				eventPublisher = NoOpEventPublisher,
+				dispatchers = dispatchers
 			),
 			authRepository = authRepository
 		)

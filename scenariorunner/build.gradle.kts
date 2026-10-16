@@ -32,6 +32,5 @@ dependencies {
 	implementation(project(":scenariokit"))
 	implementation(libs.uiautomator)
 	implementation(libs.test.runner)
-	implementation(libs.test.ext.junit)
 	implementation(libs.junit)
 }

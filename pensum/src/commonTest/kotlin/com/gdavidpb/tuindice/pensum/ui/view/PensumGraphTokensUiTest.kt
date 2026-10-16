@@ -8,6 +8,7 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
+import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -48,7 +49,7 @@ class PensumGraphTokensUiTest {
 	fun when_anyThemeIsResolved_then_surfacesAndCurrentStatusComeFromTheColorScheme() =
 		runTuIndiceUiTest {
 			val palette = resolveGraphPalette(isDark = false)
-			val panelBackground = palette.colorScheme.surfaceContainerLow
+			val panelBackground = palette.colorScheme.surfaceVariant
 
 			assertEquals(palette.colorScheme.primary, palette.graphColors.current)
 			assertEquals(palette.colorScheme.background, palette.graphColors.screenBackground)

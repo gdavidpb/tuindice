@@ -24,12 +24,14 @@ private val MinSubjectWidth = 88.dp
 
 /**
  * The schedule as the university's enrollment proof prints it: one row per subject and one column
- * per day, each meeting reduced to the range of blocks it covers.
+ * per day, each meeting reduced to the range of blocks it covers. When some meeting has an evaluation
+ * this week, a line under the rows says what its icon means.
  */
 @Composable
 fun ScheduleTableView(
 	modifier: Modifier = Modifier,
-	table: ScheduleTableItem
+	table: ScheduleTableItem,
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleTable)) {
 		val daysWidth = (ScheduleTableDefaults.DayWidth + ScheduleTableDefaults.CellGap) * table.days.size
@@ -50,8 +52,14 @@ fun ScheduleTableView(
 				ScheduleTableRowView(
 					modifier = Modifier.fillMaxWidth(),
 					row = row,
-					days = table.days
+					days = table.days,
+					onEvaluationClick = onEvaluationClick
 				)
+			}
+
+			if (table.hasEvaluationMarks) {
+				// Six of the gap between rows and ten more: the sheet's own spacing between blocks.
+				ScheduleEvaluationLegendView(modifier = Modifier.padding(top = TuIndiceSpacing.Large))
 			}
 		}
 	}

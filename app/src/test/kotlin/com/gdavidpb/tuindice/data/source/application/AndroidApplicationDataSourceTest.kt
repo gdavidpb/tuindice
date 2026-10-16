@@ -4,12 +4,15 @@ import android.content.ContextWrapper
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -65,6 +68,29 @@ class AndroidApplicationDataSourceTest {
 		assertEquals(listOf(true, true), holders.map(RecordingSessionMemory::clearedAfterTheStores))
 	}
 
+	// A download that lands while the stores are being emptied must already find the session over:
+	// the holders are told before anything is wiped, and again at the end.
+	@Test
+	fun clearData_tellsEverySessionMemoryBeforeEmptyingTheStores_andAgainAfterwards() = runTest {
+		val settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123")
+		val holders = listOf(
+			RecordingSessionMemory(settingsRepository),
+			RecordingSessionMemory(settingsRepository)
+		)
+		val dataSource = dataSource(
+			persistenceMaintenanceRepository = RecordingPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			sessionMemory = holders
+		)
+
+		dataSource.clearData()
+
+		assertEquals(
+			listOf(listOf(false, true), listOf(false, true)),
+			holders.map(RecordingSessionMemory::storesWipedAtEachCall)
+		)
+	}
+
 	@Test
 	fun clearData_whenDatabaseWipeFails_stillClearsEverySessionMemory() = runTest {
 		val settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123")
@@ -81,7 +107,7 @@ class AndroidApplicationDataSourceTest {
 		val failure = runCatching { dataSource.clearData() }.exceptionOrNull()
 
 		assertEquals("database wipe failed", failure?.message)
-		assertEquals(listOf(1, 1), holders.map(RecordingSessionMemory::clearCount))
+		assertEquals(listOf(2, 2), holders.map(RecordingSessionMemory::clearCount))
 	}
 
 	// Only the residue contract is asked: the stores and the session memory stay as they are.
@@ -107,6 +133,61 @@ class AndroidApplicationDataSourceTest {
 		assertEquals(listOf(1, 1, 1), residue.map(RecordingSessionResidue::clearCount))
 		assertEquals(0, memory.clearCount)
 		assertEquals(false, settingsRepository.cleared)
+	}
+
+	// The error reporter keeps its unsent reports (and the one of the invalidation that runs this wipe)
+	// under filesDir: they are not data of the account, and the wipe leaves them where they are.
+	@Test
+	fun clearData_leavesWhatTheErrorReporterHasNotSentYet_andWipesTheRestOfTheFiles() = runTest {
+		val context = TestContext()
+		val pendingReport = File(context.filesDir, ".crashlytics.v3/process/reports/report-1").apply {
+			parentFile?.mkdirs()
+			writeText("pending")
+		}
+		val accountFile = File(context.filesDir, "enrollment/proof.pdf").apply {
+			parentFile?.mkdirs()
+			writeText("account")
+		}
+		val cached = File(context.cacheDir, "image.bin").apply { writeText("cache") }
+		val dataSource = AndroidApplicationDataSource(
+			context = context,
+			persistenceMaintenanceRepository = RecordingPersistenceMaintenanceRepository(),
+			settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123"),
+			secureStore = NoOpSecureKeyValueDataRepository(),
+			legacySecureStore = NoOpSecureKeyValueDataRepository(),
+			proofOfPossessionCapability = NoOpProofOfPossessionCapability(),
+			sessionMemory = { emptyList() },
+			sessionResidue = { emptyList() }
+		)
+
+		dataSource.clearData()
+
+		assertTrue("the unsent report stays", pendingReport.exists())
+		assertEquals(false, accountFile.exists())
+		assertEquals(false, cached.exists())
+	}
+
+	// The cancellation of a step of the wipe is not a step that failed: it goes up, and the session
+	// memory is still brought back to what the stores say.
+	@Test
+	fun clearData_doesNotSwallowACancellationOfTheStores() = runTest {
+		val settingsRepository = RecordingSettingsRepository(localDataOwner = "20-26123")
+		val memory = RecordingSessionMemory(settingsRepository)
+		val dataSource = AndroidApplicationDataSource(
+			context = TestContext(),
+			persistenceMaintenanceRepository = RecordingPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			secureStore = CancellingSecureKeyValueDataRepository(),
+			legacySecureStore = NoOpSecureKeyValueDataRepository(),
+			proofOfPossessionCapability = NoOpProofOfPossessionCapability(),
+			sessionMemory = { listOf(memory) },
+			sessionResidue = { emptyList() }
+		)
+
+		val failure = runCatching { dataSource.clearData() }.exceptionOrNull()
+
+		assertTrue(failure is CancellationException)
+		assertEquals(2, memory.clearCount)
 	}
 
 	private fun dataSource(
@@ -146,15 +227,17 @@ private class RecordingSessionMemory(
 		private set
 	var clearedAfterTheStores = false
 		private set
+	val storesWipedAtEachCall = mutableListOf<Boolean>()
 
 	override suspend fun clearSessionMemory() {
 		clearCount += 1
 		clearedAfterTheStores = settingsRepository.cleared
+		storesWipedAtEachCall += settingsRepository.cleared
 		failure?.let { throw it }
 	}
 }
 
-private class TestContext : ContextWrapper(null) {
+internal class TestContext : ContextWrapper(null) {
 	private val root: File = File.createTempFile("tuindice-clear-data", "").let { file ->
 		file.delete()
 		file.mkdirs()
@@ -180,6 +263,16 @@ private class RecordingPersistenceMaintenanceRepository : PersistenceMaintenance
 	override suspend fun clearAll() = Unit
 }
 
+private class CancellingSecureKeyValueDataRepository : SecureKeyValueDataRepository {
+	override suspend fun getString(key: String): String? = null
+
+	override suspend fun putString(key: String, value: String) = Unit
+
+	override suspend fun remove(key: String) = Unit
+
+	override suspend fun clear(): Unit = throw CancellationException("cancelled")
+}
+
 private class NoOpSecureKeyValueDataRepository : SecureKeyValueDataRepository {
 	override suspend fun getString(key: String): String? = null
 
@@ -202,7 +295,7 @@ private class NoOpProofOfPossessionCapability : AndroidProofOfPossessionCapabili
 	): AttestationProofOfPossessionRequest = error("not used")
 }
 
-private class RecordingSettingsRepository(
+internal class RecordingSettingsRepository(
 	private var localDataOwner: String? = null
 ) : SettingsRepository {
 	var cleared = false
@@ -226,9 +319,24 @@ private class RecordingSettingsRepository(
 
 	override suspend fun markCoachmarkSeen(coachmarkId: String) = Unit
 
-	override suspend fun setSessionResetNoticePending() = Unit
+	var notice: SessionResetNotice? = null
+		private set
 
-	override suspend fun consumeSessionResetNoticePending(): Boolean = false
+	private var lastStamp = 0L
+
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason): SessionResetNotice {
+		return SessionResetNotice(reason = reason, stamp = ++lastStamp).also { created -> notice = created }
+	}
+
+	override suspend fun getSessionResetNotice(): SessionResetNotice? = notice
+
+	override suspend fun consumeSessionResetNotice(stamp: Long): Boolean {
+		if (notice?.stamp != stamp) return false
+
+		notice = null
+
+		return true
+	}
 
 	override suspend fun getLocalDataOwner(): String? = localDataOwner
 
@@ -239,5 +347,6 @@ private class RecordingSettingsRepository(
 	override suspend fun clear() {
 		cleared = true
 		localDataOwner = null
+		notice = null
 	}
 }

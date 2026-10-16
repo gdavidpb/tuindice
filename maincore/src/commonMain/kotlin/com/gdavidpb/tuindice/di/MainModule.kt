@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -36,6 +37,7 @@ val mainModule = module {
 	factoryOf(::ObserveOutdatedAppUseCase)
 	factoryOf(::ObserveSyncStatusUseCase)
 	factoryOf(::ObserveSessionInvalidationUseCase)
+	factoryOf(::AcknowledgeSessionInvalidationUseCase)
 	factoryOf(::GetPendingChangesUseCase)
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::ScheduleSyncUseCase)

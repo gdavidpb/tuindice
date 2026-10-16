@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
+import com.gdavidpb.tuindice.base.utils.extension.attempt
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
@@ -44,12 +45,18 @@ class IosApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
+		// First, before anything is emptied: from here on, whatever a holder was waiting on (a
+		// download that lands while the stores are being wiped) belongs to the account that is
+		// leaving and must find that out. The same call in the finally below stays: it brings the
+		// mirrors back to what the emptied stores say.
+		releaseSessionMemory()
+
 		try {
 			persistenceMaintenanceRepository.clearAll()
 			attestationCapability.invalidateAttestationKeyId()
 			settingsRepository.clear()
-			runCatching { secureStore.clear() }
-			runCatching { legacySecureStore.clear() }
+			attempt { secureStore.clear() }
+			attempt { legacySecureStore.clear() }
 
 			runCatching {
 				FileSystem.SYSTEM.deleteRecursively(temporaryStorageRoot(), mustExist = false)
@@ -57,7 +64,11 @@ class IosApplicationDataSource(
 		} finally {
 			// Last, and also when the wipe stops halfway: every holder goes back to what the
 			// stores now say, so memory never keeps more than what is still stored.
-			sessionMemory().forEach { memory -> runCatching { memory.clearSessionMemory() } }
+			releaseSessionMemory()
 		}
+	}
+
+	private suspend fun releaseSessionMemory() {
+		sessionMemory().forEach { memory -> attempt { memory.clearSessionMemory() } }
 	}
 }

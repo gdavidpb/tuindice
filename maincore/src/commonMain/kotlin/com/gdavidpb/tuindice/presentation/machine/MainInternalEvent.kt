@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 
 /**
  * Internal machine inputs for the app host: the startup lifecycle split per outcome,
@@ -16,7 +17,8 @@ sealed interface MainInternalEvent {
 
 	data class StartUpCompleted(
 		val startDestination: Destination,
-		val sessionResetMessage: String? = null
+		// The notice the start-up found owed, if any: it goes through the same rule as the live one.
+		val sessionNotice: SessionNoticeText? = null
 	) : MainInternalEvent
 
 	data class AppUnavailableResolved(
@@ -47,9 +49,9 @@ sealed interface MainInternalEvent {
 		val syncStatus: SyncStatus
 	) : MainInternalEvent
 
-	/** The server ended the session behind the user's back. */
+	/** The server ended the session behind the user's back; [sessionNotice] is the notice owed, if any. */
 	data class SessionInvalidationObserved(
-		val message: String
+		val sessionNotice: SessionNoticeText?
 	) : MainInternalEvent
 
 	/** The pending work was read: the sign-out dialog can say what would be lost. */

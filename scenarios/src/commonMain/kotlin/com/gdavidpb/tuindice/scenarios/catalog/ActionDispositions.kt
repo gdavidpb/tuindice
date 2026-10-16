@@ -53,6 +53,10 @@ object ActionDispositions {
 			reason = "the host dispatches it each time the app resumes with content; no user performs it"
 		),
 		ActionDisposition.Internal(
+			action = "maincore.Main.SessionEndHandled",
+			reason = "the host route reports that it attended the end of a session that ended behind the user's back"
+		),
+		ActionDisposition.Internal(
 			action = "maincore.Main.ShowOutdatedApp",
 			reason = "host shows the global outdated app screen from the shared HTTP 426 event"
 		),
@@ -85,18 +89,6 @@ object ActionDispositions {
 			reason = "screen bootstrap"
 		),
 		ActionDisposition.Internal(
-			action = "pensum.Pensum.SelectPensum",
-			reason =
-				"current bottom sheet keeps version as local UI state and dispatches SelectSelection on " +
-				"apply"
-		),
-		ActionDisposition.Internal(
-			action = "pensum.Pensum.SelectModality",
-			reason =
-				"current bottom sheet keeps modality as local UI state and dispatches SelectSelection on " +
-				"apply"
-		),
-		ActionDisposition.Internal(
 			action = "record.CreateSyntheticTerm.Observe",
 			reason = "screen bootstrap and local state observation"
 		),
@@ -107,6 +99,10 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "record.Record.EnsureRecordLoaded",
 			reason = "route entry preserves initial record refresh while local content wins"
+		),
+		ActionDisposition.Internal(
+			action = "record.Schedule.Resumed",
+			reason = "the sheet dispatches it each time it comes back in front, to read the clock again; no user performs it"
 		),
 		ActionDisposition.Internal(
 			action = "record.Schedule.ObserveSchedule",
@@ -121,14 +117,32 @@ object ActionDispositions {
 			reason = "search query observation"
 		),
 		ActionDisposition.Internal(
+			action = "summary.ShareTerm.ObserveShareTerm",
+			reason = "the sheet asks for its terms when it opens, on the term its opener names; no user performs it"
+		),
+		ActionDisposition.Internal(
 			action = "summary.Summary.ObserveSummary",
 			reason = "screen bootstrap"
+		),
+		ActionDisposition.Internal(
+			action = "summary.Summary.Resumed",
+			reason = "the screen dispatches it each time it comes back in front, to read the clock again; no user performs it"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "summary.Summary.UploadProfilePicture",
 			reason =
 				"it runs once the system picker or camera hands a file back, and no scenario can put a " +
 				"file in them; the upload path needs a debug-only source of that file"
+		),
+		ActionDisposition.Internal(
+			action = "summary.SummaryStatistics.ObserveStatistics",
+			reason = "screen bootstrap"
+		),
+		ActionDisposition.Internal(
+			action = "summary.SummaryStatistics.Resumed",
+			reason =
+				"the screen dispatches it each time it comes back in front, to read the clock again; no user " +
+				"performs it"
 		),
 		ActionDisposition.Internal(
 			action = "wizard.CoachmarkOverlay.SurfaceChanged",

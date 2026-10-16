@@ -15,17 +15,25 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 
 ## Módulos del workspace
 
-- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI
-  reutilizables.
-- `academiccore`: modelos académicos compartidos y motor de proyección de historial.
-- `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
+- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura (incluido el reloj
+  del horario, `ScheduleClockRepository`, que `maincore` enlaza) y piezas UI reutilizables.
+- `academiccore`: modelos académicos compartidos y motor de proyección de historial. Incluye los motores puros de
+  semanas del término (`AcademicWeekEngine`), horario (`AcademicScheduleEngine`, `ScheduleBlockClock`), estado y
+  puntos de evaluaciones (`EvaluationStateEngine`, `EvaluationPointsEngine`) y la selección del término en curso
+  (`currentTermOrNull`).
+- `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage. Define
+  además los contratos de lectura que una feature implementa y otras consumen sin depender entre sí:
+  `VisibleAcademicRecordRepository` (lo implementa `persistence`), `VisibleEvaluationsRepository` (`evaluations`) y
+  `PensumProgressRepository` (`pensum`).
 - `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
   binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
-- `summary`: resumen del perfil y foto de perfil.
-- `record`: historial académico y cálculos de índice.
-- `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
+- `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre, la carrera y las estadísticas), la pantalla Estadísticas con sus gráficos y la hoja para compartir un trimestre como imagen.
+- `record`: historial académico, cálculos de índice y la hoja Horario (tabla y grilla por bloques, con la marca de las
+  evaluaciones de la semana, que lleva a Evaluaciones).
+- `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota; cada evaluación con fecha hereda del horario el
+  bloque y el aula de su materia ese día, el picker marca los días de clase y la barra abre la hoja Horario.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
 - `subjects`: estadísticas y detalle histórico de una materia.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
@@ -95,13 +103,13 @@ Dependencias actuales:
 - `security`: depende de `:base`.
 - `about`: depende de `:base`.
 - `auth`: depende de `:base`, `:security`.
-- `summary`: depende de `:base`, `:persistence`.
+- `summary`: depende de `:academiccore`, `:base`, `:persistence`.
 - `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
 - `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
+- `wizard`: depende de `:base`.
 - `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore` y aporta en `androidPlatformModule` los bindings de plataforma
   Android de cada feature, por lo que en el grafo depende de todos los módulos.
@@ -120,8 +128,9 @@ Dependencias actuales:
 Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
-- La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino una capa de coachmarks
-  contextuales que detecta pantallas reales elegibles y muestra overlays anclados.
+- No hay excepciones feature -> feature. `wizard` es dueño de los coachmarks y de su overlay, pero qué coachmarks
+  corresponden a qué pantalla (`CoachmarkSurface.kt`) lo decide `maincore`, la raíz de composición, que ya conoce
+  todas las pantallas. La regla semgrep `feature-module-no-cross-import` lo impone.
 - Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
 
 ## Capas por feature
@@ -403,32 +412,46 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(44 reglas en 11 archivos por área):
+(57 reglas en 15 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
 - `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
-  sin interfaces `*DataSource`; `data/repository` solo interfaces.
+  sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de render de
+  Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`.
+- `data-source`: en `data/source` no hay interfaces; van en `data/repository` o `domain/repository`.
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
   propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
   directos).
-- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature.
+- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
+  `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
+- `academiccore`: el lunes de la semana académica se calcula solo con `AcademicWeekEngine.mondayOf`; ningún
+  otro módulo resta `dayOfWeek` a mano.
 - `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
   try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
 - `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
-  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`.
+  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`; un `Observe*UseCase` lee solo
+  flujos locales (sin repositorios de refresco ni getters `get*`).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
-  extension functions de la tabla.
+  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`.
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
-  importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`.
+  importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;
+  las `data class` no privadas de `ui/view` van en `ui/model`; los objetos de tags de `ui/` se llaman `*UiTags` y
+  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
+- `session-recovery`: ni `nonCancellableRefresh = true` ni `NonCancellable` en el camino de recuperación de
+  sesión; un contexto no cancelable deja colgado el cierre de sesión.
+- `module-boundaries`: ninguna feature importa a otra. El módulo de un archivo es el segmento de su `package`
+  tras `com.gdavidpb.tuindice`; quedan permitidos los transversales (`base`, `persistence`, `academiccore`,
+  `security`, `testkit`, `scenariokit`) y exentas por ruta las raíces de composición (`app`, `maincore`,
+  `scenarios`), cada uno con su argumento escrito en la regla.
 
 Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
 sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo

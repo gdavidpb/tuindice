@@ -18,14 +18,10 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,11 +30,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotKind
+import com.gdavidpb.tuindice.base.ui.model.RichTooltipText
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.view.RichTooltipBox
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_subject_already_planned
@@ -96,40 +93,21 @@ fun CreateTermSubjectStatusRow(
 				status = status
 			)
 		} else {
-			val tooltipState = rememberTooltipState(isPersistent = true)
-			val tooltipScope = rememberCoroutineScope()
+			val isTooltipVisible = remember { mutableStateOf(false) }
 
-			TooltipBox(
-				positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-					TooltipAnchorPosition.Above
-				),
-				tooltip = {
-					PlainTooltip(
-						caretShape = TooltipDefaults.caretShape()
-					) {
-						Text(
-							modifier = Modifier.testTag(
-								RecordUiTags.createSyntheticTermSubjectStatusTooltip(
-									subjectCode = subject.subjectCode
-								)
-							),
-							text = tooltipText
-						)
-					}
-				},
-				state = tooltipState,
-				onDismissRequest = tooltipState::dismiss,
-				enableUserInput = false
+			RichTooltipBox(
+				isVisible = isTooltipVisible.value,
+				onDismissRequest = { isTooltipVisible.value = false },
+				tooltip = RichTooltipText(
+					lines = listOf(tooltipText),
+					testTag = RecordUiTags.createSyntheticTermSubjectStatusTooltip(
+						subjectCode = subject.subjectCode
+					)
+				)
 			) {
 				CreateTermSubjectStatusLabel(
 					modifier = Modifier.clickable {
-						if (tooltipState.isVisible) {
-							tooltipState.dismiss()
-						} else {
-							tooltipScope.launch {
-								tooltipState.show()
-							}
-						}
+						isTooltipVisible.value = !isTooltipVisible.value
 					},
 					subject = subject,
 					status = status
@@ -284,7 +262,7 @@ private fun CreateTermSubjectStatusMarker(status: SubjectStatus) {
 	Box(
 		modifier = Modifier
 			.size(20.dp)
-			.background(MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
+			.background(MaterialTheme.colorScheme.surfaceDim, CircleShape)
 			.border(1.2.dp, status.color, CircleShape),
 		contentAlignment = Alignment.Center
 	) {

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.route
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -16,6 +17,8 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
@@ -24,6 +27,8 @@ import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -34,11 +39,14 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -55,6 +63,7 @@ import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
@@ -75,6 +84,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -91,6 +102,7 @@ import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewM
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -257,6 +269,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -507,6 +525,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -668,6 +692,101 @@ class TuIndiceAppHostRouteUiTest {
 		}
 	}
 
+	// The user is already on the sign-in screen when the notice of the session that ended arrives (the
+	// invalidation came from work that was still running): it is shown, once, and the screen they are
+	// typing in is not thrown away to take them where they already are.
+	@Test
+	fun when_theSessionEndsWhileTheSignInIsShown_then_theNoticeIsShown_andTheScreenIsNotReset() = runTuIndiceUiTest {
+		val sessionRepository = signedOutSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			settingsRepository = settingsRepository
+		)
+		startSignedOutHostKoin(sessionRepository, syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
+
+			runOnIdle {
+				// What the invalidation does: leave the notice, then tell.
+				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+			// What the user was typing is still there: nothing replaced the screen.
+			onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("12-34567")
+			// And the kept copy was taken once it was shown.
+			waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
+		} finally {
+			stopKoin()
+		}
+	}
+
+	// The main path of a start after the process died: the start-up offers the notice the invalidation
+	// left while the navigation is not there yet (the content is just coming up). The route waits for the
+	// navigator, shows the notice, and only then says it showed it, so the copy kept for the next start
+	// is taken.
+	@Test
+	fun when_theStartUpOffersTheNotice_then_theRouteWaitsForTheNavigator_showsItAndConfirmsIt() = runTuIndiceUiTest {
+		val sessionRepository = signedOutSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			settingsRepository = settingsRepository
+		)
+		startSignedOutHostKoin(sessionRepository, syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			// Shown: only now is the copy kept for the next start taken.
+			waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
+		} finally {
+			stopKoin()
+		}
+	}
+
 	@Test
 	fun when_syncStatusBecomesUnavailable_then_hostRouteReportsDegradedSyncActionOnce() = runTuIndiceUiTest {
 		val sessionRepository = signedOutSessionRepository()
@@ -803,6 +922,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -922,6 +1047,12 @@ class TuIndiceAppHostRouteUiTest {
 					module {
 						single<AuthRepository> {
 							object : AuthRepository {
+								override suspend fun exchangeRecoverySignIn(
+									bootstrapAccessToken: String,
+									attestation: Attestation,
+									attemptedSnapshot: SessionSnapshot
+								) = error("unused")
+
 								override suspend fun bootstrapSignIn(
 									usbId: String,
 									password: String
@@ -1030,8 +1161,113 @@ class TuIndiceAppHostRouteUiTest {
 	@Test
 	fun when_sessionIsInvalidated_then_hostRouteNavigatesToSignIn() = runTuIndiceUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository()
+		val settingsRepository = FakeSettingsRepository(
+			reviewSuggested = true,
+			lastMainSection = MainSection.SUMMARY
+		)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
+		startSignedInHostKoin(syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
+						settingsRepository = settingsRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(
+					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					useUnmergedTree = true
+				).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			runOnIdle {
+				// What the invalidation does: leave the notice, then tell.
+				runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
+		} finally {
+			stopKoin()
+		}
+	}
+
+	// The way to the sign-in does not depend on the notice: a signal with nothing owed (the user was told
+	// already, or there is no notice) takes the user there all the same, and no message is shown.
+	@Test
+	fun when_theSessionEndsWithNoNoticeOwed_then_hostRouteStillNavigatesToSignIn_andShowsNoMessage() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = true, lastMainSection = MainSection.SUMMARY)
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+
+		startSignedInHostKoin(syncStatusRepository, sessionInvalidationRepository)
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
+						settingsRepository = settingsRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(
+					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					useUnmergedTree = true
+				).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			runOnIdle {
+				// No notice was left: the signal is all there is.
+				sessionInvalidationRepository.notifySessionInvalidated()
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+			waitForIdle()
+
+			assertEquals(
+				0,
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().size,
+				"there was nothing to tell"
+			)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	private fun startSignedInHostKoin(
+		syncStatusRepository: FakeSyncStatusRepository,
+		sessionInvalidationRepository: SessionInvalidationRepository
+	) {
 		stopKoin()
 
 		startKoin {
@@ -1044,6 +1280,12 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
+							override suspend fun exchangeRecoverySignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation,
+								attemptedSnapshot: SessionSnapshot
+							) = error("unused")
+
 							override suspend fun bootstrapSignIn(
 								usbId: String,
 								password: String
@@ -1101,47 +1343,40 @@ class TuIndiceAppHostRouteUiTest {
 				}
 			)
 		}
+	}
 
-		try {
-			setTuIndiceTestContent {
-				TuIndiceAppHostRoute(
-					onConfirmExitClick = {},
-					browserRepository = RecordingBrowserRepository(),
-					reviewRepository = RecordingReviewRepository(),
-					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel(
-						sessionInvalidationRepository = sessionInvalidationRepository,
-						syncStatusRepository = syncStatusRepository,
-						settingsRepository = FakeSettingsRepository(
-							reviewSuggested = true,
-							lastMainSection = MainSection.SUMMARY
-						)
-					)
-				)
-			}
+	private fun startSignedOutHostKoin(
+		sessionRepository: SessionRepository,
+		syncStatusRepository: FakeSyncStatusRepository,
+		sessionInvalidationRepository: SessionInvalidationRepository
+	) {
+		stopKoin()
 
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-					useUnmergedTree = true
-				).fetchSemanticsNodes().isNotEmpty()
-			}
-
-			runOnIdle {
-				sessionInvalidationRepository.notifySessionInvalidated()
-			}
-
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
-			}
-
-			assertNodeVisible(AuthUiTags.PasswordTextField)
-			waitUntil(timeoutMillis = 5_000) {
-				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
-			}
-			onNodeWithText("Inicia sesión nuevamente").assertExists()
-		} finally {
-			stopKoin()
+		startKoin {
+			modules(
+				hostRouteNavigationModule(
+					syncStatusRepository = syncStatusRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				),
+				authModule,
+				module {
+					single<AuthRepository> { stubAuthRepository() }
+					single<SessionRepository> { sessionRepository }
+					single<MessagingRepository> { FakeMessagingRepository() }
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
 		}
 	}
 
@@ -1162,17 +1397,22 @@ class TuIndiceAppHostRouteUiTest {
 		factory { NavEntryStoresViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }
+		single { testAppCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<ApplicationRepository> { RecordingApplicationRepository() }
 		single<SettingsRepository> { FakeSettingsRepository() }
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }
+		single<SessionEndRepository> { RunningSessionEndRepository(get(), get(), get(), get(), get()) }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
 		single<UpdateRepository> { FakeUpdateRepository() }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
+		single { StatisticsTopBarActionBus() }
+		single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
+		single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
 	}
 }
 
@@ -1208,6 +1448,12 @@ private fun signedOutSessionRepository() = FakeSessionRepository(
 )
 
 private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String

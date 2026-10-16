@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/tu-indice-share-backgrounds/casa-rectoral/v1/card.webp"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "image/webp"
+    },
+    "bodyFileName": "share/casa-rectoral/v1/card.webp"
+  }
+}

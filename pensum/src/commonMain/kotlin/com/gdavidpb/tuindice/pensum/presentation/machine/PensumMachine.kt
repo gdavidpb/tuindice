@@ -9,13 +9,10 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase.Result
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseError
-import com.gdavidpb.tuindice.pensum.domain.usecase.param.SelectPensumParams
 import com.gdavidpb.tuindice.pensum.domain.usecase.param.SelectPensumSelectionParams
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.transition.anyStateTransitions
@@ -31,8 +28,6 @@ class PensumMachine(
 	private val observePensumUseCase: ObservePensumUseCase,
 	private val ensurePensumLoadedUseCase: EnsurePensumLoadedUseCase,
 	private val updatePensumUseCase: UpdatePensumUseCase,
-	private val selectPensumUseCase: SelectPensumUseCase,
-	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase,
 	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase
 ) : ScreenMachine<Pensum.State, Pensum.Effect> {
@@ -117,22 +112,6 @@ class PensumMachine(
 				}
 			}
 		}
-	}
-
-	internal fun selectPensum(host: MachineHost<Pensum.Effect>, year: Int) {
-		launchRefresh(
-			host = host,
-			results = selectPensumUseCase.execute(SelectPensumParams(year = year)),
-			isSelectionChange = true
-		)
-	}
-
-	internal fun selectModality(host: MachineHost<Pensum.Effect>, modalityId: String) {
-		launchRefresh(
-			host = host,
-			results = selectPensumModalityUseCase.execute(modalityId),
-			isSelectionChange = true
-		)
 	}
 
 	internal fun selectSelection(

@@ -6,8 +6,10 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SessionInvalidationDataSourceTest {
 	@Test
@@ -56,5 +58,28 @@ class SessionInvalidationDataSourceTest {
 		}
 
 		assertNotNull(received)
+	}
+
+	@Test
+	fun isIntentionalSignOut_isTrueOnlyForTheSessionThatWasMarked() {
+		val dataSource = SessionInvalidationDataSource()
+
+		dataSource.markIntentionalSignOut(sessionId = "session-1")
+
+		assertTrue(dataSource.isIntentionalSignOut(sessionId = "session-1"))
+		assertFalse(dataSource.isIntentionalSignOut(sessionId = "session-2"))
+		assertFalse(dataSource.isIntentionalSignOut(sessionId = " "))
+	}
+
+	@Test
+	fun notifySessionInvalidated_reportsSuppressionOnlyForTheMarkedSignOut() {
+		val dataSource = SessionInvalidationDataSource()
+
+		dataSource.markIntentionalSignOut(sessionId = "session-1")
+
+		assertFalse(dataSource.notifySessionInvalidated(sessionId = "session-1"))
+		assertFalse(dataSource.isIntentionalSignOut(sessionId = "session-1"))
+		assertTrue(dataSource.notifySessionInvalidated(sessionId = "session-2"))
+		assertTrue(dataSource.notifySessionInvalidated(sessionId = null))
 	}
 }

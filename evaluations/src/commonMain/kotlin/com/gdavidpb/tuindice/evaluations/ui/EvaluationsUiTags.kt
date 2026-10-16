@@ -6,7 +6,9 @@ object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
 	const val EvaluationsWeekStrip = "evaluations_week_strip"
 	const val EvaluationsWeekLabel = "evaluations_week_label"
+	const val EvaluationsWeekCurrentIndicator = "evaluations_week_current_indicator"
 	const val EvaluationsList = "evaluations_list"
+	const val EvaluationsListTail = "evaluations_list_tail"
 	const val EvaluationsAddFab = "evaluations_add_fab"
 	const val EvaluationsLoadingIndicator = "evaluations_loading_indicator"
 
@@ -28,7 +30,6 @@ object EvaluationsUiTags {
 	const val EvaluationTypePickerRow = "evaluation_type_picker_row"
 	const val EvaluationGradeChip = "evaluation_grade_chip"
 	const val EvaluationMaxGradeChip = "evaluation_max_grade_chip"
-	const val EvaluationTypeLeadingIcon = "evaluation_type_leading_icon"
 	const val EvaluationTypeInlineIcon = "evaluation_type_inline_icon"
 	const val EvaluationStatusChip = "evaluation_status_chip"
 	const val EvaluationGradeActionButton = "evaluation_grade_action_button"
@@ -48,6 +49,9 @@ object EvaluationsUiTags {
 	const val EvaluationSubjectRequiredError = "evaluation_subject_required_error"
 	const val EvaluationTypeRequiredError = "evaluation_type_required_error"
 	const val EvaluationMaxGradeRequiredError = "evaluation_max_grade_required_error"
+	const val EvaluationDateDialogSubjectChip = "evaluation_date_dialog_subject_chip"
+	const val EvaluationDateDialogSelection = "evaluation_date_dialog_selection"
+	const val EvaluationDateDialogSelectionPlace = "evaluation_date_dialog_selection_place"
 
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"
@@ -73,6 +77,9 @@ object EvaluationsUiTags {
 	fun evaluationItemCard(evaluationId: String): String =
 		"evaluation_item_card_${evaluationId.toTagSuffix()}"
 
+	fun evaluationPlace(evaluationId: String): String =
+		"evaluation_place_${evaluationId.toTagSuffix()}"
+
 	fun evaluationGradeActionButton(evaluationId: String): String =
 		"${EvaluationGradeActionButton}_${evaluationId.toTagSuffix()}"
 
@@ -84,6 +91,9 @@ object EvaluationsUiTags {
 
 	fun calendarDayCell(day: Int): String =
 		"evaluation_calendar_day_cell_$day"
+
+	fun calendarDayClassDot(day: Int): String =
+		"evaluation_calendar_day_class_dot_$day"
 }
 
 private fun String.toTagSuffix(): String =

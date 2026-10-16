@@ -42,6 +42,7 @@ fun RecordContentView(
 	state: Record.State.Content,
 	selectedTermId: String?,
 	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -102,7 +103,8 @@ fun RecordContentView(
 			viewMode = state.viewMode,
 			texts = texts,
 			highlightColor = MaterialTheme.colorScheme.primary,
-			notice = state.notice
+			notice = state.notice,
+			arrivalAttemptId = state.arrivalAttemptId
 		)
 		.asReversed()
 	val effectiveSelectedTermId = selectedTermId ?: terms.firstOrNull()?.termId
@@ -121,6 +123,7 @@ fun RecordContentView(
 				notice = state.notice?.takeIfAbovePager(),
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
+				onAttemptArrivalTaken = onAttemptArrivalTaken,
 				onAttemptSelectionChange = onAttemptSelectionChange,
 				onScrollInProgressChange = onScrollInProgressChange
 			)

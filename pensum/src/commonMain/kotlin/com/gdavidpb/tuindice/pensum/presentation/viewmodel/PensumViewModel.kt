@@ -25,14 +25,6 @@ class PensumViewModel(
 		sendAction(Pensum.Action.RefreshPensum)
 	}
 
-	fun selectPensumAction(year: Int) {
-		sendAction(Pensum.Action.SelectPensum(year = year))
-	}
-
-	fun selectModalityAction(modalityId: String) {
-		sendAction(Pensum.Action.SelectModality(modalityId = modalityId))
-	}
-
 	fun selectSelectionAction(year: Int, modalityId: String) {
 		sendAction(
 			Pensum.Action.SelectSelection(

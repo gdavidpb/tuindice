@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
@@ -42,6 +43,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.wizard.di.wizardModule
@@ -55,6 +57,7 @@ class MainModuleKoinSmokeTest {
 		wizardModule,
 		module {
 			single<SessionRepository> { FakeSessionRepository() }
+			single<SessionCoroutineScope> { testSessionCoroutineScope() }
 			single<SettingsRepository> { FakeSettingsRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }
 			single<CredentialsRepository> { FakeCredentialsRepository() }

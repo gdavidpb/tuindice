@@ -35,3 +35,21 @@ rules:
     metadata:
       area: mvi-contracts
       referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § sendEffect'
+
+  # Las private quedan fuera: son detalle de implementación de la máquina o del contrato, no modelos de presentación.
+  - id: presentation-no-toplevel-data-class
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Las data class no privadas de machine/ y contract/ son modelos de presentación: van en presentation/model, un
+      archivo por clase con su nombre (skill "Keep presentation models in presentation/model"; README "Capas por
+      feature > Presentation"). Una data class private es detalle de implementación de la máquina o del contrato y
+      se queda en su archivo.
+    pattern-regex: '^(?:(?:public|internal)\s+)?data\s+class\b'
+    paths:
+      include:
+        - '**/presentation/machine/**'
+        - '**/presentation/contract/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'README.md § Capas por feature > Presentation'

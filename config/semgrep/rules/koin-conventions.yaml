@@ -39,3 +39,19 @@ rules:
     metadata:
       area: koin-conventions
       referencia: 'README.md § Convenciones de Koin'
+
+  - id: koin-no-getornull
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      getOrNull() dentro de un módulo Koin devuelve null cuando falta el binding, y el fallo se calla en silencio.
+      Declara el binding y pide la dependencia con get() para que falle al arrancar; si de verdad es opcional,
+      modélalo en el constructor con su valor por defecto (README "Convenciones de Koin > Patrones no permitidos").
+    # Solo la forma sin receptor es de Koin: runCatching { ... }.getOrNull() es un método de Result.
+    pattern-regex: '(?<![\w.])getOrNull\s*(?:<[^>]*>\s*)?\('
+    paths:
+      include:
+        - '**/di/**'
+    metadata:
+      area: koin-conventions
+      referencia: 'README.md § Convenciones de Koin'

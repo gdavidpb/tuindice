@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.exception.SessionRecoveryAttestationException
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -65,5 +66,21 @@ class ExceptionTest {
 	fun isTransient_forWhatIsNotAResponse_isDecidedByTheKindOfFailure() {
 		assertTrue(IllegalStateException("timeout").isTransient())
 		assertFalse(IllegalStateException("the record is corrupt").isTransient())
+	}
+
+	@Test
+	fun isInsufficientScope_isTrueOnlyForAForbiddenResponseThatSaysSo() {
+		val scopeError = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.INSUFFICIENT_SCOPE)
+
+		assertTrue(clientRequestException(HttpStatusCode.Forbidden, headers = scopeError).isInsufficientScope())
+		assertFalse(clientRequestException(HttpStatusCode.Unauthorized, headers = scopeError).isInsufficientScope())
+		assertFalse(clientRequestException(HttpStatusCode.Forbidden).isInsufficientScope())
+		assertFalse(
+			clientRequestException(
+				HttpStatusCode.Forbidden,
+					headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.SESSION_SUPERSEDED)
+			).isInsufficientScope()
+		)
+		assertFalse(IllegalStateException(AuthErrorHeaders.INSUFFICIENT_SCOPE).isInsufficientScope())
 	}
 }

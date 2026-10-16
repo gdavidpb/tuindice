@@ -28,8 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +63,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.evaluations.data.repository
 
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseDataRepository {
@@ -15,6 +16,7 @@ interface DatabaseDataRepository {
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor>
 	suspend fun getCurrentTerm(): LocalCurrentTermDescriptor?
+	fun observeDisplayContextFlow(): Flow<LocalEvaluationDisplayContext>
 	suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
 	suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
 	suspend fun confirmEvaluationRemoval(eid: String)

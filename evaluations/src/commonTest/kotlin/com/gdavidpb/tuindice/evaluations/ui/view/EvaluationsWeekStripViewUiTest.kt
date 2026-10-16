@@ -187,4 +187,36 @@ class EvaluationsWeekStripViewUiTest {
 
 		val WEEKDAYS = listOf("LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM")
 	}
+
+	@Test
+	fun when_aWeekIsTheCurrentOne_then_itsChipCarriesTheMark() = runTuIndiceUiTest {
+		val weeks = academicWeeks().map { week ->
+			week.copy(isCurrent = week.key == EvaluationsWeekKey.Academic(8))
+		}
+
+		setTuIndiceTestContent {
+			EvaluationsWeekStripView(
+				items = weeks,
+				selectedWeekKey = EvaluationsWeekKey.Academic(8),
+				onWeekSelected = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationsWeekCurrentIndicator, useUnmergedTree = true)
+			.assertIsDisplayed()
+	}
+
+	@Test
+	fun when_noWeekIsTheCurrentOne_then_noChipCarriesTheMark() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationsWeekStripView(
+				items = academicWeeks(),
+				selectedWeekKey = EvaluationsWeekKey.Academic(8),
+				onWeekSelected = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationsWeekCurrentIndicator, useUnmergedTree = true)
+			.assertDoesNotExist()
+	}
 }

@@ -1,0 +1,64 @@
+package com.gdavidpb.tuindice.summary.ui.chart
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class StatisticsChartGeometryTest {
+
+	@Test
+	fun when_countIsAboveTheDenseThreshold_then_everyColumnIsTheMinimumTarget() {
+		assertEquals(48f, StatisticsChartGeometry.columnWidth(availableWidthDp = 1_000f, count = 7))
+		assertEquals(60f, StatisticsChartGeometry.columnWidth(availableWidthDp = 360f, count = 6))
+	}
+
+	@Test
+	fun when_countIsSparse_then_columnsShareTheAvailableWidth() {
+		assertEquals(60f, StatisticsChartGeometry.columnWidth(availableWidthDp = 300f, count = 5))
+		assertEquals(300f, StatisticsChartGeometry.contentWidth(columnWidthDp = 60f, count = 5))
+	}
+
+	@Test
+	fun when_sharedColumnWouldBeNarrowerThanATarget_then_itKeepsTheMinimumTarget() {
+		assertEquals(48f, StatisticsChartGeometry.columnWidth(availableWidthDp = 200f, count = 5))
+	}
+
+	@Test
+	fun when_thereAreNoColumns_then_theyTakeNoWidth() {
+		assertEquals(0f, StatisticsChartGeometry.columnWidth(availableWidthDp = 300f, count = 0))
+		assertEquals(0f, StatisticsChartGeometry.contentWidth(columnWidthDp = 48f, count = 0))
+	}
+
+	@Test
+	fun when_barExceedsItsScale_then_itFillsTheBandAndNegativeScaleLeavesItEmpty() {
+		assertEquals(1f, StatisticsChartGeometry.barFraction(value = 5f, scale = 4f))
+		assertEquals(0f, StatisticsChartGeometry.barFraction(value = 3f, scale = 0f))
+		assertEquals(0f, StatisticsChartGeometry.barFraction(value = 3f, scale = -1f))
+	}
+
+	@Test
+	fun when_valueIsOutsideTheRange_then_itIsClampedAndAnEmptyRangePutsItInTheMiddle() {
+		assertEquals(1f, StatisticsChartGeometry.valueFraction(value = 9f, minValue = 1f, maxValue = 5f))
+		assertEquals(0f, StatisticsChartGeometry.valueFraction(value = -3f, minValue = 1f, maxValue = 5f))
+		assertEquals(0.5f, StatisticsChartGeometry.valueFraction(value = 3f, minValue = 1f, maxValue = 5f))
+		assertEquals(0.5f, StatisticsChartGeometry.valueFraction(value = 4f, minValue = 4f, maxValue = 4f))
+	}
+
+	@Test
+	fun when_valueIsTheMaximum_then_itsYIsTheTopOfTheBand() {
+		assertEquals(24f, StatisticsChartGeometry.yOf(fraction = 1f, topDp = 24f, heightDp = 120f))
+		assertEquals(144f, StatisticsChartGeometry.yOf(fraction = 0f, topDp = 24f, heightDp = 120f))
+	}
+
+	@Test
+	fun when_barIsWide_then_itIsCappedAndNarrowOnesScaleWithTheirColumn() {
+		assertEquals(32f, StatisticsChartGeometry.barWidth(columnWidthDp = 200f))
+		assertEquals(18f, StatisticsChartGeometry.barWidth(columnWidthDp = 30f))
+	}
+
+	@Test
+	fun when_scaleIsRequested_then_itIsTheLargestValueOrTheReference() {
+		assertEquals(13.8f, StatisticsChartGeometry.scaleOf(values = listOf(2f, 5f), reference = 13.8f))
+		assertEquals(5f, StatisticsChartGeometry.scaleOf(values = listOf(2f, 5f), reference = null))
+		assertEquals(0f, StatisticsChartGeometry.scaleOf(values = emptyList(), reference = null))
+	}
+}

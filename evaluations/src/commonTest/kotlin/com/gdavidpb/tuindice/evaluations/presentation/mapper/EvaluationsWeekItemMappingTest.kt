@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -88,5 +89,30 @@ class EvaluationsWeekItemMappingTest {
 			item.key is EvaluationsWeekKey.Academic &&
 				item.days.any { day -> day.hasEvaluations }
 		})
+	}
+
+	@Test
+	fun buildEvaluationsWeekItems_withClassesStartDate_startsTheStripOnTheMondayOfTheRealStart() {
+		val term = DEFAULT_EVALUATION_TERM.copy(
+			periodCode = AcademicTermPeriod.SEP_DEC,
+			classesStartDate = LocalDate(2026, 9, 28)
+		)
+
+		val items = buildEvaluationsWeekItems(
+			currentTerm = term,
+			evaluations = emptyList(),
+			weekLabelPattern = "Semana %1${'$'}d",
+			continuousLabel = "Continuas",
+			currentDate = LocalDate(2026, 10, 15)
+		)
+		val academicWeeks = items.filter { item -> item.key is EvaluationsWeekKey.Academic }
+
+		assertEquals(12, academicWeeks.size)
+		// Week 1 runs from Monday September 28th ("28") and week 3 holds October 15th.
+		assertEquals("28", academicWeeks.first().days.first().dayText)
+		assertEquals(
+			listOf("15"),
+			academicWeeks[2].days.filter { day -> day.isSelected }.map { day -> day.dayText }
+		)
 	}
 }

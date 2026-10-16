@@ -22,10 +22,10 @@ import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttentionKey
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryFailedKind
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
+import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryNewStudentView
-import com.gdavidpb.tuindice.summary.ui.view.rememberSummaryItems
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.summary_failed_retry
@@ -38,6 +38,7 @@ fun SummaryScreen(
 	isSyncing: Boolean = false,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit,
+	hubActions: SummaryHubActions = SummaryHubActions(),
 	onUpdatePasswordClick: () -> Unit
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatusDetails?>(null) }
@@ -97,9 +98,7 @@ fun SummaryScreen(
 						syncAttention = syncAttention,
 						isSyncing = isSyncing,
 						showSyncAttentionHalo = shouldShowSyncAttentionHalo,
-						summaryItems = rememberSummaryItems(
-							state = targetState
-						),
+						hubActions = hubActions,
 						onEditProfilePictureClick = onEditProfilePictureClick,
 						onStatusIconClick = {
 							// Only a problem has a key, and only a problem has details to open.

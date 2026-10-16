@@ -209,8 +209,6 @@ private class FakeAcademicAttemptOverrideDao(
 
 	override suspend fun getOverrides(): List<AcademicAttemptOverrideEntity> = overrides
 
-	override suspend fun deleteByAttemptId(attemptId: String) = Unit
-
 	override suspend fun deleteAll() = Unit
 
 	override suspend fun upsertEntity(entity: AcademicAttemptOverrideEntity) = Unit

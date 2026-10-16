@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
@@ -47,9 +48,7 @@ class SignOutViewModelContractTest {
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					sessionCoroutineScope = testSessionCoroutineScope(),
+					sessionEndRepository = RunningSessionEndRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				flushPendingChangesUseCase = FlushPendingChangesUseCase(
@@ -99,9 +98,7 @@ class SignOutViewModelContractTest {
 			attestationRepository = FakeAttestationRepository(),
 			sessionRepository = FakeSessionRepository(),
 			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-			applicationRepository = RecordingApplicationRepository(),
-			syncStatusRepository = FakeSyncStatusRepository(),
-			sessionCoroutineScope = testSessionCoroutineScope(),
+			sessionEndRepository = RunningSessionEndRepository(),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -162,9 +159,13 @@ class SignOutViewModelContractTest {
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
 			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-			applicationRepository = applicationRepository,
-			syncStatusRepository = syncStatusRepository,
-			sessionCoroutineScope = testSessionCoroutineScope(),
+			sessionEndRepository = RunningSessionEndRepository(
+				applicationRepository = applicationRepository,
+				sessionRepository = sessionRepository,
+				syncStatusRepository = syncStatusRepository,
+				sessionCoroutineScope = testSessionCoroutineScope(),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository()
+			),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -230,9 +231,7 @@ class SignOutViewModelContractTest {
 				attestationRepository = FakeAttestationRepository(),
 				sessionRepository = FakeSessionRepository(),
 				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-				applicationRepository = RecordingApplicationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				sessionCoroutineScope = testSessionCoroutineScope(),
+				sessionEndRepository = RunningSessionEndRepository(),
 				reportingRepository = reportingRepository
 			),
 			flushPendingChangesUseCase = FlushPendingChangesUseCase(

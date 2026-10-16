@@ -35,7 +35,8 @@ fun List<AcademicTermEntity>.toAcademicTerms(
 				)
 				.map(AcademicAttemptEntity::toAcademicAttempt),
 			officialPeriodAverage = term.officialPeriodAverage,
-			officialCumulativeAverage = term.officialCumulativeAverage
+			officialCumulativeAverage = term.officialCumulativeAverage,
+			classesStartDate = term.classesStartDate
 		)
 	}
 }
@@ -52,7 +53,8 @@ fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 		periodLabel = periodLabel,
 		kind = kind.name,
 		officialPeriodAverage = officialPeriodAverage,
-		officialCumulativeAverage = officialCumulativeAverage
+		officialCumulativeAverage = officialCumulativeAverage,
+		classesStartDate = classesStartDate
 	)
 }
 

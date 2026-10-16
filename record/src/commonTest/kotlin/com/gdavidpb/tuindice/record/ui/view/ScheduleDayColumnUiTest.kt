@@ -11,12 +11,13 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.testing.MondayAtNine
 import com.gdavidpb.tuindice.record.testing.assertDpEquals
 import com.gdavidpb.tuindice.record.testing.clashingWeek
+import com.gdavidpb.tuindice.record.testing.markedWeek
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.ScheduleGridDefaults
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class ScheduleDayColumnUiTest {
@@ -54,6 +56,24 @@ class ScheduleDayColumnUiTest {
 			actual = second.left - first.left,
 			what = "from the first lane to the second"
 		)
+	}
+
+	@Test
+	fun when_aClashingMeetingHasAnEvaluation_then_itsIconStaysInsideItsOwnLane() = runTuIndiceUiTest {
+		setTuIndiceTestContent { DayColumn(markedWeek(onMonday = true).grid.days.first { it.day == ScheduleDay.Monday }) }
+
+		val first = boundsOfCell(attemptId = "a1", startBlock = 1)
+		val second = boundsOfCell(attemptId = "a2", startBlock = 2)
+		val icon = onNodeWithTag(
+			RecordUiTags.scheduleCellEvaluation("a1", ScheduleDay.Monday.code, 1),
+			useUnmergedTree = true
+		).getUnclippedBoundsInRoot()
+
+		// Only the first subject's meeting is marked, and its icon ends before the next lane begins.
+		assertNodeHidden(RecordUiTags.scheduleCellEvaluation("a2", ScheduleDay.Monday.code, 2), useUnmergedTree = true)
+		assertTrue(icon.left >= first.left && icon.right <= first.right)
+		assertTrue(icon.right <= second.left)
+		assertTrue(icon.bottom <= first.bottom)
 	}
 
 	@Test
@@ -91,7 +111,8 @@ class ScheduleDayColumnUiTest {
 				.testTag(ColumnTag)
 				.width(ScheduleGridDefaults.LaneWidth * dayItem.laneCount)
 				.height(GridHeight),
-			dayItem = dayItem
+			dayItem = dayItem,
+			onEvaluationClick = { _ -> }
 		)
 	}
 

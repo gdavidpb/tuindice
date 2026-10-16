@@ -21,4 +21,12 @@ class ScheduleViewModel(
 	fun selectScheduleViewAction(viewMode: ScheduleViewMode) {
 		sendAction(Schedule.Action.SelectScheduleView(viewMode))
 	}
+
+	fun resumedAction() {
+		sendAction(Schedule.Action.Resumed)
+	}
+
+	fun evaluationCellSelectedAction(evaluationId: String) {
+		sendAction(Schedule.Action.EvaluationCellSelected(evaluationId))
+	}
 }

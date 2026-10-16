@@ -6,15 +6,21 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
@@ -26,7 +32,6 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
-import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
@@ -42,6 +47,8 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermVi
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
+import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -62,6 +69,7 @@ import org.koin.core.Koin
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -173,7 +181,9 @@ class RecordStateMachineContractTest {
 			"RecordRefreshFailed / NavigateToOutdatedCredentials",
 			"RecordViewModeSet / ShowTopBarBanner",
 			"SyntheticTermDeleted / ShowSnackBar",
-			"SyntheticTermRejected / ShowSnackBar"
+			"SyntheticTermRejected / ShowSnackBar",
+			"AttemptFocusRequested",
+			"AttemptArrivalTaken"
 		)
 
 		for (fragment in expectedRecordFragments) {
@@ -228,6 +238,7 @@ class RecordStateMachineContractTest {
 			"empty",
 			"ObserveSchedule",
 			"SelectScheduleView",
+			"EvaluationCellSelected",
 			"ScheduleContentObserved",
 			"ScheduleEmptyObserved",
 			"ScheduleWaitingObserved"
@@ -290,7 +301,11 @@ class RecordStateMachineContractTest {
 					message = "No se pudo eliminar",
 					navigateToOutdatedCredentials = false
 				),
-				RecordInternalEvent.SyntheticTermRejected(message = "Cambio rechazado")
+				RecordInternalEvent.SyntheticTermRejected(message = "Cambio rechazado"),
+				Record.Action.AttemptArrivalTaken(attemptId = "attempt-1"),
+				RecordInternalEvent.AttemptFocusRequested(
+					request = RecordAttemptFocusRequest(attemptId = "attempt-1")
+				)
 			),
 			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
@@ -377,8 +392,9 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				Schedule.Action.ObserveSchedule,
 				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
+				Schedule.Action.EvaluationCellSelected(evaluationId = "evaluation-1"),
 				ScheduleInternalEvent.ScheduleContentObserved(
-					termName = "SEP-DIC 2026",
+					subtitle = UiText.Raw("SEP-DIC 2026"),
 					schedule = ScheduleItem(
 						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
 						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
@@ -518,6 +534,63 @@ class RecordStateMachineContractTest {
 		assertEquals(emptyList(), next(tooShort, snapshotOf(query = "fisica", results = queued)).searchResults)
 	}
 
+	@Test
+	fun recordMachine_marksTheSelectedTermWhenTheContentIsObserved_andWhenAnotherTermIsChosen() = runTest {
+		var resolvedMachine: RecordMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<Record.Effect> {
+			override fun sendEffect(effect: Record.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		val record = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(id = "past", kind = TermKind.HISTORICAL, periodYear = 2025),
+				academicTerm(id = "now", kind = TermKind.CURRENT, periodYear = 2026),
+				academicTerm(id = "made-by-me", kind = TermKind.SYNTHETIC, periodYear = 2026)
+			)
+		)
+
+		suspend fun next(state: Record.State, event: Any): Record.State.Content {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<Record.State>>(result)
+
+			return assertIs<Record.State.Content>(result.toState)
+		}
+
+		val observed = next(
+			state = Record.State.Idle,
+			event = RecordInternalEvent.RecordContentObserved(
+				viewMode = RecordViewMode.Projection,
+				record = record,
+				selectedTermId = "now",
+				notice = null
+			)
+		)
+		assertTrue(observed.isSelectedTermCurrent)
+		assertFalse(observed.isSelectedTermSynthetic)
+
+		val past = next(observed, Record.Action.SelectTerm(termId = "past"))
+		assertFalse(past.isSelectedTermCurrent)
+
+		val synthetic = next(past, Record.Action.SelectTerm(termId = "made-by-me"))
+		assertTrue(synthetic.isSelectedTermSynthetic)
+		assertFalse(synthetic.isSelectedTermCurrent)
+
+		val current = next(synthetic, Record.Action.SelectTerm(termId = "now"))
+		assertTrue(current.isSelectedTermCurrent)
+		assertFalse(current.isSelectedTermSynthetic)
+	}
+
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(
 		recordModule,
 		module {
@@ -526,6 +599,8 @@ class RecordStateMachineContractTest {
 			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
 			// Overrides the module's clock: the real one ticks forever, and the walks wait for idle.
 			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
+			single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
+			single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }

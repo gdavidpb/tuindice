@@ -19,8 +19,11 @@ import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
@@ -43,13 +46,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
 class KtorClientTest {
 	@Test
 	fun createSharedJson_ignoresUnknownTopLevelFields() {
@@ -275,12 +280,8 @@ class KtorClientTest {
 			accessToken = "access-old",
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeaders += checkNotNull(request.headers[HttpHeaders.Authorization])
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -311,7 +312,7 @@ class KtorClientTest {
 
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 
@@ -323,13 +324,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -353,9 +349,9 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /messaging/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["GET /users/v1"])
 	}
 
 	@Test
@@ -366,13 +362,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -402,9 +393,9 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
-		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /messaging/v1"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByRequest()["GET /users/v1"])
 	}
 
 	@Test
@@ -415,13 +406,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(DefaultRequest) {
 				url("https://api.tuindice.app/")
@@ -438,8 +424,8 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertNull(authorizationHeadersByRequest["POST /auth/v2/token/exchange"])
-		assertNull(authorizationHeadersByRequest["POST /attestation/v5/sessions"])
+		assertNull(client.authorizationHeadersByRequest()["POST /auth/v2/token/exchange"])
+		assertNull(client.authorizationHeadersByRequest()["POST /attestation/v5/sessions"])
 	}
 
 	@Test
@@ -450,11 +436,9 @@ class KtorClientTest {
 			accessToken = "access-old",
 			refreshToken = "refresh-old"
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					sessionRepository.setSessionSnapshot(
@@ -494,7 +478,7 @@ class KtorClientTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 	}
 
@@ -507,8 +491,8 @@ class KtorClientTest {
 			refreshToken = "refresh-old"
 		)
 		val oldRequestsSeen = CompletableDeferred<Unit>()
-		var oldRequestCount = 0
-		val authorizationHeaders = mutableListOf<String>()
+		// Both requests run the handler on the engine's threads at once: the count must not lose one.
+		val oldRequestCount = AtomicInt(0)
 		val authRepository = RefreshPersistingAuthRepository(
 			sessionRepository = sessionRepository,
 			beforeRefresh = { oldRequestsSeen.await() }
@@ -517,12 +501,9 @@ class KtorClientTest {
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
-					oldRequestCount++
-
-					if (oldRequestCount == 2) {
+					if (oldRequestCount.addAndFetch(1) == 2) {
 						oldRequestsSeen.complete(Unit)
 					}
 
@@ -560,8 +541,8 @@ class KtorClientTest {
 
 		assertEquals(1, authRepository.refreshCalls.size)
 		assertEquals(1, attestationRepository.requests.size)
-		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-old" })
-		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-new" })
+		assertEquals(2, client.authorizationHeaders().count { header -> header == "Bearer access-old" })
+		assertEquals(2, client.authorizationHeaders().count { header -> header == "Bearer access-new" })
 	}
 
 	@Test
@@ -574,14 +555,12 @@ class KtorClientTest {
 		)
 		val applicationRepository = RecordingApplicationRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
-		val authorizationHeaders = mutableListOf<String>()
 		val authRepository = FailingRefreshAfterSessionChangeAuthRepository(
 			sessionRepository = sessionRepository
 		)
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					respond(
@@ -617,7 +596,7 @@ class KtorClientTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 		assertFalse(sessionRepository.cleared)
 		assertEquals(0, applicationRepository.clearCalls)
@@ -631,13 +610,8 @@ class KtorClientTest {
 			accessToken = "access-token",
 			refreshToken = "refresh-token"
 		)
-		val authorizationHeadersByPath = mutableMapOf<String, String?>()
 		val client = HttpClient(
-			MockEngine { request ->
-				authorizationHeadersByPath[request.url.encodedPath] =
-					request.headers[HttpHeaders.Authorization]
-				respondOk()
-			}
+			MockEngine { respondOk() }
 		) {
 			install(Auth) {
 				installSharedBearerAuth(
@@ -656,8 +630,8 @@ class KtorClientTest {
 			client.close()
 		}
 
-		assertEquals(null, authorizationHeadersByPath["/auth/v1/token"])
-		assertEquals("Bearer access-token", authorizationHeadersByPath["/record/v5"])
+		assertEquals(null, client.authorizationHeadersByPath()["/auth/v1/token"])
+		assertEquals("Bearer access-token", client.authorizationHeadersByPath()["/record/v5"])
 	}
 
 	@Test
@@ -742,7 +716,10 @@ private fun sessionRecoveryDataSource(
 		attestationRepository = attestationRepository,
 		authRepository = authRepository,
 		credentialsRepository = credentialsRepository,
-		sessionCoroutineScope = sessionCoroutineScope
+		settingsRepository = FakeSettingsRepository(),
+		reportingRepository = RecordingReportingRepository(),
+		sessionCoroutineScope = sessionCoroutineScope,
+		appCoroutineScope = testAppCoroutineScope()
 	)
 }
 
@@ -751,6 +728,12 @@ private object ErrorAttestationRepository : AttestationRepository {
 }
 
 private object ErrorAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -793,6 +776,12 @@ private class RefreshPersistingAuthRepository(
 	private val sessionRepository: SessionRepository,
 	private val beforeRefresh: suspend () -> Unit = {}
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	val refreshCalls = mutableListOf<RefreshTokensCall>()
 
 	override suspend fun bootstrapSignIn(
@@ -848,6 +837,12 @@ private class RefreshPersistingAuthRepository(
 private class FailingRefreshAfterSessionChangeAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -890,6 +885,12 @@ private class FailingRefreshAfterSessionChangeAuthRepository(
 private class SupersededRefreshThenExchangePersistingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = exchangeSignIn(bootstrapAccessToken, attestation)
+
 	val bootstrapCalls = mutableListOf<BootstrapSignInCall>()
 	val exchangeCalls = mutableListOf<ExchangeSignInCall>()
 
@@ -953,6 +954,12 @@ private class SupersededRefreshThenExchangePersistingAuthRepository(
 }
 
 private class UnauthorizedRefreshAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 
@@ -994,6 +1001,12 @@ private class UnauthorizedRefreshAuthRepository : AuthRepository {
 }
 
 private class RefreshTokenMismatchAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 

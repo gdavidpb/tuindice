@@ -3,7 +3,9 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
@@ -42,6 +44,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -160,6 +163,15 @@ class EvaluationsStateMachineContractTest {
 		val reportingRepository = RecordingReportingRepository()
 		val selectionRepository = InMemoryEvaluationsSelectionRepository()
 
+		// A request left pending, as a jump to a week leaves it: the walk sends it while the screen is on its way,
+		// so the week focus rows are sampled and not only left unvisited.
+		val focusRequest = EvaluationsWeekFocusRequest(
+			weekStart = LocalDate(2026, 10, 12),
+			evaluationId = "evaluation-1"
+		)
+		val weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource()
+		weekFocusRepository.request(weekStart = focusRequest.weekStart, evaluationId = focusRequest.evaluationId)
+
 		val screenMachine = EvaluationsMachine(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = repository,
@@ -195,6 +207,7 @@ class EvaluationsStateMachineContractTest {
 				evaluationsSelectionRepository = selectionRepository,
 				reportingRepository = reportingRepository
 			),
+			weekFocusRepository = weekFocusRepository,
 			clock = Clock.System
 		)
 
@@ -212,6 +225,7 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EnsureEvaluationsLoaded,
 				Evaluations.Action.RefreshEvaluations,
 				Evaluations.Action.SelectWeek(weekKey = weekKey),
+				Evaluations.Action.EvaluationArrivalTaken(evaluationId = "evaluation-1"),
 				Evaluations.Action.AddEvaluation,
 				Evaluations.Action.ShowEvaluationGradeDialog(
 					evaluationId = "evaluation-1",
@@ -242,8 +256,8 @@ class EvaluationsStateMachineContractTest {
 						)
 					)
 				),
-				EvaluationsInternalEvent.EvaluationsEmptyObserved,
-				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
+				EvaluationsInternalEvent.EvaluationsEmptyObserved(hasSchedule = true),
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed(hasSchedule = false),
 				EvaluationsInternalEvent.EvaluationsObservationFailed(
 					message = "Comprueba tu conexión"
 				),
@@ -262,12 +276,12 @@ class EvaluationsStateMachineContractTest {
 				EvaluationsInternalEvent.EvaluationGradeSaved(message = "Nota guardada"),
 				EvaluationsInternalEvent.EvaluationGradeSaveFailed(message = "No se pudo guardar"),
 				EvaluationsInternalEvent.EvaluationRemoved(message = "Evaluación eliminada"),
-				EvaluationsInternalEvent.EvaluationRemoveFailed(message = "No se pudo eliminar")
+				EvaluationsInternalEvent.EvaluationRemoveFailed(message = "No se pudo eliminar"),
+				EvaluationsInternalEvent.WeekFocusRequested(request = focusRequest)
 			),
 			coroutineScope = backgroundScope,
-			// Conservative floor: every internal event is sampled by hand; raise to the
-			// observed coverage once the walk has run on CI.
-			minRowCoverage = 0.4
+			// The walk reads Clock.System, so the rows it reaches can vary with the date; the floor leaves room for that.
+			minRowCoverage = 0.8
 		)
 	}
 
@@ -391,6 +405,7 @@ class EvaluationsStateMachineContractTest {
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = reportingRepository
 				),
+				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher

@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.ui.screen
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
@@ -46,6 +48,8 @@ class TuIndiceNavRetentionUiTest {
 			onNodeWithText("Browser: https://tuindice.app/privacy").assertExists()
 
 			runOnIdle { navigator.pop() }
+			// Run alone, this test is the first of a cold process and pays for the whole host.
+			waitUntil(timeoutMillis = StateTimeoutMillis) { onAllNodesWithTagExists(SummaryUiTags.ContentContainer) }
 			assertNodeVisible(SummaryUiTags.ContentContainer)
 
 			runOnIdle { navigator.push(browserDestination()) }
@@ -109,12 +113,14 @@ class TuIndiceNavRetentionUiTest {
 			onNavigateToExternalResource = {},
 			onRecordViewModeChangeAvailable = {},
 			onRecordTermSelectionAvailable = {},
-			onRecordScheduleAvailable = {},
 			showTopBarBanner = {},
 			onViewStateChanged = {},
 			showSnackBar = {}
 		)
 	}
+
+	private fun ComposeUiTest.onAllNodesWithTagExists(tag: String): Boolean =
+		onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
 
 	private fun browserDestination() = BrowserDestination.Browser(
 		title = "Privacidad",
@@ -156,5 +162,9 @@ class TuIndiceNavRetentionUiTest {
 		) {
 			Text(text = "Browser: $url")
 		}
+	}
+
+	private companion object {
+		const val StateTimeoutMillis = 15_000L
 	}
 }

@@ -20,18 +20,22 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
+import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -46,9 +50,11 @@ import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -65,8 +71,6 @@ class ReadyRecordDataPrerequisiteRepository(
 	)
 ) : RecordDataPrerequisiteRepository {
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = states
-
-	override suspend fun isRecordDataReady(): Boolean = states.first().isReady
 }
 
 class RecordingSyncStatusRepository(
@@ -244,6 +248,30 @@ val DEFAULT_REMOTE_COMPLETED_EVALUATION = RemoteEvaluation(
 	isDone = true
 )
 
+// A second term with its own attempt and evaluation: what the record moves to when the term changes.
+val NEXT_TERM = EvaluationTermDescriptor(
+	id = "quarter-2",
+	periodYear = 2026,
+	periodCode = AcademicTermPeriod.SEP_DEC,
+	periodLabel = "Septiembre - Diciembre 2026"
+)
+
+val NEXT_TERM_SUBJECT = DEFAULT_EVALUATION_SUBJECT.copy(
+	id = "subject-3",
+	termId = NEXT_TERM.id,
+	code = "FIS-101",
+	name = "Fisica"
+)
+
+val NEXT_TERM_EVALUATION = DEFAULT_PENDING_EVALUATION.copy(
+	id = "evaluation-3",
+	attemptId = NEXT_TERM_SUBJECT.id,
+	subjectCode = NEXT_TERM_SUBJECT.code,
+	termId = NEXT_TERM.id
+)
+
+// hasSchedule: whether the term has a class schedule. By default it is read off the attempts, like the
+// numeric ones always told; a test passes it to say the meetings are on subjects the list does not offer.
 class RecordingEvaluationRepository(
 	initialEvaluations: List<Evaluation> = listOf(
 		DEFAULT_PENDING_EVALUATION,
@@ -261,13 +289,20 @@ class RecordingEvaluationRepository(
 	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
 	private val evaluationsSnapshot: ObservedSyncedSnapshot<List<Evaluation>>? = null,
 	private val refreshResult: EvaluationsRefreshResult? = null,
-	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
+	availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
 	),
-	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
+	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM,
+	hasSchedule: Boolean = availableSubjects.any { attempt -> attempt.meetings.isNotEmpty() }
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
+
+	// The term and its attempts are ONE state, like the real thing reads them: a test that moves both
+	// does it in one step (changeTermAndAttempts), and the pair is never half changed.
+	private val displayContextState = MutableStateFlow(
+		EvaluationDisplayContext(attempts = availableSubjects, currentTerm = currentTerm, hasSchedule = hasSchedule)
+	)
 
 	val addCalls = mutableListOf<EvaluationAdd>()
 	val updateCalls = mutableListOf<EvaluationUpdate>()
@@ -305,11 +340,12 @@ class RecordingEvaluationRepository(
 		refreshThrowable?.let { throw it }
 		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
 		// Same rule as the real repository: only an evaluation under an available subject counts.
-		val availableAttemptIds = availableSubjects.mapTo(HashSet()) { subject -> subject.id }
+		val availableAttemptIds = displayContextState.value.attempts.mapTo(HashSet()) { subject -> subject.id }
 		return refreshResult ?: EvaluationsRefreshResult(
 			hasEvaluations = evaluationsState.value
 				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
-			hasAvailableAttempts = availableSubjects.isNotEmpty()
+			hasAvailableAttempts = displayContextState.value.attempts.isNotEmpty(),
+			hasSchedule = displayContextState.value.hasSchedule
 		)
 	}
 
@@ -370,10 +406,33 @@ class RecordingEvaluationRepository(
 
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> {
 		availableAttemptsThrowable?.let { throw it }
-		return availableSubjects
+		return displayContextState.value.attempts
 	}
 
-	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTerm
+	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = displayContextState.value.currentTerm
+
+	override fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext> {
+		return displayContextState
+			.map { context -> context.copy(attempts = context.attempts.sortedBy(EditableAttemptDescriptor::code)) }
+			.distinctUntilChanged()
+			.onStart { availableAttemptsThrowable?.let { throwable -> throw throwable } }
+	}
+
+	fun changeAvailableAttempts(attempts: List<EditableAttemptDescriptor>) {
+		displayContextState.value = displayContextState.value.copy(attempts = attempts)
+	}
+
+	fun changeCurrentTerm(term: EvaluationTermDescriptor?) {
+		displayContextState.value = displayContextState.value.copy(currentTerm = term)
+	}
+
+	fun changeTermAndAttempts(term: EvaluationTermDescriptor?, attempts: List<EditableAttemptDescriptor>) {
+		displayContextState.value = displayContextState.value.copy(attempts = attempts, currentTerm = term)
+	}
+
+	fun changeHasSchedule(hasSchedule: Boolean) {
+		displayContextState.value = displayContextState.value.copy(hasSchedule = hasSchedule)
+	}
 }
 
 class FakeDatabaseDataSource(
@@ -384,12 +443,14 @@ class FakeDatabaseDataSource(
 			DEFAULT_LOCAL_COMPLETED_EVALUATION
 		)
 	),
-	private val availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
+	availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	),
-	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM
+	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM,
+	private val hasSchedule: Boolean = availableSubjects.any { attempt -> attempt.meetings.isNotEmpty() }
 ) : DatabaseDataRepository {
+	private val availableSubjectsState = MutableStateFlow(availableSubjects)
 	private val snapshotState = MutableStateFlow(initialSnapshot)
 	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.hasSynced)
 
@@ -414,7 +475,21 @@ class FakeDatabaseDataSource(
 
 	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
-	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
+	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjectsState.value
+
+	override fun observeDisplayContextFlow(): Flow<LocalEvaluationDisplayContext> {
+		return availableSubjectsState.map { attempts ->
+			LocalEvaluationDisplayContext(
+				currentTerm = currentTerm,
+				attempts = attempts,
+				hasSchedule = hasSchedule
+			)
+		}
+	}
+
+	fun changeAvailableAttempts(attempts: List<LocalEditableAttemptDescriptor>) {
+		availableSubjectsState.value = attempts
+	}
 
 	override suspend fun getCurrentTerm(): LocalCurrentTermDescriptor? = currentTerm
 
@@ -617,6 +692,30 @@ class RecordingReportingRepository : ReportingRepository {
 	override fun logMessage(message: String) = Unit
 
 	override fun <T : Any> setCustomKey(key: String, value: T) = Unit
+}
+
+// The database layer of the real thing in what matters here: the snapshot it hands out is the
+// confirmed one merged with the pending mutations of the outbox, through the real resolver. Reads
+// that do not depend on the queue go to the fake underneath.
+class QueueMergingDatabaseDataSource(
+	private val confirmed: FakeDatabaseDataSource,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
+	private val resolver: VisibleEvaluationsStateResolver = VisibleEvaluationsStateResolver()
+) : DatabaseDataRepository by confirmed {
+	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
+		return kotlinx.coroutines.flow.combine(
+			confirmed.observeEvaluationsSnapshotFlow(),
+			mutationEngine.observeMutations(EVALUATIONS_MUTATION_SCOPE)
+		) { confirmedSnapshot, pendingMutations ->
+			confirmedSnapshot.copy(
+				evaluations = resolver.resolveVisibleState(confirmedSnapshot, pendingMutations)
+			)
+		}
+	}
+
+	override suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot {
+		return observeEvaluationsSnapshotFlow().first()
+	}
 }
 
 class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(

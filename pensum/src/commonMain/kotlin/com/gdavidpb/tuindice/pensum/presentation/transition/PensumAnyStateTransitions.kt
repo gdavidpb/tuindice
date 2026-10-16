@@ -28,16 +28,6 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 			state
 		}
 
-		on<Pensum.Action.SelectPensum> { state, action ->
-			machine.selectPensum(host = host, year = action.year)
-			state
-		}
-
-		on<Pensum.Action.SelectModality> { state, action ->
-			machine.selectModality(host = host, modalityId = action.modalityId)
-			state
-		}
-
 		on<Pensum.Action.SelectSelection> { state, action ->
 			machine.selectSelection(
 				host = host,

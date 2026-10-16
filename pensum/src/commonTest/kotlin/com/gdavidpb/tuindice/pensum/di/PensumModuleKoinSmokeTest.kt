@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.pensum.testing.FakeSettings
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -51,6 +52,17 @@ class PensumModuleKoinSmokeTest {
 		)
 	}
 
+	// The shared read contract the other features consume, bound by this module.
+	@Test
+	fun resolvesPensumProgressRepository() = withKoinSmokeTest(
+		pensumModule,
+		module {
+			single<PensumRepository> { FakePensumRepository() }
+		}
+	) {
+		assertResolves(PensumProgressRepository::class)
+	}
+
 	// One instance behind both contracts: a revalidation and a manual selection must share its
 	// remoteWriteMutex, or a late revalidation could write back the pensum the student just left.
 	@Test
@@ -72,8 +84,6 @@ private class FakePensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 	override suspend fun hasSelectedPensumResponse(): Boolean = false
 	override suspend fun refreshPensum(forceRemote: Boolean) = Unit
-	override suspend fun selectPensum(year: Int) = Unit
-	override suspend fun selectModality(modalityId: String) = Unit
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }
 
@@ -81,8 +91,6 @@ private class FakeRecordDataPrerequisiteRepository : RecordDataPrerequisiteRepos
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> {
 		return flowOf(RecordDataPrerequisiteState(isReady = true, hasFailed = false))
 	}
-
-	override suspend fun isRecordDataReady(): Boolean = true
 }
 
 private class FakeNetworkRepository : NetworkRepository {

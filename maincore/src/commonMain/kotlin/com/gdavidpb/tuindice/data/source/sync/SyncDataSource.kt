@@ -12,10 +12,13 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +38,7 @@ class SyncDataSource(
 	private val remoteDataSource: SyncRemoteDataRepository,
 	private val syncResultLocalDataSource: SyncResultLocalDataRepository,
 	private val pensumRevalidationRepository: PensumRevalidationRepository,
+	private val evaluationsRevalidationRepository: EvaluationsRevalidationRepository,
 	private val coroutineScope: CoroutineScope
 ) : SyncRepository {
 	private val syncMutex = Mutex()
@@ -52,7 +56,13 @@ class SyncDataSource(
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()
 					val isSyncRetryBackoffActive = settingsDataSource.isSyncRetryBackoffActive()
 
-					if ((isOnCooldown || isSyncRetryBackoffActive) && policy == SyncPolicy.RespectCooldown) return@withLock
+					if ((isOnCooldown || isSyncRetryBackoffActive) && policy == SyncPolicy.RespectCooldown) {
+						// A skipped sync downloads nothing: evaluations this account has never
+						// downloaded (a revalidation that failed earlier) would wait for the next
+						// real sync, a day away. Already downloaded, this adds no request.
+						launchEvaluationsRevalidation(onlyIfNeverDownloaded = true)
+						return@withLock
+					}
 					if (policy == SyncPolicy.ForceRefresh) {
 						settingsDataSource.clearRecoveryCooldowns()
 						settingsDataSource.clearSyncRetryBackoff()
@@ -63,6 +73,12 @@ class SyncDataSource(
 					try {
 						val syncResult = remoteDataSource.sync(password)
 
+						// The sync runs in the session scope, which the end of the session cancels (and waits
+						// for) BEFORE it wipes anything. The request above is a suspension that observes that
+						// cancellation, so checking here, right before the save and with nothing suspending in
+						// between, is enough: a sync that gets past this line finishes its local writes before
+						// the wipe starts, and one that does not writes nothing for the account that left.
+						currentCoroutineContext().ensureActive()
 						syncResultLocalDataSource.saveSyncResult(syncResult)
 						syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
 						syncStatusRepository.setSyncReport(
@@ -75,7 +91,12 @@ class SyncDataSource(
 						settingsDataSource.setSyncOnCooldown()
 						settingsDataSource.setSyncedFeatureCooldowns()
 						settingsDataSource.clearStaleFeatureCooldowns()
+						// Everything above is a plain write that never checks for cancellation: a
+						// sign-out that cancelled the session scope in the meantime must not be
+						// answered with new children that nobody cancels or waits for.
+						currentCoroutineContext().ensureActive()
 						launchPensumRevalidation()
+						launchEvaluationsRevalidation()
 					} finally {
 						syncInProgress.value = false
 					}
@@ -95,6 +116,22 @@ class SyncDataSource(
 	private fun launchPensumRevalidation() {
 		coroutineScope.launch {
 			runCatching { pensumRevalidationRepository.revalidateSelectedPensum() }
+				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+		}
+	}
+
+	// The evaluations get the same treatment, with one difference: they are downloaded even if the
+	// student never opened their tab, because the summary and the schedule read them too. Same
+	// shape: fire-and-forget on the session scope, never under the sync lock, never marks the sync.
+	private fun launchEvaluationsRevalidation(onlyIfNeverDownloaded: Boolean = false) {
+		coroutineScope.launch {
+			runCatching {
+				if (onlyIfNeverDownloaded) {
+					evaluationsRevalidationRepository.revalidateEvaluationsIfNeverDownloaded()
+				} else {
+					evaluationsRevalidationRepository.revalidateEvaluations()
+				}
+			}
 				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		}
 	}

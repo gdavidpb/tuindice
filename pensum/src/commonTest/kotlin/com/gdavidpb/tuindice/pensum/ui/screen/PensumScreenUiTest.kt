@@ -40,7 +40,6 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteColumnWidth
 import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteConnectorWidth
-import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationOriginIsInAfterItems
 import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationStartScrollOffset
 import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationTargetScrollOffset
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
@@ -280,7 +279,6 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 			.assertExists()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
-		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ci4325"))
 		onNodeWithText("Detalle de materia").assertExists()
 		onNodeWithTag(PensumUiTags.SubjectDetailCode)
 			.assertTextEquals("CI4325")
@@ -938,7 +936,6 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 			)
 		}
 
-		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ea1"))
 		onNodeWithTag(PensumUiTags.node("ea1")).performClick()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		assertNodeVisible(PensumUiTags.SubjectDetailName)
@@ -1125,10 +1122,6 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 			checkNotNull(nodesById["approved-ee1111"])
 				.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
 		)
-		val afterItems = listOf(
-			checkNotNull(nodesById["blocked-ci9999"])
-				.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
-		)
 
 		assertEquals(
 			0.dp,
@@ -1136,13 +1129,6 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 				navigationOriginNodeId = null,
 				navigationDirection = null,
 				beforeItems = beforeItems
-			)
-		)
-		assertEquals(
-			true,
-			routeNavigationOriginIsInAfterItems(
-				navigationOriginNodeId = "blocked-ci9999",
-				afterItems = afterItems
 			)
 		)
 		assertEquals(

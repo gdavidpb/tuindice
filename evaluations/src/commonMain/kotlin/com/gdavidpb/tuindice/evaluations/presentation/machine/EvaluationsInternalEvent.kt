@@ -1,14 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import kotlinx.datetime.LocalDate
 
 /**
  * Internal machine inputs for the evaluations list: observation outcomes split per
- * resolution (so every row keeps a fixed declared target), the refresh lifecycle, and
- * the effect cycles of the grade dialog, grade save and removal.
+ * resolution (so every row keeps a fixed declared target), the refresh lifecycle, the
+ * request to show a week and the effect cycles of the grade dialog, grade save and removal.
  */
 sealed interface EvaluationsInternalEvent {
 	data object EvaluationsWaitingObserved : EvaluationsInternalEvent
@@ -24,12 +26,27 @@ sealed interface EvaluationsInternalEvent {
 	data class EvaluationsContentObserved(
 		val weekItems: List<EvaluationsWeekItem>,
 		val defaultWeekKey: EvaluationsWeekKey,
-		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>
+		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>,
+		val weekOneStart: LocalDate? = null,
+		// Whether some subject of the current term has a class schedule to open.
+		val hasSchedule: Boolean = false
 	) : EvaluationsInternalEvent
 
-	data object EvaluationsEmptyObserved : EvaluationsInternalEvent
+	// A request to show the week (and the evaluation) it names is pending: whoever sees it (the
+	// observation, the content having just loaded, or the request itself) sends it, and only the first
+	// to take it from the repository applies it.
+	data class WeekFocusRequested(
+		val request: EvaluationsWeekFocusRequest
+	) : EvaluationsInternalEvent
 
-	data object EvaluationsEmptyConfirmed : EvaluationsInternalEvent
+	data class EvaluationsEmptyObserved(
+		// Whether some subject of the current term has a class schedule to open.
+		val hasSchedule: Boolean = false
+	) : EvaluationsInternalEvent
+
+	data class EvaluationsEmptyConfirmed(
+		val hasSchedule: Boolean = false
+	) : EvaluationsInternalEvent
 
 	data class EvaluationsObservationFailed(
 		val message: String

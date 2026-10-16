@@ -1,0 +1,94 @@
+{
+  "backgrounds": [
+    {
+      "id": "laberinto-cromovegetal",
+      "order": 1,
+      "version": 1,
+      "title": "Laberinto Cromovegetal",
+      "author": "Carlos Cruz-Diez",
+      "shortName": "Laberinto",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/laberinto-cromovegetal/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/laberinto-cromovegetal/v1/thumb.webp"
+    },
+    {
+      "id": "fuente-hidrocinetica",
+      "order": 2,
+      "version": 1,
+      "title": "Estructura Hidrocinética",
+      "author": "Gabriel Martín Landrove",
+      "shortName": "Hidrocinética",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/fuente-hidrocinetica/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/fuente-hidrocinetica/v1/thumb.webp"
+    },
+    {
+      "id": "espejo-solar",
+      "order": 3,
+      "version": 1,
+      "title": "Espejo Solar",
+      "author": "Alejandro Otero",
+      "shortName": "Espejo Solar",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/espejo-solar/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/espejo-solar/v1/thumb.webp"
+    },
+    {
+      "id": "biblioteca-central",
+      "order": 4,
+      "version": 1,
+      "title": "Biblioteca Central",
+      "author": null,
+      "shortName": "Biblioteca",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/biblioteca-central/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/biblioteca-central/v1/thumb.webp"
+    },
+    {
+      "id": "casa-rectoral",
+      "order": 5,
+      "version": 1,
+      "title": "Casa Rectoral",
+      "author": null,
+      "shortName": "Rectorado",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/casa-rectoral/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/casa-rectoral/v1/thumb.webp"
+    },
+    {
+      "id": "la-lucha-del-hombre-por-la-cima",
+      "order": 6,
+      "version": 1,
+      "title": "La lucha del hombre por la cima",
+      "author": "Carlos Prada",
+      "shortName": "La Lucha",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/la-lucha-del-hombre-por-la-cima/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/la-lucha-del-hombre-por-la-cima/v1/thumb.webp"
+    },
+    {
+      "id": "desde-la-ventana",
+      "order": 7,
+      "version": 1,
+      "title": "Desde la ventana",
+      "author": "Beatriz Kohn",
+      "shortName": "La Ventana",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/desde-la-ventana/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/desde-la-ventana/v1/thumb.webp"
+    },
+    {
+      "id": "estatua-de-simon-bolivar",
+      "order": 8,
+      "version": 1,
+      "title": "Simón Bolívar",
+      "author": "Joaquín Roca Rey",
+      "shortName": "Bolívar",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/estatua-de-simon-bolivar/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/estatua-de-simon-bolivar/v1/thumb.webp"
+    },
+    {
+      "id": "conjunto-de-auditorios",
+      "order": 9,
+      "version": 1,
+      "title": "Conjunto de Auditorios",
+      "author": null,
+      "shortName": "Auditorios",
+      "card": "http://localhost:8080/tu-indice-share-backgrounds/conjunto-de-auditorios/v1/card.webp",
+      "thumb": "http://localhost:8080/tu-indice-share-backgrounds/conjunto-de-auditorios/v1/thumb.webp"
+    }
+  ]
+}

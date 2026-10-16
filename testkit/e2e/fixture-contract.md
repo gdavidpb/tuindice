@@ -7,7 +7,7 @@ The accounts, tokens, texts and ids the scenarios use are Kotlin values in
 `Copy.kt`). Host tests in `scenarios/src/androidHostTest/` check them against the mappings (`AccountFixturesTest`,
 `AccountSessionFixturesTest`, `EntityFixturesTest`, `CopyTest`, `MockContractTest`, `MockRulesTest`,
 `PendingFlushMocksTest`, `RecordSearchFixturesTest`, `SubjectSearchFixturesTest`, `RetryOrderMocksTest`,
-`E2eClockFixtureTest`) and run in `verifyE2eContract`. This document keeps the semantics; the values live there.
+`E2eClockFixtureTest`, `SummaryHubRecordFixturesTest`, `SummaryHubMocksTest`) and run in `verifyE2eContract`. This document keeps the semantics; the values live there.
 
 Rules:
 
@@ -35,6 +35,16 @@ Rules:
   the path), `CatalogStartTest` lists the scenarios that start with states besides their account's, and
   `PendingFlushMocksTest` replays that the dated and undated adds of the other scenarios (`evaluations-add-submit`
   among them) are accepted. The flush mock accepts the dated add from `Available` and moves to `Delivered`.
+- A successful sync revalidates the evaluations (`EvaluationsRevalidationRepository`): the first `GET /evaluations/v3` of
+  a session happens right after the sync, whether or not the scenario ever opens the evaluations tab, and the tab then
+  finds the list cached (the cooldown the download sets keeps it from asking again) only when the list has at least one
+  evaluation the tab shows; with an empty list the tab forces a remote read and downloads again. A scenario that needs that first
+  answer to be a refusal therefore cannot set the refusing state after the summary shows: it starts in it
+  (`evaluations-list-retry` starts with `evaluations-list-failure` in `Unavailable`, the revalidation fails without
+  failing the sync, the tab, which the failure never holds off, meets the same 503 and offers the retry, and the
+  scenario moves the mock to `Recovered`). The list does not change between the sync and the first visit of the tab in
+  any other scenario, and what the empty states show (`evaluations-enrollment-unavailable`, `evaluations-not-enrolled`,
+  the annulled ones) comes from the record's attempts and the sync report, not from the list response.
 - A refusal that only one step of one scenario needs lives in a WireMock scenario state the scenario sets in the middle
   of its run with `mockState`, not in the default state: `enrollment-proof-saved-copy` answers the canonical account's
   proof request with 503 only in `Unavailable`, which `enrollmentproof-saved-copy-dialog` sets after the download that
@@ -58,6 +68,47 @@ Fixed clock:
 
 - Every `Start` passes the launch argument `TUINDICE_E2E_NOW` (`DebugLaunchArguments.NOW`) with `E2eFixtures.Now` (`2026-10-15T12:00:00Z`), and debug builds read the date through the injected clock (`OverridableClock`). What the app derives from the date therefore does not depend on the day of the run: the term the record offers next (`E2eFixtures.NextTermKey`, `Copy.TermSepDec2026`) and the evaluations calendar do not expire. `E2eClockFixtureTest` checks that the frozen instant falls in the term those fixtures name; changing `E2eFixtures.Now` means re-checking them.
 - Mock data that carries absolute dates (the evaluations base state, `lastSuccessfulSyncAt`) is independent of the app clock.
+- The time zone is not fixed and no launch argument, device setting or line of the app sets it: the schedule clock
+  (`ScheduleClockDataSource`) and the dates of evaluations use the zone of the device (the iOS simulator follows the host's; the emulator keeps
+  whatever zone its image booted with, normally the host's), so `12:00Z` is block 1 in Caracas (08:00), block 2 at UTC-3 and block 5 at UTC. What the scenarios
+  assert is therefore true in any zone from UTC-4 to UTC+3 (and the calendar day in any from UTC-11 to UTC+11), by how the
+  hub fixtures are built (next section), and no scenario names the class in progress, which is the one thing that moves
+  with the zone. Fixing the zone from the harness was looked at and not done: on Android it needs a device-level change
+  (`cmd time_zone_detector`) no one can check without the emulator, it changes the toolchain fingerprint and the harness
+  line budget, and on iOS it needs `TZ` in the launch environment, which only a run proves the Kotlin runtime honours; a debug
+  zone argument would put code in the app for it. `SummaryHubRecordFixturesTest` checks the construction.
+
+Summary hub fixture contract:
+
+- Two dedicated users, `summary-hub` (raw USBID digits `4141414`, password `summary-hub-pass`) and `summary-hub-no-pensum`
+  (`4242424`, `summary-hub-no-pensum-pass`), share one record, one list of evaluations and one sync body; they differ in
+  what their pensum answers. The first gets the shared success, so its career card is the invitation until its Pensum tab
+  has been opened once (that downloads the pensum and keeps it); from then on the card shows the progress. The second
+  gets 404, so no pensum is ever cached and its career card stays the invitation. Their mappings:
+  `auth-summary-hub-*` and `auth-summary-hub-no-pensum-*` (bootstrap and exchange),
+  `post-sync-summary-hub*.json` (by password, both serve `sync/post-sync-summary-hub.json`), `get-record-summary-hub.json`
+  and `get-evaluations-summary-hub.json` (priority 1, by the bearer of either user), `get-pensum-summary-hub-no-pensum.json`.
+  The mock state is global to the profile, not to the account, so the evaluations of these users are a fixed list in a
+  file (`mocks/__files/evaluations/get-evaluations-summary-hub.json`) and not the evaluations transformer: scenarios that
+  edit, add or delete evaluations keep using the canonical account. The record read (`GET /record/v5`) serves the same body
+  as the sync, as for the annulled-provisional user, so neither overwrites the other.
+- The current term is September - December 2026 (`classes_start_date` 2026-09-28, so Thursday 2026-10-15 is in week 3 of 12),
+  with four subjects: CI5311 (Mon 1-2 and Thu 1-2, MYS-116), CI5437 (Mon 2-3 and Thu 3-4, MYS-210, with the university's
+  `CHOQUE DE HORARIO` because it overlaps CI5311 on Monday), EG1114 (Wed 3-4 and Thu 5-6, ENE-101) and CI4325 (Tue 5-6 and Thu
+  7-8, MYS-318). Thursday is covered by blocks 1 to 8 without a gap, so a class is in progress at `12:00Z` whatever the zone
+  from UTC-4 to UTC+3. The term has no `term_key` on purpose: the app defaults it to `2026-SEP_DEC`, which is the key the
+  canonical record offers for planning (`E2eFixtures.NextTermKey`, a derived fixture that no mock may spell).
+- The evaluations sit at 12:00Z of their day, so every zone reads the same calendar day: a graded quiz of CI5311 (week 1,
+  8 of 10), an ungraded test of CI4325 on Tuesday 6 (week 2, the oldest), and in week 3 an ungraded test of CI5311 on Monday
+  12 (overdue, class day), a test of CI5437 today (blocks 3-4) and a test of EG1114 on Friday 16 (no class that day). That
+  gives the hub two points of attention (`2 evaluaciones sin nota`, leading to week 2, and the clash of CI5437, leading to
+  Record), two evaluations in "Esta semana" (today and Friday, not the overdue ones), points for CI5311 and "Sin notas aún"
+  for the rest, and a week-3 schedule where only the Monday meeting of CI5311 and the Thursday meeting of CI5437 carry the evaluation mark.
+- The hub scenarios read the sheet and the hub through tags. A marked cell of the sheet, a row of the hub and a point of
+  attention are buttons that merge their children, so the tags inside them (`scheduleCellEvaluation`,
+  `scheduleTableEvaluationIcon`, `WeekClassPill`) are not asserted by the scenarios: the marked cell is found by its own tag
+  (`scheduleTableEvaluation`, `scheduleCell`), the legend (`ScheduleEvaluationLegend`) says that something is marked, and
+  the effect of tapping a marked cell (the sheet gone, the Evaluations tab selected on week 3) is what proves the mark.
 
 Record synthetic term search fixture contract:
 
@@ -71,7 +122,8 @@ Record synthetic term search fixture contract:
 
 Subject search and enum-named inputs:
 
-- The subjects scenarios type the queries of `E2eFixtures.subjectSearches`: the catalog mock lists `ci`, and the debug
+- The subjects scenarios type the queries of `E2eFixtures.SubjectSearchCi`, `SubjectSearchQa`, `SubjectSearchQb` and
+  `SubjectSearchRx`: the catalog mock lists `ci`, and the debug
   source of the subjects module lists `qa`, `qb` and `rx`; `E2eInputs.SubjectQueryTooShort` is under the minimum length
   the search takes and `E2eInputs.SubjectQueryNoMatch` matches no subject. `SubjectSearchFixturesTest` reads both
   sources and fails a query that does not list its subject.

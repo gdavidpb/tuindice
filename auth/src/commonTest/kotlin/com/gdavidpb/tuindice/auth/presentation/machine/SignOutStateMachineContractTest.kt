@@ -12,10 +12,8 @@ import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
@@ -99,9 +97,7 @@ class SignOutStateMachineContractTest {
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					sessionCoroutineScope = testSessionCoroutineScope(),
+					sessionEndRepository = RunningSessionEndRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				flushPendingChangesUseCase = FlushPendingChangesUseCase(

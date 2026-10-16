@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.data.source.network.persistOutdatedAppStateIfUpgradeRequired
+import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
@@ -36,6 +38,7 @@ fun createSharedHttpClient(
 	sessionRepository: SessionRepository,
 	settingsRepository: SettingsRepository,
 	sessionRecoveryRepository: SessionRecoveryRepository,
+	sessionCoroutineScope: SessionCoroutineScope,
 	outdatedAppEventRepository: OutdatedAppEventRepository,
 	logger: Logger,
 	json: Json,
@@ -69,7 +72,8 @@ fun createSharedHttpClient(
 
 		installInsufficientScopeSessionInvalidation(
 			sessionRepository = sessionRepository,
-			sessionRecoveryRepository = sessionRecoveryRepository
+			sessionRecoveryRepository = sessionRecoveryRepository,
+			sessionCoroutineScope = sessionCoroutineScope
 		)
 
 		HttpResponseValidator {
@@ -131,6 +135,14 @@ internal fun AuthConfig.installSharedBearerAuth(
 		// SessionRepository already owns token persistence and mutation.
 		cacheTokens = false
 
+		// Do not turn on the plugin's non-cancellable refresh (nor wrap the recovery in
+		// NonCancellable). refreshTokens can end the session from inside the branch of the request
+		// that is waiting on it; SessionCoroutineScope.cancelActiveWork() cancels that branch with the
+		// rest of the scope's work. In a non-cancellable context the Job of the request hangs from
+		// NonCancellable, not from the session scope, so the invalidation would not reach it and the
+		// request would go on after the session ended. The semgrep rule
+		// session-recovery-no-noncancellable keeps this from changing.
+
 		refreshTokens {
 			val attemptedAccessToken = response.call.request.headers[HttpHeaders.Authorization]?.bearerAccessToken()
 
@@ -145,7 +157,8 @@ internal fun AuthConfig.installSharedBearerAuth(
 
 internal fun HttpClientConfig<*>.installInsufficientScopeSessionInvalidation(
 	sessionRepository: SessionRepository,
-	sessionRecoveryRepository: SessionRecoveryRepository
+	sessionRecoveryRepository: SessionRecoveryRepository,
+	sessionCoroutineScope: SessionCoroutineScope
 ) {
 	HttpResponseValidator {
 		handleResponseExceptionWithRequest { exception, _ ->
@@ -161,10 +174,25 @@ internal fun HttpClientConfig<*>.installInsufficientScopeSessionInvalidation(
 				val activeSnapshot = sessionRepository.getActiveSessionSnapshot()
 
 				// Invalidate only when a current token still lacks the scope; a
-				// stale token is refreshed and retried by the Auth plugin instead.
-				if (activeSnapshot != null && attemptedAccessToken == activeSnapshot.accessToken) {
+				// stale token is refreshed and retried by the Auth plugin instead. And only when
+				// a screen made the request: the background work of the session scope fails with
+				// this error like with any other, and its task treats it as one. That work is the
+				// sync and the revalidations it starts (pensum, evaluations), the sends and drains
+				// of the evaluations queue (submitInBackground, and the drain after a revalidation),
+				// the messaging subscription ensured when the app is resumed, and the push token
+				// rotation. The queue of the academic record sends from the screen
+				// (AcademicRecordDataSource.submitTrackedMutation), so there the same 403 does end
+				// the session: it is an action of the user, which is what this rule asks for. A
+				// dead session, by contrast, is ended from anywhere (see SessionRecoveryDataSource).
+				if (
+					activeSnapshot != null &&
+					attemptedAccessToken == activeSnapshot.accessToken &&
+					sessionCoroutineScope.callerBranch() == null
+				) {
 					sessionRecoveryRepository.invalidateSession(
-						sessionId = activeSnapshot.sessionId
+						sessionId = activeSnapshot.sessionId,
+						reason = SessionInvalidationReason.InsufficientScope,
+						cause = exception
 					)
 				}
 			}

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
 import com.gdavidpb.tuindice.pensum.data.source.KtorPensumApiDataSource
 import com.gdavidpb.tuindice.pensum.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.pensum.data.source.PensumDataSource
+import com.gdavidpb.tuindice.pensum.data.source.PensumProgressDataSource
 import com.gdavidpb.tuindice.pensum.data.source.PensumRoomDataSource
 import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
@@ -13,15 +14,14 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -36,8 +36,6 @@ val pensumModule = module {
 	factoryOf(::ObservePensumUseCase)
 	factoryOf(::EnsurePensumLoadedUseCase)
 	factoryOf(::UpdatePensumUseCase)
-	factoryOf(::SelectPensumUseCase)
-	factoryOf(::SelectPensumModalityUseCase)
 	factoryOf(::SelectPensumSelectionUseCase)
 	factoryOf(::SetPensumSummaryCollapsedUseCase)
 
@@ -48,6 +46,7 @@ val pensumModule = module {
 		bind<PensumSelectionRepository>()
 		bind<SessionMemory>()
 	}
+	singleOf(::PensumProgressDataSource) { bind<PensumProgressRepository>() }
 	singleOf(::PensumDataSource) {
 		bind<PensumRepository>()
 		bind<PensumRevalidationRepository>()

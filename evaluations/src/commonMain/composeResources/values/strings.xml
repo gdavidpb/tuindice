@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="screen_title_evaluations">Evaluaciones</string>
-	<string name="screen_title_evaluation">Evaluación</string>
 	<string name="top_bar_add_evaluation">Crear evaluación</string>
 	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
 
@@ -47,10 +46,12 @@
 	<string name="evaluation_workshop">Taller</string>
 	<string name="evaluation_written_work">Trabajo escrito</string>
 	<string name="evaluation_other">Otra</string>
-	<string name="evaluation_status_pending">Pendiente</string>
+	<string name="evaluation_status_overdue">Sin nota</string>
 	<string name="evaluation_status_scheduled">Programada</string>
 	<string name="evaluation_status_completed">Completada</string>
 	<string name="evaluation_status_continuous">Continua</string>
+
+	<string name="evaluation_place_in_class">En clase · %1$s</string>
 
 	<string name="label_add_evaluation_subject">Materia</string>
 	<string name="label_add_evaluation_type">Tipo</string>
@@ -59,8 +60,6 @@
 	<string name="label_add_evaluation_max_grade">Nota máxima</string>
 	<string name="label_evaluation_date">Elige una fecha</string>
 	<string name="label_evaluation_no_date">Evaluación continua</string>
-	<string name="label_evaluation_assign_grade">Sin nota</string>
-	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Modificar</string>
 
@@ -89,4 +88,5 @@
 	<string name="a11y_add_evaluation">Agregar evaluación</string>
 	<string name="a11y_evaluation_show_actions">Ver acciones</string>
 	<string name="a11y_evaluation_register_grade">Registrar nota</string>
+	<string name="a11y_calendar_day_class">%1$d, día de clase</string>
 </resources>

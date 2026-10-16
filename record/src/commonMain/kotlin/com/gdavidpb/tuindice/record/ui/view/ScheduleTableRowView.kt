@@ -26,13 +26,16 @@ import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
 /**
  * One subject of the table: its code and where it is taught on the left, then a cell per day.
  * A meeting that clashes with another subject's is outlined in the alert tone; nothing is written
- * under the row for it.
+ * under the row for it. A meeting with an evaluation this week is a button inside the row: the row's
+ * description (which merges its cells) leaves it out because the button says everything about itself;
+ * every such cell asks for the same week.
  */
 @Composable
 fun ScheduleTableRowView(
 	modifier: Modifier = Modifier,
 	row: ScheduleTableRowItem,
-	days: List<ScheduleDay>
+	days: List<ScheduleDay>,
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val description = row.description.asString()
 
@@ -47,7 +50,8 @@ fun ScheduleTableRowView(
 				.semantics(mergeDescendants = true) { contentDescription = description },
 			shape = RoundedCornerShape(TuIndiceRadius.Small),
 			// One step above the sheet the table sits on, so each subject reads as its own row.
-			color = MaterialTheme.colorScheme.surfaceContainerHigh
+			color = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurface
 		) {
 			Row(
 				modifier = Modifier
@@ -74,7 +78,8 @@ fun ScheduleTableRowView(
 							modifier = Modifier.width(ScheduleTableDefaults.DayWidth),
 							attemptId = row.attemptId,
 							day = day,
-							meetings = row.meetings[day].orEmpty()
+							meetings = row.meetings[day].orEmpty(),
+							onEvaluationClick = onEvaluationClick
 						)
 					}
 				}

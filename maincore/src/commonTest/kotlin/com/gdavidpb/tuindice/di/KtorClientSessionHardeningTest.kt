@@ -17,8 +17,11 @@ import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testAppCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
@@ -116,11 +119,9 @@ class KtorClientSessionHardeningTest {
 			attestationRepository = TokenAttestationRepository,
 			authRepository = RefreshingAuthRepository(sessionRepository = sessionRepository)
 		)
-		val authorizationHeaders = mutableListOf<String>()
 		val client = HttpClient(
 			MockEngine { request ->
 				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
-				authorizationHeaders += authorization
 
 				if (authorization == "Bearer access-old") {
 					respond(
@@ -143,7 +144,8 @@ class KtorClientSessionHardeningTest {
 			}
 			installInsufficientScopeSessionInvalidation(
 				sessionRepository = sessionRepository,
-				sessionRecoveryRepository = sessionRecoveryRepository
+				sessionRecoveryRepository = sessionRecoveryRepository,
+				sessionCoroutineScope = testSessionCoroutineScope()
 			)
 		}
 
@@ -156,7 +158,7 @@ class KtorClientSessionHardeningTest {
 		assertEquals(HttpStatusCode.OK, response.status)
 		assertEquals(
 			listOf("Bearer access-old", "Bearer access-new"),
-			authorizationHeaders
+			client.authorizationHeaders()
 		)
 		assertFalse(sessionRepository.cleared)
 		assertEquals(0, sessionInvalidationRepository.invalidationCalls)
@@ -196,7 +198,8 @@ class KtorClientSessionHardeningTest {
 			}
 			installInsufficientScopeSessionInvalidation(
 				sessionRepository = sessionRepository,
-				sessionRecoveryRepository = sessionRecoveryRepository
+				sessionRecoveryRepository = sessionRecoveryRepository,
+				sessionCoroutineScope = testSessionCoroutineScope()
 			)
 		}
 
@@ -227,7 +230,10 @@ private fun sessionRecoveryDataSource(
 		attestationRepository = attestationRepository,
 		authRepository = authRepository,
 		credentialsRepository = credentialsRepository,
-		sessionCoroutineScope = testSessionCoroutineScope()
+		settingsRepository = FakeSettingsRepository(),
+		reportingRepository = RecordingReportingRepository(),
+		sessionCoroutineScope = testSessionCoroutineScope(),
+		appCoroutineScope = testAppCoroutineScope()
 	)
 }
 
@@ -257,6 +263,12 @@ private class SupersededRefreshAttestationRepository : AttestationRepository {
 }
 
 private object RejectedAuthRepository : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -289,6 +301,12 @@ private object RejectedAuthRepository : AuthRepository {
 private class RefreshingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = error("unused")
+
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
@@ -336,6 +354,12 @@ private class RefreshingAuthRepository(
 private class BootstrapExchangePersistingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) = exchangeSignIn(bootstrapAccessToken, attestation)
+
 	var bootstrapCalls = 0
 	var exchangeCalls = 0
 

@@ -68,7 +68,7 @@ tasks.withType<Test>().configureEach {
 				include("*/src/commonMain/composeResources/values/strings.xml")
 				include("*/src/commonMain/kotlin/**/presentation/contract/*.kt")
 				include("wizard/src/commonMain/kotlin/**/mapper/CoachmarkSurface.kt")
-				include("evaluations/src/commonMain/kotlin/**/mapper/AcademicWeek.kt")
+				include("academiccore/src/commonMain/kotlin/**/engine/AcademicWeekEngine.kt")
 				include("subjects/src/commonMain/kotlin/**/data/source/DebugSubjectScenarioResolver.kt")
 				include("subjects/src/commonMain/kotlin/**/presentation/machine/SubjectSearchMachine.kt")
 				include("*/build.gradle.kts")

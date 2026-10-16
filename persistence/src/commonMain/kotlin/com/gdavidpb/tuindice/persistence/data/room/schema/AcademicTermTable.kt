@@ -11,4 +11,5 @@ object AcademicTermTable {
 	const val TERM_KIND = "term_kind"
 	const val OFFICIAL_PERIOD_AVERAGE = "official_period_average"
 	const val OFFICIAL_CUMULATIVE_AVERAGE = "official_cumulative_average"
+	const val CLASSES_START_DATE = "classes_start_date"
 }

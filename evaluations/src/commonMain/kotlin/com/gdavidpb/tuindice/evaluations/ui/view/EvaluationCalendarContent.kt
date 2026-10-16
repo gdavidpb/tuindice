@@ -37,7 +37,8 @@ fun EvaluationCalendarContent(
 	onDateSelected: (LocalDate) -> Unit,
 	selectableRange: ClosedRange<LocalDate>? = null,
 	canGoPreviousMonth: Boolean = true,
-	canGoNextMonth: Boolean = true
+	canGoNextMonth: Boolean = true,
+	hasClassOn: (LocalDate) -> Boolean = { false }
 ) {
 	Column(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarContainer),
@@ -92,8 +93,8 @@ fun EvaluationCalendarContent(
 						date = date,
 						selectedDate = selectedDate,
 						today = LocalTuIndiceClock.current.currentEvaluationLocalDate(),
-						isSelectable = date != null &&
-							(selectableRange == null || date in selectableRange),
+						isSelectable = date != null && (selectableRange == null || date in selectableRange),
+						hasClass = date != null && hasClassOn(date),
 						onDateSelected = onDateSelected
 					)
 				}

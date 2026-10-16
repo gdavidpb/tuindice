@@ -3,8 +3,10 @@ package com.gdavidpb.tuindice.record.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import kotlinx.datetime.LocalDate
 
 object Schedule {
 	sealed class State : ViewState {
@@ -13,7 +15,8 @@ object Schedule {
 		data object Loading : State()
 
 		data class Content(
-			val termName: String,
+			// The term's name and, while the date is in one of its weeks, which one.
+			val subtitle: UiText,
 			val schedule: ScheduleItem,
 			val viewMode: ScheduleViewMode
 		) : State()
@@ -25,7 +28,18 @@ object Schedule {
 	sealed class Action : ViewAction {
 		data object ObserveSchedule : Action()
 		class SelectScheduleView(val viewMode: ScheduleViewMode) : Action()
+
+		// The screen is back in front: the clock is read again instead of waiting for its next tick.
+		data object Resumed : Action()
+
+		// A cell marked with an evaluation was tapped: the Evaluations tab is asked for the evaluation
+		// [evaluationId] that the mark stands for. The week it opens on is read from the content, not sent.
+		class EvaluationCellSelected(val evaluationId: String) : Action()
 	}
 
-	sealed class Effect : ViewEffect
+	sealed class Effect : ViewEffect {
+		// Take the student to the Evaluations tab, on the week that opens on [weekStart] and on the
+		// evaluation [evaluationId].
+		class NavigateToEvaluationsWeek(val weekStart: LocalDate, val evaluationId: String) : Effect()
+	}
 }

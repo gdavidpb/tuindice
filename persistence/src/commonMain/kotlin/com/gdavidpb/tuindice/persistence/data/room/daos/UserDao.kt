@@ -13,14 +13,6 @@ abstract class UserDao : UpsertDao<UserEntity>() {
 	)
 	abstract fun getUserFlow(): Flow<UserEntity?>
 
-	@Query(
-		"UPDATE ${UserTable.TABLE_NAME} " +
-				"SET ${UserTable.PICTURE_URL} = :url "
-	)
-	abstract suspend fun updateProfilePicture(
-		url: String
-	)
-
 	@Query("DELETE FROM ${UserTable.TABLE_NAME}")
 	abstract suspend fun deleteAll()
 }

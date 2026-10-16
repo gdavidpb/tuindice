@@ -19,11 +19,20 @@ sealed class TopBarAction(
 		action = "record_schedule"
 	)
 
+	data object EvaluationsScheduleAction : TopBarAction(
+		action = "evaluations_schedule"
+	)
+
 	data object SearchPensumAction : TopBarAction(
 		action = "search_pensum"
 	)
 
 	data object ChangePensumAction : TopBarAction(
 		action = "change_pensum"
+	)
+
+	// The Statistics screen offers to share one of its closed terms as an image.
+	data object StatisticsShareAction : TopBarAction(
+		action = "statistics_share"
 	)
 }

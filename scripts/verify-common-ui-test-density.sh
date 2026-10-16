@@ -36,7 +36,7 @@ while IFS= read -r file; do
 	if (( count < threshold )); then
 		FAILURES="${FAILURES}${relative_path}: ${count}/${threshold} when_ test cases"$'\n'
 	fi
-done < <(find "$ROOT_DIR" -path '*/src/commonTest/*UiTest.kt' -type f | sort)
+done < <(find "$ROOT_DIR" -path "$ROOT_DIR/.claude" -prune -o -path '*/src/commonTest/*UiTest.kt' -type f -print | sort)
 
 if [[ -n "$FAILURES" ]]; then
 	echo "[ERROR] Common UI test density is below threshold:"

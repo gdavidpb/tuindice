@@ -12,9 +12,3 @@ object CooldownTimes {
 	// refresh (pull, retry, first load) never waits.
 	val COOLDOWN_RETRY_PENSUM = 1.hours.inWholeMilliseconds
 }
-
-// A stamp in the future (a clock moved back, a hand-edited value) is outside every window: one
-// extra request is cheaper than a cache that never refreshes again.
-internal fun isWithinWindow(sinceMillis: Long, nowMillis: Long, windowMillis: Long): Boolean {
-	return nowMillis - sinceMillis in 0 until windowMillis
-}

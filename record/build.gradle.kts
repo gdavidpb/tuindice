@@ -59,8 +59,6 @@ kotlin {
 			dependencies {
 				implementation(project.dependencies.platform(libs.compose.bom))
 				implementation(libs.bundles.testing.android)
-				implementation(libs.test.ext.junit)
-				implementation(libs.compose.ui.test.junit4)
 			}
 		}
 	}

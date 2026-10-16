@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
+import com.gdavidpb.tuindice.domain.usecase.AcknowledgeSessionInvalidationUseCase
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.SessionNoticeText
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
@@ -38,6 +40,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
@@ -106,12 +109,18 @@ class MainStateMachineContractTest {
 			),
 			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
 				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			),
+			acknowledgeSessionInvalidationUseCase = AcknowledgeSessionInvalidationUseCase(
+				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
 			getPendingChangesUseCase = GetPendingChangesUseCase(
 				pendingChangesRepository = FakePendingChangesRepository(),
 				reportingRepository = reportingRepository
-			)
+			),
+			sessionCoroutineScope = testSessionCoroutineScope()
 		)
 
 		assertMachineRandomWalk(
@@ -130,6 +139,7 @@ class MainStateMachineContractTest {
 					)
 				),
 				Main.Action.RequestSync,
+				Main.Action.SessionEndHandled(id = 1),
 				Main.Action.NoteSyncUnavailable,
 				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
@@ -137,7 +147,9 @@ class MainStateMachineContractTest {
 				Main.Action.RequestSignOut,
 				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.OutdatedCredentials),
 				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.Healthy),
-				MainInternalEvent.SessionInvalidationObserved(message = "Inicia sesión nuevamente"),
+				MainInternalEvent.SessionInvalidationObserved(
+					sessionNotice = SessionNoticeText(stamp = 7, message = "Inicia sesión nuevamente")
+				),
 				MainInternalEvent.SignOutPrepared(pendingChanges = PendingChanges.Empty),
 				MainInternalEvent.SignOutPreparationFailed(message = "No pudimos revisar tus cambios"),
 				MainInternalEvent.StartUpStarting,

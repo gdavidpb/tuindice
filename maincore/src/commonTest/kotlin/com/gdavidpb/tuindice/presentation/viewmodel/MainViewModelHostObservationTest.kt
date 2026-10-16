@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -144,6 +147,40 @@ class MainViewModelHostObservationTest {
 
 			if (effect is Main.Effect.NavigateToSignOutDialog || effect is Main.Effect.ShowSnackBar) {
 				return effect
+			}
+		}
+	}
+
+	// The subscription ensured when the app resumes is background work of the session, like the sync it is
+	// dispatched with: for the rule of the 403 insufficient_scope a request of the screen's scope would
+	// end the session without the user having done anything.
+	@Test
+	fun requestSync_ensuresTheMessagingSubscription_insideTheSessionScope() = runTest {
+		withMainDispatcher { dispatchers ->
+			val sessionScope = testSessionCoroutineScope()
+			var ranInsideTheSessionScope: Boolean? = null
+			val messagingRepository = object : MessagingRepository {
+				override suspend fun subscribe() {
+					ranInsideTheSessionScope = sessionScope.callerBranch() != null
+				}
+
+				override suspend fun unsubscribe() = Unit
+			}
+			val viewModel = createMainViewModel(
+				messagingRepository = messagingRepository,
+				sessionCoroutineScope = sessionScope,
+				dispatchers = dispatchers
+			)
+
+			collectingState(viewModel) {
+				viewModel.awaitContent { true }
+
+				viewModel.requestSyncAction()
+
+				withTimeout(3_000) {
+					while (ranInsideTheSessionScope == null) yield()
+				}
+				assertEquals(true, ranInsideTheSessionScope)
 			}
 		}
 	}

@@ -25,6 +25,8 @@ import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -33,19 +35,23 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.mapper.toCoachmarkSurface
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
+import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
+import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.gdavidpb.tuindice.wizard.presentation.mapper.toCoachmarkSurface
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -63,6 +69,9 @@ fun TuIndiceAppHostRoute(
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
+	statisticsTopBarActionBus: StatisticsTopBarActionBus = koinInject(),
+	evaluationsWeekFocusRepository: EvaluationsWeekFocusRepository = koinInject(),
+	recordAttemptFocusRepository: RecordAttemptFocusRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
@@ -113,11 +122,16 @@ fun TuIndiceAppHostRoute(
 				showSnackBar(SnackBarMessage(message = message))
 			},
 			onSessionInvalidated = { message ->
-				// Without content there is no navigation to take to the sign-in.
-				navigatorHolder.value?.let { navigator ->
-					navigator.replaceAllForSignIn()
-					showSnackBar(SnackBarMessage(message = message))
-				}
+				// The first occasion the interface can show it: the notice can arrive before the content
+				// (and its navigation) is on screen, so it waits for it instead of being dropped.
+				val navigator = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
+
+				// Already signed out (on the sign-in screen, or on its way): there is nothing to take
+				// the user away from, and replacing the stack would throw away what is being typed.
+				if (navigator.rootMode == TuIndiceRootMode.SIGNED_IN) navigator.replaceAllForSignIn()
+
+				// No message: the user was already told, or there is nothing to tell.
+				if (message != null) showSnackBar(SnackBarMessage(message = message))
 			},
 			onNavigateToSignOutDialog = { pendingChanges ->
 				navigatorHolder.value?.push(
@@ -138,9 +152,6 @@ fun TuIndiceAppHostRoute(
 				mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 			}
 			val onRecordTermSelection = remember {
-				mutableStateOf<(() -> Unit)?>(null)
-			}
-			val onRecordSchedule = remember {
 				mutableStateOf<(() -> Unit)?>(null)
 			}
 			val backInterceptor = remember {
@@ -230,25 +241,45 @@ fun TuIndiceAppHostRoute(
 						is TopBarAction.RecordTermSelectionAction ->
 							onRecordTermSelection.value?.invoke()
 
-						is TopBarAction.RecordScheduleAction ->
-							onRecordSchedule.value?.invoke()
+						// One way to open the sheet, whichever tab's bar asked: over the tab on screen.
+						is TopBarAction.RecordScheduleAction,
+						is TopBarAction.EvaluationsScheduleAction,
+						-> navigator?.openSchedule()
 
 						is TopBarAction.SearchPensumAction ->
 							navigator?.push(SubjectsDestination.SubjectSearch)
 
 						is TopBarAction.ChangePensumAction ->
 							pensumTopBarActionBus.dispatch(action)
+
+						is TopBarAction.StatisticsShareAction ->
+							statisticsTopBarActionBus.dispatch(action)
 					}
 				},
 				onRecordViewModeChange = onRecordViewModeChange.value,
 				onRecordTermSelectionAvailable = { callback ->
 					onRecordTermSelection.value = callback
 				},
-				onRecordScheduleAvailable = { callback ->
-					onRecordSchedule.value = callback
-				},
 				onBackInterceptorAvailable = { interceptor ->
 					backInterceptor.value = interceptor
+				},
+				// A marked cell of the Schedule: ask for that week of Evaluations and for its evaluation, then
+				// close the sheet and go there in one move. The request is state, so the tab applies it when it
+				// is ready. The jump does not write the section the app opens on.
+				onNavigateToEvaluationsWeek = { weekStart, evaluationId ->
+					navigator?.showEvaluationsWeek(
+						weekFocus = evaluationsWeekFocusRepository,
+						weekStart = weekStart,
+						evaluationId = evaluationId
+					)
+				},
+				// An attempt the summary hub points at: ask Registro for it, then go there in one move. Like the
+				// week jump, it does not write the section the app opens on.
+				onNavigateToRecordAttempt = { attemptId ->
+					navigator?.showRecordAttempt(
+						attemptFocus = recordAttemptFocusRepository,
+						attemptId = attemptId
+					)
 				},
 				onNavigateTo = { section ->
 					if (navigator != null && navigator.currentTab != section) {

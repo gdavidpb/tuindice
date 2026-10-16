@@ -16,6 +16,7 @@ import tuindice.record.generated.resources.schedule_table_description_section
 import tuindice.record.generated.resources.schedule_table_description_unscheduled
 import tuindice.record.generated.resources.schedule_table_meeting_block
 import tuindice.record.generated.resources.schedule_table_meeting_blocks
+import tuindice.record.generated.resources.schedule_table_meeting_evaluation
 import tuindice.record.generated.resources.schedule_table_meeting_in_progress
 
 /**
@@ -47,17 +48,23 @@ internal fun scheduleCellDescription(
 }
 
 /**
- * Ends a cell's description with its marks: ". Choque de horario" when the meeting overlaps another
- * subject's that day, and ". En curso" for the class being taught right now.
+ * Ends a cell's description with its marks: ", con evaluación ese día" when an evaluation of this
+ * week falls on the meeting (the words the table says for it), ". Choque de horario" when the
+ * meeting overlaps another subject's that day, and ". En curso" for the class being taught right now.
  */
-internal fun UiText.withCellMarks(isClash: Boolean, isInProgress: Boolean): UiText {
+internal fun UiText.withCellMarks(isClash: Boolean, isInProgress: Boolean, hasEvaluation: Boolean): UiText {
+	val withEvaluation = if (hasEvaluation) {
+		UiText.Resource(Res.string.schedule_table_meeting_evaluation, listOf(this))
+	} else {
+		this
+	}
 	val withClash = if (isClash) {
 		UiText.Resource(
 			Res.string.schedule_cell_description_clash,
-			listOf(this, UiText.Resource(Res.string.schedule_clash))
+			listOf(withEvaluation, UiText.Resource(Res.string.schedule_clash))
 		)
 	} else {
-		this
+		withEvaluation
 	}
 
 	return if (isInProgress) {
@@ -71,7 +78,8 @@ internal fun UiText.withCellMarks(isClash: Boolean, isInProgress: Boolean): UiTe
  * What a screen reader says of a row of the table: "CI5311, sección 1, aula MYS-116, lunes bloques
  * 1 a 2, miércoles bloques 1 a 2". Each part wraps what was said so far, in the order the row is
  * read; a subject with nothing placed ends in "sin horario", and the class being taught right now
- * is followed by "en curso".
+ * is followed by "en curso". A meeting with an evaluation this week is left out: it is a button of
+ * its own and says all of it itself (see [withCellMarks]), so the row does not say it twice.
  */
 internal fun scheduleTableRowDescription(
 	subjectCode: String,
@@ -91,7 +99,9 @@ internal fun scheduleTableRowDescription(
 	}
 
 	return meetings
-		.flatMap { (day, cells) -> cells.map { cell -> cell.toMeetingText(day = day) } }
+		.flatMap { (day, cells) ->
+			cells.filterNot { cell -> cell.hasEvaluation }.map { cell -> cell.toMeetingText(day = day) }
+		}
 		.fold(withClassroom) { description, meeting ->
 			UiText.Resource(Res.string.schedule_table_description_meeting, listOf(description, meeting))
 		}

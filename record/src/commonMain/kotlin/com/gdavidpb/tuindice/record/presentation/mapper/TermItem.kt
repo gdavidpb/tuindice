@@ -32,7 +32,8 @@ fun List<TermProjection>.toTermItemList(
 	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color,
-	notice: RecordNotice? = null
+	notice: RecordNotice? = null,
+	arrivalAttemptId: String? = null
 ) = mapIndexed { index, term ->
 	term.toTermItem(
 		viewMode = viewMode,
@@ -40,6 +41,11 @@ fun List<TermProjection>.toTermItemList(
 		highlightColor = highlightColor,
 		previousTerm = getOrNull(index + 1),
 		notice = notice
+	).copy(
+		// The arrival belongs to the term that lists its attempt, and to no other.
+		arrivalAttemptId = arrivalAttemptId?.takeIf { attemptId ->
+			term.attempts.any { attempt -> attempt.id == attemptId }
+		}
 	)
 }
 

@@ -27,10 +27,16 @@ class SessionInvalidationDataSource : SessionInvalidationRepository {
 		}
 	}
 
-	override fun notifySessionInvalidated(sessionId: String?) {
-		if (consumeSuppression(sessionId)) return
+	override fun isIntentionalSignOut(sessionId: String): Boolean {
+		return sessionId.isNotBlank() && intentionalSignOutSessionId.value == sessionId
+	}
+
+	override fun notifySessionInvalidated(sessionId: String?): Boolean {
+		if (consumeSuppression(sessionId)) return false
 
 		sessionInvalidations.trySend(Unit)
+
+		return true
 	}
 
 	private fun consumeSuppression(sessionId: String?): Boolean {

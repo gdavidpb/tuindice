@@ -13,7 +13,5 @@ interface PensumLocalDataRepository {
 	suspend fun getSelectedPensumCacheState(): SelectedPensumCacheState?
 	suspend fun getSelectionParams(): PensumSelectionParams
 	suspend fun savePensumResponse(response: GetPensumResponse, inferredSelection: Boolean)
-	suspend fun selectPensum(year: Int)
-	suspend fun selectModality(modalityId: String)
 	suspend fun selectSelection(year: Int, modalityId: String)
 }

@@ -14,9 +14,6 @@ abstract class AcademicAttemptOverrideDao : UpsertDao<AcademicAttemptOverrideEnt
 	@Query("SELECT * FROM ${AcademicAttemptOverrideTable.TABLE_NAME} ORDER BY ${AcademicAttemptOverrideTable.UPDATED_AT} DESC")
 	abstract suspend fun getOverrides(): List<AcademicAttemptOverrideEntity>
 
-	@Query("DELETE FROM ${AcademicAttemptOverrideTable.TABLE_NAME} WHERE ${AcademicAttemptOverrideTable.ATTEMPT_ID} = :attemptId")
-	abstract suspend fun deleteByAttemptId(attemptId: String)
-
 	@Query("DELETE FROM ${AcademicAttemptOverrideTable.TABLE_NAME}")
 	abstract suspend fun deleteAll()
 }

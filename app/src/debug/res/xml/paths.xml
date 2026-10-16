@@ -3,4 +3,7 @@
     <files-path
         name="files"
         path="/" />
+    <cache-path
+        name="statistics_share"
+        path="statistics_share/" />
 </paths>

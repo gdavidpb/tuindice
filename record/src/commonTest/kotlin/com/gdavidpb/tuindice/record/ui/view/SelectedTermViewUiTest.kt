@@ -72,6 +72,40 @@ class SelectedTermViewUiTest {
 	}
 
 	@Test
+	fun when_anArrivalIsBelowTheViewport_then_itsCardIsBroughtIntoView_andTheListTakesIt() = runTuIndiceUiTest {
+		val attempts = (1..12).map { index -> attemptItem(attemptId = "attempt-$index", subjectCode = "MA$index") }
+		var taken: String? = null
+
+		setTuIndiceTestContent {
+			SelectedTermView(
+				term = termItem(attempts = attempts, arrivalAttemptId = "attempt-12"),
+				onArrivalTaken = { attemptId -> taken = attemptId },
+				onAttemptSelectionChange = { _, _, _, _ -> }
+			)
+		}
+
+		waitForIdle()
+		assertNodeVisible(RecordUiTags.attemptCard("attempt-12"))
+		assertEquals("attempt-12", taken)
+	}
+
+	@Test
+	fun when_theTermHasNoArrival_then_theListTakesNothing() = runTuIndiceUiTest {
+		var taken: String? = null
+
+		setTuIndiceTestContent {
+			SelectedTermView(
+				term = termItem(attempts = listOf(attemptItem(attemptId = "attempt-1"))),
+				onArrivalTaken = { attemptId -> taken = attemptId },
+				onAttemptSelectionChange = { _, _, _, _ -> }
+			)
+		}
+
+		waitForIdle()
+		assertEquals(null, taken)
+	}
+
+	@Test
 	fun when_aGradeIsSimulated_then_itIsReportedWithItsSubject_whileMoving_andOnceSettled() = runTuIndiceUiTest {
 		val reported = mutableListOf<Selection>()
 

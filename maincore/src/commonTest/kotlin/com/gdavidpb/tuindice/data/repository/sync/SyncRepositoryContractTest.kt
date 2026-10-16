@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
@@ -707,6 +708,7 @@ class SyncRepositoryContractTest {
 				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = FakePensumRevalidationRepository(),
+			evaluationsRevalidationRepository = FakeEvaluationsRevalidationRepository(),
 			coroutineScope = coroutineScope
 		)
 	}
@@ -724,6 +726,9 @@ internal class FakeSyncSettingsLocalDataSource(
 	),
 	private val events: MutableList<String> = mutableListOf()
 ) : SyncSettingsLocalDataRepository {
+	// Runs when the stale feature cooldowns are cleared, in the middle of the sync's final stretch.
+	var onClearStaleFeatureCooldowns: suspend () -> Unit = {}
+
 	var cooldownMarked = false
 	var syncedFeatureCooldownsMarked = false
 	var staleFeatureCooldownsCleared = false
@@ -742,6 +747,7 @@ internal class FakeSyncSettingsLocalDataSource(
 
 	override suspend fun clearStaleFeatureCooldowns() {
 		staleFeatureCooldownsCleared = true
+		onClearStaleFeatureCooldowns()
 	}
 
 	override suspend fun clearRecoveryCooldowns() {
@@ -832,6 +838,37 @@ internal class FakePensumRevalidationRepository(
 
 	override suspend fun revalidateSelectedPensum() {
 		calls++
+		try {
+			gate?.await()
+		} catch (throwable: CancellationException) {
+			cancelled = true
+			throw throwable
+		}
+		throwable?.let { throw it }
+	}
+}
+
+internal class FakeEvaluationsRevalidationRepository(
+	var throwable: Throwable? = null,
+	private val gate: CompletableDeferred<Unit>? = null,
+	private val onRevalidate: () -> Unit = {}
+) : EvaluationsRevalidationRepository {
+	var calls = 0
+		private set
+	var cancelled = false
+		private set
+
+	// How many times the sync asked for the revalidation that only applies to evaluations never downloaded.
+	var neverDownloadedCalls = 0
+		private set
+
+	override suspend fun revalidateEvaluationsIfNeverDownloaded() {
+		neverDownloadedCalls++
+	}
+
+	override suspend fun revalidateEvaluations() {
+		calls++
+		onRevalidate()
 		try {
 			gate?.await()
 		} catch (throwable: CancellationException) {

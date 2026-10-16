@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-summary-hub-no-pensum-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.summary-hub-no-pensum.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "summary-hub-no-pensum-user",
+      "usb_id": "42-42424",
+      "session_id": "summary-hub-no-pensum-session",
+      "access_token": "summary.hub.nopensum.mock.access",
+      "refresh_token": "summary.hub.nopensum.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

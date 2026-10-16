@@ -66,6 +66,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -86,6 +87,7 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
 import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
 import com.gdavidpb.tuindice.wizard.ui.anchor.coachmarkAnchor
 import com.gdavidpb.tuindice.wizard.ui.view.CoachmarkOverlayHost
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
@@ -95,6 +97,7 @@ import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
 import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
+import tuindice.maincore.generated.resources.a11y_top_bar_statistics_share
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.bottom_bar_about
@@ -119,8 +122,9 @@ fun TuIndiceScreen(
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
-	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit = {},
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
+	onNavigateToRecordAttempt: (attemptId: String) -> Unit = {},
 	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
@@ -417,8 +421,9 @@ fun TuIndiceScreen(
 				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onRecordScheduleAvailable = onRecordScheduleAvailable,
 				onBackInterceptorAvailable = onBackInterceptorAvailable,
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+				onNavigateToRecordAttempt = onNavigateToRecordAttempt,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
 				showSnackBar = showSnackBar,
@@ -456,10 +461,15 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_record_term_selection)
 		is TopBarAction.RecordScheduleAction ->
 			stringResource(Res.string.a11y_top_bar_record_schedule)
+		// The same schedule, the same words as Record's action: one icon says one thing across the app.
+		is TopBarAction.EvaluationsScheduleAction ->
+			stringResource(Res.string.a11y_top_bar_record_schedule)
 		is TopBarAction.SearchPensumAction ->
 			stringResource(Res.string.a11y_top_bar_search_pensum)
 		is TopBarAction.ChangePensumAction ->
 			stringResource(Res.string.a11y_top_bar_change_pensum)
+		is TopBarAction.StatisticsShareAction ->
+			stringResource(Res.string.a11y_top_bar_statistics_share)
 	}
 }
 
@@ -475,10 +485,14 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.Outlined.CalendarMonth
 		is TopBarAction.RecordScheduleAction ->
 			Icons.Outlined.TableChart
+		is TopBarAction.EvaluationsScheduleAction ->
+			Icons.Outlined.TableChart
 		is TopBarAction.SearchPensumAction ->
 			Icons.Outlined.Search
 		is TopBarAction.ChangePensumAction ->
 			Icons.Outlined.Tune
+		is TopBarAction.StatisticsShareAction ->
+			ShareIcon
 	}
 }
 

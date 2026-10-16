@@ -144,7 +144,8 @@ object RecordProjectionEngine {
 					cumulativeAverage = academicTermProjection.cumulativeAverage,
 					periodCredits = academicTermProjection.periodCredits,
 					cumulativeCredits = academicTermProjection.cumulativeCredits,
-					attempts = attemptProjections
+					attempts = attemptProjections,
+					classesStartDate = termState.term.classesStartDate
 				)
 			} else {
 				TermProjection(
@@ -165,7 +166,8 @@ object RecordProjectionEngine {
 					),
 					periodCredits = periodDisplayedCredits,
 					cumulativeCredits = cumulativeCredits.toInt(),
-					attempts = attemptProjections
+					attempts = attemptProjections,
+					classesStartDate = termState.term.classesStartDate
 				)
 			}
 		}
@@ -185,6 +187,7 @@ object RecordProjectionEngine {
 			includeProjectionBehavior && attemptOverride?.score != null -> attemptOverride.score
 			includeProjectionBehavior &&
 				termKind.isEditable &&
+				!attempt.withdrawn &&
 				attempt.gradingMode == AttemptGradingMode.NUMERIC &&
 				attempt.academicOutcome == AttemptOutcome.PENDING &&
 				attempt.academicScore is AttemptScore.Empty ->
@@ -227,6 +230,20 @@ object RecordProjectionEngine {
 				score = score,
 				outcome = resolvedOutcome
 			)
+		).withoutWeightWhenWithdrawn()
+	}
+
+	// A withdrawn subject stays in its term but weighs on nothing, whatever grade it carries: as a retired one, it adds
+	// no credits and no grade anywhere, and no approval to its subject.
+	private fun EffectiveAttemptState.withoutWeightWhenWithdrawn(): EffectiveAttemptState {
+		if (!attempt.withdrawn) return this
+
+		return copy(
+			countsTowardPeriodAverage = false,
+			countsTowardDisplayedPeriodCredits = false,
+			countsTowardCumulativeAverage = false,
+			approvalEvent = false,
+			countsTowardRetakeTimeline = false
 		)
 	}
 
@@ -252,6 +269,11 @@ object RecordProjectionEngine {
 		}
 	}
 
+	/**
+	 * Whether an attempt counts toward the period average of its term: a numeric attempt that was approved or failed,
+	 * with a grade above zero, or an unreported one. The latter adds its credits with no grade, so it pulls the average
+	 * down. Decided by the outcome and the grade alone; the withdrawn flag is not looked at.
+	 */
 	private fun countsTowardPeriodAverage(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
@@ -300,7 +322,12 @@ object RecordProjectionEngine {
 		}
 	}
 
-	private fun countsTowardRetakeTimeline(
+	/**
+	 * Whether an attempt is a result in the retake timeline of its subject: an approved or failed numeric attempt with a
+	 * grade above zero, or a qualitative one that was approved or failed. Decided by the outcome and the grade alone, the
+	 * withdrawn flag is not looked at.
+	 */
+	internal fun countsTowardRetakeTimeline(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
 		outcome: AttemptOutcome

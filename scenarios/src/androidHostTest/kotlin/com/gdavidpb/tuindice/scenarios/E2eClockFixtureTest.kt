@@ -78,7 +78,7 @@ class E2eClockFixtureTest {
 
 	private companion object {
 		const val ACADEMIC_WEEK =
-			"evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/AcademicWeek.kt"
+			"academiccore/src/commonMain/kotlin/com/gdavidpb/tuindice/academiccore/domain/engine/AcademicWeekEngine.kt"
 		const val DAYS_PER_WEEK = 7
 		val START_MONTH_OF = mapOf("JAN_MAR" to 1, "APR_JUL" to 4, "JUL_AUG" to 7, "SEP_DEC" to 9)
 		const val CANONICAL_SYNC = "mocks/__files/sync/post-sync-success.json"

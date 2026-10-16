@@ -31,6 +31,26 @@ class AcademicRecordMappersTest {
 	}
 
 	@Test
+	fun academicTerm_roundTripsThroughRoomEntity_withAndWithoutClassesStartDate() {
+		val withDate = AcademicTerm(
+			id = "term-1",
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.SEP_DEC,
+			kind = TermKind.CURRENT,
+			classesStartDate = "2026-09-28"
+		)
+		val withoutDate = withDate.copy(classesStartDate = null)
+
+		val entityWithDate = withDate.toAcademicTermEntity()
+		val entityWithoutDate = withoutDate.toAcademicTermEntity()
+
+		assertEquals("2026-09-28", entityWithDate.classesStartDate)
+		assertEquals(null, entityWithoutDate.classesStartDate)
+		assertEquals(withDate, listOf(entityWithDate).toAcademicTerms(attempts = emptyList()).single())
+		assertEquals(withoutDate, listOf(entityWithoutDate).toAcademicTerms(attempts = emptyList()).single())
+	}
+
+	@Test
 	fun academicAttempt_roundTripsThroughRoomEntity_withScheduleSectionErrorsAndWithdrawn() {
 		val attempt = AcademicAttempt(
 			id = "attempt-1",

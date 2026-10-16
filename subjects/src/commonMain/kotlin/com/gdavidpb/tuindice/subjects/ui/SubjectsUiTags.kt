@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.subjects.ui
 
 object SubjectsUiTags {
-	const val Sheet = "subjects_sheet"
 	const val Loading = "subjects_loading"
 	const val LoadingTitle = "subjects_loading_title"
 	const val LoadingMessage = "subjects_loading_message"

@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -14,9 +18,13 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -271,14 +279,6 @@ class MainRouteUiTest {
 			newSnapshot: SessionSnapshot
 		): Boolean = true
 
-		override suspend fun setUsbId(usbId: String) = Unit
-
-		override suspend fun setSessionId(sessionId: String) = Unit
-
-		override suspend fun setAccessToken(accessToken: String) = Unit
-
-		override suspend fun setRefreshToken(refreshToken: String) = Unit
-
 		override suspend fun getUsbId(): String = ""
 
 		override suspend fun getSessionId(): String = ""
@@ -291,4 +291,73 @@ class MainRouteUiTest {
 	}
 
 	private class GooglePlayServicesNotAvailableException : RuntimeException()
+
+	// The way to the sign-in is state: the route that is taken out of the composition while it waits for
+	// the navigator (a real cancellation of its coroutine) did not attend it, so nothing is cleared nor
+	// taken; the one that is composed afterwards attends it, and the notice is shown once, and taken only
+	// then.
+	@Test
+	fun when_theRouteLeavesTheCompositionWhileItWaitsForTheNavigator_then_theNextOneAttendsItOnce() = runTuIndiceUiTest {
+		val settingsRepository = FakeSettingsRepository(reviewSuggested = false)
+		runBlocking { settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession) }
+		val viewModel = createMainViewModel(
+			sessionRepository = FakeSessionRepository(sessionId = ""),
+			settingsRepository = settingsRepository
+		)
+		val attended = mutableListOf<String?>()
+		val shown = mutableListOf<String?>()
+		val navigatorNeverArrives = CompletableDeferred<Unit>()
+		var firstRouteWaiting = false
+		var routeIsComposed by mutableStateOf(true)
+		var firstRoute by mutableStateOf(true)
+
+		setTuIndiceTestContent {
+			if (routeIsComposed) {
+				MainRoute(
+					onNavigateToGooglePlayServicesUnavailableDialog = {},
+					onRequestReviewFlow = {},
+					onRequestUpdateFlow = { UpdateLaunchResult.Launched },
+					onSessionInvalidated = { message ->
+						attended += message
+
+						if (firstRoute) {
+							// The navigator is not there yet, and this wait ends with the composition.
+							firstRouteWaiting = true
+							navigatorNeverArrives.await()
+						}
+
+						shown += message
+					},
+					viewModel = viewModel
+				) { state ->
+					Text(text = state::class.simpleName ?: "State")
+				}
+			}
+		}
+
+		// The notice text is read from the resources, which the first read of a process takes long to load.
+		waitUntil(timeoutMillis = 30_000) { firstRouteWaiting }
+		assertEquals(true, settingsRepository.sessionResetNoticePending, "the notice is not taken while it waits")
+
+		runOnIdle {
+			routeIsComposed = false
+		}
+		waitForIdle()
+
+		assertEquals(emptyList<String?>(), shown, "the route that left did not show anything")
+		assertEquals(true, settingsRepository.sessionResetNoticePending, "and nothing was taken")
+		assertEquals(1, attended.size)
+
+		runOnIdle {
+			firstRoute = false
+			routeIsComposed = true
+		}
+
+		waitUntil(timeoutMillis = 5_000) { shown.isNotEmpty() }
+		waitUntil(timeoutMillis = 5_000) { !settingsRepository.sessionResetNoticePending }
+
+		assertEquals(listOf<String?>("Inicia sesión nuevamente"), shown, "the notice is shown once")
+		assertEquals(2, attended.size, "by the route that came back")
+		assertEquals(attended.first(), attended.last(), "the same notice")
+	}
 }

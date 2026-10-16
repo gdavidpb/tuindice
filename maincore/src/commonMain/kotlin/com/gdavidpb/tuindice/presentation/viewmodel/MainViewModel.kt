@@ -55,4 +55,7 @@ class MainViewModel(
 
 	fun requestSignOutAction() =
 		sendAction(Main.Action.RequestSignOut)
+
+	fun sessionEndHandledAction(id: Long) =
+		sendAction(Main.Action.SessionEndHandled(id = id))
 }

@@ -6,8 +6,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 import com.gdavidpb.tuindice.pensum.ui.model.PensumStatusIconVisual
 import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 import org.jetbrains.compose.resources.StringResource

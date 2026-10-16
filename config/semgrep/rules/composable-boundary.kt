@@ -25,3 +25,29 @@ fun EntryProviderScope<Any>.sampleEntries(viewModel: Any): Any = viewModel
 
 // ok: entryprovider-only-in-navigation
 fun sampleEntriesHost(scope: Any): Any = scope
+
+// ruleid: ui-view-no-shared-data-class
+data class SampleViewHelper(val label: String)
+
+// ok: ui-view-no-shared-data-class
+private data class SamplePrivateHelper(val label: String)
+
+// ruleid: ui-tags-object-suffix
+object SampleScreenTags {
+	const val Screen = "sample_screen"
+}
+
+// ok: ui-tags-object-suffix
+object SampleUiTags {
+	const val Screen = "sample_screen"
+}
+
+fun sampleToggle(sampleKey: String): Boolean {
+	// ruleid: compose-state-no-delegated-remember
+	var isOpen by remember { mutableStateOf(false) }
+	// ruleid: compose-state-no-delegated-remember
+	var isKeyed by remember(sampleKey) { mutableStateOf(false) }
+	// ok: compose-state-no-delegated-remember
+	val isVal = remember { mutableStateOf(false) }
+	return isOpen && isKeyed && isVal.value
+}

@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 fun TermItemView(
 	modifier: Modifier = Modifier,
 	item: TermItem,
+	onArrivalTaken: (attemptId: String) -> Unit = {},
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -55,6 +56,7 @@ fun TermItemView(
 				.fillMaxWidth()
 				.weight(1f),
 			term = item,
+			onArrivalTaken = onArrivalTaken,
 			onAttemptSelectionChange = onAttemptSelectionChange,
 			onScrollInProgressChange = onScrollInProgressChange
 		)

@@ -11,17 +11,26 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
 
 object Main {
 	sealed class State : ViewState {
-		data object Starting : State()
+		// The way to the sign-in owed to the user, in every state: a transition never drops it, only
+		// the interface attending it does (Action.SessionEndHandled).
+		abstract val pendingSessionEnd: PendingSessionEnd?
+
+		data class Starting(
+			override val pendingSessionEnd: PendingSessionEnd? = null
+		) : State()
 
 		data class AppUnavailable(
-			val notice: AppAvailabilityNotice
+			val notice: AppAvailabilityNotice,
+			override val pendingSessionEnd: PendingSessionEnd? = null
 		) : State()
 
 		data class OutdatedApp(
-			val outdatedAppState: OutdatedAppState
+			val outdatedAppState: OutdatedAppState,
+			override val pendingSessionEnd: PendingSessionEnd? = null
 		) : State()
 
 		// syncStatus: how the last sync ended, followed while the content is up. The host asks
@@ -30,10 +39,13 @@ object Main {
 		data class Content(
 			val startDestination: Destination,
 			val syncStatus: SyncStatus = SyncStatus.Healthy,
-			val isUpdatePasswordDismissed: Boolean = false
+			val isUpdatePasswordDismissed: Boolean = false,
+			override val pendingSessionEnd: PendingSessionEnd? = null
 		) : State()
 
-		data object Failed : State()
+		data class Failed(
+			override val pendingSessionEnd: PendingSessionEnd? = null
+		) : State()
 	}
 
 	sealed class Action : ViewAction {
@@ -49,6 +61,10 @@ object Main {
 		class SetLastMainSection(val section: MainSection) : Action()
 		data object DismissUpdatePassword : Action()
 		data object RequestSignOut : Action()
+
+		// The interface attended the pending end of the session [id]: it took the user to the sign-in and
+		// showed the notice, if there was one. A stale id (a newer end is pending) changes nothing.
+		class SessionEndHandled(val id: Long) : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -60,7 +76,6 @@ object Main {
 		) : Effect()
 
 		class ShowSnackBar(val message: String) : Effect()
-		class SessionInvalidated(val message: String) : Effect()
 		class NavigateToSignOutDialog(val pendingChanges: PendingChanges) : Effect()
 	}
 }

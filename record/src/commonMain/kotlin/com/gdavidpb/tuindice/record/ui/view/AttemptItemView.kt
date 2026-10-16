@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptItemBadge
+import com.gdavidpb.tuindice.record.ui.model.QualitativeStatusDropdownItem
 import com.gdavidpb.tuindice.record.ui.model.toAttemptItemDisplay
 import com.gdavidpb.tuindice.record.utils.Ranges
 import org.jetbrains.compose.resources.stringResource

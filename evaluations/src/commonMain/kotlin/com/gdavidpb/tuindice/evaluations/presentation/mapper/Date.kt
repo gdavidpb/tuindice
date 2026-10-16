@@ -19,6 +19,11 @@ private fun Long?.formatAsDayOfWeekAndDate(noDateLabel: UiText): UiText {
 	return UiText.Capitalized(formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE))
 }
 
+// "Jueves — 15/01/26", the day the date editor says it has under its calendar.
+fun Long.formatAsDayOfWeekAndDate(): UiText {
+	return UiText.Capitalized(formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE))
+}
+
 // "Jue — 15/01/26"
 fun Long.formatAsShortDayOfWeekAndDate(): UiText {
 	return UiText.Capitalized(formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE))

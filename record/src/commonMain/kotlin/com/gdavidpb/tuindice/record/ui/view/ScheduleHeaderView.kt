@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
@@ -21,7 +22,7 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.dialog_title_schedule
 
 /**
- * The schedule sheet's title with the term it speaks of right under it, as one block, and the view
+ * The schedule sheet's title with the term it speaks of (and the week of it) right under it, as one block, and the view
  * switch at its side once there is a schedule to draw.
  */
 @Composable
@@ -48,7 +49,7 @@ fun ScheduleHeaderView(
 
 			if (content != null) {
 				Text(
-					text = content.termName,
+					text = content.subtitle.asString(),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant,
 					maxLines = 1,

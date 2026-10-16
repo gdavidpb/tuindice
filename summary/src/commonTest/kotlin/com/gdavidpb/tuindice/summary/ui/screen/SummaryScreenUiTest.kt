@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
@@ -17,12 +18,16 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
+import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -42,6 +47,54 @@ class SummaryScreenUiTest {
 		}
 
 		assertNodeVisible(SummaryUiTags.LoadingIndicator)
+	}
+
+	@Test
+	fun when_stateIsContentWithAHub_then_theHubActionsReachItsLines() = runTuIndiceUiTest {
+		val targets = mutableListOf<SummaryHubTarget>()
+
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(hub = summaryHubItem()),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				hubActions = SummaryHubActions(onTargetClick = { target -> targets += target }),
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.sectionLink(SummaryUiTags.TermSection)).performScrollTo().performClick()
+		onNodeWithTag(SummaryUiTags.weekEvaluationRow("evaluation-2")).performScrollTo().performClick()
+
+		assertEquals(
+			listOf(
+				SummaryHubTarget.Record,
+				SummaryHubTarget.EvaluationsWeek(
+					weekStart = LocalDate(2026, 10, 12),
+					evaluationId = "evaluation-2"
+				)
+			),
+			targets
+		)
+	}
+
+	@Test
+	fun when_stateIsLoadingOrFailed_then_theHubIsNotShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = Summary.State.Loading(hub = summaryHubItem()),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		assertNodeHidden(SummaryUiTags.ItemsList)
+		assertNodeHidden(SummaryUiTags.CareerSection)
 	}
 
 	@Test

@@ -131,7 +131,7 @@ class ActionCoverageTest {
 
 	private companion object {
 		const val MINIMUM_ACTIONS = 100
-		const val INTERNAL_COUNT = 24
+		const val INTERNAL_COUNT = 28
 		const val PLATFORM_EDGE_COUNT = 5
 		const val PENDING_COUNT = 0
 		val actionStart = Regex("""^\s*sealed\s+(class|interface)\s+Action(\s|:|\{|$)""")

@@ -26,7 +26,8 @@ fun termItem(
 	termId: String = "term-1",
 	shortNameText: String = "Sep - Dic 2026",
 	kind: TermItemKind = TermItemKind.HISTORICAL,
-	attempts: List<AttemptItem> = emptyList()
+	attempts: List<AttemptItem> = emptyList(),
+	arrivalAttemptId: String? = null
 ) = TermItem(
 	termId = termId,
 	periodYear = 2026,
@@ -42,7 +43,8 @@ fun termItem(
 	isCurrent = kind == TermItemKind.CURRENT,
 	canDelete = kind == TermItemKind.SYNTHETIC,
 	canEdit = kind == TermItemKind.SYNTHETIC,
-	attempts = attempts
+	attempts = attempts,
+	arrivalAttemptId = arrivalAttemptId
 )
 
 // A numeric subject graded 4 unless told otherwise; qualitative ones carry no grade text.

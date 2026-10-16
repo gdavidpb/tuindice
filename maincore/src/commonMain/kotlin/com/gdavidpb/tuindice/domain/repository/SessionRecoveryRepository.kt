@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 
 interface SessionRecoveryRepository {
 	suspend fun recoverUnauthorizedSession(
@@ -17,5 +18,14 @@ interface SessionRecoveryRepository {
 	 */
 	suspend fun ensureFreshSession(): SessionSnapshot?
 
-	suspend fun invalidateSession(sessionId: String? = null)
+	/**
+	 * Ends the session: cancels the scope's work, wipes the device, tells the interface and keeps the
+	 * notice for the next start. [reason] and [cause] only feed the report that each invalidation
+	 * leaves behind.
+	 */
+	suspend fun invalidateSession(
+		sessionId: String? = null,
+		reason: SessionInvalidationReason? = null,
+		cause: Throwable? = null
+	)
 }

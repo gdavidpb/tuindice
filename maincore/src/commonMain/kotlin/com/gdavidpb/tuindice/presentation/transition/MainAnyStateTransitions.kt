@@ -19,8 +19,11 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
-		onTo<Main.Action.ShowOutdatedApp, Main.State.OutdatedApp> { _, action ->
-			Main.State.OutdatedApp(outdatedAppState = action.outdatedAppState)
+		onTo<Main.Action.ShowOutdatedApp, Main.State.OutdatedApp> { state, action ->
+			Main.State.OutdatedApp(
+				outdatedAppState = action.outdatedAppState,
+				pendingSessionEnd = state.pendingSessionEnd
+			)
 		}
 
 		on<Main.Action.RequestReview> { state, _ ->
@@ -52,7 +55,7 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		on<Main.Action.RequestSync> { state, _ ->
 			machine.requestSync(host = host)
-			machine.ensureMessagingSubscribed(host = host)
+			machine.ensureMessagingSubscribed()
 			state
 		}
 
@@ -69,6 +72,21 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		on<Main.Action.RequestSignOut> { state, _ ->
 			machine.prepareSignOut(host = host)
 			state
+		}
+
+		// The route attended the pending end of the session (it took the user to the sign-in and showed
+		// the notice, if any): only now is it cleared and the copy of the notice kept for the next start
+		// taken. The id of an end that was replaced in the meantime changes nothing: the new one is
+		// still owed.
+		on<Main.Action.SessionEndHandled> { state, action ->
+			val pending = state.pendingSessionEnd
+
+			if (pending != null && pending.id == action.id) {
+				machine.finishSessionEnd(host = host, pending = pending)
+				state.withPendingSessionEnd(null)
+			} else {
+				state
+			}
 		}
 
 		// Telemetry-only rows: the host route dispatches these when the sync status
@@ -88,20 +106,25 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
-		onTo<MainInternalEvent.StartUpStarting, Main.State.Starting> { _, _ ->
-			Main.State.Starting
+		onTo<MainInternalEvent.StartUpStarting, Main.State.Starting> { state, _ ->
+			Main.State.Starting(pendingSessionEnd = state.pendingSessionEnd)
 		}
 
-		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content>(
-			emits = setOf(Main.Effect.ShowSnackBar::class)
-		) { _, event ->
-			event.sessionResetMessage?.let { message ->
-				host.sendEffect(Main.Effect.ShowSnackBar(message = message))
-			}
-
+		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content> { state, event ->
 			machine.observeContent(host = host)
 
-			Main.State.Content(startDestination = event.startDestination)
+			// The notice the start-up found goes through the rule of the live one: the route attends it
+			// and takes it once it showed it.
+			val notice = event.sessionNotice
+
+			Main.State.Content(
+				startDestination = event.startDestination,
+				pendingSessionEnd = if (notice != null) {
+					machine.beginSessionEnd(current = state.pendingSessionEnd, notice = notice)
+				} else {
+					state.pendingSessionEnd
+				}
+			)
 		}
 
 		// The status belongs to the content: before it there is no sync to speak of. A status that
@@ -118,11 +141,11 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			}
 		}
 
-		on<MainInternalEvent.SessionInvalidationObserved>(
-			emits = setOf(Main.Effect.SessionInvalidated::class)
-		) { state, event ->
-			host.sendEffect(Main.Effect.SessionInvalidated(message = event.message))
-			state
+		// Going to the sign-in does not depend on the notice: the end is pending whatever it brings.
+		on<MainInternalEvent.SessionInvalidationObserved> { state, event ->
+			state.withPendingSessionEnd(
+				machine.beginSessionEnd(current = state.pendingSessionEnd, notice = event.sessionNotice)
+			)
 		}
 
 		on<MainInternalEvent.SignOutPrepared>(
@@ -139,26 +162,32 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
-		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { _, event ->
-			Main.State.AppUnavailable(notice = event.notice)
+		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { state, event ->
+			Main.State.AppUnavailable(notice = event.notice, pendingSessionEnd = state.pendingSessionEnd)
 		}
 
-		onTo<MainInternalEvent.OutdatedAppResolved, Main.State.OutdatedApp> { _, event ->
-			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
+		onTo<MainInternalEvent.OutdatedAppResolved, Main.State.OutdatedApp> { state, event ->
+			Main.State.OutdatedApp(
+				outdatedAppState = event.outdatedAppState,
+				pendingSessionEnd = state.pendingSessionEnd
+			)
 		}
 
-		onTo<MainInternalEvent.OutdatedAppObserved, Main.State.OutdatedApp> { _, event ->
-			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
+		onTo<MainInternalEvent.OutdatedAppObserved, Main.State.OutdatedApp> { state, event ->
+			Main.State.OutdatedApp(
+				outdatedAppState = event.outdatedAppState,
+				pendingSessionEnd = state.pendingSessionEnd
+			)
 		}
 
 		onTo<MainInternalEvent.StartUpFailed, Main.State.Failed>(
 			emits = setOf(Main.Effect.NavigateToGooglePlayServicesUnavailableDialog::class)
-		) { _, event ->
+		) { state, event ->
 			if (event.noServices) {
 				host.sendEffect(Main.Effect.NavigateToGooglePlayServicesUnavailableDialog)
 			}
 
-			Main.State.Failed
+			Main.State.Failed(pendingSessionEnd = state.pendingSessionEnd)
 		}
 
 		on<MainInternalEvent.ReviewRequested>(

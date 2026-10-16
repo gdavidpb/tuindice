@@ -35,6 +35,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -158,6 +159,22 @@ class EvaluationRepositoryContractTest {
 		assertEquals(false, onlyOrphans.hasEvaluations)
 		assertEquals(true, onlyOrphans.hasAvailableAttempts)
 		assertEquals(true, withListed.hasEvaluations)
+	}
+
+	// The refresh is what confirms the empty screen, so it has to say whether the term has a schedule.
+	@Test
+	fun updateEvaluations_reportsWhetherTheTermHasASchedule() = runTest {
+		fun repositoryWith(hasSchedule: Boolean) = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(hasSchedule = hasSchedule),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository(),
+			clock = Clock.System
+		)
+
+		assertTrue(repositoryWith(hasSchedule = true).updateEvaluations().hasSchedule)
+		assertFalse(repositoryWith(hasSchedule = false).updateEvaluations().hasSchedule)
 	}
 
 	@Test

@@ -33,6 +33,14 @@ interface MutationSyncSpec<ScopeKey, Command : OutboxMutation, Ack> {
 		mutation: MutationEnvelope<ScopeKey, Command>
 	): Ack
 
+	/**
+	 * Applies the acknowledgement locally. The engine runs it under its write gate, which is also what
+	 * the end of the session needs in order to change the session epoch. So it may only write locally:
+	 * no request, and no suspension on anything that is not a local write. A confirmation that went to
+	 * the network would hold the gate during the request, and a rejection met inside it (the 401 that
+	 * ends the session) would wait for a gate that waits for the request. [send] is the place for
+	 * requests: the gate is never held during it.
+	 */
 	suspend fun confirm(
 		mutation: MutationEnvelope<ScopeKey, Command>,
 		ack: Ack

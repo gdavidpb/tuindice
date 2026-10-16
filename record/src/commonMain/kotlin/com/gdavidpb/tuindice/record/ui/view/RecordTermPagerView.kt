@@ -34,6 +34,7 @@ fun RecordTermPagerView(
 	notice: RecordNotice? = null,
 	selectedTermId: String,
 	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -116,6 +117,7 @@ fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
+				onArrivalTaken = onAttemptArrivalTaken,
 				onAttemptSelectionChange = onAttemptSelectionChange,
 				onScrollInProgressChange = { isScrollInProgress ->
 					listScrollInProgress.value = isScrollInProgress

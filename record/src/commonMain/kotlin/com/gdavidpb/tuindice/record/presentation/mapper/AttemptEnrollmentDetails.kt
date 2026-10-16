@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
+import com.gdavidpb.tuindice.base.utils.extension.toSentenceCase
 
 /**
  * "Sección 1 · MYS-116". The classroom is shown only when every meeting that names one agrees on
@@ -39,22 +40,4 @@ internal fun AttemptProjection.toEnrollmentErrorText(): String? {
 	val first = errors.firstOrNull()?.toSentenceCase() ?: return null
 
 	return if (errors.size > 1) "$first · +${errors.size - 1}" else first
-}
-
-private val whitespace = Regex("\\s+")
-
-// Written in capitals whatever the sentence: the names the university goes by.
-private val acronyms = setOf("DACE", "DST", "USB", "UC")
-
-// Lowercases the words but not what must stay in capitals: a subject code ("MA1111") and the
-// acronyms above.
-internal fun String.toSentenceCase(): String {
-	return trim()
-		.split(whitespace)
-		.joinToString(separator = " ") { word ->
-			val core = word.filter(Char::isLetterOrDigit).uppercase()
-
-			if (core.any(Char::isDigit) || core in acronyms) word.uppercase() else word.lowercase()
-		}
-		.replaceFirstChar { first -> first.uppercase() }
 }

@@ -77,4 +77,7 @@
 	<string name="date_short_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
 	<string name="date_day_short_month">%1$s %2$s.</string>
 	<string name="date_month_year">%1$s %2$s</string>
+	<string name="class_place_with_time">%1$s · %2$s</string>
+	<string name="class_time_range_same_period">%1$s–%2$s %3$s</string>
+	<string name="class_time_range">%1$s %2$s–%3$s %4$s</string>
 </resources>

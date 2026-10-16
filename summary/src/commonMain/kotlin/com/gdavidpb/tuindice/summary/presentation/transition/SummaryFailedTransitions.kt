@@ -13,7 +13,7 @@ internal fun MachineDefinitionBuilder<Summary.State>.failedTransitions(
 	from<Summary.State.Failed> {
 		onTo<Summary.Action.RefreshSummary, Summary.State.Loading> { state, _ ->
 			machine.refreshUser(host = host)
-			Summary.State.Loading(isUserRefreshing = true, sync = state.sync)
+			Summary.State.Loading(isUserRefreshing = true, sync = state.sync, hub = state.hub)
 		}
 
 		on<SummaryInternalEvent.SyncObserved> { state, event ->

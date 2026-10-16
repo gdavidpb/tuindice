@@ -30,6 +30,13 @@ class SubjectSearchFixturesTest {
 	private val minimumLength: Int =
 		Regex("""MinimumSubjectSearchQueryLength = (\d+)""").find(machineSource.readText())!!.groupValues[1].toInt()
 
+	private val subjectSearches = listOf(
+		E2eFixtures.SubjectSearchCi,
+		E2eFixtures.SubjectSearchQa,
+		E2eFixtures.SubjectSearchQb,
+		E2eFixtures.SubjectSearchRx
+	)
+
 	@Test
 	fun theSourcesWereReadAndTheMinimumIsPlausible() {
 		assertTrue(debugSubjects.size > MINIMUM_DEBUG_SUBJECTS, "only ${debugSubjects.size} debug subjects parsed")
@@ -38,7 +45,7 @@ class SubjectSearchFixturesTest {
 
 	@Test
 	fun everySearchedSubjectIsListedForItsQueryByTheCatalogMockOrTheDebugSource() {
-		E2eFixtures.subjectSearches.forEach { search ->
+		subjectSearches.forEach { search ->
 			val unlisted = unlisted(search)
 
 			assertTrue(unlisted.isEmpty(), "query '${search.query}' does not list $unlisted")
@@ -53,7 +60,7 @@ class SubjectSearchFixturesTest {
 
 	@Test
 	fun everySubjectSearchQueryIsLongEnoughToSearchAndTheShortOneIsNot() {
-		assertTrue(E2eFixtures.subjectSearches.all { it.query.length >= minimumLength })
+		assertTrue(subjectSearches.all { it.query.length >= minimumLength })
 		assertTrue(E2eInputs.SubjectQueryTooShort.length < minimumLength)
 	}
 

@@ -1,14 +1,17 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.DAYS_PER_WEEK
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MAX_ACADEMIC_WEEK
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine.MIN_ACADEMIC_WEEK
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -20,12 +23,12 @@ fun buildEvaluationsWeekItems(
 	continuousLabel: String,
 	currentDate: LocalDate
 ): List<EvaluationsWeekItem> {
-	val termStart = currentTerm?.academicTermStartDate() ?: currentDate
+	val termStart = evaluationsWeekOneStart(currentTerm = currentTerm, currentDate = currentDate)
 	val evaluationDates = evaluations.mapNotNull { evaluation ->
 		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) {
 			null
 		} else {
-			evaluation.date?.toEvaluationLocalDate()
+			evaluation.date?.toLocalDate()
 		}
 	}.toSet()
 	val continuousItem = if (evaluations.any { evaluation -> evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS }) {
@@ -42,9 +45,7 @@ fun buildEvaluationsWeekItems(
 	}
 
 	val weeklyItems = (MIN_ACADEMIC_WEEK..MAX_ACADEMIC_WEEK).map { weekNumber ->
-		val weekStart = termStart
-			.plus(DatePeriod(days = (weekNumber - 1) * DAYS_PER_WEEK))
-			.academicWeekStart()
+		val weekStart = termStart.plus(DatePeriod(days = (weekNumber - 1) * DAYS_PER_WEEK))
 
 		EvaluationsWeekItem(
 			key = EvaluationsWeekKey.Academic(weekNumber),

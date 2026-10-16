@@ -65,10 +65,70 @@ rules:
       data/repository no debe contener DTOs, modelos, mutaciones, resolvers ni clases concretas
       (README "Capas por feature > Data"). Solo interfaces *DataRepository; las implementaciones
       viven en data/source y los helpers en paquetes explícitos (data/model, data/mutation, ...).
-    pattern-regex: '^\s*(?:(?:public|internal|private|protected)\s+)?(?:(?:sealed|abstract|open|data|enum|annotation|value)\s+)*(?:class|object)\b'
+    # [ \t] y no \s: con \s el inicio de línea consumiría el salto de una línea en blanco previa y el hallazgo caería una línea arriba.
+    pattern-regex: '^[ \t]*(?:(?:public|internal|private|protected)\s+)?(?:(?:sealed|abstract|open|data|enum|annotation|value)\s+)*(?:class|object)\b'
     paths:
       include:
         - '**/data/repository/**'
     metadata:
       area: layering
       referencia: 'README.md § Capas por feature'
+
+  # route/ y navigation/ montan pantallas: las dos primeras reglas no las cubren (su alcance son contract, machine,
+  # viewmodel, transition, mapper y model); la de persistence sí, porque ninguna pantalla debe importarla.
+  - id: presentation-no-compose-render-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Presentación no importa tipos de render de Compose (androidx.compose.ui.graphics o
+      androidx.compose.ui.text). Solo se permiten los tipos de valor que los mappers ya precalculan (Color,
+      ImageVector, AnnotatedString, SpanStyle, FontWeight, buildAnnotatedString, withStyle). Un ImageBitmap,
+      un Canvas, un Path o un TextStyle son de la capa ui: pasa al estado el dato (bytes, ids, modelos) y
+      deja el dibujo en ui/ (skill "Preserve the composable boundary"; README "Capas por feature > Presentation").
+    pattern-regex: '^import\s+androidx\.compose\.ui\.(?:graphics\.(?!Color$|vector\.ImageVector$)|text\.(?!AnnotatedString$|SpanStyle$|buildAnnotatedString$|withStyle$|font\.FontWeight$))'
+    paths:
+      include:
+        - '**/presentation/contract/**'
+        - '**/presentation/machine/**'
+        - '**/presentation/viewmodel/**'
+        - '**/presentation/transition/**'
+        - '**/presentation/mapper/**'
+        - '**/presentation/model/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature > Presentation'
+
+  - id: presentation-no-ui-layer-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Presentación no importa la capa ui de ninguna feature ni base.ui.view: la dependencia va de ui hacia
+      presentation, no al revés. Solo se permiten ui.model y los tokens de base.ui.style. Mueve el tipo de
+      presentación a presentation/model o la función de render a ui/ (README "Capas por feature > Presentation").
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?!base\.ui\.style\.)(?:\w+\.)*ui\.(?!model\.)'
+    paths:
+      include:
+        - '**/presentation/contract/**'
+        - '**/presentation/machine/**'
+        - '**/presentation/viewmodel/**'
+        - '**/presentation/transition/**'
+        - '**/presentation/mapper/**'
+        - '**/presentation/model/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature > Presentation'
+
+  - id: presentation-no-persistence-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Presentación no importa com.gdavidpb.tuindice.persistence: los tipos de persistencia entran por el dominio
+      de la feature (un modelo de domain/model o un resultado de domain/mapper). Expón el dato desde el
+      repositorio de dominio o calcúlalo en domain/mapper (README "Capas por feature > Domain").
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.persistence\.'
+    paths:
+      include:
+        - '**/presentation/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature > Domain'

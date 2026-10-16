@@ -18,29 +18,32 @@ class RecordDataPrerequisiteDataSource(
 			academicRecordSyncStateDao.observeSyncState(),
 			syncStatusRepository.observeSyncStatus()
 		) { syncState, syncStatus ->
-			val isReady = syncState?.hasSynced == true
-			RecordDataPrerequisiteState(
-				isReady = isReady,
-				hasFailed = !isReady && syncStatus.isBlockingFailure()
-			)
+			recordDataPrerequisiteStateOf(isReady = syncState?.hasSynced == true, syncStatus = syncStatus)
 		}.distinctUntilChanged()
 	}
+}
 
-	override suspend fun isRecordDataReady(): Boolean {
-		return academicRecordSyncStateDao.getSyncState()?.hasSynced == true
-	}
+// What the sync says of the record data. Without the record stored, a blocking status fails it for every reader of it,
+// and a new student the university has no record for yet is also reported as a state of its own, which Summary reads
+// as the first term to come and not as an error.
+internal fun recordDataPrerequisiteStateOf(isReady: Boolean, syncStatus: SyncStatus): RecordDataPrerequisiteState {
+	return RecordDataPrerequisiteState(
+		isReady = isReady,
+		hasFailed = !isReady && syncStatus.isBlockingFailure(),
+		isNewStudentWithoutRecord = !isReady && syncStatus == SyncStatus.NewStudentNoRecord
+	)
+}
 
-	private fun SyncStatus.isBlockingFailure(): Boolean {
-		return when (this) {
-			SyncStatus.Failed,
-			SyncStatus.Unavailable,
-			SyncStatus.OutdatedCredentials,
-			SyncStatus.MissingCredentials,
-			SyncStatus.NewStudentNoRecord,
-			SyncStatus.RecordAccessDenied,
-			-> true
+private fun SyncStatus.isBlockingFailure(): Boolean {
+	return when (this) {
+		SyncStatus.Failed,
+		SyncStatus.Unavailable,
+		SyncStatus.OutdatedCredentials,
+		SyncStatus.MissingCredentials,
+		SyncStatus.NewStudentNoRecord,
+		SyncStatus.RecordAccessDenied,
+		-> true
 
-			SyncStatus.Healthy -> false
-		}
+		SyncStatus.Healthy -> false
 	}
 }

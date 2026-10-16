@@ -3,12 +3,14 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import kotlinx.datetime.LocalDate
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.screen_title_evaluations
 
@@ -33,10 +35,27 @@ object Evaluations {
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
-			)
-		) : State()
+			),
+			// The Monday that opened week 1 when this content was laid out: what the week numbers hang
+			// from, saved with the selection and compared when the content is observed again.
+			val weekOneStart: LocalDate? = null,
+			// Some subject of the current term has meetings: the bar offers the class schedule.
+			val hasSchedule: Boolean = false,
+			// The evaluation a jump asked to bring into view, when it is listed under the week the jump
+			// selected. The list takes it once (EvaluationArrivalTaken) and plays the arrival from there.
+			val arrivalEvaluationId: String? = null
+		) : State() {
+			override val topBarConfig: TopBarConfig?
+				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
+		}
 
-		data object Empty : State()
+		// The term has no evaluation yet, but its class schedule may be there to open from the bar.
+		data class Empty(
+			val hasSchedule: Boolean = false
+		) : State() {
+			override val topBarConfig: TopBarConfig?
+				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
+		}
 
 		// Both states below arrive with what they say already resolved: why there is nothing to
 		// list is decided where it is observed, and the screen only paints it.
@@ -65,6 +84,11 @@ object Evaluations {
 
 		class SelectWeek(
 			val weekKey: EvaluationsWeekKey
+		) : Action()
+
+		// The list has taken the evaluation a jump brought in: it is no longer pending in the content.
+		class EvaluationArrivalTaken(
+			val evaluationId: String
 		) : Action()
 
 		data object AddEvaluation : Action()

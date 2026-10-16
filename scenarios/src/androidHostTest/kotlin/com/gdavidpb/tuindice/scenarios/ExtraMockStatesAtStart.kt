@@ -8,7 +8,10 @@ package com.gdavidpb.tuindice.scenarios
 internal object ExtraMockStatesAtStart {
 	private val byScenario: Map<String, List<Pair<String, String>>> = mapOf(
 		"auth-pending-sign-out" to listOf("evaluations-pending-sign-out" to "Unavailable"),
-		"auth-pending-sign-out-flush-success" to listOf("evaluations-pending-sign-out-flush-success" to "Unavailable")
+		"auth-pending-sign-out-flush-success" to listOf("evaluations-pending-sign-out-flush-success" to "Unavailable"),
+		"evaluations-list-retry" to listOf("evaluations-list-failure" to "Unavailable"),
+		"summary-hub-share-finished-term" to listOf("summary-hub-record" to "NoCurrentTerm"),
+		"summary-statistics-share-no-catalog" to listOf("share-backgrounds" to "Unavailable")
 	)
 
 	val scenarioIds: Set<String> = byScenario.keys

@@ -23,9 +23,23 @@ sealed class TopBarConfig(
 		)
 	)
 
+	// The current term has a class schedule to open (some subject of it has valid meetings).
+	data object EvaluationsWithSchedule : TopBarConfig(
+		actions = listOf(
+			TopBarAction.EvaluationsScheduleAction
+		)
+	)
+
 	data object Pensum : TopBarConfig(
 		actions = listOf(
 			TopBarAction.SearchPensumAction
+		)
+	)
+
+	// The closed terms of the Statistics screen can be shared as an image.
+	data object Statistics : TopBarConfig(
+		actions = listOf(
+			TopBarAction.StatisticsShareAction
 		)
 	)
 }

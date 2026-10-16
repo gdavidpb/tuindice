@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.pensum.ui.view
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
+import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 
 private val LightPensumCanvasTermBand = Color(0xFFF4F4F4)
 private val LightPensumPanelBorder = Color(0xFFD8D8D8)
@@ -15,32 +15,10 @@ private val LightPensumTextSecondary = Color(0xFF5F6368)
 internal val PensumElementCornerRadius = 8.dp
 internal val PensumElementShape = RoundedCornerShape(PensumElementCornerRadius)
 
-@Immutable
-internal data class PensumGraphColors(
-	val isDark: Boolean,
-	val screenBackground: Color,
-	val canvasBackground: Color,
-	val canvasTermBand: Color,
-	val panelBackground: Color,
-	val panelBorder: Color,
-	val floatingPanelBackground: Color,
-	val approved: Color,
-	val current: Color,
-	val available: Color,
-	val blocked: Color,
-	val canvasNeutral: Color,
-	val selected: Color,
-	val textPrimary: Color,
-	val textSecondary: Color,
-	val nodeContainer: Color,
-	val controlsBackground: Color,
-	val minimapBackground: Color
-)
-
 @Composable
 internal fun pensumGraphColors(): PensumGraphColors {
 	val colorScheme = MaterialTheme.colorScheme
-	val panelBackground = colorScheme.surfaceContainerLow
+	val panelBackground = colorScheme.surfaceVariant
 
 	return if (TuIndiceDarkTheme.isDark()) {
 		PensumGraphColors(

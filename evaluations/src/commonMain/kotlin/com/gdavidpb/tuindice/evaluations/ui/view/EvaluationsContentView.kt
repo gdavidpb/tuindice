@@ -43,7 +43,8 @@ fun EvaluationsContentView(
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
-	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
+	onEvaluationArrivalTaken: (evaluationId: String) -> Unit = {}
 ) {
 	val initialFirstVisibleItemIndex = remember(state.evaluationWeekGroups, state.selectedWeekKey) {
 		state.evaluationWeekGroups.initialFirstVisibleItemIndex(state.selectedWeekKey)
@@ -84,7 +85,9 @@ fun EvaluationsContentView(
 					scrollEnabled = scrollEnabled,
 					openActionsEvaluationId = openActionsEvaluationId,
 					focusEvaluationId = focusEvaluationId,
-					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
+					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange,
+					arrivalEvaluationId = state.arrivalEvaluationId,
+					onArrivalTaken = onEvaluationArrivalTaken
 				)
 			} else {
 				EvaluationsEmptyMatchView(

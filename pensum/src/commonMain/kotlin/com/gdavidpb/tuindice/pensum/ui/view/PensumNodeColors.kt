@@ -6,20 +6,9 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
-
-internal data class NodeColors(
-	val container: Color,
-	val border: Color,
-	val chip: Color,
-	val chipText: Color,
-	val text: Color,
-	val secondaryText: Color
-)
-
-internal data class PensumChipColors(
-	val container: Color,
-	val content: Color
-)
+import com.gdavidpb.tuindice.pensum.ui.model.NodeColors
+import com.gdavidpb.tuindice.pensum.ui.model.PensumChipColors
+import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 
 internal fun String.toPensumChipColors(
 	fallbackContainer: Color,

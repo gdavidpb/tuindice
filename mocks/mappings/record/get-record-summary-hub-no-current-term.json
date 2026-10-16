@@ -1,0 +1,22 @@
+{
+  "priority": 0,
+  "scenarioName": "summary-hub-record",
+  "requiredScenarioState": "NoCurrentTerm",
+  "request": {
+    "method": "GET",
+    "urlPath": "/record/v5",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer summary\\.hub(\\.nopensum)?\\.mock\\.access"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "record/get-record-summary-hub-no-current-term.json",
+    "fixedDelayMilliseconds": 500
+  }
+}

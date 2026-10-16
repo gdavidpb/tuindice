@@ -38,7 +38,11 @@ class EvaluationViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_loadAttempts_updateSelection_andEmitGradePickerEffect() = runTest {
-		val viewModel = createViewModel()
+		// On the test scheduler, like the other cases: on the real dispatchers the loading step raced the
+		// collector's timeout when the class ran on its own.
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
 			testScheduler = testScheduler
@@ -58,11 +62,13 @@ class EvaluationViewModelContractTest {
 				viewModel.setAttemptAction(SECOND_EVALUATION_SUBJECT)
 				val selected = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(SECOND_EVALUATION_SUBJECT, selected.selectedAttempt)
+				assertEquals(SECOND_EVALUATION_SUBJECT.code, selected.dateCalendar.subjectCode)
 				assertEquals(1, selected.attemptItems.count { item -> item.isSelected })
 
 				viewModel.setAttemptAction(null)
 				val cleared = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(null, cleared.selectedAttempt)
+				assertEquals(null, cleared.dateCalendar.subjectCode)
 				assertEquals(0, cleared.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
@@ -166,6 +172,46 @@ class EvaluationViewModelContractTest {
 					!state.canSubmit && state.type == DEFAULT_PENDING_EVALUATION.type
 				}
 				assertEquals(false, restored.canSubmit)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun editEvaluation_ignoresAChangeOfSubject() = runTest {
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				viewModel.loadEvaluationAction(DEFAULT_PENDING_EVALUATION.id)
+
+				val loaded = awaitUntilState<Evaluation.State.Content> { state ->
+					state.initialDraft != null
+				}
+				assertEquals(DEFAULT_EVALUATION_SUBJECT, loaded.selectedAttempt)
+				assertEquals(DEFAULT_EVALUATION_SUBJECT.code, loaded.dateCalendar.subjectCode)
+
+				// The subject of a saved evaluation is not edited: the change is not taken, instead of
+				// looking taken and being dropped when it is saved.
+				viewModel.setAttemptAction(SECOND_EVALUATION_SUBJECT)
+				viewModel.setTypeAction(EvaluationType.TEST)
+
+				val afterwards = awaitUntilState<Evaluation.State.Content> { state ->
+					state.type == EvaluationType.TEST
+				}
+				assertEquals(DEFAULT_EVALUATION_SUBJECT, afterwards.selectedAttempt)
+				assertEquals(DEFAULT_EVALUATION_SUBJECT.code, afterwards.dateCalendar.subjectCode)
+				assertEquals(1, afterwards.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
 			}

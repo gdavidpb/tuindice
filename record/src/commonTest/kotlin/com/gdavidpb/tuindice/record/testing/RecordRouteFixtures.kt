@@ -3,7 +3,11 @@
 package com.gdavidpb.tuindice.record.testing
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
@@ -79,7 +83,13 @@ fun recordRouteFixture(
 	)
 }
 
-fun scheduleRouteFixture(record: AcademicRecord, hasSynced: Boolean = true): ScheduleRouteFixture {
+fun scheduleRouteFixture(
+	record: AcademicRecord,
+	hasSynced: Boolean = true,
+	clockRepository: ScheduleClockRepository = ControllableScheduleClockRepository(),
+	visibleEvaluationsRepository: VisibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(),
+	eventPublisher: EventPublisher = NoOpEventPublisher
+): ScheduleRouteFixture {
 	val academicRecordRepository = ControllableAcademicRecordRepository(
 		initialRecord = record,
 		initialHasSynced = hasSynced
@@ -93,7 +103,8 @@ fun scheduleRouteFixture(record: AcademicRecord, hasSynced: Boolean = true): Sch
 				observeScheduleUseCase = ObserveScheduleUseCase(
 					academicRecordRepository = academicRecordRepository,
 					scheduleSelectionRepository = selectionRepository,
-					scheduleClockRepository = ControllableScheduleClockRepository(),
+					scheduleClockRepository = clockRepository,
+					visibleEvaluationsRepository = visibleEvaluationsRepository,
 					reportingRepository = reportingRepository
 				),
 				setScheduleViewModeUseCase = SetScheduleViewModeUseCase(
@@ -101,7 +112,7 @@ fun scheduleRouteFixture(record: AcademicRecord, hasSynced: Boolean = true): Sch
 					reportingRepository = reportingRepository
 				)
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = eventPublisher
 		),
 		academicRecordRepository = academicRecordRepository,
 		selectionRepository = selectionRepository
@@ -180,7 +191,8 @@ private fun recordMachine(
 			academicRecordRepository = academicRecordRepository,
 			reportingRepository = reportingRepository,
 			exceptionHandler = exceptionHandler
-		)
+		),
+		attemptFocusRepository = InMemoryRecordAttemptFocusDataSource()
 	)
 }
 

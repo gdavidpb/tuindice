@@ -83,12 +83,15 @@ final class EvaluationsScenarioTests: ScenarioTestCase {
     func test_evaluations_add_validation() { runScenario("evaluations-add-validation") }
     func test_evaluations_annulled_no_attempts() { runScenario("evaluations-annulled-no-attempts") }
     func test_evaluations_annulled_provisional_notice() { runScenario("evaluations-annulled-provisional-notice") }
+    func test_evaluations_edit_keeps_subject() { runScenario("evaluations-edit-keeps-subject") }
     func test_evaluations_edit_submit() { runScenario("evaluations-edit-submit") }
     func test_evaluations_enrollment_unavailable() { runScenario("evaluations-enrollment-unavailable") }
     func test_evaluations_filters_and_form() { runScenario("evaluations-filters-and-form") }
     func test_evaluations_grade_from_list() { runScenario("evaluations-grade-from-list") }
+    func test_evaluations_inherited_place() { runScenario("evaluations-inherited-place") }
     func test_evaluations_list_retry() { runScenario("evaluations-list-retry") }
     func test_evaluations_not_enrolled() { runScenario("evaluations-not-enrolled") }
+    func test_evaluations_open_schedule() { runScenario("evaluations-open-schedule") }
     func test_evaluations_smoke() { runScenario("evaluations-smoke") }
     func test_evaluations_swipe_delete() { runScenario("evaluations-swipe-delete") }
 }
@@ -119,6 +122,8 @@ final class RecordScenarioTests: ScenarioTestCase {
     func test_record_annulled_provisional_schedule() { runScenario("record-annulled-provisional-schedule") }
     func test_record_attempt_overrides() { runScenario("record-attempt-overrides") }
     func test_record_refresh_retry() { runScenario("record-refresh-retry") }
+    func test_record_schedule_evaluation_marks() { runScenario("record-schedule-evaluation-marks") }
+    func test_record_schedule_evaluation_week_jump() { runScenario("record-schedule-evaluation-week-jump") }
     func test_record_schedule_view_remembered() { runScenario("record-schedule-view-remembered") }
     func test_record_smoke() { runScenario("record-smoke") }
     func test_record_stale_enrollment_notice() { runScenario("record-stale-enrollment-notice") }
@@ -141,6 +146,12 @@ final class SubjectsScenarioTests: ScenarioTestCase {
 }
 
 final class SummaryScenarioTests: ScenarioTestCase {
+    func test_summary_hub_attention_links() { runScenario("summary-hub-attention-links") }
+    func test_summary_hub_career_invite() { runScenario("summary-hub-career-invite") }
+    func test_summary_hub_overview() { runScenario("summary-hub-overview") }
+    func test_summary_hub_share_finished_term() { runScenario("summary-hub-share-finished-term") }
+    func test_summary_hub_term_career_links() { runScenario("summary-hub-term-career-links") }
+    func test_summary_hub_week_links() { runScenario("summary-hub-week-links") }
     func test_summary_new_student_no_record() { runScenario("summary-new-student-no-record") }
     func test_summary_outdated_credentials() { runScenario("summary-outdated-credentials") }
     func test_summary_partial_enrollment_status_dialog() { runScenario("summary-partial-enrollment-status-dialog") }
@@ -149,5 +160,10 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_record_access_denied() { runScenario("summary-record-access-denied") }
     func test_summary_refresh_retry() { runScenario("summary-refresh-retry") }
     func test_summary_smoke() { runScenario("summary-smoke") }
+    func test_summary_statistics_links() { runScenario("summary-statistics-links") }
+    func test_summary_statistics_overview() { runScenario("summary-statistics-overview") }
+    func test_summary_statistics_share() { runScenario("summary-statistics-share") }
+    func test_summary_statistics_share_no_catalog() { runScenario("summary-statistics-share-no-catalog") }
+    func test_summary_statistics_tooltips() { runScenario("summary-statistics-tooltips") }
     func test_summary_status_dialog() { runScenario("summary-status-dialog") }
 }

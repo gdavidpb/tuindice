@@ -206,6 +206,7 @@ class SyncUniversityStatesContractTest {
 				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = FakePensumRevalidationRepository(),
+			evaluationsRevalidationRepository = FakeEvaluationsRevalidationRepository(),
 			coroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 		)
 	}

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.intl.Locale
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
@@ -221,6 +222,7 @@ class EvaluationsRtlA11yUiTest {
 					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
+				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = Clock.System
 			),
 			eventPublisher = NoOpEventPublisher

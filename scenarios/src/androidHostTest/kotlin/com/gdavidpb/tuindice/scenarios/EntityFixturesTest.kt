@@ -31,7 +31,8 @@ class EntityFixturesTest {
 		E2eFixtures.all.filter { it.declaredIn.isEmpty() }.forEach { fixture ->
 			assertTrue(!fixture.derivedFrom.isNullOrBlank(), fixture.value)
 			assertTrue(
-				RepoFiles.file("mocks/__files").walkTopDown().none { it.isFile && fixture.value in it.readText() },
+				RepoFiles.file("mocks/__files").walkTopDown()
+					.none { it.isFile && it.extension !in BinaryMockExtensions && fixture.value in it.readText() },
 				"'${fixture.value}' is in a mock, so it is not derived"
 			)
 		}
@@ -42,3 +43,6 @@ class EntityFixturesTest {
 		assertFailsWith<IllegalArgumentException> { E2eFixture("x", emptyList()) }
 	}
 }
+
+// The artwork the mocks serve is bytes, not text: a fixture's letters can turn up in it by chance.
+private val BinaryMockExtensions = setOf("webp", "png", "jpg", "jpeg")

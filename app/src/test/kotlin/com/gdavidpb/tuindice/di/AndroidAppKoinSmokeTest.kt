@@ -9,11 +9,14 @@ import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
@@ -25,11 +28,19 @@ import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
+import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
@@ -107,11 +118,30 @@ class AndroidAppKoinSmokeTest {
 			PendingChangesRepository::class,
 			SessionInvalidationRepository::class,
 			PensumTopBarActionBus::class,
+			StatisticsTopBarActionBus::class,
+			// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
+			EvaluationsWeekFocusRepository::class,
+			// The jump to an attempt in Record that the host asks for from Summary.
+			RecordAttemptFocusRepository::class,
+			// The read contracts of the summary hub, which Summary's view model consumes through the
+			// use case of the hub (the record, its prerequisite and the evaluations among them).
+			ScheduleClockRepository::class,
+			VisibleEvaluationsRepository::class,
+			PensumProgressRepository::class,
+			EvaluationsRevalidationRepository::class,
 			SignInViewModel::class,
 			MainViewModel::class,
 			BrowserViewModel::class,
-			RecordViewModel::class
+			RecordViewModel::class,
+			ScheduleViewModel::class,
+			SummaryViewModel::class
 		).forEach { type -> get<Any>(type) }
+	}
+
+	// The statistics image goes to the share sheet through the Android implementation, never a stand-in.
+	@Test
+	fun bindsTheImageShareToTheAndroidSheet() = hostGraph.start {
+		assertTrue(get<ImageShareRepository>() is AndroidImageShareDataSource)
 	}
 
 	// Release reads the system clock: nothing in the production graph can freeze it.

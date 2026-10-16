@@ -11,7 +11,7 @@ class TuIndiceRoomMigrationsTest {
 		val migrations = TuIndiceRoomMigrations.all
 
 		assertEquals(
-			listOf(30 to 31, 31 to 32, 32 to 33, 33 to 34, 34 to 35),
+			listOf(30 to 31, 31 to 32, 32 to 33, 33 to 34, 34 to 35, 35 to 36),
 			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
 
@@ -68,6 +68,21 @@ class TuIndiceRoomMigrationsTest {
 				"ALTER TABLE pending_mutations ADD COLUMN rebase_count INTEGER NOT NULL DEFAULT 0"
 			),
 			migration34To35Sql
+		)
+	}
+
+	// Nullable and defaultless: a term stored before the backend served the first day of classes
+	// has none, and its week numbering keeps the calendar-month rule.
+	@Test
+	fun migration35To36_addsTheNullableClassesStartDateColumn() {
+		val migration = TuIndiceRoomMigrations.all.single { it.startVersion == 35 && it.endVersion == 36 }
+		val connection = CapturingSQLiteConnection()
+
+		migration.migrate(connection)
+
+		assertEquals(
+			listOf("ALTER TABLE academic_term ADD COLUMN classes_start_date TEXT"),
+			connection.executedSql
 		)
 	}
 }

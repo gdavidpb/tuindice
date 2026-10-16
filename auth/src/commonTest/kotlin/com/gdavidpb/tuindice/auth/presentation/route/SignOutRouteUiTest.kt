@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
@@ -14,6 +13,7 @@ import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import io.github.vinceglb.filekit.PlatformFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -61,7 +60,7 @@ class SignOutRouteUiTest {
 
 	@Test
 	fun when_signOutActionFails_then_showsSnackBarWithoutNavigation() = runTuIndiceUiTest {
-		val viewModel = createSignOutViewModel(shouldThrowOnClearData = true)
+		val viewModel = createSignOutViewModel(shouldFailRevoke = true)
 		var navigateCalls = 0
 		val snackBarMessages = mutableListOf<SnackBarMessage>()
 
@@ -115,25 +114,17 @@ class SignOutRouteUiTest {
 	}
 
 	private fun createSignOutViewModel(
-		shouldThrowOnClearData: Boolean = false
+		shouldFailRevoke: Boolean = false
 	): SignOutViewModel {
-		val applicationRepository = if (shouldThrowOnClearData) {
-			object : ApplicationRepository {
-				override suspend fun clearData() {
-					error("forced sign out failure")
-				}
-
-				override suspend fun clearSessionResidue() = Unit
-
-				override suspend fun canOpen(file: PlatformFile): Boolean = true
-			}
-		} else {
-			RecordingApplicationRepository()
-		}
-
+		val applicationRepository = RecordingApplicationRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val pendingChangesRepository = FakePendingChangesRepository()
 		val reportingRepository = RecordingReportingRepository()
-		val authRepository = RecordingAuthRepository()
+		val authRepository = if (shouldFailRevoke) {
+			RecordingAuthRepository(throwable = IllegalStateException("forced sign out failure"))
+		} else {
+			RecordingAuthRepository()
+		}
 		val attestationRepository = FakeAttestationRepository()
 		val sessionRepository = FakeSessionRepository()
 		val syncStatusRepository = FakeSyncStatusRepository()
@@ -141,10 +132,14 @@ class SignOutRouteUiTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
-			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-			applicationRepository = applicationRepository,
-			syncStatusRepository = syncStatusRepository,
-			sessionCoroutineScope = testSessionCoroutineScope(),
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			sessionEndRepository = RunningSessionEndRepository(
+				applicationRepository = applicationRepository,
+				sessionRepository = sessionRepository,
+				syncStatusRepository = syncStatusRepository,
+				sessionCoroutineScope = testSessionCoroutineScope(),
+				sessionInvalidationRepository = sessionInvalidationRepository
+			),
 			reportingRepository = reportingRepository
 		)
 

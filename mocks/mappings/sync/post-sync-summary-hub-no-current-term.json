@@ -1,0 +1,27 @@
+{
+  "priority": 0,
+  "scenarioName": "summary-hub-record",
+  "requiredScenarioState": "NoCurrentTerm",
+  "request": {
+    "method": "POST",
+    "urlPath": "/record/v5/sync",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'summary-hub-pass')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "sync/post-sync-summary-hub-no-current-term.json",
+    "fixedDelayMilliseconds": 1000
+  }
+}

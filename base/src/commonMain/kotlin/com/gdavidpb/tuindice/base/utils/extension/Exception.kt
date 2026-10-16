@@ -143,6 +143,14 @@ fun Throwable.authErrorCode(): String? = when (this) {
 	else -> null
 }
 
+/**
+ * A current token that lacks the scope of the request (403 + `insufficient_scope`). Said of a token,
+ * not of the change that was sent with it: a queue that met it keeps the change for a later attempt.
+ */
+fun Throwable.isInsufficientScope(): Boolean {
+	return isForbidden() && authErrorCode() == AuthErrorHeaders.INSUFFICIENT_SCOPE
+}
+
 fun Throwable.isSessionSuperseded(): Boolean {
 	return authErrorCode() == AuthErrorHeaders.SESSION_SUPERSEDED
 }

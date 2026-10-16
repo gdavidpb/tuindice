@@ -31,6 +31,23 @@ object Copy {
 	const val NoticeMessage = "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
 
 	// summary
+	/** The figure of the term's week line ("Semana 3 de 12"); the scenarios look for it with `contains`. */
+	const val SummaryTermWeek3 = "Semana 3"
+
+	/** What is left of the term in week 3, on the same line ("faltan 9 semanas"); the scenarios look for it whole. */
+	const val SummaryTermWeeksLeft = "faltan 9 semanas"
+
+	/** The line under the track: the subjects of the term and their credits ("4 materias · 16 UC"). */
+	const val SummaryTermSubjects = "4 materias · 16 UC"
+
+	/** The card of a week with nothing in it and none pending ("Nada pendiente esta semana"), looked for whole. */
+	const val SummaryWeekIdleTitle = "Nada pendiente esta semana"
+
+	/** The card of the week of a new student with no term yet ("Tu semana aparecerá aquí"), looked for whole. */
+	const val SummaryNoTermWeekTitle = "Tu semana aparecerá aquí"
+
+	/** The card of the first term of a new student ("Tu primer trimestre"), looked for whole. */
+	const val SummaryFirstTermTitle = "Tu primer trimestre"
 	const val NewStudentNoRecordTitle = "Aún no tienes expediente"
 	const val RecordAccessDeniedTitle = "No pudimos consultar tu expediente"
 	const val RecordAccessDeniedMessage =
@@ -64,6 +81,7 @@ object Copy {
 	const val TooltipApprovedIn = "Cursada en Sep - Dic 2021"
 	const val TooltipPlannedIn = "Planificada en Jul - Ago 2026"
 	const val TooltipMissingRequirements = "Faltan requisitos: EP1308, EP5855"
+	const val ScheduleSubtitleWeek3 = "Sep - Dic 2026 · Semana 3"
 	const val TermSepDec2026 = "Sep - Dic 2026"
 	const val TermJanMar2027 = "Ene - Mar 2027"
 
@@ -89,9 +107,46 @@ object Copy {
 			"Cuando se restablezca, tus evaluaciones aparecerán aquí."
 	const val EvaluationsNotEnrolledTitle = "No estás inscrito en este trimestre"
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
+	const val EvaluationNoGrade = "Sin nota"
+
+	// base: where a class meets, as an evaluation inherits it: the room on a line of its own, the schedule under it
+	const val RoomMys116 = "MYS-116"
+	const val RoomMys210 = "MYS-210"
+	const val TimeBlocks12 = "7:30–9:30 a. m."
+	const val TimeBlocks34 = "9:30–11:30 a. m."
+	const val ScheduleBlocks12 = "1-2 · $TimeBlocks12"
+	const val ScheduleBlocks34 = "3-4 · $TimeBlocks34"
+
+	// evaluations: the place of a class day, as the date picker says it under the calendar
+	const val InClassBlocks34 = "En clase · $ScheduleBlocks34"
 
 	/** The binding of every constant above. */
 	val bindings: List<CopyBinding> = listOf(
+		CopyBinding.Resource(SummaryTermWeek3, "summary", "summary_term_week_value", listOf("3")),
+		CopyBinding.Resource(SummaryTermWeeksLeft, "summary", "summary_term_week_remaining_many", listOf("9")),
+		CopyBinding.Resource(SummaryTermSubjects, "summary", "summary_term_subjects_many", listOf("4", "16")),
+		CopyBinding.Resource(SummaryWeekIdleTitle, "summary", "summary_week_idle_title"),
+		CopyBinding.Resource(SummaryNoTermWeekTitle, "summary", "summary_week_no_term_title"),
+		CopyBinding.Resource(SummaryFirstTermTitle, "summary", "summary_term_first_title"),
+		CopyBinding.Resource(
+			ScheduleSubtitleWeek3,
+			"record",
+			"schedule_subtitle_week",
+			listOf("Sep - Dic 2026", "3")
+		),
+		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
+		CopyBinding.Resource(
+			InClassBlocks34,
+			"evaluations",
+			"evaluation_place_in_class",
+			listOf(ScheduleBlocks34)
+		),
+		CopyBinding.MockData(RoomMys116, "mocks/__files/record/get-record-summary-hub.json"),
+		CopyBinding.MockData(RoomMys210, "mocks/__files/record/get-record-summary-hub.json"),
+		CopyBinding.Resource(ScheduleBlocks12, "base", "class_place_with_time", listOf("1-2", TimeBlocks12)),
+		CopyBinding.Resource(ScheduleBlocks34, "base", "class_place_with_time", listOf("3-4", TimeBlocks34)),
+		CopyBinding.Resource(TimeBlocks12, "base", "class_time_range_same_period", listOf("7:30", "9:30", "a. m.")),
+		CopyBinding.Resource(TimeBlocks34, "base", "class_time_range_same_period", listOf("9:30", "11:30", "a. m.")),
 		CopyBinding.Resource(UsbEmailHint, "auth", "hint_usb_email"),
 		CopyBinding.Resource(InvalidUsbIdCredentials, "auth", "error_invalid_usb_id_credentials"),
 		CopyBinding.Resource(AccountDisabled, "auth", "error_account_disabled", listOf("info@tuindice.app")),

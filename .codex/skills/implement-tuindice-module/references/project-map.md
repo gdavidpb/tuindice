@@ -6,7 +6,9 @@
 - `iosApp`: Swift host app and Xcode project. Boots the shared `maincore` framework and passes iOS runtime capabilities.
 - `maincore`: shared app assembler. Owns shared Koin bootstrap, feature registration, shared navigation host, and shared host UI.
 - `base`: shared contracts, base repositories, MVI primitives, reusable UI, logging, common helpers, and networking foundations.
-- `academiccore`: shared academic-domain model and projection engine used by academic features.
+- `academiccore`: shared academic-domain model and projection engine used by academic features. It also holds the pure
+  engines: term weeks (`AcademicWeekEngine`), schedule (`AcademicScheduleEngine`, `ScheduleBlockClock`), evaluation
+  state and points (`EvaluationStateEngine`, `EvaluationPointsEngine`) and current-term selection (`currentTermOrNull`).
 - `persistence`: shared Room database, DAOs, entities, and platform database factories.
 - `testkit`: shared test doubles and helpers for Koin, coroutines, flows, and Compose UI tests.
 - Feature modules:
@@ -22,23 +24,30 @@
 
 ## Current Module Dependency Rules
 
+These bullets mirror `scripts/module-graph.txt`, the source of truth that `./gradlew verifyModuleGraph` checks the build files against.
+
 - `base`: no project dependencies.
 - `academiccore`: no project dependencies.
-- `persistence`: depends on `:base`.
+- `persistence`: depends on `:academiccore`, `:base`.
 - `about`: depends on `:base`.
-- `auth`: depends on `:base`.
-- `summary`: depends on `:base`, `:persistence`.
+- `auth`: depends on `:base`, `:security`.
+- `security`: depends on `:base`.
+- `summary`: depends on `:academiccore`, `:base`, `:persistence`.
 - `record`: depends on `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depends on `:base`, `:persistence`.
 - `evaluations`: depends on `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depends on `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depends on `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects`, and `:about`.
-- `maincore`: depends on `:base`, `:persistence`, and every feature module.
-- `app`: depends on `:base`, `:maincore`, `:persistence`, and every feature module used by the Android host.
+- `wizard`: depends on `:base`.
+- `maincore`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
+- `app`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
+- `testkit`: depends on `:base` and `:security`.
+- `scenariokit`: no project dependencies.
+- `scenariorunner`: depends on `:scenariokit`.
+- `scenarios`: depends on `:about`, `:academiccore`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:record`, `:scenariokit`, `:subjects`, `:summary`, and `:wizard`.
 
 Default rule: features should point to shared infrastructure, not to each other.
-Current intentional exception: `wizard -> features`, because `wizard` owns contextual coachmarks anchored to eligible real screens.
+There is no feature-to-feature exception: `wizard` owns the coachmarks and their overlay, and `maincore` (the composition root) maps each screen's state to its coachmarks (`presentation/mapper/CoachmarkSurface.kt`). The semgrep rule `feature-module-no-cross-import` enforces it.
 
 ## Root Files That Define The Architecture
 

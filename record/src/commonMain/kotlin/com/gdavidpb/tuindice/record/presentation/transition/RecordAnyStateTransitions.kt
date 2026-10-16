@@ -8,10 +8,13 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBui
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.record.domain.mapper.attemptSelectionToOverridePayload
+import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.presentation.mapper.hasScheduleOnTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.isCurrentTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.isSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordEmpty
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
 
@@ -73,17 +76,24 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 		}
 
 		onTo<RecordInternalEvent.RecordContentObserved, Record.State.Content> { state, event ->
+			val selectedTermId = state.selectedTermIdFor(event)
+
 			Record.State.Content(
 				viewMode = event.viewMode,
 				record = event.record,
-				selectedTermId = event.selectedTermId,
+				selectedTermId = selectedTermId,
 				inFlightSelection = (state as? Record.State.Content)
 					?.inFlightSelection
 					?.takeUnless { selection ->
 						selection.isCommitted && event.record.hasSettled(selection.override)
 					},
 				notice = event.notice,
-				hasSelectedTermSchedule = event.record.hasScheduleOnTerm(termId = event.selectedTermId)
+				hasSelectedTermSchedule = event.record.hasScheduleOnTerm(termId = selectedTermId),
+				isSelectedTermCurrent = event.record.isCurrentTerm(termId = selectedTermId),
+				isSelectedTermSynthetic = event.record.isSyntheticTerm(termId = selectedTermId),
+				storedSelectedTermId = event.selectedTermId,
+				// A jump still waiting for the list to take it is kept: an observation must not cost it.
+				arrivalAttemptId = (state as? Record.State.Content)?.arrivalAttemptId
 			)
 		}
 
@@ -179,6 +189,22 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 	}
+}
+
+// The term the content shows once an observation brings [event]. The store's term, unless this visit chose
+// another one (a tap or a jump) and the store has not changed since: then the visit's term is kept while the
+// view mode still lists it. A store that changed (another term chosen, a new term, another view mode) wins.
+internal fun Record.State.selectedTermIdFor(event: RecordInternalEvent.RecordContentObserved): String {
+	val content = this as? Record.State.Content ?: return event.selectedTermId
+
+	val keepsVisitSelection = content.selectedTermId != event.selectedTermId &&
+		content.viewMode == event.viewMode &&
+		content.storedSelectedTermId == event.selectedTermId &&
+		event.record.filteredProjectionFor(event.viewMode).terms.any { term ->
+			term.id == content.selectedTermId
+		}
+
+	return if (keepsVisitSelection) content.selectedTermId else event.selectedTermId
 }
 
 private fun AcademicRecord.hasSettled(override: AttemptOverride): Boolean {

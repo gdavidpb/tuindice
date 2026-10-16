@@ -10,19 +10,22 @@ import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 @Composable
 fun ScheduleViewsView(
 	modifier: Modifier = Modifier,
-	state: Schedule.State.Content
+	state: Schedule.State.Content,
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	when (state.viewMode) {
 		ScheduleViewMode.Table ->
 			ScheduleTableView(
 				modifier = modifier.fillMaxWidth(),
-				table = state.schedule.table
+				table = state.schedule.table,
+				onEvaluationClick = onEvaluationClick
 			)
 
 		ScheduleViewMode.Week ->
 			ScheduleWeekView(
 				modifier = modifier.fillMaxWidth(),
-				grid = state.schedule.grid
+				grid = state.schedule.grid,
+				onEvaluationClick = onEvaluationClick
 			)
 	}
 }

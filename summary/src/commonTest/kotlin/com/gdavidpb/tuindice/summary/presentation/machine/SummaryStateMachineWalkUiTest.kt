@@ -5,15 +5,19 @@ import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -24,6 +28,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 
 /**
@@ -54,14 +59,17 @@ class SummaryStateMachineWalkUiTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		return SummaryMachine(
-			observeUserUseCase = ObserveUserUseCase(
-				userRepository = userRepository,
-				reportingRepository = reportingRepository
-			),
-			observeSyncUseCase = ObserveSyncUseCase(
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository(),
-				reportingRepository = reportingRepository
+			observations = SummaryObservations(
+				user = ObserveUserUseCase(
+					userRepository = userRepository,
+					reportingRepository = reportingRepository
+				),
+				sync = ObserveSyncUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
+					syncRepository = FakeSyncRepository(),
+					reportingRepository = reportingRepository
+				),
+				hub = createObserveSummaryHubUseCase()
 			),
 			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 				deviceInfoRepository = FakeDeviceInfoRepository(),
@@ -99,14 +107,6 @@ class SummaryStateMachineWalkUiTest {
 			name = "Jane Doe",
 			careerName = "Ingeniería de Computación",
 			grade = 4.2f,
-			enrolledSubjects = 5,
-			enrolledCredits = 16,
-			approvedSubjects = 30,
-			approvedCredits = 120,
-			retiredSubjects = 1,
-			retiredCredits = 4,
-			failedSubjects = 2,
-			failedCredits = 8,
 			profilePictureUrl = "https://example.com/profile.jpg",
 			isProfilePictureLoading = false,
 			isUserRefreshing = false
@@ -126,6 +126,18 @@ class SummaryStateMachineWalkUiTest {
 				Summary.Action.OpenProfilePictureSettings,
 				Summary.Action.RemoveProfilePicture,
 				Summary.Action.ConfirmRemoveProfilePicture,
+				Summary.Action.Resumed,
+				Summary.Action.OpenTarget(target = SummaryHubTarget.Schedule),
+				Summary.Action.OpenTarget(target = SummaryHubTarget.Record),
+				Summary.Action.OpenTarget(target = SummaryHubTarget.Pensum),
+				Summary.Action.OpenTarget(target = SummaryHubTarget.RecordAttempt(attemptId = "attempt-1")),
+				Summary.Action.OpenTarget(
+					target = SummaryHubTarget.EvaluationsWeek(
+						weekStart = LocalDate(2026, 10, 12),
+						evaluationId = "evaluation-1"
+					)
+				),
+				SummaryInternalEvent.HubObserved(hub = summaryHubItem()),
 				SummaryInternalEvent.UserObserved(content = content),
 				SummaryInternalEvent.ObservationFailed(message = "No se pudo cargar"),
 				SummaryInternalEvent.SyncObserved(

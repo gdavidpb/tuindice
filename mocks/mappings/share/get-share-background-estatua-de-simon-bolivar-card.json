@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/tu-indice-share-backgrounds/estatua-de-simon-bolivar/v1/card.webp"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "image/webp"
+    },
+    "bodyFileName": "share/estatua-de-simon-bolivar/v1/card.webp"
+  }
+}

@@ -7,10 +7,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
@@ -19,18 +22,21 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
-import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
 class ControllableAcademicRecordRepository(
 	initialRecord: AcademicRecord = AcademicRecord(id = "record"),
@@ -150,24 +156,65 @@ class RecordingScheduleSelectionRepository(
 	initialViewMode: ScheduleViewMode = ScheduleViewMode.Table
 ) : ScheduleSelectionRepository {
 	private val viewModeFlow = MutableStateFlow(initialViewMode)
-	val setViewModeCalls = mutableListOf<ScheduleViewMode>()
+
+	// The view model persists the choice from another coroutine, on another thread: the calls are
+	// kept in a state flow (atomic updates, safe to read from the test) and a test that asserts them
+	// waits for the write with awaitViewModeCalls instead of racing it.
+	private val viewModeCalls = MutableStateFlow<List<ScheduleViewMode>>(emptyList())
+	val setViewModeCalls: List<ScheduleViewMode> get() = viewModeCalls.value
 
 	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = viewModeFlow
 
 	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) {
-		setViewModeCalls += viewMode
+		viewModeCalls.update { calls -> calls + viewMode }
 		viewModeFlow.value = viewMode
+	}
+
+	suspend fun awaitViewModeCalls(count: Int): List<ScheduleViewMode> {
+		return viewModeCalls.first { calls -> calls.size >= count }
 	}
 }
 
 // A clock the test moves by hand: Monday at 8:00 unless told otherwise, which is halfway through
-// block 1 of the assumed block clock.
+// block 1 of the block clock.
 class ControllableScheduleClockRepository(
-	initialNow: ScheduleNow = ScheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
+	initialNow: ScheduleNow = scheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
 ) : ScheduleClockRepository {
 	val nowFlow = MutableStateFlow(initialNow)
 
 	override fun observeNow(): Flow<ScheduleNow> = nowFlow
+}
+
+// The evaluations the Evaluations tab lists, as the test sets them: none and downloaded unless told
+// otherwise. [failure] makes reading them fail, the way a broken local database would.
+class ControllableVisibleEvaluationsRepository(
+	initialEvaluations: List<Evaluation> = emptyList(),
+	initialHasSynced: Boolean = true,
+	var failure: Throwable? = null
+) : VisibleEvaluationsRepository {
+	val snapshotFlow = MutableStateFlow(ObservedSyncedSnapshot(initialEvaluations, initialHasSynced))
+
+	override fun observeVisibleEvaluationsFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
+		val throwable = failure ?: return snapshotFlow
+
+		return flow { throw throwable }
+	}
+}
+
+// A clock whose ticker is asleep: every observation reads the moment once and then says nothing,
+// like the real one while the process is suspended. What it would say at the next tick is
+// [reading], so a test moves it and sees whether the screen read it again.
+class SleepingScheduleClockRepository(
+	var reading: ScheduleNow = scheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
+) : ScheduleClockRepository {
+	var observations = 0
+		private set
+
+	override fun observeNow(): Flow<ScheduleNow> = flow {
+		observations += 1
+		emit(reading)
+		awaitCancellation()
+	}
 }
 
 class ControllableSyntheticTermCreationRepository : SyntheticTermCreationRepository {

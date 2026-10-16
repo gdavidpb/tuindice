@@ -199,6 +199,8 @@ private class EmptyVisibleAcademicRecordRepository : VisibleAcademicRecordReposi
 
 private class DirectTransactionRunner : PersistenceTransactionRunner {
 	override suspend fun <R> immediate(block: suspend () -> R): R = block()
+
+	override suspend fun <R> read(block: suspend () -> R): R = block()
 }
 
 private fun sampleResponse(nodes: List<GetPensumResponse.Node> = emptyList()): GetPensumResponse {

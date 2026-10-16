@@ -46,6 +46,24 @@ class AuthDataSource(
 		}
 	}
 
+	override suspend fun exchangeRecoverySignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation,
+		attemptedSnapshot: SessionSnapshot
+	) {
+		val tokens = authApiDataSource.exchangeSignIn(
+			bootstrapAccessToken = bootstrapAccessToken,
+			attestation = attestation
+		)
+
+		// Conditional on the attempted session, with no read of the stored one beforehand: a session that
+		// was ended while the tokens were on their way is not brought back by them.
+		persistIssuedTokensIfCurrent(
+			tokens = tokens,
+			expectedSnapshot = attemptedSnapshot
+		)
+	}
+
 	override suspend fun reissueTokens(
 		usbId: String,
 		password: String,

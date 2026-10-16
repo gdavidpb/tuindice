@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
+import com.gdavidpb.tuindice.record.presentation.mapper.scheduleSubtitleText
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.mapper.toShortNameText
 import com.gdavidpb.tuindice.record.presentation.transition.scheduleAnyStateTransitions
@@ -56,6 +57,32 @@ class ScheduleMachine(
 		}
 	}
 
+	// The first resumption is the opening of the sheet, not a return: ResumedEffect fires for the
+	// RESUMED the sheet is born in, and the first observation reads the clock anyway. It restarts
+	// nothing, whichever of the two arrives first. Only the ones after it are a return.
+	private var hasSeenTheOpening = false
+
+	internal fun resumed(host: MachineHost<Schedule.Effect>) {
+		if (!hasSeenTheOpening) {
+			hasSeenTheOpening = true
+			return
+		}
+
+		restartObservation(host = host)
+	}
+
+	// Coming back from the background: the clock's ticker sleeps with the process, and what the
+	// screen shows can be up to a minute behind until it wakes. A new observation reads the clock
+	// first thing, so the content is laid out again for the moment it is now. Nothing to do before
+	// the first observation: it reads the clock as well.
+	private fun restartObservation(host: MachineHost<Schedule.Effect>) {
+		val running = scheduleObservationJob ?: return
+
+		running.cancel()
+		scheduleObservationJob = null
+		startObservation(host = host)
+	}
+
 	internal fun setViewMode(host: MachineHost<Schedule.Effect>, viewMode: ScheduleViewMode) {
 		host.launchMachineJob {
 			setScheduleViewModeUseCase.execute(viewMode).collect()
@@ -66,11 +93,11 @@ class ScheduleMachine(
 		val term = currentTerm
 		// Mapped again with every minute the observation brings, so today, the "now" line and the
 		// class in progress re-enter the table as content like any other change.
-		val schedule = term?.attempts?.toScheduleItem(now = now)
+		val schedule = term?.attempts?.toScheduleItem(now = now, evaluationMarks = evaluationMarks)
 
 		return if (term != null && schedule != null) {
 			ScheduleInternalEvent.ScheduleContentObserved(
-				termName = term.toShortNameText(),
+				subtitle = scheduleSubtitleText(termName = term.toShortNameText(), academicWeek = academicWeek),
 				schedule = schedule,
 				viewMode = viewMode
 			)

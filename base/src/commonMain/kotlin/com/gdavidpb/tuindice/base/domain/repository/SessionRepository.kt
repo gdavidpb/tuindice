@@ -12,11 +12,6 @@ interface SessionRepository {
 		newSnapshot: SessionSnapshot
 	): Boolean
 
-	suspend fun setUsbId(usbId: String)
-	suspend fun setSessionId(sessionId: String)
-	suspend fun setAccessToken(accessToken: String)
-	suspend fun setRefreshToken(refreshToken: String)
-
 	suspend fun getUsbId(): String
 	suspend fun getSessionId(): String
 	suspend fun getAccessToken(): String

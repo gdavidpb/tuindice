@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
+import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
@@ -722,14 +723,6 @@ private class FixedSessionRepository(
 		newSnapshot: SessionSnapshot
 	): Boolean = error("Unexpected session replacement.")
 
-	override suspend fun setUsbId(usbId: String) = error("Unexpected usbId write.")
-
-	override suspend fun setSessionId(sessionId: String) = error("Unexpected sessionId write.")
-
-	override suspend fun setAccessToken(accessToken: String) = error("Unexpected accessToken write.")
-
-	override suspend fun setRefreshToken(refreshToken: String) = error("Unexpected refreshToken write.")
-
 	override suspend fun getUsbId(): String = snapshot?.usbId ?: error("Unexpected usbId read.")
 
 	override suspend fun getSessionId(): String = snapshot?.sessionId ?: error("Unexpected sessionId read.")
@@ -761,7 +754,11 @@ private class RecordingSessionRecoveryRepository(
 
 	override suspend fun ensureFreshSession(): SessionSnapshot? = error("Unexpected proactive session refresh.")
 
-	override suspend fun invalidateSession(sessionId: String?) = error("Unexpected session invalidation.")
+	override suspend fun invalidateSession(
+		sessionId: String?,
+		reason: SessionInvalidationReason?,
+		cause: Throwable?
+	) = error("Unexpected session invalidation.")
 }
 
 private data class RecoveryCall(

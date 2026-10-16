@@ -1,11 +1,14 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
@@ -24,12 +27,14 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -173,22 +178,6 @@ class FakeSessionRepository(
 		return true
 	}
 
-	override suspend fun setUsbId(usbId: String) {
-		this.usbId = usbId
-	}
-
-	override suspend fun setSessionId(sessionId: String) {
-		this.sessionId = sessionId
-	}
-
-	override suspend fun setAccessToken(accessToken: String) {
-		this.accessToken = accessToken
-	}
-
-	override suspend fun setRefreshToken(refreshToken: String) {
-		this.refreshToken = refreshToken
-	}
-
 	override suspend fun getUsbId(): String = usbId
 
 	override suspend fun getSessionId(): String = sessionId
@@ -228,18 +217,24 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 		}
 	}
 
-	override fun notifySessionInvalidated(sessionId: String?) {
+	override fun isIntentionalSignOut(sessionId: String): Boolean {
+		return sessionId.isNotBlank() && intentionalSignOutSessionId == sessionId
+	}
+
+	override fun notifySessionInvalidated(sessionId: String?): Boolean {
 		val shouldSuppressInvalidation =
 			intentionalSignOutSessionId != null &&
 					(sessionId.isNullOrBlank() || sessionId == intentionalSignOutSessionId)
 
 		if (shouldSuppressInvalidation) {
-			return
+			return false
 		}
 
 		invalidationCalls++
 		notifiedSessionIds += sessionId
 		invalidations.tryEmit(Unit)
+
+		return true
 	}
 }
 
@@ -300,16 +295,22 @@ class FakeSettingsRepository(
 		seenCoachmarkIds += coachmarkId
 	}
 
-	override suspend fun setSessionResetNoticePending() {
-		sessionResetNoticePending = true
+	override suspend fun setSessionResetNoticePending(reason: SessionResetNoticeReason): SessionResetNotice {
+		val notice = SessionResetNotice(reason = reason, stamp = ++lastNoticeStamp)
+
+		sessionResetNotice = notice
+
+		return notice
 	}
 
-	override suspend fun consumeSessionResetNoticePending(): Boolean {
-		val pending = sessionResetNoticePending
+	override suspend fun getSessionResetNotice(): SessionResetNotice? = sessionResetNotice
 
-		sessionResetNoticePending = false
+	override suspend fun consumeSessionResetNotice(stamp: Long): Boolean {
+		if (sessionResetNotice?.stamp != stamp) return false
 
-		return pending
+		sessionResetNotice = null
+
+		return true
 	}
 
 	override suspend fun getLocalDataOwner(): String? = localDataOwner
@@ -324,9 +325,18 @@ class FakeSettingsRepository(
 		seenCoachmarkIds.clear()
 		legacyOnboardingCompleted = false
 		localDataOwner = null
+		sessionResetNotice = null
 	}
 
-	var sessionResetNoticePending = false
+	private var lastNoticeStamp = 0L
+
+	var sessionResetNotice: SessionResetNotice? = null
+
+	val sessionResetNoticeReason: SessionResetNoticeReason?
+		get() = sessionResetNotice?.reason
+
+	val sessionResetNoticePending: Boolean
+		get() = sessionResetNotice != null
 }
 
 class FakeConfigRepository(
@@ -511,5 +521,23 @@ class FakePendingChangesRepository(
 	override suspend fun flushPendingChanges(): FlushPendingChangesResult {
 		flushCalls++
 		return flushResult
+	}
+}
+
+// The local end of a sign-out as the use case needs it, without the lock and the reporting of the real
+// one: the steps run in order over the doubles it is given, so a test reads their effects.
+class RunningSessionEndRepository(
+	private val applicationRepository: ApplicationRepository = RecordingApplicationRepository(),
+	private val sessionRepository: SessionRepository = FakeSessionRepository(),
+	private val syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+	private val sessionCoroutineScope: SessionCoroutineScope = testSessionCoroutineScope(),
+	private val sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
+) : SessionEndRepository {
+	override suspend fun endSignedOutSession(sessionId: String) {
+		sessionCoroutineScope.cancelActiveWork()
+		applicationRepository.clearData()
+		sessionRepository.clear()
+		syncStatusRepository.reset()
+		sessionInvalidationRepository.clearIntentionalSignOut(sessionId)
 	}
 }

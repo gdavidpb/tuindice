@@ -1,0 +1,74 @@
+{
+  "evaluations": [
+    {
+      "id": "631e2d6ae9659ac881ca68723feb6956",
+      "reference_id": "631e2d6ae9659ac881ca68723feb6956",
+      "term_id": "3c0872e9c59fdb202d301f275f205d15",
+      "attempt_id": "bcf78551a4690db6408d7929979d1710",
+      "subject_code": "CI5311",
+      "type": 8,
+      "schedule_mode": "dated",
+      "grade": 8.0,
+      "max_grade": 10.0,
+      "date": 1790769600000,
+      "is_done": true,
+      "revision": 1
+    },
+    {
+      "id": "4cb72a9aeac527f60f7143d7d7044d20",
+      "reference_id": "4cb72a9aeac527f60f7143d7d7044d20",
+      "term_id": "3c0872e9c59fdb202d301f275f205d15",
+      "attempt_id": "2ce4c3bc5329a36fc59a24800847e5ee",
+      "subject_code": "CI4325",
+      "type": 0,
+      "schedule_mode": "dated",
+      "grade": null,
+      "max_grade": 10.0,
+      "date": 1791288000000,
+      "is_done": false,
+      "revision": 1
+    },
+    {
+      "id": "f07ad77e4259171580e339784b1687de",
+      "reference_id": "f07ad77e4259171580e339784b1687de",
+      "term_id": "3c0872e9c59fdb202d301f275f205d15",
+      "attempt_id": "bcf78551a4690db6408d7929979d1710",
+      "subject_code": "CI5311",
+      "type": 0,
+      "schedule_mode": "dated",
+      "grade": null,
+      "max_grade": 10.0,
+      "date": 1791806400000,
+      "is_done": false,
+      "revision": 1
+    },
+    {
+      "id": "29ba9acf1f4750da615caa4dfdf81cb7",
+      "reference_id": "29ba9acf1f4750da615caa4dfdf81cb7",
+      "term_id": "3c0872e9c59fdb202d301f275f205d15",
+      "attempt_id": "fce0ba865d683cab65dffe3272cd14bf",
+      "subject_code": "CI5437",
+      "type": 0,
+      "schedule_mode": "dated",
+      "grade": null,
+      "max_grade": 15.0,
+      "date": 1792065600000,
+      "is_done": false,
+      "revision": 1
+    },
+    {
+      "id": "8f596f65f45d2c1829cd131689a0f9f9",
+      "reference_id": "8f596f65f45d2c1829cd131689a0f9f9",
+      "term_id": "3c0872e9c59fdb202d301f275f205d15",
+      "attempt_id": "dc405fba9704f392f4af205c7b95b185",
+      "subject_code": "EG1114",
+      "type": 0,
+      "schedule_mode": "dated",
+      "grade": null,
+      "max_grade": 10.0,
+      "date": 1792152000000,
+      "is_done": false,
+      "revision": 1
+    }
+  ]
+}

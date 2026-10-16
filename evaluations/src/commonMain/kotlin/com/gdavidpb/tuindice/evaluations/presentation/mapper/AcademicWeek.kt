@@ -1,43 +1,31 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicWeekEngine
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
-import kotlinx.datetime.daysUntil
-import kotlinx.datetime.plus
-import kotlin.math.max
-import kotlin.math.min
 
-internal fun EvaluationTermDescriptor.academicTermStartDate() = LocalDate(
-	year = periodYear,
-	month = periodCode.startMonth(),
-	day = 1
+// The Monday that opens week 1: it follows the real first day of classes when the backend served a
+// plausible one, and the calendar month of the period otherwise. Every week number and the strip of
+// weeks must come from this one anchor.
+internal fun EvaluationTermDescriptor.academicWeekOneStart(): LocalDate = AcademicWeekEngine.weekOneStart(
+	periodYear = periodYear,
+	periodCode = periodCode,
+	classesStartDate = classesStartDate
 )
 
-internal fun LocalDate.academicWeekStart(): LocalDate =
-	plus(DatePeriod(days = -dayOfWeek.ordinal))
+// The anchor the strip of weeks hangs from. Without a term there is no week 1: the strip is laid out
+// from the Monday of the week of [currentDate], and that anchor moves with the week.
+internal fun evaluationsWeekOneStart(
+	currentTerm: EvaluationTermDescriptor?,
+	currentDate: LocalDate
+): LocalDate {
+	return currentTerm?.academicWeekOneStart()
+		?: AcademicWeekEngine.mondayOf(currentDate)
+}
 
 internal fun computeAcademicWeek(
 	term: EvaluationTermDescriptor,
 	currentDate: LocalDate
 ): Int {
-	val termStart = term.academicTermStartDate().academicWeekStart()
-	val rawWeek = (termStart.daysUntil(currentDate) / DAYS_PER_WEEK) + 1
-	return min(MAX_ACADEMIC_WEEK, max(MIN_ACADEMIC_WEEK, rawWeek))
+	return AcademicWeekEngine.weekOf(weekOneStart = term.academicWeekOneStart(), date = currentDate)
 }
-
-private fun AcademicTermPeriod.startMonth(): Month = when (this) {
-	AcademicTermPeriod.JAN_MAR -> Month.JANUARY
-	AcademicTermPeriod.APR_JUL -> Month.APRIL
-	AcademicTermPeriod.JUL_AUG -> Month.JULY
-	AcademicTermPeriod.SEP_DEC -> Month.SEPTEMBER
-	AcademicTermPeriod.JUL_DEC -> Month.JULY
-	AcademicTermPeriod.APR_SEP -> Month.APRIL
-	AcademicTermPeriod.JAN_MAY -> Month.JANUARY
-}
-
-internal const val DAYS_PER_WEEK = 7
-internal const val MIN_ACADEMIC_WEEK = 1
-internal const val MAX_ACADEMIC_WEEK = 12

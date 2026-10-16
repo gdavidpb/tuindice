@@ -35,6 +35,7 @@ import tuindice.record.generated.resources.schedule_empty_message
 fun ScheduleContentDialog(
 	state: Schedule.State,
 	onViewModeSelected: (ScheduleViewMode) -> Unit,
+	onEvaluationClick: (evaluationId: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	ConfirmationDialog(
@@ -68,7 +69,10 @@ fun ScheduleContentDialog(
 					}
 
 				is Schedule.State.Content ->
-					ScheduleViewsView(state = state)
+					ScheduleViewsView(
+						state = state,
+						onEvaluationClick = onEvaluationClick
+					)
 
 				is Schedule.State.Empty ->
 					Text(

@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
+import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies
 import com.gdavidpb.tuindice.record.presentation.navigation.recordEntries
@@ -43,6 +44,7 @@ import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceRetainedViewModelStor
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavForwardTransitionSpec
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPopTransitionSpec
 import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPredictivePopTransitionSpec
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun TuIndiceNavDisplay(
@@ -54,8 +56,9 @@ fun TuIndiceNavDisplay(
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
-	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
+	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> },
+	onNavigateToRecordAttempt: (attemptId: String) -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -92,9 +95,10 @@ fun TuIndiceNavDisplay(
 		summaryEntries(
 			navActions = navigator,
 			shellBindings = shellBindings,
-			onNavigateToUpdatePassword = {
-				navigator.push(AuthDestination.UpdatePasswordDialog)
-			}
+			navigation = navigator.toSummaryNavDependencies(
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+				onNavigateToRecordAttempt = onNavigateToRecordAttempt
+			)
 		)
 
 		recordEntries(
@@ -109,10 +113,10 @@ fun TuIndiceNavDisplay(
 				},
 				onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onTopBarScheduleAvailable = onRecordScheduleAvailable,
 				onNavigateToEnrollmentProof = {
 					navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
-				}
+				},
+				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek
 			)
 		)
 

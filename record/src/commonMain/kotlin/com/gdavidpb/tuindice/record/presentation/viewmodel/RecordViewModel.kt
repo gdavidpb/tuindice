@@ -31,6 +31,10 @@ class RecordViewModel(
 		sendAction(Record.Action.SelectTerm(termId))
 	}
 
+	fun attemptArrivalTakenAction(attemptId: String) {
+		sendAction(Record.Action.AttemptArrivalTaken(attemptId))
+	}
+
 	fun setViewModeAction(viewMode: RecordViewMode) {
 		sendAction(Record.Action.SetViewMode(viewMode))
 	}

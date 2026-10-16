@@ -73,18 +73,6 @@ class AcademicAttemptOverrideDaoTest {
 	}
 
 	@Test
-	fun deleteByAttemptId_removesOnlyMatchingRow() = runTest {
-		val target = attemptOverride(attemptId = "attempt-1", updatedAt = 1L)
-		val other = attemptOverride(attemptId = "attempt-2", updatedAt = 2L)
-
-		dao.upsertEntities(listOf(target, other))
-
-		dao.deleteByAttemptId(attemptId = target.attemptId)
-
-		assertEquals(listOf(other), dao.getOverrides())
-	}
-
-	@Test
 	fun deleteAll_removesEveryRow() = runTest {
 		dao.upsertEntities(
 			listOf(

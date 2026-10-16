@@ -105,6 +105,7 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/UpdatePasswordViewModelContractTest.class",
 	"**/EvaluationViewModelContractTest.class",
 	"**/EvaluationsViewModelContractTest.class",
+	"**/EvaluationsWeekFocusViewModelContractTest.class",
 	"**/FileKitStorageDataSourceContractTest.class",
 	"**/SyncSettingsDataSourceTest.class",
 	"**/RecordViewModelSnackContractTest.class",
@@ -114,8 +115,10 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/SummaryUseCaseContractTest.class",
 	"**/UserRepositoryContractTest.class",
 	"**/SummaryViewModelContractTest.class",
+	"**/SummaryHubRefreshFailureViewModelContractTest.class",
 	"**/TermSelectorViewTest.class",
-	"**/MainViewModelHostMessagesContractTest.class"
+	"**/MainViewModelHostMessagesContractTest.class",
+	"**/VisibleEvaluationsTabMachineParityTest.class"
 )
 
 subprojects {
@@ -415,22 +418,4 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 		System.getenv("TUINDICE_IOS_HOST_DEVICE_CODE_SIGNING_ALLOWED") ?: "YES"
 	)
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
-}
-
-tasks.register<Exec>("reportWorktreeHealth") {
-	group = "help"
-	description = "Generates a worktree health report with suggested atomic commit batches."
-	val reportScript = file("${rootDir}/scripts/report-worktree-health.sh")
-
-	onlyIf {
-		reportScript.exists()
-	}
-
-	doFirst {
-		check(reportScript.exists()) {
-			"Missing worktree report script: ${reportScript.absolutePath}"
-		}
-	}
-
-	commandLine("bash", reportScript.absolutePath)
 }

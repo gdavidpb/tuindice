@@ -27,7 +27,7 @@ fun CreateTermSubjectStatsButton(
 ) {
 	Surface(
 		shape = RoundedCornerShape(TuIndiceRadius.Medium),
-		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
+		color = MaterialTheme.colorScheme.surfaceDim.copy(alpha = 0.48f),
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)

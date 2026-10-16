@@ -6,7 +6,10 @@ import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
@@ -26,11 +29,15 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -56,6 +63,7 @@ import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
@@ -71,11 +79,14 @@ val commonModule = module {
 	// What "now" is for the dates the app shows (academic terms); debug builds rebind it to a clock the
 	// E2E launch arguments can freeze. Expiry, cooldowns and timers read the system time directly.
 	single<Clock> { Clock.System }
+	// Stateless: every collector gets its own ticker, which dies with the screen that listens.
+	// Built by hand: its parameters are the clock and the zone, defaults a test replaces.
+	factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
 	singleOf(::createSharedJson)
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 	single { AppCoroutineScope(dispatchers = get()) }
-	single { SessionCoroutineScope(dispatchers = get()) }
+	single { SessionCoroutineScope(dispatchers = get(), reportingRepository = get()) }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
 	singleOf(::UsageDataConsentSettingsDataSource) {
@@ -95,6 +106,17 @@ val commonModule = module {
 		bind<MemorySessionDataRepository>()
 		bind<SessionMemory>()
 	}
+	// The week of Evaluations a screen asked the host to show: the host writes it, the machine of
+	// that tab applies it.
+	singleOf(::InMemoryEvaluationsWeekFocusDataSource) {
+		bind<EvaluationsWeekFocusRepository>()
+		bind<SessionMemory>()
+	}
+	// The attempt of Registro a screen asked the host to show: the host writes it, the machine of that tab applies it.
+	singleOf(::InMemoryRecordAttemptFocusDataSource) {
+		bind<RecordAttemptFocusRepository>()
+		bind<SessionMemory>()
+	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {
 		KSafeLegacySecureKeyValueDataSource(kSafe = get())
 	}
@@ -102,13 +124,15 @@ val commonModule = module {
 		SecureStoreSessionDataSource(
 			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
 			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
-			sessionInvalidationRepository = get()
+			sessionInvalidationRepository = get(),
+			settingsRepository = get()
 		)
 	}
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
 	singleOf(::SessionRecoveryDataSource) {
 		bind<SessionRecoveryRepository>()
+		bind<SessionEndRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::OutdatedAppEventDataSource) { bind<OutdatedAppEventRepository>() }
@@ -140,6 +164,7 @@ val commonModule = module {
 			remoteDataSource = get<SyncRemoteDataRepository>(),
 			syncResultLocalDataSource = get<SyncResultLocalDataRepository>(),
 			pensumRevalidationRepository = get<PensumRevalidationRepository>(),
+			evaluationsRevalidationRepository = get<EvaluationsRevalidationRepository>(),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}

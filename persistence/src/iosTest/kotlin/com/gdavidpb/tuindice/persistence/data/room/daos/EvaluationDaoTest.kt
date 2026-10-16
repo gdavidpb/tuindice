@@ -89,20 +89,6 @@ class EvaluationDaoTest {
 	}
 
 	@Test
-	fun getAttemptEvaluations_returnsOnlyAttemptRowsOrderedByDateAsc() = runTest {
-		val second = evaluation(id = "evaluation-2", attemptId = "attempt-1", date = 2L)
-		val first = evaluation(id = "evaluation-1", attemptId = "attempt-1", date = 1L)
-		val otherAttempt = evaluation(id = "evaluation-3", attemptId = "attempt-2", date = 3L)
-
-		dao.upsertEntities(listOf(second, first, otherAttempt))
-
-		assertEquals(
-			listOf(first, second),
-			dao.getAttemptEvaluations(attemptId = "attempt-1").first()
-		)
-	}
-
-	@Test
 	fun deleteEvaluation_removesOnlyMatchingRow() = runTest {
 		val target = evaluation(id = "evaluation-1", date = 1L)
 		val other = evaluation(id = "evaluation-2", date = 2L)

@@ -2,10 +2,13 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNotice
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
@@ -40,8 +43,10 @@ class MainHostObservationUseCasesTest {
 	@Test
 	fun observeSessionInvalidation_emitsEachInvalidation_whileObserved() = runTest {
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
 		val useCase = ObserveSessionInvalidationUseCase(
 			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = settingsRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -49,10 +54,63 @@ class MainHostObservationUseCasesTest {
 			assertIs<UseCaseState.Loading>(awaitItem())
 			expectNoEvents()
 
+			// The invalidation leaves its notice persisted before it tells anyone.
+			val notice = settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
 			sessionInvalidationRepository.notifySessionInvalidated()
-			assertEquals(UseCaseState.Data(Unit), awaitItem())
+			assertEquals(UseCaseState.Data<SessionResetNotice?>(notice), awaitItem())
 
 			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// The start-up already told the user (it read the notice the invalidation left): the live signal
+	// that arrives afterwards is still delivered, because it takes the user to the sign-in, but it
+	// carries no notice: it is the same one, not a second one.
+	@Test
+	fun observeSessionInvalidation_whenTheStartUpAlreadyShowedTheNotice_stillDelivers_butWithNothingToTell() = runTest {
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
+		val useCase = ObserveSessionInvalidationUseCase(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = settingsRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		val notice = settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
+		settingsRepository.consumeSessionResetNotice(notice.stamp)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			sessionInvalidationRepository.notifySessionInvalidated()
+
+			assertEquals(UseCaseState.Data<SessionResetNotice?>(null), awaitItem())
+			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// Told is not shown: the notice stays persisted until the interface says it showed it, so a
+	// process that dies in between (a background kill) still explains the sign-in screen at the
+	// next start.
+	@Test
+	fun observeSessionInvalidation_keepsTheNoticePending_untilTheInterfaceAcknowledgesIt() = runTest {
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val settingsRepository = FakeSettingsRepository()
+		val useCase = ObserveSessionInvalidationUseCase(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			settingsRepository = settingsRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		val notice = settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.ServerEndedSession)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			sessionInvalidationRepository.notifySessionInvalidated()
+			assertEquals(UseCaseState.Data<SessionResetNotice?>(notice), awaitItem())
+
+			assertEquals(true, settingsRepository.sessionResetNoticePending)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

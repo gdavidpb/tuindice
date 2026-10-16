@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,10 +29,10 @@ import com.patrykandpatrick.vico.compose.cartesian.decoration.Decoration
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_chart_no_data
+import kotlin.math.roundToInt
 
 @Composable
 fun SubjectDetailBarChartCard(
@@ -64,7 +65,12 @@ fun SubjectDetailBarChartCard(
 		}
 	}
 
-	ElevatedCard {
+	Card(
+		colors = CardDefaults.cardColors(
+			containerColor = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurface
+		)
+	) {
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()

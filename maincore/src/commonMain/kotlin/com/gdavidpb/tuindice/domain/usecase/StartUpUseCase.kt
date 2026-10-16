@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
+import com.gdavidpb.tuindice.base.domain.model.SessionResetNoticeReason
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
@@ -47,8 +48,19 @@ class StartUpUseCase(
 		}
 
 		val startUpResult = runCatching {
-			val sessionResetNoticePending = settingsRepository.consumeSessionResetNoticePending()
+			// The session first and the notice after: a stored session that cannot be read is ended by the
+			// store while it is read, and the store persists the notice that explains it then: read before,
+			// the notice would miss the one that explains the sign-in this start lands on.
 			val hasActiveTokens = sessionRepository.hasActiveSession()
+
+			// Read, not taken: the notice stays pending until the interface says it showed it, so a
+			// process that dies before the screen shows it still explains the sign-in at the next start.
+			val sessionResetNotice = settingsRepository.getSessionResetNotice()
+
+			// A notice left for a session that is back explains nothing and must not outlive it.
+			if (sessionResetNotice != null && hasActiveTokens) {
+				settingsRepository.consumeSessionResetNotice(stamp = sessionResetNotice.stamp)
+			}
 
 			val startTarget = if (hasActiveTokens)
 				StartUpTarget.Main(section = settingsRepository.getLastMainSection())
@@ -57,16 +69,20 @@ class StartUpUseCase(
 
 			StartUpResult.Available(
 				startTarget = startTarget,
-				showSessionResetNotice = sessionResetNoticePending && !hasActiveTokens
+				sessionResetNotice = sessionResetNotice.takeIf { !hasActiveTokens }
 			)
 		}.onFailure { throwable ->
+			// A start that is cancelled (the screen closed while the session was read) found no broken
+			// session: it must not wipe what the next start will read.
+			if (throwable is CancellationException) throw throwable
+
 			// A transient secure-store outage must fail the startup (retryable)
 			// without wiping data the store still holds.
 			if (throwable !is SecureStoreUnavailableException) {
 				applicationRepository.clearData()
 				// Written after clearData so the wipe cannot erase it: the next start
 				// lands on sign-in and must be able to explain why the session is gone.
-				settingsRepository.setSessionResetNoticePending()
+				settingsRepository.setSessionResetNoticePending(SessionResetNoticeReason.UnreadableData)
 			}
 		}.getOrThrow()
 
