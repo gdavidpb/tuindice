@@ -31,12 +31,14 @@ private val PreviewShape = RoundedCornerShape(12.dp)
  * The card of a term, scaled down to the sheet. The card is laid out at the density its picture is taken at, so what
  * the student sees is the picture that is shared, only smaller. It stays in place as the term or the background changes
  * (see [ShareableTermCard]); the picture itself is taken by [ShareableTermCardCapture] when the student asks to share.
+ * [onArtworkPending] hands on, from the card, the chosen artwork whose picture is still on its way.
  */
 @Composable
 fun ShareTermPreview(
 	card: ShareableTermCardItem,
 	artwork: ShareTermArtwork,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	onArtworkPending: (artworkId: String?) -> Unit = {}
 ) {
 	val density = LocalDensity.current
 	// The card lays out at the density it is captured at: its box takes exactly the pixels of the shared picture on this
@@ -68,7 +70,8 @@ fun ShareTermPreview(
 			CompositionLocalProvider(LocalDensity provides Density(density = SHARE_DENSITY, fontScale = 1f)) {
 				ShareableTermCard(
 					item = card,
-					artwork = artwork
+					artwork = artwork,
+					onArtworkPending = onArtworkPending
 				)
 			}
 		}

@@ -85,6 +85,45 @@ class ShareableTermCardUiTest {
 	}
 
 	@Test
+	fun when_aRemoteArtworkIsChosen_then_itIsReportedPendingUntilTheCardSettlesOnIt() = runTuIndiceUiTest {
+		val background = mutableStateOf(ShareBackground.included)
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			ShareableTermCard(
+				item = termItem(),
+				artwork = background.value.toShareTermArtwork(),
+				onArtworkPending = { artworkId -> reported += artworkId }
+			)
+		}
+		waitForIdle()
+		background.value = unreachableShareBackground
+
+		// The picture cannot be loaded, so the card settles on the bundled one: the wait ends there too.
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
+			reported.contains(unreachableShareBackground.id) && reported.last() == null
+		}
+
+		assertEquals(listOf(null, unreachableShareBackground.id, null), reported)
+	}
+
+	@Test
+	fun when_theBundledArtworkIsShown_then_nothingIsReportedPending() = runTuIndiceUiTest {
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			ShareableTermCard(
+				item = termItem(),
+				artwork = ShareBackground.included.toShareTermArtwork(),
+				onArtworkPending = { artworkId -> reported += artworkId }
+			)
+		}
+		waitForIdle()
+
+		assertEquals(listOf<String?>(null), reported)
+	}
+
+	@Test
 	fun when_itIsShown_then_itShowsTheTermItsFiguresAndItsCareer() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ShareableTermCard(item = termItem(), artwork = ShareBackground.included.toShareTermArtwork())

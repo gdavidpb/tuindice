@@ -14,4 +14,6 @@ object ShareTermUiTags {
 	fun backgroundSelected(backgroundId: String): String = "summary_share_term_background_selected_$backgroundId"
 
 	fun backgroundRing(backgroundId: String): String = "summary_share_term_background_ring_$backgroundId"
+
+	fun backgroundLoading(backgroundId: String): String = "summary_share_term_background_loading_$backgroundId"
 }

@@ -235,6 +235,7 @@
     <string name="share_term_card_career">%1$s · USB</string>
     <string name="share_term_card_brand">TuIndice</string>
     <string name="a11y_share_term_card">Mi trimestre, tarjeta para compartir</string>
+    <string name="a11y_share_term_background_loading">Cargando fondo</string>
     <string name="share_term_sheet_title">Compartir un trimestre</string>
     <string name="share_term_background_label">Fondo</string>
     <string name="share_term_share_action">Compartir</string>
