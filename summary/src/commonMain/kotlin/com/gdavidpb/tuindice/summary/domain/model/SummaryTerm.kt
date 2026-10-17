@@ -11,13 +11,16 @@ sealed interface SummaryTerm {
 	 * The term in progress: its period, the academic week it is (null outside weeks 1 to 12) and the points of each of
 	 * its subjects. The points are empty while the evaluations are not downloaded ([hasSyncedEvaluations] false),
 	 * because saying a subject has no grades would not be known.
+	 *
+	 * [termId] is the record's id of the term, the one the Record screen selects.
 	 */
 	data class InProgress(
 		val periodCode: AcademicTermPeriod,
 		val periodYear: Int,
 		val academicWeek: Int?,
 		val subjects: List<SummarySubjectPoints>,
-		val hasSyncedEvaluations: Boolean
+		val hasSyncedEvaluations: Boolean,
+		val termId: String? = null
 	) : SummaryTerm {
 		/** The weeks the term has after the one it is in, out of its twelve; null outside weeks 1 to 12. */
 		val weeksLeft: Int?

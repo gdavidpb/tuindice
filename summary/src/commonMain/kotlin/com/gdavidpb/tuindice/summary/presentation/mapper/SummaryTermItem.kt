@@ -61,7 +61,8 @@ private fun SummaryTerm.InProgress.toInProgressItem(): SummaryTermItem {
 		summaryText = toSummaryTextOrNull(),
 		subjects = subjectItems,
 		finished = null,
-		card = if (hasContent) null else evaluationsPendingCard()
+		card = if (hasContent) null else evaluationsPendingCard(),
+		termId = termId
 	)
 }
 

@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.mapper.summaryStatisticsAssistantContext
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsItem
 import tuindice.summary.generated.resources.Res
@@ -20,6 +23,10 @@ object SummaryStatistics {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false
 	) : ViewState {
+		// Only a loaded content knows what the statistics show; every other state describes the screen alone.
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.STATISTICS)
+
 		data object Idle : State()
 
 		data object Loading : State()
@@ -29,6 +36,9 @@ object SummaryStatistics {
 		) : State() {
 			// The closed terms of the statistics can be shared as an image, from the top bar.
 			override val topBarConfig: TopBarConfig = TopBarConfig.Statistics
+
+			override val assistantContext: AssistantScreenContext
+				get() = summaryStatisticsAssistantContext(this)
 		}
 
 		// The record is not ready to be read, so there are no statistics: the screen says so and does not retry.

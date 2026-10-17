@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.mapper.summaryAssistantContext
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
@@ -31,6 +34,10 @@ object Summary {
 		// own observation, must not be lost when it does.
 		abstract val hub: SummaryHubItem
 
+		// Only a loaded content knows what the hub shows; every other state describes the screen alone.
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.SUMMARY)
+
 		data class Idle(
 			override val sync: SummarySyncItem = SummarySyncItem(),
 			override val hub: SummaryHubItem = SummaryHubItem()
@@ -54,7 +61,10 @@ object Summary {
 			val syncStatusText: UiText = UiText.Empty,
 			override val sync: SummarySyncItem = SummarySyncItem(),
 			override val hub: SummaryHubItem = SummaryHubItem()
-		) : State(isUserRefreshing = isUserRefreshing)
+		) : State(isUserRefreshing = isUserRefreshing) {
+			override val assistantContext: AssistantScreenContext
+				get() = summaryAssistantContext(this)
+		}
 
 		data class Failed(
 			override val isUserRefreshing: Boolean = false,

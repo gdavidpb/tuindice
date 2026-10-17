@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
  * subjects there are and their credits, and [subjects] are the points of each subject, absent while not known.
  * [finished] is the last term that is over, when no term is in progress and there is one. [card] is there when the term
  * has nothing else to show: the invitation to plan a term, the first one to come, or what is still to download.
+ * [termId] is the record's id of the term in progress, the one the assistant names; absent when there is none.
  */
 @Immutable
 data class SummaryTermItem(
@@ -17,5 +18,6 @@ data class SummaryTermItem(
 	val summaryText: UiText?,
 	val subjects: List<SummarySubjectPointsItem>,
 	val finished: SummaryFinishedTermItem?,
-	val card: SummaryCardItem?
+	val card: SummaryCardItem?,
+	val termId: String? = null
 )
