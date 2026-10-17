@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -29,8 +30,7 @@ class EvaluationSwipeToDismissUiTest {
 	fun when_rendered_then_displaysContainerAndContentWithoutActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationSwipeToDismiss(
-				onEdit = {},
-				onDelete = {}
+				actions = EvaluationSwipeActions(onAsk = null, onEdit = {}, onDelete = {})
 			) {
 				Text(text = "Evaluacion")
 			}
@@ -46,8 +46,7 @@ class EvaluationSwipeToDismissUiTest {
 	fun when_swipedLeft_then_revealsEditAndDeleteActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationSwipeToDismiss(
-				onEdit = {},
-				onDelete = {}
+				actions = EvaluationSwipeActions(onAsk = null, onEdit = {}, onDelete = {})
 			) {
 				Text(text = "Evaluacion")
 			}
@@ -69,8 +68,11 @@ class EvaluationSwipeToDismissUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationSwipeToDismiss(
-				onEdit = { editClicks++ },
-				onDelete = { deleteClicks++ }
+				actions = EvaluationSwipeActions(
+					onAsk = null,
+					onEdit = { editClicks++ },
+					onDelete = { deleteClicks++ }
+				)
 			) {
 				Text(text = "Evaluacion")
 			}
@@ -105,8 +107,7 @@ class EvaluationSwipeToDismissUiTest {
 	fun when_contentCallbackTapped_then_togglesActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationSwipeToDismiss(
-				onEdit = {},
-				onDelete = {}
+				actions = EvaluationSwipeActions(onAsk = null, onEdit = {}, onDelete = {})
 			) { onActionsClick ->
 				Text(
 					modifier = Modifier
@@ -134,8 +135,7 @@ class EvaluationSwipeToDismissUiTest {
 	fun when_swipedBack_then_closesActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationSwipeToDismiss(
-				onEdit = {},
-				onDelete = {}
+				actions = EvaluationSwipeActions(onAsk = null, onEdit = {}, onDelete = {})
 			) {
 				Text(text = "Evaluacion")
 			}

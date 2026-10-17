@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -43,6 +44,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.a11y_evaluation_register_grade
 import tuindice.evaluations.generated.resources.a11y_evaluation_show_actions
+import tuindice.evaluations.generated.resources.label_evaluation_swipe_ask
 import tuindice.evaluations.generated.resources.label_evaluation_swipe_delete
 import tuindice.evaluations.generated.resources.label_evaluation_swipe_edit
 
@@ -63,6 +65,8 @@ fun EvaluationItemView(
 	val showActionsLabel = stringResource(Res.string.a11y_evaluation_show_actions)
 	val editActionLabel = stringResource(Res.string.label_evaluation_swipe_edit)
 	val deleteActionLabel = stringResource(Res.string.label_evaluation_swipe_delete)
+	val askActionLabel = stringResource(Res.string.label_evaluation_swipe_ask)
+	val assistantLauncher = LocalAssistantLauncher.current
 
 	Card(
 		colors = CardDefaults.cardColors(
@@ -79,6 +83,12 @@ fun EvaluationItemView(
 			// are also exposed as custom accessibility actions.
 			.semantics {
 				customActions = listOfNotNull(
+					assistantLauncher?.let { launcher ->
+						CustomAccessibilityAction(askActionLabel) {
+							launcher.launch(item.assistantContext)
+							true
+						}
+					},
 					onEditAction?.let { action ->
 						CustomAccessibilityAction(editActionLabel) {
 							action()

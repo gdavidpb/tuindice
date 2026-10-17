@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun BoxScope.EvaluationActionsContainer(
 	modifier: Modifier = Modifier,
+	onAsk: (() -> Unit)? = null,
 	onEdit: () -> Unit,
 	onDelete: () -> Unit
 ) {
@@ -20,8 +21,9 @@ fun BoxScope.EvaluationActionsContainer(
 	) {
 		EvaluationActions(
 			modifier = Modifier
-				.width(ActionsWidth)
+				.width(actionsWidth(hasAsk = onAsk != null))
 				.fillMaxHeight(),
+			onAsk = onAsk,
 			onEdit = onEdit,
 			onDelete = onDelete
 		)

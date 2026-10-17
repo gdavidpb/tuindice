@@ -7,6 +7,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
@@ -119,9 +123,27 @@ fun evaluationItemFixture(
 		showsGradeAction = showsGradeAction,
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = isOverdue,
-		isClickable = isClickable
+		isClickable = isClickable,
+		assistantContext = evaluationAssistantContextFixture(
+			evaluationId = evaluationId,
+			subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+			attemptId = DEFAULT_EVALUATION_SUBJECT.id
+		)
 	)
 }
+
+fun evaluationAssistantContextFixture(
+	evaluationId: String,
+	subjectCode: String,
+	attemptId: String
+) = AssistantScreenContext(
+	screen = AssistantScreen.EVALUATION_DETAIL,
+	entities = listOf(
+		AssistantEntityRef(kind = AssistantEntityKind.EVALUATION, id = evaluationId),
+		AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = subjectCode),
+		AssistantEntityRef(kind = AssistantEntityKind.ATTEMPT, id = attemptId)
+	)
+)
 
 fun evaluationsGroupItemsFixture(): List<EvaluationsGroupItem> = listOf(
 	EvaluationsGroupItem(
@@ -244,6 +266,11 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		showsGradeAction = true,
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = (state == EvaluationState.OVERDUE),
-		isClickable = true
+		isClickable = true,
+		assistantContext = evaluationAssistantContextFixture(
+			evaluationId = id,
+			subjectCode = subjectCode,
+			attemptId = attemptId
+		)
 	)
 }

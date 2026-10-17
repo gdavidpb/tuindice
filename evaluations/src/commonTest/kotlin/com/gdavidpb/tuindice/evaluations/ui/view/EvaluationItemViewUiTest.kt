@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -29,9 +30,12 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_OVERDUE_DATE_TEXT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
@@ -405,6 +409,45 @@ class EvaluationItemViewUiTest {
 	private fun centerY(bounds: DpRect): Float = (bounds.top.value + bounds.bottom.value) / 2f
 
 	private fun DpRect.size() = DpSize(width = width, height = height)
+
+	@Test
+	fun when_assistantIsProvided_then_askLeadsTheAccessibilityActions() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "evaluation-accessible")
+		val asked = mutableListOf<AssistantScreenContext>()
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { asked += it }) {
+				EvaluationItemView(item = item, onEditAction = {}, onDeleteAction = {})
+			}
+		}
+
+		val actions = accessibilityActionsOf(item.evaluationId)
+
+		assertEquals(listOf("Preguntar", "Modificar", "Eliminar"), actions.map { action -> action.label })
+
+		actions.first { action -> action.label == "Preguntar" }.action()
+
+		assertEquals(listOf(item.assistantContext), asked)
+	}
+
+	@Test
+	fun when_noAssistantIsProvided_then_theAccessibilityActionsAreEditAndDeleteOnly() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(evaluationId = "evaluation-accessible")
+
+		setTuIndiceTestContent {
+			EvaluationItemView(item = item, onEditAction = {}, onDeleteAction = {})
+		}
+
+		val labels = accessibilityActionsOf(item.evaluationId).map { action -> action.label }
+
+		assertEquals(listOf("Modificar", "Eliminar"), labels)
+	}
+
+	private fun ComposeUiTest.accessibilityActionsOf(evaluationId: String): List<CustomAccessibilityAction> {
+		return onNodeWithTag(EvaluationsUiTags.evaluationItemCard(evaluationId))
+			.fetchSemanticsNode()
+			.config[SemanticsActions.CustomActions]
+	}
 
 	private companion object {
 		const val LONG_DATE = "Miércoles — 25/11/26"

@@ -22,11 +22,13 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -166,14 +168,19 @@ fun EvaluationsView(
 					highlighted.evaluationId == evaluation.evaluationId
 				}
 
+				val assistantLauncher = LocalAssistantLauncher.current
+
 				EvaluationSwipeToDismiss(
 					modifier = itemModifier.animateItem(
 						fadeInSpec = null,
 						fadeOutSpec = null
 					),
 					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
-					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
-					onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+					actions = EvaluationSwipeActions(
+						onAsk = assistantAskAction(launcher = assistantLauncher, context = evaluation.assistantContext),
+						onEdit = { onEvaluationEdit(evaluation.evaluationId) },
+						onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+					)
 				) { onActionsClick ->
 					EvaluationItemView(
 						modifier = Modifier.arrivalHighlight(

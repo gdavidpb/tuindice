@@ -17,22 +17,27 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
-import kotlin.math.roundToInt
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 internal val ActionsWidth = 224.dp
+
+// Each action keeps its width with two; the revealed area grows by one more with the assistant's action.
+internal val ActionsWithAskWidth = 336.dp
+
+internal fun actionsWidth(hasAsk: Boolean) = if (hasAsk) ActionsWithAskWidth else ActionsWidth
 
 @Composable
 fun EvaluationSwipeToDismiss(
 	modifier: Modifier = Modifier,
 	initiallyOpen: Boolean = false,
-	onEdit: () -> Unit,
-	onDelete: () -> Unit,
+	actions: EvaluationSwipeActions,
 	content: @Composable (onActionsClick: () -> Unit) -> Unit
 ) {
 	val coroutineScope = rememberCoroutineScope()
 	val density = LocalDensity.current
-	val actionsWidthPx = with(density) { ActionsWidth.toPx() }
+	val actionsWidthPx = with(density) { actionsWidth(hasAsk = actions.onAsk != null).toPx() }
 	val offset = remember(actionsWidthPx, initiallyOpen) {
 		Animatable(if (initiallyOpen) -actionsWidthPx else 0f)
 	}
@@ -59,6 +64,12 @@ fun EvaluationSwipeToDismiss(
 				openActions()
 			}
 		}
+	}
+
+	// Like Edit and Delete, the assistant's action closes the row once it has been taken.
+	fun askAndClose(ask: () -> Unit) {
+		ask()
+		coroutineScope.launch { closeActions() }
 	}
 
 	Box(
@@ -89,12 +100,13 @@ fun EvaluationSwipeToDismiss(
 				modifier = Modifier
 					.matchParentSize()
 					.padding(horizontal = 16.dp, vertical = 8.dp),
+				onAsk = actions.onAsk?.let { ask -> { askAndClose(ask) } },
 				onEdit = {
-					onEdit()
+					actions.onEdit()
 					coroutineScope.launch { closeActions() }
 				},
 				onDelete = {
-					onDelete()
+					actions.onDelete()
 					coroutineScope.launch { closeActions() }
 				}
 			)
