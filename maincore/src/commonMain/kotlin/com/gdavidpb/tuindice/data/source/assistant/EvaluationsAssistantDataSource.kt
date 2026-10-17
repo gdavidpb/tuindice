@@ -5,11 +5,14 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EditEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.ObserveEvaluationMutationOutcomesUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -21,12 +24,14 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Runs the evaluation intents of the assistant through the evaluations use cases, each mutation under the id its args
  * carry, and answers how each one ended. The `reference` of an evaluation draft is not sent: the app generates its own
- * reference for every evaluation it adds, so the draft's one does not reach the mutation.
+ * reference for every evaluation it adds, so the draft's one does not reach the mutation. An edit reads the evaluation
+ * first: the app's edit replaces the grade, and an edit that leaves the grade out keeps the one the evaluation has.
  */
 class EvaluationsAssistantDataSource(
 	private val addEvaluationUseCase: AddEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
+	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val observeEvaluationMutationOutcomesUseCase: ObserveEvaluationMutationOutcomesUseCase
 ) : AssistantEvaluationsRepository {
 	override suspend fun add(args: AddEvaluationsArgs): IntentExecution {
@@ -66,18 +71,32 @@ class EvaluationsAssistantDataSource(
 				(args.scheduleMode != null && scheduleMode == null)
 		if (unknownName) return invalidArgs()
 
-		val params = UpdateEvaluationParams(
-			evaluationId = args.evaluationId,
-			attemptId = null,
-			subjectCode = null,
-			termId = null,
-			scheduleMode = scheduleMode,
-			grade = args.grade,
-			maxGrade = args.maxGrade,
-			date = args.dateMillis,
-			type = type,
-			mutationId = args.mutationId
-		)
+		return when (val state = getEvaluationUseCase.execute(args.evaluationId).settled()) {
+			is UseCaseState.Data -> state.value?.let { current ->
+				runEdit(
+					args = args,
+					params = UpdateEvaluationParams(
+						evaluationId = args.evaluationId,
+						attemptId = null,
+						subjectCode = null,
+						termId = null,
+						scheduleMode = scheduleMode,
+						grade = args.grade ?: current.grade,
+						maxGrade = args.maxGrade,
+						date = args.dateMillis,
+						type = type,
+						mutationId = args.mutationId
+					)
+				)
+			} ?: unknownEvaluation()
+
+			is UseCaseState.Error -> IntentExecution(OutcomeKind.FAILED, errorDetailCode(state.error))
+
+			UseCaseState.Loading -> invalidArgs()
+		}
+	}
+
+	private suspend fun runEdit(args: EditEvaluationArgs, params: UpdateEvaluationParams): IntentExecution {
 		val mutation = AssistantMutation(args.mutationId) { updateEvaluationUseCase.execute(params).settled() }
 
 		return settleMutations(listOf(mutation), observeMutationOutcomes())

@@ -7,6 +7,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
@@ -38,6 +41,19 @@ import kotlinx.coroutines.flow.flowOf
 // The answer a fake gives a mutation it receives: the outcome that settles it, or null when it never settles.
 internal typealias OutcomeOf = (String) -> MutationOutcome?
 
+internal fun storedEvaluation(id: String, grade: Double?) = Evaluation(
+	id = id,
+	attemptId = "attempt-1",
+	subjectCode = "MAT101",
+	termId = "term-1",
+	scheduleMode = EvaluationScheduleMode.DATED,
+	grade = grade,
+	maxGrade = 5.0,
+	date = 1_700_000_000_000L,
+	type = EvaluationType.QUIZ,
+	state = EvaluationState.COMPLETED
+)
+
 internal fun settledAs(kind: MutationOutcomeKind, detailCode: String? = null): OutcomeOf {
 	return { mutationId -> MutationOutcome(mutationId, kind, detailCode) }
 }
@@ -55,6 +71,9 @@ internal class FakeEvaluationRepository(
 	val adds = mutableListOf<EvaluationAdd>()
 	val updates = mutableListOf<EvaluationUpdate>()
 	val removes = mutableListOf<EvaluationRemove>()
+
+	// The evaluations the app holds, by id: e1, with a grade, unless a test says otherwise.
+	val stored = mutableMapOf("e1" to storedEvaluation(id = "e1", grade = 4.0))
 
 	private suspend fun settle(mutationId: String?) {
 		val id = requireNotNull(mutationId) { "every mutation carries its id" }
@@ -75,7 +94,7 @@ internal class FakeEvaluationRepository(
 
 	override suspend fun drainPendingMutations() = Unit
 
-	override suspend fun getEvaluation(eid: String): Evaluation? = null
+	override suspend fun getEvaluation(eid: String): Evaluation? = stored[eid]
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		adds += add

@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.ObserveEvaluationMutationOutcomesUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -164,6 +165,31 @@ class EvaluationsAssistantDataSourceTest {
 	}
 
 	@Test
+	fun edit_thatLeavesTheGradeOutKeepsTheGradeTheEvaluationHas() = runTest {
+		val repository = FakeEvaluationRepository()
+
+		val execution = evaluationsSource(repository).edit(
+			EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", dateMillis = 1_800_000_000_000L)
+		)
+
+		assertEquals(IntentExecution(OutcomeKind.CONFIRMED), execution)
+		assertEquals(4.0, repository.updates.single().grade)
+		assertEquals(1_800_000_000_000L, repository.updates.single().date)
+	}
+
+	@Test
+	fun edit_refusesAnEvaluationTheAppDoesNotHoldWithoutMutating() = runTest {
+		val repository = FakeEvaluationRepository()
+
+		val execution = evaluationsSource(repository).edit(
+			EditEvaluationArgs(mutationId = "m1", evaluationId = "gone", grade = 3.0)
+		)
+
+		assertEquals(IntentExecution(OutcomeKind.REJECTED, "unknown_evaluation"), execution)
+		assertEquals(emptyList(), repository.mutations)
+	}
+
+	@Test
 	fun edit_refusesAnUnknownTypeWithoutMutating() = runTest {
 		val repository = FakeEvaluationRepository()
 
@@ -211,6 +237,10 @@ class EvaluationsAssistantDataSourceTest {
 				evaluationRepository = repository,
 				reportingRepository = reporting,
 				exceptionHandler = RemoveEvaluationExceptionHandler()
+			),
+			getEvaluationUseCase = GetEvaluationUseCase(
+				evaluationRepository = repository,
+				reportingRepository = reporting
 			),
 			observeEvaluationMutationOutcomesUseCase = ObserveEvaluationMutationOutcomesUseCase(
 				evaluationRepository = repository,

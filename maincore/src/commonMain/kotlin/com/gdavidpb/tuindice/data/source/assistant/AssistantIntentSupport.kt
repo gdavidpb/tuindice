@@ -13,6 +13,7 @@ internal const val MUTATION_OUTCOME_TIMEOUT_MILLIS = 10_000L
 internal const val DETAIL_INVALID_ARGS = "invalid_args"
 internal const val DETAIL_UNKNOWN_SUBJECT = "unknown_subject"
 internal const val DETAIL_UNKNOWN_TERM = "unknown_term"
+internal const val DETAIL_UNKNOWN_EVALUATION = "unknown_evaluation"
 internal const val DETAIL_UNHANDLED = "unhandled"
 
 // Runs one intent. Nothing it throws leaves the port: a failure is an answer, FAILED with the simple name of its class.
@@ -37,6 +38,8 @@ internal fun invalidArgs(): IntentExecution = IntentExecution(OutcomeKind.REJECT
 internal fun unknownSubject(): IntentExecution = IntentExecution(OutcomeKind.REJECTED, DETAIL_UNKNOWN_SUBJECT)
 
 internal fun unknownTerm(): IntentExecution = IntentExecution(OutcomeKind.REJECTED, DETAIL_UNKNOWN_TERM)
+
+internal fun unknownEvaluation(): IntentExecution = IntentExecution(OutcomeKind.REJECTED, DETAIL_UNKNOWN_EVALUATION)
 
 // The detail code of a use case error: the name of an enum entry, or the simple name of the error's class.
 internal fun errorDetailCode(error: UseCaseError?): String {
