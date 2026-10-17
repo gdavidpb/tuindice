@@ -138,6 +138,13 @@ internal class RecordingAssistantConversationRepository(
 		resolved[intentId] = outcome
 		openIntents = openIntents - intentId
 	}
+
+	var cleared = 0
+
+	override suspend fun clearConversation() {
+		calls += "clearConversation"
+		cleared++
+	}
 }
 
 internal class RecordingAssistantIntentRepository(

@@ -15,8 +15,10 @@ import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.assistant.testing.dataValues
 import com.gdavidpb.tuindice.assistant.testing.lastState
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.CreatePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EditEvaluationArgs
+import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
@@ -103,7 +105,36 @@ class AssistantIntentConfirmationTest {
 		confirmEdit(editedArgs = RemoveEvaluationArgs(mutationId = "m2", evaluationId = "e2"))
 
 		assertEquals(listOf<Any>(proposed), evaluations.received)
+		assertEquals(null, intents.decisions.single().editedArgs)
 	}
+
+	@Test
+	fun aBatchReportsOnlyTheMutationsOfTheRowsLeftMarked() = runTest {
+		val proposed = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2"), draft("m3")))
+		val edited = proposed.copy(items = proposed.items.map { item -> item.copy(selected = item.mutationId != "m2") })
+		openIntent(assistantIntent(args = proposed, mutationIds = listOf("m1", "m2", "m3")))
+
+		ConfirmAddEvaluationsIntentUseCase(
+			confirmer = confirmer,
+			evaluationsRepository = evaluations,
+			reportingRepository = reporting,
+			exceptionHandler = handler
+		).execute(ConfirmIntentParams(intentId = "i1", editedArgs = edited)).lastState()
+
+		assertEquals(listOf<Any>(edited), evaluations.received)
+		assertEquals(listOf("m1", "m3"), intents.reports.single().mutationIds)
+	}
+
+	private fun draft(mutationId: String) = EvaluationDraft(
+		mutationId = mutationId,
+		reference = "Parcial",
+		attemptId = "a1",
+		subjectCode = "CI4325",
+		termId = "t1",
+		evaluationType = "QUIZ",
+		scheduleMode = "dated",
+		maxGrade = 20.0
+	)
 
 	@Test
 	fun anIntentPastItsDeadlineIsReportedExpiredWithoutDecidingOrRunning() = runTest {

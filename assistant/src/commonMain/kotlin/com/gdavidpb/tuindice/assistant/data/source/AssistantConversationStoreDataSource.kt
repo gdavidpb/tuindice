@@ -36,4 +36,8 @@ class AssistantConversationStoreDataSource(
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		store.markIntentResolved(intentId, outcome)
 	}
+
+	override suspend fun clearConversation() {
+		store.clearSessionMemory()
+	}
 }

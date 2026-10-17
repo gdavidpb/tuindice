@@ -7,10 +7,12 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
+import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.MutatingIntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import kotlin.time.Clock
 
@@ -40,12 +42,14 @@ class AssistantIntentConfirmer(
 			?: throw AssistantIntentIllegalArgumentException(AssistantIntentError.IntentNotOpen)
 
 		val args = resolveArgs(intent, params.editedArgs, narrow)
+		// Only edited args of the confirmed kind are sent: any other edit was ignored, so the server never sees it.
+		val editedArgs = params.editedArgs?.takeIf { edited -> narrow(edited) != null }
 
 		if (clock.now().toEpochMilliseconds() > intent.expiresAtMillis) {
 			return closeWithoutRunning(intent, OutcomeKind.EXPIRED)
 		}
 
-		val decision = IntentDecision(intentId = intent.id, accepted = true, editedArgs = params.editedArgs)
+		val decision = IntentDecision(intentId = intent.id, accepted = true, editedArgs = editedArgs)
 
 		return when (intentRepository.decide(decision)) {
 			IntentDecisionResult.Accepted -> executeAccepted(intent, args, execute, reportsOutcome)
@@ -75,7 +79,7 @@ class AssistantIntentConfirmer(
 				IntentOutcomeReport(
 					intentId = intent.id,
 					outcome = execution.outcome,
-					mutationIds = intent.binding.mutationIds,
+					mutationIds = executedMutationIds(args, intent),
 					detailCode = execution.detailCode,
 					newRevision = execution.newRevision
 				)
@@ -85,6 +89,13 @@ class AssistantIntentConfirmer(
 		conversationRepository.markIntentResolved(intentId = intent.id, outcome = execution.outcome)
 
 		return execution.outcome
+	}
+
+	// The mutations the run asked for: the marked rows of a batch, the ones of other changing args, or the binding's.
+	private fun executedMutationIds(args: Any, intent: Intent): List<String> = when (args) {
+		is AddEvaluationsArgs -> args.items.filter { item -> item.selected }.map { item -> item.mutationId }
+		is MutatingIntentArgs -> args.mutationIds
+		else -> intent.binding.mutationIds
 	}
 
 	// Nothing ran, so the report names no mutation.

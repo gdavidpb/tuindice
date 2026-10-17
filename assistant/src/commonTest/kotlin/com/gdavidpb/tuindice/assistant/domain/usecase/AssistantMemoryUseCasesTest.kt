@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.AnswerStillAppliesParams
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.testing.dataValues
@@ -59,9 +60,12 @@ class AssistantMemoryUseCasesTest {
 	}
 
 	@Test
-	fun deletingTheConversationsDeletesThemOnTheServer() = runTest {
-		DeleteAssistantConversationsUseCase(turns, reporting).execute(Unit).dataValues()
+	fun deletingTheConversationsDeletesThemOnTheServerAndForgetsThemHere() = runTest {
+		val conversation = RecordingAssistantConversationRepository()
+
+		DeleteAssistantConversationsUseCase(turns, conversation, reporting).execute(Unit).dataValues()
 
 		assertEquals(1, turns.conversationsDeleted)
+		assertEquals(1, conversation.cleared)
 	}
 }

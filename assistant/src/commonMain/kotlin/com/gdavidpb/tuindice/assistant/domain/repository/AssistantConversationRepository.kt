@@ -19,4 +19,7 @@ interface AssistantConversationRepository {
 	fun addUserMessage(message: AssistantUserMessage)
 
 	fun markIntentResolved(intentId: String, outcome: OutcomeKind)
+
+	/** Forgets the conversation on this device, as when its threads are deleted on the server. */
+	suspend fun clearConversation()
 }

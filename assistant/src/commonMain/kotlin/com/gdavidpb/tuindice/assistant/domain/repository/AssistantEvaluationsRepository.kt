@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
  * FAILED with its detail code, and never an exception: the use cases do not catch.
  */
 interface AssistantEvaluationsRepository {
+	/** Adds only the items marked selected; the unmarked rows of a batch are not run. */
 	suspend fun add(args: AddEvaluationsArgs): IntentExecution
 
 	suspend fun edit(args: EditEvaluationArgs): IntentExecution
