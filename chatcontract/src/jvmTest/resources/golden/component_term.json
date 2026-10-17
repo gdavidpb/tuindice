@@ -1,0 +1,16 @@
+{
+  "type": "informe.trimestre/1",
+  "id": "cmp-term-1",
+  "fallbackText": "Trimestre 2026 enero-marzo: índice 16.2, 14 créditos.",
+  "display": "inline",
+  "entityRefs": [{ "kind": "term", "id": "2026-JAN_MAR" }],
+  "termId": "2026-JAN_MAR",
+  "termLabel": "2026 enero-marzo",
+  "termIndex": 16.2,
+  "cumulativeIndex": 15.8,
+  "credits": 14,
+  "rows": [
+    { "attemptId": "attempt-1", "subjectCode": "IS-101", "subjectName": "Programación I", "credits": 6, "grade": 18, "outcome": "approved", "badge": "first_try" },
+    { "attemptId": "attempt-2", "subjectCode": "IS-102", "subjectName": "Matemática I", "credits": 8, "grade": 4, "outcome": "failed" }
+  ]
+}
