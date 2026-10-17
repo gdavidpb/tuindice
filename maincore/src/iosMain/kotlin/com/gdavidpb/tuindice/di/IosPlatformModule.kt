@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.FileKitSkiaImageEncoderDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
@@ -200,6 +201,7 @@ val iosPlatformModule = module {
 		bind<SessionResidue>()
 	}
 	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	singleOf(::FileKitSkiaImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	single<ImageShareRepository> {
 		IosImageShareDataSource(
 			storageDirectory = temporaryStorageRoot().resolve(IMAGE_SHARE_DIRECTORY_NAME),

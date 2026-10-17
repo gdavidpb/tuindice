@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.AndroidBitmapImageEncoderDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
@@ -242,6 +243,7 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	singleOf(::AndroidBitmapImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	singleOf(::AndroidImageShareDataSource) { bind<ImageShareRepository>() }
 
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
