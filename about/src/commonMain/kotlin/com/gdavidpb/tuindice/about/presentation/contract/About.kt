@@ -16,7 +16,9 @@ object About {
 		data object Idle : State()
 		data class Content(
 			val versionText: String,
-			val usageDataCollectionEnabled: Boolean = false
+			val usageDataCollectionEnabled: Boolean = false,
+			val assistantAvailable: Boolean = false,
+			val assistantConsentGranted: Boolean = false
 		) : State()
 	}
 
@@ -31,6 +33,8 @@ object About {
 		data object ContactDeveloper : Action()
 		data object ShareApp : Action()
 		data class SetUsageDataCollectionEnabled(val enabled: Boolean) : Action()
+		data class SetAssistantConsent(val granted: Boolean) : Action()
+		data object OpenAssistantMemory : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -46,6 +50,12 @@ object About {
 		data class ShareText(
 			val subject: String,
 			val text: String
+		) : Effect()
+
+		data object NavigateToAssistantMemory : Effect()
+
+		data class ShowSnackBar(
+			val message: String
 		) : Effect()
 	}
 }

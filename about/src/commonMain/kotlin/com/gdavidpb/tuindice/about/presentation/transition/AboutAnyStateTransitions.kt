@@ -17,6 +17,10 @@ internal fun MachineDefinitionBuilder<About.State>.aboutAnyStateTransitions(
 		}
 
 		onTo<AboutInternalEvent.AboutVersionLoaded, About.State.Content> { _, event ->
+			// The observation starts with the content it feeds. LoadVersion is the initial
+			// action, so this runs once per screen.
+			machine.startAssistantObservation(host = host)
+
 			About.State.Content(
 				versionText = event.versionText,
 				usageDataCollectionEnabled = event.usageDataCollectionEnabled
@@ -26,6 +30,8 @@ internal fun MachineDefinitionBuilder<About.State>.aboutAnyStateTransitions(
 		// A failed version read must not leave the screen blank: fall back to Content
 		// so the support and legal entry points stay reachable.
 		onTo<AboutInternalEvent.AboutVersionLoadFailed, About.State.Content> { _, event ->
+			machine.startAssistantObservation(host = host)
+
 			About.State.Content(
 				versionText = event.versionFallbackText,
 				usageDataCollectionEnabled = event.usageDataCollectionEnabled
@@ -57,6 +63,13 @@ internal fun MachineDefinitionBuilder<About.State>.aboutAnyStateTransitions(
 			emits = setOf(About.Effect.ShareText::class)
 		) { state, _ ->
 			machine.shareApp(host = host)
+			state
+		}
+
+		on<About.Action.OpenAssistantMemory>(
+			emits = setOf(About.Effect.NavigateToAssistantMemory::class)
+		) { state, _ ->
+			host.sendEffect(About.Effect.NavigateToAssistantMemory)
 			state
 		}
 

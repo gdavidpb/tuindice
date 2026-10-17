@@ -1,28 +1,31 @@
 package com.gdavidpb.tuindice.about.presentation.route
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
+import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -731,7 +734,10 @@ class AboutRouteUiTest {
 					openStoreUseCase = openStoreUseCase,
 					openExternalUrlUseCase = openExternalUrlUseCase,
 					appEnvironmentRepository = appEnvironmentRepository,
-					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+					observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
+					observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+					setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 				),
 				eventPublisher = NoOpEventPublisher
 			),

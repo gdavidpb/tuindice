@@ -10,6 +10,8 @@ object AboutUiTags {
 	const val OpenTerms = "about_open_terms"
 	const val OpenPrivacy = "about_open_privacy"
 	const val UsageDataConsentToggle = "about_usage_data_consent_toggle"
+	const val AssistantConsentSwitch = "about_assistant_consent_switch"
+	const val AssistantMemoryItem = "about_assistant_memory_item"
 	const val OpenSupport = "about_open_support"
 	const val OpenX = "about_open_x"
 	const val ShareApp = "about_share_app"

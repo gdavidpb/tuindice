@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
@@ -9,10 +8,14 @@ import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.machine.AboutInternalEvent
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
@@ -73,7 +76,10 @@ class AboutViewModelContractTest {
 				reportingRepository = RecordingReportingRepository()
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
-			usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+			observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
+			observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+			setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 		)
 
 		assertMachineRandomWalk(
@@ -131,7 +137,10 @@ class AboutViewModelContractTest {
 					reportingRepository = RecordingReportingRepository()
 				),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+				observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
+				observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))

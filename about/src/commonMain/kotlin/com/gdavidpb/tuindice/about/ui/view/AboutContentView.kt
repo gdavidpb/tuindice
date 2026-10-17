@@ -77,7 +77,9 @@ fun AboutContentView(
 	onRateOnPlayStoreClick: () -> Unit,
 	onContactDeveloperClick: () -> Unit,
 	onReportBugClick: () -> Unit,
-	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
+	onAssistantConsentChange: (granted: Boolean) -> Unit = {},
+	onAssistantMemoryClick: () -> Unit = {}
 ) {
 	Column(
 		modifier = Modifier
@@ -151,6 +153,14 @@ fun AboutContentView(
 				testTag = AboutUiTags.UsageDataConsentToggle,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
+
+			if (state.assistantAvailable) {
+				AboutAssistantItems(
+					consentGranted = state.assistantConsentGranted,
+					onConsentChange = onAssistantConsentChange,
+					onMemoryClick = onAssistantMemoryClick
+				)
+			}
 		}
 
 		AboutHeader(text = stringResource(Res.string.about_header_developer)) {

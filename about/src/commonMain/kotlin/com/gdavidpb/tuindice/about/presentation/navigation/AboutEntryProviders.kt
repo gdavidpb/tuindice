@@ -16,7 +16,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 fun EntryProviderScope<NavKey>.aboutEntries(
 	shellBindings: NavShellBindings,
-	onNavigateToBrowser: (title: String, url: String) -> Unit
+	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	onNavigateToAssistantMemory: () -> Unit = {}
 ) {
 	entry<AboutDestination.About> {
 		val viewModel = koinViewModel<AboutViewModel>()
@@ -33,6 +34,7 @@ fun EntryProviderScope<NavKey>.aboutEntries(
 		) {
 			AboutRoute(
 				onNavigateToBrowser = onNavigateToBrowser,
+					onNavigateToAssistantMemory = onNavigateToAssistantMemory,
 				showSnackBar = shellBindings.showSnackBar,
 				viewModel = viewModel
 			)

@@ -43,4 +43,10 @@ class AboutViewModel(
 
 	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
 		sendAction(About.Action.SetUsageDataCollectionEnabled(enabled))
+
+	fun setAssistantConsentAction(granted: Boolean) =
+		sendAction(About.Action.SetAssistantConsent(granted))
+
+	fun openAssistantMemoryAction() =
+		sendAction(About.Action.OpenAssistantMemory)
 }

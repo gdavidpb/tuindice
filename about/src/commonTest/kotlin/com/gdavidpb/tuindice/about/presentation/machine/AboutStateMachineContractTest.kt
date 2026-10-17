@@ -8,6 +8,9 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
+import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -100,7 +103,10 @@ class AboutStateMachineContractTest {
 					reportingRepository = RecordingReportingRepository()
 				),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+				observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
+				observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

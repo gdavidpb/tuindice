@@ -8,6 +8,9 @@
     <string name="about_terms_and_conditions">Términos y condiciones\nConoce las condiciones del servicio</string>
     <string name="about_privacy_policy">Política de privacidad\nConoce cómo manejamos tus datos</string>
     <string name="about_usage_data_consent">Ayudar a mejorar **TuIndice**\nCompartir datos de uso anónimos</string>
+    <string name="about_assistant_consent">Asistente TuIndice\nPermite usar el asistente académico. Al usarlo, tu mensaje y tus datos académicos se envían a proveedores de inteligencia artificial.</string>
+    <string name="about_assistant_memory">Memoria del asistente\nLo que el asistente recuerda de ti</string>
+    <string name="about_assistant_consent_failed">No pudimos cambiar el asistente. Inténtalo de nuevo.</string>
     <string name="about_support">Soporte\nAyuda y canales oficiales</string>
     <string name="label_terms_and_conditions">Términos y condiciones</string>
     <string name="label_privacy_policy">Política de privacidad</string>

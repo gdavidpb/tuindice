@@ -11,6 +11,10 @@ object ActionDispositions {
 			action = "about.About.LoadVersion",
 			reason = "screen bootstrap"
 		),
+		ActionDisposition.Pending(
+			action = "about.About.OpenAssistantMemory",
+			reason = "E2E del asistente pendiente (A11)"
+		),
 		ActionDisposition.PlatformEdge(
 			action = "about.About.ReportBug",
 			reason =
@@ -19,6 +23,10 @@ object ActionDispositions {
 				"100 ms, so the app was seen leaving the foreground in 0 of 10 runs; on iOS the app stayed in " +
 				"front in 3 of 3 runs (docs/e2e-mediciones.md, section 3). `about-platform-edge-triggers` taps it " +
 				"and asserts that About is usable when the app is back"
+		),
+		ActionDisposition.Pending(
+			action = "about.About.SetAssistantConsent",
+			reason = "E2E del asistente pendiente (A11)"
 		),
 		ActionDisposition.Internal(
 			action = "auth.SignOut.Initialize",

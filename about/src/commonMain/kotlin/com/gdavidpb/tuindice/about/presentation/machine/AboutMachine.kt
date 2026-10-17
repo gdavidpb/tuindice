@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
@@ -14,8 +17,11 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.about.generated.resources.Res
+import tuindice.about.generated.resources.about_assistant_consent_failed
 import tuindice.about.generated.resources.about_share_message
 import tuindice.about.generated.resources.about_share_subject
 import tuindice.about.generated.resources.about_version_unavailable
@@ -29,13 +35,16 @@ class AboutMachine(
 	private val openStoreUseCase: OpenStoreUseCase,
 	private val openExternalUrlUseCase: OpenExternalUrlUseCase,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
-	private val usageDataConsentRepository: UsageDataConsentRepository
+	private val usageDataConsentRepository: UsageDataConsentRepository,
+	private val observeAssistantAvailabilityUseCase: ObserveAssistantAvailabilityUseCase,
+	private val observeAssistantConsentUseCase: ObserveAssistantConsentUseCase,
+	private val setAssistantConsentUseCase: SetAssistantConsentUseCase
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
 	override fun define(host: MachineHost<About.Effect>): MachineDefinition<About.State> {
 		return MachineDefinition.define {
-			aboutContentTransitions(machine = this@AboutMachine)
+			aboutContentTransitions(machine = this@AboutMachine, host = host)
 			aboutAnyStateTransitions(machine = this@AboutMachine, host = host)
 		}
 	}
@@ -134,5 +143,50 @@ class AboutMachine(
 
 	internal fun persistUsageDataCollection(enabled: Boolean) {
 		usageDataConsentRepository.setUsageDataCollectionEnabled(enabled)
+	}
+
+	// Started by the rows that create the content: the observed values only reach a
+	// state that exists, and the first emission of each flow is the current value.
+	internal fun startAssistantObservation(host: MachineHost<About.Effect>) {
+		host.launchMachineJob {
+			observeAssistantAvailabilityUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						AboutInternalEvent.AssistantAvailabilityObserved(visible = useCaseState.value)
+					)
+				}
+			}
+		}
+
+		host.launchMachineJob {
+			observeAssistantConsentUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						AboutInternalEvent.AssistantConsentObserved(granted = useCaseState.value)
+					)
+				}
+			}
+		}
+	}
+
+	internal fun setAssistantConsent(host: MachineHost<About.Effect>, granted: Boolean) {
+		host.launchMachineJob {
+			setAssistantConsentUseCase.execute(granted).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Error) {
+					// The failed write left the store as it was, so the value to restore is
+					// the one the store holds now, not the one the switch was moved to.
+					val restoredGranted = observeAssistantConsentUseCase.execute(Unit)
+						.mapNotNull { storedState -> (storedState as? UseCaseState.Data)?.value }
+						.first()
+
+					host.processInternalEvent(
+						AboutInternalEvent.AssistantConsentWriteFailed(
+							restoredGranted = restoredGranted,
+							message = getString(Res.string.about_assistant_consent_failed)
+						)
+					)
+				}
+			}
+		}
 	}
 }

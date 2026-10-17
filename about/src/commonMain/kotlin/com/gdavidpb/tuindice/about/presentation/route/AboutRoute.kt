@@ -19,6 +19,7 @@ import tuindice.about.generated.resources.snack_open_uri_failed
 @Composable
 fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	onNavigateToAssistantMemory: () -> Unit = {},
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: AboutViewModel
 ) {
@@ -52,6 +53,10 @@ fun AboutRoute(
 						)
 					}
 
+			is About.Effect.NavigateToAssistantMemory -> onNavigateToAssistantMemory()
+
+			is About.Effect.ShowSnackBar -> showSnackBar(SnackBarMessage(message = effect.message))
+
 			is About.Effect.ShareText ->
 				shareTextHandler(
 					subject = effect.subject,
@@ -78,7 +83,9 @@ fun AboutRoute(
 		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
 		onContactDeveloperClick = viewModel::contactDeveloperAction,
 		onReportBugClick = viewModel::reportBugAction,
-		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction
+		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
+		onAssistantConsentChange = viewModel::setAssistantConsentAction,
+		onAssistantMemoryClick = viewModel::openAssistantMemoryAction
 	)
 }
 
