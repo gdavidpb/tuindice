@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.presentation
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
@@ -8,4 +9,5 @@ interface ViewState {
 	val topBarConfig: TopBarConfig? get() = null
 	val isTopBarVisible: Boolean get() = false
 	val isBottomBarVisible: Boolean get() = false
+	val assistantContext: AssistantScreenContext? get() = null
 }

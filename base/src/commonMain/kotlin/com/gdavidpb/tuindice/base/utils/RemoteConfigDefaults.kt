@@ -16,7 +16,9 @@ data class DefaultRemoteConfigValues(
 	val attestationIosEnforcementEnabled: Boolean,
 	val appAvailabilityNoticeEnabled: Boolean,
 	val appAvailabilityNoticeTitle: String,
-	val appAvailabilityNoticeMessage: String
+	val appAvailabilityNoticeMessage: String,
+	val assistantMode: String,
+	val assistantAppealEnabled: Boolean
 )
 
 object RemoteConfigKeys {
@@ -31,6 +33,8 @@ object RemoteConfigKeys {
 	const val APP_AVAILABILITY_NOTICE_ENABLED = "app_availability_notice_enabled"
 	const val APP_AVAILABILITY_NOTICE_TITLE = "app_availability_notice_title"
 	const val APP_AVAILABILITY_NOTICE_MESSAGE = "app_availability_notice_message"
+	const val ASSISTANT_MODE = "assistant_mode"
+	const val ASSISTANT_APPEAL_ENABLED = "assistant_appeal_enabled"
 }
 
 object DefaultRemoteConfig {
@@ -70,8 +74,10 @@ object DefaultRemoteConfig {
 		attestationIosEnforcementEnabled = true,
 		appAvailabilityNoticeEnabled = false,
 		appAvailabilityNoticeTitle = "",
-		appAvailabilityNoticeMessage = ""
+		appAvailabilityNoticeMessage = "",
+		assistantMode = "off",
+		assistantAppealEnabled = false
 	)
 
-	private val DEBUG_VALUES = PRODUCTION_VALUES
+	private val DEBUG_VALUES = PRODUCTION_VALUES.copy(assistantMode = "on")
 }

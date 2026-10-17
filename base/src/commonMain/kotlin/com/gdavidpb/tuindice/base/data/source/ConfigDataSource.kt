@@ -2,9 +2,15 @@ package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
@@ -77,6 +83,27 @@ class ConfigDataSource(
 				?: defaults.appAvailabilityNoticeTitle,
 			message = remoteConfigDataSource.getString(RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE)
 				?: defaults.appAvailabilityNoticeMessage
+		)
+	}
+
+	override fun observeAssistantMode(): Flow<AssistantMode> {
+		return remoteConfigDataSource.observeUpdatedKeys()
+			.filter { RemoteConfigKeys.ASSISTANT_MODE in it }
+			.map { readAssistantMode() }
+			.onStart { emit(readAssistantMode()) }
+			.distinctUntilChanged()
+	}
+
+	override fun getAssistantAppealEnabled(): Boolean {
+		return remoteConfigDataSource.getString(RemoteConfigKeys.ASSISTANT_APPEAL_ENABLED)
+			?.toBooleanStrictOrNull()
+			?: defaults.assistantAppealEnabled
+	}
+
+	// A missing value takes the default; an invalid one fails closed through fromRemoteValue.
+	private fun readAssistantMode(): AssistantMode {
+		return AssistantMode.fromRemoteValue(
+			remoteConfigDataSource.getString(RemoteConfigKeys.ASSISTANT_MODE) ?: defaults.assistantMode
 		)
 	}
 }
