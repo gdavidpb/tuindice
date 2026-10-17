@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ComposeUiTest
@@ -158,12 +159,70 @@ class LottieResourceAnimationViewUiTest {
 		assertTrue(first.contentEquals(later), "the animation must not have moved between the two frames")
 	}
 
+	@Test
+	fun when_fillOverrideNamesAFill_then_thatFillIsPaintedInTheOverrideColor() = runTuIndiceUiTest {
+		val frame = firstFrameWithFillOverrides(mapOf(FillName to Color.Blue))
+
+		assertTrue(frame.hasTheBlueSquare(), "the override must paint the named fill in its color")
+		assertFalse(frame.hasTheSquare(), "the original red of the named fill must be gone")
+	}
+
+	@Test
+	fun when_fillOverrideNamesALayer_then_everyFillOfThatLayerIsPaintedInTheOverrideColor() = runTuIndiceUiTest {
+		val frame = firstFrameWithFillOverrides(mapOf(LayerName to Color.Blue))
+
+		assertTrue(frame.hasTheBlueSquare(), "the override must paint the fill of the named layer in its color")
+		assertFalse(frame.hasTheSquare(), "the original red of the fill of the named layer must be gone")
+	}
+
 	// Any opaque red pixel: the interior of the square is pure red, whatever the edges blend into.
 	private fun IntArray.hasTheSquare() = any { pixel ->
 		(pixel ushr 24) == OPAQUE &&
 			((pixel shr 16) and OPAQUE) > 200 &&
 			((pixel shr 8) and OPAQUE) < 50 &&
 			(pixel and OPAQUE) < 50
+	}
+
+	// Any opaque pixel of blue with no red or green in it: the square, painted in the override color.
+	private fun IntArray.hasTheBlueSquare() = any { pixel ->
+		(pixel ushr 24) == OPAQUE &&
+			((pixel shr 16) and OPAQUE) < 50 &&
+			((pixel shr 8) and OPAQUE) < 50 &&
+			(pixel and OPAQUE) > 200
+	}
+
+	// The first frame that paints anything, with the overrides applied; animations are off, so it stays there.
+	private fun ComposeUiTest.firstFrameWithFillOverrides(fillOverrides: Map<String, Color>): IntArray {
+		var readCount = 0
+
+		// The harness cancels infinite animations that start while the clock auto-advances.
+		mainClock.autoAdvance = false
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				LottieResourceAnimationView(
+					readBytes = {
+						readCount++
+						MOVING_SQUARE.encodeToByteArray()
+					},
+					modifier = Modifier.size(100.dp),
+					testTag = AnimationTag,
+					fillOverrides = fillOverrides
+				)
+			}
+		}
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { readCount == 1 }
+
+		var first = IntArray(0)
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
+			advanceAnimationsBy(50)
+			first = onNodeWithTag(AnimationTag).captureToImage().toPixelMap().buffer.copyOf()
+			first.any { pixel -> (pixel ushr 24) == OPAQUE }
+		}
+
+		return first
 	}
 
 	private fun ComposeUiTest.paintedFramesAround(animationsEnabled: Boolean): Pair<IntArray, IntArray> {
@@ -208,6 +267,8 @@ class LottieResourceAnimationViewUiTest {
 		const val ANIMATION_PATH = "files/an_empty.json"
 		const val LOAD_TIMEOUT_MILLIS = 5_000L
 		const val OPAQUE = 255
+		const val FillName = "f"
+		const val LayerName = "square"
 
 		// A red square, 40 by 40, that goes from the left to the right of a 100 by 100 frame in two seconds.
 		const val MOVING_SQUARE = """{"v":"5.5.7","fr":30,"ip":0,"op":60,"w":100,"h":100,"nm":"moving","ddd":0,""" +

@@ -25,6 +25,7 @@ object BaseUiTags {
 	const val OutdatedAppAnimation = "base_outdated_app_animation"
 
 	const val TopAppBarActionsContainer = "base_top_app_bar_actions_container"
+	const val TopAppBarOverflowButton = "base_top_app_bar_overflow"
 	const val TopAppBarTitle = "base_top_app_bar_title"
 
 	const val ConfirmationDialogSheet = "base_confirmation_dialog_sheet"
@@ -47,6 +48,12 @@ object BaseUiTags {
 	fun topBarActionButton(action: TopBarAction): String =
 		"base_top_app_bar_action_${action.action}"
 
+	fun topBarOverflowItem(action: TopBarAction): String =
+		"base_top_app_bar_overflow_${action.action}"
+
 	fun wheelPickerItem(index: Int): String =
 		"base_wheel_picker_item_$index"
+
+	fun askAssistant(suffix: String): String =
+		"base_ask_assistant_$suffix"
 }

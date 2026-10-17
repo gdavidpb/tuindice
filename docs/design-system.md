@@ -8,6 +8,7 @@ Tokens y convenciones de UI compartidos. La fuente de verdad vive en `base/ui/st
 | --- | --- | --- |
 | Colores de tema | `maincore/.../ui/theme/TuIndiceColorScheme.kt` | Esquemas Material3 light/dark. `onPrimary` es oscuro en ambos modos (el primario amarillo no soporta texto blanco). |
 | Colores académicos | `base/.../ui/style/AcademicStatusColors.kt` | Estados de materia (`approved`, `available`, `blocked`), semáforos (`success`, `warning`) y bandas de carga. Único lugar donde viven estos hex. |
+| Colores del chat | `base/.../ui/style/TuIndiceChatColors.kt` | Tonos de la burbuja del estudiante en el chat del asistente: los de arriba de la regla de dos tonos, con su borde. Es la única excepción documentada a esa regla (ver «Chat del asistente»). |
 | Tipografía | `maincore/.../ui/theme/TuIndiceTypography.kt` | Escala M3 completa. `titleMedium` y `labelLarge` ya son SemiBold: no agregar `fontWeight = SemiBold` en los call sites que los usan. `FontWeight.Black` no se usa en la app; el énfasis máximo es `Bold`. |
 | Radios | `base/.../ui/style/TuIndiceRadius.kt` | Usar siempre el token (`Small`, `Medium`, `Card`, `Large`, `XLarge`, `Full`); no escribir `RoundedCornerShape(X.dp)` con literales. |
 | Espaciado | `base/.../ui/style/TuIndiceSpacing.kt` | `Screen` (16.dp) es el padding horizontal canónico de contenido de pantalla; `Dialog` (24.dp) el de bottom sheets/diálogos. |
@@ -42,6 +43,7 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 - Detrás hay pantalla, hoja o diálogo: tarjeta (`surfaceVariant`). Detrás hay una tarjeta: `surfaceDim`. Es el contenedor de una hoja o de un diálogo: fondo (`surface`).
 - Las tarjetas no llevan sombra: `Card` plana con `containerColor = surfaceVariant`, no `ElevatedCard`. Una tarjeta con color de énfasis (p. ej. `primaryContainer` en la tarjeta destacada del detalle de materia) conserva ese color, también sin sombra.
 - `secondaryContainer` es solo el seleccionado; no es un tono de tarjeta.
+- **Excepción documentada**: la burbuja del estudiante en el chat del asistente usa los tonos de arriba (`TuIndiceChatColors`); ver «Chat del asistente».
 - `TuIndiceColorScheme.kt` alinea los roles de contenedor de Material a esos mismos tonos (`surfaceContainerLowest`, `surfaceContainerLow`, `surfaceContainerHigh` y `surfaceBright` son `surface`; `surfaceContainer` y `surfaceContainerHighest` son `surfaceVariant`), así que los valores por defecto de Material caen en la regla. Los composables no usan `surfaceContainer*` directamente.
 
 ## Iconografía
@@ -58,6 +60,8 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 - Acción terciaria/inline: `TextButton`.
 - Acción destructiva: colores de `error`/`errorContainer` sobre el componente que corresponda.
 - Spinners dentro de botones usan `LocalContentColor.current`, nunca un color literal.
+- **Menú ⋮ de la barra superior** (`TopAppBarOverflowMenuView`, `base/.../ui/view/TopAppBarOverflowMenuView.kt`): las acciones que no caben en línea van en un menú que se abre desde el ⋮. Cada ítem toma como texto la descripción de su acción, así que quien pasa acciones de overflow debe darle texto a todas; una acción sin texto no se dibuja.
+- **Preguntar sobre esto** (`AskAssistantMenuItemView`, `base/.../ui/view/AskAssistantMenuItemView.kt`): ítem de un menú que envía al asistente la pregunta sobre la pantalla. Solo se dibuja si la pantalla pasa `onAsk`.
 
 ## Estados de pantalla
 
@@ -172,6 +176,16 @@ Comportamiento:
 - **Respaldo**: la hoja abre al instante con la última lista guardada (`PreferencesKeys.SHARE_BACKGROUNDS_CATALOG`) y pide el catálogo cada vez que se abre; la tira se actualiza cuando llega. Si el catálogo no responde, queda la lista guardada y, si nunca se guardó, el Laberinto. Si la imagen de la tarjeta no carga, la tarjeta vuelve al Laberinto con su propio crédito.
 - **Último fondo elegido**: al elegir uno se guarda (`SetShareBackgroundPreferenceUseCase`, `PreferencesKeys.SHARE_BACKGROUND_ID`). La tarjeta abre con él mientras siga en el catálogo; si no, con el primero (`selectShareBackground`).
 - **Captura**: la imagen se captura cuando el arte del fondo elegido ya está en pantalla (`onArtReady`): al instante con el Laberinto, y al terminar de cargar con los remotos.
+
+## Chat del asistente
+
+- **Burbuja del estudiante**: a la derecha, con un ancho máximo del 80 % y un borde de 1 dp. Usa `TuIndiceChatColors.chatUserBubble()` y `chatUserBubbleOutline()`: `#E5E4DD` con borde `#D3D1C8` en claro, y `#2A2A26` con borde `#3D3A33` en oscuro. Es la **excepción documentada** a la regla de dos tonos: sube al tono de arriba para que el mensaje propio se distinga de la respuesta, que va sin fondo.
+- **Respuestas del agente**: sin burbuja, a todo el ancho del contenido. Bajo cada respuesta van, en este orden, **Copiar**, los pulgares «útil» y «no útil», y **Reportar**.
+- **Tarjetas**: las que el chat muestra (fuentes, pasos, citas) son `surfaceVariant` con borde de 1 dp `outlineVariant`, como cualquier tarjeta de la app.
+- **Ámbar solo en controles**: `primary` va en los botones y en los controles, nunca como fondo de un bloque de texto ni de una tarjeta.
+- **Sin nombre ni ícono del asistente dentro del chat**: los mensajes del agente no llevan etiqueta ni monóculo.
+- **Monóculo**: `rememberAssistantMonocleIcon()` (`base/.../ui/icon/AssistantMonocleIcon.kt`) va solo en la cabecera de las pestañas. Se dibuja con sus propios colores, así que `Icon` lleva `tint = Color.Unspecified`: en claro, vidrio `#F6F2E6`, aro y cadena `#3A3A38`; en oscuro, vidrio `#2A2A26`, aro y cadena `#F4F1E8`. El destello es `#FABD00` en los dos temas.
+- **Carga**: un átomo 3D en Lottie (`LottieResourceAnimationView` con `fillOverrides = mapOf("glyph_fill" to color)`), recoloreado por el tema: `#785900` en claro y `#FABD00` en oscuro. Lleva una etiqueta impersonal con brillo. Con reducir movimiento (`LocalTuIndiceAnimationsEnabled` en falso) el átomo queda fijo en su primer cuadro y el brillo no se mueve.
 
 ## Terminología
 

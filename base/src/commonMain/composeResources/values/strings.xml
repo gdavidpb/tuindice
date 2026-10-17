@@ -80,4 +80,6 @@
 	<string name="class_place_with_time">%1$s · %2$s</string>
 	<string name="class_time_range_same_period">%1$s–%2$s %3$s</string>
 	<string name="class_time_range">%1$s %2$s–%3$s %4$s</string>
+	<string name="assistant_ask_about_this">Preguntar sobre esto</string>
+	<string name="a11y_more_options">Más opciones</string>
 </resources>
