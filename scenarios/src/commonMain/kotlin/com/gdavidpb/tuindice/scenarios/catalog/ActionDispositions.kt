@@ -28,6 +28,106 @@ object ActionDispositions {
 			action = "about.About.SetAssistantConsent",
 			reason = "E2E del asistente pendiente (A11)"
 		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.AcceptConsent",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.AnswerStillApplies",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.Appeal",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.ChangeText",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.ConfirmIntent",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.CopyMessage",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.DeclineConsent",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.Dismiss",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.DismissIntent",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.Open",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.OpenComponentSheet",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.OpenNavTarget",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.PickSuggestion",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.RateMessage",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.RemoveContext",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.ReportMessage",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.RetryTurn",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.Send",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.ToggleIntentDraft",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.AnswerStillApplies",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.ClearAll",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.ConfirmClearAll",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.DeleteEntry",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.Load",
+			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantMemory.Retry",
+			reason = "E2E del asistente pendiente (A11)"
+		),
 		ActionDisposition.Internal(
 			action = "auth.SignOut.Initialize",
 			reason = "route state bootstrap from pending changes"
