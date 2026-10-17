@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -110,6 +111,7 @@ internal class AssistantMemoryFixture(items: List<MemoryItem> = emptyList()) {
 
 // Runs [block] with a view model on the test dispatchers. The store is set up by [configure] before the screen starts,
 // so a failure set there is met by the first load; the state and the effects are collected from the start.
+@OptIn(ExperimentalCoroutinesApi::class)
 internal fun memoryTest(
 	items: List<MemoryItem> = emptyList(),
 	configure: ServerAssistantMemoryRepository.() -> Unit = {},

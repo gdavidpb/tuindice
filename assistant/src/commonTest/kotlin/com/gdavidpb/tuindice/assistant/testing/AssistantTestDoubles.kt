@@ -25,6 +25,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -116,6 +117,7 @@ internal class RecordingServerDisabledRepository : AssistantServerDisabledDataRe
 }
 
 // Reads the virtual time of the test, so the clock and the timers agree on when a window ends.
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class VirtualClock(private val scheduler: TestCoroutineScheduler) : Clock {
 	override fun now(): Instant = Instant.fromEpochMilliseconds(START_EPOCH_MILLIS + scheduler.currentTime)
 

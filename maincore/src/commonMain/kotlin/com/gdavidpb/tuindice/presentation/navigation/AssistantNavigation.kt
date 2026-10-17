@@ -3,8 +3,7 @@ package com.gdavidpb.tuindice.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalClipboard
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
 import com.gdavidpb.tuindice.base.domain.model.MainSection
@@ -62,7 +61,7 @@ internal fun TuIndiceNavigator.toAssistantNavDependencies(
 internal fun rememberAssistantNavDependencies(navigator: TuIndiceNavigator): AssistantNavDependencies {
 	val koin = getKoin()
 	val scope = rememberCoroutineScope()
-	val clipboard = LocalClipboardManager.current
+	val clipboard = LocalClipboard.current
 
 	return navigator.toAssistantNavDependencies(
 		scope = scope,
@@ -73,7 +72,7 @@ internal fun rememberAssistantNavDependencies(navigator: TuIndiceNavigator): Ass
 			koin.getOrNull<GetTermKeyUseCase>()?.termKeyOrNull(termId)
 		},
 		copyText = { text ->
-			clipboard.setText(AnnotatedString(text))
+			scope.launch { clipboard.setClipEntry(plainTextClipEntry(text)) }
 		}
 	)
 }

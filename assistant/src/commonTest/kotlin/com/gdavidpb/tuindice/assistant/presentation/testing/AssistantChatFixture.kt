@@ -55,6 +55,7 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -236,6 +237,7 @@ internal class AssistantChatFixture {
 }
 
 // Runs [block] with a view model on the test dispatchers, whose state and effects are collected from the start.
+@OptIn(ExperimentalCoroutinesApi::class)
 internal fun chatTest(block: suspend TestScope.(AssistantChatFixture, AssistantChatViewModel) -> Unit) = runTest {
 	withUnconfinedTestDispatchers { dispatchers ->
 		val fixture = AssistantChatFixture()
