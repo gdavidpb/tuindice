@@ -162,6 +162,7 @@ tasks.register("verifySharedCompilation") {
 		":about:compileKotlinIosSimulatorArm64",
 		":academiccore:compileAndroidMain",
 		":academiccore:compileKotlinIosSimulatorArm64",
+		":academiccore:compileKotlinJvm",
 		":base:compileAndroidMain",
 		":base:compileKotlinIosSimulatorArm64",
 		":chatcontract:compileAndroidMain",
@@ -230,6 +231,7 @@ tasks.register("verifySharedHostTests") {
 	dependsOn(
 		":about:testAndroidHostTest",
 		":academiccore:testAndroidHostTest",
+		":academiccore:jvmTest",
 		":base:testAndroidHostTest",
 		":chatcontract:testAndroidHostTest",
 		":chatcontract:jvmTest",
