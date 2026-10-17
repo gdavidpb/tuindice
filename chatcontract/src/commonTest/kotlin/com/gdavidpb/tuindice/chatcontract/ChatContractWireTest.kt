@@ -72,6 +72,9 @@ import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import com.gdavidpb.tuindice.chatcontract.event.RunStarted
 import com.gdavidpb.tuindice.chatcontract.event.UsageSummary
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionLimits
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.CreatePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EditEvaluationArgs
@@ -105,6 +108,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class ChatContractWireTest {
 
@@ -534,6 +538,21 @@ class ChatContractWireTest {
 		val read = assertIs<RememberArgs>(ChatContract.json.decodeFromString(IntentArgs.serializer(), older))
 		assertEquals(listOf(null, null, null), listOf(read.anchorKind, read.anchorRef, read.anchorDate))
 	}
+
+	@Test
+	fun anExtractionAndItsProposalRoundTrip() {
+		val request = ExtractionRequest(clientRequestId = "req-1", mediaType = "image/jpeg", imageBase64 = "AAAA")
+		val found = ExtractionResult(message = "Encontré 1 evaluación.", intent = intent)
+		val none = ExtractionResult(message = "No encontré evaluaciones en la foto.")
+
+		assertEquals(request, roundTrip(ExtractionRequest.serializer(), request))
+		assertEquals(found, roundTrip(ExtractionResult.serializer(), found))
+		assertEquals(none, roundTrip(ExtractionResult.serializer(), none))
+		assertTrue("image/jpeg" in ExtractionLimits.MEDIA_TYPES)
+	}
+
+	private fun <T> roundTrip(serializer: KSerializer<T>, value: T): T =
+		ChatContract.json.decodeFromString(serializer, ChatContract.json.encodeToString(serializer, value))
 
 	@Test
 	fun mutatingArgsImplementTheMarkerAndSendNoMutationIds() {
