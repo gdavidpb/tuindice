@@ -22,7 +22,9 @@ import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
+import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -127,6 +129,93 @@ class AboutAssistantRouteUiTest {
 		onNodeWithTag(AboutUiTags.AssistantConsentSwitch).assertIsOff()
 	}
 
+	@Test
+	fun when_assistantConversationsTapped_then_opensTheConfirmation() = runTuIndiceUiTest {
+		var confirmationOpenings = 0
+		val viewModel = createAboutViewModel()
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> }
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, _ -> },
+					onNavigateToDeleteConfirmation = { confirmationOpenings++ },
+					showSnackBar = { },
+					viewModel = viewModel
+				)
+			}
+		}
+
+		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
+		scrollToRow(AboutUiTags.AssistantConversationsItem)
+		onNodeWithTag(AboutUiTags.AssistantConversationsItem).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			confirmationOpenings > 0
+		}
+
+		assertEquals(1, confirmationOpenings)
+	}
+
+	@Test
+	fun when_conversationsAreDeleted_then_showsTheSuccessSnackBar() = runTuIndiceUiTest {
+		val messages = mutableListOf<String>()
+		val assistantConversations = FakeAssistantConversationsRepository()
+		val viewModel = createAboutViewModel(assistantConversations = assistantConversations)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> }
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> messages += message.message },
+					viewModel = viewModel
+				)
+			}
+		}
+
+		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
+		viewModel.confirmDeleteAssistantConversationsAction()
+
+		waitUntil(timeoutMillis = 2_000) {
+			messages.isNotEmpty()
+		}
+
+		assertEquals(1, assistantConversations.deletions)
+		assertEquals(listOf(DELETED_MESSAGE), messages)
+	}
+
+	@Test
+	fun when_conversationsDeleteFails_then_showsTheFailureSnackBar() = runTuIndiceUiTest {
+		val messages = mutableListOf<String>()
+		val assistantConversations = FakeAssistantConversationsRepository(deletesFail = true)
+		val viewModel = createAboutViewModel(assistantConversations = assistantConversations)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> }
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> messages += message.message },
+					viewModel = viewModel
+				)
+			}
+		}
+
+		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
+		viewModel.confirmDeleteAssistantConversationsAction()
+
+		waitUntil(timeoutMillis = 2_000) {
+			messages.isNotEmpty()
+		}
+
+		assertEquals(0, assistantConversations.deletions)
+		assertEquals(listOf(DELETE_FAILED_MESSAGE), messages)
+	}
+
 	private fun ComposeUiTest.waitUntilNodeExists(
 		tag: String,
 		timeoutMillis: Long = 2_000
@@ -143,7 +232,8 @@ class AboutAssistantRouteUiTest {
 
 	private fun createAboutViewModel(
 		assistantAvailable: Boolean = true,
-		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository()
+		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository(),
+		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
 	): AboutViewModel {
 		val assistantAvailability = FakeAssistantAvailabilityRepository(visible = assistantAvailable)
 
@@ -176,6 +266,7 @@ class AboutAssistantRouteUiTest {
 					assistantConsentRepository = assistantConsent,
 					reportingRepository = RecordingReportingRepository()
 				),
+				deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(assistantConversations),
 				setAssistantConsentUseCase = SetAssistantConsentUseCase(
 					assistantConsentRepository = assistantConsent,
 					reportingRepository = RecordingReportingRepository()
@@ -187,5 +278,7 @@ class AboutAssistantRouteUiTest {
 
 	private companion object {
 		const val EXPECTED_CONSENT_FAILED_MESSAGE = "No pudimos cambiar el asistente. Inténtalo de nuevo."
+		const val DELETED_MESSAGE = "Se borraron tus conversaciones con el asistente"
+		const val DELETE_FAILED_MESSAGE = "No pudimos borrar tus conversaciones. Inténtalo de nuevo."
 	}
 }

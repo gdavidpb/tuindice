@@ -31,7 +31,8 @@ fun AboutScreen(
 	onReportBugClick: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onAssistantConsentChange: (granted: Boolean) -> Unit = {},
-	onAssistantMemoryClick: () -> Unit = {}
+	onAssistantMemoryClick: () -> Unit = {},
+	onAssistantConversationsClick: () -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -63,7 +64,8 @@ fun AboutScreen(
 					onReportBugClick = onReportBugClick,
 					onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange,
 					onAssistantConsentChange = onAssistantConsentChange,
-					onAssistantMemoryClick = onAssistantMemoryClick
+					onAssistantMemoryClick = onAssistantMemoryClick,
+					onAssistantConversationsClick = onAssistantConversationsClick
 				)
 		}
 	}

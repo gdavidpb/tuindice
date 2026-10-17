@@ -3,6 +3,7 @@ import XCTest
 
 final class AboutScenarioTests: ScenarioTestCase {
     func test_about_assistant_consent_toggle() { runScenario("about-assistant-consent-toggle") }
+    func test_about_assistant_conversations_delete() { runScenario("about-assistant-conversations-delete") }
     func test_about_assistant_memory_clear() { runScenario("about-assistant-memory-clear") }
     func test_about_assistant_memory_delete() { runScenario("about-assistant-memory-delete") }
     func test_about_assistant_memory_retry() { runScenario("about-assistant-memory-retry") }

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantAvailabilityDataSour
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConsentSettingsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationStoreDataSource
+import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantInsightsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantMemoryDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
@@ -72,6 +73,7 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryVie
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConversationsRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import io.ktor.client.HttpClient
@@ -92,6 +94,7 @@ val assistantModule = module {
 		bind<AssistantExtractionRepository>()
 	}
 	factoryOf(::AssistantTurnDataSource) { bind<AssistantTurnRepository>() }
+	factoryOf(::AssistantConversationsDataSource) { bind<AssistantConversationsRepository>() }
 	single<AssistantEventsDataRepository> {
 		SseAssistantEventsDataSource(
 			httpClient = get<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)),

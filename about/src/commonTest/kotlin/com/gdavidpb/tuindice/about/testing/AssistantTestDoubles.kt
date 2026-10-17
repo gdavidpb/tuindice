@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.about.testing
 
+import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
@@ -7,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConversationsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +47,19 @@ class FakeAssistantConsentRepository(
 	}
 }
 
+class FakeAssistantConversationsRepository(
+	private val deletesFail: Boolean = false
+) : AssistantConversationsRepository {
+	var deletions = 0
+		private set
+
+	override suspend fun deleteAssistantConversations() {
+		check(!deletesFail) { "The assistant conversations are unavailable" }
+
+		deletions++
+	}
+}
+
 /** Assistant use cases over fresh fakes, for builders whose tests do not exercise the assistant. */
 fun fakeObserveAssistantAvailabilityUseCase(): ObserveAssistantAvailabilityUseCase {
 	return ObserveAssistantAvailabilityUseCase(
@@ -63,6 +78,15 @@ fun fakeObserveAssistantConsentUseCase(): ObserveAssistantConsentUseCase {
 fun fakeSetAssistantConsentUseCase(): SetAssistantConsentUseCase {
 	return SetAssistantConsentUseCase(
 		assistantConsentRepository = FakeAssistantConsentRepository(),
+		reportingRepository = RecordingReportingRepository()
+	)
+}
+
+fun fakeDeleteAssistantConversationsUseCase(
+	assistantConversationsRepository: AssistantConversationsRepository = FakeAssistantConversationsRepository()
+): DeleteAssistantConversationsUseCase {
+	return DeleteAssistantConversationsUseCase(
+		assistantConversationsRepository = assistantConversationsRepository,
 		reportingRepository = RecordingReportingRepository()
 	)
 }

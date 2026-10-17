@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
@@ -79,7 +80,8 @@ class AboutViewModelContractTest {
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 			observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
 			observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
-			setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
+			deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
+				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 		)
 
 		assertMachineRandomWalk(
@@ -95,6 +97,8 @@ class AboutViewModelContractTest {
 				About.Action.ContactDeveloper,
 				About.Action.ShareApp,
 				About.Action.SetUsageDataCollectionEnabled(enabled = true),
+				About.Action.RequestDeleteAssistantConversations,
+				About.Action.ConfirmDeleteAssistantConversations,
 				AboutInternalEvent.AboutVersionLoaded(
 					versionText = CURRENT_PRODUCTION_VERSION_TEXT,
 					usageDataCollectionEnabled = false
@@ -104,7 +108,9 @@ class AboutViewModelContractTest {
 					usageDataCollectionEnabled = false
 				),
 				AboutInternalEvent.SupportEmailUriLoaded(uri = "mailto:support@tuindice.app"),
-				AboutInternalEvent.StoreUriLoaded(uri = "https://example.com/store")
+				AboutInternalEvent.StoreUriLoaded(uri = "https://example.com/store"),
+				AboutInternalEvent.AssistantConversationsDeleted(message = "deleted"),
+				AboutInternalEvent.AssistantConversationsDeleteFailed(message = "failed")
 			),
 			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
@@ -140,6 +146,7 @@ class AboutViewModelContractTest {
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 				observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
 				observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+				deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
 				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 			),
 			eventPublisher = NoOpEventPublisher,

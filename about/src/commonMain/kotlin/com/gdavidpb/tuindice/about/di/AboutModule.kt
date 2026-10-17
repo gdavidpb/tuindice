@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.about.di
 
 import com.gdavidpb.tuindice.about.data.source.AboutDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
+import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
@@ -32,6 +33,7 @@ val aboutModule = module {
 	factoryOf(::ObserveAssistantAvailabilityUseCase)
 	factoryOf(::ObserveAssistantConsentUseCase)
 	factoryOf(::SetAssistantConsentUseCase)
+	factoryOf(::DeleteAssistantConversationsUseCase)
 
 	/* Repositories */
 

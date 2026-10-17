@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
+import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
@@ -22,6 +23,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.about_assistant_consent_failed
+import tuindice.about.generated.resources.about_assistant_conversations_delete_failed
+import tuindice.about.generated.resources.about_assistant_conversations_deleted
 import tuindice.about.generated.resources.about_share_message
 import tuindice.about.generated.resources.about_share_subject
 import tuindice.about.generated.resources.about_version_unavailable
@@ -38,7 +41,8 @@ class AboutMachine(
 	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val observeAssistantAvailabilityUseCase: ObserveAssistantAvailabilityUseCase,
 	private val observeAssistantConsentUseCase: ObserveAssistantConsentUseCase,
-	private val setAssistantConsentUseCase: SetAssistantConsentUseCase
+	private val setAssistantConsentUseCase: SetAssistantConsentUseCase,
+	private val deleteAssistantConversationsUseCase: DeleteAssistantConversationsUseCase
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
@@ -183,6 +187,28 @@ class AboutMachine(
 						AboutInternalEvent.AssistantConsentWriteFailed(
 							restoredGranted = restoredGranted,
 							message = getString(Res.string.about_assistant_consent_failed)
+						)
+					)
+				}
+			}
+		}
+	}
+
+	internal fun deleteAssistantConversations(host: MachineHost<About.Effect>) {
+		host.launchMachineJob {
+			deleteAssistantConversationsUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> host.processInternalEvent(
+						AboutInternalEvent.AssistantConversationsDeleted(
+							message = getString(Res.string.about_assistant_conversations_deleted)
+						)
+					)
+
+					is UseCaseState.Error -> host.processInternalEvent(
+						AboutInternalEvent.AssistantConversationsDeleteFailed(
+							message = getString(Res.string.about_assistant_conversations_delete_failed)
 						)
 					)
 				}

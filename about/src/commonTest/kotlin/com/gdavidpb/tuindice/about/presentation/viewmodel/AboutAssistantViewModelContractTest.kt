@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
+import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -102,15 +104,35 @@ class AboutAssistantViewModelContractTest {
 		}
 	}
 
+	@Test
+	fun requestDeleteAssistantConversations_asksForTheConfirmationWithoutDeleting() = runTest {
+		val assistantConversations = FakeAssistantConversationsRepository()
+		val viewModel = createViewModel(testScheduler = testScheduler, assistantConversations = assistantConversations)
+		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
+		testScheduler.advanceUntilIdle()
+
+		viewModel.requestDeleteAssistantConversationsAction()
+		testScheduler.advanceUntilIdle()
+
+		assertEquals(0, assistantConversations.deletions)
+		viewModel.effect.test {
+			assertEquals(About.Effect.NavigateToDeleteAssistantConversationsConfirmation, awaitItem())
+
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
 	private fun createViewModel(
 		testScheduler: TestCoroutineScheduler,
 		assistantAvailability: FakeAssistantAvailabilityRepository = FakeAssistantAvailabilityRepository(),
-		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository()
+		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository(),
+		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
 	): AboutViewModel {
 		return AboutViewModel(
 			screenMachine = createMachine(
 				assistantAvailability = assistantAvailability,
-				assistantConsent = assistantConsent
+				assistantConsent = assistantConsent,
+				assistantConversations = assistantConversations
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
@@ -119,7 +141,8 @@ class AboutAssistantViewModelContractTest {
 
 	private fun createMachine(
 		assistantAvailability: FakeAssistantAvailabilityRepository,
-		assistantConsent: FakeAssistantConsentRepository
+		assistantConsent: FakeAssistantConsentRepository,
+		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
 	): AboutMachine {
 		return AboutMachine(
 			loadVersionUseCase = LoadVersionUseCase(
@@ -151,6 +174,10 @@ class AboutAssistantViewModelContractTest {
 			),
 			setAssistantConsentUseCase = SetAssistantConsentUseCase(
 				assistantConsentRepository = assistantConsent,
+				reportingRepository = RecordingReportingRepository()
+			),
+			deleteAssistantConversationsUseCase = DeleteAssistantConversationsUseCase(
+				assistantConversationsRepository = assistantConversations,
 				reportingRepository = RecordingReportingRepository()
 			)
 		)

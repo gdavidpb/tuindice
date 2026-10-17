@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
+import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
@@ -737,6 +738,7 @@ class AboutRouteUiTest {
 					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 					observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
 					observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+					deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
 					setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 				),
 				eventPublisher = NoOpEventPublisher

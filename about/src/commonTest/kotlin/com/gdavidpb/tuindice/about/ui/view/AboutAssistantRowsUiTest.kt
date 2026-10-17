@@ -86,6 +86,49 @@ class AboutAssistantRowsUiTest {
 		assertEquals(1, memoryClicks)
 	}
 
+	@Test
+	fun when_assistantConversationsTapped_then_requestsTheConfirmation() = runTuIndiceUiTest {
+		var conversationsClicks = 0
+
+		setTuIndiceTestContent {
+			AssistantAboutContent(
+				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true),
+				onAssistantConversationsClick = { conversationsClicks++ }
+			)
+		}
+
+		scrollToRow(AboutUiTags.AssistantConversationsItem)
+		onNodeWithTag(AboutUiTags.AssistantConversationsItem).performClick()
+
+		assertEquals(1, conversationsClicks)
+	}
+
+	@Test
+	fun when_assistantIsUnavailable_then_noConversationsRowIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantAboutContent(
+				state = About.State.Content(versionText = "1.2.3", assistantAvailable = false)
+			)
+		}
+
+		assertTrue(onAllNodesWithTag(AboutUiTags.AssistantConversationsItem).fetchSemanticsNodes().isEmpty())
+	}
+
+	@Test
+	fun when_assistantIsAvailable_then_conversationsRowSitsBelowTheMemory() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantAboutContent(
+				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true)
+			)
+		}
+
+		val memoryTop = onNodeWithTag(AboutUiTags.AssistantMemoryItem).fetchSemanticsNode().boundsInRoot.top
+		val conversationsTop = onNodeWithTag(AboutUiTags.AssistantConversationsItem)
+			.fetchSemanticsNode().boundsInRoot.top
+
+		assertTrue(memoryTop < conversationsTop)
+	}
+
 	private fun ComposeUiTest.scrollToRow(tag: String) {
 		onNodeWithTag(AboutUiTags.ContentContainer)
 			.performScrollToNode(hasTestTag(tag))
@@ -95,7 +138,8 @@ class AboutAssistantRowsUiTest {
 	private fun AssistantAboutContent(
 		state: About.State.Content,
 		onAssistantConsentChange: (granted: Boolean) -> Unit = {},
-		onAssistantMemoryClick: () -> Unit = {}
+		onAssistantMemoryClick: () -> Unit = {},
+		onAssistantConversationsClick: () -> Unit = {}
 	) {
 		AboutContentView(
 			state = state,
@@ -116,7 +160,8 @@ class AboutAssistantRowsUiTest {
 			onContactDeveloperClick = {},
 			onReportBugClick = {},
 			onAssistantConsentChange = onAssistantConsentChange,
-			onAssistantMemoryClick = onAssistantMemoryClick
+			onAssistantMemoryClick = onAssistantMemoryClick,
+			onAssistantConversationsClick = onAssistantConversationsClick
 		)
 	}
 }

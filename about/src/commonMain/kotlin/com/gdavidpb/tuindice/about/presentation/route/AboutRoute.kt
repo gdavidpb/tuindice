@@ -20,6 +20,7 @@ import tuindice.about.generated.resources.snack_open_uri_failed
 fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	onNavigateToAssistantMemory: () -> Unit = {},
+	onNavigateToDeleteConfirmation: () -> Unit = {},
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: AboutViewModel
 ) {
@@ -31,8 +32,7 @@ fun AboutRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is About.Effect.NavigateToBrowser ->
-				onNavigateToBrowser(effect.title, effect.url)
+			is About.Effect.NavigateToBrowser -> onNavigateToBrowser(effect.title, effect.url)
 
 			is About.Effect.OpenUri ->
 				runCatching { uriHandler.openUri(effect.uri) }
@@ -54,14 +54,10 @@ fun AboutRoute(
 					}
 
 			is About.Effect.NavigateToAssistantMemory -> onNavigateToAssistantMemory()
-
+			is About.Effect.NavigateToDeleteAssistantConversationsConfirmation -> onNavigateToDeleteConfirmation()
 			is About.Effect.ShowSnackBar -> showSnackBar(SnackBarMessage(message = effect.message))
 
-			is About.Effect.ShareText ->
-				shareTextHandler(
-					subject = effect.subject,
-					text = effect.text
-				)
+			is About.Effect.ShareText -> shareTextHandler(subject = effect.subject, text = effect.text)
 		}
 	}
 
@@ -85,7 +81,8 @@ fun AboutRoute(
 		onReportBugClick = viewModel::reportBugAction,
 		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
 		onAssistantConsentChange = viewModel::setAssistantConsentAction,
-		onAssistantMemoryClick = viewModel::openAssistantMemoryAction
+		onAssistantMemoryClick = viewModel::openAssistantMemoryAction,
+		onAssistantConversationsClick = viewModel::requestDeleteAssistantConversationsAction
 	)
 }
 

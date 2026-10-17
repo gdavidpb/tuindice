@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -44,5 +46,27 @@ class AssistantConsentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.ABOUT, open.target)
 		assertTrue(open.entityRefs.isEmpty())
+	}
+
+	@Test
+	fun when_consentIsShown_then_theAccuracyWarningSitsBetweenScopeAndProviders() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantConsentView(onAction = {})
+		}
+
+		onNodeWithText(ACCURACY_TEXT).assertIsDisplayed()
+		val scopeTop = onNodeWithText(SCOPE_TEXT).fetchSemanticsNode().boundsInRoot.top
+		val accuracyTop = onNodeWithText(ACCURACY_TEXT).fetchSemanticsNode().boundsInRoot.top
+		val providersTop = onNodeWithText(PROVIDERS_TEXT).fetchSemanticsNode().boundsInRoot.top
+
+		assertTrue(scopeTop < accuracyTop && accuracyTop < providersTop)
+	}
+
+	private companion object {
+		const val SCOPE_TEXT =
+			"El asistente responde tus preguntas sobre tu historial académico. " +
+			"Solo propone cambios y los hace si tú los confirmas."
+		const val ACCURACY_TEXT = "Puede equivocarse: revisa las cifras importantes en la app antes de decidir."
+		const val PROVIDERS_TEXT = "Tus mensajes se procesan con proveedores externos: Anthropic y Google."
 	}
 }

@@ -79,7 +79,8 @@ fun AboutContentView(
 	onReportBugClick: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onAssistantConsentChange: (granted: Boolean) -> Unit = {},
-	onAssistantMemoryClick: () -> Unit = {}
+	onAssistantMemoryClick: () -> Unit = {},
+	onAssistantConversationsClick: () -> Unit = {}
 ) {
 	Column(
 		modifier = Modifier
@@ -158,7 +159,8 @@ fun AboutContentView(
 				AboutAssistantItems(
 					consentGranted = state.assistantConsentGranted,
 					onConsentChange = onAssistantConsentChange,
-					onMemoryClick = onAssistantMemoryClick
+					onMemoryClick = onAssistantMemoryClick,
+					onConversationsClick = onAssistantConversationsClick
 				)
 			}
 		}

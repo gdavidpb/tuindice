@@ -293,6 +293,27 @@ private val aboutAssistantMemoryRetry = scenario(
 	waitVisible(AssistantUiTags.MemoryContent, Within.Wait)
 }
 
+/** From About: scrolls to the assistant's conversations row, asks for the deletion and confirms it. */
+private val aboutAssistantConversationsDelete = scenario(
+	"about-assistant-conversations-delete",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers(
+		"about.About.RequestDeleteAssistantConversations",
+		"about.About.ConfirmDeleteAssistantConversations"
+	)
+	account(E2eAccounts.Canonical.id)
+
+	openAbout()
+	scrollUntilVisible(AboutUiTags.AssistantConversationsItem, Scroll.ContentDown, Within.Action)
+	tap(AboutUiTags.AssistantConversationsItem)
+	waitVisible(AboutUiTags.DeleteAssistantConversationsDialog, Within.Assert)
+	tap(AboutUiTags.DeleteAssistantConversationsConfirm)
+	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
+	waitVisible(text(Copy.AssistantConversationsDeleted), Within.Action)
+}
+
 /** The scenarios of the `about` module; list every new one here. */
 val aboutScenarios: List<Scenario> = listOf(
 	aboutSmoke,
@@ -303,5 +324,6 @@ val aboutScenarios: List<Scenario> = listOf(
 	aboutAssistantConsentToggle,
 	aboutAssistantMemoryDelete,
 	aboutAssistantMemoryClear,
-	aboutAssistantMemoryRetry
+	aboutAssistantMemoryRetry,
+	aboutAssistantConversationsDelete
 )

@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
@@ -106,6 +107,7 @@ class AboutStateMachineContractTest {
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 				observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
 				observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
+				deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
 				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
 			),
 			eventPublisher = NoOpEventPublisher

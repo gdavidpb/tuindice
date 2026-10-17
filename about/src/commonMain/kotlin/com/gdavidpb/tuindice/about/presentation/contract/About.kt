@@ -35,6 +35,8 @@ object About {
 		data class SetUsageDataCollectionEnabled(val enabled: Boolean) : Action()
 		data class SetAssistantConsent(val granted: Boolean) : Action()
 		data object OpenAssistantMemory : Action()
+		data object RequestDeleteAssistantConversations : Action()
+		data object ConfirmDeleteAssistantConversations : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -53,6 +55,8 @@ object About {
 		) : Effect()
 
 		data object NavigateToAssistantMemory : Effect()
+
+		data object NavigateToDeleteAssistantConversationsConfirmation : Effect()
 
 		data class ShowSnackBar(
 			val message: String

@@ -73,6 +73,33 @@ internal fun MachineDefinitionBuilder<About.State>.aboutAnyStateTransitions(
 			state
 		}
 
+		// The row only asks: the confirmation is a destination of its own, and it answers with the deletion.
+		on<About.Action.RequestDeleteAssistantConversations>(
+			emits = setOf(About.Effect.NavigateToDeleteAssistantConversationsConfirmation::class)
+		) { state, _ ->
+			host.sendEffect(About.Effect.NavigateToDeleteAssistantConversationsConfirmation)
+			state
+		}
+
+		on<About.Action.ConfirmDeleteAssistantConversations> { state, _ ->
+			machine.deleteAssistantConversations(host = host)
+			state
+		}
+
+		on<AboutInternalEvent.AssistantConversationsDeleted>(
+			emits = setOf(About.Effect.ShowSnackBar::class)
+		) { state, event ->
+			host.sendEffect(About.Effect.ShowSnackBar(message = event.message))
+			state
+		}
+
+		on<AboutInternalEvent.AssistantConversationsDeleteFailed>(
+			emits = setOf(About.Effect.ShowSnackBar::class)
+		) { state, event ->
+			host.sendEffect(About.Effect.ShowSnackBar(message = event.message))
+			state
+		}
+
 		on<About.Action.OpenUrl> { state, action ->
 			machine.openExternalUrl(host = host, url = action.url)
 			state

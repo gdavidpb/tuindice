@@ -111,6 +111,9 @@ object Copy {
 	const val EvaluationQuizName = "Quiz"
 	const val AssistantReportIncorrect = "Es incorrecto"
 
+	// about
+	const val AssistantConversationsDeleted = "Se borraron tus conversaciones con el asistente"
+
 	// base: where a class meets, as an evaluation inherits it: the room on a line of its own, the schedule under it
 	const val RoomMys116 = "MYS-116"
 	const val RoomMys210 = "MYS-210"
@@ -139,6 +142,7 @@ object Copy {
 		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
 		CopyBinding.Resource(EvaluationQuizName, "evaluations", "evaluation_quiz"),
 		CopyBinding.Resource(AssistantReportIncorrect, "assistant", "assistant_chat_report_incorrect"),
+		CopyBinding.Resource(AssistantConversationsDeleted, "about", "about_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,
 			"evaluations",

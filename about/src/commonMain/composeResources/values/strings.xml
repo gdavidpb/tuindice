@@ -11,6 +11,13 @@
     <string name="about_assistant_consent">Asistente TuIndice\nPermite usar el asistente académico. Al usarlo, tu mensaje y tus datos académicos se envían a proveedores de inteligencia artificial.</string>
     <string name="about_assistant_memory">Memoria del asistente\nLo que el asistente recuerda de ti</string>
     <string name="about_assistant_consent_failed">No pudimos cambiar el asistente. Inténtalo de nuevo.</string>
+    <string name="about_assistant_conversations">Conversaciones del asistente\nBorra todo lo que has hablado con el asistente</string>
+    <string name="about_assistant_conversations_title">¿Borrar tus conversaciones con el asistente?</string>
+    <string name="about_assistant_conversations_message">Se borran todos tus mensajes. Lo que recuerda el asistente se gestiona en «Memoria del asistente».</string>
+    <string name="about_assistant_conversations_cancel">Cancelar</string>
+    <string name="about_assistant_conversations_confirm">Borrar</string>
+    <string name="about_assistant_conversations_deleted">Se borraron tus conversaciones con el asistente</string>
+    <string name="about_assistant_conversations_delete_failed">No pudimos borrar tus conversaciones. Inténtalo de nuevo.</string>
     <string name="about_support">Soporte\nAyuda y canales oficiales</string>
     <string name="label_terms_and_conditions">Términos y condiciones</string>
     <string name="label_privacy_policy">Política de privacidad</string>

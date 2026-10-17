@@ -9,5 +9,6 @@ object AboutNavContribution : TuIndiceNavContribution {
 
 	override fun registerNavKeys(builder: PolymorphicModuleBuilder<NavKey>) {
 		builder.subclass(AboutDestination.About::class)
+		builder.subclass(AboutDestination.DeleteAssistantConversationsDialog::class)
 	}
 }

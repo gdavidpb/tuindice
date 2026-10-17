@@ -49,4 +49,10 @@ class AboutViewModel(
 
 	fun openAssistantMemoryAction() =
 		sendAction(About.Action.OpenAssistantMemory)
+
+	fun requestDeleteAssistantConversationsAction() =
+		sendAction(About.Action.RequestDeleteAssistantConversations)
+
+	fun confirmDeleteAssistantConversationsAction() =
+		sendAction(About.Action.ConfirmDeleteAssistantConversations)
 }

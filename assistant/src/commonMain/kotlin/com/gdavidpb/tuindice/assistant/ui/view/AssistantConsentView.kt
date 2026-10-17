@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_consent_accept
+import tuindice.assistant.generated.resources.assistant_consent_accuracy
 import tuindice.assistant.generated.resources.assistant_consent_control
 import tuindice.assistant.generated.resources.assistant_consent_decline
 import tuindice.assistant.generated.resources.assistant_consent_privacy
@@ -46,6 +47,7 @@ fun AssistantConsentView(
 		)
 		listOf(
 			Res.string.assistant_consent_scope,
+			Res.string.assistant_consent_accuracy,
 			Res.string.assistant_consent_providers,
 			Res.string.assistant_consent_retention,
 			Res.string.assistant_consent_control
