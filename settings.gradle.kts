@@ -7,6 +7,7 @@ include(
 	":maincore",
 	":base",
 	":academiccore",
+	":chatcontract",
 	":testkit",
 	":scenariokit",
 	":scenariorunner",

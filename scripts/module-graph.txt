@@ -13,6 +13,7 @@ academiccore=-
 app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :security :subjects :summary :wizard
 auth=:base :security
 base=-
+chatcontract=-
 enrollmentproof=:base :persistence
 evaluations=:academiccore :base :persistence
 maincore=:about :auth :base :enrollmentproof :evaluations :pensum :persistence :record :security :subjects :summary :wizard

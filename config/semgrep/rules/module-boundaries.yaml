@@ -17,11 +17,12 @@ rules:
       # - base: runtime compartido de toda la app (contratos, MVI, UI común, utilidades).
       # - persistence: almacenamiento local y contratos de lectura que una feature implementa y otras consumen.
       # - academiccore: motores académicos puros, sin UI ni IO, que comparten las features.
+      # - chatcontract: contrato del chat del asistente (eventos, componentes, intenciones), compartido con el backend.
       # - security: almacenamiento seguro y criptografía que comparten auth y la raíz.
       # - testkit y scenariokit: soporte de pruebas y del catálogo E2E; nunca código de producto.
       - metavariable-regex:
           metavariable: $TARGET
-          regex: '^(?!(?:base|persistence|academiccore|security|testkit|scenariokit)$)'
+          regex: '^(?!(?:base|persistence|academiccore|chatcontract|security|testkit|scenariokit)$)'
     paths:
       exclude:
         # Raíces de composición, que por definición ensamblan todas las features:

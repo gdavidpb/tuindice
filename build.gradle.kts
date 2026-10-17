@@ -41,6 +41,7 @@ dependencies {
 	kover(project(":app"))
 	kover(project(":auth"))
 	kover(project(":base"))
+	kover(project(":chatcontract"))
 	kover(project(":enrollmentproof"))
 	kover(project(":evaluations"))
 	kover(project(":maincore"))
@@ -163,6 +164,9 @@ tasks.register("verifySharedCompilation") {
 		":academiccore:compileKotlinIosSimulatorArm64",
 		":base:compileAndroidMain",
 		":base:compileKotlinIosSimulatorArm64",
+		":chatcontract:compileAndroidMain",
+		":chatcontract:compileKotlinIosSimulatorArm64",
+		":chatcontract:compileKotlinJvm",
 		":testkit:compileAndroidMain",
 		":testkit:compileKotlinIosSimulatorArm64",
 		":scenariokit:compileAndroidMain",
@@ -202,6 +206,7 @@ tasks.register("verifySharedTests") {
 		":about:iosSimulatorArm64Test",
 		":academiccore:iosSimulatorArm64Test",
 		":base:iosSimulatorArm64Test",
+		":chatcontract:iosSimulatorArm64Test",
 		":testkit:iosSimulatorArm64Test",
 		":scenariokit:iosSimulatorArm64Test",
 		":enrollmentproof:iosSimulatorArm64Test",
@@ -226,6 +231,8 @@ tasks.register("verifySharedHostTests") {
 		":about:testAndroidHostTest",
 		":academiccore:testAndroidHostTest",
 		":base:testAndroidHostTest",
+		":chatcontract:testAndroidHostTest",
+		":chatcontract:jvmTest",
 		":testkit:testAndroidHostTest",
 		":scenariokit:testAndroidHostTest",
 		":scenarios:testAndroidHostTest",

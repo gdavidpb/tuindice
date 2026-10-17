@@ -99,6 +99,8 @@ Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
 - `academiccore`: sin dependencias de proyecto.
+- `chatcontract`: sin dependencias de proyecto; contrato del chat del asistente (eventos, componentes, intenciones),
+  compilado también para JVM y compartido con el backend como artefacto.
 - `persistence`: depende de `:academiccore`, `:base`.
 - `security`: depende de `:base`.
 - `about`: depende de `:base`.
