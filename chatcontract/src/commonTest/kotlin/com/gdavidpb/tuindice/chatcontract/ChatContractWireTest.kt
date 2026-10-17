@@ -519,6 +519,23 @@ class ChatContractWireTest {
 	}
 
 	@Test
+	fun aMemoryCarriesItsAnchorAndAnOlderOneWithoutItReadsAsUnanchored() {
+		val anchored = RememberArgs(
+			statement = "Quiere aprobar MA2115 este trimestre",
+			category = "SUBJECT",
+			quote = "aprobar Mate IV",
+			anchorKind = "ATTEMPT",
+			anchorRef = "attempt-1",
+			anchorDate = "2026-12-11"
+		)
+		assertWire(IntentArgs.serializer(), listOf(anchored), listOf("memoria.recordar/1"))
+
+		val older = """{"type":"memoria.recordar/1","statement":"Prefiere","category":"PREFERENCE","quote":"prefiero"}"""
+		val read = assertIs<RememberArgs>(ChatContract.json.decodeFromString(IntentArgs.serializer(), older))
+		assertEquals(listOf(null, null, null), listOf(read.anchorKind, read.anchorRef, read.anchorDate))
+	}
+
+	@Test
 	fun mutatingArgsImplementTheMarkerAndSendNoMutationIds() {
 		intentArgs.filter { it !is RequestEnrollmentProofArgs && it !is RememberArgs }.forEach { args ->
 			assertIs<MutatingIntentArgs>(args)
