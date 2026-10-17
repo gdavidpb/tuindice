@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,23 +63,35 @@ class ChatComponentViewUiTest {
 
 	@Test
 	fun when_supportIsShown_then_eachLineShowsItsContact() = runTuIndiceUiTest {
+		val openedUris = mutableListOf<String>()
+
 		setTuIndiceTestContent {
-			ChatComponentView(
-				messageId = MESSAGE_ID,
-				component = SupportComponent(
-					id = COMPONENT_ID,
-					fallbackText = FALLBACK_TEXT,
-					lines = listOf(
-						SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
-						SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
-					)
-				),
-				onAction = {}
-			)
+			CompositionLocalProvider(
+				LocalUriHandler provides object : UriHandler {
+					override fun openUri(uri: String) {
+						openedUris += uri
+					}
+				}
+			) {
+				ChatComponentView(
+					messageId = MESSAGE_ID,
+					component = SupportComponent(
+						id = COMPONENT_ID,
+						fallbackText = FALLBACK_TEXT,
+						lines = listOf(
+							SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
+							SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
+						)
+					),
+					onAction = {}
+				)
+			}
 		}
 
-		onNodeWithText(SUPPORT_PHONE).assertIsDisplayed()
-		onNodeWithText(SUPPORT_URL).assertIsDisplayed()
+		onNodeWithText("Llamar al $SUPPORT_PHONE").assertIsDisplayed().performClick()
+		onNodeWithText("Ver la página").assertIsDisplayed().performClick()
+
+		assertEquals(listOf("tel:+582122222222", SUPPORT_URL), openedUris)
 	}
 
 	private companion object {
@@ -84,7 +99,7 @@ class ChatComponentViewUiTest {
 		const val COMPONENT_ID = "component-1"
 		const val FALLBACK_TEXT = "Revisa la pantalla de tu expediente"
 		const val SUPPORT_LABEL = "Orientación"
-		const val SUPPORT_PHONE = "2222-2222"
+		const val SUPPORT_PHONE = "+58 212 222 2222"
 		const val SUPPORT_URL = "https://example.com/apoyo"
 	}
 }

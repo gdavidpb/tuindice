@@ -53,6 +53,8 @@
 	<string name="assistant_suspension_until">Vuelve a estar disponible el %1$s</string>
 	<string name="assistant_suspension_open_ended">Por ahora no tiene fecha de fin</string>
 	<string name="assistant_support_title">¿Necesitas apoyo?</string>
+	<string name="assistant_support_call">Llamar al %1$s</string>
+	<string name="assistant_support_open_page">Ver la página</string>
 	<string name="assistant_warning_title">Advertencia</string>
 	<string name="assistant_reason_jailbreak">Intentaste cambiar las reglas con las que funciona el asistente.</string>
 	<string name="assistant_reason_prompt_extraction">Intentaste obtener las instrucciones internas del asistente.</string>
