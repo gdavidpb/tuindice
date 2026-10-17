@@ -183,8 +183,9 @@ Comportamiento:
 - **Respuestas del agente**: sin burbuja, a todo el ancho del contenido. Bajo cada respuesta van, en este orden, **Copiar**, los pulgares «útil» y «no útil», y **Reportar**.
 - **Tarjetas**: las que el chat muestra (fuentes, pasos, citas) son `surfaceVariant` con borde de 1 dp `outlineVariant`, como cualquier tarjeta de la app.
 - **Ámbar solo en controles**: `primary` va en los botones y en los controles, nunca como fondo de un bloque de texto ni de una tarjeta.
-- **Sin nombre ni ícono del asistente dentro del chat**: los mensajes del agente no llevan etiqueta ni monóculo.
-- **Monóculo**: `rememberAssistantMonocleIcon()` (`base/.../ui/icon/AssistantMonocleIcon.kt`) va solo en la cabecera de las pestañas. Se dibuja con sus propios colores, así que `Icon` lleva `tint = Color.Unspecified`: en claro, vidrio `#F6F2E6`, aro y cadena `#3A3A38`; en oscuro, vidrio `#2A2A26`, aro y cadena `#F4F1E8`. El destello es `#FABD00` en los dos temas.
+- **Sin nombre ni ícono del asistente dentro del chat**: los mensajes del agente no llevan etiqueta ni destello.
+- **Destello**: `rememberAssistantSparkleIcon()` (`base/.../ui/icon/AssistantSparkleIcon.kt`), una estrella de cuatro puntas, va solo en la cabecera de las pestañas y en las acciones «Preguntar». Se dibuja con su propio color, así que `Icon` lleva `tint = Color.Unspecified`: `#785900` en claro y `#FABD00` en oscuro, los mismos tonos del átomo de carga.
+- **«Preguntar» en filas**: en las listas que se deslizan (Evaluaciones) es la tercera acción del deslizamiento, junto a Editar y Eliminar; donde no hay deslizamiento (Informe) va en el detalle de la materia, y en las hojas de detalle (pensum) va como botón.
 - **Carga**: un átomo 3D en Lottie (`LottieResourceAnimationView` con `fillOverrides = mapOf("glyph_fill" to color)`), recoloreado por el tema: `#785900` en claro y `#FABD00` en oscuro. Lleva una etiqueta impersonal con brillo. Con reducir movimiento (`LocalTuIndiceAnimationsEnabled` en falso) el átomo queda fijo en su primer cuadro y el brillo no se mueve.
 
 ## Terminología
