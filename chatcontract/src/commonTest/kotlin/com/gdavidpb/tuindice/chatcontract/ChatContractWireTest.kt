@@ -98,7 +98,6 @@ import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -514,13 +513,9 @@ class ChatContractWireTest {
 		)
 		assertWire(IntentArgs.serializer(), intentArgs, names)
 
-		// MutatingIntentArgs is a non-sealed interface: the sealed descriptor lists it as a polymorphic entry,
-		// which is not a wire subclass, so only the concrete entries are compared.
+		// MutatingIntentArgs does not extend IntentArgs, so the sealed descriptor lists only the wire subclasses.
 		val subclasses = IntentArgs.serializer().descriptor.getElementDescriptor(1)
-		val wireSubclasses = subclasses.elementNames.filter { name ->
-			subclasses.getElementDescriptor(subclasses.getElementIndex(name)).kind !is PolymorphicKind
-		}
-		assertEquals(names.toSet(), wireSubclasses.toSet() - UnknownIntentArgs.serializer().descriptor.serialName)
+		assertEquals(names.toSet(), subclasses.elementNames.toSet() - UnknownIntentArgs.serializer().descriptor.serialName)
 	}
 
 	@Test
