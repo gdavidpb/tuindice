@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.RemoveEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
@@ -336,7 +337,7 @@ class EvaluationsMachine(
 
 	internal fun remove(host: MachineHost<Evaluations.Effect>, evaluationId: String) {
 		host.launchMachineJob {
-			removeEvaluationUseCase.execute(evaluationId).collect { useCaseState ->
+			removeEvaluationUseCase.execute(RemoveEvaluationParams(evaluationId = evaluationId)).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
