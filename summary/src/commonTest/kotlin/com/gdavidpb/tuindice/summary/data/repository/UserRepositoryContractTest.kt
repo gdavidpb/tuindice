@@ -1,10 +1,11 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
+import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
+import com.gdavidpb.tuindice.summary.testing.FakeImageEncoderRepository
 import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
-import com.gdavidpb.tuindice.summary.testing.FakePictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeRemoteDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
@@ -23,8 +24,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class UserRepositoryContractTest {
@@ -41,7 +42,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		val emission = repository.observeUserFlow().first()
@@ -62,7 +63,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		repository.updateUser()
@@ -82,7 +83,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		repository.updateUser()
@@ -102,7 +103,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		repository.updateUser()
@@ -116,14 +117,14 @@ class UserRepositoryContractTest {
 	fun uploadProfilePicture_encodesFile_savesLocalUrl_andReturnsRemotePicture() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
-		val encoderDataSource = FakePictureEncoderDataSource()
+		val encoderDataSource = FakeImageEncoderRepository()
 		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
 		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = encoderDataSource
+			imageEncoderRepository = encoderDataSource
 		)
 		val file = PlatformFile("content://profile/new.jpg")
 
@@ -131,6 +132,11 @@ class UserRepositoryContractTest {
 
 		assertEquals(DEFAULT_SUMMARY_PROFILE_PICTURE, picture)
 		assertEquals(file, encoderDataSource.lastFile)
+		// The profile picture's own limits: 1024 px on its longest side, 1 MB, JPEG of quality 85.
+		assertEquals(
+			ImageEncodingSpec(maxDimensionPx = 1024, maxBytes = 1_048_576, jpegQuality = 85),
+			encoderDataSource.lastSpec
+		)
 		assertEquals(
 			DEFAULT_SUMMARY_PROFILE_PICTURE.url,
 			localDataSource.savedUsers.single().pictureUrl
@@ -143,7 +149,7 @@ class UserRepositoryContractTest {
 	fun uploadProfilePicture_normalizesInputBeforeEncoding_andRemovesTemporaryFile() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
-		val encoderDataSource = FakePictureEncoderDataSource()
+		val encoderDataSource = FakeImageEncoderRepository()
 		val originalFile = PlatformFile("content://profile/new.heic")
 		val normalizedFile = createTempFile(
 			prefix = "normalized",
@@ -155,7 +161,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(normalizedFile = normalizedFile),
-			pictureEncoderDataSource = encoderDataSource
+			imageEncoderRepository = encoderDataSource
 		)
 
 		try {
@@ -172,13 +178,13 @@ class UserRepositoryContractTest {
 	fun uploadProfilePicture_rejects_encoded_images_that_exceed_the_upload_limit() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
-		val encoderDataSource = FakePictureEncoderDataSource(throwable = IllegalArgumentException())
+		val encoderDataSource = FakeImageEncoderRepository(throwable = IllegalArgumentException())
 		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = encoderDataSource
+			imageEncoderRepository = encoderDataSource
 		)
 
 		assertFailsWith<IllegalArgumentException> {
@@ -199,7 +205,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		repository.removeProfilePicture()
@@ -223,7 +229,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		repository.removeProfilePicture()
@@ -242,7 +248,7 @@ class UserRepositoryContractTest {
 			remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE),
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
-			pictureEncoderDataSource = FakePictureEncoderDataSource()
+			imageEncoderRepository = FakeImageEncoderRepository()
 		)
 
 		val before = repository.observeUserFlow().first()

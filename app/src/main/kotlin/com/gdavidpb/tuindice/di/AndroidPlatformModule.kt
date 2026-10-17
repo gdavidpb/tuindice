@@ -59,9 +59,7 @@ import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
-import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
@@ -242,7 +240,6 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
-	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 	singleOf(::AndroidBitmapImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	singleOf(::AndroidImageShareDataSource) { bind<ImageShareRepository>() }
 

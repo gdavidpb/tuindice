@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.summary.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
@@ -24,7 +25,7 @@ class UserDataSource(
 	private val remoteDataSource: RemoteDataRepository,
 	private val settingsDataSource: SettingsDataRepository,
 	private val profilePictureInputDataSource: ProfilePictureInputDataRepository,
-	private val pictureEncoderDataSource: PictureEncoderDataRepository
+	private val imageEncoderRepository: ImageEncoderRepository
 ) : UserRepository {
 	override suspend fun observeUserFlow(): Flow<User> {
 		// The picture version rides along with the observed user so a re-upload that
@@ -53,7 +54,7 @@ class UserDataSource(
 		val normalizedFile = profilePictureInputDataSource.normalizeInput(file = file)
 
 		try {
-			val encodedImage = pictureEncoderDataSource.encodePicture(file = normalizedFile)
+			val encodedImage = imageEncoderRepository.encode(file = normalizedFile, spec = PROFILE_PICTURE_ENCODING)
 
 			return remoteDataSource.uploadProfilePicture(
 				content = encodedImage.content,
@@ -87,3 +88,6 @@ class UserDataSource(
 		settingsDataSource.bumpProfilePictureVersion()
 	}
 }
+
+// The profile picture as the server takes it: at most 1024 px on its longest side and 1 MB, as JPEG of quality 85.
+internal val PROFILE_PICTURE_ENCODING = ImageEncodingSpec(maxDimensionPx = 1024, maxBytes = 1_048_576, jpegQuality = 85)

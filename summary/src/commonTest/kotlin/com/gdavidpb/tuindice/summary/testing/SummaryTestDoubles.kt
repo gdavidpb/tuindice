@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.summary.testing
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
+import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
@@ -149,14 +150,16 @@ class FakeSettingsDataSource(
 	}
 }
 
-class FakePictureEncoderDataSource(
+class FakeImageEncoderRepository(
 	private val encodedImage: EncodedImage = DEFAULT_ENCODED_IMAGE,
 	private val throwable: Throwable? = null
-) : PictureEncoderDataRepository {
+) : ImageEncoderRepository {
 	var lastFile: PlatformFile? = null
+	var lastSpec: ImageEncodingSpec? = null
 
-	override suspend fun encodePicture(file: PlatformFile): EncodedImage {
+	override suspend fun encode(file: PlatformFile, spec: ImageEncodingSpec): EncodedImage {
 		lastFile = file
+		lastSpec = spec
 		throwable?.let { throw it }
 		return encodedImage
 	}

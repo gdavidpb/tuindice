@@ -57,9 +57,7 @@ import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.platform.temporaryStorageRoot
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
-import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.IMAGE_SHARE_DIRECTORY_NAME
 import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
@@ -200,7 +198,6 @@ val iosPlatformModule = module {
 		bind<SessionMemory>()
 		bind<SessionResidue>()
 	}
-	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 	singleOf(::FileKitSkiaImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	single<ImageShareRepository> {
 		IosImageShareDataSource(
