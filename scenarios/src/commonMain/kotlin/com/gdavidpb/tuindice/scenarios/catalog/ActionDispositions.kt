@@ -40,6 +40,12 @@ object ActionDispositions {
 			action = "assistant.AssistantChat.Appeal",
 			reason = "E2E del asistente pendiente (A11)"
 		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.AttachPhoto",
+			reason =
+				"Abre la cámara o la galería del sistema; se prueba a mano " +
+				"(ver e2e/platform/*/assistant-photo-picker.md)"
+		),
 		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.ChangeText",
 			reason = "E2E del asistente pendiente (A11)"
@@ -91,6 +97,12 @@ object ActionDispositions {
 		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.ReportMessage",
 			reason = "E2E del asistente pendiente (A11)"
+		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.RequestPhoto",
+			reason =
+				"Abre la cámara o la galería del sistema; se prueba a mano " +
+				"(ver e2e/platform/*/assistant-photo-picker.md)"
 		),
 		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.RetryTurn",
