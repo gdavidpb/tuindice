@@ -29487,7 +29487,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 272
+                        "line": 290
                     },
                     "type": "tap"
                 },
@@ -29498,7 +29498,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 273
+                        "line": 291
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -29511,7 +29511,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 274
+                        "line": 292
                     },
                     "type": "tap"
                 },
@@ -29522,7 +29522,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 275
+                        "line": 293
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -29576,7 +29576,7 @@
                     "scenario": "assistant-memories",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 286
+                        "line": 304
                     },
                     "state": "Failing",
                     "type": "mockState"
@@ -29625,7 +29625,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 288
+                        "line": 306
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -29638,7 +29638,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 289
+                        "line": 307
                     },
                     "type": "tap"
                 },
@@ -29649,7 +29649,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 290
+                        "line": 308
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -29658,7 +29658,7 @@
                     "scenario": "assistant-memories",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 291
+                        "line": 309
                     },
                     "state": "Recovered",
                     "type": "mockState"
@@ -29671,7 +29671,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 292
+                        "line": 310
                     },
                     "type": "tap"
                 },
@@ -29682,13 +29682,179 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 293
+                        "line": 311
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
                 }
             ],
             "stepsHash": "31808a431f034429",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "about-assistant-memory-still-applies"
+            },
+            "covers": [
+                "assistant.AssistantMemory.AnswerStillApplies"
+            ],
+            "id": "about-assistant-memory-still-applies",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/AboutScenarioTests/test_about_assistant_memory_still_applies"
+            },
+            "module": "about",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 35
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_about_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 36
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 37
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "about_assistant_memory_item"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 217
+                    },
+                    "timeoutMs": 10000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_assistant_memory_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 218
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "assistant_memory_screen"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 219
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "assistant_still_applies_yes_mem-2"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 271
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "assistant_still_applies_yes_mem-2"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 272
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "assistant_memory_entry_mem-2"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 273
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "assistant_memory_entry_mem-1"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
+                        "line": 274
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "6eeec1daa6664f7b",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -29777,7 +29943,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 309
+                        "line": 327
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -29790,7 +29956,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 310
+                        "line": 328
                     },
                     "type": "tap"
                 },
@@ -29801,7 +29967,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 311
+                        "line": 329
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -29814,7 +29980,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 312
+                        "line": 330
                     },
                     "type": "tap"
                 },
@@ -29825,7 +29991,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 313
+                        "line": 331
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -29838,7 +30004,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AboutScenarios.kt",
-                        "line": 314
+                        "line": 332
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"

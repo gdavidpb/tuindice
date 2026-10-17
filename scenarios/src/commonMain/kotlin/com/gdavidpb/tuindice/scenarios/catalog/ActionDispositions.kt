@@ -22,7 +22,8 @@ object ActionDispositions {
 		),
 		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.Appeal",
-			reason = "detrás de la sanción: solo aparece con una restricción vigente y la apelación activada; en la build de E2E la apelación está apagada en sombra"
+			reason = "detrás de la sanción: solo aparece con una restricción vigente y la apelación activada; " +
+				"en la build de E2E la apelación está apagada en sombra"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.AttachPhoto",
@@ -36,7 +37,8 @@ object ActionDispositions {
 		),
 		ActionDisposition.Internal(
 			action = "assistant.AssistantChat.Open",
-			reason = "the sheet opens from a screen with the context that screen declares; the route dispatches it, no user performs it"
+			reason = "the sheet opens from a screen with the context that screen declares; the route dispatches it, " +
+				"no user performs it"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.RequestPhoto",
@@ -47,10 +49,6 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "assistant.AssistantComponentSheet.Open",
 			reason = "route state bootstrap: the route dispatches it when the sheet opens"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantMemory.AnswerStillApplies",
-			reason = "la pantalla de memoria no tiene control de «sigue aplicando»; la respuesta llega desde el componente del chat"
 		),
 		ActionDisposition.Internal(
 			action = "assistant.AssistantMemory.Load",

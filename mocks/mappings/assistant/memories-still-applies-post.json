@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/assistant/v1/memories/mem-1/still-applies",
+    "urlPathPattern": "/assistant/v1/memories/[^/]+/still-applies",
     "headers": {
       "Authorization": {
         "matches": "Bearer .+"

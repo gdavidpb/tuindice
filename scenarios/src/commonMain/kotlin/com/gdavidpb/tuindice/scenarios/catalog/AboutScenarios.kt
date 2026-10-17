@@ -256,6 +256,24 @@ private val aboutAssistantMemoryDelete = scenario(
 	waitVisible(AssistantUiTags.Memory.entry("mem-2"), Within.Assert)
 }
 
+// A memory waiting for the student's answer shows «¿Sigue aplicando?» in the list; answering it saves the answer
+// and loads the list again.
+private val aboutAssistantMemoryStillApplies = scenario(
+	"about-assistant-memory-still-applies",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("assistant.AssistantMemory.AnswerStillApplies")
+	account(E2eAccounts.Canonical.id)
+
+	openAbout()
+	openAssistantMemory()
+	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Assert)
+	tap(AssistantUiTags.Memory.stillAppliesYes("mem-2"))
+	waitVisible(AssistantUiTags.Memory.entry("mem-2"), Within.Action)
+	waitVisible(AssistantUiTags.Memory.entry("mem-1"), Within.Assert)
+}
+
 private val aboutAssistantMemoryClear = scenario(
 	"about-assistant-memory-clear",
 	"about",
@@ -325,5 +343,6 @@ val aboutScenarios: List<Scenario> = listOf(
 	aboutAssistantMemoryDelete,
 	aboutAssistantMemoryClear,
 	aboutAssistantMemoryRetry,
+	aboutAssistantMemoryStillApplies,
 	aboutAssistantConversationsDelete
 )

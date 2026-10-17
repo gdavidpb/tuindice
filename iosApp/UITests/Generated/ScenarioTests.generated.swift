@@ -7,6 +7,7 @@ final class AboutScenarioTests: ScenarioTestCase {
     func test_about_assistant_memory_clear() { runScenario("about-assistant-memory-clear") }
     func test_about_assistant_memory_delete() { runScenario("about-assistant-memory-delete") }
     func test_about_assistant_memory_retry() { runScenario("about-assistant-memory-retry") }
+    func test_about_assistant_memory_still_applies() { runScenario("about-assistant-memory-still-applies") }
     func test_about_external_url_links() { runScenario("about-external-url-links") }
     func test_about_internal_browser_links() { runScenario("about-internal-browser-links") }
     func test_about_platform_edge_triggers() { runScenario("about-platform-edge-triggers") }

@@ -21,14 +21,14 @@
           "id": "mem-1",
           "category": "OTHER",
           "text": "Prefieres estudiar por la mañana",
-          "state": "active",
+          "state": "ACTIVE",
           "createdAtMillis": 1760000000000
         },
         {
           "id": "mem-2",
           "category": "OTHER",
           "text": "Tu meta es un índice de 16",
-          "state": "active",
+          "state": "PENDING_CONFIRMATION",
           "createdAtMillis": 1760000000000
         }
       ]
