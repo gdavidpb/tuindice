@@ -10,4 +10,7 @@ public object AssistantErrorCodes {
 	public const val GUIDED_ONLY: String = "guided_only"
 	public const val INTENT_EXPIRED: String = "intent_expired"
 	public const val INTENT_CONFLICT: String = "intent_conflict"
+
+	/** The service could not take the request right now (for example, the turn could not be queued); retry later. */
+	public const val UNAVAILABLE: String = "unavailable"
 }
