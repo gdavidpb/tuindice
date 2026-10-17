@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
@@ -40,10 +41,17 @@ interface AcademicRecordRepository {
 	suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String? = null
 	)
-	suspend fun deleteAttemptOverride(attemptId: String)
+	suspend fun deleteAttemptOverride(attemptId: String, mutationId: String? = null)
 	suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand)
 	suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand)
-	suspend fun deleteSyntheticTerm(termId: String)
+	suspend fun deleteSyntheticTerm(termId: String, mutationId: String? = null)
+
+	// Only a suspend read of the revision exists (the local store is suspend), so the default is null.
+	suspend fun getRecordRevision(): Long? = null
+
+	// The terminal results of this repository's writes, as they settle. Nothing is replayed to late subscribers.
+	fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
 }

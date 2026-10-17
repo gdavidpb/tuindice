@@ -118,6 +118,34 @@ class CreateSyntheticTermUseCaseTest {
 		assertEquals(emptyList(), repository.addedTerms)
 	}
 
+	@Test
+	fun execute_propagatesTheRequestedMutationIdToTheCommand() = runTest {
+		val repository = RecordingCreateAcademicRecordRepository(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "historical",
+						kind = TermKind.HISTORICAL,
+						attempts = listOf(
+							academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.FAILED)
+						)
+					)
+				)
+			)
+		)
+		val useCase = createUseCase(repository)
+
+		useCase.execute(
+			createParams(subjects = listOf(syntheticSubject("MA1112"))).copy(mutationId = "external-create")
+		).toList()
+
+		assertEquals(
+			listOf<String?>("external-create"),
+			repository.addedTerms.map(SyntheticTermCreationCommand::mutationId)
+		)
+	}
+
 	private fun createUseCase(repository: AcademicRecordRepository): CreateSyntheticTermUseCase {
 		return CreateSyntheticTermUseCase(
 			repository = repository,
@@ -146,10 +174,11 @@ private class RecordingCreateAcademicRecordRepository(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) {
 		addedTerms += command
@@ -157,7 +186,7 @@ private class RecordingCreateAcademicRecordRepository(
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }
 
 private fun createParams(

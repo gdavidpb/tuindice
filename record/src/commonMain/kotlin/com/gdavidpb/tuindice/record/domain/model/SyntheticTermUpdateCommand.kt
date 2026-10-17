@@ -11,7 +11,9 @@ data class SyntheticTermUpdateCommand(
 	val termId: String,
 	val periodYear: Int,
 	val periodCode: AcademicTermPeriod,
-	val attempts: List<SyntheticAttemptSeed>
+	val attempts: List<SyntheticAttemptSeed>,
+	// The id the mutation is submitted with (the outbox's idempotency key). Generated when absent.
+	val mutationId: String? = null
 ) {
 	data class SyntheticAttemptSeed(
 		val attemptId: String,

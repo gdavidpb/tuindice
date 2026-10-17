@@ -150,13 +150,18 @@ private class FixedAcademicRecordRepository(
 
 	override suspend fun drainPendingMutations() = Unit
 
-	override suspend fun upsertAttemptOverride(attemptId: String, score: AttemptScore?, outcome: AttemptOutcome?) = Unit
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		mutationId: String?
+	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) = Unit
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }

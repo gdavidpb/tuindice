@@ -30,12 +30,16 @@ class UpsertAttemptSelectionUseCase(
 				outcome = outcome
 			)
 		) {
-			academicRecordRepository.deleteAttemptOverride(params.attemptId)
+			academicRecordRepository.deleteAttemptOverride(
+				attemptId = params.attemptId,
+				mutationId = params.mutationId
+			)
 		} else {
 			academicRecordRepository.upsertAttemptOverride(
 				attemptId = params.attemptId,
 				score = score,
-				outcome = outcome
+				outcome = outcome,
+				mutationId = params.mutationId
 			)
 		}
 
@@ -54,6 +58,6 @@ class UpsertAttemptSelectionUseCase(
 			?: return false
 
 		return academicAttempt.academicScore == score &&
-			academicAttempt.academicOutcome == (outcome ?: academicAttempt.academicOutcome)
+				academicAttempt.academicOutcome == (outcome ?: academicAttempt.academicOutcome)
 	}
 }

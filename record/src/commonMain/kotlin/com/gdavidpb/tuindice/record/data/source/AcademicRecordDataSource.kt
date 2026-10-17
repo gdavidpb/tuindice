@@ -5,6 +5,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
@@ -120,6 +122,9 @@ class AcademicRecordDataSource(
 		}
 	}
 
+	// The engine is this module's alone (its own outbox), so every outcome it publishes is one of these mutations.
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = mutationEngine.outcomes
+
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> {
 		return localDataSource.observeHasSyncedRecordFlow()
 	}
@@ -142,6 +147,10 @@ class AcademicRecordDataSource(
 		val pendingMutations = currentPendingMutations()
 
 		return localDataSource.getAcademicRecord()?.reapplying(pendingMutations)
+	}
+
+	override suspend fun getRecordRevision(): Long? {
+		return localDataSource.getRecordRevision()
 	}
 
 	override suspend fun updateAcademicRecord() {
@@ -186,12 +195,15 @@ class AcademicRecordDataSource(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) {
-		localDataSource.getAcademicRecord() ?: return
-		val currentRevision = localDataSource.getRecordRevision() ?: return
+		localDataSource.getAcademicRecord()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_record")
+		val currentRevision = localDataSource.getRecordRevision()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_revision")
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = mutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = AcademicRecordMutation.UpsertAttemptOverride(
 				attemptId = attemptId,
@@ -207,11 +219,13 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
-	override suspend fun deleteAttemptOverride(attemptId: String) {
-		localDataSource.getAcademicRecord() ?: return
-		val currentRevision = localDataSource.getRecordRevision() ?: return
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) {
+		localDataSource.getAcademicRecord()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_record")
+		val currentRevision = localDataSource.getRecordRevision()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_revision")
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = mutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = AcademicRecordMutation.DeleteAttemptOverride(attemptId),
 			precondition = MutationPrecondition.Revision(currentRevision),
@@ -224,11 +238,13 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) {
-		localDataSource.getAcademicRecord() ?: return
-		val currentRevision = localDataSource.getRecordRevision() ?: return
+		localDataSource.getAcademicRecord()
+			?: return publishUnsubmittedRejection(command.mutationId, detailCode = "no_record")
+		val currentRevision = localDataSource.getRecordRevision()
+			?: return publishUnsubmittedRejection(command.mutationId, detailCode = "no_revision")
 		val mutationCommand = command.toMutation()
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = command.mutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = mutationCommand,
 			precondition = MutationPrecondition.Revision(currentRevision),
@@ -241,11 +257,13 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) {
-		localDataSource.getAcademicRecord() ?: return
-		val currentRevision = localDataSource.getRecordRevision() ?: return
+		localDataSource.getAcademicRecord()
+			?: return publishUnsubmittedRejection(command.mutationId, detailCode = "no_record")
+		val currentRevision = localDataSource.getRecordRevision()
+			?: return publishUnsubmittedRejection(command.mutationId, detailCode = "no_revision")
 		val mutationCommand = command.toMutation()
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = command.mutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = mutationCommand,
 			precondition = MutationPrecondition.Revision(currentRevision),
@@ -257,14 +275,16 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
-	override suspend fun deleteSyntheticTerm(termId: String) {
-		val visibleRecord = getAcademicRecord() ?: return
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) {
+		val visibleRecord = getAcademicRecord()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_record")
 		val term = visibleRecord.terms.firstOrNull { term ->
 			term.id == termId && term.kind.isSynthetic
-		} ?: return
-		val currentRevision = localDataSource.getRecordRevision() ?: return
+		} ?: return publishUnsubmittedRejection(mutationId, detailCode = "no_term")
+		val currentRevision = localDataSource.getRecordRevision()
+			?: return publishUnsubmittedRejection(mutationId, detailCode = "no_revision")
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = mutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = AcademicRecordMutation.DeleteSyntheticTerm(
 				termId = termId,
@@ -314,6 +334,21 @@ class AcademicRecordDataSource(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
 			propagateTerminalErrors = false
+		)
+	}
+
+	// A write that cannot be submitted (no local record, no revision, no such synthetic term) never reaches the
+	// outbox, so nothing else settles it. Whoever named the mutation is waiting for its result: it is rejected
+	// under that id, with the reason as its code. Without a name nobody is waiting, so nothing is published.
+	private suspend fun publishUnsubmittedRejection(mutationId: String?, detailCode: String) {
+		if (mutationId == null) return
+
+		mutationEngine.publishLocalOutcome(
+			MutationOutcome(
+				mutationId = mutationId,
+				kind = MutationOutcomeKind.REJECTED,
+				detailCode = detailCode
+			)
 		)
 	}
 

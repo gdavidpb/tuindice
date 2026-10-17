@@ -79,10 +79,11 @@ class ControllableAcademicRecordRepository(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) {
 		addSyntheticTermGate?.await()
@@ -93,7 +94,7 @@ class ControllableAcademicRecordRepository(
 		updatedTerms += command
 	}
 
-	override suspend fun deleteSyntheticTerm(termId: String) {
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) {
 		deletedTermIds += termId
 	}
 }

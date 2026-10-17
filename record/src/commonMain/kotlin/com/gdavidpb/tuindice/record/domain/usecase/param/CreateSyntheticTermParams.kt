@@ -7,5 +7,6 @@ data class CreateSyntheticTermParams(
 	val editingTermId: String?,
 	val editingTermKey: String?,
 	val period: SyntheticTermPeriodOption,
-	val subjects: List<SyntheticTermSubject>
+	val subjects: List<SyntheticTermSubject>,
+	val mutationId: String? = null
 )

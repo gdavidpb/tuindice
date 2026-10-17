@@ -93,7 +93,7 @@
     <ID>NoUnusedImports:UpsertAttemptSelectionUseCaseTest.kt$com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCaseTest.kt</ID>
     <ID>ParameterListWrapping:RecordUiTags.kt$RecordUiTags$(attemptId: String, status: String)</ID>
     <ID>ParameterWrapping:AcademicRecordDataSource.kt$AcademicRecordDataSource$private val mutationEngine: StoreBackedMutationEngine&lt;String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord&gt;</ID>
-    <ID>ReturnCount:AcademicRecordDataSource.kt$AcademicRecordDataSource$override suspend fun deleteSyntheticTerm(termId: String)</ID>
+    <ID>ReturnCount:AcademicRecordDataSource.kt$AcademicRecordDataSource$override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?)</ID>
     <ID>ReturnCount:AcademicRecordDataSource.kt$AcademicRecordDataSource$override suspend fun upsertAttemptOverride( attemptId: String, score: AttemptScore?, outcome: AttemptOutcome?, commit: Boolean )</ID>
     <ID>ReturnCount:CreateTermLoadChipView.kt$@Composable private fun createTermLoadTooltipMessage( loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoading: Boolean, hasError: Boolean ): String</ID>
     <ID>ThrowsCount:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$private fun validatePeriod( otherTerms: List&lt;AcademicTerm&gt;, period: SyntheticTermPeriodOption, keepsSameTermKey: Boolean )</ID>

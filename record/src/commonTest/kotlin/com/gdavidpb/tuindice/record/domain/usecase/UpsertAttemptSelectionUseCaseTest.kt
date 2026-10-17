@@ -118,7 +118,8 @@ private class FakeAcademicRecordRepository(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) {
 		upsertCalls += UpsertCall(
 			attemptId = attemptId,
@@ -127,7 +128,7 @@ private class FakeAcademicRecordRepository(
 		)
 	}
 
-	override suspend fun deleteAttemptOverride(attemptId: String) {
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) {
 		deletedAttemptIds += attemptId
 	}
 
@@ -135,5 +136,5 @@ private class FakeAcademicRecordRepository(
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }

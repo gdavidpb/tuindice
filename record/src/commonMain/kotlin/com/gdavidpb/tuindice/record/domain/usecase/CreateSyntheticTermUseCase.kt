@@ -37,6 +37,7 @@ class CreateSyntheticTermUseCase(
 				termId = termId,
 				periodYear = params.period.periodYear,
 				periodCode = params.period.periodCode,
+				mutationId = params.mutationId,
 				attempts = params.subjects.map { subject ->
 					SyntheticTermCreationCommand.SyntheticAttemptSeed(
 						attemptId = "$termId-${subject.subjectCode}",

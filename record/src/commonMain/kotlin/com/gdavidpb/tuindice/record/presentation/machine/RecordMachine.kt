@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
+import com.gdavidpb.tuindice.record.domain.usecase.param.DeleteSyntheticTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -309,7 +310,7 @@ class RecordMachine(
 
 	internal fun deleteSyntheticTerm(host: MachineHost<Record.Effect>, termId: String) {
 		host.launchMachineJob {
-			deleteSyntheticTermUseCase.execute(termId).collect { useCaseState ->
+			deleteSyntheticTermUseCase.execute(DeleteSyntheticTermParams(termId)).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
