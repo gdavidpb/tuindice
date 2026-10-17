@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseC
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.ObserveEvaluationMutationOutcomesUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -74,6 +75,7 @@ val evaluationsModule = module {
 	factoryOf(::AddEvaluationUseCase)
 	factoryOf(::GetAvailableAttemptsUseCase)
 	factoryOf(::SetSelectedWeekUseCase)
+	factoryOf(::ObserveEvaluationMutationOutcomesUseCase)
 
 	/* Validators */
 

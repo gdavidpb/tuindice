@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.repository
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 
 interface EvaluationRepository {
@@ -52,4 +54,10 @@ interface EvaluationRepository {
 	 * the other's.
 	 */
 	fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext>
+
+	/**
+	 * The terminal results of the mutations this repository submits (see [MutationOutcome]), as they settle. Nothing
+	 * is replayed: a subscriber gets the results from the moment it subscribes on.
+	 */
+	fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
 }
