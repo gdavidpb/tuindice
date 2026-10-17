@@ -112,6 +112,26 @@ class AssistantChatSuggestionBehaviorTest {
 	}
 
 	@Test
+	fun guidedWithAgentRepliesOutsideTheCatalog_offersTheQuestionsOfItsScreen() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.availability.availability.value =
+			AssistantAvailability(mode = AssistantMode.GUIDED, serverDisabled = false)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+
+		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+
+		assertEquals(summaryQuestions, viewModel.content().suggestions)
+	}
+
+	@Test
 	fun agentMessageWithoutSuggestions_offersNoneWhenNotGuided() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(

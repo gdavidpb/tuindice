@@ -73,7 +73,8 @@ internal suspend fun AssistantChatSession.presentedNotice(
 }
 
 // The replies the student can tap. The last agent message's come first. Without them, the questions of the screen the
-// sheet came from are offered while the conversation has no agent message yet, and always in guided mode.
+// sheet came from are offered while the conversation has no agent message yet, and always in guided mode. Guided mode
+// only takes questions of the shared catalog, so a reply of the agent outside it is not offered there.
 internal fun AssistantChatSession.presentedSuggestions(
 	screen: ScreenId?,
 	guided: Boolean
@@ -82,8 +83,12 @@ internal fun AssistantChatSession.presentedSuggestions(
 	val noAgentMessageYet = conversation?.items?.none { item -> item is AssistantConversationItem.Agent } ?: true
 
 	val replies = when {
+		guided ->
+			agentReplies
+				.filter { reply -> SuggestedQuestions.byId(reply.id) != null }
+				.ifEmpty { SuggestedQuestions.forScreen(screen) }
 		agentReplies.isNotEmpty() -> agentReplies
-		guided || noAgentMessageYet -> SuggestedQuestions.forScreen(screen)
+		noAgentMessageYet -> SuggestedQuestions.forScreen(screen)
 		else -> emptyList()
 	}
 
