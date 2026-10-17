@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
 // observed; the rest is what the student did on the sheet and what the outcomes of their requests left. It is written
@@ -29,8 +30,12 @@ internal class AssistantChatSession {
 
 	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
 
+	// The replies the chat shows come first. A question of the shared catalog is sent with its own text even when it is
+	// not shown, because the service accepts those in guided mode.
 	fun suggestionText(suggestionId: String): String? {
-		return conversation?.lastAgentSuggestions()?.firstOrNull { suggestion -> suggestion.id == suggestionId }?.text
+		val shown = conversation?.lastAgentSuggestions()?.firstOrNull { suggestion -> suggestion.id == suggestionId }
+
+		return shown?.text ?: SuggestedQuestions.byId(suggestionId)?.text
 	}
 
 	fun selectionOf(intentId: String, mutationId: String): Boolean? = selectionByDraft[intentId to mutationId]

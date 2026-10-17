@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
@@ -8,6 +10,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
+import com.gdavidpb.tuindice.chatcontract.context.ScreenId
+import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The presentation of the chat, derived from the conversation and the extended state. Every screen state the rows
 // produce goes through here, so the same inputs always show the same content.
@@ -20,6 +24,8 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val running = isRunning()
 	val guided = guidedByMode || guidedByServer
 	val composerEnabled = !guided && restriction == null
+	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
+	val screen = content.context?.context?.toScreenContext()?.screen
 
 	return content.copy(
 		items = presentedItems(texts),
@@ -29,7 +35,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 			isEnabled = composerEnabled,
 			isSendEnabled = composerEnabled && draftText.isNotBlank() && !running
 		),
-		suggestions = if (running) emptyList() else presentedSuggestions(),
+		suggestions = if (running) emptyList() else presentedSuggestions(screen = screen, guided = guided),
 		notice = presentedNotice(texts, guided),
 		isGuided = guided
 	)
@@ -66,10 +72,22 @@ internal suspend fun AssistantChatSession.presentedNotice(
 	}
 }
 
-internal fun AssistantChatSession.presentedSuggestions(): List<ChatSuggestionItem> {
-	return conversation?.lastAgentSuggestions()
-		?.map { suggestion -> ChatSuggestionItem(id = suggestion.id, label = suggestion.label) }
-		?: emptyList()
+// The replies the student can tap. The last agent message's come first. Without them, the questions of the screen the
+// sheet came from are offered while the conversation has no agent message yet, and always in guided mode.
+internal fun AssistantChatSession.presentedSuggestions(
+	screen: ScreenId?,
+	guided: Boolean
+): List<ChatSuggestionItem> {
+	val agentReplies = conversation?.lastAgentSuggestions().orEmpty()
+	val noAgentMessageYet = conversation?.items?.none { item -> item is AssistantConversationItem.Agent } ?: true
+
+	val replies = when {
+		agentReplies.isNotEmpty() -> agentReplies
+		guided || noAgentMessageYet -> SuggestedQuestions.forScreen(screen)
+		else -> emptyList()
+	}
+
+	return replies.map { reply -> ChatSuggestionItem(id = reply.id, label = reply.label) }
 }
 
 internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTexts): List<ChatItem> {

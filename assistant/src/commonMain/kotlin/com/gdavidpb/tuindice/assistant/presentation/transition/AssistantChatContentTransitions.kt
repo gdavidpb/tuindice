@@ -73,7 +73,7 @@ private fun ContentTransitions.contentComposerRows(
 		machine.refreshed(state)
 	}
 
-	on<AssistantChat.Action.RemoveContext> { state, _ -> state.copy(context = null) }
+	on<AssistantChat.Action.RemoveContext> { state, _ -> machine.refreshed(state.copy(context = null)) }
 
 	on<AssistantChat.Action.RetryTurn> { state, _ ->
 		val failed = machine.session.lastFailedSend
