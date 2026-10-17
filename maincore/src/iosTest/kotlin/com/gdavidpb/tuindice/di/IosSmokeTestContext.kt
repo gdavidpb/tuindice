@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
 import com.gdavidpb.tuindice.platform.IosObservabilityCapability
 import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.platform.IosRemoteConfigSubscription
+import com.gdavidpb.tuindice.platform.IosRemoteConfigUpdateListener
 import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
@@ -24,6 +26,14 @@ fun iosSmokeTestContext(): IOSContext {
 		hostCapabilities = IosHostCapabilities(
 			remoteConfig = object : IosRemoteConfigCapability {
 				override fun remoteConfigString(key: String): String? = null
+
+				override fun addRemoteConfigUpdateListener(
+					listener: IosRemoteConfigUpdateListener
+				): IosRemoteConfigSubscription {
+					return object : IosRemoteConfigSubscription {
+						override fun cancel() = Unit
+					}
+				}
 			},
 			attestation = object : IosAttestationCapability {
 				override fun sha256Base64Url(value: String): String = value
