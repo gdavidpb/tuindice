@@ -6,6 +6,7 @@ import tuindice.assistant.generated.resources.assistant_card_b_band_high
 import tuindice.assistant.generated.resources.assistant_card_b_band_low
 import tuindice.assistant.generated.resources.assistant_card_b_band_medium
 import tuindice.assistant.generated.resources.assistant_card_b_band_very_high
+import tuindice.assistant.generated.resources.assistant_card_b_evaluation_continuous
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_graded
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_overdue
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_pending
@@ -18,10 +19,11 @@ import tuindice.assistant.generated.resources.assistant_card_b_subject_status_in
 // subject in the pensum, and a band of difficulty or of load. The codes are the serial names the service sends. A code
 // this build does not know has no word, so the card shows no chip for it.
 
-// The state of an evaluation: graded, pending or overdue.
+// The state of an evaluation: the serial names of EvaluationState (completed, pending, overdue, continuous).
 fun evaluationStateText(code: String?): UiText? =
 	when (code) {
 		"graded", "completed" -> UiText.Resource(Res.string.assistant_card_b_evaluation_graded)
+		"continuous" -> UiText.Resource(Res.string.assistant_card_b_evaluation_continuous)
 		"pending" -> UiText.Resource(Res.string.assistant_card_b_evaluation_pending)
 		"overdue" -> UiText.Resource(Res.string.assistant_card_b_evaluation_overdue)
 		else -> null
@@ -37,7 +39,7 @@ fun subjectStatusText(code: String?): UiText? =
 		else -> null
 	}
 
-// A band of difficulty or of load: low, medium, high or very_high. Both read with the same feminine words.
+// A band of difficulty: low, medium, high or very_high, as the subject statistics name it.
 fun bandText(code: String?): UiText? =
 	when (code) {
 		"low" -> UiText.Resource(Res.string.assistant_card_b_band_low)
@@ -46,3 +48,7 @@ fun bandText(code: String?): UiText? =
 		"very_high" -> UiText.Resource(Res.string.assistant_card_b_band_very_high)
 		else -> null
 	}
+
+// The load band of a plan. The service sends it as the word the app's load preview shows («Exigente», «Sin
+// estimación»), so the card writes it as it comes; a blank one shows nothing.
+fun planLoadBandText(band: String?): String? = band?.trim()?.takeIf { text -> text.isNotEmpty() }

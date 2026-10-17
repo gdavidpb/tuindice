@@ -220,6 +220,7 @@
 	<string name="assistant_card_b_evaluation_graded">Calificada</string>
 	<string name="assistant_card_b_evaluation_pending">Pendiente</string>
 	<string name="assistant_card_b_evaluation_overdue">Vencida</string>
+	<string name="assistant_card_b_evaluation_continuous">Continua</string>
 	<string name="assistant_card_b_joined">%1$s · %2$s</string>
 	<string name="assistant_card_b_points_label">Puntos por materia</string>
 	<string name="assistant_card_b_points_one">%1$s punto</string>

@@ -232,7 +232,7 @@ class AcademicCardDispatchUiTest {
 			PlanComparisonComponent(
 				id = COMPONENT_ID,
 				fallbackText = FALLBACK_TEXT,
-				options = listOf(PlanOption("Plan A", 6, "low", clashes = 0))
+				options = listOf(PlanOption("Plan A", 6, "Ligera", clashes = 0))
 			),
 			AssistantUiTags.Plan.comparison(COMPONENT_ID)
 		)

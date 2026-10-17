@@ -22,17 +22,17 @@ class PlanComparisonComponentViewUiTest {
 		assertNodeVisible(AssistantUiTags.Plan.comparison(COMPONENT_ID))
 		onNodeWithText("COMPARACIÓN DE PLANES").assertIsDisplayed()
 		onNodeWithText("Plan A").assertIsDisplayed()
-		onNodeWithText("Media · 14 UC").assertIsDisplayed()
+		onNodeWithText("Normal · 14 UC").assertIsDisplayed()
 		onNodeWithText("Desbloquea IS-201").assertIsDisplayed()
 		onNodeWithText("Plan B").assertIsDisplayed()
-		onNodeWithText("Alta · 18 UC").assertIsDisplayed()
+		onNodeWithText("Exigente · 18 UC").assertIsDisplayed()
 	}
 
 	@Test
 	fun when_aPlanHasNoKnownLoad_then_itReadsItsCreditsAlone_andWithoutUnlocksNoLineIsDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PlanComparisonComponentView(
-				component = comparison(options = listOf(PlanOption("Plan C", 6, "unknown", clashes = 0))),
+				component = comparison(options = listOf(PlanOption("Plan C", 6, "", clashes = 0))),
 				onAction = {}
 			)
 		}
@@ -44,8 +44,8 @@ class PlanComparisonComponentViewUiTest {
 
 	private fun comparison(
 		options: List<PlanOption> = listOf(
-			PlanOption("Plan A", 14, "medium", unlocks = listOf("IS-201"), clashes = 0),
-			PlanOption("Plan B", 18, "high", clashes = 1)
+			PlanOption("Plan A", 14, "Normal", unlocks = listOf("IS-201"), clashes = 0),
+			PlanOption("Plan B", 18, "Exigente", clashes = 1)
 		)
 	): PlanComparisonComponent =
 		PlanComparisonComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, options = options)

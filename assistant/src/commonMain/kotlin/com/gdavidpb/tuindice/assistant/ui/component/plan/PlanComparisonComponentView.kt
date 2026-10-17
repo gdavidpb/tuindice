@@ -8,9 +8,8 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
-import com.gdavidpb.tuindice.assistant.ui.model.bandText
+import com.gdavidpb.tuindice.assistant.ui.model.planLoadBandText
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -31,7 +30,7 @@ fun PlanComparisonComponentView(
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_plan_comparison_label))
 		component.options.forEachIndexed { index, option ->
 			val credits = stringResource(Res.string.assistant_card_b_credits, option.credits)
-			val band = bandText(option.loadBand)?.asString()
+			val band = planLoadBandText(option.loadBand)
 			val summary = if (band == null) credits else stringResource(Res.string.assistant_card_b_joined, band, credits)
 
 			CardRowView(

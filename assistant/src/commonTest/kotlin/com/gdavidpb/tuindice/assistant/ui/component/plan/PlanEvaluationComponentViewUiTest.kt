@@ -21,7 +21,7 @@ class PlanEvaluationComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Plan.evaluation(COMPONENT_ID))
 		onNodeWithText("2026 ENERO-MARZO").assertIsDisplayed()
-		onNodeWithContentDescription("Banda de carga: Media").assertIsDisplayed()
+		onNodeWithContentDescription("Banda de carga: Normal").assertIsDisplayed()
 		onNodeWithContentDescription("Índice de carga: 0,6000").assertIsDisplayed()
 		onNodeWithText("Créditos").assertIsDisplayed()
 		onNodeWithText("14 UC").assertIsDisplayed()
@@ -36,7 +36,7 @@ class PlanEvaluationComponentViewUiTest {
 	fun when_theClashesAreCounted_then_theyShowAsACount_andAMissingBandShowsNoFigure() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PlanEvaluationComponentView(
-				component = evaluation(loadBand = "unknown", loadIndex = null, clashes = 2),
+				component = evaluation(loadBand = "", loadIndex = null, clashes = 2),
 				onAction = {}
 			)
 		}
@@ -44,12 +44,12 @@ class PlanEvaluationComponentViewUiTest {
 		onNodeWithText("Choques").assertIsDisplayed()
 		onNodeWithText("2").assertIsDisplayed()
 		onNodeWithText("Choques sin revisar").assertDoesNotExist()
-		onNodeWithContentDescription("Banda de carga: Media").assertDoesNotExist()
+		onNodeWithContentDescription("Banda de carga: Normal").assertDoesNotExist()
 		onNodeWithContentDescription("Índice de carga: 0,6000").assertDoesNotExist()
 	}
 
 	private fun evaluation(
-		loadBand: String = "medium",
+		loadBand: String = "Normal",
 		loadIndex: Double? = 0.6,
 		clashes: Int = 0
 	): PlanEvaluationComponent =

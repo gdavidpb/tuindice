@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.model
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_band_very_high
+import tuindice.assistant.generated.resources.assistant_card_b_evaluation_continuous
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_pending
 import tuindice.assistant.generated.resources.assistant_card_b_subject_status_approved
 import tuindice.assistant.generated.resources.assistant_card_b_subject_status_blocked
@@ -31,5 +32,8 @@ class AcademicCodeTextTest {
 		assertNull(subjectStatusText("sin_codigo"))
 		assertNull(evaluationStateText(null))
 		assertNull(bandText("extreme"))
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_evaluation_continuous), evaluationStateText("continuous"))
+		assertEquals("Exigente", planLoadBandText(" Exigente "))
+		assertNull(planLoadBandText(" "))
 	}
 }

@@ -11,10 +11,9 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
-import com.gdavidpb.tuindice.assistant.ui.model.bandText
+import com.gdavidpb.tuindice.assistant.ui.model.planLoadBandText
 import com.gdavidpb.tuindice.assistant.ui.model.toCardIndexFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -38,7 +37,7 @@ fun PlanEvaluationComponentView(
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val bandFigure = bandText(component.loadBand)?.asString()?.let { band ->
+	val bandFigure = planLoadBandText(component.loadBand)?.let { band ->
 		CardFigure(
 			value = band,
 			caption = stringResource(Res.string.assistant_card_b_plan_band_caption),
