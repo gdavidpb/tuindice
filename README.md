@@ -38,6 +38,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - `subjects`: estadísticas y detalle histórico de una materia.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
 - `wizard`: onboarding progresivo con overlays contextuales sobre pantallas reales de la app.
+- `assistant`: asistente académico (capa de datos: stream de eventos por SSE, API, disponibilidad, consentimiento, insights, memoria y conversación en memoria).
 - `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
 - `iosApp`: host iOS.
@@ -113,6 +114,7 @@ Dependencias actuales:
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`.
+- `assistant`: depende de `:base` y `:chatcontract`.
 - `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore` y aporta en `androidPlatformModule` los bindings de plataforma
   Android de cada feature, por lo que en el grafo depende de todos los módulos.
