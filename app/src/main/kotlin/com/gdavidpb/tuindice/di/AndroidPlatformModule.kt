@@ -307,6 +307,8 @@ val androidPlatformModule = module {
 				sessionRepository = get(),
 				sessionRecoveryRepository = get(),
 				sessionCoroutineScope = get(),
+				settingsRepository = get(),
+				outdatedAppEventRepository = get(),
 				logger = createAppKtorLogger()
 			),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.data.source.network.installOutdatedAppPersistence
 import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -72,6 +73,13 @@ internal fun HttpClientConfig<*>.configureAssistantStream(
 		sessionRepository = dependencies.sessionRepository,
 		sessionRecoveryRepository = dependencies.sessionRecoveryRepository,
 		sessionCoroutineScope = dependencies.sessionCoroutineScope
+	)
+
+	// A stream refused because the app is outdated is recorded as the shared client records it.
+	installOutdatedAppPersistence(
+		settingsRepository = dependencies.settingsRepository,
+		outdatedAppEventRepository = dependencies.outdatedAppEventRepository,
+		userAgentValue = userAgentValue
 	)
 
 	install(SSE) {

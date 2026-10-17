@@ -74,4 +74,37 @@ class OutdatedAppResponsePersistenceTest {
 			client.close()
 		}
 	}
+
+	@Test
+	fun installOutdatedAppPersistence_persistsUpgradeRequiredState_withoutContentNegotiation() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val client = HttpClient(
+			MockEngine {
+				respond(
+					content = """{"code":"outdated_app","minimum_versions":{"android":99999,"ios":88888}}""",
+					status = HttpStatusCode.UpgradeRequired,
+					headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+				)
+			}
+		) {
+			// The assistant's stream client: no content negotiation.
+			expectSuccess = true
+
+			installOutdatedAppPersistence(
+				settingsRepository = settingsRepository,
+				outdatedAppEventRepository = OutdatedAppEventDataSource(),
+				userAgentValue = "TuIndice;6.1.12;52;Android;17;37;id;Google;Pixel"
+			)
+		}
+
+		try {
+			assertFailsWith<ClientRequestException> {
+				client.get("https://api.tuindice.app/assistant/v1/events/turns/turn-1")
+			}
+
+			assertEquals(OutdatedAppState(minimumVersionCode = 99999), settingsRepository.getOutdatedAppState())
+		} finally {
+			client.close()
+		}
+	}
 }

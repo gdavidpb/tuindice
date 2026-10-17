@@ -3,11 +3,12 @@ package com.gdavidpb.tuindice.data.source.network
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import io.ktor.client.HttpClientConfig
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.json.Json
 
 internal fun HttpClientConfig<*>.installOutdatedAppPersistence(
 	settingsRepository: SettingsRepository,
@@ -45,8 +46,9 @@ private suspend fun HttpResponse.persistOutdatedAppState(
 	outdatedAppEventRepository: OutdatedAppEventRepository,
 	userAgentValue: String?
 ) {
+	// Read from the text, not through content negotiation: the assistant's stream client has none.
 	val upgradeRequiredResponse = runCatching {
-		body<UpgradeRequiredResponse>()
+		OutdatedAppJson.decodeFromString(UpgradeRequiredResponse.serializer(), bodyAsText())
 	}.getOrNull() ?: return
 
 	val outdatedAppState = AppUpgradePolicy.toOutdatedAppState(
@@ -57,3 +59,5 @@ private suspend fun HttpResponse.persistOutdatedAppState(
 	settingsRepository.setOutdatedAppState(outdatedAppState)
 	outdatedAppEventRepository.notifyOutdatedApp(outdatedAppState)
 }
+
+private val OutdatedAppJson = Json { ignoreUnknownKeys = true }
