@@ -305,6 +305,7 @@
 	<string name="assistant_card_b_plan_unlocks">Desbloquea %1$s</string>
 	<string name="assistant_card_b_citation_label">Fuentes</string>
 	<string name="assistant_card_b_citation_document">%1$s ›</string>
+	<string name="assistant_card_b_citation_open">Ver documento oficial</string>
 	<string name="assistant_card_b_help_label">Ayuda</string>
 	<string name="assistant_card_b_help_step">%1$d.</string>
 	<string name="assistant_card_b_help_open">Ir a la pantalla</string>
