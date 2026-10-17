@@ -1,0 +1,90 @@
+package com.gdavidpb.tuindice.assistant.ui.view
+
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
+import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
+import com.gdavidpb.tuindice.chatcontract.component.SupportComponent
+import com.gdavidpb.tuindice.chatcontract.component.SupportLine
+import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
+import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
+import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
+import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+@OptIn(ExperimentalTestApi::class)
+class ChatComponentViewUiTest {
+	@Test
+	fun when_componentIsUnknown_then_showsItsFallbackText() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ChatComponentView(
+				messageId = MESSAGE_ID,
+				component = UnknownChatComponent(id = "unknown-1", fallbackText = FALLBACK_TEXT),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText(FALLBACK_TEXT).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_componentIsShownAsSheet_then_itsDetailRowOpensTheSheet() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		setTuIndiceTestContent {
+			ChatComponentView(
+				messageId = MESSAGE_ID,
+				component = WarningComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					display = ComponentDisplay.SHEET,
+					reason = AbuseReasonCode.SPAM
+				),
+				onAction = { actions.add(it) }
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Component.detail(MESSAGE_ID, COMPONENT_ID))
+		onNodeWithTag(AssistantUiTags.Component.detail(MESSAGE_ID, COMPONENT_ID)).performClick()
+
+		val open = assertIs<AssistantChat.Action.OpenComponentSheet>(actions.single())
+		assertEquals(COMPONENT_ID, open.componentId)
+	}
+
+	@Test
+	fun when_supportIsShown_then_eachLineShowsItsContact() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ChatComponentView(
+				messageId = MESSAGE_ID,
+				component = SupportComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					lines = listOf(
+						SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
+						SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
+					)
+				),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText(SUPPORT_PHONE).assertIsDisplayed()
+		onNodeWithText(SUPPORT_URL).assertIsDisplayed()
+	}
+
+	private companion object {
+		const val MESSAGE_ID = "message-1"
+		const val COMPONENT_ID = "component-1"
+		const val FALLBACK_TEXT = "Revisa la pantalla de tu expediente"
+		const val SUPPORT_LABEL = "Orientación"
+		const val SUPPORT_PHONE = "2222-2222"
+		const val SUPPORT_URL = "https://example.com/apoyo"
+	}
+}
