@@ -259,6 +259,7 @@ tasks.register("verifySharedHostTests") {
 
 private val commonUiModules = listOf(
 	"about",
+	"assistant",
 	"base",
 	"enrollmentproof",
 	"evaluations",

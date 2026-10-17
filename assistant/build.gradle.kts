@@ -1,6 +1,10 @@
 plugins {
 	kotlin("multiplatform")
 	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
+
+	alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -12,6 +16,10 @@ kotlin {
 		withHostTest {
 			isIncludeAndroidResources = true
 			isReturnDefaultValues = true
+		}
+
+		androidResources {
+			enable = true
 		}
 	}
 	iosArm64()
@@ -28,6 +36,11 @@ kotlin {
 				implementation(libs.kotlinx.coroutines.core)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.ktor.client.core)
+				implementation(libs.koin.compose)
+				implementation(libs.koin.core.viewmodel)
+				implementation(libs.koin.compose.viewmodel)
+				implementation(libs.components.resources)
+				implementation(libs.material.icons.extended)
 			}
 		}
 
