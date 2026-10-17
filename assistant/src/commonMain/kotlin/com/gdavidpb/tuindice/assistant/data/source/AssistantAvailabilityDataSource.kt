@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.data.source
 
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDataRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.utils.DEFAULT_SERVER_DISABLED_SECONDS
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
@@ -23,7 +24,10 @@ import kotlin.time.Instant
 class AssistantAvailabilityDataSource(
 	private val configRepository: ConfigRepository,
 	private val clock: Clock
-) : AssistantAvailabilityRepository, AssistantServerDisabledDataRepository, SessionMemory {
+) : AssistantAvailabilityRepository,
+	AssistantServerDisabledDataRepository,
+	AssistantServerDisabledRepository,
+	SessionMemory {
 
 	// The mode the configuration reported last. ConfigRepository has no synchronous read of it, so until someone
 	// observes the availability this reads as off.

@@ -5,10 +5,51 @@ import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDa
 import com.gdavidpb.tuindice.assistant.data.source.AssistantAvailabilityDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConsentSettingsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationDataSource
+import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationStoreDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantInsightsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantMemoryDataSource
+import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
 import com.gdavidpb.tuindice.assistant.data.source.KtorAssistantApiDataSource
 import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
+import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.AnswerStillAppliesUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.AssistantIntentConfirmer
+import com.gdavidpb.tuindice.assistant.domain.usecase.AssistantTurnStream
+import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ClearAssistantMemoryUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmAddEvaluationsIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmCreatePlanIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmDeleteEvaluationIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmDeletePlanIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmEditEvaluationIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmEditPlanIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmProjectionIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmRememberIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantConversationsUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
+import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
@@ -24,7 +65,12 @@ import org.koin.dsl.module
 val assistantModule = module {
 	/* Data sources */
 
-	factoryOf(::KtorAssistantApiDataSource)
+	factoryOf(::KtorAssistantApiDataSource) {
+		bind<AssistantIntentRepository>()
+		bind<AssistantFeedbackRepository>()
+		bind<AssistantStandingRepository>()
+	}
+	factoryOf(::AssistantTurnDataSource) { bind<AssistantTurnRepository>() }
 	single<AssistantEventsDataRepository> {
 		SseAssistantEventsDataSource(
 			httpClient = get<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)),
@@ -34,6 +80,7 @@ val assistantModule = module {
 	singleOf(::AssistantAvailabilityDataSource) {
 		bind<AssistantAvailabilityRepository>()
 		bind<AssistantServerDisabledDataRepository>()
+		bind<AssistantServerDisabledRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantConsentSettingsDataSource) {
@@ -44,6 +91,48 @@ val assistantModule = module {
 		bind<AssistantInsightsRepository>()
 		bind<SessionMemory>()
 	}
-	singleOf(::AssistantMemoryDataSource) { bind<SessionMemory>() }
+	singleOf(::AssistantMemoryDataSource) {
+		bind<AssistantMemoryRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::AssistantConversationDataSource) { bind<SessionMemory>() }
+	singleOf(::AssistantConversationStoreDataSource) { bind<AssistantConversationRepository>() }
+
+	/* Shared helpers and validators, exception handlers */
+
+	factoryOf(::AssistantIntentConfirmer)
+	factoryOf(::AssistantTurnStream)
+	factoryOf(::AppealAssistantRestrictionParamsValidator)
+	factoryOf(::AssistantAppealExceptionHandler)
+	factoryOf(::ReportAssistantMessageParamsValidator)
+	factoryOf(::ReportAssistantMessageExceptionHandler)
+	factoryOf(::AssistantIntentExceptionHandler)
+
+	/* Use cases */
+
+	factoryOf(::ObserveAssistantConversationUseCase)
+	factoryOf(::SendAssistantMessageUseCase)
+	factoryOf(::FollowAssistantTurnUseCase)
+	factoryOf(::ResumeAssistantTurnUseCase)
+	factoryOf(::CancelAssistantTurnUseCase)
+	factoryOf(::ConfirmAddEvaluationsIntentUseCase)
+	factoryOf(::ConfirmEditEvaluationIntentUseCase)
+	factoryOf(::ConfirmDeleteEvaluationIntentUseCase)
+	factoryOf(::ConfirmCreatePlanIntentUseCase)
+	factoryOf(::ConfirmEditPlanIntentUseCase)
+	factoryOf(::ConfirmDeletePlanIntentUseCase)
+	factoryOf(::ConfirmProjectionIntentUseCase)
+	factoryOf(::ConfirmRememberIntentUseCase)
+	factoryOf(::DelegateEnrollmentProofIntentUseCase)
+	factoryOf(::DismissAssistantIntentUseCase)
+	factoryOf(::RateAssistantMessageUseCase)
+	factoryOf(::ReportAssistantMessageUseCase)
+	factoryOf(::GetAssistantStatusUseCase)
+	factoryOf(::AppealAssistantRestrictionUseCase)
+	factoryOf(::AcceptAssistantConsentUseCase)
+	factoryOf(::GetAssistantMemoryUseCase)
+	factoryOf(::DeleteAssistantMemoryItemUseCase)
+	factoryOf(::ClearAssistantMemoryUseCase)
+	factoryOf(::AnswerStillAppliesUseCase)
+	factoryOf(::DeleteAssistantConversationsUseCase)
 }
