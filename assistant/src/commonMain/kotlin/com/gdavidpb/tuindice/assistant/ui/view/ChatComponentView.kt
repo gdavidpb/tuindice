@@ -57,14 +57,15 @@ import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
-// One component of an agent message. A SHEET component adds its «Ver detalle» row. Every catalog but sistema and nav
-// falls back to its text until its renderer lands.
+// One component of an agent message. A SHEET component adds its «Ver detalle» row, except on its own sheet, where
+// [showsDetailRow] is false. Every catalog but sistema and nav falls back to its text until its renderer lands.
 @Composable
 fun ChatComponentView(
 	messageId: String,
 	component: ChatComponent,
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	showsDetailRow: Boolean = true
 ) {
 	Column(
 		modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.Component.root(component.id)),
@@ -72,7 +73,7 @@ fun ChatComponentView(
 	) {
 		ComponentRenderer(component = component, onAction = onAction)
 
-		if (component.display == ComponentDisplay.SHEET) {
+		if (showsDetailRow && component.display == ComponentDisplay.SHEET) {
 			ChatComponentDetailRowView(
 				messageId = messageId,
 				componentId = component.id,

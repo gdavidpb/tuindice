@@ -34,6 +34,8 @@ fun AssistantComponentSheet(
 			messageId = messageId,
 			component = component,
 			onAction = onAction,
+			// The sheet already is the detail: its row would only open the same sheet again.
+			showsDetailRow = false,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(
