@@ -13,6 +13,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
+import com.gdavidpb.tuindice.about.presentation.navigation.aboutDialogEntries
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutEntries
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.assistantEntries
@@ -143,8 +145,13 @@ fun TuIndiceNavDisplay(
 			},
 			onNavigateToAssistantMemory = {
 				navigator.push(AssistantDestination.Memory)
+			},
+			onNavigateToDeleteConfirmation = {
+				navigator.push(AboutDestination.DeleteAssistantConversationsDialog)
 			}
 		)
+
+		aboutDialogEntries(navActions = navigator)
 
 		enrollmentProofEntries(
 			navActions = navigator,

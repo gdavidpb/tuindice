@@ -106,7 +106,8 @@ class TuIndiceNavigationSerializationTest {
 		),
 		AssistantDestination.Memory,
 		AssistantDestination.ClearMemoryConfirmationDialog,
-		AboutDestination.About
+		AboutDestination.About,
+		AboutDestination.DeleteAssistantConversationsDialog
 	)
 
 	@Test

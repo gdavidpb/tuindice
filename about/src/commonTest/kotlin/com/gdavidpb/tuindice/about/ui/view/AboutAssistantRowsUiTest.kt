@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.about.ui.view
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -116,10 +117,16 @@ class AboutAssistantRowsUiTest {
 
 	@Test
 	fun when_assistantIsAvailable_then_conversationsRowSitsBelowTheMemory() = runTuIndiceUiTest {
+		// The rows alone, in a plain column: inside the lazy content the lower row can be out of the viewport, not laid out.
 		setTuIndiceTestContent {
-			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true)
-			)
+			Column {
+				AboutAssistantItems(
+					consentGranted = true,
+					onConsentChange = {},
+					onMemoryClick = {},
+					onConversationsClick = {}
+				)
+			}
 		}
 
 		val memoryTop = onNodeWithTag(AboutUiTags.AssistantMemoryItem).fetchSemanticsNode().boundsInRoot.top
