@@ -1,0 +1,82 @@
+package com.gdavidpb.tuindice.assistant.presentation.machine
+
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
+
+// The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
+// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. It is written
+// only from the table's rows, which run one at a time, so it needs no lock.
+internal class AssistantChatSession {
+	var openedContext: AssistantScreenContext? = null
+	var conversation: AssistantConversation? = null
+	var guidedByMode = false
+	var guidedByServer = false
+	var lastFailedSend: FailedSend? = null
+	var turnFailure: TurnFailure? = null
+	var quota: Quota? = null
+	var restriction: Restriction? = null
+	var pendingFailedText: String? = null
+	val usefulByMessage = mutableMapOf<String, Boolean>()
+	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
+	val runningIntents = mutableSetOf<String>()
+	val failedMessages = mutableSetOf<String>()
+
+	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
+
+	fun suggestionText(suggestionId: String): String? {
+		return conversation?.lastAgentSuggestions()?.firstOrNull { suggestion -> suggestion.id == suggestionId }?.text
+	}
+
+	fun selectionOf(intentId: String, mutationId: String): Boolean? = selectionByDraft[intentId to mutationId]
+
+	// The intent the student can confirm now: open in the conversation and not already running.
+	fun openIntent(intentId: String): Intent? {
+		return conversation?.openIntents?.get(intentId)?.takeUnless { intentId in runningIntents }
+	}
+
+	// The send with [sentText] failed: its bubble is the student's last message, or the next one the conversation
+	// shows when the store has not caught up yet.
+	fun markSendFailed(sentText: String) {
+		val last = lastUserMessage()
+
+		if (last != null && last.text == sentText) {
+			failedMessages += last.id
+		} else {
+			pendingFailedText = sentText
+		}
+	}
+
+	fun observe(observed: AssistantConversation) {
+		conversation = observed
+
+		val pending = pendingFailedText
+		val last = lastUserMessage()
+
+		if (pending != null && last != null && last.text == pending) {
+			failedMessages += last.id
+			pendingFailedText = null
+		}
+	}
+
+	internal fun lastUserMessage(): AssistantUserMessage? {
+		return conversation?.items
+			?.filterIsInstance<AssistantConversationItem.User>()
+			?.lastOrNull()
+			?.message
+	}
+
+	internal data class FailedSend(val text: String, val suggestionId: String?)
+
+	internal data class TurnFailure(val message: String, val retryable: Boolean)
+
+	internal data class Quota(val retryAfterSeconds: Int?)
+
+	// [level] and [canAppeal] are unknown until the standing is read, and the message says so.
+	internal data class Restriction(val level: StandingLevel?, val canAppeal: Boolean)
+}

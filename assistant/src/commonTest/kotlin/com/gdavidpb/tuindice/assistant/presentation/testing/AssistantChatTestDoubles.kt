@@ -1,0 +1,252 @@
+package com.gdavidpb.tuindice.assistant.presentation.testing
+
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
+import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
+import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
+import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
+import com.gdavidpb.tuindice.chatcontract.component.NavTarget
+import com.gdavidpb.tuindice.chatcontract.context.EntityRef
+import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
+import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
+import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
+import com.gdavidpb.tuindice.chatcontract.message.MessagePart
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+
+// The texts are told apart by their values, so an assertion can say which notice the student sees.
+internal class FakeAssistantChatTexts : AssistantChatTexts {
+	override suspend fun screenName(screen: AssistantScreen): String = "screen:${screen.name}"
+
+	override suspend fun evaluationTypeName(evaluationType: String): String = "type:$evaluationType"
+
+	override suspend fun maxGrade(maxGrade: Double): String = "max:$maxGrade"
+
+	override suspend fun undated(): String = "undated"
+
+	override suspend fun guided(): String = "guided"
+
+	override suspend fun quotaExhausted(retryAfterSeconds: Int?): String = "quota:$retryAfterSeconds"
+
+	override suspend fun restricted(level: StandingLevel?): String = "restricted:$level"
+
+	override suspend fun turnFailure(code: RunErrorCode): String = "failure:$code"
+
+	override suspend fun sendFailed(): String = "send-failed"
+
+	override suspend fun messageTooLong(maxLength: Int): String = "too-long:$maxLength"
+}
+
+internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
+	override suspend fun rated(): String = "rated"
+
+	override suspend fun reported(): String = "reported"
+
+	override suspend fun reportTooLong(maxLength: Int): String = "report-too-long:$maxLength"
+
+	override suspend fun appealSent(): String = "appeal-sent"
+
+	override suspend fun appealFailed(maxLength: Int): String = "appeal-failed:$maxLength"
+}
+
+// A conversation the test changes: the store's observation emits each change, as the store does.
+internal class ObservedAssistantConversationRepository(
+	initial: AssistantConversation = emptyAssistantConversation()
+) : AssistantConversationRepository {
+	val conversation = MutableStateFlow(initial)
+	val applied = mutableListOf<AssistantEvent>()
+
+	override fun observeConversation(): Flow<AssistantConversation> = conversation
+
+	override fun currentConversation(): AssistantConversation = conversation.value
+
+	override fun attachConversation(conversationId: String) {
+		conversation.update { current -> current.copy(conversationId = conversationId) }
+	}
+
+	override fun applyEvent(event: AssistantEvent) {
+		applied += event
+	}
+
+	override fun addUserMessage(message: AssistantUserMessage) {
+		conversation.update { current ->
+			current.copy(items = current.items + AssistantConversationItem.User(message))
+		}
+	}
+
+	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
+		conversation.update { current ->
+			current.copy(
+				openIntents = current.openIntents - intentId,
+				resolvedIntents = current.resolvedIntents + (intentId to outcome)
+			)
+		}
+	}
+
+	override suspend fun clearConversation() {
+		conversation.value = emptyAssistantConversation()
+	}
+}
+
+internal class ObservedAssistantAvailabilityRepository(
+	initial: AssistantAvailability = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
+) : AssistantAvailabilityRepository {
+	val availability = MutableStateFlow(initial)
+
+	override fun observeAvailability(): Flow<AssistantAvailability> = availability
+
+	override fun currentAvailability(): AssistantAvailability = availability.value
+}
+
+internal fun emptyAssistantConversation(): AssistantConversation {
+	return AssistantConversation(
+		conversationId = null,
+		items = emptyList(),
+		openIntents = emptyMap(),
+		resolvedIntents = emptyMap(),
+		activeTurn = null
+	)
+}
+
+internal fun agentMessage(id: String, vararg parts: MessagePart): AssistantConversationItem {
+	return AssistantConversationItem.Agent(
+		message = AssistantMessage(id = id, parts = parts.toList(), createdAtMillis = 0),
+		turnId = "t-$id"
+	)
+}
+
+// The decision waits for the test's go-ahead while [gated]: the confirmation then stays running until the test says so.
+internal class GatedAssistantIntentRepository(
+	private val delegate: AssistantIntentRepository
+) : AssistantIntentRepository {
+	var gated = false
+	val release = CompletableDeferred<Unit>()
+
+	override suspend fun decide(decision: IntentDecision): IntentDecisionResult {
+		if (gated) release.await()
+
+		return delegate.decide(decision)
+	}
+
+	override suspend fun reportOutcome(report: IntentOutcomeReport) {
+		delegate.reportOutcome(report)
+	}
+}
+
+internal fun assistantConversation(
+	items: List<AssistantConversationItem> = emptyList(),
+	openIntents: Map<String, Intent> = emptyMap(),
+	activeTurn: AssistantActiveTurn? = null
+): AssistantConversation {
+	return AssistantConversation(
+		conversationId = null,
+		items = items,
+		openIntents = openIntents,
+		resolvedIntents = emptyMap(),
+		activeTurn = activeTurn
+	)
+}
+
+internal fun assistantDraft(mutationId: String, reference: String): EvaluationDraft {
+	return EvaluationDraft(
+		mutationId = mutationId,
+		reference = reference,
+		attemptId = "attempt-1",
+		subjectCode = "CI4325",
+		termId = "2026-2",
+		evaluationType = "QUIZ",
+		scheduleMode = "dated",
+		maxGrade = 20.0
+	)
+}
+
+internal fun AssistantChatViewModel.content(): AssistantChat.State.Content = state.value as AssistantChat.State.Content
+
+internal fun AssistantChat.State.Content.bubbles(): List<ChatItem.User> = items.filterIsInstance<ChatItem.User>()
+
+internal fun AssistantChat.State.Content.intentCard(intentId: String): IntentCardItem {
+	return items
+		.filterIsInstance<ChatItem.Agent>()
+		.flatMap { agent -> agent.parts }
+		.filterIsInstance<ChatPartItem.IntentCard>()
+		.single { part -> part.card.intentId == intentId }
+		.card
+}
+
+// The actions of the sheet, named as the screen calls them.
+internal fun AssistantChatViewModel.openAction(context: AssistantScreenContext?) =
+	dispatch(AssistantChat.Action.Open(context))
+
+internal fun AssistantChatViewModel.changeTextAction(text: String) =
+	dispatch(AssistantChat.Action.ChangeText(text))
+
+internal fun AssistantChatViewModel.sendMessageAction() =
+	dispatch(AssistantChat.Action.Send)
+
+internal fun AssistantChatViewModel.pickSuggestionAction(suggestionId: String) =
+	dispatch(AssistantChat.Action.PickSuggestion(suggestionId))
+
+internal fun AssistantChatViewModel.removeContextAction() =
+	dispatch(AssistantChat.Action.RemoveContext)
+
+internal fun AssistantChatViewModel.retryTurnAction() =
+	dispatch(AssistantChat.Action.RetryTurn)
+
+internal fun AssistantChatViewModel.confirmIntentAction(intentId: String) =
+	dispatch(AssistantChat.Action.ConfirmIntent(intentId))
+
+internal fun AssistantChatViewModel.dismissIntentAction(intentId: String) =
+	dispatch(AssistantChat.Action.DismissIntent(intentId))
+
+internal fun AssistantChatViewModel.toggleIntentDraftAction(intentId: String, mutationId: String, selected: Boolean) =
+	dispatch(AssistantChat.Action.ToggleIntentDraft(intentId, mutationId, selected))
+
+internal fun AssistantChatViewModel.copyMessageAction(messageId: String) =
+	dispatch(AssistantChat.Action.CopyMessage(messageId))
+
+internal fun AssistantChatViewModel.rateMessageAction(messageId: String, useful: Boolean) =
+	dispatch(AssistantChat.Action.RateMessage(messageId, useful))
+
+internal fun AssistantChatViewModel.reportMessageAction(messageId: String, reason: ReportReason, comment: String?) =
+	dispatch(AssistantChat.Action.ReportMessage(messageId, reason, comment))
+
+internal fun AssistantChatViewModel.openNavTargetAction(target: NavTarget, entityRefs: List<EntityRef>) =
+	dispatch(AssistantChat.Action.OpenNavTarget(target, entityRefs))
+
+internal fun AssistantChatViewModel.openComponentSheetAction(messageId: String, componentId: String) =
+	dispatch(AssistantChat.Action.OpenComponentSheet(messageId, componentId))
+
+internal fun AssistantChatViewModel.answerStillAppliesAction(memoryId: String, applies: Boolean) =
+	dispatch(AssistantChat.Action.AnswerStillApplies(memoryId, applies))
+
+internal fun AssistantChatViewModel.appealAction(text: String) =
+	dispatch(AssistantChat.Action.Appeal(text))
+
+internal fun AssistantChatViewModel.acceptConsentAction() =
+	dispatch(AssistantChat.Action.AcceptConsent)
+
+internal fun AssistantChatViewModel.declineConsentAction() =
+	dispatch(AssistantChat.Action.DeclineConsent)

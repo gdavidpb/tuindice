@@ -50,6 +50,17 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.Assistant
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedback
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatPlanIntents
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatTurns
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackResourceTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatResourceTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
@@ -59,6 +70,7 @@ import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -135,4 +147,16 @@ val assistantModule = module {
 	factoryOf(::ClearAssistantMemoryUseCase)
 	factoryOf(::AnswerStillAppliesUseCase)
 	factoryOf(::DeleteAssistantConversationsUseCase)
+
+	/* Chat presentation: the sheet's machine and its collaborators, its texts, and its view model */
+
+	viewModelOf(::AssistantChatViewModel)
+	factoryOf(::AssistantChatMachine)
+	factoryOf(::AssistantChatTurns)
+	factoryOf(::AssistantChatIntents)
+	factoryOf(::AssistantChatPlanIntents)
+	factoryOf(::AssistantChatFeedback)
+	factoryOf(::AssistantChatAccess)
+	factoryOf(::AssistantChatResourceTexts) { bind<AssistantChatTexts>() }
+	factoryOf(::AssistantChatFeedbackResourceTexts) { bind<AssistantChatFeedbackTexts>() }
 }
