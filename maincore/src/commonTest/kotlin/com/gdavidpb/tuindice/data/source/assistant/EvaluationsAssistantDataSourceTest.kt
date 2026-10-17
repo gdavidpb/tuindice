@@ -211,6 +211,26 @@ class EvaluationsAssistantDataSourceTest {
 		assertEquals("e1", repository.removes.single().id)
 	}
 
+	@Test
+	fun remove_ofAnEvaluationThePhoneDoesNotHave_isRefusedAtOnce() = runTest {
+		val repository = FakeEvaluationRepository()
+
+		val execution = evaluationsSource(repository).remove(RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e9"))
+
+		assertEquals(IntentExecution(OutcomeKind.REJECTED, "unknown_evaluation"), execution)
+		assertEquals(emptyList(), repository.removes)
+		assertEquals(0L, testScheduler.currentTime)
+	}
+
+	@Test
+	fun remove_ofAnEvaluationTheServerNoLongerHas_isAConflict() = runTest {
+		val repository = FakeEvaluationRepository(outcomeOf = settledAs(MutationOutcomeKind.REJECTED, "NotFound"))
+
+		val execution = evaluationsSource(repository).remove(RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1"))
+
+		assertEquals(IntentExecution(OutcomeKind.CONFLICT, "NotFound"), execution)
+	}
+
 	private suspend fun assertAddAnswer(kind: MutationOutcomeKind, expected: IntentExecution) {
 		val repository = FakeEvaluationRepository(outcomeOf = settledAs(kind))
 

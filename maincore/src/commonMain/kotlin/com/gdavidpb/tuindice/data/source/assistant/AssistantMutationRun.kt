@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -81,11 +82,19 @@ private fun MutationOutcome.toIntentExecution(): IntentExecution {
 	return when (kind) {
 		MutationOutcomeKind.CONFIRMED -> IntentExecution(OutcomeKind.CONFIRMED)
 		MutationOutcomeKind.CONFLICT -> IntentExecution(OutcomeKind.CONFLICT, detailCode)
-		MutationOutcomeKind.REJECTED -> IntentExecution(OutcomeKind.REJECTED, detailCode)
+		// The server no longer has what the mutation changes: it was changed elsewhere, which is a conflict.
+		MutationOutcomeKind.REJECTED -> if (detailCode == NOT_FOUND_DETAIL) {
+			IntentExecution(OutcomeKind.CONFLICT, detailCode)
+		} else {
+			IntentExecution(OutcomeKind.REJECTED, detailCode)
+		}
 		// A superseded or cancelled mutation did not land: it fails with the name of its result.
 		MutationOutcomeKind.SUPERSEDED, MutationOutcomeKind.CANCELLED -> IntentExecution(OutcomeKind.FAILED, kind.name)
 	}
 }
+
+// The detail the outbox ends a mutation with when the server no longer has its target.
+private val NOT_FOUND_DETAIL = MutationFailureKind.NotFound.name
 
 // The order a batch answers by, from the least severe outcome to the most severe one.
 private val outcomeSeverity = listOf(

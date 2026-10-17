@@ -102,7 +102,18 @@ class EvaluationsAssistantDataSource(
 		return settleMutations(listOf(mutation), observeMutationOutcomes())
 	}
 
+	// An evaluation the phone does not have is refused at once: the outbox would never answer for it.
 	private suspend fun removeEvaluation(args: RemoveEvaluationArgs): IntentExecution {
+		return when (val state = getEvaluationUseCase.execute(args.evaluationId).settled()) {
+			is UseCaseState.Data -> if (state.value == null) unknownEvaluation() else runRemove(args)
+
+			is UseCaseState.Error -> IntentExecution(OutcomeKind.FAILED, errorDetailCode(state.error))
+
+			UseCaseState.Loading -> invalidArgs()
+		}
+	}
+
+	private suspend fun runRemove(args: RemoveEvaluationArgs): IntentExecution {
 		val params = RemoveEvaluationParams(
 			evaluationId = args.evaluationId,
 			mutationId = args.mutationId
