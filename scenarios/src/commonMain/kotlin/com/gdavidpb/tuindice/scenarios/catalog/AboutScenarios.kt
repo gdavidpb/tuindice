@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
+import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
@@ -209,11 +212,96 @@ private val aboutUsageDataConsent = scenario(
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
 }
 
+/** From About: scrolls to the assistant's memory entry, opens it and waits for its screen. */
+private fun StepBuilder.openAssistantMemory() {
+	scrollUntilVisible(AboutUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
+	tap(AboutUiTags.AssistantMemoryItem)
+	waitVisible(AssistantUiTags.MemoryScreen, Within.Wait)
+}
+
+private val aboutAssistantConsentToggle = scenario(
+	"about-assistant-consent-toggle",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("about.About.SetAssistantConsent")
+	account(E2eAccounts.Canonical.id)
+
+	openAbout()
+	scrollUntilVisible(AboutUiTags.AssistantConsentSwitch, Scroll.ContentDown, Within.Action)
+	waitVisible(AboutUiTags.AssistantConsentSwitch, Within.Assert)
+	assertChecked(AboutUiTags.AssistantConsentSwitch, false)
+	tap(AboutUiTags.AssistantConsentSwitch)
+	assertChecked(AboutUiTags.AssistantConsentSwitch, true)
+	tap(AboutUiTags.AssistantConsentSwitch)
+	assertChecked(AboutUiTags.AssistantConsentSwitch, false)
+}
+
+private val aboutAssistantMemoryDelete = scenario(
+	"about-assistant-memory-delete",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers(
+		"about.About.OpenAssistantMemory",
+		"assistant.AssistantMemory.DeleteEntry"
+	)
+	account(E2eAccounts.Canonical.id)
+
+	openAbout()
+	openAssistantMemory()
+	waitVisible(AssistantUiTags.Memory.entry("mem-1"), Within.Assert)
+	tap(AssistantUiTags.Memory.delete("mem-1"))
+	waitGone(AssistantUiTags.Memory.entry("mem-1"), Within.Action)
+	waitVisible(AssistantUiTags.Memory.entry("mem-2"), Within.Assert)
+}
+
+private val aboutAssistantMemoryClear = scenario(
+	"about-assistant-memory-clear",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers(
+		"assistant.AssistantMemory.ClearAll",
+		"assistant.AssistantMemory.ConfirmClearAll"
+	)
+	account(E2eAccounts.Canonical.id)
+
+	openAbout()
+	openAssistantMemory()
+	tap(AssistantUiTags.MemoryClearAll)
+	waitVisible(AssistantUiTags.ClearAllDialog, Within.Assert)
+	tap(AssistantUiTags.ClearAllConfirm)
+	waitVisible(AssistantUiTags.MemoryEmpty, Within.Action)
+}
+
+private val aboutAssistantMemoryRetry = scenario(
+	"about-assistant-memory-retry",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("assistant.AssistantMemory.Retry")
+	account(E2eAccounts.Canonical.id)
+
+	mockState("assistant-memories", "Failing")
+	openAbout()
+	scrollUntilVisible(AboutUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
+	tap(AboutUiTags.AssistantMemoryItem)
+	waitVisible(AssistantUiTags.MemoryFailed, Within.Wait)
+	mockState("assistant-memories", "Recovered")
+	tap(BaseUiTags.ErrorViewRetryButton)
+	waitVisible(AssistantUiTags.MemoryContent, Within.Wait)
+}
+
 /** The scenarios of the `about` module; list every new one here. */
 val aboutScenarios: List<Scenario> = listOf(
 	aboutSmoke,
 	aboutInternalBrowserLinks,
 	aboutExternalUrlLinks,
 	aboutPlatformEdgeTriggers,
-	aboutUsageDataConsent
+	aboutUsageDataConsent,
+	aboutAssistantConsentToggle,
+	aboutAssistantMemoryDelete,
+	aboutAssistantMemoryClear,
+	aboutAssistantMemoryRetry
 )

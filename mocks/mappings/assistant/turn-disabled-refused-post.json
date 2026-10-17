@@ -1,0 +1,29 @@
+{
+  "scenarioName": "assistant-turns",
+  "requiredScenarioState": "Disabled",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.message.text"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "assistant_disabled",
+      "message": "El asistente está apagado por ahora",
+      "retryAfterSeconds": 600
+    }
+  }
+}

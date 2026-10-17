@@ -11,10 +11,6 @@ object ActionDispositions {
 			action = "about.About.LoadVersion",
 			reason = "screen bootstrap"
 		),
-		ActionDisposition.Pending(
-			action = "about.About.OpenAssistantMemory",
-			reason = "E2E del asistente pendiente (A11)"
-		),
 		ActionDisposition.PlatformEdge(
 			action = "about.About.ReportBug",
 			reason =
@@ -25,20 +21,8 @@ object ActionDispositions {
 				"and asserts that About is usable when the app is back"
 		),
 		ActionDisposition.Pending(
-			action = "about.About.SetAssistantConsent",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.AcceptConsent",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.AnswerStillApplies",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.Appeal",
-			reason = "E2E del asistente pendiente (A11)"
+			reason = "detrás de la sanción: solo aparece con una restricción vigente y la apelación activada; en la build de E2E la apelación está apagada en sombra"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.AttachPhoto",
@@ -47,56 +31,12 @@ object ActionDispositions {
 				"(ver e2e/platform/*/assistant-photo-picker.md)"
 		),
 		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.ChangeText",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.ConfirmIntent",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.CopyMessage",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.DeclineConsent",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.Dismiss",
-			reason = "E2E del asistente pendiente (A11)"
+			reason = "la hoja se cierra con el gesto del sistema (back en Android; el harness no lo traduce en iOS)"
 		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.DismissIntent",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
+		ActionDisposition.Internal(
 			action = "assistant.AssistantChat.Open",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.OpenComponentSheet",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.OpenNavTarget",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.PickSuggestion",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.RateMessage",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.RemoveContext",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.ReportMessage",
-			reason = "E2E del asistente pendiente (A11)"
+			reason = "the sheet opens from a screen with the context that screen declares; the route dispatches it, no user performs it"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.RequestPhoto",
@@ -104,49 +44,17 @@ object ActionDispositions {
 				"Abre la cámara o la galería del sistema; se prueba a mano " +
 				"(ver e2e/platform/*/assistant-photo-picker.md)"
 		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.RetryTurn",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.Send",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantChat.ToggleIntentDraft",
-			reason = "E2E del asistente pendiente (A11)"
-		),
 		ActionDisposition.Internal(
 			action = "assistant.AssistantComponentSheet.Open",
 			reason = "route state bootstrap: the route dispatches it when the sheet opens"
 		),
 		ActionDisposition.Pending(
-			action = "assistant.AssistantComponentSheet.OpenNavTarget",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
 			action = "assistant.AssistantMemory.AnswerStillApplies",
-			reason = "E2E del asistente pendiente (A11)"
+			reason = "la pantalla de memoria no tiene control de «sigue aplicando»; la respuesta llega desde el componente del chat"
 		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantMemory.ClearAll",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantMemory.ConfirmClearAll",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantMemory.DeleteEntry",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
+		ActionDisposition.Internal(
 			action = "assistant.AssistantMemory.Load",
-			reason = "E2E del asistente pendiente (A11)"
-		),
-		ActionDisposition.Pending(
-			action = "assistant.AssistantMemory.Retry",
-			reason = "E2E del asistente pendiente (A11)"
+			reason = "screen bootstrap: the memory screen dispatches it as its initial action"
 		),
 		ActionDisposition.Internal(
 			action = "auth.SignOut.Initialize",

@@ -1,0 +1,10 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-add"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-add","message":{"id":"msg-add","parts":[{"type":"text","text":"Preparé dos evaluaciones para CI5437."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"intent_proposed","seq":3,"turnId":"turn-add","messageId":"msg-add","intent":{"id":"intent-add-1","args":{"type":"evaluaciones.agregar/1","items":[{"mutationId":"mut-add-1","reference":"Parcial 1","attemptId":"722cc2cc935e0aefdc73f9ebf9d2f1b6","subjectCode":"CI5437","termId":"d377155d39da686f412622aaca9074cd","evaluationType":"QUIZ","scheduleMode":"dated","dateMillis":1781107200000,"grade":15.5,"maxGrade":20.0,"selected":true},{"mutationId":"mut-add-2","reference":"Parcial 2","attemptId":"722cc2cc935e0aefdc73f9ebf9d2f1b6","subjectCode":"CI5437","termId":"d377155d39da686f412622aaca9074cd","evaluationType":"QUIZ","scheduleMode":"dated","dateMillis":1781107200000,"grade":12.0,"maxGrade":20.0,"selected":true}],"source":"manual"},"title":"Agregar 2 evaluaciones","effect":[{"label":"Nueva evaluación","detail":"Parcial 1 y Parcial 2 de CI5437"}],"risk":"normal","editable":["grade"],"binding":{"mutationIds":["mut-add-1","mut-add-2"],"argsHash":"hash-add-1"},"expiresAtMillis":1792600000000,"status":"proposed","confirmLabel":"Agregar","cancelLabel":"Cancelar"}}
+
+data: {"type":"component_emitted","seq":4,"turnId":"turn-add","messageId":"msg-add","component":{"type":"nav.abrir/1","id":"cmp-add-nav-1","fallbackText":"Ver evaluaciones","display":"inline","entityRefs":[],"target":"evaluations","label":"Ver evaluaciones"}}
+
+data: {"type":"run_finished","seq":5,"turnId":"turn-add"}
+

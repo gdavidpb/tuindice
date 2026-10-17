@@ -1,0 +1,37 @@
+{
+  "scenarioName": "assistant-memories",
+  "requiredScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/memories",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "id": "mem-1",
+          "category": "OTHER",
+          "text": "Prefieres estudiar por la mañana",
+          "state": "active",
+          "createdAtMillis": 1760000000000
+        },
+        {
+          "id": "mem-2",
+          "category": "OTHER",
+          "text": "Tu meta es un índice de 16",
+          "state": "active",
+          "createdAtMillis": 1760000000000
+        }
+      ]
+    }
+  }
+}

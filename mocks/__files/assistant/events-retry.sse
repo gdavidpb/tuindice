@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-retry"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-retry","message":{"id":"msg-retry","parts":[{"type":"text","text":"Listo, ahora sí pude responder."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-retry"}
+

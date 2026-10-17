@@ -1,0 +1,8 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-suggestion"}
+
+data: {"type":"progress","seq":2,"turnId":"turn-suggestion","tool":"resumen","label":"Revisando tu resumen"}
+
+data: {"type":"message_completed","seq":3,"turnId":"turn-suggestion","message":{"id":"msg-suggestion","parts":[{"type":"text","text":"Este trimestre vas bien encaminado."},{"type":"suggestions","items":[{"id":"sq.summary.term","label":"¿Cómo voy este trimestre?","text":"¿Cómo voy este trimestre?"},{"id":"sq.summary.attention","label":"¿Qué necesita mi atención?","text":"¿Qué necesita mi atención?"}]}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":4,"turnId":"turn-suggestion","usage":{"remainingHour":19,"remainingDay":49,"remainingMonth":399}}
+

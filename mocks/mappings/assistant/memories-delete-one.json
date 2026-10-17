@@ -1,0 +1,16 @@
+{
+  "scenarioName": "assistant-memories",
+  "newScenarioState": "Trimmed",
+  "request": {
+    "method": "DELETE",
+    "urlPath": "/assistant/v1/memories/mem-1",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 204
+  }
+}

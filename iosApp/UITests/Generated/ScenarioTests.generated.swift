@@ -2,11 +2,31 @@
 import XCTest
 
 final class AboutScenarioTests: ScenarioTestCase {
+    func test_about_assistant_consent_toggle() { runScenario("about-assistant-consent-toggle") }
+    func test_about_assistant_memory_clear() { runScenario("about-assistant-memory-clear") }
+    func test_about_assistant_memory_delete() { runScenario("about-assistant-memory-delete") }
+    func test_about_assistant_memory_retry() { runScenario("about-assistant-memory-retry") }
     func test_about_external_url_links() { runScenario("about-external-url-links") }
     func test_about_internal_browser_links() { runScenario("about-internal-browser-links") }
     func test_about_platform_edge_triggers() { runScenario("about-platform-edge-triggers") }
     func test_about_smoke() { runScenario("about-smoke") }
     func test_about_usage_data_consent() { runScenario("about-usage-data-consent") }
+}
+
+final class AssistantScenarioTests: ScenarioTestCase {
+    func test_assistant_answer_still_applies() { runScenario("assistant-answer-still-applies") }
+    func test_assistant_ask_about_evaluation() { runScenario("assistant-ask-about-evaluation") }
+    func test_assistant_confirm_add_evaluation() { runScenario("assistant-confirm-add-evaluation") }
+    func test_assistant_confirm_destructive_delete() { runScenario("assistant-confirm-destructive-delete") }
+    func test_assistant_decline_consent() { runScenario("assistant-decline-consent") }
+    func test_assistant_dismiss_intent() { runScenario("assistant-dismiss-intent") }
+    func test_assistant_guided_suggestions() { runScenario("assistant-guided-suggestions") }
+    func test_assistant_open_component_sheet() { runScenario("assistant-open-component-sheet") }
+    func test_assistant_open_screen() { runScenario("assistant-open-screen") }
+    func test_assistant_report_message() { runScenario("assistant-report-message") }
+    func test_assistant_retry_turn() { runScenario("assistant-retry-turn") }
+    func test_assistant_server_disabled() { runScenario("assistant-server-disabled") }
+    func test_assistant_smoke() { runScenario("assistant-smoke") }
 }
 
 final class AuthScenarioTests: ScenarioTestCase {

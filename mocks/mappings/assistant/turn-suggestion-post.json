@@ -1,0 +1,28 @@
+{
+  "scenarioName": "assistant-turns",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.message.suggestionId"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "turnId": "turn-suggestion",
+      "conversationId": "conv-1",
+      "lastSeq": 0
+    }
+  }
+}

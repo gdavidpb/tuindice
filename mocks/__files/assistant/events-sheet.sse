@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-sheet"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-sheet","message":{"id":"msg-sheet","parts":[{"type":"text","text":"Aquí tienes el detalle de tus evaluaciones."},{"type":"component","component":{"type":"nav.abrir/1","id":"cmp-sheet-nav-1","fallbackText":"Ver evaluaciones","display":"sheet","entityRefs":[],"target":"evaluations","label":"Ver evaluaciones"}}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-sheet"}
+

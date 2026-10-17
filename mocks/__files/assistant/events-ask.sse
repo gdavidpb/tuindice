@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-ask"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-ask","message":{"id":"msg-ask","parts":[{"type":"text","text":"Te faltan 14 puntos en lo que queda de la materia."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-ask"}
+
