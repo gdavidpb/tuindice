@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.ConsentComponentView
@@ -59,8 +60,9 @@ import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
 // One component of an agent message. A SHEET component adds its «Ver detalle» row, except on its own sheet, where
-// [showsDetailRow] is false. Renderers exist for the sistema, nav, perfil, informe, horario and resumen catalogs;
-// conocimiento, evaluaciones, materias, pensum and plan fall back to their text until their renderers land.
+// [showsDetailRow] is false. Every catalog this build supports has its renderers (sistema, nav, perfil, informe,
+// horario, resumen, evaluaciones, materias, pensum, plan and conocimiento); only a component this build does not
+// know falls back to the text it carries.
 @Composable
 fun ChatComponentView(
 	messageId: String,
@@ -107,21 +109,13 @@ private fun ComponentRenderer(
 		is AttentionComponent, is WeekScheduleComponent, is NextClassComponent, is ClashesComponent ->
 			RecordCardComponentRenderer(component = component, onAction = onAction)
 
-		// conocimiento/1: renderer in A8b/A8c
+		// conocimiento, evaluaciones, materias, pensum and plan: drawn by AcademicCardComponentRenderer
 		is HelpComponent, is CitationComponent,
-
-		// evaluaciones/1: renderer in A8b/A8c
 		is WeeklyLoadComponent, is EvaluationListComponent, is RequiredGradeComponent, is SubjectPointsComponent,
-
-		// materias/1: renderer in A8b/A8c
 		is SubjectStatsComponent, is SubjectListComponent, is RecommendedElectivesComponent,
-
-		// pensum/1: renderer in A8b/A8c
-		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent,
-		is RequirementsComponent,
-
-		// plan/1: renderer in A8b/A8c
-		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent,
+		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent, is RequirementsComponent,
+		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent ->
+			AcademicCardComponentRenderer(component = component, onAction = onAction)
 
 		// A component this build does not know shows the text the backend sent with it.
 		is UnknownChatComponent -> ChatFallbackComponentView(fallbackText = component.fallbackText)

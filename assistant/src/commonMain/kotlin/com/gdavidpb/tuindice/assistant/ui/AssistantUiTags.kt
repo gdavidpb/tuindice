@@ -122,4 +122,49 @@ object AssistantUiTags {
 
 		fun clashes(componentId: String): String = "assistant_card_a_schedule_clashes_$componentId"
 	}
+
+	// The cards of the evaluations, the pensum, the subjects, the plans and the knowledge: one tag per card, by catalog.
+	object Evaluations {
+		fun list(componentId: String): String = "assistant_card_b_evaluations_list_$componentId"
+
+		fun points(componentId: String): String = "assistant_card_b_evaluations_points_$componentId"
+
+		fun load(componentId: String): String = "assistant_card_b_evaluations_load_$componentId"
+
+		fun requiredGrade(componentId: String): String = "assistant_card_b_evaluations_required_$componentId"
+	}
+
+	object Pensum {
+		fun progress(componentId: String): String = "assistant_card_b_pensum_progress_$componentId"
+
+		fun requirements(componentId: String): String = "assistant_card_b_pensum_requirements_$componentId"
+
+		fun impact(componentId: String): String = "assistant_card_b_pensum_impact_$componentId"
+
+		fun comparison(componentId: String): String = "assistant_card_b_pensum_comparison_$componentId"
+	}
+
+	object Subjects {
+		fun list(componentId: String): String = "assistant_card_b_subjects_list_$componentId"
+
+		fun stats(componentId: String): String = "assistant_card_b_subjects_stats_$componentId"
+
+		fun electives(componentId: String): String = "assistant_card_b_subjects_electives_$componentId"
+	}
+
+	object Plan {
+		fun list(componentId: String): String = "assistant_card_b_plan_list_$componentId"
+
+		fun evaluation(componentId: String): String = "assistant_card_b_plan_evaluation_$componentId"
+
+		fun comparison(componentId: String): String = "assistant_card_b_plan_comparison_$componentId"
+	}
+
+	object Knowledge {
+		fun citation(componentId: String): String = "assistant_card_b_knowledge_citation_$componentId"
+
+		fun help(componentId: String): String = "assistant_card_b_knowledge_help_$componentId"
+
+		fun helpOpen(componentId: String): String = "assistant_card_b_knowledge_help_open_$componentId"
+	}
 }
