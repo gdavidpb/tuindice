@@ -42,7 +42,7 @@ fun classPlaceItem(
  * suffix is said once when both ends fall on the same side of noon ("7:30–9:30 a. m.") and on each
  * end when they do not ("11:30 a. m.–1:30 p. m."). Noon itself is "12:30 p. m.".
  */
-internal fun IntRange.toClockRangeText(): UiText {
+fun IntRange.toClockRangeText(): UiText {
 	val startPeriod = first.toPeriodText()
 	val endPeriod = last.toPeriodText()
 
