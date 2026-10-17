@@ -1,0 +1,93 @@
+package com.gdavidpb.tuindice.assistant.data.source
+
+import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
+import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
+import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
+import com.gdavidpb.tuindice.chatcontract.event.IntentResolved
+import com.gdavidpb.tuindice.chatcontract.event.MessageCompleted
+import com.gdavidpb.tuindice.chatcontract.event.Progress
+import com.gdavidpb.tuindice.chatcontract.event.RunFinished
+import com.gdavidpb.tuindice.chatcontract.event.RunStarted
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.intent.IntentBinding
+import com.gdavidpb.tuindice.chatcontract.intent.IntentEffectLine
+import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
+import com.gdavidpb.tuindice.chatcontract.message.Text
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+class AssistantConversationDataSourceTest {
+
+	private val message = AssistantMessage(id = "m1", parts = listOf(Text("Hola")), createdAtMillis = 1L)
+
+	private val intent = Intent(
+		id = "i1",
+		args = UnknownIntentArgs,
+		title = "Agregar evaluacion",
+		effect = listOf(IntentEffectLine(label = "Crear", detail = "Una evaluacion nueva")),
+		risk = IntentRisk.NORMAL,
+		binding = IntentBinding(mutationIds = emptyList(), argsHash = "hash"),
+		expiresAtMillis = 1L,
+		confirmLabel = "Confirmar",
+		cancelLabel = "Cancelar"
+	)
+
+	@Test
+	fun applyingAnEventTwiceDoesNotApplyItTwice() = runTest {
+		val store = AssistantConversationDataSource()
+
+		store.apply(RunStarted(seq = 1, turnId = "t1"))
+		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = message))
+		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = message))
+		store.apply(Progress(seq = 1, turnId = "t1", tool = "subjects", label = "Tarde"))
+
+		val state = store.observeConversation().value
+
+		assertEquals(listOf(message), state.messages)
+		assertEquals(2L, state.turns.getValue("t1").lastSeq)
+		assertNull(state.turns.getValue("t1").progressLabel)
+	}
+
+	@Test
+	fun progressIntentsAndTheEndOfTheTurnAreTracked() = runTest {
+		val store = AssistantConversationDataSource()
+
+		store.apply(RunStarted(seq = 1, turnId = "t1"))
+		store.apply(Progress(seq = 2, turnId = "t1", tool = "subjects", label = "Buscando materias"))
+		store.apply(IntentProposed(seq = 3, turnId = "t1", messageId = "m1", intent = intent))
+
+		val proposed = store.observeConversation().value
+
+		assertEquals("Buscando materias", proposed.turns.getValue("t1").progressLabel)
+		assertEquals(setOf("i1"), proposed.openIntents.keys)
+		assertEquals("m1", proposed.openIntents.getValue("i1").messageId)
+
+		store.apply(IntentResolved(seq = 4, turnId = "t1", intentId = "i1", outcome = OutcomeKind.CONFIRMED))
+		store.apply(RunFinished(seq = 5, turnId = "t1"))
+
+		val finished = store.observeConversation().value
+
+		assertTrue(finished.openIntents.isEmpty())
+		assertEquals(AssistantTurnStatus.FINISHED, finished.turns.getValue("t1").status)
+		assertEquals(5L, finished.turns.getValue("t1").lastSeq)
+		assertNull(finished.turns.getValue("t1").progressLabel)
+	}
+
+	@Test
+	fun clearSessionMemoryEmptiesTheConversation() = runTest {
+		val store = AssistantConversationDataSource()
+		store.attachConversation("c1")
+		store.apply(RunStarted(seq = 1, turnId = "t1"))
+		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = message))
+
+		store.clearSessionMemory()
+
+		assertEquals(AssistantConversationState(), store.observeConversation().value)
+	}
+}

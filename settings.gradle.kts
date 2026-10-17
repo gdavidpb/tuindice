@@ -26,5 +26,6 @@ include(
 	":evaluations",
 	":subjects",
 	":wizard",
-	":pensum"
+	":pensum",
+	":assistant"
 )

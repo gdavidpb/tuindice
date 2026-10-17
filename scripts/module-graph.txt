@@ -11,6 +11,7 @@
 about=:base
 academiccore=-
 app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :security :subjects :summary :wizard
+assistant=:base :chatcontract
 auth=:base :security
 base=-
 chatcontract=-
