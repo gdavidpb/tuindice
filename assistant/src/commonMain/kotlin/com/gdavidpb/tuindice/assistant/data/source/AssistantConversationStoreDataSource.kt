@@ -5,7 +5,9 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -31,6 +33,10 @@ class AssistantConversationStoreDataSource(
 
 	override fun addUserMessage(message: AssistantUserMessage) {
 		store.addUserMessage(message)
+	}
+
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+		store.addAssistantMessage(message, intent)
 	}
 
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {

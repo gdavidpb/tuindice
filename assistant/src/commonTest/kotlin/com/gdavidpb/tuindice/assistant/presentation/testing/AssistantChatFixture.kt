@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmProjectionIntentUse
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmRememberIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -39,6 +40,7 @@ import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepositor
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConsentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantMemoryRepository
@@ -47,6 +49,7 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepos
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantTurnRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -77,6 +80,8 @@ internal class AssistantChatFixture {
 	val memories = RecordingAssistantMemoryRepository()
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
 	val clientState = FakeAssistantClientStateRepository()
+	val imageEncoder = RecordingImageEncoderRepository()
+	val extraction = RecordingAssistantExtractionRepository()
 	val effects = mutableListOf<AssistantChat.Effect>()
 
 	private val reporting = RecordingReportingRepository()
@@ -123,6 +128,13 @@ internal class AssistantChatFixture {
 				conversationRepository = conversation,
 				turnRepository = turns,
 				clientStateRepository = clientState,
+				clock = clock,
+				reportingRepository = reporting
+			),
+			extractEvaluationsFromPhotoUseCase = ExtractEvaluationsFromPhotoUseCase(
+				imageEncoderRepository = imageEncoder,
+				extractionRepository = extraction,
+				conversationRepository = conversation,
 				clock = clock,
 				reportingRepository = reporting
 			)

@@ -22,7 +22,8 @@ private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
 @Composable
 fun AssistantChatSheet(
 	state: AssistantChat.State,
-	onAction: (AssistantChat.Action) -> Unit
+	onAction: (AssistantChat.Action) -> Unit,
+	isCameraAvailable: Boolean = false
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
@@ -35,6 +36,7 @@ fun AssistantChatSheet(
 	) {
 		AssistantChatContent(
 			state = state,
+			isCameraAvailable = isCameraAvailable,
 			onAction = onAction,
 			modifier = Modifier
 				.fillMaxWidth()

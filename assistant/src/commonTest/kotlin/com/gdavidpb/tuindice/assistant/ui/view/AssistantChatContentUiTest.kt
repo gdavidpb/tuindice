@@ -7,10 +7,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
 import com.gdavidpb.tuindice.assistant.ui.contentState
 import com.gdavidpb.tuindice.assistant.ui.contextChip
+import com.gdavidpb.tuindice.assistant.ui.intentCard
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -94,5 +98,63 @@ class AssistantChatContentUiTest {
 
 		assertNodeVisible(AssistantUiTags.SendButton)
 		assertNodeDisabled(AssistantUiTags.SendButton)
+	}
+
+	@Test
+	fun when_aPhotoIsBeingRead_then_theProgressShowsAndThePhotoButtonIsOff() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(
+					composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = false)
+				).copy(isExtracting = true),
+				onAction = {},
+				isCameraAvailable = true,
+				modifier = Modifier.fillMaxSize()
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.ProgressLabel)
+		assertNodeDisabled(AssistantUiTags.PhotoButton)
+	}
+
+	@Test
+	fun when_theComposerIsOff_then_thePhotoButtonIsNotShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(
+					composer = ChatComposerItem(text = "", isEnabled = false, isSendEnabled = false)
+				),
+				onAction = {},
+				isCameraAvailable = true,
+				modifier = Modifier.fillMaxSize()
+			)
+		}
+
+		assertNodeHidden(AssistantUiTags.PhotoButton)
+	}
+
+	@Test
+	fun when_aPhotoIsReadIntoTheChat_then_itsIntentCardIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(
+					items = listOf(
+						ChatItem.Agent(
+							id = "photo-1",
+							parts = listOf(
+								ChatPartItem.Text("Encontré 1 evaluación."),
+								ChatPartItem.IntentCard(intentCard())
+							),
+							useful = null,
+							copyText = "Encontré 1 evaluación."
+						)
+					)
+				),
+				onAction = {},
+				modifier = Modifier.fillMaxSize()
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Intent.card(INTENT_ID))
 	}
 }

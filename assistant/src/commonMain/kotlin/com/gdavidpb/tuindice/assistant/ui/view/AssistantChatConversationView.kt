@@ -15,12 +15,16 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import org.jetbrains.compose.resources.stringResource
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_photo_reading
 
 // The conversation, oldest first, with the context chip above and the running label, notice, suggestions and
 // composer below. The list follows its last item whenever the conversation changes size.
 @Composable
 fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
+	isCameraAvailable: Boolean = false,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -52,7 +56,10 @@ fun AssistantChatConversationView(
 				}
 			}
 		}
-		content.progressLabel?.let { label ->
+		// A photo being read has no label of its own in the state: the label is the reading's, as the progress shows it.
+		val readingLabel = if (content.isExtracting) stringResource(Res.string.assistant_photo_reading) else null
+
+		(content.progressLabel ?: readingLabel)?.let { label ->
 			AssistantProgressView(label = label)
 		}
 		content.notice?.let { notice ->
@@ -62,7 +69,11 @@ fun AssistantChatConversationView(
 			AssistantChatSuggestionsView(suggestions = content.suggestions, onAction = onAction)
 		}
 		if (!content.isGuided) {
-			AssistantChatComposerView(composer = content.composer, onAction = onAction)
+			AssistantChatComposerView(
+				composer = content.composer,
+				isCameraAvailable = isCameraAvailable,
+				onAction = onAction
+			)
 		}
 	}
 }

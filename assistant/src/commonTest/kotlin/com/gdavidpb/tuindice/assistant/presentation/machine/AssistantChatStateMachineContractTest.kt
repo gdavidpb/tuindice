@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantChatFixture
@@ -16,6 +17,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -131,7 +133,10 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.Appeal(text = "revisen"),
 			AssistantChat.Action.AcceptConsent,
 			AssistantChat.Action.DeclineConsent,
-			AssistantChat.Action.Dismiss
+			AssistantChat.Action.Dismiss,
+			AssistantChat.Action.RequestPhoto(fromCamera = true),
+			AssistantChat.Action.RequestPhoto(fromCamera = false),
+			AssistantChat.Action.AttachPhoto(file = PlatformFile("assistant-plan.jpg"))
 		)
 	}
 
@@ -169,7 +174,10 @@ class AssistantChatStateMachineContractTest {
 			AssistantChatInternalEvent.MessageReported(message = "reported"),
 			AssistantChatInternalEvent.MessageReportRejected(message = "report-too-long"),
 			AssistantChatInternalEvent.AppealSent(message = "appeal-sent"),
-			AssistantChatInternalEvent.AppealRejected(message = "appeal-failed")
+			AssistantChatInternalEvent.AppealRejected(message = "appeal-failed"),
+			AssistantChatInternalEvent.PhotoExtracted,
+			AssistantChatInternalEvent.PhotoRejected(error = ExtractEvaluationsFromPhotoError.QuotaExhausted(30)),
+			AssistantChatInternalEvent.PhotoRejected(error = null)
 		)
 	}
 }

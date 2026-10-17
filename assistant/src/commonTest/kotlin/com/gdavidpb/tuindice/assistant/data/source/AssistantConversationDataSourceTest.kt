@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
+import com.gdavidpb.tuindice.chatcontract.message.IntentPart
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -89,5 +90,32 @@ class AssistantConversationDataSourceTest {
 		store.clearSessionMemory()
 
 		assertEquals(AssistantConversationState(), store.observeConversation().value)
+	}
+
+	@Test
+	fun anAssistantMessageWrittenOutsideATurnIsAnItemWithItsIntentOpen() = runTest {
+		val store = AssistantConversationDataSource()
+		val proposal = AssistantMessage(
+			id = "photo-1",
+			parts = listOf(Text("Encontré 1 evaluación."), IntentPart(intent)),
+			createdAtMillis = 2L
+		)
+
+		store.addAssistantMessage(proposal, intent)
+
+		val state = store.observeConversation().value
+		assertEquals(listOf(proposal), state.messages)
+		assertEquals(intent, state.openIntents.getValue("i1").intent)
+	}
+
+	@Test
+	fun theSameAssistantMessageIsNotWrittenTwice() = runTest {
+		val store = AssistantConversationDataSource()
+		val proposal = AssistantMessage(id = "photo-1", parts = listOf(Text("Hola")), createdAtMillis = 2L)
+
+		store.addAssistantMessage(proposal, intent = null)
+		store.addAssistantMessage(proposal, intent = null)
+
+		assertEquals(listOf(proposal), store.observeConversation().value.messages)
 	}
 }

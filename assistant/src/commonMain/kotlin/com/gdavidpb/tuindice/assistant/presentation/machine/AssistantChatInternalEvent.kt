@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
@@ -59,4 +60,10 @@ sealed interface AssistantChatInternalEvent {
 	data class AppealSent(val message: String) : AssistantChatInternalEvent
 
 	data class AppealRejected(val message: String) : AssistantChatInternalEvent
+
+	// A photo was read: its proposal is in the conversation, and the reading ends.
+	data object PhotoExtracted : AssistantChatInternalEvent
+
+	// A photo was not read: the error says which notice the student sees.
+	data class PhotoRejected(val error: ExtractEvaluationsFromPhotoError?) : AssistantChatInternalEvent
 }

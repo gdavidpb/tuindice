@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
@@ -16,7 +17,10 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepo
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
+import com.gdavidpb.tuindice.base.domain.model.EncodedImage
+import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
@@ -25,6 +29,8 @@ import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.context.ClientState
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.UsageSummary
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageReport
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
@@ -43,9 +49,12 @@ import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemovePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.turn.AssistantStatus
 import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
+import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -105,6 +114,7 @@ internal class RecordingAssistantConversationRepository(
 	val applied = mutableListOf<AssistantEvent>()
 	val userMessages = mutableListOf<AssistantUserMessage>()
 	val resolved = mutableMapOf<String, OutcomeKind>()
+	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = flowOf(currentConversation())
 
@@ -131,6 +141,11 @@ internal class RecordingAssistantConversationRepository(
 	override fun addUserMessage(message: AssistantUserMessage) {
 		calls += "addUserMessage"
 		userMessages += message
+	}
+
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+		calls += "addAssistantMessage"
+		assistantMessages += message to intent
 	}
 
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
@@ -302,6 +317,35 @@ internal class RecordingAssistantConsentRepository : AssistantConsentRepository 
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
 		changes += granted
 		consent.value = granted
+	}
+}
+
+// The reading service of the photos: its answer, the requests it took, and a gate that holds the answer while a test
+// looks at the chat in the middle of a reading.
+internal class RecordingAssistantExtractionRepository : AssistantExtractionRepository {
+	var result = ExtractionResult(message = "Encontré 1 evaluación.")
+	var failure: Throwable? = null
+	var gate: CompletableDeferred<Unit>? = null
+	val requests = mutableListOf<ExtractionRequest>()
+
+	override suspend fun extract(request: ExtractionRequest): ExtractionResult {
+		requests += request
+		gate?.await()
+		failure?.let { error -> throw error }
+
+		return result
+	}
+}
+
+// The encoder of the photos: the bytes a photo is encoded to, and the specs it was asked for.
+internal class RecordingImageEncoderRepository : ImageEncoderRepository {
+	var content = byteArrayOf(1, 2, 3)
+	val specs = mutableListOf<ImageEncodingSpec>()
+
+	override suspend fun encode(file: PlatformFile, spec: ImageEncodingSpec): EncodedImage {
+		specs += spec
+
+		return EncodedImage(content = content, mimeType = "image/jpeg")
 	}
 }
 

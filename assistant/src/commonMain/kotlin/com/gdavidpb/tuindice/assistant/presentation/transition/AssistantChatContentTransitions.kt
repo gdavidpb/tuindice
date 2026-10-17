@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.transition
 
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
@@ -25,6 +26,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		onExit { machine.leaveContent() }
 
 		contentComposerRows(machine, host)
+		contentPhotoRows(machine, host)
 		contentMessageRows(machine, host)
 		contentIntentRows(machine, host)
 		contentObservationRows(machine, host)
@@ -88,6 +90,69 @@ private fun ContentTransitions.contentComposerRows(
 			draftText = null
 		)
 		machine.refreshed(state)
+	}
+}
+
+private fun ContentTransitions.contentPhotoRows(
+	machine: AssistantChatMachine,
+	host: MachineHost<AssistantChat.Effect>
+) {
+	on<AssistantChat.Action.RequestPhoto>(
+		emits = setOf(AssistantChat.Effect.OpenCamera::class, AssistantChat.Effect.OpenPhotoPicker::class)
+	) { state, action ->
+		if (state.composer.isPhotoEnabled) {
+			host.sendEffect(
+				if (action.fromCamera) AssistantChat.Effect.OpenCamera else AssistantChat.Effect.OpenPhotoPicker
+			)
+		}
+
+		state
+	}
+
+	on<AssistantChat.Action.AttachPhoto> { state, action ->
+		if (!state.composer.isPhotoEnabled) return@on state
+
+		machine.session.turnFailure = null
+		machine.session.photoExtracting = true
+		machine.turns.extractPhoto(host = host, file = action.file, context = state.context?.context)
+		machine.refreshed(state)
+	}
+
+	on<AssistantChatInternalEvent.PhotoExtracted> { state, _ ->
+		machine.session.photoExtracting = false
+		machine.refreshed(state)
+	}
+
+	on<AssistantChatInternalEvent.PhotoRejected> { state, event ->
+		machine.photoRejected(host = host, event = event)
+		machine.refreshed(state)
+	}
+}
+
+// A photo that was not read. Its notices are the turn's: the quota, the guided mode, a restriction, or a failure the
+// student can see. A photo has no text to send again, so its failure is never retryable.
+private suspend fun AssistantChatMachine.photoRejected(
+	host: MachineHost<AssistantChat.Effect>,
+	event: AssistantChatInternalEvent.PhotoRejected
+) {
+	session.photoExtracting = false
+
+	when (val error = event.error) {
+		is ExtractEvaluationsFromPhotoError.QuotaExhausted -> {
+			session.quota = AssistantChatSession.Quota(retryAfterSeconds = error.retryAfterSeconds)
+		}
+
+		ExtractEvaluationsFromPhotoError.Restricted -> {
+			session.restriction = AssistantChatSession.Restriction(level = null, canAppeal = false)
+			access.restrictionStatus(host)
+		}
+
+		ExtractEvaluationsFromPhotoError.GuidedOnly -> session.guidedByServer = true
+
+		else -> session.turnFailure = AssistantChatSession.TurnFailure(
+			message = texts.sendFailed(),
+			retryable = false
+		)
 	}
 }
 

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
 import com.gdavidpb.tuindice.assistant.data.source.KtorAssistantApiDataSource
 import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
@@ -37,6 +38,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
@@ -87,6 +89,7 @@ val assistantModule = module {
 		bind<AssistantIntentRepository>()
 		bind<AssistantFeedbackRepository>()
 		bind<AssistantStandingRepository>()
+		bind<AssistantExtractionRepository>()
 	}
 	factoryOf(::AssistantTurnDataSource) { bind<AssistantTurnRepository>() }
 	single<AssistantEventsDataRepository> {
@@ -130,6 +133,7 @@ val assistantModule = module {
 
 	factoryOf(::ObserveAssistantConversationUseCase)
 	factoryOf(::SendAssistantMessageUseCase)
+	factoryOf(::ExtractEvaluationsFromPhotoUseCase)
 	factoryOf(::FollowAssistantTurnUseCase)
 	factoryOf(::ResumeAssistantTurnUseCase)
 	factoryOf(::CancelAssistantTurnUseCase)

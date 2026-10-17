@@ -2,10 +2,13 @@ package com.gdavidpb.tuindice.assistant.data.source
 
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDataRepository
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
+import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageReport
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
@@ -18,7 +21,7 @@ import io.ktor.client.HttpClient
 class KtorAssistantApiDataSource(
 	internal val httpClient: HttpClient,
 	internal val serverDisabled: AssistantServerDisabledDataRepository
-) : AssistantIntentRepository, AssistantFeedbackRepository, AssistantStandingRepository {
+) : AssistantIntentRepository, AssistantFeedbackRepository, AssistantStandingRepository, AssistantExtractionRepository {
 	override suspend fun decide(decision: IntentDecision): IntentDecisionResult = decideIntent(decision)
 
 	override suspend fun reportOutcome(report: IntentOutcomeReport) = postIntentOutcome(report.intentId, report)
@@ -30,4 +33,5 @@ class KtorAssistantApiDataSource(
 	override suspend fun status(): AssistantStatus = getStatus()
 
 	override suspend fun appeal(appeal: AbuseAppeal) = postAbuseAppeal(appeal)
+	override suspend fun extract(request: ExtractionRequest): ExtractionResult = postExtraction(request)
 }

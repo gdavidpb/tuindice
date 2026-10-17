@@ -122,6 +122,10 @@
 	<string name="assistant_chat_turn_failed_cancelled">Cancelaste la respuesta.</string>
 	<string name="assistant_chat_turn_failed_other">Algo salió mal al responder. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_send_failed">No pudimos enviar tu mensaje. Inténtalo de nuevo.</string>
+	<string name="assistant_photo_add">Agregar evaluaciones desde una foto</string>
+	<string name="assistant_photo_take">Tomar foto</string>
+	<string name="assistant_photo_pick">Elegir de la galería</string>
+	<string name="assistant_photo_reading">Leyendo la foto…</string>
 	<string name="assistant_chat_message_too_long">Tu mensaje supera los %1$d caracteres.</string>
 	<string name="assistant_chat_rated">Gracias por tu opinión</string>
 	<string name="assistant_chat_reported">Reporte enviado</string>

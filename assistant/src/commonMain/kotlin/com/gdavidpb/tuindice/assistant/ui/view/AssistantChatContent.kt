@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 fun AssistantChatContent(
 	state: AssistantChat.State,
 	onAction: (AssistantChat.Action) -> Unit,
+	isCameraAvailable: Boolean = false,
 	modifier: Modifier = Modifier
 ) {
 	when (state) {
@@ -25,6 +26,7 @@ fun AssistantChatContent(
 
 		is AssistantChat.State.Content -> AssistantChatConversationView(
 			content = state,
+			isCameraAvailable = isCameraAvailable,
 			onAction = onAction,
 			modifier = modifier
 		)

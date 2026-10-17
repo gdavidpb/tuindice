@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
+import io.github.vinceglb.filekit.PlatformFile
 
 // The chat sheet. It carries no title, name or icon of the assistant: inside the chat the assistant is unnamed.
 object AssistantChat {
@@ -36,7 +37,9 @@ object AssistantChat {
 			// What stops or limits the chat right now (a failed turn, the quota, a restriction, guided mode).
 			val notice: ChatNoticeItem?,
 			// Guided mode: the composer is off and only the suggestions can start a turn.
-			val isGuided: Boolean
+			val isGuided: Boolean,
+			// A photo of the plan is being read: its progress label shows, and the photo button is off.
+			val isExtracting: Boolean = false
 		) : State()
 	}
 
@@ -47,6 +50,12 @@ object AssistantChat {
 		data object Send : Action()
 		class PickSuggestion(val suggestionId: String) : Action()
 		data object RemoveContext : Action()
+
+		// Opens the camera, or the gallery, to read the evaluations of a photo of the plan.
+		class RequestPhoto(val fromCamera: Boolean) : Action()
+
+		// The photo the student took or picked: it is read into the conversation as a proposal.
+		class AttachPhoto(val file: PlatformFile) : Action()
 
 		// Sends again the student's message whose turn failed.
 		data object RetryTurn : Action()
@@ -84,5 +93,10 @@ object AssistantChat {
 		// comprobante.pedir: the app's own enrollment proof flow takes over, with the password saved on the device.
 		data object OpenEnrollmentProof : Effect()
 		class OpenComponentSheet(val messageId: String, val componentId: String) : Effect()
+
+		// The route opens the camera, or the gallery of the system, and answers with AttachPhoto.
+		data object OpenCamera : Effect()
+
+		data object OpenPhotoPicker : Effect()
 	}
 }

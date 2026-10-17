@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.chatcontract.event.RunError
 import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import com.gdavidpb.tuindice.chatcontract.event.RunStarted
 import com.gdavidpb.tuindice.chatcontract.event.UnknownAssistantEvent
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +51,12 @@ class AssistantConversationDataSource : SessionMemory {
 				current.copy(userMessages = current.userMessages + message)
 			}
 		}
+	}
+
+	// A message no turn wrote, such as a photo's proposal. It joins the messages once, by id, and its intent, when it has
+	// one, opens the way a turn's does.
+	fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+		conversation.update { current -> current.withAssistantMessage(message, intent) }
 	}
 
 	// The intent leaves the open ones and keeps the outcome it ended with.
@@ -135,6 +142,19 @@ private fun AssistantConversationState.updateTurn(
 	update: (AssistantTurnState) -> AssistantTurnState
 ): AssistantConversationState {
 	return copy(turns = turns + (turnId to update(turns.getValue(turnId))))
+}
+
+// A proposal written outside a turn, as a photo's is, belongs to no turn: its open intent carries an empty turn id.
+private fun AssistantConversationState.withAssistantMessage(
+	message: AssistantMessage,
+	intent: Intent?
+): AssistantConversationState {
+	val open = intent?.let { AssistantOpenIntent(intentId = it.id, turnId = "", messageId = message.id, intent = it) }
+
+	return copy(
+		messages = messages.withMessage(message),
+		openIntents = if (open == null) openIntents else openIntents + (open.intentId to open)
+	)
 }
 
 // A message that comes again replaces the one it already has, so it never shows twice.

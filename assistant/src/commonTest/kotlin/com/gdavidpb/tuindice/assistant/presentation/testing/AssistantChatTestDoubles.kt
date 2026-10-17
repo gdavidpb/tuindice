@@ -98,6 +98,15 @@ internal class ObservedAssistantConversationRepository(
 		}
 	}
 
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+		conversation.update { current ->
+			val items = current.items + AssistantConversationItem.Agent(message = message, turnId = "")
+			val openIntents = intent?.let { current.openIntents + (it.id to it) } ?: current.openIntents
+
+			current.copy(items = items, openIntents = openIntents)
+		}
+	}
+
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		conversation.update { current ->
 			current.copy(

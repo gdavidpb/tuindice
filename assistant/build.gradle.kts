@@ -41,6 +41,8 @@ kotlin {
 				implementation(libs.koin.compose.viewmodel)
 				implementation(libs.components.resources)
 				implementation(libs.material.icons.extended)
+				implementation(libs.filekit.core)
+				implementation(libs.filekit.dialogs.compose)
 			}
 		}
 

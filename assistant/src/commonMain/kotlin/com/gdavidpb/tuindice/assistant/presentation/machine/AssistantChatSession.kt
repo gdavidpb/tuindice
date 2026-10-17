@@ -23,6 +23,7 @@ internal class AssistantChatSession {
 	var quota: Quota? = null
 	var restriction: Restriction? = null
 	var pendingFailedText: String? = null
+	var photoExtracting = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
 	val runningIntents = mutableSetOf<String>()

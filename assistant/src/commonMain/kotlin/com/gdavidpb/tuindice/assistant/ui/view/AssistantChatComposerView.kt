@@ -28,11 +28,12 @@ import tuindice.assistant.generated.resources.assistant_chat_composer_placeholde
 
 private const val COMPOSER_MAX_LINES = 4
 
-// The text field and the send button in the accent. The field is off while a restriction holds, and the button
-// follows what the presentation says is sendable.
+// The photo button, the text field and the send button in the accent. The field is off while a restriction holds, and
+// with it the photo button; the buttons follow what the presentation says they can do.
 @Composable
 fun AssistantChatComposerView(
 	composer: ChatComposerItem,
+	isCameraAvailable: Boolean,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -41,6 +42,14 @@ fun AssistantChatComposerView(
 		verticalAlignment = Alignment.Bottom,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
+		// The photo button is not there while the field is off, so a restriction hides it together with the field.
+		if (composer.isEnabled) {
+			AssistantChatPhotoButtonView(
+				isEnabled = composer.isPhotoEnabled,
+				isCameraAvailable = isCameraAvailable,
+				onAction = onAction
+			)
+		}
 		OutlinedTextField(
 			value = composer.text,
 			onValueChange = { text -> onAction(AssistantChat.Action.ChangeText(text)) },
