@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.record.presentation.contract
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.applying
+import com.gdavidpb.tuindice.record.presentation.mapper.recordAssistantContext
 import com.gdavidpb.tuindice.record.presentation.model.RecordFailedArt
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import tuindice.record.generated.resources.Res
@@ -23,6 +26,10 @@ object Record {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState {
+		// Only a loaded content knows which term is on screen; every other state describes the screen alone.
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.RECORD)
+
 		data object Idle : State()
 
 		data object Loading : State()
@@ -56,6 +63,9 @@ object Record {
 			val visibleRecord: AcademicRecord
 				get() = inFlightSelection?.let { selection -> record.applying(selection.override) }
 					?: record
+
+			override val assistantContext: AssistantScreenContext
+				get() = recordAssistantContext(this)
 		}
 
 		data class InFlightSelection(
