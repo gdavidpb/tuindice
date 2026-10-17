@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.pensum.presentation.mapper
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
@@ -9,6 +13,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
+import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -303,6 +308,97 @@ class PensumScreenModelMapperTest {
 
 		assertEquals(listOf("ci4325"), detail.corequisites.map { item -> item.nodeId })
 		assertEquals(emptyList(), detail.unlocks.map { item -> item.nodeId })
+	}
+
+	@Test
+	fun when_contentIsShown_then_assistantContextNamesThePensumAndItsCredits() {
+		val model = observedPensum(
+			nodes = listOf(course(id = "ci4325", displayCode = "CI4325", y = 84.0, height = 120.0))
+		).toScreenModel()
+
+		assertEquals(
+			AssistantScreenContext(
+				screen = AssistantScreen.PENSUM,
+				entities = listOf(
+					AssistantEntityRef(
+						kind = AssistantEntityKind.PENSUM,
+						id = "Ingenieria de Computacion-2019-degree_project"
+					)
+				),
+				visibleFields = mapOf("approvedCredits" to "0", "totalCredits" to "8")
+			),
+			Pensum.State.Content(model = model).assistantContext
+		)
+	}
+
+	@Test
+	fun when_contentIsNotShown_then_assistantContextOnlyNamesThePensumScreen() {
+		assertEquals(
+			AssistantScreenContext(screen = AssistantScreen.PENSUM),
+			Pensum.State.Loading.assistantContext
+		)
+		assertEquals(
+			AssistantScreenContext(screen = AssistantScreen.PENSUM),
+			Pensum.State.Failed().assistantContext
+		)
+	}
+
+	@Test
+	fun when_subjectHasCode_then_detailAssistantContextNamesTheSubjectAndItsFields() {
+		val subject = course(id = "ci4325", displayCode = "CI4325", y = 84.0, height = 120.0)
+			.copy(name = "Estructuras de Datos")
+
+		val detail = observedPensum(nodes = listOf(subject)).toScreenModel().nodes.single().detail
+
+		assertEquals(
+			AssistantScreenContext(
+				screen = AssistantScreen.SUBJECT_DETAIL,
+				entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
+				visibleFields = mapOf(
+					"displayCode" to "CI4325",
+					"name" to "Estructuras de Datos",
+					"credits" to "4",
+					"status" to "AVAILABLE",
+					"suggestedTerm" to "1° trimestre"
+				)
+			),
+			detail.assistantContext
+		)
+	}
+
+	@Test
+	fun when_subjectIsWildcard_then_detailAssistantContextHasNoSubjectEntityAndKeepsDisplayCode() {
+		val slot = PensumGraph.Node(
+			id = "eg-slot",
+			nodeType = PensumNodeType.SLOT,
+			displayCode = "EG",
+			subjectCode = null,
+			name = "Estudios Generales",
+			credits = 3,
+			category = "GENERAL_STUDIES",
+			termId = "T1",
+			x = 40.0,
+			y = 84.0,
+			width = 160.0,
+			height = 120.0,
+			fulfillmentRules = emptyList()
+		)
+
+		val detail = observedPensum(nodes = listOf(slot)).toScreenModel().nodes.single().detail
+
+		assertEquals(emptyList(), detail.assistantContext.entities)
+		assertEquals("EG", detail.assistantContext.visibleFields["displayCode"])
+		assertEquals("Estudios Generales", detail.assistantContext.visibleFields["name"])
+	}
+
+	@Test
+	fun when_subjectHasNoTerm_then_detailAssistantContextOmitsSuggestedTerm() {
+		val subject = course(id = "ci4325", displayCode = "CI4325", y = 84.0, height = 120.0)
+			.copy(termId = "T9")
+
+		val detail = observedPensum(nodes = listOf(subject)).toScreenModel().nodes.single().detail
+
+		assertFalse("suggestedTerm" in detail.assistantContext.visibleFields)
 	}
 }
 

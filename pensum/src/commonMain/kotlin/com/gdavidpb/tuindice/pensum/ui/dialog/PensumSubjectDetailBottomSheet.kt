@@ -8,13 +8,19 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -23,15 +29,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_subject_ask_assistant
 import tuindice.pensum.generated.resources.pensum_subject_detail_close
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats_unavailable
@@ -50,6 +61,7 @@ fun PensumSubjectDetailBottomSheet(
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 	val detail = node.detail
+	val assistantLauncher = LocalAssistantLauncher.current
 	val statsCode = detail.statsCode
 	val hasMoreDetail =
 		detail.fulfilledSubject != null ||
@@ -102,6 +114,27 @@ fun PensumSubjectDetailBottomSheet(
 					style = MaterialTheme.typography.bodySmall,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
+			}
+
+			if (assistantLauncher != null) {
+				OutlinedButton(
+					modifier = Modifier
+						.fillMaxWidth()
+						.testTag(PensumUiTags.SubjectDetailAskAssistant),
+					colors = ButtonDefaults.outlinedButtonColors(
+						containerColor = pensumGraphColors().panelBackground
+					),
+					onClick = { assistantLauncher.launch(detail.assistantContext) }
+				) {
+					Icon(
+						imageVector = rememberAssistantSparkleIcon(),
+						contentDescription = null,
+						modifier = Modifier.size(18.dp),
+						tint = Color.Unspecified
+					)
+					Spacer(modifier = Modifier.width(8.dp))
+					Text(text = stringResource(Res.string.pensum_subject_ask_assistant))
+				}
 			}
 
 			AnimatedVisibility(

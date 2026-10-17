@@ -56,6 +56,7 @@
 	<string name="pensum_subject_detail_route_after_plural">Requisitos para</string>
 	<string name="pensum_subject_detail_also_with">También se cursa con</string>
 	<string name="pensum_subject_detail_focus_subject">Abrir %1$s</string>
+	<string name="pensum_subject_ask_assistant">Preguntar sobre esto</string>
 	<string name="snack_network_unavailable">Revisa tu conexión e intenta de nuevo.</string>
 	<string name="snack_service_unavailable">El servicio no está disponible.</string>
 	<string name="snack_timeout">La solicitud tardó demasiado.</string>

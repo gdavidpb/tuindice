@@ -1,11 +1,18 @@
 package com.gdavidpb.tuindice.pensum.ui.dialog
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.testing.SAMPLE_APPROVED_NODE_ID
@@ -123,6 +130,41 @@ class PensumSubjectDetailBottomSheetUiTest {
 
 		assertEquals(emptyList(), recorder.statsCodes)
 	}
+
+	@Test
+	fun when_assistantLauncherIsProvided_then_askButtonSendsTheSubjectContext() = runTuIndiceUiTest {
+		val context = AssistantScreenContext(
+			screen = AssistantScreen.SUBJECT_DETAIL,
+			entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
+			visibleFields = mapOf("displayCode" to "CI4325")
+		)
+		val current = sampleCurrentPensumNode()
+		val node = current.copy(detail = current.detail.copy(assistantContext = context))
+		val launched = mutableListOf<AssistantScreenContext>()
+		setSubjectDetailSheetContent(
+			recorder = SubjectDetailSheetRecorder(),
+			node = node,
+			assistantLauncher = AssistantLauncher { launchedContext -> launched += launchedContext }
+		)
+
+		onNodeWithTag(PensumUiTags.SubjectDetailAskAssistant)
+			.assertTextEquals("Preguntar sobre esto")
+			.performClick()
+		waitForIdle()
+
+		assertEquals(listOf(context), launched)
+	}
+
+	@Test
+	fun when_assistantLauncherIsMissing_then_askButtonIsNotDrawn() = runTuIndiceUiTest {
+		setSubjectDetailSheetContent(
+			recorder = SubjectDetailSheetRecorder(),
+			node = sampleCurrentPensumNode()
+		)
+
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.SubjectDetailAskAssistant).assertDoesNotExist()
+	}
 }
 
 private class SubjectDetailSheetRecorder {
@@ -135,18 +177,21 @@ private class SubjectDetailSheetRecorder {
 private fun ComposeUiTest.setSubjectDetailSheetContent(
 	recorder: SubjectDetailSheetRecorder,
 	node: PensumNodeItem,
-	shouldStartExpanded: Boolean = false
+	shouldStartExpanded: Boolean = false,
+	assistantLauncher: AssistantLauncher? = null
 ) {
 	setTuIndiceTestContent {
-		PensumSubjectDetailBottomSheet(
-			node = node,
-			shouldStartExpanded = shouldStartExpanded,
-			navigationOriginNodeId = null,
-			navigationDirection = null,
-			onSubjectStatsClick = { subjectCode -> recorder.statsCodes += subjectCode },
-			onRelatedSubjectClick = { target -> recorder.navigationTargets += target },
-			onDismissRequest = { recorder.dismissCount += 1 }
-		)
+		CompositionLocalProvider(LocalAssistantLauncher provides assistantLauncher) {
+			PensumSubjectDetailBottomSheet(
+				node = node,
+				shouldStartExpanded = shouldStartExpanded,
+				navigationOriginNodeId = null,
+				navigationDirection = null,
+				onSubjectStatsClick = { subjectCode -> recorder.statsCodes += subjectCode },
+				onRelatedSubjectClick = { target -> recorder.navigationTargets += target },
+				onDismissRequest = { recorder.dismissCount += 1 }
+			)
+		}
 	}
 }
 

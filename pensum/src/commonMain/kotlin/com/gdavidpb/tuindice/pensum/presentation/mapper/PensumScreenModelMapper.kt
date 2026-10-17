@@ -100,7 +100,12 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 					termLabel = detailTermLabel,
 					creditsText = creditsText,
 					statsCode = statsCode,
-					fulfilledSubject = fulfilledSubject
+					fulfilledSubject = fulfilledSubject,
+					assistantContext = subjectAssistantContext(
+						node = node,
+						status = statusDisplay.type,
+						suggestedTerm = detailTermLabel
+					)
 				)
 			)
 		}
