@@ -104,6 +104,14 @@ object ActionDispositions {
 			action = "assistant.AssistantChat.ToggleIntentDraft",
 			reason = "E2E del asistente pendiente (A11)"
 		),
+		ActionDisposition.Internal(
+			action = "assistant.AssistantComponentSheet.Open",
+			reason = "route state bootstrap: the route dispatches it when the sheet opens"
+		),
+		ActionDisposition.Pending(
+			action = "assistant.AssistantComponentSheet.OpenNavTarget",
+			reason = "E2E del asistente pendiente (A11)"
+		),
 		ActionDisposition.Pending(
 			action = "assistant.AssistantMemory.AnswerStillApplies",
 			reason = "E2E del asistente pendiente (A11)"

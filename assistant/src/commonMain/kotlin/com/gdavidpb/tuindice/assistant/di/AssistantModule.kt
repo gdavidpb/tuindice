@@ -56,11 +56,17 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatPlanIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatTurns
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackResourceTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatResourceTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryResourceTexts
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
+import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
+import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
@@ -159,4 +165,15 @@ val assistantModule = module {
 	factoryOf(::AssistantChatAccess)
 	factoryOf(::AssistantChatResourceTexts) { bind<AssistantChatTexts>() }
 	factoryOf(::AssistantChatFeedbackResourceTexts) { bind<AssistantChatFeedbackTexts>() }
+
+	/* Memory presentation: the screen's machine, its texts and its view model */
+
+	viewModelOf(::AssistantMemoryViewModel)
+	factoryOf(::AssistantMemoryMachine)
+	factoryOf(::AssistantMemoryResourceTexts) { bind<AssistantMemoryTexts>() }
+
+	/* Component sheet presentation: a read-only view of a component of the conversation */
+
+	viewModelOf(::AssistantComponentSheetViewModel)
+	factoryOf(::AssistantComponentSheetMachine)
 }
