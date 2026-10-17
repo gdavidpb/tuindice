@@ -39,3 +39,5 @@ kotlin {
 		}
 	}
 }
+
+apply(from = rootProject.file("gradle/shared-contract-publishing.gradle.kts"))
