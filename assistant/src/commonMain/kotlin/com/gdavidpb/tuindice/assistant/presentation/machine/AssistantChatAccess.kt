@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 
 // The assistant's standing with the student: whether it is on, the consent, and the restriction and its appeal.
 class AssistantChatAccess(
@@ -26,11 +27,12 @@ class AssistantChatAccess(
 ) {
 	private var availabilityJob: Job? = null
 
-	fun currentAvailability(): AssistantAvailability = availabilityRepository.currentAvailability()
+	suspend fun firstAvailability(): AssistantAvailability = availabilityRepository.observeAvailability().first()
 
 	fun isConsentGranted(): Boolean = consentRepository.assistantConsentGranted.value
 
-	// Started once per sheet, before the opening reads the current value: a change between the two is not lost.
+	// Started once per sheet, after the opening read the first value; the flow replays the current one, so no change
+	// in between is lost.
 	fun observeAvailability(host: MachineHost<AssistantChat.Effect>) {
 		if (availabilityJob?.isActive == true) return
 

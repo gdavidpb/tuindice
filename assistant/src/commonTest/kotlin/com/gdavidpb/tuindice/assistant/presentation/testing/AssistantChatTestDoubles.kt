@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.chatcontract.message.MessagePart
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 
 // The texts are told apart by their values, so an assertion can say which notice the student sees.
@@ -111,14 +112,18 @@ internal class ObservedAssistantConversationRepository(
 	}
 }
 
+// Like the real availability, the current value reads as off until something observes it: the configuration has no
+// synchronous read, so a sheet that read it before observing would close while the assistant is on.
 internal class ObservedAssistantAvailabilityRepository(
 	initial: AssistantAvailability = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
 ) : AssistantAvailabilityRepository {
 	val availability = MutableStateFlow(initial)
+	private var observed = false
 
-	override fun observeAvailability(): Flow<AssistantAvailability> = availability
+	override fun observeAvailability(): Flow<AssistantAvailability> = availability.onStart { observed = true }
 
-	override fun currentAvailability(): AssistantAvailability = availability.value
+	override fun currentAvailability(): AssistantAvailability =
+		if (observed) availability.value else AssistantAvailability(mode = AssistantMode.OFF, serverDisabled = false)
 }
 
 internal fun emptyAssistantConversation(): AssistantConversation {

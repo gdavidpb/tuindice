@@ -55,18 +55,23 @@ class AssistantChatMachine(
 	// the table from Idle, where each outcome has its own target.
 	internal fun openSheet(host: MachineHost<AssistantChat.Effect>, context: AssistantScreenContext?) {
 		session.openedContext = context
-		access.observeAvailability(host)
 
-		val availability = access.currentAvailability()
-		session.guidedByMode = availability.mode == AssistantMode.GUIDED
+		// The opening waits for the first value the availability emits: until something observes it, its current value
+		// reads as off, so reading it right away would close a sheet that the assistant is on for. The changes after
+		// that first value are followed from then on.
+		host.launchMachineJob {
+			val availability = access.firstAvailability()
+			session.guidedByMode = availability.mode == AssistantMode.GUIDED
 
-		host.processInternalEvent(
-			when {
-				!availability.isVisible -> AssistantChatInternalEvent.OpeningUnavailable
-				!access.isConsentGranted() -> AssistantChatInternalEvent.OpeningNeedsConsent
-				else -> AssistantChatInternalEvent.OpeningReady
-			}
-		)
+			host.processInternalEvent(
+				when {
+					!availability.isVisible -> AssistantChatInternalEvent.OpeningUnavailable
+					!access.isConsentGranted() -> AssistantChatInternalEvent.OpeningNeedsConsent
+					else -> AssistantChatInternalEvent.OpeningReady
+				}
+			)
+			access.observeAvailability(host)
+		}
 	}
 
 	// The content of an open sheet: the conversation starts being observed, and a turn that was running resumes.
