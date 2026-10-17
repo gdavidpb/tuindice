@@ -1,0 +1,10 @@
+{
+  "type": "sistema.consentimiento/1",
+  "id": "cmp-consent-1",
+  "fallbackText": "Acepta los términos para usar el asistente.",
+  "display": "sheet",
+  "entityRefs": [],
+  "version": 2,
+  "termsUrl": "https://example.com/terms",
+  "privacyUrl": "https://example.com/privacy"
+}

@@ -1,0 +1,16 @@
+{
+  "conversationId": "conv-1",
+  "clientTurnId": "client-turn-1",
+  "message": { "text": "Agrega mis evaluaciones", "attachmentIds": [] },
+  "screenContext": {
+    "screen": "evaluations",
+    "entities": [{ "kind": "subject", "id": "IS-101" }],
+    "visibleFields": { "week": "2026-W42" },
+    "filters": {},
+    "locale": "es-VE",
+    "timeZone": "America/Caracas"
+  },
+  "clientState": { "recordRevision": 12, "pendingMutations": [] },
+  "supportedCatalogs": ["sistema/1", "nav/1"],
+  "contractVersion": 1
+}
