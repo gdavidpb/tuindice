@@ -412,12 +412,15 @@ class EvaluationDataSource(
 				mutationId = pendingAdd.mutationId
 			)
 			// The add never reached the server: removing it is settled here, and nothing is sent for the removal.
-			mutationEngine.publishLocalOutcome(
-				MutationOutcome(
-					mutationId = remove.mutationId ?: identifierRepository.generateRandomIdentifier(),
-					kind = MutationOutcomeKind.CONFIRMED
+			// Only a caller that named the removal is waiting for its result.
+			remove.mutationId?.let { mutationId ->
+				mutationEngine.publishLocalOutcome(
+					MutationOutcome(
+						mutationId = mutationId,
+						kind = MutationOutcomeKind.CONFIRMED
+					)
 				)
-			)
+			}
 			return
 		}
 
