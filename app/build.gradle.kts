@@ -184,6 +184,8 @@ dependencies {
 	implementation(project(":subjects"))
 	implementation(project(":wizard"))
 	implementation(project(":pensum"))
+	implementation(project(":assistant"))
+	implementation(project(":chatcontract"))
 }
 
 tasks.configureEach {
