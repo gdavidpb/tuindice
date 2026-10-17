@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
@@ -48,6 +52,12 @@ import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.data.source.assistant.AssistantClientStateDataSource
+import com.gdavidpb.tuindice.data.source.assistant.EvaluationsAssistantDataSource
+import com.gdavidpb.tuindice.data.source.assistant.PensumSubjectCatalog
+import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantPlansDataSource
+import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantProjectionDataSource
+import com.gdavidpb.tuindice.data.source.assistant.RecordIntentRunner
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
@@ -67,6 +77,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidati
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.binds
@@ -157,6 +168,18 @@ val commonModule = module {
 	singleOf(::SyncResultLocalDataSource) { bind<SyncResultLocalDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
+
+	/* Assistant */
+
+	// The ports the assistant domain declares, filled with the use cases and the data of this app. None of them keeps
+	// memory: each one reads its use cases and mutates through them, so none is a session memory.
+	factoryOf(::PensumSubjectCatalog)
+	factoryOf(::RecordIntentRunner)
+	factoryOf(::EvaluationsAssistantDataSource) { bind<AssistantEvaluationsRepository>() }
+	factoryOf(::RecordAssistantPlansDataSource) { bind<AssistantPlansRepository>() }
+	factoryOf(::RecordAssistantProjectionDataSource) { bind<AssistantProjectionRepository>() }
+	factoryOf(::AssistantClientStateDataSource) { bind<AssistantClientStateRepository>() }
+
 	single<SyncRepository> {
 		SyncDataSource(
 			settingsDataSource = get<SyncSettingsLocalDataRepository>(),

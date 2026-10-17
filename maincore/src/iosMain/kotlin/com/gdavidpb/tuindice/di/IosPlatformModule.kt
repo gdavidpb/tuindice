@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataReposit
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
@@ -230,6 +231,20 @@ val iosPlatformModule = module {
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
+			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
+		)
+	}
+
+	single(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
+		createAssistantStreamHttpClient(
+			dependencies = AssistantStreamDependencies(
+				appEnvironmentRepository = get<AppEnvironmentRepository>(),
+				configRepository = get<ConfigRepository>(),
+				sessionRepository = get<SessionRepository>(),
+				sessionRecoveryRepository = get(),
+				sessionCoroutineScope = get(),
+				logger = createAppKtorLogger()
+			),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)
 	}

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
@@ -21,7 +22,13 @@ import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBu
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.pluginOrNull
+import io.ktor.client.plugins.sse.SSE
+import org.koin.core.qualifier.named
 import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
 
 class IosAppKoinSmokeTest {
@@ -95,5 +102,26 @@ class IosAppKoinSmokeTest {
 		}
 	) {
 		assertTrue(get<ImageShareRepository>() is IosImageShareDataSource)
+	}
+
+	// The assistant's events come through a client of their own: the iOS platform module builds it under its qualifier,
+	// with the SSE plugin, which the Darwin engine must support. The shared client is another one.
+	@Test
+	fun bindsTheAssistantStreamClientUnderItsQualifierWithSse() = withStartedKoin(
+		start = {
+			startAppKoin(
+				AppKoinBootstrapRequest(
+					platformBootstrap = IosKoinBootstrap(
+						iOSContext = iosSmokeTestContext(),
+						platformVariantModules = emptyList()
+					)
+				)
+			)
+		}
+	) {
+		val stream = get<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER))
+
+		assertNotSame(get<HttpClient>(), stream)
+		assertNotNull(stream.pluginOrNull(SSE))
 	}
 }

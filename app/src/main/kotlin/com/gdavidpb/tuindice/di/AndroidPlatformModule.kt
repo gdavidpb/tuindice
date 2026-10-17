@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
@@ -292,6 +293,20 @@ val androidPlatformModule = module {
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
+			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
+		)
+	}
+
+	single(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
+		createAssistantStreamHttpClient(
+			dependencies = AssistantStreamDependencies(
+				appEnvironmentRepository = get(),
+				configRepository = get(),
+				sessionRepository = get(),
+				sessionRecoveryRepository = get(),
+				sessionCoroutineScope = get(),
+				logger = createAppKtorLogger()
+			),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)
 	}
