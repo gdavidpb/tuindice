@@ -49,16 +49,45 @@ class AssistantNavigationTest {
 	}
 
 	@Test
-	fun when_shareTermIsRequested_then_theShareSheetOpensOverStatistics() {
+	fun when_shareTermIsRequested_then_theShareSheetOpensOverStatistics() = runTest {
 		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
 
-		dependenciesOf(navigator).onNavigateTo(NavTarget.SHARE_TERM, emptyList())
+		dependenciesOf(navigator, scope = this).onNavigateTo(NavTarget.SHARE_TERM, emptyList())
+		advanceUntilIdle()
 
 		assertEquals(MainSection.SUMMARY, navigator.currentTab)
 		assertEquals(
 			listOf<Destination>(SummaryDestination.Statistics, SummaryDestination.ShareTermDialog(termKey = null)),
 			navigator.backStack.takeLast(2)
 		)
+	}
+
+	@Test
+	fun when_shareTermNamesATerm_then_theSheetOpensOnThatTermsKey() = runTest {
+		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
+		val term = EntityRef(kind = EntityKind.TERM, id = "term-7")
+
+		dependenciesOf(
+			navigator = navigator,
+			scope = this,
+			termKeyOf = { termId -> if (termId == "term-7") "2024-SEP_DEC" else null }
+		).onNavigateTo(NavTarget.SHARE_TERM, listOf(term))
+		advanceUntilIdle()
+
+		assertEquals(SummaryDestination.ShareTermDialog(termKey = "2024-SEP_DEC"), navigator.currentKey)
+		assertNoChatOnTab(navigator, MainSection.PENSUM)
+	}
+
+	@Test
+	fun when_theRecordDoesNotKnowTheTerm_then_theSheetOpensOnTheNewestTerm() = runTest {
+		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
+		val term = EntityRef(kind = EntityKind.TERM, id = "term-unknown")
+
+		dependenciesOf(navigator = navigator, scope = this, termKeyOf = { null })
+			.onNavigateTo(NavTarget.SHARE_TERM, listOf(term))
+		advanceUntilIdle()
+
+		assertEquals(SummaryDestination.ShareTermDialog(termKey = null), navigator.currentKey)
 	}
 
 	@Test
@@ -180,10 +209,12 @@ class AssistantNavigationTest {
 		navigator: TuIndiceNavigator,
 		scope: CoroutineScope = TestScope(),
 		writeRecordViewMode: suspend (RecordViewMode) -> Unit = {},
+		termKeyOf: suspend (String) -> String? = { null },
 		copyText: (String) -> Unit = {}
 	) = navigator.toAssistantNavDependencies(
 		scope = scope,
 		writeRecordViewMode = writeRecordViewMode,
+		termKeyOf = termKeyOf,
 		copyText = copyText
 	)
 

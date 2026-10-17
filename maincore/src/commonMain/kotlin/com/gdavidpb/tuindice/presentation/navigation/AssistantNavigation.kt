@@ -8,6 +8,7 @@ import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
@@ -15,11 +16,13 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.usecase.GetTermKeyUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 
@@ -32,6 +35,7 @@ import org.koin.compose.getKoin
 internal fun TuIndiceNavigator.toAssistantNavDependencies(
 	scope: CoroutineScope,
 	writeRecordViewMode: suspend (RecordViewMode) -> Unit,
+	termKeyOf: suspend (termId: String) -> String?,
 	copyText: (String) -> Unit
 ) = AssistantNavDependencies(
 	onNavigateTo = { target, refs ->
@@ -39,7 +43,8 @@ internal fun TuIndiceNavigator.toAssistantNavDependencies(
 			target = target,
 			refs = refs,
 			scope = scope,
-			writeRecordViewMode = writeRecordViewMode
+			writeRecordViewMode = writeRecordViewMode,
+			termKeyOf = termKeyOf
 		)
 	},
 	// The proof opens over the chat, as the dialogs the chat offers do, so its back returns to the chat.
@@ -49,8 +54,9 @@ internal fun TuIndiceNavigator.toAssistantNavDependencies(
 
 /**
  * The assistant's jumps as the host gives them. The Projection jump saves the mode through the same use case as
- * Record's switch, and the use case is looked up only when the assistant asks for it, so no screen needs the Record
- * binding just to be drawn. Copied text goes to the clipboard of the platform.
+ * Record's switch, and the share sheet finds the key of the term the assistant names in the local record. Those use
+ * cases are looked up only when the assistant asks for them, so no screen needs the Record bindings just to be drawn.
+ * Copied text goes to the clipboard of the platform.
  */
 @Composable
 internal fun rememberAssistantNavDependencies(navigator: TuIndiceNavigator): AssistantNavDependencies {
@@ -63,6 +69,9 @@ internal fun rememberAssistantNavDependencies(navigator: TuIndiceNavigator): Ass
 		writeRecordViewMode = { mode ->
 			koin.getOrNull<SetRecordViewModeUseCase>()?.execute(mode)?.collect { }
 		},
+		termKeyOf = { termId ->
+			koin.getOrNull<GetTermKeyUseCase>()?.termKeyOrNull(termId)
+		},
 		copyText = { text ->
 			clipboard.setText(AnnotatedString(text))
 		}
@@ -73,7 +82,8 @@ private fun TuIndiceNavigator.navigateFromAssistant(
 	target: NavTarget,
 	refs: List<EntityRef>,
 	scope: CoroutineScope,
-	writeRecordViewMode: suspend (RecordViewMode) -> Unit
+	writeRecordViewMode: suspend (RecordViewMode) -> Unit,
+	termKeyOf: suspend (termId: String) -> String?
 ) {
 	when (target) {
 		// This is what tapping Record's view switch does: the Projection mode is saved, then the tab opens. If the save
@@ -81,6 +91,16 @@ private fun TuIndiceNavigator.navigateFromAssistant(
 		NavTarget.RECORD_PROJECTION -> scope.launch {
 			writeRecordViewMode(RecordViewMode.Projection)
 			goFromAssistant(section = MainSection.RECORD)
+		}
+
+		// The term the assistant names is the record's id of it; the sheet opens on its key. Without a term, or when the
+		// record does not know it, the sheet opens on the newest term.
+		NavTarget.SHARE_TERM -> scope.launch {
+			val termKey = refs.idOf(EntityKind.TERM)?.let { termId -> termKeyOf(termId) }
+			goFromAssistant(
+				section = MainSection.SUMMARY,
+				keys = listOf(SummaryDestination.Statistics, SummaryDestination.ShareTermDialog(termKey = termKey))
+			)
 		}
 
 		NavTarget.SIGN_IN, NavTarget.UPDATE_PASSWORD -> Unit
@@ -104,9 +124,6 @@ private fun NavTarget.tabSection(): MainSection? = when (this) {
 // opens none, and the user sees the tab of the screen.
 private fun NavTarget.destinationKeys(refs: List<EntityRef>): List<Destination> = when (this) {
 	NavTarget.STATISTICS -> listOf(SummaryDestination.Statistics)
-	// The term the assistant names is the record's id of it, which is not the key the sheet opens on: the sheet opens on
-	// the newest term, as it does when no term is given.
-	NavTarget.SHARE_TERM -> listOf(SummaryDestination.Statistics, SummaryDestination.ShareTermDialog(termKey = null))
 	NavTarget.RECORD_SCHEDULE -> listOf(RecordDestination.ScheduleDialog)
 	NavTarget.RECORD_CREATE_TERM -> listOf(RecordDestination.CreateSyntheticTerm())
 	NavTarget.EVALUATIONS_ADD -> listOf(EvaluationsDestination.Evaluation(evaluationId = null))
@@ -149,4 +166,11 @@ private fun TuIndiceNavigator.isAssistantSheetOnTop(): Boolean {
 	val key = currentKey
 
 	return key is AssistantDestination.Chat || key is AssistantDestination.ComponentSheet
+}
+
+// The key of the term as the local record answers it, or null when the read fails or the record does not know the term.
+private suspend fun GetTermKeyUseCase.termKeyOrNull(termId: String): String? {
+	val state = execute(termId).first { state -> state !is UseCaseState.Loading }
+
+	return if (state is UseCaseState.Data) state.value else null
 }
