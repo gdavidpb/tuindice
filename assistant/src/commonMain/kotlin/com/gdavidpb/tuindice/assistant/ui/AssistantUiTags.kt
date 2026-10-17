@@ -89,4 +89,37 @@ object AssistantUiTags {
 
 		fun stillAppliesNo(memoryId: String): String = "assistant_still_applies_no_$memoryId"
 	}
+
+	// The cards of the profile, the report, the summary and the schedule: one tag per card, named by its catalog.
+	object Profile {
+		fun summary(componentId: String): String = "assistant_card_a_profile_summary_$componentId"
+
+		fun sync(componentId: String): String = "assistant_card_a_profile_sync_$componentId"
+	}
+
+	object Report {
+		fun term(componentId: String): String = "assistant_card_a_report_term_$componentId"
+
+		fun indexSeries(componentId: String): String = "assistant_card_a_report_series_$componentId"
+
+		fun recordStats(componentId: String): String = "assistant_card_a_report_stats_$componentId"
+
+		fun pace(componentId: String): String = "assistant_card_a_report_pace_$componentId"
+
+		fun simulation(componentId: String): String = "assistant_card_a_report_simulation_$componentId"
+
+		fun indexGoal(componentId: String): String = "assistant_card_a_report_goal_$componentId"
+	}
+
+	object Summary {
+		fun attention(componentId: String): String = "assistant_card_a_summary_attention_$componentId"
+	}
+
+	object Schedule {
+		fun week(componentId: String): String = "assistant_card_a_schedule_week_$componentId"
+
+		fun nextClass(componentId: String): String = "assistant_card_a_schedule_next_$componentId"
+
+		fun clashes(componentId: String): String = "assistant_card_a_schedule_clashes_$componentId"
+	}
 }

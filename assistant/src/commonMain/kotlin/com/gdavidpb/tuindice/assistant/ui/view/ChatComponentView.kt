@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.ConsentComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.CooldownComponentView
@@ -58,7 +59,8 @@ import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
 // One component of an agent message. A SHEET component adds its «Ver detalle» row, except on its own sheet, where
-// [showsDetailRow] is false. Every catalog but sistema and nav falls back to its text until its renderer lands.
+// [showsDetailRow] is false. Renderers exist for the sistema, nav, perfil, informe, horario and resumen catalogs;
+// conocimiento, evaluaciones, materias, pensum and plan fall back to their text until their renderers land.
 @Composable
 fun ChatComponentView(
 	messageId: String,
@@ -99,18 +101,17 @@ private fun ComponentRenderer(
 		is WarningComponent -> WarningComponentView(component = component)
 		is OpenScreenComponent -> OpenScreenComponentView(component = component, onAction = onAction)
 
+		// perfil/1, informe/1, horario/1 and resumen/1: their cards are drawn by RecordCardComponentRenderer
+		is ProfileSummaryComponent, is SyncStatusComponent, is TermComponent, is IndexSeriesComponent,
+		is RecordStatsComponent, is PaceComponent, is SimulationComponent, is IndexGoalComponent,
+		is AttentionComponent, is WeekScheduleComponent, is NextClassComponent, is ClashesComponent ->
+			RecordCardComponentRenderer(component = component, onAction = onAction)
+
 		// conocimiento/1: renderer in A8b/A8c
 		is HelpComponent, is CitationComponent,
 
 		// evaluaciones/1: renderer in A8b/A8c
 		is WeeklyLoadComponent, is EvaluationListComponent, is RequiredGradeComponent, is SubjectPointsComponent,
-
-		// horario/1: renderer in A8b/A8c
-		is ClashesComponent, is NextClassComponent, is WeekScheduleComponent,
-
-		// informe/1: renderer in A8b/A8c
-		is RecordStatsComponent, is IndexGoalComponent, is PaceComponent, is IndexSeriesComponent,
-		is SimulationComponent, is TermComponent,
 
 		// materias/1: renderer in A8b/A8c
 		is SubjectStatsComponent, is SubjectListComponent, is RecommendedElectivesComponent,
@@ -119,14 +120,8 @@ private fun ComponentRenderer(
 		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent,
 		is RequirementsComponent,
 
-		// perfil/1: renderer in A8b/A8c
-		is SyncStatusComponent, is ProfileSummaryComponent,
-
 		// plan/1: renderer in A8b/A8c
 		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent,
-
-		// resumen/1: renderer in A8b/A8c
-		is AttentionComponent,
 
 		// A component this build does not know shows the text the backend sent with it.
 		is UnknownChatComponent -> ChatFallbackComponentView(fallbackText = component.fallbackText)
