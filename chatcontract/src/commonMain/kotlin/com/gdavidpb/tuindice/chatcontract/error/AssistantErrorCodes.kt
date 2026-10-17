@@ -11,6 +11,12 @@ public object AssistantErrorCodes {
 	public const val INTENT_EXPIRED: String = "intent_expired"
 	public const val INTENT_CONFLICT: String = "intent_conflict"
 
+	/** An appeal needs a sanction in force to appeal against. */
+	public const val APPEAL_NOT_ALLOWED: String = "appeal_not_allowed"
+
+	/** The student already has an appeal waiting for review. */
+	public const val APPEAL_OPEN: String = "appeal_open"
+
 	/** The service could not take the request right now (for example, the turn could not be queued); retry later. */
 	public const val UNAVAILABLE: String = "unavailable"
 }
