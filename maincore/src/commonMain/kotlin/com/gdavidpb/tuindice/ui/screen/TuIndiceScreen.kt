@@ -51,6 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,8 +66,11 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
+import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -77,11 +81,14 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.presentation.model.TopBarSlot
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
+import com.gdavidpb.tuindice.presentation.navigation.openAssistant
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.ui.view.TopBarAssistantButtonView
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
 import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
@@ -91,6 +98,7 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
+import tuindice.maincore.generated.resources.a11y_top_bar_assistant
 import tuindice.maincore.generated.resources.a11y_top_bar_change_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
 import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
@@ -198,6 +206,14 @@ fun TuIndiceScreen(
 	val contentNavigator = checkNotNull(navigator) {
 		"TuIndiceScreen requires a navigator once Main.State.Content is reached"
 	}
+	val assistantLauncher = remember(contentNavigator, shellState.isAssistantVisible) {
+		if (shellState.isAssistantVisible) {
+			AssistantLauncher { context -> contentNavigator.openAssistant(context) }
+		} else {
+			null
+		}
+	}
+
 	val shouldShowTopBarBackButton =
 		contentNavigator.showsBackButton && shellState.showsTopBarBackButton
 	val topBarBannerBehavior = remember {
@@ -291,27 +307,47 @@ fun TuIndiceScreen(
 										),
 										verticalAlignment = Alignment.CenterVertically
 									) {
-										if (
-											recordTopBarViewModeState != null &&
-											onRecordTopBarViewModeSelected != null
-										) {
-											RecordTopBarViewModeSwitchView(
-												selectedMode = recordTopBarViewModeState.selectedMode,
-												onModeSelected = onRecordTopBarViewModeSelected
-											)
+										// The places that lead the bar come first: the assistant, then Record's view switch.
+										// The actions follow them, and the overflow menu closes the row.
+										shellState.inlineActions.forEach { slot ->
+											when (slot) {
+												TopBarSlot.Assistant -> TopBarAssistantButtonView(
+													contentDescription = stringResource(Res.string.a11y_top_bar_assistant),
+													onClick = { onAction(TopBarAction.AssistantAction) }
+												)
+												TopBarSlot.ViewModeSelector -> {
+													if (
+														recordTopBarViewModeState != null &&
+														onRecordTopBarViewModeSelected != null
+													) {
+														RecordTopBarViewModeSwitchView(
+															selectedMode = recordTopBarViewModeState.selectedMode,
+															onModeSelected = onRecordTopBarViewModeSelected
+														)
+													}
+												}
+												is TopBarSlot.Action -> Unit
+											}
 										}
 
-										TopAppBarActionsView(
-											topBarConfig = shellState.topBarConfig,
-											onAction = onAction,
-											actionContentDescription = { action -> action.getContentDescription() },
-											actionIconContent = { action ->
-												Icon(
-													imageVector = action.getIcon(),
-													contentDescription = null
-												)
-											}
-										)
+										val inlineTopBarActions = shellState.inlineActions
+											.filterIsInstance<TopBarSlot.Action>()
+											.map { slot -> slot.action }
+
+										if (inlineTopBarActions.isNotEmpty() || shellState.overflowActions.isNotEmpty()) {
+											TopAppBarActionsView(
+												actions = inlineTopBarActions,
+												overflowActions = shellState.overflowActions,
+												onAction = onAction,
+												actionContentDescription = { action -> action.getContentDescription() },
+												actionIconContent = { action ->
+													Icon(
+														imageVector = action.getIcon(),
+														contentDescription = null
+													)
+												}
+											)
+										}
 									}
 								},
 								navigationIcon = {
@@ -407,28 +443,30 @@ fun TuIndiceScreen(
 				}
 			}
 		) { innerPadding ->
-			TuIndiceNavDisplay(
-				navigator = contentNavigator,
-				modifier = Modifier
-					.padding(innerPadding)
-					.coachmarkAnchor(
-						id = coachmarkOverlayState.activeCoachmark?.id,
-						registry = coachmarkAnchorRegistry
-					),
-				onConfirmExitClick = onConfirmExitClick,
-				onNavigateToExternalResource = onNavigateToExternalResource,
-				onOutdatedAppDetected = onOutdatedAppDetected,
-				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
-				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
-				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onBackInterceptorAvailable = onBackInterceptorAvailable,
-				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
-				onNavigateToRecordAttempt = onNavigateToRecordAttempt,
-				showTopBarBanner = showTopBarBanner,
-				onViewStateChanged = onViewStateChanged,
-				showSnackBar = showSnackBar,
-				dismissSnackBar = dismissSnackBar
-			)
+			CompositionLocalProvider(LocalAssistantLauncher provides assistantLauncher) {
+				TuIndiceNavDisplay(
+					navigator = contentNavigator,
+					modifier = Modifier
+						.padding(innerPadding)
+						.coachmarkAnchor(
+							id = coachmarkOverlayState.activeCoachmark?.id,
+							registry = coachmarkAnchorRegistry
+						),
+					onConfirmExitClick = onConfirmExitClick,
+					onNavigateToExternalResource = onNavigateToExternalResource,
+					onOutdatedAppDetected = onOutdatedAppDetected,
+					onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
+					onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+					onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
+					onBackInterceptorAvailable = onBackInterceptorAvailable,
+					onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+					onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+					showTopBarBanner = showTopBarBanner,
+					onViewStateChanged = onViewStateChanged,
+					showSnackBar = showSnackBar,
+					dismissSnackBar = dismissSnackBar
+				)
+			}
 		}
 
 		CoachmarkOverlayHost(
@@ -470,9 +508,12 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_change_pensum)
 		is TopBarAction.StatisticsShareAction ->
 			stringResource(Res.string.a11y_top_bar_statistics_share)
+		is TopBarAction.AssistantAction ->
+			stringResource(Res.string.a11y_top_bar_assistant)
 	}
 }
 
+@Composable
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
 		is TopBarAction.SignOutAction ->
@@ -493,6 +534,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.Outlined.Tune
 		is TopBarAction.StatisticsShareAction ->
 			ShareIcon
+		is TopBarAction.AssistantAction ->
+			rememberAssistantSparkleIcon()
 	}
 }
 

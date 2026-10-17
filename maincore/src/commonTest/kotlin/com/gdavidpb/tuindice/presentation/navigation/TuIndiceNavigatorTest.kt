@@ -4,12 +4,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.domain.model.EvaluationsWeekFocusRequest
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
@@ -476,6 +479,50 @@ class TuIndiceNavigatorTest {
 			listOf<NavKey>(SummaryDestination.Summary, RecordDestination.Record),
 			navigator.backStack
 		)
+	}
+
+	@Test
+	fun when_assistantIsOpened_then_theChatSitsOnTheTabOnScreen() {
+		val context = AssistantScreenContext(screen = AssistantScreen.PENSUM)
+
+		MainSection.entries.forEach { section ->
+			val navigator = createNavigator(currentTab = section)
+
+			navigator.openAssistant(context)
+
+			assertEquals(section, navigator.currentTab)
+			assertEquals(AssistantDestination.Chat(context = context), navigator.currentKey)
+		}
+	}
+
+	@Test
+	fun when_assistantIsOpenedWithoutAContext_then_theChatCarriesNoContext() {
+		val navigator = createNavigator(currentTab = MainSection.ABOUT)
+
+		navigator.openAssistant(context = null)
+
+		assertEquals(AssistantDestination.Chat(context = null), navigator.currentKey)
+	}
+
+	@Test
+	fun when_assistantIsOpenedWithTheSameContextAgain_then_itIsNotPushedTwice() {
+		val navigator = createNavigator(currentTab = MainSection.RECORD)
+		val context = AssistantScreenContext(screen = AssistantScreen.RECORD)
+
+		navigator.openAssistant(context)
+		navigator.openAssistant(context)
+
+		assertEquals(1, navigator.backStack.count { key -> key is AssistantDestination.Chat })
+	}
+
+	@Test
+	fun when_assistantIsOpenedWithoutASignedInSession_then_nothingIsPushed() {
+		val navigator = createNavigator(rootMode = TuIndiceRootMode.AUTH)
+		val before = navigator.backStack
+
+		navigator.openAssistant(context = null)
+
+		assertEquals(before, navigator.backStack)
 	}
 
 	private companion object {

@@ -14,6 +14,8 @@ import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutEntries
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
+import com.gdavidpb.tuindice.assistant.presentation.navigation.assistantEntries
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthNavDependencies
 import com.gdavidpb.tuindice.auth.presentation.navigation.authEntries
@@ -30,6 +32,7 @@ import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
+import com.gdavidpb.tuindice.presentation.navigation.rememberAssistantNavDependencies
 import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies
@@ -72,10 +75,18 @@ fun TuIndiceNavDisplay(
 		onBackInterceptorAvailable = onBackInterceptorAvailable
 	)
 
+	val assistantDependencies = rememberAssistantNavDependencies(navigator = navigator)
+
 	val navEntryProvider = entryProvider<NavKey> {
 		mainEntries(
 			navActions = navigator,
 			onConfirmExitClick = onConfirmExitClick
+		)
+
+		assistantEntries(
+			navActions = navigator,
+			shellBindings = shellBindings,
+			dependencies = assistantDependencies
 		)
 
 		authEntries(
@@ -129,6 +140,9 @@ fun TuIndiceNavDisplay(
 			shellBindings = shellBindings,
 			onNavigateToBrowser = { title, url ->
 				navigator.push(BrowserDestination.Browser(title = title, url = url))
+			},
+			onNavigateToAssistantMemory = {
+				navigator.push(AssistantDestination.Memory)
 			}
 		)
 

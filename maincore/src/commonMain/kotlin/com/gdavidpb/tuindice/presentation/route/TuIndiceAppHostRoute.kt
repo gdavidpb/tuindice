@@ -24,11 +24,15 @@ import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
@@ -41,6 +45,7 @@ import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
+import com.gdavidpb.tuindice.presentation.navigation.openAssistant
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
 import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
@@ -76,6 +81,13 @@ fun TuIndiceAppHostRoute(
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val clock = koinInject<Clock>()
+	val assistantAvailabilityRepository = koinInject<AssistantAvailabilityRepository>()
+	// Observed before it is read: until the observation delivers, the assistant counts as off.
+	val assistantAvailability by remember(assistantAvailabilityRepository) {
+		assistantAvailabilityRepository.observeAvailability()
+	}.collectAsStateWithLifecycle(
+		initialValue = AssistantAvailability(mode = AssistantMode.OFF, serverDisabled = false)
+	)
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -145,9 +157,13 @@ fun TuIndiceAppHostRoute(
 			},
 			viewModel = viewModel
 		) { state ->
-			val shellState = remember {
-				mutableStateOf(MainShellState())
+			// The shell follows the active screen's state and the assistant's availability, so both are read here.
+			val latestViewState = remember {
+				mutableStateOf<ViewState?>(null)
 			}
+			val shellState = latestViewState.value
+				?.toMainShellState(isAssistantVisible = assistantAvailability.isVisible)
+				?: MainShellState()
 			val onRecordViewModeChange = remember {
 				mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 			}
@@ -225,13 +241,16 @@ fun TuIndiceAppHostRoute(
 
 			TuIndiceScreen(
 				state = state,
-				shellState = shellState.value,
+				shellState = shellState,
 				onRetryStartUp = viewModel::startUpAction,
 				onUpdateAppClick = viewModel::updateAppAction,
 				navigator = navigator,
 				snackbarHostState = snackbarHostState,
 				onAction = { action ->
 					when (action) {
+						is TopBarAction.AssistantAction ->
+							navigator?.openAssistant(latestViewState.value?.assistantContext)
+
 						is TopBarAction.SignOutAction ->
 							viewModel.requestSignOutAction()
 
@@ -310,7 +329,7 @@ fun TuIndiceAppHostRoute(
 				onCoachmarkPreviousActionClick = coachmarkOverlayViewModel::previousActionClickAction,
 				onCoachmarkPrimaryActionClick = coachmarkOverlayViewModel::primaryActionClickAction,
 				onViewStateChanged = { viewState ->
-					shellState.value = viewState.toMainShellState()
+					latestViewState.value = viewState
 
 					val routeKey = viewState::class.qualifiedName
 						?: viewState::class.simpleName

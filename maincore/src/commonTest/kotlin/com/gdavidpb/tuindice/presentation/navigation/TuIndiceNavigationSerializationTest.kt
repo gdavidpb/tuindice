@@ -2,7 +2,10 @@ package com.gdavidpb.tuindice.presentation.navigation
 
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
@@ -93,6 +96,16 @@ class TuIndiceNavigationSerializationTest {
 		SubjectsDestination.SubjectSearch,
 		SubjectsDestination.SubjectDetail(subjectCode = "MA1111"),
 		PensumDestination.Pensum,
+		AssistantDestination.Chat(
+			context = AssistantScreenContext(screen = AssistantScreen.SUMMARY)
+		),
+		AssistantDestination.Chat(context = null),
+		AssistantDestination.ComponentSheet(
+			messageId = "message-1",
+			componentId = "component-1"
+		),
+		AssistantDestination.Memory,
+		AssistantDestination.ClearMemoryConfirmationDialog,
 		AboutDestination.About
 	)
 

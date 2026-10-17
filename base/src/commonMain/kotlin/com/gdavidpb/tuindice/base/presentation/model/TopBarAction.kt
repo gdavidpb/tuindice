@@ -35,4 +35,9 @@ sealed class TopBarAction(
 	data object StatisticsShareAction : TopBarAction(
 		action = "statistics_share"
 	)
+
+	// The assistant's sparkle in the bar: asks the assistant about the screen the bar belongs to.
+	data object AssistantAction : TopBarAction(
+		action = "assistant"
+	)
 }
