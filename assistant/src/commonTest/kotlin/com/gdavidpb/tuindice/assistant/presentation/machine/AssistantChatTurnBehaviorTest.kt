@@ -81,6 +81,40 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
+	fun theStudentsEdits_keepTheTextRevision_andTheSendThatClearsTheText_movesIt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		viewModel.openAction(null)
+		val opened = viewModel.content().composer.textRevision
+
+		viewModel.changeTextAction("hola")
+		assertEquals(opened, viewModel.content().composer.textRevision)
+
+		viewModel.sendMessageAction()
+		val cleared = viewModel.content().composer
+
+		assertEquals("", cleared.text)
+		assertTrue(cleared.textRevision > opened)
+	}
+
+	@Test
+	fun aRefusedSend_givesTheTextBack_underANewTextRevision() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.QUOTA_EXHAUSTED, 90, "quota")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		val typed = viewModel.content().composer.textRevision
+
+		viewModel.sendMessageAction()
+		val restored = viewModel.content().composer
+
+		// The send cleared it and the refusal gave it back: two replacements, so the field adopts «hola» again even
+		// though the student typed it before.
+		assertEquals("hola", restored.text)
+		assertEquals(typed + 2, restored.textRevision)
+	}
+
+	@Test
 	fun otherFailure_offersARetry_andRetryResendsTheFailedText() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")

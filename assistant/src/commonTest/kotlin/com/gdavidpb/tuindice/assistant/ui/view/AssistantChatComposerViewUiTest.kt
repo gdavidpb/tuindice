@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
@@ -8,6 +13,8 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -156,6 +163,37 @@ class AssistantChatComposerViewUiTest {
 		assertTrue(field.height > oneLineFieldHeight)
 		assertEquals(field.bottom - oneLineFieldHeight / 2, send.center.y, absoluteTolerance = PIXEL_TOLERANCE)
 	}
+
+	@Test
+	fun when_theSendClearsATextTheStudentHadEmptiedBefore_then_theFieldIsEmptied() = runTuIndiceUiTest {
+		var composer by mutableStateOf(ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false))
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = composer,
+				isCameraAvailable = false,
+				// The machine echoes every edit back, as the view model does.
+				onAction = { action ->
+					if (action is AssistantChat.Action.ChangeText) composer = composer.copy(text = action.text)
+				}
+			)
+		}
+
+		// The student writes, empties the field and writes again, so the field has reported the empty text before.
+		onNodeWithTag(AssistantUiTags.Composer).performTextInput("a")
+		onNodeWithTag(AssistantUiTags.Composer).performTextClearance()
+		onNodeWithTag(AssistantUiTags.Composer).performTextInput("hola")
+		waitForIdle()
+		assertEquals("hola", composerText())
+
+		// The send clears the text under a new revision.
+		composer = composer.copy(text = "", textRevision = composer.textRevision + 1)
+		waitForIdle()
+
+		assertEquals("", composerText())
+	}
+
+	private fun ComposeUiTest.composerText(): String =
+		onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().config[SemanticsProperties.EditableText].text
 
 	private companion object {
 		const val STOP_DESCRIPTION = "Detener respuesta"

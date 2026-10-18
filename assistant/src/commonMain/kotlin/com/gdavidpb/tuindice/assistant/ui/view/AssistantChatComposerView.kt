@@ -10,6 +10,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_composer_placeholder
@@ -31,6 +33,10 @@ private const val COMPOSER_MAX_LINES = 4
 // The send button sits in a box as tall as a one-line field, at the bottom of the row: with one line it is centred on
 // the field, and when the field grows it stays by the last line, where the text is being written, instead of moving
 // to the middle of the field at every new line.
+//
+// The field keeps its own text (EditableTextFieldState), as every field of the app the machine echoes: on iOS the
+// String overload loses and reorders keys (CMP-7312), and an echo between two keys would undo the second. The text the
+// chat replaces (cleared by the send, given back by a refused send) comes with a new revision and is adopted.
 @Composable
 fun AssistantChatComposerView(
 	composer: ChatComposerItem,
@@ -38,14 +44,20 @@ fun AssistantChatComposerView(
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val field = remember { EditableTextFieldState(composer.text, composer.textRevision) }
+
+	field.syncExternal(composer.text, composer.textRevision)
+
 	Row(
 		modifier = modifier.fillMaxWidth(),
 		verticalAlignment = Alignment.Bottom,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
 		OutlinedTextField(
-			value = composer.text,
-			onValueChange = { text -> onAction(AssistantChat.Action.ChangeText(text)) },
+			value = field.value,
+			onValueChange = { value ->
+				if (field.edit(value)) onAction(AssistantChat.Action.ChangeText(value.text))
+			},
 			modifier = Modifier.weight(1f).testTag(AssistantUiTags.Composer),
 			enabled = composer.isEnabled,
 			placeholder = { Text(text = stringResource(Res.string.assistant_chat_composer_placeholder)) },

@@ -23,6 +23,7 @@ import kotlin.time.Clock
 internal suspend fun AssistantChatSession.presentedContent(
 	texts: AssistantChatTexts,
 	draftText: String,
+	draftRevision: Int,
 	content: AssistantChat.State.Content,
 	clock: Clock
 ): AssistantChat.State.Content {
@@ -43,6 +44,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 		isSending = sending,
 		composer = ChatComposerItem(
 			text = draftText,
+			textRevision = draftRevision,
 			isEnabled = composerEnabled,
 			isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
 			isPhotoEnabled = composerEnabled && !busy && !extracting,

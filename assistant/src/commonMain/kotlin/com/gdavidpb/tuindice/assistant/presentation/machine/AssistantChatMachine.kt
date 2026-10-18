@@ -112,6 +112,7 @@ class AssistantChatMachine(
 		return session.presentedContent(
 			texts = texts,
 			draftText = draft.text.value,
+			draftRevision = draft.revision,
 			content = content,
 			clock = access.restrictions.clock
 		)
@@ -136,7 +137,7 @@ class AssistantChatMachine(
 			access.restrictions.restrictionStatus(host)
 		}
 
-		if (draftText != null) draft.setText("")
+		if (draftText != null) draft.replace("")
 
 		turns.send(
 			host = host,
@@ -210,7 +211,7 @@ class AssistantChatMachine(
 			error == SendAssistantMessageError.TurnInProgress ||
 			error == SendAssistantMessageError.GuidedOnly
 
-		if (keepsText) event.restoreText?.let(draft::setText)
+		if (keepsText) event.restoreText?.let(draft::replace)
 
 		when (error) {
 			is SendAssistantMessageError.QuotaExhausted -> {
