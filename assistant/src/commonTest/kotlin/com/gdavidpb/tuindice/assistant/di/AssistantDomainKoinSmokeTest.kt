@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentReposito
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
@@ -44,6 +45,7 @@ import com.gdavidpb.tuindice.assistant.testing.FakeSettings
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
@@ -77,6 +79,7 @@ class AssistantDomainKoinSmokeTest {
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<AssistantClientStateRepository> { FakeAssistantClientStateRepository() }
 			single<AssistantEvaluationsRepository> { RecordingAssistantEvaluationsRepository() }
+			single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 			single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 			single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
 		}

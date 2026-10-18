@@ -47,6 +47,7 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepositor
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantTurnRepository
@@ -112,7 +113,8 @@ internal class AssistantChatFixture {
 			conversationRepository = conversation,
 			intentRepository = gatedIntents,
 			clock = clock,
-			outboxRepository = conversation
+			outboxRepository = conversation,
+			queuedMutationsRepository = RecordingAssistantQueuedMutationsRepository()
 		)
 
 		return AssistantChatMachine(

@@ -33,13 +33,25 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 // The answer a fake gives a mutation it receives: the outcome that settles it, or null when it never settles.
 internal typealias OutcomeOf = (String) -> MutationOutcome?
+
+// The follow-up of queued mutations on a session scope of its own. A test that drives it passes the dispatcher of its
+// scheduler, so what the session runs follows the test's virtual time.
+internal fun queuedMutationsOf(
+	dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+	clock: Clock = Clock.System
+): AssistantQueuedMutationsDataSource = AssistantQueuedMutationsDataSource(testSessionCoroutineScope(dispatcher), clock)
 
 internal fun storedEvaluation(id: String, grade: Double?) = Evaluation(
 	id = id,
@@ -53,6 +65,11 @@ internal fun storedEvaluation(id: String, grade: Double?) = Evaluation(
 	type = EvaluationType.QUIZ,
 	state = EvaluationState.COMPLETED
 )
+
+// A clock that reads the instant a test sets.
+internal class FixedTestClock(var nowMillis: Long) : Clock {
+	override fun now(): Instant = Instant.fromEpochMilliseconds(nowMillis)
+}
 
 internal fun settledAs(kind: MutationOutcomeKind, detailCode: String? = null): OutcomeOf {
 	return { mutationId -> MutationOutcome(mutationId, kind, detailCode) }
@@ -118,6 +135,13 @@ internal class FakeEvaluationRepository(
 	override fun observeDisplayContextFlow(): Flow<EvaluationDisplayContext> = emptyFlow()
 
 	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = outcomes
+
+	// An outcome the outbox settles later, after the run that queued the mutation answered.
+	suspend fun emitOutcome(outcome: MutationOutcome) {
+		outcomes.emit(outcome)
+	}
+
+	fun outcomeSubscribers(): Int = outcomes.subscriptionCount.value
 }
 
 // The record: a term the tests can find, a revision the tests can move, and the record of what was asked of it.

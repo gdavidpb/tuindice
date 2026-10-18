@@ -19,8 +19,8 @@ class ConfirmEditEvaluationIntentUseCase(
 ) : FlowUseCase<ConfirmIntentParams, OutcomeKind, AssistantIntentError>() {
 	override suspend fun executeOnBackground(params: ConfirmIntentParams): Flow<OutcomeKind> = flow {
 		emit(
-			confirmer.confirm(params, narrow = { it as? EditEvaluationArgs }) { args, _ ->
-				evaluationsRepository.edit(args)
+			confirmer.confirm(params, narrow = { it as? EditEvaluationArgs }) { args, intent ->
+				evaluationsRepository.edit(args, intent.binding.expectedRevision)
 			}
 		)
 	}

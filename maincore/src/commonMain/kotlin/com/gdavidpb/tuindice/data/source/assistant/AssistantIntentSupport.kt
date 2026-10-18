@@ -41,6 +41,9 @@ internal fun unknownTerm(): IntentExecution = IntentExecution(OutcomeKind.REJECT
 
 internal fun unknownEvaluation(): IntentExecution = IntentExecution(OutcomeKind.REJECTED, DETAIL_UNKNOWN_EVALUATION)
 
+// The target moved on from the revision the intent was built on, as the record's guard answers it.
+internal fun revisionConflict(): IntentExecution = IntentExecution(OutcomeKind.CONFLICT)
+
 // The detail code of a use case error: the name of an enum entry, or the simple name of the error's class.
 internal fun errorDetailCode(error: UseCaseError?): String {
 	return when (error) {

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRep
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
@@ -15,6 +16,7 @@ import com.gdavidpb.tuindice.assistant.testing.FakeSettings
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
@@ -61,6 +63,7 @@ class AssistantChatKoinSmokeTest {
 				// The ports that maincore implements for the chat: the module only declares them.
 				single<AssistantClientStateRepository> { FakeAssistantClientStateRepository() }
 				single<AssistantEvaluationsRepository> { RecordingAssistantEvaluationsRepository() }
+				single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 				single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 				single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
 				single<ImageEncoderRepository> { RecordingImageEncoderRepository() }

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.assistant
 
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
@@ -26,24 +27,27 @@ import kotlinx.coroutines.flow.Flow
  * carry, and answers how each one ended. The `reference` of an evaluation draft is not sent: the app generates its own
  * reference for every evaluation it adds, so the draft's one does not reach the mutation. An edit reads the evaluation
  * first: the app's edit replaces the grade, and an edit that leaves the grade out keeps the one the evaluation has.
+ * An edit or a removal built on a revision of the evaluation the phone no longer has answers CONFLICT, with nothing
+ * mutated.
  */
 class EvaluationsAssistantDataSource(
 	private val addEvaluationUseCase: AddEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val getEvaluationUseCase: GetEvaluationUseCase,
-	private val observeEvaluationMutationOutcomesUseCase: ObserveEvaluationMutationOutcomesUseCase
+	private val observeEvaluationMutationOutcomesUseCase: ObserveEvaluationMutationOutcomesUseCase,
+	private val queuedMutationsDataSource: AssistantQueuedMutationsDataSource
 ) : AssistantEvaluationsRepository {
 	override suspend fun add(args: AddEvaluationsArgs): IntentExecution {
 		return guardIntent { addEvaluations(args) }
 	}
 
-	override suspend fun edit(args: EditEvaluationArgs): IntentExecution {
-		return guardIntent { editEvaluation(args) }
+	override suspend fun edit(args: EditEvaluationArgs, expectedRevision: Long?): IntentExecution {
+		return guardIntent { editEvaluation(args, expectedRevision) }
 	}
 
-	override suspend fun remove(args: RemoveEvaluationArgs): IntentExecution {
-		return guardIntent { removeEvaluation(args) }
+	override suspend fun remove(args: RemoveEvaluationArgs, expectedRevision: Long?): IntentExecution {
+		return guardIntent { removeEvaluation(args, expectedRevision) }
 	}
 
 	// One mutation per selected item. Every item is read before any runs: one name the app does not know refuses the
@@ -57,10 +61,10 @@ class EvaluationsAssistantDataSource(
 			AssistantMutation(item.mutationId) { addEvaluationUseCase.execute(param).settled() }
 		}
 
-		return settleMutations(mutations, observeMutationOutcomes())
+		return settleMutations(mutations, observeMutationOutcomes(), queuedMutationsDataSource)
 	}
 
-	private suspend fun editEvaluation(args: EditEvaluationArgs): IntentExecution {
+	private suspend fun editEvaluation(args: EditEvaluationArgs, expectedRevision: Long?): IntentExecution {
 		val type = args.evaluationType?.let { name -> enumByName<EvaluationType>(name) }
 		val scheduleMode = args.scheduleMode?.let { serialName ->
 			enumBySerialName<EvaluationScheduleMode>(serialName)
@@ -73,6 +77,8 @@ class EvaluationsAssistantDataSource(
 
 		return when (val state = getEvaluationUseCase.execute(args.evaluationId).settled()) {
 			is UseCaseState.Data -> state.value?.let { current ->
+				if (current.movedOnFrom(expectedRevision)) return@let revisionConflict()
+
 				runEdit(
 					args = args,
 					params = UpdateEvaluationParams(
@@ -99,13 +105,17 @@ class EvaluationsAssistantDataSource(
 	private suspend fun runEdit(args: EditEvaluationArgs, params: UpdateEvaluationParams): IntentExecution {
 		val mutation = AssistantMutation(args.mutationId) { updateEvaluationUseCase.execute(params).settled() }
 
-		return settleMutations(listOf(mutation), observeMutationOutcomes())
+		return settleMutations(listOf(mutation), observeMutationOutcomes(), queuedMutationsDataSource)
 	}
 
 	// An evaluation the phone does not have is refused at once: the outbox would never answer for it.
-	private suspend fun removeEvaluation(args: RemoveEvaluationArgs): IntentExecution {
+	private suspend fun removeEvaluation(args: RemoveEvaluationArgs, expectedRevision: Long?): IntentExecution {
 		return when (val state = getEvaluationUseCase.execute(args.evaluationId).settled()) {
-			is UseCaseState.Data -> if (state.value == null) unknownEvaluation() else runRemove(args)
+			is UseCaseState.Data -> when {
+				state.value == null -> unknownEvaluation()
+				state.value.movedOnFrom(expectedRevision) -> revisionConflict()
+				else -> runRemove(args)
+			}
 
 			is UseCaseState.Error -> IntentExecution(OutcomeKind.FAILED, errorDetailCode(state.error))
 
@@ -120,7 +130,7 @@ class EvaluationsAssistantDataSource(
 		)
 		val mutation = AssistantMutation(args.mutationId) { removeEvaluationUseCase.execute(params).settled() }
 
-		return settleMutations(listOf(mutation), observeMutationOutcomes())
+		return settleMutations(listOf(mutation), observeMutationOutcomes(), queuedMutationsDataSource)
 	}
 
 	// Null when the draft names a type or a schedule mode the app does not know.
@@ -145,4 +155,12 @@ class EvaluationsAssistantDataSource(
 	private fun observeMutationOutcomes(): Flow<MutationOutcome> {
 		return observeEvaluationMutationOutcomesUseCase.execute(Unit).outcomes()
 	}
+}
+
+// The evaluation moved on from the revision the intent was built on. An intent without one, or an evaluation whose
+// revision the phone does not know, is not checked.
+private fun Evaluation?.movedOnFrom(expectedRevision: Long?): Boolean {
+	val revision = this?.revision ?: return false
+
+	return expectedRevision != null && revision != expectedRevision
 }

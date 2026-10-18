@@ -12,7 +12,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordMutationOutcomes
  */
 class RecordIntentRunner(
 	private val getRecordRevisionUseCase: GetRecordRevisionUseCase,
-	private val observeRecordMutationOutcomesUseCase: ObserveRecordMutationOutcomesUseCase
+	private val observeRecordMutationOutcomesUseCase: ObserveRecordMutationOutcomesUseCase,
+	private val queuedMutationsDataSource: AssistantQueuedMutationsDataSource
 ) {
 	// CONFLICT when the record moved on since the intent was built; FAILED when its revision cannot be read.
 	// Null when the mutation may run. Without an expected revision, the intent does not check the record's.
@@ -29,7 +30,8 @@ class RecordIntentRunner(
 	suspend fun runMutation(mutationId: String, call: suspend () -> UseCaseState<*, *>): IntentExecution {
 		return settleMutations(
 			mutations = listOf(AssistantMutation(mutationId, call)),
-			outcomes = observeRecordMutationOutcomesUseCase.execute(Unit).outcomes()
+			outcomes = observeRecordMutationOutcomesUseCase.execute(Unit).outcomes(),
+			queued = queuedMutationsDataSource
 		).withRevisionAfterConfirmation()
 	}
 

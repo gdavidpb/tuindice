@@ -159,6 +159,13 @@ class EvaluationMappingTest {
 	}
 
 	@Test
+	fun toEvaluation_carriesTheRevisionTheServerLastConfirmedForTheEvaluation() {
+		val evaluation = DEFAULT_LOCAL_PENDING_EVALUATION.copy(revision = 9L).toEvaluation(clock = Clock.System)
+
+		assertEquals(9L, evaluation.revision)
+	}
+
+	@Test
 	fun toEvaluation_whenTypeOrdinalIsLastEntry_mapsToOtherType() {
 		val evaluation = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			type = EvaluationType.OTHER.ordinal

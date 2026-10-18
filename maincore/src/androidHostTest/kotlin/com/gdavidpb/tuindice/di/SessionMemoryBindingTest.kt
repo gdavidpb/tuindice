@@ -50,6 +50,7 @@ class SessionMemoryBindingTest {
 				"base.data.source.InMemoryRecordAttemptFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",
 				"base.data.source.usage.UsageDataConsentSettingsDataSource",
+				"data.source.assistant.AssistantQueuedMutationsDataSource",
 				"data.source.credentials.CredentialsDataSource",
 				"data.source.session.SessionRecoveryDataSource",
 				"data.source.sync.SyncStatusSettingsDataSource",

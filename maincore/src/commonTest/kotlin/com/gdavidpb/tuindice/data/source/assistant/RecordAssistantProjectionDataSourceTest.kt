@@ -123,7 +123,8 @@ class RecordAssistantProjectionDataSourceTest {
 				observeRecordMutationOutcomesUseCase = ObserveRecordMutationOutcomesUseCase(
 					academicRecordRepository = repository,
 					reportingRepository = reporting
-				)
+				),
+				queuedMutationsDataSource = queuedMutationsOf()
 			)
 		)
 	}
