@@ -49,10 +49,5 @@ internal fun restrictionText(level: StandingLevel?, untilMillis: Long?, clock: C
 // "18 de octubre 2026", as the app writes a day.
 private fun Long.dayText(): UiText = formatDate(DateTextStyle.DAY_MONTH_YEAR)
 
-// "03:05 p. m.", as the app writes an hour: the time the app's date text puts after "Hoy, ". The app has no style for
-// the hour alone; should that text change shape, the day and the hour are said together.
-private fun Long.hourText(): UiText {
-	val today = formatDate(DateTextStyle.TODAY_TIME) as? UiText.Resource
-
-	return today?.args?.singleOrNull() as? UiText ?: formatDate(DateTextStyle.WEEKDAY_TIME)
-}
+// "03:05 p. m.", as the app writes an hour.
+private fun Long.hourText(): UiText = formatDate(DateTextStyle.TIME)

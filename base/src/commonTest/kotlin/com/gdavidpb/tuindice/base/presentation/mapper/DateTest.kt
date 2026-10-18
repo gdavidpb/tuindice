@@ -35,6 +35,7 @@ class DateTest {
 			UiText.Resource(Res.string.date_yesterday_time, listOf(AFTERNOON_TIME)),
 			THURSDAY_AFTERNOON.formatDate(DateTextStyle.YESTERDAY_TIME)
 		)
+		assertEquals(AFTERNOON_TIME, THURSDAY_AFTERNOON.formatDate(DateTextStyle.TIME))
 	}
 
 	@Test

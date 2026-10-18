@@ -26,7 +26,8 @@ enum class DateTextStyle {
 	DAY_MONTH_YEAR,
 	WEEKDAY_NUMERIC_DATE,
 	SHORT_WEEKDAY_NUMERIC_DATE,
-	DAY_SHORT_MONTH
+	DAY_SHORT_MONTH,
+	TIME
 }
 
 // Describes the text of a date: the template of its style, the names by their place in the lists
@@ -74,6 +75,8 @@ fun Long.formatDate(style: DateTextStyle): UiText {
 
 		DateTextStyle.DAY_SHORT_MONTH ->
 			UiText.Resource(Res.string.date_day_short_month, listOf(dateTime.day.toString(), shortMonthName))
+
+		DateTextStyle.TIME -> time
 	}
 }
 
