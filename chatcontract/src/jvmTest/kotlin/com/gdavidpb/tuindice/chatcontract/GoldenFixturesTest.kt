@@ -33,6 +33,10 @@ class GoldenFixturesTest {
 	fun intentOutcomeReportIsStableOnTheWire() =
 		assertGolden("intent_outcome_report.json", IntentOutcomeReport.serializer())
 
+	@Test
+	fun intentOutcomeReportWithItemOutcomesIsStableOnTheWire() =
+		assertGolden("intent_outcome_report_items.json", IntentOutcomeReport.serializer())
+
 	private fun <T> assertGolden(name: String, serializer: KSerializer<T>) {
 		val text = checkNotNull(javaClass.getResource("/golden/$name")).readText()
 		val original = Json.parseToJsonElement(text)
