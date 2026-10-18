@@ -22,10 +22,12 @@ import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -56,6 +58,7 @@ class AssistantChatKoinSmokeTest {
 				single<ConfigRepository> { FakeAssistantConfigRepository() }
 				single<Settings> { FakeSettings() }
 				single<Clock> { Clock.System }
+				single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 				single<ReportingRepository> { RecordingReportingRepository() }
 				single<EventPublisher> { NoOpEventPublisher }
 				single<TuIndiceDispatchers> { TestTuIndiceDispatchers(Dispatchers.Unconfined) }

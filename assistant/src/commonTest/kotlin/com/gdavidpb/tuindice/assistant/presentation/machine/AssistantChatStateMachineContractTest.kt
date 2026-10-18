@@ -133,6 +133,7 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.Appeal(text = "revisen"),
 			AssistantChat.Action.AcceptConsent,
 			AssistantChat.Action.DeclineConsent,
+			AssistantChat.Action.OpenPrivacyPolicy,
 			AssistantChat.Action.Dismiss,
 			AssistantChat.Action.RequestPhoto(fromCamera = true),
 			AssistantChat.Action.RequestPhoto(fromCamera = false),

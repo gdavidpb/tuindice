@@ -55,6 +55,7 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
@@ -89,6 +90,7 @@ internal class AssistantChatFixture {
 	val clientState = FakeAssistantClientStateRepository()
 	val imageEncoder = RecordingImageEncoderRepository()
 	val extraction = RecordingAssistantExtractionRepository()
+	val appEnvironment = FakeAppEnvironmentRepository()
 	val effects = mutableListOf<AssistantChat.Effect>()
 
 	private val reporting = RecordingReportingRepository()
@@ -244,6 +246,7 @@ internal class AssistantChatFixture {
 			consentRepository = consent,
 			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, reporting),
 			syncAssistantUseCase = syncAssistantUseCase,
+			appEnvironmentRepository = appEnvironment,
 			restrictions = createRestrictions(syncAssistantUseCase)
 		)
 	}

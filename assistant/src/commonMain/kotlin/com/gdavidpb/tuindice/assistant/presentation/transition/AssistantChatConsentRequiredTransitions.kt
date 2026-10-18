@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBui
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
 // The consent the student gives before the chat opens. A refused acceptance keeps the sheet here, with its error, and
-// the student can accept again.
+// the student can accept again. The privacy policy opens over the sheet and leaves the consent as it was.
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatConsentRequiredTransitions(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -32,6 +32,13 @@ private fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
 
 	on<AssistantChat.Action.DeclineConsent>(emits = setOf(AssistantChat.Effect.Dismiss::class)) { state, _ ->
 		host.sendEffect(AssistantChat.Effect.Dismiss)
+		state
+	}
+
+	on<AssistantChat.Action.OpenPrivacyPolicy>(
+		emits = setOf(AssistantChat.Effect.NavigateToBrowser::class)
+	) { state, _ ->
+		machine.access.openPrivacyPolicy(host = host, title = machine.texts.privacyPolicyTitle())
 		state
 	}
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.ui.icon
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -7,27 +8,27 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
 
 /**
- * The assistant's sparkle: a four-point star in amber. It marks only the header of the tabs and the «Preguntar»
- * actions; inside the chat the assistant has no name and no icon.
+ * The assistant's sparkle: a four-point star. It marks the top bar, the «Preguntar» actions (the swipe action of
+ * Evaluations and the detail sheet of Pensum) and the assistant's items of About.
  *
- * The icon paints its own color, so it is drawn with `tint = Color.Unspecified`. The amber follows the theme with the
- * same tones as the loading animation's glyph: dark amber on light surfaces, bright amber on dark ones.
+ * Like a Material icon it has no color of its own: it is filled in black, and every surface tints it with
+ * [assistantSparkleTint], the accent of the app in the light and the dark theme.
  */
 @Composable
 fun rememberAssistantSparkleIcon(): ImageVector {
-	val dark = TuIndiceDarkTheme.isDark()
-
-	return remember(dark) {
-		assistantSparkleIcon(dark = dark)
-	}
+	return remember { assistantSparkleIcon() }
 }
 
-internal fun assistantSparkleIcon(dark: Boolean): ImageVector {
-	val sparkle = Color(if (dark) SPARKLE_DARK else SPARKLE_LIGHT)
+/**
+ * The color of the sparkle: the app's accent, [MaterialTheme]'s primary, in both themes. None of the sparkle's surfaces
+ * is filled with the primary (the swipe action sits on surfaceVariant), so no surface needs onPrimary instead.
+ */
+@Composable
+fun assistantSparkleTint(): Color = MaterialTheme.colorScheme.primary
 
+internal fun assistantSparkleIcon(): ImageVector {
 	return ImageVector.Builder(
 		name = "AssistantSparkle",
 		defaultWidth = 24.dp,
@@ -37,13 +38,10 @@ internal fun assistantSparkleIcon(dark: Boolean): ImageVector {
 	)
 		.addPath(
 			pathData = addPathNodes(SPARKLE_PATH),
-			fill = SolidColor(sparkle)
+			fill = SolidColor(Color.Black)
 		)
 		.build()
 }
-
-private const val SPARKLE_LIGHT = 0xFF785900L
-private const val SPARKLE_DARK = 0xFFFABD00L
 
 // The design's sparkle centred in the 24-unit viewport with a radius of 10: two quadratic curves per point of the star,
 // their control points 1.8 units off the centre lines.

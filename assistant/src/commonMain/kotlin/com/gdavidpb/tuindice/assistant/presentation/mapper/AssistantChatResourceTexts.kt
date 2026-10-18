@@ -44,6 +44,7 @@ import tuindice.assistant.generated.resources.assistant_chat_turn_failed_transie
 import tuindice.assistant.generated.resources.assistant_chat_undated
 import tuindice.assistant.generated.resources.assistant_chat_wait_minutes
 import tuindice.assistant.generated.resources.assistant_chat_wait_under_minute
+import tuindice.assistant.generated.resources.assistant_consent_privacy
 
 // The chat texts read from the module's compose resources: the app's binding of AssistantChatTexts.
 class AssistantChatResourceTexts : AssistantChatTexts {
@@ -102,6 +103,8 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 	override suspend fun messageTooLong(maxLength: Int): String {
 		return getString(Res.string.assistant_chat_message_too_long, maxLength)
 	}
+
+	override suspend fun privacyPolicyTitle(): String = getString(Res.string.assistant_consent_privacy)
 
 	private companion object {
 		val EVALUATION_TYPES: Map<String, StringResource> = mapOf(

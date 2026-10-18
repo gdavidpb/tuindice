@@ -5,9 +5,9 @@ import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
@@ -28,8 +28,8 @@ fun AboutAssistantItems(
 		checked = consentGranted,
 		onCheckedChange = onConsentChange,
 		testTag = AboutUiTags.AssistantConsentSwitch,
-		// The sparkle paints its own color, as it does in the tabs and the swipe actions.
-		tint = Color.Unspecified
+		// The sparkle is in the accent of the app, as in the top bar and the swipe actions.
+		tint = assistantSparkleTint()
 	)
 
 	AboutItem(

@@ -8,28 +8,25 @@ import kotlin.test.assertEquals
 
 class AssistantSparkleIconTest {
 	@Test
-	fun when_lightAndDarkVariantsAreBuilt_then_theAmberFollowsTheTheme() {
-		assertEquals(DARK_AMBER, assistantSparkleParts(dark = false).single().paint())
-		assertEquals(BRIGHT_AMBER, assistantSparkleParts(dark = true).single().paint())
+	fun when_built_then_itIsFilledInBlack_soTheSurfaceTintsIt() {
+		assertEquals(Color.Black, assistantSparkleParts().single().paint())
 	}
 
 	@Test
 	fun when_built_then_itIsASingleFilledPathInA24UnitViewport() {
-		val icon = assistantSparkleIcon(dark = false)
+		val icon = assistantSparkleIcon()
 
 		assertEquals(VIEWPORT, icon.viewportWidth)
 		assertEquals(VIEWPORT, icon.viewportHeight)
-		assertEquals(1, assistantSparkleParts(dark = false).size)
+		assertEquals(1, assistantSparkleParts().size)
 	}
 
-	private fun assistantSparkleParts(dark: Boolean): List<VectorPath> =
-		assistantSparkleIcon(dark = dark).root.filterIsInstance<VectorPath>()
+	private fun assistantSparkleParts(): List<VectorPath> =
+		assistantSparkleIcon().root.filterIsInstance<VectorPath>()
 
 	private fun VectorPath.paint(): Color = (fill as SolidColor).value
 
 	private companion object {
 		const val VIEWPORT = 24f
-		val DARK_AMBER = Color(0xFF785900)
-		val BRIGHT_AMBER = Color(0xFFFABD00)
 	}
 }

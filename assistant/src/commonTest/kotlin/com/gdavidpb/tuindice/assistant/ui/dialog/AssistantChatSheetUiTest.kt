@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
@@ -10,11 +11,15 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
+import com.gdavidpb.tuindice.assistant.ui.contextChip
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatSheetUiTest {
@@ -35,6 +40,37 @@ class AssistantChatSheetUiTest {
 	}
 
 	@Test
+	fun when_conversationIsOpen_then_theTitleAsistenteSitsAboveTheContextChip_atTheStart() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatSheet(
+				state = contentState(context = contextChip(), items = listOf(agentMessage())),
+				onAction = {}
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.ChatTitle)
+		onNodeWithTag(AssistantUiTags.ChatTitle, useUnmergedTree = true).assertTextEquals(TITLE_TEXT)
+		val title = onNodeWithTag(AssistantUiTags.ChatTitle).fetchSemanticsNode().boundsInRoot
+		val chip = onNodeWithTag(AssistantUiTags.ContextChip).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(title.bottom <= chip.top)
+		assertEquals(chip.left, title.left)
+	}
+
+	@Test
+	fun when_consentIsRequired_then_theConsentTitleIsTheOnlyTitle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatSheet(
+				state = AssistantChat.State.ConsentRequired,
+				onAction = {}
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.ConsentView)
+		assertNodeHidden(AssistantUiTags.ChatTitle)
+	}
+
+	@Test
 	fun when_consentIsRequired_then_theSheetAsksForAcceptance() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
@@ -48,5 +84,9 @@ class AssistantChatSheetUiTest {
 		onNodeWithTag(AssistantUiTags.ConsentAccept).performClick()
 
 		assertIs<AssistantChat.Action.AcceptConsent>(actions.single())
+	}
+
+	private companion object {
+		const val TITLE_TEXT = "Asistente"
 	}
 }

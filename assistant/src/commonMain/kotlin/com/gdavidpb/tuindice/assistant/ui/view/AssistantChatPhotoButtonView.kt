@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -21,8 +21,8 @@ import tuindice.assistant.generated.resources.assistant_photo_add
 import tuindice.assistant.generated.resources.assistant_photo_pick
 import tuindice.assistant.generated.resources.assistant_photo_take
 
-// The photo button at the left of the composer. It opens a small menu: the camera, when the device has one, and the
-// gallery. It is off while a turn or a photo is being read.
+// The photo button: a clip inside the composer's field, at its end. It opens a small menu: the camera, when the device
+// has one, and the gallery. It is off while a turn or a photo is being read.
 @Composable
 fun AssistantChatPhotoButtonView(
 	isEnabled: Boolean,
@@ -39,7 +39,7 @@ fun AssistantChatPhotoButtonView(
 			modifier = Modifier.testTag(AssistantUiTags.PhotoButton)
 		) {
 			Icon(
-				imageVector = Icons.Outlined.AddAPhoto,
+				imageVector = Icons.Outlined.AttachFile,
 				contentDescription = stringResource(Res.string.assistant_photo_add)
 			)
 		}

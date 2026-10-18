@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
 private fun StepBuilder.openAssistant() {
@@ -201,6 +202,22 @@ private val assistantDeclineConsent = scenario(
 	waitGone(AssistantUiTags.ChatSheet, Within.Action)
 }
 
+private val assistantConsentPrivacyPolicy = scenario(
+	"assistant-consent-privacy-policy",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("assistant.AssistantChat.OpenPrivacyPolicy")
+	account(E2eAccounts.Canonical.id)
+
+	openAssistant()
+	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
+	tap(AssistantUiTags.ConsentPrivacy)
+	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
+	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitVisible(AssistantUiTags.ConsentView, Within.Action)
+}
+
 private val assistantRetryTurn = scenario(
 	"assistant-retry-turn",
 	"assistant",
@@ -296,6 +313,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantServerDisabled,
 	assistantGuidedSuggestions,
 	assistantDeclineConsent,
+	assistantConsentPrivacyPolicy,
 	assistantRetryTurn,
 	assistantReportMessage,
 	assistantAnswerStillApplies,
