@@ -5,10 +5,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Subject
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.StarBorder
@@ -146,8 +146,9 @@ fun AboutContentView(
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onRateOnPlayStoreClick() }
 
+			// Usage data reads as a chart, so the sparkle stays the assistant's alone.
 			AboutSwitchItem(
-				icon = rememberVectorPainter(Icons.Outlined.AutoAwesome),
+				icon = rememberVectorPainter(Icons.Outlined.Insights),
 				text = stringResource(Res.string.about_usage_data_consent),
 				checked = state.usageDataCollectionEnabled,
 				onCheckedChange = onUsageDataCollectionEnabledChange,
