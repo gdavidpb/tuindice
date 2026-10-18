@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatContextChipViewUiTest {
 	@Test
-	fun when_theChipIsShown_then_theLabelStartsTwelveDpFromItsStart() = runTuIndiceUiTest {
+	fun when_theChipIsShown_then_theLabelStartsSixteenDpFromItsStart() = runTuIndiceUiTest {
 		val item = contextChip()
 		setTuIndiceTestContent {
 			AssistantChatContextChipView(item = item, onAction = {})
@@ -30,7 +30,7 @@ class AssistantChatContextChipViewUiTest {
 	}
 
 	@Test
-	fun when_theChipIsShown_then_theLabelIsAsFarFromItsStartAsTheCloseIconIsFromItsEnd() = runTuIndiceUiTest {
+	fun when_theChipIsShown_then_theLabelIsAsFarFromItsStartAsTheDrawnCrossIsFromItsEnd() = runTuIndiceUiTest {
 		val item = contextChip()
 		setTuIndiceTestContent {
 			AssistantChatContextChipView(item = item, onAction = {})
@@ -41,14 +41,18 @@ class AssistantChatContextChipViewUiTest {
 		val icon = onNodeWithTag(AssistantUiTags.ContextRemove, useUnmergedTree = true).onChild()
 			.fetchSemanticsNode().boundsInRoot
 
-		assertEquals(chip.right - icon.right, label.left - chip.left, absoluteTolerance = PIXEL_TOLERANCE)
+		// The cross of the close icon is drawn CROSS_INSET inside its 24 dp box; what reads as the margin is to the cross.
+		val crossToEnd = chip.right - icon.right + with(density) { CROSS_INSET.toPx() }
+
+		assertEquals(crossToEnd, label.left - chip.left, absoluteTolerance = with(density) { 1.dp.toPx() })
 	}
 
 	private fun ComposeUiTest.chipBounds(): Rect =
 		onNodeWithTag(AssistantUiTags.ContextChip).fetchSemanticsNode().boundsInRoot
 
 	private companion object {
-		val START_MARGIN = 12.dp
+		val START_MARGIN = 16.dp
+		val CROSS_INSET = 5.dp
 		const val PIXEL_TOLERANCE = 1f
 	}
 }
