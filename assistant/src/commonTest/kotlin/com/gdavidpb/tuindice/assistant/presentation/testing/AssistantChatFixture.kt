@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedbac
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatPlanIntents
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatRestrictions
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
@@ -91,7 +92,9 @@ internal class AssistantChatFixture {
 	val effects = mutableListOf<AssistantChat.Effect>()
 
 	private val reporting = RecordingReportingRepository()
-	private val clock = FixedClock(nowMillis = NOW_MILLIS)
+
+	// Fixed, and moved by a test that lets a deadline or the end of a restriction pass.
+	val clock = FixedClock(nowMillis = NOW_MILLIS)
 
 	val machine: AssistantChatMachine by lazy { createMachine() }
 
@@ -228,24 +231,34 @@ internal class AssistantChatFixture {
 	}
 
 	private fun createAccess(confirmer: AssistantIntentConfirmer): AssistantChatAccess {
+		val syncAssistantUseCase = SyncAssistantUseCase(
+			standingRepository = standing,
+			serverModeRepository = availability,
+			serverConsentRepository = consent,
+			confirmer = confirmer,
+			reportingRepository = reporting
+		)
+
 		return AssistantChatAccess(
 			availabilityRepository = availability,
 			consentRepository = consent,
 			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, reporting),
-			syncAssistantUseCase = SyncAssistantUseCase(
-				standingRepository = standing,
-				serverModeRepository = availability,
-				serverConsentRepository = consent,
-				confirmer = confirmer,
-				reportingRepository = reporting
-			),
+			syncAssistantUseCase = syncAssistantUseCase,
+			restrictions = createRestrictions(syncAssistantUseCase)
+		)
+	}
+
+	private fun createRestrictions(syncAssistantUseCase: SyncAssistantUseCase): AssistantChatRestrictions {
+		return AssistantChatRestrictions(
+			syncAssistantUseCase = syncAssistantUseCase,
 			appealAssistantRestrictionUseCase = AppealAssistantRestrictionUseCase(
 				standingRepository = standing,
 				reportingRepository = reporting,
 				paramsValidator = AppealAssistantRestrictionParamsValidator(),
 				exceptionHandler = AssistantAppealExceptionHandler()
 			),
-			feedbackTexts = feedbackTexts
+			feedbackTexts = feedbackTexts,
+			clock = clock
 		)
 	}
 }

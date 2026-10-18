@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
-import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -24,11 +23,6 @@ import tuindice.assistant.generated.resources.assistant_chat_max_grade
 import tuindice.assistant.generated.resources.assistant_chat_message_too_long
 import tuindice.assistant.generated.resources.assistant_chat_quota_exhausted
 import tuindice.assistant.generated.resources.assistant_chat_quota_exhausted_wait
-import tuindice.assistant.generated.resources.assistant_chat_restricted_banned
-import tuindice.assistant.generated.resources.assistant_chat_restricted_cooldown
-import tuindice.assistant.generated.resources.assistant_chat_restricted_default
-import tuindice.assistant.generated.resources.assistant_chat_restricted_suspended
-import tuindice.assistant.generated.resources.assistant_chat_restricted_warning
 import tuindice.assistant.generated.resources.assistant_chat_screen_about
 import tuindice.assistant.generated.resources.assistant_chat_screen_evaluation_detail
 import tuindice.assistant.generated.resources.assistant_chat_screen_evaluations
@@ -86,16 +80,6 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 
 		return getString(Res.string.assistant_chat_quota_exhausted_wait, waitText(retryAfterSeconds))
 	}
-
-	override suspend fun restricted(level: StandingLevel?): String = getString(
-		when (level) {
-			StandingLevel.WARNING -> Res.string.assistant_chat_restricted_warning
-			StandingLevel.COOLDOWN -> Res.string.assistant_chat_restricted_cooldown
-			StandingLevel.SUSPENDED -> Res.string.assistant_chat_restricted_suspended
-			StandingLevel.BANNED -> Res.string.assistant_chat_restricted_banned
-			else -> Res.string.assistant_chat_restricted_default
-		}
-	)
 
 	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String = getString(
 		when (code) {

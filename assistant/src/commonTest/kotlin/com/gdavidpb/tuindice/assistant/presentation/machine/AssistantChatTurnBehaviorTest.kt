@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
@@ -36,6 +37,8 @@ import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_chat_restricted_cooldown
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -307,7 +310,13 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.sendMessageAction()
 
 		val content = viewModel.content()
-		assertEquals(ChatNoticeItem.Restricted(message = "restricted:COOLDOWN", canAppeal = true), content.notice)
+		assertEquals(
+			ChatNoticeItem.Restricted(
+				message = UiText.Resource(Res.string.assistant_chat_restricted_cooldown),
+				canAppeal = true
+			),
+			content.notice
+		)
 		assertFalse(content.composer.isEnabled)
 	}
 

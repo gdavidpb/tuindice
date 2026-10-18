@@ -37,6 +37,10 @@ internal class AssistantChatSession {
 	val runningIntents = mutableSetOf<String>()
 	val failedMessages = mutableSetOf<String>()
 
+	// The restriction that holds at [nowMillis]: one whose end has passed no longer stops the chat, and the next send
+	// reads the standing again.
+	fun restrictionAt(nowMillis: Long): Restriction? = restriction?.takeUnless { held -> held.isOver(nowMillis) }
+
 	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
 
 	// The turn a stop would cancel: the one that runs, or the one being sent. Null when none can be stopped.
@@ -111,6 +115,9 @@ internal class AssistantChatSession {
 
 	internal data class Quota(val retryAfterSeconds: Int?)
 
-	// [level] and [canAppeal] are unknown until the standing is read, and the message says so.
-	internal data class Restriction(val level: StandingLevel?, val canAppeal: Boolean)
+	// [level], its end [untilMillis] and [canAppeal] are unknown until the standing is read, and the message says so. A
+	// restriction without an end holds until the server says otherwise.
+	internal data class Restriction(val level: StandingLevel?, val untilMillis: Long?, val canAppeal: Boolean) {
+		fun isOver(nowMillis: Long): Boolean = untilMillis != null && nowMillis >= untilMillis
+	}
 }

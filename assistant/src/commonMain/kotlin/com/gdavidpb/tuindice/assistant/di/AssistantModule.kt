@@ -62,6 +62,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedbac
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatPlanIntents
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatRestrictions
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
@@ -178,6 +179,7 @@ val assistantModule = module {
 	factoryOf(::AssistantChatPlanIntents)
 	factoryOf(::AssistantChatFeedback)
 	factoryOf(::AssistantChatAccess)
+	factoryOf(::AssistantChatRestrictions)
 	factoryOf(::AssistantChatResourceTexts) { bind<AssistantChatTexts>() }
 	factoryOf(::AssistantChatFeedbackResourceTexts) { bind<AssistantChatFeedbackTexts>() }
 
