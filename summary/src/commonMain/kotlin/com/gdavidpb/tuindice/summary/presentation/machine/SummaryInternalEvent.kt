@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.presentation.machine
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermReportItem
 
 /**
  * Internal machine inputs: the user, sync and hub observations, the refresh lifecycle, what the
@@ -26,6 +27,11 @@ sealed interface SummaryInternalEvent {
 	/** The hub read what is stored and the clock again: this is what it says now. */
 	data class HubObserved(
 		val hub: SummaryHubItem
+	) : SummaryInternalEvent
+
+	/** The line of the newest term report the student has not opened yet, or none: it is read apart from the hub. */
+	data class TermReportEntryObserved(
+		val entry: SummaryTermReportItem?
 	) : SummaryInternalEvent
 
 	/** The device answered whether it can take a picture, asked as the picture options open. */

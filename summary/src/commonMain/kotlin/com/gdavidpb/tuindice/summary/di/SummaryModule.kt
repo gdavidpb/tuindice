@@ -24,15 +24,17 @@ import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportEntryUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.RefreshTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -42,10 +44,13 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfi
 import com.gdavidpb.tuindice.summary.presentation.machine.ShareTermMachine
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryStatisticsMachine
+import com.gdavidpb.tuindice.summary.presentation.machine.TermReportMachine
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.ShareTermViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.TermReportViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -59,16 +64,19 @@ val summaryModule = module {
 	viewModelOf(::SummaryViewModel)
 	viewModelOf(::SummaryStatisticsViewModel)
 	viewModelOf(::ShareTermViewModel)
+	viewModelOf(::TermReportViewModel)
 
 	/* Top bar actions the Statistics screen listens to */
 
 	singleOf(::StatisticsTopBarActionBus)
+	singleOf(::TermReportTopBarActionBus)
 
 	/* State machines */
 
 	factoryOf(::SummaryMachine)
 	factoryOf(::SummaryStatisticsMachine)
 	factoryOf(::ShareTermMachine)
+	factoryOf(::TermReportMachine)
 
 	/* Use cases */
 
@@ -84,7 +92,9 @@ val summaryModule = module {
 	factoryOf(::ObserveShareTermUseCase)
 	factoryOf(::SetShareBackgroundPreferenceUseCase)
 	factoryOf(::UpdateShareBackgroundsUseCase)
-	factoryOf(::RefreshTermReportsUseCase)
+	factoryOf(::ObserveTermReportEntryUseCase)
+	factoryOf(::UpdateTermReportsUseCase)
+	factoryOf(::SummaryTermReports)
 	factoryOf(::ObserveTermReportUseCase)
 	factoryOf(::MarkTermReportSeenUseCase)
 	factoryOf(::RateTermReportUseCase)

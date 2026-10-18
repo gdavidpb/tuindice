@@ -12,5 +12,6 @@ data class SummaryStatisticsBarItem(
 	val axisLabel: UiText,
 	val value: Float,
 	val tooltip: SummaryStatisticsTooltipItem,
-	val valueLabel: UiText? = null
+	val valueLabel: UiText? = null,
+	val isHighlighted: Boolean = false
 )

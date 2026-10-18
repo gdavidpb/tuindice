@@ -21,5 +21,7 @@ class SummaryScreenLinks(
 	// The Statistics screen, pushed over the hub.
 	val onNavigateToStatistics: () -> Unit = {},
 	// The sheet that shares a closed term as an image, pushed over the hub, opened on the term of that key.
-	val onNavigateToShareTerm: (termKey: String) -> Unit = {}
+	val onNavigateToShareTerm: (termKey: String) -> Unit = {},
+	// The term report of the insight, pushed over the hub: the line of the report leads there.
+	val onNavigateToTermReport: (insightId: String) -> Unit = {}
 )

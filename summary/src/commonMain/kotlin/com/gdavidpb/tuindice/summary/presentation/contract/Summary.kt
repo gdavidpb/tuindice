@@ -139,5 +139,10 @@ object Summary {
 		class NavigateToShareTerm(
 			val termKey: String
 		) : Effect()
+
+		// The term report of [insightId], pushed over the summary: the line that offers an unread report asks for it.
+		class NavigateToTermReport(
+			val insightId: String
+		) : Effect()
 	}
 }

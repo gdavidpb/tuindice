@@ -37,7 +37,8 @@ internal fun List<SummaryStatisticsBarItem>.toStatisticsBarPoints(): List<Statis
 			value = bar.value,
 			tooltip = bar.tooltip.toRichText(),
 			axisLabel = bar.axisLabel.asString(),
-			valueLabel = bar.valueLabel?.asString()
+			valueLabel = bar.valueLabel?.asString(),
+			isHighlighted = bar.isHighlighted
 		)
 	}
 }

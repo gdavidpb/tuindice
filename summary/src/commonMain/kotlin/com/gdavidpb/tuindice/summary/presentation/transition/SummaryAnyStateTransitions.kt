@@ -57,9 +57,14 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 			state
 		}
 
-		// The hub is a field of every state, so the one that says it can be any.
+		// The hub is a field of every state, so the one that says it can be any. The line of an unread report is read apart
+		// from the hub, so a reading of the hub keeps the line it has.
 		on<SummaryInternalEvent.HubObserved> { state, event ->
-			state.withHub(hub = event.hub)
+			state.withHub(hub = event.hub.copy(termReport = state.hub.termReport))
+		}
+
+		on<SummaryInternalEvent.TermReportEntryObserved> { state, event ->
+			state.withHub(hub = state.hub.copy(termReport = event.entry))
 		}
 
 		onTo<SummaryInternalEvent.UserObserved, Summary.State.Content> { state, event ->

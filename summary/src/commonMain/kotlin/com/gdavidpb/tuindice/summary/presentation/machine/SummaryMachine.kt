@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
@@ -17,6 +18,7 @@ import com.gdavidpb.tuindice.summary.presentation.mapper.toRemoveMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummarySyncItem
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryTermReportItem
 import com.gdavidpb.tuindice.summary.presentation.mapper.toUploadMessage
 import com.gdavidpb.tuindice.summary.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.contentTransitions
@@ -26,6 +28,7 @@ import com.gdavidpb.tuindice.summary.presentation.transition.loadingTransitions
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_profile_picture_removed
@@ -36,7 +39,8 @@ class SummaryMachine(
 	private val getCameraAvailabilityUseCase: GetCameraAvailabilityUseCase,
 	private val updateUserUseCase: UpdateUserUseCase,
 	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
-	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
+	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
+	private val termReports: SummaryTermReports
 ) : ScreenMachine<Summary.State, Summary.Effect> {
 	// The hub's observation is restarted when the screen comes back, which the user's and the sync's
 	// do not need: the job is kept to cancel it.
@@ -91,6 +95,24 @@ class SummaryMachine(
 
 		// The hub has its own too: it needs neither the user nor the sync, and it has the clock.
 		startHubObservation(host = host)
+
+		// The line of an unread term report is read apart from the hub. The service is asked for its reports as the summary
+		// opens, and the line follows the reports it has.
+		host.launchMachineJob {
+			termReports.refresh.execute(Unit).collect()
+		}
+
+		host.launchMachineJob {
+			termReports.entry.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						SummaryInternalEvent.TermReportEntryObserved(
+							entry = useCaseState.value?.toSummaryTermReportItem()
+						)
+					)
+				}
+			}
+		}
 
 		// Its own observation: the user's never emits for an account with nothing stored, and the
 		// failed screen still has to learn why from the sync.

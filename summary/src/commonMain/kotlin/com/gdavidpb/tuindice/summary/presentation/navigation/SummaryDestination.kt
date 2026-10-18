@@ -22,6 +22,12 @@ sealed class SummaryDestination : Destination() {
 	@Serializable
 	data object Statistics : SummaryDestination()
 
+	// The term report ("Tu trimestre") of the insight [insightId], pushed over the summary: read-only but for its thumbs.
+	@Serializable
+	data class TermReport(
+		val insightId: String
+	) : SummaryDestination()
+
 	// The sheet that shares a closed term as an image, over the screen it is opened from. [termKey] is the term it opens
 	// on, or null for the newest one.
 	@Serializable

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -30,6 +31,7 @@ fun BoxScope.StatisticsBarColumns(
 	openIndex: MutableState<Int?>
 ) {
 	val dataColor = StatisticsChartDefaults.dataColor()
+	val highlightColor = MaterialTheme.colorScheme.primary
 	val hasSelection = openIndex.value != null
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val barWidth = StatisticsChartGeometry.barWidth(columnWidth)
@@ -69,7 +71,8 @@ fun BoxScope.StatisticsBarColumns(
 					StatisticsBar(
 						shownFraction = shownFraction,
 						width = barWidth,
-						color = dataColor.copy(alpha = StatisticsChartDefaults.alphaOf(isOpen, hasSelection)),
+						color = (if (bar.isHighlighted) highlightColor else dataColor)
+							.copy(alpha = StatisticsChartDefaults.alphaOf(isOpen, hasSelection)),
 						tag = SummaryUiTags.statisticsFill(labels.key, index)
 					)
 				}
