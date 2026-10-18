@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
@@ -16,13 +17,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withTimeoutOrNull
 
-// The assistant's standing with the student: whether it is on, the consent, and in [restrictions] the restriction and
-// its appeal.
+// The assistant's standing with the student: whether it is on, the consent and the privacy policy it links, and in
+// [restrictions] the restriction and its appeal.
 class AssistantChatAccess(
 	private val availabilityRepository: AssistantAvailabilityRepository,
 	private val consentRepository: AssistantConsentRepository,
 	private val acceptAssistantConsentUseCase: AcceptAssistantConsentUseCase,
 	private val syncAssistantUseCase: SyncAssistantUseCase,
+	private val appEnvironmentRepository: AppEnvironmentRepository,
 	internal val restrictions: AssistantChatRestrictions
 ) {
 	private var availabilityJob: Job? = null
@@ -30,6 +32,17 @@ class AssistantChatAccess(
 	suspend fun firstAvailability(): AssistantAvailability = availabilityRepository.observeAvailability().first()
 
 	fun isConsentGranted(): Boolean = consentRepository.assistantConsentGranted.value
+
+	// The privacy policy of the environment the app runs in, the same page About and the sign-in open, under [title]. It
+	// opens in the app's browser, over the chat: the sheet stays where it was, and back returns to it.
+	fun openPrivacyPolicy(host: MachineHost<AssistantChat.Effect>, title: String) {
+		host.sendEffect(
+			AssistantChat.Effect.NavigateToBrowser(
+				title = title,
+				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
+			)
+		)
+	}
 
 	// Started once per sheet, after the opening read the first value; the flow replays the current one, so no change
 	// in between is lost.

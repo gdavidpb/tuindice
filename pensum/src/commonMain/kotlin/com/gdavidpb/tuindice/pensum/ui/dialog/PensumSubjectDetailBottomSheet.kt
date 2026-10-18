@@ -29,11 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -130,7 +130,7 @@ fun PensumSubjectDetailBottomSheet(
 						imageVector = rememberAssistantSparkleIcon(),
 						contentDescription = null,
 						modifier = Modifier.size(18.dp),
-						tint = Color.Unspecified
+						tint = assistantSparkleTint()
 					)
 					Spacer(modifier = Modifier.width(8.dp))
 					Text(text = stringResource(Res.string.pensum_subject_ask_assistant))

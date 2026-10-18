@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
@@ -20,15 +20,16 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.assistant.ui.model.AssistantMessageActionSizes
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.a11y_assistant_copy
 import tuindice.assistant.generated.resources.a11y_assistant_not_useful
 import tuindice.assistant.generated.resources.a11y_assistant_useful
 
-// The actions under an agent message, in order: Copiar, the two thumbs, and Reportar. The thumb the student chose
-// is filled and in the accent.
+// The actions under an agent message, in order: Copiar, the two thumbs, and Reportar. They are small and close together
+// (AssistantMessageActionSizes), so they do not compete with the message; the thumb the student chose is filled and in
+// the accent.
 @Composable
 fun AssistantMessageActionsView(
 	messageId: String,
@@ -36,17 +37,17 @@ fun AssistantMessageActionsView(
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	Row(
-		modifier = modifier.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
-	) {
+	Row(modifier = modifier.fillMaxWidth()) {
 		IconButton(
 			onClick = { onAction(AssistantChat.Action.CopyMessage(messageId)) },
-			modifier = Modifier.testTag(AssistantUiTags.Message.copy(messageId))
+			modifier = Modifier
+				.size(AssistantMessageActionSizes.Button)
+				.testTag(AssistantUiTags.Message.copy(messageId))
 		) {
 			Icon(
 				imageVector = Icons.Outlined.ContentCopy,
 				contentDescription = stringResource(Res.string.a11y_assistant_copy),
+				modifier = Modifier.size(AssistantMessageActionSizes.Icon),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}
@@ -56,6 +57,7 @@ fun AssistantMessageActionsView(
 			IconButton(
 				onClick = { onAction(AssistantChat.Action.RateMessage(messageId, isUseful)) },
 				modifier = Modifier
+					.size(AssistantMessageActionSizes.Button)
 					.testTag(thumbTag(messageId, isUseful))
 					.semantics { selected = isSelected }
 			) {
@@ -64,6 +66,7 @@ fun AssistantMessageActionsView(
 					contentDescription = stringResource(
 						if (isUseful) Res.string.a11y_assistant_useful else Res.string.a11y_assistant_not_useful
 					),
+					modifier = Modifier.size(AssistantMessageActionSizes.Icon),
 					tint = tint
 				)
 			}

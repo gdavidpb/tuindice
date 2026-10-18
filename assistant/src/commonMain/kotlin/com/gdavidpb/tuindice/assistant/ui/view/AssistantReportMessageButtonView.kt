@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.DropdownMenu
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.model.AssistantMessageActionSizes
 import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -38,11 +40,14 @@ fun AssistantReportMessageButtonView(
 	Box(modifier = modifier) {
 		IconButton(
 			onClick = { isMenuVisible.value = true },
-			modifier = Modifier.testTag(AssistantUiTags.Message.report(messageId))
+			modifier = Modifier
+				.size(AssistantMessageActionSizes.Button)
+				.testTag(AssistantUiTags.Message.report(messageId))
 		) {
 			Icon(
 				imageVector = Icons.Outlined.Flag,
 				contentDescription = stringResource(Res.string.a11y_assistant_report),
+				modifier = Modifier.size(AssistantMessageActionSizes.Icon),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}

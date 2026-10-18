@@ -11,12 +11,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
+import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -68,7 +68,8 @@ fun EvaluationActions(
 				shape = LeadingActionShape,
 				onClick = onAsk
 			) {
-				Icon(imageVector = sparkleIcon, contentDescription = null, tint = Color.Unspecified)
+				// The action sits on surfaceVariant, not on the primary, so the sparkle keeps the accent.
+				Icon(imageVector = sparkleIcon, contentDescription = null, tint = assistantSparkleTint())
 			}
 		}
 

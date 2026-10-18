@@ -25,9 +25,10 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_nav_copied
 
 // The chat sheet bridged to its view model. The sheet opens with the context of the screen it came from. Its dismissal
-// and its component sheets go through the navigation actions; the copy, the snackbars, the navigation and the
-// enrollment proof go through the host. The camera and the gallery are opened here, as the summary opens them, and the
-// photo they return goes back to the view model. Whether the device has a camera is read once, here.
+// and its component sheets go through the navigation actions; the copy, the snackbars, the navigation, the in-app
+// browser and the enrollment proof go through the host. The camera and the gallery are opened here, as the summary
+// opens them, and the photo they return goes back to the view model. Whether the device has a camera is read once,
+// here.
 @Composable
 fun AssistantChatRoute(
 	viewModel: AssistantChatViewModel,
@@ -58,6 +59,8 @@ fun AssistantChatRoute(
 			is AssistantChat.Effect.ShowSnackBar -> showSnackBar(SnackBarMessage(message = effect.message))
 
 			is AssistantChat.Effect.NavigateTo -> dependencies.onNavigateTo(effect.target, effect.entityRefs)
+
+			is AssistantChat.Effect.NavigateToBrowser -> dependencies.onNavigateToBrowser(effect.title, effect.url)
 
 			AssistantChat.Effect.OpenEnrollmentProof -> dependencies.onOpenEnrollmentProof()
 

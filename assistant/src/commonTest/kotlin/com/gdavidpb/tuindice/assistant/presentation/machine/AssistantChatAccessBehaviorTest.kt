@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.declineConsentAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
+import com.gdavidpb.tuindice.assistant.presentation.testing.openPrivacyPolicyAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.pickSuggestionAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class AssistantChatAccessBehaviorTest {
@@ -106,6 +108,41 @@ class AssistantChatAccessBehaviorTest {
 		viewModel.declineConsentAction()
 
 		assertEquals(listOf<AssistantChat.Effect>(AssistantChat.Effect.Dismiss), fixture.effects)
+	}
+
+	@Test
+	fun openPrivacyPolicy_fromTheConsent_opensThePolicyOfTheApp_andKeepsTheConsent() = chatTest { fixture, viewModel ->
+		viewModel.openAction(null)
+
+		viewModel.openPrivacyPolicyAction()
+
+		val browser = assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
+		assertEquals("privacy-policy", browser.title)
+		assertEquals(fixture.appEnvironment.getEnvironment().privacyPolicyUrl, browser.url)
+		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
+	}
+
+	@Test
+	fun openPrivacyPolicy_afterARefusedAcceptance_keepsTheError() = chatTest { fixture, viewModel ->
+		fixture.consent.failure = IllegalStateException("refused")
+		viewModel.openAction(null)
+		viewModel.acceptConsentAction()
+
+		viewModel.openPrivacyPolicyAction()
+
+		assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
+		assertEquals(AssistantChat.State.ConsentFailed, viewModel.state.value)
+	}
+
+	@Test
+	fun openPrivacyPolicy_fromTheChat_opensThePolicy_andTheSheetStays() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(null)
+
+		viewModel.openPrivacyPolicyAction()
+
+		assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
+		assertTrue(viewModel.state.value is AssistantChat.State.Content)
 	}
 
 	@Test

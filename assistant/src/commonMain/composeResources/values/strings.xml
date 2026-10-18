@@ -31,12 +31,13 @@
 	<string name="assistant_intent_outcome_expired">Venció</string>
 	<string name="assistant_intent_outcome_failed">Falló</string>
 	<string name="assistant_intent_outcome_delegated">Abierto en la app</string>
+	<string name="assistant_chat_title">Asistente</string>
 	<string name="assistant_consent_title">Antes de usar el asistente</string>
 	<string name="assistant_consent_failed">No pudimos guardar tu consentimiento. Inténtalo de nuevo.</string>
-	<string name="assistant_consent_scope">El asistente responde tus preguntas sobre tu historial académico. Solo propone cambios y los hace si tú los confirmas.</string>
+	<string name="assistant_consent_scope">Responde tus preguntas sobre tu historial académico y solo propone cambios: los hace si tú los confirmas.</string>
 	<string name="assistant_consent_accuracy">Puede equivocarse: revisa las cifras importantes en la app antes de decidir.</string>
 	<string name="assistant_consent_providers">Tus mensajes se procesan con proveedores externos: Anthropic y Google.</string>
-	<string name="assistant_consent_retention">Tus mensajes se guardan durante 12 meses.</string>
+	<string name="assistant_consent_retention">Guardamos tus mensajes durante 12 meses.</string>
 	<string name="assistant_consent_control">Puedes apagar el asistente y eliminar tus datos desde Acerca de.</string>
 	<string name="assistant_consent_privacy">Política de privacidad</string>
 	<string name="assistant_consent_accept">Aceptar</string>

@@ -89,6 +89,9 @@ object AssistantChat {
 		class Appeal(val text: String) : Action()
 		data object AcceptConsent : Action()
 		data object DeclineConsent : Action()
+
+		// The privacy policy link of the consent: the same policy the rest of the app opens.
+		data object OpenPrivacyPolicy : Action()
 		data object Dismiss : Action()
 	}
 
@@ -97,6 +100,9 @@ object AssistantChat {
 		class CopyText(val text: String) : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 		class NavigateTo(val target: NavTarget, val entityRefs: List<EntityRef>) : Effect()
+
+		// A page of the app's in-app browser, opened over the chat, so its back returns to the sheet.
+		class NavigateToBrowser(val title: String, val url: String) : Effect()
 
 		// comprobante.pedir: the app's own enrollment proof flow takes over, with the password saved on the device.
 		data object OpenEnrollmentProof : Effect()

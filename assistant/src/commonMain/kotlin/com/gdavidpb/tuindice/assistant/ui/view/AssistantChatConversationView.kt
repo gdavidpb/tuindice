@@ -4,13 +4,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -18,10 +22,12 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_sending
+import tuindice.assistant.generated.resources.assistant_chat_title
 import tuindice.assistant.generated.resources.assistant_photo_reading
 
-// The conversation, oldest first, with the context chip above and the running label, notice, suggestions and
-// composer below. The list follows its last item whenever the conversation changes size.
+// The conversation, oldest first, under the sheet's title («Asistente», with the style of the app's sheets and no
+// icon) and the context chip, with the running label, notice, suggestions and composer below. The list follows its
+// last item whenever the conversation changes size.
 @Composable
 fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
@@ -42,6 +48,14 @@ fun AssistantChatConversationView(
 		modifier = modifier.fillMaxWidth().imePadding(),
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
+		Text(
+			text = stringResource(Res.string.assistant_chat_title),
+			style = MaterialTheme.typography.titleLarge,
+			fontWeight = FontWeight.Bold,
+			color = MaterialTheme.colorScheme.onSurface,
+			// With the column's spacing, 16 dp below it, as below the title of ConfirmationDialog.
+			modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium).testTag(AssistantUiTags.ChatTitle)
+		)
 		content.context?.let { context ->
 			AssistantChatContextChipView(item = context, onAction = onAction)
 		}

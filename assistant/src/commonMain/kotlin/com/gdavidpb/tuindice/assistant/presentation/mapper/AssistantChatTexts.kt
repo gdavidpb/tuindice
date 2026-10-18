@@ -24,4 +24,7 @@ interface AssistantChatTexts {
 	suspend fun sendFailed(): String
 
 	suspend fun messageTooLong(maxLength: Int): String
+
+	// The title of the in-app browser page that shows the privacy policy.
+	suspend fun privacyPolicyTitle(): String
 }

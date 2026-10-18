@@ -60,6 +60,8 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 	override suspend fun sendFailed(): String = "send-failed"
 
 	override suspend fun messageTooLong(maxLength: Int): String = "too-long:$maxLength"
+
+	override suspend fun privacyPolicyTitle(): String = "privacy-policy"
 }
 
 internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
@@ -293,3 +295,6 @@ internal fun AssistantChatViewModel.acceptConsentAction() =
 
 internal fun AssistantChatViewModel.declineConsentAction() =
 	dispatch(AssistantChat.Action.DeclineConsent)
+
+internal fun AssistantChatViewModel.openPrivacyPolicyAction() =
+	dispatch(AssistantChat.Action.OpenPrivacyPolicy)
