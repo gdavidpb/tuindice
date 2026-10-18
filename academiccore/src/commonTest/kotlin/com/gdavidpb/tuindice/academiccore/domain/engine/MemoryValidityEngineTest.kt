@@ -37,6 +37,9 @@ class MemoryValidityEngineTest {
 		goalOutcome: MemoryGoalOutcome = MemoryGoalOutcome.OPEN
 	) = judge(MemoryValidityInput(category, anchor, MemoryState.ACTIVE, lastUsedOn, null, goalOutcome))
 
+	private fun activeInput(category: MemoryCategory, anchor: MemoryAnchor) =
+		MemoryValidityInput(category, anchor, MemoryState.ACTIVE, null, null)
+
 	private fun pending(category: MemoryCategory, anchor: MemoryAnchor, pendingSince: LocalDate?) = judge(
 		MemoryValidityInput(category, anchor, MemoryState.PENDING_CONFIRMATION, null, pendingSince)
 	)
@@ -214,6 +217,69 @@ class MemoryValidityEngineTest {
 		assertEquals(
 			MemoryValidityDecision.Keep,
 			active(MemoryCategory.DATED_RESTRICTION, MemoryAnchor(MemoryAnchorKind.NONE, null, LocalDate(2020, 1, 1)))
+		)
+	}
+
+	@Test
+	fun theUnconfirmedTimeoutIsTheOneTheBackendReads() {
+		assertEquals(30, MemoryValidityEngine.UNCONFIRMED_DAYS)
+	}
+
+	@Test
+	fun aTermMemoryConfirmedAgainstItsClosedTermIsNotAskedAboutAgain() {
+		val input = activeInput(MemoryCategory.TERM, MemoryAnchor(MemoryAnchorKind.TERM, "2026-1", null))
+		val fact = MemoryConfirmationEngine.confirmationFactOf(input, snapshot)
+
+		assertEquals(MemoryValidityDecision.Keep, judge(input.copy(confirmedFact = fact)))
+		// A confirmation given against another fact does not answer this question.
+		assertEquals(
+			MemoryValidityDecision.RequestConfirmation(MemoryValidityReason.TERM_CLOSED),
+			judge(input.copy(confirmedFact = "termActive:true"))
+		)
+	}
+
+	@Test
+	fun aConfirmedInterestIsAskedAboutAgainOnlyWhenTheCareerChangesOnceMore() {
+		val input = activeInput(MemoryCategory.INTEREST, MemoryAnchor(MemoryAnchorKind.CAREER, "OTHER", null))
+		val confirmed = input.copy(confirmedFact = MemoryConfirmationEngine.confirmationFactOf(input, snapshot))
+
+		assertEquals(MemoryValidityDecision.Keep, judge(confirmed))
+		assertEquals(
+			MemoryValidityDecision.RequestConfirmation(MemoryValidityReason.CAREER_CHANGED),
+			MemoryValidityEngine.decide(confirmed, snapshot.copy(careerCode = "NEW"))
+		)
+	}
+
+	@Test
+	fun aCareerGoalConfirmedBeforeItsDateIsAskedAboutAgainOnceTheDatePasses() {
+		val goal = MemoryAnchor(MemoryAnchorKind.CAREER, "OTHER", LocalDate(2026, 12, 1))
+		val input = activeInput(MemoryCategory.CAREER_GOAL, goal)
+		val confirmed = input.copy(confirmedFact = MemoryConfirmationEngine.confirmationFactOf(input, snapshot))
+
+		assertEquals(MemoryValidityDecision.Keep, judge(confirmed))
+		assertEquals(
+			MemoryValidityDecision.RequestConfirmation(MemoryValidityReason.CAREER_CHANGED),
+			MemoryValidityEngine.decide(confirmed, snapshot.copy(today = LocalDate(2026, 12, 2)))
+		)
+	}
+
+	@Test
+	fun theConfirmedFactSurvivesAJsonRoundTrip() {
+		val input = activeInput(MemoryCategory.TERM, MemoryAnchor(MemoryAnchorKind.TERM, "2026-1", null))
+			.copy(confirmedFact = "termActive:false")
+
+		assertEquals(input, Json.decodeFromString<MemoryValidityInput>(Json.encodeToString(input)))
+	}
+
+	@Test
+	fun aConfirmationNeverKeepsAMemoryTheRulesArchive() {
+		val restriction = MemoryAnchor(MemoryAnchorKind.DATE, null, LocalDate(2026, 10, 15))
+		val input = activeInput(MemoryCategory.DATED_RESTRICTION, restriction)
+
+		assertEquals(null, MemoryConfirmationEngine.confirmationFactOf(input, snapshot))
+		assertEquals(
+			MemoryValidityDecision.Archive(MemoryValidityReason.DATE_PASSED),
+			judge(input.copy(confirmedFact = "career:ICI"))
 		)
 	}
 
