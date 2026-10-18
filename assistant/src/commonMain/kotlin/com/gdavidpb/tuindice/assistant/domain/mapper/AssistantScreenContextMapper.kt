@@ -39,6 +39,7 @@ private fun AssistantScreen.toScreenId(): ScreenId {
 		AssistantScreen.SUBJECT_DETAIL -> ScreenId.SUBJECT_DETAIL
 		AssistantScreen.SUBJECT_SEARCH -> ScreenId.SUBJECT_SEARCH
 		AssistantScreen.ABOUT -> ScreenId.ABOUT
+		AssistantScreen.TERM_REPORT -> ScreenId.TERM_REPORT
 	}
 }
 

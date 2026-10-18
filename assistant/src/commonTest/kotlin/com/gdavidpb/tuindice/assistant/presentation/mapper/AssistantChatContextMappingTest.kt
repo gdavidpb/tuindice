@@ -160,4 +160,15 @@ class AssistantChatContextMappingTest {
 
 		assertSame(context, context.toChatContextItem(texts).context)
 	}
+
+	@Test
+	fun theTermReport_namesItsTermLabel() = runTest {
+		val context = AssistantScreenContext(
+			screen = AssistantScreen.TERM_REPORT,
+			entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1")),
+			visibleFields = mapOf("termLabel" to "Abr - Jul 2026")
+		)
+
+		assertEquals("screen:TERM_REPORT · Abr - Jul 2026", context.toChatContextItem(texts).label)
+	}
 }

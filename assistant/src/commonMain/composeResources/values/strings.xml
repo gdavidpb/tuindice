@@ -95,6 +95,7 @@
 	<string name="assistant_chat_screen_subject_detail">Materia</string>
 	<string name="assistant_chat_screen_subject_search">Buscar materias</string>
 	<string name="assistant_chat_screen_about">Acerca de</string>
+	<string name="assistant_chat_screen_term_report">Informe del trimestre</string>
 	<string name="assistant_chat_evaluation_type_test">Prueba</string>
 	<string name="assistant_chat_evaluation_type_essay">Ensayo</string>
 	<string name="assistant_chat_evaluation_type_attendance">Asistencia</string>
