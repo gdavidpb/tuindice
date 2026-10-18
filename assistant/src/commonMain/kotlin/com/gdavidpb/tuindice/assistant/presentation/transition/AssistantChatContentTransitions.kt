@@ -212,11 +212,12 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
+	// The host's jump closes the sheet in the same change of the stack (maincore's goFromAssistant). A Dismiss after it
+	// would close whatever the jump left on top: the tab it landed on, back to the start tab, or the screen it opened.
 	on<AssistantChat.Action.OpenNavTarget>(
-		emits = setOf(AssistantChat.Effect.NavigateTo::class, AssistantChat.Effect.Dismiss::class)
+		emits = setOf(AssistantChat.Effect.NavigateTo::class)
 	) { state, action ->
 		host.sendEffect(AssistantChat.Effect.NavigateTo(target = action.target, entityRefs = action.entityRefs))
-		host.sendEffect(AssistantChat.Effect.Dismiss)
 		state
 	}
 

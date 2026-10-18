@@ -69,17 +69,17 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
-	fun navigate_opensTheScreen_andClosesTheSheet() = chatTest { fixture, viewModel ->
+	fun navigate_opensTheScreen_andLeavesTheClosingOfTheSheetToTheJump() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 		val refs = listOf(EntityRef(kind = EntityKind.TERM, id = "2026-2"))
 
 		viewModel.openNavTargetAction(NavTarget.SUMMARY, refs)
 
-		val navigation = fixture.effects.first() as AssistantChat.Effect.NavigateTo
+		// One effect: the jump closes the sheet itself, and a Dismiss after it would close the tab it landed on.
+		val navigation = fixture.effects.single() as AssistantChat.Effect.NavigateTo
 		assertEquals(NavTarget.SUMMARY, navigation.target)
 		assertEquals(refs, navigation.entityRefs)
-		assertEquals(listOf<AssistantChat.Effect>(AssistantChat.Effect.Dismiss), fixture.effects.drop(1))
 	}
 
 	@Test

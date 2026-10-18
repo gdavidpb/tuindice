@@ -48,17 +48,14 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 			AssistantComponentSheet.State.Missing
 		}
 
-		// A link inside the component leaves for its target and closes the sheet, as a link in the chat does.
+		// A link inside the component leaves for its target, as a link in the chat does: the host's jump closes this
+		// sheet and the chat under it, so the sheet sends no Dismiss of its own, which would close what the jump opened.
 		on<AssistantComponentSheet.Action.OpenNavTarget>(
-			emits = setOf(
-				AssistantComponentSheet.Effect.NavigateTo::class,
-				AssistantComponentSheet.Effect.Dismiss::class
-			)
+			emits = setOf(AssistantComponentSheet.Effect.NavigateTo::class)
 		) { state, action ->
 			host.sendEffect(
 				AssistantComponentSheet.Effect.NavigateTo(target = action.target, entityRefs = action.entityRefs)
 			)
-			host.sendEffect(AssistantComponentSheet.Effect.Dismiss)
 
 			state
 		}

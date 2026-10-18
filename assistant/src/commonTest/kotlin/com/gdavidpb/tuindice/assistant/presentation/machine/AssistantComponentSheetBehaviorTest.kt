@@ -58,7 +58,7 @@ class AssistantComponentSheetBehaviorTest {
 	}
 
 	@Test
-	fun when_aLinkIsTapped_then_theSheetGoesToItsTarget_andCloses() = componentSheetTest(
+	fun when_aLinkIsTapped_then_theSheetGoesToItsTarget_andLeavesTheClosingToTheJump() = componentSheetTest(
 		initial = conversationWithComponent
 	) { fixture, viewModel ->
 		viewModel.openAction(messageId = "message-1", componentId = "component-1")
@@ -69,6 +69,6 @@ class AssistantComponentSheetBehaviorTest {
 
 		val navigation = fixture.effects.filterIsInstance<AssistantComponentSheet.Effect.NavigateTo>().single()
 		assertEquals(NavTarget.SUMMARY, navigation.target)
-		assertTrue(fixture.effects.any { effect -> effect is AssistantComponentSheet.Effect.Dismiss })
+		assertTrue(fixture.effects.none { effect -> effect is AssistantComponentSheet.Effect.Dismiss })
 	}
 }
