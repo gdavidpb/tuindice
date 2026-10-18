@@ -5,9 +5,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 /**
- * The app's report of how it ended the intent [intentId], with the mutations it ran. [itemOutcomes] tells how each of those
- * mutations ended; a report that names none (an older app, or an intent that ran nothing) is read by its [outcome] alone,
- * and is written without the field, so it reads on the wire as it did before the field existed.
+ * The app's report of how it ended the intent [intentId], with the mutations it ran. [itemOutcomes] tells how
+ * each of those mutations ended; a report that names none (an older app, or an intent that ran nothing) is read
+ * by its [outcome] alone, and is written without the field, so it reads on the wire as before the field existed.
  */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

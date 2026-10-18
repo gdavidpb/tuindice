@@ -31,5 +31,9 @@ public enum class ScreenId {
 	SUBJECT_SEARCH,
 
 	@SerialName("about")
-	ABOUT
+	ABOUT,
+
+	/** The term report ("Tu trimestre") the student opened from the summary or from its push. */
+	@SerialName("term_report")
+	TERM_REPORT
 }

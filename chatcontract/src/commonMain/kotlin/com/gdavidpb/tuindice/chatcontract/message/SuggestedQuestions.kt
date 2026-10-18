@@ -62,6 +62,11 @@ public object SuggestedQuestions {
 			reply("sq.about.what", "¿Qué puedes hacer por mí?"),
 			reply("sq.about.data", "¿Cómo se usan mis datos?"),
 			reply("sq.about.memory", "¿Qué recuerdas de mí?")
+			),
+		ScreenId.TERM_REPORT to listOf(
+				reply("sq.term_report.why", "¿Qué explica mi índice de este trimestre?"),
+				reply("sq.term_report.next", "¿Qué me conviene hacer el próximo trimestre?"),
+				reply("sq.term_report.pace", "¿Cómo va mi ritmo de créditos?")
 		)
 	)
 

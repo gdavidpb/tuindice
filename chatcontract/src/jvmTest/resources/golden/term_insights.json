@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "term-1:2",
+      "termKey": "2026-APR_JUL",
+      "kind": "term_end",
+      "title": "Cerraste con 4,18",
+      "body": "Aprobaste las 3 materias.\n\nTu ritmo\n\nEste trimestre aprobaste 11 créditos.",
+      "entityRefs": [
+        {
+          "kind": "term",
+          "id": "term-1"
+        }
+      ],
+      "sections": [
+        {
+          "title": "Cerraste con 4,18",
+          "text": "Aprobaste las 3 materias."
+        },
+        {
+          "title": "Tu ritmo",
+          "text": "Este trimestre aprobaste 11 créditos."
+        }
+      ],
+      "nextActions": [
+        {
+          "target": "record.projection",
+          "label": "Proyectar tu índice para Jul - Ago",
+          "entityRefs": []
+        },
+        {
+          "target": "share_term",
+          "label": "Compartir tu trimestre",
+          "entityRefs": [
+            {
+              "kind": "term",
+              "id": "term-1"
+            }
+          ]
+        }
+      ],
+      "createdAtMillis": 1761000000000
+    }
+  ]
+}
