@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import com.gdavidpb.tuindice.chatcontract.event.RunStarted
 import com.gdavidpb.tuindice.chatcontract.event.UnknownAssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,10 @@ import kotlinx.coroutines.flow.update
 class AssistantConversationDataSource : SessionMemory {
 
 	private val conversation = MutableStateFlow(AssistantConversationState())
+
+	// The outcome reports the server has not taken yet, by intent; the intents whose decision answer the network lost.
+	private val outcomesPending = MutableStateFlow<Map<String, IntentOutcomeReport>>(emptyMap())
+	private val decisionsUncertain = MutableStateFlow<Set<String>>(emptySet())
 
 	fun observeConversation(): StateFlow<AssistantConversationState> = conversation.asStateFlow()
 
@@ -75,8 +80,31 @@ class AssistantConversationDataSource : SessionMemory {
 		}
 	}
 
+	// A report stays until the server takes it; the one of an intent replaces the earlier one of the same intent.
+	fun stageOutcome(report: IntentOutcomeReport) {
+		outcomesPending.update { current -> current + (report.intentId to report) }
+	}
+
+	fun clearOutcome(intentId: String) {
+		outcomesPending.update { current -> current - intentId }
+	}
+
+	fun pendingOutcomes(): List<IntentOutcomeReport> = outcomesPending.value.values.toList()
+
+	fun markDecisionUncertain(intentId: String) {
+		decisionsUncertain.update { current -> current + intentId }
+	}
+
+	fun clearDecisionUncertain(intentId: String) {
+		decisionsUncertain.update { current -> current - intentId }
+	}
+
+	fun isDecisionUncertain(intentId: String): Boolean = intentId in decisionsUncertain.value
+
 	override suspend fun clearSessionMemory() {
 		conversation.value = AssistantConversationState()
+		outcomesPending.value = emptyMap()
+		decisionsUncertain.value = emptySet()
 	}
 }
 

@@ -84,6 +84,7 @@ class AssistantChatMachine(
 	internal suspend fun enterContent(host: MachineHost<AssistantChat.Effect>): AssistantChat.State.Content {
 		turns.observeConversation(host)
 		turns.resumeTurn(host)
+		intents.flushOutcomes(host)
 
 		val emptyContent = AssistantChat.State.Content(
 			context = session.openedContext?.toChatContextItem(texts),

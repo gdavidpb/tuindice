@@ -41,6 +41,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.FlushAssistantOutcomesUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
@@ -154,6 +155,7 @@ val assistantModule = module {
 	factoryOf(::ConfirmRememberIntentUseCase)
 	factoryOf(::DelegateEnrollmentProofIntentUseCase)
 	factoryOf(::DismissAssistantIntentUseCase)
+	factoryOf(::FlushAssistantOutcomesUseCase)
 	factoryOf(::RateAssistantMessageUseCase)
 	factoryOf(::ReportAssistantMessageUseCase)
 	factoryOf(::GetAssistantStatusUseCase)

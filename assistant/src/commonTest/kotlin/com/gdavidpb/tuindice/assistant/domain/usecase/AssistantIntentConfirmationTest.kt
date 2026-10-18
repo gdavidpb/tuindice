@@ -137,6 +137,43 @@ class AssistantIntentConfirmationTest {
 	)
 
 	@Test
+	fun aReportTheServerDoesNotTakeStaysPending_andIsSentByTheNextFlush() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.reportError = IllegalStateException("offline")
+
+		val state = confirmEdit()
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), state)
+		assertEquals(OutcomeKind.CONFIRMED, conversation.resolved["i1"])
+		assertEquals(listOf("i1"), conversation.pendingOutcomes().map { report -> report.intentId })
+
+		intents.reportError = null
+		FlushAssistantOutcomesUseCase(confirmer, reporting).execute(Unit).lastState()
+
+		assertEquals(listOf("i1"), intents.reports.map { report -> report.intentId })
+		assertEquals(OutcomeKind.CONFIRMED, intents.reports.single().outcome)
+		assertTrue(conversation.pendingOutcomes().isEmpty())
+	}
+
+	@Test
+	fun aDecisionWhoseAnswerWasLost_isNotClosedAsConflictWhenTheStudentRepeatsIt() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.decideError = IllegalStateException("lost in the network")
+		assertTrue(confirmEdit() is UseCaseState.Error)
+
+		// The server applied the first decision: its repetition answers Conflict, and the intent runs as decided.
+		intents.decideError = null
+		intents.answer = IntentDecisionResult.Conflict
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
+		assertEquals(listOf<Any>(args), evaluations.received)
+	}
+
+	@Test
 	fun anIntentPastItsDeadlineIsReportedExpiredWithoutDecidingOrRunning() = runTest {
 		openIntent(
 			assistantIntent(

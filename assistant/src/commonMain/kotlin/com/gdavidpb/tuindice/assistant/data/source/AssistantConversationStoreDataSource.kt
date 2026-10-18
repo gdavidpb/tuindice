@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,26 @@ class AssistantConversationStoreDataSource(
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		store.markIntentResolved(intentId, outcome)
 	}
+
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		store.stageOutcome(report)
+	}
+
+	override fun clearOutcome(intentId: String) {
+		store.clearOutcome(intentId)
+	}
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = store.pendingOutcomes()
+
+	override fun markDecisionUncertain(intentId: String) {
+		store.markDecisionUncertain(intentId)
+	}
+
+	override fun clearDecisionUncertain(intentId: String) {
+		store.clearDecisionUncertain(intentId)
+	}
+
+	override fun isDecisionUncertain(intentId: String): Boolean = store.isDecisionUncertain(intentId)
 
 	override suspend fun clearConversation() {
 		store.clearSessionMemory()

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.MutatingIntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import kotlinx.coroutines.CancellationException
 import kotlin.time.Clock
 
 /**
@@ -21,7 +22,9 @@ import kotlin.time.Clock
  * intent must be open and of the kind the use case confirms. An intent past its deadline is reported as expired without
  * asking the server. The server decides: an expiry or a conflict it answers is reported without running anything. An
  * accepted intent runs on its port, and its outcome is reported with the mutations of its binding and marked resolved.
- * Nothing here catches: a port answers FAILED instead of throwing.
+ * A decision whose answer the network lost may have been applied: its repetition is read as the decision made. An outcome
+ * report the server does not take stays pending until a flush sends it again. Otherwise nothing here catches: a port
+ * answers FAILED instead of throwing.
  */
 class AssistantIntentConfirmer(
 	private val conversationRepository: AssistantConversationRepository,
@@ -51,11 +54,37 @@ class AssistantIntentConfirmer(
 
 		val decision = IntentDecision(intentId = intent.id, accepted = true, editedArgs = editedArgs)
 
-		return when (intentRepository.decide(decision)) {
+		return when (decide(intent, decision)) {
 			IntentDecisionResult.Accepted -> executeAccepted(intent, args, execute, reportsOutcome)
 			IntentDecisionResult.Expired -> closeWithoutRunning(intent, OutcomeKind.EXPIRED)
 			IntentDecisionResult.Conflict -> closeWithoutRunning(intent, OutcomeKind.CONFLICT)
 		}
+	}
+
+	// Sends the outcome reports the server has not taken yet: the ones of earlier confirmations whose send failed.
+	suspend fun flushPendingOutcomes() {
+		conversationRepository.pendingOutcomes().forEach { report -> sendOutcome(report) }
+	}
+
+	// The decision as the server answers it. When the answer was lost to a failure of the network, the decision may have
+	// been applied already: a Conflict to its repetition then is the decision as made, and the intent runs by its mutations,
+	// which are idempotent.
+	private suspend fun decide(intent: Intent, decision: IntentDecision): IntentDecisionResult {
+		val repeated = conversationRepository.isDecisionUncertain(intent.id)
+		val answer = runCatching { intentRepository.decide(decision) }
+
+		answer.exceptionOrNull()?.let { failure ->
+			if (failure is CancellationException) throw failure
+
+			conversationRepository.markDecisionUncertain(intent.id)
+			throw failure
+		}
+
+		conversationRepository.clearDecisionUncertain(intent.id)
+
+		val result = answer.getOrThrow()
+
+		return if (repeated && result == IntentDecisionResult.Conflict) IntentDecisionResult.Accepted else result
 	}
 
 	// The proposed args must be of the kind. Edited args of that kind replace them; any other edited args are ignored.
@@ -75,7 +104,7 @@ class AssistantIntentConfirmer(
 		val execution = execute(args, intent)
 
 		if (reportsOutcome) {
-			intentRepository.reportOutcome(
+			sendOutcome(
 				IntentOutcomeReport(
 					intentId = intent.id,
 					outcome = execution.outcome,
@@ -100,9 +129,23 @@ class AssistantIntentConfirmer(
 
 	// Nothing ran, so the report names no mutation.
 	private suspend fun closeWithoutRunning(intent: Intent, outcome: OutcomeKind): OutcomeKind {
-		intentRepository.reportOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome))
+		sendOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome))
 		conversationRepository.markIntentResolved(intentId = intent.id, outcome = outcome)
 
 		return outcome
+	}
+
+	// A report stays staged until the server takes it. Whether it was taken or not, the intent is resolved here, so the
+	// conversation does not wait for the network; a staged report is the one the next flush sends.
+	private suspend fun sendOutcome(report: IntentOutcomeReport) {
+		conversationRepository.stageOutcome(report)
+
+		val failure = runCatching { intentRepository.reportOutcome(report) }.exceptionOrNull()
+
+		if (failure == null) {
+			conversationRepository.clearOutcome(report.intentId)
+		} else if (failure is CancellationException) {
+			throw failure
+		}
 	}
 }

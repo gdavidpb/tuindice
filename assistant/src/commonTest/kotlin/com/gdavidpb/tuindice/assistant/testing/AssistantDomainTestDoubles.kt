@@ -181,6 +181,29 @@ internal class RecordingAssistantConversationRepository(
 		openIntents = openIntents - intentId
 	}
 
+	private val staged = linkedMapOf<String, IntentOutcomeReport>()
+	private val uncertain = mutableSetOf<String>()
+
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		staged[report.intentId] = report
+	}
+
+	override fun clearOutcome(intentId: String) {
+		staged.remove(intentId)
+	}
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
+
+	override fun markDecisionUncertain(intentId: String) {
+		uncertain += intentId
+	}
+
+	override fun clearDecisionUncertain(intentId: String) {
+		uncertain -= intentId
+	}
+
+	override fun isDecisionUncertain(intentId: String): Boolean = intentId in uncertain
+
 	var cleared = 0
 
 	override suspend fun clearConversation() {
@@ -194,6 +217,7 @@ internal class RecordingAssistantIntentRepository(
 ) : AssistantIntentRepository {
 	var answer: IntentDecisionResult = IntentDecisionResult.Accepted
 	var decideError: Throwable? = null
+	var reportError: Throwable? = null
 	val decisions = mutableListOf<IntentDecision>()
 	val reports = mutableListOf<IntentOutcomeReport>()
 
@@ -205,8 +229,11 @@ internal class RecordingAssistantIntentRepository(
 		return answer
 	}
 
+	// A report the server does not take is not recorded as sent.
 	override suspend fun reportOutcome(report: IntentOutcomeReport) {
 		calls += "reportOutcome"
+		reportError?.let { error -> throw error }
+
 		reports += report
 	}
 }

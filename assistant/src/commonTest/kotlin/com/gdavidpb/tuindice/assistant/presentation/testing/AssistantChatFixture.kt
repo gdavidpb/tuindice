@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmRememberIntentUseCa
 import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.FlushAssistantOutcomesUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -150,6 +151,7 @@ internal class AssistantChatFixture {
 	private fun createIntents(confirmer: AssistantIntentConfirmer): AssistantChatIntents {
 		return AssistantChatIntents(
 			dismissAssistantIntentUseCase = DismissAssistantIntentUseCase(gatedIntents, conversation, reporting),
+			flushAssistantOutcomesUseCase = FlushAssistantOutcomesUseCase(confirmer, reporting),
 			delegateEnrollmentProofIntentUseCase = DelegateEnrollmentProofIntentUseCase(
 				confirmer = confirmer,
 				reportingRepository = reporting,

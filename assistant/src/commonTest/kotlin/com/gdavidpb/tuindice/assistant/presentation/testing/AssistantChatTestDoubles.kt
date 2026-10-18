@@ -120,6 +120,18 @@ internal class ObservedAssistantConversationRepository(
 		}
 	}
 
+	override fun stageOutcome(report: IntentOutcomeReport) = Unit
+
+	override fun clearOutcome(intentId: String) = Unit
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = emptyList()
+
+	override fun markDecisionUncertain(intentId: String) = Unit
+
+	override fun clearDecisionUncertain(intentId: String) = Unit
+
+	override fun isDecisionUncertain(intentId: String): Boolean = false
+
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		conversation.update { current ->
 			current.copy(
