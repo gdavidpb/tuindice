@@ -1,6 +1,11 @@
 import Foundation
 import UIKit
 import UserNotifications
+#if canImport(maincore)
+import maincore
+#elseif canImport(Maincore)
+import Maincore
+#endif
 #if canImport(FirebaseCore)
 import FirebaseCore
 #endif
@@ -24,6 +29,26 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate, UNUserNotifica
         return true
     }
 
+    // A term report that arrives while the app is open is shown as a banner. Any other push keeps its current behaviour:
+    // none is presented in the foreground.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        let data = notification.request.content.userInfo
+
+        #if canImport(maincore) || canImport(Maincore)
+        let push = IosTermReportPush.shared
+        if data[push.typeKey] as? String == push.termReportType {
+            completionHandler([.banner, .list, .sound])
+            return
+        }
+        #endif
+
+        completionHandler([])
+    }
+
     // A tap on the push of a term report asks the app for that report, which opens once the student is in the app.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
@@ -32,9 +57,13 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate, UNUserNotifica
     ) {
         let data = response.notification.request.content.userInfo
 
-        if data["type"] as? String == "term_report", let insightId = data["insightId"] as? String {
+        #if canImport(maincore) || canImport(Maincore)
+        let push = IosTermReportPush.shared
+        if data[push.typeKey] as? String == push.termReportType,
+           let insightId = data[push.insightIdKey] as? String {
             TuIndiceAppBootstrap.openTermReport(insightId: insightId)
         }
+        #endif
 
         completionHandler()
     }
