@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * [title] and [body] stay populated for the clients that show plain text: the title is the first section, and the body
  * is the text of the first section followed by the other sections. [sections] has the structure a screen needs. [nextActions]
  * are the buttons of "Qué sigue", at most three, chosen by fixed rules on the service and never written by the model.
- * [createdAtMillis] is the instant the report became ready, in epoch milliseconds.
+ * [createdAtMillis] is the instant the service created the report, in epoch milliseconds.
  */
 @Serializable
 public data class TermInsight(
