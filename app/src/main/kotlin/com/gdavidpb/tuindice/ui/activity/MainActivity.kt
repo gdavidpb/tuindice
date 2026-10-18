@@ -40,7 +40,14 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 		}
 
 		FileKit.init(this)
-		intent?.let(::openTermReportFromPush)
+		intent
+			?.takeIf { pushIntent ->
+				shouldOpenTermReportOnCreate(
+					isRestored = savedInstanceState != null,
+					isLaunchedFromHistory = pushIntent.hasFlag(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+				)
+			}
+			?.let(::openTermReportFromPush)
 		onBeforeContent(isColdStart = savedInstanceState == null)
 		refreshSystemAnimations()
 
@@ -64,9 +71,11 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 	}
 
 	// A tap on the push of a term report, while the app is running, brings the app to the front with the push's intent.
+	// The new intent becomes the activity's, so a recreation reads the one it was last given.
 	override fun onNewIntent(intent: Intent) {
 		super.onNewIntent(intent)
 
+		setIntent(intent)
 		openTermReportFromPush(intent)
 	}
 
@@ -118,3 +127,5 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 		)
 	}
 }
+
+private fun Intent.hasFlag(flag: Int): Boolean = (flags and flag) != 0
