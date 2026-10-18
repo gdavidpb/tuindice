@@ -36,6 +36,11 @@ sealed class TopBarAction(
 		action = "statistics_share"
 	)
 
+	// The term report ("Tu trimestre") shares its term as an image, the sheet of the Statistics screen too.
+	data object TermReportShareAction : TopBarAction(
+		action = "term_report_share"
+	)
+
 	// The assistant's sparkle in the bar: asks the assistant about the screen the bar belongs to.
 	data object AssistantAction : TopBarAction(
 		action = "assistant"

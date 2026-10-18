@@ -42,4 +42,11 @@ sealed class TopBarConfig(
 			TopBarAction.StatisticsShareAction
 		)
 	)
+
+	// The term of the report can be shared as an image, the way the Statistics screen shares its terms.
+	data object TermReport : TopBarConfig(
+		actions = listOf(
+			TopBarAction.TermReportShareAction
+		)
+	)
 }

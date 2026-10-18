@@ -48,24 +48,27 @@ private fun EntityKind.toAssistantEntityKind(): AssistantEntityKind {
 	}
 }
 
+// Every target of the chat has its own name here. A test asserts that the map covers all of them.
+private val assistantNavTargets: Map<NavTarget, AssistantNavTarget> = mapOf(
+	NavTarget.SUMMARY to AssistantNavTarget.SUMMARY,
+	NavTarget.STATISTICS to AssistantNavTarget.STATISTICS,
+	NavTarget.SHARE_TERM to AssistantNavTarget.SHARE_TERM,
+	NavTarget.RECORD to AssistantNavTarget.RECORD,
+	NavTarget.RECORD_PROJECTION to AssistantNavTarget.RECORD_PROJECTION,
+	NavTarget.RECORD_SCHEDULE to AssistantNavTarget.RECORD_SCHEDULE,
+	NavTarget.RECORD_CREATE_TERM to AssistantNavTarget.RECORD_CREATE_TERM,
+	NavTarget.EVALUATIONS to AssistantNavTarget.EVALUATIONS,
+	NavTarget.EVALUATIONS_ADD to AssistantNavTarget.EVALUATIONS_ADD,
+	NavTarget.EVALUATIONS_DETAIL to AssistantNavTarget.EVALUATIONS_DETAIL,
+	NavTarget.PENSUM to AssistantNavTarget.PENSUM,
+	NavTarget.SUBJECTS_SEARCH to AssistantNavTarget.SUBJECTS_SEARCH,
+	NavTarget.SUBJECTS_DETAIL to AssistantNavTarget.SUBJECTS_DETAIL,
+	NavTarget.ENROLLMENT_PROOF to AssistantNavTarget.ENROLLMENT_PROOF,
+	NavTarget.ABOUT to AssistantNavTarget.ABOUT,
+	NavTarget.SIGN_IN to AssistantNavTarget.SIGN_IN,
+	NavTarget.UPDATE_PASSWORD to AssistantNavTarget.UPDATE_PASSWORD
+)
+
 private fun NavTarget.toAssistantNavTarget(): AssistantNavTarget {
-	return when (this) {
-		NavTarget.SUMMARY -> AssistantNavTarget.SUMMARY
-		NavTarget.STATISTICS -> AssistantNavTarget.STATISTICS
-		NavTarget.SHARE_TERM -> AssistantNavTarget.SHARE_TERM
-		NavTarget.RECORD -> AssistantNavTarget.RECORD
-		NavTarget.RECORD_PROJECTION -> AssistantNavTarget.RECORD_PROJECTION
-		NavTarget.RECORD_SCHEDULE -> AssistantNavTarget.RECORD_SCHEDULE
-		NavTarget.RECORD_CREATE_TERM -> AssistantNavTarget.RECORD_CREATE_TERM
-		NavTarget.EVALUATIONS -> AssistantNavTarget.EVALUATIONS
-		NavTarget.EVALUATIONS_ADD -> AssistantNavTarget.EVALUATIONS_ADD
-		NavTarget.EVALUATIONS_DETAIL -> AssistantNavTarget.EVALUATIONS_DETAIL
-		NavTarget.PENSUM -> AssistantNavTarget.PENSUM
-		NavTarget.SUBJECTS_SEARCH -> AssistantNavTarget.SUBJECTS_SEARCH
-		NavTarget.SUBJECTS_DETAIL -> AssistantNavTarget.SUBJECTS_DETAIL
-		NavTarget.ENROLLMENT_PROOF -> AssistantNavTarget.ENROLLMENT_PROOF
-		NavTarget.ABOUT -> AssistantNavTarget.ABOUT
-		NavTarget.SIGN_IN -> AssistantNavTarget.SIGN_IN
-		NavTarget.UPDATE_PASSWORD -> AssistantNavTarget.UPDATE_PASSWORD
-	}
+	return assistantNavTargets.getValue(this)
 }
