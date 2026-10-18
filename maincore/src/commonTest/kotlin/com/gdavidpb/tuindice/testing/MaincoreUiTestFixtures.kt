@@ -51,6 +51,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
@@ -111,7 +112,8 @@ fun createSummaryViewModel(
 				),
 				refresh = UpdateTermReportsUseCase(
 					insightsRepository = NoTermReportsRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = UpdateTermReportsExceptionHandler()
 				)
 			),
 			updateUserUseCase = UpdateUserUseCase(

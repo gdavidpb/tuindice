@@ -96,7 +96,6 @@ fun TuIndiceAppHostRoute(
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
 	val termReportTopBarActionBus: TermReportTopBarActionBus = koinInject()
-	val termReportFocusRepository: TermReportFocusRepository = koinInject()
 	val navigatorHolder = remember { mutableStateOf<TuIndiceNavigator?>(null) }
 
 	val showSnackBar: (SnackBarMessage) -> Unit = { message ->
@@ -245,10 +244,7 @@ fun TuIndiceAppHostRoute(
 				navigator.push(AuthDestination.UpdatePasswordDialog)
 			}
 
-			TermReportFocusEffect(
-				focusRepository = termReportFocusRepository,
-				navigatorHolder = navigatorHolder
-			)
+			TermReportFocusEffect(navigatorHolder = navigatorHolder)
 
 			TuIndiceScreen(
 				state = state,
@@ -379,22 +375,31 @@ private fun BrowserRepository.openUpdateStoreFallback(
 }
 
 // A tap on the push of a term report opens the report over the summary, once the student is signed in.
-// The request waits until the navigator exists and the student is signed in.
+// The request waits until the navigator exists, and it is taken once it is shown.
 @Composable
 private fun TermReportFocusEffect(
-	focusRepository: TermReportFocusRepository,
-	navigatorHolder: State<TuIndiceNavigator?>
+	navigatorHolder: State<TuIndiceNavigator?>,
+	focusRepository: TermReportFocusRepository = koinInject()
 ) {
-	val pendingTermReport by focusRepository.observeRequest()
+	val pendingTermReport by remember(focusRepository) { focusRepository.observeRequest() }
 		.collectAsStateWithLifecycle(initialValue = null)
 
 	LaunchedEffect(pendingTermReport) {
 		val insightId = pendingTermReport ?: return@LaunchedEffect
-		val current = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
+		val navigator = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
 
-		snapshotFlow { current.rootMode }.first { rootMode -> rootMode == TuIndiceRootMode.SIGNED_IN }
-
-		current.showTermReport(insightId = insightId)
-		focusRepository.consume(insightId)
+		showPendingTermReport(insightId = insightId, navigator = navigator, focusRepository = focusRepository)
 	}
+}
+
+// Shows the report of [insightId] once the student is signed in, then takes the request: a request is shown once.
+internal suspend fun showPendingTermReport(
+	insightId: String,
+	navigator: TuIndiceNavigator,
+	focusRepository: TermReportFocusRepository
+) {
+	snapshotFlow { navigator.rootMode }.first { rootMode -> rootMode == TuIndiceRootMode.SIGNED_IN }
+
+	navigator.showTermReport(insightId = insightId)
+	focusRepository.consume(insightId)
 }

@@ -68,7 +68,8 @@ class SessionMemoryBindingTest {
 				"subjects.data.source.SubjectStatsRoomDataSource",
 				"summary.data.source.LocalSettingsDataSource",
 				"summary.data.source.ProfilePictureImageLoaderDataSource",
-					"summary.data.source.ShareBackgroundSettingsDataSource"
+					"summary.data.source.ShareBackgroundSettingsDataSource",
+				"summary.data.source.TermReportFeedbackDataSource"
 			),
 			bound
 		)

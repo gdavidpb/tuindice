@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
@@ -51,6 +52,25 @@ class TermReportNavigationTest {
 			listOf(SummaryDestination.Summary, SummaryDestination.TermReport(insightId = "term-1:2")),
 			navigator.backStack
 		)
+	}
+
+	@Test
+	fun aTappedReport_closesTheChatOfTheTabTheStudentIsOn_andNoSheetIsLeftBehind() {
+		val navigator = createTestNavigator(startKey = PensumDestination.Pensum)
+		navigator.switchTab(MainSection.RECORD)
+		navigator.push(AssistantDestination.Chat(context = null))
+
+		navigator.showTermReport(insightId = "term-1:2")
+
+		assertEquals(MainSection.SUMMARY, navigator.currentTab)
+		assertEquals(
+			listOf(PensumDestination.Pensum, SummaryDestination.Summary, SummaryDestination.TermReport(insightId = "term-1:2")),
+			navigator.backStack
+		)
+
+		navigator.switchTab(MainSection.RECORD)
+
+		assertFalse(navigator.backStack.any { key -> key is AssistantDestination.Chat })
 	}
 
 	@Test
