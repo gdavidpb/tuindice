@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "scenarioName": "assistant-insights",
+  "requiredScenarioState": "ReportPresent",
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/insights",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "assistant/insights-report.json",
+    "fixedDelayMilliseconds": 1500
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 1500
+  }
+}

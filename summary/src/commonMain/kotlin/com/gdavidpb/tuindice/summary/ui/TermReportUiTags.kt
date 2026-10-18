@@ -27,10 +27,13 @@ object TermReportUiTags {
 	const val TermReportFailed = "summary_term_report_failed"
 	const val TermReportRetryButton = "summary_term_report_retry_button"
 
+	// The two thumbs of the report. They are named constants so that the E2E tag checks can see them.
+	const val TermReportThumbUseful = "summary_term_report_thumb_useful"
+	const val TermReportThumbNotUseful = "summary_term_report_thumb_not_useful"
+
 	fun termReportSubject(subjectCode: String): String = "summary_term_report_subject_$subjectCode"
 
-	fun termReportThumb(useful: Boolean): String =
-		if (useful) "summary_term_report_thumb_useful" else "summary_term_report_thumb_not_useful"
+	fun termReportThumb(useful: Boolean): String = if (useful) TermReportThumbUseful else TermReportThumbNotUseful
 
 	fun termReportSection(index: Int): String = "summary_term_report_section_$index"
 

@@ -12374,6 +12374,477 @@
         {
             "account": "canonical",
             "android": {
+                "scenarioArg": "termreport-open"
+            },
+            "covers": [
+                "summary.TermReport.Open",
+                "summary.TermReport.Share",
+                "summary.TermReport.Rate",
+                "summary.TermReport.OpenNextAction"
+            ],
+            "id": "termreport-open",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/TermreportScenarioTests/test_termreport_open"
+            },
+            "module": "termreport",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    },
+                    {
+                        "scenario": "assistant-insights",
+                        "state": "ReportPresent"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 41
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_entry"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 42
+                    },
+                    "timeoutMs": 30000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_entry"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 43
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_content"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 61
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_hero"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_subjects"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 63
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_top_app_bar_action_term_report_share"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 65
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_share_term_sheet"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 66
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_share_term_term_selected_2026-JAN_MAR"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 67
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "durationMs": 400,
+                    "dx": 0.0,
+                    "dy": 0.4,
+                    "from": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_title"
+                    },
+                    "fx": 0.5,
+                    "fy": 0.5,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 68
+                    },
+                    "type": "swipe"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_share_term_sheet"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 69
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitGone"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_content"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 70
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_thumb_useful"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 71
+                    },
+                    "timeoutMs": 30000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_thumb_useful"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 72
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_thumb_useful"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 73
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_next_action_0"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 75
+                    },
+                    "timeoutMs": 30000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_next_action_0"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 76
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_evaluations_item_selected"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 77
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluations_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 78
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "5815978bc11ad031",
+            "tags": [
+                "smoke"
+            ],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "record-denied",
+            "android": {
+                "scenarioArg": "termreport-retry"
+            },
+            "covers": [
+                "summary.TermReport.Retry"
+            ],
+            "id": "termreport-retry",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/TermreportScenarioTests/test_termreport_retry"
+            },
+            "module": "termreport",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_NOW": "2026-10-15T12:00:00Z",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "record-denied.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "record-denied-pass",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "record-denied.mock.refresh",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "record-denied-session",
+                    "TUINDICE_E2E_SEED_USB_ID": "34-34343"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "auth-record-denied-login",
+                        "state": "TokensIssued"
+                    },
+                    {
+                        "scenario": "assistant-insights",
+                        "state": "ReportPresentRetry"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 41
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_entry"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 42
+                    },
+                    "timeoutMs": 30000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_entry"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 43
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_failed"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 91
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_retry_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 92
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_loading_indicator"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 94
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_failed"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 95
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_retry_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 96
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_top_bar_back_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 98
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 99
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_term_report_entry"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/TermreportScenarios.kt",
+                        "line": 100
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitGone"
+                }
+            ],
+            "stepsHash": "73130eeda5f30b3f",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
                 "scenarioArg": "record-smoke"
             },
             "covers": [
