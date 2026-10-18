@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import kotlinx.coroutines.flow.collect
 import kotlin.uuid.Uuid
@@ -72,6 +73,7 @@ class AssistantChatMachine(
 				}
 			)
 			access.observeAvailability(host)
+			access.refreshStatus(host)
 		}
 	}
 
@@ -152,7 +154,8 @@ class AssistantChatMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						if (intent.args is RequestEnrollmentProofArgs) {
+						// Only a delegated proof opens its flow; an expired or conflicting one shows its outcome on the card.
+						if (intent.args is RequestEnrollmentProofArgs && useCaseState.value == OutcomeKind.DELEGATED) {
 							AssistantChatInternalEvent.EnrollmentProofDelegated(intentId = intentId)
 						} else {
 							AssistantChatInternalEvent.IntentConfirmFinished(intentId = intentId)
@@ -202,7 +205,10 @@ class AssistantChatMachine(
 				access.restrictionStatus(host)
 			}
 
-			SendAssistantMessageError.GuidedOnly -> session.guidedByServer = true
+			SendAssistantMessageError.GuidedOnly -> {
+				session.guidedByServer = true
+				access.refreshStatus(host)
+			}
 
 			SendAssistantMessageError.TurnInProgress -> Unit
 
@@ -233,7 +239,6 @@ class AssistantChatMachine(
 		session.turnFailure = null
 		session.quota = null
 		session.restriction = null
-		session.guidedByServer = false
 		session.pendingFailedText = null
 		session.followedSuggestionId = event.suggestionId
 

@@ -1,14 +1,25 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.acceptConsentAction
+import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
+import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
+import com.gdavidpb.tuindice.assistant.presentation.testing.changeTextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.declineConsentAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
+import com.gdavidpb.tuindice.assistant.presentation.testing.pickSuggestionAction
+import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
+import com.gdavidpb.tuindice.assistant.testing.assistantStatus
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
+import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
+import com.gdavidpb.tuindice.chatcontract.message.Suggestions
+import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -55,6 +66,60 @@ class AssistantChatAccessBehaviorTest {
 		viewModel.declineConsentAction()
 
 		assertEquals(listOf<AssistantChat.Effect>(AssistantChat.Effect.Dismiss), fixture.effects)
+	}
+
+	@Test
+	fun open_readsTheModeTheServerGivesWithTheStatus() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(mode = "guided")
+
+		viewModel.openAction(null)
+
+		assertTrue(viewModel.content().isGuided)
+	}
+
+	@Test
+	fun guidedOnly_readsTheModeFromTheServer_andAnOnModeReopensTheComposer() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(mode = "on")
+		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.GUIDED_ONLY, null, "guided")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+
+		viewModel.sendMessageAction()
+
+		val content = viewModel.content()
+		assertFalse(content.isGuided)
+		assertTrue(content.composer.isEnabled)
+		assertEquals("hola", content.composer.text)
+	}
+
+	@Test
+	fun aGuidedLock_holdsThroughAnAcceptedTurn_andAnOnModeFromTheConfigurationReleasesIt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.failure = IllegalStateException("status unavailable")
+		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.GUIDED_ONLY, null, "guided")
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+		assertTrue(viewModel.content().isGuided)
+
+		fixture.turns.sendError = null
+		viewModel.pickSuggestionAction("s1")
+		assertTrue(viewModel.content().isGuided)
+
+		fixture.availability.availability.value = AssistantAvailability(mode = AssistantMode.GUIDED, serverDisabled = false)
+		fixture.availability.availability.value = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
+		assertFalse(viewModel.content().isGuided)
 	}
 
 	@Test

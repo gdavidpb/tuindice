@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
@@ -83,6 +84,40 @@ class AssistantChatIntentBehaviorTest {
 
 		assertEquals(listOf<AssistantChat.Effect>(AssistantChat.Effect.OpenEnrollmentProof), fixture.effects)
 		assertEquals(IntentCardStatus.Resolved(OutcomeKind.DELEGATED), viewModel.content().intentCard("i3").status)
+	}
+
+	@Test
+	fun anExpiredEnrollmentProof_opensNoFlow_andIsResolvedAsExpired() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(id = "i4", args = RequestEnrollmentProofArgs, expiresAtMillis = 1L)
+			.copy(risk = IntentRisk.CREDENTIAL)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a4", IntentPart(intent))),
+			openIntents = mapOf("i4" to intent)
+		)
+		viewModel.openAction(null)
+
+		viewModel.confirmIntentAction("i4")
+
+		assertTrue(fixture.effects.isEmpty())
+		assertEquals(IntentCardStatus.Resolved(OutcomeKind.EXPIRED), viewModel.content().intentCard("i4").status)
+	}
+
+	@Test
+	fun aConflictingEnrollmentProof_opensNoFlow_andIsResolvedAsConflict() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.intents.answer = IntentDecisionResult.Conflict
+		val intent = assistantIntent(id = "i5", args = RequestEnrollmentProofArgs).copy(risk = IntentRisk.CREDENTIAL)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a5", IntentPart(intent))),
+			openIntents = mapOf("i5" to intent)
+		)
+		viewModel.openAction(null)
+
+		viewModel.confirmIntentAction("i5")
+
+		assertTrue(fixture.effects.isEmpty())
+		assertEquals(IntentCardStatus.Resolved(OutcomeKind.CONFLICT), viewModel.content().intentCard("i5").status)
 	}
 
 	@Test

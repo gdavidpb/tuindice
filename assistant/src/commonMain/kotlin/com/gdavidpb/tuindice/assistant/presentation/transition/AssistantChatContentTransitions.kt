@@ -245,7 +245,7 @@ private fun ContentTransitions.contentObservationRows(
 	}
 
 	on<AssistantChatInternalEvent.AssistantOn> { state, event ->
-		machine.session.guidedByMode = event.guided
+		machine.session.modeSaid(guided = event.guided)
 		machine.refreshed(state)
 	}
 

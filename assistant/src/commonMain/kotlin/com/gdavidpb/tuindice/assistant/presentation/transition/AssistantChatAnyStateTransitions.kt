@@ -13,7 +13,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatAnyState
 ) {
 	fromAny {
 		on<AssistantChatInternalEvent.AssistantOn> { state, event ->
-			machine.session.guidedByMode = event.guided
+			machine.session.modeSaid(guided = event.guided)
 			state
 		}
 

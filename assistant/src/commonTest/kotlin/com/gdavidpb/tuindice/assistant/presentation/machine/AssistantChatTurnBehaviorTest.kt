@@ -200,6 +200,7 @@ class AssistantChatTurnBehaviorTest {
 	@Test
 	fun guidedOnly_onSend_pausesTheComposer() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(mode = "guided")
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.GUIDED_ONLY, null, "guided")
 		viewModel.openAction(null)
 		viewModel.changeTextAction("hola")

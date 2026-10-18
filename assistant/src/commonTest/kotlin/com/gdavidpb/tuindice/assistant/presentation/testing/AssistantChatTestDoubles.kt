@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
@@ -137,9 +138,14 @@ internal class ObservedAssistantConversationRepository(
 // synchronous read, so a sheet that read it before observing would close while the assistant is on.
 internal class ObservedAssistantAvailabilityRepository(
 	initial: AssistantAvailability = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
-) : AssistantAvailabilityRepository {
+) : AssistantAvailabilityRepository, AssistantServerModeRepository {
 	val availability = MutableStateFlow(initial)
 	private var observed = false
+
+	// The mode the server reports with the status decides over the configured one.
+	override fun reportServerMode(mode: AssistantMode) {
+		availability.update { current -> current.copy(mode = mode) }
+	}
 
 	override fun observeAvailability(): Flow<AssistantAvailability> = availability.onStart { observed = true }
 

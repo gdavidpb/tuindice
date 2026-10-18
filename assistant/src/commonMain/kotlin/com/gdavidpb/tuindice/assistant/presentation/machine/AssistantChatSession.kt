@@ -34,6 +34,14 @@ internal class AssistantChatSession {
 
 	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
 
+	// The mode the server or the configuration says the assistant is in. Only a mode that says on releases the guided lock
+	// that a refused guided send set: an accepted turn does not.
+	fun modeSaid(guided: Boolean) {
+		guidedByMode = guided
+
+		if (!guided) guidedByServer = false
+	}
+
 	// The replies the chat shows come first. A question of the shared catalog is sent with its own text even when it is
 	// not shown, because the service accepts those in guided mode.
 	fun suggestionText(suggestionId: String): String? {

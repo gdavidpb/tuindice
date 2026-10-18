@@ -238,11 +238,26 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	}
 }
 
-internal class RecordingAssistantStandingRepository : AssistantStandingRepository {
+// [configuredMode] is the mode the status reads until a test sets an answer: the server agrees with the configuration then.
+internal class RecordingAssistantStandingRepository(
+	private val configuredMode: () -> String = { "on" }
+) : AssistantStandingRepository {
+	private var explicit = false
+
 	var answer: AssistantStatus = assistantStatus()
+		set(value) {
+			field = value
+			explicit = true
+		}
+
+	var failure: Throwable? = null
 	val appeals = mutableListOf<AbuseAppeal>()
 
-	override suspend fun status(): AssistantStatus = answer
+	override suspend fun status(): AssistantStatus {
+		failure?.let { error -> throw error }
+
+		return if (explicit) answer else answer.copy(mode = configuredMode())
+	}
 
 	override suspend fun appeal(appeal: AbuseAppeal) {
 		appeals += appeal

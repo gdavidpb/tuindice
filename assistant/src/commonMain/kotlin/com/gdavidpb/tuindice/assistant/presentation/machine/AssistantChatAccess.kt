@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.first
 // The assistant's standing with the student: whether it is on, the consent, and the restriction and its appeal.
 class AssistantChatAccess(
 	private val availabilityRepository: AssistantAvailabilityRepository,
+	private val serverModeRepository: AssistantServerModeRepository,
 	private val consentRepository: AssistantConsentRepository,
 	private val acceptAssistantConsentUseCase: AcceptAssistantConsentUseCase,
 	private val getAssistantStatusUseCase: GetAssistantStatusUseCase,
@@ -39,6 +41,25 @@ class AssistantChatAccess(
 		availabilityJob = host.launchMachineJob {
 			availabilityRepository.observeAvailability().collect { availability ->
 				host.processInternalEvent(availability.toInternalEvent())
+			}
+		}
+	}
+
+	// The status the server reads for the student. Its mode becomes the last word on the mode, so the sheet stays in the
+	// mode the server holds. An on or guided mode is reported to the sheet here too, since an unchanged mode would not
+	// reach it through the availability.
+	fun refreshStatus(host: MachineHost<AssistantChat.Effect>) {
+		host.launchMachineJob {
+			getAssistantStatusUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					val mode = AssistantMode.fromRemoteValue(useCaseState.value.mode)
+
+					serverModeRepository.reportServerMode(mode)
+
+					if (mode != AssistantMode.OFF) {
+						host.processInternalEvent(AssistantChatInternalEvent.AssistantOn(guided = mode == AssistantMode.GUIDED))
+					}
+				}
 			}
 		}
 	}

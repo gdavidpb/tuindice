@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackReposi
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
@@ -105,6 +106,7 @@ val assistantModule = module {
 		bind<AssistantAvailabilityRepository>()
 		bind<AssistantServerDisabledDataRepository>()
 		bind<AssistantServerDisabledRepository>()
+		bind<AssistantServerModeRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantConsentSettingsDataSource) {

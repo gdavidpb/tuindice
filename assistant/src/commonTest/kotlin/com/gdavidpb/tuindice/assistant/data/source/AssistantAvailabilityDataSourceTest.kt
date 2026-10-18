@@ -100,4 +100,31 @@ class AssistantAvailabilityDataSourceTest {
 
 		assertFalse(source.currentAvailability().serverDisabled)
 	}
+
+	@Test
+	fun theLastWordOnTheModeIsTheServersOrTheConfigurations_andTheSessionEndingBringsBackTheConfiguration() = runTest {
+		val config = FakeAssistantConfigRepository(AssistantMode.ON)
+		val source = AssistantAvailabilityDataSource(config, VirtualClock(testScheduler))
+		val seen = mutableListOf<AssistantAvailability>()
+		backgroundScope.launch { source.observeAvailability().collect { seen += it } }
+		runCurrent()
+
+		source.reportServerMode(AssistantMode.GUIDED)
+		runCurrent()
+		assertEquals(AssistantMode.GUIDED, seen.last().mode)
+		assertEquals(AssistantMode.GUIDED, source.currentAvailability().mode)
+
+		config.setMode(AssistantMode.OFF)
+		runCurrent()
+		assertEquals(AssistantMode.OFF, seen.last().mode)
+
+		source.reportServerMode(AssistantMode.ON)
+		runCurrent()
+		assertEquals(AssistantMode.ON, seen.last().mode)
+
+		source.clearSessionMemory()
+		runCurrent()
+		assertEquals(AssistantMode.OFF, seen.last().mode)
+		assertEquals(AssistantMode.OFF, source.currentAvailability().mode)
+	}
 }
