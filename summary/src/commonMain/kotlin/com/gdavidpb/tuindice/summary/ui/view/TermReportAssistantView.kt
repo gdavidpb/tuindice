@@ -78,7 +78,14 @@ fun TermReportAssistantView(
 					border = BorderStroke(TuIndiceSpacing.Hairline, MaterialTheme.colorScheme.outlineVariant),
 					shape = RoundedCornerShape(TuIndiceRadius.Card)
 				)
-				.padding(TuIndiceSpacing.Screen),
+				// The thumbs close the card, and their touch area leaves room under each icon: the bottom padding gives that
+				// room back, so the icons sit as far from the edge as the first line does from the top.
+				.padding(
+					start = TuIndiceSpacing.Screen,
+					top = TuIndiceSpacing.Screen,
+					end = TuIndiceSpacing.Screen,
+					bottom = TuIndiceSpacing.Screen - THUMB_TOUCH_MARGIN
+				),
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Large)
 		) {
 			TermReportAuthorship()
@@ -155,7 +162,8 @@ private fun TermReportAssistantActions(
 	onAskAssistantClick: (() -> Unit)?,
 	onRateClick: (useful: Boolean) -> Unit
 ) {
-	Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)) {
+	// No spacing of its own: the touch area of the thumbs already leaves their margin above the icons.
+	Column {
 		onAskAssistantClick?.let { onAsk ->
 			OutlinedButton(
 				modifier = Modifier
