@@ -62,11 +62,13 @@ class AssistantChatMachine(
 		// reads as off, so reading it right away would close a sheet that the assistant is on for. The changes after
 		// that first value are followed from then on.
 		host.launchMachineJob {
-			// The status goes first, so the availability read after it carries the server's mode.
-			access.applyStatusWithin(STATUS_OPEN_TIMEOUT_MILLIS)
+			// The status goes first, so the availability read after it carries the server's mode. Its standing is the
+			// restriction the sheet opens with: one whose end has passed, or that the server no longer gives, is gone.
+			val status = access.applyStatusWithin(STATUS_OPEN_TIMEOUT_MILLIS)
 
 			val availability = access.firstAvailability()
 			session.guidedByMode = availability.mode == AssistantMode.GUIDED
+			session.restriction = status?.standing?.let(access.restrictions::restrictionOf)
 
 			host.processInternalEvent(
 				when {
@@ -107,7 +109,12 @@ class AssistantChatMachine(
 	}
 
 	internal suspend fun refreshed(content: AssistantChat.State.Content): AssistantChat.State.Content {
-		return session.presentedContent(texts = texts, draftText = draft.text.value, content = content)
+		return session.presentedContent(
+			texts = texts,
+			draftText = draft.text.value,
+			content = content,
+			clock = access.restrictions.clock
+		)
 	}
 
 	// Starts a turn with the message of [params]. [draftText] is the draft the send takes its text from and clears;
@@ -121,6 +128,13 @@ class AssistantChatMachine(
 		session.turnFailure = null
 		session.sending = true
 		session.sendingTurnId = null
+
+		// A restriction whose end has passed is read again from the server, which releases it or gives its new end;
+		// the send goes meanwhile, and the server refuses it if the restriction still holds.
+		if (session.restriction != null && session.restrictionAt(access.restrictions.nowMillis()) == null) {
+			session.restriction = null
+			access.restrictions.restrictionStatus(host)
+		}
 
 		if (draftText != null) draft.setText("")
 
@@ -204,8 +218,8 @@ class AssistantChatMachine(
 			}
 
 			SendAssistantMessageError.Restricted -> {
-				session.restriction = AssistantChatSession.Restriction(level = null, canAppeal = false)
-				access.restrictionStatus(host)
+				session.restriction = AssistantChatSession.Restriction(level = null, untilMillis = null, canAppeal = false)
+				access.restrictions.restrictionStatus(host)
 			}
 
 			SendAssistantMessageError.GuidedOnly -> {

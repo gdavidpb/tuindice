@@ -281,7 +281,12 @@ internal class RecordingAssistantStandingRepository(
 	var failure: Throwable? = null
 	val appeals = mutableListOf<AbuseAppeal>()
 
+	// How many times the status was read, failed reads included.
+	var statusReads = 0
+		private set
+
 	override suspend fun status(): AssistantStatus {
+		statusReads++
 		failure?.let { error -> throw error }
 
 		if (explicit) return answer

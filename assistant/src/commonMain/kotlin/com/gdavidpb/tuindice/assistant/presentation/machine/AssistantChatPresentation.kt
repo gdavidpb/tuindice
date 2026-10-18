@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
+import com.gdavidpb.tuindice.assistant.presentation.mapper.restrictionText
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatItems
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
+import kotlin.time.Clock
 
 // The presentation of the chat, derived from the conversation and the extended state. Every screen state the rows
 // produce goes through here, so the same inputs always show the same content.
@@ -21,13 +23,16 @@ import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 internal suspend fun AssistantChatSession.presentedContent(
 	texts: AssistantChatTexts,
 	draftText: String,
-	content: AssistantChat.State.Content
+	content: AssistantChat.State.Content,
+	clock: Clock
 ): AssistantChat.State.Content {
 	val running = isRunning()
 	val extracting = photoExtracting
 	val busy = running || sending
 	val guided = guidedByMode || guidedByServer
-	val composerEnabled = !guided && restriction == null
+	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
+	val restricted = restrictionAt(clock.now().toEpochMilliseconds())
+	val composerEnabled = !guided && restricted == null
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
 	val screen = content.context?.context?.toScreenContext()?.screen
 
@@ -44,7 +49,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 			isStoppable = stopTarget() != null
 		),
 		suggestions = if (busy) emptyList() else presentedSuggestions(screen = screen, guided = guided),
-		notice = presentedNotice(texts, guided),
+		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
 	)
 }
@@ -53,15 +58,16 @@ internal suspend fun AssistantChatSession.presentedContent(
 // guided mode outranks a failed turn: each earlier one says more about why the chat is stopped.
 internal suspend fun AssistantChatSession.presentedNotice(
 	texts: AssistantChatTexts,
-	guided: Boolean
+	guided: Boolean,
+	restricted: AssistantChatSession.Restriction?,
+	clock: Clock
 ): ChatNoticeItem? {
-	val restricted = restriction
 	val exhausted = quota
 	val failure = turnFailure
 
 	return when {
 		restricted != null -> ChatNoticeItem.Restricted(
-			message = texts.restricted(restricted.level),
+			message = restrictionText(level = restricted.level, untilMillis = restricted.untilMillis, clock = clock),
 			canAppeal = restricted.canAppeal
 		)
 

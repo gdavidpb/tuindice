@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
-import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
@@ -53,8 +52,6 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 	override suspend fun guided(): String = "guided"
 
 	override suspend fun quotaExhausted(retryAfterSeconds: Int?): String = "quota:$retryAfterSeconds"
-
-	override suspend fun restricted(level: StandingLevel?): String = "restricted:$level"
 
 	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String {
 		return if (code == RunErrorCode.OTHER && !retryable) "failure:$code:final" else "failure:$code"

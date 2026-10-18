@@ -8,8 +8,9 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.presentation.model.asString
 
-// A warning, a cooldown, a suspension or a ban: its message, and «Apelar» when an appeal is allowed.
+// A pause, a suspension or a ban: what it is and until when, and «Apelar» when the standing allows an appeal.
 @Composable
 fun AssistantRestrictedNoticeView(
 	notice: ChatNoticeItem.Restricted,
@@ -18,7 +19,7 @@ fun AssistantRestrictedNoticeView(
 ) {
 	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Notice)) {
 		Text(
-			text = notice.message,
+			text = notice.message.asString(),
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)

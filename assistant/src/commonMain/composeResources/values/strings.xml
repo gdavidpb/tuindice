@@ -114,10 +114,13 @@
 	<string name="assistant_chat_quota_exhausted_wait">Llegaste al límite de mensajes. Podrás seguir escribiendo %1$s.</string>
 	<string name="assistant_chat_wait_minutes">en %1$d min</string>
 	<string name="assistant_chat_wait_under_minute">en menos de un minuto</string>
-	<string name="assistant_chat_restricted_warning">Recibiste un aviso por el uso del asistente.</string>
-	<string name="assistant_chat_restricted_cooldown">Tendrás que esperar antes de volver a escribir.</string>
-	<string name="assistant_chat_restricted_suspended">El asistente no está disponible para tu cuenta por ahora.</string>
-	<string name="assistant_chat_restricted_banned">El asistente no está disponible para tu cuenta.</string>
+	<string name="assistant_chat_restricted_cooldown">Pausamos el asistente por un rato.</string>
+	<!-- The hour ends in «a. m.» or «p. m.», whose period closes the sentence. -->
+	<string name="assistant_chat_restricted_cooldown_today">Pausamos el asistente por un rato. Vuelve a estar disponible a las %1$s</string>
+	<string name="assistant_chat_restricted_cooldown_until">Pausamos el asistente por un rato. Vuelve a estar disponible el %1$s a las %2$s</string>
+	<string name="assistant_chat_restricted_suspended">Tu acceso al asistente está suspendido.</string>
+	<string name="assistant_chat_restricted_suspended_until">Tu acceso al asistente está suspendido hasta el %1$s.</string>
+	<string name="assistant_chat_restricted_banned">Tu acceso al asistente está cerrado.</string>
 	<string name="assistant_chat_restricted_default">El asistente no puede responder en este momento.</string>
 	<string name="assistant_chat_turn_failed_transient">No pudimos responder. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_turn_failed_quota">Llegaste al límite de mensajes por ahora.</string>

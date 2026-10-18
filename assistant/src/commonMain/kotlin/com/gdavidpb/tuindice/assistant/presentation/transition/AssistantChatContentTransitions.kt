@@ -159,8 +159,8 @@ private suspend fun AssistantChatMachine.photoRejected(
 		}
 
 		ExtractEvaluationsFromPhotoError.Restricted -> {
-			session.restriction = AssistantChatSession.Restriction(level = null, canAppeal = false)
-			access.restrictionStatus(host)
+			session.restriction = AssistantChatSession.Restriction(level = null, untilMillis = null, canAppeal = false)
+			access.restrictions.restrictionStatus(host)
 		}
 
 		ExtractEvaluationsFromPhotoError.GuidedOnly -> session.guidedByServer = true
@@ -208,7 +208,7 @@ private fun ContentTransitions.contentMessageRows(
 	}
 
 	on<AssistantChat.Action.Appeal> { state, action ->
-		machine.access.appeal(host = host, text = action.text)
+		machine.access.restrictions.appeal(host = host, text = action.text)
 		state
 	}
 
@@ -274,11 +274,13 @@ private fun ContentTransitions.contentObservationRows(
 		machine.refreshed(state)
 	}
 
+	// The standing read after a refusal. A standing that no longer restricts releases the chat; one that could not be
+	// read keeps the restriction, with no level or end known.
 	on<AssistantChatInternalEvent.RestrictionChecked> { state, event ->
-		machine.session.restriction = AssistantChatSession.Restriction(
-			level = event.standing?.level,
-			canAppeal = event.standing?.appealable == true
-		)
+		val standing = event.standing
+
+		if (standing != null) machine.session.restriction = machine.access.restrictions.restrictionOf(standing)
+
 		machine.refreshed(state)
 	}
 }
