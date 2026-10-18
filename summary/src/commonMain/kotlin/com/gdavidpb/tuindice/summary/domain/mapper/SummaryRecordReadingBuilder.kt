@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.summary.domain.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.engine.RecordStatisticsEngine
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 
@@ -22,5 +24,15 @@ internal fun recordReadingOf(recordState: SummaryRecordState): SummaryRecordRead
 		SummaryRecordState.NewStudentWithoutRecord -> SummaryRecordReading.NewStudentWithoutRecord
 
 		SummaryRecordState.NotReady -> SummaryRecordReading.NotReady
+	}
+}
+
+// What the summary reads of the record: a ready one has the week and the term. A new student the university has no record
+// for yet has no term yet, which is not an error; any other state of the record leaves only the career.
+internal fun summaryRecordStateOf(record: AcademicRecord?, prerequisite: RecordDataPrerequisiteState): SummaryRecordState {
+	return when {
+		record != null && prerequisite.isReady -> SummaryRecordState.Ready(record)
+		prerequisite.isNewStudentWithoutRecord -> SummaryRecordState.NewStudentWithoutRecord
+		else -> SummaryRecordState.NotReady
 	}
 }

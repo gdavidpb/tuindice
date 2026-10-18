@@ -17,12 +17,17 @@ import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveShareTermUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.RefreshTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreferenceUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
@@ -79,6 +84,10 @@ val summaryModule = module {
 	factoryOf(::ObserveShareTermUseCase)
 	factoryOf(::SetShareBackgroundPreferenceUseCase)
 	factoryOf(::UpdateShareBackgroundsUseCase)
+	factoryOf(::RefreshTermReportsUseCase)
+	factoryOf(::ObserveTermReportUseCase)
+	factoryOf(::MarkTermReportSeenUseCase)
+	factoryOf(::RateTermReportUseCase)
 
 	/* Repositories */
 
@@ -97,6 +106,7 @@ val summaryModule = module {
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
 		bind<ShareBackgroundSelectionRepository>()
+		bind<TermReportSeenRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::ProfilePictureImageLoaderDataSource) { bind<SessionMemory>() }

@@ -50,7 +50,11 @@ object RecordStatisticsEngine {
 		)
 	}
 
-	private fun termStatisticOf(term: TermProjection): TermStatistic {
+	/**
+	 * The statistic of one term, as the closed terms are counted: its index, its cumulative index and the credits and
+	 * subjects it approved. It reads a term in progress the same way, which is how a term report reads its own term.
+	 */
+	fun termStatisticOf(term: TermProjection): TermStatistic {
 		val approvals = term.attempts
 			.filter { attempt -> isApprovalResult(attempt) }
 			.distinctBy { attempt -> attempt.subjectCode }
