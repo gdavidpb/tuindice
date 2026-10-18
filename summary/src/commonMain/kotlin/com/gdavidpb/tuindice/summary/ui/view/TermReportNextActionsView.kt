@@ -79,13 +79,13 @@ private fun TermReportNextActionRow(
 	onClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	SummaryHubCardView(
-		modifier = modifier
-			.fillMaxWidth()
-			.clickable(role = Role.Button, onClick = onClick)
-	) {
+	// The click is inside the card, so its ripple is clipped to the card's rounded corners.
+	SummaryHubCardView(modifier = modifier.fillMaxWidth()) {
 		Row(
-			modifier = Modifier.padding(horizontal = TuIndiceSpacing.Screen, vertical = TuIndiceSpacing.Large),
+			modifier = Modifier
+				.fillMaxWidth()
+				.clickable(role = Role.Button, onClick = onClick)
+				.padding(horizontal = TuIndiceSpacing.Screen, vertical = TuIndiceSpacing.Large),
 			verticalAlignment = Alignment.CenterVertically,
 			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)
 		) {

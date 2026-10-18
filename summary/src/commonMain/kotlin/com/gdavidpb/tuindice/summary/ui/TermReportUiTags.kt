@@ -12,6 +12,8 @@ object TermReportUiTags {
 	const val TermReportHero = "summary_term_report_hero"
 	const val TermReportIndex = "summary_term_report_index"
 	const val TermReportIndexDelta = "summary_term_report_index_delta"
+	const val TermReportIndexReference = "summary_term_report_index_reference"
+	const val TermReportFeedbackRow = "summary_term_report_feedback_row"
 	const val TermReportCumulativeIndex = "summary_term_report_cumulative_index"
 	const val TermReportCumulativeDelta = "summary_term_report_cumulative_delta"
 	const val TermReportSubjects = "summary_term_report_subjects"

@@ -2,9 +2,13 @@ package com.gdavidpb.tuindice.summary.ui.screen
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
@@ -18,6 +22,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportActionItem
 import com.gdavidpb.tuindice.summary.testing.termReportItemFixture
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.TermReportUiTags
 import com.gdavidpb.tuindice.summary.ui.model.TermReportActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -54,6 +59,57 @@ class TermReportScreenUiTest {
 			onNodeWithTag(TermReportUiTags.termReportSection(index)).fetchSemanticsNode().positionInRoot.y
 		}
 		assertTrue(sections[0] < sections[1], "the sections of the assistant keep their order")
+	}
+
+	@Test
+	fun when_theIndexChanges_then_theChipHoldsTheFigure_andTheTermBeforeIsWrittenUnderTheIndex() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions()
+			)
+		}
+		waitForIdle()
+
+		onNodeWithTag(TermReportUiTags.TermReportIndexReference)
+			.assertTextEquals("frente a Ene\u00A0-\u00A0Mar\u00A02025")
+		onNodeWithTag(TermReportUiTags.TermReportIndexDelta)
+			.assertContentDescriptionEquals("Subió 1.5000 frente a Ene\u00A0-\u00A0Mar\u00A02025")
+		val indexTop = onNodeWithTag(TermReportUiTags.TermReportIndex).fetchSemanticsNode().positionInRoot.y
+		val referenceTop = onNodeWithTag(TermReportUiTags.TermReportIndexReference)
+			.fetchSemanticsNode().positionInRoot.y
+		assertTrue(referenceTop > indexTop, "the term before is written under the index")
+	}
+
+	@Test
+	fun when_theSubjectsAreShown_then_theirHeadingComesBeforeTheRows() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions()
+			)
+		}
+		waitForIdle()
+
+		val heading = onNodeWithText("Materias").fetchSemanticsNode().positionInRoot.y
+		val firstRow = onNodeWithTag(TermReportUiTags.termReportSubject("CI5311"))
+			.fetchSemanticsNode().positionInRoot.y
+		assertTrue(heading < firstRow, "the heading of the subjects is above the card of its rows")
+		onNodeWithTag(TermReportUiTags.TermReportCredits).assertTextEquals("11 de 14 créditos")
+	}
+
+	@Test
+	fun when_theAverageIsDrawn_then_itsLineHasNoLabel_andTheLegendWritesIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions()
+			)
+		}
+		waitForIdle()
+
+		onNodeWithTag(SummaryUiTags.StatisticsReferenceLabel).assertDoesNotExist()
+		onNodeWithText("Promedio: 12,7").performScrollTo().assertIsDisplayed()
 	}
 
 	@Test
@@ -122,6 +178,43 @@ class TermReportScreenUiTest {
 		}
 
 		onNodeWithTag(TermReportUiTags.TermReportAskButton).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_theAssistantIsThere_then_theAskButtonComesAboveTheThumbsInTheirOwnRow() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { _ -> }) {
+				TermReportScreen(
+					state = TermReport.State.Content(report = termReportItemFixture()),
+					actions = TermReportActions()
+				)
+			}
+		}
+		waitForIdle()
+
+		val ask = onNodeWithTag(TermReportUiTags.TermReportAskButton).performScrollTo().fetchSemanticsNode()
+		val thumb = onNodeWithTag(TermReportUiTags.termReportThumb(useful = true)).fetchSemanticsNode()
+		val row = onNodeWithTag(TermReportUiTags.TermReportFeedbackRow).fetchSemanticsNode()
+
+		assertTrue(ask.positionInRoot.y < row.positionInRoot.y, "the question across the card comes first")
+		assertTrue(row.positionInRoot.y <= thumb.positionInRoot.y, "the thumbs are in the row of the question")
+		onNodeWithText("¿Te sirvió este informe?").performScrollTo().assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theAssistantIsNotThere_then_theThumbsAreStillOffered() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions()
+			)
+		}
+		waitForIdle()
+
+		onNodeWithTag(TermReportUiTags.TermReportFeedbackRow).performScrollTo().assertIsDisplayed()
+		onNodeWithTag(TermReportUiTags.termReportThumb(useful = true)).assertExists()
+		onNodeWithTag(TermReportUiTags.termReportThumb(useful = false)).assertExists()
+		onNodeWithText("¿Te sirvió este informe?").performScrollTo().assertIsDisplayed()
 	}
 
 	@Test

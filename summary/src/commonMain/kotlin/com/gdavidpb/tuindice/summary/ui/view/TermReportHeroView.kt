@@ -65,7 +65,8 @@ fun TermReportHeroView(
 	}
 }
 
-// The index of the term in large, with the scale beside it, or the words that say it has none yet, and its change.
+// The index of the term in large, with the scale beside it, or the words that say it has none yet, and its change: the
+// chip holds the arrow and the figure, and the term the change is measured from is written under the index.
 @Composable
 private fun TermReportIndexRow(
 	index: String?,
@@ -75,26 +76,44 @@ private fun TermReportIndexRow(
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		if (index != null) {
-			Text(
-				modifier = Modifier.testTag(TermReportUiTags.TermReportIndex),
-				text = index,
-				style = MaterialTheme.typography.displaySmall,
-				color = MaterialTheme.colorScheme.onSurface
-			)
+		Column(modifier = Modifier.weight(1f, fill = false)) {
+			Row(
+				verticalAlignment = Alignment.Bottom,
+				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+			) {
+				if (index != null) {
+					Text(
+						modifier = Modifier.testTag(TermReportUiTags.TermReportIndex),
+						text = index,
+						style = MaterialTheme.typography.displaySmall,
+						color = MaterialTheme.colorScheme.onSurface
+					)
 
-			Text(
-				text = stringResource(Res.string.term_report_index_scale),
-				style = MaterialTheme.typography.titleMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
-		} else {
-			Text(
-				modifier = Modifier.testTag(TermReportUiTags.TermReportIndex),
-				text = stringResource(Res.string.term_report_index_missing),
-				style = MaterialTheme.typography.titleMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
+					Text(
+						modifier = Modifier.padding(bottom = TuIndiceSpacing.Small),
+						text = stringResource(Res.string.term_report_index_scale),
+						style = MaterialTheme.typography.titleMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				} else {
+					Text(
+						modifier = Modifier.testTag(TermReportUiTags.TermReportIndex),
+						text = stringResource(Res.string.term_report_index_missing),
+						style = MaterialTheme.typography.titleMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				}
+			}
+
+			indexDelta?.reference?.let { reference ->
+				Text(
+					modifier = Modifier.testTag(TermReportUiTags.TermReportIndexReference),
+					text = reference.asString(),
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					maxLines = 1
+				)
+			}
 		}
 
 		Spacer(modifier = Modifier.weight(1f))

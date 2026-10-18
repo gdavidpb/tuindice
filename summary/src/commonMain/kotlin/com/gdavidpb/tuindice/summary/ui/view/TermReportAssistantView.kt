@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +44,7 @@ import tuindice.summary.generated.resources.term_report_ask
 import tuindice.summary.generated.resources.term_report_assistant_ai
 import tuindice.summary.generated.resources.term_report_assistant_empty
 import tuindice.summary.generated.resources.term_report_assistant_title
+import tuindice.summary.generated.resources.term_report_useful_question
 
 /**
  * What the assistant wrote, in its sections in order, on an outlined card marked with the sparkle and the words
@@ -145,21 +147,20 @@ private fun TermReportSections(report: TermReportItem) {
 	}
 }
 
-// The question about the report, when it can be asked, and the two thumbs.
+// The question about the report, across the card when the assistant can be asked, and under it the student's thumbs
+// with the words that ask for them. The thumbs are always offered, whether or not the assistant can be asked.
 @Composable
 private fun TermReportAssistantActions(
 	feedback: Boolean?,
 	onAskAssistantClick: (() -> Unit)?,
 	onRateClick: (useful: Boolean) -> Unit
 ) {
-	Row(
-		modifier = Modifier.fillMaxWidth(),
-		verticalAlignment = Alignment.CenterVertically,
-		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
-	) {
+	Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)) {
 		onAskAssistantClick?.let { onAsk ->
 			OutlinedButton(
-				modifier = Modifier.testTag(TermReportUiTags.TermReportAskButton),
+				modifier = Modifier
+					.fillMaxWidth()
+					.testTag(TermReportUiTags.TermReportAskButton),
 				onClick = onAsk
 			) {
 				Icon(
@@ -175,10 +176,38 @@ private fun TermReportAssistantActions(
 			}
 		}
 
-		Spacer(modifier = Modifier.weight(1f))
+		TermReportFeedbackRow(feedback = feedback, onRateClick = onRateClick)
+	}
+}
 
-		TermReportThumbButton(useful = true, isSelected = feedback == true, onClick = { onRateClick(true) })
-		TermReportThumbButton(useful = false, isSelected = feedback == false, onClick = { onRateClick(false) })
+// The words that ask for the thumbs, and the two thumbs at the end of the row. The touch area of a thumb is wider than
+// its icon, so the row moves out by the margin left around the icon: the icon meets the edge of the content.
+@Composable
+private fun TermReportFeedbackRow(
+	feedback: Boolean?,
+	onRateClick: (useful: Boolean) -> Unit
+) {
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.testTag(TermReportUiTags.TermReportFeedbackRow),
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+	) {
+		Text(
+			modifier = Modifier.weight(1f),
+			text = stringResource(Res.string.term_report_useful_question),
+			style = MaterialTheme.typography.bodyMedium,
+			color = MaterialTheme.colorScheme.onSurfaceVariant
+		)
+
+		Row(
+			modifier = Modifier.offset(x = THUMB_TOUCH_MARGIN),
+			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small)
+		) {
+			TermReportThumbButton(useful = true, isSelected = feedback == true, onClick = { onRateClick(true) })
+			TermReportThumbButton(useful = false, isSelected = feedback == false, onClick = { onRateClick(false) })
+		}
 	}
 }
 
@@ -219,5 +248,8 @@ private fun thumbIconOf(useful: Boolean, isSelected: Boolean): ImageVector {
 }
 
 private val ASK_ICON_SIZE = 18.dp
-private val THUMB_BUTTON_SIZE = 40.dp
+private val THUMB_BUTTON_SIZE = 48.dp
 private val THUMB_ICON_SIZE = 20.dp
+
+// The space the touch area leaves around each thumb's icon, on the side that meets the edge of the content.
+private val THUMB_TOUCH_MARGIN = (THUMB_BUTTON_SIZE - THUMB_ICON_SIZE) / 2

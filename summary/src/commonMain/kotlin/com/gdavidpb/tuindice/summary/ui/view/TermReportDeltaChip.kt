@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.base.presentation.model.asString
@@ -28,9 +30,12 @@ fun TermReportDeltaChip(
 	modifier: Modifier = Modifier
 ) {
 	val colors = deltaColorsOf(tone = delta.tone)
+	val description = delta.description.asString()
 
 	Box(
 		modifier = modifier
+			// The screen reader says the change in words, not the arrow the text draws.
+			.clearAndSetSemantics { contentDescription = description }
 			.background(color = colors.container, shape = RoundedCornerShape(TuIndiceRadius.Small))
 			.padding(horizontal = TuIndiceSpacing.Medium, vertical = TuIndiceSpacing.XSmall)
 	) {

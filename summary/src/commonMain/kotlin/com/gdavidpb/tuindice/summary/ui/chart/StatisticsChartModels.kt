@@ -70,6 +70,6 @@ internal fun List<SummaryStatisticsLinePointItem>.toStatisticsLinePoints(): List
 internal fun SummaryStatisticsReferenceItem.toStatisticsReference(): StatisticsReference {
 	return StatisticsReference(
 		value = value,
-		label = label.asString()
+		label = label?.asString()
 	)
 }

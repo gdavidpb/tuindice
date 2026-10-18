@@ -35,59 +35,64 @@ import com.gdavidpb.tuindice.summary.presentation.model.TermReportSubjectsItem
 import com.gdavidpb.tuindice.summary.ui.TermReportUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.term_report_subjects_no_grade
 import tuindice.summary.generated.resources.term_report_subjects_title
 
 /**
  * The subjects of the term: each with its code, its name and its grade in a badge coloured by what the term says of it,
  * then the count of each outcome and the credits the term approved.
  */
+// The heading and the credits are outside the card, as the other blocks of the report are; the subjects are in it.
 @Composable
 fun TermReportSubjectsView(
 	subjects: TermReportSubjectsItem,
 	modifier: Modifier = Modifier
 ) {
-	SummaryHubCardView(
+	Column(
 		modifier = modifier
 			.fillMaxWidth()
-			.testTag(TermReportUiTags.TermReportSubjects)
+			.testTag(TermReportUiTags.TermReportSubjects),
+		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		Column(
-			modifier = Modifier.padding(TuIndiceSpacing.Screen),
-			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			verticalAlignment = Alignment.CenterVertically,
+			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 		) {
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				verticalAlignment = Alignment.CenterVertically,
-				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+			Text(
+				text = stringResource(Res.string.term_report_subjects_title),
+				style = MaterialTheme.typography.titleMedium,
+				color = MaterialTheme.colorScheme.onSurface
+			)
+
+			Spacer(modifier = Modifier.weight(1f))
+
+			Text(
+				modifier = Modifier.testTag(TermReportUiTags.TermReportCredits),
+				text = subjects.credits.asString(),
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
+		}
+
+		SummaryHubCardView {
+			Column(
+				modifier = Modifier.padding(TuIndiceSpacing.Screen),
+				verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 			) {
-				Text(
-					text = stringResource(Res.string.term_report_subjects_title),
-					style = MaterialTheme.typography.titleMedium,
-					color = MaterialTheme.colorScheme.onSurface
-				)
+				subjects.rows.forEachIndexed { index, row ->
+					if (index > 0) {
+						HorizontalDivider(
+							thickness = TuIndiceSpacing.Hairline,
+							color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Deemphasis)
+						)
+					}
 
-				Spacer(modifier = Modifier.weight(1f))
-
-				Text(
-					modifier = Modifier.testTag(TermReportUiTags.TermReportCredits),
-					text = subjects.credits.asString(),
-					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-			}
-
-			subjects.rows.forEachIndexed { index, row ->
-				if (index > 0) {
-					HorizontalDivider(
-						thickness = TuIndiceSpacing.Hairline,
-						color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Deemphasis)
-					)
+					TermReportSubjectRow(row = row)
 				}
 
-				TermReportSubjectRow(row = row)
+				TermReportLegendView(legend = subjects.legend)
 			}
-
-			TermReportLegendView(legend = subjects.legend)
 		}
 	}
 }
@@ -136,7 +141,7 @@ private fun TermReportGradeBadge(
 		contentAlignment = Alignment.Center
 	) {
 		Text(
-			text = grade ?: NO_GRADE,
+			text = grade ?: stringResource(Res.string.term_report_subjects_no_grade),
 			style = MaterialTheme.typography.titleSmall,
 			fontWeight = FontWeight.Bold,
 			color = color
@@ -192,4 +197,3 @@ fun SummaryTermReportOutcome.color(): Color = when (this) {
 private val GradeBadgeSize = 32.dp
 private val LegendDotSize = 8.dp
 private const val BADGE_ALPHA = 0.16f
-private const val NO_GRADE = "–"
