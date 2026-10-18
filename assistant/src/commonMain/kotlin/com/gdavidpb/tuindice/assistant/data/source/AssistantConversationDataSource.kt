@@ -54,7 +54,7 @@ class AssistantConversationDataSource : SessionMemory {
 			if (current.userMessages.any { it.id == message.id }) {
 				current
 			} else {
-				current.copy(userMessages = current.userMessages + message)
+				current.copy(userMessages = current.userMessages + message, order = current.order.withId(message.id))
 			}
 		}
 	}
@@ -103,7 +103,8 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 
 		is MessageCompleted -> seen.copy(
 			messages = seen.messages.withMessage(event.message),
-			messageTurnIds = seen.messageTurnIds + (event.message.id to event.turnId)
+			messageTurnIds = seen.messageTurnIds + (event.message.id to event.turnId),
+			order = seen.order.withId(event.message.id)
 		)
 
 		is IntentProposed -> {
@@ -177,9 +178,13 @@ private fun AssistantConversationState.withAssistantMessage(
 
 	return copy(
 		messages = messages.withMessage(message),
+		order = order.withId(message.id),
 		openIntents = if (open == null) openIntents else openIntents + (open.intentId to open)
 	)
 }
+
+// An id joins the order once, where it first came in; a message that comes again keeps its place.
+private fun List<String>.withId(id: String): List<String> = if (id in this) this else this + id
 
 // A message that comes again replaces the one it already has, so it never shows twice.
 private fun List<AssistantMessage>.withMessage(message: AssistantMessage): List<AssistantMessage> {
