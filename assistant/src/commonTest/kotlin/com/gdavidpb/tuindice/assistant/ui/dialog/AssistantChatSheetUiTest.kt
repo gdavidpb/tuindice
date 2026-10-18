@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.assistant.ui.dialog
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -12,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
 import com.gdavidpb.tuindice.assistant.ui.contextChip
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -84,6 +88,27 @@ class AssistantChatSheetUiTest {
 		onNodeWithTag(AssistantUiTags.ConsentAccept).performClick()
 
 		assertIs<AssistantChat.Action.AcceptConsent>(actions.single())
+	}
+
+	@Test
+	fun when_theConversationArrivesWithAnimationsOff_then_theWholeSheetIsOnScreen_composerIncluded() = runTuIndiceUiTest {
+		// The opening as the route lives it with consent given: the sheet opens on Idle while the status is read, and the
+		// conversation arrives afterwards. With animations off nothing settles the sheet any further than it opens.
+		val state = mutableStateOf<AssistantChat.State>(AssistantChat.State.Idle)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				AssistantChatSheet(state = state.value, onAction = {})
+			}
+		}
+
+		waitForIdle()
+		state.value = contentState(context = contextChip())
+		waitForIdle()
+
+		// The body takes 60% of the window: a sheet left half open would push the composer below the screen.
+		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
+		onNodeWithTag(AssistantUiTags.SendButton).assertIsDisplayed()
 	}
 
 	private companion object {

@@ -18,6 +18,7 @@ final class AboutScenarioTests: ScenarioTestCase {
 final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_answer_still_applies() { runScenario("assistant-answer-still-applies") }
     func test_assistant_ask_about_evaluation() { runScenario("assistant-ask-about-evaluation") }
+    func test_assistant_ask_about_record_subject() { runScenario("assistant-ask-about-record-subject") }
     func test_assistant_confirm_add_evaluation() { runScenario("assistant-confirm-add-evaluation") }
     func test_assistant_confirm_destructive_delete() { runScenario("assistant-confirm-destructive-delete") }
     func test_assistant_consent_privacy_policy() { runScenario("assistant-consent-privacy-policy") }
@@ -26,6 +27,7 @@ final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_guided_suggestions() { runScenario("assistant-guided-suggestions") }
     func test_assistant_open_component_sheet() { runScenario("assistant-open-component-sheet") }
     func test_assistant_open_screen() { runScenario("assistant-open-screen") }
+    func test_assistant_reopen_with_consent() { runScenario("assistant-reopen-with-consent") }
     func test_assistant_report_message() { runScenario("assistant-report-message") }
     func test_assistant_retry_turn() { runScenario("assistant-retry-turn") }
     func test_assistant_server_disabled() { runScenario("assistant-server-disabled") }
