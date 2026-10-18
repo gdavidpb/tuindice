@@ -253,7 +253,8 @@ class RecordAssistantPlansDataSourceTest {
 				observeRecordMutationOutcomesUseCase = ObserveRecordMutationOutcomesUseCase(
 					academicRecordRepository = repository,
 					reportingRepository = reporting
-				)
+				),
+				queuedMutationsDataSource = queuedMutationsOf()
 			),
 			academicRecordRepository = repository,
 			pensumSubjectCatalog = PensumSubjectCatalog(pensum)

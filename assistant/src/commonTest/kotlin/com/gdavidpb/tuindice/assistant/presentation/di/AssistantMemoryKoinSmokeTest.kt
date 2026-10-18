@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRep
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryTexts
@@ -16,6 +17,7 @@ import com.gdavidpb.tuindice.assistant.testing.FakeSettings
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
@@ -61,6 +63,7 @@ class AssistantMemoryKoinSmokeTest {
 				// The ports that maincore implements for the assistant: the module only declares them.
 				single<AssistantClientStateRepository> { FakeAssistantClientStateRepository() }
 				single<AssistantEvaluationsRepository> { RecordingAssistantEvaluationsRepository() }
+				single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 				single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 				single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
 			}

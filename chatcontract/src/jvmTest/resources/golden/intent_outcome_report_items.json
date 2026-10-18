@@ -1,0 +1,10 @@
+{
+  "intentId": "intent-2",
+  "outcome": "confirmed",
+  "mutationIds": ["mut-1", "mut-2", "mut-3"],
+  "itemOutcomes": [
+    { "mutationId": "mut-1", "outcome": "confirmed" },
+    { "mutationId": "mut-2", "outcome": "failed", "detailCode": "unhandled" },
+    { "mutationId": "mut-3", "outcome": "confirmed", "newRevision": 14 }
+  ]
+}

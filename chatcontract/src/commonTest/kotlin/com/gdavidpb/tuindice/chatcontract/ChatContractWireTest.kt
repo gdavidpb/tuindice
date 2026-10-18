@@ -84,8 +84,11 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentBinding
 import com.gdavidpb.tuindice.chatcontract.intent.IntentEffectLine
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
+import com.gdavidpb.tuindice.chatcontract.intent.IntentStatus
 import com.gdavidpb.tuindice.chatcontract.intent.MutatingIntentArgs
+import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.ProjectionArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
@@ -537,6 +540,54 @@ class ChatContractWireTest {
 		val older = """{"type":"memoria.recordar/1","statement":"Prefiere","category":"PREFERENCE","quote":"prefiero"}"""
 		val read = assertIs<RememberArgs>(ChatContract.json.decodeFromString(IntentArgs.serializer(), older))
 		assertEquals(listOf(null, null, null), listOf(read.anchorKind, read.anchorRef, read.anchorDate))
+	}
+
+	@Test
+	fun aMemoryCarriesTheIdOfTheOneItReplacesAndAnOlderOneWithoutItReplacesNone() {
+		val correction = RememberArgs(
+			statement = "Prefiere las notas por trimestre",
+			category = "PREFERENCE",
+			quote = "mejor por trimestre",
+			replacesMemoryId = "memory-1"
+		)
+		assertWire(IntentArgs.serializer(), listOf(correction), listOf("memoria.recordar/1"))
+
+		val older = """{"type":"memoria.recordar/1","statement":"Prefiere","category":"PREFERENCE","quote":"prefiero"}"""
+		val read = assertIs<RememberArgs>(ChatContract.json.decodeFromString(IntentArgs.serializer(), older))
+		assertEquals(null, read.replacesMemoryId)
+		val wire = ChatContract.json.encodeToJsonElement(IntentArgs.serializer(), read).jsonObject
+		assertFalse("replacesMemoryId" in wire)
+	}
+
+	@Test
+	fun aReportCarriesTheOutcomeOfEachMutationAndOneWithoutThemKeepsItsOlderShape() {
+		val partial = IntentOutcomeReport(
+			intentId = "intent-1",
+			outcome = OutcomeKind.CONFIRMED,
+			mutationIds = listOf("mut-1", "mut-2"),
+			itemOutcomes = listOf(
+				MutationOutcome("mut-1", OutcomeKind.CONFIRMED, newRevision = 3),
+				MutationOutcome("mut-2", OutcomeKind.FAILED, detailCode = "unhandled")
+			)
+		)
+		assertEquals(partial, roundTrip(IntentOutcomeReport.serializer(), partial))
+
+		val whole = IntentOutcomeReport(intentId = "intent-1", outcome = OutcomeKind.CONFIRMED, mutationIds = listOf("mut-1"))
+		val wire = ChatContract.json.encodeToJsonElement(IntentOutcomeReport.serializer(), whole).jsonObject
+		assertFalse("itemOutcomes" in wire)
+
+		val older = """{"intentId":"intent-1","outcome":"queued","mutationIds":["mut-1"]}"""
+		assertEquals(emptyList(), ChatContract.json.decodeFromString(IntentOutcomeReport.serializer(), older).itemOutcomes)
+	}
+
+	@Test
+	fun aResolvedIntentCarriesItsFinalStatusAndAnOlderEventWithoutItReadsAsNone() {
+		val superseded = IntentResolved(6, "turn-1", "intent-1", OutcomeKind.CANCELLED, status = IntentStatus.SUPERSEDED)
+		assertWire(AssistantEvent.serializer(), listOf(superseded), listOf("intent_resolved"))
+
+		val older = """{"type":"intent_resolved","seq":6,"turnId":"turn-1","intentId":"intent-1","outcome":"confirmed"}"""
+		val read = assertIs<IntentResolved>(ChatContract.json.decodeFromString(AssistantEvent.serializer(), older))
+		assertEquals(null, read.status)
 	}
 
 	@Test

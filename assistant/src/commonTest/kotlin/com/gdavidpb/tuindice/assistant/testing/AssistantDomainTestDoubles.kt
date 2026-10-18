@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentReposito
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
@@ -45,6 +46,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentBinding
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
+import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.ProjectionArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
@@ -316,12 +318,19 @@ internal class RecordingAssistantEvaluationsRepository(
 	var answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
 	var error: Throwable? = null
 	val received = mutableListOf<Any>()
+	val expectedRevisions = mutableListOf<Long?>()
 
 	override suspend fun add(args: AddEvaluationsArgs): IntentExecution = record(args)
 
-	override suspend fun edit(args: EditEvaluationArgs): IntentExecution = record(args)
+	override suspend fun edit(args: EditEvaluationArgs, expectedRevision: Long?): IntentExecution {
+		expectedRevisions += expectedRevision
+		return record(args)
+	}
 
-	override suspend fun remove(args: RemoveEvaluationArgs): IntentExecution = record(args)
+	override suspend fun remove(args: RemoveEvaluationArgs, expectedRevision: Long?): IntentExecution {
+		expectedRevisions += expectedRevision
+		return record(args)
+	}
 
 	private fun record(args: Any): IntentExecution {
 		calls += "port"
@@ -329,6 +338,29 @@ internal class RecordingAssistantEvaluationsRepository(
 		error?.let { failure -> throw failure }
 
 		return answer
+	}
+}
+
+// The follow-up of queued mutations, driven by the test: it keeps what it was asked to follow, and [settle] hands the
+// outcomes to the intent that asked, as the session would once the mutations settle.
+internal class RecordingAssistantQueuedMutationsRepository(
+	private val calls: MutableList<String> = mutableListOf()
+) : AssistantQueuedMutationsRepository {
+	val followed = mutableListOf<Pair<List<String>, Long>>()
+	private val waiting = mutableListOf<suspend (List<MutationOutcome>) -> Unit>()
+
+	override fun followQueued(
+		mutationIds: List<String>,
+		untilMillis: Long,
+		onSettled: suspend (List<MutationOutcome>) -> Unit
+	) {
+		calls += "followQueued"
+		followed += mutationIds to untilMillis
+		waiting += onSettled
+	}
+
+	suspend fun settle(outcomes: List<MutationOutcome>) {
+		waiting.removeAt(0).invoke(outcomes)
 	}
 }
 

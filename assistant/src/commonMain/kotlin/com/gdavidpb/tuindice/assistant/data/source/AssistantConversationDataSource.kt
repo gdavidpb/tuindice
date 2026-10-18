@@ -123,10 +123,7 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 			seen.copy(openIntents = seen.openIntents + (open.intentId to open))
 		}
 
-		is IntentResolved -> seen.copy(
-			openIntents = seen.openIntents - event.intentId,
-			resolvedIntents = seen.resolvedIntents + (event.intentId to event.outcome)
-		)
+		is IntentResolved -> seen.resolvedBy(event)
 
 		is RunFinished -> seen.updateTurn(event.turnId) { turn ->
 			turn.copy(progressLabel = null, status = AssistantTurnStatus.FINISHED)
@@ -147,6 +144,17 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 		// Dropped before this point; the branch keeps the when exhaustive.
 		is UnknownAssistantEvent -> this
 	}
+}
+
+// The server closes a proposal another one replaced. An intent the app already resolved here (the student decided it
+// while the turn that replaces it ran) keeps the outcome the app gave it.
+private fun AssistantConversationState.resolvedBy(event: IntentResolved): AssistantConversationState {
+	val kept = event.intentId in resolvedIntents
+
+	return copy(
+		openIntents = openIntents - event.intentId,
+		resolvedIntents = if (kept) resolvedIntents else resolvedIntents + (event.intentId to event.outcome)
+	)
 }
 
 // A turn that has ended keeps its end. A turn with no event yet starts here, unconfirmed, at the seq it was followed

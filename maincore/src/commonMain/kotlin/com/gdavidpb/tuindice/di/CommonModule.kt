@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRep
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
@@ -53,6 +54,7 @@ import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.gdavidpb.tuindice.data.source.assistant.AssistantClientStateDataSource
+import com.gdavidpb.tuindice.data.source.assistant.AssistantQueuedMutationsDataSource
 import com.gdavidpb.tuindice.data.source.assistant.EvaluationsAssistantDataSource
 import com.gdavidpb.tuindice.data.source.assistant.PensumSubjectCatalog
 import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantPlansDataSource
@@ -172,7 +174,12 @@ val commonModule = module {
 	/* Assistant */
 
 	// The ports the assistant domain declares, filled with the use cases and the data of this app. None of them keeps
-	// memory: each one reads its use cases and mutates through them, so none is a session memory.
+	// memory: each one reads its use cases and mutates through them, so none is a session memory. The one exception is
+	// the follow-up of queued mutations, which outlives the chat for the session and lets go of it when the session ends.
+	singleOf(::AssistantQueuedMutationsDataSource) {
+		bind<AssistantQueuedMutationsRepository>()
+		bind<SessionMemory>()
+	}
 	factoryOf(::PensumSubjectCatalog)
 	factoryOf(::RecordIntentRunner)
 	factoryOf(::EvaluationsAssistantDataSource) { bind<AssistantEvaluationsRepository>() }

@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantIntentIllegalArgumentException
+import com.gdavidpb.tuindice.assistant.domain.mapper.toIntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
@@ -14,6 +16,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.MutatingIntentArgs
+import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import kotlinx.coroutines.CancellationException
 import kotlin.time.Clock
@@ -26,12 +29,17 @@ import kotlin.time.Clock
  * A decision repeated after its answer was lost is answered as decided, so it runs; a conflict is final. An outcome
  * report stays in the outbox until the server settles it, and a flush sends it again when it was not answered. Nothing
  * here catches: a port answers FAILED instead of throwing.
+ *
+ * A report names how each mutation of a batch ended. An intent that answered QUEUED is not left there: its queued
+ * mutations are followed in the app session, and once they settle (before the intent's deadline) the final outcome goes
+ * through the outbox as one more report, and the intent is marked resolved with it.
  */
 class AssistantIntentConfirmer(
 	private val conversationRepository: AssistantConversationRepository,
 	private val intentRepository: AssistantIntentRepository,
 	private val clock: Clock,
-	private val outboxRepository: AssistantIntentOutboxRepository
+	private val outboxRepository: AssistantIntentOutboxRepository,
+	private val queuedMutationsRepository: AssistantQueuedMutationsRepository
 ) {
 	/**
 	 * Confirms the intent of [params] as the kind [narrow] picks, and runs it with [execute]. With [reportsOutcome] false
@@ -85,20 +93,54 @@ class AssistantIntentConfirmer(
 		val execution = execute(args, intent)
 
 		if (reportsOutcome) {
-			sendOutcome(
-				IntentOutcomeReport(
-					intentId = intent.id,
-					outcome = execution.outcome,
-					mutationIds = executedMutationIds(args, intent),
-					detailCode = execution.detailCode,
-					newRevision = execution.newRevision
-				)
+			val report = IntentOutcomeReport(
+				intentId = intent.id,
+				outcome = execution.outcome,
+				mutationIds = executedMutationIds(args, intent),
+				detailCode = execution.detailCode,
+				newRevision = execution.newRevision,
+				itemOutcomes = execution.itemOutcomes
 			)
+
+			sendOutcome(report)
+			if (execution.outcome == OutcomeKind.QUEUED) followQueued(intent, report)
 		}
 
 		conversationRepository.markIntentResolved(intentId = intent.id, outcome = execution.outcome)
 
 		return execution.outcome
+	}
+
+	// The mutations still queued: the ones a batch names as queued, or the single mutation of a queued intent. Once they
+	// settle, the report that ends the intent is sent with their outcomes in place of the queued ones.
+	private fun followQueued(intent: Intent, report: IntentOutcomeReport) {
+		val queued = report.itemOutcomes
+			.filter { item -> item.outcome == OutcomeKind.QUEUED }
+			.map { item -> item.mutationId }
+			.ifEmpty { report.mutationIds }
+		if (queued.isEmpty()) return
+
+		queuedMutationsRepository.followQueued(queued, untilMillis = intent.expiresAtMillis) { settled ->
+			settleQueued(intent, report, settled)
+		}
+	}
+
+	private suspend fun settleQueued(intent: Intent, report: IntentOutcomeReport, settled: List<MutationOutcome>) {
+		val byId = settled.associateBy { item -> item.mutationId }
+		val items = report.itemOutcomes.ifEmpty {
+			report.mutationIds.map { mutationId -> MutationOutcome(mutationId, OutcomeKind.QUEUED) }
+		}
+		val execution = items.map { item -> byId[item.mutationId] ?: item }.toIntentExecution() ?: return
+
+		sendOutcome(
+			report.copy(
+				outcome = execution.outcome,
+				detailCode = execution.detailCode,
+				newRevision = execution.newRevision ?: report.newRevision,
+				itemOutcomes = execution.itemOutcomes
+			)
+		)
+		conversationRepository.markIntentResolved(intentId = intent.id, outcome = execution.outcome)
 	}
 
 	// The mutations the run asked for: the marked rows of a batch, the ones of other changing args, or the binding's.

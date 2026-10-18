@@ -5,12 +5,14 @@ import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
+import com.gdavidpb.tuindice.assistant.testing.FAR_FUTURE_MILLIS
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.assistant.testing.dataValues
 import com.gdavidpb.tuindice.assistant.testing.lastState
@@ -23,6 +25,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.ProjectionArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
@@ -43,7 +46,8 @@ class AssistantIntentConfirmationTest {
 	private val plans = RecordingAssistantPlansRepository(calls)
 	private val projections = RecordingAssistantProjectionRepository(calls)
 	private val reporting = RecordingReportingRepository()
-	private val confirmer = AssistantIntentConfirmer(conversation, intents, clock, conversation)
+	private val queued = RecordingAssistantQueuedMutationsRepository(calls)
+	private val confirmer = AssistantIntentConfirmer(conversation, intents, clock, conversation, queued)
 	private val handler = AssistantIntentExceptionHandler()
 
 	private fun openIntent(intent: Intent) {
@@ -343,6 +347,109 @@ class AssistantIntentConfirmationTest {
 		assertEquals(mapOf("i1" to OutcomeKind.CANCELLED), conversation.resolved)
 		assertTrue(evaluations.received.isEmpty())
 	}
+
+	@Test
+	fun anEditOrARemovalRunsWithTheRevisionOfTheEvaluationTheIntentWasBuiltOn() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1"), expectedRevision = 4L))
+		confirmEdit()
+
+		val removal = RemoveEvaluationArgs(mutationId = "m2", evaluationId = "e1")
+		openIntent(assistantIntent(args = removal, expectedRevision = 5L))
+		ConfirmDeleteEvaluationIntentUseCase(confirmer, evaluations, reporting, handler)
+			.execute(ConfirmIntentParams(intentId = "i1"))
+			.lastState()
+
+		assertEquals(listOf<Long?>(4L, 5L), evaluations.expectedRevisions)
+	}
+
+	@Test
+	fun aBatchReportsHowEachOfItsMutationsEnded() = runTest {
+		val items = listOf(
+			MutationOutcome("m1", OutcomeKind.CONFIRMED),
+			MutationOutcome("m2", OutcomeKind.FAILED, detailCode = "unhandled")
+		)
+		val batch = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2")))
+		openIntent(assistantIntent(args = batch, mutationIds = listOf("m1", "m2")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED, itemOutcomes = items)
+
+		confirmAdd()
+
+		assertEquals(items, intents.reports.single().itemOutcomes)
+		assertTrue(queued.followed.isEmpty())
+	}
+
+	@Test
+	fun aQueuedBatchIsFollowed_andTheOutcomeItsMutationsSettleWithIsReportedAndResolvesTheIntent() = runTest {
+		openIntent(
+			assistantIntent(
+				args = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2"), draft("m3"))),
+				mutationIds = listOf("m1", "m2", "m3"),
+				expiresAtMillis = NOW_MILLIS + 60_000L
+			)
+		)
+		evaluations.answer = IntentExecution(
+			outcome = OutcomeKind.QUEUED,
+			itemOutcomes = listOf(
+				MutationOutcome("m1", OutcomeKind.CONFIRMED),
+				MutationOutcome("m2", OutcomeKind.QUEUED),
+				MutationOutcome("m3", OutcomeKind.QUEUED)
+			)
+		)
+
+		val state = confirmAdd()
+
+		assertEquals(UseCaseState.Data(OutcomeKind.QUEUED), state)
+		assertEquals(listOf(listOf("m2", "m3") to NOW_MILLIS + 60_000L), queued.followed)
+		assertEquals(mapOf("i1" to OutcomeKind.QUEUED), conversation.resolved)
+
+		// m2 lands and m3 fails after the intent answered: the batch ends confirmed, with each mutation's outcome.
+		queued.settle(
+			listOf(MutationOutcome("m2", OutcomeKind.CONFIRMED), MutationOutcome("m3", OutcomeKind.FAILED, "unhandled"))
+		)
+
+		val final = intents.reports.last()
+		assertEquals(OutcomeKind.CONFIRMED, final.outcome)
+		assertEquals(listOf("m1", "m2", "m3"), final.mutationIds)
+		assertEquals(
+			listOf(
+				MutationOutcome("m1", OutcomeKind.CONFIRMED),
+				MutationOutcome("m2", OutcomeKind.CONFIRMED),
+				MutationOutcome("m3", OutcomeKind.FAILED, "unhandled")
+			),
+			final.itemOutcomes
+		)
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
+		assertTrue(conversation.pendingOutcomes().isEmpty())
+	}
+
+	@Test
+	fun aQueuedSingleMutationIsFollowedByItsIdAndEndsWithTheOutcomeItSettlesWith() = runTest {
+		val edit = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")
+		openIntent(assistantIntent(args = edit, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.QUEUED)
+
+		confirmEdit()
+		queued.settle(listOf(MutationOutcome("m1", OutcomeKind.CONFLICT, "Revision")))
+
+		assertEquals(listOf(listOf("m1") to FAR_FUTURE_MILLIS), queued.followed)
+		assertEquals(
+			IntentOutcomeReport(
+				intentId = "i1",
+				outcome = OutcomeKind.CONFLICT,
+				mutationIds = listOf("m1"),
+				detailCode = "Revision"
+			),
+			intents.reports.last()
+		)
+		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), conversation.resolved)
+	}
+
+	private suspend fun confirmAdd() = ConfirmAddEvaluationsIntentUseCase(
+		confirmer = confirmer,
+		evaluationsRepository = evaluations,
+		reportingRepository = reporting,
+		exceptionHandler = handler
+	).execute(ConfirmIntentParams(intentId = "i1")).lastState()
 
 	private companion object {
 		const val NOW_MILLIS = 1_700_000_000_000L

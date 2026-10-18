@@ -113,5 +113,6 @@ fun LocalEvaluation.toEvaluation(clock: Clock) = Evaluation(
 		grade = grade,
 		date = date,
 		clock = clock
-	)
+	),
+	revision = revision
 )

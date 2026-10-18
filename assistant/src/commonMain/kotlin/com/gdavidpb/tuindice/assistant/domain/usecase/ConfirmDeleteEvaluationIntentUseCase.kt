@@ -19,8 +19,8 @@ class ConfirmDeleteEvaluationIntentUseCase(
 ) : FlowUseCase<ConfirmIntentParams, OutcomeKind, AssistantIntentError>() {
 	override suspend fun executeOnBackground(params: ConfirmIntentParams): Flow<OutcomeKind> = flow {
 		emit(
-			confirmer.confirm(params, narrow = { it as? RemoveEvaluationArgs }) { args, _ ->
-				evaluationsRepository.remove(args)
+			confirmer.confirm(params, narrow = { it as? RemoveEvaluationArgs }) { args, intent ->
+				evaluationsRepository.remove(args, intent.binding.expectedRevision)
 			}
 		)
 	}

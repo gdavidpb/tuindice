@@ -19,10 +19,14 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome as ChatMutationOutcome
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationsAssistantDataSourceTest {
@@ -34,7 +38,13 @@ class EvaluationsAssistantDataSourceTest {
 
 		assertEquals(listOf("m1", "m2"), repository.mutations)
 		assertEquals(listOf(true, true), repository.subscribedAtMutation)
-		assertEquals(IntentExecution(OutcomeKind.CONFIRMED), execution)
+		assertEquals(
+			IntentExecution(
+				OutcomeKind.CONFIRMED,
+				itemOutcomes = listOf(item("m1", OutcomeKind.CONFIRMED), item("m2", OutcomeKind.CONFIRMED))
+			),
+			execution
+		)
 	}
 
 	@Test
@@ -56,7 +66,7 @@ class EvaluationsAssistantDataSourceTest {
 	}
 
 	@Test
-	fun add_aBatchAnswersWithItsWorstItem() = runTest {
+	fun add_aBatchThatLandedSomeItemsIsConfirmedAndNamesHowEachOneEnded() = runTest {
 		val outcomes = mapOf(
 			"m1" to MutationOutcomeKind.CONFIRMED,
 			"m2" to MutationOutcomeKind.CONFLICT,
@@ -66,21 +76,33 @@ class EvaluationsAssistantDataSourceTest {
 
 		val execution = evaluationsSource(repository).add(addArgs(draft("m1"), draft("m2"), draft("m3")))
 
-		assertEquals(IntentExecution(OutcomeKind.CONFLICT), execution)
+		assertEquals(
+			IntentExecution(
+				OutcomeKind.CONFIRMED,
+				itemOutcomes = listOf(
+					item("m1", OutcomeKind.CONFIRMED),
+					item("m2", OutcomeKind.CONFLICT),
+					item("m3", OutcomeKind.FAILED, "SUPERSEDED")
+				)
+			),
+			execution
+		)
 	}
 
 	@Test
-	fun add_aBatchWithARejectionAnswersTheRejectionWithItsDetail() = runTest {
+	fun add_aBatchThatLandedNothingAnswersItsWorstItemWithItsDetail() = runTest {
 		val outcomes = mapOf(
-			"m1" to MutationOutcome("m1", MutationOutcomeKind.CONFIRMED),
+			"m1" to MutationOutcome("m1", MutationOutcomeKind.CONFLICT),
 			"m2" to MutationOutcome("m2", MutationOutcomeKind.REJECTED, "bad_grade"),
-			"m3" to MutationOutcome("m3", MutationOutcomeKind.CONFLICT)
+			"m3" to MutationOutcome("m3", MutationOutcomeKind.CANCELLED)
 		)
 		val repository = FakeEvaluationRepository(outcomeOf = outcomes::get)
 
 		val execution = evaluationsSource(repository).add(addArgs(draft("m1"), draft("m2"), draft("m3")))
 
-		assertEquals(IntentExecution(OutcomeKind.REJECTED, "bad_grade"), execution)
+		assertEquals(OutcomeKind.REJECTED, execution.outcome)
+		assertEquals("bad_grade", execution.detailCode)
+		assertEquals(listOf("m1", "m2", "m3"), execution.itemOutcomes.map { outcome -> outcome.mutationId })
 	}
 
 	@Test
@@ -101,7 +123,13 @@ class EvaluationsAssistantDataSourceTest {
 
 		val execution = evaluationsSource(repository).add(addArgs(draft("m1"), draft("m2")))
 
-		assertEquals(IntentExecution(OutcomeKind.QUEUED), execution)
+		assertEquals(
+			IntentExecution(
+				OutcomeKind.QUEUED,
+				itemOutcomes = listOf(item("m1", OutcomeKind.CONFIRMED), item("m2", OutcomeKind.QUEUED))
+			),
+			execution
+		)
 	}
 
 	@Test
@@ -156,7 +184,8 @@ class EvaluationsAssistantDataSourceTest {
 				dateMillis = null,
 				evaluationType = "QUIZ",
 				scheduleMode = "continuous"
-			)
+			),
+			expectedRevision = null
 		)
 
 		assertEquals(IntentExecution(OutcomeKind.CONFIRMED), execution)
@@ -169,7 +198,8 @@ class EvaluationsAssistantDataSourceTest {
 		val repository = FakeEvaluationRepository()
 
 		val execution = evaluationsSource(repository).edit(
-			EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", dateMillis = 1_800_000_000_000L)
+			EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", dateMillis = 1_800_000_000_000L),
+			expectedRevision = null
 		)
 
 		assertEquals(IntentExecution(OutcomeKind.CONFIRMED), execution)
@@ -182,7 +212,8 @@ class EvaluationsAssistantDataSourceTest {
 		val repository = FakeEvaluationRepository()
 
 		val execution = evaluationsSource(repository).edit(
-			EditEvaluationArgs(mutationId = "m1", evaluationId = "gone", grade = 3.0)
+			EditEvaluationArgs(mutationId = "m1", evaluationId = "gone", grade = 3.0),
+			expectedRevision = null
 		)
 
 		assertEquals(IntentExecution(OutcomeKind.REJECTED, "unknown_evaluation"), execution)
@@ -194,7 +225,8 @@ class EvaluationsAssistantDataSourceTest {
 		val repository = FakeEvaluationRepository()
 
 		val execution = evaluationsSource(repository).edit(
-			EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", evaluationType = "NOPE")
+			EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", evaluationType = "NOPE"),
+			expectedRevision = null
 		)
 
 		assertEquals(IntentExecution(OutcomeKind.REJECTED, "invalid_args"), execution)
@@ -205,7 +237,10 @@ class EvaluationsAssistantDataSourceTest {
 	fun remove_answersItsOutcome() = runTest {
 		val repository = FakeEvaluationRepository(outcomeOf = settledAs(MutationOutcomeKind.CONFLICT))
 
-		val execution = evaluationsSource(repository).remove(RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1"))
+		val execution = evaluationsSource(repository).remove(
+			RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1"),
+			expectedRevision = null
+		)
 
 		assertEquals(IntentExecution(OutcomeKind.CONFLICT), execution)
 		assertEquals("e1", repository.removes.single().id)
@@ -215,7 +250,10 @@ class EvaluationsAssistantDataSourceTest {
 	fun remove_ofAnEvaluationThePhoneDoesNotHave_isRefusedAtOnce() = runTest {
 		val repository = FakeEvaluationRepository()
 
-		val execution = evaluationsSource(repository).remove(RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e9"))
+		val execution = evaluationsSource(repository).remove(
+			RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e9"),
+			expectedRevision = null
+		)
 
 		assertEquals(IntentExecution(OutcomeKind.REJECTED, "unknown_evaluation"), execution)
 		assertEquals(emptyList(), repository.removes)
@@ -226,7 +264,10 @@ class EvaluationsAssistantDataSourceTest {
 	fun remove_ofAnEvaluationTheServerNoLongerHas_isAConflict() = runTest {
 		val repository = FakeEvaluationRepository(outcomeOf = settledAs(MutationOutcomeKind.REJECTED, "NotFound"))
 
-		val execution = evaluationsSource(repository).remove(RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1"))
+		val execution = evaluationsSource(repository).remove(
+			RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1"),
+			expectedRevision = null
+		)
 
 		assertEquals(IntentExecution(OutcomeKind.CONFLICT, "NotFound"), execution)
 	}
@@ -237,7 +278,106 @@ class EvaluationsAssistantDataSourceTest {
 		assertEquals(expected, evaluationsSource(repository).add(addArgs(draft("m1"))))
 	}
 
-	private fun evaluationsSource(repository: FakeEvaluationRepository): EvaluationsAssistantDataSource {
+	@Test
+	fun edit_atTheRevisionTheIntentWasBuiltOnRuns_andOneThatMovedOnIsAConflictWithNothingChanged() = runTest {
+		val repository = FakeEvaluationRepository()
+		repository.stored["e1"] = storedEvaluation(id = "e1", grade = 4.0).copy(revision = 7L)
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 3.0)
+
+		val moved = evaluationsSource(repository).edit(args, expectedRevision = 6L)
+
+		assertEquals(IntentExecution(OutcomeKind.CONFLICT), moved)
+		assertEquals(emptyList(), repository.updates)
+
+		val current = evaluationsSource(repository).edit(args, expectedRevision = 7L)
+
+		assertEquals(IntentExecution(OutcomeKind.CONFIRMED), current)
+		assertEquals(listOf("m1"), repository.mutations)
+	}
+
+	@Test
+	fun remove_atTheRevisionTheIntentWasBuiltOnRuns_andOneThatMovedOnIsAConflictWithNothingRemoved() = runTest {
+		val repository = FakeEvaluationRepository()
+		repository.stored["e1"] = storedEvaluation(id = "e1", grade = 4.0).copy(revision = 7L)
+		val args = RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1")
+
+		assertEquals(
+			IntentExecution(OutcomeKind.CONFLICT),
+			evaluationsSource(repository).remove(args, expectedRevision = 8L)
+		)
+		assertEquals(emptyList(), repository.removes)
+
+		assertEquals(
+			IntentExecution(OutcomeKind.CONFIRMED),
+			evaluationsSource(repository).remove(args, expectedRevision = 7L)
+		)
+		assertEquals("e1", repository.removes.single().id)
+	}
+
+	@Test
+	fun edit_withoutAnExpectedRevisionOrOfAnEvaluationWhoseRevisionThePhoneDoesNotKnow_isNotChecked() = runTest {
+		val repository = FakeEvaluationRepository()
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 3.0)
+
+		assertEquals(
+			IntentExecution(OutcomeKind.CONFIRMED),
+			evaluationsSource(repository).edit(args, expectedRevision = 6L)
+		)
+
+		repository.stored["e1"] = storedEvaluation(id = "e1", grade = 4.0).copy(revision = 7L)
+		assertEquals(
+			IntentExecution(OutcomeKind.CONFIRMED),
+			evaluationsSource(repository).edit(args, expectedRevision = null)
+		)
+	}
+
+	@Test
+	fun add_aMutationQueuedByTheTimeoutIsFollowedInTheSession_andItsLaterOutcomeReachesTheIntent() = runTest {
+		val repository = FakeEvaluationRepository(
+			outcomeOf = { id -> if (id == "m1") MutationOutcome(id, MutationOutcomeKind.CONFIRMED) else null }
+		)
+		val queued = queuedMutationsOf(StandardTestDispatcher(testScheduler), FixedTestClock(nowMillis = 0L))
+		val source = evaluationsSource(repository, queued)
+
+		val execution = source.add(addArgs(draft("m1"), draft("m2")))
+		assertEquals(OutcomeKind.QUEUED, execution.outcome)
+
+		val delivered = mutableListOf<List<ChatMutationOutcome>>()
+		queued.followQueued(listOf("m2"), untilMillis = QUEUED_FOLLOW_LIMIT_MILLIS) { settled -> delivered += settled }
+		runCurrent()
+		assertEquals(emptyList(), delivered)
+
+		// The outbox settles m2 after the intent answered: the session still listens, and hands its outcome over.
+		repository.emitOutcome(MutationOutcome("m2", MutationOutcomeKind.CONFIRMED))
+		runCurrent()
+
+		assertEquals(listOf(listOf(item("m2", OutcomeKind.CONFIRMED))), delivered)
+	}
+
+	@Test
+	fun add_aQueuedMutationThatDoesNotSettleBeforeTheIntentsDeadlineIsGivenUp() = runTest {
+		val repository = FakeEvaluationRepository(outcomeOf = { null })
+		val queued = queuedMutationsOf(StandardTestDispatcher(testScheduler), FixedTestClock(nowMillis = 0L))
+
+		evaluationsSource(repository, queued).add(addArgs(draft("m1")))
+
+		val delivered = mutableListOf<List<ChatMutationOutcome>>()
+		queued.followQueued(listOf("m1"), untilMillis = 60_000L) { settled -> delivered += settled }
+		advanceTimeBy(61_000L)
+		repository.emitOutcome(MutationOutcome("m1", MutationOutcomeKind.CONFIRMED))
+		runCurrent()
+
+		assertEquals(emptyList(), delivered)
+		assertEquals(0, repository.outcomeSubscribers())
+	}
+
+	private fun item(mutationId: String, outcome: OutcomeKind, detailCode: String? = null) =
+		ChatMutationOutcome(mutationId = mutationId, outcome = outcome, detailCode = detailCode)
+
+	private fun evaluationsSource(
+		repository: FakeEvaluationRepository,
+		queued: AssistantQueuedMutationsDataSource = queuedMutationsOf()
+	): EvaluationsAssistantDataSource {
 		val reporting = RecordingReportingRepository()
 
 		return EvaluationsAssistantDataSource(
@@ -265,7 +405,8 @@ class EvaluationsAssistantDataSourceTest {
 			observeEvaluationMutationOutcomesUseCase = ObserveEvaluationMutationOutcomesUseCase(
 				evaluationRepository = repository,
 				reportingRepository = reporting
-			)
+			),
+			queuedMutationsDataSource = queued
 		)
 	}
 

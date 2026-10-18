@@ -13,7 +13,12 @@ interface AssistantEvaluationsRepository {
 	/** Adds only the items marked selected; the unmarked rows of a batch are not run. */
 	suspend fun add(args: AddEvaluationsArgs): IntentExecution
 
-	suspend fun edit(args: EditEvaluationArgs): IntentExecution
+	/**
+	 * Edits the evaluation only while it is still at [expectedRevision], the revision the proposal was built on: one that
+	 * moved on answers CONFLICT and nothing is changed. Without an expected revision, the revision is not checked.
+	 */
+	suspend fun edit(args: EditEvaluationArgs, expectedRevision: Long?): IntentExecution
 
-	suspend fun remove(args: RemoveEvaluationArgs): IntentExecution
+	/** Removes the evaluation only while it is still at [expectedRevision], as [edit] does. */
+	suspend fun remove(args: RemoveEvaluationArgs, expectedRevision: Long?): IntentExecution
 }
