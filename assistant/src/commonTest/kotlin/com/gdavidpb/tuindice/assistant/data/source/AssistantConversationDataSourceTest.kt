@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentBinding
 import com.gdavidpb.tuindice.chatcontract.intent.IntentEffectLine
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
+import com.gdavidpb.tuindice.chatcontract.intent.IntentStatus
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
@@ -128,6 +129,27 @@ class AssistantConversationDataSourceTest {
 		assertEquals(AssistantTurnStatus.FINISHED, finished.turns.getValue("t1").status)
 		assertEquals(5L, finished.turns.getValue("t1").lastSeq)
 		assertNull(finished.turns.getValue("t1").progressLabel)
+	}
+
+	@Test
+	fun aProposalTheNextTurnSupersedesIsClosedByTheServersEvent_andOneTheStudentAlreadyDecidedKeepsItsOutcome() = runTest {
+		val store = AssistantConversationDataSource()
+		val decided = intent.copy(id = "i2")
+		store.apply(IntentProposed(seq = 1, turnId = "t1", messageId = "m1", intent = intent))
+		store.apply(IntentProposed(seq = 2, turnId = "t1", messageId = "m1", intent = decided))
+		store.apply(RunFinished(seq = 3, turnId = "t1"))
+		store.markIntentResolved(intentId = "i2", outcome = OutcomeKind.CONFIRMED)
+
+		// The next turn replaces both proposals in its commit, while the student had already confirmed the second one.
+		store.apply(RunStarted(seq = 1, turnId = "t2"))
+		store.apply(IntentResolved(2, "t2", "i1", OutcomeKind.CANCELLED, status = IntentStatus.SUPERSEDED))
+		store.apply(IntentResolved(3, "t2", "i2", OutcomeKind.CANCELLED, status = IntentStatus.SUPERSEDED))
+		store.apply(RunFinished(seq = 4, turnId = "t2"))
+
+		val state = store.observeConversation().value
+
+		assertTrue(state.openIntents.isEmpty())
+		assertEquals(mapOf("i2" to OutcomeKind.CONFIRMED, "i1" to OutcomeKind.CANCELLED), state.resolvedIntents)
 	}
 
 	@Test
