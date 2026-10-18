@@ -88,11 +88,11 @@
 	<string name="assistant_nav_copied">Copiado</string>
 	<string name="assistant_chat_screen_summary">Resumen</string>
 	<string name="assistant_chat_screen_statistics">Estadísticas</string>
-	<string name="assistant_chat_screen_record">Récord</string>
+	<string name="assistant_chat_screen_record">Informe</string>
 	<string name="assistant_chat_screen_pensum">Pensum</string>
 	<string name="assistant_chat_screen_evaluations">Evaluaciones</string>
-	<string name="assistant_chat_screen_evaluation_detail">Detalle de evaluación</string>
-	<string name="assistant_chat_screen_subject_detail">Detalle de materia</string>
+	<string name="assistant_chat_screen_evaluation_detail">Evaluación</string>
+	<string name="assistant_chat_screen_subject_detail">Materia</string>
 	<string name="assistant_chat_screen_subject_search">Buscar materias</string>
 	<string name="assistant_chat_screen_about">Acerca de</string>
 	<string name="assistant_chat_evaluation_type_test">Prueba</string>

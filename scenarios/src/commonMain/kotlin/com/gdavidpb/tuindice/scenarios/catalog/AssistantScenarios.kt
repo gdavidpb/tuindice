@@ -5,12 +5,15 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
+import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -23,6 +26,9 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import kotlin.time.Duration.Companion.milliseconds
+
+private const val SHEET_SWIPE_MS = 600L
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
 private fun StepBuilder.openAssistant() {
@@ -303,6 +309,39 @@ private val assistantOpenScreen = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 }
 
+private val assistantReopenWithConsent = scenario(
+	"assistant-reopen-with-consent",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	account(E2eAccounts.Canonical.id)
+
+	openAssistant()
+	acceptConsent()
+	// The sheet is dragged down by its title, and the sparkle opens it again: the consent is given, so it opens
+	// straight into the conversation, with the field in view.
+	swipeFrom(AssistantUiTags.ChatTitle, SwipeDirection.Down, SHEET_SWIPE_MS.milliseconds)
+	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	openAssistant()
+	waitVisible(AssistantUiTags.Composer, Within.Action)
+}
+
+private val assistantAskAboutRecordSubject = scenario(
+	"assistant-ask-about-record-subject",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical, section = MainSection.RECORD).toLaunchSpec()
+) {
+	account(E2eAccounts.Canonical.id)
+
+	// A subject's card in the record offers to ask about it, and the chat opens with that subject as its context.
+	val card = RecordUiTags.attemptCard(E2eFixtures.SyntheticEp1308Attempt.value)
+	waitVisible(card, Within.Sync)
+	tap(card)
+	tap(BaseUiTags.askAssistant("menu_item"))
+	acceptConsent()
+	waitVisible(AssistantUiTags.ContextChip, Within.Action)
+}
+
 /** The scenarios of the `assistant` module; list every new one here. */
 val assistantScenarios: List<Scenario> = listOf(
 	assistantSmoke,
@@ -318,5 +357,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantReportMessage,
 	assistantAnswerStillApplies,
 	assistantOpenComponentSheet,
-	assistantOpenScreen
+	assistantOpenScreen,
+	assistantReopenWithConsent,
+	assistantAskAboutRecordSubject
 )

@@ -121,6 +121,7 @@ internal fun Record.State.toRouteViewState(): ViewState {
 		},
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
+		assistantContext = assistantContext,
 		topBarViewModeState = when (this) {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)

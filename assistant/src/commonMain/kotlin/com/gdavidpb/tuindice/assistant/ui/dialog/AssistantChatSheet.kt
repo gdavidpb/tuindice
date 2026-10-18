@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
 
 // The chat sheet: the conversation carries the title «Asistente», without an icon or the name of the app; the consent
-// carries its own. It opens at medium height and expands on drag.
+// carries its own. It opens at medium height: the body is that height already, so the sheet opens showing all of it.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantChatSheet(
@@ -26,7 +26,9 @@ fun AssistantChatSheet(
 	onAction: (AssistantChat.Action) -> Unit,
 	isCameraAvailable: Boolean = false
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+	// No half-open state: the body takes 60% of the window, more than the half a partly expanded sheet shows, so that
+	// state would leave the composer below the screen with nothing to drag it up but a gesture.
+	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
 	ModalBottomSheet(
 		modifier = Modifier
