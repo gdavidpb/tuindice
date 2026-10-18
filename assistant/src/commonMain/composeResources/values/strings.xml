@@ -31,6 +31,7 @@
 	<string name="assistant_intent_outcome_failed">Falló</string>
 	<string name="assistant_intent_outcome_delegated">Abierto en la app</string>
 	<string name="assistant_consent_title">Antes de usar el asistente</string>
+	<string name="assistant_consent_failed">No pudimos guardar tu consentimiento. Inténtalo de nuevo.</string>
 	<string name="assistant_consent_scope">El asistente responde tus preguntas sobre tu historial académico. Solo propone cambios y los hace si tú los confirmas.</string>
 	<string name="assistant_consent_accuracy">Puede equivocarse: revisa las cifras importantes en la app antes de decidir.</string>
 	<string name="assistant_consent_providers">Tus mensajes se procesan con proveedores externos: Anthropic y Google.</string>

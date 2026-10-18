@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.assistant.data.source
 
-import com.gdavidpb.tuindice.assistant.utils.ASSISTANT_CONSENT_VERSION
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConsentRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.chatcontract.consent.ConsentDecision
+import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class AssistantConsentSettingsDataSource(
 	private val settings: Settings,
 	private val api: KtorAssistantApiDataSource
-) : AssistantConsentRepository, SessionMemory {
+) : AssistantConsentRepository, AssistantServerConsentRepository, SessionMemory {
 
 	private val consent = MutableStateFlow(readStoredConsent())
 
@@ -21,10 +22,21 @@ class AssistantConsentSettingsDataSource(
 
 	override fun isAssistantConsentGranted(): Boolean = consent.value
 
-	// The server decides first. If it refuses, the stored consent and the observed one stay as they were.
+	// The server decides first, on the version it holds now: the answer is for the text the server shows. If it refuses,
+	// the stored consent and the observed one stay as they were.
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
-		val status = api.putConsent(ConsentDecision(version = ASSISTANT_CONSENT_VERSION, accepted = granted))
+		val version = api.getConsent().version
+		val status = api.putConsent(ConsentDecision(version = version, accepted = granted))
 
+		store(status)
+	}
+
+	// The consent the server reports is the one the device keeps, whatever the device held before.
+	override fun reconcileConsent(status: ConsentStatus) {
+		store(status)
+	}
+
+	private fun store(status: ConsentStatus) {
 		settings.putBoolean(CONSENT_GRANTED_KEY, status.accepted)
 		consent.value = status.accepted
 	}

@@ -78,7 +78,8 @@ internal class AssistantChatFixture {
 	val projection = RecordingAssistantProjectionRepository()
 	val feedback = RecordingAssistantFeedbackRepository()
 	val standing = RecordingAssistantStandingRepository(
-		configuredMode = { availability.availability.value.mode.name.lowercase() }
+		configuredMode = { availability.availability.value.mode.name.lowercase() },
+		consentGranted = { consent.isAssistantConsentGranted() }
 	)
 	val memories = RecordingAssistantMemoryRepository()
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
@@ -225,6 +226,7 @@ internal class AssistantChatFixture {
 		return AssistantChatAccess(
 			availabilityRepository = availability,
 			serverModeRepository = availability,
+			serverConsentRepository = consent,
 			consentRepository = consent,
 			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, reporting),
 			getAssistantStatusUseCase = GetAssistantStatusUseCase(standing, reporting),

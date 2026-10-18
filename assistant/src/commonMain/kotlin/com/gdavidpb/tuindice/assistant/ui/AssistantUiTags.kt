@@ -23,6 +23,7 @@ object AssistantUiTags {
 	const val AppealCounter = "assistant_appeal_counter"
 	const val AppealSend = "assistant_appeal_send"
 	const val ConsentView = "assistant_consent_view"
+	const val ConsentFailed = "assistant_consent_failed"
 	const val ConsentAccept = "assistant_consent_accept"
 	const val ConsentDecline = "assistant_consent_decline"
 	const val ConsentPrivacy = "assistant_consent_privacy"

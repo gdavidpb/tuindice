@@ -24,17 +24,20 @@ import tuindice.assistant.generated.resources.assistant_consent_accept
 import tuindice.assistant.generated.resources.assistant_consent_accuracy
 import tuindice.assistant.generated.resources.assistant_consent_control
 import tuindice.assistant.generated.resources.assistant_consent_decline
+import tuindice.assistant.generated.resources.assistant_consent_failed
 import tuindice.assistant.generated.resources.assistant_consent_privacy
 import tuindice.assistant.generated.resources.assistant_consent_providers
 import tuindice.assistant.generated.resources.assistant_consent_retention
 import tuindice.assistant.generated.resources.assistant_consent_scope
 import tuindice.assistant.generated.resources.assistant_consent_title
 
-// What the student needs to know before accepting the assistant. It says "el asistente": no name in the chat.
+// What the student needs to know before accepting the assistant. It says "el asistente": no name in the chat. A [failed]
+// acceptance says so above the actions, and accepting again is the retry.
 @Composable
 fun AssistantConsentView(
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	failed: Boolean = false
 ) {
 	Column(
 		modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.ConsentView),
@@ -65,6 +68,14 @@ fun AssistantConsentView(
 			Text(
 				text = stringResource(Res.string.assistant_consent_privacy),
 				style = MaterialTheme.typography.labelLarge.copy(textDecoration = TextDecoration.Underline)
+			)
+		}
+		if (failed) {
+			Text(
+				text = stringResource(Res.string.assistant_consent_failed),
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.error,
+				modifier = Modifier.testTag(AssistantUiTags.ConsentFailed)
 			)
 		}
 		Row(

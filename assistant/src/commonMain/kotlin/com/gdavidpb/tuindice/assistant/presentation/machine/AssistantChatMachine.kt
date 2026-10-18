@@ -53,8 +53,9 @@ class AssistantChatMachine(
 		}
 	}
 
-	// The availability is observed before its value is read, so a change in between is not lost. The decision re-enters
-	// the table from Idle, where each outcome has its own target.
+	// The status and the availability are read before the decision, and the availability is observed before its value is
+	// read, so a change in between is not lost. The decision re-enters the table from Idle, where each outcome has its own
+	// target.
 	internal fun openSheet(host: MachineHost<AssistantChat.Effect>, context: AssistantScreenContext?) {
 		session.openedContext = context
 
@@ -62,6 +63,9 @@ class AssistantChatMachine(
 		// reads as off, so reading it right away would close a sheet that the assistant is on for. The changes after
 		// that first value are followed from then on.
 		host.launchMachineJob {
+			// The status goes first, so the availability read after it carries the server's mode.
+			access.applyStatusWithin(STATUS_OPEN_TIMEOUT_MILLIS)
+
 			val availability = access.firstAvailability()
 			session.guidedByMode = availability.mode == AssistantMode.GUIDED
 
@@ -73,7 +77,6 @@ class AssistantChatMachine(
 				}
 			)
 			access.observeAvailability(host)
-			access.refreshStatus(host)
 		}
 	}
 
@@ -245,3 +248,6 @@ class AssistantChatMachine(
 		turns.followTurn(host = host, turnId = event.turnId, afterSeq = event.lastSeq)
 	}
 }
+
+// How long opening the sheet waits for the status the server gives the student.
+private const val STATUS_OPEN_TIMEOUT_MILLIS = 3_000L

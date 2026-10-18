@@ -22,6 +22,9 @@ object AssistantChat {
 		// The student has not accepted the assistant's consent: the sheet asks for it before anything else.
 		data object ConsentRequired : State()
 
+		// The consent could not be given: the sheet asks for it again, and says why.
+		data object ConsentFailed : State()
+
 		// The assistant went off while the sheet was open: the sheet closes with Effect.Dismiss.
 		data object Unavailable : State()
 

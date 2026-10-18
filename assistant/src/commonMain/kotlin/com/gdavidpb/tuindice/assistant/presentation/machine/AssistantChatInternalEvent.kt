@@ -25,6 +25,9 @@ sealed interface AssistantChatInternalEvent {
 
 	data object ConsentAccepted : AssistantChatInternalEvent
 
+	// The consent could not be given: the sheet says so and asks again.
+	data object ConsentAcceptFailed : AssistantChatInternalEvent
+
 	data class ConversationObserved(val conversation: AssistantConversation) : AssistantChatInternalEvent
 
 	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content.

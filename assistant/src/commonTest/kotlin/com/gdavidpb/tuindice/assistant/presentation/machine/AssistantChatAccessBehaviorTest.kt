@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
@@ -57,6 +58,32 @@ class AssistantChatAccessBehaviorTest {
 
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
 		assertEquals(listOf(true), fixture.consent.changes)
+	}
+
+	@Test
+	fun open_reconcilesTheConsentWithTheStatusOfTheServer() = chatTest { fixture, viewModel ->
+		fixture.standing.answer = assistantStatus().copy(consent = ConsentStatus(version = 2, accepted = true))
+
+		viewModel.openAction(null)
+
+		assertTrue(viewModel.state.value is AssistantChat.State.Content)
+		assertEquals(listOf(ConsentStatus(version = 2, accepted = true)), fixture.consent.reconciled)
+	}
+
+	@Test
+	fun aRefusedAcceptanceOfConsent_showsItsError_andAcceptingAgainCanSucceed() = chatTest { fixture, viewModel ->
+		fixture.consent.failure = IllegalStateException("refused")
+		viewModel.openAction(null)
+		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
+
+		viewModel.acceptConsentAction()
+
+		assertEquals(AssistantChat.State.ConsentFailed, viewModel.state.value)
+
+		fixture.consent.failure = null
+		viewModel.acceptConsentAction()
+
+		assertTrue(viewModel.state.value is AssistantChat.State.Content)
 	}
 
 	@Test

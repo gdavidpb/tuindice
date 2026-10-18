@@ -5,6 +5,8 @@ import com.gdavidpb.tuindice.assistant.testing.FakeSettings
 import com.gdavidpb.tuindice.assistant.testing.RecordingServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.assistant.testing.jsonAnswer
+import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.test.runTest
@@ -21,15 +23,20 @@ class AssistantConsentSettingsDataSourceTest {
 		val settings = FakeSettings()
 		var sentBody: String? = null
 		val client = assistantHttpClient { call ->
-			sentBody = (call.body as? TextContent)?.text
-			jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":true,"acceptedAtMillis":1700000000000}""")
+			if (call.method == HttpMethod.Get) {
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":false}""")
+			} else {
+				sentBody = (call.body as? TextContent)?.text
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":true,"acceptedAtMillis":1700000000000}""")
+			}
 		}
 		val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
 		val source = AssistantConsentSettingsDataSource(settings, api)
 
 		source.setAssistantConsentGranted(true)
 
-		assertEquals("""{"version":1,"accepted":true}""", sentBody)
+		// The version sent is the one the server holds now, not one the app keeps.
+		assertEquals("""{"version":2,"accepted":true}""", sentBody)
 		assertTrue(source.isAssistantConsentGranted())
 		assertTrue(source.assistantConsentGranted.value)
 
@@ -40,6 +47,23 @@ class AssistantConsentSettingsDataSourceTest {
 		)
 
 		assertTrue(reopened.isAssistantConsentGranted())
+	}
+
+	@Test
+	fun theStatusOfTheServerIsTheConsentTheDeviceKeeps() = runTest {
+		val settings = FakeSettings()
+		val api = KtorAssistantApiDataSource(assistantHttpClient { error("no request") }, RecordingServerDisabledRepository())
+		val source = AssistantConsentSettingsDataSource(settings, api)
+
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = true))
+
+		assertTrue(source.assistantConsentGranted.value)
+		assertTrue(AssistantConsentSettingsDataSource(settings, api).isAssistantConsentGranted())
+
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = false))
+
+		assertFalse(source.assistantConsentGranted.value)
+		assertFalse(AssistantConsentSettingsDataSource(settings, api).isAssistantConsentGranted())
 	}
 
 	@Test

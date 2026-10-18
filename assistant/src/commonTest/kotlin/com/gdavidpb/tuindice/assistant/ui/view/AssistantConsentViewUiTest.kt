@@ -34,6 +34,19 @@ class AssistantConsentViewUiTest {
 	}
 
 	@Test
+	fun when_theAcceptanceFailed_then_theErrorIsShown_andAcceptStillDispatchesAccept() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		setTuIndiceTestContent {
+			AssistantConsentView(onAction = { actions.add(it) }, failed = true)
+		}
+
+		assertNodeVisible(AssistantUiTags.ConsentFailed)
+		onNodeWithTag(AssistantUiTags.ConsentAccept).performClick()
+
+		assertIs<AssistantChat.Action.AcceptConsent>(actions.single())
+	}
+
+	@Test
 	fun when_privacyLinkIsTapped_then_opensTheAboutScreen() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {

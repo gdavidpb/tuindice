@@ -3,9 +3,6 @@ package com.gdavidpb.tuindice.assistant.utils
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-// Version of the consent the user accepts; the service keeps the answer per version.
-internal const val ASSISTANT_CONSENT_VERSION = 1
-
 // How long the server holds the assistant off after a 503 that gave no retry time.
 internal const val DEFAULT_SERVER_DISABLED_SECONDS = 900
 

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -16,11 +17,14 @@ import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.withTimeoutOrNull
 
 // The assistant's standing with the student: whether it is on, the consent, and the restriction and its appeal.
 class AssistantChatAccess(
 	private val availabilityRepository: AssistantAvailabilityRepository,
 	private val serverModeRepository: AssistantServerModeRepository,
+	private val serverConsentRepository: AssistantServerConsentRepository,
 	private val consentRepository: AssistantConsentRepository,
 	private val acceptAssistantConsentUseCase: AcceptAssistantConsentUseCase,
 	private val getAssistantStatusUseCase: GetAssistantStatusUseCase,
@@ -45,21 +49,32 @@ class AssistantChatAccess(
 		}
 	}
 
-	// The status the server reads for the student. Its mode becomes the last word on the mode, so the sheet stays in the
-	// mode the server holds. An on or guided mode is reported to the sheet here too, since an unchanged mode would not
-	// reach it through the availability.
+	// Reads the status the server gives the student and applies it: its mode becomes the last word on the mode, and the
+	// consent the device keeps follows the server's. A status that cannot be read leaves both as they are.
+	suspend fun applyStatus(): AssistantMode? {
+		val status = (getAssistantStatusUseCase.execute(Unit).last() as? UseCaseState.Data)?.value ?: return null
+		val mode = AssistantMode.fromRemoteValue(status.mode)
+
+		serverModeRepository.reportServerMode(mode)
+		serverConsentRepository.reconcileConsent(status.consent)
+
+		return mode
+	}
+
+	// The status is read before the sheet decides what it shows, but not for longer than [millis]: a status that is late
+	// leaves the sheet to the values the device keeps.
+	suspend fun applyStatusWithin(millis: Long) {
+		withTimeoutOrNull(millis) { applyStatus() }
+	}
+
+	// The status read again after a refused guided send. An on or guided mode reaches the sheet even when the mode did not
+	// change, since an unchanged mode does not reach it through the availability.
 	fun refreshStatus(host: MachineHost<AssistantChat.Effect>) {
 		host.launchMachineJob {
-			getAssistantStatusUseCase.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					val mode = AssistantMode.fromRemoteValue(useCaseState.value.mode)
+			val mode = applyStatus() ?: return@launchMachineJob
 
-					serverModeRepository.reportServerMode(mode)
-
-					if (mode != AssistantMode.OFF) {
-						host.processInternalEvent(AssistantChatInternalEvent.AssistantOn(guided = mode == AssistantMode.GUIDED))
-					}
-				}
+			if (mode != AssistantMode.OFF) {
+				host.processInternalEvent(AssistantChatInternalEvent.AssistantOn(guided = mode == AssistantMode.GUIDED))
 			}
 		}
 	}
@@ -67,8 +82,12 @@ class AssistantChatAccess(
 	fun acceptConsent(host: MachineHost<AssistantChat.Effect>) {
 		host.launchMachineJob {
 			acceptAssistantConsentUseCase.execute(true).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(AssistantChatInternalEvent.ConsentAccepted)
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> host.processInternalEvent(AssistantChatInternalEvent.ConsentAccepted)
+
+					is UseCaseState.Error -> host.processInternalEvent(AssistantChatInternalEvent.ConsentAcceptFailed)
 				}
 			}
 		}

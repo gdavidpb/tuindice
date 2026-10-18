@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepositor
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
@@ -238,9 +239,11 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	}
 }
 
-// [configuredMode] is the mode the status reads until a test sets an answer: the server agrees with the configuration then.
+// [configuredMode] and [consentGranted] are what the status reads until a test sets an answer: the server agrees with the
+// configuration and with the consent then.
 internal class RecordingAssistantStandingRepository(
-	private val configuredMode: () -> String = { "on" }
+	private val configuredMode: () -> String = { "on" },
+	private val consentGranted: () -> Boolean = { true }
 ) : AssistantStandingRepository {
 	private var explicit = false
 
@@ -256,7 +259,12 @@ internal class RecordingAssistantStandingRepository(
 	override suspend fun status(): AssistantStatus {
 		failure?.let { error -> throw error }
 
-		return if (explicit) answer else answer.copy(mode = configuredMode())
+		if (explicit) return answer
+
+		return answer.copy(
+			mode = configuredMode(),
+			consent = ConsentStatus(version = answer.consent.version, accepted = consentGranted())
+		)
 	}
 
 	override suspend fun appeal(appeal: AbuseAppeal) {
@@ -341,17 +349,28 @@ internal class RecordingAssistantProjectionRepository(
 	}
 }
 
-internal class RecordingAssistantConsentRepository : AssistantConsentRepository {
+internal class RecordingAssistantConsentRepository : AssistantConsentRepository, AssistantServerConsentRepository {
 	private val consent = MutableStateFlow(false)
 	val changes = mutableListOf<Boolean>()
+	val reconciled = mutableListOf<ConsentStatus>()
+
+	// The failure every change breaks with, when a test makes the server refuse it.
+	var failure: Throwable? = null
 
 	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
 
 	override fun isAssistantConsentGranted(): Boolean = consent.value
 
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
+		failure?.let { error -> throw error }
+
 		changes += granted
 		consent.value = granted
+	}
+
+	override fun reconcileConsent(status: ConsentStatus) {
+		reconciled += status
+		consent.value = status.accepted
 	}
 }
 
