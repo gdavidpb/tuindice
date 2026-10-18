@@ -2,15 +2,19 @@ package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
@@ -118,7 +122,27 @@ class AssistantChatSheetUiTest {
 		onNodeWithTag(AssistantUiTags.SendButton).assertIsDisplayed()
 	}
 
+	@Test
+	fun when_theScrimAboveTheSheetIsTapped_then_theChatIsDismissed() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		setTuIndiceTestContent {
+			AssistantChatSheet(
+				state = contentState(context = contextChip(), items = listOf(agentMessage())),
+				onAction = { actions.add(it) }
+			)
+		}
+
+		waitForIdle()
+		// The body takes 60% of the window, so the top edge is always scrim.
+		// The sheet draws in a layer of its own, so there are two roots; a touch on the window goes to the topmost layer.
+		onAllNodes(isRoot())[0].performTouchInput { click(Offset(width / 2f, SCRIM_TAP_Y)) }
+		waitForIdle()
+
+		assertTrue(actions.any { it is AssistantChat.Action.Dismiss }, "actions were $actions")
+	}
+
 	private companion object {
+		const val SCRIM_TAP_Y = 20f
 		const val TITLE_TEXT = "Asistente"
 	}
 }
