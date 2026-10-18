@@ -32,8 +32,13 @@ class FakeAssistantAvailabilityRepository(
 
 class FakeAssistantConsentRepository(
 	granted: Boolean = false,
-	private val writesFail: Boolean = false
+	private val writesFail: Boolean = false,
+	private val serverGranted: Boolean? = null,
+	private val refreshFails: Boolean = false
 ) : AssistantConsentRepository {
+	var refreshes = 0
+		private set
+
 	private val consent = MutableStateFlow(granted)
 
 	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
@@ -44,6 +49,14 @@ class FakeAssistantConsentRepository(
 		check(!writesFail) { "The assistant consent store is unavailable" }
 
 		consent.value = granted
+	}
+
+	override suspend fun refreshAssistantConsent() {
+		refreshes++
+
+		check(!refreshFails) { "The assistant consent is unavailable" }
+
+		serverGranted?.let { consent.value = it }
 	}
 }
 

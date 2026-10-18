@@ -428,6 +428,8 @@ internal class RecordingAssistantConsentRepository : AssistantConsentRepository,
 		consent.value = granted
 	}
 
+	override suspend fun refreshAssistantConsent() = Unit
+
 	override fun reconcileConsent(status: ConsentStatus) {
 		reconciled += status
 		consent.value = status.accepted

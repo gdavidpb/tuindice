@@ -76,6 +76,44 @@ class AboutAssistantViewModelContractTest {
 	}
 
 	@Test
+	fun assistantConsent_isReadFromTheServerWhenTheDeviceHoldsNone() = runTest {
+		// A reinstall, a new device or a sign-out leave the device without the consent the server still holds.
+		val assistantConsent = FakeAssistantConsentRepository(granted = false, serverGranted = true)
+		val viewModel = createViewModel(testScheduler = testScheduler, assistantConsent = assistantConsent)
+		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
+		testScheduler.advanceUntilIdle()
+
+		assertEquals(1, assistantConsent.refreshes)
+		assertTrue(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+	}
+
+	@Test
+	fun assistantConsent_staysAsTheDeviceHoldsItWhenTheServerCannotBeRead() = runTest {
+		val assistantConsent = FakeAssistantConsentRepository(granted = true, refreshFails = true)
+		val viewModel = createViewModel(testScheduler = testScheduler, assistantConsent = assistantConsent)
+		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
+		testScheduler.advanceUntilIdle()
+
+		assertEquals(1, assistantConsent.refreshes)
+		assertTrue(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+	}
+
+	@Test
+	fun assistantConsent_isNotAskedOfTheServerWhenTheAssistantIsUnavailable() = runTest {
+		val assistantConsent = FakeAssistantConsentRepository(granted = false, serverGranted = true)
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			assistantAvailability = FakeAssistantAvailabilityRepository(visible = false),
+			assistantConsent = assistantConsent
+		)
+		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
+		testScheduler.advanceUntilIdle()
+
+		assertEquals(0, assistantConsent.refreshes)
+		assertFalse(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+	}
+
+	@Test
 	fun setAssistantConsent_movesTheSwitchAndStoresTheChoice() = runTest {
 		val assistantConsent = FakeAssistantConsentRepository(granted = false)
 		val viewModel = createViewModel(testScheduler = testScheduler, assistantConsent = assistantConsent)

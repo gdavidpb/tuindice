@@ -31,6 +31,12 @@ class AssistantConsentSettingsDataSource(
 		store(status)
 	}
 
+	// A reinstall, a new device and a sign-out all leave the device without the consent the server still holds; this
+	// reads it for the screens that show the consent before the chat has been opened.
+	override suspend fun refreshAssistantConsent() {
+		store(api.getConsent())
+	}
+
 	// The consent the server reports is the one the device keeps, whatever the device held before.
 	override fun reconcileConsent(status: ConsentStatus) {
 		store(status)
