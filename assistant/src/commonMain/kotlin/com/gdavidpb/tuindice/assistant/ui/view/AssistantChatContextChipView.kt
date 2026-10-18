@@ -38,7 +38,9 @@ fun AssistantChatContextChipView(
 			.testTag(AssistantUiTags.ContextChip)
 			.background(MaterialTheme.colorScheme.surfaceVariant, shape)
 			.border(TuIndiceSpacing.Hairline, MaterialTheme.colorScheme.outlineVariant, shape)
-			.padding(start = TuIndiceSpacing.Medium),
+			// The close button is 48 dp around a 24 dp icon, which leaves 12 dp between the icon and the chip's end; the
+			// label starts at the same distance, the start space of a Material 3 input chip without a leading icon.
+			.padding(start = TuIndiceSpacing.XLarge),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		Text(

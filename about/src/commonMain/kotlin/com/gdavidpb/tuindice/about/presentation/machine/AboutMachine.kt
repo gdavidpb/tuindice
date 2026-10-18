@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
+import com.gdavidpb.tuindice.about.domain.usecase.AssistantConsentSetting
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
@@ -158,6 +159,8 @@ class AboutMachine(
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantAvailabilityObserved(visible = useCaseState.value)
 					)
+
+					if (useCaseState.value) adoptServerAssistantConsent(host)
 				}
 			}
 		}
@@ -173,9 +176,18 @@ class AboutMachine(
 		}
 	}
 
+	// The consent the device keeps is empty after a reinstall, a new device or a sign-out, while the server may hold it
+	// accepted; the switch reads the device's, so the server's is adopted when the row shows. The answer reaches the
+	// switch through the observation above, and a failed read leaves the switch as it is.
+	private fun adoptServerAssistantConsent(host: MachineHost<About.Effect>) {
+		host.launchMachineJob {
+			setAssistantConsentUseCase.execute(AssistantConsentSetting.FromServer).collect()
+		}
+	}
+
 	internal fun setAssistantConsent(host: MachineHost<About.Effect>, granted: Boolean) {
 		host.launchMachineJob {
-			setAssistantConsentUseCase.execute(granted).collect { useCaseState ->
+			setAssistantConsentUseCase.execute(AssistantConsentSetting.Chosen(granted)).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Error) {
 					// The failed write left the store as it was, so the value to restore is
 					// the one the store holds now, not the one the switch was moved to.

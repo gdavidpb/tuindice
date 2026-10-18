@@ -98,4 +98,41 @@ class AssistantConsentSettingsDataSourceTest {
 
 		assertFalse(source.isAssistantConsentGranted())
 	}
+
+	@Test
+	fun refreshingTheConsentKeepsWhatTheServerHoldsAfterAWipe() = runTest {
+		val settings = FakeSettings()
+		val api = KtorAssistantApiDataSource(
+			assistantHttpClient { jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":true}""") },
+			RecordingServerDisabledRepository()
+		)
+		val source = AssistantConsentSettingsDataSource(settings, api)
+
+		// A device that lost its stored consent, as after a reinstall or a sign-out, while the server holds it accepted.
+		assertFalse(source.assistantConsentGranted.value)
+
+		source.refreshAssistantConsent()
+
+		assertTrue(source.assistantConsentGranted.value)
+		assertTrue(AssistantConsentSettingsDataSource(settings, api).isAssistantConsentGranted())
+	}
+
+	@Test
+	fun refreshingTheConsentWithoutAnswerLeavesItAsItWas() = runTest {
+		val settings = FakeSettings()
+		val ok = KtorAssistantApiDataSource(
+			assistantHttpClient { jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":true}""") },
+			RecordingServerDisabledRepository()
+		)
+		val failing = KtorAssistantApiDataSource(
+			assistantHttpClient { jsonAnswer(HttpStatusCode.InternalServerError, """{"code":"internal"}""") },
+			RecordingServerDisabledRepository()
+		)
+		AssistantConsentSettingsDataSource(settings, ok).refreshAssistantConsent()
+		val source = AssistantConsentSettingsDataSource(settings, failing)
+
+		assertFailsWith<AssistantApiException> { source.refreshAssistantConsent() }
+
+		assertTrue(source.assistantConsentGranted.value)
+	}
 }
