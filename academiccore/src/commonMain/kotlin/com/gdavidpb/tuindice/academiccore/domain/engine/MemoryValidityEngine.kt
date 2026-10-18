@@ -19,10 +19,13 @@ import kotlinx.datetime.plus
  *
  * A memory waiting for confirmation is only archived after [UNCONFIRMED_DAYS] without an answer, whatever its category;
  * the category rules judge the active memories. Archived, replaced and deleted memories are never judged, and a
- * category paired with an anchor that has no rule is kept.
+ * category paired with an anchor that has no rule is kept. A memory the user confirmed is not asked about again while
+ * the fact it was confirmed against, as [MemoryConfirmationEngine.confirmationFactOf] names it, stays the same.
  */
 object MemoryValidityEngine {
-	private const val UNCONFIRMED_DAYS = 30
+	/** The days a memory waits for an answer before it is archived. The backend selects what its job judges with it. */
+	const val UNCONFIRMED_DAYS: Int = 30
+
 	private const val UNUSED_DAYS = 365
 
 	fun decide(input: MemoryValidityInput, snapshot: MemoryValiditySnapshot): MemoryValidityDecision {
@@ -43,7 +46,7 @@ object MemoryValidityEngine {
 	private fun activeDecision(input: MemoryValidityInput, snapshot: MemoryValiditySnapshot): MemoryValidityDecision {
 		val anchor = input.anchor
 
-		return when (input.category to anchor.kind) {
+		val decision = when (input.category to anchor.kind) {
 			MemoryCategory.PREFERENCE to MemoryAnchorKind.NONE ->
 				unusedDecision(input.lastUsedOn, snapshot.today)
 			MemoryCategory.INTEREST to MemoryAnchorKind.CAREER ->
@@ -59,6 +62,15 @@ object MemoryValidityEngine {
 			MemoryCategory.DATED_RESTRICTION to MemoryAnchorKind.DATE ->
 				dateDecision(anchor.date, snapshot.today)
 			else -> MemoryValidityDecision.Keep
+		}
+		val confirmedFact = input.confirmedFact
+		val confirmed = confirmedFact != null &&
+			confirmedFact == MemoryConfirmationEngine.confirmationFactOf(input, snapshot)
+
+		return if (decision is MemoryValidityDecision.RequestConfirmation && confirmed) {
+			MemoryValidityDecision.Keep
+		} else {
+			decision
 		}
 	}
 
