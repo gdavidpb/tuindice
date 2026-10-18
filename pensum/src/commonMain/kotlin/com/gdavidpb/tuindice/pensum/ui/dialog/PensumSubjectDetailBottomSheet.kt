@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
@@ -116,51 +117,55 @@ fun PensumSubjectDetailBottomSheet(
 				)
 			}
 
-			if (assistantLauncher != null) {
-				OutlinedButton(
-					modifier = Modifier
-						.fillMaxWidth()
-						.testTag(PensumUiTags.SubjectDetailAskAssistant),
-					colors = ButtonDefaults.outlinedButtonColors(
-						containerColor = pensumGraphColors().panelBackground
-					),
-					onClick = { assistantLauncher.launch(detail.assistantContext) }
-				) {
-					Icon(
-						imageVector = rememberAssistantSparkleIcon(),
-						contentDescription = null,
-						modifier = Modifier.size(18.dp),
-						tint = assistantSparkleTint()
-					)
-					Spacer(modifier = Modifier.width(8.dp))
-					Text(text = stringResource(Res.string.pensum_subject_ask_assistant))
+			// The ask and «Más detalle» read as one group of actions: close together, under the card's spacing.
+			// Each button keeps its 48 dp touch area, which already separates them.
+			Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)) {
+				if (assistantLauncher != null) {
+					OutlinedButton(
+						modifier = Modifier
+							.fillMaxWidth()
+							.testTag(PensumUiTags.SubjectDetailAskAssistant),
+						colors = ButtonDefaults.outlinedButtonColors(
+							containerColor = pensumGraphColors().panelBackground
+						),
+						onClick = { assistantLauncher.launch(detail.assistantContext) }
+					) {
+						Icon(
+							imageVector = rememberAssistantSparkleIcon(),
+							contentDescription = null,
+							modifier = Modifier.size(18.dp),
+							tint = assistantSparkleTint()
+						)
+						Spacer(modifier = Modifier.width(8.dp))
+						Text(text = stringResource(Res.string.pensum_subject_ask_assistant))
+					}
 				}
-			}
 
-			AnimatedVisibility(
-				visible = !isMoreDetailExpandedState.value && hasMoreDetail,
-				enter = fadeIn(
-					animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
-				) + expandVertically(
-					animationSpec = tween(
-						durationMillis = SubjectDetailExpansionDurationMillis,
-						easing = FastOutSlowInEasing
+				AnimatedVisibility(
+					visible = !isMoreDetailExpandedState.value && hasMoreDetail,
+					enter = fadeIn(
+						animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
+					) + expandVertically(
+						animationSpec = tween(
+							durationMillis = SubjectDetailExpansionDurationMillis,
+							easing = FastOutSlowInEasing
+						),
+						expandFrom = Alignment.Top
 					),
-					expandFrom = Alignment.Top
-				),
-				exit = fadeOut(
-					animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
-				) + shrinkVertically(
-					animationSpec = tween(
-						durationMillis = SubjectDetailFadeDurationMillis,
-						easing = FastOutSlowInEasing
-					),
-					shrinkTowards = Alignment.Top
-				)
-			) {
-				PensumSubjectMoreDetailButton(
-					onClick = { isMoreDetailExpandedState.value = true }
-				)
+					exit = fadeOut(
+						animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
+					) + shrinkVertically(
+						animationSpec = tween(
+							durationMillis = SubjectDetailFadeDurationMillis,
+							easing = FastOutSlowInEasing
+						),
+						shrinkTowards = Alignment.Top
+					)
+				) {
+					PensumSubjectMoreDetailButton(
+						onClick = { isMoreDetailExpandedState.value = true }
+					)
+				}
 			}
 
 			AnimatedVisibility(
