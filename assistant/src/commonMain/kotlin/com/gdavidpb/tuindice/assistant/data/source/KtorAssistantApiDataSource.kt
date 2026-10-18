@@ -24,7 +24,7 @@ class KtorAssistantApiDataSource(
 ) : AssistantIntentRepository, AssistantFeedbackRepository, AssistantStandingRepository, AssistantExtractionRepository {
 	override suspend fun decide(decision: IntentDecision): IntentDecisionResult = decideIntent(decision)
 
-	override suspend fun reportOutcome(report: IntentOutcomeReport) = postIntentOutcome(report.intentId, report)
+	override suspend fun reportOutcome(report: IntentOutcomeReport) = reportIntentOutcome(report)
 
 	override suspend fun rate(feedback: MessageFeedback) = postFeedback(feedback)
 

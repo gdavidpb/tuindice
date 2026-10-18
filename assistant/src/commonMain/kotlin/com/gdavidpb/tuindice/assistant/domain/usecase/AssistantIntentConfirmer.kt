@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.domain.exception.AssistantIntentIllegalAr
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.MutatingIntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import kotlinx.coroutines.CancellationException
 import kotlin.time.Clock
 
 /**
@@ -21,12 +23,15 @@ import kotlin.time.Clock
  * intent must be open and of the kind the use case confirms. An intent past its deadline is reported as expired without
  * asking the server. The server decides: an expiry or a conflict it answers is reported without running anything. An
  * accepted intent runs on its port, and its outcome is reported with the mutations of its binding and marked resolved.
- * Nothing here catches: a port answers FAILED instead of throwing.
+ * A decision repeated after its answer was lost is answered as decided, so it runs; a conflict is final. An outcome
+ * report stays in the outbox until the server settles it, and a flush sends it again when it was not answered. Nothing
+ * here catches: a port answers FAILED instead of throwing.
  */
 class AssistantIntentConfirmer(
 	private val conversationRepository: AssistantConversationRepository,
 	private val intentRepository: AssistantIntentRepository,
-	private val clock: Clock
+	private val clock: Clock,
+	private val outboxRepository: AssistantIntentOutboxRepository
 ) {
 	/**
 	 * Confirms the intent of [params] as the kind [narrow] picks, and runs it with [execute]. With [reportsOutcome] false
@@ -58,6 +63,11 @@ class AssistantIntentConfirmer(
 		}
 	}
 
+	// Sends the outcome reports the server has not taken yet: the ones of earlier confirmations whose send failed.
+	suspend fun flushPendingOutcomes() {
+		outboxRepository.pendingOutcomes().forEach { report -> sendOutcome(report) }
+	}
+
 	// The proposed args must be of the kind. Edited args of that kind replace them; any other edited args are ignored.
 	private fun <A : Any> resolveArgs(intent: Intent, editedArgs: IntentArgs?, narrow: (IntentArgs) -> A?): A {
 		val proposed = narrow(intent.args)
@@ -75,7 +85,7 @@ class AssistantIntentConfirmer(
 		val execution = execute(args, intent)
 
 		if (reportsOutcome) {
-			intentRepository.reportOutcome(
+			sendOutcome(
 				IntentOutcomeReport(
 					intentId = intent.id,
 					outcome = execution.outcome,
@@ -100,9 +110,24 @@ class AssistantIntentConfirmer(
 
 	// Nothing ran, so the report names no mutation.
 	private suspend fun closeWithoutRunning(intent: Intent, outcome: OutcomeKind): OutcomeKind {
-		intentRepository.reportOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome))
+		sendOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome))
 		conversationRepository.markIntentResolved(intentId = intent.id, outcome = outcome)
 
 		return outcome
+	}
+
+	// The report stays staged until the server settles it: it takes the report, or refuses it for good, and then it
+	// is no longer owed. A report that got no answer stays staged for the next flush, and the intent is resolved here
+	// meanwhile.
+	private suspend fun sendOutcome(report: IntentOutcomeReport) {
+		outboxRepository.stageOutcome(report)
+
+		val failure = runCatching { intentRepository.reportOutcome(report) }.exceptionOrNull()
+
+		if (failure == null) {
+			outboxRepository.clearOutcome(report.intentId)
+		} else if (failure is CancellationException) {
+			throw failure
+		}
 	}
 }

@@ -15,6 +15,8 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.event.UsageSummary
 import com.gdavidpb.tuindice.chatcontract.insights.TermInsight
 import com.gdavidpb.tuindice.chatcontract.insights.TermInsights
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryItem
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
 import com.gdavidpb.tuindice.chatcontract.memory.StillAppliesAnswer
@@ -229,6 +231,30 @@ class KtorAssistantApiDataSourceTest {
 
 		assertEquals(30, failure.retryAfterSeconds)
 		assertEquals(listOf<Int?>(30), serverDisabled.marks)
+	}
+
+	@Test
+	fun anOutcomeTheServerRefusesForGoodIsSettled_andIsNotAnError() = runTest {
+		val client = assistantHttpClient {
+			jsonAnswer(HttpStatusCode.Conflict, """{"code":"intent_expired"}""")
+		}
+		val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+
+		api.reportOutcome(IntentOutcomeReport(intentId = "i1", outcome = OutcomeKind.CONFIRMED))
+	}
+
+	@Test
+	fun aServerErrorOrARateLimitIsRaised_soTheOutcomeIsSentAgain() = runTest {
+		listOf(HttpStatusCode.TooManyRequests, HttpStatusCode.InternalServerError).forEach { status ->
+			val client = assistantHttpClient {
+				jsonAnswer(status, """{"code":"internal"}""")
+			}
+			val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+
+			assertFailsWith<AssistantApiException> {
+				api.reportOutcome(IntentOutcomeReport(intentId = "i1", outcome = OutcomeKind.CONFIRMED))
+			}
+		}
 	}
 
 	@Test

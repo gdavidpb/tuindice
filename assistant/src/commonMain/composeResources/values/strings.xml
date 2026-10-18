@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="a11y_assistant_send">Enviar</string>
+	<string name="a11y_assistant_stop">Detener respuesta</string>
 	<string name="a11y_assistant_remove_context">Quitar contexto</string>
 	<string name="a11y_assistant_copy">Copiar</string>
 	<string name="a11y_assistant_useful">Útil</string>
@@ -31,6 +32,7 @@
 	<string name="assistant_intent_outcome_failed">Falló</string>
 	<string name="assistant_intent_outcome_delegated">Abierto en la app</string>
 	<string name="assistant_consent_title">Antes de usar el asistente</string>
+	<string name="assistant_consent_failed">No pudimos guardar tu consentimiento. Inténtalo de nuevo.</string>
 	<string name="assistant_consent_scope">El asistente responde tus preguntas sobre tu historial académico. Solo propone cambios y los hace si tú los confirmas.</string>
 	<string name="assistant_consent_accuracy">Puede equivocarse: revisa las cifras importantes en la app antes de decidir.</string>
 	<string name="assistant_consent_providers">Tus mensajes se procesan con proveedores externos: Anthropic y Google.</string>
@@ -124,11 +126,13 @@
 	<string name="assistant_chat_turn_failed_disabled">El asistente no está disponible en este momento.</string>
 	<string name="assistant_chat_turn_failed_cancelled">Cancelaste la respuesta.</string>
 	<string name="assistant_chat_turn_failed_other">Algo salió mal al responder. Inténtalo de nuevo.</string>
+	<string name="assistant_chat_turn_failed_other_final">Algo salió mal al responder.</string>
 	<string name="assistant_chat_send_failed">No pudimos enviar tu mensaje. Inténtalo de nuevo.</string>
 	<string name="assistant_photo_add">Agregar evaluaciones desde una foto</string>
 	<string name="assistant_photo_take">Tomar foto</string>
 	<string name="assistant_photo_pick">Elegir de la galería</string>
 	<string name="assistant_photo_reading">Leyendo la foto…</string>
+	<string name="assistant_chat_sending">Preparando la respuesta…</string>
 	<string name="assistant_chat_message_too_long">Tu mensaje supera los %1$d caracteres.</string>
 	<string name="assistant_chat_rated">Gracias por tu opinión</string>
 	<string name="assistant_chat_reported">Reporte enviado</string>

@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.assistant.utils.STREAM_RECONNECT_BACKOFF
 import com.gdavidpb.tuindice.chatcontract.ChatContract
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunError
-import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ResponseException
@@ -37,7 +36,7 @@ class SseAssistantEventsDataSource(
 
 	// Connections follow one another from the last seq delivered, and an event at or below it is dropped. A connection
 	// that ends before a final event is followed by another one after the backoff. When the retries run out, the stream
-	// ends with a transient run_error that carries the next seq.
+	// ends without a final event: the result of the turn is unknown, and nothing is written in its place.
 	override fun events(turnId: String, afterSeq: Long): Flow<AssistantEvent> = flow {
 		val progress = StreamProgress(afterSeq)
 
@@ -46,10 +45,7 @@ class SseAssistantEventsDataSource(
 
 			if (progress.finished) return@flow
 
-			if (progress.retries == STREAM_RECONNECT_BACKOFF.size) {
-				emit(RunError(seq = progress.lastSeq + 1, turnId = turnId, code = RunErrorCode.TRANSIENT, retryable = true))
-				return@flow
-			}
+			if (progress.retries == STREAM_RECONNECT_BACKOFF.size) return@flow
 
 			delay(STREAM_RECONNECT_BACKOFF[progress.retries])
 			progress.countRetry()

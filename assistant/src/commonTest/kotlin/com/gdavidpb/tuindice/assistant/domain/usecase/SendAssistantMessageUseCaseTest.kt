@@ -59,6 +59,21 @@ class SendAssistantMessageUseCaseTest {
 	}
 
 	@Test
+	fun aRetryCarriesTheClientTurnIdOfTheSendItRetries() = runTest {
+		useCase().execute(
+			SendAssistantMessageParams(
+				text = "Hola",
+				suggestionId = null,
+				screenContext = null,
+				clientTurnId = "failed-1"
+			)
+		).lastState()
+
+		assertEquals(listOf("failed-1"), conversation.userMessages.map { message -> message.id })
+		assertEquals("failed-1", turns.requests.single().clientTurnId)
+	}
+
+	@Test
 	fun theRequestCarriesTheIdsOfTheStoredMessageAndTheContractValues() = runTest {
 		conversation.conversationId = "c1"
 		val context = AssistantScreenContext(

@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
@@ -54,7 +56,9 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 
 	override suspend fun restricted(level: StandingLevel?): String = "restricted:$level"
 
-	override suspend fun turnFailure(code: RunErrorCode): String = "failure:$code"
+	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String {
+		return if (code == RunErrorCode.OTHER && !retryable) "failure:$code:final" else "failure:$code"
+	}
 
 	override suspend fun sendFailed(): String = "send-failed"
 
@@ -76,9 +80,12 @@ internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
 // A conversation the test changes: the store's observation emits each change, as the store does.
 internal class ObservedAssistantConversationRepository(
 	initial: AssistantConversation = emptyAssistantConversation()
-) : AssistantConversationRepository {
+) : AssistantConversationRepository, AssistantIntentOutboxRepository {
+	private val staged = linkedMapOf<String, IntentOutcomeReport>()
+
 	val conversation = MutableStateFlow(initial)
 	val applied = mutableListOf<AssistantEvent>()
+	val unconfirmed = mutableListOf<String>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = conversation
 
@@ -92,9 +99,16 @@ internal class ObservedAssistantConversationRepository(
 		applied += event
 	}
 
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
+		unconfirmed += turnId
+	}
+
+	// Idempotent by id, as the store is: a message that comes again, such as a retry's, is not written twice.
 	override fun addUserMessage(message: AssistantUserMessage) {
 		conversation.update { current ->
-			current.copy(items = current.items + AssistantConversationItem.User(message))
+			val written = current.items.any { item -> item is AssistantConversationItem.User && item.message.id == message.id }
+
+			if (written) current else current.copy(items = current.items + AssistantConversationItem.User(message))
 		}
 	}
 
@@ -106,6 +120,16 @@ internal class ObservedAssistantConversationRepository(
 			current.copy(items = items, openIntents = openIntents)
 		}
 	}
+
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		staged[report.intentId] = report
+	}
+
+	override fun clearOutcome(intentId: String) {
+		staged.remove(intentId)
+	}
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
 
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		conversation.update { current ->
@@ -125,9 +149,14 @@ internal class ObservedAssistantConversationRepository(
 // synchronous read, so a sheet that read it before observing would close while the assistant is on.
 internal class ObservedAssistantAvailabilityRepository(
 	initial: AssistantAvailability = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
-) : AssistantAvailabilityRepository {
+) : AssistantAvailabilityRepository, AssistantServerModeRepository {
 	val availability = MutableStateFlow(initial)
 	private var observed = false
+
+	// The mode the server reports with the status decides over the configured one.
+	override fun reportServerMode(mode: AssistantMode) {
+		availability.update { current -> current.copy(mode = mode) }
+	}
 
 	override fun observeAvailability(): Flow<AssistantAvailability> = availability.onStart { observed = true }
 
@@ -228,6 +257,9 @@ internal fun AssistantChatViewModel.removeContextAction() =
 
 internal fun AssistantChatViewModel.retryTurnAction() =
 	dispatch(AssistantChat.Action.RetryTurn)
+
+internal fun AssistantChatViewModel.cancelTurnAction() =
+	dispatch(AssistantChat.Action.CancelTurn)
 
 internal fun AssistantChatViewModel.confirmIntentAction(intentId: String) =
 	dispatch(AssistantChat.Action.ConfirmIntent(intentId))

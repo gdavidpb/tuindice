@@ -19,7 +19,8 @@ fun AssistantChatContent(
 		AssistantChat.State.Idle, AssistantChat.State.Unavailable -> Spacer(modifier = modifier)
 
 		// The consent text may be taller than a medium sheet on a small screen, so it scrolls.
-		AssistantChat.State.ConsentRequired -> AssistantConsentView(
+		AssistantChat.State.ConsentRequired, AssistantChat.State.ConsentFailed -> AssistantConsentView(
+			failed = state == AssistantChat.State.ConsentFailed,
 			onAction = onAction,
 			modifier = modifier.verticalScroll(rememberScrollState())
 		)

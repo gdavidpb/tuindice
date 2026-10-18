@@ -23,6 +23,14 @@ internal class AssistantChatSession {
 	var quota: Quota? = null
 	var restriction: Restriction? = null
 	var pendingFailedText: String? = null
+
+	// The suggestion of the turn that was accepted last: a run that fails keeps it for the retry.
+	var followedSuggestionId: String? = null
+
+	// A send is on its way from the moment it starts until the first event of its turn, or its failure. The turn it was
+	// accepted as is known from its acceptance, so a stop can reach it before its first event.
+	var sending = false
+	var sendingTurnId: String? = null
 	var photoExtracting = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
@@ -30,6 +38,17 @@ internal class AssistantChatSession {
 	val failedMessages = mutableSetOf<String>()
 
 	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
+
+	// The turn a stop would cancel: the one that runs, or the one being sent. Null when none can be stopped.
+	fun stopTarget(): String? = if (isRunning()) conversation?.activeTurn?.turnId else sendingTurnId?.takeIf { sending }
+
+	// The mode the server or the configuration says the assistant is in. Only a mode that says on releases the guided lock
+	// that a refused guided send set: an accepted turn does not.
+	fun modeSaid(guided: Boolean) {
+		guidedByMode = guided
+
+		if (!guided) guidedByServer = false
+	}
 
 	// The replies the chat shows come first. A question of the shared catalog is sent with its own text even when it is
 	// not shown, because the service accepts those in guided mode.
@@ -61,12 +80,20 @@ internal class AssistantChatSession {
 	fun observe(observed: AssistantConversation) {
 		conversation = observed
 
+		// The first event of the sent turn, or its end, is what the conversation shows of it: the send is over then.
+		if (sending && sendingTurnId != null && observed.activeTurn?.turnId == sendingTurnId) sending = false
+
 		val pending = pendingFailedText
 		val last = lastUserMessage()
 
 		if (pending != null && last != null && last.text == pending) {
 			failedMessages += last.id
 			pendingFailedText = null
+		}
+
+		// A turn whose result is unknown is retried with the message it answers, under the id that message was sent with.
+		if (observed.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED && last != null) {
+			lastFailedSend = FailedSend(text = last.text, suggestionId = followedSuggestionId, clientTurnId = last.id)
 		}
 	}
 
@@ -77,7 +104,8 @@ internal class AssistantChatSession {
 			?.message
 	}
 
-	internal data class FailedSend(val text: String, val suggestionId: String?)
+	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with.
+	internal data class FailedSend(val text: String, val suggestionId: String?, val clientTurnId: String)
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
 

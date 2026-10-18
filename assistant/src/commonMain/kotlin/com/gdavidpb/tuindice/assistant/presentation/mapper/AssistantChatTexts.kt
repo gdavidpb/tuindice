@@ -21,7 +21,8 @@ interface AssistantChatTexts {
 
 	suspend fun restricted(level: StandingLevel?): String
 
-	suspend fun turnFailure(code: RunErrorCode): String
+	// The text of a failed turn. An OTHER failure that cannot be retried does not invite a retry.
+	suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String
 
 	suspend fun sendFailed(): String
 

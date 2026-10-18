@@ -42,6 +42,7 @@ import tuindice.assistant.generated.resources.assistant_chat_send_failed
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_cancelled
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_disabled
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_other
+import tuindice.assistant.generated.resources.assistant_chat_turn_failed_other_final
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_quota
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_refused
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_timeout
@@ -96,7 +97,7 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 		}
 	)
 
-	override suspend fun turnFailure(code: RunErrorCode): String = getString(
+	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String = getString(
 		when (code) {
 			RunErrorCode.TRANSIENT -> Res.string.assistant_chat_turn_failed_transient
 			RunErrorCode.QUOTA_EXHAUSTED -> Res.string.assistant_chat_turn_failed_quota
@@ -104,7 +105,11 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 			RunErrorCode.REFUSED -> Res.string.assistant_chat_turn_failed_refused
 			RunErrorCode.ASSISTANT_DISABLED -> Res.string.assistant_chat_turn_failed_disabled
 			RunErrorCode.CANCELLED -> Res.string.assistant_chat_turn_failed_cancelled
-			RunErrorCode.OTHER -> Res.string.assistant_chat_turn_failed_other
+			RunErrorCode.OTHER -> if (retryable) {
+				Res.string.assistant_chat_turn_failed_other
+			} else {
+				Res.string.assistant_chat_turn_failed_other_final
+			}
 		}
 	)
 

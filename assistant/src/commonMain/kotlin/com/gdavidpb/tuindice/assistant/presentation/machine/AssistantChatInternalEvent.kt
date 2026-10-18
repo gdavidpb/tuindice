@@ -25,10 +25,17 @@ sealed interface AssistantChatInternalEvent {
 
 	data object ConsentAccepted : AssistantChatInternalEvent
 
+	// The consent could not be given: the sheet says so and asks again.
+	data object ConsentAcceptFailed : AssistantChatInternalEvent
+
 	data class ConversationObserved(val conversation: AssistantConversation) : AssistantChatInternalEvent
 
 	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content.
-	data class TurnAccepted(val turnId: String, val lastSeq: Long) : AssistantChatInternalEvent
+	data class TurnAccepted(
+		val turnId: String,
+		val lastSeq: Long,
+		val suggestionId: String? = null
+	) : AssistantChatInternalEvent
 
 	data object SendDisabled : AssistantChatInternalEvent
 
@@ -38,7 +45,8 @@ sealed interface AssistantChatInternalEvent {
 		val error: SendAssistantMessageError?,
 		val sentText: String,
 		val restoreText: String?,
-		val suggestionId: String?
+		val suggestionId: String?,
+		val clientTurnId: String
 	) : AssistantChatInternalEvent
 
 	// The turn followed to its end with a RunError, or its stream broke.

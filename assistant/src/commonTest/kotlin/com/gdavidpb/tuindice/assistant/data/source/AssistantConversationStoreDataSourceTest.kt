@@ -29,7 +29,7 @@ class AssistantConversationStoreDataSourceTest {
 	private val domain = AssistantConversationStoreDataSource(store)
 
 	@Test
-	fun itemsFollowTheirCreationTimeAndTheUserMessageGoesFirstOnATie() = runTest {
+	fun itemsFollowTheOrderTheyHappenedIn_evenWhenTheirStampsTie() = runTest {
 		domain.addUserMessage(AssistantUserMessage(id = "u1", text = "Primero", createdAtMillis = 1L))
 		store.apply(RunStarted(seq = 1, turnId = "t1"))
 		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = assistantMessage(id = "a1", createdAtMillis = 2L)))
@@ -37,7 +37,8 @@ class AssistantConversationStoreDataSourceTest {
 
 		val ids = domain.currentConversation().items.map { item -> item.messageId() }
 
-		assertEquals(listOf("u1", "u2", "a1"), ids)
+		// The answer came before the second message was sent, whatever the stamps say.
+		assertEquals(listOf("u1", "a1", "u2"), ids)
 	}
 
 	@Test

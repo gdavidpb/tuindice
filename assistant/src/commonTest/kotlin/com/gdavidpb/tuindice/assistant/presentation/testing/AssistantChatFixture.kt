@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.AnswerStillAppliesUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AssistantIntentConfirmer
 import com.gdavidpb.tuindice.assistant.domain.usecase.AssistantTurnStream
+import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmAddEvaluationsIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmCreatePlanIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmDeleteEvaluationIntentUseCase
@@ -17,12 +18,12 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
@@ -77,7 +78,10 @@ internal class AssistantChatFixture {
 	val plans = RecordingAssistantPlansRepository()
 	val projection = RecordingAssistantProjectionRepository()
 	val feedback = RecordingAssistantFeedbackRepository()
-	val standing = RecordingAssistantStandingRepository()
+	val standing = RecordingAssistantStandingRepository(
+		configuredMode = { availability.availability.value.mode.name.lowercase() },
+		consentGranted = { consent.isAssistantConsentGranted() }
+	)
 	val memories = RecordingAssistantMemoryRepository()
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
 	val clientState = FakeAssistantClientStateRepository()
@@ -107,7 +111,8 @@ internal class AssistantChatFixture {
 		val confirmer = AssistantIntentConfirmer(
 			conversationRepository = conversation,
 			intentRepository = gatedIntents,
-			clock = clock
+			clock = clock,
+			outboxRepository = conversation
 		)
 
 		return AssistantChatMachine(
@@ -115,7 +120,7 @@ internal class AssistantChatFixture {
 			intents = createIntents(confirmer),
 			planIntents = createPlanIntents(confirmer),
 			feedback = createFeedback(),
-			access = createAccess(),
+			access = createAccess(confirmer),
 			texts = texts
 		)
 	}
@@ -125,6 +130,7 @@ internal class AssistantChatFixture {
 			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
 			resumeAssistantTurnUseCase = ResumeAssistantTurnUseCase(turnStream, conversation, reporting),
 			followAssistantTurnUseCase = FollowAssistantTurnUseCase(turnStream, reporting),
+			cancelAssistantTurnUseCase = CancelAssistantTurnUseCase(turns, reporting),
 			sendAssistantMessageUseCase = SendAssistantMessageUseCase(
 				conversationRepository = conversation,
 				turnRepository = turns,
@@ -219,12 +225,18 @@ internal class AssistantChatFixture {
 		)
 	}
 
-	private fun createAccess(): AssistantChatAccess {
+	private fun createAccess(confirmer: AssistantIntentConfirmer): AssistantChatAccess {
 		return AssistantChatAccess(
 			availabilityRepository = availability,
 			consentRepository = consent,
 			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, reporting),
-			getAssistantStatusUseCase = GetAssistantStatusUseCase(standing, reporting),
+			syncAssistantUseCase = SyncAssistantUseCase(
+				standingRepository = standing,
+				serverModeRepository = availability,
+				serverConsentRepository = consent,
+				confirmer = confirmer,
+				reportingRepository = reporting
+			),
 			appealAssistantRestrictionUseCase = AppealAssistantRestrictionUseCase(
 				standingRepository = standing,
 				reportingRepository = reporting,

@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConversationRep
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.testing.dataValues
+import com.gdavidpb.tuindice.assistant.testing.lastState
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.Progress
 import com.gdavidpb.tuindice.chatcontract.event.RunError
@@ -103,6 +105,63 @@ class AssistantTurnUseCasesTest {
 
 		assertTrue(emitted.isEmpty())
 		assertTrue(turns.followed.isEmpty())
+	}
+
+	@Test
+	fun aStreamThatEndsEarlyIsCheckedFromItsLastSeq_andLeftUnconfirmedWhenTheCheckFindsNothing() = runTest {
+		turns.events = listOf(runStarted(1), progress(2))
+
+		val emitted = FollowAssistantTurnUseCase(stream, RecordingReportingRepository())
+			.execute(FollowAssistantTurnParams(turnId = "t1", afterSeq = 0))
+			.dataValues()
+
+		assertEquals(listOf("t1" to 0L, "t1" to 2L), turns.followed)
+		assertEquals(listOf<AssistantEvent>(runStarted(1), progress(2)), emitted)
+		assertEquals(listOf("t1"), conversation.unconfirmed)
+	}
+
+	@Test
+	fun aCheckThatReachesTheFinalEventLeavesTheTurnConfirmed() = runTest {
+		turns.scriptedFollows += listOf(listOf(runStarted(1)), listOf(progress(2), runFinished(3)))
+
+		val emitted = FollowAssistantTurnUseCase(stream, RecordingReportingRepository())
+			.execute(FollowAssistantTurnParams(turnId = "t1", afterSeq = 0))
+			.dataValues()
+
+		assertEquals(listOf("t1" to 0L, "t1" to 1L), turns.followed)
+		assertEquals(listOf<AssistantEvent>(runStarted(1), progress(2), runFinished(3)), emitted)
+		assertTrue(conversation.unconfirmed.isEmpty())
+	}
+
+	@Test
+	fun aStreamThatBreaksIsCheckedLeftUnconfirmed_andItsFailureIsStillReported() = runTest {
+		turns.streamError = IllegalStateException("cut")
+
+		val state = FollowAssistantTurnUseCase(stream, RecordingReportingRepository())
+			.execute(FollowAssistantTurnParams(turnId = "t1", afterSeq = 0))
+			.lastState()
+
+		assertEquals(listOf("t1" to 0L, "t1" to 0L), turns.followed)
+		assertEquals(listOf("t1"), conversation.unconfirmed)
+		assertTrue(state is UseCaseState.Error)
+	}
+
+	@Test
+	fun resumeFollowsAnUnconfirmedTurnToLearnWhereItStands() = runTest {
+		conversation.activeTurn = AssistantActiveTurn(
+			turnId = "t1",
+			lastSeq = 4,
+			progressLabel = null,
+			status = AssistantTurnPhase.UNCONFIRMED
+		)
+		turns.events = listOf(runFinished(5))
+
+		ResumeAssistantTurnUseCase(stream, conversation, RecordingReportingRepository())
+			.execute(Unit)
+			.dataValues()
+
+		assertEquals(listOf("t1" to 4L), turns.followed)
+		assertEquals(listOf<AssistantEvent>(runFinished(5)), conversation.applied)
 	}
 
 	@Test

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 
 internal fun AssistantConversationState.toAssistantConversation(): AssistantConversation {
 	return AssistantConversation(
@@ -18,21 +19,26 @@ internal fun AssistantConversationState.toAssistantConversation(): AssistantConv
 	)
 }
 
-// Messages of the user and of the assistant in the order they happened. On a tie the user's message goes first.
+// Messages of the user and of the assistant in the order they happened: the causal order the state keeps, and not the
+// clocks of the device and the server, which may disagree. A message the order does not name comes after them, as the
+// messages were received.
 private fun AssistantConversationState.conversationItems(): List<AssistantConversationItem> {
-	val items = userMessages.map { message -> AssistantConversationItem.User(message) } +
-		messages.map { message ->
-			AssistantConversationItem.Agent(message = message, turnId = messageTurnIds[message.id].orEmpty())
-		}
+	val users = userMessages.associateBy { message -> message.id }
+	val agents = messages.associateBy { message -> message.id }
 
-	return items.sortedWith(compareBy({ it.createdAtMillis() }, { it is AssistantConversationItem.Agent }))
+	val ordered = order.mapNotNull { id ->
+		users[id]?.let { message -> AssistantConversationItem.User(message) }
+			?: agents[id]?.let { message -> agentItem(message) }
+	}
+	val unnamed = userMessages.filter { message -> message.id !in order }.map { message ->
+		AssistantConversationItem.User(message)
+	} + messages.filter { message -> message.id !in order }.map { message -> agentItem(message) }
+
+	return ordered + unnamed
 }
 
-private fun AssistantConversationItem.createdAtMillis(): Long {
-	return when (this) {
-		is AssistantConversationItem.User -> message.createdAtMillis
-		is AssistantConversationItem.Agent -> message.createdAtMillis
-	}
+private fun AssistantConversationState.agentItem(message: AssistantMessage): AssistantConversationItem.Agent {
+	return AssistantConversationItem.Agent(message = message, turnId = messageTurnIds[message.id].orEmpty())
 }
 
 private fun AssistantTurnState.toAssistantActiveTurn(): AssistantActiveTurn {
@@ -50,5 +56,6 @@ private fun AssistantTurnStatus.toTurnPhase(): AssistantTurnPhase {
 		AssistantTurnStatus.RUNNING -> AssistantTurnPhase.RUNNING
 		AssistantTurnStatus.FINISHED -> AssistantTurnPhase.FINISHED
 		AssistantTurnStatus.FAILED -> AssistantTurnPhase.FAILED
+		AssistantTurnStatus.UNCONFIRMED -> AssistantTurnPhase.UNCONFIRMED
 	}
 }

@@ -43,7 +43,7 @@ class AssistantIntentConfirmationTest {
 	private val plans = RecordingAssistantPlansRepository(calls)
 	private val projections = RecordingAssistantProjectionRepository(calls)
 	private val reporting = RecordingReportingRepository()
-	private val confirmer = AssistantIntentConfirmer(conversation, intents, clock)
+	private val confirmer = AssistantIntentConfirmer(conversation, intents, clock, conversation)
 	private val handler = AssistantIntentExceptionHandler()
 
 	private fun openIntent(intent: Intent) {
@@ -135,6 +135,59 @@ class AssistantIntentConfirmationTest {
 		scheduleMode = "dated",
 		maxGrade = 20.0
 	)
+
+	@Test
+	fun aReportTheServerDoesNotTakeStaysPending_andIsSentByTheNextFlush() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.reportError = IllegalStateException("offline")
+
+		val state = confirmEdit()
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), state)
+		assertEquals(OutcomeKind.CONFIRMED, conversation.resolved["i1"])
+		assertEquals(listOf("i1"), conversation.pendingOutcomes().map { report -> report.intentId })
+
+		intents.reportError = null
+		confirmer.flushPendingOutcomes()
+
+		assertEquals(listOf("i1"), intents.reports.map { report -> report.intentId })
+		assertEquals(OutcomeKind.CONFIRMED, intents.reports.single().outcome)
+		assertTrue(conversation.pendingOutcomes().isEmpty())
+	}
+
+	@Test
+	fun aDecisionWhoseAnswerWasLost_runsWhenTheStudentRepeatsIt_asTheServerAnswersItDecided() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.decideError = IllegalStateException("lost in the network")
+		assertTrue(confirmEdit() is UseCaseState.Error)
+
+		// The server applied the first decision: its repetition is answered as decided, and the intent runs.
+		intents.decideError = null
+		intents.answer = IntentDecisionResult.Accepted
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
+		assertEquals(listOf<Any>(args), evaluations.received)
+	}
+
+	@Test
+	fun aConflictOfARepeatedDecisionIsFinal_andNothingRuns() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.decideError = IllegalStateException("lost in the network")
+		assertTrue(confirmEdit() is UseCaseState.Error)
+
+		// A conflict answers a different decision made since: the intent is closed as the conflict it is.
+		intents.decideError = null
+		intents.answer = IntentDecisionResult.Conflict
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFLICT), confirmEdit())
+		assertTrue(evaluations.received.isEmpty())
+	}
 
 	@Test
 	fun anIntentPastItsDeadlineIsReportedExpiredWithoutDecidingOrRunning() = runTest {

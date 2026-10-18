@@ -158,13 +158,15 @@ class AssistantChatStateMachineContractTest {
 				error = failure,
 				sentText = "hola",
 				restoreText = "hola",
-				suggestionId = null
+				suggestionId = null,
+				clientTurnId = "client-1"
 			),
 			AssistantChatInternalEvent.SendRejected(
 				error = SendAssistantMessageError.Other,
 				sentText = "hola",
 				restoreText = null,
-				suggestionId = "s1"
+				suggestionId = "s1",
+				clientTurnId = "client-2"
 			),
 			AssistantChatInternalEvent.TurnRunFailed(code = RunErrorCode.TRANSIENT, retryable = true),
 			AssistantChatInternalEvent.RestrictionChecked(standing = null),

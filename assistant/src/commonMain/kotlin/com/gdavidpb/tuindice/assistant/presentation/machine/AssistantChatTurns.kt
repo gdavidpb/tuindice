@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -16,7 +17,6 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunError
-import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -30,7 +30,8 @@ class AssistantChatTurns(
 	private val resumeAssistantTurnUseCase: ResumeAssistantTurnUseCase,
 	private val followAssistantTurnUseCase: FollowAssistantTurnUseCase,
 	private val sendAssistantMessageUseCase: SendAssistantMessageUseCase,
-	private val extractEvaluationsFromPhotoUseCase: ExtractEvaluationsFromPhotoUseCase
+	private val extractEvaluationsFromPhotoUseCase: ExtractEvaluationsFromPhotoUseCase,
+	private val cancelAssistantTurnUseCase: CancelAssistantTurnUseCase
 ) {
 	private var conversationJob: Job? = null
 	private var turnJob: Job? = null
@@ -87,12 +88,13 @@ class AssistantChatTurns(
 					is UseCaseState.Data -> host.processInternalEvent(
 						AssistantChatInternalEvent.TurnAccepted(
 							turnId = useCaseState.value.turnId,
-							lastSeq = useCaseState.value.lastSeq
+							lastSeq = useCaseState.value.lastSeq,
+							suggestionId = suggestionId
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						useCaseState.error.toSendEvent(sentText, restoreText, suggestionId)
+						useCaseState.error.toSendEvent(sentText, restoreText, suggestionId, params.clientTurnId)
 					)
 				}
 			}
@@ -116,13 +118,20 @@ class AssistantChatTurns(
 		}
 	}
 
+	// Asks the server to cancel the turn [turnId]. The turn ends with an event of its own, which the conversation shows.
+	fun cancel(host: MachineHost<AssistantChat.Effect>, turnId: String) {
+		host.launchMachineJob {
+			cancelAssistantTurnUseCase.execute(turnId).collect()
+		}
+	}
+
 	fun stop() {
 		conversationJob?.cancel()
 		turnJob?.cancel()
 		photoJob?.cancel()
 	}
 
-	// A RunError is the failure the turn reported. A stream that breaks is a failure that does not invite a retry.
+	// A RunError is the failure the turn reported; its retry flag is the turn's own.
 	private fun reportTurnState(
 		host: MachineHost<AssistantChat.Effect>,
 		useCaseState: UseCaseState<AssistantEvent, Nothing>
@@ -140,9 +149,8 @@ class AssistantChatTurns(
 				}
 			}
 
-			is UseCaseState.Error -> host.processInternalEvent(
-				AssistantChatInternalEvent.TurnRunFailed(code = RunErrorCode.OTHER, retryable = false)
-			)
+			// A broken stream leaves the turn unconfirmed in the conversation, which is where the student sees it.
+			is UseCaseState.Error -> Unit
 		}
 	}
 
@@ -160,7 +168,8 @@ class AssistantChatTurns(
 	private fun SendAssistantMessageError?.toSendEvent(
 		sentText: String,
 		restoreText: String?,
-		suggestionId: String?
+		suggestionId: String?,
+		clientTurnId: String
 	): AssistantChatInternalEvent {
 		return when (this) {
 			is SendAssistantMessageError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
@@ -171,7 +180,8 @@ class AssistantChatTurns(
 				error = this,
 				sentText = sentText,
 				restoreText = restoreText,
-				suggestionId = suggestionId
+				suggestionId = suggestionId,
+				clientTurnId = clientTurnId
 			)
 		}
 	}

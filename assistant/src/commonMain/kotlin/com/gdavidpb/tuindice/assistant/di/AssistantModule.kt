@@ -15,9 +15,12 @@ import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
@@ -48,6 +51,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCas
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
@@ -105,10 +109,12 @@ val assistantModule = module {
 		bind<AssistantAvailabilityRepository>()
 		bind<AssistantServerDisabledDataRepository>()
 		bind<AssistantServerDisabledRepository>()
+		bind<AssistantServerModeRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantConsentSettingsDataSource) {
 		bind<AssistantConsentRepository>()
+		bind<AssistantServerConsentRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantInsightsDataSource) {
@@ -120,6 +126,7 @@ val assistantModule = module {
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantConversationDataSource) { bind<SessionMemory>() }
+	single<AssistantIntentOutboxRepository> { get<AssistantConversationDataSource>().outbox }
 	singleOf(::AssistantConversationStoreDataSource) { bind<AssistantConversationRepository>() }
 
 	/* Shared helpers and validators, exception handlers */
@@ -153,6 +160,7 @@ val assistantModule = module {
 	factoryOf(::RateAssistantMessageUseCase)
 	factoryOf(::ReportAssistantMessageUseCase)
 	factoryOf(::GetAssistantStatusUseCase)
+	factoryOf(::SyncAssistantUseCase)
 	factoryOf(::AppealAssistantRestrictionUseCase)
 	factoryOf(::AcceptAssistantConsentUseCase)
 	factoryOf(::GetAssistantMemoryUseCase)

@@ -32,6 +32,12 @@ object ActionDispositions {
 				"(ver e2e/platform/*/assistant-photo-picker.md)"
 		),
 		ActionDisposition.Pending(
+			action = "assistant.AssistantChat.CancelTurn",
+			reason = "el botón Detener solo existe mientras un turno corre o se envía; los mocks de E2E responden " +
+				"antes de que pueda tocarse, así que ningún escenario lo dispara todavía (cubrirlo pide un turno lento " +
+				"en los mocks)"
+		),
+		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.Dismiss",
 			reason = "la hoja se cierra con el gesto del sistema (back en Android; el harness no lo traduce en iOS)"
 		),

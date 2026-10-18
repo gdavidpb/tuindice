@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import kotlinx.coroutines.flow.collect
 
@@ -51,8 +52,9 @@ class AssistantChatMachine(
 		}
 	}
 
-	// The availability is observed before its value is read, so a change in between is not lost. The decision re-enters
-	// the table from Idle, where each outcome has its own target.
+	// The status and the availability are read before the decision, and the availability is observed before its value is
+	// read, so a change in between is not lost. The decision re-enters the table from Idle, where each outcome has its own
+	// target.
 	internal fun openSheet(host: MachineHost<AssistantChat.Effect>, context: AssistantScreenContext?) {
 		session.openedContext = context
 
@@ -60,6 +62,9 @@ class AssistantChatMachine(
 		// reads as off, so reading it right away would close a sheet that the assistant is on for. The changes after
 		// that first value are followed from then on.
 		host.launchMachineJob {
+			// The status goes first, so the availability read after it carries the server's mode.
+			access.applyStatusWithin(STATUS_OPEN_TIMEOUT_MILLIS)
+
 			val availability = access.firstAvailability()
 			session.guidedByMode = availability.mode == AssistantMode.GUIDED
 
@@ -92,33 +97,39 @@ class AssistantChatMachine(
 		return refreshed(emptyContent)
 	}
 
-	// Leaving the content stops what observed it: the conversation and the turn are no longer followed.
+	// Leaving the content stops what observed it: the conversation and the turn are no longer followed, and a send that
+	// was waiting for its first event is no longer waited for.
 	internal fun leaveContent() {
 		turns.stop()
+
+		session.sending = false
+		session.sendingTurnId = null
 	}
 
 	internal suspend fun refreshed(content: AssistantChat.State.Content): AssistantChat.State.Content {
 		return session.presentedContent(texts = texts, draftText = draft.text.value, content = content)
 	}
 
-	// Starts a turn with [text]. [draftText] is the draft the send takes its text from and clears; null leaves it.
+	// Starts a turn with the message of [params]. [draftText] is the draft the send takes its text from and clears;
+	// null leaves it. A new message carries its own client turn id; a retry carries the one of the send it retries,
+	// so the server answers with the same turn.
 	internal fun startTurn(
 		host: MachineHost<AssistantChat.Effect>,
-		text: String,
-		suggestionId: String?,
-		context: AssistantScreenContext?,
+		params: SendAssistantMessageParams,
 		draftText: String?
 	) {
 		session.turnFailure = null
+		session.sending = true
+		session.sendingTurnId = null
 
 		if (draftText != null) draft.setText("")
 
 		turns.send(
 			host = host,
-			params = SendAssistantMessageParams(text = text, suggestionId = suggestionId, screenContext = context),
-			sentText = text,
+			params = params,
+			sentText = params.text.orEmpty(),
 			restoreText = draftText,
-			suggestionId = suggestionId
+			suggestionId = params.suggestionId
 		)
 	}
 
@@ -144,7 +155,8 @@ class AssistantChatMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						if (intent.args is RequestEnrollmentProofArgs) {
+						// Only a delegated proof opens its flow; an expired or conflicting one shows its outcome on the card.
+						if (intent.args is RequestEnrollmentProofArgs && useCaseState.value == OutcomeKind.DELEGATED) {
 							AssistantChatInternalEvent.EnrollmentProofDelegated(intentId = intentId)
 						} else {
 							AssistantChatInternalEvent.IntentConfirmFinished(intentId = intentId)
@@ -167,18 +179,22 @@ class AssistantChatMachine(
 		val error = event.error
 		val notSent = error is SendAssistantMessageError.InvalidMessage
 
+		session.sending = false
+
 		if (!notSent) {
 			session.markSendFailed(event.sentText)
 			session.lastFailedSend = AssistantChatSession.FailedSend(
 				text = event.sentText,
-				suggestionId = event.suggestionId
+				suggestionId = event.suggestionId,
+				clientTurnId = event.clientTurnId
 			)
 		}
 
 		// A text that was not sent stays in the composer, where the student can send it again.
 		val keepsText = notSent ||
 			error is SendAssistantMessageError.QuotaExhausted ||
-			error == SendAssistantMessageError.TurnInProgress
+			error == SendAssistantMessageError.TurnInProgress ||
+			error == SendAssistantMessageError.GuidedOnly
 
 		if (keepsText) event.restoreText?.let(draft::setText)
 
@@ -192,7 +208,10 @@ class AssistantChatMachine(
 				access.restrictionStatus(host)
 			}
 
-			SendAssistantMessageError.GuidedOnly -> session.guidedByServer = true
+			SendAssistantMessageError.GuidedOnly -> {
+				session.guidedByServer = true
+				access.refreshStatus(host)
+			}
 
 			SendAssistantMessageError.TurnInProgress -> Unit
 
@@ -217,13 +236,19 @@ class AssistantChatMachine(
 		host: MachineHost<AssistantChat.Effect>,
 		event: AssistantChatInternalEvent.TurnAccepted
 	) {
+		// The retry was accepted: its message is no longer failed, and the turn is followed from its first event.
+		session.lastFailedSend?.let { failed -> session.failedMessages -= failed.clientTurnId }
 		session.lastFailedSend = null
 		session.turnFailure = null
 		session.quota = null
 		session.restriction = null
-		session.guidedByServer = false
 		session.pendingFailedText = null
+		session.followedSuggestionId = event.suggestionId
+		session.sendingTurnId = event.turnId
 
 		turns.followTurn(host = host, turnId = event.turnId, afterSeq = event.lastSeq)
 	}
 }
+
+// How long opening the sheet waits for the status the server gives the student.
+private const val STATUS_OPEN_TIMEOUT_MILLIS = 3_000L

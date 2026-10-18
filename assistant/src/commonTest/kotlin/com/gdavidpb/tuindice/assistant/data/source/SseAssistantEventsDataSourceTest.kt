@@ -106,7 +106,7 @@ class SseAssistantEventsDataSourceTest {
 	}
 
 	@Test
-	fun exhaustedRetriesEndWithATransientRunError() = runTest {
+	fun exhaustedRetriesEndTheStreamWithoutAFinalEvent() = runTest {
 		var attempts = 0
 		val client = assistantHttpClient {
 			attempts++
@@ -116,12 +116,9 @@ class SseAssistantEventsDataSourceTest {
 
 		val events = source.events("t1", afterSeq = 0).toList()
 
-		// The first connection and five reconnections in a row.
+		// The first connection and five reconnections in a row. Nothing stands in for the final event the turn never sent.
 		assertEquals(6, attempts)
-		assertEquals(
-			listOf(RunError(seq = 1, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true)),
-			events
-		)
+		assertTrue(events.isEmpty())
 	}
 
 	@Test
@@ -138,8 +135,7 @@ class SseAssistantEventsDataSourceTest {
 		val events = source.events("t1", afterSeq = 0).toList()
 
 		assertEquals(10, attempts)
-		assertEquals(listOf(1L, 2L), events.map { it.seq })
-		assertEquals(RunError(seq = 2, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true), events.last())
+		assertEquals(listOf(1L), events.map { it.seq })
 	}
 
 	@Test

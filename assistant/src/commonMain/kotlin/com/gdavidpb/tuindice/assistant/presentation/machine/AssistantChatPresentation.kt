@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
+import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The presentation of the chat, derived from the conversation and the extended state. Every screen state the rows
@@ -23,6 +25,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 ): AssistantChat.State.Content {
 	val running = isRunning()
 	val extracting = photoExtracting
+	val busy = running || sending
 	val guided = guidedByMode || guidedByServer
 	val composerEnabled = !guided && restriction == null
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
@@ -32,13 +35,15 @@ internal suspend fun AssistantChatSession.presentedContent(
 		items = presentedItems(texts),
 		progressLabel = if (running) conversation?.activeTurn?.progressLabel else null,
 		isExtracting = extracting,
+		isSending = sending,
 		composer = ChatComposerItem(
 			text = draftText,
 			isEnabled = composerEnabled,
-			isSendEnabled = composerEnabled && draftText.isNotBlank() && !running,
-			isPhotoEnabled = composerEnabled && !running && !extracting
+			isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
+			isPhotoEnabled = composerEnabled && !busy && !extracting,
+			isStoppable = stopTarget() != null
 		),
-		suggestions = if (running) emptyList() else presentedSuggestions(screen = screen, guided = guided),
+		suggestions = if (busy) emptyList() else presentedSuggestions(screen = screen, guided = guided),
 		notice = presentedNotice(texts, guided),
 		isGuided = guided
 	)
@@ -65,6 +70,11 @@ internal suspend fun AssistantChatSession.presentedNotice(
 		)
 
 		guided -> ChatNoticeItem.Guided(message = texts.guided())
+
+		conversation?.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED -> ChatNoticeItem.TurnFailed(
+			message = texts.turnFailure(RunErrorCode.TRANSIENT, retryable = true),
+			canRetry = lastFailedSend != null
+		)
 
 		failure != null -> ChatNoticeItem.TurnFailed(
 			message = failure.message,
@@ -117,11 +127,15 @@ internal suspend fun AssistantChatSession.runFailed(
 
 	if (last != null) {
 		failedMessages += last.id
-		lastFailedSend = AssistantChatSession.FailedSend(text = last.text, suggestionId = null)
+		lastFailedSend = AssistantChatSession.FailedSend(
+			text = last.text,
+			suggestionId = followedSuggestionId,
+			clientTurnId = last.id
+		)
 	}
 
 	turnFailure = AssistantChatSession.TurnFailure(
-		message = texts.turnFailure(event.code),
+		message = texts.turnFailure(event.code, event.retryable),
 		retryable = event.retryable
 	)
 }

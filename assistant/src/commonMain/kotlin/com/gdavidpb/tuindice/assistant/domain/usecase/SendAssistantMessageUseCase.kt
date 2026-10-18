@@ -20,10 +20,10 @@ import com.gdavidpb.tuindice.chatcontract.turn.UserMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.time.Clock
-import kotlin.uuid.Uuid
 
 /**
- * Starts a turn with the user's message, stored before the request leaves, so a failed send keeps it for a retry.
+ * Starts a turn with the user's message, stored before the request leaves, so a failed send keeps it for a retry. The
+ * message is stored under the client turn id of the params, which is the id the request carries.
  */
 class SendAssistantMessageUseCase(
 	private val conversationRepository: AssistantConversationRepository,
@@ -38,7 +38,7 @@ class SendAssistantMessageUseCase(
 
 	override suspend fun executeOnBackground(params: SendAssistantMessageParams): Flow<TurnAccepted> = flow {
 		val text = params.text?.trim()?.takeIf { it.isNotEmpty() }
-		val clientTurnId = Uuid.random().toString()
+		val clientTurnId = params.clientTurnId
 
 		conversationRepository.addUserMessage(
 			AssistantUserMessage(

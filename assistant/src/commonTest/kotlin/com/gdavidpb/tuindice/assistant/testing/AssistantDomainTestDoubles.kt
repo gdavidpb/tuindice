@@ -10,10 +10,12 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
@@ -55,11 +57,14 @@ import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlin.time.Clock
@@ -74,6 +79,15 @@ internal class RecordingAssistantTurnRepository(
 	var acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
 	var sendError: Throwable? = null
 	var events: List<AssistantEvent> = emptyList()
+
+	// The events of the next follows, one list per follow, when a test scripts them; [events] answers the others.
+	val scriptedFollows = mutableListOf<List<AssistantEvent>>()
+
+	// The failure every follow breaks with, when a test makes the stream break.
+	var streamError: Throwable? = null
+
+	// When set, a follow delivers nothing and stays open, as a stream waiting for its first event does.
+	var holdEvents = false
 	val requests = mutableListOf<TurnRequest>()
 	val cancelled = mutableListOf<String>()
 	val followed = mutableListOf<Pair<String, Long>>()
@@ -95,7 +109,15 @@ internal class RecordingAssistantTurnRepository(
 	override fun turnEvents(turnId: String, afterSeq: Long): Flow<AssistantEvent> {
 		followed += turnId to afterSeq
 
-		return events.asFlow()
+		val answer = scriptedFollows.removeFirstOrNull() ?: events
+
+		return flow {
+			streamError?.let { error -> throw error }
+
+			if (holdEvents) awaitCancellation()
+
+			emitAll(answer.asFlow())
+		}
 	}
 
 	override suspend fun deleteConversations() {
@@ -109,9 +131,10 @@ internal class RecordingAssistantConversationRepository(
 	var conversationId: String? = null,
 	var openIntents: Map<String, Intent> = emptyMap(),
 	var activeTurn: AssistantActiveTurn? = null
-) : AssistantConversationRepository {
+) : AssistantConversationRepository, AssistantIntentOutboxRepository {
 	val attached = mutableListOf<String>()
 	val applied = mutableListOf<AssistantEvent>()
+	val unconfirmed = mutableListOf<String>()
 	val userMessages = mutableListOf<AssistantUserMessage>()
 	val resolved = mutableMapOf<String, OutcomeKind>()
 	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
@@ -138,6 +161,11 @@ internal class RecordingAssistantConversationRepository(
 		applied += event
 	}
 
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
+		calls += "markTurnUnconfirmed"
+		unconfirmed += turnId
+	}
+
 	override fun addUserMessage(message: AssistantUserMessage) {
 		calls += "addUserMessage"
 		userMessages += message
@@ -154,6 +182,18 @@ internal class RecordingAssistantConversationRepository(
 		openIntents = openIntents - intentId
 	}
 
+	private val staged = linkedMapOf<String, IntentOutcomeReport>()
+
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		staged[report.intentId] = report
+	}
+
+	override fun clearOutcome(intentId: String) {
+		staged.remove(intentId)
+	}
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
+
 	var cleared = 0
 
 	override suspend fun clearConversation() {
@@ -167,6 +207,7 @@ internal class RecordingAssistantIntentRepository(
 ) : AssistantIntentRepository {
 	var answer: IntentDecisionResult = IntentDecisionResult.Accepted
 	var decideError: Throwable? = null
+	var reportError: Throwable? = null
 	val decisions = mutableListOf<IntentDecision>()
 	val reports = mutableListOf<IntentOutcomeReport>()
 
@@ -178,8 +219,11 @@ internal class RecordingAssistantIntentRepository(
 		return answer
 	}
 
+	// A report the server does not take is not recorded as sent.
 	override suspend fun reportOutcome(report: IntentOutcomeReport) {
 		calls += "reportOutcome"
+		reportError?.let { error -> throw error }
+
 		reports += report
 	}
 }
@@ -218,11 +262,33 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	}
 }
 
-internal class RecordingAssistantStandingRepository : AssistantStandingRepository {
+// [configuredMode] and [consentGranted] are what the status reads until a test sets an answer: the server agrees with
+// the configuration and with the consent then.
+internal class RecordingAssistantStandingRepository(
+	private val configuredMode: () -> String = { "on" },
+	private val consentGranted: () -> Boolean = { true }
+) : AssistantStandingRepository {
+	private var explicit = false
+
 	var answer: AssistantStatus = assistantStatus()
+		set(value) {
+			field = value
+			explicit = true
+		}
+
+	var failure: Throwable? = null
 	val appeals = mutableListOf<AbuseAppeal>()
 
-	override suspend fun status(): AssistantStatus = answer
+	override suspend fun status(): AssistantStatus {
+		failure?.let { error -> throw error }
+
+		if (explicit) return answer
+
+		return answer.copy(
+			mode = configuredMode(),
+			consent = ConsentStatus(version = answer.consent.version, accepted = consentGranted())
+		)
+	}
 
 	override suspend fun appeal(appeal: AbuseAppeal) {
 		appeals += appeal
@@ -306,17 +372,28 @@ internal class RecordingAssistantProjectionRepository(
 	}
 }
 
-internal class RecordingAssistantConsentRepository : AssistantConsentRepository {
+internal class RecordingAssistantConsentRepository : AssistantConsentRepository, AssistantServerConsentRepository {
 	private val consent = MutableStateFlow(false)
 	val changes = mutableListOf<Boolean>()
+	val reconciled = mutableListOf<ConsentStatus>()
+
+	// The failure every change breaks with, when a test makes the server refuse it.
+	var failure: Throwable? = null
 
 	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
 
 	override fun isAssistantConsentGranted(): Boolean = consent.value
 
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
+		failure?.let { error -> throw error }
+
 		changes += granted
 		consent.value = granted
+	}
+
+	override fun reconcileConsent(status: ConsentStatus) {
+		reconciled += status
+		consent.value = status.accepted
 	}
 }
 

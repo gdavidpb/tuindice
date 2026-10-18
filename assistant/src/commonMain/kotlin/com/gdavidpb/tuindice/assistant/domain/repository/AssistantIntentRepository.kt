@@ -10,5 +10,9 @@ interface AssistantIntentRepository {
 	 */
 	suspend fun decide(decision: IntentDecision): IntentDecisionResult
 
+	/**
+	 * Sends the outcome of an intent. It returns when the server has taken the report or refused it for good; it
+	 * throws when the report got no answer that settles it, and it must be sent again.
+	 */
 	suspend fun reportOutcome(report: IntentOutcomeReport)
 }

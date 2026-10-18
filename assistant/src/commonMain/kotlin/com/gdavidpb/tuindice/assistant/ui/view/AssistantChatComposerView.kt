@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -24,12 +25,14 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.a11y_assistant_send
+import tuindice.assistant.generated.resources.a11y_assistant_stop
 import tuindice.assistant.generated.resources.assistant_chat_composer_placeholder
 
 private const val COMPOSER_MAX_LINES = 4
 
 // The photo button, the text field and the send button in the accent. The field is off while a restriction holds, and
-// with it the photo button; the buttons follow what the presentation says they can do.
+// with it the photo button; the buttons follow what the presentation says they can do. While a turn can be stopped, the
+// stop button takes the place of the send button.
 @Composable
 fun AssistantChatComposerView(
 	composer: ChatComposerItem,
@@ -59,19 +62,34 @@ fun AssistantChatComposerView(
 			shape = RoundedCornerShape(TuIndiceRadius.Large),
 			maxLines = COMPOSER_MAX_LINES
 		)
-		FilledIconButton(
-			onClick = { onAction(AssistantChat.Action.Send) },
-			enabled = composer.isSendEnabled,
-			colors = IconButtonDefaults.filledIconButtonColors(
-				containerColor = MaterialTheme.colorScheme.primary,
-				contentColor = MaterialTheme.colorScheme.onPrimary
-			),
-			modifier = Modifier.testTag(AssistantUiTags.SendButton)
-		) {
-			Icon(
-				imageVector = Icons.AutoMirrored.Outlined.Send,
-				contentDescription = stringResource(Res.string.a11y_assistant_send)
-			)
+		val colors = IconButtonDefaults.filledIconButtonColors(
+			containerColor = MaterialTheme.colorScheme.primary,
+			contentColor = MaterialTheme.colorScheme.onPrimary
+		)
+
+		if (composer.isStoppable) {
+			FilledIconButton(
+				onClick = { onAction(AssistantChat.Action.CancelTurn) },
+				colors = colors,
+				modifier = Modifier.testTag(AssistantUiTags.StopButton)
+			) {
+				Icon(
+					imageVector = Icons.Outlined.Stop,
+					contentDescription = stringResource(Res.string.a11y_assistant_stop)
+				)
+			}
+		} else {
+			FilledIconButton(
+				onClick = { onAction(AssistantChat.Action.Send) },
+				enabled = composer.isSendEnabled,
+				colors = colors,
+				modifier = Modifier.testTag(AssistantUiTags.SendButton)
+			) {
+				Icon(
+					imageVector = Icons.AutoMirrored.Outlined.Send,
+					contentDescription = stringResource(Res.string.a11y_assistant_send)
+				)
+			}
 		}
 	}
 }
