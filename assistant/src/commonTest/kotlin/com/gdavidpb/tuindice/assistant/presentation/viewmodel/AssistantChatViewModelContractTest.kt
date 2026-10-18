@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import kotlin.test.Test
@@ -22,13 +24,14 @@ class AssistantChatViewModelContractTest {
 
 		viewModel.openAction(
 			AssistantScreenContext(
-				screen = AssistantScreen.EVALUATIONS,
-				visibleFields = mapOf("subject" to "CI4325", "evaluation" to "Parcial 1")
+				screen = AssistantScreen.EVALUATION_DETAIL,
+				entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
+				visibleFields = mapOf("title" to "PARCIAL 1", "points" to "15 / 20", "grade" to "15.00")
 			)
 		)
 
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
-		assertEquals("screen:EVALUATIONS · CI4325 Parcial 1", viewModel.content().context?.label)
+		assertEquals("screen:EVALUATION_DETAIL · CI4325 PARCIAL 1", viewModel.content().context?.label)
 	}
 
 	@Test
