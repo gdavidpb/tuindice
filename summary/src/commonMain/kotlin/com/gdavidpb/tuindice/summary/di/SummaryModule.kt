@@ -14,9 +14,11 @@ import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundDataSource
 import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.TermReportFeedbackDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundRepository
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportFeedbackRepository
 import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
@@ -37,8 +39,11 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCas
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RateTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ShareTermImageExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.ShareTermMachine
@@ -119,6 +124,10 @@ val summaryModule = module {
 		bind<TermReportSeenRepository>()
 		bind<SessionMemory>()
 	}
+	singleOf(::TermReportFeedbackDataSource) {
+		bind<TermReportFeedbackRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::ProfilePictureImageLoaderDataSource) { bind<SessionMemory>() }
 	// Named: an unnamed startup task would take the place of the platform's own.
 	single<AppStartupTask>(named(PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER)) {
@@ -131,6 +140,9 @@ val summaryModule = module {
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
 	factoryOf(::ShareTermImageExceptionHandler)
+	factoryOf(::ObserveTermReportExceptionHandler)
+	factoryOf(::RateTermReportExceptionHandler)
+	factoryOf(::UpdateTermReportsExceptionHandler)
 }
 
 private const val PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER = "summaryProfilePictureImageLoaderTask"

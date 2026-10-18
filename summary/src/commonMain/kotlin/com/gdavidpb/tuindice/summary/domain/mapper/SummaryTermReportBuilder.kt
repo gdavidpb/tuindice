@@ -19,12 +19,14 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReportSubject
 /**
  * The report of the term an insight is about, read from the record's projection with the academic engines: every figure
  * is the engines', never the model's. Null when the record holds no term with that key, so the screen says it has no
- * report for it. [closed] is the statistics of the record's closed terms, read from the same projection.
+ * report for it. [closed] is the statistics of the record's closed terms, read from the same projection. [feedback] is
+ * the thumb the student's last vote was confirmed with, read from the device.
  */
 internal fun termReportOf(
 	insight: AssistantTermInsight,
 	projection: RecordProjection,
-	closed: RecordStatistics
+	closed: RecordStatistics,
+	feedback: Boolean? = null
 ): SummaryTermReport? {
 	val terms = projection.terms.sortedWith(compareBy(TermProjection::termOrder, TermProjection::id))
 	val position = terms.indexOfFirst { projected -> projected.termKey == insight.termKey }
@@ -42,6 +44,9 @@ internal fun termReportOf(
 			closed.terms.filter { closedTerm -> closedTerm.isRegular && closedTerm.termKey != term.termKey } +
 					listOfNotNull(term.takeIf(TermStatistic::isRegular))
 			).sortedBy(TermStatistic::termOrder)
+
+	// The share sheet lists the closed terms with an index, and only those: the report's term is shared only in that case.
+	val isShareable = closed.terms.any { closedTerm -> closedTerm.termKey == term.termKey && closedTerm.index != null }
 
 	return SummaryTermReport(
 		insightId = insight.id,
@@ -63,21 +68,24 @@ internal fun termReportOf(
 			approvedCreditsByRegularTerm = paceTerms.map(TermStatistic::approvedCredits),
 			pensumApprovedCredits = null,
 			pensumTotalCredits = null
-		).averageCredits
+		).averageCredits,
+		isShareable = isShareable,
+		feedback = feedback
 	)
 }
 
 /**
- * The line the summary offers for the newest report the student has not opened yet, or null when every report was
- * opened. [insights] come from the service; the newest by its creation instant is the one the line is about.
+ * The line the summary offers for the newest report, and only while the student has not opened that one, or null
+ * otherwise. [insights] come from the service; the newest by its creation instant is the one the line is about, so an
+ * older report that was never opened does not come back once a newer one exists.
  */
 internal fun termReportEntryOf(
 	insights: List<AssistantTermInsight>,
 	seenIds: Set<String>
 ): SummaryTermReportEntry? {
 	val insight = insights
-		.filter { candidate -> candidate.id !in seenIds }
 		.maxByOrNull { candidate -> candidate.createdAtMillis }
+		?.takeIf { newest -> newest.id !in seenIds }
 		?: return null
 
 	return SummaryTermReportEntry(

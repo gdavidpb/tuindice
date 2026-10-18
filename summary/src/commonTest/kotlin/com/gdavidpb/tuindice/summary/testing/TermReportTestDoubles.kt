@@ -7,11 +7,14 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantInsightSection
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantTermInsight
 import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportFeedbackRepository
 import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportEntryUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -54,6 +57,55 @@ class ControllableTermReportSeenRepository(
 
 	override suspend fun markTermReportSeen(insightId: String) {
 		seenIdsFlow.value = seenIdsFlow.value + insightId
+	}
+}
+
+// The thumbs the student's votes on the device, by insight id, as the test sets them.
+class ControllableTermReportFeedbackRepository(
+	initialFeedbacks: Map<String, Boolean> = emptyMap()
+) : TermReportFeedbackRepository {
+	val feedbacksFlow = MutableStateFlow(initialFeedbacks)
+
+	override fun observeTermReportFeedbacks(): Flow<Map<String, Boolean>> = feedbacksFlow
+
+	override suspend fun saveTermReportFeedback(insightId: String, useful: Boolean) {
+		feedbacksFlow.value = feedbacksFlow.value + (insightId to useful)
+	}
+}
+
+// The service answers each thumb when the test says so: a request waits until it is answered, so that taps can overlap.
+class ManualRatingsInsightsRepository(
+	initialInsights: List<AssistantTermInsight> = emptyList()
+) : AssistantInsightsRepository {
+	val insightsFlow = MutableStateFlow(initialInsights)
+
+	val requests = mutableListOf<PendingThumb>()
+
+	override fun observeInsightsFlow(): Flow<List<AssistantTermInsight>> = insightsFlow
+
+	override suspend fun refreshInsights() = Unit
+
+	override suspend fun rateInsight(insightId: String, useful: Boolean) {
+		val request = PendingThumb(useful = useful)
+
+		requests += request
+
+		request.answer.await()
+	}
+}
+
+// One thumb sent to the service, and the answer the test gives it.
+class PendingThumb(
+	val useful: Boolean
+) {
+	internal val answer = CompletableDeferred<Unit>()
+
+	fun accept() {
+		answer.complete(Unit)
+	}
+
+	fun refuse() {
+		answer.completeExceptionally(IllegalStateException("404"))
 	}
 }
 
@@ -100,7 +152,8 @@ fun createUpdateTermReportsUseCase(
 	insights: AssistantInsightsRepository = ControllableAssistantInsightsRepository()
 ) = UpdateTermReportsUseCase(
 	insightsRepository = insights,
-	reportingRepository = RecordingReportingRepository()
+	reportingRepository = RecordingReportingRepository(),
+	exceptionHandler = UpdateTermReportsExceptionHandler()
 )
 
 fun createSummaryTermReports(

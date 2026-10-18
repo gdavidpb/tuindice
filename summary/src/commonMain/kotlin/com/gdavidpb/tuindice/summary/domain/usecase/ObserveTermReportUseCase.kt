@@ -9,7 +9,10 @@ import com.gdavidpb.tuindice.summary.domain.mapper.recordReadingOf
 import com.gdavidpb.tuindice.summary.domain.mapper.summaryRecordStateOf
 import com.gdavidpb.tuindice.summary.domain.mapper.termReportOf
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
-import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReport
+import com.gdavidpb.tuindice.summary.domain.model.TermReportObservation
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportFeedbackRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCaseError
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -18,33 +21,49 @@ import kotlinx.coroutines.flow.map
 
 /**
  * The term report of one insight, read for the screen: the report from the service, with the figures of its term read
- * from the local record through the academic engines. The reports are the ones the update of them left
- * ([UpdateTermReportsUseCase]); [ObserveTermReportParams.isRefreshed] says whether that update reached the service.
- * It emits null when there is no such report, or when the record holds no term of it, so the screen says it has no
- * report for that term. It fails when the report is unknown and the service could not be asked, or when the record
- * cannot be read yet: the screen offers to try again.
+ * from the local record through the academic engines, and the thumb the student's vote was confirmed with. The reports
+ * are the ones the update of them left ([UpdateTermReportsUseCase]); [ObserveTermReportParams.isRefreshed] says whether
+ * that update reached the service.
+ *
+ * The causes that keep a report from being read are values, not failures: the observation says it is unavailable, and
+ * it stays alive, so the report arrives as soon as the record or the service can give it.
  */
 class ObserveTermReportUseCase(
 	private val insightsRepository: AssistantInsightsRepository,
 	private val visibleAcademicRecordRepository: VisibleAcademicRecordRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<ObserveTermReportParams, SummaryTermReport?, Nothing>() {
-	override suspend fun executeOnBackground(params: ObserveTermReportParams): Flow<SummaryTermReport?> {
-		return combine(insightsRepository.observeInsightsFlow(), observeRecordReading()) { insights, reading ->
+	private val feedbackRepository: TermReportFeedbackRepository,
+	override val reportingRepository: ReportingRepository,
+	override val exceptionHandler: ObserveTermReportExceptionHandler
+) : FlowUseCase<ObserveTermReportParams, TermReportObservation, ObserveTermReportUseCaseError>() {
+	override suspend fun executeOnBackground(params: ObserveTermReportParams): Flow<TermReportObservation> {
+		return combine(
+			insightsRepository.observeInsightsFlow(),
+			observeRecordReading(),
+			feedbackRepository.observeTermReportFeedbacks()
+		) { insights, reading, feedbacks ->
 			val insight = insights.firstOrNull { candidate -> candidate.id == params.insightId }
 
 			// A report that is not in the list, when the list could not be asked for, may just not be read yet.
-			if (insight == null && !params.isRefreshed) throw TermReportUnavailableException()
+			when {
+				insight == null && !params.isRefreshed ->
+					TermReportObservation.Unavailable(ObserveTermReportUseCaseError.NoConnection)
 
-			when (reading) {
-				is SummaryRecordReading.Ready -> insight?.let { found ->
-					termReportOf(insight = found, projection = reading.projection, closed = reading.closed)
+				reading is SummaryRecordReading.NotReady ->
+					TermReportObservation.Unavailable(ObserveTermReportUseCaseError.RecordNotReady)
+
+				reading is SummaryRecordReading.Ready && insight != null -> {
+					val report = termReportOf(
+						insight = insight,
+						projection = reading.projection,
+						closed = reading.closed,
+						feedback = feedbacks[insight.id]
+					)
+
+					report?.let { TermReportObservation.Found(report = it) } ?: TermReportObservation.Missing
 				}
 
-				SummaryRecordReading.NewStudentWithoutRecord -> null
-
-				SummaryRecordReading.NotReady -> throw TermReportUnavailableException()
+				else -> TermReportObservation.Missing
 			}
 		}
 	}
@@ -60,6 +79,3 @@ class ObserveTermReportUseCase(
 			.map { recordState -> recordReadingOf(recordState) }
 	}
 }
-
-/** The report cannot be read at the moment: the service could not be asked, or the record is not ready to be read. */
-class TermReportUnavailableException : IllegalStateException("The term report cannot be read now.")

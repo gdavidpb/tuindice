@@ -10,7 +10,9 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantInsightSection
  * the record, when there is one. [indexDelta] and [cumulativeDelta] compare the two, and are null when either side has
  * no index. [subjects] are the subjects of the term; [creditsOfTerm] counts the credits of those that were not
  * withdrawn. [paceTerms] are the regular terms the pace draws, the term itself among them when it is regular, and
- * [averageCredits] is their average of approved credits.
+ * [averageCredits] is their average of approved credits. [isShareable] says whether the term is a closed one with an
+ * index, the only kind the share sheet can show. [feedback] is the thumb the student's last vote was confirmed with by
+ * the service, or null when there is none.
  */
 data class SummaryTermReport(
 	val insightId: String,
@@ -26,7 +28,9 @@ data class SummaryTermReport(
 	val subjects: List<SummaryTermReportSubject>,
 	val creditsOfTerm: Int,
 	val paceTerms: List<TermStatistic>,
-	val averageCredits: Double?
+	val averageCredits: Double?,
+	val isShareable: Boolean = false,
+	val feedback: Boolean? = null
 )
 
 /**

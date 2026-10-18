@@ -25,7 +25,17 @@ class SummaryTermReportEntryTest {
 
 		val entry = termReportEntryOf(insights = listOf(newer, older), seenIds = setOf("term-1:2"))
 
-		assertEquals("term-1:1", entry?.insightId)
+		assertNull(entry)
+	}
+
+	@Test
+	fun openingTheNewestHidesTheLineEvenWhenAnOlderReportIsNotOpened() {
+		val newer = termReportInsight(id = "term-1:2", createdAtMillis = 300L)
+		val older = termReportInsight(id = "term-1:1", createdAtMillis = 100L)
+
+		val entry = termReportEntryOf(insights = listOf(older, newer), seenIds = setOf("term-1:2"))
+
+		assertNull(entry)
 	}
 
 	@Test
