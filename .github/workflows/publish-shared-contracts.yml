@@ -1,14 +1,18 @@
 name: Publish shared contracts
 
 # Publishes the shared contracts (academiccore and chatcontract, for the JVM backend and every Kotlin target) to the
-# Artifact Registry. A contracts-vX.Y.Z tag publishes the version it names; a manual run publishes the version declared
-# in gradle.properties of the selected commit. See docs/shared-contracts.md.
+# Artifact Registry. A push to production that changes tuindice.contracts.version in gradle.properties publishes that
+# version; a manual run publishes the version production declares. Only production publishes: the Google Cloud
+# identity of this repository admits refs/heads/production alone, so what gets published was reviewed. See
+# docs/shared-contracts.md.
 
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "contracts-v*"
+    branches:
+      - production
+    paths:
+      - gradle.properties
 
 permissions:
   id-token: write
@@ -28,45 +32,57 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          # The previous commit too, to tell whether the push changed the contracts version.
+          fetch-depth: 2
+
+      - name: Decide whether there is a version to publish
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$REF" != "refs/heads/production" ]]; then
+            printf 'Shared contracts are published from production only, not from %s.\n' "$REF" >&2
+            exit 1
+          fi
+
+          declared_version="$(sed -n 's/^tuindice\.contracts\.version=//p' gradle.properties)"
+          if [[ ! "$declared_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            printf 'tuindice.contracts.version=%s in gradle.properties is not X.Y.Z.\n' "$declared_version" >&2
+            exit 1
+          fi
+
+          # A push publishes only when it changed the version; any other change to gradle.properties publishes nothing.
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            previous_version="$(git show HEAD^:gradle.properties 2>/dev/null | sed -n 's/^tuindice\.contracts\.version=//p' || true)"
+            if [[ "$previous_version" == "$declared_version" ]]; then
+              printf 'tuindice.contracts.version stays %s: nothing to publish.\n' "$declared_version"
+              printf 'publish=false\n' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          printf 'Publishing shared contracts %s.\n' "$declared_version"
+          printf 'publish=true\n' >> "$GITHUB_OUTPUT"
 
       - name: Set up Java
+        if: steps.version.outputs.publish == 'true'
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
           java-version: "21"
 
-      - name: Check that the tag matches the contracts version
-        env:
-          REF_TYPE: ${{ github.ref_type }}
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-
-          # A manual run publishes the version that the checked-out commit declares.
-          if [[ "$REF_TYPE" != "tag" ]]; then
-            exit 0
-          fi
-
-          if [[ ! "$REF_NAME" =~ ^contracts-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            printf 'Tag %s is not contracts-vX.Y.Z.\n' "$REF_NAME" >&2
-            exit 1
-          fi
-          tag_version="${BASH_REMATCH[1]}"
-
-          declared_version="$(sed -n 's/^tuindice\.contracts\.version=//p' gradle.properties)"
-          if [[ "$tag_version" != "$declared_version" ]]; then
-            printf 'Tag %s does not match tuindice.contracts.version=%s in gradle.properties.\n' \
-              "$REF_NAME" "$declared_version" >&2
-            exit 1
-          fi
-
       - name: Authenticate to Google Cloud
+        if: steps.version.outputs.publish == 'true'
         uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_CONTRACTS_PUBLISHER_SERVICE_ACCOUNT }}
 
       - name: Publish shared contracts
+        if: steps.version.outputs.publish == 'true'
         run: |
           set -euo pipefail
 

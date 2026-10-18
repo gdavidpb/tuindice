@@ -15,15 +15,18 @@ Gradle publica también las variantes Android y Apple de cada módulo. El backen
 ## Versionado
 
 - La versión está en la propiedad `tuindice.contracts.version` de `gradle.properties`, con SemVer.
-- Un lanzamiento se publica con el tag `contracts-vX.Y.Z`, que debe coincidir con esa propiedad. El workflow se niega
-  a publicar si no coinciden.
+- Un lanzamiento se publica subiendo esa propiedad: cuando el cambio llega a `production`, el workflow publica la
+  versión nueva. Solo `production` publica, porque la identidad de Google Cloud de este repositorio solo admite
+  `refs/heads/production`: lo publicado siempre pasó por revisión. Un tag no publica nada.
 - No se vuelve a publicar una versión ya publicada: para cambiar un contrato, sube `tuindice.contracts.version` antes.
 - Un cambio incompatible (nombres, firmas, `@SerialName`, valores que el backend persiste) sube la versión mayor.
 
 ## Publicación
 
-- Workflow: `.github/workflows/publish-shared-contracts.yml`. Se ejecuta con un tag `contracts-vX.Y.Z` o a mano con
-  `workflow_dispatch`; en ese caso publica la versión que declara `gradle.properties` del commit elegido.
+- Workflow: `.github/workflows/publish-shared-contracts.yml`. Se ejecuta con cada push a `production` que toca
+  `gradle.properties` y publica solo si `tuindice.contracts.version` cambió respecto del commit anterior. También se
+  puede lanzar a mano con `workflow_dispatch` sobre `production` (por ejemplo, para reintentar una publicación que
+  falló); sobre otra rama se niega.
 - Repositorio: Artifact Registry `tuindice-libs`, región `us-east1`, proyecto `tu-indice-usb`:
   `https://us-east1-maven.pkg.dev/tu-indice-usb/tuindice-libs`. Se puede cambiar con
   `-Ptuindice.contracts.repositoryUrl=<url>`.
