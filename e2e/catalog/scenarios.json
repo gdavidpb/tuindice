@@ -12835,10 +12835,10 @@
                         "line": 100
                     },
                     "timeoutMs": 5000,
-                    "type": "waitGone"
+                    "type": "waitVisible"
                 }
             ],
-            "stepsHash": "73130eeda5f30b3f",
+            "stepsHash": "c1551d6669713e38",
             "tags": [],
             "timeoutSeconds": 180
         },

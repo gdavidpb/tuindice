@@ -94,10 +94,10 @@ private val termreportRetry = scenario(
 	waitVisible(SummaryUiTags.LoadingIndicator, Within.Action)
 	waitVisible(TermReportUiTags.TermReportFailed, Within.Long)
 	waitVisible(TermReportUiTags.TermReportRetryButton, Within.Assert)
-	// Opening the report marked it as seen, so its line leaves the hub even though the report could not be read.
+	// A report that could not be read was never on screen: it is not marked as seen, so its line stays on the hub.
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
-	waitGone(TermReportUiTags.TermReportEntry, Within.Assert)
+	waitVisible(TermReportUiTags.TermReportEntry, Within.Assert)
 }
 
 /** The scenarios of the `termreport` module; list every new one here. */
