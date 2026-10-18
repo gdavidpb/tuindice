@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryForm
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryNavDependencies
@@ -17,7 +19,8 @@ import kotlinx.datetime.LocalDate
  */
 internal fun TuIndiceNavigator.toSummaryNavDependencies(
 	onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit,
-	onNavigateToRecordAttempt: (attemptId: String) -> Unit
+	onNavigateToRecordAttempt: (attemptId: String) -> Unit,
+	onNavigateToAssistantTarget: (target: AssistantNavTarget, entityRefs: List<AssistantEntityRef>) -> Unit = { _, _ -> }
 ) = SummaryNavDependencies(
 	onNavigateToUpdatePassword = { push(AuthDestination.UpdatePasswordDialog) },
 	screens = SummaryScreenLinks(
@@ -27,7 +30,9 @@ internal fun TuIndiceNavigator.toSummaryNavDependencies(
 		// The Statistics screen is pushed over the hub: its back returns to the Summary tab.
 		onNavigateToStatistics = { push(SummaryDestination.Statistics) },
 		// The sheet that shares a closed term is pushed over the hub too, opened on the term that its button names.
-		onNavigateToShareTerm = { termKey -> push(SummaryDestination.ShareTermDialog(termKey = termKey)) }
+		onNavigateToShareTerm = { termKey -> push(SummaryDestination.ShareTermDialog(termKey = termKey)) },
+		// The term report is pushed over the hub, the way the Statistics screen is.
+		onNavigateToTermReport = { insightId -> push(SummaryDestination.TermReport(insightId = insightId)) }
 	),
 	onOpenSchedule = { openSchedule() },
 	onOpenForm = { form ->
@@ -35,5 +40,7 @@ internal fun TuIndiceNavigator.toSummaryNavDependencies(
 			SummaryForm.AddEvaluation -> showAddEvaluation()
 			SummaryForm.CreateTerm -> showCreateTerm()
 		}
-	}
+	},
+	// The buttons of "Qué sigue" go where the chat's actions go: the same jump, from the same navigator.
+	onNavigateToAssistantTarget = onNavigateToAssistantTarget
 )

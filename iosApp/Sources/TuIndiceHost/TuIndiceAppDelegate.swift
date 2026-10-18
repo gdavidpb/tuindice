@@ -12,14 +12,31 @@ enum TuIndiceFirebaseRuntimeState {
     static var isConfigured = false
 }
 
-final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
+final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // The delegate is set before the app finishes launching, so a tap on a push that starts the app is not missed.
+        UNUserNotificationCenter.current().delegate = self
         configureFirebaseIfNeeded()
         configureRemoteNotifications(application: application)
         return true
+    }
+
+    // A tap on the push of a term report asks the app for that report, which opens once the student is in the app.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let data = response.notification.request.content.userInfo
+
+        if data["type"] as? String == "term_report", let insightId = data["insightId"] as? String {
+            TuIndiceAppBootstrap.openTermReport(insightId: insightId)
+        }
+
+        completionHandler()
     }
 
     func application(

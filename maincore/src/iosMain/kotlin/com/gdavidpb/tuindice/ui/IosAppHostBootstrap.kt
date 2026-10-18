@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.freezeDebugClock
@@ -42,6 +43,12 @@ class IosAppHostBootstrap(
 
 	fun startIfNeeded(): Koin {
 		return startIosKoin(hostConfig = hostConfig)
+	}
+
+	// A tap on the push of a term report: the request is kept, and the host opens the report once the student is in the
+	// app.
+	fun openTermReportFromNotification(insightId: String) {
+		startIfNeeded().get<TermReportFocusRepository>().request(insightId)
 	}
 
 	fun applyDebugLaunchArguments(arguments: DebugLaunchArguments) {

@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
@@ -55,6 +56,7 @@ class IosAppKoinSmokeTest {
 				// The buses of the Pensum and Statistics top bars, which the shared route asks for on both platforms.
 				PensumTopBarActionBus::class,
 				StatisticsTopBarActionBus::class,
+				TermReportTopBarActionBus::class,
 				// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
 				EvaluationsWeekFocusRepository::class,
 				// The jump to an attempt in Record that the host asks for from Summary.

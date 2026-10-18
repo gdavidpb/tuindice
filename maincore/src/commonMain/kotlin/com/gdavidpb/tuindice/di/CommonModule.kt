@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryTermReportFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
@@ -48,6 +49,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
@@ -128,6 +130,11 @@ val commonModule = module {
 	// The attempt of Registro a screen asked the host to show: the host writes it, the machine of that tab applies it.
 	singleOf(::InMemoryRecordAttemptFocusDataSource) {
 		bind<RecordAttemptFocusRepository>()
+		bind<SessionMemory>()
+	}
+	// The term report a notification asked the host to open: the host takes it once the student is in the app.
+	singleOf(::InMemoryTermReportFocusDataSource) {
+		bind<TermReportFocusRepository>()
 		bind<SessionMemory>()
 	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {
