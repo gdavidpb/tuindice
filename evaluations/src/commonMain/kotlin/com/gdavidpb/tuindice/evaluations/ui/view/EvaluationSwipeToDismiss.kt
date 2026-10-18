@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
 import kotlinx.coroutines.launch
@@ -28,6 +29,12 @@ internal val ActionsWithAskWidth = 336.dp
 
 internal fun actionsWidth(hasAsk: Boolean) = if (hasAsk) ActionsWithAskWidth else ActionsWidth
 
+// The open card stops this far before the first action, so the card and its actions do not touch.
+internal val ActionsGap = TuIndiceSpacing.Medium
+
+// How far the card slides to open: the actions and the gap before them.
+internal fun revealWidth(hasAsk: Boolean) = actionsWidth(hasAsk) + ActionsGap
+
 @Composable
 fun EvaluationSwipeToDismiss(
 	modifier: Modifier = Modifier,
@@ -37,7 +44,7 @@ fun EvaluationSwipeToDismiss(
 ) {
 	val coroutineScope = rememberCoroutineScope()
 	val density = LocalDensity.current
-	val actionsWidthPx = with(density) { actionsWidth(hasAsk = actions.onAsk != null).toPx() }
+	val actionsWidthPx = with(density) { revealWidth(hasAsk = actions.onAsk != null).toPx() }
 	val offset = remember(actionsWidthPx, initiallyOpen) {
 		Animatable(if (initiallyOpen) -actionsWidthPx else 0f)
 	}

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -154,5 +155,28 @@ class EvaluationSwipeToDismissUiTest {
 		waitUntil(timeoutMillis = 2_000) {
 			onAllNodesWithTag(EvaluationsUiTags.EvaluationSwipeEditAction).fetchSemanticsNodes().isEmpty()
 		}
+	}
+
+	@Test
+	fun when_open_then_theCardSlidesPastItsActionsByAGap() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationSwipeToDismiss(
+				initiallyOpen = true,
+				actions = EvaluationSwipeActions(onAsk = {}, onEdit = {}, onDelete = {})
+			) {
+				Text(text = "Evaluacion", modifier = Modifier.fillMaxWidth().testTag(cardTag))
+			}
+		}
+
+		val container = onNodeWithTag(EvaluationsUiTags.EvaluationSwipeToDismissContainer).fetchSemanticsNode().boundsInRoot
+		val card = onNodeWithTag(cardTag).fetchSemanticsNode().boundsInRoot
+		val slide = with(density) { (ActionsWithAskWidth + ActionsGap).toPx() }
+
+		// The card opens past its actions and the gap, so it stops before the first action instead of touching it.
+		assertEquals(container.right - slide, card.right, absoluteTolerance = 1f)
+	}
+
+	private companion object {
+		const val cardTag = "evaluation_card"
 	}
 }
