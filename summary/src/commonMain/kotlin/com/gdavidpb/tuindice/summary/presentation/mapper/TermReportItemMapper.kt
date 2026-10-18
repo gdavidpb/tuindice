@@ -76,7 +76,7 @@ internal fun SummaryTermReport.toTermReportItem(): TermReportItem {
 }
 
 private fun heroOf(report: SummaryTermReport, periodLabel: String): TermReportHeroItem {
-	val previous = report.previousTerm?.let { previousTerm -> termNameUnbreakable(previousTerm.fullLabel()) }
+	val previous = report.previousTerm?.fullLabel()
 
 	return TermReportHeroItem(
 		title = UiText.Resource(Res.string.term_report_hero_title, listOf(termNameUnbreakable(periodLabel))),
@@ -94,7 +94,8 @@ private fun indexDeltaOf(delta: Double?, previousLabel: String?): TermReportDelt
 
 	val ticks = ticksOf(delta)
 	val size = sizeOf(ticks)
-	val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(previousLabel))
+	// The line under the figure keeps the term's name whole; the words for the screen reader read it as written.
+	val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(termNameUnbreakable(previousLabel)))
 
 	return when {
 		ticks > 0 -> TermReportDeltaItem(

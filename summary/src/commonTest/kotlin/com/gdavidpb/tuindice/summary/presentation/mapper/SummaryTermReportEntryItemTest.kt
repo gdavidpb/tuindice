@@ -19,7 +19,7 @@ class SummaryTermReportEntryItemTest {
 		).toSummaryTermReportItem()
 
 		assertEquals(
-			UiText.Resource(Res.string.term_report_entry_title, listOf("Ene - Mar 2026")),
+			UiText.Resource(Res.string.term_report_entry_title, listOf("Ene\u00A0\u2060-\u2060\u00A0Mar\u00A02026")),
 			item.title
 		)
 		assertEquals(SummaryHubTarget.TermReport(insightId = "term-1:2"), item.target)

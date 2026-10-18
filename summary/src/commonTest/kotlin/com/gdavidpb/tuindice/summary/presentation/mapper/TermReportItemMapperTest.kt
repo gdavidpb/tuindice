@@ -24,8 +24,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
-// The previous term of the fixtures is January - March 2026, written with no break inside its name.
-private const val PREVIOUS_TERM = "Ene - Mar 2026"
+// The previous term of the fixtures is January - March 2026.
+// As the record names the term before: the screen reader reads it so.
+private const val PREVIOUS_TERM = "Ene - Mar 2026"
+
+// As the line under the figure writes it: spaces that do not break and a word joiner on each side of the dash.
+private const val PREVIOUS_TERM_UNBREAKABLE = "Ene\u00A0\u2060-\u2060\u00A0Mar\u00A02026"
 
 class TermReportItemMapperTest {
 
@@ -36,7 +40,7 @@ class TermReportItemMapperTest {
 		val delta = assertIs<UiText.Resource>(item.hero.indexDelta?.text)
 		assertEquals(Res.string.term_report_delta_short_up, delta.resource)
 		assertEquals(listOf("1.5000"), delta.args)
-		val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(PREVIOUS_TERM))
+		val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(PREVIOUS_TERM_UNBREAKABLE))
 		assertEquals(reference, item.hero.indexDelta?.reference)
 		assertEquals(TermReportDeltaTone.POSITIVE, item.hero.indexDelta?.tone)
 	}

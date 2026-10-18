@@ -72,11 +72,14 @@ private fun TermReportIndexRow(
 	index: String?,
 	indexDelta: TermReportDeltaItem?
 ) {
+	// The index takes all the width the chip leaves: a spacer sharing that width with it squeezed the scale into a
+	// column of single letters.
 	Row(
+		modifier = Modifier.fillMaxWidth(),
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		Column(modifier = Modifier.weight(1f, fill = false)) {
+		Column(modifier = Modifier.weight(1f)) {
 			Row(
 				verticalAlignment = Alignment.Bottom,
 				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
@@ -93,7 +96,9 @@ private fun TermReportIndexRow(
 						modifier = Modifier.padding(bottom = TuIndiceSpacing.Small),
 						text = stringResource(Res.string.term_report_index_scale),
 						style = MaterialTheme.typography.titleMedium,
-						color = MaterialTheme.colorScheme.onSurfaceVariant
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						maxLines = 1,
+						softWrap = false
 					)
 				} else {
 					Text(
@@ -115,8 +120,6 @@ private fun TermReportIndexRow(
 				)
 			}
 		}
-
-		Spacer(modifier = Modifier.weight(1f))
 
 		indexDelta?.let { delta ->
 			TermReportDeltaChip(
