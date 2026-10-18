@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReport
+import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
@@ -13,13 +14,14 @@ import com.gdavidpb.tuindice.summary.testing.hubRecord
 import com.gdavidpb.tuindice.summary.testing.termReportInsight
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
-import java.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class ObserveTermReportUseCaseTest {
+
+	private val params = ObserveTermReportParams(insightId = "term-1:2", isRefreshed = true)
 
 	private val record = hubRecord(
 		hubClosedTerm(
@@ -37,7 +39,7 @@ class ObserveTermReportUseCaseTest {
 			record = ControllableVisibleAcademicRecordRepository(record)
 		)
 
-		useCase.execute("term-1:2").test {
+		useCase.execute(params).test {
 			assertIs<UseCaseState.Loading>(awaitItem())
 
 			val report = assertIs<UseCaseState.Data<SummaryTermReport?>>(awaitItem()).value
@@ -60,13 +62,13 @@ class ObserveTermReportUseCaseTest {
 			record = ControllableVisibleAcademicRecordRepository(record)
 		)
 
-		notHere.execute("term-1:2").test {
+		notHere.execute(params).test {
 			awaitItem()
 			assertNull(assertIs<UseCaseState.Data<SummaryTermReport?>>(awaitItem()).value)
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		noTerm.execute("term-1:2").test {
+		noTerm.execute(params).test {
 			awaitItem()
 			assertNull(assertIs<UseCaseState.Data<SummaryTermReport?>>(awaitItem()).value)
 			cancelAndIgnoreRemainingEvents()
@@ -76,11 +78,11 @@ class ObserveTermReportUseCaseTest {
 	@Test
 	fun failsWhenTheInsightIsUnknownAndTheServiceCouldNotBeAsked() = runTest {
 		val useCase = createObserveTermReportUseCase(
-			insights = ControllableAssistantInsightsRepository(refreshFailure = IOException("offline")),
+			insights = ControllableAssistantInsightsRepository(),
 			record = ControllableVisibleAcademicRecordRepository(record)
 		)
 
-		useCase.execute("term-1:2").test {
+		useCase.execute(ObserveTermReportParams(insightId = "term-1:2", isRefreshed = false)).test {
 			awaitItem()
 			assertIs<UseCaseState.Error<*>>(awaitItem())
 			awaitComplete()
@@ -95,7 +97,7 @@ class ObserveTermReportUseCaseTest {
 			prerequisite = ControllableRecordDataPrerequisiteRepository(isReady = false)
 		)
 
-		useCase.execute("term-1:2").test {
+		useCase.execute(params).test {
 			awaitItem()
 			assertIs<UseCaseState.Error<*>>(awaitItem())
 			awaitComplete()

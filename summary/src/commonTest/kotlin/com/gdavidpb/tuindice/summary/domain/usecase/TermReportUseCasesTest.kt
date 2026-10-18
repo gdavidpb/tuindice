@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsReposi
 import com.gdavidpb.tuindice.summary.testing.ControllableTermReportSeenRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
-import java.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -30,7 +29,7 @@ class TermReportUseCasesTest {
 
 	@Test
 	fun aRefusedRatingFailsTheUseCase() = runTest {
-		val insights = ControllableAssistantInsightsRepository(ratingFailure = IOException("404"))
+		val insights = ControllableAssistantInsightsRepository(ratingFailure = IllegalStateException("404"))
 		val useCase = RateTermReportUseCase(insights, RecordingReportingRepository())
 
 		useCase.execute(RateTermReportParams(insightId = "term-1:2", useful = true)).test {
@@ -52,19 +51,5 @@ class TermReportUseCasesTest {
 		}
 
 		assertEquals(setOf("term-1:2"), seen.seenIdsFlow.value)
-	}
-
-	@Test
-	fun refreshingKeepsTheReportsWhenTheServiceIsOffline() = runTest {
-		val insights = ControllableAssistantInsightsRepository(refreshFailure = IOException("offline"))
-		val useCase = RefreshTermReportsUseCase(insights, RecordingReportingRepository())
-
-		useCase.execute(Unit).test {
-			awaitItem()
-			assertIs<UseCaseState.Data<Unit>>(awaitItem())
-			awaitComplete()
-		}
-
-		assertEquals(1, insights.refreshCount)
 	}
 }

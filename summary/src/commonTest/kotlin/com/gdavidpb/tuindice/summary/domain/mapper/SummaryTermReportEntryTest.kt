@@ -41,7 +41,7 @@ class SummaryTermReportEntryTest {
 	@Test
 	fun theLineNamesTheTermOfTheReportAndItsTitle() {
 		val entry = termReportEntryOf(
-			insights = listOf(termReportInsight(termKey = "2026-APR_JUL", title = "Cerraste con 4,18")),
+			insights = listOf(termReportInsight(termKey = "2026-APR_JUL")),
 			seenIds = emptySet()
 		)
 

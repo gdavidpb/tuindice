@@ -28,7 +28,6 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryNextEvaluation
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
-import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReportEntry
 import com.gdavidpb.tuindice.summary.domain.model.SummarySubjectPoints
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
@@ -50,15 +49,13 @@ internal fun buildSummaryHub(
 	recordState: SummaryRecordState,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
-	pensumProgress: PensumCreditsProgress?,
-	termReport: SummaryTermReportEntry? = null
+	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
 	return buildSummaryHub(
 		reading = recordReadingOf(recordState),
 		evaluations = evaluations,
 		now = now,
-		pensumProgress = pensumProgress,
-		termReport = termReport
+		pensumProgress = pensumProgress
 	)
 }
 
@@ -67,8 +64,7 @@ internal fun buildSummaryHub(
 	reading: SummaryRecordReading,
 	evaluations: ObservedSyncedSnapshot<List<Evaluation>>,
 	now: ScheduleNow,
-	pensumProgress: PensumCreditsProgress?,
-	termReport: SummaryTermReportEntry? = null
+	pensumProgress: PensumCreditsProgress?
 ): SummaryHub {
 	// The pensum's progress enters the domain here, as the summary's own figure, and every hub and statistics below
 	// carries that figure.
@@ -76,7 +72,7 @@ internal fun buildSummaryHub(
 		SummaryCreditsProgress(approvedCredits = progress.approvedCredits, totalCredits = progress.totalCredits)
 	}
 
-	val hub = when (reading) {
+	return when (reading) {
 		is SummaryRecordReading.Ready -> readyHubOf(
 			reading = reading,
 			evaluations = evaluations,
@@ -93,9 +89,6 @@ internal fun buildSummaryHub(
 
 		SummaryRecordReading.NotReady -> SummaryHub.Empty.copy(career = career)
 	}
-
-	// The report line is not the record's: it stays whatever the record says.
-	return hub.copy(termReport = termReport)
 }
 
 private fun readyHubOf(

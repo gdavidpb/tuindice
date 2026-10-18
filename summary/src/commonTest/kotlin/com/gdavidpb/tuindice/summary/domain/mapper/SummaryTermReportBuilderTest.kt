@@ -20,8 +20,8 @@ import kotlin.test.assertNull
 
 class SummaryTermReportBuilderTest {
 
-	// A closed Jan - Mar with two passed subjects of 3 credits each, and the Apr - Jul term in progress with a passed, a failed,
-	// a pending and a withdrawn subject.
+	// A closed Jan - Mar with two passed subjects of 3 credits each, and the Apr - Jul term in progress with a passed, a
+	// failed, a pending and a withdrawn subject.
 	private val closedJanMar = hubClosedTerm(
 		year = 2026,
 		attempts = listOf(hubPassedAttempt("CI1"), hubPassedAttempt("CI2")),

@@ -47,6 +47,7 @@ internal fun termReportOf(
 		insightId = insight.id,
 		termId = insight.entityRefs.firstOrNull { ref -> ref.kind == AssistantEntityKind.TERM }?.id,
 		termKey = insight.termKey,
+		title = insight.title,
 		sections = insight.sections,
 		nextActions = insight.nextActions,
 		term = term,
@@ -67,8 +68,8 @@ internal fun termReportOf(
 }
 
 /**
- * The line the summary offers for the newest report the student has not opened yet, or null when every report was opened.
- * [insights] come from the service; the newest by its creation instant is the one the line is about.
+ * The line the summary offers for the newest report the student has not opened yet, or null when every report was
+ * opened. [insights] come from the service; the newest by its creation instant is the one the line is about.
  */
 internal fun termReportEntryOf(
 	insights: List<AssistantTermInsight>,

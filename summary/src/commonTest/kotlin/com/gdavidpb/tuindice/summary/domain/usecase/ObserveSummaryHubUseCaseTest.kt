@@ -8,11 +8,9 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryCreditsProgress
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTerm
 import com.gdavidpb.tuindice.summary.domain.model.SummaryWeek
-import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableScheduleClockRepository
-import com.gdavidpb.tuindice.summary.testing.ControllableTermReportSeenRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.testing.HUB_THURSDAY
@@ -28,6 +26,7 @@ import com.gdavidpb.tuindice.summary.testing.hubTerm
 import com.gdavidpb.tuindice.summary.testing.scheduleNow
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -35,7 +34,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class ObserveSummaryHubUseCaseTest {
 	private val progress = PensumCreditsProgress(approvedCredits = 156, totalCredits = 240)
@@ -153,8 +151,6 @@ class ObserveSummaryHubUseCaseTest {
 			pensumProgressRepository = ControllablePensumProgressRepository(failure = failure),
 			recordDataPrerequisiteRepository = ControllableRecordDataPrerequisiteRepository(),
 			scheduleClockRepository = ControllableScheduleClockRepository(),
-			assistantInsightsRepository = ControllableAssistantInsightsRepository(),
-			termReportSeenRepository = ControllableTermReportSeenRepository(),
 			reportingRepository = reporting
 		)
 

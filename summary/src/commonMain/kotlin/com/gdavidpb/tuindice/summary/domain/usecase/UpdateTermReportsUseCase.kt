@@ -7,16 +7,20 @@ import com.gdavidpb.tuindice.base.utils.extension.attempt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-// Reads the term reports again when the summary is opened or refreshed. A failure keeps the reports already read, and the
-// summary is not told of it: the reports are an extra of the summary, not what it shows.
-class RefreshTermReportsUseCase(
+/**
+ * Asks the service for the term reports again and keeps the ones it answers on this device. It emits whether the
+ * service answered. A failure is reported and keeps the reports already read: the screens say what they can without
+ * them.
+ */
+class UpdateTermReportsUseCase(
 	private val insightsRepository: AssistantInsightsRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>() {
-	override suspend fun executeOnBackground(params: Unit): Flow<Unit> = flow {
-		attempt { insightsRepository.refreshInsights() }
+) : FlowUseCase<Unit, Boolean, Nothing>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<Boolean> = flow {
+		val isRefreshed = attempt { insightsRepository.refreshInsights() }
 			.onFailure { failure -> reportHandledException(failure) }
+			.isSuccess
 
-		emit(Unit)
+		emit(isRefreshed)
 	}
 }
