@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.transition
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
+import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
@@ -52,9 +53,11 @@ private fun ContentTransitions.contentComposerRows(
 
 		machine.startTurn(
 			host = host,
-			text = draftText.trim(),
-			suggestionId = null,
-			context = state.context?.context,
+			params = SendAssistantMessageParams(
+				text = draftText.trim(),
+				suggestionId = null,
+				screenContext = state.context?.context
+			),
 			draftText = draftText
 		)
 		machine.refreshed(state)
@@ -67,9 +70,11 @@ private fun ContentTransitions.contentComposerRows(
 
 		machine.startTurn(
 			host = host,
-			text = text,
-			suggestionId = action.suggestionId,
-			context = state.context?.context,
+			params = SendAssistantMessageParams(
+				text = text,
+				suggestionId = action.suggestionId,
+				screenContext = state.context?.context
+			),
 			draftText = machine.draft.text.value
 		)
 		machine.refreshed(state)
@@ -84,11 +89,13 @@ private fun ContentTransitions.contentComposerRows(
 
 		machine.startTurn(
 			host = host,
-			text = failed.text,
-			suggestionId = failed.suggestionId,
-			context = state.context?.context,
-			draftText = null,
-			clientTurnId = failed.clientTurnId
+			params = SendAssistantMessageParams(
+				text = failed.text,
+				suggestionId = failed.suggestionId,
+				screenContext = state.context?.context,
+				clientTurnId = failed.clientTurnId
+			),
+			draftText = null
 		)
 		machine.refreshed(state)
 	}

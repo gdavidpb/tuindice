@@ -31,8 +31,8 @@ import tuindice.assistant.generated.resources.assistant_consent_retention
 import tuindice.assistant.generated.resources.assistant_consent_scope
 import tuindice.assistant.generated.resources.assistant_consent_title
 
-// What the student needs to know before accepting the assistant. It says "el asistente": no name in the chat. A [failed]
-// acceptance says so above the actions, and accepting again is the retry.
+// What the student needs to know before accepting the assistant. It says "el asistente": no name in the chat. A
+// [failed] acceptance says so above the actions, and accepting again is the retry.
 @Composable
 fun AssistantConsentView(
 	onAction: (AssistantChat.Action) -> Unit,

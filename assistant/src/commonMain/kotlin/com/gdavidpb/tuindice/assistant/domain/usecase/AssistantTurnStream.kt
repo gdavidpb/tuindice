@@ -17,9 +17,10 @@ import kotlinx.coroutines.flow.flow
 /**
  * Follows the events of a turn into the conversation, and holds the assistant off when the server disables it.
  *
- * A stream that ends before the final event of the turn is followed once more from the last seq it reached: that check
- * tells where the turn stands. When the check ends the same way, the turn is left unconfirmed, because its result is not
- * known, and no event is made up for it. A failure the stream broke with is rethrown after that, so it is reported.
+ * A stream that ends before the final event of the turn is followed once more from the last seq it reached: that
+ * check tells where the turn stands. When the check ends the same way, the turn is left unconfirmed, because its
+ * result is not known, and no event is made up for it. A failure the stream broke with is rethrown after that, so it
+ * is reported.
  */
 class AssistantTurnStream(
 	private val turnRepository: AssistantTurnRepository,

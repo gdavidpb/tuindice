@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -59,8 +60,6 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 		return if (code == RunErrorCode.OTHER && !retryable) "failure:$code:final" else "failure:$code"
 	}
 
-	override suspend fun turnUnconfirmed(): String = "unconfirmed"
-
 	override suspend fun sendFailed(): String = "send-failed"
 
 	override suspend fun messageTooLong(maxLength: Int): String = "too-long:$maxLength"
@@ -81,7 +80,9 @@ internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
 // A conversation the test changes: the store's observation emits each change, as the store does.
 internal class ObservedAssistantConversationRepository(
 	initial: AssistantConversation = emptyAssistantConversation()
-) : AssistantConversationRepository {
+) : AssistantConversationRepository, AssistantIntentOutboxRepository {
+	private val staged = linkedMapOf<String, IntentOutcomeReport>()
+
 	val conversation = MutableStateFlow(initial)
 	val applied = mutableListOf<AssistantEvent>()
 	val unconfirmed = mutableListOf<String>()
@@ -120,17 +121,15 @@ internal class ObservedAssistantConversationRepository(
 		}
 	}
 
-	override fun stageOutcome(report: IntentOutcomeReport) = Unit
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		staged[report.intentId] = report
+	}
 
-	override fun clearOutcome(intentId: String) = Unit
+	override fun clearOutcome(intentId: String) {
+		staged.remove(intentId)
+	}
 
-	override fun pendingOutcomes(): List<IntentOutcomeReport> = emptyList()
-
-	override fun markDecisionUncertain(intentId: String) = Unit
-
-	override fun clearDecisionUncertain(intentId: String) = Unit
-
-	override fun isDecisionUncertain(intentId: String): Boolean = false
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
 
 	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
 		conversation.update { current ->

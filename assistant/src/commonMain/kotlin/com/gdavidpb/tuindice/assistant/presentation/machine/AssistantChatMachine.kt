@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import kotlinx.coroutines.flow.collect
-import kotlin.uuid.Uuid
 
 /**
  * The chat sheet: its states, its transitions and the commands behind them. The conversation is observed from the
@@ -84,7 +83,6 @@ class AssistantChatMachine(
 	internal suspend fun enterContent(host: MachineHost<AssistantChat.Effect>): AssistantChat.State.Content {
 		turns.observeConversation(host)
 		turns.resumeTurn(host)
-		intents.flushOutcomes(host)
 
 		val emptyContent = AssistantChat.State.Content(
 			context = session.openedContext?.toChatContextItem(texts),
@@ -112,15 +110,13 @@ class AssistantChatMachine(
 		return session.presentedContent(texts = texts, draftText = draft.text.value, content = content)
 	}
 
-	// Starts a turn with [text]. [draftText] is the draft the send takes its text from and clears; null leaves it. A new
-	// message gets its own client turn id; a retry passes the one of the send it retries, so the server answers the same turn.
+	// Starts a turn with the message of [params]. [draftText] is the draft the send takes its text from and clears;
+	// null leaves it. A new message carries its own client turn id; a retry carries the one of the send it retries,
+	// so the server answers with the same turn.
 	internal fun startTurn(
 		host: MachineHost<AssistantChat.Effect>,
-		text: String,
-		suggestionId: String?,
-		context: AssistantScreenContext?,
-		draftText: String?,
-		clientTurnId: String = Uuid.random().toString()
+		params: SendAssistantMessageParams,
+		draftText: String?
 	) {
 		session.turnFailure = null
 		session.sending = true
@@ -130,15 +126,10 @@ class AssistantChatMachine(
 
 		turns.send(
 			host = host,
-			params = SendAssistantMessageParams(
-				text = text,
-				suggestionId = suggestionId,
-				screenContext = context,
-				clientTurnId = clientTurnId
-			),
-			sentText = text,
+			params = params,
+			sentText = params.text.orEmpty(),
 			restoreText = draftText,
-			suggestionId = suggestionId
+			suggestionId = params.suggestionId
 		)
 	}
 

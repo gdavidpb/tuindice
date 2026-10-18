@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.data.model
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 
@@ -20,5 +21,7 @@ data class AssistantConversationState(
 	val turns: Map<String, AssistantTurnState> = emptyMap(),
 	val lastTurnId: String? = null,
 	val openIntents: Map<String, AssistantOpenIntent> = emptyMap(),
-	val resolvedIntents: Map<String, OutcomeKind> = emptyMap()
+	val resolvedIntents: Map<String, OutcomeKind> = emptyMap(),
+	// The outbox of the intents: the reports the server has not settled yet.
+	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap()
 )

@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 /**
- * Follows again the turn that was running when the conversation was last seen, from the seq it had reached, and the turn
- * whose result was unconfirmed, to learn where it stands. Nothing is emitted when no such turn exists.
+ * Follows again the turn that was running when the conversation was last seen, from the seq it had reached, and the
+ * turn whose result was unconfirmed, to learn where it stands. Nothing is emitted when no such turn exists.
  */
 class ResumeAssistantTurnUseCase(
 	private val turnStream: AssistantTurnStream,

@@ -15,10 +15,11 @@ import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
@@ -41,7 +42,6 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.FlushAssistantOutcomesUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
@@ -51,6 +51,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCas
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
@@ -125,6 +126,7 @@ val assistantModule = module {
 		bind<SessionMemory>()
 	}
 	singleOf(::AssistantConversationDataSource) { bind<SessionMemory>() }
+	single<AssistantIntentOutboxRepository> { get<AssistantConversationDataSource>().outbox }
 	singleOf(::AssistantConversationStoreDataSource) { bind<AssistantConversationRepository>() }
 
 	/* Shared helpers and validators, exception handlers */
@@ -155,10 +157,10 @@ val assistantModule = module {
 	factoryOf(::ConfirmRememberIntentUseCase)
 	factoryOf(::DelegateEnrollmentProofIntentUseCase)
 	factoryOf(::DismissAssistantIntentUseCase)
-	factoryOf(::FlushAssistantOutcomesUseCase)
 	factoryOf(::RateAssistantMessageUseCase)
 	factoryOf(::ReportAssistantMessageUseCase)
 	factoryOf(::GetAssistantStatusUseCase)
+	factoryOf(::SyncAssistantUseCase)
 	factoryOf(::AppealAssistantRestrictionUseCase)
 	factoryOf(::AcceptAssistantConsentUseCase)
 	factoryOf(::GetAssistantMemoryUseCase)

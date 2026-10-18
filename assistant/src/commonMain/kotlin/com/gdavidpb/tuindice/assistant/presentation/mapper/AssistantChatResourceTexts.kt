@@ -47,7 +47,6 @@ import tuindice.assistant.generated.resources.assistant_chat_turn_failed_quota
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_refused
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_timeout
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_transient
-import tuindice.assistant.generated.resources.assistant_chat_turn_unconfirmed
 import tuindice.assistant.generated.resources.assistant_chat_undated
 import tuindice.assistant.generated.resources.assistant_chat_wait_minutes
 import tuindice.assistant.generated.resources.assistant_chat_wait_under_minute
@@ -113,8 +112,6 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 			}
 		}
 	)
-
-	override suspend fun turnUnconfirmed(): String = getString(Res.string.assistant_chat_turn_unconfirmed)
 
 	override suspend fun sendFailed(): String = getString(Res.string.assistant_chat_send_failed)
 

@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
@@ -94,7 +94,7 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
-	fun retryOfAFailedSend_resendsTheSameClientTurnId_andTheAcceptedRetryKeepsOneBubbleThatIsNotFailed() = chatTest { fixture, viewModel ->
+	fun retryOfAFailedSend_resendsTheSameClientTurnId_andLeavesOneBubble() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
 		viewModel.openAction(null)
@@ -128,7 +128,7 @@ class AssistantChatTurnBehaviorTest {
 		)
 		viewModel.openAction(null)
 
-		assertEquals(ChatNoticeItem.TurnFailed(message = "unconfirmed", canRetry = true), viewModel.content().notice)
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
 
 		viewModel.retryTurnAction()
 

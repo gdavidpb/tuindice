@@ -127,7 +127,6 @@
 	<string name="assistant_chat_turn_failed_cancelled">Cancelaste la respuesta.</string>
 	<string name="assistant_chat_turn_failed_other">Algo salió mal al responder. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_turn_failed_other_final">Algo salió mal al responder.</string>
-	<string name="assistant_chat_turn_unconfirmed">No pudimos confirmar la respuesta. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_send_failed">No pudimos enviar tu mensaje. Inténtalo de nuevo.</string>
 	<string name="assistant_photo_add">Agregar evaluaciones desde una foto</string>
 	<string name="assistant_photo_take">Tomar foto</string>

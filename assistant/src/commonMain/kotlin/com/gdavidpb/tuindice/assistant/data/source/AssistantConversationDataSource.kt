@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnState
 import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.ComponentEmitted
@@ -31,9 +32,8 @@ class AssistantConversationDataSource : SessionMemory {
 
 	private val conversation = MutableStateFlow(AssistantConversationState())
 
-	// The outcome reports the server has not taken yet, by intent; the intents whose decision answer the network lost.
-	private val outcomesPending = MutableStateFlow<Map<String, IntentOutcomeReport>>(emptyMap())
-	private val decisionsUncertain = MutableStateFlow<Set<String>>(emptySet())
+	// The outbox of the intents lives in the conversation state: the wipe that clears the conversation clears it too.
+	val outbox: AssistantIntentOutboxRepository = ConversationOutboxDataSource(conversation)
 
 	fun observeConversation(): StateFlow<AssistantConversationState> = conversation.asStateFlow()
 
@@ -47,8 +47,8 @@ class AssistantConversationDataSource : SessionMemory {
 		conversation.update { current -> current.reduce(event) }
 	}
 
-	// The result of a turn is unknown: its stream ended and a check from its last seq reached no final event. An event that
-	// comes later shows the turn is still going.
+	// The result of a turn is unknown: its stream ended and a check from its last seq reached no final event. An
+	// event that comes later shows the turn is still going.
 	fun markUnconfirmed(turnId: String, lastSeq: Long) {
 		conversation.update { current -> current.markUnconfirmed(turnId, lastSeq) }
 	}
@@ -80,31 +80,8 @@ class AssistantConversationDataSource : SessionMemory {
 		}
 	}
 
-	// A report stays until the server takes it; the one of an intent replaces the earlier one of the same intent.
-	fun stageOutcome(report: IntentOutcomeReport) {
-		outcomesPending.update { current -> current + (report.intentId to report) }
-	}
-
-	fun clearOutcome(intentId: String) {
-		outcomesPending.update { current -> current - intentId }
-	}
-
-	fun pendingOutcomes(): List<IntentOutcomeReport> = outcomesPending.value.values.toList()
-
-	fun markDecisionUncertain(intentId: String) {
-		decisionsUncertain.update { current -> current + intentId }
-	}
-
-	fun clearDecisionUncertain(intentId: String) {
-		decisionsUncertain.update { current -> current - intentId }
-	}
-
-	fun isDecisionUncertain(intentId: String): Boolean = intentId in decisionsUncertain.value
-
 	override suspend fun clearSessionMemory() {
 		conversation.value = AssistantConversationState()
-		outcomesPending.value = emptyMap()
-		decisionsUncertain.value = emptySet()
 	}
 }
 
@@ -172,21 +149,22 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 	}
 }
 
-// A turn that has ended keeps its end. A turn with no event yet starts here, unconfirmed, at the seq it was followed from.
+// A turn that has ended keeps its end. A turn with no event yet starts here, unconfirmed, at the seq it was followed
+// from.
 private fun AssistantConversationState.markUnconfirmed(turnId: String, lastSeq: Long): AssistantConversationState {
 	val turn = turns[turnId]
 
-	if (turn == null) {
-		return copy(
+	return when {
+		turn == null -> copy(
 			turns = turns + (turnId to AssistantTurnState(turnId, lastSeq, status = AssistantTurnStatus.UNCONFIRMED)),
 			lastTurnId = turnId
 		)
-	}
 
-	if (turn.status != AssistantTurnStatus.RUNNING) return this
+		turn.status == AssistantTurnStatus.RUNNING -> updateTurn(turnId) { current ->
+			current.copy(progressLabel = null, status = AssistantTurnStatus.UNCONFIRMED)
+		}
 
-	return updateTurn(turnId) { current ->
-		current.copy(progressLabel = null, status = AssistantTurnStatus.UNCONFIRMED)
+		else -> this
 	}
 }
 
@@ -228,4 +206,21 @@ private fun List<AssistantMessage>.withMessage(message: AssistantMessage): List<
 	} else {
 		this + message
 	}
+}
+
+// The intents' outbox over the conversation: its reports are fields of the conversation state.
+private class ConversationOutboxDataSource(
+	private val conversation: MutableStateFlow<AssistantConversationState>
+) : AssistantIntentOutboxRepository {
+	override fun stageOutcome(report: IntentOutcomeReport) {
+		conversation.update { current ->
+			current.copy(outcomesPending = current.outcomesPending + (report.intentId to report))
+		}
+	}
+
+	override fun clearOutcome(intentId: String) {
+		conversation.update { current -> current.copy(outcomesPending = current.outcomesPending - intentId) }
+	}
+
+	override fun pendingOutcomes(): List<IntentOutcomeReport> = conversation.value.outcomesPending.values.toList()
 }

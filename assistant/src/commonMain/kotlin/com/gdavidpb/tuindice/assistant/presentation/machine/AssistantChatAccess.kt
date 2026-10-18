@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
-import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
@@ -23,11 +21,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 // The assistant's standing with the student: whether it is on, the consent, and the restriction and its appeal.
 class AssistantChatAccess(
 	private val availabilityRepository: AssistantAvailabilityRepository,
-	private val serverModeRepository: AssistantServerModeRepository,
-	private val serverConsentRepository: AssistantServerConsentRepository,
 	private val consentRepository: AssistantConsentRepository,
 	private val acceptAssistantConsentUseCase: AcceptAssistantConsentUseCase,
-	private val getAssistantStatusUseCase: GetAssistantStatusUseCase,
+	private val syncAssistantUseCase: SyncAssistantUseCase,
 	private val appealAssistantRestrictionUseCase: AppealAssistantRestrictionUseCase,
 	private val feedbackTexts: AssistantChatFeedbackTexts
 ) {
@@ -52,13 +48,9 @@ class AssistantChatAccess(
 	// Reads the status the server gives the student and applies it: its mode becomes the last word on the mode, and the
 	// consent the device keeps follows the server's. A status that cannot be read leaves both as they are.
 	suspend fun applyStatus(): AssistantMode? {
-		val status = (getAssistantStatusUseCase.execute(Unit).last() as? UseCaseState.Data)?.value ?: return null
-		val mode = AssistantMode.fromRemoteValue(status.mode)
+		val status = (syncAssistantUseCase.execute(Unit).last() as? UseCaseState.Data)?.value ?: return null
 
-		serverModeRepository.reportServerMode(mode)
-		serverConsentRepository.reconcileConsent(status.consent)
-
-		return mode
+		return AssistantMode.fromRemoteValue(status.mode)
 	}
 
 	// The status is read before the sheet decides what it shows, but not for longer than [millis]: a status that is late
@@ -96,7 +88,7 @@ class AssistantChatAccess(
 	// The standing says whether the restriction can be appealed; without it the appeal stays off.
 	fun restrictionStatus(host: MachineHost<AssistantChat.Effect>) {
 		host.launchMachineJob {
-			getAssistantStatusUseCase.execute(Unit).collect { useCaseState ->
+			syncAssistantUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 

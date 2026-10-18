@@ -108,7 +108,7 @@ class AssistantTurnUseCasesTest {
 	}
 
 	@Test
-	fun aStreamThatEndsBeforeItsFinalEventIsCheckedFromTheLastSeq_andLeftUnconfirmedWhenTheCheckFindsNothingEither() = runTest {
+	fun aStreamThatEndsEarlyIsCheckedFromItsLastSeq_andLeftUnconfirmedWhenTheCheckFindsNothing() = runTest {
 		turns.events = listOf(runStarted(1), progress(2))
 
 		val emitted = FollowAssistantTurnUseCase(stream, RecordingReportingRepository())

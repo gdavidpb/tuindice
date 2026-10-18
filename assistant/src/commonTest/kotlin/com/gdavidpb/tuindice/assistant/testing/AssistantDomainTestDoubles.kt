@@ -10,13 +10,14 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerConsentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
@@ -130,7 +131,7 @@ internal class RecordingAssistantConversationRepository(
 	var conversationId: String? = null,
 	var openIntents: Map<String, Intent> = emptyMap(),
 	var activeTurn: AssistantActiveTurn? = null
-) : AssistantConversationRepository {
+) : AssistantConversationRepository, AssistantIntentOutboxRepository {
 	val attached = mutableListOf<String>()
 	val applied = mutableListOf<AssistantEvent>()
 	val unconfirmed = mutableListOf<String>()
@@ -182,7 +183,6 @@ internal class RecordingAssistantConversationRepository(
 	}
 
 	private val staged = linkedMapOf<String, IntentOutcomeReport>()
-	private val uncertain = mutableSetOf<String>()
 
 	override fun stageOutcome(report: IntentOutcomeReport) {
 		staged[report.intentId] = report
@@ -193,16 +193,6 @@ internal class RecordingAssistantConversationRepository(
 	}
 
 	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
-
-	override fun markDecisionUncertain(intentId: String) {
-		uncertain += intentId
-	}
-
-	override fun clearDecisionUncertain(intentId: String) {
-		uncertain -= intentId
-	}
-
-	override fun isDecisionUncertain(intentId: String): Boolean = intentId in uncertain
 
 	var cleared = 0
 
@@ -272,8 +262,8 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	}
 }
 
-// [configuredMode] and [consentGranted] are what the status reads until a test sets an answer: the server agrees with the
-// configuration and with the consent then.
+// [configuredMode] and [consentGranted] are what the status reads until a test sets an answer: the server agrees with
+// the configuration and with the consent then.
 internal class RecordingAssistantStandingRepository(
 	private val configuredMode: () -> String = { "on" },
 	private val consentGranted: () -> Boolean = { true }

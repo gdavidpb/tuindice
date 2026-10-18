@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
-import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.Flow
@@ -31,21 +30,6 @@ interface AssistantConversationRepository {
 	fun addAssistantMessage(message: AssistantMessage, intent: Intent?)
 
 	fun markIntentResolved(intentId: String, outcome: OutcomeKind)
-
-	/** Keeps an outcome report the server has not taken yet, until it takes it: the next flush sends it again. */
-	fun stageOutcome(report: IntentOutcomeReport)
-
-	fun clearOutcome(intentId: String)
-
-	/** The outcome reports the server has not taken yet. */
-	fun pendingOutcomes(): List<IntentOutcomeReport>
-
-	/** Marks a decision whose answer the network lost: it may have been applied already. */
-	fun markDecisionUncertain(intentId: String)
-
-	fun clearDecisionUncertain(intentId: String)
-
-	fun isDecisionUncertain(intentId: String): Boolean
 
 	/** Forgets the conversation on this device, as when its threads are deleted on the server. */
 	suspend fun clearConversation()

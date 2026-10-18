@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
-// The consent the student gives before the chat opens. A refused acceptance keeps the sheet here, with its error, and the
-// student can accept again.
+// The consent the student gives before the chat opens. A refused acceptance keeps the sheet here, with its error, and
+// the student can accept again.
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatConsentRequiredTransitions(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>

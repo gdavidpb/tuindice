@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
+import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The presentation of the chat, derived from the conversation and the extended state. Every screen state the rows
@@ -71,7 +72,7 @@ internal suspend fun AssistantChatSession.presentedNotice(
 		guided -> ChatNoticeItem.Guided(message = texts.guided())
 
 		conversation?.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED -> ChatNoticeItem.TurnFailed(
-			message = texts.turnUnconfirmed(),
+			message = texts.turnFailure(RunErrorCode.TRANSIENT, retryable = true),
 			canRetry = lastFailedSend != null
 		)
 

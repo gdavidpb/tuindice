@@ -32,6 +32,21 @@ internal suspend fun KtorAssistantApiDataSource.postIntentOutcome(intentId: Stri
 	send { post(assistantPath("intents", intentId, "outcome")) { setJsonBody(report) } }
 }
 
+// The server settles an outcome report when it takes it (204), when it repeats the result it has, or when it refuses
+// it for good: a 409 for an intent that expired or was resolved otherwise, or any other client error. A server error
+// or a rate limit is no answer: it is raised, and so is a failure that never reached the server. The report is sent
+// again then.
+internal suspend fun KtorAssistantApiDataSource.reportIntentOutcome(report: IntentOutcomeReport) {
+	try {
+		postIntentOutcome(report.intentId, report)
+	} catch (cause: AssistantApiException) {
+		if (cause.httpStatus == TOO_MANY_REQUESTS_STATUS || cause.httpStatus >= SERVER_ERROR_STATUS) throw cause
+	}
+}
+
+private const val TOO_MANY_REQUESTS_STATUS = 429
+private const val SERVER_ERROR_STATUS = 500
+
 internal suspend fun KtorAssistantApiDataSource.postFeedback(feedback: MessageFeedback) {
 	send { post(assistantPath("feedback")) { setJsonBody(feedback) } }
 }

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.domain.exception.AssistantIntentIllegalAr
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
@@ -22,14 +23,15 @@ import kotlin.time.Clock
  * intent must be open and of the kind the use case confirms. An intent past its deadline is reported as expired without
  * asking the server. The server decides: an expiry or a conflict it answers is reported without running anything. An
  * accepted intent runs on its port, and its outcome is reported with the mutations of its binding and marked resolved.
- * A decision whose answer the network lost may have been applied: its repetition is read as the decision made. An outcome
- * report the server does not take stays pending until a flush sends it again. Otherwise nothing here catches: a port
- * answers FAILED instead of throwing.
+ * A decision repeated after its answer was lost is answered as decided, so it runs; a conflict is final. An outcome
+ * report stays in the outbox until the server settles it, and a flush sends it again when it was not answered. Nothing
+ * here catches: a port answers FAILED instead of throwing.
  */
 class AssistantIntentConfirmer(
 	private val conversationRepository: AssistantConversationRepository,
 	private val intentRepository: AssistantIntentRepository,
-	private val clock: Clock
+	private val clock: Clock,
+	private val outboxRepository: AssistantIntentOutboxRepository
 ) {
 	/**
 	 * Confirms the intent of [params] as the kind [narrow] picks, and runs it with [execute]. With [reportsOutcome] false
@@ -54,7 +56,7 @@ class AssistantIntentConfirmer(
 
 		val decision = IntentDecision(intentId = intent.id, accepted = true, editedArgs = editedArgs)
 
-		return when (decide(intent, decision)) {
+		return when (intentRepository.decide(decision)) {
 			IntentDecisionResult.Accepted -> executeAccepted(intent, args, execute, reportsOutcome)
 			IntentDecisionResult.Expired -> closeWithoutRunning(intent, OutcomeKind.EXPIRED)
 			IntentDecisionResult.Conflict -> closeWithoutRunning(intent, OutcomeKind.CONFLICT)
@@ -63,28 +65,7 @@ class AssistantIntentConfirmer(
 
 	// Sends the outcome reports the server has not taken yet: the ones of earlier confirmations whose send failed.
 	suspend fun flushPendingOutcomes() {
-		conversationRepository.pendingOutcomes().forEach { report -> sendOutcome(report) }
-	}
-
-	// The decision as the server answers it. When the answer was lost to a failure of the network, the decision may have
-	// been applied already: a Conflict to its repetition then is the decision as made, and the intent runs by its mutations,
-	// which are idempotent.
-	private suspend fun decide(intent: Intent, decision: IntentDecision): IntentDecisionResult {
-		val repeated = conversationRepository.isDecisionUncertain(intent.id)
-		val answer = runCatching { intentRepository.decide(decision) }
-
-		answer.exceptionOrNull()?.let { failure ->
-			if (failure is CancellationException) throw failure
-
-			conversationRepository.markDecisionUncertain(intent.id)
-			throw failure
-		}
-
-		conversationRepository.clearDecisionUncertain(intent.id)
-
-		val result = answer.getOrThrow()
-
-		return if (repeated && result == IntentDecisionResult.Conflict) IntentDecisionResult.Accepted else result
+		outboxRepository.pendingOutcomes().forEach { report -> sendOutcome(report) }
 	}
 
 	// The proposed args must be of the kind. Edited args of that kind replace them; any other edited args are ignored.
@@ -135,15 +116,16 @@ class AssistantIntentConfirmer(
 		return outcome
 	}
 
-	// A report stays staged until the server takes it. Whether it was taken or not, the intent is resolved here, so the
-	// conversation does not wait for the network; a staged report is the one the next flush sends.
+	// The report stays staged until the server settles it: it takes the report, or refuses it for good, and then it
+	// is no longer owed. A report that got no answer stays staged for the next flush, and the intent is resolved here
+	// meanwhile.
 	private suspend fun sendOutcome(report: IntentOutcomeReport) {
-		conversationRepository.stageOutcome(report)
+		outboxRepository.stageOutcome(report)
 
 		val failure = runCatching { intentRepository.reportOutcome(report) }.exceptionOrNull()
 
 		if (failure == null) {
-			conversationRepository.clearOutcome(report.intentId)
+			outboxRepository.clearOutcome(report.intentId)
 		} else if (failure is CancellationException) {
 			throw failure
 		}

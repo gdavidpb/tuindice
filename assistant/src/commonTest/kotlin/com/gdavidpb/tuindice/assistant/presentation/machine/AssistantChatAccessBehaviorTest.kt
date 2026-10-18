@@ -18,6 +18,8 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
@@ -87,6 +89,17 @@ class AssistantChatAccessBehaviorTest {
 	}
 
 	@Test
+	fun open_sendsTheOutcomesOfTheIntentsTheServerHasNotTakenYet() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.stageOutcome(IntentOutcomeReport(intentId = "i9", outcome = OutcomeKind.CANCELLED))
+
+		viewModel.openAction(null)
+
+		assertEquals(listOf("i9"), fixture.intents.reports.map { report -> report.intentId })
+		assertTrue(fixture.conversation.pendingOutcomes().isEmpty())
+	}
+
+	@Test
 	fun declineConsent_closesTheSheet() = chatTest { fixture, viewModel ->
 		viewModel.openAction(null)
 
@@ -122,7 +135,7 @@ class AssistantChatAccessBehaviorTest {
 	}
 
 	@Test
-	fun aGuidedLock_holdsThroughAnAcceptedTurn_andAnOnModeFromTheConfigurationReleasesIt() = chatTest { fixture, viewModel ->
+	fun aGuidedLock_holdsThroughAnAcceptedTurn_andAnOnModeReleasesIt() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.standing.failure = IllegalStateException("status unavailable")
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.GUIDED_ONLY, null, "guided")
