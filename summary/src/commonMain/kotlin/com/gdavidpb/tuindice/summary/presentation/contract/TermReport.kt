@@ -36,11 +36,14 @@ object TermReport {
 		data object Loading : State()
 
 		// The thumb the student chose is kept while the report is on screen: it is the one the screen shows as selected.
+		// [feedback] is the thumb the screen shows as chosen: the student's vote, or the one confirmed when there is none
+		// in flight. The share action is in the bar only when the report's term can be shared.
 		data class Content(
 			val report: TermReportItem,
 			val feedback: Boolean? = null
 		) : State() {
-			override val topBarConfig: TopBarConfig = TopBarConfig.TermReport
+			override val topBarConfig: TopBarConfig?
+				get() = if (report.isShareable) TopBarConfig.TermReport else null
 
 			override val assistantContext: AssistantScreenContext
 				get() = termReportAssistantContext(report)
@@ -60,7 +63,7 @@ object TermReport {
 	}
 
 	sealed class Action : ViewAction {
-		// The screen opens on the report of [insightId]: it is read, and the report is marked as seen.
+		// The screen opens on the report of [insightId]: it is read, and it is marked as seen once it is on screen.
 		class Open(val insightId: String) : Action()
 
 		data object Retry : Action()

@@ -9,7 +9,8 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReportOutcome
 /**
  * What the term report screen shows of one report, in the order of the screen: the figures of the term, its subjects
  * and its pace, then what the assistant wrote and the actions that follow it. [title] is the report's own title, shown
- * when it has no sections.
+ * when it has no sections. [isShareable] says whether its term can be shared as an image, and [confirmedFeedback] is
+ * the thumb the student's last vote was confirmed with.
  */
 @Immutable
 data class TermReportItem(
@@ -22,7 +23,9 @@ data class TermReportItem(
 	val subjects: TermReportSubjectsItem,
 	val pace: TermReportPaceItem,
 	val sections: List<TermReportSectionItem>,
-	val nextActions: List<TermReportActionItem>
+	val nextActions: List<TermReportActionItem>,
+	val isShareable: Boolean,
+	val confirmedFeedback: Boolean?
 )
 
 /** The index of the term and its cumulative index, each with the change from the term before it when there is one. */
@@ -35,11 +38,17 @@ data class TermReportHeroItem(
 	val cumulativeDelta: TermReportDeltaItem?
 )
 
-/** A change as the chip shows it: its words and the tone that colours them. */
+/**
+ * A change as the chip shows it: its figure with the arrow, the tone that colours it, and the words a screen reader
+ * says for it, which name the direction in words rather than by the arrow. [reference] is the term the change is
+ * measured from, written under the figure; it is null when the chip says the change alone.
+ */
 @Immutable
 data class TermReportDeltaItem(
 	val text: UiText,
-	val tone: TermReportDeltaTone
+	val description: UiText,
+	val tone: TermReportDeltaTone,
+	val reference: UiText? = null
 )
 
 enum class TermReportDeltaTone {

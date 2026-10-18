@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.summary.presentation.transition.contentTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.failedTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.loadingTransitions
+import com.gdavidpb.tuindice.summary.presentation.transition.summaryTermReportTransitions
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Job
@@ -55,6 +56,7 @@ class SummaryMachine(
 			failedTransitions(machine = this@SummaryMachine, host = host)
 			contentTransitions(machine = this@SummaryMachine, host = host)
 			anyStateTransitions(machine = this@SummaryMachine, host = host)
+			summaryTermReportTransitions()
 		}
 	}
 
@@ -98,9 +100,7 @@ class SummaryMachine(
 
 		// The line of an unread term report is read apart from the hub. The service is asked for its reports as the summary
 		// opens, and the line follows the reports it has.
-		host.launchMachineJob {
-			termReports.refresh.execute(Unit).collect()
-		}
+		launchTermReportRefresh(host = host, termReports = termReports)
 
 		host.launchMachineJob {
 			termReports.entry.execute(Unit).collect { useCaseState ->
@@ -156,7 +156,14 @@ class SummaryMachine(
 			return
 		}
 
+		// A return before any observation does nothing: the observation reads everything when it starts.
+		if (hubObservationJob == null) return
+
 		restartHubObservation(host = host)
+
+		// A return asks the service for the reports again, as the opening does: a report written while the app was in
+		// the background reaches the line without the student closing the summary.
+		launchTermReportRefresh(host = host, termReports = termReports)
 	}
 
 	// Coming back from the background: the clock's ticker sleeps with the process, and what the hub
@@ -264,5 +271,12 @@ class SummaryMachine(
 				}
 			}
 		}
+	}
+}
+
+// The service is asked for the term reports. Its answer reaches the line through the entry observation.
+private fun launchTermReportRefresh(host: MachineHost<Summary.Effect>, termReports: SummaryTermReports) {
+	host.launchMachineJob {
+		termReports.refresh.execute(Unit).collect()
 	}
 }

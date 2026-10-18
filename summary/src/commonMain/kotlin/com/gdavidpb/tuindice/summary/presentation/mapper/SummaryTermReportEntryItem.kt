@@ -11,7 +11,7 @@ import tuindice.summary.generated.resources.term_report_entry_title
 internal fun SummaryTermReportEntry.toSummaryTermReportItem(): SummaryTermReportItem {
 	return SummaryTermReportItem(
 		insightId = insightId,
-		title = UiText.Resource(Res.string.term_report_entry_title, listOf(periodLabel)),
+		title = UiText.Resource(Res.string.term_report_entry_title, listOf(termNameUnbreakable(periodLabel))),
 		subtitle = subtitle,
 		target = SummaryHubTarget.TermReport(insightId = insightId)
 	)

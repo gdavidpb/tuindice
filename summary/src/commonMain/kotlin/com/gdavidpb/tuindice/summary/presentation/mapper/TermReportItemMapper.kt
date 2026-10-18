@@ -21,15 +21,19 @@ import com.gdavidpb.tuindice.summary.presentation.model.TermReportSubjectItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportSubjectsItem
 import org.jetbrains.compose.resources.StringResource
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.a11y_term_report_delta_down
+import tuindice.summary.generated.resources.a11y_term_report_delta_none
+import tuindice.summary.generated.resources.a11y_term_report_delta_same
+import tuindice.summary.generated.resources.a11y_term_report_delta_short_down
+import tuindice.summary.generated.resources.a11y_term_report_delta_short_up
+import tuindice.summary.generated.resources.a11y_term_report_delta_up
 import tuindice.summary.generated.resources.summary_statistics_pace_tooltip_subjects_many
 import tuindice.summary.generated.resources.summary_statistics_pace_tooltip_subjects_one
 import tuindice.summary.generated.resources.summary_statistics_pace_tooltip_title
-import tuindice.summary.generated.resources.term_report_delta_down
 import tuindice.summary.generated.resources.term_report_delta_none
-import tuindice.summary.generated.resources.term_report_delta_same
+import tuindice.summary.generated.resources.term_report_delta_reference
 import tuindice.summary.generated.resources.term_report_delta_short_down
 import tuindice.summary.generated.resources.term_report_delta_short_up
-import tuindice.summary.generated.resources.term_report_delta_up
 import tuindice.summary.generated.resources.term_report_hero_title
 import tuindice.summary.generated.resources.term_report_legend_approved_many
 import tuindice.summary.generated.resources.term_report_legend_approved_one
@@ -45,7 +49,8 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private const val TERM_REPORT_INDEX_DECIMALS = 4
-private const val TERM_REPORT_DELTA_DECIMALS = 2
+private const val TERM_REPORT_DELTA_DECIMALS = 4
+private const val TERM_REPORT_DELTA_SCALE = 10_000
 private const val TERM_REPORT_AVERAGE_DECIMALS = 1
 
 // The report as the screen draws it. Every figure is one the domain read from the record, written here as text only.
@@ -64,72 +69,100 @@ internal fun SummaryTermReport.toTermReportItem(): TermReportItem {
 		sections = sections.map { section -> TermReportSectionItem(title = section.title, text = section.text) },
 		nextActions = nextActions.map { action ->
 			TermReportActionItem(label = action.label, target = action.target, entityRefs = action.entityRefs)
-		}
+		},
+		isShareable = isShareable,
+		confirmedFeedback = feedback
 	)
 }
 
 private fun heroOf(report: SummaryTermReport, periodLabel: String): TermReportHeroItem {
-	val previousLabel = report.previousTerm?.periodCode?.shortLabel
+	val previous = report.previousTerm?.let { previousTerm -> termNameUnbreakable(previousTerm.fullLabel()) }
 
 	return TermReportHeroItem(
-		title = UiText.Resource(Res.string.term_report_hero_title, listOf(periodLabel)),
+		title = UiText.Resource(Res.string.term_report_hero_title, listOf(termNameUnbreakable(periodLabel))),
 		index = report.term.index?.formatGrade(decimals = TERM_REPORT_INDEX_DECIMALS),
-		indexDelta = indexDeltaOf(delta = report.indexDelta, previousLabel = previousLabel),
+		indexDelta = indexDeltaOf(delta = report.indexDelta, previousLabel = previous),
 		cumulativeIndex = report.term.cumulativeIndex?.formatGrade(decimals = TERM_REPORT_INDEX_DECIMALS),
 		cumulativeDelta = cumulativeDeltaOf(delta = report.cumulativeDelta)
 	)
 }
 
-// The change of the index, measured from the term before: its size with the arrow, and that term's name. A change that
-// rounds to nothing says there is none, the same as no change at all.
+// The change of the index, measured from the term before: its size with the arrow, and that term's name written under
+// the figure. A change that rounds to nothing at the printed decimals says there is none, the same as no change at all.
 private fun indexDeltaOf(delta: Double?, previousLabel: String?): TermReportDeltaItem? {
 	if (delta == null || previousLabel == null) return null
 
-	val hundredths = (delta * TERM_REPORT_HUNDREDTHS).roundToInt()
-	val size = abs(delta).formatGrade(decimals = TERM_REPORT_DELTA_DECIMALS)
+	val ticks = ticksOf(delta)
+	val size = sizeOf(ticks)
+	val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(previousLabel))
 
 	return when {
-		hundredths > 0 -> TermReportDeltaItem(
-			text = UiText.Resource(Res.string.term_report_delta_up, listOf(size, previousLabel)),
-			tone = TermReportDeltaTone.POSITIVE
+		ticks > 0 -> TermReportDeltaItem(
+			text = UiText.Resource(Res.string.term_report_delta_short_up, listOf(size)),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_up, listOf(size, previousLabel)),
+			tone = TermReportDeltaTone.POSITIVE,
+			reference = reference
 		)
 
-		hundredths < 0 -> TermReportDeltaItem(
-			text = UiText.Resource(Res.string.term_report_delta_down, listOf(size, previousLabel)),
-			tone = TermReportDeltaTone.NEGATIVE
+		ticks < 0 -> TermReportDeltaItem(
+			text = UiText.Resource(Res.string.term_report_delta_short_down, listOf(size)),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_down, listOf(size, previousLabel)),
+			tone = TermReportDeltaTone.NEGATIVE,
+			reference = reference
 		)
 
 		else -> TermReportDeltaItem(
-			text = UiText.Resource(Res.string.term_report_delta_same, listOf(previousLabel)),
-			tone = TermReportDeltaTone.NEUTRAL
+			text = UiText.Resource(Res.string.term_report_delta_none),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_same, listOf(previousLabel)),
+			tone = TermReportDeltaTone.NEUTRAL,
+			reference = reference
 		)
 	}
 }
 
 // The change of the cumulative index: its size with the arrow, measured from the term before, as the chip beside it
-// says.
+// says. The chip says the change alone; the term is named by the index's chip.
 private fun cumulativeDeltaOf(delta: Double?): TermReportDeltaItem? {
 	if (delta == null) return null
 
-	val hundredths = (delta * TERM_REPORT_HUNDREDTHS).roundToInt()
-	val size = abs(delta).formatGrade(decimals = TERM_REPORT_DELTA_DECIMALS)
+	val ticks = ticksOf(delta)
+	val size = sizeOf(ticks)
 
 	return when {
-		hundredths > 0 -> TermReportDeltaItem(
+		ticks > 0 -> TermReportDeltaItem(
 			text = UiText.Resource(Res.string.term_report_delta_short_up, listOf(size)),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_short_up, listOf(size)),
 			tone = TermReportDeltaTone.POSITIVE
 		)
 
-		hundredths < 0 -> TermReportDeltaItem(
+		ticks < 0 -> TermReportDeltaItem(
 			text = UiText.Resource(Res.string.term_report_delta_short_down, listOf(size)),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_short_down, listOf(size)),
 			tone = TermReportDeltaTone.NEGATIVE
 		)
 
 		else -> TermReportDeltaItem(
 			text = UiText.Resource(Res.string.term_report_delta_none),
+			description = UiText.Resource(Res.string.a11y_term_report_delta_none),
 			tone = TermReportDeltaTone.NEUTRAL
 		)
 	}
+}
+
+// The change in ten-thousandths, rounded once: the sign of the arrow and the figure of the text both come from this
+// integer, so a change of 4.1800 against 4.1799 is an up of 0.0001 and never an up written as 0.0000.
+private fun ticksOf(delta: Double): Int {
+	return (delta * TERM_REPORT_DELTA_SCALE).roundToInt()
+}
+
+// The size of a change as the chip writes it, from the same integer its arrow comes from. It is written from the
+// integer itself: a Double this small would be written in scientific notation.
+private fun sizeOf(ticks: Int): String {
+	val size = abs(ticks)
+	val whole = size / TERM_REPORT_DELTA_SCALE
+	val fraction = (size % TERM_REPORT_DELTA_SCALE).toString().padStart(TERM_REPORT_DELTA_DECIMALS, '0')
+
+	return "$whole.$fraction"
 }
 
 // The subjects of the term in order of code: the credits the term approved over the credits it holds, the count of each
@@ -196,10 +229,8 @@ private fun paceOf(report: SummaryTermReport): TermReportPaceItem {
 		bars = report.paceTerms.map { term ->
 			barOf(term = term, axisLabels = axisLabels, isHighlighted = term.termKey == report.termKey)
 		},
-		reference = SummaryStatisticsReferenceItem(
-			value = average.toFloat(),
-			label = UiText.Raw(average.formatGrade(decimals = TERM_REPORT_AVERAGE_DECIMALS))
-		),
+		// The average is written by the legend under the chart: the line itself carries no label.
+		reference = SummaryStatisticsReferenceItem(value = average.toFloat(), label = null),
 		currentLegend = UiText.Resource(Res.string.term_report_pace_current, listOf(report.term.approvedCredits)),
 		averageLegend = UiText.Resource(
 			Res.string.term_report_pace_average,
@@ -233,5 +264,3 @@ private fun barOf(
 		isHighlighted = isHighlighted
 	)
 }
-
-private const val TERM_REPORT_HUNDREDTHS = 100

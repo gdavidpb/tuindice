@@ -5,14 +5,18 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.summary.domain.model.TermReportObservation
 import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import com.gdavidpb.tuindice.summary.domain.usecase.param.RateTermReportParams
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.mapper.toTermReportItem
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportItem
+import com.gdavidpb.tuindice.summary.presentation.transition.termReportAnyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportContentTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportFailedTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportIdleTransitions
@@ -23,6 +27,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.lastOrNull
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.term_report_failed_message
+import tuindice.summary.generated.resources.term_report_failed_record_message
+import tuindice.summary.generated.resources.term_report_failed_record_title
 import tuindice.summary.generated.resources.term_report_failed_title
 import tuindice.summary.generated.resources.term_report_no_report_message
 import tuindice.summary.generated.resources.term_report_no_report_title
@@ -39,25 +45,29 @@ class TermReportMachine(
 	// The observation of the report is kept to cancel it when it is started again.
 	private var observationJob: Job? = null
 
+	// The vote in flight. A vote sent while another one is in flight replaces it, so only the last thumb is waited for.
+	private var rateJob: Job? = null
+
+	// The report is marked as seen once, the first time it reaches the screen.
+	private var isMarkedSeen = false
+
 	override fun initialState(): TermReport.State = TermReport.State.Idle
 
 	override fun define(host: MachineHost<TermReport.Effect>): MachineDefinition<TermReport.State> {
 		return MachineDefinition.define {
 			termReportIdleTransitions(machine = this@TermReportMachine, host = host)
-			termReportLoadingTransitions()
+			termReportLoadingTransitions(machine = this@TermReportMachine, host = host)
 			termReportContentTransitions(machine = this@TermReportMachine, host = host)
 			termReportFailedTransitions(machine = this@TermReportMachine, host = host)
-			termReportNoReportTransitions()
+			termReportNoReportTransitions(machine = this@TermReportMachine, host = host)
+			termReportAnyStateTransitions()
 		}
 	}
 
-	// Opening the report reads it and marks it as seen: the summary stops offering the line once the student has looked.
+	// Opening the report reads it. It is marked as seen once it is on screen, not when it is only asked for: a report
+	// that could not be read stays on the summary's line.
 	internal fun open(host: MachineHost<TermReport.Effect>, insightId: String) {
 		this.insightId = insightId
-
-		host.launchMachineJob {
-			markTermReportSeenUseCase.execute(insightId).collect()
-		}
 
 		startObservation(host = host)
 	}
@@ -66,45 +76,68 @@ class TermReportMachine(
 		startObservation(host = host)
 	}
 
-	// The report as the service and the record say it is now. A report the observation cannot read says so, and the screen
-	// offers to try again; a report that is not there says that it is not.
+	// The state of a report on screen: the thumb the student's vote was confirmed with is the one shown. The first time
+	// the report reaches the screen, it is marked as seen.
+	internal fun contentOf(host: MachineHost<TermReport.Effect>, report: TermReportItem): TermReport.State.Content {
+		markSeenOnce(host = host)
+
+		return TermReport.State.Content(report = report, feedback = report.confirmedFeedback)
+	}
+
+	private fun markSeenOnce(host: MachineHost<TermReport.Effect>) {
+		if (isMarkedSeen) return
+
+		val reportId = insightId ?: return
+		isMarkedSeen = true
+
+		host.launchMachineJob {
+			markTermReportSeenUseCase.execute(reportId).collect()
+		}
+	}
+
+	// The report as the service and the record say it is now. A report the observation cannot read says why, and the
+	// screen offers to try again; a report that is not there says that it is not.
 	private fun startObservation(host: MachineHost<TermReport.Effect>) {
 		val reportId = insightId ?: return
 
 		observationJob?.cancel()
 		observationJob = host.launchMachineJob {
 			val refresh = updateTermReportsUseCase.execute(Unit).lastOrNull()
-			val isRefreshed = refresh is UseCaseState.Data && refresh.value
+			val isRefreshed = refresh is UseCaseState.Data
 			val params = ObserveTermReportParams(insightId = reportId, isRefreshed = isRefreshed)
 
 			observeTermReportUseCase.execute(params).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
-					is UseCaseState.Data -> {
-						val report = useCaseState.value
+					is UseCaseState.Data -> when (val observation = useCaseState.value) {
+						is TermReportObservation.Found -> host.processInternalEvent(
+							TermReportInternalEvent.ReportObserved(report = observation.report.toTermReportItem())
+						)
 
-						host.processInternalEvent(
-							if (report == null) {
-								TermReportInternalEvent.ReportMissing
-							} else {
-								TermReportInternalEvent.ReportObserved(report = report.toTermReportItem())
-							}
+						TermReportObservation.Missing -> host.processInternalEvent(TermReportInternalEvent.ReportMissing)
+
+						is TermReportObservation.Unavailable -> host.processInternalEvent(
+							TermReportInternalEvent.ReportUnavailable(cause = observation.error)
 						)
 					}
 
-					is UseCaseState.Error -> host.processInternalEvent(TermReportInternalEvent.ReportUnavailable)
+					is UseCaseState.Error -> host.processInternalEvent(
+						TermReportInternalEvent.ReportUnavailable(cause = useCaseState.error)
+					)
 				}
 			}
 		}
 	}
 
-	// The thumb goes to the service. A refusal gives the thumb back to the screen, which had shown the other one selected.
-	internal fun rate(host: MachineHost<TermReport.Effect>, insightId: String, useful: Boolean, previous: Boolean?) {
-		host.launchMachineJob {
+	// The thumb goes to the service, and the one before it in flight is cancelled. A refusal gives the thumb back to the
+	// screen, when the screen still shows the one refused.
+	internal fun rate(host: MachineHost<TermReport.Effect>, insightId: String, useful: Boolean) {
+		rateJob?.cancel()
+		rateJob = host.launchMachineJob {
 			rateTermReportUseCase.execute(RateTermReportParams(insightId = insightId, useful = useful)).collect { state ->
 				if (state is UseCaseState.Error) {
-					host.processInternalEvent(TermReportInternalEvent.FeedbackRejected(previous = previous))
+					host.processInternalEvent(TermReportInternalEvent.FeedbackRejected(rejected = useful))
 				}
 			}
 		}
@@ -119,10 +152,18 @@ internal fun termReportMissingState(): TermReport.State.NoReport {
 	)
 }
 
-// The state of a report that cannot be read at the moment, with the words that offer to try again.
-internal fun termReportUnavailableState(): TermReport.State.Failed {
-	return TermReport.State.Failed(
-		title = UiText.Resource(Res.string.term_report_failed_title),
-		message = UiText.Resource(Res.string.term_report_failed_message)
-	)
+// The state of a report that cannot be read at the moment, with the words of its cause: a record that is not synced yet
+// says that the report will come once it is, and a connection that failed offers to try again.
+internal fun termReportUnavailableState(cause: ObserveTermReportUseCaseError?): TermReport.State.Failed {
+	return when (cause) {
+		ObserveTermReportUseCaseError.RecordNotReady -> TermReport.State.Failed(
+			title = UiText.Resource(Res.string.term_report_failed_record_title),
+			message = UiText.Resource(Res.string.term_report_failed_record_message)
+		)
+
+		else -> TermReport.State.Failed(
+			title = UiText.Resource(Res.string.term_report_failed_title),
+			message = UiText.Resource(Res.string.term_report_failed_message)
+		)
+	}
 }

@@ -10,35 +10,112 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReportSubject
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportDeltaTone
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportPaceItem
 import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.term_report_delta_same
-import tuindice.summary.generated.resources.term_report_delta_up
+import tuindice.summary.generated.resources.a11y_term_report_delta_same
+import tuindice.summary.generated.resources.a11y_term_report_delta_short_up
+import tuindice.summary.generated.resources.a11y_term_report_delta_up
+import tuindice.summary.generated.resources.term_report_delta_none
+import tuindice.summary.generated.resources.term_report_delta_reference
+import tuindice.summary.generated.resources.term_report_delta_short_up
 import tuindice.summary.generated.resources.term_report_legend_approved_many
+import tuindice.summary.generated.resources.term_report_pace_average
 import tuindice.summary.generated.resources.term_report_pace_empty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
+
+// The previous term of the fixtures is January - March 2026, written with no break inside its name.
+private const val PREVIOUS_TERM = "Ene - Mar 2026"
 
 class TermReportItemMapperTest {
 
 	@Test
-	fun aPositiveIndexChangeIsWrittenWithItsArrowAndTheTermBeforeIt() {
+	fun aPositiveIndexChangeIsWrittenWithItsArrowAndTheTermBeforeUnderIt() {
 		val item = reportWith(indexDelta = 1.5).toTermReportItem()
 
 		val delta = assertIs<UiText.Resource>(item.hero.indexDelta?.text)
-		assertEquals(Res.string.term_report_delta_up, delta.resource)
-		assertEquals("Ene - Mar", delta.args[1])
+		assertEquals(Res.string.term_report_delta_short_up, delta.resource)
+		assertEquals(listOf("1.5000"), delta.args)
+		val reference = UiText.Resource(Res.string.term_report_delta_reference, listOf(PREVIOUS_TERM))
+		assertEquals(reference, item.hero.indexDelta?.reference)
 		assertEquals(TermReportDeltaTone.POSITIVE, item.hero.indexDelta?.tone)
 	}
 
 	@Test
-	fun aChangeThatRoundsToNothingIsNoChange() {
-		val item = reportWith(indexDelta = 0.001).toTermReportItem()
+	fun aChangeThatRoundsToNothingAtTheFourPrintedDecimalsIsNoChange() {
+		val item = reportWith(indexDelta = 0.00001).toTermReportItem()
 
 		assertEquals(TermReportDeltaTone.NEUTRAL, item.hero.indexDelta?.tone)
-		assertEquals(
-			Res.string.term_report_delta_same,
-			assertIs<UiText.Resource>(item.hero.indexDelta?.text).resource
-		)
+		assertEquals(UiText.Resource(Res.string.term_report_delta_none), item.hero.indexDelta?.text)
+	}
+
+	@Test
+	fun aChangeOfOneTenThousandthReadsAsOneTenThousandth_evenWhenTheSubtractionCarriesFloatingError() {
+		// 4.1800 - 4.1799 is a little under 0.0001 in binary: the arrow and the figure must still agree.
+		val item = reportWith(indexDelta = 4.18 - 4.1799).toTermReportItem()
+
+		val delta = assertIs<UiText.Resource>(item.hero.indexDelta?.text)
+		assertEquals(listOf("0.0001"), delta.args)
+		assertEquals(TermReportDeltaTone.POSITIVE, item.hero.indexDelta?.tone)
+	}
+
+	@Test
+	fun aChangeOfATenthReadsWithItsFourDecimals_evenWhenTheSubtractionCarriesFloatingError() {
+		// 2.3 - 2.2 is a little under 0.1 in binary: it is still a rise of 0.1000.
+		val item = reportWith(indexDelta = 2.3 - 2.2).toTermReportItem()
+
+		val delta = assertIs<UiText.Resource>(item.hero.indexDelta?.text)
+		assertEquals(listOf("0.1000"), delta.args)
+		assertEquals(TermReportDeltaTone.POSITIVE, item.hero.indexDelta?.tone)
+	}
+
+	@Test
+	fun aCumulativeChangeOfOneHundredthReadsAsOneHundredthAndItsArrowAgrees() {
+		val item = reportWith(cumulativeDelta = 4.18 - 4.17).toTermReportItem()
+
+		val delta = assertIs<UiText.Resource>(item.hero.cumulativeDelta?.text)
+		assertEquals(Res.string.term_report_delta_short_up, delta.resource)
+		assertEquals(listOf("0.0100"), delta.args)
+		assertNull(item.hero.cumulativeDelta?.reference)
+	}
+
+	@Test
+	fun theChipSaysItsChangeInWordsForTheScreenReader() {
+		val item = reportWith(indexDelta = 0.12, cumulativeDelta = 0.12).toTermReportItem()
+
+		val index = assertIs<UiText.Resource>(item.hero.indexDelta?.description)
+		assertEquals(Res.string.a11y_term_report_delta_up, index.resource)
+		assertEquals(listOf("0.1200", PREVIOUS_TERM), index.args)
+
+		val cumulative = assertIs<UiText.Resource>(item.hero.cumulativeDelta?.description)
+		assertEquals(Res.string.a11y_term_report_delta_short_up, cumulative.resource)
+		assertEquals(listOf("0.1200"), cumulative.args)
+	}
+
+	@Test
+	fun aChangeThatIsNoneSaysSoForTheScreenReaderWithTheTermBefore() {
+		val item = reportWith(indexDelta = 0.0).toTermReportItem()
+
+		val description = assertIs<UiText.Resource>(item.hero.indexDelta?.description)
+		assertEquals(Res.string.a11y_term_report_delta_same, description.resource)
+		assertEquals(listOf(PREVIOUS_TERM), description.args)
+	}
+
+	@Test
+	fun theAverageLineOfTheReportCarriesNoLabel_theLegendWritesTheAverage() {
+		val item = reportWith(averageCredits = 13.8).toTermReportItem()
+
+		val pace = assertIs<TermReportPaceItem.Data>(item.pace)
+		assertNull(pace.reference.label)
+		assertEquals(UiText.Resource(Res.string.term_report_pace_average, listOf("13.8")), pace.averageLegend)
+	}
+
+	@Test
+	fun theReportCarriesItsShareAndItsConfirmedVote() {
+		val item = reportWith().copy(isShareable = true, feedback = false).toTermReportItem()
+
+		assertEquals(true, item.isShareable)
+		assertEquals(false, item.confirmedFeedback)
 	}
 
 	@Test
@@ -77,6 +154,7 @@ class TermReportItemMapperTest {
 
 	private fun reportWith(
 		indexDelta: Double? = null,
+		cumulativeDelta: Double? = null,
 		averageCredits: Double? = 4.5,
 		paceTerms: List<TermStatistic> = listOf(termStatistic(termKey = "2026-APR_JUL", approvedCredits = 3)),
 		subjects: List<SummaryTermReportSubject> = emptyList()
@@ -96,11 +174,13 @@ class TermReportItemMapperTest {
 			approvedCredits = 6
 		),
 		indexDelta = indexDelta,
-		cumulativeDelta = null,
+		cumulativeDelta = cumulativeDelta,
 		subjects = subjects,
 		creditsOfTerm = 3,
 		paceTerms = paceTerms,
-		averageCredits = averageCredits
+		averageCredits = averageCredits,
+		isShareable = false,
+		feedback = null
 	)
 
 	private fun termStatistic(

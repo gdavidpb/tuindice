@@ -8,10 +8,14 @@ import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RateTermReportExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.machine.TermReportMachine
 import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableTermReportFeedbackRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableTermReportSeenRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.hubClosedTerm
@@ -156,11 +160,13 @@ class TermReportViewModelContractTest {
 
 	@Test
 	@OptIn(ExperimentalCoroutinesApi::class)
-	fun when_theShareActionIsTapped_then_theSheetOfTheTermIsAsked() = runTest {
+	fun when_theShareActionIsTapped_then_theSheetOfTheClosedTermIsAsked() = runTest {
 		withMainDispatcher { dispatchers ->
 			val viewModel = createViewModel(
 				dispatchers = dispatchers,
-				insights = ControllableAssistantInsightsRepository(listOf(termReportInsight(id = "term-1:2")))
+				insights = ControllableAssistantInsightsRepository(
+					listOf(termReportInsight(id = "term-1:2", termKey = "2026-JAN_MAR"))
+				)
 			)
 			val effects = mutableListOf<TermReport.Effect>()
 			backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -172,7 +178,7 @@ class TermReportViewModelContractTest {
 
 			viewModel.shareAction()
 
-			assertEquals("2026-APR_JUL", assertIs<TermReport.Effect.NavigateToShareTerm>(effects.single()).termKey)
+			assertEquals("2026-JAN_MAR", assertIs<TermReport.Effect.NavigateToShareTerm>(effects.single()).termKey)
 		}
 	}
 
@@ -202,11 +208,22 @@ class TermReportViewModelContractTest {
 					insightsRepository = insights,
 					visibleAcademicRecordRepository = ControllableVisibleAcademicRecordRepository(record),
 					recordDataPrerequisiteRepository = ControllableRecordDataPrerequisiteRepository(),
-					reportingRepository = reporting
+					feedbackRepository = ControllableTermReportFeedbackRepository(),
+					reportingRepository = reporting,
+					exceptionHandler = ObserveTermReportExceptionHandler()
 				),
 				markTermReportSeenUseCase = MarkTermReportSeenUseCase(seen, reporting),
-				rateTermReportUseCase = RateTermReportUseCase(insights, reporting),
-				updateTermReportsUseCase = UpdateTermReportsUseCase(insights, reporting)
+				rateTermReportUseCase = RateTermReportUseCase(
+					insightsRepository = insights,
+					feedbackRepository = ControllableTermReportFeedbackRepository(),
+					reportingRepository = reporting,
+					exceptionHandler = RateTermReportExceptionHandler()
+				),
+				updateTermReportsUseCase = UpdateTermReportsUseCase(
+					insightsRepository = insights,
+					reportingRepository = reporting,
+					exceptionHandler = UpdateTermReportsExceptionHandler()
+				)
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers

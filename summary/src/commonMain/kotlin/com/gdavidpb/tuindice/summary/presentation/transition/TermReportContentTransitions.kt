@@ -12,9 +12,15 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransit
 	host: MachineHost<TermReport.Effect>
 ) {
 	from<TermReport.State.Content> {
-		// The report is read again when the service or the record says something new: the thumb the student chose stays.
+		// The report is read again when the service or the record says something new. The thumb on screen is kept while a
+		// vote of the student is pending; with none pending, the thumb follows the vote the service confirmed.
 		on<TermReportInternalEvent.ReportObserved> { state, event ->
-			state.copy(report = event.report)
+			val isVotePending = state.feedback != state.report.confirmedFeedback
+
+			state.copy(
+				report = event.report,
+				feedback = if (isVotePending) state.feedback else event.report.confirmedFeedback
+			)
 		}
 
 		onTo<TermReportInternalEvent.ReportMissing, TermReport.State.NoReport> { _, _ ->
@@ -24,24 +30,32 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransit
 		// A report on screen is not taken away by a read that failed: it stays until the student leaves it.
 		on<TermReportInternalEvent.ReportUnavailable> { state, _ -> state }
 
+		// The service refused the thumb the screen shows: the one confirmed comes back. A refusal of a thumb the student has
+		// already moved away from changes nothing on screen.
 		on<TermReportInternalEvent.FeedbackRejected> { state, event ->
-			state.copy(feedback = event.previous)
+			if (state.feedback == event.rejected) {
+				state.copy(feedback = state.report.confirmedFeedback)
+			} else {
+				state
+			}
 		}
 
-		// The thumb is shown as chosen at once, and the service is asked; a refusal gives the previous one back.
+		// The thumb is shown as chosen at once, and the service is asked. A tap on the thumb already shown asks nothing.
 		on<TermReport.Action.Rate> { state, action ->
-			machine.rate(
-				host = host,
-				insightId = state.report.insightId,
-				useful = action.useful,
-				previous = state.feedback
-			)
+			if (state.feedback == action.useful) {
+				state
+			} else {
+				machine.rate(host = host, insightId = state.report.insightId, useful = action.useful)
 
-			state.copy(feedback = action.useful)
+				state.copy(feedback = action.useful)
+			}
 		}
 
 		on<TermReport.Action.Share>(emits = setOf(TermReport.Effect.NavigateToShareTerm::class)) { state, _ ->
-			host.sendEffect(TermReport.Effect.NavigateToShareTerm(termKey = state.report.termKey))
+			// The bar offers the share only for a term that can be shared; a share asked for another one changes nothing.
+			if (state.report.isShareable) {
+				host.sendEffect(TermReport.Effect.NavigateToShareTerm(termKey = state.report.termKey))
+			}
 
 			state
 		}

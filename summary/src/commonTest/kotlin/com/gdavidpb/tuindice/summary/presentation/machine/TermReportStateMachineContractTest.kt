@@ -5,10 +5,14 @@ import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RateTermReportExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.TermReportViewModel
 import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
+import com.gdavidpb.tuindice.summary.testing.ControllableTermReportFeedbackRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableTermReportSeenRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -53,11 +57,22 @@ class TermReportStateMachineContractTest {
 					insightsRepository = insights,
 					visibleAcademicRecordRepository = ControllableVisibleAcademicRecordRepository(),
 					recordDataPrerequisiteRepository = ControllableRecordDataPrerequisiteRepository(),
-					reportingRepository = reporting
+					feedbackRepository = ControllableTermReportFeedbackRepository(),
+					reportingRepository = reporting,
+					exceptionHandler = ObserveTermReportExceptionHandler()
 				),
 				markTermReportSeenUseCase = MarkTermReportSeenUseCase(ControllableTermReportSeenRepository(), reporting),
-				rateTermReportUseCase = RateTermReportUseCase(insights, reporting),
-				updateTermReportsUseCase = UpdateTermReportsUseCase(insights, reporting)
+				rateTermReportUseCase = RateTermReportUseCase(
+					insightsRepository = insights,
+					feedbackRepository = ControllableTermReportFeedbackRepository(),
+					reportingRepository = reporting,
+					exceptionHandler = RateTermReportExceptionHandler()
+				),
+				updateTermReportsUseCase = UpdateTermReportsUseCase(
+					insightsRepository = insights,
+					reportingRepository = reporting,
+					exceptionHandler = UpdateTermReportsExceptionHandler()
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

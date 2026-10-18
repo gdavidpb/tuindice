@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.machine.TermReportInternalEvent
 import com.gdavidpb.tuindice.summary.presentation.machine.TermReportMachine
 import com.gdavidpb.tuindice.summary.presentation.machine.termReportMissingState
+import com.gdavidpb.tuindice.summary.presentation.machine.termReportUnavailableState
 
 internal fun MachineDefinitionBuilder<TermReport.State>.termReportFailedTransitions(
 	machine: TermReportMachine,
@@ -19,14 +20,18 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportFailedTransiti
 			TermReport.State.Loading
 		}
 
+		// The report can be read after all, whatever the cause that kept it: the screen shows it.
 		onTo<TermReportInternalEvent.ReportObserved, TermReport.State.Content> { _, event ->
-			TermReport.State.Content(report = event.report)
+			machine.contentOf(host = host, report = event.report)
 		}
 
 		onTo<TermReportInternalEvent.ReportMissing, TermReport.State.NoReport> { _, _ ->
 			termReportMissingState()
 		}
 
-		on<TermReportInternalEvent.ReportUnavailable> { state, _ -> state }
+		// The cause can change while the screen waits: the words say the cause the observation reports now.
+		on<TermReportInternalEvent.ReportUnavailable> { _, event ->
+			termReportUnavailableState(cause = event.cause)
+		}
 	}
 }

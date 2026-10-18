@@ -244,19 +244,18 @@
     <string name="share_term_unavailable_title">Compartir no disponible</string>
     <string name="share_term_unavailable_message">No pudimos leer tu registro en este momento.</string>
 
-: the term report, its line in the summary and its share action -->
+    <!-- Term report: the term report, its line in the summary and its share action -->
     <string name="top_bar_term_report">Tu trimestre</string>
     <string name="term_report_entry_title">Tu informe de %1$s</string>
     <string name="term_report_entry_new">Nuevo</string>
     <string name="term_report_hero_title">Índice del trimestre · %1$s</string>
     <string name="term_report_index_scale">/ 5.0</string>
     <string name="term_report_index_missing">Sin notas aún</string>
-    <string name="term_report_delta_up">▲ %1$s frente a %2$s</string>
-    <string name="term_report_delta_down">▼ %1$s frente a %2$s</string>
-    <string name="term_report_delta_same">Igual que %1$s</string>
     <string name="term_report_delta_short_up">▲ %1$s</string>
     <string name="term_report_delta_short_down">▼ %1$s</string>
     <string name="term_report_delta_none">Sin cambio</string>
+    <string name="term_report_delta_reference">frente a %1$s</string>
+    <string name="term_report_subjects_no_grade">–</string>
     <string name="term_report_cumulative">Acumulado</string>
     <string name="term_report_subjects_title">Materias</string>
     <string name="term_report_subjects_credits">%1$d de %2$d créditos</string>
@@ -275,13 +274,22 @@
     <string name="term_report_assistant_ai">Escrito con IA a partir de tus notas</string>
     <string name="term_report_assistant_empty">El informe no tiene texto todavía.</string>
     <string name="term_report_ask">Preguntar sobre esto</string>
+    <string name="term_report_useful_question">¿Te sirvió este informe?</string>
     <string name="term_report_next_title">Qué sigue</string>
     <string name="term_report_no_report_title">No hay informe para este trimestre</string>
     <string name="term_report_no_report_message">El asistente aún no ha escrito el informe de este trimestre.</string>
     <string name="term_report_failed_title">No pudimos abrir tu informe</string>
     <string name="term_report_failed_message">Revisa tu conexión y vuelve a intentarlo.</string>
+    <string name="term_report_failed_record_title">Tu informe aún no está listo</string>
+    <string name="term_report_failed_record_message">Tu informe aparecerá cuando termine de actualizarse tu expediente.</string>
     <string name="term_report_retry">Reintentar</string>
     <string name="a11y_term_report_useful">Útil</string>
     <string name="a11y_term_report_not_useful">No útil</string>
-    <string name="a11y_term_report_entry">Abre tu informe del trimestre</string>
+    <string name="a11y_term_report_entry">Abrir tu informe del trimestre</string>
+    <string name="a11y_term_report_delta_up">Subió %1$s frente a %2$s</string>
+    <string name="a11y_term_report_delta_down">Bajó %1$s frente a %2$s</string>
+    <string name="a11y_term_report_delta_same">Igual que %1$s</string>
+    <string name="a11y_term_report_delta_short_up">Subió %1$s</string>
+    <string name="a11y_term_report_delta_short_down">Bajó %1$s</string>
+    <string name="a11y_term_report_delta_none">Sin cambio</string>
 </resources>

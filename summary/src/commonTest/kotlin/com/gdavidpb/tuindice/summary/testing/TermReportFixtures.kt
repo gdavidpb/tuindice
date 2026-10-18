@@ -27,7 +27,9 @@ fun termReportItemFixture(
 	sections: List<TermReportSectionItem> = listOf(
 		TermReportSectionItem(title = "Cerraste con 4,18", text = "Aprobaste las 3 materias."),
 		TermReportSectionItem(title = "Tu ritmo", text = "Este trimestre aprobaste 11 créditos.")
-	)
+	),
+	isShareable: Boolean = true,
+	confirmedFeedback: Boolean? = null
 ) = TermReportItem(
 	insightId = insightId,
 	termId = termId,
@@ -38,11 +40,13 @@ fun termReportItemFixture(
 		title = UiText.Raw("Índice del trimestre · Abr - Jul 2026"),
 		index = "4.1750",
 		indexDelta = TermReportDeltaItem(
-			text = UiText.Raw("▲ 1,50 frente a Ene - Mar"),
-			tone = TermReportDeltaTone.POSITIVE
+			text = UiText.Raw("▲ 1.5000"),
+			description = UiText.Raw("Subió 1.5000 frente a Ene\u00A0-\u00A0Mar\u00A02025"),
+			tone = TermReportDeltaTone.POSITIVE,
+			reference = UiText.Raw("frente a Ene\u00A0-\u00A0Mar\u00A02025")
 		),
 		cumulativeIndex = "4.0331",
-		cumulativeDelta = TermReportDeltaItem(text = UiText.Raw("▲ 0,02"), tone = TermReportDeltaTone.POSITIVE)
+		cumulativeDelta = TermReportDeltaItem(UiText.Raw("▲ 0,02"), UiText.Raw("Subió 0.02"), TermReportDeltaTone.POSITIVE)
 	),
 	subjects = TermReportSubjectsItem(
 		credits = UiText.Raw("11 de 14 créditos"),
@@ -63,11 +67,13 @@ fun termReportItemFixture(
 			paceBar(axis = "E-M 25", credits = 15f, isHighlighted = false),
 			paceBar(axis = "A-J 26", credits = 11f, isHighlighted = true)
 		),
-		reference = SummaryStatisticsReferenceItem(value = 12.7f, label = UiText.Raw("12,7")),
+		reference = SummaryStatisticsReferenceItem(value = 12.7f, label = null),
 		currentLegend = UiText.Raw("Este trimestre: 11"),
 		averageLegend = UiText.Raw("Promedio: 12,7")
 	),
 	sections = sections,
+	isShareable = isShareable,
+	confirmedFeedback = confirmedFeedback,
 	nextActions = listOf(
 		TermReportActionItem(
 			label = "Proyectar tu índice para Jul - Ago",
