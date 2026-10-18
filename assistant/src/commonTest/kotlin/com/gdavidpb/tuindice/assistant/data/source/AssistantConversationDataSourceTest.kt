@@ -40,6 +40,29 @@ class AssistantConversationDataSourceTest {
 	)
 
 	@Test
+	fun aTurnWhoseResultIsUnknownIsUnconfirmed_andRunsAgainWhenItsNextEventComes() = runTest {
+		val store = AssistantConversationDataSource()
+		store.apply(RunStarted(seq = 1, turnId = "t1"))
+
+		store.markUnconfirmed("t1")
+		assertEquals(AssistantTurnStatus.UNCONFIRMED, store.observeConversation().value.turns.getValue("t1").status)
+
+		store.apply(Progress(seq = 2, turnId = "t1", tool = "subjects", label = "Revisando"))
+		assertEquals(AssistantTurnStatus.RUNNING, store.observeConversation().value.turns.getValue("t1").status)
+	}
+
+	@Test
+	fun aTurnThatEndedIsNotMarkedUnconfirmed() = runTest {
+		val store = AssistantConversationDataSource()
+		store.apply(RunStarted(seq = 1, turnId = "t1"))
+		store.apply(RunFinished(seq = 2, turnId = "t1"))
+
+		store.markUnconfirmed("t1")
+
+		assertEquals(AssistantTurnStatus.FINISHED, store.observeConversation().value.turns.getValue("t1").status)
+	}
+
+	@Test
 	fun applyingAnEventTwiceDoesNotApplyItTwice() = runTest {
 		val store = AssistantConversationDataSource()
 

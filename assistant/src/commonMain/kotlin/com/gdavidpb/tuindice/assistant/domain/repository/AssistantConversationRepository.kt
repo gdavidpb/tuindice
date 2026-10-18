@@ -18,6 +18,9 @@ interface AssistantConversationRepository {
 
 	fun applyEvent(event: AssistantEvent)
 
+	/** Marks the turn [turnId] as unconfirmed: its stream and a check from its last seq reached no final event. */
+	fun markTurnUnconfirmed(turnId: String)
+
 	fun addUserMessage(message: AssistantUserMessage)
 
 	/** Writes a message of the assistant that no turn wrote, such as a photo's proposal, with the intent it carries. */

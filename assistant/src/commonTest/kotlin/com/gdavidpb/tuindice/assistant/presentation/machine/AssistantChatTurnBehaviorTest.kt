@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -28,6 +30,7 @@ import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
 import com.gdavidpb.tuindice.chatcontract.event.RunError
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
+import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
@@ -43,6 +46,7 @@ class AssistantChatTurnBehaviorTest {
 	fun send_startsTheTurnWithItsContext_clearsTheDraft_andFollowsTheTurn() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 4)
+		fixture.turns.events = listOf(RunFinished(seq = 5, turnId = "t1"))
 		val context = AssistantScreenContext(AssistantScreen.EVALUATIONS, visibleFields = mapOf("subject" to "CI4325"))
 		viewModel.openAction(context)
 
@@ -86,6 +90,96 @@ class AssistantChatTurnBehaviorTest {
 
 		assertEquals(listOf("hola", "hola"), fixture.turns.requests.map { request -> request.message.text })
 		assertNull(viewModel.content().notice)
+	}
+
+	@Test
+	fun retryOfAFailedSend_resendsTheSameClientTurnId_andTheAcceptedRetryKeepsOneBubbleThatIsNotFailed() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		fixture.turns.sendError = null
+		viewModel.retryTurnAction()
+
+		val ids = fixture.turns.requests.map { request -> request.clientTurnId }
+		assertEquals(2, ids.size)
+		assertEquals(ids.first(), ids.last())
+		assertEquals(listOf(false), viewModel.content().bubbles().map { bubble -> bubble.isFailed })
+	}
+
+	@Test
+	fun anUnconfirmedTurn_offersARetryThatResendsTheSameClientTurnId() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				AssistantConversationItem.User(
+					AssistantUserMessage(id = "client-1", text = "hola", createdAtMillis = 1L)
+				)
+			),
+			activeTurn = AssistantActiveTurn(
+				turnId = "t1",
+				lastSeq = 3,
+				progressLabel = null,
+				status = AssistantTurnPhase.UNCONFIRMED
+			)
+		)
+		viewModel.openAction(null)
+
+		assertEquals(ChatNoticeItem.TurnFailed(message = "unconfirmed", canRetry = true), viewModel.content().notice)
+
+		viewModel.retryTurnAction()
+
+		val request = fixture.turns.requests.single()
+		assertEquals("client-1", request.clientTurnId)
+		assertEquals("hola", request.message.text)
+	}
+
+	@Test
+	fun aRunErrorKeepsTheSuggestionOfTheTurn_forItsRetry() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		fixture.turns.events = listOf(RunError(seq = 1, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true))
+		viewModel.openAction(null)
+
+		viewModel.pickSuggestionAction("s1")
+		viewModel.retryTurnAction()
+
+		assertEquals(listOf("s1", "s1"), fixture.turns.requests.map { request -> request.message.suggestionId })
+	}
+
+	@Test
+	fun anOtherRunErrorThatCannotBeRetried_saysSoWithoutInvitingARetry() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.events = listOf(RunError(seq = 1, turnId = "t1", code = RunErrorCode.OTHER, retryable = false))
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+
+		viewModel.sendMessageAction()
+
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:OTHER:final", canRetry = false), viewModel.content().notice)
+	}
+
+	@Test
+	fun guidedOnly_onSend_keepsTheStudentsDraftInTheComposer() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.GUIDED_ONLY, null, "guided")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+
+		viewModel.sendMessageAction()
+
+		assertEquals("hola", viewModel.content().composer.text)
 	}
 
 	@Test

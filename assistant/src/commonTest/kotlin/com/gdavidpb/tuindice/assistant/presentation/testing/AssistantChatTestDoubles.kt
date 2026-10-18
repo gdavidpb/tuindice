@@ -54,7 +54,11 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 
 	override suspend fun restricted(level: StandingLevel?): String = "restricted:$level"
 
-	override suspend fun turnFailure(code: RunErrorCode): String = "failure:$code"
+	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String {
+		return if (code == RunErrorCode.OTHER && !retryable) "failure:$code:final" else "failure:$code"
+	}
+
+	override suspend fun turnUnconfirmed(): String = "unconfirmed"
 
 	override suspend fun sendFailed(): String = "send-failed"
 
@@ -79,6 +83,7 @@ internal class ObservedAssistantConversationRepository(
 ) : AssistantConversationRepository {
 	val conversation = MutableStateFlow(initial)
 	val applied = mutableListOf<AssistantEvent>()
+	val unconfirmed = mutableListOf<String>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = conversation
 
@@ -92,9 +97,16 @@ internal class ObservedAssistantConversationRepository(
 		applied += event
 	}
 
+	override fun markTurnUnconfirmed(turnId: String) {
+		unconfirmed += turnId
+	}
+
+	// Idempotent by id, as the store is: a message that comes again, such as a retry's, is not written twice.
 	override fun addUserMessage(message: AssistantUserMessage) {
 		conversation.update { current ->
-			current.copy(items = current.items + AssistantConversationItem.User(message))
+			val written = current.items.any { item -> item is AssistantConversationItem.User && item.message.id == message.id }
+
+			if (written) current else current.copy(items = current.items + AssistantConversationItem.User(message))
 		}
 	}
 

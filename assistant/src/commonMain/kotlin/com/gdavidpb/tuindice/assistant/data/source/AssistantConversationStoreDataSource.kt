@@ -31,6 +31,10 @@ class AssistantConversationStoreDataSource(
 		store.apply(event)
 	}
 
+	override fun markTurnUnconfirmed(turnId: String) {
+		store.markUnconfirmed(turnId)
+	}
+
 	override fun addUserMessage(message: AssistantUserMessage) {
 		store.addUserMessage(message)
 	}

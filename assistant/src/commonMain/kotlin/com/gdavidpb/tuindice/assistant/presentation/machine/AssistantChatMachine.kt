@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import kotlinx.coroutines.flow.collect
+import kotlin.uuid.Uuid
 
 /**
  * The chat sheet: its states, its transitions and the commands behind them. The conversation is observed from the
@@ -101,13 +102,15 @@ class AssistantChatMachine(
 		return session.presentedContent(texts = texts, draftText = draft.text.value, content = content)
 	}
 
-	// Starts a turn with [text]. [draftText] is the draft the send takes its text from and clears; null leaves it.
+	// Starts a turn with [text]. [draftText] is the draft the send takes its text from and clears; null leaves it. A new
+	// message gets its own client turn id; a retry passes the one of the send it retries, so the server answers the same turn.
 	internal fun startTurn(
 		host: MachineHost<AssistantChat.Effect>,
 		text: String,
 		suggestionId: String?,
 		context: AssistantScreenContext?,
-		draftText: String?
+		draftText: String?,
+		clientTurnId: String = Uuid.random().toString()
 	) {
 		session.turnFailure = null
 
@@ -115,7 +118,12 @@ class AssistantChatMachine(
 
 		turns.send(
 			host = host,
-			params = SendAssistantMessageParams(text = text, suggestionId = suggestionId, screenContext = context),
+			params = SendAssistantMessageParams(
+				text = text,
+				suggestionId = suggestionId,
+				screenContext = context,
+				clientTurnId = clientTurnId
+			),
 			sentText = text,
 			restoreText = draftText,
 			suggestionId = suggestionId
@@ -171,14 +179,16 @@ class AssistantChatMachine(
 			session.markSendFailed(event.sentText)
 			session.lastFailedSend = AssistantChatSession.FailedSend(
 				text = event.sentText,
-				suggestionId = event.suggestionId
+				suggestionId = event.suggestionId,
+				clientTurnId = event.clientTurnId
 			)
 		}
 
 		// A text that was not sent stays in the composer, where the student can send it again.
 		val keepsText = notSent ||
 			error is SendAssistantMessageError.QuotaExhausted ||
-			error == SendAssistantMessageError.TurnInProgress
+			error == SendAssistantMessageError.TurnInProgress ||
+			error == SendAssistantMessageError.GuidedOnly
 
 		if (keepsText) event.restoreText?.let(draft::setText)
 
@@ -217,12 +227,15 @@ class AssistantChatMachine(
 		host: MachineHost<AssistantChat.Effect>,
 		event: AssistantChatInternalEvent.TurnAccepted
 	) {
+		// The retry was accepted: its message is no longer failed, and the turn is followed from its first event.
+		session.lastFailedSend?.let { failed -> session.failedMessages -= failed.clientTurnId }
 		session.lastFailedSend = null
 		session.turnFailure = null
 		session.quota = null
 		session.restriction = null
 		session.guidedByServer = false
 		session.pendingFailedText = null
+		session.followedSuggestionId = event.suggestionId
 
 		turns.followTurn(host = host, turnId = event.turnId, afterSeq = event.lastSeq)
 	}

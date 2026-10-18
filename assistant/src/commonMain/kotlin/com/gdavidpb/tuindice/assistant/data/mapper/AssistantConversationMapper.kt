@@ -50,5 +50,6 @@ private fun AssistantTurnStatus.toTurnPhase(): AssistantTurnPhase {
 		AssistantTurnStatus.RUNNING -> AssistantTurnPhase.RUNNING
 		AssistantTurnStatus.FINISHED -> AssistantTurnPhase.FINISHED
 		AssistantTurnStatus.FAILED -> AssistantTurnPhase.FAILED
+		AssistantTurnStatus.UNCONFIRMED -> AssistantTurnPhase.UNCONFIRMED
 	}
 }

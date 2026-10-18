@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
@@ -66,6 +67,11 @@ internal suspend fun AssistantChatSession.presentedNotice(
 
 		guided -> ChatNoticeItem.Guided(message = texts.guided())
 
+		conversation?.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED -> ChatNoticeItem.TurnFailed(
+			message = texts.turnUnconfirmed(),
+			canRetry = lastFailedSend != null
+		)
+
 		failure != null -> ChatNoticeItem.TurnFailed(
 			message = failure.message,
 			canRetry = failure.retryable && lastFailedSend != null
@@ -117,11 +123,15 @@ internal suspend fun AssistantChatSession.runFailed(
 
 	if (last != null) {
 		failedMessages += last.id
-		lastFailedSend = AssistantChatSession.FailedSend(text = last.text, suggestionId = null)
+		lastFailedSend = AssistantChatSession.FailedSend(
+			text = last.text,
+			suggestionId = followedSuggestionId,
+			clientTurnId = last.id
+		)
 	}
 
 	turnFailure = AssistantChatSession.TurnFailure(
-		message = texts.turnFailure(event.code),
+		message = texts.turnFailure(event.code, event.retryable),
 		retryable = event.retryable
 	)
 }

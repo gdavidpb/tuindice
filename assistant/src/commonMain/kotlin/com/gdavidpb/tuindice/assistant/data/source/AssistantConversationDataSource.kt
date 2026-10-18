@@ -42,6 +42,12 @@ class AssistantConversationDataSource : SessionMemory {
 		conversation.update { current -> current.reduce(event) }
 	}
 
+	// The result of a turn is unknown: its stream ended and a check from its last seq reached no final event. An event that
+	// comes later shows the turn is still going.
+	fun markUnconfirmed(turnId: String) {
+		conversation.update { current -> current.markUnconfirmed(turnId) }
+	}
+
 	// Idempotent by id: a message that comes again is not written twice.
 	fun addUserMessage(message: AssistantUserMessage) {
 		conversation.update { current ->
@@ -79,7 +85,7 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 
 	if (event is UnknownAssistantEvent || (known != null && event.seq <= known.lastSeq)) return this
 
-	val current = known ?: AssistantTurnState(event.turnId, event.seq)
+	val current = (known ?: AssistantTurnState(event.turnId, event.seq)).resumedBy(event)
 	val seen = copy(
 		turns = turns + (event.turnId to current.copy(lastSeq = event.seq)),
 		lastTurnId = event.turnId
@@ -135,6 +141,24 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 		// Dropped before this point; the branch keeps the when exhaustive.
 		is UnknownAssistantEvent -> this
 	}
+}
+
+// Only a turn that is still running can be left unconfirmed; a turn that has ended keeps its end.
+private fun AssistantConversationState.markUnconfirmed(turnId: String): AssistantConversationState {
+	val turn = turns[turnId] ?: return this
+
+	if (turn.status != AssistantTurnStatus.RUNNING) return this
+
+	return updateTurn(turnId) { current ->
+		current.copy(progressLabel = null, status = AssistantTurnStatus.UNCONFIRMED)
+	}
+}
+
+// An unconfirmed turn that delivers an event that is not its final one is running again.
+private fun AssistantTurnState.resumedBy(event: AssistantEvent): AssistantTurnState {
+	val isFinal = event is RunFinished || event is RunError
+
+	return if (status == AssistantTurnStatus.UNCONFIRMED && !isFinal) copy(status = AssistantTurnStatus.RUNNING) else this
 }
 
 private fun AssistantConversationState.updateTurn(

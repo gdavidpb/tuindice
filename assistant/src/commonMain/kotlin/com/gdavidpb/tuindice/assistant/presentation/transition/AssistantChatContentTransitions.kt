@@ -87,7 +87,8 @@ private fun ContentTransitions.contentComposerRows(
 			text = failed.text,
 			suggestionId = failed.suggestionId,
 			context = state.context?.context,
-			draftText = null
+			draftText = null,
+			clientTurnId = failed.clientTurnId
 		)
 		machine.refreshed(state)
 	}

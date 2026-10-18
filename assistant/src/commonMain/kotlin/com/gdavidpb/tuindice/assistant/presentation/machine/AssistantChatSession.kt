@@ -23,6 +23,9 @@ internal class AssistantChatSession {
 	var quota: Quota? = null
 	var restriction: Restriction? = null
 	var pendingFailedText: String? = null
+
+	// The suggestion of the turn that was accepted last: a run that fails keeps it for the retry.
+	var followedSuggestionId: String? = null
 	var photoExtracting = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
@@ -68,6 +71,11 @@ internal class AssistantChatSession {
 			failedMessages += last.id
 			pendingFailedText = null
 		}
+
+		// A turn whose result is unknown is retried with the message it answers, under the id that message was sent with.
+		if (observed.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED && last != null) {
+			lastFailedSend = FailedSend(text = last.text, suggestionId = followedSuggestionId, clientTurnId = last.id)
+		}
 	}
 
 	internal fun lastUserMessage(): AssistantUserMessage? {
@@ -77,7 +85,8 @@ internal class AssistantChatSession {
 			?.message
 	}
 
-	internal data class FailedSend(val text: String, val suggestionId: String?)
+	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with.
+	internal data class FailedSend(val text: String, val suggestionId: String?, val clientTurnId: String)
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
 

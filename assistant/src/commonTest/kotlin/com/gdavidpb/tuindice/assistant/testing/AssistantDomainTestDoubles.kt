@@ -60,6 +60,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlin.time.Clock
@@ -74,6 +76,12 @@ internal class RecordingAssistantTurnRepository(
 	var acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
 	var sendError: Throwable? = null
 	var events: List<AssistantEvent> = emptyList()
+
+	// The events of the next follows, one list per follow, when a test scripts them; [events] answers the others.
+	val scriptedFollows = mutableListOf<List<AssistantEvent>>()
+
+	// The failure every follow breaks with, when a test makes the stream break.
+	var streamError: Throwable? = null
 	val requests = mutableListOf<TurnRequest>()
 	val cancelled = mutableListOf<String>()
 	val followed = mutableListOf<Pair<String, Long>>()
@@ -95,7 +103,13 @@ internal class RecordingAssistantTurnRepository(
 	override fun turnEvents(turnId: String, afterSeq: Long): Flow<AssistantEvent> {
 		followed += turnId to afterSeq
 
-		return events.asFlow()
+		val answer = scriptedFollows.removeFirstOrNull() ?: events
+
+		return flow {
+			streamError?.let { error -> throw error }
+
+			emitAll(answer.asFlow())
+		}
 	}
 
 	override suspend fun deleteConversations() {
@@ -112,6 +126,7 @@ internal class RecordingAssistantConversationRepository(
 ) : AssistantConversationRepository {
 	val attached = mutableListOf<String>()
 	val applied = mutableListOf<AssistantEvent>()
+	val unconfirmed = mutableListOf<String>()
 	val userMessages = mutableListOf<AssistantUserMessage>()
 	val resolved = mutableMapOf<String, OutcomeKind>()
 	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
@@ -136,6 +151,11 @@ internal class RecordingAssistantConversationRepository(
 
 	override fun applyEvent(event: AssistantEvent) {
 		applied += event
+	}
+
+	override fun markTurnUnconfirmed(turnId: String) {
+		calls += "markTurnUnconfirmed"
+		unconfirmed += turnId
 	}
 
 	override fun addUserMessage(message: AssistantUserMessage) {
