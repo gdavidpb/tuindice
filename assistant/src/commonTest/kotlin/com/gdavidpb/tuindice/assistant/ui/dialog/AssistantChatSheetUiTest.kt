@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -44,7 +45,7 @@ class AssistantChatSheetUiTest {
 	}
 
 	@Test
-	fun when_conversationIsOpen_then_theTitleAsistenteSitsAboveTheContextChip_atTheStart() = runTuIndiceUiTest {
+	fun when_conversationIsOpen_then_theTitleAsistenteSitsAboveTheContextChip_afterTheSparkle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatSheet(
 				state = contentState(context = contextChip(), items = listOf(agentMessage())),
@@ -53,12 +54,18 @@ class AssistantChatSheetUiTest {
 		}
 
 		assertNodeVisible(AssistantUiTags.ChatTitle)
-		onNodeWithTag(AssistantUiTags.ChatTitle, useUnmergedTree = true).assertTextEquals(TITLE_TEXT)
+		onNodeWithTag(AssistantUiTags.ChatTitle).assertTextEquals(TITLE_TEXT)
 		val title = onNodeWithTag(AssistantUiTags.ChatTitle).fetchSemanticsNode().boundsInRoot
+		val sparkle = onNodeWithTag(AssistantUiTags.TitleSparkle, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val text = onNodeWithText(TITLE_TEXT, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 		val chip = onNodeWithTag(AssistantUiTags.ContextChip).fetchSemanticsNode().boundsInRoot
 
 		assertTrue(title.bottom <= chip.top)
 		assertEquals(chip.left, title.left)
+		// The sparkle leads the title on its own line, centred on the text.
+		assertEquals(title.left, sparkle.left)
+		assertTrue(sparkle.right <= text.left)
+		assertEquals(text.center.y, sparkle.center.y, absoluteTolerance = 1f)
 	}
 
 	@Test

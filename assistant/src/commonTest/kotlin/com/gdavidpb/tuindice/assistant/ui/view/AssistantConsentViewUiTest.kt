@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -70,7 +71,7 @@ class AssistantConsentViewUiTest {
 		val link = onNodeWithTag(AssistantUiTags.ConsentPrivacy)
 		link.assertHeightIsAtLeast(48.dp)
 		val linkLeft = link.fetchSemanticsNode().boundsInRoot.left
-		val titleLeft = onNodeWithText(TITLE_TEXT).fetchSemanticsNode().boundsInRoot.left
+		val titleLeft = onNodeWithTag(AssistantUiTags.ConsentTitle).fetchSemanticsNode().boundsInRoot.left
 		val marginLeft = onNodeWithTag(AssistantUiTags.ConsentView).fetchSemanticsNode().boundsInRoot.left
 
 		assertEquals(titleLeft, linkLeft)
@@ -120,6 +121,20 @@ class AssistantConsentViewUiTest {
 		val providersTop = onNodeWithText(PROVIDERS_TEXT).fetchSemanticsNode().boundsInRoot.top
 
 		assertTrue(scopeTop < accuracyTop && accuracyTop < providersTop)
+	}
+
+	@Test
+	fun when_consentIsShown_then_theSparkleLeadsTheTitleOnItsLine() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantConsentView(onAction = {})
+		}
+
+		onNodeWithTag(AssistantUiTags.ConsentTitle).assertTextEquals(TITLE_TEXT)
+		val sparkle = onNodeWithTag(AssistantUiTags.TitleSparkle, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		val text = onNodeWithText(TITLE_TEXT, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(sparkle.right <= text.left)
+		assertEquals(text.center.y, sparkle.center.y, absoluteTolerance = 1f)
 	}
 
 	private companion object {

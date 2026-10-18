@@ -5,6 +5,8 @@ import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 object AssistantUiTags {
 	const val ChatSheet = "assistant_chat_sheet"
 	const val ChatTitle = "assistant_chat_title"
+	const val ConsentTitle = "assistant_consent_title"
+	const val TitleSparkle = "assistant_title_sparkle"
 	const val MessageList = "assistant_message_list"
 	const val ContextChip = "assistant_context_chip"
 	const val ContextRemove = "assistant_context_remove"

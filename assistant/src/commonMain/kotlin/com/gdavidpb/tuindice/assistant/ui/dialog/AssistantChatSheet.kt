@@ -17,8 +17,9 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
 
-// The chat sheet: the conversation carries the title «Asistente», without an icon or the name of the app; the consent
-// carries its own. It opens at medium height: the body is that height already, so the sheet opens showing all of it.
+// The chat sheet: the conversation carries the title «Asistente» after the sparkle, without the name of the app; the
+// consent carries its own, with the sparkle too. It opens at medium height: the body is that height already, so the
+// sheet opens showing all of it.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantChatSheet(

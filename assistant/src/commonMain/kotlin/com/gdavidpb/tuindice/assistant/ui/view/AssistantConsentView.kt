@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -56,7 +55,8 @@ private val consentLines: List<Pair<ImageVector, StringResource>> = listOf(
 )
 
 // What the student needs to know before accepting the assistant. It says "el asistente": no name in the chat. The title
-// is the one of the app's sheets (ConfirmationDialog), and «Ahora no» is their negative button. The privacy policy link
+// is the one of the assistant's sheets, the sparkle on its line, and «Ahora no» is the negative button of the app's
+// sheets (ConfirmationDialog). The privacy policy link
 // opens the app's policy, starts at the margin of the rows and keeps a touch area of 48 dp. A [failed] acceptance says
 // so above the actions, and accepting again is the retry.
 @Composable
@@ -66,12 +66,9 @@ fun AssistantConsentView(
 	failed: Boolean = false
 ) {
 	Column(modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.ConsentView)) {
-		Text(
+		AssistantSheetTitleView(
 			text = stringResource(Res.string.assistant_consent_title),
-			style = MaterialTheme.typography.titleLarge,
-			fontWeight = FontWeight.Bold,
-			color = MaterialTheme.colorScheme.onSurface,
-			modifier = Modifier.padding(bottom = 16.dp)
+			modifier = Modifier.padding(bottom = 16.dp).testTag(AssistantUiTags.ConsentTitle)
 		)
 		Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XLarge)) {
 			consentLines.forEach { (icon, line) ->

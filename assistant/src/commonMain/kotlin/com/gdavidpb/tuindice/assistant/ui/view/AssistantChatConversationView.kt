@@ -8,13 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -25,8 +22,8 @@ import tuindice.assistant.generated.resources.assistant_chat_sending
 import tuindice.assistant.generated.resources.assistant_chat_title
 import tuindice.assistant.generated.resources.assistant_photo_reading
 
-// The conversation, oldest first, under the sheet's title («Asistente», with the style of the app's sheets and no
-// icon) and the context chip, with the running label, notice, suggestions and composer below. The list follows its
+// The conversation, oldest first, under the sheet's title («Asistente» after the sparkle, AssistantSheetTitleView)
+// and the context chip, with the running label, notice, suggestions and composer below. The list follows its
 // last item whenever the conversation changes size.
 @Composable
 fun AssistantChatConversationView(
@@ -48,11 +45,8 @@ fun AssistantChatConversationView(
 		modifier = modifier.fillMaxWidth().imePadding(),
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		Text(
+		AssistantSheetTitleView(
 			text = stringResource(Res.string.assistant_chat_title),
-			style = MaterialTheme.typography.titleLarge,
-			fontWeight = FontWeight.Bold,
-			color = MaterialTheme.colorScheme.onSurface,
 			// With the column's spacing, 16 dp below it, as below the title of ConfirmationDialog.
 			modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium).testTag(AssistantUiTags.ChatTitle)
 		)
