@@ -103,7 +103,8 @@ fun TermProjection.toTermItem(
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
-				texts = texts
+				texts = texts,
+				termLabel = periodLabel
 			)
 		},
 		// A provisional annulment and stale data describe the current term, so only its page

@@ -7,6 +7,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.testing.recordMapperTexts
@@ -119,6 +122,59 @@ class AttemptItemUiTest {
 		assertNotEquals(ci.codeColor, fs.codeColor)
 		assertEquals("INGENIERÍA DE SOFTWARE", ci.nameText)
 		assertEquals("3 UC", ci.creditsText)
+	}
+
+	@Test
+	fun when_aSubjectIsMapped_then_itsQuestionNamesTheAttemptAndTheSubject_withWhatTheCardShows() = runTuIndiceUiTest {
+		var item: AttemptItem? = null
+
+		setTuIndiceTestContent {
+			item = attemptProjection().toAttemptItem(
+				isReadOnly = true,
+				texts = recordMapperTexts(),
+				termLabel = "Abr - Jul 2026"
+			)
+		}
+
+		val context = assertNotNull(item).assistantContext
+
+		assertEquals(AssistantScreen.RECORD, context.screen)
+		assertEquals(
+			listOf(
+				AssistantEntityRef(kind = AssistantEntityKind.ATTEMPT, id = "attempt-1"),
+				AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI5311")
+			),
+			context.entities
+		)
+		// A subject still pending has no grade on its card, so none is named.
+		assertEquals(
+			mapOf(
+				"subjectCode" to "CI5311",
+				"subjectName" to "Ingeniería de software",
+				"termLabel" to "Abr - Jul 2026",
+				"credits" to "3",
+				"isWithdrawn" to "false"
+			),
+			context.visibleFields
+		)
+	}
+
+	@Test
+	fun when_aGradedSubjectIsMapped_then_itsQuestionCarriesTheGradeAndTheOutcome() = runTuIndiceUiTest {
+		var item: AttemptItem? = null
+
+		setTuIndiceTestContent {
+			item = attemptProjection().copy(
+				score = AttemptScore.numeric(4),
+				outcome = AttemptOutcome.APPROVED
+			).toAttemptItem(isReadOnly = true, texts = recordMapperTexts())
+		}
+
+		val mapped = assertNotNull(item)
+
+		assertEquals(mapped.gradeText, mapped.assistantContext.visibleFields["grade"])
+		assertEquals(AttemptOutcome.APPROVED.name, mapped.assistantContext.visibleFields["outcome"])
+		assertNull(mapped.assistantContext.visibleFields["termLabel"], "no term was named")
 	}
 
 	private fun meeting(day: Int, classroom: String) = AcademicScheduleEntry(

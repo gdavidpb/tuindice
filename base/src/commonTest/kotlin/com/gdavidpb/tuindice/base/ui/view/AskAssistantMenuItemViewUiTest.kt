@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -50,6 +51,18 @@ class AskAssistantMenuItemViewUiTest {
 		onNodeWithTag(AskAssistantTag).performClick()
 
 		assertEquals(1, askCount)
+	}
+
+	@Test
+	fun when_theItemIsDrawn_then_itLeadsWithTheSparkle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			DropdownMenu(expanded = true, onDismissRequest = {}) {
+				AskAssistantMenuItemView(onAsk = {})
+			}
+		}
+
+		// The item merges its children for accessibility, so the sparkle is found in the unmerged tree.
+		onNodeWithTag(BaseUiTags.askAssistant("menu_item_sparkle"), useUnmergedTree = true).assertIsDisplayed()
 	}
 
 	private companion object {
