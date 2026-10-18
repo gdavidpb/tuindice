@@ -71,7 +71,7 @@ class AssistantConversationDataSourceTest {
 		val store = AssistantConversationDataSource()
 		store.apply(RunStarted(seq = 1, turnId = "t1"))
 
-		store.markUnconfirmed("t1")
+		store.markUnconfirmed(turnId = "t1", lastSeq = 1L)
 		assertEquals(AssistantTurnStatus.UNCONFIRMED, store.observeConversation().value.turns.getValue("t1").status)
 
 		store.apply(Progress(seq = 2, turnId = "t1", tool = "subjects", label = "Revisando"))
@@ -84,7 +84,7 @@ class AssistantConversationDataSourceTest {
 		store.apply(RunStarted(seq = 1, turnId = "t1"))
 		store.apply(RunFinished(seq = 2, turnId = "t1"))
 
-		store.markUnconfirmed("t1")
+		store.markUnconfirmed(turnId = "t1", lastSeq = 1L)
 
 		assertEquals(AssistantTurnStatus.FINISHED, store.observeConversation().value.turns.getValue("t1").status)
 	}

@@ -98,9 +98,13 @@ class AssistantChatMachine(
 		return refreshed(emptyContent)
 	}
 
-	// Leaving the content stops what observed it: the conversation and the turn are no longer followed.
+	// Leaving the content stops what observed it: the conversation and the turn are no longer followed, and a send that
+	// was waiting for its first event is no longer waited for.
 	internal fun leaveContent() {
 		turns.stop()
+
+		session.sending = false
+		session.sendingTurnId = null
 	}
 
 	internal suspend fun refreshed(content: AssistantChat.State.Content): AssistantChat.State.Content {
@@ -118,6 +122,8 @@ class AssistantChatMachine(
 		clientTurnId: String = Uuid.random().toString()
 	) {
 		session.turnFailure = null
+		session.sending = true
+		session.sendingTurnId = null
 
 		if (draftText != null) draft.setText("")
 
@@ -180,6 +186,8 @@ class AssistantChatMachine(
 	) {
 		val error = event.error
 		val notSent = error is SendAssistantMessageError.InvalidMessage
+
+		session.sending = false
 
 		if (!notSent) {
 			session.markSendFailed(event.sentText)
@@ -244,6 +252,7 @@ class AssistantChatMachine(
 		session.restriction = null
 		session.pendingFailedText = null
 		session.followedSuggestionId = event.suggestionId
+		session.sendingTurnId = event.turnId
 
 		turns.followTurn(host = host, turnId = event.turnId, afterSeq = event.lastSeq)
 	}

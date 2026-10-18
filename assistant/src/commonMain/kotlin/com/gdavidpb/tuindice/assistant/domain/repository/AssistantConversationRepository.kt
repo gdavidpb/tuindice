@@ -18,8 +18,11 @@ interface AssistantConversationRepository {
 
 	fun applyEvent(event: AssistantEvent)
 
-	/** Marks the turn [turnId] as unconfirmed: its stream and a check from its last seq reached no final event. */
-	fun markTurnUnconfirmed(turnId: String)
+	/**
+	 * Marks the turn [turnId] as unconfirmed: its stream and a check from [lastSeq] reached no final event. A turn the
+	 * conversation has seen no event of yet is named by the mark too, so the student sees where its send stands.
+	 */
+	fun markTurnUnconfirmed(turnId: String, lastSeq: Long)
 
 	fun addUserMessage(message: AssistantUserMessage)
 

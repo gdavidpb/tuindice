@@ -42,7 +42,9 @@ object AssistantChat {
 			// Guided mode: the composer is off and only the suggestions can start a turn.
 			val isGuided: Boolean,
 			// A photo of the plan is being read: its progress label shows, and the photo button is off.
-			val isExtracting: Boolean = false
+			val isExtracting: Boolean = false,
+			// A message was sent and its first event has not come yet: the progress shows, and nothing can be sent.
+			val isSending: Boolean = false
 		) : State()
 	}
 
@@ -62,6 +64,9 @@ object AssistantChat {
 
 		// Sends again the student's message whose turn failed.
 		data object RetryTurn : Action()
+
+		// Stops the turn that runs, or the one being sent: the server cancels it, and its bubble says so.
+		data object CancelTurn : Action()
 
 		// Confirms the intent [intentId] from its own card. A destructive intent has no other way to be confirmed.
 		class ConfirmIntent(val intentId: String) : Action()

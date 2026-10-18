@@ -98,7 +98,7 @@ internal class ObservedAssistantConversationRepository(
 		applied += event
 	}
 
-	override fun markTurnUnconfirmed(turnId: String) {
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
 		unconfirmed += turnId
 	}
 
@@ -246,6 +246,9 @@ internal fun AssistantChatViewModel.removeContextAction() =
 
 internal fun AssistantChatViewModel.retryTurnAction() =
 	dispatch(AssistantChat.Action.RetryTurn)
+
+internal fun AssistantChatViewModel.cancelTurnAction() =
+	dispatch(AssistantChat.Action.CancelTurn)
 
 internal fun AssistantChatViewModel.confirmIntentAction(intentId: String) =
 	dispatch(AssistantChat.Action.ConfirmIntent(intentId))

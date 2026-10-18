@@ -8,6 +8,7 @@ object AssistantUiTags {
 	const val ContextChip = "assistant_context_chip"
 	const val ContextRemove = "assistant_context_remove"
 	const val Composer = "assistant_composer"
+	const val StopButton = "assistant_stop_button"
 	const val SendButton = "assistant_send_button"
 	const val PhotoButton = "assistant_photo_button"
 	const val PhotoTake = "assistant_photo_take"

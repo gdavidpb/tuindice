@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -29,7 +30,8 @@ class AssistantChatTurns(
 	private val resumeAssistantTurnUseCase: ResumeAssistantTurnUseCase,
 	private val followAssistantTurnUseCase: FollowAssistantTurnUseCase,
 	private val sendAssistantMessageUseCase: SendAssistantMessageUseCase,
-	private val extractEvaluationsFromPhotoUseCase: ExtractEvaluationsFromPhotoUseCase
+	private val extractEvaluationsFromPhotoUseCase: ExtractEvaluationsFromPhotoUseCase,
+	private val cancelAssistantTurnUseCase: CancelAssistantTurnUseCase
 ) {
 	private var conversationJob: Job? = null
 	private var turnJob: Job? = null
@@ -113,6 +115,13 @@ class AssistantChatTurns(
 					is UseCaseState.Error -> host.processInternalEvent(useCaseState.error.toPhotoEvent())
 				}
 			}
+		}
+	}
+
+	// Asks the server to cancel the turn [turnId]. The turn ends with an event of its own, which the conversation shows.
+	fun cancel(host: MachineHost<AssistantChat.Effect>, turnId: String) {
+		host.launchMachineJob {
+			cancelAssistantTurnUseCase.execute(turnId).collect()
 		}
 	}
 

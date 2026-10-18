@@ -56,6 +56,7 @@ import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -83,6 +84,9 @@ internal class RecordingAssistantTurnRepository(
 
 	// The failure every follow breaks with, when a test makes the stream break.
 	var streamError: Throwable? = null
+
+	// When set, a follow delivers nothing and stays open, as a stream waiting for its first event does.
+	var holdEvents = false
 	val requests = mutableListOf<TurnRequest>()
 	val cancelled = mutableListOf<String>()
 	val followed = mutableListOf<Pair<String, Long>>()
@@ -108,6 +112,8 @@ internal class RecordingAssistantTurnRepository(
 
 		return flow {
 			streamError?.let { error -> throw error }
+
+			if (holdEvents) awaitCancellation()
 
 			emitAll(answer.asFlow())
 		}
@@ -154,7 +160,7 @@ internal class RecordingAssistantConversationRepository(
 		applied += event
 	}
 
-	override fun markTurnUnconfirmed(turnId: String) {
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
 		calls += "markTurnUnconfirmed"
 		unconfirmed += turnId
 	}

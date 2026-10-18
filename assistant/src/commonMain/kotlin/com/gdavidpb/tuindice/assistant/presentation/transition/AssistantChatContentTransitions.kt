@@ -92,6 +92,14 @@ private fun ContentTransitions.contentComposerRows(
 		)
 		machine.refreshed(state)
 	}
+
+	// The student stops the turn that runs or is being sent. A turn that has no stop target has nothing to stop.
+	on<AssistantChat.Action.CancelTurn> { state, _ ->
+		val turnId = machine.session.stopTarget() ?: return@on state
+
+		machine.turns.cancel(host = host, turnId = turnId)
+		machine.refreshed(state)
+	}
 }
 
 private fun ContentTransitions.contentPhotoRows(

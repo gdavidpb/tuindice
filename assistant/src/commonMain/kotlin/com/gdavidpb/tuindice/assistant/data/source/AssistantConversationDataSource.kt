@@ -44,8 +44,8 @@ class AssistantConversationDataSource : SessionMemory {
 
 	// The result of a turn is unknown: its stream ended and a check from its last seq reached no final event. An event that
 	// comes later shows the turn is still going.
-	fun markUnconfirmed(turnId: String) {
-		conversation.update { current -> current.markUnconfirmed(turnId) }
+	fun markUnconfirmed(turnId: String, lastSeq: Long) {
+		conversation.update { current -> current.markUnconfirmed(turnId, lastSeq) }
 	}
 
 	// Idempotent by id: a message that comes again is not written twice.
@@ -144,9 +144,16 @@ private fun AssistantConversationState.reduce(event: AssistantEvent): AssistantC
 	}
 }
 
-// Only a turn that is still running can be left unconfirmed; a turn that has ended keeps its end.
-private fun AssistantConversationState.markUnconfirmed(turnId: String): AssistantConversationState {
-	val turn = turns[turnId] ?: return this
+// A turn that has ended keeps its end. A turn with no event yet starts here, unconfirmed, at the seq it was followed from.
+private fun AssistantConversationState.markUnconfirmed(turnId: String, lastSeq: Long): AssistantConversationState {
+	val turn = turns[turnId]
+
+	if (turn == null) {
+		return copy(
+			turns = turns + (turnId to AssistantTurnState(turnId, lastSeq, status = AssistantTurnStatus.UNCONFIRMED)),
+			lastTurnId = turnId
+		)
+	}
 
 	if (turn.status != AssistantTurnStatus.RUNNING) return this
 

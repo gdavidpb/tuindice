@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_chat_sending
 import tuindice.assistant.generated.resources.assistant_photo_reading
 
 // The conversation, oldest first, with the context chip above and the running label, notice, suggestions and
@@ -56,10 +57,11 @@ fun AssistantChatConversationView(
 				}
 			}
 		}
-		// A photo being read has no label of its own in the state: the label is the reading's, as the progress shows it.
+		// A photo being read and a message being sent have no label of their own in the state: the labels are the view's.
 		val readingLabel = if (content.isExtracting) stringResource(Res.string.assistant_photo_reading) else null
+		val sendingLabel = if (content.isSending) stringResource(Res.string.assistant_chat_sending) else null
 
-		(content.progressLabel ?: readingLabel)?.let { label ->
+		(content.progressLabel ?: readingLabel ?: sendingLabel)?.let { label ->
 			AssistantProgressView(label = label)
 		}
 		content.notice?.let { notice ->

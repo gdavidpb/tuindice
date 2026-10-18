@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="a11y_assistant_send">Enviar</string>
+	<string name="a11y_assistant_stop">Detener respuesta</string>
 	<string name="a11y_assistant_remove_context">Quitar contexto</string>
 	<string name="a11y_assistant_copy">Copiar</string>
 	<string name="a11y_assistant_useful">Útil</string>
@@ -132,6 +133,7 @@
 	<string name="assistant_photo_take">Tomar foto</string>
 	<string name="assistant_photo_pick">Elegir de la galería</string>
 	<string name="assistant_photo_reading">Leyendo la foto…</string>
+	<string name="assistant_chat_sending">Preparando la respuesta…</string>
 	<string name="assistant_chat_message_too_long">Tu mensaje supera los %1$d caracteres.</string>
 	<string name="assistant_chat_rated">Gracias por tu opinión</string>
 	<string name="assistant_chat_reported">Reporte enviado</string>

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
 import com.gdavidpb.tuindice.assistant.presentation.testing.bubbles
+import com.gdavidpb.tuindice.assistant.presentation.testing.cancelTurnAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.changeTextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
@@ -180,6 +181,86 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.sendMessageAction()
 
 		assertEquals("hola", viewModel.content().composer.text)
+	}
+
+	@Test
+	fun aSentTurnWithoutItsFirstEvent_isSending_andTheSendAndTheSuggestionsWait() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		fixture.turns.holdEvents = true
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+
+		viewModel.sendMessageAction()
+
+		val content = viewModel.content()
+		assertTrue(content.isSending)
+		assertFalse(content.composer.isSendEnabled)
+		assertFalse(content.composer.isPhotoEnabled)
+		assertTrue(content.suggestions.isEmpty())
+	}
+
+	@Test
+	fun theFirstEventOfTheSentTurn_endsTheSending_andTheTurnCanBeStopped() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		fixture.turns.holdEvents = true
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+		assertTrue(viewModel.content().isSending)
+
+		fixture.conversation.conversation.value = assistantConversation(
+			activeTurn = AssistantActiveTurn(
+				turnId = "t1",
+				lastSeq = 1,
+				progressLabel = null,
+				status = AssistantTurnPhase.RUNNING
+			)
+		)
+
+		val content = viewModel.content()
+		assertFalse(content.isSending)
+		assertTrue(content.composer.isStoppable)
+	}
+
+	@Test
+	fun stopIsOfferedWhileATurnRuns_andStoppingItAsksTheServerToCancelIt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			activeTurn = AssistantActiveTurn(
+				turnId = "t1",
+				lastSeq = 3,
+				progressLabel = "Revisando tu pensum…",
+				status = AssistantTurnPhase.RUNNING
+			)
+		)
+		viewModel.openAction(null)
+		assertTrue(viewModel.content().composer.isStoppable)
+
+		viewModel.cancelTurnAction()
+
+		assertEquals(listOf("t1"), fixture.turns.cancelled)
+	}
+
+	@Test
+	fun stopIsNotOfferedWhenNoTurnRuns_andCancellingDoesNothing() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(null)
+		assertFalse(viewModel.content().composer.isStoppable)
+
+		viewModel.cancelTurnAction()
+
+		assertTrue(fixture.turns.cancelled.isEmpty())
 	}
 
 	@Test

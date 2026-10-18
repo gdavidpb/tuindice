@@ -24,6 +24,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 ): AssistantChat.State.Content {
 	val running = isRunning()
 	val extracting = photoExtracting
+	val busy = running || sending
 	val guided = guidedByMode || guidedByServer
 	val composerEnabled = !guided && restriction == null
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
@@ -33,13 +34,15 @@ internal suspend fun AssistantChatSession.presentedContent(
 		items = presentedItems(texts),
 		progressLabel = if (running) conversation?.activeTurn?.progressLabel else null,
 		isExtracting = extracting,
+		isSending = sending,
 		composer = ChatComposerItem(
 			text = draftText,
 			isEnabled = composerEnabled,
-			isSendEnabled = composerEnabled && draftText.isNotBlank() && !running,
-			isPhotoEnabled = composerEnabled && !running && !extracting
+			isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
+			isPhotoEnabled = composerEnabled && !busy && !extracting,
+			isStoppable = stopTarget() != null
 		),
-		suggestions = if (running) emptyList() else presentedSuggestions(screen = screen, guided = guided),
+		suggestions = if (busy) emptyList() else presentedSuggestions(screen = screen, guided = guided),
 		notice = presentedNotice(texts, guided),
 		isGuided = guided
 	)

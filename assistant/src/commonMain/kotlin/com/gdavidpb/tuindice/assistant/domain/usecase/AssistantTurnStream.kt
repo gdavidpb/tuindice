@@ -36,7 +36,7 @@ class AssistantTurnStream(
 		}
 
 		if (!progress.finished) {
-			conversationRepository.markTurnUnconfirmed(turnId)
+			conversationRepository.markTurnUnconfirmed(turnId, progress.lastSeq)
 
 			failure?.let { cause -> throw cause }
 		}

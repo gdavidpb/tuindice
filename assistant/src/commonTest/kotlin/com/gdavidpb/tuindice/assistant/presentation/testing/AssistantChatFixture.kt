@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.testing
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AcceptAssistantConsentUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AnswerStillAppliesUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.AssistantIntentConfirmer
@@ -128,6 +129,7 @@ internal class AssistantChatFixture {
 			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
 			resumeAssistantTurnUseCase = ResumeAssistantTurnUseCase(turnStream, conversation, reporting),
 			followAssistantTurnUseCase = FollowAssistantTurnUseCase(turnStream, reporting),
+			cancelAssistantTurnUseCase = CancelAssistantTurnUseCase(turns, reporting),
 			sendAssistantMessageUseCase = SendAssistantMessageUseCase(
 				conversationRepository = conversation,
 				turnRepository = turns,
