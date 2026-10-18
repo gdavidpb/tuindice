@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.chatcontract
 
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+import com.gdavidpb.tuindice.chatcontract.insights.TermInsights
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
 import kotlinx.serialization.KSerializer
@@ -36,6 +37,9 @@ class GoldenFixturesTest {
 	@Test
 	fun intentOutcomeReportWithItemOutcomesIsStableOnTheWire() =
 		assertGolden("intent_outcome_report_items.json", IntentOutcomeReport.serializer())
+
+	@Test
+	fun termInsightsAreStableOnTheWire() = assertGolden("term_insights.json", TermInsights.serializer())
 
 	private fun <T> assertGolden(name: String, serializer: KSerializer<T>) {
 		val text = checkNotNull(javaClass.getResource("/golden/$name")).readText()
