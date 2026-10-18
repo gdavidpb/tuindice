@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
@@ -188,6 +189,7 @@ class SummaryHubTransitionsTest {
 				reportingRepository = reporting,
 				exceptionHandler = UploadProfilePictureExceptionHandler(network)
 			),
+			termReports = createSummaryTermReports(),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reporting,

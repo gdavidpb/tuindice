@@ -41,8 +41,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.russhwolf.settings.Settings
-import kotlin.test.Test
 import org.koin.dsl.module
+import kotlin.test.Test
 
 class SummaryModuleKoinSmokeTest {
 	@Test

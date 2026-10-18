@@ -90,6 +90,7 @@ fun createHubScenarioViewModel(
 				reportingRepository = reporting,
 				exceptionHandler = UploadProfilePictureExceptionHandler(FakeNetworkRepository(isAvailable = true))
 			),
+			termReports = createSummaryTermReports(),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reporting,

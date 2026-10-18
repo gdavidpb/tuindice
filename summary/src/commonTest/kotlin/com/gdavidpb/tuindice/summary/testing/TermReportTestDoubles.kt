@@ -8,10 +8,15 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantTermInsight
 import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportEntryUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-// The reports the service holds for the account. [refreshFailure] makes asking for them fail, the way an offline device does.
+// The reports the service holds for the account. [refreshFailure] makes asking for them fail, the way an offline device
+// does.
 class ControllableAssistantInsightsRepository(
 	initialInsights: List<AssistantTermInsight> = emptyList(),
 	var refreshFailure: Throwable? = null,
@@ -52,12 +57,10 @@ class ControllableTermReportSeenRepository(
 	}
 }
 
-// A report of the term [termKey] of the term [termId], written at [createdAtMillis].
+// A report of the term [termKey], written at [createdAtMillis]. Its share action names the term "term-1".
 fun termReportInsight(
 	id: String = "term-1:2",
 	termKey: String = "2026-APR_JUL",
-	termId: String = "term-1",
-	title: String = "Cerraste con 4,18",
 	createdAtMillis: Long = 1_761_000_000_000L,
 	sections: List<AssistantInsightSection> = listOf(
 		AssistantInsightSection(title = "Cerraste con 4,18", text = "Aprobaste las 3 materias."),
@@ -68,17 +71,42 @@ fun termReportInsight(
 		AssistantInsightAction(
 			target = AssistantNavTarget.SHARE_TERM,
 			label = "Compartir tu trimestre",
-			entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = termId))
+			entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1"))
 		)
 	)
 ) = AssistantTermInsight(
 	id = id,
 	termKey = termKey,
 	kind = "term_end",
-	title = title,
+	title = "Cerraste con 4,18",
 	body = sections.joinToString(separator = "\n\n") { section -> section.text },
-	entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = termId)),
+	entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1")),
 	sections = sections,
 	nextActions = nextActions,
 	createdAtMillis = createdAtMillis
+)
+
+// The use case that offers the line of the newest unopened report, over the reports and the ids the test sets.
+fun createObserveTermReportEntryUseCase(
+	insights: AssistantInsightsRepository = ControllableAssistantInsightsRepository(),
+	seen: TermReportSeenRepository = ControllableTermReportSeenRepository()
+) = ObserveTermReportEntryUseCase(
+	insightsRepository = insights,
+	seenRepository = seen,
+	reportingRepository = RecordingReportingRepository()
+)
+
+fun createUpdateTermReportsUseCase(
+	insights: AssistantInsightsRepository = ControllableAssistantInsightsRepository()
+) = UpdateTermReportsUseCase(
+	insightsRepository = insights,
+	reportingRepository = RecordingReportingRepository()
+)
+
+fun createSummaryTermReports(
+	insights: AssistantInsightsRepository = ControllableAssistantInsightsRepository(),
+	seen: TermReportSeenRepository = ControllableTermReportSeenRepository()
+) = SummaryTermReports(
+	entry = createObserveTermReportEntryUseCase(insights = insights, seen = seen),
+	refresh = createUpdateTermReportsUseCase(insights = insights)
 )

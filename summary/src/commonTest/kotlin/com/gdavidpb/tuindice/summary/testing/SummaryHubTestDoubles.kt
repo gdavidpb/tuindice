@@ -5,14 +5,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
-import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.persistence.domain.model.PensumCreditsProgress
 import com.gdavidpb.tuindice.persistence.domain.repository.PensumProgressRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
-import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.awaitCancellation
@@ -115,16 +113,12 @@ fun createObserveSummaryHubUseCase(
 	evaluations: VisibleEvaluationsRepository = ControllableVisibleEvaluationsRepository(),
 	pensumProgress: PensumProgressRepository = ControllablePensumProgressRepository(),
 	prerequisite: RecordDataPrerequisiteRepository = ControllableRecordDataPrerequisiteRepository(),
-	clock: ScheduleClockRepository = ControllableScheduleClockRepository(),
-	insights: AssistantInsightsRepository = ControllableAssistantInsightsRepository(),
-	seenTermReports: TermReportSeenRepository = ControllableTermReportSeenRepository()
+	clock: ScheduleClockRepository = ControllableScheduleClockRepository()
 ) = ObserveSummaryHubUseCase(
 	visibleAcademicRecordRepository = record,
 	visibleEvaluationsRepository = evaluations,
 	pensumProgressRepository = pensumProgress,
 	recordDataPrerequisiteRepository = prerequisite,
 	scheduleClockRepository = clock,
-	assistantInsightsRepository = insights,
-	termReportSeenRepository = seenTermReports,
 	reportingRepository = RecordingReportingRepository()
 )
