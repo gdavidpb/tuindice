@@ -48,8 +48,6 @@ internal fun TuIndiceNavigator.toAssistantNavDependencies(
 	},
 	// The proof opens over the chat, as the dialogs the chat offers do, so its back returns to the chat.
 	onOpenEnrollmentProof = { push(EnrollmentProofDestination.EnrollmentProofDialog) },
-	// A browser page (the privacy policy of the consent) opens over the chat too, as About opens it: back returns there.
-	onNavigateToBrowser = { title, url -> push(BrowserDestination.Browser(title = title, url = url)) },
 	onCopyText = copyText
 )
 

@@ -101,8 +101,9 @@ object AssistantChat {
 		class ShowSnackBar(val message: String) : Effect()
 		class NavigateTo(val target: NavTarget, val entityRefs: List<EntityRef>) : Effect()
 
-		// A page of the app's in-app browser, opened over the chat, so its back returns to the sheet.
-		class NavigateToBrowser(val title: String, val url: String) : Effect()
+		// A page outside the app (the privacy policy), opened by the system as the chat's support links are: the sheet
+		// stays as it was underneath, and coming back to the app finds it there.
+		class OpenUrl(val url: String) : Effect()
 
 		// comprobante.pedir: the app's own enrollment proof flow takes over, with the password saved on the device.
 		data object OpenEnrollmentProof : Effect()

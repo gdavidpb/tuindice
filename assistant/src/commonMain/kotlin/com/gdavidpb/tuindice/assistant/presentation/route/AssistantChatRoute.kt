@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
@@ -25,10 +26,10 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_nav_copied
 
 // The chat sheet bridged to its view model. The sheet opens with the context of the screen it came from. Its dismissal
-// and its component sheets go through the navigation actions; the copy, the snackbars, the navigation, the in-app
-// browser and the enrollment proof go through the host. The camera and the gallery are opened here, as the summary
-// opens them, and the photo they return goes back to the view model. Whether the device has a camera is read once,
-// here.
+// and its component sheets go through the navigation actions; the copy, the snackbars, the navigation and the
+// enrollment proof go through the host. A page outside the app opens with the system, as the chat's support links do.
+// The camera and the gallery are opened here, as the summary opens them, and the photo they return goes back to the
+// view model. Whether the device has a camera is read once, here.
 @Composable
 fun AssistantChatRoute(
 	viewModel: AssistantChatViewModel,
@@ -41,6 +42,7 @@ fun AssistantChatRoute(
 	val copiedText = stringResource(Res.string.assistant_nav_copied)
 	val deviceInfo = koinInject<DeviceInfoRepository>()
 	val isCameraAvailable = remember { deviceInfo.hasCamera() }
+	val uriHandler = LocalUriHandler.current
 
 	// The view model has no initial action: the sheet is opened once, when the route enters.
 	LaunchedEffect(Unit) {
@@ -60,7 +62,7 @@ fun AssistantChatRoute(
 
 			is AssistantChat.Effect.NavigateTo -> dependencies.onNavigateTo(effect.target, effect.entityRefs)
 
-			is AssistantChat.Effect.NavigateToBrowser -> dependencies.onNavigateToBrowser(effect.title, effect.url)
+			is AssistantChat.Effect.OpenUrl -> runCatching { uriHandler.openUri(effect.url) }
 
 			AssistantChat.Effect.OpenEnrollmentProof -> dependencies.onOpenEnrollmentProof()
 

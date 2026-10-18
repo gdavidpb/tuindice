@@ -10,12 +10,14 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
+import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
+import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
@@ -25,7 +27,6 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
-import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SHEET_SWIPE_MS = 600L
@@ -218,9 +219,10 @@ private val assistantConsentPrivacyPolicy = scenario(
 
 	openAssistant()
 	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
+	// The policy opens outside the app; coming back finds the consent as it was.
 	tap(AssistantUiTags.ConsentPrivacy)
-	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
-	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
+	waitBackgrounded(Within.Action)
+	foreground()
 	waitVisible(AssistantUiTags.ConsentView, Within.Action)
 }
 

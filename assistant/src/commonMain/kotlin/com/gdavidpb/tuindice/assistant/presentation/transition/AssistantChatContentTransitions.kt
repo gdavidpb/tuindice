@@ -221,11 +221,11 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
-	// The consent embedded in a message links the privacy policy too; it opens over the chat, as in the consent.
+	// The consent embedded in a message links the privacy policy too; it opens outside the app, as in the consent.
 	on<AssistantChat.Action.OpenPrivacyPolicy>(
-		emits = setOf(AssistantChat.Effect.NavigateToBrowser::class)
+		emits = setOf(AssistantChat.Effect.OpenUrl::class)
 	) { state, _ ->
-		machine.access.openPrivacyPolicy(host = host, title = machine.texts.privacyPolicyTitle())
+		machine.access.openPrivacyPolicy(host = host)
 		state
 	}
 

@@ -116,9 +116,8 @@ class AssistantChatAccessBehaviorTest {
 
 		viewModel.openPrivacyPolicyAction()
 
-		val browser = assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
-		assertEquals("privacy-policy", browser.title)
-		assertEquals(fixture.appEnvironment.getEnvironment().privacyPolicyUrl, browser.url)
+		val page = assertIs<AssistantChat.Effect.OpenUrl>(fixture.effects.single())
+		assertEquals(fixture.appEnvironment.getEnvironment().privacyPolicyUrl, page.url)
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
 	}
 
@@ -130,7 +129,7 @@ class AssistantChatAccessBehaviorTest {
 
 		viewModel.openPrivacyPolicyAction()
 
-		assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
+		assertIs<AssistantChat.Effect.OpenUrl>(fixture.effects.single())
 		assertEquals(AssistantChat.State.ConsentFailed, viewModel.state.value)
 	}
 
@@ -141,7 +140,7 @@ class AssistantChatAccessBehaviorTest {
 
 		viewModel.openPrivacyPolicyAction()
 
-		assertIs<AssistantChat.Effect.NavigateToBrowser>(fixture.effects.single())
+		assertIs<AssistantChat.Effect.OpenUrl>(fixture.effects.single())
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
 	}
 

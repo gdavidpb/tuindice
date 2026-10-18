@@ -192,24 +192,6 @@ class AssistantNavigationTest {
 	}
 
 	@Test
-	fun when_aBrowserPageIsOpenedFromTheChat_then_itOpensOverTheChat_andBackReturnsToIt() {
-		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
-		val chat = navigator.currentKey
-
-		dependenciesOf(navigator).onNavigateToBrowser("Política de privacidad", "https://tuindice.app/privacy")
-
-		assertEquals(
-			BrowserDestination.Browser(title = "Política de privacidad", url = "https://tuindice.app/privacy"),
-			navigator.currentKey
-		)
-		assertEquals(chat, navigator.backStack[navigator.backStack.lastIndex - 1])
-
-		navigator.pop()
-
-		assertEquals(chat, navigator.currentKey)
-	}
-
-	@Test
 	fun when_textIsCopiedFromTheChat_then_itReachesTheClipboard() {
 		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
 		val copied = mutableListOf<String>()

@@ -33,15 +33,11 @@ class AssistantChatAccess(
 
 	fun isConsentGranted(): Boolean = consentRepository.assistantConsentGranted.value
 
-	// The privacy policy of the environment the app runs in, the same page About and the sign-in open, under [title]. It
-	// opens in the app's browser, over the chat: the sheet stays where it was, and back returns to it.
-	fun openPrivacyPolicy(host: MachineHost<AssistantChat.Effect>, title: String) {
-		host.sendEffect(
-			AssistantChat.Effect.NavigateToBrowser(
-				title = title,
-				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
-			)
-		)
+	// The privacy policy of the environment the app runs in, the same page About and the sign-in open. The system opens
+	// it, not the app's browser: a screen pushed over the chat's sheet does not bring the sheet back on iOS when it is
+	// closed (the scrim stays, without the sheet), so nothing is pushed over it.
+	fun openPrivacyPolicy(host: MachineHost<AssistantChat.Effect>) {
+		host.sendEffect(AssistantChat.Effect.OpenUrl(url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl))
 	}
 
 	// Started once per sheet, after the opening read the first value; the flow replays the current one, so no change

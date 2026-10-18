@@ -60,8 +60,6 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 	override suspend fun sendFailed(): String = "send-failed"
 
 	override suspend fun messageTooLong(maxLength: Int): String = "too-long:$maxLength"
-
-	override suspend fun privacyPolicyTitle(): String = "privacy-policy"
 }
 
 internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
