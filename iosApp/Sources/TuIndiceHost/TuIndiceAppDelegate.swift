@@ -133,12 +133,10 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate, UNUserNotifica
         Messaging.messaging().delegate = self
         #endif
 
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .badge, .sound]
-        ) { _, _ in
-            DispatchQueue.main.async {
-                application.registerForRemoteNotifications()
-            }
+        // The push token is registered without the notification permission, which iOS allows. The permission is asked by the
+        // assistant's offer, on the student's word, so the app does not ask for it at launch.
+        DispatchQueue.main.async {
+            application.registerForRemoteNotifications()
         }
     }
 

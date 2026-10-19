@@ -7,6 +7,7 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.gdavidpb.tuindice.base.domain.model.TermReportPush
 import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.platform.android.NotificationPermissionLauncher
 import com.gdavidpb.tuindice.presentation.route.TuIndiceAppHostRoute
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import io.github.vinceglb.filekit.FileKit
@@ -29,6 +31,7 @@ private const val COMPACT_SCREEN_WIDTH_DP = 600
 open class MainActivity : ComponentActivity(), KoinComponent {
 	private val systemAnimationsEnabled = mutableStateOf(true)
 	private val termReportFocus: TermReportFocusRepository by inject()
+	private val notificationPermissionLauncher: NotificationPermissionLauncher by inject()
 	private var animatorScaleObserver: AnimatorScaleObserver? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +43,10 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 		}
 
 		FileKit.init(this)
+		// Registered before the activity starts, as the result launcher requires; the chat's offer asks through it.
+		notificationPermissionLauncher.attach(
+			registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+		)
 		intent
 			?.takeIf { pushIntent ->
 				shouldOpenTermReportOnCreate(
@@ -95,6 +102,12 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 		animatorScaleObserver = null
 
 		super.onStop()
+	}
+
+	override fun onDestroy() {
+		notificationPermissionLauncher.detach()
+
+		super.onDestroy()
 	}
 
 	// The push's data arrives as the extras of the intent a tap opens. The type is taken from them once, so a recreated
