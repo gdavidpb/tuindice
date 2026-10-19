@@ -16,13 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.abs
 
 // The keyboard rule of every surface with a text field (docs/design-system.md, «Teclado»). Compose's insets
 // (imePadding) are the only thing that moves a surface above the keyboard; these modifiers make the rest of it
@@ -41,24 +40,30 @@ fun Modifier.dismissKeyboardOnTap(focusManager: FocusManager): Modifier {
 	}
 }
 
-// Dragging a scroll container hides the keyboard, as iOS does on an interactive dismiss. It follows the scroll the
-// container makes, not the touch: a drag that a field takes for its selection does not scroll, so it does not hide the
-// keyboard in the middle of a selection. Place it outside the scroll it listens to.
-@Composable
+// Dragging a scroll container hides the keyboard, as iOS does on an interactive dismiss. Only the person's drag counts,
+// and it is read from the pointer: the scrolls the framework makes on its own (bringing a field or the button into
+// view) reach the scroll as drags too, so a scroll signal would take back the focus they were made for. The movement
+// is read in the initial pass, before the scroll takes it, and nothing is consumed, so the scroll still happens. A
+// movement that is mostly sideways (the selection of a field's text) does not hide the keyboard.
 fun Modifier.dismissKeyboardOnScroll(focusManager: FocusManager): Modifier {
-	val connection = remember(focusManager) {
-		object : NestedScrollConnection {
-			override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-				if (source == NestedScrollSource.UserInput && available.y != 0f) {
-					focusManager.clearFocus(force = true)
-				}
+	return pointerInput(focusManager) {
+		awaitEachGesture {
+			val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+			val touchSlop = viewConfiguration.touchSlop
+			var movement = Offset.Zero
+			var isPressed = true
 
-				return Offset.Zero
+			while (isPressed && movement.getDistance() <= touchSlop) {
+				val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
+
+				isPressed = change?.pressed == true
+
+				if (change != null) movement += change.position - change.previousPosition
 			}
+
+			if (isPressed && abs(movement.y) > abs(movement.x)) focusManager.clearFocus(force = true)
 		}
 	}
-
-	return nestedScroll(connection)
 }
 
 // The region this modifier wraps holds a field and the primary action after it. When a field in it gains focus, the

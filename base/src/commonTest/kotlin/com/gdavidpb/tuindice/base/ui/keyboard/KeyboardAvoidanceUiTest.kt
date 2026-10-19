@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotFocused
@@ -51,6 +52,8 @@ class KeyboardAvoidanceUiTest {
 		onNodeWithTag(FIELD_TAG).assert(isFocused())
 
 		onNodeWithTag(FORM_TAG).performTouchInput { click(Offset(2f, 2f)) }
+		waitForIdle()
+
 		onNodeWithTag(FIELD_TAG).assert(isNotFocused())
 	}
 
@@ -62,6 +65,7 @@ class KeyboardAvoidanceUiTest {
 		}
 
 		onNodeWithTag(FIELD_TAG).performClick()
+		waitForIdle()
 
 		onNodeWithTag(FIELD_TAG).assert(isFocused())
 	}
@@ -80,10 +84,51 @@ class KeyboardAvoidanceUiTest {
 		onNodeWithTag(FIELD_TAG).assert(isNotFocused())
 	}
 
-	// The focus is on something under the fold: the region that holds it is scrolled into view with it, so the focus
-	// does not stay below the keyboard.
+	// Focus alone scrolls the focused element into view, not the element after it. The region's end (the primary action,
+	// in the form) lies below the fold too, so it is on screen only when the whole region is brought into view.
 	@Test
-	fun when_aFocusInTheRegionIsBelowTheViewport_then_theRegionIsBroughtIntoView() = runTuIndiceUiTest {
+	fun when_aTextFieldInTheRegionIsFocusedBelowTheViewport_then_theWholeRegionIsBroughtIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			val region = remember { BringIntoViewRequester() }
+			var text by remember { mutableStateOf("") }
+
+			Column(
+				modifier = Modifier
+					.fillMaxSize()
+					.verticalScroll(rememberScrollState())
+			) {
+				Spacer(modifier = Modifier.height(BELOW_THE_FOLD_DP.dp))
+
+				Column(
+					modifier = Modifier
+						.fillMaxWidth()
+						.bringRegionIntoViewOnFocus(region)
+				) {
+					OutlinedTextField(
+						modifier = Modifier
+							.testTag(FIELD_TAG)
+							.fillMaxWidth(),
+						value = text,
+						onValueChange = { text = it }
+					)
+					Box(
+						modifier = Modifier
+							.testTag(REGION_END_TAG)
+							.size(48.dp)
+					)
+				}
+			}
+		}
+
+		onNodeWithTag(REGION_END_TAG).assertIsNotDisplayed()
+
+		onNodeWithTag(FIELD_TAG).requestFocus()
+
+		onNodeWithTag(REGION_END_TAG).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_aFocusInTheRegionIsBelowTheViewport_then_theWholeRegionIsBroughtIntoView() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val region = remember { BringIntoViewRequester() }
 
@@ -105,13 +150,20 @@ class KeyboardAvoidanceUiTest {
 							.size(48.dp)
 							.focusable()
 					)
+					Box(
+						modifier = Modifier
+							.testTag(REGION_END_TAG)
+							.size(48.dp)
+					)
 				}
 			}
 		}
 
+		onNodeWithTag(REGION_END_TAG).assertIsNotDisplayed()
+
 		onNodeWithTag(FOCUSABLE_TAG).requestFocus()
 
-		onNodeWithTag(FOCUSABLE_TAG).assertIsDisplayed()
+		onNodeWithTag(REGION_END_TAG).assertIsDisplayed()
 	}
 }
 
@@ -158,4 +210,5 @@ private fun KeyboardTestForm() {
 private const val FORM_TAG = "keyboard_test_form"
 private const val FIELD_TAG = "keyboard_test_field"
 private const val FOCUSABLE_TAG = "keyboard_test_focusable"
+private const val REGION_END_TAG = "keyboard_test_region_end"
 private const val BELOW_THE_FOLD_DP = 1_000

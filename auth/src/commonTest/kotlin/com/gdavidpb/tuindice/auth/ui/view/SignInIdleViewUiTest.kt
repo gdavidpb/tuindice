@@ -21,6 +21,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasImeAction
@@ -535,6 +536,7 @@ class SignInIdleViewUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+		waitForIdle()
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(isFocused())
 	}
@@ -561,6 +563,23 @@ class SignInIdleViewUiTest {
 		onNodeWithTag(AuthUiTags.SignInIdleContainer).performTouchInput { swipeUp() }
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(isNotFocused())
+	}
+
+	// The focused field and the sign-in button after it are brought into view together. The field is already on screen
+	// here, so only the region's request moves the form to show the button under the keyboard.
+	@Test
+	fun when_aFieldIsFocusedAndTheButtonIsBelowTheWindow_then_theButtonIsBroughtIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.height(320.dp)) {
+				SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+			}
+		}
+
+		onNodeWithTag(AuthUiTags.SignInButton).assertIsNotDisplayed()
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+
+		onNodeWithTag(AuthUiTags.SignInButton).assertIsDisplayed()
 	}
 
 	@Composable
