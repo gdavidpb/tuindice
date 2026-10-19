@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
-import com.gdavidpb.tuindice.assistant.ui.component.sistema.ConsentComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.CooldownComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.StillAppliesComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.SupportComponentView
@@ -24,7 +23,6 @@ import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
-import com.gdavidpb.tuindice.chatcontract.component.ConsentComponent
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
@@ -94,7 +92,6 @@ private fun ComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		is ConsentComponent -> ConsentComponentView(onAction = onAction)
 		is StillAppliesComponent -> StillAppliesComponentView(component = component, onAction = onAction)
 		is UsageNoticeComponent -> UsageNoticeComponentView(component = component)
 		is CooldownComponent -> CooldownComponentView(component = component, onAction = onAction)
