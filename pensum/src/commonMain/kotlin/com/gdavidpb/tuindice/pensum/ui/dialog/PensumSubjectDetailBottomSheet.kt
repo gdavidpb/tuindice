@@ -17,12 +17,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -48,7 +47,6 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_stats
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats_unavailable
 import tuindice.pensum.generated.resources.pensum_subject_detail_title
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
@@ -57,7 +55,7 @@ fun PensumSubjectDetailBottomSheet(
 	navigationDirection: PensumSubjectDetailNavigationDirection?,
 	actions: PensumSubjectDetailActions
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = false)
 	val detail = node.detail
 	val onAskAssistant = actions.onAskAssistant
 	val statsCode = detail.statsCode

@@ -6,15 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
@@ -30,7 +29,6 @@ import tuindice.record.generated.resources.schedule_empty_message
  * record and not a screen of its own: a handful of subjects is something to glance at without
  * leaving the term being looked at, and the sheet is only as tall as what it holds.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleContentDialog(
 	state: Schedule.State,
@@ -40,7 +38,7 @@ fun ScheduleContentDialog(
 ) {
 	ConfirmationDialog(
 		// Whole from the start: a long week grid scrolls inside it instead of opening half hidden.
-		sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+		sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true),
 		onDismissRequest = onDismissRequest
 	) {
 		Column(
