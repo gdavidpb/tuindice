@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toRequirementsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
@@ -26,7 +27,7 @@ class RequirementsComponentViewUiTest {
 	@Test
 	fun when_aSubjectHasRequirements_then_eachFilledSectionListsItsSubjectsWithTheirStatus() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RequirementsComponentView(component = requirements(), onAction = {})
+			RequirementsComponentView(item = requirements().toRequirementsItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Pensum.requirements(COMPONENT_ID))
@@ -46,7 +47,7 @@ class RequirementsComponentViewUiTest {
 	fun when_aSubjectLinkIsTapped_then_itOpensThatSubjectsDetail() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			RequirementsComponentView(component = requirements(), onAction = { actions.add(it) })
+			RequirementsComponentView(item = requirements().toRequirementsItem(), onAction = { actions.add(it) })
 		}
 
 		onAllNodesWithText("Ver materia").onFirst().performClick()

@@ -62,6 +62,11 @@ object ActionDispositions {
 			reason = "arranque del estado de la ruta: la ruta lo despacha cuando se abre la hoja"
 		),
 		ActionDisposition.Internal(
+			action = "assistant.AssistantComponentSheet.Unhandled",
+			reason = "the sheet route hands the sheet a component's action that is not a link; the sheet keeps it " +
+				"without a change (AssistantComponentSheetBehaviorTest)"
+		),
+		ActionDisposition.Internal(
 			action = "assistant.AssistantMemory.Load",
 			reason = "arranque de la pantalla: la pantalla de memoria lo despacha como su acción inicial"
 		),

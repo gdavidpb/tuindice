@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPlanListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
@@ -27,7 +28,7 @@ class PlanListComponentViewUiTest {
 	@Test
 	fun when_plansAreListed_then_theCountIsTheFigure_andEachTermReadsItsSubjectsAndCredits() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PlanListComponentView(component = plans(), onAction = {})
+			PlanListComponentView(item = plans().toPlanListItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Plan.list(COMPONENT_ID))
@@ -43,7 +44,7 @@ class PlanListComponentViewUiTest {
 	fun when_aTermLinkIsTapped_then_itOpensTheRecordOfThatTerm() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			PlanListComponentView(component = plans(), onAction = { actions.add(it) })
+			PlanListComponentView(item = plans().toPlanListItem(), onAction = { actions.add(it) })
 		}
 
 		onAllNodesWithText("Ver en Informe").onFirst().performClick()

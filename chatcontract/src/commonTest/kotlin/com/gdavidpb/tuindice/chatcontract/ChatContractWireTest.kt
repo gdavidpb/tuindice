@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.Citation
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
-import com.gdavidpb.tuindice.chatcontract.component.ConsentComponent
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
@@ -145,13 +144,6 @@ class ChatContractWireTest {
 	)
 
 	private val components: List<ChatComponent> = listOf(
-		ConsentComponent(
-			"c1",
-			"Términos",
-			version = 2,
-			termsUrl = "https://example.com/t",
-			privacyUrl = "https://example.com/p"
-		),
 		StillAppliesComponent("c2", "¿Sigue aplicando?", memoryId = "m1", statement = "Prefiere las notas por semana"),
 		UsageNoticeComponent("c3", "Te quedan 9", usage = UsageSummary(9, 39, 399), resetsAtMillis = 1760003600000),
 		WarningComponent("c4", "Advertencia", reason = AbuseReasonCode.SPAM),
@@ -468,7 +460,6 @@ class ChatContractWireTest {
 	@Test
 	fun everyComponentRoundTripsUnderItsCatalogName() {
 		val names = listOf(
-			"sistema.consentimiento/1",
 			"sistema.sigue_aplicando/1",
 			"sistema.aviso_uso/1",
 			"sistema.advertencia/1",

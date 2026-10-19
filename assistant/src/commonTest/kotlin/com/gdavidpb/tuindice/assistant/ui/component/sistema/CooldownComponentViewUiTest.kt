@@ -7,6 +7,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCooldownItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
@@ -25,7 +27,7 @@ class CooldownComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			CooldownComponentView(
-				component = component(appealable = true),
+				item = component(appealable = true),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -42,21 +44,21 @@ class CooldownComponentViewUiTest {
 	@Test
 	fun when_notAppealable_then_offersNoAppeal() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			CooldownComponentView(component = component(appealable = false), onAction = {})
+			CooldownComponentView(item = component(appealable = false), onAction = {})
 		}
 
 		onNodeWithText(TITLE).assertIsDisplayed()
 		assertNodeHidden(AssistantUiTags.AppealAction)
 	}
 
-	private fun component(appealable: Boolean): CooldownComponent =
+	private fun component(appealable: Boolean): CooldownItem =
 		CooldownComponent(
 			id = "component-1",
 			fallbackText = TITLE,
 			reason = AbuseReasonCode.SPAM,
 			untilMillis = UNTIL_MILLIS,
 			appealable = appealable
-		)
+		).toCooldownItem()
 
 	private companion object {
 		const val TITLE = "El asistente está en pausa"

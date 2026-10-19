@@ -152,11 +152,15 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 		finalStateName = state::class.simpleName
 	)
 
+	val unvisited = machine.table.indices.filterNot { row -> row in visitedRows }.map { row ->
+		val spec = machine.table[row]
+		"${spec.from?.simpleName ?: "any"}/${spec.on.simpleName}"
+	}
 	assertTrue(
 		report.rowCoverage >= minRowCoverage,
 		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} rows " +
-			"(${report.rowCoverage}), below the required $minRowCoverage — extend sampleEvents " +
-			"or steps, or lower the expectation deliberately"
+			"(${report.rowCoverage}), below the required $minRowCoverage; not visited: $unvisited — extend " +
+			"sampleEvents or steps, or lower the expectation deliberately"
 	)
 
 	return report

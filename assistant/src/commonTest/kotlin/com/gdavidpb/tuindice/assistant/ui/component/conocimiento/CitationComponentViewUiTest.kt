@@ -7,6 +7,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCitationItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.Citation
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
@@ -30,7 +31,7 @@ class CitationComponentViewUiTest {
 					}
 				}
 			) {
-				CitationComponentView(component = citation(url = ADDRESS), onAction = {})
+				CitationComponentView(item = citation(url = ADDRESS).toCitationItem(), onAction = {})
 			}
 		}
 
@@ -47,7 +48,7 @@ class CitationComponentViewUiTest {
 	@Test
 	fun when_aSourceHasNoAddress_then_noAddressIsDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			CitationComponentView(component = citation(url = null), onAction = {})
+			CitationComponentView(item = citation(url = null).toCitationItem(), onAction = {})
 		}
 
 		onNodeWithText(EXCERPT).assertIsDisplayed()

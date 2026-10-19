@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSimulationItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.SimulatedGrade
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
@@ -17,7 +18,7 @@ class SimulationComponentViewUiTest {
 	@Test
 	fun when_aTermIsSimulated_then_itsIndexesAreTheFigures_andEachGradeIsARow() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SimulationComponentView(component = simulation())
+			SimulationComponentView(item = simulation().toSimulationItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.simulation(COMPONENT_ID))
@@ -32,7 +33,7 @@ class SimulationComponentViewUiTest {
 	@Test
 	fun when_theResultIsUnknown_then_theRowShowsNoResult() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SimulationComponentView(component = simulation(outcome = "unreported"))
+			SimulationComponentView(item = simulation(outcome = "unreported").toSimulationItem())
 		}
 
 		onNodeWithText("IS-101").assertIsDisplayed()

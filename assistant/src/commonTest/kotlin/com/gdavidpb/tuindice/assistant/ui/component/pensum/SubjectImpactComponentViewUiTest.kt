@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSubjectImpactItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
@@ -24,7 +25,7 @@ class SubjectImpactComponentViewUiTest {
 	@Test
 	fun when_aSubjectDelaysTerms_then_theTermsAreTheFigure_andTheChainReadsInOrder() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SubjectImpactComponentView(component = impact(), onAction = {})
+			SubjectImpactComponentView(item = impact().toSubjectImpactItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Pensum.impact(COMPONENT_ID))
@@ -41,7 +42,9 @@ class SubjectImpactComponentViewUiTest {
 	fun when_theCardNamesTheSubject_then_theLinkOpensItsDetail() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			SubjectImpactComponentView(component = impact(refs = listOf(SUBJECT_REF)), onAction = { actions.add(it) })
+			SubjectImpactComponentView(item = impact(refs = listOf(SUBJECT_REF)).toSubjectImpactItem(), onAction = {
+			    actions.add(it)
+			})
 		}
 
 		onNodeWithText("Ver materia").performClick()

@@ -23,7 +23,7 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 			AssistantComponentSheetInternalEvent.ComponentObserved,
 			AssistantComponentSheet.State.Content
 		> { _, event ->
-			AssistantComponentSheet.State.Content(messageId = event.messageId, component = event.component)
+			AssistantComponentSheet.State.Content(messageId = event.messageId, item = event.item)
 		}
 
 		onTo<AssistantComponentSheetInternalEvent.ComponentMissing, AssistantComponentSheet.State.Missing>(
@@ -37,7 +37,7 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 
 	from<AssistantComponentSheet.State.Content> {
 		on<AssistantComponentSheetInternalEvent.ComponentObserved> { state, event ->
-			state.copy(component = event.component)
+			state.copy(item = event.item)
 		}
 
 		onTo<AssistantComponentSheetInternalEvent.ComponentMissing, AssistantComponentSheet.State.Missing>(
@@ -47,6 +47,10 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 
 			AssistantComponentSheet.State.Missing
 		}
+
+		// An action of the component other than a link is not the sheet's to take. The row takes it without a change or an
+		// effect, so the sheet keeps its content and the message keeps the action.
+		on<AssistantComponentSheet.Action.Unhandled> { state, _ -> state }
 
 		// A link inside the component leaves for its target, as a link in the chat does: the host's jump closes this
 		// sheet and the chat under it, so the sheet sends no Dismiss of its own, which would close what the jump opened.

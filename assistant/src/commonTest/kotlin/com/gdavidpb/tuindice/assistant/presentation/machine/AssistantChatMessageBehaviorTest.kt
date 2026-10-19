@@ -54,6 +54,20 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
+	fun rate_refusedByTheService_putsTheThumbsBack_andSaysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
+		viewModel.openAction(null)
+		fixture.feedback.rateError = IllegalStateException("offline")
+
+		viewModel.rateMessageAction("a1", useful = true)
+
+		assertEquals(null, (viewModel.content().items.single() as ChatItem.Agent).useful)
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("rate-failed", snack.message)
+	}
+
+	@Test
 	fun report_sendsTheReason_andConfirmsIt() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
@@ -114,6 +128,18 @@ class AssistantChatMessageBehaviorTest {
 		assertEquals(listOf("Fue un error"), fixture.standing.appeals.map { appeal -> appeal.text })
 		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
 		assertEquals("appeal-sent", snack.message)
+	}
+
+	@Test
+	fun stillApplies_notSaved_saysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(null)
+		fixture.memories.answerError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("still-applies-failed", snack.message)
 	}
 
 	@Test

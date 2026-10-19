@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPlanEvaluationItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -16,7 +17,7 @@ class PlanEvaluationComponentViewUiTest {
 	@Test
 	fun when_aPlanIsEvaluated_then_itsBandIsTheFigure_andItsCreditsRequirementsAndWarningsShow() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PlanEvaluationComponentView(component = evaluation(), onAction = {})
+			PlanEvaluationComponentView(item = evaluation().toPlanEvaluationItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Plan.evaluation(COMPONENT_ID))
@@ -36,7 +37,7 @@ class PlanEvaluationComponentViewUiTest {
 	fun when_theClashesAreCounted_then_theyShowAsACount_andAMissingBandShowsNoFigure() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PlanEvaluationComponentView(
-				component = evaluation(loadBand = "", loadIndex = null, clashes = 2),
+				item = evaluation(loadBand = "", loadIndex = null, clashes = 2).toPlanEvaluationItem(),
 				onAction = {}
 			)
 		}

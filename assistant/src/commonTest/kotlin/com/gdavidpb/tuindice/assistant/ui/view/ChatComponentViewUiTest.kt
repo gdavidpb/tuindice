@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
@@ -30,7 +31,7 @@ class ChatComponentViewUiTest {
 		setTuIndiceTestContent {
 			ChatComponentView(
 				messageId = MESSAGE_ID,
-				component = UnknownChatComponent(id = "unknown-1", fallbackText = FALLBACK_TEXT),
+				item = UnknownChatComponent(id = "unknown-1", fallbackText = FALLBACK_TEXT).toChatComponentItem(nowMillis = 0L),
 				onAction = {}
 			)
 		}
@@ -44,12 +45,12 @@ class ChatComponentViewUiTest {
 		setTuIndiceTestContent {
 			ChatComponentView(
 				messageId = MESSAGE_ID,
-				component = WarningComponent(
+				item = WarningComponent(
 					id = COMPONENT_ID,
 					fallbackText = FALLBACK_TEXT,
 					display = ComponentDisplay.SHEET,
 					reason = AbuseReasonCode.SPAM
-				),
+				).toChatComponentItem(nowMillis = 0L),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -75,14 +76,14 @@ class ChatComponentViewUiTest {
 			) {
 				ChatComponentView(
 					messageId = MESSAGE_ID,
-					component = SupportComponent(
+					item = SupportComponent(
 						id = COMPONENT_ID,
 						fallbackText = FALLBACK_TEXT,
 						lines = listOf(
 							SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
 							SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
 						)
-					),
+					).toChatComponentItem(nowMillis = 0L),
 					onAction = {}
 				)
 			}

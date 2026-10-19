@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toRecordStatsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -16,7 +17,7 @@ class RecordStatsComponentViewUiTest {
 	@Test
 	fun when_theRecordHasCounts_then_theApprovedIsTheFigure_andTheRestAreRows() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RecordStatsComponentView(component = stats())
+			RecordStatsComponentView(item = stats().toRecordStatsItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.recordStats(COMPONENT_ID))
@@ -35,7 +36,7 @@ class RecordStatsComponentViewUiTest {
 	@Test
 	fun when_theHistogramHasNoGrades_then_NoBarsAreShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RecordStatsComponentView(component = stats(histogram = emptyList()))
+			RecordStatsComponentView(item = stats(histogram = emptyList()).toRecordStatsItem())
 		}
 
 		onNodeWithText("DISTRIBUCIÓN DE NOTAS").assertDoesNotExist()

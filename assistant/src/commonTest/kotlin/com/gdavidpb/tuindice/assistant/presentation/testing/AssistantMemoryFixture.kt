@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryCategoryKey
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toRequiredGradeItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -16,7 +17,7 @@ class RequiredGradeComponentViewUiTest {
 	@Test
 	fun when_theTargetIsReachable_then_thePointsItAsksForAreTheFigure_andTheRowNamesTheSubject() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RequiredGradeComponentView(component = required(), onAction = {})
+			RequiredGradeComponentView(item = required().toRequiredGradeItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.requiredGrade(COMPONENT_ID))
@@ -33,7 +34,10 @@ class RequiredGradeComponentViewUiTest {
 	fun when_theTargetIsNotReachable_then_thePointsLeftToEvaluateAreTheFigure_andNoRequiredFigureShows() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				RequiredGradeComponentView(component = required(requiredPoints = null, feasible = false), onAction = {})
+				RequiredGradeComponentView(
+					item = required(requiredPoints = null, feasible = false).toRequiredGradeItem(),
+					onAction = {}
+				)
 			}
 
 			onNodeWithContentDescription("Puntos por evaluar: 40").assertIsDisplayed()

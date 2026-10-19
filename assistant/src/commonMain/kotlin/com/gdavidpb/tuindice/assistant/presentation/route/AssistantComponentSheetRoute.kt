@@ -13,8 +13,8 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.assistant.ui.dialog.AssistantComponentSheet as AssistantComponentSheetDialog
 
 // The component sheet bridged to its view model. The sheet opens on the component it names and follows it. A link
-// tapped inside the component is the only action it takes: the rest of a component's actions live in the chat's
-// message.
+// tapped inside the component is the sheet's to take (OpenNavTarget); any other action the component emits reaches the
+// sheet as Unhandled, which it takes without a change, so the message keeps it.
 @Composable
 fun AssistantComponentSheetRoute(
 	viewModel: AssistantComponentSheetViewModel,
@@ -42,16 +42,15 @@ fun AssistantComponentSheetRoute(
 	if (content is AssistantComponentSheet.State.Content) {
 		AssistantComponentSheetDialog(
 			messageId = content.messageId,
-			component = content.component,
+			item = content.item,
 			onAction = { action ->
-				if (action is AssistantChat.Action.OpenNavTarget) {
-					viewModel.dispatch(
-						AssistantComponentSheet.Action.OpenNavTarget(
-							target = action.target,
-							entityRefs = action.entityRefs
-						)
-					)
-				}
+				viewModel.dispatch(
+					if (action is AssistantChat.Action.OpenNavTarget) {
+						AssistantComponentSheet.Action.OpenNavTarget(target = action.target, entityRefs = action.entityRefs)
+					} else {
+						AssistantComponentSheet.Action.Unhandled(action)
+					}
+				)
 			},
 			onDismissRequest = onDismissRequest
 		)

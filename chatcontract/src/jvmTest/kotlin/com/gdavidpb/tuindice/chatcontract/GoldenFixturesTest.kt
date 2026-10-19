@@ -25,9 +25,6 @@ class GoldenFixturesTest {
 		assertGolden("event_intent_proposed_add_evaluations.json", AssistantEvent.serializer())
 
 	@Test
-	fun consentComponentIsStableOnTheWire() = assertGolden("component_consent.json", ChatComponent.serializer())
-
-	@Test
 	fun termComponentIsStableOnTheWire() = assertGolden("component_term.json", ChatComponent.serializer())
 
 	@Test

@@ -7,6 +7,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toStillAppliesItem
+import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -22,7 +24,7 @@ class StillAppliesComponentViewUiTest {
 	@Test
 	fun when_componentIsShown_then_asksTheQuestionAndShowsTheStatement() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			StillAppliesComponentView(component = component(), onAction = {}, modifier = Modifier)
+			StillAppliesComponentView(item = component(), onAction = {}, modifier = Modifier)
 		}
 
 		onNodeWithText(QUESTION).assertIsDisplayed()
@@ -33,7 +35,7 @@ class StillAppliesComponentViewUiTest {
 	fun when_noLongerApplies_then_dispatchesAnAnswerThatDoesNotApply() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			StillAppliesComponentView(component = component(), onAction = { actions.add(it) })
+			StillAppliesComponentView(item = component(), onAction = { actions.add(it) })
 		}
 
 		assertNodeVisible(AssistantUiTags.Memory.stillAppliesNo(MEMORY_ID))
@@ -44,13 +46,13 @@ class StillAppliesComponentViewUiTest {
 		assertFalse(answer.applies)
 	}
 
-	private fun component(): StillAppliesComponent =
+	private fun component(): StillAppliesItem =
 		StillAppliesComponent(
 			id = "component-1",
 			fallbackText = STATEMENT,
 			memoryId = MEMORY_ID,
 			statement = STATEMENT
-		)
+		).toStillAppliesItem()
 
 	private companion object {
 		const val MEMORY_ID = "memory-1"

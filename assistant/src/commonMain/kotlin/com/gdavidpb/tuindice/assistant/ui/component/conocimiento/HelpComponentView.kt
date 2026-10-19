@@ -11,57 +11,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.HelpItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_help_label
-import tuindice.assistant.generated.resources.assistant_card_b_help_open
-import tuindice.assistant.generated.resources.assistant_card_b_help_step
 
 // conocimiento.ayuda/1: the title of the help, its steps numbered in order, and a button to the screen it names, when
 // it names one.
 @Composable
 fun HelpComponentView(
-	component: HelpComponent,
+	item: HelpItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Knowledge.help(component.id))) {
+	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Knowledge.help(item.id))) {
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_help_label))
 		Text(
-			text = component.title,
+			text = item.title,
 			style = MaterialTheme.typography.titleMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)
-		component.steps.forEachIndexed { index, step ->
+		item.steps.forEach { step ->
 			Row(
 				modifier = Modifier.fillMaxWidth(),
 				horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
 				verticalAlignment = Alignment.Top
 			) {
 				Text(
-					text = stringResource(Res.string.assistant_card_b_help_step, index + 1),
+					text = step.numberText.asString(),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
 				Text(
-					text = step,
+					text = step.text,
 					modifier = Modifier.weight(1f),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurface
 				)
 			}
 		}
-		component.target?.let { target ->
+		item.openLink?.let { link ->
 			OutlinedButton(
-				onClick = { onAction(AssistantChat.Action.OpenNavTarget(target, component.entityRefs)) },
-				modifier = Modifier.testTag(AssistantUiTags.Knowledge.helpOpen(component.id))
+				onClick = { onAction(AssistantChat.Action.OpenNavTarget(link.target, link.entityRefs)) },
+				modifier = Modifier.testTag(AssistantUiTags.Knowledge.helpOpen(item.id))
 			) {
-				Text(text = stringResource(Res.string.assistant_card_b_help_open))
+				Text(text = link.text.asString())
 			}
 		}
 	}

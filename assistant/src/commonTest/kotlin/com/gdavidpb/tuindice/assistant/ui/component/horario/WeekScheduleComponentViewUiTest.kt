@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toWeekScheduleItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.ScheduleBlock
 import com.gdavidpb.tuindice.chatcontract.component.ScheduleDay
@@ -18,7 +19,7 @@ class WeekScheduleComponentViewUiTest {
 	@Test
 	fun when_theWeekHasClasses_then_eachDayShowsItsBlocksWithCodeRoomAndHours() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			WeekScheduleComponentView(component = week())
+			WeekScheduleComponentView(item = week().toWeekScheduleItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.week(COMPONENT_ID))
@@ -36,7 +37,7 @@ class WeekScheduleComponentViewUiTest {
 	@Test
 	fun when_aDayHasNoClasses_then_itIsLeftOut() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			WeekScheduleComponentView(component = week(days = listOf(ScheduleDay(2, emptyList()))))
+			WeekScheduleComponentView(item = week(days = listOf(ScheduleDay(2, emptyList()))).toWeekScheduleItem())
 		}
 
 		onNodeWithContentDescription("Clases de la semana: 0").assertIsDisplayed()

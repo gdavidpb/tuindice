@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toIndexGoalItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -16,7 +17,7 @@ class IndexGoalComponentViewUiTest {
 	@Test
 	fun when_theGoalIsFeasible_then_theRequiredIndexIsTheFigure_andTheChipSaysSo() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexGoalComponentView(component = goal(feasible = true))
+			IndexGoalComponentView(item = goal(feasible = true).toIndexGoalItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.indexGoal(COMPONENT_ID))
@@ -32,7 +33,7 @@ class IndexGoalComponentViewUiTest {
 	@Test
 	fun when_theGoalIsNotFeasible_then_theChipSaysItIsNot() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexGoalComponentView(component = goal(feasible = false))
+			IndexGoalComponentView(item = goal(feasible = false).toIndexGoalItem())
 		}
 
 		onNodeWithText("no alcanzable").assertIsDisplayed()

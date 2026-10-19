@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.component.plan
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPlanComparisonItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanOption
@@ -16,7 +17,7 @@ class PlanComparisonComponentViewUiTest {
 	@Test
 	fun when_plansAreCompared_then_eachBlockReadsItsLoadCreditsAndUnlocks() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PlanComparisonComponentView(component = comparison(), onAction = {})
+			PlanComparisonComponentView(item = comparison().toPlanComparisonItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Plan.comparison(COMPONENT_ID))
@@ -32,7 +33,7 @@ class PlanComparisonComponentViewUiTest {
 	fun when_aPlanHasNoKnownLoad_then_itReadsItsCreditsAlone_andWithoutUnlocksNoLineIsDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PlanComparisonComponentView(
-				component = comparison(options = listOf(PlanOption("Plan C", 6, "", clashes = 0))),
+				item = comparison(options = listOf(PlanOption("Plan C", 6, "", clashes = 0))).toPlanComparisonItem(),
 				onAction = {}
 			)
 		}

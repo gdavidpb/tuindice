@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart
@@ -16,23 +18,21 @@ import com.gdavidpb.tuindice.chatcontract.message.Text
 // agent message are not a part of it; they are offered apart.
 internal suspend fun AssistantConversation.toChatItems(
 	texts: AssistantChatTexts,
-	useful: Map<String, Boolean>,
-	failedMessages: Set<String>,
-	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>
+	session: AssistantChatSession,
+	nowMillis: Long
 ): List<ChatItem> {
 	return items.map { item ->
 		when (item) {
 			is AssistantConversationItem.User -> ChatItem.User(
 				id = item.message.id,
 				text = item.message.text,
-				isFailed = item.message.id in failedMessages
+				isFailed = item.message.id in session.failedMessages
 			)
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
 				id = item.message.id,
-				parts = item.message.toChatParts(texts, this, selections, runningIntents),
-				useful = useful[item.message.id],
+				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents, nowMillis),
+				useful = session.usefulByMessage[item.message.id],
 				copyText = item.message.copyText()
 			)
 		}
@@ -52,13 +52,14 @@ private suspend fun AssistantMessage.toChatParts(
 	texts: AssistantChatTexts,
 	conversation: AssistantConversation,
 	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>
+	runningIntents: Set<String>,
+	nowMillis: Long
 ): List<ChatPartItem> {
 	return parts.mapNotNull { part ->
 		when (part) {
 			is Text -> ChatPartItem.Text(text = part.text)
 
-			is Component -> ChatPartItem.Component(component = part.component)
+			is Component -> ChatPartItem.Component(item = part.component.toChatComponentItem(nowMillis))
 
 			is IntentPart -> ChatPartItem.IntentCard(
 				card = part.intent.toIntentCardItem(

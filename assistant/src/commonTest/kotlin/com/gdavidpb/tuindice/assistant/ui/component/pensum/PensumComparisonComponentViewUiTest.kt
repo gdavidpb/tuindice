@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPensumComparisonItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
@@ -18,7 +19,7 @@ class PensumComparisonComponentViewUiTest {
 	fun when_twoPensumsAreCompared_then_theSharedCreditsAreTheFigure_andTheRowsAreWhatTheServiceBrings() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				PensumComparisonComponentView(component = comparison(), onAction = {})
+				PensumComparisonComponentView(item = comparison().toPensumComparisonItem(), onAction = {})
 			}
 
 			assertNodeVisible(AssistantUiTags.Pensum.comparison(COMPONENT_ID))
@@ -37,7 +38,10 @@ class PensumComparisonComponentViewUiTest {
 	@Test
 	fun when_noSubjectIsMissing_then_itsHeaderIsNotDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PensumComparisonComponentView(component = comparison(missing = emptyList(), notes = emptyList()), onAction = {})
+			PensumComparisonComponentView(
+				item = comparison(missing = emptyList(), notes = emptyList()).toPensumComparisonItem(),
+				onAction = {}
+			)
 		}
 
 		onNodeWithText("MATERIAS QUE TE FALTAN").assertDoesNotExist()

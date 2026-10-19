@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSubjectPointsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
@@ -23,7 +24,7 @@ class SubjectPointsComponentViewUiTest {
 	@Test
 	fun when_subjectsHavePoints_then_eachRowReadsItsEarnedOverItsEvaluatedPoints() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SubjectPointsComponentView(component = points(), onAction = {})
+			SubjectPointsComponentView(item = points().toSubjectPointsItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.points(COMPONENT_ID))
@@ -39,7 +40,7 @@ class SubjectPointsComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			SubjectPointsComponentView(
-				component = points(refs = listOf(SUBJECT_REF)),
+				item = points(refs = listOf(SUBJECT_REF)).toSubjectPointsItem(),
 				onAction = { actions.add(it) }
 			)
 		}

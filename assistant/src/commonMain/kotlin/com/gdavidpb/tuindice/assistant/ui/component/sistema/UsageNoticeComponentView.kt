@@ -4,26 +4,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.gdavidpb.tuindice.assistant.ui.model.chatDateText
+import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_usage_day
-import tuindice.assistant.generated.resources.assistant_usage_hour
-import tuindice.assistant.generated.resources.assistant_usage_month
-import tuindice.assistant.generated.resources.assistant_usage_resets
 import tuindice.assistant.generated.resources.assistant_usage_title
 
 // sistema.aviso_uso/1: the requests left in each window, and when the quota resets if the service knows it.
 @Composable
 fun UsageNoticeComponentView(
-	component: UsageNoticeComponent,
+	item: UsageNoticeItem,
 	modifier: Modifier = Modifier
 ) {
-	val usage = component.usage
-	val resetsAtMillis = component.resetsAtMillis
-
 	AssistantEmbeddedCardView(modifier = modifier) {
 		Text(
 			text = stringResource(Res.string.assistant_usage_title),
@@ -31,23 +24,23 @@ fun UsageNoticeComponentView(
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		Text(
-			text = stringResource(Res.string.assistant_usage_hour, usage.remainingHour),
+			text = item.hourText.asString(),
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		Text(
-			text = stringResource(Res.string.assistant_usage_day, usage.remainingDay),
+			text = item.dayText.asString(),
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		Text(
-			text = stringResource(Res.string.assistant_usage_month, usage.remainingMonth),
+			text = item.monthText.asString(),
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)
-		if (resetsAtMillis != null) {
+		item.resetsText?.let { resetsText ->
 			Text(
-				text = stringResource(Res.string.assistant_usage_resets, resetsAtMillis.chatDateText()),
+				text = resetsText.asString(),
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)

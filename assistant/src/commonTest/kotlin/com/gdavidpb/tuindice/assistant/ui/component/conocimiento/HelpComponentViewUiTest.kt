@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toHelpItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
@@ -24,7 +25,7 @@ class HelpComponentViewUiTest {
 	fun when_helpHasSteps_then_theyAreNumbered_andTheButtonOpensTheScreenWithItsRefs() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			HelpComponentView(component = help(), onAction = { actions.add(it) })
+			HelpComponentView(item = help().toHelpItem(), onAction = { actions.add(it) })
 		}
 
 		assertNodeVisible(AssistantUiTags.Knowledge.help(COMPONENT_ID))
@@ -45,7 +46,7 @@ class HelpComponentViewUiTest {
 	@Test
 	fun when_helpNamesNoScreen_then_thereIsNoButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			HelpComponentView(component = help(target = null), onAction = {})
+			HelpComponentView(item = help(target = null).toHelpItem(), onAction = {})
 		}
 
 		onNodeWithText("Ir a la pantalla").assertDoesNotExist()

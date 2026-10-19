@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
-import com.gdavidpb.tuindice.assistant.presentation.machine.runFailed
+import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
@@ -188,8 +188,10 @@ private fun ContentTransitions.contentMessageRows(
 	}
 
 	on<AssistantChat.Action.RateMessage> { state, action ->
+		val previous = machine.session.usefulByMessage[action.messageId]
+
 		machine.session.usefulByMessage[action.messageId] = action.useful
-		machine.feedback.rate(host = host, messageId = action.messageId, useful = action.useful)
+		machine.feedback.rate(host = host, messageId = action.messageId, useful = action.useful, previous = previous)
 		machine.refreshed(state)
 	}
 
@@ -205,6 +207,12 @@ private fun ContentTransitions.contentMessageRows(
 
 	on<AssistantChat.Action.AnswerStillApplies> { state, action ->
 		machine.feedback.answerStillApplies(host = host, memoryId = action.memoryId, applies = action.applies)
+		state
+	}
+
+	on<AssistantChatInternalEvent.StillAppliesRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state
 	}
 
@@ -365,6 +373,13 @@ private fun ContentTransitions.contentOutcomeRows(
 	on<AssistantChatInternalEvent.MessageRated>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state
+	}
+
+	on<AssistantChatInternalEvent.MessageRateFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		machine.session.rateRefused(messageId = event.messageId, rejected = event.rejected, previous = event.previous)
+		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
+		machine.refreshed(state)
 	}
 
 	on<AssistantChatInternalEvent.MessageReported>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {

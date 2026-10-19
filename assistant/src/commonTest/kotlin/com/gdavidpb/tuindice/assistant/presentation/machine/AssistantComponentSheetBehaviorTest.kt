@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
 import com.gdavidpb.tuindice.assistant.presentation.testing.componentSheetTest
@@ -31,7 +33,7 @@ class AssistantComponentSheetBehaviorTest {
 
 		val content = assertIs<AssistantComponentSheet.State.Content>(viewModel.state.value)
 		assertEquals("message-1", content.messageId)
-		assertEquals(component, content.component)
+		assertEquals(component.toChatComponentItem(nowMillis = 0L), content.item)
 	}
 
 	@Test
@@ -55,6 +57,19 @@ class AssistantComponentSheetBehaviorTest {
 
 		assertEquals(AssistantComponentSheet.State.Missing, viewModel.state.value)
 		assertTrue(fixture.effects.any { effect -> effect is AssistantComponentSheet.Effect.Dismiss })
+	}
+
+	@Test
+	fun when_anActionOtherThanALinkIsTaken_then_theSheetKeepsItsContent_andSendsNothing() = componentSheetTest(
+		initial = conversationWithComponent
+	) { fixture, viewModel ->
+		viewModel.openAction(messageId = "message-1", componentId = "component-1")
+		val before = viewModel.state.value
+
+		viewModel.dispatch(AssistantComponentSheet.Action.Unhandled(AssistantChat.Action.Send))
+
+		assertEquals(before, viewModel.state.value)
+		assertTrue(fixture.effects.isEmpty())
 	}
 
 	@Test

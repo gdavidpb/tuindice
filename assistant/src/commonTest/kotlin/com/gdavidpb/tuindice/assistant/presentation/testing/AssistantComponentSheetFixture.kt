@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversati
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
+import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -26,7 +27,8 @@ internal class AssistantComponentSheetFixture(initial: AssistantConversation = e
 
 	val machine: AssistantComponentSheetMachine by lazy {
 		AssistantComponentSheetMachine(
-			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting)
+			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
+			clock = FixedClock(nowMillis = 0L)
 		)
 	}
 

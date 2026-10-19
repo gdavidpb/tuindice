@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toOpenScreenItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
@@ -25,12 +26,12 @@ class OpenScreenComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			OpenScreenComponentView(
-				component = OpenScreenComponent(
+				item = OpenScreenComponent(
 					id = COMPONENT_ID,
 					fallbackText = LABEL,
 					target = NavTarget.EVALUATIONS,
 					label = LABEL
-				),
+				).toOpenScreenItem(),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -49,13 +50,13 @@ class OpenScreenComponentViewUiTest {
 		val entityRefs = listOf(EntityRef(kind = EntityKind.SUBJECT, id = SUBJECT_ID))
 		setTuIndiceTestContent {
 			OpenScreenComponentView(
-				component = OpenScreenComponent(
+				item = OpenScreenComponent(
 					id = COMPONENT_ID,
 					fallbackText = LABEL,
 					entityRefs = entityRefs,
 					target = NavTarget.SUBJECTS_DETAIL,
 					label = LABEL
-				),
+				).toOpenScreenItem(),
 				onAction = { actions.add(it) }
 			)
 		}

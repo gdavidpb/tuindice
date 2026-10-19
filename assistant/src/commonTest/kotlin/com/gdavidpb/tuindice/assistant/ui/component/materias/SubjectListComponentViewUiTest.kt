@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSubjectListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
@@ -27,7 +28,7 @@ class SubjectListComponentViewUiTest {
 	@Test
 	fun when_subjectsAreListed_then_theCountIsTheFigure_andEachRowShowsItsCreditsStatusAndLink() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SubjectListComponentView(component = list(), onAction = {})
+			SubjectListComponentView(item = list().toSubjectListItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Subjects.list(COMPONENT_ID))
@@ -44,7 +45,7 @@ class SubjectListComponentViewUiTest {
 	fun when_aSubjectLinkIsTapped_then_itOpensThatSubjectsDetailWithItsCode() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			SubjectListComponentView(component = list(), onAction = { actions.add(it) })
+			SubjectListComponentView(item = list().toSubjectListItem(), onAction = { actions.add(it) })
 		}
 
 		onAllNodesWithText("Ver materia").onFirst().performClick()

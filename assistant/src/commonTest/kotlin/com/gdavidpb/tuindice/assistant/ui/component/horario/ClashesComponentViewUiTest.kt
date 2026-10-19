@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toClashesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ScheduleClash
@@ -17,7 +18,7 @@ class ClashesComponentViewUiTest {
 	@Test
 	fun when_thereAreClashes_then_eachShowsItsSubjectsDayAndHours() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ClashesComponentView(component = clashes(listOf(CLASH)))
+			ClashesComponentView(item = clashes(listOf(CLASH)).toClashesItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.clashes(COMPONENT_ID))
@@ -29,7 +30,7 @@ class ClashesComponentViewUiTest {
 	@Test
 	fun when_thereAreNoClashes_then_noRowIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ClashesComponentView(component = clashes(emptyList()))
+			ClashesComponentView(item = clashes(emptyList()).toClashesItem())
 		}
 
 		onNodeWithContentDescription("Choques de horario: 0").assertIsDisplayed()

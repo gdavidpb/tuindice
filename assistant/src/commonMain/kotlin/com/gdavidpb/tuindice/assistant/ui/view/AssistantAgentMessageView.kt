@@ -35,7 +35,7 @@ fun AssistantAgentMessageView(
 
 				is ChatPartItem.Component -> ChatComponentView(
 					messageId = item.id,
-					component = part.component,
+					item = part.item,
 					onAction = onAction
 				)
 

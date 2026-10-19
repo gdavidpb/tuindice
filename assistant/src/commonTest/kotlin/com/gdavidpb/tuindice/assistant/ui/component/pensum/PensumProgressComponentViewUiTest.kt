@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPensumProgressItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
@@ -23,7 +24,7 @@ class PensumProgressComponentViewUiTest {
 	@Test
 	fun when_creditsAreApproved_then_theShareIsTheFigure_andTheStatusesCountTheSubjects() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PensumProgressComponentView(component = progress(), onAction = {})
+			PensumProgressComponentView(item = progress().toPensumProgressItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Pensum.progress(COMPONENT_ID))
@@ -45,7 +46,7 @@ class PensumProgressComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			PensumProgressComponentView(
-				component = progress(refs = listOf(PENSUM_REF)),
+				item = progress(refs = listOf(PENSUM_REF)).toPensumProgressItem(),
 				onAction = { actions.add(it) }
 			)
 		}

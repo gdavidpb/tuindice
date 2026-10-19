@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepo
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
