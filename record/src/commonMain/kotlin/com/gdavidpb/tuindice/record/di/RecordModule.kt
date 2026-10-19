@@ -100,9 +100,9 @@ val recordModule = module {
 	factoryOf(::CreateSyntheticTermUseCase)
 	factoryOf(::UpdateSyntheticTermUseCase)
 	factoryOf(::LoadSyntheticTermEditSeedUseCase)
-		factoryOf(::GetRecordRevisionUseCase)
-		factoryOf(::GetTermKeyUseCase)
-		factoryOf(::ObserveRecordMutationOutcomesUseCase)
+	factoryOf(::GetRecordRevisionUseCase)
+	factoryOf(::GetTermKeyUseCase)
+	factoryOf(::ObserveRecordMutationOutcomesUseCase)
 
 	/* Repositories */
 
