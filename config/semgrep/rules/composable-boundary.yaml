@@ -122,3 +122,41 @@ rules:
     metadata:
       area: composable-boundary
       referencia: '.codex/skills/implement-tuindice-module § Non-Negotiable Project Rules'
+
+  - id: compositionlocal-actions-only-in-route
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los CompositionLocal de acciones (LocalAssistantLauncher, LocalShareTextHandler y los demás *Launcher/*Handler
+      de la app) se leen solo en presentation/route/*Route.kt: la ruta puentea el objeto de acciones a la vista, que
+      lo recibe por parámetro y no lee el ambiente. LocalUriHandler no cuenta: es de la plataforma de Compose, no una
+      acción de la app. Proveer el ambiente (CompositionLocalProvider ... provides) no es leerlo, así que la
+      declaración y el proveedor no necesitan exención.
+    pattern-regex: '\bLocal(?!UriHandler\b)\w*(?:Launcher|Handler)\.current\b'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+        - '**/src/androidMain/**'
+        - '**/src/iosMain/**'
+        - '**/src/main/**'
+      exclude:
+        - '**/presentation/route/*Route.kt'
+    metadata:
+      area: composable-boundary
+      referencia: 'base/presentation/navigation/LocalAssistantLauncher.kt; .codex/skills/implement-tuindice-module § composable boundary'
+
+  - id: ui-component-no-else-unit
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un when dentro de ui/component no cierra con else -> Unit ni else -> { }: el else silencioso
+      oculta un caso nuevo de la sealed que el when debía cubrir. Las ramas se listan
+      explícitamente (o se usa when exhaustivo sin else) para que el compilador avise si el
+      contrato crece.
+    pattern-regex: '\belse\s*->\s*(?:Unit\b|\{\s*\})'
+    paths:
+      include:
+        - '**/ui/component/**'
+    metadata:
+      area: composable-boundary
+      referencia: '.codex/skills/implement-tuindice-module § composable boundary'

@@ -322,6 +322,22 @@ tasks.register<Exec>("verifyModuleGraph") {
 	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
 }
 
+// The branch base the baseline and test checks compare against: the merge-base of HEAD and this ref. Empty means
+// origin/production, or production without an origin.
+val verificationBaselineRef: String = providers.gradleProperty("baselineRef").getOrElse("")
+
+tasks.register<Exec>("verifyDetektBaselinesShrink") {
+	group = "verification"
+	description = "Fails when a detekt baseline grows against the branch base (-PbaselineRef= overrides origin/production)."
+	commandLine("bash", "${rootDir}/scripts/verify-detekt-baselines-shrink.sh", verificationBaselineRef)
+}
+
+tasks.register<Exec>("verifyEngineAndUseCaseTests") {
+	group = "verification"
+	description = "Fails when a domain engine has no test named after it, or a use case new since the base has no test."
+	commandLine("bash", "${rootDir}/scripts/verify-engine-and-usecase-tests.sh", verificationBaselineRef)
+}
+
 // The E2E tasks live in a file outside the E2E fingerprint; see its header.
 apply(from = "gradle/e2e-tasks.gradle.kts")
 

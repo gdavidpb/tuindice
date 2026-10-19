@@ -12,9 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
-import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_cancel
@@ -25,7 +25,7 @@ import tuindice.assistant.generated.resources.assistant_chat_appeal_title
 
 private const val APPEAL_MIN_LINES = 3
 
-// The text the student writes to appeal a restriction, at most AbuseAppeal.MAX_LENGTH characters.
+// The text the student writes to appeal a restriction, at most AssistantInputLimits.APPEAL_MAX_LENGTH characters.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantAppealDialog(
@@ -34,7 +34,7 @@ fun AssistantAppealDialog(
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 	val appealText = remember { mutableStateOf("") }
-	val maxLength = AbuseAppeal.MAX_LENGTH
+	val maxLength = AssistantInputLimits.APPEAL_MAX_LENGTH
 
 	ConfirmationDialog(
 		sheetState = sheetState,

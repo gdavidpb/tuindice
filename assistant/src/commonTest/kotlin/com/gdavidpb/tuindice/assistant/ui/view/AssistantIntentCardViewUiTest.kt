@@ -10,12 +10,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
 import com.gdavidpb.tuindice.assistant.ui.intentCard
-import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -74,7 +74,7 @@ class AssistantIntentCardViewUiTest {
 	fun when_intentIsResolved_then_itBecomesItsReceiptWithoutButtons() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantIntentCardView(
-				card = intentCard(status = IntentCardStatus.Resolved(OutcomeKind.CONFIRMED)),
+				card = intentCard(status = IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED)),
 				onAction = {}
 			)
 		}

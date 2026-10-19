@@ -47,6 +47,16 @@ class ControllableAcademicRecordRepository(
 	private val observedRecordFlow: Flow<AcademicRecord>? = null,
 	private val cachedRecord: AcademicRecord? = null
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
 
 	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()

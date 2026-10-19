@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.about.presentation.machine
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
+import com.gdavidpb.tuindice.about.presentation.resource.DefaultAboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -13,24 +15,14 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import org.jetbrains.compose.resources.getString
-import tuindice.about.generated.resources.Res
-import tuindice.about.generated.resources.about_assistant_consent_failed
-import tuindice.about.generated.resources.about_assistant_conversations_delete_failed
-import tuindice.about.generated.resources.about_assistant_conversations_deleted
-import tuindice.about.generated.resources.about_share_message
-import tuindice.about.generated.resources.about_share_subject
-import tuindice.about.generated.resources.about_version_unavailable
-import tuindice.about.generated.resources.label_privacy_policy
-import tuindice.about.generated.resources.label_support
-import tuindice.about.generated.resources.label_terms_and_conditions
 
 class AboutMachine(
 	private val loadVersionUseCase: LoadVersionUseCase,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val externalUseCases: AboutExternalUseCases,
-	private val assistantUseCases: AboutAssistantUseCases
+	private val assistantUseCases: AboutAssistantUseCases,
+	private val textProvider: AboutTextProvider = DefaultAboutTextProvider()
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
@@ -57,7 +49,7 @@ class AboutMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AboutVersionLoadFailed(
-							versionFallbackText = getString(Res.string.about_version_unavailable),
+							versionFallbackText = textProvider.versionUnavailable(),
 							usageDataCollectionEnabled =
 								usageDataConsentRepository.isUsageDataCollectionEnabled()
 						)
@@ -100,7 +92,7 @@ class AboutMachine(
 	internal suspend fun openTermsAndConditions(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_terms_and_conditions),
+				title = textProvider.termsAndConditionsLabel(),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)
@@ -109,7 +101,7 @@ class AboutMachine(
 	internal suspend fun openPrivacyPolicy(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_privacy_policy),
+				title = textProvider.privacyPolicyLabel(),
 				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
 			)
 		)
@@ -118,7 +110,7 @@ class AboutMachine(
 	internal suspend fun openSupport(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_support),
+				title = textProvider.supportLabel(),
 				url = appEnvironmentRepository.getEnvironment().supportUrl
 			)
 		)
@@ -127,8 +119,8 @@ class AboutMachine(
 	internal suspend fun shareApp(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.ShareText(
-				subject = getString(Res.string.about_share_subject),
-				text = getString(Res.string.about_share_message)
+				subject = textProvider.shareSubject(),
+				text = textProvider.shareMessage()
 			)
 		)
 	}
@@ -185,7 +177,7 @@ class AboutMachine(
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantConsentWriteFailed(
 							restoredGranted = restoredGranted,
-							message = getString(Res.string.about_assistant_consent_failed)
+							message = textProvider.assistantConsentFailed()
 						)
 					)
 				}
@@ -201,13 +193,13 @@ class AboutMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleted(
-							message = getString(Res.string.about_assistant_conversations_deleted)
+							message = textProvider.assistantConversationsDeleted()
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleteFailed(
-							message = getString(Res.string.about_assistant_conversations_delete_failed)
+							message = textProvider.assistantConversationsDeleteFailed()
 						)
 					)
 				}

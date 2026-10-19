@@ -6,12 +6,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionBadge
 import platform.UserNotifications.UNAuthorizationOptionSound
-import platform.UserNotifications.UNAuthorizationStatus
-import platform.UserNotifications.UNAuthorizationStatusAuthorized
-import platform.UserNotifications.UNAuthorizationStatusDenied
-import platform.UserNotifications.UNAuthorizationStatusEphemeral
-import platform.UserNotifications.UNAuthorizationStatusNotDetermined
-import platform.UserNotifications.UNAuthorizationStatusProvisional
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
@@ -44,29 +38,6 @@ class IosNotificationPermissionDataSource(
 				dispatch_async(dispatch_get_main_queue()) {
 					continuation.resume(authorization)
 				}
-			}
-		}
-	}
-}
-
-// What the system says of the student's authorization for notifications. A status this build does not know is none.
-internal enum class IosNotificationAuthorization {
-	NOT_DETERMINED,
-	DENIED,
-	AUTHORIZED,
-	PROVISIONAL,
-	EPHEMERAL,
-	UNKNOWN;
-
-	companion object {
-		fun of(status: UNAuthorizationStatus?): IosNotificationAuthorization {
-			return when (status) {
-				UNAuthorizationStatusNotDetermined -> NOT_DETERMINED
-				UNAuthorizationStatusDenied -> DENIED
-				UNAuthorizationStatusAuthorized -> AUTHORIZED
-				UNAuthorizationStatusProvisional -> PROVISIONAL
-				UNAuthorizationStatusEphemeral -> EPHEMERAL
-				else -> UNKNOWN
 			}
 		}
 	}

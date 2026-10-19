@@ -2,63 +2,12 @@ package com.gdavidpb.tuindice.testkit.mvi
 
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionSpec
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlin.random.Random
-import kotlin.reflect.KClass
 import kotlin.test.assertTrue
 import kotlin.test.fail
-
-/**
- * Machine host that records every capability call instead of routing it to a ViewModel:
- * effects and internal events are captured for assertions, and machine jobs run in the
- * provided scope (use runTest's backgroundScope so they are cancelled with the test).
- */
-class RecordingMachineHost<E : ViewEffect>(
-	private val coroutineScope: CoroutineScope
-) : MachineHost<E> {
-	val sentEffects = mutableListOf<E>()
-	val producedInternalEvents = mutableListOf<Any>()
-
-	override fun sendEffect(effect: E) {
-		sentEffects += effect
-	}
-
-	override fun processInternalEvent(event: Any) {
-		producedInternalEvents += event
-	}
-
-	override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
-		return coroutineScope.launch { block() }
-	}
-}
-
-/**
- * A row of the table that the walk cannot reach by design, named with the reason. It leaves the denominator of the
- * coverage floor, which is then measured over the rows the walk can visit. [from] null names a machine-level row.
- */
-class UnreachableRow(
-	val from: KClass<*>?,
-	val on: KClass<*>,
-	val reason: String
-)
-
-/** Outcome of [assertMachineRandomWalk], for extra assertions or debugging. */
-class MachineWalkReport(
-	val steps: Int,
-	val accepted: Int,
-	val rejected: Int,
-	val visitedRows: Int,
-	val totalRows: Int,
-	val finalStateName: String?
-) {
-	val rowCoverage: Double
-		get() = if (totalRows == 0) 1.0 else visitedRows.toDouble() / totalRows
-}
 
 /**
  * Model-based smoke over the transition table: drives [screenMachine] with [steps] events

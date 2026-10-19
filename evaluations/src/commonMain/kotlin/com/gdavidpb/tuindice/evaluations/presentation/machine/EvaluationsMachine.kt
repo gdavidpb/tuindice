@@ -26,10 +26,14 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.param.RemoveEvaluationPa
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsContinuousLabel
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekLabel
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.evaluationsWeekOneStart
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.snackEvaluationRemoved
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.snackEvaluationSetGrade
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekKeyOrNull
@@ -51,12 +55,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLoc
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.datetime.LocalDate
-import org.jetbrains.compose.resources.getString
-import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.evaluations_continuous_label
-import tuindice.evaluations.generated.resources.evaluations_week_label
-import tuindice.evaluations.generated.resources.snack_evaluation_removed
-import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -308,7 +306,7 @@ class EvaluationsMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						EvaluationsInternalEvent.EvaluationGradeSaved(
-							message = getString(Res.string.snack_evaluation_set_grade)
+							message = snackEvaluationSetGrade()
 						)
 					)
 
@@ -343,7 +341,7 @@ class EvaluationsMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						EvaluationsInternalEvent.EvaluationRemoved(
-							message = getString(Res.string.snack_evaluation_removed)
+							message = snackEvaluationRemoved()
 						)
 					)
 
@@ -359,8 +357,8 @@ class EvaluationsMachine(
 
 	private suspend fun GetEvaluations.Content.toContentObservedEvent(): EvaluationsInternalEvent {
 		val mapping = getEvaluationItemMapping()
-		val weekLabelPattern = getString(Res.string.evaluations_week_label)
-		val continuousLabel = getString(Res.string.evaluations_continuous_label)
+		val weekLabelPattern = evaluationsWeekLabel()
+		val continuousLabel = evaluationsContinuousLabel()
 		// Filtered once, here, so the week strip, the default week and the list all describe the
 		// same evaluations: one left out of the list must not leave a dot on its day behind.
 		val listedEvaluations = listedEvaluations()

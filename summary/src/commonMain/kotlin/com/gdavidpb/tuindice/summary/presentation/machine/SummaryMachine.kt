@@ -13,6 +13,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.snackProfilePictureRemoved
+import com.gdavidpb.tuindice.summary.presentation.mapper.snackProfilePictureUpdated
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRefreshMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRemoveMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
@@ -30,10 +32,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import org.jetbrains.compose.resources.getString
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.snack_profile_picture_removed
-import tuindice.summary.generated.resources.snack_profile_picture_updated
 
 class SummaryMachine(
 	private val observations: SummaryObservations,
@@ -234,7 +232,7 @@ class SummaryMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						SummaryInternalEvent.ProfilePictureUploadSucceeded(
-							message = getString(Res.string.snack_profile_picture_updated)
+							message = snackProfilePictureUpdated()
 						)
 					)
 
@@ -258,7 +256,7 @@ class SummaryMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						SummaryInternalEvent.ProfilePictureRemovalSucceeded(
-							message = getString(Res.string.snack_profile_picture_removed)
+							message = snackProfilePictureRemoved()
 						)
 					)
 

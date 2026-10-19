@@ -51,3 +51,38 @@ fun sampleToggle(sampleKey: String): Boolean {
 	val isVal = remember { mutableStateOf(false) }
 	return isOpen && isKeyed && isVal.value
 }
+
+// compositionlocal-actions-only-in-route: un CompositionLocal de acciones solo se lee desde la ruta (ok) o desde una vista (ruleid).
+fun SampleLauncherReadRule() {
+	// ruleid: compositionlocal-actions-only-in-route
+	val assistantLauncher = LocalAssistantLauncher.current
+	// ruleid: compositionlocal-actions-only-in-route
+	val shareText = LocalShareTextHandler.current
+	// ok: compositionlocal-actions-only-in-route
+	val uriHandler = LocalUriHandler.current
+}
+
+// ui-component-no-else-unit: un when de component no cierra con else vacío.
+fun SampleComponentElseRule(state: SampleState): String {
+	return when (state) {
+		SampleState.Idle -> "idle"
+		// ruleid: ui-component-no-else-unit
+		else -> Unit
+	}
+}
+
+fun SampleComponentElseBlockRule(state: SampleState) {
+	when (state) {
+		SampleState.Idle -> Unit
+		// ruleid: ui-component-no-else-unit
+		else -> {}
+	}
+}
+
+fun SampleComponentExplicitRule(state: SampleState): String {
+	// ok: ui-component-no-else-unit
+	return when (state) {
+		SampleState.Idle -> "idle"
+		SampleState.Busy -> "busy"
+	}
+}

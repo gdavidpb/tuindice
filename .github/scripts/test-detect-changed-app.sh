@@ -705,6 +705,7 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyDetektBaselinesShrink" "Android tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
 		e2e-catalog|e2e-harness-shared|mocks-all)

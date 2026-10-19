@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
@@ -39,7 +40,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -82,6 +85,22 @@ internal class FakeEvaluationRepository(
 	private val outcomeOf: OutcomeOf = settledAs(MutationOutcomeKind.CONFIRMED),
 	var failure: Throwable? = null
 ) : EvaluationRepository {
+	override suspend fun observeEvaluationsSnapshotFlow() = combine(
+		observeEvaluationsFlow(),
+		observeHasSyncedEvaluationsFlow()
+	) { evaluations, hasSyncedEvaluations ->
+		ObservedSyncedSnapshot(
+			value = evaluations,
+			hasSynced = hasSyncedEvaluations
+		)
+	}
+
+	override suspend fun getEvaluationsSnapshot() = observeEvaluationsSnapshotFlow().first()
+
+	override suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
+		return updateEvaluations()
+	}
+
 	private val outcomes = MutableSharedFlow<MutationOutcome>(extraBufferCapacity = 64)
 
 	val mutations = mutableListOf<String>()
@@ -153,6 +172,20 @@ internal class FakeRecordRepository(
 	var failure: Throwable? = null,
 	var revisionFailure: Throwable? = null
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
 
 	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()

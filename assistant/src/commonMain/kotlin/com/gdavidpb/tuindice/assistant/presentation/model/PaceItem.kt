@@ -9,9 +9,3 @@ data class PaceItem(
 	// Null when the service does not estimate the terms left.
 	val remainingTerms: String?
 ) : RecordComponentItem
-
-// The credits of one term.
-data class CreditsRowItem(
-	val label: String,
-	val credits: String
-)

@@ -715,6 +715,13 @@ fi
 
 if [[ "$DETEKT_CONFIG_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "detekt"
+	# The baselines may only shrink against the branch base: a change to any of them, or to the re-key file, runs it.
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyDetektBaselinesShrink"
+fi
+
+# Every domain engine has its test and every use case new since the base has one: any module change can add either.
+if [[ -s "$IMPACTED_MODULES_FILE" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyEngineAndUseCaseTests"
 fi
 
 # Semgrep valida arquitectura repo-wide: corre cuando cambió código de algún

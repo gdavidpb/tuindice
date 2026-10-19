@@ -11,6 +11,8 @@
 #   androidHostTest, and iosTest are ignored; ":testkit" only appears there).
 # - Every module registered in settings.gradle.kts must have an entry in the
 #   graph file, so adding a module forces an explicit boundary agreement.
+# - The iOS framework cache key (.github/scripts/ios-framework-cache-key.sh) must hash the build file and the sources
+#   of every module maincore links, directly or transitively, so a change in any of them invalidates the cache.
 
 set -euo pipefail
 
@@ -90,14 +92,44 @@ for module in $registered_modules; do
 done
 
 for module in $(echo "$EXPECTED_GRAPH" | awk -F= 'NF { print $1 }'); do
-	if ! echo "$registered_modules" | grep -qx "$module"; then
+	if ! grep -qx "$module" <<<"$registered_modules"; then
 		echo "FAIL [$module]: present in ${GRAPH_FILE} but not registered in settings.gradle.kts"
 		status=1
 	fi
 done
 
+# The modules maincore links: its direct dependencies and, transitively, theirs. The cache key must name each of them.
+CACHE_KEY_SCRIPT="${ROOT_DIR}/.github/scripts/ios-framework-cache-key.sh"
+if [[ ! -f "$CACHE_KEY_SCRIPT" ]]; then
+	echo "FAIL [ios-framework-cache-key]: missing ${CACHE_KEY_SCRIPT}"
+	status=1
+else
+	linked_closure=""
+	pending="$(expected_for maincore | tr ' ' '\n' | tr -d ':' | grep -vxF -- '-' || true)"
+	while [[ -n "$pending" ]]; do
+		next=""
+		for module in $pending; do
+			case " $linked_closure " in
+				*" $module "*) continue ;;
+			esac
+			linked_closure="$linked_closure $module"
+			next="$next $(expected_for "$module" | tr ' ' '\n' | tr -d ':' | grep -vxF -- '-' || true)"
+		done
+		pending="$(printf '%s\n' $next | grep -v '^$' || true)"
+	done
+
+	for module in maincore $linked_closure; do
+		for cache_input in "${module}/build.gradle.kts" "${module}/src"; do
+			if ! grep -qF "\"${cache_input}\"" "$CACHE_KEY_SCRIPT"; then
+				echo "FAIL [ios-framework-cache-key]: ${module} is linked into maincore.framework but ${cache_input} is not hashed by ${CACHE_KEY_SCRIPT#"${ROOT_DIR}"/}"
+				status=1
+			fi
+		done
+	done
+fi
+
 if [[ $status -eq 0 ]]; then
-	echo "OK: module dependency graph matches the agreed boundaries ($(echo "$registered_modules" | wc -l | tr -d ' ') modules)."
+	echo "OK: module dependency graph matches the agreed boundaries ($(echo "$registered_modules" | wc -l | tr -d ' ') modules) and the iOS framework cache key covers maincore's closure."
 fi
 
 exit $status

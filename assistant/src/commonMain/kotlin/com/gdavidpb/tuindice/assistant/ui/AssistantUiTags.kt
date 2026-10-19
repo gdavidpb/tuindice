@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.assistant.ui
 
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 
 object AssistantUiTags {
 	const val ChatSheet = "assistant_chat_sheet"
@@ -64,7 +64,7 @@ object AssistantUiTags {
 
 		fun report(messageId: String): String = "assistant_message_report_$messageId"
 
-		fun reportReason(messageId: String, reason: ReportReason): String =
+		fun reportReason(messageId: String, reason: AssistantReportReason): String =
 			"assistant_message_report_${reason.name.lowercase()}_$messageId"
 	}
 

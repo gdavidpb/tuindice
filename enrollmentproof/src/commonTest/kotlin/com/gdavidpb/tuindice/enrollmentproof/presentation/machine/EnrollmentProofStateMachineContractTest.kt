@@ -14,8 +14,10 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -77,21 +79,41 @@ class EnrollmentProofStateMachineContractTest {
 		}
 	}
 
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				Enrollment.Action.FetchEnrollmentProof,
+				Enrollment.Action.OpenSavedEnrollmentProof,
+				Enrollment.Action.OpenEnrollmentProofCompleted(opened = true),
+				EnrollmentProofInternalEvent.EnrollmentProofFetchFailed(message = "Sin conexión", canRetry = true),
+				EnrollmentProofInternalEvent.EnrollmentProofUnauthorized,
+				EnrollmentProofInternalEvent.EnrollmentProofViewerMissing(message = "Sin visor")
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): EnrollmentProofMachine {
+		return EnrollmentProofMachine(
+			fetchEnrollmentProofUseCase = FetchEnrollmentProofUseCase(
+				applicationRepository = FakeFileRepository(canOpen = true),
+				enrollmentProofRepository = FakeEnrollmentProofRepository(
+					enrollmentProof = DEFAULT_ENROLLMENT_PROOF
+				),
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = FetchEnrollmentProofExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			),
+			textProvider = FakeEnrollmentProofTextProvider()
+		)
+	}
+
 	private fun createViewModel(): EnrollmentProofViewModel {
 		return EnrollmentProofViewModel(
-			screenMachine = EnrollmentProofMachine(
-				fetchEnrollmentProofUseCase = FetchEnrollmentProofUseCase(
-					applicationRepository = FakeFileRepository(canOpen = true),
-					enrollmentProofRepository = FakeEnrollmentProofRepository(
-						enrollmentProof = DEFAULT_ENROLLMENT_PROOF
-					),
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = FetchEnrollmentProofExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				textProvider = FakeEnrollmentProofTextProvider()
-			),
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

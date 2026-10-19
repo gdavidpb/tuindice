@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
@@ -25,7 +26,6 @@ import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
@@ -281,7 +281,11 @@ internal fun AssistantChatViewModel.copyMessageAction(messageId: String) =
 internal fun AssistantChatViewModel.rateMessageAction(messageId: String, useful: Boolean) =
 	dispatch(AssistantChat.Action.RateMessage(messageId, useful))
 
-internal fun AssistantChatViewModel.reportMessageAction(messageId: String, reason: ReportReason, comment: String?) =
+internal fun AssistantChatViewModel.reportMessageAction(
+	messageId: String,
+	reason: AssistantReportReason,
+	comment: String?
+) =
 	dispatch(AssistantChat.Action.ReportMessage(messageId, reason, comment))
 
 internal fun AssistantChatViewModel.openNavTargetAction(target: NavTarget, entityRefs: List<EntityRef>) =

@@ -132,3 +132,33 @@ rules:
     metadata:
       area: layering
       referencia: 'README.md § Capas por feature > Domain'
+
+  - id: ui-no-wire-contract-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Nada en ui/ importa com.gdavidpb.tuindice.chatcontract: el contrato de cable (JSON del
+      servidor, catálogos y turnos) pertenece a data/, presentation/ y domain/. La UI recibe
+      modelos de presentación (presentation/model) que el mapper ya traduce desde el contrato.
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.chatcontract\.'
+    paths:
+      include:
+        - '**/ui/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature > Presentation'
+
+  - id: domain-repository-no-default-bodies
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Las interfaces de domain/repository no tienen funciones con cuerpo ni propiedades con getter.
+      Un cuerpo por defecto en el contrato es un comportamiento silencioso que cada implementación
+      hereda sin decidirlo: la función se declara abstracta y cada repositorio de data/ la implementa.
+    pattern-regex: '\bfun\s+[^\n=]*\{|\bfun\s+[^\n{=]*\)\s*(?::[^\n{=]+)?=|\bget\(\)\s*[={]'
+    paths:
+      include:
+        - '**/domain/repository/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature > Domain'

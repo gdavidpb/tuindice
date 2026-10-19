@@ -1,0 +1,19 @@
+# Pruebas de contrato de máquinas de estado. Fixture homónimo: state-machine-contracts.kt.
+rules:
+  - id: state-machine-contract-test-complete
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Todo *StateMachineContractTest debe llamar al generador del diagrama Mermaid (exportToMermaid, testkit/mvi)
+      y al recorrido aleatorio (assertMachineRandomWalk, testkit/mvi). El diagrama es el contrato documentado de
+      la tabla y el recorrido ejercita las filas que la tabla declara; sin cualquiera de los dos la máquina puede
+      cambiar sin que una prueba lo note. La comprobación mira desde la declaración de la clase hasta el final del
+      archivo: una prueba por archivo (el archivo convencional).
+    # Dos alternativas: falta exportToMermaid( o falta assertMachineRandomWalk( en el resto del archivo.
+    pattern-regex: '\bclass\s+\w+StateMachineContractTest\b(?![\s\S]*\bexportToMermaid\s*\()|\bclass\s+\w+StateMachineContractTest\b(?![\s\S]*\bassertMachineRandomWalk\s*\()'
+    paths:
+      include:
+        - '**/*StateMachineContractTest.kt'
+    metadata:
+      area: state-machine-contracts
+      referencia: 'testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineMermaid.kt; testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineRandomWalk.kt'

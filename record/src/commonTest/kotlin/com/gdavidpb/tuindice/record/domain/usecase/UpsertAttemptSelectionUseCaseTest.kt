@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordRejection
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExcept
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
@@ -98,6 +100,20 @@ class UpsertAttemptSelectionUseCaseTest {
 private class FakeAcademicRecordRepository(
 	private var record: AcademicRecord?
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
 
 	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()

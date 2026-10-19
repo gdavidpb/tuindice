@@ -16,9 +16,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -67,11 +67,11 @@ class AssistantAgentMessageViewUiTest {
 		}
 
 		onNodeWithTag(AssistantUiTags.Message.report(MESSAGE_ID)).performClick()
-		assertNodeVisible(AssistantUiTags.Message.reportReason(MESSAGE_ID, ReportReason.HARMFUL))
-		onNodeWithTag(AssistantUiTags.Message.reportReason(MESSAGE_ID, ReportReason.HARMFUL)).performClick()
+		assertNodeVisible(AssistantUiTags.Message.reportReason(MESSAGE_ID, AssistantReportReason.HARMFUL))
+		onNodeWithTag(AssistantUiTags.Message.reportReason(MESSAGE_ID, AssistantReportReason.HARMFUL)).performClick()
 
 		val report = assertIs<AssistantChat.Action.ReportMessage>(actions.single())
-		assertEquals(ReportReason.HARMFUL, report.reason)
+		assertEquals(AssistantReportReason.HARMFUL, report.reason)
 		assertNull(report.comment)
 	}
 

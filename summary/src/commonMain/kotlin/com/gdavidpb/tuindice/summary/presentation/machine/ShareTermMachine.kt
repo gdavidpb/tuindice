@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -10,15 +9,14 @@ import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreference
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
+import com.gdavidpb.tuindice.summary.presentation.mapper.shareTermUnavailableMessage
+import com.gdavidpb.tuindice.summary.presentation.mapper.shareTermUnavailableTitle
 import com.gdavidpb.tuindice.summary.presentation.model.ShareCardPicture
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermContentTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermIdleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermLoadingTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.shareTermUnavailableTransitions
 import kotlinx.coroutines.CancellationException
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.share_term_unavailable_message
-import tuindice.summary.generated.resources.share_term_unavailable_title
 
 class ShareTermMachine(
 	private val observeShareTermUseCase: ObserveShareTermUseCase,
@@ -98,7 +96,7 @@ class ShareTermMachine(
 // The state of a sheet whose terms cannot be read, with the words that say so.
 internal fun shareTermUnavailableState(): ShareTerm.State.Unavailable {
 	return ShareTerm.State.Unavailable(
-		title = UiText.Resource(Res.string.share_term_unavailable_title),
-		message = UiText.Resource(Res.string.share_term_unavailable_message)
+		title = shareTermUnavailableTitle(),
+		message = shareTermUnavailableMessage()
 	)
 }

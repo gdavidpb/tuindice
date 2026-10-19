@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.data.source.network
 
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
 internal object AppUpgradePolicy {
 	const val OUTDATED_APP_CODE = "outdated_app"
@@ -33,16 +31,4 @@ internal object AppUpgradePolicy {
 	private const val USER_AGENT_PLATFORM_INDEX = 3
 	private const val PLATFORM_ANDROID = "Android"
 	private const val PLATFORM_IOS = "iOS"
-}
-
-@Serializable
-internal data class UpgradeRequiredResponse(
-	@SerialName("code") val code: String,
-	@SerialName("minimum_versions") val minimumVersions: MinimumVersions
-) {
-	@Serializable
-	data class MinimumVersions(
-		@SerialName("android") val android: Int,
-		@SerialName("ios") val ios: Int
-	)
 }

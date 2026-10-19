@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.room
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import com.gdavidpb.tuindice.persistence.data.room.converter.DatabaseConverters
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
@@ -84,9 +83,4 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val pensumCache: PensumCacheDao
 	abstract val pensumSelection: PensumSelectionDao
 	abstract val syntheticTermLoadPreviewCache: SyntheticTermLoadPreviewCacheDao
-}
-
-@Suppress("KotlinNoActualForExpect")
-expect object TuIndiceDatabaseConstructor : RoomDatabaseConstructor<TuIndiceDatabase> {
-	override fun initialize(): TuIndiceDatabase
 }

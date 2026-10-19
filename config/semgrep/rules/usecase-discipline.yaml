@@ -72,3 +72,21 @@ rules:
     metadata:
       area: usecase-discipline
       referencia: '.codex/skills/implement-tuindice-module § Workflow (paso 6)'
+
+  - id: usecase-collaborators-injected
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un caso de uso no crea sus colaboradores: override val exceptionHandler = X() o
+      override val paramsValidator = X() (o cualquier validador/handler que el caso de uso
+      sobrescriba) construye la pieza dentro del caso de uso y la esconde de Koin y de las
+      pruebas. Se recibe por constructor (o por un bundle recibido por constructor, como
+      SendAssistantMessageHandling), y el caso de uso solo la reenvía.
+    pattern-regex: '^[ \t]+override\s+val\s+(?:exceptionHandler|paramsValidator|\w*(?:Validator|Handler))\b[^=\n]*=\s*(?:object\s*:|(?:\w+\.)*\w+(?:<[^>\n]*>)?\s*\()'
+    paths:
+      include:
+        - '**/domain/usecase/*UseCase.kt'
+        - '**/domain/usecase/**/*UseCase.kt'
+    metadata:
+      area: usecase-discipline
+      referencia: 'base/domain/usecase/base/FlowUseCase.kt; .codex/skills/implement-tuindice-module § Workflow (paso 6)'

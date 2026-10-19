@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -23,7 +23,7 @@ import tuindice.assistant.generated.resources.assistant_intent_outcome_rejected
 @Composable
 fun AssistantIntentReceiptView(
 	intentId: String,
-	outcome: OutcomeKind,
+	outcome: AssistantIntentOutcome,
 	modifier: Modifier = Modifier
 ) {
 	Text(
@@ -34,14 +34,14 @@ fun AssistantIntentReceiptView(
 	)
 }
 
-private fun OutcomeKind.labelResource(): StringResource =
+private fun AssistantIntentOutcome.labelResource(): StringResource =
 	when (this) {
-		OutcomeKind.CONFIRMED -> Res.string.assistant_intent_outcome_confirmed
-		OutcomeKind.QUEUED -> Res.string.assistant_intent_outcome_queued
-		OutcomeKind.CONFLICT -> Res.string.assistant_intent_outcome_conflict
-		OutcomeKind.REJECTED -> Res.string.assistant_intent_outcome_rejected
-		OutcomeKind.CANCELLED -> Res.string.assistant_intent_outcome_cancelled
-		OutcomeKind.EXPIRED -> Res.string.assistant_intent_outcome_expired
-		OutcomeKind.FAILED -> Res.string.assistant_intent_outcome_failed
-		OutcomeKind.DELEGATED -> Res.string.assistant_intent_outcome_delegated
+		AssistantIntentOutcome.CONFIRMED -> Res.string.assistant_intent_outcome_confirmed
+		AssistantIntentOutcome.QUEUED -> Res.string.assistant_intent_outcome_queued
+		AssistantIntentOutcome.CONFLICT -> Res.string.assistant_intent_outcome_conflict
+		AssistantIntentOutcome.REJECTED -> Res.string.assistant_intent_outcome_rejected
+		AssistantIntentOutcome.CANCELLED -> Res.string.assistant_intent_outcome_cancelled
+		AssistantIntentOutcome.EXPIRED -> Res.string.assistant_intent_outcome_expired
+		AssistantIntentOutcome.FAILED -> Res.string.assistant_intent_outcome_failed
+		AssistantIntentOutcome.DELEGATED -> Res.string.assistant_intent_outcome_delegated
 	}

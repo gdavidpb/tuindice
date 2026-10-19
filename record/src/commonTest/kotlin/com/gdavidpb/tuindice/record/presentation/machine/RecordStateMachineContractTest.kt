@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSour
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -64,6 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -617,6 +619,20 @@ class RecordStateMachineContractTest {
 }
 
 private class StubAcademicRecordRepository : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
 
 	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()

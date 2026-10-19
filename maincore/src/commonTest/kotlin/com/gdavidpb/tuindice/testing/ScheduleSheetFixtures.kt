@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
@@ -143,6 +144,20 @@ private class FixedVisibleEvaluationsRepository(
 private class FixedAcademicRecordRepository(
 	private val record: AcademicRecord
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
 	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
 
 	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()

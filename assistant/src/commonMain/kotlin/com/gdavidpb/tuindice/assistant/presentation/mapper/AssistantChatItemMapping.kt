@@ -94,7 +94,7 @@ private fun AssistantConversation.intentStatus(intentId: String, runningIntents:
 	val outcome = resolvedIntents[intentId]
 
 	return when {
-		outcome != null -> IntentCardStatus.Resolved(outcome)
+		outcome != null -> IntentCardStatus.Resolved(outcome.toPresentation())
 		intentId in runningIntents -> IntentCardStatus.Running
 		else -> IntentCardStatus.Open
 	}

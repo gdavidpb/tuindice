@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.contract
 
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -11,7 +12,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import io.github.vinceglb.filekit.PlatformFile
 
 // The chat sheet. It carries no title, name or icon of the assistant: inside the chat the assistant is unnamed.
@@ -79,7 +79,7 @@ object AssistantChat {
 
 		class CopyMessage(val messageId: String) : Action()
 		class RateMessage(val messageId: String, val useful: Boolean) : Action()
-		class ReportMessage(val messageId: String, val reason: ReportReason, val comment: String?) : Action()
+		class ReportMessage(val messageId: String, val reason: AssistantReportReason, val comment: String?) : Action()
 
 		// A nav.abrir component or a link inside a component was tapped.
 		class OpenNavTarget(val target: NavTarget, val entityRefs: List<EntityRef>) : Action()
