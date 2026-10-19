@@ -22,6 +22,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlin.math.abs
 import kotlin.math.max
@@ -42,9 +43,17 @@ class TuIndiceSheetState internal constructor(
 	// Set by the sheet from LocalTuIndiceAnimationsEnabled: without animations every move snaps to its place.
 	internal var animationsEnabled = true
 
-	// Set when the person asks for the sheet to go (a drag, a tap on the scrim, the back gesture). The sheet calls
-	// onDismissRequest once it rests hidden. A hide that the caller asks for does not set it: the caller already knows.
-	private var dismissPending = false
+	// Set while the caller asks for the sheet to hide: the caller already knows, so no dismissal is reported for it.
+	private var hideRequestedByCaller = false
+
+	// A sheet that is not hideable keeps its Hidden anchor until it has opened, so it slides in from the bottom, and
+	// after that no drag can drop it to Hidden.
+	private var hasOpened = false
+
+	// The measurements the anchors were last computed from.
+	private var containerHeightPx = 0f
+	private var sheetHeightPx = 0f
+	private var topLimitPx = 0f
 
 	val currentValue: TuIndiceSheetValue
 		get() = draggableState.currentValue
@@ -61,48 +70,76 @@ class TuIndiceSheetState internal constructor(
 	// Opens the sheet at its half state when it has one, or at its content's height.
 	suspend fun show() {
 		awaitAnchors()
-		dismissPending = false
+		hideRequestedByCaller = false
 		animateTo(if (hasPartiallyExpandedState) TuIndiceSheetValue.PartiallyExpanded else TuIndiceSheetValue.Expanded)
+
+		if (!hasOpened) {
+			hasOpened = true
+			applyAnchors()
+		}
 	}
 
+	// Hides the sheet because the caller asks for it: onDismissRequest is not called for it.
 	suspend fun hide() {
-		dismissPending = false
-		if (hideable) animateTo(TuIndiceSheetValue.Hidden)
+		if (!hideable || currentValue == TuIndiceSheetValue.Hidden) return
+
+		hideRequestedByCaller = true
+		try {
+			animateTo(TuIndiceSheetValue.Hidden)
+		} catch (exception: CancellationException) {
+			hideRequestedByCaller = false
+			throw exception
+		}
+		if (currentValue != TuIndiceSheetValue.Hidden) hideRequestedByCaller = false
 	}
 
 	suspend fun expand() {
-		dismissPending = false
 		if (hasExpandedState) animateTo(TuIndiceSheetValue.Expanded)
 	}
 
 	suspend fun partialExpand() {
-		dismissPending = false
 		if (hasPartiallyExpandedState) animateTo(TuIndiceSheetValue.PartiallyExpanded)
 	}
 
+	// The person asks for the sheet to go: a tap on the scrim, or the back gesture.
 	internal suspend fun requestDismiss() {
 		if (!hideable || currentValue == TuIndiceSheetValue.Hidden) return
 
-		dismissPending = true
+		hideRequestedByCaller = false
 		animateTo(TuIndiceSheetValue.Hidden)
 	}
 
-	// True once, when the sheet rests hidden after the person asked for it to go.
-	internal fun consumeDismissal(): Boolean {
-		if (!dismissPending || currentValue != TuIndiceSheetValue.Hidden) return false
+	// True when the sheet rests hidden and the caller did not hide it: the person dismissed it, by a tap, a drag, a fling
+	// or the back gesture alike.
+	internal fun consumeUserDismissal(): Boolean {
+		if (currentValue != TuIndiceSheetValue.Hidden) return false
 
-		dismissPending = false
+		if (hideRequestedByCaller) {
+			hideRequestedByCaller = false
+			return false
+		}
 		return true
 	}
 
 	// The anchors follow the window and the sheet's measured height. The half anchor exists only when the content is
 	// taller than half the window; the expanded anchor never goes above the top inset.
 	internal fun updateAnchors(containerHeightPx: Float, sheetHeightPx: Float, topLimitPx: Float) {
+		this.containerHeightPx = containerHeightPx
+		this.sheetHeightPx = sheetHeightPx
+		this.topLimitPx = topLimitPx
+
+		applyAnchors()
+	}
+
+	private fun applyAnchors() {
+		if (containerHeightPx <= 0f || sheetHeightPx <= 0f) return
+
 		val halfOffsetPx = containerHeightPx / 2f
 		val hasPartiallyExpanded = !skipPartiallyExpanded && sheetHeightPx > halfOffsetPx
+		val hasHidden = hideable || !hasOpened
 
 		val anchors = DraggableAnchors<TuIndiceSheetValue> {
-			TuIndiceSheetValue.Hidden at containerHeightPx
+			if (hasHidden) TuIndiceSheetValue.Hidden at containerHeightPx
 
 			if (hasPartiallyExpanded) TuIndiceSheetValue.PartiallyExpanded at halfOffsetPx
 
@@ -165,7 +202,6 @@ class TuIndiceSheetState internal constructor(
 		if (!isPositioned) return
 
 		val target = targetFor(draggableState.requireOffset(), velocity)
-		dismissPending = target == TuIndiceSheetValue.Hidden
 
 		if (animationsEnabled) {
 			draggableState.animateToWithDecay(target, velocity, SheetSpring, SheetDecay)

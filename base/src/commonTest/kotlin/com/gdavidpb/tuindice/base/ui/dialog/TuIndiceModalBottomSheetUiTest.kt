@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -132,6 +133,37 @@ class TuIndiceModalBottomSheetUiTest {
 		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.PartiallyExpanded }
 		onNodeWithTag(SURFACE_TAG).performTouchInput { swipeUp() }
 		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.Expanded }
+	}
+
+	@Test
+	fun when_theCallerHidesTheSheet_then_theDismissalIsNotReported() = runTuIndiceUiTest {
+		var dismissCalls = 0
+		val holder = StateHolder()
+		var hideRequested by mutableStateOf(false)
+
+		setTuIndiceTestContent {
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
+			SideEffect { holder.state = sheetState }
+
+			// The caller hides the sheet from its own coroutine, as a screen does when it closes the sheet.
+			LaunchedEffect(hideRequested) {
+				if (hideRequested) sheetState.hide()
+			}
+
+			TuIndiceModalBottomSheet(
+				onDismissRequest = { dismissCalls++ },
+				sheetState = sheetState
+			) {
+				Text(text = CONTENT_TEXT)
+			}
+		}
+
+		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.Expanded }
+		hideRequested = true
+		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.Hidden }
+		waitForIdle()
+
+		assertEquals(0, dismissCalls)
 	}
 
 	@Test

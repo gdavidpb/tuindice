@@ -50,6 +50,7 @@ import androidx.compose.ui.window.Dialog
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 // The bottom sheet of the app: every sheet is one, and no other code draws Material's ModalBottomSheet. It holds its
@@ -96,10 +97,11 @@ fun TuIndiceModalBottomSheet(
 		sheetState.show()
 	}
 
-	// Dismissals the person asked for reach the caller once the sheet rests hidden; a hide the caller asked for does not.
+	// A dismissal by the person reaches the caller once the sheet rests hidden, whatever moved it there; the first value
+	// is the one the sheet starts from, not a change.
 	LaunchedEffect(sheetState) {
-		snapshotFlow { sheetState.currentValue }.collect {
-			if (sheetState.consumeDismissal()) currentOnDismissRequest()
+		snapshotFlow { sheetState.currentValue }.drop(1).collect {
+			if (sheetState.consumeUserDismissal()) currentOnDismissRequest()
 		}
 	}
 
