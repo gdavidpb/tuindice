@@ -6,6 +6,7 @@ import tuindice.assistant.generated.resources.assistant_chat_appeal_failed
 import tuindice.assistant.generated.resources.assistant_chat_appeal_sent
 import tuindice.assistant.generated.resources.assistant_chat_rate_failed
 import tuindice.assistant.generated.resources.assistant_chat_rated
+import tuindice.assistant.generated.resources.assistant_chat_report_failed
 import tuindice.assistant.generated.resources.assistant_chat_report_too_long
 import tuindice.assistant.generated.resources.assistant_chat_reported
 import tuindice.assistant.generated.resources.assistant_chat_still_applies_failed
@@ -19,6 +20,8 @@ class AssistantChatFeedbackResourceTexts : AssistantChatFeedbackTexts {
 	override suspend fun stillAppliesFailed(): String = getString(Res.string.assistant_chat_still_applies_failed)
 
 	override suspend fun reported(): String = getString(Res.string.assistant_chat_reported)
+
+	override suspend fun reportFailed(): String = getString(Res.string.assistant_chat_report_failed)
 
 	override suspend fun reportTooLong(maxLength: Int): String {
 		return getString(Res.string.assistant_chat_report_too_long, maxLength)

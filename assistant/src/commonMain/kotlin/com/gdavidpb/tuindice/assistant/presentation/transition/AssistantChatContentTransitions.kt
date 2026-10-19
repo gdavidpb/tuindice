@@ -33,6 +33,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		contentIntentRows(machine, host)
 		contentObservationRows(machine, host)
 		contentOutcomeRows(machine, host)
+		contentFeedbackRows(machine, host)
 		contentNotificationOfferRows(machine, host)
 	}
 }
@@ -196,7 +197,10 @@ private fun ContentTransitions.contentMessageRows(
 		machine.refreshed(state)
 	}
 
+	// A message is reported once: the service keeps one report per message, so a reported one asks for no reason again.
 	on<AssistantChat.Action.ReportMessage> { state, action ->
+		if (action.messageId in machine.session.reportedMessages) return@on state
+
 		machine.feedback.report(
 			host = host,
 			messageId = action.messageId,
@@ -370,7 +374,13 @@ private fun ContentTransitions.contentOutcomeRows(
 		host.sendEffect(AssistantChat.Effect.OpenEnrollmentProof)
 		machine.refreshed(state)
 	}
+}
 
+// The answers to the student's feedback and to the appeal: each one shows its snackbar on the sheet.
+private fun ContentTransitions.contentFeedbackRows(
+	machine: AssistantChatMachine,
+	host: MachineHost<AssistantChat.Effect>
+) {
 	on<AssistantChatInternalEvent.MessageRated>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state
@@ -383,7 +393,15 @@ private fun ContentTransitions.contentOutcomeRows(
 		machine.refreshed(state)
 	}
 
+	// The report is marked here, and only here: a saved report is the only one that changes the message.
 	on<AssistantChatInternalEvent.MessageReported>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		machine.session.reportedMessages += event.messageId
+		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
+		machine.refreshed(state)
+	}
+
+	on<AssistantChatInternalEvent.MessageReportFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
 		state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state

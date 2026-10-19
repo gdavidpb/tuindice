@@ -7,6 +7,7 @@
 	<string name="a11y_assistant_useful">Útil</string>
 	<string name="a11y_assistant_not_useful">No útil</string>
 	<string name="a11y_assistant_report">Reportar</string>
+	<string name="a11y_assistant_reported">Reportado</string>
 	<string name="a11y_assistant_delete_memory">Eliminar</string>
 	<string name="assistant_retry">Reintentar</string>
 	<string name="assistant_cancel">Cancelar</string>
@@ -147,6 +148,7 @@
 	<string name="assistant_chat_rate_failed">No pudimos guardar tu calificación. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_still_applies_failed">No pudimos guardar tu respuesta. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_reported">Reporte enviado</string>
+	<string name="assistant_chat_report_failed">No pudimos enviar tu reporte. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_report_too_long">El comentario supera los %1$d caracteres.</string>
 	<string name="assistant_chat_appeal_sent">Enviamos tu apelación.</string>
 	<string name="assistant_chat_appeal_failed">No pudimos enviar tu apelación. Escribe entre 1 y %1$d caracteres.</string>

@@ -37,6 +37,10 @@ internal class AssistantChatSession {
 	// The notification card is on this sheet: it shows while the chat is empty and no message is being sent.
 	var notificationOfferShown = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
+
+	// The messages whose report the service saved. The service keeps one report per message, so a reported message offers
+	// no reasons again. Only a saved report is written here: a refused one leaves the message as it was.
+	val reportedMessages = mutableSetOf<String>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
 	val runningIntents = mutableSetOf<String>()
 	val failedMessages = mutableSetOf<String>()

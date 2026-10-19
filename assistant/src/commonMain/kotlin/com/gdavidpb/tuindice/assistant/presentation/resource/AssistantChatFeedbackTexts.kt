@@ -11,6 +11,8 @@ interface AssistantChatFeedbackTexts {
 
 	suspend fun reported(): String
 
+	suspend fun reportFailed(): String
+
 	suspend fun reportTooLong(maxLength: Int): String
 
 	suspend fun appealSent(): String

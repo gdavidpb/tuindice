@@ -33,6 +33,7 @@ internal suspend fun AssistantConversation.toChatItems(
 				id = item.message.id,
 				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents, nowMillis),
 				useful = session.usefulByMessage[item.message.id],
+				reported = item.message.id in session.reportedMessages,
 				copyText = item.message.copyText()
 			)
 		}

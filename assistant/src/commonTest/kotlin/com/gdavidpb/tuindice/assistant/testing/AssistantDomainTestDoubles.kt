@@ -245,7 +245,12 @@ internal class RecordingAssistantFeedbackRepository : AssistantFeedbackRepositor
 		rated += feedback
 	}
 
+	// The failure every report breaks with, when a test makes the server refuse it. A refused report is not kept.
+	var reportError: Throwable? = null
+
 	override suspend fun report(report: MessageReport) {
+		reportError?.let { error -> throw error }
+
 		reported += report
 	}
 }
