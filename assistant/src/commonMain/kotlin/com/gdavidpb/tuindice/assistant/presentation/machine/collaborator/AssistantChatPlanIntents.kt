@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmCreatePlanIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmDeletePlanIntentUseCase

@@ -1,8 +1,10 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost

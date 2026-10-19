@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.param.ExtractEvaluationsFr
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.FollowAssistantTurnParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.domain.usecase.AnswerStillAppliesUseCase
@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.param.AnswerStillAppliesPa
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.RateAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ReportAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost

@@ -5,6 +5,11 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessage
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatFeedback
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatNotificationOffer
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatProposals
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
@@ -167,9 +172,7 @@ class AssistantChatMachine(
 		)
 
 		val params = ConfirmIntentParams(intentId = intentId, editedArgs = editedArgs)
-		val flow = proposals.intents.confirmation(intent.args, params)
-			?: proposals.planIntents.confirmation(intent.args, params)
-			?: return
+		val flow = proposals.confirmation(intent.args, params) ?: return
 
 		session.runningIntents += intentId
 

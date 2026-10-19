@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionRepository
