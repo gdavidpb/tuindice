@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 
 interface EvaluationRepository {
@@ -59,5 +58,5 @@ interface EvaluationRepository {
 	 * The terminal results of the mutations this repository submits (see [MutationOutcome]), as they settle. Nothing
 	 * is replayed: a subscriber gets the results from the moment it subscribes on.
 	 */
-	fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+	fun observeMutationOutcomesFlow(): Flow<MutationOutcome>
 }

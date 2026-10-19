@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -107,6 +109,16 @@ class RecordMutationIdPropagationTest {
 private class RecordingMutationRepository(
 	private val record: AcademicRecord?
 ) : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	val upserts = mutableListOf<RecordedMutationCall>()
 	val deletedAttempts = mutableListOf<RecordedMutationCall>()
 	val deletedTerms = mutableListOf<RecordedMutationCall>()

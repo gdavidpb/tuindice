@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -152,6 +153,12 @@ internal class FakeRecordRepository(
 	var failure: Throwable? = null,
 	var revisionFailure: Throwable? = null
 ) : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
 	private val outcomes = MutableSharedFlow<MutationOutcome>(extraBufferCapacity = 64)
 
 	val mutations = mutableListOf<String>()

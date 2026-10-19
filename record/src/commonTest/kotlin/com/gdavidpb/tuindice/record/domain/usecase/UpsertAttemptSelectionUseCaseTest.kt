@@ -8,7 +8,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -96,6 +98,16 @@ class UpsertAttemptSelectionUseCaseTest {
 private class FakeAcademicRecordRepository(
 	private var record: AcademicRecord?
 ) : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	data class UpsertCall(
 		val attemptId: String,
 		val score: Int?,

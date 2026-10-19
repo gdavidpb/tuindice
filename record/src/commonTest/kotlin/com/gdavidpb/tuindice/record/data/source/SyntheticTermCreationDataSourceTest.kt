@@ -12,12 +12,14 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -29,6 +31,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -683,6 +686,16 @@ class SyntheticTermCreationDataSourceTest {
 internal class FakeAcademicRecordRepository(
 	private val record: AcademicRecord
 ) : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = flowOf(record)
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(true)

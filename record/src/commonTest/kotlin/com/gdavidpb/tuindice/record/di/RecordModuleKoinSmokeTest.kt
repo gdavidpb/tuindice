@@ -10,12 +10,14 @@ import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -99,6 +101,16 @@ private fun recordSmokeDependencies() = module {
 }
 
 private class StubAcademicRecordRepository : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(false)
