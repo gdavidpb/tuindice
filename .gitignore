@@ -17,7 +17,9 @@ xcuserdata/
 !/scripts/semgrep-architecture.sh
 !/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh
+!/scripts/verify-detekt-baselines-shrink.sh
 !/scripts/verify-e2e-artifacts.sh
+!/scripts/verify-engine-and-usecase-tests.sh
 !/scripts/verify-launch-argument-contract.sh
 GoogleService-Info.plist
 /mocks/.build/
