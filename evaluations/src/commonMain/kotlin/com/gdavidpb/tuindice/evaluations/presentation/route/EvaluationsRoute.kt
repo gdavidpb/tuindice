@@ -3,11 +3,14 @@ package com.gdavidpb.tuindice.evaluations.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 
 @Composable
@@ -20,6 +23,22 @@ fun EvaluationsRoute(
 	viewModel: EvaluationsViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
+	val assistantLauncher = LocalAssistantLauncher.current
+	val actions = remember(viewModel, assistantLauncher, onNavigateToDeleteEvaluationConfirmation) {
+		EvaluationsActions(
+			onAddEvaluationClick = viewModel::addEvaluationAction,
+			onWeekClick = viewModel::selectWeekAction,
+			onEvaluationClick = viewModel::showEvaluationGradeDialogAction,
+			onEvaluationEdit = viewModel::editEvaluationAction,
+			onEvaluationDelete = onNavigateToDeleteEvaluationConfirmation,
+			onEvaluationArrivalTaken = viewModel::evaluationArrivalTakenAction,
+			onRetryClick = {
+				viewModel.loadEvaluationsAction()
+				viewModel.refreshEvaluationsAction()
+			},
+			onAskAssistant = assistantLauncher?.let { launcher -> launcher::launch }
+		)
+	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -55,15 +74,6 @@ fun EvaluationsRoute(
 
 	EvaluationsScreen(
 		state = viewState,
-		onAddEvaluationClick = viewModel::addEvaluationAction,
-		onEvaluationClick = viewModel::showEvaluationGradeDialogAction,
-		onEvaluationEdit = viewModel::editEvaluationAction,
-		onEvaluationDelete = onNavigateToDeleteEvaluationConfirmation,
-		onWeekClick = viewModel::selectWeekAction,
-		onEvaluationArrivalTaken = viewModel::evaluationArrivalTakenAction,
-		onRetryClick = {
-			viewModel.loadEvaluationsAction()
-			viewModel.refreshEvaluationsAction()
-		}
+		actions = actions
 	)
 }

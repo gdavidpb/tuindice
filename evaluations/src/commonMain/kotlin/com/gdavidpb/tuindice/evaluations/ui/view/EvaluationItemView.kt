@@ -30,7 +30,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -40,6 +39,7 @@ import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.a11y_evaluation_register_grade
@@ -52,10 +52,7 @@ import tuindice.evaluations.generated.resources.label_evaluation_swipe_edit
 fun EvaluationItemView(
 	modifier: Modifier = Modifier,
 	item: EvaluationItem,
-	onGradeClick: () -> Unit = {},
-	onCardClick: () -> Unit = {},
-	onEditAction: (() -> Unit)? = null,
-	onDeleteAction: (() -> Unit)? = null
+	actions: EvaluationItemActions
 ) {
 	val metadataColor = when (item.highlightTone) {
 		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
@@ -66,7 +63,6 @@ fun EvaluationItemView(
 	val editActionLabel = stringResource(Res.string.label_evaluation_swipe_edit)
 	val deleteActionLabel = stringResource(Res.string.label_evaluation_swipe_delete)
 	val askActionLabel = stringResource(Res.string.label_evaluation_swipe_ask)
-	val assistantLauncher = LocalAssistantLauncher.current
 
 	Card(
 		colors = CardDefaults.cardColors(
@@ -77,25 +73,25 @@ fun EvaluationItemView(
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 			.clickable(
 				onClickLabel = showActionsLabel,
-				onClick = onCardClick
+				onClick = actions.onCardClick
 			)
 			// The swipe gesture is invisible to screen readers, so the row actions
 			// are also exposed as custom accessibility actions.
 			.semantics {
 				customActions = listOfNotNull(
-					assistantLauncher?.let { launcher ->
+					actions.onAskAssistant?.let { ask ->
 						CustomAccessibilityAction(askActionLabel) {
-							launcher.launch(item.assistantContext)
+							ask()
 							true
 						}
 					},
-					onEditAction?.let { action ->
+					actions.onEditAction?.let { action ->
 						CustomAccessibilityAction(editActionLabel) {
 							action()
 							true
 						}
 					},
-					onDeleteAction?.let { action ->
+					actions.onDeleteAction?.let { action ->
 						CustomAccessibilityAction(deleteActionLabel) {
 							action()
 							true
@@ -213,7 +209,7 @@ fun EvaluationItemView(
 								.clickable(
 									onClickLabel = stringResource(Res.string.a11y_evaluation_register_grade),
 									role = Role.Button,
-									onClick = onGradeClick
+									onClick = actions.onGradeClick
 								)
 								.border(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),

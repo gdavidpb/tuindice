@@ -22,13 +22,14 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -43,16 +44,12 @@ fun EvaluationsView(
 	lazyListState: LazyListState,
 	weekGroups: List<EvaluationsWeekGroupItem>,
 	selectedWeekKey: EvaluationsWeekKey,
-	onVisibleWeekChange: (EvaluationsWeekKey) -> Unit,
-	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
-	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
+	actions: EvaluationsActions,
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
-	arrivalEvaluationId: String? = null,
-	onArrivalTaken: (evaluationId: String) -> Unit = {}
+	arrivalEvaluationId: String? = null
 ) {
 	val singleCountPattern = stringResource(Res.string.evaluation_group_count_one)
 	val manyCountPattern = stringResource(Res.string.evaluation_group_count_many)
@@ -89,7 +86,7 @@ fun EvaluationsView(
 		val evaluationId = arrivalEvaluationId ?: return@LaunchedEffect
 
 		arrival.value = EvaluationArrival(evaluationId = evaluationId)
-		onArrivalTaken(evaluationId)
+		actions.onEvaluationArrivalTaken(evaluationId)
 	}
 
 	LaunchedEffect(selectedWeekKey, weekHeaderIndexes, arrival.value) {
@@ -122,7 +119,7 @@ fun EvaluationsView(
 			weekHeaderIndexes = weekHeaderIndexes,
 			selectedWeekKey = selectedWeekKey,
 			isProgrammaticWeekScroll = isProgrammaticWeekScroll,
-			onVisibleWeekChange = onVisibleWeekChange
+			onVisibleWeekChange = actions.onWeekClick
 		)
 	}
 
@@ -168,7 +165,10 @@ fun EvaluationsView(
 					highlighted.evaluationId == evaluation.evaluationId
 				}
 
-				val assistantLauncher = LocalAssistantLauncher.current
+				val askAction = assistantAskAction(
+					onAskAssistant = actions.onAskAssistant,
+					context = evaluation.assistantContext
+				)
 
 				EvaluationSwipeToDismiss(
 					modifier = itemModifier.animateItem(
@@ -177,9 +177,9 @@ fun EvaluationsView(
 					),
 					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
 					actions = EvaluationSwipeActions(
-						onAsk = assistantAskAction(launcher = assistantLauncher, context = evaluation.assistantContext),
-						onEdit = { onEvaluationEdit(evaluation.evaluationId) },
-						onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+						onAsk = askAction,
+						onEdit = { actions.onEvaluationEdit(evaluation.evaluationId) },
+						onDelete = { actions.onEvaluationDelete(evaluation.evaluationId) }
 					)
 				) { onActionsClick ->
 					EvaluationItemView(
@@ -193,18 +193,21 @@ fun EvaluationsView(
 							}
 						),
 						item = evaluation,
-						onGradeClick = {
-							if (evaluation.isClickable) {
-								onEvaluationClick(
-									evaluation.evaluationId,
-									evaluation.nameText,
-									evaluation.subjectCodeText
-								)
-							}
-						},
-						onCardClick = onActionsClick,
-						onEditAction = { onEvaluationEdit(evaluation.evaluationId) },
-						onDeleteAction = { onEvaluationDelete(evaluation.evaluationId) }
+						actions = EvaluationItemActions(
+							onGradeClick = {
+								if (evaluation.isClickable) {
+									actions.onEvaluationClick(
+										evaluation.evaluationId,
+										evaluation.nameText,
+										evaluation.subjectCodeText
+									)
+								}
+							},
+							onCardClick = onActionsClick,
+							onEditAction = { actions.onEvaluationEdit(evaluation.evaluationId) },
+							onDeleteAction = { actions.onEvaluationDelete(evaluation.evaluationId) },
+							onAskAssistant = askAction
+						)
 					)
 				}
 			}

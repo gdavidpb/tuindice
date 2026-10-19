@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -17,14 +16,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -33,7 +31,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// The assistant's action exists only where a launcher is provided, and it asks about the row it was swiped on.
+// The assistant's action exists only where the assistant is provided, and it asks about the row it was swiped on.
 @OptIn(ExperimentalTestApi::class)
 class EvaluationSwipeAskUiTest {
 	@Test
@@ -45,9 +43,7 @@ class EvaluationSwipeAskUiTest {
 		)
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { asked += it }) {
-				RowsUnderTest(items = rows)
-			}
+			RowsUnderTest(items = rows, onAsk = { asked += it })
 		}
 
 		onAllNodesWithTag(EvaluationsUiTags.EvaluationSwipeToDismissContainer)[1]
@@ -74,13 +70,12 @@ class EvaluationSwipeAskUiTest {
 		val deleted = mutableListOf<String>()
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { _ -> }) {
-				RowsUnderTest(
-					items = listOf(evaluationItemFixture(evaluationId = "evaluation-first")),
-					onEdit = { evaluationId -> edited += evaluationId },
-					onDelete = { evaluationId -> deleted += evaluationId }
-				)
-			}
+			RowsUnderTest(
+				items = listOf(evaluationItemFixture(evaluationId = "evaluation-first")),
+				onAsk = { _ -> },
+				onEdit = { evaluationId -> edited += evaluationId },
+				onDelete = { evaluationId -> deleted += evaluationId }
+			)
 		}
 
 		onNodeWithTag(EvaluationsUiTags.EvaluationSwipeToDismissContainer)
@@ -161,6 +156,7 @@ class EvaluationSwipeAskUiTest {
 	@Composable
 	private fun RowsUnderTest(
 		items: List<EvaluationItem>,
+		onAsk: ((AssistantScreenContext) -> Unit)? = null,
 		onEdit: (String) -> Unit = {},
 		onDelete: (String) -> Unit = {}
 	) {
@@ -168,10 +164,11 @@ class EvaluationSwipeAskUiTest {
 			lazyListState = rememberLazyListState(),
 			weekGroups = evaluationsWeekGroupItemsFixture(groups = listOf(EvaluationsGroupItem(items = items))),
 			selectedWeekKey = EvaluationsWeekKey.Academic(8),
-			onVisibleWeekChange = {},
-			onEvaluationClick = { _, _, _ -> },
-			onEvaluationEdit = onEdit,
-			onEvaluationDelete = onDelete
+			actions = EvaluationsActions(
+				onEvaluationEdit = onEdit,
+				onEvaluationDelete = onDelete,
+				onAskAssistant = onAsk
+			)
 		)
 	}
 

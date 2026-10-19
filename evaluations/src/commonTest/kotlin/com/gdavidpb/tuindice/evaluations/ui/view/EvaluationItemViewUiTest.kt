@@ -34,12 +34,11 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_OVERDUE_DATE_TEXT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -61,7 +60,7 @@ class EvaluationItemViewUiTest {
 		)
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item)
+			EvaluationItemView(item = item, actions = EvaluationItemActions())
 		}
 
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
@@ -87,7 +86,7 @@ class EvaluationItemViewUiTest {
 		val item = evaluationItemFixture(showsGradeAction = false)
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item)
+			EvaluationItemView(item = item, actions = EvaluationItemActions())
 		}
 
 		assertNodeHidden(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
@@ -101,7 +100,7 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationItemView(
 				item = item,
-				onGradeClick = { gradeClicks++ }
+				actions = EvaluationItemActions(onGradeClick = { gradeClicks++ })
 			)
 		}
 
@@ -118,7 +117,7 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationItemView(
 				item = item,
-				onCardClick = { cardClicks++ }
+				actions = EvaluationItemActions(onCardClick = { cardClicks++ })
 			)
 		}
 
@@ -132,7 +131,7 @@ class EvaluationItemViewUiTest {
 		val item = evaluationItemFixture(evaluationId = "chip")
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item)
+			EvaluationItemView(item = item, actions = EvaluationItemActions())
 		}
 
 		val name = onNodeWithText(item.typeNameText, useUnmergedTree = true).getUnclippedBoundsInRoot()
@@ -152,7 +151,7 @@ class EvaluationItemViewUiTest {
 		)
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item)
+			EvaluationItemView(item = item, actions = EvaluationItemActions())
 		}
 
 		// The card merges its children: the lines are read from the unmerged tree, like the status chip.
@@ -180,7 +179,7 @@ class EvaluationItemViewUiTest {
 		val item = evaluationItemFixture()
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item)
+			EvaluationItemView(item = item, actions = EvaluationItemActions())
 		}
 
 		assertNodeHidden(EvaluationsUiTags.evaluationPlace(item.evaluationId), useUnmergedTree = true)
@@ -195,8 +194,8 @@ class EvaluationItemViewUiTest {
 
 		setTuIndiceTestContent {
 			Column(modifier = Modifier.width(360.dp)) {
-				EvaluationItemView(item = plain)
-				EvaluationItemView(item = placed)
+				EvaluationItemView(item = plain, actions = EvaluationItemActions())
+				EvaluationItemView(item = placed, actions = EvaluationItemActions())
 			}
 		}
 
@@ -213,8 +212,8 @@ class EvaluationItemViewUiTest {
 
 		setTuIndiceTestContent {
 			Column(modifier = Modifier.width(360.dp)) {
-				EvaluationItemView(item = plain)
-				EvaluationItemView(item = placed)
+				EvaluationItemView(item = plain, actions = EvaluationItemActions())
+				EvaluationItemView(item = placed, actions = EvaluationItemActions())
 			}
 		}
 
@@ -233,8 +232,8 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
 				Column(modifier = Modifier.width(360.dp)) {
-					EvaluationItemView(item = long)
-					EvaluationItemView(item = short)
+					EvaluationItemView(item = long, actions = EvaluationItemActions())
+					EvaluationItemView(item = short, actions = EvaluationItemActions())
 				}
 			}
 		}
@@ -251,7 +250,7 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
 				Box(modifier = Modifier.width(320.dp)) {
-					EvaluationItemView(item = item)
+					EvaluationItemView(item = item, actions = EvaluationItemActions())
 				}
 			}
 		}
@@ -274,7 +273,7 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 1.3f)) {
 				Box(modifier = Modifier.width(320.dp)) {
-					EvaluationItemView(item = item)
+					EvaluationItemView(item = item, actions = EvaluationItemActions())
 				}
 			}
 		}
@@ -302,7 +301,7 @@ class EvaluationItemViewUiTest {
 
 		setTuIndiceTestContent {
 			Box(modifier = Modifier.width(360.dp)) {
-				EvaluationItemView(item = item)
+				EvaluationItemView(item = item, actions = EvaluationItemActions())
 			}
 		}
 
@@ -320,7 +319,7 @@ class EvaluationItemViewUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalDensity provides Density(1f)) {
 				Box(modifier = Modifier.width(320.dp)) {
-					EvaluationItemView(item = item)
+					EvaluationItemView(item = item, actions = EvaluationItemActions())
 				}
 			}
 		}
@@ -337,6 +336,7 @@ class EvaluationItemViewUiTest {
 				Box(modifier = Modifier.testTag(HostTag).background(Backdrop)) {
 					EvaluationItemView(
 						item = item,
+						actions = EvaluationItemActions(),
 						modifier = Modifier.arrivalHighlight(
 							trigger = ARRIVAL,
 							shape = MaterialTheme.shapes.medium,
@@ -416,9 +416,14 @@ class EvaluationItemViewUiTest {
 		val asked = mutableListOf<AssistantScreenContext>()
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { asked += it }) {
-				EvaluationItemView(item = item, onEditAction = {}, onDeleteAction = {})
-			}
+			EvaluationItemView(
+				item = item,
+				actions = EvaluationItemActions(
+					onEditAction = {},
+					onDeleteAction = {},
+					onAskAssistant = { asked += item.assistantContext }
+				)
+			)
 		}
 
 		val actions = accessibilityActionsOf(item.evaluationId)
@@ -435,7 +440,10 @@ class EvaluationItemViewUiTest {
 		val item = evaluationItemFixture(evaluationId = "evaluation-accessible")
 
 		setTuIndiceTestContent {
-			EvaluationItemView(item = item, onEditAction = {}, onDeleteAction = {})
+			EvaluationItemView(
+				item = item,
+				actions = EvaluationItemActions(onEditAction = {}, onDeleteAction = {})
+			)
 		}
 
 		val labels = accessibilityActionsOf(item.evaluationId).map { action -> action.label }
