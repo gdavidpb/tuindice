@@ -100,7 +100,7 @@ class CardComponentDispatchUiTest {
 
 	private fun ComposeUiTest.assertDispatchedTo(component: ChatComponent, tag: String) {
 		setTuIndiceTestContent {
-			ChatComponentView(messageId = MESSAGE_ID, item = component.toChatComponentItem(), onAction = {})
+			ChatComponentView(messageId = MESSAGE_ID, item = component.toChatComponentItem(nowMillis = 0L), onAction = {})
 		}
 
 		assertNodeVisible(tag)

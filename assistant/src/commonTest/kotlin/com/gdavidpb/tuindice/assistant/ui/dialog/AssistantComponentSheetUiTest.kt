@@ -26,7 +26,7 @@ class AssistantComponentSheetUiTest {
 		setTuIndiceTestContent {
 			AssistantComponentSheet(
 				messageId = MESSAGE_ID,
-				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(),
+				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(nowMillis = 0L),
 				onAction = {},
 				onDismissRequest = {}
 			)
@@ -45,7 +45,7 @@ class AssistantComponentSheetUiTest {
 					fallbackText = FALLBACK_TEXT,
 					display = ComponentDisplay.SHEET,
 					reason = AbuseReasonCode.SPAM
-				).toChatComponentItem(),
+				).toChatComponentItem(nowMillis = 0L),
 				onAction = {},
 				onDismissRequest = {}
 			)
@@ -61,7 +61,7 @@ class AssistantComponentSheetUiTest {
 		setTuIndiceTestContent {
 			AssistantComponentSheet(
 				messageId = MESSAGE_ID,
-				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(),
+				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(nowMillis = 0L),
 				onAction = {},
 				onDismissRequest = { dismissals++ }
 			)

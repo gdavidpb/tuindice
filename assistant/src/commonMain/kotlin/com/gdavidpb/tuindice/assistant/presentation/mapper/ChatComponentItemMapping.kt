@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
+import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
+import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
@@ -19,10 +21,11 @@ import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
+import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 
 // The item a component is drawn from. Each catalog gets its items here as it is ported; a component of a catalog not
 // yet ported travels as Unmigrated, and its view draws it from the wire component.
-internal fun ChatComponent.toChatComponentItem(): ChatComponentItem {
+internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentItem {
 	return when (this) {
 		is StillAppliesComponent -> toStillAppliesItem()
 		is UsageNoticeComponent -> toUsageNoticeItem()
@@ -38,6 +41,9 @@ internal fun ChatComponent.toChatComponentItem(): ChatComponentItem {
 		is PaceComponent -> toPaceItem()
 		is SimulationComponent -> toSimulationItem()
 		is IndexGoalComponent -> toIndexGoalItem()
+		is WeekScheduleComponent -> toWeekScheduleItem()
+		is NextClassComponent -> toNextClassItem(nowMillis = nowMillis)
+		is ClashesComponent -> toClashesItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()
 

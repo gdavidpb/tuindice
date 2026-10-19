@@ -19,7 +19,8 @@ internal suspend fun AssistantConversation.toChatItems(
 	useful: Map<String, Boolean>,
 	failedMessages: Set<String>,
 	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>
+	runningIntents: Set<String>,
+	nowMillis: Long
 ): List<ChatItem> {
 	return items.map { item ->
 		when (item) {
@@ -31,7 +32,7 @@ internal suspend fun AssistantConversation.toChatItems(
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
 				id = item.message.id,
-				parts = item.message.toChatParts(texts, this, selections, runningIntents),
+				parts = item.message.toChatParts(texts, this, selections, runningIntents, nowMillis),
 				useful = useful[item.message.id],
 				copyText = item.message.copyText()
 			)
@@ -52,13 +53,14 @@ private suspend fun AssistantMessage.toChatParts(
 	texts: AssistantChatTexts,
 	conversation: AssistantConversation,
 	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>
+	runningIntents: Set<String>,
+	nowMillis: Long
 ): List<ChatPartItem> {
 	return parts.mapNotNull { part ->
 		when (part) {
 			is Text -> ChatPartItem.Text(text = part.text)
 
-			is Component -> ChatPartItem.Component(item = part.component.toChatComponentItem())
+			is Component -> ChatPartItem.Component(item = part.component.toChatComponentItem(nowMillis))
 
 			is IntentPart -> ChatPartItem.IntentCard(
 				card = part.intent.toIntentCardItem(

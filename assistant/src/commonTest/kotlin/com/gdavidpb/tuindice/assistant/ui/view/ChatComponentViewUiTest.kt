@@ -31,7 +31,7 @@ class ChatComponentViewUiTest {
 		setTuIndiceTestContent {
 			ChatComponentView(
 				messageId = MESSAGE_ID,
-				item = UnknownChatComponent(id = "unknown-1", fallbackText = FALLBACK_TEXT).toChatComponentItem(),
+				item = UnknownChatComponent(id = "unknown-1", fallbackText = FALLBACK_TEXT).toChatComponentItem(nowMillis = 0L),
 				onAction = {}
 			)
 		}
@@ -50,7 +50,7 @@ class ChatComponentViewUiTest {
 					fallbackText = FALLBACK_TEXT,
 					display = ComponentDisplay.SHEET,
 					reason = AbuseReasonCode.SPAM
-				).toChatComponentItem(),
+				).toChatComponentItem(nowMillis = 0L),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -83,7 +83,7 @@ class ChatComponentViewUiTest {
 							SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
 							SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
 						)
-					).toChatComponentItem(),
+					).toChatComponentItem(nowMillis = 0L),
 					onAction = {}
 				)
 			}

@@ -84,8 +84,8 @@ class SistemaComponentItemMappingTest {
 		val ported = StillAppliesComponent("c2", "¿Sigue aplicando?", memoryId = "m1", statement = "x")
 		val unknown = UnknownChatComponent(id = "u1", fallbackText = "Texto")
 
-		assertIs<StillAppliesItem>(ported.toChatComponentItem())
-		assertIs<ChatComponentItem.Unmigrated>(unknown.toChatComponentItem())
-		assertIs<SupportItem>(SupportComponent("c7", "Ayuda", lines = emptyList()).toChatComponentItem())
+		assertIs<StillAppliesItem>(ported.toChatComponentItem(nowMillis = 0L))
+		assertIs<ChatComponentItem.Unmigrated>(unknown.toChatComponentItem(nowMillis = 0L))
+		assertIs<SupportItem>(SupportComponent("c7", "Ayuda", lines = emptyList()).toChatComponentItem(nowMillis = 0L))
 	}
 }

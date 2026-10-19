@@ -4,24 +4,26 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantComponentSheetTransitions
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
-import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlin.time.Clock
 
 /**
  * The sheet of one component of the conversation. It reads the conversation store and follows it while it is open; it
  * closes when the component leaves the store. It keeps nothing of its own: the store is the source of the component.
  */
 class AssistantComponentSheetMachine(
-	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase
+	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase,
+	private val clock: Clock
 ) : ScreenMachine<AssistantComponentSheet.State, AssistantComponentSheet.Effect> {
 	override fun initialState(): AssistantComponentSheet.State = AssistantComponentSheet.State.Idle
 
@@ -48,7 +50,7 @@ class AssistantComponentSheetMachine(
 						} else {
 							AssistantComponentSheetInternalEvent.ComponentObserved(
 								messageId = messageId,
-								item = component.toChatComponentItem()
+								item = component.toChatComponentItem(nowMillis = clock.now().toEpochMilliseconds())
 							)
 						}
 					)

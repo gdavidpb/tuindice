@@ -37,7 +37,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
 	val screen = content.context?.context?.toScreenContext()?.screen
 
-	val items = presentedItems(texts)
+	val items = presentedItems(texts, nowMillis = clock.now().toEpochMilliseconds())
 
 	return content.copy(
 		items = items,
@@ -120,13 +120,14 @@ internal fun AssistantChatSession.presentedSuggestions(
 	return replies.map { reply -> ChatSuggestionItem(id = reply.id, label = reply.label) }
 }
 
-internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTexts): List<ChatItem> {
+internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTexts, nowMillis: Long): List<ChatItem> {
 	return conversation?.toChatItems(
 		texts = texts,
 		useful = usefulByMessage,
 		failedMessages = failedMessages,
 		selections = selectionByDraft,
-		runningIntents = runningIntents
+		runningIntents = runningIntents,
+		nowMillis = nowMillis
 	) ?: emptyList()
 }
 

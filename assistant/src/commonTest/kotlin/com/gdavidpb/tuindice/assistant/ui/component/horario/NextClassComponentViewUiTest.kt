@@ -1,21 +1,17 @@
 package com.gdavidpb.tuindice.assistant.ui.component.horario
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toNextClassItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 // The class starts START_MINUTE minutes after the start of its day, and the screen reads the clock it is given.
 @OptIn(ExperimentalTestApi::class)
@@ -68,9 +64,7 @@ class NextClassComponentViewUiTest {
 
 	private fun ComposeUiTest.showNextClass(component: NextClassComponent, nowMillis: Long) {
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalTuIndiceClock provides clockAt(nowMillis)) {
-				NextClassComponentView(component = component)
-			}
+			NextClassComponentView(item = component.toNextClassItem(nowMillis = nowMillis))
 		}
 	}
 
@@ -87,12 +81,6 @@ class NextClassComponentViewUiTest {
 			inProgress = inProgress,
 			dateMillis = DAY_START_MILLIS
 		)
-
-	@OptIn(ExperimentalTime::class)
-	private fun clockAt(epochMillis: Long): Clock =
-		object : Clock {
-			override fun now(): Instant = Instant.fromEpochMilliseconds(epochMillis)
-		}
 
 	private companion object {
 		const val COMPONENT_ID = "component-1"

@@ -32,7 +32,7 @@ class AssistantComponentSheetBehaviorTest {
 
 		val content = assertIs<AssistantComponentSheet.State.Content>(viewModel.state.value)
 		assertEquals("message-1", content.messageId)
-		assertEquals(component.toChatComponentItem(), content.item)
+		assertEquals(component.toChatComponentItem(nowMillis = 0L), content.item)
 	}
 
 	@Test
