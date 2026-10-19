@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.Assista
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatNotificationOffer
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatProposals
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantChatAnyStateTransitions

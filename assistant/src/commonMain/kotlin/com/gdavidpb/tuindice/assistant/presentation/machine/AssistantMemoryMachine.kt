@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemU
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.AnswerStillAppliesParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toMemoryEntryItems
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantMemoryContentTransitions
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantMemoryFailedTransitions

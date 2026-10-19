@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.MemoryEntryItem
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryItem
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.param.RateAssistantMessage
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ReportAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason

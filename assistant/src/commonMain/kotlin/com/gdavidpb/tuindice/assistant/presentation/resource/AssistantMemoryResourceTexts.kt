@@ -1,5 +1,6 @@
-package com.gdavidpb.tuindice.assistant.presentation.mapper
+package com.gdavidpb.tuindice.assistant.presentation.resource
 
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryCategoryKey
 import org.jetbrains.compose.resources.getString
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_memory_answer_failed

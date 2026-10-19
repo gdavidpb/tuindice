@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepositor
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.testing.RecordingNotificationOfferRepository
 import com.gdavidpb.tuindice.assistant.presentation.testing.RecordingNotificationPermissionRepository
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel

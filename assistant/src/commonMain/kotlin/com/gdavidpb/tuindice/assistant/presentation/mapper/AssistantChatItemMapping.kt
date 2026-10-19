@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart

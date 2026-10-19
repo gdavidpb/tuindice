@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.mapper
+package com.gdavidpb.tuindice.assistant.presentation.resource
 
 import org.jetbrains.compose.resources.getString
 import tuindice.assistant.generated.resources.Res

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.mapper
+package com.gdavidpb.tuindice.assistant.presentation.resource
 
 // The texts of the snackbars the feedback and the appeal answer with. The commands that produce them read these, so
 // that the rows only forward a text that is ready to show.

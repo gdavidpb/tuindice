@@ -11,8 +11,9 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
-// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. It is written
-// only from the table's rows, which run one at a time, so it needs no lock.
+// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. The table's rows
+// write it one at a time. The commands that open the sheet write their part before the table takes their outcome, and
+// nothing else writes it from outside the table, so it needs no lock.
 internal class AssistantChatSession {
 	var openedContext: AssistantScreenContext? = null
 	var conversation: AssistantConversation? = null

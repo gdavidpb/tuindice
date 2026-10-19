@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.Intent

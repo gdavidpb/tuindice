@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.presentation.mapper
+package com.gdavidpb.tuindice.assistant.presentation.resource
 
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode

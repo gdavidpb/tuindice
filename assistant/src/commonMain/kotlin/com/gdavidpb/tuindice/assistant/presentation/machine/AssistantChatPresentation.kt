@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.assistant.presentation.mapper.restrictionText
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatItems
