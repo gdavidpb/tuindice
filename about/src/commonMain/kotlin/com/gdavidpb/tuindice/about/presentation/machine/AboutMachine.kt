@@ -5,30 +5,21 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.resource.DefaultAboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
-import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
-import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 
 class AboutMachine(
 	private val loadVersionUseCase: LoadVersionUseCase,
-	private val appEnvironmentRepository: AppEnvironmentRepository,
-	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val externalUseCases: AboutExternalUseCases,
-	private val assistantUseCases: AboutAssistantUseCases,
 	private val textProvider: AboutTextProvider = DefaultAboutTextProvider()
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
 	override fun define(host: MachineHost<About.Effect>): MachineDefinition<About.State> {
 		return MachineDefinition.define {
-			aboutContentTransitions(machine = this@AboutMachine, host = host)
 			aboutAnyStateTransitions(machine = this@AboutMachine, host = host)
 		}
 	}
@@ -40,18 +31,12 @@ class AboutMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						AboutInternalEvent.AboutVersionLoaded(
-							versionText = useCaseState.value,
-							usageDataCollectionEnabled =
-								usageDataConsentRepository.isUsageDataCollectionEnabled()
-						)
+						AboutInternalEvent.AboutVersionLoaded(versionText = useCaseState.value)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AboutVersionLoadFailed(
-							versionFallbackText = textProvider.versionUnavailable(),
-							usageDataCollectionEnabled =
-								usageDataConsentRepository.isUsageDataCollectionEnabled()
+							versionFallbackText = textProvider.versionUnavailable()
 						)
 					)
 				}
@@ -59,24 +44,12 @@ class AboutMachine(
 		}
 	}
 
-	internal fun contactSupport(host: MachineHost<About.Effect>) {
+	internal fun contactDeveloper(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
 			externalUseCases.sendSupportEmail.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
-						AboutInternalEvent.SupportEmailUriLoaded(uri = useCaseState.value)
-					)
-				}
-			}
-		}
-	}
-
-	internal fun openStore(host: MachineHost<About.Effect>) {
-		host.launchMachineJob {
-			externalUseCases.openStore.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						AboutInternalEvent.StoreUriLoaded(uri = useCaseState.value)
+						AboutInternalEvent.ContactEmailUriLoaded(uri = useCaseState.value)
 					)
 				}
 			}
@@ -86,124 +59,6 @@ class AboutMachine(
 	internal fun openExternalUrl(host: MachineHost<About.Effect>, url: String) {
 		host.launchMachineJob {
 			externalUseCases.openExternalUrl.execute(url).collect()
-		}
-	}
-
-	internal suspend fun openTermsAndConditions(host: MachineHost<About.Effect>) {
-		host.sendEffect(
-			About.Effect.NavigateToBrowser(
-				title = textProvider.termsAndConditionsLabel(),
-				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
-			)
-		)
-	}
-
-	internal suspend fun openPrivacyPolicy(host: MachineHost<About.Effect>) {
-		host.sendEffect(
-			About.Effect.NavigateToBrowser(
-				title = textProvider.privacyPolicyLabel(),
-				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
-			)
-		)
-	}
-
-	internal suspend fun openSupport(host: MachineHost<About.Effect>) {
-		host.sendEffect(
-			About.Effect.NavigateToBrowser(
-				title = textProvider.supportLabel(),
-				url = appEnvironmentRepository.getEnvironment().supportUrl
-			)
-		)
-	}
-
-	internal suspend fun shareApp(host: MachineHost<About.Effect>) {
-		host.sendEffect(
-			About.Effect.ShareText(
-				subject = textProvider.shareSubject(),
-				text = textProvider.shareMessage()
-			)
-		)
-	}
-
-	internal fun persistUsageDataCollection(enabled: Boolean) {
-		usageDataConsentRepository.setUsageDataCollectionEnabled(enabled)
-	}
-
-	// Started by the rows that create the content: the observed values only reach a
-	// state that exists, and the first emission of each flow is the current value.
-	internal fun startAssistantObservation(host: MachineHost<About.Effect>) {
-		host.launchMachineJob {
-			assistantUseCases.observeAvailability.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						AboutInternalEvent.AssistantAvailabilityObserved(visible = useCaseState.value)
-					)
-
-					if (useCaseState.value) adoptServerAssistantConsent(host)
-				}
-			}
-		}
-
-		host.launchMachineJob {
-			assistantUseCases.observeConsent.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						AboutInternalEvent.AssistantConsentObserved(granted = useCaseState.value)
-					)
-				}
-			}
-		}
-	}
-
-	// The consent the device keeps is empty after a reinstall, a new device or a sign-out, while the server may hold it
-	// accepted; the switch reads the device's, so the server's is adopted when the row shows. The answer reaches the
-	// switch through the observation above, and a failed read leaves the switch as it is.
-	private fun adoptServerAssistantConsent(host: MachineHost<About.Effect>) {
-		host.launchMachineJob {
-			assistantUseCases.refreshConsent.execute(Unit).collect()
-		}
-	}
-
-	internal fun setAssistantConsent(host: MachineHost<About.Effect>, granted: Boolean) {
-		host.launchMachineJob {
-			assistantUseCases.setConsent.execute(granted).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Error) {
-					// The failed write left the store as it was, so the value to restore is
-					// the one the store holds now, not the one the switch was moved to.
-					val restoredGranted = assistantUseCases.observeConsent.execute(Unit)
-						.mapNotNull { storedState -> (storedState as? UseCaseState.Data)?.value }
-						.first()
-
-					host.processInternalEvent(
-						AboutInternalEvent.AssistantConsentWriteFailed(
-							restoredGranted = restoredGranted,
-							message = textProvider.assistantConsentFailed()
-						)
-					)
-				}
-			}
-		}
-	}
-
-	internal fun deleteAssistantConversations(host: MachineHost<About.Effect>) {
-		host.launchMachineJob {
-			assistantUseCases.deleteConversations.execute(Unit).collect { useCaseState ->
-				when (useCaseState) {
-					is UseCaseState.Loading -> Unit
-
-					is UseCaseState.Data -> host.processInternalEvent(
-						AboutInternalEvent.AssistantConversationsDeleted(
-							message = textProvider.assistantConversationsDeleted()
-						)
-					)
-
-					is UseCaseState.Error -> host.processInternalEvent(
-						AboutInternalEvent.AssistantConversationsDeleteFailed(
-							message = textProvider.assistantConversationsDeleteFailed()
-						)
-					)
-				}
-			}
 		}
 	}
 }

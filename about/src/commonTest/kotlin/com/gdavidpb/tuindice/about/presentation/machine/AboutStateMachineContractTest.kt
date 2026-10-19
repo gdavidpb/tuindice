@@ -2,18 +2,12 @@ package com.gdavidpb.tuindice.about.presentation.machine
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAboutTextProvider
-import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
-import com.gdavidpb.tuindice.about.testing.fakeAboutAssistantUseCases
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
@@ -28,31 +22,16 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-// Static table contract (host): alphabet, reachability, Λ coverage and the Mermaid
-// export — all pure reads of machine.table. The dynamic walk lives in
-// AboutViewModelContractTest (iOS, where its getString-resolving rows can run).
+// Static table contract (host): alphabet, reachability, Λ coverage and the Mermaid export, all pure reads of
+// machine.table. The dynamic walk is here too: the about machine resolves no platform resources.
 class AboutStateMachineContractTest {
 	@Test
 	fun machine_coversAlphabet_andStatesAreReachable() {
 		val machine = createViewModel().machine
 
-		assertMachineCoversAlphabet(
-			machine,
-			About.Action::class,
-			AboutInternalEvent::class
-		)
-
-		assertMachineHasNoShadowedRows(
-			machine,
-			About.Action::class,
-			AboutInternalEvent::class
-		)
-
-		assertMachineStatesReachable(
-			machine = machine,
-			initialState = About.State.Idle::class
-		)
-
+		assertMachineCoversAlphabet(machine, About.Action::class, AboutInternalEvent::class)
+		assertMachineHasNoShadowedRows(machine, About.Action::class, AboutInternalEvent::class)
+		assertMachineStatesReachable(machine = machine, initialState = About.State.Idle::class)
 		assertMachineCoversEffects(machine, About.Effect::class)
 	}
 
@@ -63,24 +42,14 @@ class AboutStateMachineContractTest {
 			initialState = About.State.Idle::class
 		)
 
-		// Captured from test output to publish the generated diagram as a docs artifact.
-		println(diagram)
-
-		val expectedFragments = listOf(
+		listOf(
 			"idle",
 			"content",
 			"LoadVersion",
 			"AboutVersionLoaded",
-			"OpenTermsAndConditions / NavigateToBrowser",
-			"ShareApp / ShareText",
-			"SupportEmailUriLoaded / OpenUri"
-		)
-
-		for (fragment in expectedFragments) {
-			assertTrue(
-				diagram.contains(fragment),
-				"Expected Mermaid export to mention '$fragment':\n$diagram"
-			)
+			"ContactEmailUriLoaded / OpenUri"
+		).forEach { fragment ->
+			assertTrue(diagram.contains(fragment), "Expected Mermaid export to mention '$fragment':\n$diagram")
 		}
 	}
 
@@ -90,31 +59,17 @@ class AboutStateMachineContractTest {
 			screenMachine = createMachine(),
 			sampleEvents = listOf(
 				About.Action.LoadVersion,
-				About.Action.ShareApp,
-				About.Action.OpenTermsAndConditions,
-				About.Action.OpenPrivacyPolicy,
-				About.Action.OpenSupport,
 				About.Action.OpenUrl(url = "https://example.test"),
-				About.Action.SetUsageDataCollectionEnabled(enabled = true),
-				About.Action.SetAssistantConsent(granted = true),
-				About.Action.RateOnStore,
-				About.Action.RequestDeleteAssistantConversations,
-				About.Action.ConfirmDeleteAssistantConversations,
-				AboutInternalEvent.AboutVersionLoaded(versionText = "1.0", usageDataCollectionEnabled = false),
-				AboutInternalEvent.AboutVersionLoadFailed(versionFallbackText = "Sin versión", usageDataCollectionEnabled = false),
-				AboutInternalEvent.SupportEmailUriLoaded(uri = "mailto:soporte@example.test"),
-				AboutInternalEvent.StoreUriLoaded(uri = "https://example.test/store"),
-				AboutInternalEvent.AssistantAvailabilityObserved(visible = true),
-				AboutInternalEvent.AssistantConsentObserved(granted = true),
-				AboutInternalEvent.AssistantConsentWriteFailed(restoredGranted = false, message = "No se guardó"),
-				AboutInternalEvent.AssistantConversationsDeleted(message = "Borradas"),
-				AboutInternalEvent.AssistantConversationsDeleteFailed(message = "No se borraron")
+				About.Action.ContactDeveloper,
+				AboutInternalEvent.AboutVersionLoaded(versionText = "1.0"),
+				AboutInternalEvent.AboutVersionLoadFailed(versionFallbackText = "Sin versión"),
+				AboutInternalEvent.ContactEmailUriLoaded(uri = "mailto:soporte@example.test")
 			),
 			coroutineScope = backgroundScope
 		)
 	}
 
-	private fun createMachine(textProvider: AboutTextProvider = FakeAboutTextProvider()): AboutMachine {
+	private fun createMachine(): AboutMachine {
 		return AboutMachine(
 			loadVersionUseCase = LoadVersionUseCase(
 				aboutRepository = FakeAboutRepository(),
@@ -126,19 +81,12 @@ class AboutStateMachineContractTest {
 					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
-				openStore = OpenStoreUseCase(
-					storeUrlRepository = FakeStoreUrlDataSource(),
-					reportingRepository = RecordingReportingRepository()
-				),
 				openExternalUrl = OpenExternalUrlUseCase(
 					browserRepository = RecordingBrowserRepository(),
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			appEnvironmentRepository = FakeAppEnvironmentRepository(),
-			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			assistantUseCases = fakeAboutAssistantUseCases(),
-			textProvider = textProvider
+			textProvider = FakeAboutTextProvider()
 		)
 	}
 

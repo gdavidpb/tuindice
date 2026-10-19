@@ -132,6 +132,7 @@ class TuIndiceNavDisplayAssistantUiTest {
 		onRecordViewModeChange: ((RecordViewMode) -> Unit)? = null
 	) {
 		TuIndiceScreen(
+			onSignOutRequest = {},
 			state = Main.State.Content(
 				startDestination = SummaryDestination.Summary
 			),

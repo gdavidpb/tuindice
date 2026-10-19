@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
+import com.gdavidpb.tuindice.scenarios.shared.openSettings
 import com.gdavidpb.tuindice.scenarios.shared.openSubjectSearch
 import com.gdavidpb.tuindice.scenarios.shared.searchSubjectsFor
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -51,6 +52,10 @@ private val coachmarksContextualSummary = scenario(
 	waitVisible(CoachmarkUiTags.Host, Within.Assert)
 	waitVisible(CoachmarkUiTags.anchor(CoachmarkId.Summary), Within.Assert)
 	tap(CoachmarkUiTags.ConfirmButton)
+	// The next one points at the avatar of the top bar, not at the content, so its anchor is the avatar.
+	waitVisible(CoachmarkUiTags.currentCoachmark(CoachmarkId.Settings), Within.Action)
+	waitVisible(CoachmarkUiTags.anchor(CoachmarkId.Settings), Within.Assert)
+	tap(CoachmarkUiTags.ConfirmButton)
 	waitGone(CoachmarkUiTags.Bubble, Within.Action)
 }
 
@@ -67,8 +72,7 @@ private val coachmarksProgressiveRecord = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	awaitSummaryCoachmark()
-	tap(CoachmarkUiTags.ConfirmButton)
-	waitGone(CoachmarkUiTags.Bubble, Within.Action)
+	confirmCoachmarks(CoachmarkId.Summary, CoachmarkId.Settings)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	waitVisible(CoachmarkUiTags.currentCoachmark(CoachmarkId.Record), Within.Wait)
@@ -148,18 +152,20 @@ private val coachmarksPensumAndSubjects = scenario(
 	waitVisible(PensumUiTags.PensumScreen, Within.Action)
 }
 
-/** The About screen's two coachmarks. */
-private val coachmarksAbout = scenario(
-	"coachmarks-about",
+/** The summary's second coachmark points at the avatar; the Settings screen it opens has none of its own. */
+private val coachmarksSettings = scenario(
+	"coachmarks-settings",
 	"coachmarks",
-	pendingCoachmarksOn(MainSection.ABOUT)
+	pendingCoachmarksStart.toLaunchSpec()
 ) {
 	covers("wizard.CoachmarkOverlay.PrimaryActionClick")
 	account(E2eAccounts.Canonical.id)
 
-	waitVisible(AboutUiTags.ContentContainer, Within.Sync)
-	confirmCoachmarks(CoachmarkId.About, CoachmarkId.AboutActions)
-	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	confirmCoachmarks(CoachmarkId.Summary, CoachmarkId.Settings)
+	openSettings()
+	waitGone(CoachmarkUiTags.Bubble, Within.Assert)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
 /** The scenarios of the `coachmarks` module; list every new one here. */
@@ -169,5 +175,5 @@ val coachmarksScenarios: List<Scenario> = listOf(
 	coachmarksSyntheticTerm,
 	coachmarksEvaluations,
 	coachmarksPensumAndSubjects,
-	coachmarksAbout
+	coachmarksSettings
 )

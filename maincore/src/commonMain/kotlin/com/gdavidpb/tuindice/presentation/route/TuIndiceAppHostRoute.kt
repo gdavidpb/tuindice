@@ -21,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -30,6 +31,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.domain.repository.ProfileIdentityRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
@@ -92,6 +94,12 @@ fun TuIndiceAppHostRoute(
 	}.collectAsStateWithLifecycle(
 		initialValue = AssistantAvailability(mode = AssistantMode.OFF, serverDisabled = false)
 	)
+	val profileIdentityRepository = koinInject<ProfileIdentityRepository>()
+	// The identity the device already holds (no request), for the avatar of the bar. It is null until a user is stored and
+	// again once the session ends, so the avatar of a previous account never stays on screen.
+	val profileIdentity by remember(profileIdentityRepository) {
+		profileIdentityRepository.observeProfileIdentity()
+	}.collectAsStateWithLifecycle(initialValue = null)
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -253,13 +261,15 @@ fun TuIndiceAppHostRoute(
 				onUpdateAppClick = viewModel::updateAppAction,
 				navigator = navigator,
 				snackbarHostState = snackbarHostState,
+				profileIdentity = profileIdentity,
+				onSignOutRequest = viewModel::requestSignOutAction,
 				onAction = { action ->
 					when (action) {
 						is TopBarAction.AssistantAction ->
 							navigator?.openAssistant(latestViewState.value?.assistantContext)
 
-						is TopBarAction.SignOutAction ->
-							viewModel.requestSignOutAction()
+						is TopBarAction.SettingsAction ->
+							navigator?.push(AboutDestination.Settings)
 
 						is TopBarAction.FetchEnrollmentProofAction ->
 							navigator?.push(EnrollmentProofDestination.EnrollmentProofDialog)

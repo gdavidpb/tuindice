@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +13,6 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.about_dev_contact
 import tuindice.about.generated.resources.about_dev_info
-import tuindice.about.generated.resources.about_dev_report
 import tuindice.about.generated.resources.about_source_code
 import tuindice.about.generated.resources.ic_github
 
@@ -39,11 +37,4 @@ fun AboutDeveloperItems(actions: AboutActions) {
 		testTag = AboutUiTags.ContactDeveloper,
 		tint = MaterialTheme.colorScheme.onSurfaceVariant
 	) { actions.onContactDeveloperClick() }
-
-	AboutItem(
-		icon = rememberVectorPainter(Icons.Outlined.BugReport),
-		text = stringResource(Res.string.about_dev_report),
-		testTag = AboutUiTags.ReportBug,
-		tint = MaterialTheme.colorScheme.onSurfaceVariant
-	) { actions.onReportBugClick() }
 }

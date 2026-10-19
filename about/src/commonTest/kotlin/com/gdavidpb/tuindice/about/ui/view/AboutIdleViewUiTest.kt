@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -16,15 +17,17 @@ class AboutIdleViewUiTest {
 		}
 
 		assertNodeHidden(AboutUiTags.OpenCreativeCommons)
+		assertNodeHidden(AboutUiTags.ContactDeveloper)
 	}
 
 	@Test
-	fun when_idleViewRendered_then_hidesSecondaryAboutActions() = runTuIndiceUiTest {
+	fun when_settingsIdleViewRendered_then_hidesTheSettingsRows() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AboutIdleView()
+			SettingsIdleView()
 		}
 
-		assertNodeHidden(AboutUiTags.OpenTerms)
-		assertNodeHidden(AboutUiTags.ReportBug)
+		assertNodeHidden(SettingsUiTags.OpenTerms)
+		assertNodeHidden(SettingsUiTags.ReportBug)
+		assertNodeHidden(SettingsUiTags.SignOut)
 	}
 }

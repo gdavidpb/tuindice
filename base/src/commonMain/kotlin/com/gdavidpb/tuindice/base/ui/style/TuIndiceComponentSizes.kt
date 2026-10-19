@@ -11,6 +11,11 @@ object TuIndiceComponentSizes {
 	val TopBarHeight = 56.dp
 	val BottomBarHeight = 56.dp
 
+	// The round avatar of the student: the small one sits in the 48 dp touch target of the top bar, the large one heads
+	// the Settings card.
+	val AvatarSmall = 32.dp
+	val AvatarLarge = 64.dp
+
 	/**
 	 * The height of the proportion bar that TuIndiceProgressBar draws, which the summary and its statistics use.
 	 * It is 6 dp because the bar of the career and the week track of the term already had that height, the two

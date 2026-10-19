@@ -2,21 +2,22 @@ package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
-import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
-import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
-import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
+import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
@@ -39,7 +40,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AboutAssistantViewModelContractTest {
+class SettingsAssistantViewModelContractTest {
 	@Test
 	fun initialState_isIdleUntilTheVersionLoads() {
 		val machine = createMachine(
@@ -47,7 +48,7 @@ class AboutAssistantViewModelContractTest {
 			assistantConsent = FakeAssistantConsentRepository()
 		)
 
-		assertEquals(About.State.Idle, machine.initialState())
+		assertEquals(Settings.State.Idle, machine.initialState())
 	}
 
 	@Test
@@ -59,7 +60,7 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		val content = assertIs<About.State.Content>(viewModel.state.value)
+		val content = assertIs<Settings.State.Content>(viewModel.state.value)
 		assertFalse(content.assistantAvailable)
 	}
 
@@ -73,7 +74,7 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		val content = assertIs<About.State.Content>(viewModel.state.value)
+		val content = assertIs<Settings.State.Content>(viewModel.state.value)
 		assertTrue(content.assistantAvailable)
 		assertTrue(content.assistantConsentGranted)
 	}
@@ -87,7 +88,7 @@ class AboutAssistantViewModelContractTest {
 		testScheduler.advanceUntilIdle()
 
 		assertEquals(1, assistantConsent.refreshes)
-		assertTrue(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+		assertTrue(assertIs<Settings.State.Content>(viewModel.state.value).assistantConsentGranted)
 	}
 
 	@Test
@@ -98,7 +99,7 @@ class AboutAssistantViewModelContractTest {
 		testScheduler.advanceUntilIdle()
 
 		assertEquals(1, assistantConsent.refreshes)
-		assertTrue(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+		assertTrue(assertIs<Settings.State.Content>(viewModel.state.value).assistantConsentGranted)
 	}
 
 	@Test
@@ -113,7 +114,7 @@ class AboutAssistantViewModelContractTest {
 		testScheduler.advanceUntilIdle()
 
 		assertEquals(0, assistantConsent.refreshes)
-		assertFalse(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+		assertFalse(assertIs<Settings.State.Content>(viewModel.state.value).assistantConsentGranted)
 	}
 
 	@Test
@@ -123,11 +124,11 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.dispatchAction(About.Action.SetAssistantConsent(granted = true))
+		viewModel.dispatchAction(Settings.Action.SetAssistantConsent(granted = true))
 		testScheduler.advanceUntilIdle()
 
 		assertTrue(assistantConsent.isAssistantConsentGranted())
-		assertTrue(assertIs<About.State.Content>(viewModel.state.value).assistantConsentGranted)
+		assertTrue(assertIs<Settings.State.Content>(viewModel.state.value).assistantConsentGranted)
 	}
 
 	@Test
@@ -136,10 +137,10 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.dispatchAction(About.Action.OpenAssistantMemory)
+		viewModel.dispatchAction(Settings.Action.OpenAssistantMemory)
 
 		viewModel.effect.test {
-			assertEquals(About.Effect.NavigateToAssistantMemory, awaitItem())
+			assertEquals(Settings.Effect.NavigateToAssistantMemory, awaitItem())
 
 			cancelAndIgnoreRemainingEvents()
 		}
@@ -152,12 +153,12 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.dispatchAction(About.Action.RequestDeleteAssistantConversations)
+		viewModel.dispatchAction(Settings.Action.RequestDeleteAssistantConversations)
 		testScheduler.advanceUntilIdle()
 
 		assertEquals(0, assistantConversations.deletions)
 		viewModel.effect.test {
-			assertEquals(About.Effect.NavigateToDeleteAssistantConversationsConfirmation, awaitItem())
+			assertEquals(Settings.Effect.NavigateToDeleteAssistantConversationsConfirmation, awaitItem())
 
 			cancelAndIgnoreRemainingEvents()
 		}
@@ -168,8 +169,8 @@ class AboutAssistantViewModelContractTest {
 		assistantAvailability: FakeAssistantAvailabilityRepository = FakeAssistantAvailabilityRepository(),
 		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository(),
 		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
-	): AboutViewModel {
-		return AboutViewModel(
+	): SettingsViewModel {
+		return SettingsViewModel(
 			screenMachine = createMachine(
 				assistantAvailability = assistantAvailability,
 				assistantConsent = assistantConsent,
@@ -184,13 +185,16 @@ class AboutAssistantViewModelContractTest {
 		assistantAvailability: FakeAssistantAvailabilityRepository,
 		assistantConsent: FakeAssistantConsentRepository,
 		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
-	): AboutMachine {
-		return AboutMachine(
-			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository(),
-				reportingRepository = RecordingReportingRepository()
+	): SettingsMachine {
+		return SettingsMachine(
+			contentUseCases = SettingsContentUseCases(
+				loadVersionName = LoadVersionNameUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeProfileIdentity = fakeObserveProfileIdentityUseCase()
 			),
-			externalUseCases = AboutExternalUseCases(
+			externalUseCases = SettingsExternalUseCases(
 				sendSupportEmail = SendSupportEmailUseCase(
 					configRepository = FakeConfigRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(),
@@ -207,7 +211,7 @@ class AboutAssistantViewModelContractTest {
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			assistantUseCases = AboutAssistantUseCases(
+			assistantUseCases = SettingsAssistantUseCases(
 				observeAvailability = ObserveAssistantAvailabilityUseCase(
 					assistantAvailabilityRepository = assistantAvailability,
 					reportingRepository = RecordingReportingRepository()

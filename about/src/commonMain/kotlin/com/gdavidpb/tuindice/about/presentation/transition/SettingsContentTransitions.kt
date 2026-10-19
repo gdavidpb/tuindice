@@ -1,19 +1,19 @@
 package com.gdavidpb.tuindice.about.presentation.transition
 
-import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.machine.AboutInternalEvent
-import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
+import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsInternalEvent
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
-internal fun MachineDefinitionBuilder<About.State>.aboutContentTransitions(
-	machine: AboutMachine,
-	host: MachineHost<About.Effect>
+internal fun MachineDefinitionBuilder<Settings.State>.settingsContentTransitions(
+	machine: SettingsMachine,
+	host: MachineHost<Settings.Effect>
 ) {
-	from<About.State.Content> {
+	from<Settings.State.Content> {
 		// The consent toggle only renders with content on screen; persisting and the
 		// state copy happen in the same row.
-		on<About.Action.SetUsageDataCollectionEnabled> { state, action ->
+		on<Settings.Action.SetUsageDataCollectionEnabled> { state, action ->
 			machine.persistUsageDataCollection(enabled = action.enabled)
 
 			state.copy(usageDataCollectionEnabled = action.enabled)
@@ -22,25 +22,29 @@ internal fun MachineDefinitionBuilder<About.State>.aboutContentTransitions(
 		// The assistant rows render with content only, like the usage toggle. The switch
 		// moves at once and the write runs in the command; the observed value then
 		// converges to what the store holds.
-		on<About.Action.SetAssistantConsent> { state, action ->
+		on<Settings.Action.SetAssistantConsent> { state, action ->
 			machine.setAssistantConsent(host = host, granted = action.granted)
 
 			state.copy(assistantConsentGranted = action.granted)
 		}
 
-		on<AboutInternalEvent.AssistantAvailabilityObserved> { state, event ->
+		on<SettingsInternalEvent.ProfileIdentityObserved> { state, event ->
+			state.copy(identity = event.identity)
+		}
+
+		on<SettingsInternalEvent.AssistantAvailabilityObserved> { state, event ->
 			state.copy(assistantAvailable = event.visible)
 		}
 
-		on<AboutInternalEvent.AssistantConsentObserved> { state, event ->
+		on<SettingsInternalEvent.AssistantConsentObserved> { state, event ->
 			state.copy(assistantConsentGranted = event.granted)
 		}
 
 		// A failed write puts the switch back where the store has it and says so.
-		on<AboutInternalEvent.AssistantConsentWriteFailed>(
-			emits = setOf(About.Effect.ShowSnackBar::class)
+		on<SettingsInternalEvent.AssistantConsentWriteFailed>(
+			emits = setOf(Settings.Effect.ShowSnackBar::class)
 		) { state, event ->
-			host.sendEffect(About.Effect.ShowSnackBar(message = event.message))
+			host.sendEffect(Settings.Effect.ShowSnackBar(message = event.message))
 
 			state.copy(assistantConsentGranted = event.restoredGranted)
 		}

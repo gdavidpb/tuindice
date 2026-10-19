@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
@@ -43,6 +45,9 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.openAboutFromSettings
+import com.gdavidpb.tuindice.scenarios.shared.openSettings
+import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -51,15 +56,15 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val SWIPE_MS = 600L
 
-// The centre of the last of the five items of the bottom bar, as fractions of the screen.
-private const val BOTTOM_BAR_LAST_ITEM_X = 0.9
+// The centre of the last of the four items of the bottom bar, as fractions of the screen.
+private const val BOTTOM_BAR_LAST_ITEM_X = 0.875
 private const val BOTTOM_BAR_Y = 0.96
 
 // Two texts of the same length that share no letter, so a character left behind shows in the read-back.
 private const val SEARCH_BEFORE = "pr"
 private const val SEARCH_AFTER = "ma"
 
-// The usage-data switch of About before it is tapped: the app starts with the consent off.
+// The usage-data switch of Settings before it is tapped: the app starts with the consent off.
 private const val CONSENT_BEFORE = false
 
 private fun canonical() = Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
@@ -73,6 +78,13 @@ private fun StepBuilder.openTab(item: String, content: String) {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(item)
 	waitVisible(content, Within.Long)
+}
+
+/** From the seeded summary to the «Acerca de TuIndice» screen, the longest list of the app, through Settings. */
+private fun StepBuilder.openAbout() {
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openSettings()
+	openAboutFromSettings()
 }
 
 /** Types the canonical USB id, which the field masks, so the sign-in button still waits for a password. */
@@ -250,13 +262,13 @@ private val conformanceMockState = scenario(
 
 /**
  * Vertical scrolling in both directions with an effect that is checked: the About list is longer than any phone
- * screen, so the first link leaves the view when the toggle at the bottom is scrolled to, and comes back when the
+ * screen, so the first link leaves the view when the library near its end is scrolled to, and comes back when the
  * list is scrolled up; a scroll that does not move the content fails on the `waitGone` after it.
  */
 private val conformanceScroll = scenario("conformance-scroll", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	openAbout()
 	waitVisible(AboutUiTags.OpenCreativeCommons, Within.Assert)
 	waitGone(AboutUiTags.OpenKoin, Within.Assert)
 	scrollUntilVisible(AboutUiTags.OpenKoin, Scroll.ContentDown, Within.Action)
@@ -269,31 +281,33 @@ private val conformanceScroll = scenario("conformance-scroll", "conformance", ca
 private val conformanceSwipeScreen = scenario("conformance-swipe-screen", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	openAbout()
 	waitGone(AboutUiTags.OpenKotlin, Within.Assert)
 	swipeScreen(SwipeDirection.Up, SWIPE_MS.milliseconds)
 	waitVisible(AboutUiTags.OpenKotlin, Within.Action)
 }
 
-/** The usage-data switch of About reads its state and flips with a tap. */
+/** The usage-data switch of Settings reads its state and flips with a tap. */
 private val conformanceChecked = scenario("conformance-checked", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
-	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
-	assertChecked(AboutUiTags.UsageDataConsentToggle, CONSENT_BEFORE)
-	tap(AboutUiTags.UsageDataConsentToggle)
-	assertChecked(AboutUiTags.UsageDataConsentToggle, !CONSENT_BEFORE)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openSettings()
+	scrollUntilVisible(SettingsUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
+	assertChecked(SettingsUiTags.UsageDataConsentToggle, CONSENT_BEFORE)
+	tap(SettingsUiTags.UsageDataConsentToggle)
+	assertChecked(SettingsUiTags.UsageDataConsentToggle, !CONSENT_BEFORE)
 }
 
-/** A relaunch restarts the app keeping its session: About, left open, is replaced by the summary of a fresh start. */
+/** A relaunch restarts the app keeping its session: Settings, left open, gives way to the summary of a fresh start. */
 private val conformanceRelaunch = scenario("conformance-relaunch", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openSettings()
 	relaunch()
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	waitGone(AboutUiTags.ContentContainer, Within.Assert)
+	waitGone(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
 /** A tap that does not wait for the control to be enabled is made at once: the disabled sign-in button stays so. */
@@ -333,15 +347,16 @@ private val conformanceDoubleTapSwipe = scenario("conformance-double-tap-swipe",
 }
 
 /**
- * Elements of the system outside the app: the share surface of About is the system's on both platforms, with elements
- * of its own on each (so this scenario holds one branch per platform, the only conformance one that does).
+ * Elements of the system outside the app: the share surface of Settings is the system's on both platforms, with
+ * elements of its own on each (so this scenario holds one branch per platform, the only conformance one that does).
  */
 private val conformanceSystem = scenario("conformance-system", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
-	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.ShareApp)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openSettings()
+	scrollUntilVisible(SettingsUiTags.ShareApp, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.ShareApp)
 	onPlatform(Platform.Android) {
 		waitVisible(system(ShareSheet.ANDROID_ELEMENT), Within.Action)
 		// The chooser is in front of the app: the exit is announced before the app is brought back.
@@ -352,11 +367,11 @@ private val conformanceSystem = scenario("conformance-system", "conformance", ca
 	}
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
-		// The dimmed area closes the sheet; the tap goes over a row of About with a link, which it must not reach.
+		// The dimmed area closes the sheet; the tap goes over a row of Settings, which it must not reach.
 		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
 		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 	}
-	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
 /**
@@ -382,16 +397,16 @@ private val conformanceDoubleTapEffect = scenario("conformance-double-tap-effect
 }
 
 /**
- * A tap at a point of the screen with no element to aim at: the About item of the bottom bar sits where its fraction
- * of the screen says (the bar has five items of the same width, About the last, and the bar is the bottom strip), so
- * only a delivered tap there opens About.
+ * A tap at a point of the screen with no element to aim at: the Evaluations item of the bottom bar sits where its
+ * fraction of the screen says (the bar has four items of the same width, Evaluations the last, and the bar is the
+ * bottom strip), so only a delivered tap there opens Evaluations.
  */
 private val conformanceTapAtScreen = scenario("conformance-tap-at-screen", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tapAtScreen(BOTTOM_BAR_LAST_ITEM_X, BOTTOM_BAR_Y)
-	waitVisible(AboutUiTags.ContentContainer, Within.Action)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 }
 
 /** A swipe that starts on an element: the schedule sheet closes when it is dragged down by its title. */
@@ -415,8 +430,7 @@ private val conformanceSheetTags = scenario("conformance-sheet-tags", "conforman
 	account(canonicalAccount.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
 	waitGone(BaseUiTags.ConfirmationDialogSheet, Within.Action)
 }
@@ -425,7 +439,7 @@ private val conformanceSheetTags = scenario("conformance-sheet-tags", "conforman
 private val conformanceForeground = scenario("conformance-foreground", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	openAbout()
 	tap(AboutUiTags.OpenCreativeCommons)
 	waitBackgrounded(Within.Action)
 	foreground()
@@ -437,7 +451,8 @@ private val conformanceBack = scenario("conformance-back", "conformance", canoni
 	platforms(Platform.Android)
 	account(canonicalAccount.id)
 
-	openTab(MaincoreUiTags.TuIndiceBottomBarAboutItem, AboutUiTags.ContentContainer)
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	openSettings()
 	back()
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 }

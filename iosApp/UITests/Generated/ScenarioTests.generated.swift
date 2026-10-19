@@ -11,6 +11,7 @@ final class AboutScenarioTests: ScenarioTestCase {
     func test_about_external_url_links() { runScenario("about-external-url-links") }
     func test_about_internal_browser_links() { runScenario("about-internal-browser-links") }
     func test_about_platform_edge_triggers() { runScenario("about-platform-edge-triggers") }
+    func test_about_settings_identity_and_about() { runScenario("about-settings-identity-and-about") }
     func test_about_smoke() { runScenario("about-smoke") }
     func test_about_usage_data_consent() { runScenario("about-usage-data-consent") }
 }
@@ -58,11 +59,11 @@ final class AuthScenarioTests: ScenarioTestCase {
 }
 
 final class CoachmarksScenarioTests: ScenarioTestCase {
-    func test_coachmarks_about() { runScenario("coachmarks-about") }
     func test_coachmarks_contextual_summary() { runScenario("coachmarks-contextual-summary") }
     func test_coachmarks_evaluations() { runScenario("coachmarks-evaluations") }
     func test_coachmarks_pensum_subjects() { runScenario("coachmarks-pensum-subjects") }
     func test_coachmarks_progressive_record() { runScenario("coachmarks-progressive-record") }
+    func test_coachmarks_settings() { runScenario("coachmarks-settings") }
     func test_coachmarks_synthetic_term() { runScenario("coachmarks-synthetic-term") }
 }
 
@@ -129,6 +130,7 @@ final class MaincoreScenarioTests: ScenarioTestCase {
     func test_maincore_bottom_bar_state() { runScenario("maincore-bottom-bar-state") }
     func test_maincore_browser_external_dialog() { runScenario("maincore-browser-external-dialog") }
     func test_maincore_browser_load_failed_retry() { runScenario("maincore-browser-load-failed-retry") }
+    func test_maincore_settings_avatar() { runScenario("maincore-settings-avatar") }
     func test_maincore_tab_stack_preservation() { runScenario("maincore-tab-stack-preservation") }
 }
 

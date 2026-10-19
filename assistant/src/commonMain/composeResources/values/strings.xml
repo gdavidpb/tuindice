@@ -39,7 +39,7 @@
 	<string name="assistant_consent_accuracy">Puede equivocarse: revisa las cifras importantes en la app antes de decidir.</string>
 	<string name="assistant_consent_providers">Tus mensajes se procesan con proveedores externos: Anthropic y Google.</string>
 	<string name="assistant_consent_retention">Guardamos tus mensajes durante 12 meses.</string>
-	<string name="assistant_consent_control">Puedes apagar el asistente y eliminar tus datos desde Acerca de.</string>
+	<string name="assistant_consent_control">Puedes apagar el asistente y eliminar tus datos desde Ajustes, tocando tu foto arriba a la derecha.</string>
 	<string name="assistant_consent_privacy">Política de privacidad</string>
 	<string name="assistant_consent_accept">Aceptar</string>
 	<string name="assistant_consent_decline">Ahora no</string>

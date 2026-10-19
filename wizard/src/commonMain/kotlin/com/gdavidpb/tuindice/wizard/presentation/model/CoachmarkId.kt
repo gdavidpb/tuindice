@@ -12,8 +12,7 @@ enum class CoachmarkId {
 	SubjectSearch,
 	SubjectDetail,
 	SyntheticTerm,
-	About,
-	AboutActions
+	Settings
 }
 
 val CoachmarkId.persistedId: String

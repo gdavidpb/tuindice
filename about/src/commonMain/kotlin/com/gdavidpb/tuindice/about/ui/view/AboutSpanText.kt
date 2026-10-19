@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -18,7 +19,8 @@ import com.gdavidpb.tuindice.base.ui.view.appendWithBoldMarkers
 @Composable
 fun AboutSpanText(
 	text: String,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	color: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
 	val annotatedString = buildAnnotatedString {
 		val title = text.substringBefore("\n")
@@ -41,7 +43,7 @@ fun AboutSpanText(
 
 	Text(
 		text = annotatedString,
-		color = MaterialTheme.colorScheme.onSurfaceVariant,
+		color = color,
 		style = MaterialTheme.typography.bodyMedium,
 		modifier = modifier
 			.testTag(AboutUiTags.SpanText)

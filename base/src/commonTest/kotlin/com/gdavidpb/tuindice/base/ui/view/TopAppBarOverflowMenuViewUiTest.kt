@@ -22,7 +22,7 @@ class TopAppBarOverflowMenuViewUiTest {
 		setTuIndiceTestContent {
 			TopAppBarActionsView(
 				actions = emptyList(),
-				overflowActions = listOf(TopBarAction.SignOutAction, TopBarAction.ChangePensumAction),
+				overflowActions = listOf(TopBarAction.RecordScheduleAction, TopBarAction.ChangePensumAction),
 				onAction = { action -> selectedAction = action },
 				actionContentDescription = { action -> action.action },
 				actionIconContent = { action -> Text(action.action) }
@@ -43,7 +43,7 @@ class TopAppBarOverflowMenuViewUiTest {
 	fun when_thereAreNoOverflowActions_then_theOverflowButtonIsNotDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TopAppBarActionsView(
-				actions = listOf(TopBarAction.SignOutAction),
+				actions = listOf(TopBarAction.RecordScheduleAction),
 				overflowActions = emptyList(),
 				onAction = {},
 				actionContentDescription = { action -> action.action },
@@ -51,7 +51,7 @@ class TopAppBarOverflowMenuViewUiTest {
 			)
 		}
 
-		assertNodeVisible(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
+		assertNodeVisible(BaseUiTags.topBarActionButton(TopBarAction.RecordScheduleAction))
 		assertNodeHidden(BaseUiTags.TopAppBarOverflowButton)
 	}
 
@@ -60,10 +60,10 @@ class TopAppBarOverflowMenuViewUiTest {
 		setTuIndiceTestContent {
 			TopAppBarActionsView(
 				actions = emptyList(),
-				overflowActions = listOf(TopBarAction.SignOutAction, TopBarAction.ChangePensumAction),
+				overflowActions = listOf(TopBarAction.RecordScheduleAction, TopBarAction.ChangePensumAction),
 				onAction = {},
 				actionContentDescription = { action ->
-					if (action == TopBarAction.SignOutAction) null else action.action
+					if (action == TopBarAction.RecordScheduleAction) null else action.action
 				},
 				actionIconContent = { action -> Text(action.action) }
 			)
@@ -74,6 +74,6 @@ class TopAppBarOverflowMenuViewUiTest {
 
 		// The item with a description shows that the menu is open, so the missing one is missing for its own reason.
 		assertNodeVisible(BaseUiTags.topBarOverflowItem(TopBarAction.ChangePensumAction))
-		assertNodeHidden(BaseUiTags.topBarOverflowItem(TopBarAction.SignOutAction))
+		assertNodeHidden(BaseUiTags.topBarOverflowItem(TopBarAction.RecordScheduleAction))
 	}
 }

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.di
 
+import com.gdavidpb.tuindice.base.domain.repository.ProfileIdentityRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.summary.data.repository.share.ShareBackgroundRemoteDataRepository
@@ -8,6 +9,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.ProfileIdentityDataSource
 import com.gdavidpb.tuindice.summary.data.source.ProfilePictureImageLoaderDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.ShareBackgroundApiDataSource
@@ -107,6 +109,7 @@ val summaryModule = module {
 	/* Repositories */
 
 	factoryOf(::UserDataSource) { bind<UserRepository>() }
+	factoryOf(::ProfileIdentityDataSource) { bind<ProfileIdentityRepository>() }
 	factoryOf(::ShareBackgroundDataSource) { bind<ShareBackgroundRepository>() }
 
 	/* Data sources */

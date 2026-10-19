@@ -18,6 +18,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.gdavidpb.tuindice.summary.presentation.mapper.profilePictureCacheKey
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import org.jetbrains.compose.resources.painterResource
@@ -155,7 +156,7 @@ private fun profilePictureLayerPresentation(
 		remoteImageData = remoteImageData,
 		// The cache identity ignores the rotating signed-URL signature and keys on the version so a re-upload behind a stable
 		// path still invalidates the previously cached bitmap, while a signature-only rotation keeps hitting it.
-		remoteCacheKey = remoteImageData?.let { "${display.identity}#v${display.cacheVersion}" },
+		remoteCacheKey = remoteImageData?.let { profilePictureCacheKey(url = display.url, version = display.cacheVersion) },
 		previewImageData = display.localPreviewPath?.takeIf { it.isNotBlank() },
 		lastShownImage = lastShownImage,
 		isRemoteImageLoading = isRemoteImageLoading

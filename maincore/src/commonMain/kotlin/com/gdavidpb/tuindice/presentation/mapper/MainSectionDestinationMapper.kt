@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.mapper
 
-import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -15,7 +14,6 @@ fun MainSection.toTabRootDestination(): Destination = when (this) {
 	MainSection.RECORD -> RecordDestination.Record
 	MainSection.PENSUM -> PensumDestination.Pensum
 	MainSection.EVALUATIONS -> EvaluationsDestination.Evaluations
-	MainSection.ABOUT -> AboutDestination.About
 }
 
 fun Destination.toTabSectionOrNull(): MainSection? = when (this) {
@@ -23,7 +21,6 @@ fun Destination.toTabSectionOrNull(): MainSection? = when (this) {
 	is RecordDestination.Record -> MainSection.RECORD
 	is PensumDestination.Pensum -> MainSection.PENSUM
 	is EvaluationsDestination.Evaluations -> MainSection.EVALUATIONS
-	is AboutDestination.About -> MainSection.ABOUT
 	else -> null
 }
 

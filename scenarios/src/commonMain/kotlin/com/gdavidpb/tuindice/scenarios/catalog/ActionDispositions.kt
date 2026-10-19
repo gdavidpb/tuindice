@@ -11,13 +11,17 @@ object ActionDispositions {
 			action = "about.About.LoadVersion",
 			reason = "arranque de la pantalla"
 		),
+		ActionDisposition.Internal(
+			action = "about.Settings.LoadSettings",
+			reason = "arranque de la pantalla"
+		),
 		ActionDisposition.PlatformEdge(
-			action = "about.About.ReportBug",
+			action = "about.Settings.ReportBug",
 			reason =
 				"el disparador abre la app de correo y no hay nada que el escenario pueda comprobar después: en Android, " +
 				"con Gmail sin cuenta en el emulador, abre su pantalla de redacción y la cierra sola en unos 100 ms, así " +
 				"que la app salió del primer plano en 0 de 10 ejecuciones; en iOS la app se quedó al frente en 3 de 3 " +
-				"(docs/e2e-mediciones.md, sección 3). `about-platform-edge-triggers` lo toca y comprueba que About es " +
+				"(docs/e2e-mediciones.md, sección 3). `about-platform-edge-triggers` lo toca y comprueba que Ajustes es " +
 				"usable al volver"
 		),
 		ActionDisposition.PlatformEdge(

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -46,6 +47,7 @@ class TuIndiceScreenUiTest {
 	fun when_stateIsStarting_then_displaysStartingIndicator() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TuIndiceScreen(
+				onSignOutRequest = {},
 				state = Main.State.Starting(),
 				shellState = shellState(),
 				onRetryStartUp = {},
@@ -73,6 +75,7 @@ class TuIndiceScreenUiTest {
 
 		setTuIndiceTestContent {
 			TuIndiceScreen(
+				onSignOutRequest = {},
 				state = Main.State.Failed(),
 				shellState = shellState(),
 				onRetryStartUp = { retryCalls++ },
@@ -103,6 +106,7 @@ class TuIndiceScreenUiTest {
 
 		setTuIndiceTestContent {
 			TuIndiceScreen(
+				onSignOutRequest = {},
 				state = Main.State.AppUnavailable(
 					notice = AppAvailabilityNotice(
 						enabled = true,
@@ -112,7 +116,7 @@ class TuIndiceScreenUiTest {
 				),
 				shellState = shellState(
 					topBarTitle = "Resumen",
-					topBarConfig = TopBarConfig.Summary,
+					topBarConfig = TopBarConfig.Pensum,
 					isTopBarVisible = true,
 					isBottomBarVisible = true
 				),
@@ -150,12 +154,13 @@ class TuIndiceScreenUiTest {
 
 		setTuIndiceTestContent {
 			TuIndiceScreen(
+				onSignOutRequest = {},
 				state = Main.State.OutdatedApp(
 					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
 				),
 				shellState = shellState(
 					topBarTitle = "Resumen",
-					topBarConfig = TopBarConfig.Summary,
+					topBarConfig = TopBarConfig.Pensum,
 					isTopBarVisible = true,
 					isBottomBarVisible = true
 				),
@@ -189,6 +194,7 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
@@ -214,17 +220,18 @@ class TuIndiceScreenUiTest {
 	}
 
 	@Test
-	fun when_topBarConfigIsSummary_then_displaysSignOutActionButton() = runTuIndiceUiTest {
+	fun when_barBelongsToAMainSection_then_endsWithTheSettingsAvatarButton() = runTuIndiceUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
 					shellState = shellState(
 						topBarTitle = "Resumen",
-						topBarConfig = TopBarConfig.Summary,
-						isTopBarVisible = true
+						isTopBarVisible = true,
+						isBottomBarVisible = true
 					),
 					onRetryStartUp = {},
 					onUpdateAppClick = {},
@@ -242,10 +249,43 @@ class TuIndiceScreenUiTest {
 				)
 			}
 
-			assertNodeVisible(
-				tag = BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-				useUnmergedTree = true
-			)
+			assertNodeVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true)
+			onNodeWithTag(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true)
+				.assertContentDescriptionEquals("Ajustes")
+		}
+	}
+
+	@Test
+	fun when_theBarBelongsToAScreenPushedOverATab_then_thereIsNoSettingsAvatar() = runTuIndiceUiTest {
+		withScreenKoin {
+			setTuIndiceTestContent {
+				TuIndiceScreen(
+					onSignOutRequest = {},
+					state = Main.State.Content(
+						startDestination = browserStartDestination()
+					),
+					shellState = shellState(
+						topBarTitle = "Ajustes",
+						isTopBarVisible = true,
+						isBottomBarVisible = false
+					),
+					onRetryStartUp = {},
+					onUpdateAppClick = {},
+					navigator = rememberTestNavigator(startKey = browserStartDestination()),
+					snackbarHostState = remember { SnackbarHostState() },
+					onAction = {},
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
+					onNavigateTo = {},
+					onNavigateBack = {},
+					onConfirmExitClick = {},
+					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
+					showSnackBar = {}
+				)
+			}
+
+			assertNodeHidden(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true)
 		}
 	}
 
@@ -254,6 +294,7 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
@@ -291,12 +332,13 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
 					shellState = shellState(
 						topBarTitle = "Resumen",
-						topBarConfig = TopBarConfig.Summary
+						topBarConfig = TopBarConfig.Pensum
 					),
 					onRetryStartUp = {},
 					onUpdateAppClick = {},
@@ -324,6 +366,7 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
@@ -350,24 +393,25 @@ class TuIndiceScreenUiTest {
 			assertNodeVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 			assertNodeVisible(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 			assertNodeVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
-			assertNodeVisible(MaincoreUiTags.TuIndiceBottomBarAboutItem)
+			assertNodeVisible(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 		}
 	}
 
 	@Test
-	fun when_signOutActionTapped_then_invokesOnActionCallback() = runTuIndiceUiTest {
+	fun when_theAvatarIsTapped_then_asksForSettingsThroughTheActionCallback() = runTuIndiceUiTest {
 		val actions = mutableListOf<TopBarAction>()
 
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
 					shellState = shellState(
 						topBarTitle = "Resumen",
-						topBarConfig = TopBarConfig.Summary,
-						isTopBarVisible = true
+						isTopBarVisible = true,
+						isBottomBarVisible = true
 					),
 					onRetryStartUp = {},
 					onUpdateAppClick = {},
@@ -385,13 +429,10 @@ class TuIndiceScreenUiTest {
 				)
 			}
 
-			onNodeWithTag(
-				BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-				useUnmergedTree = true
-			).performClick()
+			onNodeWithTag(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true).performClick()
 
 			assertContentEquals(
-				expected = listOf(TopBarAction.SignOutAction),
+				expected = listOf(TopBarAction.SettingsAction),
 				actual = actions
 			)
 		}
@@ -405,6 +446,7 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
@@ -453,6 +495,7 @@ class TuIndiceScreenUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = browserStartDestination()
 					),
@@ -476,14 +519,12 @@ class TuIndiceScreenUiTest {
 			onNodeWithTag(MaincoreUiTags.TuIndiceBottomBarSummaryItem).performClick()
 			onNodeWithTag(MaincoreUiTags.TuIndiceBottomBarRecordItem).performClick()
 			onNodeWithTag(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem).performClick()
-			onNodeWithTag(MaincoreUiTags.TuIndiceBottomBarAboutItem).performClick()
 
 			assertContentEquals(
 				expected = listOf(
 					MainSection.SUMMARY,
 					MainSection.RECORD,
-					MainSection.EVALUATIONS,
-					MainSection.ABOUT
+					MainSection.EVALUATIONS
 				),
 				actual = sections
 			)
@@ -499,6 +540,7 @@ class TuIndiceScreenUiTest {
 				navigator = rememberTestNavigator(startKey = SummaryDestinationStart)
 
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = SummaryDestinationStart
 					),
@@ -547,6 +589,7 @@ class TuIndiceScreenUiTest {
 				navigator = rememberTestNavigator(startKey = SummaryDestinationStart)
 
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = SummaryDestinationStart
 					),

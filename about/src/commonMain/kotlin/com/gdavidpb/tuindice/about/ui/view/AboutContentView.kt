@@ -32,7 +32,6 @@ fun AboutContentView(
 			topPadding = InternalScreenDefaults.TopBarSpacing
 		) {
 			AboutAppItems(versionText = state.versionText, actions = actions)
-			AboutPreferenceItems(state = state, actions = actions)
 		}
 
 		AboutHeader(text = stringResource(Res.string.about_header_developer)) {

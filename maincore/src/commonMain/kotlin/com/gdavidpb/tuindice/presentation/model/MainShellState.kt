@@ -26,6 +26,11 @@ data class MainShellState(
 
 	val overflowActions: List<TopBarAction>
 
+	// The avatar that opens Settings ends the bar of a main section, the screens that have the bottom bar. A screen
+	// pushed over a tab has the back button where the section's own places would be, and no avatar.
+	val showsProfileAvatar: Boolean
+		get() = isTopBarVisible && isBottomBarVisible
+
 	init {
 		val arrangement = arrangeTopBarActions(
 			actions = topBarConfig?.actions.orEmpty(),

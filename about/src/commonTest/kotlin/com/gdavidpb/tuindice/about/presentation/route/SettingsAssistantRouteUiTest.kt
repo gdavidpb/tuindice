@@ -9,27 +9,30 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
-import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
-import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
+import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
-import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
+import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.SettingsRouteUnderTest
 import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
+import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.testing.noSettingsNavDependencies
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -44,17 +47,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class AboutAssistantRouteUiTest {
+class SettingsAssistantRouteUiTest {
 	@Test
 	fun when_consentSwitchTapped_then_storesTheChoice() = runTuIndiceUiTest {
 		val assistantConsent = FakeAssistantConsentRepository(granted = false)
-		val viewModel = createAboutViewModel(assistantConsent = assistantConsent)
+		val viewModel = createSettingsViewModel(assistantConsent = assistantConsent)
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
+				SettingsRouteUnderTest(
 					onNavigateToBrowser = { _, _ -> },
 					showSnackBar = { },
 					viewModel = viewModel
@@ -62,9 +65,9 @@ class AboutAssistantRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantConsentSwitch)
-		scrollToRow(AboutUiTags.AssistantConsentSwitch)
-		onNodeWithTag(AboutUiTags.AssistantConsentSwitch).performClick()
+		waitUntilNodeExists(SettingsUiTags.AssistantConsentSwitch)
+		scrollToRow(SettingsUiTags.AssistantConsentSwitch)
+		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			assistantConsent.isAssistantConsentGranted()
@@ -76,24 +79,25 @@ class AboutAssistantRouteUiTest {
 	@Test
 	fun when_memoryTapped_then_navigatesToTheMemory() = runTuIndiceUiTest {
 		var memoryOpenings = 0
-		val viewModel = createAboutViewModel()
+		val viewModel = createSettingsViewModel()
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					onNavigateToAssistantMemory = { memoryOpenings++ },
+				SettingsRoute(
+					dependencies = noSettingsNavDependencies().copy(
+						onNavigateToAssistantMemory = { memoryOpenings++ }
+					),
 					showSnackBar = { },
 					viewModel = viewModel
 				)
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantMemoryItem)
-		scrollToRow(AboutUiTags.AssistantMemoryItem)
-		onNodeWithTag(AboutUiTags.AssistantMemoryItem).performClick()
+		waitUntilNodeExists(SettingsUiTags.AssistantMemoryItem)
+		scrollToRow(SettingsUiTags.AssistantMemoryItem)
+		onNodeWithTag(SettingsUiTags.AssistantMemoryItem).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			memoryOpenings > 0
@@ -105,7 +109,7 @@ class AboutAssistantRouteUiTest {
 	@Test
 	fun when_consentWriteFails_then_showsTheSnackBarAndKeepsTheSwitchOff() = runTuIndiceUiTest {
 		val messages = mutableListOf<String>()
-		val viewModel = createAboutViewModel(
+		val viewModel = createSettingsViewModel(
 			assistantConsent = FakeAssistantConsentRepository(granted = false, writesFail = true)
 		)
 
@@ -113,7 +117,7 @@ class AboutAssistantRouteUiTest {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
+				SettingsRouteUnderTest(
 					onNavigateToBrowser = { _, _ -> },
 					showSnackBar = { message -> messages += message.message },
 					viewModel = viewModel
@@ -121,39 +125,40 @@ class AboutAssistantRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantConsentSwitch)
-		scrollToRow(AboutUiTags.AssistantConsentSwitch)
-		onNodeWithTag(AboutUiTags.AssistantConsentSwitch).performClick()
+		waitUntilNodeExists(SettingsUiTags.AssistantConsentSwitch)
+		scrollToRow(SettingsUiTags.AssistantConsentSwitch)
+		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			messages.isNotEmpty()
 		}
 
 		assertEquals(listOf(EXPECTED_CONSENT_FAILED_MESSAGE), messages)
-		onNodeWithTag(AboutUiTags.AssistantConsentSwitch).assertIsOff()
+		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch).assertIsOff()
 	}
 
 	@Test
 	fun when_assistantConversationsTapped_then_opensTheConfirmation() = runTuIndiceUiTest {
 		var confirmationOpenings = 0
-		val viewModel = createAboutViewModel()
+		val viewModel = createSettingsViewModel()
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					onNavigateToDeleteConfirmation = { confirmationOpenings++ },
+				SettingsRoute(
+					dependencies = noSettingsNavDependencies().copy(
+						onNavigateToDeleteConfirmation = { confirmationOpenings++ }
+					),
 					showSnackBar = { },
 					viewModel = viewModel
 				)
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
-		scrollToRow(AboutUiTags.AssistantConversationsItem)
-		onNodeWithTag(AboutUiTags.AssistantConversationsItem).performClick()
+		waitUntilNodeExists(SettingsUiTags.AssistantConversationsItem)
+		scrollToRow(SettingsUiTags.AssistantConversationsItem)
+		onNodeWithTag(SettingsUiTags.AssistantConversationsItem).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			confirmationOpenings > 0
@@ -166,13 +171,13 @@ class AboutAssistantRouteUiTest {
 	fun when_conversationsAreDeleted_then_showsTheSuccessSnackBar() = runTuIndiceUiTest {
 		val messages = mutableListOf<String>()
 		val assistantConversations = FakeAssistantConversationsRepository()
-		val viewModel = createAboutViewModel(assistantConversations = assistantConversations)
+		val viewModel = createSettingsViewModel(assistantConversations = assistantConversations)
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
+				SettingsRouteUnderTest(
 					onNavigateToBrowser = { _, _ -> },
 					showSnackBar = { message -> messages += message.message },
 					viewModel = viewModel
@@ -180,8 +185,8 @@ class AboutAssistantRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
-		viewModel.dispatchAction(About.Action.ConfirmDeleteAssistantConversations)
+		waitUntilNodeExists(SettingsUiTags.AssistantConversationsItem)
+		viewModel.dispatchAction(Settings.Action.ConfirmDeleteAssistantConversations)
 
 		waitUntil(timeoutMillis = 2_000) {
 			messages.isNotEmpty()
@@ -195,13 +200,13 @@ class AboutAssistantRouteUiTest {
 	fun when_conversationsDeleteFails_then_showsTheFailureSnackBar() = runTuIndiceUiTest {
 		val messages = mutableListOf<String>()
 		val assistantConversations = FakeAssistantConversationsRepository(deletesFail = true)
-		val viewModel = createAboutViewModel(assistantConversations = assistantConversations)
+		val viewModel = createSettingsViewModel(assistantConversations = assistantConversations)
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
 				LocalShareTextHandler provides { _, _ -> }
 			) {
-				AboutRoute(
+				SettingsRouteUnderTest(
 					onNavigateToBrowser = { _, _ -> },
 					showSnackBar = { message -> messages += message.message },
 					viewModel = viewModel
@@ -209,8 +214,8 @@ class AboutAssistantRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
-		viewModel.dispatchAction(About.Action.ConfirmDeleteAssistantConversations)
+		waitUntilNodeExists(SettingsUiTags.AssistantConversationsItem)
+		viewModel.dispatchAction(Settings.Action.ConfirmDeleteAssistantConversations)
 
 		waitUntil(timeoutMillis = 2_000) {
 			messages.isNotEmpty()
@@ -230,24 +235,27 @@ class AboutAssistantRouteUiTest {
 	}
 
 	private fun ComposeUiTest.scrollToRow(tag: String) {
-		onNodeWithTag(AboutUiTags.ContentContainer)
+		onNodeWithTag(SettingsUiTags.ContentContainer)
 			.performScrollToNode(hasTestTag(tag))
 	}
 
-	private fun createAboutViewModel(
+	private fun createSettingsViewModel(
 		assistantAvailable: Boolean = true,
 		assistantConsent: FakeAssistantConsentRepository = FakeAssistantConsentRepository(),
 		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
-	): AboutViewModel {
+	): SettingsViewModel {
 		val assistantAvailability = FakeAssistantAvailabilityRepository(visible = assistantAvailable)
 
-		return AboutViewModel(
-			screenMachine = AboutMachine(
-				loadVersionUseCase = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
-					reportingRepository = RecordingReportingRepository()
+		return SettingsViewModel(
+			screenMachine = SettingsMachine(
+				contentUseCases = SettingsContentUseCases(
+					loadVersionName = LoadVersionNameUseCase(
+						deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
+						reportingRepository = RecordingReportingRepository()
+					),
+					observeProfileIdentity = fakeObserveProfileIdentityUseCase()
 				),
-				externalUseCases = AboutExternalUseCases(
+				externalUseCases = SettingsExternalUseCases(
 					sendSupportEmail = SendSupportEmailUseCase(
 						configRepository = FakeConfigRepository(),
 						deviceInfoRepository = FakeDeviceInfoRepository(),
@@ -264,7 +272,7 @@ class AboutAssistantRouteUiTest {
 				),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				assistantUseCases = AboutAssistantUseCases(
+				assistantUseCases = SettingsAssistantUseCases(
 					observeAvailability = ObserveAssistantAvailabilityUseCase(
 						assistantAvailabilityRepository = assistantAvailability,
 						reportingRepository = RecordingReportingRepository()

@@ -10,27 +10,27 @@ import kotlin.test.assertFalse
 class TopBarActionsArrangementTest {
 
 	@Test
-	fun when_summaryHasItsActionAndNoAssistant_then_theActionIsInView() {
+	fun when_evaluationsHasItsActionAndNoAssistant_then_theActionIsInView() {
 		val arrangement = arrangeTopBarActions(
-			actions = listOf(TopBarAction.SignOutAction),
+			actions = listOf(TopBarAction.EvaluationsScheduleAction),
 			hasAssistant = false,
 			hasViewModeSelector = false
 		)
 
-		assertEquals(listOf(action(TopBarAction.SignOutAction)), arrangement.first)
+		assertEquals(listOf(action(TopBarAction.EvaluationsScheduleAction)), arrangement.first)
 		assertEquals(emptyList(), arrangement.second)
 	}
 
 	@Test
-	fun when_summaryHasItsActionAndTheAssistant_then_theAssistantLeadsAndTheActionFollows() {
+	fun when_evaluationsHasItsActionAndTheAssistant_then_theAssistantLeadsAndTheActionFollows() {
 		val arrangement = arrangeTopBarActions(
-			actions = listOf(TopBarAction.SignOutAction),
+			actions = listOf(TopBarAction.EvaluationsScheduleAction),
 			hasAssistant = true,
 			hasViewModeSelector = false
 		)
 
 		assertEquals(
-			listOf(TopBarSlot.Assistant, action(TopBarAction.SignOutAction)),
+			listOf(TopBarSlot.Assistant, action(TopBarAction.EvaluationsScheduleAction)),
 			arrangement.first
 		)
 		assertEquals(emptyList(), arrangement.second)
@@ -108,7 +108,7 @@ class TopBarActionsArrangementTest {
 	fun when_fourActionsAndNoAssistant_then_twoAreInViewAndTheRestOverflow() {
 		val arrangement = arrangeTopBarActions(
 			actions = listOf(
-				TopBarAction.SignOutAction,
+				TopBarAction.EvaluationsScheduleAction,
 				TopBarAction.SearchPensumAction,
 				TopBarAction.ChangePensumAction,
 				TopBarAction.StatisticsShareAction
@@ -118,7 +118,7 @@ class TopBarActionsArrangementTest {
 		)
 
 		assertEquals(
-			listOf(action(TopBarAction.SignOutAction), action(TopBarAction.SearchPensumAction)),
+			listOf(action(TopBarAction.EvaluationsScheduleAction), action(TopBarAction.SearchPensumAction)),
 			arrangement.first
 		)
 		assertEquals(
@@ -142,7 +142,6 @@ class TopBarActionsArrangementTest {
 	@Test
 	fun when_eachTabIsArranged_then_theAssistantLeadsOnlyWhenItIsOn() {
 		val tabs = listOf(
-			TopBarConfig.Summary,
 			TopBarConfig.Record,
 			TopBarConfig.RecordWithSchedule,
 			TopBarConfig.EvaluationsWithSchedule,

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalClipboard
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
 import com.gdavidpb.tuindice.base.domain.model.MainSection
@@ -108,15 +109,15 @@ private fun TuIndiceNavigator.navigateFromAssistant(
 	}
 }
 
-// The tab a screen of the assistant lives on. Null for the screens that open over the tab on screen.
+// The tab a screen of the assistant lives on. Null for the screens that open over the tab on screen, which includes
+// Settings: the wire still says ABOUT, as it did when that was the fifth tab, and the host maps it to Settings.
 private fun NavTarget.tabSection(): MainSection? = when (this) {
 	NavTarget.SUMMARY, NavTarget.STATISTICS, NavTarget.SHARE_TERM -> MainSection.SUMMARY
 	NavTarget.RECORD, NavTarget.RECORD_PROJECTION, NavTarget.RECORD_SCHEDULE, NavTarget.RECORD_CREATE_TERM ->
 		MainSection.RECORD
 	NavTarget.EVALUATIONS, NavTarget.EVALUATIONS_ADD, NavTarget.EVALUATIONS_DETAIL -> MainSection.EVALUATIONS
 	NavTarget.PENSUM, NavTarget.SUBJECTS_SEARCH, NavTarget.SUBJECTS_DETAIL -> MainSection.PENSUM
-	NavTarget.ABOUT -> MainSection.ABOUT
-	NavTarget.ENROLLMENT_PROOF, NavTarget.SIGN_IN, NavTarget.UPDATE_PASSWORD -> null
+	NavTarget.ENROLLMENT_PROOF, NavTarget.ABOUT, NavTarget.SIGN_IN, NavTarget.UPDATE_PASSWORD -> null
 }
 
 // The screens a target opens over its tab, in order. A target that needs a record the assistant did not name
@@ -138,6 +139,7 @@ private fun NavTarget.destinationKeys(refs: List<EntityRef>): List<Destination> 
 		}
 	)
 	NavTarget.ENROLLMENT_PROOF -> listOf(EnrollmentProofDestination.EnrollmentProofDialog)
+	NavTarget.ABOUT -> listOf(AboutDestination.Settings)
 	else -> emptyList()
 }
 

@@ -4,6 +4,5 @@ enum class MainSection {
 	SUMMARY,
 	RECORD,
 	PENSUM,
-	EVALUATIONS,
-	ABOUT
+	EVALUATIONS
 }

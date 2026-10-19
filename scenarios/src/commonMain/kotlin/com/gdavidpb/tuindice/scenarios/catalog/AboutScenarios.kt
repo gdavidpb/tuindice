@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
@@ -27,31 +28,37 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.closeSettings
+import com.gdavidpb.tuindice.scenarios.shared.openAboutFromSettings
+import com.gdavidpb.tuindice.scenarios.shared.openSettings
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
-/** From the seeded summary: opens the About tab. */
-private fun StepBuilder.openAbout() {
+/** From the seeded summary: opens Settings through the avatar of the top bar. */
+private fun StepBuilder.openSettingsFromSummary() {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
+	openSettings()
 }
 
-/** Opens an in-app browser page from the About list and comes back with the top bar's back button. */
+/** Opens an in-app browser page from the Settings list and comes back with the top bar's back button. */
 private fun StepBuilder.openBrowserPageAndReturn(link: String) {
 	tap(link)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	waitVisible(AboutUiTags.ContentContainer, Within.Action)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
 }
 
-/** Back from another app: foreground the app and select the About tab again. */
+/** Back from another app: the app comes to the front on the screen it left, and answers. */
+private fun StepBuilder.returnToSettings() {
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
+}
+
+/** Back from another app, on the About screen. */
 private fun StepBuilder.returnToAbout() {
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
 	waitVisible(AboutUiTags.ContentContainer, Within.Action)
 }
 
-/** Scrolls to a link that hands off to another app, taps it, and comes back. */
+/** Scrolls to a link of About that hands off to another app, taps it, and comes back. */
 private fun StepBuilder.openExternalLinkAndReturn(link: String) {
 	scrollUntilVisible(link, Scroll.ContentDown, Within.Action)
 	tap(link)
@@ -61,9 +68,9 @@ private fun StepBuilder.openExternalLinkAndReturn(link: String) {
 }
 
 /**
- * Scrolls to a trigger that hands off to the system (store, mail, bug report), taps it, and comes back. On Android the
- * triggers measured to take the app out of the foreground every time ([leavesTheAppOnAndroid]) wait for that first.
- * No trigger leaves the app on the iOS simulator, so nothing is asserted there
+ * Scrolls to a trigger of Settings that hands off to the system (store, bug report), taps it, and comes back. On
+ * Android the triggers measured to take the app out of the foreground every time ([leavesTheAppOnAndroid]) wait for
+ * that first. No trigger leaves the app on the iOS simulator, so nothing is asserted there
  * (e2e/platform/ios/about-platform-edge-triggers.md).
  */
 private fun StepBuilder.openPlatformEdgeTriggerAndReturn(trigger: String, leavesTheAppOnAndroid: Boolean) {
@@ -75,7 +82,7 @@ private fun StepBuilder.openPlatformEdgeTriggerAndReturn(trigger: String, leaves
 		}
 	}
 	foreground()
-	returnToAbout()
+	returnToSettings()
 }
 
 private val aboutSmoke = scenario(
@@ -84,12 +91,12 @@ private val aboutSmoke = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	tags("smoke")
-	covers("about.About.OpenPrivacyPolicy")
+	covers("about.Settings.OpenPrivacyPolicy")
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
-	waitVisible(AboutUiTags.OpenPrivacy, Within.Assert)
-	openBrowserPageAndReturn(AboutUiTags.OpenPrivacy)
+	openSettingsFromSummary()
+	waitVisible(SettingsUiTags.OpenPrivacy, Within.Assert)
+	openBrowserPageAndReturn(SettingsUiTags.OpenPrivacy)
 }
 
 private val aboutInternalBrowserLinks = scenario(
@@ -98,26 +105,26 @@ private val aboutInternalBrowserLinks = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	covers(
-		"about.About.OpenTermsAndConditions",
-		"about.About.OpenPrivacyPolicy",
-		"about.About.OpenSupport"
+		"about.Settings.OpenTermsAndConditions",
+		"about.Settings.OpenPrivacyPolicy",
+		"about.Settings.OpenSupport"
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
+	openSettingsFromSummary()
 	// The terms page the mock serves is taller than a screen (`mocks/__files/e2e/terms.html`): its last line is not on
 	// screen when the page loads and comes into view only when the web view scrolls, which is what keeps the web view
 	// scrolling covered on both platforms.
-	tap(AboutUiTags.OpenTerms)
+	tap(SettingsUiTags.OpenTerms)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
 	waitVisible(text(Copy.TermsPageTitle), Within.Wait)
 	waitGone(text(Copy.TermsPageEnd), Within.Assert)
 	swipeScreen(SwipeDirection.Up)
 	waitVisible(text(Copy.TermsPageEnd), Within.Action)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	waitVisible(AboutUiTags.ContentContainer, Within.Action)
-	openBrowserPageAndReturn(AboutUiTags.OpenPrivacy)
-	openBrowserPageAndReturn(AboutUiTags.OpenSupport)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
+	openBrowserPageAndReturn(SettingsUiTags.OpenPrivacy)
+	openBrowserPageAndReturn(SettingsUiTags.OpenSupport)
 }
 
 private val aboutExternalUrlLinks = scenario(
@@ -125,15 +132,20 @@ private val aboutExternalUrlLinks = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	covers("about.About.OpenUrl")
+	covers("about.Settings.OpenUrl", "about.About.OpenUrl")
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.OpenX, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.OpenX)
+	waitBackgrounded()
+	foreground()
+	returnToSettings()
+	openAboutFromSettings()
 	tap(AboutUiTags.OpenCreativeCommons)
 	waitBackgrounded()
 	foreground()
 	returnToAbout()
-	openExternalLinkAndReturn(AboutUiTags.OpenX)
 	openExternalLinkAndReturn(AboutUiTags.OpenGithub)
 	openExternalLinkAndReturn(AboutUiTags.OpenKotlin)
 	openExternalLinkAndReturn(AboutUiTags.OpenDst)
@@ -149,15 +161,15 @@ private val aboutPlatformEdgeTriggers = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	covers(
-		"about.About.ShareApp",
-		"about.About.RateOnStore",
+		"about.Settings.ShareApp",
+		"about.Settings.RateOnStore",
 		"about.About.ContactDeveloper"
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
-	scrollUntilVisible(AboutUiTags.ShareApp, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.ShareApp)
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.ShareApp, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.ShareApp)
 	// The sheet must have appeared before it is closed (YE-1): without this a share that opens nothing would pass,
 	// because the touch that closes it and the waits after it are already true when there is no sheet.
 	onPlatform(Platform.Android) {
@@ -167,27 +179,36 @@ private val aboutPlatformEdgeTriggers = scenario(
 	}
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
-	// none either and is closed by tapping the dimmed area around it, at the height of a row with a link (the
-	// Creative Commons row): the tap must close the sheet and must not reach the row, so the scenario asserts that
-	// the sheet went, that About is still the screen in front (no browser page opened, the app did not go to
-	// Safari), and the next step taps the app and needs it to answer.
+	// none either and is closed by tapping the dimmed area around it, at the height of a row of Settings: the tap
+	// must close the sheet and must not reach the row, so the scenario asserts that the sheet went, that Settings is
+	// still the screen in front (no browser page opened, the app did not go to Safari), and the next step taps the
+	// app and needs it to answer.
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
 		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
-		waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+		waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 		waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
-		// The app answers the next touch (the sheet's closing left it taking touches again): another tab opens.
-		tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
+		// The app answers the next touch (the sheet's closing left it taking touches again): back to the summary.
+		closeSettings()
 		waitVisible(SummaryUiTags.ContentContainer, Within.Action)
+		openSettings()
 	}
-	returnToAbout()
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.RateOnStore, leavesTheAppOnAndroid = true)
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.ContactDeveloper, leavesTheAppOnAndroid = true)
+	returnToSettings()
+	openPlatformEdgeTriggerAndReturn(SettingsUiTags.RateOnStore, leavesTheAppOnAndroid = true)
 	// Not asserted, and so not in `covers` but a platform edge (ActionDispositions): Gmail's compose screen, with no
 	// account in the emulator, closes itself within ~100 ms of opening (measured 0 of 10 runs on Android in which the
 	// app was seen leaving), and on iOS the app stays in front 3 of 3 times (docs/e2e-mediciones.md, section 3).
-	openPlatformEdgeTriggerAndReturn(AboutUiTags.ReportBug, leavesTheAppOnAndroid = false)
+	openPlatformEdgeTriggerAndReturn(SettingsUiTags.ReportBug, leavesTheAppOnAndroid = false)
+	// The developer's contact lives in About now.
+	openAboutFromSettings()
+	scrollUntilVisible(AboutUiTags.ContactDeveloper, Scroll.ContentDown, Within.Action)
+	tap(AboutUiTags.ContactDeveloper)
+	onPlatform(Platform.Android) {
+		waitBackgrounded()
+	}
+	foreground()
+	returnToAbout()
 }
 
 private val aboutUsageDataConsent = scenario(
@@ -195,27 +216,27 @@ private val aboutUsageDataConsent = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	covers("about.About.SetUsageDataCollectionEnabled")
+	covers("about.Settings.SetUsageDataCollectionEnabled")
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
-	scrollUntilVisible(AboutUiTags.RateOnStore, Scroll.ContentDown, Within.Action)
-	waitVisible(AboutUiTags.RateOnStore, Within.Assert)
-	scrollUntilVisible(AboutUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
-	waitVisible(AboutUiTags.UsageDataConsentToggle, Within.Assert)
-	assertChecked(AboutUiTags.UsageDataConsentToggle, false)
-	tap(AboutUiTags.UsageDataConsentToggle)
-	assertChecked(AboutUiTags.UsageDataConsentToggle, true)
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.RateOnStore, Scroll.ContentDown, Within.Action)
+	waitVisible(SettingsUiTags.RateOnStore, Within.Assert)
+	scrollUntilVisible(SettingsUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
+	waitVisible(SettingsUiTags.UsageDataConsentToggle, Within.Assert)
+	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
+	tap(SettingsUiTags.UsageDataConsentToggle)
+	assertChecked(SettingsUiTags.UsageDataConsentToggle, true)
 	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
-	tap(AboutUiTags.UsageDataConsentToggle)
-	assertChecked(AboutUiTags.UsageDataConsentToggle, false)
-	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+	tap(SettingsUiTags.UsageDataConsentToggle)
+	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
-/** From About: scrolls to the assistant's memory entry, opens it and waits for its screen. */
+/** From Settings: scrolls to the assistant's memory entry, opens it and waits for its screen. */
 private fun StepBuilder.openAssistantMemory() {
-	scrollUntilVisible(AboutUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.AssistantMemoryItem)
+	scrollUntilVisible(SettingsUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.AssistantMemoryItem)
 	waitVisible(AssistantUiTags.MemoryScreen, Within.Wait)
 }
 
@@ -224,17 +245,17 @@ private val aboutAssistantConsentToggle = scenario(
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	covers("about.About.SetAssistantConsent")
+	covers("about.Settings.SetAssistantConsent")
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
-	scrollUntilVisible(AboutUiTags.AssistantConsentSwitch, Scroll.ContentDown, Within.Action)
-	waitVisible(AboutUiTags.AssistantConsentSwitch, Within.Assert)
-	assertChecked(AboutUiTags.AssistantConsentSwitch, false)
-	tap(AboutUiTags.AssistantConsentSwitch)
-	assertChecked(AboutUiTags.AssistantConsentSwitch, true)
-	tap(AboutUiTags.AssistantConsentSwitch)
-	assertChecked(AboutUiTags.AssistantConsentSwitch, false)
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.AssistantConsentSwitch, Scroll.ContentDown, Within.Action)
+	waitVisible(SettingsUiTags.AssistantConsentSwitch, Within.Assert)
+	assertChecked(SettingsUiTags.AssistantConsentSwitch, false)
+	tap(SettingsUiTags.AssistantConsentSwitch)
+	assertChecked(SettingsUiTags.AssistantConsentSwitch, true)
+	tap(SettingsUiTags.AssistantConsentSwitch)
+	assertChecked(SettingsUiTags.AssistantConsentSwitch, false)
 }
 
 private val aboutAssistantMemoryDelete = scenario(
@@ -243,12 +264,12 @@ private val aboutAssistantMemoryDelete = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	covers(
-		"about.About.OpenAssistantMemory",
+		"about.Settings.OpenAssistantMemory",
 		"assistant.AssistantMemory.DeleteEntry"
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
+	openSettingsFromSummary()
 	openAssistantMemory()
 	waitVisible(AssistantUiTags.Memory.entry("mem-1"), Within.Assert)
 	tap(AssistantUiTags.Memory.delete("mem-1"))
@@ -266,7 +287,7 @@ private val aboutAssistantMemoryStillApplies = scenario(
 	covers("assistant.AssistantMemory.AnswerStillApplies")
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
+	openSettingsFromSummary()
 	openAssistantMemory()
 	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Assert)
 	tap(AssistantUiTags.Memory.stillAppliesYes("mem-2"))
@@ -285,7 +306,7 @@ private val aboutAssistantMemoryClear = scenario(
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
+	openSettingsFromSummary()
 	openAssistantMemory()
 	tap(AssistantUiTags.MemoryClearAll)
 	waitVisible(AssistantUiTags.ClearAllDialog, Within.Assert)
@@ -302,34 +323,61 @@ private val aboutAssistantMemoryRetry = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	mockState("assistant-memories", "Failing")
-	openAbout()
-	scrollUntilVisible(AboutUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.AssistantMemoryItem)
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.AssistantMemoryItem, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.AssistantMemoryItem)
 	waitVisible(AssistantUiTags.MemoryFailed, Within.Wait)
 	mockState("assistant-memories", "Recovered")
 	tap(BaseUiTags.ErrorViewRetryButton)
 	waitVisible(AssistantUiTags.MemoryContent, Within.Wait)
 }
 
-/** From About: scrolls to the assistant's conversations row, asks for the deletion and confirms it. */
+/** From Settings: scrolls to the assistant's conversations row, asks for the deletion and confirms it. */
 private val aboutAssistantConversationsDelete = scenario(
 	"about-assistant-conversations-delete",
 	"about",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	covers(
-		"about.About.RequestDeleteAssistantConversations",
-		"about.About.ConfirmDeleteAssistantConversations"
+		"about.Settings.RequestDeleteAssistantConversations",
+		"about.Settings.ConfirmDeleteAssistantConversations"
 	)
 	account(E2eAccounts.Canonical.id)
 
-	openAbout()
-	scrollUntilVisible(AboutUiTags.AssistantConversationsItem, Scroll.ContentDown, Within.Action)
-	tap(AboutUiTags.AssistantConversationsItem)
-	waitVisible(AboutUiTags.DeleteAssistantConversationsDialog, Within.Assert)
-	tap(AboutUiTags.DeleteAssistantConversationsConfirm)
+	openSettingsFromSummary()
+	scrollUntilVisible(SettingsUiTags.AssistantConversationsItem, Scroll.ContentDown, Within.Action)
+	tap(SettingsUiTags.AssistantConversationsItem)
+	waitVisible(SettingsUiTags.DeleteAssistantConversationsDialog, Within.Assert)
+	tap(SettingsUiTags.DeleteAssistantConversationsConfirm)
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
 	waitVisible(text(Copy.AssistantConversationsDeleted), Within.Action)
+}
+
+/**
+ * Settings opens from the avatar with the card of the student on top (name, career and carnet, which only show who
+ * is signed in), and «Acerca de TuIndice» opens from its list: the credits are there, and back returns to Settings.
+ */
+private val aboutSettingsIdentityAndAbout = scenario(
+	"about-settings-identity-and-about",
+	"about",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("about.Settings.OpenAbout")
+	account(E2eAccounts.Canonical.id)
+
+	openSettingsFromSummary()
+	waitVisible(SettingsUiTags.IdentityCard, Within.Action)
+	waitVisible(SettingsUiTags.IdentityName, Within.Assert)
+	waitVisible(SettingsUiTags.IdentityCareer, Within.Assert)
+	waitVisible(SettingsUiTags.IdentityCarnet, Within.Assert)
+	openAboutFromSettings()
+	waitVisible(AboutUiTags.OpenCreativeCommons, Within.Assert)
+	waitVisible(AboutUiTags.OpenGithub, Within.Assert)
+	// Back from About is Settings, and back from Settings is the section it was opened over.
+	closeSettings()
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
+	closeSettings()
+	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 }
 
 /** The scenarios of the `about` module; list every new one here. */
@@ -344,5 +392,6 @@ val aboutScenarios: List<Scenario> = listOf(
 	aboutAssistantMemoryClear,
 	aboutAssistantMemoryRetry,
 	aboutAssistantMemoryStillApplies,
-	aboutAssistantConversationsDelete
+	aboutAssistantConversationsDelete,
+	aboutSettingsIdentityAndAbout
 )

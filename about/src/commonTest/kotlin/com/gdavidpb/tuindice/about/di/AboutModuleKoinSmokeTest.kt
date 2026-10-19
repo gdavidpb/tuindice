@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.about.di
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
+import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
+import com.gdavidpb.tuindice.about.testing.FakeProfileIdentityRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -20,6 +22,7 @@ import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.ProfileIdentityRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -34,7 +37,7 @@ import kotlin.test.Test
 
 class AboutModuleKoinSmokeTest {
 	@Test
-	fun resolvesAboutViewModel() = withKoinSmokeTest(
+	fun resolvesAboutAndSettingsViewModels() = withKoinSmokeTest(
 		aboutModule,
 		module {
 			single<AboutRepository> { FakeAboutRepository() }
@@ -45,6 +48,7 @@ class AboutModuleKoinSmokeTest {
 			single<StoreUrlRepository> { FakeStoreUrlDataSource() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
+			single<ProfileIdentityRepository> { FakeProfileIdentityRepository() }
 			single<AssistantAvailabilityRepository> { FakeAssistantAvailabilityRepository() }
 			single<AssistantConsentRepository> { FakeAssistantConsentRepository() }
 			single<AssistantConversationsRepository> { FakeAssistantConversationsRepository() }
@@ -52,6 +56,7 @@ class AboutModuleKoinSmokeTest {
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
+		assertResolves(SettingsViewModel::class)
 		assertResolves(AboutViewModel::class)
 	}
 }

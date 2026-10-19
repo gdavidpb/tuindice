@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.RefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 
-// The assistant use cases the about machine drives, grouped to keep the machine's constructor short.
-class AboutAssistantUseCases(
+// The assistant use cases the settings machine drives, grouped to keep the machine's constructor short.
+class SettingsAssistantUseCases(
 	val observeAvailability: ObserveAssistantAvailabilityUseCase,
 	val observeConsent: ObserveAssistantConsentUseCase,
 	val setConsent: SetAssistantConsentUseCase,
