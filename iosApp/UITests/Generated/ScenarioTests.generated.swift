@@ -17,8 +17,10 @@ final class AboutScenarioTests: ScenarioTestCase {
 
 final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_answer_still_applies() { runScenario("assistant-answer-still-applies") }
+    func test_assistant_appeal_restriction() { runScenario("assistant-appeal-restriction") }
     func test_assistant_ask_about_evaluation() { runScenario("assistant-ask-about-evaluation") }
     func test_assistant_ask_about_record_subject() { runScenario("assistant-ask-about-record-subject") }
+    func test_assistant_cancel_turn() { runScenario("assistant-cancel-turn") }
     func test_assistant_confirm_add_evaluation() { runScenario("assistant-confirm-add-evaluation") }
     func test_assistant_confirm_destructive_delete() { runScenario("assistant-confirm-destructive-delete") }
     func test_assistant_consent_privacy_policy() { runScenario("assistant-consent-privacy-policy") }
@@ -131,6 +133,7 @@ final class MaincoreScenarioTests: ScenarioTestCase {
 }
 
 final class PensumScenarioTests: ScenarioTestCase {
+    func test_pensum_ask_assistant_subject() { runScenario("pensum-ask-assistant-subject") }
     func test_pensum_current_absent() { runScenario("pensum-current-absent") }
     func test_pensum_detail_navigation() { runScenario("pensum-detail-navigation") }
     func test_pensum_equivalence_fulfilled() { runScenario("pensum-equivalence-fulfilled") }
@@ -191,9 +194,6 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_statistics_share_no_catalog() { runScenario("summary-statistics-share-no-catalog") }
     func test_summary_statistics_tooltips() { runScenario("summary-statistics-tooltips") }
     func test_summary_status_dialog() { runScenario("summary-status-dialog") }
-}
-
-final class TermreportScenarioTests: ScenarioTestCase {
-    func test_termreport_open() { runScenario("termreport-open") }
-    func test_termreport_retry() { runScenario("termreport-retry") }
+    func test_summary_termreport_open() { runScenario("summary-termreport-open") }
+    func test_summary_termreport_retry() { runScenario("summary-termreport-retry") }
 }

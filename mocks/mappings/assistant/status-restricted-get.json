@@ -1,0 +1,38 @@
+{
+  "scenarioName": "assistant-restriction",
+  "requiredScenarioState": "Restricted",
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/status",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "mode": "on",
+      "consent": {
+        "version": 2,
+        "accepted": true,
+        "acceptedAtMillis": 1792065600000
+      },
+      "standing": {
+        "level": "suspended",
+        "untilMillis": 1800000000000,
+        "appealable": true
+      },
+      "usage": {
+        "remainingHour": 20,
+        "remainingDay": 50,
+        "remainingMonth": 400
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-slow"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-slow","message":{"id":"msg-slow","parts":[{"type":"text","text":"Lo pensé con calma."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-slow"}
+

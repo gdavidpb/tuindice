@@ -12,8 +12,10 @@ internal object ExtraMockStatesAtStart {
 		"evaluations-list-retry" to listOf("evaluations-list-failure" to "Unavailable"),
 		"summary-hub-share-finished-term" to listOf("summary-hub-record" to "NoCurrentTerm"),
 		"summary-statistics-share-no-catalog" to listOf("share-backgrounds" to "Unavailable"),
-		"termreport-open" to listOf("assistant-insights" to "ReportPresent"),
-		"termreport-retry" to listOf("assistant-insights" to "ReportPresentRetry")
+		"assistant-cancel-turn" to listOf("assistant-turn-pace" to "Slow"),
+		"assistant-appeal-restriction" to listOf("assistant-restriction" to "Restricted"),
+		"summary-termreport-open" to listOf("assistant-insights" to "ReportPresent"),
+		"summary-termreport-retry" to listOf("assistant-insights" to "ReportPresentRetry")
 	)
 
 	val scenarioIds: Set<String> = byScenario.keys
