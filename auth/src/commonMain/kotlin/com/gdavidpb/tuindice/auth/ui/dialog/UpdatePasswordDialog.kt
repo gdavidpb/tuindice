@@ -53,7 +53,6 @@ fun UpdatePasswordDialog(
 				onConfirmClick()
 		},
 		onDismissRequest = onDismissRequest,
-		dismissOnBackPress = false,
 		scrollable = true
 	) {
 		UpdatePasswordIdleView(

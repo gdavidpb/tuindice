@@ -53,7 +53,6 @@ fun ConfirmationDialog(
 	onPositiveClick: () -> Unit = {},
 	onNegativeClick: () -> Unit = {},
 	onDismissRequest: () -> Unit = {},
-	dismissOnBackPress: Boolean = true,
 	scrollable: Boolean = false,
 	content: @Composable () -> Unit = {}
 ) {
@@ -72,8 +71,7 @@ fun ConfirmationDialog(
 			.exposeTestTagsAsResourceId()
 			.testTag(BaseUiTags.ConfirmationDialogSheet),
 		sheetState = sheetState,
-		onDismissRequest = onDismissRequest,
-		dismissOnBackPress = dismissOnBackPress
+		onDismissRequest = onDismissRequest
 	) {
 		val focusManager = LocalFocusManager.current
 		val fieldRegion = remember { BringIntoViewRequester() }

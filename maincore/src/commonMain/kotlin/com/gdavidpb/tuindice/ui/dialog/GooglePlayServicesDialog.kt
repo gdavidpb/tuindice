@@ -24,8 +24,7 @@ fun GooglePlayServicesDialog(
 		titleText = titleText,
 		positiveText = exitText,
 		onPositiveClick = onConfirmExitClick,
-		onDismissRequest = onDismissRequest,
-		dismissOnBackPress = false
+		onDismissRequest = onDismissRequest
 	) {
 		Text(
 			modifier = Modifier.testTag(MaincoreUiTags.GooglePlayServicesMessage),

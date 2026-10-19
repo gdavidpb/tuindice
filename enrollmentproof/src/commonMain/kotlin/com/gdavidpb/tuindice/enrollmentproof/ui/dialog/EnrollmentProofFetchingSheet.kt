@@ -32,8 +32,7 @@ fun EnrollmentProofFetchingSheet(
 			.exposeTestTagsAsResourceId()
 			.testTag(EnrollmentProofUiTags.FetchingSheet),
 		sheetState = nonDismissSheetState,
-		onDismissRequest = onDismissRequest,
-		dismissOnBackPress = false
+		onDismissRequest = onDismissRequest
 	) {
 		Box(
 			modifier = Modifier
