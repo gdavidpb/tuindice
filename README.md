@@ -417,19 +417,23 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(57 reglas en 15 archivos por área):
+(66 reglas en 17 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
-  Koin androidx, Firebase directo).
-- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
-  sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de render de
-  Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`.
+  Koin androidx, Firebase directo); sin `R.string.` (los textos van en `composeResources`).
+- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin, ni contrato de
+  cable (`chatcontract`); sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de
+  render de Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`;
+  las interfaces de `domain/repository` no tienen cuerpos por defecto ni getters.
 - `data-source`: en `data/source` no hay interfaces; van en `data/repository` o `domain/repository`.
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
   propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
   directos).
+- `naming`: un tipo público (o interno) de nivel superior por archivo, con las excepciones de pruebas y de
+  `testkit/` documentadas en la regla (adaptada de `tuindice-api`).
+- `state-machine-contracts`: todo `*StateMachineContractTest` llama a `exportToMermaid` y a `assertMachineRandomWalk`.
 - `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
   `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
 - `academiccore`: el lunes de la semana académica se calcula solo con `AcademicWeekEngine.mondayOf`; ningún
@@ -439,13 +443,17 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
 - `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
   `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`; un `Observe*UseCase` lee solo
-  flujos locales (sin repositorios de refresco ni getters `get*`).
+  flujos locales (sin repositorios de refresco ni getters `get*`); el use case no crea sus validadores ni sus
+  manejadores de excepción (se reciben por constructor o por un bundle recibido).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
-  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`.
+  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`;
+  `machine/` no lee recursos ni construye `UiText` (el texto lo arma `presentation/mapper`).
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;
+  los CompositionLocal de acciones (`Local*Launcher`, `Local*Handler`, salvo `LocalUriHandler`) se leen solo en
+  `presentation/route/*Route.kt`; en `ui/component` un `when` no cierra con `else -> Unit`;
   las `data class` no privadas de `ui/view` van en `ui/model`; los objetos de tags de `ui/` se llaman `*UiTags` y
   el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
@@ -479,6 +487,8 @@ Ejemplos de comandos usados habitualmente:
 
 ```bash
 ./gradlew --continue --console=plain verifyModuleGraph
+./gradlew --continue --console=plain verifyDetektBaselinesShrink     # -PbaselineRef=<ref> para otra base
+./gradlew --continue --console=plain verifyEngineAndUseCaseTests
 ./gradlew --continue --console=plain :app:compileDebugKotlin
 ./gradlew --continue --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
 ./gradlew --continue --console=plain :evaluations:allTests

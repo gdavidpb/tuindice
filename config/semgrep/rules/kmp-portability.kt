@@ -30,3 +30,14 @@ fun sampleEnvironment(environment: String): String {
 	// ok: kmp-no-buildconfig
 	return environment
 }
+
+// no-android-string-resources: los textos se leen de composeResources, nunca de R.string.
+fun sampleAndroidLabel(): String {
+	// ruleid: no-android-string-resources
+	return R.string.sample_label.toString()
+}
+
+fun sampleComposeLabel(): String {
+	// ok: no-android-string-resources
+	return Res.string.sample_label.toString()
+}

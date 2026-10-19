@@ -57,3 +57,30 @@ class ObserveSampleUseCase(
 		return sampleRepository.observeSampleFlow()
 	}
 }
+
+// usecase-collaborators-injected: el colaborador se crea dentro del caso de uso (ruleid) o se recibe (ok).
+class CreatesItsCollaboratorsUseCase(
+	override val reportingRepository: ReportingRepository
+) : FlowUseCase<Unit, Int, Nothing>() {
+	// ruleid: usecase-collaborators-injected
+	override val paramsValidator: ParamsValidator<Unit> = SampleParamsValidator()
+
+	// ruleid: usecase-collaborators-injected
+	override val exceptionHandler: ExceptionHandler<Nothing> = object : ExceptionHandler<Nothing> {
+		override fun parseException(throwable: Throwable): Nothing? = null
+	}
+
+	override suspend fun executeOnBackground(params: Unit): Flow<Int> = flowOf(1)
+}
+
+class ReceivesCollaboratorsUseCase(
+	override val paramsValidator: ParamsValidator<Unit>,
+	handling: SampleHandling
+) : FlowUseCase<Unit, Int, Nothing>() {
+	// ok: usecase-collaborators-injected
+	override val exceptionHandler: ExceptionHandler<Nothing> = handling.exceptionHandler
+
+	override val reportingRepository: ReportingRepository = handling.reportingRepository
+
+	override suspend fun executeOnBackground(params: Unit): Flow<Int> = flowOf(1)
+}

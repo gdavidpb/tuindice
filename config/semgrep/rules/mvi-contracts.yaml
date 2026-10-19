@@ -53,3 +53,20 @@ rules:
     metadata:
       area: mvi-contracts
       referencia: 'README.md § Capas por feature > Presentation'
+
+  - id: machine-no-text-resources
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los archivos de presentation/machine/ no usan Res.string ni construyen UiText: el texto de una
+      máquina se arma en presentation/mapper (funciones que leen composeResources y devuelven String o
+      UiText) y la máquina solo las llama. Así la máquina sigue siendo transición pura y sus pruebas no
+      necesitan recursos de plataforma. Referenciar el tipo UiText (p. ej. en un evento interno) no cuenta:
+      solo construirlo.
+    pattern-regex: '\bRes\.string\.\w+|\bUiText\s*\.\s*\w+|\bUiText\s*\('
+    paths:
+      include:
+        - '**/presentation/machine/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'README.md § Capas por feature > Presentation'

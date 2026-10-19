@@ -71,3 +71,16 @@ rules:
     metadata:
       area: kmp-portability
       referencia: 'README.md § Eventos y datos de uso'
+
+  - id: no-android-string-resources
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El código Kotlin no lee textos con R.string.: los textos viven en composeResources (Res.string) y
+      se resuelven en presentation/mapper o en ui/. R no existe en commonMain ni en iOS. Excepción por
+      diseño, a exigir por ruta y con su razón si un API de Android la pide en un archivo que solo existe
+      en androidMain: hoy no hay ninguna, así que la regla no exime rutas.
+    pattern-regex: '\bR\.string\.\w+'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Límites KMP'
