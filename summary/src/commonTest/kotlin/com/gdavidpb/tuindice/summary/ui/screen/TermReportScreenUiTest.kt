@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -17,8 +16,6 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportActionItem
 import com.gdavidpb.tuindice.summary.testing.termReportItemFixture
@@ -152,12 +149,10 @@ class TermReportScreenUiTest {
 		val launched = mutableListOf<AssistantScreenContext>()
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { context -> launched += context }) {
-				TermReportScreen(
-					state = TermReport.State.Content(report = termReportItemFixture()),
-					actions = TermReportActions()
-				)
-			}
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions(onAskAssistant = { context -> launched += context })
+			)
 		}
 
 		onNodeWithTag(TermReportUiTags.TermReportAskButton).performScrollTo().performClick()
@@ -183,12 +178,10 @@ class TermReportScreenUiTest {
 	@Test
 	fun when_theAssistantIsThere_then_theAskButtonComesAboveTheThumbsInTheirOwnRow() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { _ -> }) {
-				TermReportScreen(
-					state = TermReport.State.Content(report = termReportItemFixture()),
-					actions = TermReportActions()
-				)
-			}
+			TermReportScreen(
+				state = TermReport.State.Content(report = termReportItemFixture()),
+				actions = TermReportActions(onAskAssistant = { _ -> })
+			)
 		}
 		waitForIdle()
 

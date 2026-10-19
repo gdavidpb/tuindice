@@ -4,24 +4,29 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
-import com.gdavidpb.tuindice.summary.presentation.model.TermReportItem
+import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReport
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportSectionItem
 
 // What the assistant reads of the report: the term it is about, named by the label the screen gives the term, and its
 // index as the screen shows it. The chat's chip shows the label, so the report is named by its term. The report itself
 // comes with its id and its text, so the chat knows which report the question is about and what the report says.
-internal fun termReportAssistantContext(report: TermReportItem): AssistantScreenContext {
+internal fun termReportAssistantContextOf(
+	report: SummaryTermReport,
+	periodLabel: String,
+	index: String?,
+	sections: List<TermReportSectionItem>
+): AssistantScreenContext {
 	return AssistantScreenContext(
 		screen = AssistantScreen.TERM_REPORT,
 		entities = buildList {
-			report.termId?.let { termId -> add(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = termId)) }
+			report.termId?.let { id -> add(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = id)) }
 		},
 		visibleFields = buildMap {
-			put("termLabel", report.periodLabel)
-			report.hero.index?.let { index -> put("termIndex", index) }
+			put("termLabel", periodLabel)
+			index?.let { value -> put("termIndex", value) }
 			put("reportId", report.insightId)
 			put("reportTitle", report.title.take(REPORT_TITLE_LIMIT))
-			put("reportText", reportTextOf(sections = report.sections))
+			put("reportText", reportTextOf(sections = sections))
 		}
 	)
 }
