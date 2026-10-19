@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatFallbackItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -80,12 +80,12 @@ class SistemaComponentItemMappingTest {
 	}
 
 	@Test
-	fun aComponentOfAPortedCatalog_isNotUnmigrated_andAnUnknownOneIs() {
+	fun aPortedComponent_isItsOwnItem_andAnUnknownOneFallsBackToItsText() {
 		val ported = StillAppliesComponent("c2", "¿Sigue aplicando?", memoryId = "m1", statement = "x")
 		val unknown = UnknownChatComponent(id = "u1", fallbackText = "Texto")
 
 		assertIs<StillAppliesItem>(ported.toChatComponentItem(nowMillis = 0L))
-		assertIs<ChatComponentItem.Unmigrated>(unknown.toChatComponentItem(nowMillis = 0L))
+		assertEquals(ChatFallbackItem("u1", false, "Texto"), unknown.toChatComponentItem(nowMillis = 0L))
 		assertIs<SupportItem>(SupportComponent("c7", "Ayuda", lines = emptyList()).toChatComponentItem(nowMillis = 0L))
 	}
 }

@@ -4,47 +4,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.presentation.mapper.planLoadBandText
+import com.gdavidpb.tuindice.assistant.presentation.model.PlanComparisonItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_credits
-import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_plan_comparison_label
-import tuindice.assistant.generated.resources.assistant_card_b_plan_unlocks
 
 // plan.comparacion/1: no figure. One block per candidate plan: its label, its load and its credits, and the subjects it
 // unlocks, in the order the service gives them.
 @Composable
 fun PlanComparisonComponentView(
-	component: PlanComparisonComponent,
+	item: PlanComparisonItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Plan.comparison(component.id))) {
+	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Plan.comparison(item.id))) {
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_plan_comparison_label))
-		component.options.forEachIndexed { index, option ->
-			val credits = stringResource(Res.string.assistant_card_b_credits, option.credits)
-			val band = planLoadBandText(option.loadBand)
-			val summary = if (band == null) credits else stringResource(Res.string.assistant_card_b_joined, band, credits)
-
+		item.options.forEachIndexed { index, option ->
 			CardRowView(
 				code = option.label,
-				name = summary,
+				name = option.summaryText.asString(),
 				showsDivider = index > 0
 			)
-			if (option.unlocks.isNotEmpty()) {
-				CardRowView(
-					name = stringResource(Res.string.assistant_card_b_plan_unlocks, option.unlocks.joinToString(", ")),
-					showsDivider = false
-				)
+			option.unlocksText?.let { unlocks ->
+				CardRowView(name = unlocks.asString(), showsDivider = false)
 			}
 		}
-		CardRecordLinkView(entityRefs = component.entityRefs, onAction = onAction)
+		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 	}
 }

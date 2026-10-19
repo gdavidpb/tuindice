@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatFallbackItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CitationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ClashesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
@@ -21,6 +22,9 @@ import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PaceItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumComparisonItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumProgressItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PlanComparisonItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PlanEvaluationItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PlanListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecommendedElectivesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecordStatsItem
@@ -41,7 +45,6 @@ import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WeekScheduleItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WeeklyLoadItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.CitationComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.HelpComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.EvaluationListComponentView
@@ -67,6 +70,9 @@ import com.gdavidpb.tuindice.assistant.ui.component.pensum.RequirementsComponent
 import com.gdavidpb.tuindice.assistant.ui.component.pensum.SubjectImpactComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.ProfileSummaryComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.SyncStatusComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanComparisonComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanEvaluationComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanListComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.resumen.AttentionComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.CooldownComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.StillAppliesComponentView
@@ -75,13 +81,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.sistema.SuspensionComponentV
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.UsageNoticeComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.WarningComponentView
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
-import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
-import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
-import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
-import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
-import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
-import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 
 // One component of an agent message. A component that opens on a sheet adds its «Ver detalle» row, except on its own
 // sheet, where [showsDetailRow] is false.
@@ -139,6 +138,9 @@ private fun ComponentRenderer(
 		is RequirementsItem -> RequirementsComponentView(item = item, onAction = onAction)
 		is SubjectImpactItem -> SubjectImpactComponentView(item = item, onAction = onAction)
 		is PensumComparisonItem -> PensumComparisonComponentView(item = item, onAction = onAction)
+		is PlanListItem -> PlanListComponentView(item = item, onAction = onAction)
+		is PlanEvaluationItem -> PlanEvaluationComponentView(item = item, onAction = onAction)
+		is PlanComparisonItem -> PlanComparisonComponentView(item = item, onAction = onAction)
 		is CitationItem -> CitationComponentView(item = item, onAction = onAction)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
 		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
@@ -149,26 +151,6 @@ private fun ComponentRenderer(
 		is WarningItem -> WarningComponentView(item = item)
 		is OpenScreenItem -> OpenScreenComponentView(item = item, onAction = onAction)
 
-		is ChatComponentItem.Unmigrated -> WireComponentRenderer(component = item.component, onAction = onAction)
-	}
-}
-
-// The renderers of the catalogs that still take their wire components. Each one leaves this function when its catalog
-// has its items.
-@Composable
-private fun WireComponentRenderer(
-	component: ChatComponent,
-	onAction: (AssistantChat.Action) -> Unit
-) {
-	when (component) {
-		// plan: drawn by AcademicCardComponentRenderer
-		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent ->
-			AcademicCardComponentRenderer(component = component, onAction = onAction)
-
-		// A component this build does not know shows the text the backend sent with it.
-		is UnknownChatComponent -> ChatFallbackComponentView(fallbackText = component.fallbackText)
-
-		// The catalogs ported to items are drawn from their items, so none of their components arrives here.
-		else -> Unit
+		is ChatFallbackItem -> ChatFallbackComponentView(fallbackText = item.fallbackText)
 	}
 }

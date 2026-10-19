@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatFallbackItem
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
+import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
@@ -16,6 +18,9 @@ import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
+import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
+import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
+import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
@@ -36,8 +41,7 @@ import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
-// The item a component is drawn from. Each catalog gets its items here as it is ported; a component of a catalog not
-// yet ported travels as Unmigrated, and its view draws it from the wire component.
+// The item a component is drawn from: one item for each component of the catalogs this build renders.
 internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentItem {
 	return when (this) {
 		is StillAppliesComponent -> toStillAppliesItem()
@@ -69,11 +73,14 @@ internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentIt
 		is RequirementsComponent -> toRequirementsItem()
 		is SubjectImpactComponent -> toSubjectImpactItem()
 		is PensumComparisonComponent -> toPensumComparisonItem()
+		is PlanListComponent -> toPlanListItem()
+		is PlanEvaluationComponent -> toPlanEvaluationItem()
+		is PlanComparisonComponent -> toPlanComparisonItem()
 		is HelpComponent -> toHelpItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()
 
-		else -> ChatComponentItem.Unmigrated(component = this)
+		is UnknownChatComponent -> ChatFallbackItem(id = id, opensSheet = opensSheet(), fallbackText = fallbackText)
 	}
 }
 
