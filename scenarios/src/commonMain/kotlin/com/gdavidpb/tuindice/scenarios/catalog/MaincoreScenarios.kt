@@ -82,8 +82,8 @@ private val maincoreBottomBarState = scenario(
 }
 
 /**
- * The student's avatar ends the top bar of every main section and opens Settings over the section on screen; the
- * back button returns to that very section, and the bottom bar is not part of Settings.
+ * The student's avatar ends the top bar of Summary, the hub, and opens Settings over it; the back button returns to
+ * Summary, and the bottom bar is not part of Settings. The other sections keep their bar without it.
  */
 private val maincoreSettingsAvatar = scenario(
 	"maincore-settings-avatar",
@@ -100,16 +100,13 @@ private val maincoreSettingsAvatar = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
-	waitVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
-	openSettings()
-	closeSettings()
-	waitVisible(RecordUiTags.ContentContainer, Within.Action)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 	waitVisible(PensumUiTags.PensumScreen, Within.Wait)
-	waitVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
-	waitVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
 }
 
 private val maincoreBackStack = scenario(

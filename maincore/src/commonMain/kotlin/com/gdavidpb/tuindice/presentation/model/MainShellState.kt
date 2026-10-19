@@ -18,7 +18,8 @@ data class MainShellState(
 	val showsTopBarBackButton: Boolean = true,
 	// What the active screen declared for the assistant, and whether the assistant is on.
 	val assistantContext: AssistantScreenContext? = null,
-	val isAssistantVisible: Boolean = false
+	val isAssistantVisible: Boolean = false,
+	val isProfileAvatarVisible: Boolean = false
 ) {
 	// The places of the bar in view, and the actions in its ⋮ menu. The one priority table is in arrangeTopBarActions.
 	// They are worked out once, when the state is made, because the bar reads them on every frame.
@@ -26,10 +27,10 @@ data class MainShellState(
 
 	val overflowActions: List<TopBarAction>
 
-	// The avatar that opens Settings ends the bar of a main section, the screens that have the bottom bar. A screen
-	// pushed over a tab has the back button where the section's own places would be, and no avatar.
+	// The avatar that opens Settings ends the bar of Summary, the one section that declares it; the others keep their bar
+	// for their own places. A screen pushed over a tab has the back button instead, and no avatar.
 	val showsProfileAvatar: Boolean
-		get() = isTopBarVisible && isBottomBarVisible
+		get() = isTopBarVisible && isBottomBarVisible && isProfileAvatarVisible
 
 	init {
 		val arrangement = arrangeTopBarActions(
@@ -53,5 +54,6 @@ fun ViewState.toMainShellState(isAssistantVisible: Boolean = false): MainShellSt
 		else -> null
 	},
 	assistantContext = assistantContext,
-	isAssistantVisible = isAssistantVisible
+	isAssistantVisible = isAssistantVisible,
+	isProfileAvatarVisible = isProfileAvatarVisible
 )

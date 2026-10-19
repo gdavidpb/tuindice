@@ -31,10 +31,17 @@ class MainShellStateTest {
 	}
 
 	@Test
-	fun when_theScreenIsATabRootWithItsBars_then_theBarEndsWithTheSettingsAvatar() {
-		val shell = tabRoot().toMainShellState()
+	fun when_theTabRootDeclaresTheAvatar_then_theBarEndsWithIt() {
+		val shell = tabRoot(declaresAvatar = true).toMainShellState()
 
 		assertEquals(true, shell.showsProfileAvatar)
+	}
+
+	@Test
+	fun when_aTabRootDoesNotDeclareTheAvatar_then_itsBarHasNone() {
+		val shell = tabRoot(declaresAvatar = false).toMainShellState()
+
+		assertEquals(false, shell.showsProfileAvatar)
 	}
 
 	@Test
@@ -42,6 +49,7 @@ class MainShellStateTest {
 		val pushed = object : ViewState {
 			override val isTopBarVisible: Boolean = true
 			override val isBottomBarVisible: Boolean = false
+			override val isProfileAvatarVisible: Boolean = true
 		}
 
 		assertEquals(false, pushed.toMainShellState().showsProfileAvatar)
@@ -52,6 +60,7 @@ class MainShellStateTest {
 		val hidden = object : ViewState {
 			override val isTopBarVisible: Boolean = false
 			override val isBottomBarVisible: Boolean = true
+			override val isProfileAvatarVisible: Boolean = true
 		}
 
 		assertEquals(false, hidden.toMainShellState().showsProfileAvatar)
@@ -68,9 +77,10 @@ class MainShellStateTest {
 		assertEquals(emptyList(), shell.overflowActions)
 	}
 
-	private fun tabRoot(): ViewState = object : ViewState {
+	private fun tabRoot(declaresAvatar: Boolean): ViewState = object : ViewState {
 		override val isTopBarVisible: Boolean = true
 		override val isBottomBarVisible: Boolean = true
+		override val isProfileAvatarVisible: Boolean = declaresAvatar
 	}
 
 	private fun pensumScreen(): ViewState = object : ViewState {

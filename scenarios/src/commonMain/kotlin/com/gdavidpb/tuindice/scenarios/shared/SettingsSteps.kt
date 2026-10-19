@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
-/** From the top bar of a main section: taps the student's avatar and waits for the Settings screen. */
+/** From Summary's top bar, the only one with the student's avatar: taps it and waits for the Settings screen. */
 fun StepBuilder.openSettings() {
 	group("openSettings") {
 		tap(MaincoreUiTags.TuIndiceTopBarSettingsButton)
@@ -19,7 +19,7 @@ fun StepBuilder.openSettings() {
 	}
 }
 
-/** From Settings: the pushed screen's back button, which returns to the main section it was opened from. */
+/** From Settings: the pushed screen's back button, which returns to Summary. */
 fun StepBuilder.closeSettings() {
 	group("closeSettings") {
 		tap(MaincoreUiTags.TuIndiceTopBarBackButton)
@@ -36,7 +36,7 @@ fun StepBuilder.openAboutFromSettings() {
 }
 
 /**
- * From a main section: Settings, then «Cerrar sesión» at the end of the list, and the sign-out sheet, which opens
+ * From Summary: Settings, then «Cerrar sesión» at the end of the list, and the sign-out sheet, which opens
  * with its message.
  */
 fun StepBuilder.openSignOutFromSettings() {

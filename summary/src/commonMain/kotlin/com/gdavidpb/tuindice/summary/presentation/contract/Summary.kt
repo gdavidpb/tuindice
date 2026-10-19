@@ -32,6 +32,10 @@ object Summary {
 		// own observation, must not be lost when it does.
 		abstract val hub: SummaryHubItem
 
+		// Summary is where the student's photo opens Settings, in every state of the screen.
+		override val isProfileAvatarVisible: Boolean
+			get() = true
+
 		// Only a loaded content knows what the hub shows; every other state describes the screen alone.
 		override val assistantContext: AssistantScreenContext
 			get() = AssistantScreenContext(screen = AssistantScreen.SUMMARY)

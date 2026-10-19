@@ -220,7 +220,7 @@ class TuIndiceScreenUiTest {
 	}
 
 	@Test
-	fun when_barBelongsToAMainSection_then_endsWithTheSettingsAvatarButton() = runTuIndiceUiTest {
+	fun when_theBarBelongsToSummary_then_endsWithTheSettingsAvatarButton() = runTuIndiceUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
@@ -665,7 +665,9 @@ class TuIndiceScreenUiTest {
 		topBarConfig = topBarConfig,
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
-		recordTopBarViewModeState = recordTopBarViewModeState
+		recordTopBarViewModeState = recordTopBarViewModeState,
+		// A bar with the bottom bar stands for Summary here, the section that declares the avatar.
+		isProfileAvatarVisible = isBottomBarVisible
 	)
 
 	private fun testScreenModule() = module {
