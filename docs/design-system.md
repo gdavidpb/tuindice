@@ -83,6 +83,9 @@ Una sola regla para toda superficie con un campo de texto (pantallas, hojas, di�
 - **Campos abajo**: el compositor del asistente queda justo encima del teclado y la lista de mensajes se achica por encima de él.
 - **Búsquedas de materias**: el campo se queda arriba; la lista de resultados termina encima del teclado y se desplaza en el espacio que queda. En «Crear trimestre» el campo va dentro de la lista, con el resto de la pantalla, y es la lista la que termina encima del teclado.
 
+- **El marco consume su relleno**: el contenido de las secciones va con `consumeWindowInsets(innerPadding)` del `Scaffold` del marco (`TuIndiceScreen`), así el `imePadding()` de una pantalla suma solo lo que el teclado sube por encima de las barras y del indicador de inicio, no el alto entero del teclado otra vez. Sin eso, la barra «Crear» de Crear trimestre quedaba separada del teclado por un hueco.
+- **Hoja del chat**: con el teclado abierto el cuerpo toma todo el alto que queda (`CHAT_SHEET_TYPING_HEIGHT_FRACTION`); al 60 % de siempre, el título, el contexto, la oferta y las sugerencias dejaban el campo debajo del teclado.
+
 ## Navegación y Ajustes
 
 ## Navegación y Ajustes

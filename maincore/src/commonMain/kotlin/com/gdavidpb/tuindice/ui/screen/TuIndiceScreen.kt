@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -467,6 +468,9 @@ fun TuIndiceScreen(
 					navigator = contentNavigator,
 					modifier = Modifier
 						.padding(innerPadding)
+						// What the shell already pads (the bars, the home indicator) is consumed, so a screen's imePadding()
+						// adds only the part of the keyboard that rises above it, not the keyboard's whole height again.
+						.consumeWindowInsets(innerPadding)
 						.coachmarkAnchor(
 							id = activeCoachmarkId.takeUnless { settingsCoachmarkActive },
 							registry = coachmarkAnchorRegistry
