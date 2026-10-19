@@ -144,7 +144,7 @@ object Copy {
 		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
 		CopyBinding.Resource(EvaluationQuizName, "evaluations", "evaluation_quiz"),
 		CopyBinding.Resource(AssistantReportIncorrect, "assistant", "assistant_chat_report_incorrect"),
-		CopyBinding.Resource(AssistantConversationsDeleted, "about", "about_assistant_conversations_deleted"),
+		CopyBinding.Resource(AssistantConversationsDeleted, "about", "settings_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,
 			"evaluations",

@@ -62,7 +62,7 @@ class CoachmarkCoverageTest {
 		val first = surfaces.first { it.size > 1 }
 		val reversed = scenarioWaiting("coachmarks-reversed", first.reversed())
 		val partial = scenarioWaiting("coachmarks-partial", first.dropLast(1))
-		val interleaved = scenarioWaiting("coachmarks-interleaved", listOf(first.first(), CoachmarkId.About, first.last()))
+		val interleaved = scenarioWaiting("coachmarks-interleaved", listOf(first.first(), CoachmarkId.entries.first { it !in first }, first.last()))
 		val exact = scenarioWaiting("coachmarks-exact", first)
 		val other = scenario("other-scenario", "x", clean) {
 			first.forEach { waitVisible(CoachmarkUiTags.currentCoachmark(it), Within.Action) }

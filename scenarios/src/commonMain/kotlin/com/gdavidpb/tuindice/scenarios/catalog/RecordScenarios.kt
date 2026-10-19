@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
+import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.scenarios.shared.waitEvaluationsOnTheWeekOfTheClock
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -644,8 +645,7 @@ private val recordScheduleViewRemembered = scenario(
 	// Signing out forgets it, in the same process: the next session starts on the table again.
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 	signInThroughUi(E2eAccounts.AnnulledProvisional)
