@@ -38,7 +38,7 @@ fun TermReportNextActionRow(
 		) {
 			Icon(
 				modifier = Modifier.size(TuIndiceComponentSizes.IconMedium),
-				imageVector = action.icon,
+				imageVector = action.icon.imageVector(),
 				contentDescription = null,
 				tint = MaterialTheme.colorScheme.onSurface
 			)

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.model
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 
@@ -13,6 +12,6 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 data class TermReportActionItem(
 	val label: String,
 	val target: AssistantNavTarget,
-	val icon: ImageVector,
+	val icon: TermReportActionIconKind,
 	val entityRefs: List<AssistantEntityRef>
 )

@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.mapper.reportTextOf
-import com.gdavidpb.tuindice.summary.presentation.mapper.toActionIcon
+import com.gdavidpb.tuindice.summary.presentation.mapper.toActionIconKind
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsReferenceItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
@@ -98,13 +98,13 @@ private fun nextActionsFixture() = listOf(
 	TermReportActionItem(
 		label = "Proyectar tu índice para Jul - Ago",
 		target = AssistantNavTarget.RECORD_PROJECTION,
-		icon = AssistantNavTarget.RECORD_PROJECTION.toActionIcon(),
+		icon = AssistantNavTarget.RECORD_PROJECTION.toActionIconKind(),
 		entityRefs = emptyList()
 	),
 	TermReportActionItem(
 		label = "Compartir tu trimestre",
 		target = AssistantNavTarget.SHARE_TERM,
-		icon = AssistantNavTarget.SHARE_TERM.toActionIcon(),
+		icon = AssistantNavTarget.SHARE_TERM.toActionIconKind(),
 		entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1"))
 	)
 )

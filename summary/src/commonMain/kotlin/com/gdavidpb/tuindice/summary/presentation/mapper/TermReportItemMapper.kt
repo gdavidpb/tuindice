@@ -74,7 +74,7 @@ internal fun SummaryTermReport.toTermReportItem(): TermReportItem {
 			TermReportActionItem(
 				label = action.label,
 				target = action.target,
-				icon = action.target.toActionIcon(),
+				icon = action.target.toActionIconKind(),
 				entityRefs = action.entityRefs
 			)
 		},
