@@ -13,6 +13,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.gdavidpb.tuindice.assistant.ui.model.CardFigure
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // The figure that answers the question, big, and an optional second one beside it, smaller (variant B of the owner).

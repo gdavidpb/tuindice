@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toProfileSummaryItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -16,7 +17,7 @@ class ProfileSummaryComponentViewUiTest {
 	@Test
 	fun when_theProfileHasAnIndex_then_itIsTheFigureAndTheCreditsAreBesideIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ProfileSummaryComponentView(component = profile(cumulativeIndex = 16.4, totalCredits = 180))
+			ProfileSummaryComponentView(item = profile(cumulativeIndex = 16.4, totalCredits = 180).toProfileSummaryItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Profile.summary(COMPONENT_ID))
@@ -33,7 +34,7 @@ class ProfileSummaryComponentViewUiTest {
 	fun when_theIndexIsMissing_then_theCreditsAreTheFigureAndNothingIsInvented() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ProfileSummaryComponentView(
-				component = profile(cumulativeIndex = null, totalCredits = null, currentTermLabel = null)
+				item = profile(cumulativeIndex = null, totalCredits = null, currentTermLabel = null).toProfileSummaryItem()
 			)
 		}
 

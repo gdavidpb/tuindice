@@ -8,13 +8,13 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardFraction
 import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardPercentOf
 import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardPercentText
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardFigure
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardProgressView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
+import com.gdavidpb.tuindice.assistant.ui.model.CardFigure
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent

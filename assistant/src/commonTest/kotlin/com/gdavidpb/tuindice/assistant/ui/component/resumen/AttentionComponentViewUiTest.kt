@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toAttentionCardItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.AttentionItem
@@ -26,7 +27,7 @@ class AttentionComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AttentionComponentView(
-				component = attention(item(EVALUATION_REF, title = "Parcial 2 sin nota")),
+				item = attention(item(EVALUATION_REF, title = "Parcial 2 sin nota")).toAttentionCardItem(),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -46,7 +47,7 @@ class AttentionComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AttentionComponentView(
-				component = attention(item(TERM_REF, title = "Trimestre sin cerrar")),
+				item = attention(item(TERM_REF, title = "Trimestre sin cerrar")).toAttentionCardItem(),
 				onAction = { actions.add(it) }
 			)
 		}
@@ -62,7 +63,7 @@ class AttentionComponentViewUiTest {
 	fun when_anItemNamesAPlan_then_itHasNoLink() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AttentionComponentView(
-				component = attention(item(PLAN_REF, title = "Plan por revisar")),
+				item = attention(item(PLAN_REF, title = "Plan por revisar")).toAttentionCardItem(),
 				onAction = {}
 			)
 		}

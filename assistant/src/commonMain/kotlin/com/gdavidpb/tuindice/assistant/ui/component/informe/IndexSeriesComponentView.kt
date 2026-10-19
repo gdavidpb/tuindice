@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardIndexText
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardIndexFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing

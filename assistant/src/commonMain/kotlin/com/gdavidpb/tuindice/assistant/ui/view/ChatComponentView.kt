@@ -7,18 +7,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
 import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SuspensionItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
 import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.perfil.ProfileSummaryComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.perfil.SyncStatusComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.resumen.AttentionComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.CooldownComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.StillAppliesComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.SupportComponentView
@@ -26,7 +32,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.sistema.SuspensionComponentV
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.UsageNoticeComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.WarningComponentView
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
@@ -41,7 +46,6 @@ import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
-import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
@@ -51,7 +55,6 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
-import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
@@ -91,6 +94,9 @@ private fun ComponentRenderer(
 ) {
 	when (item) {
 		is StillAppliesItem -> StillAppliesComponentView(item = item, onAction = onAction)
+		is ProfileSummaryItem -> ProfileSummaryComponentView(item = item)
+		is SyncStatusItem -> SyncStatusComponentView(item = item)
+		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
 		is UsageNoticeItem -> UsageNoticeComponentView(item = item)
 		is CooldownItem -> CooldownComponentView(item = item, onAction = onAction)
 		is SuspensionItem -> SuspensionComponentView(item = item, onAction = onAction)
@@ -110,10 +116,10 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		// perfil/1, informe/1, horario/1 and resumen/1: their cards are drawn by RecordCardComponentRenderer
-		is ProfileSummaryComponent, is SyncStatusComponent, is TermComponent, is IndexSeriesComponent,
+		// informe/1 and horario/1: their cards are drawn by RecordCardComponentRenderer
+		is TermComponent, is IndexSeriesComponent,
 		is RecordStatsComponent, is PaceComponent, is SimulationComponent, is IndexGoalComponent,
-		is AttentionComponent, is WeekScheduleComponent, is NextClassComponent, is ClashesComponent ->
+		is WeekScheduleComponent, is NextClassComponent, is ClashesComponent ->
 			RecordCardComponentRenderer(component = component, onAction = onAction)
 
 		// conocimiento, evaluaciones, materias, pensum and plan: drawn by AcademicCardComponentRenderer

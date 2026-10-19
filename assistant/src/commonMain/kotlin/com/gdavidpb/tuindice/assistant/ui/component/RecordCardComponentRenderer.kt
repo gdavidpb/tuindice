@@ -11,20 +11,14 @@ import com.gdavidpb.tuindice.assistant.ui.component.informe.PaceComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.RecordStatsComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.SimulationComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.TermComponentView
-import com.gdavidpb.tuindice.assistant.ui.component.perfil.ProfileSummaryComponentView
-import com.gdavidpb.tuindice.assistant.ui.component.perfil.SyncStatusComponentView
-import com.gdavidpb.tuindice.assistant.ui.component.resumen.AttentionComponentView
-import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
-import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
-import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 
@@ -36,15 +30,12 @@ fun RecordCardComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		is ProfileSummaryComponent -> ProfileSummaryComponentView(component = component)
-		is SyncStatusComponent -> SyncStatusComponentView(component = component)
 		is TermComponent -> TermComponentView(component = component, onAction = onAction)
 		is IndexSeriesComponent -> IndexSeriesComponentView(component = component)
 		is RecordStatsComponent -> RecordStatsComponentView(component = component)
 		is PaceComponent -> PaceComponentView(component = component)
 		is SimulationComponent -> SimulationComponentView(component = component)
 		is IndexGoalComponent -> IndexGoalComponentView(component = component)
-		is AttentionComponent -> AttentionComponentView(component = component, onAction = onAction)
 		is WeekScheduleComponent -> WeekScheduleComponentView(component = component)
 		is NextClassComponent -> NextClassComponentView(component = component)
 		is ClashesComponent -> ClashesComponentView(component = component)

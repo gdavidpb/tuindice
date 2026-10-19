@@ -1,12 +1,15 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
+import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import com.gdavidpb.tuindice.chatcontract.component.SupportComponent
+import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.SuspensionComponent
 import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
@@ -22,6 +25,9 @@ internal fun ChatComponent.toChatComponentItem(): ChatComponentItem {
 		is SupportComponent -> toSupportItem()
 		is WarningComponent -> toWarningItem()
 		is OpenScreenComponent -> toOpenScreenItem()
+		is ProfileSummaryComponent -> toProfileSummaryItem()
+		is SyncStatusComponent -> toSyncStatusItem()
+		is AttentionComponent -> toAttentionCardItem()
 
 		else -> ChatComponentItem.Unmigrated(component = this)
 	}

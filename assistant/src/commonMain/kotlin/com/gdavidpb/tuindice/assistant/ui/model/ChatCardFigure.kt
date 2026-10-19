@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.model
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardIndexText
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardFigure
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 

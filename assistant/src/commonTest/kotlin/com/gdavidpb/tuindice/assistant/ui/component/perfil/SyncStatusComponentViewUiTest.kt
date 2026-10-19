@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSyncStatusItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.SyncSourceRow
 import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
@@ -19,7 +20,7 @@ class SyncStatusComponentViewUiTest {
 	fun when_aSourceIsUnavailable_then_theHeadlineSaysThereAreProblems_andEachSourceReadsItsState() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				SyncStatusComponentView(component = sync(SOURCES_WITH_A_PROBLEM))
+				SyncStatusComponentView(item = sync(SOURCES_WITH_A_PROBLEM).toSyncStatusItem())
 			}
 
 			assertNodeVisible(AssistantUiTags.Profile.sync(COMPONENT_ID))
@@ -34,7 +35,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_everySourceIsFine_then_theHeadlineSaysAllIsWell() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(component = sync(FINE_SOURCES))
+			SyncStatusComponentView(item = sync(FINE_SOURCES).toSyncStatusItem())
 		}
 
 		onNodeWithText("Con problemas").assertDoesNotExist()
@@ -45,7 +46,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_theAnnulmentHasACause_then_itIsARow_andTheEnrollmentCodeIsNotShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(component = sync(FINE_SOURCES, annulmentCause = CAUSE))
+			SyncStatusComponentView(item = sync(FINE_SOURCES, annulmentCause = CAUSE).toSyncStatusItem())
 		}
 
 		onNodeWithText(CAUSE).assertIsDisplayed()
@@ -55,7 +56,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_theLastSyncIsKnown_then_TheLabelSaysWhen() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(component = sync(FINE_SOURCES, lastSyncAtMillis = LAST_SYNC_MILLIS))
+			SyncStatusComponentView(item = sync(FINE_SOURCES, lastSyncAtMillis = LAST_SYNC_MILLIS).toSyncStatusItem())
 		}
 
 		onNodeWithText("ÚLTIMA SINCRONIZACIÓN", substring = true).assertIsDisplayed()
