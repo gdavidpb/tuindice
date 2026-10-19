@@ -100,7 +100,7 @@ class SessionInvalidationOwnershipTest {
 		assertNotNull(gate, "the lock was taken")
 		assertEquals(0, rig.invalidations.raised, "the wipe waits for the lock: nothing is announced yet")
 
-		gate?.complete(Unit)
+		gate.complete(Unit)
 		advanceUntilIdle()
 
 		rig.assertEndedWhole()
