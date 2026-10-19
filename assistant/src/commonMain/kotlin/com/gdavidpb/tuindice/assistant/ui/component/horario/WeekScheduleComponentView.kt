@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.assistant.presentation.mapper.scheduleDayText
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFigure
@@ -13,7 +14,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
-import com.gdavidpb.tuindice.assistant.ui.model.scheduleDayText
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.mapper.toClockRangeText
 import com.gdavidpb.tuindice.base.presentation.model.asString

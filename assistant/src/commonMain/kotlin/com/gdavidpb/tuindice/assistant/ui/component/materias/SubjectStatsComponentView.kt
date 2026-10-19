@@ -10,6 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.bandText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardFraction
+import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardPercentText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardCompactNumberText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardPercent
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFigure
@@ -19,11 +24,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardProgressView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
-import com.gdavidpb.tuindice.assistant.ui.model.bandText
-import com.gdavidpb.tuindice.assistant.ui.model.chatCardFraction
-import com.gdavidpb.tuindice.assistant.ui.model.chatCardPercentText
-import com.gdavidpb.tuindice.assistant.ui.model.toCardCompactNumberText
-import com.gdavidpb.tuindice.assistant.ui.model.toCardPercent
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing

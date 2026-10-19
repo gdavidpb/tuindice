@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.mapper.toNameText
 import com.gdavidpb.tuindice.base.presentation.model.UiText

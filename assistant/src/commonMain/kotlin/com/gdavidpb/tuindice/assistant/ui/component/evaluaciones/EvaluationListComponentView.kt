@@ -7,6 +7,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.evaluationStateText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardCompactNumberText
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFigure
@@ -15,8 +17,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
-import com.gdavidpb.tuindice.assistant.ui.model.evaluationStateText
-import com.gdavidpb.tuindice.assistant.ui.model.toCardCompactNumberText
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate

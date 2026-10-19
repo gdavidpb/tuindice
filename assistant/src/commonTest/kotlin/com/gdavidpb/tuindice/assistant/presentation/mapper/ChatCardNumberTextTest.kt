@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

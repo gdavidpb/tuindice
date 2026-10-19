@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.assistant.generated.resources.Res
