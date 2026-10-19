@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -30,7 +32,8 @@ fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
 	isCameraAvailable: Boolean = false,
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 	val listState = rememberLazyListState()
 	val lastItem = content.items.lastOrNull()
@@ -81,12 +84,17 @@ fun AssistantChatConversationView(
 		if (content.suggestions.isNotEmpty()) {
 			AssistantChatSuggestionsView(suggestions = content.suggestions, onAction = onAction)
 		}
-		if (!content.isGuided) {
-			AssistantChatComposerView(
-				composer = content.composer,
-				isCameraAvailable = isCameraAvailable,
-				onAction = onAction
-			)
+		// The sheet's snackbar sits right above the composer. Both share one group, so the spacing above the group is the
+		// one the composer always had, and the host takes no room while no notice shows.
+		Column(modifier = Modifier.fillMaxWidth()) {
+			AssistantChatSnackbarView(hostState = snackbarHostState)
+			if (!content.isGuided) {
+				AssistantChatComposerView(
+					composer = content.composer,
+					isCameraAvailable = isCameraAvailable,
+					onAction = onAction
+				)
+			}
 		}
 	}
 }

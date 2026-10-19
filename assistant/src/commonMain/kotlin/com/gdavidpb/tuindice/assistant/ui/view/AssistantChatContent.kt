@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 
@@ -13,7 +15,8 @@ fun AssistantChatContent(
 	state: AssistantChat.State,
 	onAction: (AssistantChat.Action) -> Unit,
 	isCameraAvailable: Boolean = false,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 	when (state) {
 		AssistantChat.State.Idle, AssistantChat.State.Unavailable -> Spacer(modifier = modifier)
@@ -29,7 +32,8 @@ fun AssistantChatContent(
 			content = state,
 			isCameraAvailable = isCameraAvailable,
 			onAction = onAction,
-			modifier = modifier
+			modifier = modifier,
+			snackbarHostState = snackbarHostState
 		)
 	}
 }

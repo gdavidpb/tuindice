@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -22,13 +24,15 @@ import kotlinx.coroutines.flow.first
 private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
 
 // The chat sheet: the conversation carries the title «Asistente» after the sparkle, without the name of the app; the
-// consent carries its own, with the sparkle too. It opens showing its whole body, composer included.
+// consent carries its own, with the sparkle too. It opens showing its whole body, composer included. Its notices show
+// inside it, through [snackbarHostState]: the host of the screen under the sheet is covered by the sheet.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantChatSheet(
 	state: AssistantChat.State,
 	onAction: (AssistantChat.Action) -> Unit,
-	isCameraAvailable: Boolean = false
+	isCameraAvailable: Boolean = false,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 	// The body takes 60% of the window, more than the half a partly expanded sheet shows, so the first time the sheet
 	// settles there it is lifted to show the composer. The half-open state itself stays: on iOS a sheet built without it
@@ -52,6 +56,7 @@ fun AssistantChatSheet(
 			state = state,
 			isCameraAvailable = isCameraAvailable,
 			onAction = onAction,
+			snackbarHostState = snackbarHostState,
 			modifier = Modifier
 				.fillMaxWidth()
 				.fillMaxHeight(CHAT_SHEET_HEIGHT_FRACTION)

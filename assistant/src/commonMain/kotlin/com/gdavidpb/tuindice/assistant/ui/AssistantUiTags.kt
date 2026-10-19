@@ -19,6 +19,10 @@ object AssistantUiTags {
 	const val ProgressContainer = "assistant_progress_container"
 	const val ProgressAtom = "assistant_progress_atom"
 	const val ProgressLabel = "assistant_progress_label"
+
+	// The snackbar of the chat sheet: its host, and the message it shows.
+	const val ChatSnackbar = "assistant_chat_snackbar"
+	const val ChatSnackbarMessage = "assistant_chat_snackbar_message"
 	const val Notice = "assistant_notice"
 	const val NoticeTurnFailed = "assistant_notice_turn_failed"
 	const val NoticeRetry = "assistant_notice_retry"
