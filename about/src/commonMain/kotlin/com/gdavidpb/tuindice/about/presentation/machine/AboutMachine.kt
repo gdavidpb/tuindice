@@ -2,15 +2,8 @@ package com.gdavidpb.tuindice.about.presentation.machine
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConsentFailed
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConversationsDeleteFailed
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConversationsDeleted
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutShareMessage
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutShareSubject
-import com.gdavidpb.tuindice.about.presentation.mapper.aboutVersionUnavailable
-import com.gdavidpb.tuindice.about.presentation.mapper.labelPrivacyPolicy
-import com.gdavidpb.tuindice.about.presentation.mapper.labelSupport
-import com.gdavidpb.tuindice.about.presentation.mapper.labelTermsAndConditions
+import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
+import com.gdavidpb.tuindice.about.presentation.resource.DefaultAboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -28,7 +21,8 @@ class AboutMachine(
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val externalUseCases: AboutExternalUseCases,
-	private val assistantUseCases: AboutAssistantUseCases
+	private val assistantUseCases: AboutAssistantUseCases,
+	private val textProvider: AboutTextProvider = DefaultAboutTextProvider()
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
@@ -55,7 +49,7 @@ class AboutMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AboutVersionLoadFailed(
-							versionFallbackText = aboutVersionUnavailable(),
+							versionFallbackText = textProvider.versionUnavailable(),
 							usageDataCollectionEnabled =
 								usageDataConsentRepository.isUsageDataCollectionEnabled()
 						)
@@ -98,7 +92,7 @@ class AboutMachine(
 	internal suspend fun openTermsAndConditions(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = labelTermsAndConditions(),
+				title = textProvider.termsAndConditionsLabel(),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)
@@ -107,7 +101,7 @@ class AboutMachine(
 	internal suspend fun openPrivacyPolicy(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = labelPrivacyPolicy(),
+				title = textProvider.privacyPolicyLabel(),
 				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
 			)
 		)
@@ -116,7 +110,7 @@ class AboutMachine(
 	internal suspend fun openSupport(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = labelSupport(),
+				title = textProvider.supportLabel(),
 				url = appEnvironmentRepository.getEnvironment().supportUrl
 			)
 		)
@@ -125,8 +119,8 @@ class AboutMachine(
 	internal suspend fun shareApp(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.ShareText(
-				subject = aboutShareSubject(),
-				text = aboutShareMessage()
+				subject = textProvider.shareSubject(),
+				text = textProvider.shareMessage()
 			)
 		)
 	}
@@ -183,7 +177,7 @@ class AboutMachine(
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantConsentWriteFailed(
 							restoredGranted = restoredGranted,
-							message = aboutAssistantConsentFailed()
+							message = textProvider.assistantConsentFailed()
 						)
 					)
 				}
@@ -199,13 +193,13 @@ class AboutMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleted(
-							message = aboutAssistantConversationsDeleted()
+							message = textProvider.assistantConversationsDeleted()
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleteFailed(
-							message = aboutAssistantConversationsDeleteFailed()
+							message = textProvider.assistantConversationsDeleteFailed()
 						)
 					)
 				}

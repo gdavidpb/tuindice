@@ -14,6 +14,8 @@ import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
+import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
+import com.gdavidpb.tuindice.about.presentation.resource.DefaultAboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -26,6 +28,7 @@ val aboutModule = module {
 	viewModelOf(::AboutViewModel)
 
 	factoryOf(::AboutMachine)
+	factoryOf(::DefaultAboutTextProvider) { bind<AboutTextProvider>() }
 
 	/* Use cases */
 

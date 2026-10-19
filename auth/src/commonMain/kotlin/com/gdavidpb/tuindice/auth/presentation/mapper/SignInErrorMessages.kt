@@ -2,21 +2,12 @@ package com.gdavidpb.tuindice.auth.presentation.mapper
 
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
-import com.gdavidpb.tuindice.base.presentation.mapper.commonNetworkUnavailableMessage
-import com.gdavidpb.tuindice.base.presentation.mapper.commonServiceUnavailableMessage
-import com.gdavidpb.tuindice.base.presentation.mapper.commonTimeoutMessage
-import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
-import org.jetbrains.compose.resources.getString
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.error_account_disabled
-import tuindice.auth.generated.resources.error_invalid_usb_email_credentials
-import tuindice.auth.generated.resources.error_invalid_usb_id_credentials
-import tuindice.auth.generated.resources.error_untrusted
-import tuindice.auth.generated.resources.error_usb_unavailable
-import tuindice.auth.generated.resources.snack_sign_in_failed
-import tuindice.auth.generated.resources.snack_too_many_requests
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInTextProvider
 
 internal suspend fun SignInUseCaseError?.toErrorMessage(
+	textProvider: SignInTextProvider,
+	sharedTextProvider: SignInSharedTextProvider,
 	identifierMode: SignInIdentifierMode,
 	supportEmail: String
 ): String {
@@ -24,41 +15,41 @@ internal suspend fun SignInUseCaseError?.toErrorMessage(
 		is SignInUseCaseError.InvalidCredentials ->
 			when (identifierMode) {
 				SignInIdentifierMode.UsbId ->
-					getString(Res.string.error_invalid_usb_id_credentials)
+					textProvider.invalidUsbIdCredentials()
 
 				SignInIdentifierMode.UsbEmail ->
-					getString(Res.string.error_invalid_usb_email_credentials)
+					textProvider.invalidUsbEmailCredentials()
 			}
 
 		// Terminal outcomes the user cannot solve alone: both point at support.
 		is SignInUseCaseError.AccountDisabled ->
-			getString(Res.string.error_account_disabled, supportEmail)
+			textProvider.accountDisabled(supportEmail)
 
 		is SignInUseCaseError.Untrusted ->
-			getString(Res.string.error_untrusted, supportEmail)
+			textProvider.untrusted(supportEmail)
 
 		is SignInUseCaseError.AuthenticationFailed ->
-			getString(Res.string.snack_sign_in_failed)
+			textProvider.authenticationFailed()
 
 		is SignInUseCaseError.NoConnection ->
 			if (isNetworkAvailable) {
-				commonServiceUnavailableMessage()
+				sharedTextProvider.serviceUnavailable()
 			} else {
-				commonNetworkUnavailableMessage()
+				sharedTextProvider.networkUnavailable()
 			}
 
 		is SignInUseCaseError.Timeout ->
-			commonTimeoutMessage()
+			sharedTextProvider.timeout()
 
 		// Fault belongs to the university's upstream, not TuIndice — say so, otherwise a
 		// new user with no other context reads the generic message as our app being broken.
 		is SignInUseCaseError.Unavailable ->
-			getString(Res.string.error_usb_unavailable)
+			textProvider.usbUnavailable()
 
 		is SignInUseCaseError.TooManyRequests ->
-			getString(Res.string.snack_too_many_requests)
+			textProvider.tooManyRequests()
 
 		else ->
-			commonUnexpectedErrorMessage()
+			sharedTextProvider.unexpectedError()
 	}
 }

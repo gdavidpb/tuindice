@@ -431,8 +431,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
   propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
   directos).
-- `naming`: un tipo público (o interno) de nivel superior por archivo, con las excepciones de pruebas y de
-  `testkit/` documentadas en la regla (adaptada de `tuindice-api`).
+- `naming`: un tipo público (o interno) de nivel superior por archivo; solo se exime el código de pruebas
+  (adaptada de `tuindice-api`).
 - `state-machine-contracts`: todo `*StateMachineContractTest` llama a `exportToMermaid` y a `assertMachineRandomWalk`.
 - `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
   `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
@@ -448,7 +448,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
   extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`;
-  `machine/` no lee recursos ni construye `UiText` (el texto lo arma `presentation/mapper`).
+  `machine/` no lee recursos ni construye `UiText` (el texto lo arma `presentation/mapper` o un `*TextProvider` de
+  `presentation/resource` que la máquina recibe).
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;

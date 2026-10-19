@@ -5,8 +5,10 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
+import com.gdavidpb.tuindice.about.testing.FakeAboutTextProvider
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.about.testing.fakeAboutAssistantUseCases
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
@@ -88,6 +90,10 @@ class AboutStateMachineContractTest {
 			screenMachine = createMachine(),
 			sampleEvents = listOf(
 				About.Action.LoadVersion,
+				About.Action.ShareApp,
+				About.Action.OpenTermsAndConditions,
+				About.Action.OpenPrivacyPolicy,
+				About.Action.OpenSupport,
 				About.Action.OpenUrl(url = "https://example.test"),
 				About.Action.SetUsageDataCollectionEnabled(enabled = true),
 				About.Action.SetAssistantConsent(granted = true),
@@ -108,7 +114,7 @@ class AboutStateMachineContractTest {
 		)
 	}
 
-	private fun createMachine(): AboutMachine {
+	private fun createMachine(textProvider: AboutTextProvider = FakeAboutTextProvider()): AboutMachine {
 		return AboutMachine(
 			loadVersionUseCase = LoadVersionUseCase(
 				aboutRepository = FakeAboutRepository(),
@@ -131,7 +137,8 @@ class AboutStateMachineContractTest {
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			assistantUseCases = fakeAboutAssistantUseCases()
+			assistantUseCases = fakeAboutAssistantUseCases(),
+			textProvider = textProvider
 		)
 	}
 

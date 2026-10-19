@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInTextProvider
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.security.domain.model.Attestation
@@ -256,4 +258,37 @@ class FakeAuthApiDataSource(
 		revokedRefreshTokens += refreshToken
 		throwable?.let { throw it }
 	}
+}
+
+// Fixed texts, so a walk over the sign-in machine resolves them on any host. The values name their key.
+class FakeSignInTextProvider : SignInTextProvider {
+	override suspend fun invalidUsbIdCredentials(): String = "text:invalid-usb-id"
+
+	override suspend fun invalidUsbEmailCredentials(): String = "text:invalid-usb-email"
+
+	override suspend fun accountDisabled(supportEmail: String): String = "text:account-disabled:$supportEmail"
+
+	override suspend fun untrusted(supportEmail: String): String = "text:untrusted:$supportEmail"
+
+	override suspend fun authenticationFailed(): String = "text:authentication-failed"
+
+	override suspend fun usbUnavailable(): String = "text:usb-unavailable"
+
+	override suspend fun tooManyRequests(): String = "text:too-many-requests"
+}
+
+class FakeSignInSharedTextProvider : SignInSharedTextProvider {
+	override suspend fun retryLabel(): String = "text:retry"
+
+	override suspend fun termsAndConditionsTitle(): String = "text:terms"
+
+	override suspend fun privacyPolicyTitle(): String = "text:privacy"
+
+	override suspend fun serviceUnavailable(): String = "text:service-unavailable"
+
+	override suspend fun networkUnavailable(): String = "text:network-unavailable"
+
+	override suspend fun timeout(): String = "text:timeout"
+
+	override suspend fun unexpectedError(): String = "text:unexpected-error"
 }
