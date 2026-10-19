@@ -70,6 +70,11 @@ object ActionDispositions {
 			reason = "route state bootstrap: the route dispatches it when the sheet opens"
 		),
 		ActionDisposition.Internal(
+			action = "assistant.AssistantComponentSheet.Unhandled",
+			reason = "the sheet route hands the sheet a component's action that is not a link; the sheet keeps it " +
+				"without a change (AssistantComponentSheetBehaviorTest)"
+		),
+		ActionDisposition.Internal(
 			action = "assistant.AssistantMemory.Load",
 			reason = "screen bootstrap: the memory screen dispatches it as its initial action"
 		),
