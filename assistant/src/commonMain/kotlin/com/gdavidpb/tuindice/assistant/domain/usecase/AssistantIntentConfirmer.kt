@@ -131,12 +131,16 @@ class AssistantIntentConfirmer(
 		}
 	}
 
+	// Runs when the queued mutations settle, which can be after the session of the intent has ended: then nothing is
+	// written or sent, because the outcome belongs to the account that left.
 	private suspend fun settleQueued(
 		intent: Intent,
 		report: IntentOutcomeReport,
 		settled: List<MutationOutcome>,
 		sessionMark: Int
 	) {
+		if (!isCurrentSession(sessionMark)) return
+
 		val byId = settled.associateBy { item -> item.mutationId }
 		val items = report.itemOutcomes.ifEmpty {
 			report.mutationIds.map { mutationId -> MutationOutcome(mutationId, OutcomeKind.QUEUED) }
@@ -162,6 +166,8 @@ class AssistantIntentConfirmer(
 		else -> intent.binding.mutationIds
 	}
 
+	private fun isCurrentSession(sessionMark: Int): Boolean = sessionMark == conversationRepository.sessionMark()
+
 	// Nothing ran, so the report names no mutation.
 	private suspend fun closeWithoutRunning(intent: Intent, outcome: OutcomeKind, sessionMark: Int): OutcomeKind {
 		sendOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome), sessionMark)
@@ -173,7 +179,11 @@ class AssistantIntentConfirmer(
 	// The report stays staged until the server settles it: it takes the report, or refuses it for good, and then it
 	// is no longer owed. A report that got no answer stays staged for the next flush, and the intent is resolved here
 	// meanwhile.
+	// A report of a session that has ended is neither kept nor sent: the request would carry the credentials of the
+	// account that follows, and the report is for the one that left.
 	private suspend fun sendOutcome(report: IntentOutcomeReport, sessionMark: Int) {
+		if (!isCurrentSession(sessionMark)) return
+
 		outboxRepository.stageOutcome(report, sessionMark)
 
 		val failure = runCatching { intentRepository.reportOutcome(report) }.exceptionOrNull()
