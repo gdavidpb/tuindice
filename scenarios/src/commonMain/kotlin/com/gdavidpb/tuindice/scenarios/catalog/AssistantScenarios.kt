@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.MockState
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
@@ -344,6 +345,48 @@ private val assistantAskAboutRecordSubject = scenario(
 	waitVisible(AssistantUiTags.ContextChip, Within.Action)
 }
 
+// The answer of this send waits in its stream, so the stop button stays on the composer until the student stops
+// the turn. The send and its stream are in a state of their own, which only this scenario starts in.
+private val assistantCancelTurn = scenario(
+	"assistant-cancel-turn",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical, mockStates = listOf(MockState("assistant-turn-pace", "Slow"))).toLaunchSpec()
+) {
+	covers("assistant.AssistantChat.CancelTurn")
+	account(E2eAccounts.Canonical.id)
+
+	openAssistant()
+	acceptConsent()
+	sendText("Piensa con calma")
+	waitVisible(AssistantUiTags.StopButton, Within.Action)
+	tap(AssistantUiTags.StopButton)
+	waitGone(AssistantUiTags.StopButton, Within.Action)
+	waitVisible(AssistantUiTags.SendButton, Within.Action)
+}
+
+// The suspension of the account can be appealed: its status says so from the state of this scenario, and the notice of
+// the restriction offers «Apelar». The appeal goes to the service with the text the student writes, and the service
+// answers it with the snackbar of the sent appeal.
+private val assistantAppealRestriction = scenario(
+	"assistant-appeal-restriction",
+	"assistant",
+	Start.Seeded(
+		E2eAccounts.Canonical,
+		mockStates = listOf(MockState("assistant-restriction", "Restricted"))
+	).toLaunchSpec()
+) {
+	covers("assistant.AssistantChat.Appeal")
+	account(E2eAccounts.Canonical.id)
+
+	openAssistant()
+	acceptConsent()
+	waitVisible(AssistantUiTags.Notice, Within.Action)
+	tap(AssistantUiTags.AppealAction)
+	enterText(AssistantUiTags.AppealText, "Fue un error de mi parte")
+	tap(AssistantUiTags.AppealSend)
+	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
+}
+
 /** The scenarios of the `assistant` module; list every new one here. */
 val assistantScenarios: List<Scenario> = listOf(
 	assistantSmoke,
@@ -361,5 +404,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantOpenComponentSheet,
 	assistantOpenScreen,
 	assistantReopenWithConsent,
-	assistantAskAboutRecordSubject
+	assistantAskAboutRecordSubject,
+	assistantCancelTurn,
+	assistantAppealRestriction
 )

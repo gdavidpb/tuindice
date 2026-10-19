@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionP
  */
 class RecordAssistantProjectionDataSource(
 	private val upsertAttemptSelectionUseCase: UpsertAttemptSelectionUseCase,
-	private val recordIntentRunner: RecordIntentRunner
+	private val recordIntentRunner: RecordIntentRunnerDataSource
 ) : AssistantProjectionRepository {
 	override suspend fun save(args: ProjectionArgs, expectedRevision: Long?): IntentExecution {
 		return guardIntent { saveProjection(args, expectedRevision) }

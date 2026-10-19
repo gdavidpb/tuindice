@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.domain.model
+package com.gdavidpb.tuindice.platform
 
 import com.gdavidpb.tuindice.base.domain.model.TermReportPush
 

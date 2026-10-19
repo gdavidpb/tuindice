@@ -42,10 +42,10 @@ class SessionMemoryBindingTest {
 		assertEquals(
 			listOf(
 				"assistant.data.source.AssistantAvailabilityDataSource",
-					"assistant.data.source.AssistantConsentSettingsDataSource",
-					"assistant.data.source.AssistantConversationDataSource",
-					"assistant.data.source.AssistantInsightsDataSource",
-					"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
+				"assistant.data.source.AssistantConsentSettingsDataSource",
+				"assistant.data.source.AssistantConversationDataSource",
+				"assistant.data.source.AssistantInsightsDataSource",
+				"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
 				"base.data.source.InMemoryRecordAttemptFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",
 				"base.data.source.InMemoryTermReportFocusDataSource",
@@ -68,7 +68,7 @@ class SessionMemoryBindingTest {
 				"subjects.data.source.SubjectStatsRoomDataSource",
 				"summary.data.source.LocalSettingsDataSource",
 				"summary.data.source.ProfilePictureImageLoaderDataSource",
-					"summary.data.source.ShareBackgroundSettingsDataSource",
+				"summary.data.source.ShareBackgroundSettingsDataSource",
 				"summary.data.source.TermReportFeedbackDataSource"
 			),
 			bound

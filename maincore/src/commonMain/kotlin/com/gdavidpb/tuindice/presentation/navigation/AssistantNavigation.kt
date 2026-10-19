@@ -66,10 +66,10 @@ internal fun rememberAssistantNavDependencies(navigator: TuIndiceNavigator): Ass
 	return navigator.toAssistantNavDependencies(
 		scope = scope,
 		writeRecordViewMode = { mode ->
-			koin.getOrNull<SetRecordViewModeUseCase>()?.execute(mode)?.collect { }
+			koin.get<SetRecordViewModeUseCase>().execute(mode).collect { }
 		},
 		termKeyOf = { termId ->
-			koin.getOrNull<GetTermKeyUseCase>()?.termKeyOrNull(termId)
+			koin.get<GetTermKeyUseCase>().termKeyOrNull(termId)
 		},
 		copyText = { text ->
 			scope.launch { clipboard.setClipEntry(plainTextClipEntry(text)) }

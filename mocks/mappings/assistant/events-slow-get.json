@@ -1,0 +1,24 @@
+{
+  "scenarioName": "assistant-turn-pace",
+  "requiredScenarioState": "Slow",
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/events/turns/turn-slow",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/event-stream"
+    },
+    "bodyFileName": "assistant/events-slow.sse",
+    "fixedDelayMilliseconds": 30000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 10000
+  }
+}

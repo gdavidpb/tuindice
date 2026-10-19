@@ -109,6 +109,8 @@ object Copy {
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
 	const val EvaluationNoGrade = "Sin nota"
 	const val EvaluationQuizName = "Quiz"
+
+	// assistant
 	const val AssistantReportIncorrect = "Es incorrecto"
 
 	// about

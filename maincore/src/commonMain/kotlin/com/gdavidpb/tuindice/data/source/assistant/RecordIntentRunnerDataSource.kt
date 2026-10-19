@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordMutationOutcomes
  * What the record ports share: the revision guard that runs before a mutation, and the settling of the mutation with
  * the record's outcomes. A record intent is one mutation, so it answers with that mutation's execution.
  */
-class RecordIntentRunner(
+class RecordIntentRunnerDataSource(
 	private val getRecordRevisionUseCase: GetRecordRevisionUseCase,
 	private val observeRecordMutationOutcomesUseCase: ObserveRecordMutationOutcomesUseCase,
 	private val queuedMutationsDataSource: AssistantQueuedMutationsDataSource

@@ -9,12 +9,15 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.term_report_channel_name
 
 class TuIndiceMessagingService : FirebaseMessagingService(), KoinComponent {
 	private val pushTokenRotationHandler: PushTokenRotationHandler by inject()
@@ -61,9 +64,12 @@ class TuIndiceMessagingService : FirebaseMessagingService(), KoinComponent {
 	private fun showTermReportNotification(insightId: String, title: String, body: String) {
 		val manager = NotificationManagerCompat.from(this)
 
+		// The push is handled on the thread the system gives the service, and the notification is shown before it returns.
+		val channelName = runBlocking { getString(Res.string.term_report_channel_name) }
+
 		manager.createNotificationChannel(
 			NotificationChannelCompat.Builder(TERM_REPORT_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-				.setName(getString(R.string.term_report_channel_name))
+				.setName(channelName)
 				.build()
 		)
 

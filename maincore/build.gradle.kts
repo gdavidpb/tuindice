@@ -90,3 +90,8 @@ kotlin {
 		}
 	}
 }
+
+// The app host reads the name of the term report notification channel from these resources, so the accessors are public.
+compose.resources {
+	publicResClass = true
+}

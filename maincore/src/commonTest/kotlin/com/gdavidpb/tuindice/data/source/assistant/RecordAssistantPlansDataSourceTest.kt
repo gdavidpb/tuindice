@@ -245,7 +245,7 @@ class RecordAssistantPlansDataSourceTest {
 				reportingRepository = reporting,
 				exceptionHandler = RecordExceptionHandler()
 			),
-			recordIntentRunner = RecordIntentRunner(
+			recordIntentRunner = RecordIntentRunnerDataSource(
 				getRecordRevisionUseCase = GetRecordRevisionUseCase(
 					academicRecordRepository = repository,
 					reportingRepository = reporting
@@ -257,7 +257,7 @@ class RecordAssistantPlansDataSourceTest {
 				queuedMutationsDataSource = queuedMutationsOf()
 			),
 			academicRecordRepository = repository,
-			pensumSubjectCatalog = PensumSubjectCatalog(pensum)
+			pensumSubjectCatalog = PensumSubjectCatalogDataSource(pensum)
 		)
 	}
 

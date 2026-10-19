@@ -1,0 +1,32 @@
+{
+  "scenarioName": "assistant-turn-pace",
+  "requiredScenarioState": "Slow",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": {
+          "expression": "$.message.text",
+          "equalTo": "Piensa con calma"
+        }
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "turnId": "turn-slow",
+      "conversationId": "conv-1",
+      "lastSeq": 0
+    }
+  }
+}
