@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_link_evaluation
+import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
 import tuindice.assistant.generated.resources.assistant_card_b_link_pensum
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import kotlin.test.Test
@@ -18,7 +18,7 @@ class ChatCardLinkTest {
 		val evaluation = listOf(EntityRef(EntityKind.EVALUATION, "eval-1"))
 		val term = listOf(EntityRef(EntityKind.TERM, "2026-JAN_MAR"))
 
-		assertEquals(NavTarget.EVALUATIONS_DETAIL to Res.string.assistant_card_b_link_evaluation, evaluation.chatCardLink())
+		assertEquals(NavTarget.EVALUATIONS_DETAIL to Res.string.assistant_card_a_link_evaluation, evaluation.chatCardLink())
 		assertEquals(NavTarget.RECORD to Res.string.assistant_card_b_link_record, term.chatCardLink())
 	}
 

@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_b_band_very_high
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_continuous
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_pending
-import tuindice.assistant.generated.resources.assistant_card_b_subject_status_approved
 import tuindice.assistant.generated.resources.assistant_card_b_subject_status_blocked
-import tuindice.assistant.generated.resources.assistant_card_b_subject_status_in_progress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -16,8 +16,8 @@ import kotlin.test.assertNull
 class AcademicCodeTextTest {
 	@Test
 	fun when_aSubjectStatusIsKnown_then_itHasItsWord() {
-		assertEquals(UiText.Resource(Res.string.assistant_card_b_subject_status_approved), subjectStatusText("approved"))
-		assertEquals(UiText.Resource(Res.string.assistant_card_b_subject_status_in_progress), subjectStatusText("current"))
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_outcome_approved), subjectStatusText("approved"))
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_outcome_pending), subjectStatusText("current"))
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_subject_status_blocked), subjectStatusText("blocked"))
 	}
 

@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_goal_credits
 import tuindice.assistant.generated.resources.assistant_card_b_count_subject_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_subject_one
 import tuindice.assistant.generated.resources.assistant_card_b_credits
@@ -22,14 +23,13 @@ import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import tuindice.assistant.generated.resources.assistant_card_b_plan_band_caption
 import tuindice.assistant.generated.resources.assistant_card_b_plan_band_description
-import tuindice.assistant.generated.resources.assistant_card_b_plan_index_caption
-import tuindice.assistant.generated.resources.assistant_card_b_plan_index_description
-import tuindice.assistant.generated.resources.assistant_card_b_plans_caption
-import tuindice.assistant.generated.resources.assistant_card_b_plans_description
 import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes
 import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes_unchecked
-import tuindice.assistant.generated.resources.assistant_card_b_plan_credits_label
+import tuindice.assistant.generated.resources.assistant_card_b_plan_index_caption
+import tuindice.assistant.generated.resources.assistant_card_b_plan_index_description
 import tuindice.assistant.generated.resources.assistant_card_b_plan_unlocks
+import tuindice.assistant.generated.resources.assistant_card_b_plans_caption
+import tuindice.assistant.generated.resources.assistant_card_b_plans_description
 
 internal fun PlanListComponent.toPlanListItem(): PlanListItem {
 	val count = UiText.Raw(plans.size.toString())

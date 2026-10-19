@@ -30,9 +30,10 @@ import tuindice.assistant.generated.resources.assistant_card_a_goal_caption
 import tuindice.assistant.generated.resources.assistant_card_a_goal_description
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
-import tuindice.assistant.generated.resources.assistant_card_a_link_record
 import tuindice.assistant.generated.resources.assistant_card_a_pace_caption
 import tuindice.assistant.generated.resources.assistant_card_a_pace_description
+import tuindice.assistant.generated.resources.assistant_card_a_profile_index_caption
+import tuindice.assistant.generated.resources.assistant_card_a_profile_index_description
 import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption
 import tuindice.assistant.generated.resources.assistant_card_a_record_approved_description
 import tuindice.assistant.generated.resources.assistant_card_a_record_failed
@@ -40,8 +41,6 @@ import tuindice.assistant.generated.resources.assistant_card_a_record_first_try
 import tuindice.assistant.generated.resources.assistant_card_a_record_repeated
 import tuindice.assistant.generated.resources.assistant_card_a_record_retired
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
-import tuindice.assistant.generated.resources.assistant_card_a_series_caption
-import tuindice.assistant.generated.resources.assistant_card_a_series_description
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_cumulative_caption
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_cumulative_description
@@ -49,6 +48,7 @@ import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_description
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_description
+import tuindice.assistant.generated.resources.assistant_card_b_link_record
 
 // The figure of the term: its index first, and the cumulative index beside it when the term has one too.
 private fun primaryAndSecondary(
@@ -85,7 +85,7 @@ internal fun TermComponent.toTermItem(): TermItem {
 		recordLink = if (entityRefs.any { ref -> ref.kind == EntityKind.TERM }) {
 			CardLinkItem(
 				target = NavTarget.RECORD,
-				text = UiText.Resource(Res.string.assistant_card_a_link_record),
+				text = UiText.Resource(Res.string.assistant_card_b_link_record),
 				entityRefs = entityRefs
 			)
 		} else {
@@ -101,8 +101,8 @@ internal fun IndexSeriesComponent.toIndexSeriesItem(): IndexSeriesItem {
 		id = id,
 		opensSheet = opensSheet(),
 		currentFigure = current?.toCardIndexFigureItem(
-			caption = Res.string.assistant_card_a_series_caption,
-			description = Res.string.assistant_card_a_series_description
+			caption = Res.string.assistant_card_a_profile_index_caption,
+			description = Res.string.assistant_card_a_profile_index_description
 		),
 		points = points.map { point ->
 			IndexPointItem(

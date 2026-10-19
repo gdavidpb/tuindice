@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.chatcontract.component.ScheduleClash
 import com.gdavidpb.tuindice.chatcontract.component.ScheduleDay
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_joined
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_minutes
+import tuindice.assistant.generated.resources.assistant_card_b_joined
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -71,7 +71,7 @@ class HorarioComponentItemMappingTest {
 		).toClashesItem()
 
 		assertEquals(
-			UiText.Resource(Res.string.assistant_card_a_joined, listOf(UiText.Raw("IS-101"), UiText.Raw("IS-102"))),
+			UiText.Resource(Res.string.assistant_card_b_joined, listOf(UiText.Raw("IS-101"), UiText.Raw("IS-102"))),
 			item.rows.single().codes
 		)
 	}

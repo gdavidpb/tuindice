@@ -13,9 +13,9 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_attention_caption
 import tuindice.assistant.generated.resources.assistant_card_a_attention_description
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
-import tuindice.assistant.generated.resources.assistant_card_a_link_pensum
-import tuindice.assistant.generated.resources.assistant_card_a_link_record
-import tuindice.assistant.generated.resources.assistant_card_a_link_subject
+import tuindice.assistant.generated.resources.assistant_card_b_link_pensum
+import tuindice.assistant.generated.resources.assistant_card_b_link_record
+import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 
 internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
 	val count = UiText.Raw(items.size.toString())
@@ -51,9 +51,9 @@ internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
 private fun EntityKind.attentionLink(): Pair<NavTarget, StringResource>? {
 	return when (this) {
 		EntityKind.EVALUATION -> NavTarget.EVALUATIONS_DETAIL to Res.string.assistant_card_a_link_evaluation
-		EntityKind.SUBJECT -> NavTarget.SUBJECTS_DETAIL to Res.string.assistant_card_a_link_subject
-		EntityKind.TERM, EntityKind.ATTEMPT -> NavTarget.RECORD to Res.string.assistant_card_a_link_record
-		EntityKind.PENSUM -> NavTarget.PENSUM to Res.string.assistant_card_a_link_pensum
+		EntityKind.SUBJECT -> NavTarget.SUBJECTS_DETAIL to Res.string.assistant_card_b_link_subject
+		EntityKind.TERM, EntityKind.ATTEMPT -> NavTarget.RECORD to Res.string.assistant_card_b_link_record
+		EntityKind.PENSUM -> NavTarget.PENSUM to Res.string.assistant_card_b_link_pensum
 		EntityKind.PLAN -> null
 	}
 }

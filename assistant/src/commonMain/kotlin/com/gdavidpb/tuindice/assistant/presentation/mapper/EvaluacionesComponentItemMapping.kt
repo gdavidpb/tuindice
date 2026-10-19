@@ -16,17 +16,17 @@ import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
+import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
 import tuindice.assistant.generated.resources.assistant_card_b_evaluations_caption
 import tuindice.assistant.generated.resources.assistant_card_b_evaluations_description
-import tuindice.assistant.generated.resources.assistant_card_b_feasible
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_load_caption
 import tuindice.assistant.generated.resources.assistant_card_b_load_description
-import tuindice.assistant.generated.resources.assistant_card_b_not_feasible
 import tuindice.assistant.generated.resources.assistant_card_b_required_caption
 import tuindice.assistant.generated.resources.assistant_card_b_required_description
 import tuindice.assistant.generated.resources.assistant_card_b_required_remaining_caption
@@ -142,7 +142,7 @@ internal fun RequiredGradeComponent.toRequiredGradeItem(): RequiredGradeItem {
 		subjectName = subjectName,
 		targetText = UiText.Resource(Res.string.assistant_card_b_required_target, listOf(targetGrade)),
 		feasibleText = UiText.Resource(
-			if (feasible) Res.string.assistant_card_b_feasible else Res.string.assistant_card_b_not_feasible
+			if (feasible) Res.string.assistant_card_a_goal_feasible else Res.string.assistant_card_a_goal_not_feasible
 		),
 		recordLink = entityRefs.toRecordLinkItem()
 	)

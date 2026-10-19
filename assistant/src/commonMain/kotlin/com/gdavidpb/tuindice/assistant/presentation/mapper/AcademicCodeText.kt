@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_b_band_high
 import tuindice.assistant.generated.resources.assistant_card_b_band_low
 import tuindice.assistant.generated.resources.assistant_card_b_band_medium
@@ -10,10 +12,8 @@ import tuindice.assistant.generated.resources.assistant_card_b_evaluation_contin
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_graded
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_overdue
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_pending
-import tuindice.assistant.generated.resources.assistant_card_b_subject_status_approved
 import tuindice.assistant.generated.resources.assistant_card_b_subject_status_available
 import tuindice.assistant.generated.resources.assistant_card_b_subject_status_blocked
-import tuindice.assistant.generated.resources.assistant_card_b_subject_status_in_progress
 
 // The words of the codes the academic cards bring in place of a word: the state of an evaluation, the status of a
 // subject in the pensum, and a band of difficulty or of load. The codes are the serial names the service sends. A code
@@ -32,8 +32,8 @@ fun evaluationStateText(code: String?): UiText? =
 // The status of a subject in the pensum: approved, in progress, available or blocked.
 fun subjectStatusText(code: String?): UiText? =
 	when (code) {
-		"approved" -> UiText.Resource(Res.string.assistant_card_b_subject_status_approved)
-		"current", "in_progress" -> UiText.Resource(Res.string.assistant_card_b_subject_status_in_progress)
+		"approved" -> UiText.Resource(Res.string.assistant_card_a_outcome_approved)
+		"current", "in_progress" -> UiText.Resource(Res.string.assistant_card_a_outcome_pending)
 		"available" -> UiText.Resource(Res.string.assistant_card_b_subject_status_available)
 		"blocked" -> UiText.Resource(Res.string.assistant_card_b_subject_status_blocked)
 		else -> null

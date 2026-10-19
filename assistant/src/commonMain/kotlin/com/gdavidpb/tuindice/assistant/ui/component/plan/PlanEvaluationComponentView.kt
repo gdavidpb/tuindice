@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_plan_credits_label
+import tuindice.assistant.generated.resources.assistant_card_a_goal_credits
 import tuindice.assistant.generated.resources.assistant_card_b_plan_pending_requirements
 import tuindice.assistant.generated.resources.assistant_card_b_plan_warnings
 
@@ -35,7 +35,7 @@ fun PlanEvaluationComponentView(
 			CardFiguresView(primary = primary.toCardFigure(), secondary = item.secondaryFigure?.toCardFigure())
 		}
 		CardRowView(
-			name = stringResource(Res.string.assistant_card_b_plan_credits_label),
+			name = stringResource(Res.string.assistant_card_a_goal_credits),
 			trailing = { CardValueView(text = item.creditsText.asString()) }
 		)
 		if (item.pendingRequirements.isNotEmpty()) {

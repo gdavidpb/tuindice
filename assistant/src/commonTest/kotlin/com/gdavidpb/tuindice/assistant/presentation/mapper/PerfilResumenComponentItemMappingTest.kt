@@ -11,10 +11,10 @@ import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_fraction
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
-import tuindice.assistant.generated.resources.assistant_card_a_sync_ok
+import tuindice.assistant.generated.resources.assistant_card_a_source_success
 import tuindice.assistant.generated.resources.assistant_card_a_sync_problems
+import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -53,7 +53,7 @@ class PerfilResumenComponentItemMappingTest {
 		).toProfileSummaryItem()
 
 		assertEquals(UiText.Raw(16.4.toCardIndexText()), item.primaryFigure.value)
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_fraction, listOf("80", 180)), item.secondaryFigure?.value)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_fraction, listOf("80", 180)), item.secondaryFigure?.value)
 	}
 
 	@Test
@@ -76,7 +76,7 @@ class PerfilResumenComponentItemMappingTest {
 		).toSyncStatusItem()
 
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_sync_problems), problem.headlineText)
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_sync_ok), fine.headlineText)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_source_success), fine.headlineText)
 	}
 
 	@Test

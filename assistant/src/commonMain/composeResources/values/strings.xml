@@ -158,9 +158,7 @@
 	<string name="assistant_card_a_profile_current_term">Trimestre en curso</string>
 	<string name="assistant_card_a_sync_label">Sincronización</string>
 	<string name="assistant_card_a_sync_last">Última sincronización %1$s</string>
-	<string name="assistant_card_a_sync_ok">Al día</string>
 	<string name="assistant_card_a_sync_problems">Con problemas</string>
-	<string name="assistant_card_a_joined">%1$s · %2$s</string>
 	<string name="assistant_card_a_source_success">Al día</string>
 	<string name="assistant_card_a_source_unavailable">La universidad no respondió</string>
 	<string name="assistant_card_a_source_not_attempted">No se intentó</string>
@@ -175,10 +173,7 @@
 	<string name="assistant_card_a_term_index_description">Índice del trimestre: %1$s</string>
 	<string name="assistant_card_a_cumulative_caption">acumulado</string>
 	<string name="assistant_card_a_cumulative_description">Acumulado: %1$s</string>
-	<string name="assistant_card_a_link_record">Ver en Informe</string>
 	<string name="assistant_card_a_series_label">Índice por trimestre</string>
-	<string name="assistant_card_a_series_caption">índice acumulado</string>
-	<string name="assistant_card_a_series_description">Índice acumulado: %1$s</string>
 	<string name="assistant_card_a_series_index_header">Índice</string>
 	<string name="assistant_card_a_series_cumulative_header">Acumulado</string>
 	<string name="assistant_card_a_series_best">Más alto</string>
@@ -211,8 +206,6 @@
 	<string name="assistant_card_a_attention_caption">avisos</string>
 	<string name="assistant_card_a_attention_description">Avisos: %1$s</string>
 	<string name="assistant_card_a_link_evaluation">Ver evaluación</string>
-	<string name="assistant_card_a_link_subject">Ver materia</string>
-	<string name="assistant_card_a_link_pensum">Ver pensum</string>
 	<string name="assistant_card_a_week_label">Horario de la semana</string>
 	<string name="assistant_card_a_week_caption">clases esta semana</string>
 	<string name="assistant_card_a_week_description">Clases de la semana: %1$s</string>
@@ -232,7 +225,6 @@
 	<string name="assistant_card_a_clashes_label">Choques de horario</string>
 	<string name="assistant_card_a_clashes_caption">choques</string>
 	<string name="assistant_card_a_clashes_description">Choques de horario: %1$s</string>
-	<string name="assistant_card_a_fraction">%1$s/%2$s</string>
 	<string name="assistant_card_b_evaluations_label">Evaluaciones</string>
 	<string name="assistant_card_b_evaluations_caption">evaluaciones</string>
 	<string name="assistant_card_b_evaluations_description">Evaluaciones: %1$s</string>
@@ -259,15 +251,12 @@
 	<string name="assistant_card_b_required_remaining_caption">por evaluar</string>
 	<string name="assistant_card_b_required_remaining_description">Puntos por evaluar: %1$s</string>
 	<string name="assistant_card_b_required_target">Meta %1$d</string>
-	<string name="assistant_card_b_feasible">alcanzable</string>
-	<string name="assistant_card_b_not_feasible">no alcanzable</string>
 	<string name="assistant_card_b_progress_label">Avance del pensum</string>
 	<string name="assistant_card_b_progress_caption">de los créditos aprobados</string>
 	<string name="assistant_card_b_progress_description">Avance del pensum: %1$s</string>
 	<string name="assistant_card_b_progress_credits_caption">créditos</string>
 	<string name="assistant_card_b_progress_credits_description">Créditos aprobados: %1$s de %2$s</string>
 	<string name="assistant_card_b_progress_approved">Aprobadas</string>
-	<string name="assistant_card_b_progress_in_progress">En curso</string>
 	<string name="assistant_card_b_progress_available">Disponibles</string>
 	<string name="assistant_card_b_progress_blocked">Bloqueadas</string>
 	<string name="assistant_card_b_requirements_prerequisites">Requisitos</string>
@@ -285,8 +274,6 @@
 	<string name="assistant_card_b_subjects_caption">materias</string>
 	<string name="assistant_card_b_subjects_description">Materias: %1$s</string>
 	<string name="assistant_card_b_credits">%1$d UC</string>
-	<string name="assistant_card_b_subject_status_approved">Aprobada</string>
-	<string name="assistant_card_b_subject_status_in_progress">En curso</string>
 	<string name="assistant_card_b_subject_status_available">Disponible</string>
 	<string name="assistant_card_b_subject_status_blocked">Bloqueada</string>
 	<string name="assistant_card_b_stats_average_caption">promedio</string>
@@ -295,7 +282,6 @@
 	<string name="assistant_card_b_stats_pass_description">Tasa de aprobación: %1$s</string>
 	<string name="assistant_card_b_stats_difficulty">Dificultad</string>
 	<string name="assistant_card_b_stats_median">Mediana</string>
-	<string name="assistant_card_b_stats_histogram">Distribución de notas</string>
 	<string name="assistant_card_b_electives_label">Electivas recomendadas</string>
 	<string name="assistant_card_b_band_low">Baja</string>
 	<string name="assistant_card_b_band_medium">Media</string>
@@ -310,7 +296,6 @@
 	<string name="assistant_card_b_plan_band_description">Banda de carga: %1$s</string>
 	<string name="assistant_card_b_plan_index_caption">índice de carga</string>
 	<string name="assistant_card_b_plan_index_description">Índice de carga: %1$s</string>
-	<string name="assistant_card_b_plan_credits_label">Créditos</string>
 	<string name="assistant_card_b_plan_pending_requirements">Requisitos pendientes</string>
 	<string name="assistant_card_b_plan_warnings">Avisos de horario</string>
 	<string name="assistant_card_b_plan_clashes">Choques</string>
@@ -323,7 +308,6 @@
 	<string name="assistant_card_b_help_label">Ayuda</string>
 	<string name="assistant_card_b_help_step">%1$d.</string>
 	<string name="assistant_card_b_help_open">Ir a la pantalla</string>
-	<string name="assistant_card_b_link_evaluation">Ver evaluación</string>
 	<string name="assistant_card_b_link_subject">Ver materia</string>
 	<string name="assistant_card_b_link_pensum">Ver pensum</string>
 	<string name="assistant_card_b_link_record">Ver en Informe</string>

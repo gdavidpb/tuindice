@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_career
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_missing
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_pensum
@@ -28,14 +29,13 @@ import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_impact_caption
 import tuindice.assistant.generated.resources.assistant_card_b_impact_description
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject
-import tuindice.assistant.generated.resources.assistant_card_b_progress_available
 import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
+import tuindice.assistant.generated.resources.assistant_card_b_progress_available
 import tuindice.assistant.generated.resources.assistant_card_b_progress_blocked
 import tuindice.assistant.generated.resources.assistant_card_b_progress_caption
 import tuindice.assistant.generated.resources.assistant_card_b_progress_credits_caption
 import tuindice.assistant.generated.resources.assistant_card_b_progress_credits_description
 import tuindice.assistant.generated.resources.assistant_card_b_progress_description
-import tuindice.assistant.generated.resources.assistant_card_b_progress_in_progress
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks
@@ -64,7 +64,7 @@ internal fun PensumProgressComponent.toPensumProgressItem(): PensumProgressItem 
 		progressFraction = chatCardFraction(approvedCredits.toDouble(), totalCredits.toDouble()),
 		statusRows = listOf(
 			Res.string.assistant_card_b_progress_approved to this.approved,
-			Res.string.assistant_card_b_progress_in_progress to inProgress,
+			Res.string.assistant_card_a_outcome_pending to inProgress,
 			Res.string.assistant_card_b_progress_available to available,
 			Res.string.assistant_card_b_progress_blocked to blocked
 		).map { (label, count) -> CountRowItem(label = UiText.Resource(label), value = count.toString()) },

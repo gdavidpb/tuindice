@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
-import tuindice.assistant.generated.resources.assistant_card_a_link_record
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
+import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -42,7 +42,7 @@ class InformeComponentItemMappingTest {
 		assertEquals(
 			CardLinkItem(
 				target = NavTarget.RECORD,
-				text = UiText.Resource(Res.string.assistant_card_a_link_record),
+				text = UiText.Resource(Res.string.assistant_card_b_link_record),
 				entityRefs = listOf(EntityRef(EntityKind.TERM, "term-1"))
 			),
 			item.recordLink

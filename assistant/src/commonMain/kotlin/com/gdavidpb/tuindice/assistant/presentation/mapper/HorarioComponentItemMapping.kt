@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_clashes_caption
 import tuindice.assistant.generated.resources.assistant_card_a_clashes_description
-import tuindice.assistant.generated.resources.assistant_card_a_joined
 import tuindice.assistant.generated.resources.assistant_card_a_next_caption
 import tuindice.assistant.generated.resources.assistant_card_a_next_description
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
@@ -28,6 +27,7 @@ import tuindice.assistant.generated.resources.assistant_card_a_remaining_hours
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_minutes
 import tuindice.assistant.generated.resources.assistant_card_a_week_caption
 import tuindice.assistant.generated.resources.assistant_card_a_week_description
+import tuindice.assistant.generated.resources.assistant_card_b_joined
 
 private const val MINUTES_PER_HOUR = 60
 private const val MINUTES_PER_DAY = 1_440
@@ -129,10 +129,10 @@ internal fun ClashesComponent.toClashesItem(): ClashesItem {
 			ClashRowItem(
 				codes = clash.subjectCodes
 					.map<String, UiText> { code -> UiText.Raw(code) }
-					.reduceOrNull { first, next -> UiText.Resource(Res.string.assistant_card_a_joined, listOf(first, next)) }
+					.reduceOrNull { first, next -> UiText.Resource(Res.string.assistant_card_b_joined, listOf(first, next)) }
 					?: UiText.Empty,
 				dayAndHoursText = if (day != null) {
-					UiText.Resource(Res.string.assistant_card_a_joined, listOf(day, hours))
+					UiText.Resource(Res.string.assistant_card_b_joined, listOf(day, hours))
 				} else {
 					hours
 				}

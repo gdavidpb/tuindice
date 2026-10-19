@@ -25,8 +25,8 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_record_histogram
 import tuindice.assistant.generated.resources.assistant_card_b_stats_difficulty
-import tuindice.assistant.generated.resources.assistant_card_b_stats_histogram
 import tuindice.assistant.generated.resources.assistant_card_b_stats_median
 
 // materias.estadisticas/1: the subject is the label, and the average is the figure, with the pass rate beside it. Then
@@ -55,7 +55,7 @@ fun SubjectStatsComponentView(
 			)
 		}
 		if (item.histogram.isNotEmpty()) {
-			CardLabelView(text = stringResource(Res.string.assistant_card_b_stats_histogram))
+			CardLabelView(text = stringResource(Res.string.assistant_card_a_record_histogram))
 			item.histogram.forEach { bar ->
 				Row(
 					modifier = Modifier.fillMaxWidth(),
