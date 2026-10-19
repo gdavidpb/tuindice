@@ -8,14 +8,17 @@ import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -120,7 +123,7 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.setAssistantConsentAction(granted = true)
+		viewModel.dispatchAction(About.Action.SetAssistantConsent(granted = true))
 		testScheduler.advanceUntilIdle()
 
 		assertTrue(assistantConsent.isAssistantConsentGranted())
@@ -133,7 +136,7 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.openAssistantMemoryAction()
+		viewModel.dispatchAction(About.Action.OpenAssistantMemory)
 
 		viewModel.effect.test {
 			assertEquals(About.Effect.NavigateToAssistantMemory, awaitItem())
@@ -149,7 +152,7 @@ class AboutAssistantViewModelContractTest {
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
-		viewModel.requestDeleteAssistantConversationsAction()
+		viewModel.dispatchAction(About.Action.RequestDeleteAssistantConversations)
 		testScheduler.advanceUntilIdle()
 
 		assertEquals(0, assistantConversations.deletions)
@@ -187,36 +190,38 @@ class AboutAssistantViewModelContractTest {
 				aboutRepository = FakeAboutRepository(),
 				reportingRepository = RecordingReportingRepository()
 			),
-			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				configRepository = FakeConfigRepository(),
-				deviceInfoRepository = FakeDeviceInfoRepository(),
-				reportingRepository = RecordingReportingRepository()
-			),
-			openStoreUseCase = OpenStoreUseCase(
-				storeUrlRepository = FakeStoreUrlDataSource(),
-				reportingRepository = RecordingReportingRepository()
-			),
-			openExternalUrlUseCase = OpenExternalUrlUseCase(
-				browserRepository = RecordingBrowserRepository(),
-				reportingRepository = RecordingReportingRepository()
+			externalUseCases = AboutExternalUseCases(
+				sendSupportEmail = SendSupportEmailUseCase(
+					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openStore = OpenStoreUseCase(
+					storeUrlRepository = FakeStoreUrlDataSource(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openExternalUrl = OpenExternalUrlUseCase(
+					browserRepository = RecordingBrowserRepository(),
+					reportingRepository = RecordingReportingRepository()
+				)
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			observeAssistantAvailabilityUseCase = ObserveAssistantAvailabilityUseCase(
-				assistantAvailabilityRepository = assistantAvailability,
-				reportingRepository = RecordingReportingRepository()
-			),
-			observeAssistantConsentUseCase = ObserveAssistantConsentUseCase(
-				assistantConsentRepository = assistantConsent,
-				reportingRepository = RecordingReportingRepository()
-			),
-			setAssistantConsentUseCase = SetAssistantConsentUseCase(
-				assistantConsentRepository = assistantConsent,
-				reportingRepository = RecordingReportingRepository()
-			),
-			deleteAssistantConversationsUseCase = DeleteAssistantConversationsUseCase(
-				assistantConversationsRepository = assistantConversations,
-				reportingRepository = RecordingReportingRepository()
+			assistantUseCases = AboutAssistantUseCases(
+				observeAvailability = ObserveAssistantAvailabilityUseCase(
+					assistantAvailabilityRepository = assistantAvailability,
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeConsent = ObserveAssistantConsentUseCase(
+					assistantConsentRepository = assistantConsent,
+					reportingRepository = RecordingReportingRepository()
+				),
+				setConsent = fakeSetAssistantConsentUseCase(assistantConsent),
+				refreshConsent = fakeRefreshAssistantConsentUseCase(assistantConsent),
+				deleteConversations = DeleteAssistantConversationsUseCase(
+					assistantConversationsRepository = assistantConversations,
+					reportingRepository = RecordingReportingRepository()
+				)
 			)
 		)
 	}

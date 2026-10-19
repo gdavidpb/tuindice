@@ -6,15 +6,13 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutInternalEvent
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
-import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
-import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
-import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeAboutAssistantUseCases
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -63,25 +61,24 @@ class AboutViewModelContractTest {
 				aboutRepository = FakeAboutRepository(),
 				reportingRepository = RecordingReportingRepository()
 			),
-			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				configRepository = FakeConfigRepository(),
-				deviceInfoRepository = FakeDeviceInfoRepository(),
-				reportingRepository = RecordingReportingRepository()
-			),
-			openStoreUseCase = OpenStoreUseCase(
-				storeUrlRepository = FakeStoreUrlDataSource(),
-				reportingRepository = RecordingReportingRepository()
-			),
-			openExternalUrlUseCase = OpenExternalUrlUseCase(
-				browserRepository = RecordingBrowserRepository(),
-				reportingRepository = RecordingReportingRepository()
+			externalUseCases = AboutExternalUseCases(
+				sendSupportEmail = SendSupportEmailUseCase(
+					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openStore = OpenStoreUseCase(
+					storeUrlRepository = FakeStoreUrlDataSource(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openExternalUrl = OpenExternalUrlUseCase(
+					browserRepository = RecordingBrowserRepository(),
+					reportingRepository = RecordingReportingRepository()
+				)
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
-			observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
-			deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
-				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
+			assistantUseCases = fakeAboutAssistantUseCases()
 		)
 
 		assertMachineRandomWalk(
@@ -129,25 +126,24 @@ class AboutViewModelContractTest {
 					aboutRepository = FakeAboutRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
-				sendSupportEmailUseCase = SendSupportEmailUseCase(
-					configRepository = FakeConfigRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openStoreUseCase = OpenStoreUseCase(
-					storeUrlRepository = FakeStoreUrlDataSource(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openExternalUrlUseCase = OpenExternalUrlUseCase(
-					browserRepository = browserRepository,
-					reportingRepository = RecordingReportingRepository()
+				externalUseCases = AboutExternalUseCases(
+					sendSupportEmail = SendSupportEmailUseCase(
+						configRepository = FakeConfigRepository(),
+						deviceInfoRepository = FakeDeviceInfoRepository(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					openStore = OpenStoreUseCase(
+						storeUrlRepository = FakeStoreUrlDataSource(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					openExternalUrl = OpenExternalUrlUseCase(
+						browserRepository = browserRepository,
+						reportingRepository = RecordingReportingRepository()
+					)
 				),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
-				observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
-				deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
-				setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
+				assistantUseCases = fakeAboutAssistantUseCases()
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))

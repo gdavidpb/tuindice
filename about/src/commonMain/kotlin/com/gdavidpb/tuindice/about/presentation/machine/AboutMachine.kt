@@ -1,14 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
-import com.gdavidpb.tuindice.about.domain.usecase.AssistantConsentSetting
-import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
@@ -35,15 +27,10 @@ import tuindice.about.generated.resources.label_terms_and_conditions
 
 class AboutMachine(
 	private val loadVersionUseCase: LoadVersionUseCase,
-	private val sendSupportEmailUseCase: SendSupportEmailUseCase,
-	private val openStoreUseCase: OpenStoreUseCase,
-	private val openExternalUrlUseCase: OpenExternalUrlUseCase,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository,
-	private val observeAssistantAvailabilityUseCase: ObserveAssistantAvailabilityUseCase,
-	private val observeAssistantConsentUseCase: ObserveAssistantConsentUseCase,
-	private val setAssistantConsentUseCase: SetAssistantConsentUseCase,
-	private val deleteAssistantConversationsUseCase: DeleteAssistantConversationsUseCase
+	private val externalUseCases: AboutExternalUseCases,
+	private val assistantUseCases: AboutAssistantUseCases
 ) : ScreenMachine<About.State, About.Effect> {
 	override fun initialState(): About.State = About.State.Idle
 
@@ -82,7 +69,7 @@ class AboutMachine(
 
 	internal fun contactSupport(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
-			sendSupportEmailUseCase.execute(Unit).collect { useCaseState ->
+			externalUseCases.sendSupportEmail.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						AboutInternalEvent.SupportEmailUriLoaded(uri = useCaseState.value)
@@ -94,7 +81,7 @@ class AboutMachine(
 
 	internal fun openStore(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
-			openStoreUseCase.execute(Unit).collect { useCaseState ->
+			externalUseCases.openStore.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						AboutInternalEvent.StoreUriLoaded(uri = useCaseState.value)
@@ -106,7 +93,7 @@ class AboutMachine(
 
 	internal fun openExternalUrl(host: MachineHost<About.Effect>, url: String) {
 		host.launchMachineJob {
-			openExternalUrlUseCase.execute(url).collect()
+			externalUseCases.openExternalUrl.execute(url).collect()
 		}
 	}
 
@@ -154,7 +141,7 @@ class AboutMachine(
 	// state that exists, and the first emission of each flow is the current value.
 	internal fun startAssistantObservation(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
-			observeAssistantAvailabilityUseCase.execute(Unit).collect { useCaseState ->
+			assistantUseCases.observeAvailability.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantAvailabilityObserved(visible = useCaseState.value)
@@ -166,7 +153,7 @@ class AboutMachine(
 		}
 
 		host.launchMachineJob {
-			observeAssistantConsentUseCase.execute(Unit).collect { useCaseState ->
+			assistantUseCases.observeConsent.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantConsentObserved(granted = useCaseState.value)
@@ -181,17 +168,17 @@ class AboutMachine(
 	// switch through the observation above, and a failed read leaves the switch as it is.
 	private fun adoptServerAssistantConsent(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
-			setAssistantConsentUseCase.execute(AssistantConsentSetting.FromServer).collect()
+			assistantUseCases.refreshConsent.execute(Unit).collect()
 		}
 	}
 
 	internal fun setAssistantConsent(host: MachineHost<About.Effect>, granted: Boolean) {
 		host.launchMachineJob {
-			setAssistantConsentUseCase.execute(AssistantConsentSetting.Chosen(granted)).collect { useCaseState ->
+			assistantUseCases.setConsent.execute(granted).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Error) {
 					// The failed write left the store as it was, so the value to restore is
 					// the one the store holds now, not the one the switch was moved to.
-					val restoredGranted = observeAssistantConsentUseCase.execute(Unit)
+					val restoredGranted = assistantUseCases.observeConsent.execute(Unit)
 						.mapNotNull { storedState -> (storedState as? UseCaseState.Data)?.value }
 						.first()
 
@@ -208,7 +195,7 @@ class AboutMachine(
 
 	internal fun deleteAssistantConversations(host: MachineHost<About.Effect>) {
 		host.launchMachineJob {
-			deleteAssistantConversationsUseCase.execute(Unit).collect { useCaseState ->
+			assistantUseCases.deleteConversations.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
