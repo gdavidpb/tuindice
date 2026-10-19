@@ -18,7 +18,7 @@ sealed interface ChatItem {
 		// The student's thumbs on it: true useful, false not useful, null not rated.
 		val useful: Boolean?,
 		// The student's report on it was saved: its flag shows filled and cannot be tapped again.
-		val reported: Boolean = false,
+		val reported: Boolean,
 		// The plain text of the message, for Copy.
 		val copyText: String
 	) : ChatItem

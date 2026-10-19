@@ -34,9 +34,9 @@ import tuindice.assistant.generated.resources.a11y_assistant_useful
 fun AssistantMessageActionsView(
 	messageId: String,
 	useful: Boolean?,
+	reported: Boolean,
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier,
-	reported: Boolean = false
+	modifier: Modifier = Modifier
 ) {
 	Row(modifier = modifier.fillMaxWidth()) {
 		IconButton(

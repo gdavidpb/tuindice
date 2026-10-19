@@ -12,10 +12,10 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
-// The chat's notices («Reporte enviado», «Copiado»…) show here, inside the sheet, right above the composer. The
+// The chat's notices («Reporte enviado», «Copiado»…) show here, inside the sheet, over the foot of the messages. The
 // screen under the sheet has a host of its own, which the sheet covers, so its notices would stay hidden until the
 // sheet closed. The snackbar takes the theme's colours, inverseSurface with inverseOnSurface, as the app's snackbar
-// does. Its bottom space is part of the snackbar, so the host takes no room while no notice shows.
+// does. Its bottom space is part of the snackbar, so it never touches what follows the messages.
 @Composable
 fun AssistantChatSnackbarView(
 	hostState: SnackbarHostState,

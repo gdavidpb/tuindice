@@ -146,6 +146,7 @@ class AssistantChatContentUiTest {
 								ChatPartItem.IntentCard(intentCard())
 							),
 							useful = null,
+							reported = false,
 							copyText = "Encontré 1 evaluación."
 						)
 					)

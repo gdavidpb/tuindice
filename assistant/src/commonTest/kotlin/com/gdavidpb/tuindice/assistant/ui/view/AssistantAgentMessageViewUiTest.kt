@@ -122,7 +122,7 @@ class AssistantAgentMessageViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			Column(modifier = Modifier.padding(all = 24.dp)) {
-				AssistantMessageActionsView(messageId = MESSAGE_ID, useful = null, onAction = { actions.add(it) })
+				AssistantMessageActionsView(messageId = MESSAGE_ID, useful = null, reported = false, onAction = { actions.add(it) })
 			}
 		}
 
