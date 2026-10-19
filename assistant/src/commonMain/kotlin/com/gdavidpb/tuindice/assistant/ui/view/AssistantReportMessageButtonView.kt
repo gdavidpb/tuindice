@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -23,15 +24,18 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.a11y_assistant_report
+import tuindice.assistant.generated.resources.a11y_assistant_reported
 import tuindice.assistant.generated.resources.assistant_chat_report_harmful
 import tuindice.assistant.generated.resources.assistant_chat_report_inappropriate
 import tuindice.assistant.generated.resources.assistant_chat_report_incorrect
 import tuindice.assistant.generated.resources.assistant_chat_report_other
 
-// «Reportar»: a menu with the four reasons. Choosing one reports the message, without a comment.
+// «Reportar»: a menu with the four reasons. Choosing one reports the message, without a comment. Once the report is
+// saved the flag is filled in the error colour and cannot be tapped again: the message keeps one report.
 @Composable
 fun AssistantReportMessageButtonView(
 	messageId: String,
+	isReported: Boolean,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -40,15 +44,18 @@ fun AssistantReportMessageButtonView(
 	Box(modifier = modifier) {
 		IconButton(
 			onClick = { isMenuVisible.value = true },
+			enabled = !isReported,
 			modifier = Modifier
 				.size(AssistantMessageActionSizes.Button)
 				.testTag(AssistantUiTags.Message.report(messageId))
 		) {
 			Icon(
-				imageVector = Icons.Outlined.Flag,
-				contentDescription = stringResource(Res.string.a11y_assistant_report),
+				imageVector = if (isReported) Icons.Filled.Flag else Icons.Outlined.Flag,
+				contentDescription = stringResource(
+					if (isReported) Res.string.a11y_assistant_reported else Res.string.a11y_assistant_report
+				),
 				modifier = Modifier.size(AssistantMessageActionSizes.Icon),
-				tint = MaterialTheme.colorScheme.onSurfaceVariant
+				tint = if (isReported) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}
 		DropdownMenu(
