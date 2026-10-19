@@ -25,6 +25,9 @@ object AssistantComponentSheet {
 
 		// A link inside the component was tapped: the sheet goes to its target and closes.
 		class OpenNavTarget(val target: NavTarget, val entityRefs: List<EntityRef>) : Action()
+
+		// An action the component emitted that is not a link. The sheet does not take it: the message keeps it.
+		class Unhandled(val action: AssistantChat.Action) : Action()
 	}
 
 	sealed class Effect : ViewEffect {
