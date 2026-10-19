@@ -2,6 +2,15 @@ package com.gdavidpb.tuindice.about.presentation.machine
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConsentFailed
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConversationsDeleteFailed
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutAssistantConversationsDeleted
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutShareMessage
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutShareSubject
+import com.gdavidpb.tuindice.about.presentation.mapper.aboutVersionUnavailable
+import com.gdavidpb.tuindice.about.presentation.mapper.labelPrivacyPolicy
+import com.gdavidpb.tuindice.about.presentation.mapper.labelSupport
+import com.gdavidpb.tuindice.about.presentation.mapper.labelTermsAndConditions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutAnyStateTransitions
 import com.gdavidpb.tuindice.about.presentation.transition.aboutContentTransitions
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -13,17 +22,6 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import org.jetbrains.compose.resources.getString
-import tuindice.about.generated.resources.Res
-import tuindice.about.generated.resources.about_assistant_consent_failed
-import tuindice.about.generated.resources.about_assistant_conversations_delete_failed
-import tuindice.about.generated.resources.about_assistant_conversations_deleted
-import tuindice.about.generated.resources.about_share_message
-import tuindice.about.generated.resources.about_share_subject
-import tuindice.about.generated.resources.about_version_unavailable
-import tuindice.about.generated.resources.label_privacy_policy
-import tuindice.about.generated.resources.label_support
-import tuindice.about.generated.resources.label_terms_and_conditions
 
 class AboutMachine(
 	private val loadVersionUseCase: LoadVersionUseCase,
@@ -57,7 +55,7 @@ class AboutMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AboutVersionLoadFailed(
-							versionFallbackText = getString(Res.string.about_version_unavailable),
+							versionFallbackText = aboutVersionUnavailable(),
 							usageDataCollectionEnabled =
 								usageDataConsentRepository.isUsageDataCollectionEnabled()
 						)
@@ -100,7 +98,7 @@ class AboutMachine(
 	internal suspend fun openTermsAndConditions(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_terms_and_conditions),
+				title = labelTermsAndConditions(),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)
@@ -109,7 +107,7 @@ class AboutMachine(
 	internal suspend fun openPrivacyPolicy(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_privacy_policy),
+				title = labelPrivacyPolicy(),
 				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
 			)
 		)
@@ -118,7 +116,7 @@ class AboutMachine(
 	internal suspend fun openSupport(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.NavigateToBrowser(
-				title = getString(Res.string.label_support),
+				title = labelSupport(),
 				url = appEnvironmentRepository.getEnvironment().supportUrl
 			)
 		)
@@ -127,8 +125,8 @@ class AboutMachine(
 	internal suspend fun shareApp(host: MachineHost<About.Effect>) {
 		host.sendEffect(
 			About.Effect.ShareText(
-				subject = getString(Res.string.about_share_subject),
-				text = getString(Res.string.about_share_message)
+				subject = aboutShareSubject(),
+				text = aboutShareMessage()
 			)
 		)
 	}
@@ -185,7 +183,7 @@ class AboutMachine(
 					host.processInternalEvent(
 						AboutInternalEvent.AssistantConsentWriteFailed(
 							restoredGranted = restoredGranted,
-							message = getString(Res.string.about_assistant_consent_failed)
+							message = aboutAssistantConsentFailed()
 						)
 					)
 				}
@@ -201,13 +199,13 @@ class AboutMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleted(
-							message = getString(Res.string.about_assistant_conversations_deleted)
+							message = aboutAssistantConversationsDeleted()
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						AboutInternalEvent.AssistantConversationsDeleteFailed(
-							message = getString(Res.string.about_assistant_conversations_delete_failed)
+							message = aboutAssistantConversationsDeleteFailed()
 						)
 					)
 				}

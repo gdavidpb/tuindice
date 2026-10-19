@@ -4,6 +4,9 @@ import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.mapper.labelRetry
+import com.gdavidpb.tuindice.auth.presentation.mapper.titlePrivacyPolicy
+import com.gdavidpb.tuindice.auth.presentation.mapper.titleTermsAndConditions
 import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
@@ -17,11 +20,6 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.getString
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.label_retry
-import tuindice.auth.generated.resources.title_privacy_policy
-import tuindice.auth.generated.resources.title_terms_and_conditions
 
 class SignInMachine(
 	private val signInUseCase: SignInUseCase,
@@ -154,7 +152,7 @@ class SignInMachine(
 				host.sendEffect(
 					SignIn.Effect.ShowRetrySnackBar(
 						message = errorMessage,
-						actionLabel = getString(Res.string.label_retry)
+						actionLabel = labelRetry()
 					)
 				)
 		}
@@ -171,7 +169,7 @@ class SignInMachine(
 	internal suspend fun openTermsAndConditions(host: MachineHost<SignIn.Effect>) {
 		host.sendEffect(
 			SignIn.Effect.NavigateToBrowser(
-				title = getString(Res.string.title_terms_and_conditions),
+				title = titleTermsAndConditions(),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)
@@ -180,7 +178,7 @@ class SignInMachine(
 	internal suspend fun openPrivacyPolicy(host: MachineHost<SignIn.Effect>) {
 		host.sendEffect(
 			SignIn.Effect.NavigateToBrowser(
-				title = getString(Res.string.title_privacy_policy),
+				title = titlePrivacyPolicy(),
 				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
 			)
 		)
