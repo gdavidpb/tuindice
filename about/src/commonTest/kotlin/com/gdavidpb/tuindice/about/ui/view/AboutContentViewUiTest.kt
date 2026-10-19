@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -30,22 +31,24 @@ class AboutContentViewUiTest {
 		setTuIndiceTestContent {
 			AboutContentView(
 				state = About.State.Content(versionText = "1.2.3"),
-				onCreativeCommonsClick = { creativeCommonsClicks++ },
-				onXClick = { xClicks++ },
-				onGithubClick = {},
-				onKotlinClick = {},
-				onComposeClick = {},
-				onFirebaseClick = {},
-				onKoinClick = {},
-				onKtorClick = {},
-				onDstClick = {},
-				onTermsAndConditionsClick = { termsClicks++ },
-				onPrivacyPolicyClick = { privacyClicks++ },
-				onSupportClick = { supportClicks++ },
-				onShareAppClick = { shareClicks++ },
-				onRateOnPlayStoreClick = { rateClicks++ },
-				onContactDeveloperClick = {},
-				onReportBugClick = {}
+				actions = AboutActions(
+					onCreativeCommonsClick = { creativeCommonsClicks++ },
+					onXClick = { xClicks++ },
+					onGithubClick = {},
+					onKotlinClick = {},
+					onComposeClick = {},
+					onFirebaseClick = {},
+					onKoinClick = {},
+					onKtorClick = {},
+					onDstClick = {},
+					onTermsAndConditionsClick = { termsClicks++ },
+					onPrivacyPolicyClick = { privacyClicks++ },
+					onSupportClick = { supportClicks++ },
+					onShareAppClick = { shareClicks++ },
+					onRateOnPlayStoreClick = { rateClicks++ },
+					onContactDeveloperClick = {},
+					onReportBugClick = {}
+				)
 			)
 		}
 
@@ -89,22 +92,24 @@ class AboutContentViewUiTest {
 		setTuIndiceTestContent {
 			AboutContentView(
 				state = About.State.Content(versionText = "1.2.3"),
-				onCreativeCommonsClick = {},
-				onXClick = {},
-				onGithubClick = { githubClicks++ },
-				onKotlinClick = { kotlinClicks++ },
-				onComposeClick = { composeClicks++ },
-				onFirebaseClick = { firebaseClicks++ },
-				onKoinClick = { koinClicks++ },
-				onKtorClick = { ktorClicks++ },
-				onDstClick = { dstClicks++ },
-				onTermsAndConditionsClick = {},
-				onPrivacyPolicyClick = {},
-				onSupportClick = {},
-				onShareAppClick = {},
-				onRateOnPlayStoreClick = {},
-				onContactDeveloperClick = { contactClicks++ },
-				onReportBugClick = { reportBugClicks++ }
+				actions = AboutActions(
+					onCreativeCommonsClick = {},
+					onXClick = {},
+					onGithubClick = { githubClicks++ },
+					onKotlinClick = { kotlinClicks++ },
+					onComposeClick = { composeClicks++ },
+					onFirebaseClick = { firebaseClicks++ },
+					onKoinClick = { koinClicks++ },
+					onKtorClick = { ktorClicks++ },
+					onDstClick = { dstClicks++ },
+					onTermsAndConditionsClick = {},
+					onPrivacyPolicyClick = {},
+					onSupportClick = {},
+					onShareAppClick = {},
+					onRateOnPlayStoreClick = {},
+					onContactDeveloperClick = { contactClicks++ },
+					onReportBugClick = { reportBugClicks++ }
+				)
 			)
 		}
 
@@ -160,22 +165,24 @@ class AboutContentViewUiTest {
 		setTuIndiceTestContent {
 			AboutContentView(
 				state = About.State.Content(versionText = "9.9.9"),
-				onCreativeCommonsClick = {},
-				onXClick = {},
-				onGithubClick = {},
-				onKotlinClick = {},
-				onComposeClick = {},
-				onFirebaseClick = {},
-				onKoinClick = {},
-				onKtorClick = {},
-				onDstClick = {},
-				onTermsAndConditionsClick = {},
-				onPrivacyPolicyClick = {},
-				onSupportClick = {},
-				onShareAppClick = {},
-				onRateOnPlayStoreClick = {},
-				onContactDeveloperClick = {},
-				onReportBugClick = {}
+				actions = AboutActions(
+					onCreativeCommonsClick = {},
+					onXClick = {},
+					onGithubClick = {},
+					onKotlinClick = {},
+					onComposeClick = {},
+					onFirebaseClick = {},
+					onKoinClick = {},
+					onKtorClick = {},
+					onDstClick = {},
+					onTermsAndConditionsClick = {},
+					onPrivacyPolicyClick = {},
+					onSupportClick = {},
+					onShareAppClick = {},
+					onRateOnPlayStoreClick = {},
+					onContactDeveloperClick = {},
+					onReportBugClick = {}
+				)
 			)
 		}
 

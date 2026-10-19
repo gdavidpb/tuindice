@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.route.AboutRoute
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
@@ -37,7 +38,7 @@ fun EntryProviderScope<NavKey>.aboutEntries(
 		CollectNavResultWithLifecycle<DeleteAssistantConversationsConfirmationResult> { result ->
 			when (result) {
 				DeleteAssistantConversationsConfirmationResult.Confirmed ->
-					viewModel.confirmDeleteAssistantConversationsAction()
+					viewModel.dispatchAction(About.Action.ConfirmDeleteAssistantConversations)
 			}
 		}
 

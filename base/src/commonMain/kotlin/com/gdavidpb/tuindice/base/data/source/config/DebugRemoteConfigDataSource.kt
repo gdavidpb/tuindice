@@ -52,7 +52,6 @@ class DebugRemoteConfigDataSource(
 			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_TITLE -> defaults.appAvailabilityNoticeTitle
 			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE -> defaults.appAvailabilityNoticeMessage
 			RemoteConfigKeys.ASSISTANT_MODE -> defaults.assistantMode
-			RemoteConfigKeys.ASSISTANT_APPEAL_ENABLED -> defaults.assistantAppealEnabled.toString()
 			else -> null
 		}
 

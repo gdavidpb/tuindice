@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -53,7 +53,7 @@ class AssistantMemoryKoinSmokeTest {
 				single<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
 					assistantHttpClient { respond(content = "", status = HttpStatusCode.NoContent) }
 				}
-				single<ConfigRepository> { FakeAssistantConfigRepository() }
+				single<AssistantConfigRepository> { FakeAssistantConfigRepository() }
 				single<Settings> { FakeSettings() }
 				single<Clock> { Clock.System }
 				single<ReportingRepository> { RecordingReportingRepository() }

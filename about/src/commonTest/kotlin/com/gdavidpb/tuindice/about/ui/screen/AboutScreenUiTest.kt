@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -21,22 +22,24 @@ class AboutScreenUiTest {
 		setTuIndiceTestContent {
 			AboutScreen(
 				state = About.State.Content(versionText = "1.2.3"),
-				onCreativeCommonsClick = {},
-				onXClick = {},
-				onGithubClick = {},
-				onKotlinClick = {},
-				onComposeClick = {},
-				onFirebaseClick = {},
-				onKoinClick = {},
-				onKtorClick = {},
-				onDstClick = {},
-				onTermsAndConditionsClick = {},
-				onPrivacyPolicyClick = {},
-				onSupportClick = {},
-				onShareAppClick = {},
-				onRateOnPlayStoreClick = {},
-				onContactDeveloperClick = {},
-				onReportBugClick = {}
+				actions = AboutActions(
+					onCreativeCommonsClick = {},
+					onXClick = {},
+					onGithubClick = {},
+					onKotlinClick = {},
+					onComposeClick = {},
+					onFirebaseClick = {},
+					onKoinClick = {},
+					onKtorClick = {},
+					onDstClick = {},
+					onTermsAndConditionsClick = {},
+					onPrivacyPolicyClick = {},
+					onSupportClick = {},
+					onShareAppClick = {},
+					onRateOnPlayStoreClick = {},
+					onContactDeveloperClick = {},
+					onReportBugClick = {}
+				)
 			)
 		}
 
@@ -48,22 +51,24 @@ class AboutScreenUiTest {
 		setTuIndiceTestContent {
 			AboutScreen(
 				state = About.State.Idle,
-				onCreativeCommonsClick = {},
-				onXClick = {},
-				onGithubClick = {},
-				onKotlinClick = {},
-				onComposeClick = {},
-				onFirebaseClick = {},
-				onKoinClick = {},
-				onKtorClick = {},
-				onDstClick = {},
-				onTermsAndConditionsClick = {},
-				onPrivacyPolicyClick = {},
-				onSupportClick = {},
-				onShareAppClick = {},
-				onRateOnPlayStoreClick = {},
-				onContactDeveloperClick = {},
-				onReportBugClick = {}
+				actions = AboutActions(
+					onCreativeCommonsClick = {},
+					onXClick = {},
+					onGithubClick = {},
+					onKotlinClick = {},
+					onComposeClick = {},
+					onFirebaseClick = {},
+					onKoinClick = {},
+					onKtorClick = {},
+					onDstClick = {},
+					onTermsAndConditionsClick = {},
+					onPrivacyPolicyClick = {},
+					onSupportClick = {},
+					onShareAppClick = {},
+					onRateOnPlayStoreClick = {},
+					onContactDeveloperClick = {},
+					onReportBugClick = {}
+				)
 			)
 		}
 
@@ -92,22 +97,24 @@ class AboutScreenUiTest {
 		setTuIndiceTestContent {
 			AboutScreen(
 				state = About.State.Content(versionText = "1.2.3"),
-				onCreativeCommonsClick = { creativeCommonsClicks++ },
-				onXClick = { xClicks++ },
-				onGithubClick = { githubClicks++ },
-				onKotlinClick = { kotlinClicks++ },
-				onComposeClick = { composeClicks++ },
-				onFirebaseClick = { firebaseClicks++ },
-				onKoinClick = { koinClicks++ },
-				onKtorClick = { ktorClicks++ },
-				onDstClick = { dstClicks++ },
-				onTermsAndConditionsClick = { termsClicks++ },
-				onPrivacyPolicyClick = { privacyClicks++ },
-				onSupportClick = { supportClicks++ },
-				onShareAppClick = { shareClicks++ },
-				onRateOnPlayStoreClick = { rateClicks++ },
-				onContactDeveloperClick = { contactClicks++ },
-				onReportBugClick = { reportBugClicks++ }
+				actions = AboutActions(
+					onCreativeCommonsClick = { creativeCommonsClicks++ },
+					onXClick = { xClicks++ },
+					onGithubClick = { githubClicks++ },
+					onKotlinClick = { kotlinClicks++ },
+					onComposeClick = { composeClicks++ },
+					onFirebaseClick = { firebaseClicks++ },
+					onKoinClick = { koinClicks++ },
+					onKtorClick = { ktorClicks++ },
+					onDstClick = { dstClicks++ },
+					onTermsAndConditionsClick = { termsClicks++ },
+					onPrivacyPolicyClick = { privacyClicks++ },
+					onSupportClick = { supportClicks++ },
+					onShareAppClick = { shareClicks++ },
+					onRateOnPlayStoreClick = { rateClicks++ },
+					onContactDeveloperClick = { contactClicks++ },
+					onReportBugClick = { reportBugClicks++ }
+				)
 			)
 		}
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.share
 
+import com.gdavidpb.tuindice.summary.presentation.mapper.cardUrlsToPrefetch
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArt
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermArtwork
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem

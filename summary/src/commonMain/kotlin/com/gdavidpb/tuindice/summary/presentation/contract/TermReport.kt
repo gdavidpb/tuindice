@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.presentation.mapper.termReportAssistantContext
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportActionItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportItem
 import tuindice.summary.generated.resources.Res
@@ -46,7 +45,7 @@ object TermReport {
 				get() = if (report.isShareable) TopBarConfig.TermReport else null
 
 			override val assistantContext: AssistantScreenContext
-				get() = termReportAssistantContext(report)
+				get() = report.assistantContext
 		}
 
 		// The service has no report of the term, or the record holds no term of it: the screen says so and does not retry.

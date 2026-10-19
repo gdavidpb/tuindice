@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
@@ -10,6 +9,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.utils.ProfilePictureEncoding
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.exists
@@ -54,7 +54,7 @@ class UserDataSource(
 		val normalizedFile = profilePictureInputDataSource.normalizeInput(file = file)
 
 		try {
-			val encodedImage = imageEncoderRepository.encode(file = normalizedFile, spec = PROFILE_PICTURE_ENCODING)
+			val encodedImage = imageEncoderRepository.encode(file = normalizedFile, spec = ProfilePictureEncoding.SPEC)
 
 			return remoteDataSource.uploadProfilePicture(
 				content = encodedImage.content,
@@ -88,6 +88,3 @@ class UserDataSource(
 		settingsDataSource.bumpProfilePictureVersion()
 	}
 }
-
-// The profile picture as the server takes it: at most 1024 px on its longest side and 1 MB, as JPEG of quality 85.
-internal val PROFILE_PICTURE_ENCODING = ImageEncodingSpec(maxDimensionPx = 1024, maxBytes = 1_048_576, jpegQuality = 85)

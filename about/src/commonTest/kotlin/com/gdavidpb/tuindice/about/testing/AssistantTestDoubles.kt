@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.about.testing
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.RefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
@@ -88,10 +90,32 @@ fun fakeObserveAssistantConsentUseCase(): ObserveAssistantConsentUseCase {
 	)
 }
 
-fun fakeSetAssistantConsentUseCase(): SetAssistantConsentUseCase {
+fun fakeSetAssistantConsentUseCase(
+	assistantConsentRepository: AssistantConsentRepository = FakeAssistantConsentRepository()
+): SetAssistantConsentUseCase {
 	return SetAssistantConsentUseCase(
-		assistantConsentRepository = FakeAssistantConsentRepository(),
+		assistantConsentRepository = assistantConsentRepository,
 		reportingRepository = RecordingReportingRepository()
+	)
+}
+
+fun fakeRefreshAssistantConsentUseCase(
+	assistantConsentRepository: AssistantConsentRepository = FakeAssistantConsentRepository()
+): RefreshAssistantConsentUseCase {
+	return RefreshAssistantConsentUseCase(
+		assistantConsentRepository = assistantConsentRepository,
+		reportingRepository = RecordingReportingRepository()
+	)
+}
+
+/** The assistant use cases of the about machine over fresh fakes. */
+fun fakeAboutAssistantUseCases(): AboutAssistantUseCases {
+	return AboutAssistantUseCases(
+		observeAvailability = fakeObserveAssistantAvailabilityUseCase(),
+		observeConsent = fakeObserveAssistantConsentUseCase(),
+		setConsent = fakeSetAssistantConsentUseCase(),
+		refreshConsent = fakeRefreshAssistantConsentUseCase(),
+		deleteConversations = fakeDeleteAssistantConversationsUseCase()
 	)
 }
 

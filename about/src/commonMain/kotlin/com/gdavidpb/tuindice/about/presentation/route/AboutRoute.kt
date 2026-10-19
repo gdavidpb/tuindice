@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
+import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -63,28 +64,34 @@ fun AboutRoute(
 
 	AboutScreen(
 		state = viewState,
-		onCreativeCommonsClick = { viewModel.openUrlAction(AboutLinks.CREATIVE_COMMONS) },
-		onXClick = { viewModel.openUrlAction(AboutLinks.X) },
-		onGithubClick = { viewModel.openUrlAction(AboutLinks.GITHUB) },
-		onKotlinClick = { viewModel.openUrlAction(AboutLinks.KOTLIN) },
-		onComposeClick = { viewModel.openUrlAction(AboutLinks.COMPOSE) },
-		onFirebaseClick = { viewModel.openUrlAction(AboutLinks.FIREBASE) },
-		onKoinClick = { viewModel.openUrlAction(AboutLinks.KOIN) },
-		onKtorClick = { viewModel.openUrlAction(AboutLinks.KTOR) },
-		onDstClick = { viewModel.openUrlAction(AboutLinks.DST) },
-		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
-		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction,
-		onSupportClick = viewModel::openSupportAction,
-		onShareAppClick = viewModel::shareAppAction,
-		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
-		onContactDeveloperClick = viewModel::contactDeveloperAction,
-		onReportBugClick = viewModel::reportBugAction,
-		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
-		onAssistantConsentChange = viewModel::setAssistantConsentAction,
-		onAssistantMemoryClick = viewModel::openAssistantMemoryAction,
-		onAssistantConversationsClick = viewModel::requestDeleteAssistantConversationsAction
+		actions = viewModel.toAboutActions()
 	)
 }
+
+private fun AboutViewModel.toAboutActions() = AboutActions(
+	onCreativeCommonsClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.CREATIVE_COMMONS)) },
+	onXClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.X)) },
+	onGithubClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.GITHUB)) },
+	onKotlinClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.KOTLIN)) },
+	onComposeClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.COMPOSE)) },
+	onFirebaseClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.FIREBASE)) },
+	onKoinClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.KOIN)) },
+	onKtorClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.KTOR)) },
+	onDstClick = { dispatchAction(About.Action.OpenUrl(AboutLinks.DST)) },
+	onTermsAndConditionsClick = { dispatchAction(About.Action.OpenTermsAndConditions) },
+	onPrivacyPolicyClick = { dispatchAction(About.Action.OpenPrivacyPolicy) },
+	onSupportClick = { dispatchAction(About.Action.OpenSupport) },
+	onShareAppClick = { dispatchAction(About.Action.ShareApp) },
+	onRateOnPlayStoreClick = { dispatchAction(About.Action.RateOnStore) },
+	onContactDeveloperClick = { dispatchAction(About.Action.ContactDeveloper) },
+	onReportBugClick = { dispatchAction(About.Action.ReportBug) },
+	onUsageDataCollectionEnabledChange = { enabled ->
+		dispatchAction(About.Action.SetUsageDataCollectionEnabled(enabled))
+	},
+	onAssistantConsentChange = { granted -> dispatchAction(About.Action.SetAssistantConsent(granted)) },
+	onAssistantMemoryClick = { dispatchAction(About.Action.OpenAssistantMemory) },
+	onAssistantConversationsClick = { dispatchAction(About.Action.RequestDeleteAssistantConversations) }
+)
 
 private const val MAILTO_SCHEME = "mailto:"
 private const val MARKET_SCHEME = "market://"

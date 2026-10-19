@@ -8,8 +8,11 @@ import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUs
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.RefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import org.koin.core.module.dsl.bind
@@ -33,7 +36,10 @@ val aboutModule = module {
 	factoryOf(::ObserveAssistantAvailabilityUseCase)
 	factoryOf(::ObserveAssistantConsentUseCase)
 	factoryOf(::SetAssistantConsentUseCase)
+	factoryOf(::RefreshAssistantConsentUseCase)
 	factoryOf(::DeleteAssistantConversationsUseCase)
+	factoryOf(::AboutAssistantUseCases)
+	factoryOf(::AboutExternalUseCases)
 
 	/* Repositories */
 

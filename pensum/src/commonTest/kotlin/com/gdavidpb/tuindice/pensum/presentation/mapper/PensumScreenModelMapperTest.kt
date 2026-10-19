@@ -322,7 +322,7 @@ class PensumScreenModelMapperTest {
 				entities = listOf(
 					AssistantEntityRef(
 						kind = AssistantEntityKind.PENSUM,
-						id = "Ingenieria de Computacion-2019-degree_project"
+						id = "computacion-2019-degree-project"
 					)
 				),
 				visibleFields = mapOf("approvedCredits" to "0", "totalCredits" to "8")

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.machine.TermReportInternalEvent
 import com.gdavidpb.tuindice.summary.presentation.machine.TermReportMachine
-import com.gdavidpb.tuindice.summary.presentation.machine.termReportMissingState
+import com.gdavidpb.tuindice.summary.presentation.mapper.termReportMissingState
 
 internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransitions(
 	machine: TermReportMachine,

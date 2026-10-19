@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -29,8 +27,6 @@ fun TermReportScreen(
 	actions: TermReportActions,
 	modifier: Modifier = Modifier
 ) {
-	val assistantLauncher = LocalAssistantLauncher.current
-
 	Box(
 		modifier = modifier
 			.fillMaxSize()
@@ -44,7 +40,7 @@ fun TermReportScreen(
 			is TermReport.State.Content -> TermReportContentView(
 				report = state.report,
 				feedback = state.feedback,
-				onAskAssistantClick = askAssistantAction(assistantLauncher, state.assistantContext),
+				onAskAssistantClick = askAssistantAction(actions.onAskAssistant, state.assistantContext),
 				actions = actions
 			)
 
@@ -66,10 +62,10 @@ fun TermReportScreen(
 
 // The chat's launch of the report, or no action at all when the host has no chat to open.
 private fun askAssistantAction(
-	launcher: AssistantLauncher?,
+	onAskAssistant: ((AssistantScreenContext) -> Unit)?,
 	context: AssistantScreenContext
 ): (() -> Unit)? {
-	if (launcher == null) return null
+	if (onAskAssistant == null) return null
 
-	return { launcher.launch(context) }
+	return { onAskAssistant(context) }
 }

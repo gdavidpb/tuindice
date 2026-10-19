@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 class TermReportAssistantContextTest {
 	@Test
 	fun theContextNamesTheReportItIsAbout_andWhatItSays() {
-		val context = termReportAssistantContext(termReportItemFixture(insightId = "term-1:2"))
+		val context = termReportItemFixture(insightId = "term-1:2").assistantContext
 
 		assertEquals(AssistantScreen.TERM_REPORT, context.screen)
 		assertEquals("term-1:2", context.visibleFields["reportId"])

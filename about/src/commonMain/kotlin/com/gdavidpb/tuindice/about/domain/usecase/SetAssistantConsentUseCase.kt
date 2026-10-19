@@ -6,26 +6,14 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-// Sets the consent the device keeps: the student's choice, which the server decides on, or the one the server already
-// holds, for a device that has not heard it yet.
+// Stores the consent the student chose on this device; the server is told through the repository.
 class SetAssistantConsentUseCase(
 	private val assistantConsentRepository: AssistantConsentRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<AssistantConsentSetting, Unit, Nothing>() {
-	override suspend fun executeOnBackground(params: AssistantConsentSetting): Flow<Unit> {
-		when (params) {
-			is AssistantConsentSetting.Chosen ->
-				assistantConsentRepository.setAssistantConsentGranted(granted = params.granted)
-
-			AssistantConsentSetting.FromServer -> assistantConsentRepository.refreshAssistantConsent()
-		}
+) : FlowUseCase<Boolean, Unit, Nothing>() {
+	override suspend fun executeOnBackground(params: Boolean): Flow<Unit> {
+		assistantConsentRepository.setAssistantConsentGranted(granted = params)
 
 		return flowOf(Unit)
 	}
-}
-
-sealed interface AssistantConsentSetting {
-	data class Chosen(val granted: Boolean) : AssistantConsentSetting
-
-	data object FromServer : AssistantConsentSetting
 }

@@ -12,13 +12,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
-class ConfigDataSourceAssistantModeTest {
+class AssistantConfigDataSourceTest {
 	@Test
 	fun observeAssistantMode_emitsTheInitialValue() = runTest {
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = FakeRemoteConfigDataSource(
 				initialValues = mapOf(RemoteConfigKeys.ASSISTANT_MODE to "guided")
 			),
@@ -36,7 +34,7 @@ class ConfigDataSourceAssistantModeTest {
 		val remote = FakeRemoteConfigDataSource(
 			initialValues = mapOf(RemoteConfigKeys.ASSISTANT_MODE to "off")
 		)
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = remote,
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
 		)
@@ -56,7 +54,7 @@ class ConfigDataSourceAssistantModeTest {
 		val remote = FakeRemoteConfigDataSource(
 			initialValues = mapOf(RemoteConfigKeys.ASSISTANT_MODE to "on")
 		)
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = remote,
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
 		)
@@ -75,7 +73,7 @@ class ConfigDataSourceAssistantModeTest {
 
 	@Test
 	fun observeAssistantMode_missingValueFallsBackToTheDefault() = runTest {
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = FakeRemoteConfigDataSource(),
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.DEBUG)
 		)
@@ -88,7 +86,7 @@ class ConfigDataSourceAssistantModeTest {
 
 	@Test
 	fun observeAssistantMode_invalidValueFailsClosedToOff() = runTest {
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = FakeRemoteConfigDataSource(
 				initialValues = mapOf(RemoteConfigKeys.ASSISTANT_MODE to "banana")
 			),
@@ -107,7 +105,7 @@ class ConfigDataSourceAssistantModeTest {
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.DEBUG),
 			sourceName = "test"
 		)
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = debugSource,
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.DEBUG)
 		)
@@ -122,23 +120,6 @@ class ConfigDataSourceAssistantModeTest {
 			assertEquals(expected = AssistantMode.ON, actual = awaitItem())
 			cancelAndIgnoreRemainingEvents()
 		}
-	}
-
-	@Test
-	fun getAssistantAppealEnabled_readsTheRemoteValueAndFallsBackToTheDefault() {
-		val withValue = ConfigDataSource(
-			remoteConfigDataSource = FakeRemoteConfigDataSource(
-				initialValues = mapOf(RemoteConfigKeys.ASSISTANT_APPEAL_ENABLED to "true")
-			),
-			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
-		)
-		val withoutValue = ConfigDataSource(
-			remoteConfigDataSource = FakeRemoteConfigDataSource(),
-			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
-		)
-
-		assertTrue(actual = withValue.getAssistantAppealEnabled())
-		assertFalse(actual = withoutValue.getAssistantAppealEnabled())
 	}
 
 	private class FakeRemoteConfigDataSource(

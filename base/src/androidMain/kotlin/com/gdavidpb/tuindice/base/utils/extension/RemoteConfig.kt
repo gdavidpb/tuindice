@@ -17,7 +17,6 @@ fun DefaultRemoteConfigValues.toFirebaseDefaultsMap(): Map<String, Any> {
 		RemoteConfigKeys.APP_AVAILABILITY_NOTICE_ENABLED to appAvailabilityNoticeEnabled,
 		RemoteConfigKeys.APP_AVAILABILITY_NOTICE_TITLE to appAvailabilityNoticeTitle,
 		RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE to appAvailabilityNoticeMessage,
-		RemoteConfigKeys.ASSISTANT_MODE to assistantMode,
-		RemoteConfigKeys.ASSISTANT_APPEAL_ENABLED to assistantAppealEnabled
+		RemoteConfigKeys.ASSISTANT_MODE to assistantMode
 	)
 }

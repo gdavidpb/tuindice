@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataReposito
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
+import com.gdavidpb.tuindice.base.data.source.AssistantConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
@@ -34,6 +35,7 @@ import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
@@ -116,6 +118,7 @@ val commonModule = module {
 		bind<SessionMemory>()
 	}
 	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
+	singleOf(::AssistantConfigDataSource) { bind<AssistantConfigRepository>() }
 	single<EventPublisher> {
 		BufferedEventPublisher(
 			usageDataConsentRepository = get(),

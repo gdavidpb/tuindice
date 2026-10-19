@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
@@ -25,6 +27,8 @@ import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
+import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -177,7 +181,7 @@ class AboutAssistantRouteUiTest {
 		}
 
 		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
-		viewModel.confirmDeleteAssistantConversationsAction()
+		viewModel.dispatchAction(About.Action.ConfirmDeleteAssistantConversations)
 
 		waitUntil(timeoutMillis = 2_000) {
 			messages.isNotEmpty()
@@ -206,7 +210,7 @@ class AboutAssistantRouteUiTest {
 		}
 
 		waitUntilNodeExists(AboutUiTags.AssistantConversationsItem)
-		viewModel.confirmDeleteAssistantConversationsAction()
+		viewModel.dispatchAction(About.Action.ConfirmDeleteAssistantConversations)
 
 		waitUntil(timeoutMillis = 2_000) {
 			messages.isNotEmpty()
@@ -243,33 +247,35 @@ class AboutAssistantRouteUiTest {
 					aboutRepository = FakeAboutRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
-				sendSupportEmailUseCase = SendSupportEmailUseCase(
-					configRepository = FakeConfigRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openStoreUseCase = OpenStoreUseCase(
-					storeUrlRepository = FakeStoreUrlDataSource(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openExternalUrlUseCase = OpenExternalUrlUseCase(
-					browserRepository = RecordingBrowserRepository(),
-					reportingRepository = RecordingReportingRepository()
+				externalUseCases = AboutExternalUseCases(
+					sendSupportEmail = SendSupportEmailUseCase(
+						configRepository = FakeConfigRepository(),
+						deviceInfoRepository = FakeDeviceInfoRepository(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					openStore = OpenStoreUseCase(
+						storeUrlRepository = FakeStoreUrlDataSource(),
+						reportingRepository = RecordingReportingRepository()
+					),
+					openExternalUrl = OpenExternalUrlUseCase(
+						browserRepository = RecordingBrowserRepository(),
+						reportingRepository = RecordingReportingRepository()
+					)
 				),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				observeAssistantAvailabilityUseCase = ObserveAssistantAvailabilityUseCase(
-					assistantAvailabilityRepository = assistantAvailability,
-					reportingRepository = RecordingReportingRepository()
-				),
-				observeAssistantConsentUseCase = ObserveAssistantConsentUseCase(
-					assistantConsentRepository = assistantConsent,
-					reportingRepository = RecordingReportingRepository()
-				),
-				deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(assistantConversations),
-				setAssistantConsentUseCase = SetAssistantConsentUseCase(
-					assistantConsentRepository = assistantConsent,
-					reportingRepository = RecordingReportingRepository()
+				assistantUseCases = AboutAssistantUseCases(
+					observeAvailability = ObserveAssistantAvailabilityUseCase(
+						assistantAvailabilityRepository = assistantAvailability,
+						reportingRepository = RecordingReportingRepository()
+					),
+					observeConsent = ObserveAssistantConsentUseCase(
+						assistantConsentRepository = assistantConsent,
+						reportingRepository = RecordingReportingRepository()
+					),
+					setConsent = fakeSetAssistantConsentUseCase(assistantConsent),
+					refreshConsent = fakeRefreshAssistantConsentUseCase(assistantConsent),
+					deleteConversations = fakeDeleteAssistantConversationsUseCase(assistantConversations)
 				)
 			),
 			eventPublisher = NoOpEventPublisher

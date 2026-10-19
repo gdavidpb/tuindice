@@ -83,6 +83,7 @@ class CoachmarkSurfaceMapperTest {
 
 	private fun pensumScreenModel(): PensumScreenModel {
 		return PensumScreenModel(
+			pensumId = "ingenieria-2020-default",
 			careerName = "Ingenieria",
 			selection = PensumScreenSelection(
 				year = 2020,

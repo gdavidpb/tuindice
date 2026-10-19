@@ -2,8 +2,7 @@ package com.gdavidpb.tuindice.assistant.testing
 
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDataRepository
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngineCapability
@@ -130,7 +129,7 @@ internal class VirtualClock(private val scheduler: TestCoroutineScheduler) : Clo
 
 internal class FakeAssistantConfigRepository(
 	mode: AssistantMode = AssistantMode.ON
-) : ConfigRepository by FakeConfigRepository() {
+) : AssistantConfigRepository {
 
 	private val modes = MutableStateFlow(mode)
 

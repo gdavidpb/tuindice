@@ -223,6 +223,7 @@ fun samplePensumModalityItems(): List<PensumModalityItem> {
 fun samplePensumScreenModel(): PensumScreenModel {
 	return PensumScreenModel(
 		careerName = SAMPLE_PENSUM_CAREER_NAME,
+		pensumId = "0800-2019-degree_project",
 		selection = PensumScreenSelection(
 			year = 2019,
 			modalityId = "degree_project"

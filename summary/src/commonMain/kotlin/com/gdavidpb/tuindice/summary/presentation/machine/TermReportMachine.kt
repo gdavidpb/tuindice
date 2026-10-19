@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -10,7 +9,6 @@ import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import com.gdavidpb.tuindice.summary.domain.usecase.param.RateTermReportParams
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
@@ -25,13 +23,6 @@ import com.gdavidpb.tuindice.summary.presentation.transition.termReportNoReportT
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.lastOrNull
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.term_report_failed_message
-import tuindice.summary.generated.resources.term_report_failed_record_message
-import tuindice.summary.generated.resources.term_report_failed_record_title
-import tuindice.summary.generated.resources.term_report_failed_title
-import tuindice.summary.generated.resources.term_report_no_report_message
-import tuindice.summary.generated.resources.term_report_no_report_title
 
 class TermReportMachine(
 	private val observeTermReportUseCase: ObserveTermReportUseCase,
@@ -141,29 +132,5 @@ class TermReportMachine(
 				}
 			}
 		}
-	}
-}
-
-// The state of a report the service does not have, with the words that say so.
-internal fun termReportMissingState(): TermReport.State.NoReport {
-	return TermReport.State.NoReport(
-		title = UiText.Resource(Res.string.term_report_no_report_title),
-		message = UiText.Resource(Res.string.term_report_no_report_message)
-	)
-}
-
-// The state of a report that cannot be read at the moment, with the words of its cause: a record that is not synced yet
-// says that the report will come once it is, and a connection that failed offers to try again.
-internal fun termReportUnavailableState(cause: ObserveTermReportUseCaseError?): TermReport.State.Failed {
-	return when (cause) {
-		ObserveTermReportUseCaseError.RecordNotReady -> TermReport.State.Failed(
-			title = UiText.Resource(Res.string.term_report_failed_record_title),
-			message = UiText.Resource(Res.string.term_report_failed_record_message)
-		)
-
-		else -> TermReport.State.Failed(
-			title = UiText.Resource(Res.string.term_report_failed_title),
-			message = UiText.Resource(Res.string.term_report_failed_message)
-		)
 	}
 }

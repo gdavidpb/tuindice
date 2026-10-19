@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import coil3.SingletonImageLoader
 import coil3.compose.LocalPlatformContext
+import com.gdavidpb.tuindice.summary.presentation.mapper.cardUrlsToPrefetch
 import com.gdavidpb.tuindice.summary.presentation.model.ShareTermBackgroundItem
 
 /**

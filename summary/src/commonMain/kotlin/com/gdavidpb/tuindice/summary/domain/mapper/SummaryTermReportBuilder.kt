@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordStatistics
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
+import com.gdavidpb.tuindice.academiccore.domain.model.isRetired
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantTermInsight
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReport
@@ -62,7 +63,7 @@ internal fun termReportOf(
 		subjects = reported.attempts
 			.sortedWith(compareBy(AttemptProjection::subjectCode, AttemptProjection::id))
 			.map { attempt -> attempt.toSummaryTermReportSubject() },
-		creditsOfTerm = reported.attempts.filterNot(::isRetired).sumOf { attempt -> attempt.credits },
+		creditsOfTerm = reported.attempts.filterNot { attempt -> attempt.isRetired() }.sumOf { attempt -> attempt.credits },
 		paceTerms = paceTerms,
 		averageCredits = RecordPaceEngine.paceOf(
 			approvedCreditsByRegularTerm = paceTerms.map(TermStatistic::approvedCredits),
@@ -124,16 +125,11 @@ private fun AttemptProjection.toSummaryTermReportSubject(): SummaryTermReportSub
 // (or unreported) is pending.
 private fun AttemptProjection.outcomeOf(): SummaryTermReportOutcome {
 	return when {
-		isRetired(this) -> SummaryTermReportOutcome.WITHDRAWN
+		isRetired() -> SummaryTermReportOutcome.WITHDRAWN
 		outcome == AttemptOutcome.APPROVED -> SummaryTermReportOutcome.APPROVED
 		outcome == AttemptOutcome.FAILED -> SummaryTermReportOutcome.FAILED
 		else -> SummaryTermReportOutcome.PENDING
 	}
-}
-
-// The same rule the statistics engine applies to a retired attempt.
-private fun isRetired(attempt: AttemptProjection): Boolean {
-	return attempt.withdrawn || attempt.outcome == AttemptOutcome.RETIRED
 }
 
 private fun differenceOf(current: Double?, previous: Double?): Double? {

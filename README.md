@@ -53,7 +53,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - Los settings no sensibles usan `multiplatform-settings`.
 - Lo sensible usa `KSafe`.
 - `RemoteConfig` se mantiene como configuración remota directa, sin cache local en settings.
-- Las claves de `RemoteConfig` cambian en caliente: `RemoteConfigDataRepository.observeUpdatedKeys()` emite las claves actualizadas (Android con `ConfigUpdateListener` + `activate()`; iOS con `IosRemoteConfigCapability.addRemoteConfigUpdateListener`). Activar una actualización cambia también las demás claves a mitad de sesión. `ConfigDataSource.observeAssistantMode()` se suscribe antes de leer el valor inicial.
+- Las claves de `RemoteConfig` cambian en caliente: `RemoteConfigDataRepository.observeUpdatedKeys()` emite las claves actualizadas (Android con `ConfigUpdateListener` + `activate()`; iOS con `IosRemoteConfigCapability.addRemoteConfigUpdateListener`). Activar una actualización cambia también las demás claves a mitad de sesión. `AssistantConfigDataSource.observeAssistantMode()` se suscribe antes de leer el valor inicial.
 - Existe un patron de smoke tests de Koin por modulo para validar wiring y entry points públicos.
 
 ## Arquitectura

@@ -3,8 +3,11 @@ package com.gdavidpb.tuindice.summary.testing
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReportOutcome
+import com.gdavidpb.tuindice.summary.presentation.mapper.reportTextOf
+import com.gdavidpb.tuindice.summary.presentation.mapper.toActionIconKind
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsBarItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsReferenceItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsTooltipItem
@@ -14,6 +17,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.TermReportDeltaTone
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportHeroItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportLegendItem
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportOutcomeTone
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportPaceItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportSectionItem
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportSubjectItem
@@ -48,19 +52,7 @@ fun termReportItemFixture(
 		cumulativeIndex = "4.0331",
 		cumulativeDelta = TermReportDeltaItem(UiText.Raw("▲ 0,02"), UiText.Raw("Subió 0.02"), TermReportDeltaTone.POSITIVE)
 	),
-	subjects = TermReportSubjectsItem(
-		credits = UiText.Raw("11 de 14 créditos"),
-		legend = listOf(
-			TermReportLegendItem(SummaryTermReportOutcome.APPROVED, UiText.Raw("1 aprobada")),
-			TermReportLegendItem(SummaryTermReportOutcome.FAILED, UiText.Raw("1 reprobada")),
-			TermReportLegendItem(SummaryTermReportOutcome.WITHDRAWN, UiText.Raw("1 retirada"))
-		),
-		rows = listOf(
-			TermReportSubjectItem("CI5311", "Ingeniería de Software", "5", SummaryTermReportOutcome.APPROVED),
-			TermReportSubjectItem("CI5437", "Inteligencia Artificial", "2", SummaryTermReportOutcome.FAILED),
-			TermReportSubjectItem("EG1114", "Electiva General", null, SummaryTermReportOutcome.WITHDRAWN)
-		)
-	),
+	subjects = subjectsFixture(),
 	pace = TermReportPaceItem.Data(
 		bars = listOf(
 			paceBar(axis = "A-J 24", credits = 12f, isHighlighted = false),
@@ -74,17 +66,46 @@ fun termReportItemFixture(
 	sections = sections,
 	isShareable = isShareable,
 	confirmedFeedback = confirmedFeedback,
-	nextActions = listOf(
-		TermReportActionItem(
-			label = "Proyectar tu índice para Jul - Ago",
-			target = AssistantNavTarget.RECORD_PROJECTION,
-			entityRefs = emptyList()
-		),
-		TermReportActionItem(
-			label = "Compartir tu trimestre",
-			target = AssistantNavTarget.SHARE_TERM,
-			entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1"))
+	assistantContext = AssistantScreenContext(
+		screen = AssistantScreen.TERM_REPORT,
+		entities = listOfNotNull(termId?.let { id -> AssistantEntityRef(kind = AssistantEntityKind.TERM, id = id) }),
+		visibleFields = mapOf(
+			"termLabel" to "Abr - Jul 2026",
+			"termIndex" to "4.1750",
+			"reportId" to insightId,
+			"reportTitle" to "Cerraste con 4,18",
+			"reportText" to reportTextOf(sections = sections)
 		)
+	),
+	nextActions = nextActionsFixture()
+)
+
+private fun subjectsFixture() = TermReportSubjectsItem(
+	credits = UiText.Raw("11 de 14 créditos"),
+	legend = listOf(
+		TermReportLegendItem(TermReportOutcomeTone.APPROVED, UiText.Raw("1 aprobada")),
+		TermReportLegendItem(TermReportOutcomeTone.FAILED, UiText.Raw("1 reprobada")),
+		TermReportLegendItem(TermReportOutcomeTone.WITHDRAWN, UiText.Raw("1 retirada"))
+	),
+	rows = listOf(
+		TermReportSubjectItem("CI5311", "Ingeniería de Software", "5", TermReportOutcomeTone.APPROVED),
+		TermReportSubjectItem("CI5437", "Inteligencia Artificial", "2", TermReportOutcomeTone.FAILED),
+		TermReportSubjectItem("EG1114", "Electiva General", null, TermReportOutcomeTone.WITHDRAWN)
+	)
+)
+
+private fun nextActionsFixture() = listOf(
+	TermReportActionItem(
+		label = "Proyectar tu índice para Jul - Ago",
+		target = AssistantNavTarget.RECORD_PROJECTION,
+		icon = AssistantNavTarget.RECORD_PROJECTION.toActionIconKind(),
+		entityRefs = emptyList()
+	),
+	TermReportActionItem(
+		label = "Compartir tu trimestre",
+		target = AssistantNavTarget.SHARE_TERM,
+		icon = AssistantNavTarget.SHARE_TERM.toActionIconKind(),
+		entityRefs = listOf(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = "term-1"))
 	)
 )
 

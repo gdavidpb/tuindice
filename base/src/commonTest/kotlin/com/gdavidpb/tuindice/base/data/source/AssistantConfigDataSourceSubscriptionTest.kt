@@ -14,10 +14,10 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ConfigDataSourceAssistantModeSubscriptionTest {
+class AssistantConfigDataSourceSubscriptionTest {
 	@Test
 	fun observeAssistantMode_updateEmittedWhileSubscribingIsNotLost() = runTest {
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = SubscribingRemoteConfigDataSource(initialValue = "off"),
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
 		)
@@ -31,7 +31,7 @@ class ConfigDataSourceAssistantModeSubscriptionTest {
 
 	@Test
 	fun observeAssistantMode_updateLandingRightAfterTheInitialReadIsNotLost() = runTest {
-		val dataSource = ConfigDataSource(
+		val dataSource = AssistantConfigDataSource(
 			remoteConfigDataSource = HotRemoteConfigDataSource(initialValue = "off"),
 			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
 		)

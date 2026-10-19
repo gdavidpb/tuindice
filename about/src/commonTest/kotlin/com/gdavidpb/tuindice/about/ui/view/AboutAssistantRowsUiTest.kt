@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -150,25 +151,27 @@ class AboutAssistantRowsUiTest {
 	) {
 		AboutContentView(
 			state = state,
-			onCreativeCommonsClick = {},
-			onXClick = {},
-			onGithubClick = {},
-			onKotlinClick = {},
-			onComposeClick = {},
-			onFirebaseClick = {},
-			onKoinClick = {},
-			onKtorClick = {},
-			onDstClick = {},
-			onTermsAndConditionsClick = {},
-			onPrivacyPolicyClick = {},
-			onSupportClick = {},
-			onShareAppClick = {},
-			onRateOnPlayStoreClick = {},
-			onContactDeveloperClick = {},
-			onReportBugClick = {},
-			onAssistantConsentChange = onAssistantConsentChange,
-			onAssistantMemoryClick = onAssistantMemoryClick,
-			onAssistantConversationsClick = onAssistantConversationsClick
+			actions = AboutActions(
+				onCreativeCommonsClick = {},
+				onXClick = {},
+				onGithubClick = {},
+				onKotlinClick = {},
+				onComposeClick = {},
+				onFirebaseClick = {},
+				onKoinClick = {},
+				onKtorClick = {},
+				onDstClick = {},
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {},
+				onSupportClick = {},
+				onShareAppClick = {},
+				onRateOnPlayStoreClick = {},
+				onContactDeveloperClick = {},
+				onReportBugClick = {},
+				onAssistantConsentChange = onAssistantConsentChange,
+				onAssistantMemoryClick = onAssistantMemoryClick,
+				onAssistantConversationsClick = onAssistantConversationsClick
+			)
 		)
 	}
 }

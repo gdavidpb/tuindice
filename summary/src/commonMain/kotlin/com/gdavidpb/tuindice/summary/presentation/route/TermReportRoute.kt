@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.TermReport
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
@@ -49,11 +50,13 @@ fun TermReportRoute(
 		}
 	}
 
-	val actions = remember(viewModel) {
+	val assistantLauncher = LocalAssistantLauncher.current
+	val actions = remember(viewModel, assistantLauncher) {
 		TermReportActions(
 			onRateClick = viewModel::rateAction,
 			onNextActionClick = viewModel::openNextAction,
-			onRetryClick = viewModel::retryAction
+			onRetryClick = viewModel::retryAction,
+			onAskAssistant = assistantLauncher?.let { launcher -> launcher::launch }
 		)
 	}
 

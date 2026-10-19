@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
+import androidx.compose.foundation.layout.size
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
@@ -56,6 +57,8 @@ private const val TERM_REPORT_AVERAGE_DECIMALS = 1
 // The report as the screen draws it. Every figure is one the domain read from the record, written here as text only.
 internal fun SummaryTermReport.toTermReportItem(): TermReportItem {
 	val periodLabel = term.fullLabel()
+	val hero = heroOf(report = this, periodLabel = periodLabel)
+	val sectionItems = sections.map { section -> TermReportSectionItem(title = section.title, text = section.text) }
 
 	return TermReportItem(
 		insightId = insightId,
@@ -63,15 +66,26 @@ internal fun SummaryTermReport.toTermReportItem(): TermReportItem {
 		termKey = termKey,
 		periodLabel = periodLabel,
 		title = title,
-		hero = heroOf(report = this, periodLabel = periodLabel),
+		hero = hero,
 		subjects = subjectsOf(report = this),
 		pace = paceOf(report = this),
-		sections = sections.map { section -> TermReportSectionItem(title = section.title, text = section.text) },
+		sections = sectionItems,
 		nextActions = nextActions.map { action ->
-			TermReportActionItem(label = action.label, target = action.target, entityRefs = action.entityRefs)
+			TermReportActionItem(
+				label = action.label,
+				target = action.target,
+				icon = action.target.toActionIconKind(),
+				entityRefs = action.entityRefs
+			)
 		},
 		isShareable = isShareable,
-		confirmedFeedback = feedback
+		confirmedFeedback = feedback,
+		assistantContext = termReportAssistantContextOf(
+			report = this,
+			periodLabel = periodLabel,
+			index = hero.index,
+			sections = sectionItems
+		)
 	)
 }
 
@@ -201,7 +215,7 @@ private fun subjectsOf(report: SummaryTermReport): TermReportSubjectsItem {
 				subjectCode = subject.subjectCode,
 				subjectName = subject.subjectName,
 				grade = subject.numericGrade?.toString() ?: subject.symbolicGrade,
-				outcome = subject.outcome
+				tone = subject.outcome.toTone()
 			)
 		}
 	)
@@ -214,7 +228,7 @@ private fun legendOf(
 	many: StringResource
 ): TermReportLegendItem {
 	return TermReportLegendItem(
-		outcome = outcome,
+		tone = outcome.toTone(),
 		text = countText(quantity = count, one = one, many = many, args = listOf(count))
 	)
 }

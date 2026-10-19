@@ -17,13 +17,12 @@ import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
+import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
-import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantAvailabilityUseCase
-import com.gdavidpb.tuindice.about.testing.fakeObserveAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
+import com.gdavidpb.tuindice.about.testing.fakeAboutAssistantUseCases
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -67,7 +66,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.openTermsAndConditionsAction()
+			fixture.viewModel.dispatchAction(About.Action.OpenTermsAndConditions)
 		}
 
 		waitUntil(timeoutMillis = 10_000) {
@@ -130,7 +129,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.contactDeveloperAction()
+			fixture.viewModel.dispatchAction(About.Action.ContactDeveloper)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -163,7 +162,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.contactDeveloperAction()
+			fixture.viewModel.dispatchAction(About.Action.ContactDeveloper)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -193,7 +192,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.shareAppAction()
+			fixture.viewModel.dispatchAction(About.Action.ShareApp)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -257,7 +256,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.openPrivacyPolicyAction()
+			fixture.viewModel.dispatchAction(About.Action.OpenPrivacyPolicy)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -321,7 +320,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.openSupportAction()
+			fixture.viewModel.dispatchAction(About.Action.OpenSupport)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -388,7 +387,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.rateOnPlayStoreAction()
+			fixture.viewModel.dispatchAction(About.Action.RateOnStore)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -460,7 +459,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.openUrlAction(AboutLinks.KOIN)
+			fixture.viewModel.dispatchAction(About.Action.OpenUrl(AboutLinks.KOIN))
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -573,7 +572,7 @@ class AboutRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.reportBugAction()
+			fixture.viewModel.dispatchAction(About.Action.ReportBug)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -731,15 +730,14 @@ class AboutRouteUiTest {
 			viewModel = AboutViewModel(
 				screenMachine = AboutMachine(
 					loadVersionUseCase = loadVersionUseCase,
-					sendSupportEmailUseCase = sendSupportEmailUseCase,
-					openStoreUseCase = openStoreUseCase,
-					openExternalUrlUseCase = openExternalUrlUseCase,
+					externalUseCases = AboutExternalUseCases(
+						sendSupportEmail = sendSupportEmailUseCase,
+						openStore = openStoreUseCase,
+						openExternalUrl = openExternalUrlUseCase
+					),
 					appEnvironmentRepository = appEnvironmentRepository,
 					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-					observeAssistantAvailabilityUseCase = fakeObserveAssistantAvailabilityUseCase(),
-					observeAssistantConsentUseCase = fakeObserveAssistantConsentUseCase(),
-					deleteAssistantConversationsUseCase = fakeDeleteAssistantConversationsUseCase(),
-					setAssistantConsentUseCase = fakeSetAssistantConsentUseCase()
+					assistantUseCases = fakeAboutAssistantUseCases()
 				),
 				eventPublisher = NoOpEventPublisher
 			),

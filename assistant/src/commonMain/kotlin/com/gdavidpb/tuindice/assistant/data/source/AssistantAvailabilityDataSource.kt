@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepo
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class AssistantAvailabilityDataSource(
-	private val configRepository: ConfigRepository,
+	private val configRepository: AssistantConfigRepository,
 	private val clock: Clock
 ) : AssistantAvailabilityRepository,
 	AssistantServerDisabledDataRepository,
@@ -125,7 +125,7 @@ class AssistantAvailabilityDataSource(
 	}
 
 	private data class AvailabilityState(
-		// The mode the configuration reported last. ConfigRepository has no synchronous read of it, so until someone
+		// The mode the configuration reported last. AssistantConfigRepository has no synchronous read of it, so until someone
 		// observes the availability this reads as off.
 		val configuredMode: AssistantMode? = null,
 		// The mode the availability follows: the last word of the configuration or of the server, whichever came last.

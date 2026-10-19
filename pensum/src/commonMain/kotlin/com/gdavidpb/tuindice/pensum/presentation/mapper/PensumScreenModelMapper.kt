@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.pensum.presentation.mapper
 
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
-import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
@@ -179,6 +178,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 
 	return PensumScreenModel(
 		careerName = careerName,
+		pensumId = selection.pensumId,
 		selection = PensumScreenSelection(
 			year = selection.year,
 			modalityId = selection.modalityId

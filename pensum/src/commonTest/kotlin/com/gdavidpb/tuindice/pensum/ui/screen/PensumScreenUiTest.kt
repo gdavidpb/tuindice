@@ -1393,6 +1393,7 @@ private fun sampleEdge(
 private fun samplePensumModel(): PensumScreenModel {
 	return PensumScreenModel(
 		careerName = "Ingenieria de Computacion",
+		pensumId = "0800-2019-degree_project",
 		selection = PensumScreenSelection(
 			year = 2019,
 			modalityId = "degree_project"
