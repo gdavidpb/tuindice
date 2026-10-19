@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInterna
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toWire
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
@@ -199,7 +200,7 @@ private fun ContentTransitions.contentMessageRows(
 		machine.feedback.report(
 			host = host,
 			messageId = action.messageId,
-			reason = action.reason,
+			reason = action.reason.toWire(),
 			comment = action.comment
 		)
 		state

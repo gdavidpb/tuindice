@@ -16,9 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.model.AssistantMessageActionSizes
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -55,7 +55,7 @@ fun AssistantReportMessageButtonView(
 			expanded = isMenuVisible.value,
 			onDismissRequest = { isMenuVisible.value = false }
 		) {
-			ReportReason.entries.forEach { reason ->
+			AssistantReportReason.entries.forEach { reason ->
 				DropdownMenuItem(
 					text = { Text(text = stringResource(reason.labelResource())) },
 					onClick = {
@@ -69,10 +69,10 @@ fun AssistantReportMessageButtonView(
 	}
 }
 
-private fun ReportReason.labelResource(): StringResource =
+private fun AssistantReportReason.labelResource(): StringResource =
 	when (this) {
-		ReportReason.INCORRECT -> Res.string.assistant_chat_report_incorrect
-		ReportReason.INAPPROPRIATE -> Res.string.assistant_chat_report_inappropriate
-		ReportReason.HARMFUL -> Res.string.assistant_chat_report_harmful
-		ReportReason.OTHER -> Res.string.assistant_chat_report_other
+		AssistantReportReason.INCORRECT -> Res.string.assistant_chat_report_incorrect
+		AssistantReportReason.INAPPROPRIATE -> Res.string.assistant_chat_report_inappropriate
+		AssistantReportReason.HARMFUL -> Res.string.assistant_chat_report_harmful
+		AssistantReportReason.OTHER -> Res.string.assistant_chat_report_other
 	}

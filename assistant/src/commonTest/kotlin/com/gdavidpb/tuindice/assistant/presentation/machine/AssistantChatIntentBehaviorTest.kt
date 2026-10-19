@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
@@ -16,7 +17,6 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.toggleIntentDraftAct
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
-import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
@@ -44,7 +44,7 @@ class AssistantChatIntentBehaviorTest {
 		assertEquals(IntentCardStatus.Running, viewModel.content().intentCard("i1").status)
 
 		fixture.gatedIntents.release.complete(Unit)
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.CONFIRMED), viewModel.content().intentCard("i1").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED), viewModel.content().intentCard("i1").status)
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class AssistantChatIntentBehaviorTest {
 		fixture.gatedIntents.release.complete(Unit)
 
 		assertEquals(listOf<Any>(args), fixture.evaluations.received)
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.CONFIRMED), viewModel.content().intentCard("i2").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED), viewModel.content().intentCard("i2").status)
 	}
 
 	@Test
@@ -83,7 +83,7 @@ class AssistantChatIntentBehaviorTest {
 		viewModel.confirmIntentAction("i3")
 
 		assertEquals(listOf<AssistantChat.Effect>(AssistantChat.Effect.OpenEnrollmentProof), fixture.effects)
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.DELEGATED), viewModel.content().intentCard("i3").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.DELEGATED), viewModel.content().intentCard("i3").status)
 	}
 
 	@Test
@@ -100,7 +100,7 @@ class AssistantChatIntentBehaviorTest {
 		viewModel.confirmIntentAction("i4")
 
 		assertTrue(fixture.effects.isEmpty())
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.EXPIRED), viewModel.content().intentCard("i4").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.EXPIRED), viewModel.content().intentCard("i4").status)
 	}
 
 	@Test
@@ -117,7 +117,7 @@ class AssistantChatIntentBehaviorTest {
 		viewModel.confirmIntentAction("i5")
 
 		assertTrue(fixture.effects.isEmpty())
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.CONFLICT), viewModel.content().intentCard("i5").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CONFLICT), viewModel.content().intentCard("i5").status)
 	}
 
 	@Test
@@ -157,6 +157,6 @@ class AssistantChatIntentBehaviorTest {
 		viewModel.dismissIntentAction("i5")
 
 		assertEquals(false, fixture.intents.decisions.single().accepted)
-		assertEquals(IntentCardStatus.Resolved(OutcomeKind.CANCELLED), viewModel.content().intentCard("i5").status)
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CANCELLED), viewModel.content().intentCard("i5").status)
 	}
 }

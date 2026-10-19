@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.answerStillAppliesAction
@@ -73,7 +74,7 @@ class AssistantChatMessageBehaviorTest {
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
 		viewModel.openAction(null)
 
-		viewModel.reportMessageAction("a1", ReportReason.INCORRECT, comment = "  no es así ")
+		viewModel.reportMessageAction("a1", AssistantReportReason.INCORRECT, comment = "  no es así ")
 
 		val report = fixture.feedback.reported.single()
 		assertEquals(ReportReason.INCORRECT, report.reason)

@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantChatFixture
 import com.gdavidpb.tuindice.assistant.presentation.testing.emptyAssistantConversation
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
-import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
 import com.gdavidpb.tuindice.testkit.mvi.RecordingMachineHost
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
@@ -126,7 +126,7 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.ToggleIntentDraft(intentId = "i1", mutationId = "m1", selected = false),
 			AssistantChat.Action.CopyMessage(messageId = "a1"),
 			AssistantChat.Action.RateMessage(messageId = "a1", useful = true),
-			AssistantChat.Action.ReportMessage(messageId = "a1", reason = ReportReason.OTHER, comment = null),
+			AssistantChat.Action.ReportMessage(messageId = "a1", reason = AssistantReportReason.OTHER, comment = null),
 			AssistantChat.Action.OpenNavTarget(target = NavTarget.SUMMARY, entityRefs = emptyList()),
 			AssistantChat.Action.OpenComponentSheet(messageId = "a1", componentId = "c1"),
 			AssistantChat.Action.AnswerStillApplies(memoryId = "mem1", applies = true),
