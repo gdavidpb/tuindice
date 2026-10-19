@@ -38,7 +38,9 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversati
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageHandling
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantConfigRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeSettings
@@ -96,6 +98,8 @@ class AssistantDomainKoinSmokeTest {
 			AssistantTurnStream::class,
 			ObserveAssistantConversationUseCase::class,
 			SendAssistantMessageUseCase::class,
+			SendAssistantMessageHandling::class,
+			SendAssistantMessageExceptionHandler::class,
 			FollowAssistantTurnUseCase::class,
 			ResumeAssistantTurnUseCase::class,
 			CancelAssistantTurnUseCase::class,

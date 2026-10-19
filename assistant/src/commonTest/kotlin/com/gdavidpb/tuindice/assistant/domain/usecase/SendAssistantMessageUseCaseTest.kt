@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
@@ -38,7 +39,10 @@ class SendAssistantMessageUseCaseTest {
 		clientStateRepository = FakeAssistantClientStateRepository(ClientState(recordRevision = 3)),
 		clock = FixedClock(nowMillis = NOW_MILLIS),
 		reportingRepository = RecordingReportingRepository(),
-		paramsValidator = SendAssistantMessageParamsValidator()
+		handling = SendAssistantMessageHandling(
+			paramsValidator = SendAssistantMessageParamsValidator(),
+			exceptionHandler = SendAssistantMessageExceptionHandler()
+		)
 	)
 
 	private suspend fun send(

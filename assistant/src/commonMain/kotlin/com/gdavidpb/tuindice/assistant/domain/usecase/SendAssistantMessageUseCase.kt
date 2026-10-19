@@ -6,12 +6,11 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRep
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
-import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
-import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.ParamsValidator
 import com.gdavidpb.tuindice.chatcontract.component.ChatCatalogs
 import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
@@ -30,10 +29,11 @@ class SendAssistantMessageUseCase(
 	private val clientStateRepository: AssistantClientStateRepository,
 	private val clock: Clock,
 	override val reportingRepository: ReportingRepository,
-	override val paramsValidator: SendAssistantMessageParamsValidator
+	handling: SendAssistantMessageHandling
 ) : FlowUseCase<SendAssistantMessageParams, TurnAccepted, SendAssistantMessageError>() {
-	// Built here, not injected: the send use case already takes the limit of constructor parameters the lint allows.
-	override val exceptionHandler: ExceptionHandler<SendAssistantMessageError> = SendAssistantMessageExceptionHandler()
+	override val paramsValidator: ParamsValidator<SendAssistantMessageParams> = handling.paramsValidator
+
+	override val exceptionHandler: ExceptionHandler<SendAssistantMessageError> = handling.exceptionHandler
 
 	override suspend fun executeOnBackground(params: SendAssistantMessageParams): Flow<TurnAccepted> = flow {
 		// The session the send starts in: the conversation id the server answers with belongs to it.

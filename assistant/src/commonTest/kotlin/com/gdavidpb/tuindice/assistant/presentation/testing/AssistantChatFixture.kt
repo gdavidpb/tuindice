@@ -22,12 +22,14 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversati
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageHandling
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
@@ -157,7 +159,10 @@ internal class AssistantChatFixture(
 				clientStateRepository = clientState,
 				clock = clock,
 				reportingRepository = reporting,
-				paramsValidator = SendAssistantMessageParamsValidator()
+				handling = SendAssistantMessageHandling(
+					paramsValidator = SendAssistantMessageParamsValidator(),
+					exceptionHandler = SendAssistantMessageExceptionHandler()
+				)
 			),
 			extractEvaluationsFromPhotoUseCase = ExtractEvaluationsFromPhotoUseCase(
 				imageEncoderRepository = imageEncoder,
