@@ -14,12 +14,16 @@ import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
+import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
+import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
+import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
 import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
@@ -61,6 +65,10 @@ internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentIt
 		is SubjectListComponent -> toSubjectListItem()
 		is SubjectStatsComponent -> toSubjectStatsItem()
 		is RecommendedElectivesComponent -> toRecommendedElectivesItem()
+		is PensumProgressComponent -> toPensumProgressItem()
+		is RequirementsComponent -> toRequirementsItem()
+		is SubjectImpactComponent -> toSubjectImpactItem()
+		is PensumComparisonComponent -> toPensumComparisonItem()
 		is HelpComponent -> toHelpItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()

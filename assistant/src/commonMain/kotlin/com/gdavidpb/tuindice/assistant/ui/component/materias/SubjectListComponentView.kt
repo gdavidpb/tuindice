@@ -39,7 +39,7 @@ fun SubjectListComponentView(
 				trailing = {
 					Column(horizontalAlignment = Alignment.End) {
 						subject.statusText?.let { text -> CardChipView(text = text.asString()) }
-						CardLinkItemView(link = subject.link, onAction = onAction)
+						subject.link?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 					}
 				}
 			)
