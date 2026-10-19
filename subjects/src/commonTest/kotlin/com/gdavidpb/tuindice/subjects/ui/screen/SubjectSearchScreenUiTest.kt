@@ -1,16 +1,23 @@
 package com.gdavidpb.tuindice.subjects.ui.screen
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
@@ -24,6 +31,44 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class SubjectSearchScreenUiTest {
+	// The search field keeps the focus a tap on it takes, and the background of the screen clears it.
+	@Test
+	fun when_theBackgroundIsTapped_then_theSearchFieldLosesFocus() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = SubjectSearch.State(query = "fisica"),
+				onQueryChange = {},
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).performClick()
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assert(isFocused())
+
+		onRoot().performTouchInput { click(Offset(2f, 2f)) }
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assert(isNotFocused())
+	}
+
+	@Test
+	fun when_theSearchFieldIsTapped_then_theTapKeepsItsFocus() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = SubjectSearch.State(query = "fisica"),
+				onQueryChange = {},
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).performClick()
+
+		onNodeWithTag(SubjectsUiTags.SearchTextField).assert(isFocused())
+	}
+
 	@Test
 	fun when_queryIsEmpty_then_displaysGuidanceAndSearchExamples() = runTuIndiceUiTest {
 		var selectedExample: String? = null
