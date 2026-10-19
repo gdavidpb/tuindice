@@ -4,10 +4,12 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import kotlin.reflect.KClass
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -35,6 +37,16 @@ class RecordingMachineHost<E : ViewEffect>(
 	}
 }
 
+/**
+ * A row of the table that the walk cannot reach by design, named with the reason. It leaves the denominator of the
+ * coverage floor, which is then measured over the rows the walk can visit. [from] null names a machine-level row.
+ */
+class UnreachableRow(
+	val from: KClass<*>?,
+	val on: KClass<*>,
+	val reason: String
+)
+
 /** Outcome of [assertMachineRandomWalk], for extra assertions or debugging. */
 class MachineWalkReport(
 	val steps: Int,
@@ -51,6 +63,9 @@ class MachineWalkReport(
 /**
  * Model-based smoke over the transition table: drives [screenMachine] with [steps] events
  * drawn from [sampleEvents] by a seeded — hence reproducible — random walk.
+ *
+ * The coverage floor [minRowCoverage] is measured over the rows of the table minus [unreachableRows], each of which
+ * must name a row of the table. A visit to an excluded row is not counted.
  *
  * On every accepted step it asserts the row contract the engine enforces at runtime:
  * the produced state is an instance of the declared target (internal rows must keep the
@@ -69,12 +84,25 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 	steps: Int = 400,
 	seed: Long = 0x7E57AB1E,
 	feedProducedInternalEvents: Boolean = true,
+	unreachableRows: List<UnreachableRow> = emptyList(),
 	minRowCoverage: Double = 0.0
 ): MachineWalkReport {
 	require(sampleEvents.isNotEmpty()) { "sampleEvents must not be empty" }
 
 	val host = RecordingMachineHost<E>(coroutineScope = coroutineScope)
 	val machine = screenMachine.define(host = host)
+	fun TransitionSpec<S>.isNamedBy(unreachable: UnreachableRow) = from == unreachable.from && on == unreachable.on
+
+	val unnamed = unreachableRows.filterNot { unreachable ->
+		machine.table.any { spec -> spec.isNamedBy(unreachable) }
+	}
+	require(unnamed.isEmpty()) {
+		"unreachableRows must name rows of the table, not: " +
+			unnamed.map { unreachable -> "${unreachable.from?.simpleName ?: "any"}/${unreachable.on.simpleName}" }
+	}
+	val excludedRows = machine.table.indices.filter { row ->
+		unreachableRows.any { unreachable -> machine.table[row].isNamedBy(unreachable) }
+	}
 	val random = Random(seed)
 	val pool = sampleEvents.toMutableList()
 	val visitedRows = mutableSetOf<Int>()
@@ -143,24 +171,26 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 		state = next
 	}
 
+	val reachableRows = machine.table.indices.filterNot { row -> row in excludedRows }
+	val visitedReachable = reachableRows.filter { row -> row in visitedRows }
 	val report = MachineWalkReport(
 		steps = steps,
 		accepted = accepted,
 		rejected = rejected,
-		visitedRows = visitedRows.size,
-		totalRows = machine.table.size,
+		visitedRows = visitedReachable.size,
+		totalRows = reachableRows.size,
 		finalStateName = state::class.simpleName
 	)
 
-	val unvisited = machine.table.indices.filterNot { row -> row in visitedRows }.map { row ->
+	val unvisited = reachableRows.filterNot { row -> row in visitedRows }.map { row ->
 		val spec = machine.table[row]
 		"${spec.from?.simpleName ?: "any"}/${spec.on.simpleName}"
 	}
 	assertTrue(
 		report.rowCoverage >= minRowCoverage,
-		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} rows " +
-			"(${report.rowCoverage}), below the required $minRowCoverage; not visited: $unvisited — extend " +
-			"sampleEvents or steps, or lower the expectation deliberately"
+		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} reachable rows " +
+			"(${report.rowCoverage}; ${excludedRows.size} unreachable rows excluded), below the required $minRowCoverage; " +
+			"not visited: $unvisited — extend sampleEvents or steps, or lower the expectation deliberately"
 	)
 
 	return report

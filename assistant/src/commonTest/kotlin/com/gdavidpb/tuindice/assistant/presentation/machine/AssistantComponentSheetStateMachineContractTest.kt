@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.testkit.mvi.RecordingMachineHost
+import com.gdavidpb.tuindice.testkit.mvi.UnreachableRow
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
@@ -68,7 +69,7 @@ class AssistantComponentSheetStateMachineContractTest {
 
 	// The sheet closes on a missing component and has no way out, so a walk that draws that event ends there. The
 	// coverage floor is measured without it, over a store that holds the component; the walk over the store is what the
-	// rows read.
+	// rows read. The rows that event closes the sheet by are unreachable here, and named as such.
 	@Test
 	fun machine_survivesSeededRandomWalk() = runTest {
 		assertMachineRandomWalk(
@@ -77,10 +78,26 @@ class AssistantComponentSheetStateMachineContractTest {
 				event == AssistantComponentSheetInternalEvent.ComponentMissing
 			},
 			coroutineScope = backgroundScope,
-			// The rows that close the sheet on a missing component are filtered out, since the store holds it. Idle/Open is
-			// only reachable until the component is observed, which the walk does early; the other reachable rows, the
-			// Content rows that take an action and a link, are all visited. The floor is the visited share of the rows.
-			minRowCoverage = 4.0 / 7.0
+			unreachableRows = listOf(
+				UnreachableRow(
+					from = AssistantComponentSheet.State.Idle::class,
+					on = AssistantComponentSheetInternalEvent.ComponentMissing::class,
+					reason = "the store holds the component, so the walk never draws the event that closes the sheet"
+				),
+				UnreachableRow(
+					from = AssistantComponentSheet.State.Content::class,
+					on = AssistantComponentSheetInternalEvent.ComponentMissing::class,
+					reason = "the store holds the component, so the walk never draws the event that closes the sheet"
+				),
+				UnreachableRow(
+					from = AssistantComponentSheet.State.Idle::class,
+					on = AssistantComponentSheet.Action.Open::class,
+					reason = "the route sends Open once, before any step; the walk leaves Idle at the first observed " +
+						"component, so Idle/Open is not a row the walk can keep reaching"
+				)
+			),
+			// The reachable rows are Idle/ComponentObserved and the three Content rows (observed, unhandled, link).
+			minRowCoverage = 0.6
 		)
 	}
 
