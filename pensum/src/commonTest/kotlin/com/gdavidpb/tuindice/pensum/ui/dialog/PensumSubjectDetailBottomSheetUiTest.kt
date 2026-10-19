@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.pensum.ui.dialog
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
@@ -11,8 +10,6 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.testing.SAMPLE_APPROVED_NODE_ID
@@ -21,6 +18,7 @@ import com.gdavidpb.tuindice.pensum.testing.sampleAvailablePensumNode
 import com.gdavidpb.tuindice.pensum.testing.sampleCurrentPensumNode
 import com.gdavidpb.tuindice.pensum.testing.sampleCurrentPensumNodeWithRelations
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -132,7 +130,7 @@ class PensumSubjectDetailBottomSheetUiTest {
 	}
 
 	@Test
-	fun when_assistantLauncherIsProvided_then_askButtonSendsTheSubjectContext() = runTuIndiceUiTest {
+	fun when_assistantIsProvided_then_askButtonSendsTheSubjectContext() = runTuIndiceUiTest {
 		val context = AssistantScreenContext(
 			screen = AssistantScreen.SUBJECT_DETAIL,
 			entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
@@ -144,7 +142,7 @@ class PensumSubjectDetailBottomSheetUiTest {
 		setSubjectDetailSheetContent(
 			recorder = SubjectDetailSheetRecorder(),
 			node = node,
-			assistantLauncher = AssistantLauncher { launchedContext -> launched += launchedContext }
+			assistantAsk = { launchedContext -> launched += launchedContext }
 		)
 
 		onNodeWithTag(PensumUiTags.SubjectDetailAskAssistant)
@@ -156,7 +154,7 @@ class PensumSubjectDetailBottomSheetUiTest {
 	}
 
 	@Test
-	fun when_assistantLauncherIsMissing_then_askButtonIsNotDrawn() = runTuIndiceUiTest {
+	fun when_assistantIsMissing_then_askButtonIsNotDrawn() = runTuIndiceUiTest {
 		setSubjectDetailSheetContent(
 			recorder = SubjectDetailSheetRecorder(),
 			node = sampleCurrentPensumNode()
@@ -178,20 +176,21 @@ private fun ComposeUiTest.setSubjectDetailSheetContent(
 	recorder: SubjectDetailSheetRecorder,
 	node: PensumNodeItem,
 	shouldStartExpanded: Boolean = false,
-	assistantLauncher: AssistantLauncher? = null
+	assistantAsk: ((AssistantScreenContext) -> Unit)? = null
 ) {
 	setTuIndiceTestContent {
-		CompositionLocalProvider(LocalAssistantLauncher provides assistantLauncher) {
-			PensumSubjectDetailBottomSheet(
-				node = node,
-				shouldStartExpanded = shouldStartExpanded,
-				navigationOriginNodeId = null,
-				navigationDirection = null,
+		PensumSubjectDetailBottomSheet(
+			node = node,
+			shouldStartExpanded = shouldStartExpanded,
+			navigationOriginNodeId = null,
+			navigationDirection = null,
+			actions = PensumSubjectDetailActions(
 				onSubjectStatsClick = { subjectCode -> recorder.statsCodes += subjectCode },
 				onRelatedSubjectClick = { target -> recorder.navigationTargets += target },
-				onDismissRequest = { recorder.dismissCount += 1 }
+				onDismissRequest = { recorder.dismissCount += 1 },
+				onAskAssistant = assistantAsk
 			)
-		}
+		)
 	}
 }
 
