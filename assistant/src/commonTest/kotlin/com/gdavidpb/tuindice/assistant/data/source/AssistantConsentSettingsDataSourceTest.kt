@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,15 +57,98 @@ class AssistantConsentSettingsDataSourceTest {
 		val api = KtorAssistantApiDataSource(assistantHttpClient { error("no request") }, RecordingServerDisabledRepository())
 		val source = AssistantConsentSettingsDataSource(settings, api)
 
-		source.reconcileConsent(ConsentStatus(version = 2, accepted = true))
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = true), source.consentSessionMark())
 
 		assertTrue(source.assistantConsentGranted.value)
 		assertTrue(AssistantConsentSettingsDataSource(settings, api).isAssistantConsentGranted())
 
-		source.reconcileConsent(ConsentStatus(version = 2, accepted = false))
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = false), source.consentSessionMark())
 
 		assertFalse(source.assistantConsentGranted.value)
 		assertFalse(AssistantConsentSettingsDataSource(settings, api).isAssistantConsentGranted())
+	}
+
+	// The answer of the server lands after the account has left: the stored consent and the observed one stay clear.
+	@Test
+	fun aDecisionAnsweredAfterTheSessionEndedLeavesNoConsent() = runTest {
+		val settings = FakeSettings()
+		val putStarted = CompletableDeferred<Unit>()
+		val putAnswer = CompletableDeferred<Unit>()
+		val client = assistantHttpClient { call ->
+			if (call.method == HttpMethod.Get) {
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":false}""")
+			} else {
+				putStarted.complete(Unit)
+				putAnswer.await()
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":true,"acceptedAtMillis":1700000000000}""")
+			}
+		}
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+		)
+
+		val decision = launch { source.setAssistantConsentGranted(true) }
+		putStarted.await()
+
+		// The end of the session: the mirror follows the stored consent, then the wipe removes it, then the mirror again.
+		source.clearSessionMemory()
+		settings.clear()
+		source.clearSessionMemory()
+		putAnswer.complete(Unit)
+		decision.join()
+
+		assertFalse(settings.hasKey("assistantConsentGranted"))
+		assertFalse(source.isAssistantConsentGranted())
+		assertFalse(source.assistantConsentGranted.value)
+	}
+
+	@Test
+	fun aRefreshAnsweredAfterTheSessionEndedLeavesNoConsent() = runTest {
+		val settings = FakeSettings()
+		val getStarted = CompletableDeferred<Unit>()
+		val getAnswer = CompletableDeferred<Unit>()
+		val client = assistantHttpClient {
+			getStarted.complete(Unit)
+			getAnswer.await()
+			jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":true}""")
+		}
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+		)
+
+		val refresh = launch { source.refreshAssistantConsent() }
+		getStarted.await()
+
+		source.clearSessionMemory()
+		settings.clear()
+		source.clearSessionMemory()
+		getAnswer.complete(Unit)
+		refresh.join()
+
+		assertFalse(settings.hasKey("assistantConsentGranted"))
+		assertFalse(source.assistantConsentGranted.value)
+	}
+
+	@Test
+	fun aStatusReadBeforeTheSessionEndedIsNotKept() = runTest {
+		val settings = FakeSettings()
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(assistantHttpClient { error("no request") }, RecordingServerDisabledRepository())
+		)
+		val mark = source.consentSessionMark()
+
+		source.clearSessionMemory()
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = true), mark)
+
+		assertFalse(settings.hasKey("assistantConsentGranted"))
+		assertFalse(source.assistantConsentGranted.value)
+
+		source.reconcileConsent(ConsentStatus(version = 2, accepted = true), source.consentSessionMark())
+
+		assertTrue(source.assistantConsentGranted.value)
 	}
 
 	@Test

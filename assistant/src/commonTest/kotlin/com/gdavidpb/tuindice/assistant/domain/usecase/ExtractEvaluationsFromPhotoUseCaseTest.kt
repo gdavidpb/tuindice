@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.domain.usecase
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ExtractEvaluationsFromPhotoParams
 import com.gdavidpb.tuindice.assistant.presentation.testing.NOW_MILLIS
 import com.gdavidpb.tuindice.assistant.presentation.testing.ObservedAssistantConversationRepository
@@ -193,7 +194,8 @@ class ExtractEvaluationsFromPhotoUseCaseTest {
 			extractionRepository = extraction,
 			conversationRepository = conversation,
 			clock = FixedClock(nowMillis = NOW_MILLIS),
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = ExtractEvaluationsFromPhotoExceptionHandler()
 		)
 	}
 

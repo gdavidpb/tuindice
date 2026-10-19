@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.assistant.data.source
 
 import com.gdavidpb.tuindice.assistant.data.exception.AssistantApiException
+import com.gdavidpb.tuindice.assistant.data.exception.AssistantDisabledException
 import com.gdavidpb.tuindice.assistant.data.mapper.toAssistantException
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantEventsDataRepository
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDataRepository
-import com.gdavidpb.tuindice.assistant.utils.STREAM_RECONNECT_BACKOFF
 import com.gdavidpb.tuindice.chatcontract.ChatContract
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunError
@@ -16,7 +16,6 @@ import io.ktor.client.plugins.sse.SSEClientException
 import io.ktor.client.plugins.sse.sseSession
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.encodeURLPathPart
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -74,9 +73,11 @@ class SseAssistantEventsDataSource(
 
 	// Opens the stream at [afterSeq]. Null means the connection failed in a way worth another attempt.
 	private suspend fun openSession(turnId: String, afterSeq: Long): ClientSSESession? {
+		// The session the connection belongs to, read before it opens (see send).
+		val sessionMark = serverDisabled.sessionMark()
 		val opened = runCatching {
 			httpClient.sseSession(
-				urlString = "assistant/v1/events/turns/${turnId.encodeURLPathPart()}",
+				urlString = assistantPath("events", "turns", turnId),
 				block = {
 					if (afterSeq > 0) header(LAST_EVENT_ID_HEADER, afterSeq.toString())
 				}
@@ -86,16 +87,20 @@ class SseAssistantEventsDataSource(
 
 		when (failure) {
 			is CancellationException -> throw failure
-			is SSEClientException -> failure.response?.let { response -> checkOpenFailure(response) }
-			is ResponseException -> checkOpenFailure(failure.response)
+			is SSEClientException -> failure.response?.let { response -> checkOpenFailure(response, sessionMark) }
+			is ResponseException -> checkOpenFailure(failure.response, sessionMark)
 		}
 
 		return null
 	}
 
 	// Ends the stream for good on the answers that cannot succeed later. A server error is a broken attempt, like a cut.
-	private suspend fun checkOpenFailure(response: HttpResponse) {
-		val failure = response.toAssistantException(serverDisabled)
+	private suspend fun checkOpenFailure(response: HttpResponse, sessionMark: Int) {
+		val failure = response.toAssistantException()
+
+		if (failure is AssistantDisabledException) {
+			serverDisabled.markServerDisabled(failure.retryAfterSeconds, sessionMark)
+		}
 
 		if (failure is AssistantApiException && failure.httpStatus >= SERVER_ERROR_STATUS) return
 
@@ -111,7 +116,6 @@ class SseAssistantEventsDataSource(
 
 	private companion object {
 		const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
-		const val SERVER_ERROR_STATUS = 500
 	}
 }
 

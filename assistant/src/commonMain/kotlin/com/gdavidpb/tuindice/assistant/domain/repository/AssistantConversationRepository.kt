@@ -14,22 +14,28 @@ interface AssistantConversationRepository {
 
 	fun currentConversation(): AssistantConversation
 
-	fun attachConversation(conversationId: String)
+	/**
+	 * The session the caller is in, read before its request or stream starts. The writes that answer that request carry
+	 * it: once the session has ended, they leave the conversation as it is.
+	 */
+	fun sessionMark(): Int
 
-	fun applyEvent(event: AssistantEvent)
+	fun attachConversation(conversationId: String, sessionMark: Int)
+
+	fun applyEvent(event: AssistantEvent, sessionMark: Int)
 
 	/**
 	 * Marks the turn [turnId] as unconfirmed: its stream and a check from [lastSeq] reached no final event. A turn the
 	 * conversation has seen no event of yet is named by the mark too, so the student sees where its send stands.
 	 */
-	fun markTurnUnconfirmed(turnId: String, lastSeq: Long)
+	fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int)
 
 	fun addUserMessage(message: AssistantUserMessage)
 
 	/** Writes a message of the assistant that no turn wrote, such as a photo's proposal, with the intent it carries. */
-	fun addAssistantMessage(message: AssistantMessage, intent: Intent?)
+	fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int)
 
-	fun markIntentResolved(intentId: String, outcome: OutcomeKind)
+	fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int)
 
 	/** Forgets the conversation on this device, as when its threads are deleted on the server. */
 	suspend fun clearConversation()

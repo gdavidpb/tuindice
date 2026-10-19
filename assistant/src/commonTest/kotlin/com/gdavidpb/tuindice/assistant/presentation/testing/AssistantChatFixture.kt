@@ -22,13 +22,17 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversati
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageHandling
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
+import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatAccess
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedback
@@ -154,14 +158,19 @@ internal class AssistantChatFixture(
 				turnRepository = turns,
 				clientStateRepository = clientState,
 				clock = clock,
-				reportingRepository = reporting
+				reportingRepository = reporting,
+				handling = SendAssistantMessageHandling(
+					paramsValidator = SendAssistantMessageParamsValidator(),
+					exceptionHandler = SendAssistantMessageExceptionHandler()
+				)
 			),
 			extractEvaluationsFromPhotoUseCase = ExtractEvaluationsFromPhotoUseCase(
 				imageEncoderRepository = imageEncoder,
 				extractionRepository = extraction,
 				conversationRepository = conversation,
 				clock = clock,
-				reportingRepository = reporting
+				reportingRepository = reporting,
+				exceptionHandler = ExtractEvaluationsFromPhotoExceptionHandler()
 			)
 		)
 	}

@@ -23,28 +23,30 @@ class AssistantConversationStoreDataSource(
 		return store.observeConversation().value.toAssistantConversation()
 	}
 
-	override fun attachConversation(conversationId: String) {
-		store.attachConversation(conversationId)
+	override fun sessionMark(): Int = store.sessionMark()
+
+	override fun attachConversation(conversationId: String, sessionMark: Int) {
+		store.attachConversation(conversationId, sessionMark)
 	}
 
-	override fun applyEvent(event: AssistantEvent) {
-		store.apply(event)
+	override fun applyEvent(event: AssistantEvent, sessionMark: Int) {
+		store.apply(event, sessionMark)
 	}
 
-	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
-		store.markUnconfirmed(turnId, lastSeq)
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int) {
+		store.markUnconfirmed(turnId, lastSeq, sessionMark)
 	}
 
 	override fun addUserMessage(message: AssistantUserMessage) {
 		store.addUserMessage(message)
 	}
 
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
-		store.addAssistantMessage(message, intent)
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
+		store.addAssistantMessage(message, intent, sessionMark)
 	}
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
-		store.markIntentResolved(intentId, outcome)
+	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
+		store.markIntentResolved(intentId, outcome, sessionMark)
 	}
 
 	override suspend fun clearConversation() {

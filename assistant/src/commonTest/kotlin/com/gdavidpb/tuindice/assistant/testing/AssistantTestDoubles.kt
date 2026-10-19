@@ -111,7 +111,9 @@ internal fun runErrorJson(seq: Long, turnId: String = "t1") =
 internal class RecordingServerDisabledRepository : AssistantServerDisabledDataRepository {
 	val marks = mutableListOf<Int?>()
 
-	override fun markServerDisabled(retryAfterSeconds: Int?) {
+	override fun sessionMark(): Int = 0
+
+	override fun markServerDisabled(retryAfterSeconds: Int?, sessionMark: Int) {
 		marks += retryAfterSeconds
 	}
 }

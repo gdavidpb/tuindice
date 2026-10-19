@@ -44,9 +44,6 @@ internal suspend fun KtorAssistantApiDataSource.reportIntentOutcome(report: Inte
 	}
 }
 
-private const val TOO_MANY_REQUESTS_STATUS = 429
-private const val SERVER_ERROR_STATUS = 500
-
 internal suspend fun KtorAssistantApiDataSource.postFeedback(feedback: MessageFeedback) {
 	send { post(assistantPath("feedback")) { setJsonBody(feedback) } }
 }

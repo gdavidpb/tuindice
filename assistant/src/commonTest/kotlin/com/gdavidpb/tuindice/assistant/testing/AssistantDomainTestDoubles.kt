@@ -153,17 +153,19 @@ internal class RecordingAssistantConversationRepository(
 		)
 	}
 
-	override fun attachConversation(conversationId: String) {
+	override fun sessionMark(): Int = 0
+
+	override fun attachConversation(conversationId: String, sessionMark: Int) {
 		calls += "attachConversation"
 		attached += conversationId
 		this.conversationId = conversationId
 	}
 
-	override fun applyEvent(event: AssistantEvent) {
+	override fun applyEvent(event: AssistantEvent, sessionMark: Int) {
 		applied += event
 	}
 
-	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int) {
 		calls += "markTurnUnconfirmed"
 		unconfirmed += turnId
 	}
@@ -173,12 +175,12 @@ internal class RecordingAssistantConversationRepository(
 		userMessages += message
 	}
 
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
 		calls += "addAssistantMessage"
 		assistantMessages += message to intent
 	}
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
+	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
 		calls += "markIntentResolved"
 		resolved[intentId] = outcome
 		openIntents = openIntents - intentId
@@ -186,7 +188,7 @@ internal class RecordingAssistantConversationRepository(
 
 	private val staged = linkedMapOf<String, IntentOutcomeReport>()
 
-	override fun stageOutcome(report: IntentOutcomeReport) {
+	override fun stageOutcome(report: IntentOutcomeReport, sessionMark: Int) {
 		staged[report.intentId] = report
 	}
 
@@ -305,7 +307,9 @@ internal class RecordingAssistantStandingRepository(
 internal class RecordingAssistantServerDisabledRepository : AssistantServerDisabledRepository {
 	val marks = mutableListOf<Int?>()
 
-	override fun markServerDisabled(retryAfterSeconds: Int?) {
+	override fun sessionMark(): Int = 0
+
+	override fun markServerDisabled(retryAfterSeconds: Int?, sessionMark: Int) {
 		marks += retryAfterSeconds
 	}
 }
@@ -430,7 +434,9 @@ internal class RecordingAssistantConsentRepository : AssistantConsentRepository,
 
 	override suspend fun refreshAssistantConsent() = Unit
 
-	override fun reconcileConsent(status: ConsentStatus) {
+	override fun consentSessionMark(): Int = 0
+
+	override suspend fun reconcileConsent(status: ConsentStatus, consentSessionMark: Int) {
 		reconciled += status
 		consent.value = status.accepted
 	}

@@ -6,9 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRep
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
-import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
-import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -30,13 +28,16 @@ class SendAssistantMessageUseCase(
 	private val turnRepository: AssistantTurnRepository,
 	private val clientStateRepository: AssistantClientStateRepository,
 	private val clock: Clock,
-	override val reportingRepository: ReportingRepository
+	override val reportingRepository: ReportingRepository,
+	handling: SendAssistantMessageHandling
 ) : FlowUseCase<SendAssistantMessageParams, TurnAccepted, SendAssistantMessageError>() {
-	override val paramsValidator: ParamsValidator<SendAssistantMessageParams> = SendAssistantMessageParamsValidator()
+	override val paramsValidator: ParamsValidator<SendAssistantMessageParams> = handling.paramsValidator
 
-	override val exceptionHandler: ExceptionHandler<SendAssistantMessageError> = SendAssistantMessageExceptionHandler()
+	override val exceptionHandler: ExceptionHandler<SendAssistantMessageError> = handling.exceptionHandler
 
 	override suspend fun executeOnBackground(params: SendAssistantMessageParams): Flow<TurnAccepted> = flow {
+		// The session the send starts in: the conversation id the server answers with belongs to it.
+		val sessionMark = conversationRepository.sessionMark()
 		val text = params.text?.trim()?.takeIf { it.isNotEmpty() }
 		val clientTurnId = params.clientTurnId
 
@@ -59,7 +60,7 @@ class SendAssistantMessageUseCase(
 
 		val accepted = turnRepository.sendTurn(request)
 
-		conversationRepository.attachConversation(accepted.conversationId)
+		conversationRepository.attachConversation(accepted.conversationId, sessionMark)
 
 		emit(accepted)
 	}

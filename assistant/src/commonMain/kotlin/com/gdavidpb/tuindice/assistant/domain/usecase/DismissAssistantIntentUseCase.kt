@@ -16,8 +16,14 @@ class DismissAssistantIntentUseCase(
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<String, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> = flow {
+		val sessionMark = conversationRepository.sessionMark()
+
 		intentRepository.decide(IntentDecision(intentId = params, accepted = false))
-		conversationRepository.markIntentResolved(intentId = params, outcome = OutcomeKind.CANCELLED)
+		conversationRepository.markIntentResolved(
+			intentId = params,
+			outcome = OutcomeKind.CANCELLED,
+			sessionMark = sessionMark
+		)
 
 		emit(Unit)
 	}

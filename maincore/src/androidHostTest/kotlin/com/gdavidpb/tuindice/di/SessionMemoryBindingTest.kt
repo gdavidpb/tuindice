@@ -45,7 +45,6 @@ class SessionMemoryBindingTest {
 					"assistant.data.source.AssistantConsentSettingsDataSource",
 					"assistant.data.source.AssistantConversationDataSource",
 					"assistant.data.source.AssistantInsightsDataSource",
-					"assistant.data.source.AssistantMemoryDataSource",
 					"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
 				"base.data.source.InMemoryRecordAttemptFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",

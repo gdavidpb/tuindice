@@ -31,8 +31,11 @@ class AssistantConversationStoreDataSourceTest {
 	@Test
 	fun itemsFollowTheOrderTheyHappenedIn_evenWhenTheirStampsTie() = runTest {
 		domain.addUserMessage(AssistantUserMessage(id = "u1", text = "Primero", createdAtMillis = 1L))
-		store.apply(RunStarted(seq = 1, turnId = "t1"))
-		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = assistantMessage(id = "a1", createdAtMillis = 2L)))
+		store.apply(RunStarted(seq = 1, turnId = "t1"), store.sessionMark())
+		store.apply(
+			MessageCompleted(seq = 2, turnId = "t1", message = assistantMessage(id = "a1", createdAtMillis = 2L)),
+			store.sessionMark()
+		)
 		domain.addUserMessage(AssistantUserMessage(id = "u2", text = "Segundo", createdAtMillis = 2L))
 
 		val ids = domain.currentConversation().items.map { item -> item.messageId() }
@@ -43,8 +46,11 @@ class AssistantConversationStoreDataSourceTest {
 
 	@Test
 	fun eachAgentMessageCarriesTheTurnThatWroteIt() = runTest {
-		store.apply(RunStarted(seq = 1, turnId = "t1"))
-		store.apply(MessageCompleted(seq = 2, turnId = "t1", message = assistantMessage(id = "a1", createdAtMillis = 1L)))
+		store.apply(RunStarted(seq = 1, turnId = "t1"), store.sessionMark())
+		store.apply(
+			MessageCompleted(seq = 2, turnId = "t1", message = assistantMessage(id = "a1", createdAtMillis = 1L)),
+			store.sessionMark()
+		)
 
 		val agent = assertIs<AssistantConversationItem.Agent>(domain.currentConversation().items.single())
 
@@ -64,12 +70,15 @@ class AssistantConversationStoreDataSourceTest {
 
 	@Test
 	fun markingAnIntentResolvedClosesItAndKeepsItsOutcome() = runTest {
-		store.apply(RunStarted(seq = 1, turnId = "t1"))
-		store.apply(IntentProposed(seq = 2, turnId = "t1", messageId = "a1", intent = assistantIntent(id = "i1")))
+		store.apply(RunStarted(seq = 1, turnId = "t1"), store.sessionMark())
+		store.apply(
+			IntentProposed(seq = 2, turnId = "t1", messageId = "a1", intent = assistantIntent(id = "i1")),
+			store.sessionMark()
+		)
 
 		assertEquals(setOf("i1"), domain.currentConversation().openIntents.keys)
 
-		domain.markIntentResolved(intentId = "i1", outcome = OutcomeKind.CONFIRMED)
+		domain.markIntentResolved(intentId = "i1", outcome = OutcomeKind.CONFIRMED, domain.sessionMark())
 
 		val conversation = domain.currentConversation()
 
@@ -79,9 +88,9 @@ class AssistantConversationStoreDataSourceTest {
 
 	@Test
 	fun theLastTurnIsTheActiveOneAndItKeepsWhyItFailed() = runTest {
-		store.apply(RunStarted(seq = 1, turnId = "t1"))
-		store.apply(RunFinished(seq = 2, turnId = "t1"))
-		store.apply(RunStarted(seq = 3, turnId = "t2"))
+		store.apply(RunStarted(seq = 1, turnId = "t1"), store.sessionMark())
+		store.apply(RunFinished(seq = 2, turnId = "t1"), store.sessionMark())
+		store.apply(RunStarted(seq = 3, turnId = "t2"), store.sessionMark())
 		store.apply(
 			RunError(
 				seq = 4,
@@ -89,7 +98,8 @@ class AssistantConversationStoreDataSourceTest {
 				code = RunErrorCode.QUOTA_EXHAUSTED,
 				retryable = false,
 				retryAfterSeconds = 60
-			)
+			),
+			store.sessionMark()
 		)
 
 		assertEquals(
@@ -110,9 +120,9 @@ class AssistantConversationStoreDataSourceTest {
 
 	@Test
 	fun aNewRunClearsThePreviousFailure() = runTest {
-		store.apply(RunStarted(seq = 1, turnId = "t1"))
-		store.apply(RunError(seq = 2, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true))
-		store.apply(RunStarted(seq = 3, turnId = "t1"))
+		store.apply(RunStarted(seq = 1, turnId = "t1"), store.sessionMark())
+		store.apply(RunError(seq = 2, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true), store.sessionMark())
+		store.apply(RunStarted(seq = 3, turnId = "t1"), store.sessionMark())
 
 		val active = domain.currentConversation().activeTurn
 
@@ -122,9 +132,9 @@ class AssistantConversationStoreDataSourceTest {
 
 	@Test
 	fun clearingTheSessionEmptiesTheDomainConversationToo() = runTest {
-		domain.attachConversation("c1")
+		domain.attachConversation("c1", domain.sessionMark())
 		domain.addUserMessage(AssistantUserMessage(id = "u1", text = "Hola", createdAtMillis = 1L))
-		store.apply(RunStarted(seq = 2, turnId = "t1"))
+		store.apply(RunStarted(seq = 2, turnId = "t1"), store.sessionMark())
 
 		store.clearSessionMemory()
 

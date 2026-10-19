@@ -28,16 +28,21 @@ class AssistantTurnStream(
 	private val serverDisabledRepository: AssistantServerDisabledRepository
 ) {
 	fun follow(turnId: String, afterSeq: Long): Flow<AssistantEvent> = flow {
+		// The session the turn is followed in: what the stream writes belongs to it, and is dropped once it has ended.
+		val marks = SessionMarks(
+			conversation = conversationRepository.sessionMark(),
+			serverDisabled = serverDisabledRepository.sessionMark()
+		)
 		val progress = TurnProgress(afterSeq)
 
-		var failure = followFrom(turnId, progress)
+		var failure = followFrom(turnId, progress, marks)
 
 		if (!progress.finished) {
-			failure = followFrom(turnId, progress) ?: failure
+			failure = followFrom(turnId, progress, marks) ?: failure
 		}
 
 		if (!progress.finished) {
-			conversationRepository.markTurnUnconfirmed(turnId, progress.lastSeq)
+			conversationRepository.markTurnUnconfirmed(turnId, progress.lastSeq, marks.conversation)
 
 			failure?.let { cause -> throw cause }
 		}
@@ -45,7 +50,11 @@ class AssistantTurnStream(
 
 	// One follow from the last seq reached. Each event is applied to the conversation before it is emitted. Returns the
 	// failure the stream broke with, when it did.
-	private suspend fun FlowCollector<AssistantEvent>.followFrom(turnId: String, progress: TurnProgress): Throwable? {
+	private suspend fun FlowCollector<AssistantEvent>.followFrom(
+		turnId: String,
+		progress: TurnProgress,
+		marks: SessionMarks
+	): Throwable? {
 		var failure: Throwable? = null
 
 		turnRepository.turnEvents(turnId = turnId, afterSeq = progress.lastSeq)
@@ -57,10 +66,10 @@ class AssistantTurnStream(
 			.collect { event ->
 				if (progress.finished || event.seq <= progress.lastSeq) return@collect
 
-				conversationRepository.applyEvent(event)
+				conversationRepository.applyEvent(event, marks.conversation)
 
 				if (event is RunError && event.code == RunErrorCode.ASSISTANT_DISABLED) {
-					serverDisabledRepository.markServerDisabled(event.retryAfterSeconds)
+					serverDisabledRepository.markServerDisabled(event.retryAfterSeconds, marks.serverDisabled)
 				}
 
 				progress.advance(event)
@@ -71,6 +80,9 @@ class AssistantTurnStream(
 		return failure
 	}
 }
+
+// The session marks a follow of a turn was started with, one per holder it writes to.
+private class SessionMarks(val conversation: Int, val serverDisabled: Int)
 
 // What the follows of a turn have delivered: the last seq reached, and whether its final event came.
 private class TurnProgress(afterSeq: Long) {

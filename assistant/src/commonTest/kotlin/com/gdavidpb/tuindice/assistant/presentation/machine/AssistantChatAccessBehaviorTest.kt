@@ -93,7 +93,10 @@ class AssistantChatAccessBehaviorTest {
 	@Test
 	fun open_sendsTheOutcomesOfTheIntentsTheServerHasNotTakenYet() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
-		fixture.conversation.stageOutcome(IntentOutcomeReport(intentId = "i9", outcome = OutcomeKind.CANCELLED))
+		fixture.conversation.stageOutcome(
+			IntentOutcomeReport(intentId = "i9", outcome = OutcomeKind.CANCELLED),
+			sessionMark = 0
+		)
 
 		viewModel.openAction(null)
 
