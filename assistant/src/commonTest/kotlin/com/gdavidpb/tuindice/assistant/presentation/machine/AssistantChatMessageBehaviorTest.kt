@@ -131,6 +131,18 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
+	fun stillApplies_notSaved_saysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(null)
+		fixture.memories.answerError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("still-applies-failed", snack.message)
+	}
+
+	@Test
 	fun stillApplies_isAnsweredForTheMemory() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)

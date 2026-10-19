@@ -80,11 +80,18 @@ class AssistantChatFeedback(
 		}
 	}
 
+	// An answer that was not saved says so; the answer is not kept, so the card keeps asking.
 	fun answerStillApplies(host: MachineHost<AssistantChat.Effect>, memoryId: String, applies: Boolean) {
 		host.launchMachineJob {
 			val params = AnswerStillAppliesParams(memoryId = memoryId, applies = applies)
 
-			answerStillAppliesUseCase.execute(params).collect()
+			answerStillAppliesUseCase.execute(params).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Error) {
+					host.processInternalEvent(
+						AssistantChatInternalEvent.StillAppliesRejected(message = texts.stillAppliesFailed())
+					)
+				}
+			}
 		}
 	}
 }

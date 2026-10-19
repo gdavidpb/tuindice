@@ -58,6 +58,9 @@ sealed interface AssistantChatInternalEvent {
 
 	data class EnrollmentProofDelegated(val intentId: String) : AssistantChatInternalEvent
 
+	// The answer about a memory was not saved: the snackbar says so.
+	data class StillAppliesRejected(val message: String) : AssistantChatInternalEvent
+
 	// The answers to the student's feedback and appeal, each with the text of its snackbar.
 	data class MessageRated(val message: String) : AssistantChatInternalEvent
 

@@ -67,6 +67,8 @@ internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
 
 	override suspend fun rateFailed(): String = "rate-failed"
 
+	override suspend fun stillAppliesFailed(): String = "still-applies-failed"
+
 	override suspend fun reported(): String = "reported"
 
 	override suspend fun reportTooLong(maxLength: Int): String = "report-too-long:$maxLength"

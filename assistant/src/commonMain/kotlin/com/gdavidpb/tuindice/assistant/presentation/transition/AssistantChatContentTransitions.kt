@@ -210,6 +210,12 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
+	on<AssistantChatInternalEvent.StillAppliesRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
+		state
+	}
+
 	on<AssistantChat.Action.Appeal> { state, action ->
 		machine.access.restrictions.appeal(host = host, text = action.text)
 		state

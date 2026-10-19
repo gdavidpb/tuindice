@@ -254,6 +254,9 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	var allDeleted = 0
 	val answers = mutableListOf<Pair<String, Boolean>>()
 
+	// The failure every answer breaks with, when a test makes the server refuse it.
+	var answerError: Throwable? = null
+
 	override suspend fun listMemories(): MemoryList = memories
 
 	override suspend fun deleteMemory(memoryId: String) {
@@ -265,6 +268,8 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	}
 
 	override suspend fun answerStillApplies(memoryId: String, applies: Boolean) {
+		answerError?.let { error -> throw error }
+
 		answers += memoryId to applies
 	}
 }
