@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUs
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.RefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.presentation.machine.AboutAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
@@ -108,9 +108,9 @@ fun fakeRefreshAssistantConsentUseCase(
 	)
 }
 
-/** The assistant use cases of the about machine over fresh fakes. */
-fun fakeAboutAssistantUseCases(): AboutAssistantUseCases {
-	return AboutAssistantUseCases(
+/** The assistant use cases of the settings machine over fresh fakes. */
+fun fakeSettingsAssistantUseCases(): SettingsAssistantUseCases {
+	return SettingsAssistantUseCases(
 		observeAvailability = fakeObserveAssistantAvailabilityUseCase(),
 		observeConsent = fakeObserveAssistantConsentUseCase(),
 		setConsent = fakeSetAssistantConsentUseCase(),

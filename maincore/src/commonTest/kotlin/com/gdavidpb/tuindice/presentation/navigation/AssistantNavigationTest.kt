@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
@@ -128,13 +129,15 @@ class AssistantNavigationTest {
 	}
 
 	@Test
-	fun when_aboutIsRequested_then_theAboutTabOpens() {
-		val navigator = navigatorWithChatOver(SummaryDestination.Summary)
+	fun when_aboutIsRequested_then_settingsOpensOverTheTabOnScreen() {
+		val navigator = navigatorWithChatOver(PensumDestination.Pensum)
 
+		// The wire still says ABOUT, from when that was a tab; the app opens Settings, over the tab the student was on.
 		dependenciesOf(navigator).onNavigateTo(NavTarget.ABOUT, emptyList())
 
-		assertEquals(MainSection.ABOUT, navigator.currentTab)
-		assertEquals(MainSection.ABOUT.toTabRootDestination(), navigator.currentKey)
+		assertEquals(MainSection.PENSUM, navigator.currentTab)
+		assertEquals(AboutDestination.Settings, navigator.currentKey)
+		assertEquals(0, navigator.backStack.count { key -> key is AssistantDestination.Chat })
 	}
 
 	@Test

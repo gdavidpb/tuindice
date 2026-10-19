@@ -6,7 +6,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation3.runtime.rememberNavBackStack
-import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -52,7 +51,6 @@ fun rememberTuIndiceNavigator(
 	val recordStack = rememberNavBackStack(TuIndiceSavedStateConfiguration, RecordDestination.Record)
 	val pensumStack = rememberNavBackStack(TuIndiceSavedStateConfiguration, PensumDestination.Pensum)
 	val evaluationsStack = rememberNavBackStack(TuIndiceSavedStateConfiguration, EvaluationsDestination.Evaluations)
-	val aboutStack = rememberNavBackStack(TuIndiceSavedStateConfiguration, AboutDestination.About)
 	val authStack = rememberNavBackStack(TuIndiceSavedStateConfiguration, AuthDestination.SignIn)
 
 	return remember {
@@ -66,8 +64,7 @@ fun rememberTuIndiceNavigator(
 					MainSection.SUMMARY to summaryStack,
 					MainSection.RECORD to recordStack,
 					MainSection.PENSUM to pensumStack,
-					MainSection.EVALUATIONS to evaluationsStack,
-					MainSection.ABOUT to aboutStack
+					MainSection.EVALUATIONS to evaluationsStack
 				)
 			),
 			entryStores = storesViewModel.entryStores,

@@ -1,48 +1,19 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
 /**
- * Internal machine inputs for the about screen: the version load outcome (with the
- * consent flag read alongside), the async uri resolutions that re-enter as
- * effect-carrying symbols, the assistant observations and write outcome, and the
- * outcome of deleting the assistant conversations.
+ * Internal machine inputs for the about screen: the version load outcome and the async uri resolution
+ * that re-enters as an effect-carrying symbol.
  */
 sealed interface AboutInternalEvent {
 	data class AboutVersionLoaded(
-		val versionText: String,
-		val usageDataCollectionEnabled: Boolean
+		val versionText: String
 	) : AboutInternalEvent
 
 	data class AboutVersionLoadFailed(
-		val versionFallbackText: String,
-		val usageDataCollectionEnabled: Boolean
+		val versionFallbackText: String
 	) : AboutInternalEvent
 
-	data class SupportEmailUriLoaded(
+	data class ContactEmailUriLoaded(
 		val uri: String
-	) : AboutInternalEvent
-
-	data class StoreUriLoaded(
-		val uri: String
-	) : AboutInternalEvent
-
-	data class AssistantAvailabilityObserved(
-		val visible: Boolean
-	) : AboutInternalEvent
-
-	data class AssistantConsentObserved(
-		val granted: Boolean
-	) : AboutInternalEvent
-
-	data class AssistantConsentWriteFailed(
-		val restoredGranted: Boolean,
-		val message: String
-	) : AboutInternalEvent
-
-	data class AssistantConversationsDeleted(
-		val message: String
-	) : AboutInternalEvent
-
-	data class AssistantConversationsDeleteFailed(
-		val message: String
 	) : AboutInternalEvent
 }

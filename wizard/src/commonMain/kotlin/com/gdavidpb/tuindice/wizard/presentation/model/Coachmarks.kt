@@ -1,10 +1,6 @@
 package com.gdavidpb.tuindice.wizard.presentation.model
 
 import tuindice.wizard.generated.resources.Res
-import tuindice.wizard.generated.resources.coachmark_about_actions_message
-import tuindice.wizard.generated.resources.coachmark_about_actions_title
-import tuindice.wizard.generated.resources.coachmark_about_message
-import tuindice.wizard.generated.resources.coachmark_about_title
 import tuindice.wizard.generated.resources.coachmark_evaluation_editor_message
 import tuindice.wizard.generated.resources.coachmark_evaluation_editor_title
 import tuindice.wizard.generated.resources.coachmark_evaluations_message
@@ -21,6 +17,8 @@ import tuindice.wizard.generated.resources.coachmark_record_message
 import tuindice.wizard.generated.resources.coachmark_record_title
 import tuindice.wizard.generated.resources.coachmark_subject_detail_message
 import tuindice.wizard.generated.resources.coachmark_subject_detail_title
+import tuindice.wizard.generated.resources.coachmark_settings_message
+import tuindice.wizard.generated.resources.coachmark_settings_title
 import tuindice.wizard.generated.resources.coachmark_subject_search_message
 import tuindice.wizard.generated.resources.coachmark_subject_search_title
 import tuindice.wizard.generated.resources.coachmark_summary_message
@@ -85,13 +83,8 @@ fun contextualCoachmarks(): List<Coachmark> = listOf(
 		message = Res.string.coachmark_synthetic_term_message
 	),
 	Coachmark(
-		id = CoachmarkId.About,
-		title = Res.string.coachmark_about_title,
-		message = Res.string.coachmark_about_message
-	),
-	Coachmark(
-		id = CoachmarkId.AboutActions,
-		title = Res.string.coachmark_about_actions_title,
-		message = Res.string.coachmark_about_actions_message
+		id = CoachmarkId.Settings,
+		title = Res.string.coachmark_settings_title,
+		message = Res.string.coachmark_settings_message
 	)
 )

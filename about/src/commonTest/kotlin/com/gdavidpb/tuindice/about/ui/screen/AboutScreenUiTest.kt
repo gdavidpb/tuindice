@@ -1,13 +1,15 @@
 package com.gdavidpb.tuindice.about.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.testing.noAboutActions
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
-import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -18,32 +20,17 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class AboutScreenUiTest {
 	@Test
-	fun when_stateIsContent_then_rendersContentView() = runTuIndiceUiTest {
+	fun when_stateIsContent_then_rendersTheVersionAndTheLicense() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AboutScreen(
-				state = About.State.Content(versionText = "1.2.3"),
-				actions = AboutActions(
-					onCreativeCommonsClick = {},
-					onXClick = {},
-					onGithubClick = {},
-					onKotlinClick = {},
-					onComposeClick = {},
-					onFirebaseClick = {},
-					onKoinClick = {},
-					onKtorClick = {},
-					onDstClick = {},
-					onTermsAndConditionsClick = {},
-					onPrivacyPolicyClick = {},
-					onSupportClick = {},
-					onShareAppClick = {},
-					onRateOnPlayStoreClick = {},
-					onContactDeveloperClick = {},
-					onReportBugClick = {}
-				)
+				state = About.State.Content(versionText = "9.9.9"),
+				actions = noAboutActions()
 			)
 		}
 
+		assertNodeVisible(AboutUiTags.ContentContainer)
 		assertNodeVisible(AboutUiTags.OpenCreativeCommons)
+		onNodeWithText("9.9.9", substring = true).assertIsDisplayed()
 	}
 
 	@Test
@@ -51,24 +38,7 @@ class AboutScreenUiTest {
 		setTuIndiceTestContent {
 			AboutScreen(
 				state = About.State.Idle,
-				actions = AboutActions(
-					onCreativeCommonsClick = {},
-					onXClick = {},
-					onGithubClick = {},
-					onKotlinClick = {},
-					onComposeClick = {},
-					onFirebaseClick = {},
-					onKoinClick = {},
-					onKtorClick = {},
-					onDstClick = {},
-					onTermsAndConditionsClick = {},
-					onPrivacyPolicyClick = {},
-					onSupportClick = {},
-					onShareAppClick = {},
-					onRateOnPlayStoreClick = {},
-					onContactDeveloperClick = {},
-					onReportBugClick = {}
-				)
+				actions = noAboutActions()
 			)
 		}
 
@@ -77,98 +47,42 @@ class AboutScreenUiTest {
 
 	@Test
 	fun when_stateIsContentAndItemsTapped_then_propagatesAllCallbacks() = runTuIndiceUiTest {
-		var creativeCommonsClicks = 0
-		var xClicks = 0
-		var githubClicks = 0
-		var kotlinClicks = 0
-		var composeClicks = 0
-		var firebaseClicks = 0
-		var koinClicks = 0
-		var ktorClicks = 0
-		var dstClicks = 0
-		var termsClicks = 0
-		var privacyClicks = 0
-		var supportClicks = 0
-		var shareClicks = 0
-		var rateClicks = 0
-		var contactClicks = 0
-		var reportBugClicks = 0
+		val clicks = mutableListOf<String>()
 
 		setTuIndiceTestContent {
 			AboutScreen(
 				state = About.State.Content(versionText = "1.2.3"),
-				actions = AboutActions(
-					onCreativeCommonsClick = { creativeCommonsClicks++ },
-					onXClick = { xClicks++ },
-					onGithubClick = { githubClicks++ },
-					onKotlinClick = { kotlinClicks++ },
-					onComposeClick = { composeClicks++ },
-					onFirebaseClick = { firebaseClicks++ },
-					onKoinClick = { koinClicks++ },
-					onKtorClick = { ktorClicks++ },
-					onDstClick = { dstClicks++ },
-					onTermsAndConditionsClick = { termsClicks++ },
-					onPrivacyPolicyClick = { privacyClicks++ },
-					onSupportClick = { supportClicks++ },
-					onShareAppClick = { shareClicks++ },
-					onRateOnPlayStoreClick = { rateClicks++ },
-					onContactDeveloperClick = { contactClicks++ },
-					onReportBugClick = { reportBugClicks++ }
+				actions = noAboutActions().copy(
+					onCreativeCommonsClick = { clicks += "cc" },
+					onGithubClick = { clicks += "github" },
+					onContactDeveloperClick = { clicks += "contact" },
+					onKotlinClick = { clicks += "kotlin" },
+					onComposeClick = { clicks += "compose" },
+					onFirebaseClick = { clicks += "firebase" },
+					onKoinClick = { clicks += "koin" },
+					onKtorClick = { clicks += "ktor" },
+					onDstClick = { clicks += "dst" }
 				)
 			)
 		}
 
-		onNodeWithTag(AboutUiTags.OpenCreativeCommons).performClick()
-		onNodeWithTag(AboutUiTags.OpenTerms).performClick()
-		onNodeWithTag(AboutUiTags.OpenPrivacy).performClick()
-		onNodeWithTag(AboutUiTags.OpenSupport).performClick()
-		onNodeWithTag(AboutUiTags.OpenX).performClick()
-		onNodeWithTag(AboutUiTags.ShareApp).performClick()
-		onNodeWithTag(AboutUiTags.RateOnStore).performClick()
+		val tapped = listOf(
+			AboutUiTags.OpenCreativeCommons to "cc",
+			AboutUiTags.OpenGithub to "github",
+			AboutUiTags.ContactDeveloper to "contact",
+			AboutUiTags.OpenKotlin to "kotlin",
+			AboutUiTags.OpenCompose to "compose",
+			AboutUiTags.OpenFirebase to "firebase",
+			AboutUiTags.OpenKoin to "koin",
+			AboutUiTags.OpenKtor to "ktor",
+			AboutUiTags.OpenDst to "dst"
+		)
 
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenGithub))
-		onNodeWithTag(AboutUiTags.OpenGithub).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.ContactDeveloper))
-		onNodeWithTag(AboutUiTags.ContactDeveloper).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.ReportBug))
-		onNodeWithTag(AboutUiTags.ReportBug).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenKotlin))
-		onNodeWithTag(AboutUiTags.OpenKotlin).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenCompose))
-		onNodeWithTag(AboutUiTags.OpenCompose).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenFirebase))
-		onNodeWithTag(AboutUiTags.OpenFirebase).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenKoin))
-		onNodeWithTag(AboutUiTags.OpenKoin).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenKtor))
-		onNodeWithTag(AboutUiTags.OpenKtor).performClick()
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenDst))
-		onNodeWithTag(AboutUiTags.OpenDst).performClick()
+		tapped.forEach { (tag, _) ->
+			onNodeWithTag(AboutUiTags.ContentContainer).performScrollToNode(hasTestTag(tag))
+			onNodeWithTag(tag).performClick()
+		}
 
-		assertEquals(1, creativeCommonsClicks)
-		assertEquals(1, xClicks)
-		assertEquals(1, githubClicks)
-		assertEquals(1, kotlinClicks)
-		assertEquals(1, composeClicks)
-		assertEquals(1, firebaseClicks)
-		assertEquals(1, koinClicks)
-		assertEquals(1, ktorClicks)
-		assertEquals(1, dstClicks)
-		assertEquals(1, termsClicks)
-		assertEquals(1, privacyClicks)
-		assertEquals(1, supportClicks)
-		assertEquals(1, shareClicks)
-		assertEquals(1, rateClicks)
-		assertEquals(1, contactClicks)
-		assertEquals(1, reportBugClicks)
+		assertEquals(tapped.map { (_, name) -> name }, clicks)
 	}
 }

@@ -20,8 +20,4 @@ sealed class BottomBarConfig(
 	data object Evaluations : BottomBarConfig(
 		section = MainSection.EVALUATIONS
 	)
-
-	data object About : BottomBarConfig(
-		section = MainSection.ABOUT
-	)
 }

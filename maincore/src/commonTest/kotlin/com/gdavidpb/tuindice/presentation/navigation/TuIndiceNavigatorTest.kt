@@ -497,7 +497,7 @@ class TuIndiceNavigatorTest {
 
 	@Test
 	fun when_assistantIsOpenedWithoutAContext_then_theChatCarriesNoContext() {
-		val navigator = createNavigator(currentTab = MainSection.ABOUT)
+		val navigator = createNavigator(currentTab = MainSection.EVALUATIONS)
 
 		navigator.openAssistant(context = null)
 

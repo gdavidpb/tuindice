@@ -6,7 +6,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -26,10 +26,10 @@ class DeleteAssistantConversationsDialogUiTest {
 			)
 		}
 
-		assertNodeVisible(AboutUiTags.DeleteAssistantConversationsConfirm)
+		assertNodeVisible(SettingsUiTags.DeleteAssistantConversationsConfirm)
 		onNodeWithText(TITLE).assertIsDisplayed()
-		onNodeWithTag(AboutUiTags.DeleteAssistantConversationsConfirm).assertTextEquals(CONFIRM_TEXT)
-		onNodeWithTag(AboutUiTags.DeleteAssistantConversationsConfirm).performClick()
+		onNodeWithTag(SettingsUiTags.DeleteAssistantConversationsConfirm).assertTextEquals(CONFIRM_TEXT)
+		onNodeWithTag(SettingsUiTags.DeleteAssistantConversationsConfirm).performClick()
 
 		assertTrue(isConfirmed)
 	}
@@ -45,8 +45,8 @@ class DeleteAssistantConversationsDialogUiTest {
 			)
 		}
 
-		assertNodeVisible(AboutUiTags.DeleteAssistantConversationsCancel)
-		onNodeWithTag(AboutUiTags.DeleteAssistantConversationsCancel).performClick()
+		assertNodeVisible(SettingsUiTags.DeleteAssistantConversationsCancel)
+		onNodeWithTag(SettingsUiTags.DeleteAssistantConversationsCancel).performClick()
 
 		assertTrue(isDismissed)
 		assertFalse(isConfirmed)

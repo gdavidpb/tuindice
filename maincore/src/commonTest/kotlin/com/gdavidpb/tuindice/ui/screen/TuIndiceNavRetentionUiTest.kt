@@ -108,6 +108,7 @@ class TuIndiceNavRetentionUiTest {
 	@Composable
 	private fun RetentionNavDisplay(navigator: TuIndiceNavigator) {
 		TuIndiceNavDisplay(
+			onSignOutRequest = {},
 			navigator = navigator,
 			onConfirmExitClick = {},
 			onNavigateToExternalResource = {},

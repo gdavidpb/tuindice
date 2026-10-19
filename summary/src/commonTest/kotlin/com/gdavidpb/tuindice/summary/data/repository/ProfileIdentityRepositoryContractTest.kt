@@ -1,23 +1,27 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
+import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
-import com.gdavidpb.tuindice.summary.data.mapper.toProfileIdentity
+import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.source.ProfileIdentityDataSource
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ProfileIdentityRepositoryContractTest {
 	@Test
 	fun observeProfileIdentity_namesTheStudentTheWayTheSummaryDoes() = runTest {
-		val repository = ProfileIdentityDataSource(userRepository = RecordingUserRepository())
-
-		val identity = repository.observeProfileIdentity().first()
+		val repository = ProfileIdentityDataSource(
+			localDataSource = StoredUser(DEFAULT_SUMMARY_USER),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = false)
+		)
 
 		assertEquals(
 			ProfileIdentity(
@@ -27,32 +31,61 @@ class ProfileIdentityRepositoryContractTest {
 				pictureUrl = "https://cdn.tuindice.app/profile/original.jpg",
 				pictureVersion = 0
 			),
-			identity
+			repository.observeProfileIdentity().first()
 		)
 	}
 
 	@Test
-	fun observeProfileIdentity_followsTheStoredUserAndItsPictureVersion() = runTest {
-		val reuploaded = DEFAULT_SUMMARY_USER.copy(pictureVersion = 3)
+	fun observeProfileIdentity_rollsThePictureVersionWithoutANewUser() = runTest {
+		val settings = FakeSettingsDataSource(onCooldown = false)
 		val repository = ProfileIdentityDataSource(
-			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER, reuploaded))
+			localDataSource = StoredUser(DEFAULT_SUMMARY_USER),
+			settingsDataSource = settings
 		)
 
-		val identities = repository.observeProfileIdentity().toList()
+		repository.observeProfileIdentity().test {
+			assertEquals(0, awaitItem()?.pictureVersion)
 
-		assertEquals(
-			listOf(DEFAULT_SUMMARY_USER.toProfileIdentity(), reuploaded.toProfileIdentity()),
-			identities
+			settings.bumpProfilePictureVersion()
+
+			assertEquals(1, awaitItem()?.pictureVersion)
+		}
+	}
+
+	@Test
+	fun observeProfileIdentity_isNullWhenNoUserIsStored_soNothingOfAPreviousAccountStays() = runTest {
+		val stored = StoredUser(DEFAULT_SUMMARY_USER)
+		val repository = ProfileIdentityDataSource(
+			localDataSource = stored,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = false)
 		)
-		assertEquals(listOf(0, 3), identities.map { identity -> identity.pictureVersion })
+
+		repository.observeProfileIdentity().test {
+			assertEquals("Ana Diaz", awaitItem()?.name)
+
+			stored.user.value = null
+
+			assertNull(awaitItem())
+		}
 	}
 
 	@Test
 	fun observeProfileIdentity_keepsAnEmptyPictureUrlAsTheStudentHasNoPicture() = runTest {
 		val repository = ProfileIdentityDataSource(
-			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER.copy(pictureUrl = "")))
+			localDataSource = StoredUser(DEFAULT_SUMMARY_USER.copy(pictureUrl = "")),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = false)
 		)
 
-		assertEquals("", repository.observeProfileIdentity().first().pictureUrl)
+		assertEquals("", repository.observeProfileIdentity().first()?.pictureUrl)
+	}
+}
+
+private class StoredUser(initial: User?) : LocalDataRepository {
+	val user = MutableStateFlow(initial)
+
+	override fun getUserFlow(): Flow<User?> = user
+
+	override suspend fun updateUser(user: User) {
+		this.user.value = user
 	}
 }

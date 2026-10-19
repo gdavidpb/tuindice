@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.mapper.summaryAssistantContext
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
@@ -19,7 +18,6 @@ import tuindice.summary.generated.resources.top_bar_summary
 object Summary {
 	sealed class State(
 		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_summary),
-		override val topBarConfig: TopBarConfig = TopBarConfig.Summary,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true,
 		open val isUserRefreshing: Boolean = false

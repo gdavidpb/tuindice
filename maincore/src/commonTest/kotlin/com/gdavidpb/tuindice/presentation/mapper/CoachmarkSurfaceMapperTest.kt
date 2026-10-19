@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.mapper
 
-import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -17,6 +16,7 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
+import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks
 import kotlin.test.Test
@@ -62,7 +62,14 @@ class CoachmarkSurfaceMapperTest {
 			SubjectSearch.State() to listOf(CoachmarkId.SubjectSearch),
 			SubjectDetail.State.Content(detail = subjectDetailItem()) to listOf(CoachmarkId.SubjectDetail),
 			CreateSyntheticTerm.State() to listOf(CoachmarkId.SyntheticTerm),
-			About.State.Content(versionText = "1.0.0") to listOf(CoachmarkId.About, CoachmarkId.AboutActions)
+			Summary.State.Content(
+				name = "Ana Diaz",
+				careerName = "Ingenieria",
+				grade = 4.5f,
+				profilePictureUrl = "",
+				isProfilePictureLoading = false,
+				isUserRefreshing = false
+			) to listOf(CoachmarkId.Summary, CoachmarkId.Settings)
 		)
 
 		cases.forEachIndexed { index, (state, expectedCoachmarkIds) ->

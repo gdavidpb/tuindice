@@ -18,15 +18,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
-import tuindice.about.generated.resources.about_assistant_conversations_cancel
-import tuindice.about.generated.resources.about_assistant_conversations_confirm
-import tuindice.about.generated.resources.about_assistant_conversations_message
-import tuindice.about.generated.resources.about_assistant_conversations_title
+import tuindice.about.generated.resources.settings_assistant_conversations_cancel
+import tuindice.about.generated.resources.settings_assistant_conversations_confirm
+import tuindice.about.generated.resources.settings_assistant_conversations_message
+import tuindice.about.generated.resources.settings_assistant_conversations_title
 
 // Asks before deleting every conversation with the assistant; «Borrar» uses the error colors.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +40,7 @@ fun DeleteAssistantConversationsDialog(
 	ModalBottomSheet(
 		modifier = Modifier
 			.exposeTestTagsAsResourceId()
-			.testTag(AboutUiTags.DeleteAssistantConversationsDialog),
+			.testTag(SettingsUiTags.DeleteAssistantConversationsDialog),
 		sheetState = sheetState,
 		onDismissRequest = onDismissRequest
 	) {
@@ -50,12 +50,12 @@ fun DeleteAssistantConversationsDialog(
 				.padding(start = TuIndiceSpacing.Dialog, end = TuIndiceSpacing.Dialog, bottom = TuIndiceSpacing.Dialog)
 		) {
 			Text(
-				text = stringResource(Res.string.about_assistant_conversations_title),
+				text = stringResource(Res.string.settings_assistant_conversations_title),
 				style = MaterialTheme.typography.titleLarge,
 				fontWeight = FontWeight.Bold
 			)
 			Text(
-				text = stringResource(Res.string.about_assistant_conversations_message),
+				text = stringResource(Res.string.settings_assistant_conversations_message),
 				style = MaterialTheme.typography.bodyMedium,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				modifier = Modifier.padding(top = TuIndiceSpacing.Medium)
@@ -66,9 +66,9 @@ fun DeleteAssistantConversationsDialog(
 			) {
 				OutlinedButton(
 					onClick = onDismissRequest,
-					modifier = Modifier.testTag(AboutUiTags.DeleteAssistantConversationsCancel)
+					modifier = Modifier.testTag(SettingsUiTags.DeleteAssistantConversationsCancel)
 				) {
-					Text(text = stringResource(Res.string.about_assistant_conversations_cancel))
+					Text(text = stringResource(Res.string.settings_assistant_conversations_cancel))
 				}
 				Button(
 					onClick = onConfirmClick,
@@ -76,9 +76,9 @@ fun DeleteAssistantConversationsDialog(
 						containerColor = MaterialTheme.colorScheme.error,
 						contentColor = MaterialTheme.colorScheme.onError
 					),
-					modifier = Modifier.testTag(AboutUiTags.DeleteAssistantConversationsConfirm)
+					modifier = Modifier.testTag(SettingsUiTags.DeleteAssistantConversationsConfirm)
 				) {
-					Text(text = stringResource(Res.string.about_assistant_conversations_confirm))
+					Text(text = stringResource(Res.string.settings_assistant_conversations_confirm))
 				}
 			}
 		}

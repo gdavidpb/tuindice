@@ -20,17 +20,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.FindInPage
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.Tune
@@ -61,6 +59,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
@@ -90,7 +89,9 @@ import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.view.TopBarAssistantButtonView
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
+import com.gdavidpb.tuindice.ui.view.TopBarProfileButtonView
 import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
+import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
 import com.gdavidpb.tuindice.wizard.ui.anchor.coachmarkAnchor
 import com.gdavidpb.tuindice.wizard.ui.view.CoachmarkOverlayHost
@@ -104,12 +105,11 @@ import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
 import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
 import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
-import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
+import tuindice.maincore.generated.resources.a11y_top_bar_settings
 import tuindice.maincore.generated.resources.a11y_top_bar_statistics_share
 import tuindice.maincore.generated.resources.a11y_top_bar_term_report_share
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
-import tuindice.maincore.generated.resources.bottom_bar_about
 import tuindice.maincore.generated.resources.bottom_bar_evaluations
 import tuindice.maincore.generated.resources.bottom_bar_pensum
 import tuindice.maincore.generated.resources.bottom_bar_record
@@ -127,7 +127,9 @@ fun TuIndiceScreen(
 	onUpdateAppClick: () -> Unit,
 	navigator: TuIndiceNavigator?,
 	snackbarHostState: SnackbarHostState,
+	profileIdentity: ProfileIdentity? = null,
 	onAction: (action: TopBarAction) -> Unit,
+	onSignOutRequest: () -> Unit,
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
@@ -226,6 +228,9 @@ fun TuIndiceScreen(
 	val coachmarkAnchorRegistry = remember {
 		CoachmarkAnchorRegistry()
 	}
+	// The Settings coachmark points at the avatar in the bar; every other one points at the content under it.
+	val activeCoachmarkId = coachmarkOverlayState.activeCoachmark?.id
+	val settingsCoachmarkActive = activeCoachmarkId == CoachmarkId.Settings
 	val showTopBarBanner: (TopBarBannerBehavior) -> Unit = { behavior ->
 		topBarBannerBehavior.value = behavior
 		topBarBannerRequestKey.intValue += 1
@@ -236,8 +241,7 @@ fun TuIndiceScreen(
 			BottomBarConfig.Summary,
 			BottomBarConfig.Record,
 			BottomBarConfig.Pensum,
-			BottomBarConfig.Evaluations,
-			BottomBarConfig.About
+			BottomBarConfig.Evaluations
 		)
 	}
 
@@ -349,6 +353,20 @@ fun TuIndiceScreen(
 												}
 											)
 										}
+
+										// The avatar closes the row of a main section, after the sparkle, the switch, the
+										// actions and the menu. When Settings is the coachmark on screen, the bubble points at it.
+										if (shellState.showsProfileAvatar) {
+											TopBarProfileButtonView(
+												modifier = Modifier.coachmarkAnchor(
+													id = CoachmarkId.Settings.takeIf { settingsCoachmarkActive },
+													registry = coachmarkAnchorRegistry
+												),
+												identity = profileIdentity,
+												contentDescription = stringResource(Res.string.a11y_top_bar_settings),
+												onClick = { onAction(TopBarAction.SettingsAction) }
+											)
+										}
 									}
 								},
 								navigationIcon = {
@@ -450,10 +468,11 @@ fun TuIndiceScreen(
 					modifier = Modifier
 						.padding(innerPadding)
 						.coachmarkAnchor(
-							id = coachmarkOverlayState.activeCoachmark?.id,
+							id = activeCoachmarkId.takeUnless { settingsCoachmarkActive },
 							registry = coachmarkAnchorRegistry
 						),
 					onConfirmExitClick = onConfirmExitClick,
+					onSignOutRequest = onSignOutRequest,
 					onNavigateToExternalResource = onNavigateToExternalResource,
 					onOutdatedAppDetected = onOutdatedAppDetected,
 					onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
@@ -492,8 +511,6 @@ fun TuIndiceScreen(
 @Composable
 private fun TopBarAction.getContentDescription(): String {
 	return when (this) {
-		is TopBarAction.SignOutAction ->
-			stringResource(Res.string.a11y_top_bar_sign_out)
 		is TopBarAction.FetchEnrollmentProofAction ->
 			stringResource(Res.string.a11y_top_bar_enrollment_proof)
 		is TopBarAction.RecordTermSelectionAction ->
@@ -513,14 +530,14 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_term_report_share)
 		is TopBarAction.AssistantAction ->
 			stringResource(Res.string.a11y_top_bar_assistant)
+		is TopBarAction.SettingsAction ->
+			stringResource(Res.string.a11y_top_bar_settings)
 	}
 }
 
 @Composable
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
-		is TopBarAction.SignOutAction ->
-			Icons.AutoMirrored.Outlined.Logout
 		is TopBarAction.FetchEnrollmentProofAction ->
 			Icons.Outlined.FindInPage
 		// A term is a stretch of the year and the schedule is a table of blocks: a calendar and a
@@ -541,6 +558,9 @@ private fun TopBarAction.getIcon(): ImageVector {
 			ShareIcon
 		is TopBarAction.AssistantAction ->
 			rememberAssistantSparkleIcon()
+		// The bar draws the avatar for this one; the icon is what a menu would show if it were ever listed in one.
+		is TopBarAction.SettingsAction ->
+			Icons.Outlined.Person
 	}
 }
 
@@ -556,8 +576,6 @@ private fun bottomBarIcon(
 		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->
 		if (selected) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment
-	BottomBarConfig.About ->
-		if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
 }
 
 @Composable
@@ -566,7 +584,6 @@ private fun bottomBarLabel(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Record -> stringResource(Res.string.bottom_bar_record)
 	BottomBarConfig.Pensum -> stringResource(Res.string.bottom_bar_pensum)
 	BottomBarConfig.Evaluations -> stringResource(Res.string.bottom_bar_evaluations)
-	BottomBarConfig.About -> stringResource(Res.string.bottom_bar_about)
 }
 
 private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
@@ -574,7 +591,6 @@ private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItem
 	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItem
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItem
-	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItem
 }
 
 private fun bottomBarSelectedItemTag(config: BottomBarConfig): String = when (config) {
@@ -582,5 +598,4 @@ private fun bottomBarSelectedItemTag(config: BottomBarConfig): String = when (co
 	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItemSelected
 	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItemSelected
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected
-	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItemSelected
 }

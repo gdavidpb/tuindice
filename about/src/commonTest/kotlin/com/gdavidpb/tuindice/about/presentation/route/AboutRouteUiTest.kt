@@ -12,22 +12,16 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
-import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
-import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.about.testing.fakeAboutAssistantUseCases
+import com.gdavidpb.tuindice.about.testing.AboutRouteUnderTest
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
@@ -46,85 +40,19 @@ class AboutRouteUiTest {
 	)
 
 	@Test
-	fun when_termsActionTriggered_then_navigatesToBrowser() = runTuIndiceUiTest {
-		val expectedUrl = "https://tuindice.test/terms"
-		val fixture = createAboutViewModel(termsAndConditionsUrl = expectedUrl)
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.OpenTermsAndConditions)
-		}
-
-		waitUntil(timeoutMillis = 10_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedUrl, navigatedUrl)
-	}
-
-	@Test
-	fun when_termsItemTapped_then_navigatesToBrowser() = runTuIndiceUiTest {
-		val expectedUrl = "https://tuindice.test/terms"
-		val fixture = createAboutViewModel(termsAndConditionsUrl = expectedUrl)
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.OpenTerms)
-		onNodeWithTag(AboutUiTags.OpenTerms).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedUrl, navigatedUrl)
-	}
-
-	@Test
 	fun when_contactDeveloperActionTriggered_then_opensMailUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
+		val fixture = createAboutViewModel()
 		var openedUri = ""
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
 				LocalUriHandler provides object : UriHandler {
 					override fun openUri(uri: String) {
 						openedUri = uri
 					}
 				}
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
+				AboutRouteUnderTest(viewModel = fixture.viewModel)
 			}
 		}
 
@@ -140,23 +68,49 @@ class AboutRouteUiTest {
 	}
 
 	@Test
+	fun when_contactDeveloperItemTapped_then_opensMailUri() = runTuIndiceUiTest {
+		val fixture = createAboutViewModel()
+		var openedUri = ""
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalUriHandler provides object : UriHandler {
+					override fun openUri(uri: String) {
+						openedUri = uri
+					}
+				}
+			) {
+				AboutRouteUnderTest(viewModel = fixture.viewModel)
+			}
+		}
+
+		waitUntilNodeExists(AboutUiTags.ContentContainer)
+		onNodeWithTag(AboutUiTags.ContentContainer).performScrollToNode(hasTestTag(AboutUiTags.ContactDeveloper))
+		onNodeWithTag(AboutUiTags.ContactDeveloper).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			openedUri.isNotEmpty()
+		}
+
+		assertTrue(openedUri.startsWith("mailto:"))
+	}
+
+	@Test
 	fun when_mailUriCannotOpen_then_showsSnackBar() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
+		val fixture = createAboutViewModel()
 		var snackBarMessage = ""
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
 				LocalUriHandler provides object : UriHandler {
 					override fun openUri(uri: String) {
 						error("No mail app installed")
 					}
 				}
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { message -> snackBarMessage = message.message },
-					viewModel = fixture.viewModel
+				AboutRouteUnderTest(
+					viewModel = fixture.viewModel,
+					showSnackBar = { message -> snackBarMessage = message.message }
 				)
 			}
 		}
@@ -171,290 +125,19 @@ class AboutRouteUiTest {
 	}
 
 	@Test
-	fun when_shareAppActionTriggered_then_delegatesToShareTextHandler() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var subject = ""
-		var text = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { inputSubject, inputText ->
-					subject = inputSubject
-					text = inputText
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.ShareApp)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			subject.isNotEmpty() && text.isNotEmpty()
-		}
-
-		assertTrue(subject.isNotBlank())
-		assertTrue(text.isNotBlank())
-	}
-
-	@Test
-	fun when_shareAppItemTapped_then_delegatesToShareTextHandler() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var subject = ""
-		var text = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { inputSubject, inputText ->
-					subject = inputSubject
-					text = inputText
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.ShareApp)
-		onNodeWithTag(AboutUiTags.ShareApp).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			subject.isNotEmpty() && text.isNotEmpty()
-		}
-
-		assertTrue(subject.isNotBlank())
-		assertTrue(text.isNotBlank())
-	}
-
-	@Test
-	fun when_privacyPolicyActionTriggered_then_navigatesToBrowserPrivacyUrl() = runTuIndiceUiTest {
-		val expectedPrivacyUrl = "https://tuindice.test/privacy"
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.OpenPrivacyPolicy)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedPrivacyUrl, navigatedUrl)
-	}
-
-	@Test
-	fun when_privacyPolicyItemTapped_then_navigatesToBrowserPrivacyUrl() = runTuIndiceUiTest {
-		val expectedPrivacyUrl = "https://tuindice.test/privacy"
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.OpenPrivacy)
-		onNodeWithTag(AboutUiTags.OpenPrivacy).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedPrivacyUrl, navigatedUrl)
-	}
-
-	@Test
-	fun when_supportActionTriggered_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
-		val expectedSupportUrl = "https://tuindice.test/support"
-		val fixture = createAboutViewModel(
-			termsAndConditionsUrl = "https://tuindice.test/terms",
-			supportUrl = expectedSupportUrl
-		)
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.OpenSupport)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedSupportUrl, navigatedUrl)
-	}
-
-	@Test
-	fun when_supportItemTapped_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
-		val expectedSupportUrl = "https://tuindice.test/support"
-		val fixture = createAboutViewModel(
-			termsAndConditionsUrl = "https://tuindice.test/terms",
-			supportUrl = expectedSupportUrl
-		)
-		var navigatedUrl = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> }
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, url ->
-						navigatedUrl = url
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.OpenSupport)
-		onNodeWithTag(AboutUiTags.OpenSupport).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			navigatedUrl.isNotEmpty()
-		}
-
-		assertEquals(expectedSupportUrl, navigatedUrl)
-	}
-
-	@Test
-	fun when_rateOnStoreActionTriggered_then_opensStoreUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		val expectedStoreUrl = "https://store.tuindice.test"
-		var openedUri = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUri = uri
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.RateOnStore)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			openedUri.isNotEmpty()
-		}
-
-		assertEquals(expectedStoreUrl, openedUri)
-	}
-
-	@Test
-	fun when_rateOnStoreItemTapped_then_opensStoreUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		val expectedStoreUrl = "https://store.tuindice.test"
-		var openedUri = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUri = uri
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.RateOnStore)
-		onNodeWithTag(AboutUiTags.RateOnStore).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			openedUri.isNotEmpty()
-		}
-
-		assertEquals(expectedStoreUrl, openedUri)
-	}
-
-	@Test
 	fun when_openUrlActionTriggered_then_usesBrowserRepositoryWithoutRouteLevelEffects() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var navigateCalls = 0
+		val fixture = createAboutViewModel()
 		var openUriCalls = 0
-		var shareCalls = 0
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ ->
-					shareCalls++
-				},
 				LocalUriHandler provides object : UriHandler {
 					override fun openUri(uri: String) {
 						openUriCalls++
 					}
 				}
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ ->
-						navigateCalls++
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
+				AboutRouteUnderTest(viewModel = fixture.viewModel)
 			}
 		}
 
@@ -467,165 +150,16 @@ class AboutRouteUiTest {
 		}
 
 		assertEquals(AboutLinks.KOIN, fixture.browserRepository.lastOpenedUrl)
-		assertEquals(0, navigateCalls)
 		assertEquals(0, openUriCalls)
-		assertEquals(0, shareCalls)
-	}
-
-	@Test
-	fun when_openKoinItemTapped_then_usesBrowserRepositoryWithoutRouteLevelEffects() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var navigateCalls = 0
-		var openUriCalls = 0
-		var shareCalls = 0
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ ->
-					shareCalls++
-				},
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openUriCalls++
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ ->
-						navigateCalls++
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.ContentContainer)
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.OpenKoin))
-		onNodeWithTag(AboutUiTags.OpenKoin).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			fixture.browserRepository.lastOpenedUrl != null
-		}
-
-		assertEquals(AboutLinks.KOIN, fixture.browserRepository.lastOpenedUrl)
-		assertEquals(0, navigateCalls)
-		assertEquals(0, openUriCalls)
-		assertEquals(0, shareCalls)
-	}
-
-	@Test
-	fun when_contactDeveloperItemTapped_then_opensMailUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var openedUri = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUri = uri
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.ContentContainer)
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.ContactDeveloper))
-		onNodeWithTag(AboutUiTags.ContactDeveloper).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			openedUri.isNotEmpty()
-		}
-
-		assertTrue(openedUri.startsWith("mailto:"))
-	}
-
-	@Test
-	fun when_reportBugActionTriggered_then_opensMailUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var openedUri = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUri = uri
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		runOnIdle {
-			fixture.viewModel.dispatchAction(About.Action.ReportBug)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			openedUri.isNotEmpty()
-		}
-
-		assertTrue(openedUri.startsWith("mailto:"))
-	}
-
-	@Test
-	fun when_reportBugItemTapped_then_opensMailUri() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var openedUri = ""
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ -> },
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUri = uri
-					}
-				}
-			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ -> },
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
-			}
-		}
-
-		waitUntilNodeExists(AboutUiTags.ContentContainer)
-		onNodeWithTag(AboutUiTags.ContentContainer)
-			.performScrollToNode(hasTestTag(AboutUiTags.ReportBug))
-		onNodeWithTag(AboutUiTags.ReportBug).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			openedUri.isNotEmpty()
-		}
-
-		assertTrue(openedUri.startsWith("mailto:"))
 	}
 
 	@Test
 	fun when_openUrlItemsTapped_then_eachItemUsesBrowserRepositoryWithoutRouteLevelEffects() = runTuIndiceUiTest {
-		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
-		var navigateCalls = 0
+		val fixture = createAboutViewModel()
 		var openUriCalls = 0
-		var shareCalls = 0
 
 		val expectedLinksByTag = listOf(
 			AboutUiTags.OpenCreativeCommons to AboutLinks.CREATIVE_COMMONS,
-			AboutUiTags.OpenX to AboutLinks.X,
 			AboutUiTags.OpenGithub to AboutLinks.GITHUB,
 			AboutUiTags.OpenKotlin to AboutLinks.KOTLIN,
 			AboutUiTags.OpenCompose to AboutLinks.COMPOSE,
@@ -637,30 +171,20 @@ class AboutRouteUiTest {
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(
-				LocalShareTextHandler provides { _, _ ->
-					shareCalls++
-				},
 				LocalUriHandler provides object : UriHandler {
 					override fun openUri(uri: String) {
 						openUriCalls++
 					}
 				}
 			) {
-				AboutRoute(
-					onNavigateToBrowser = { _, _ ->
-						navigateCalls++
-					},
-					showSnackBar = { },
-					viewModel = fixture.viewModel
-				)
+				AboutRouteUnderTest(viewModel = fixture.viewModel)
 			}
 		}
 
 		waitUntilNodeExists(AboutUiTags.ContentContainer)
 
 		expectedLinksByTag.forEach { (tag, expectedLink) ->
-			onNodeWithTag(AboutUiTags.ContentContainer)
-				.performScrollToNode(hasTestTag(tag))
+			onNodeWithTag(AboutUiTags.ContentContainer).performScrollToNode(hasTestTag(tag))
 			waitForIdle()
 			waitUntilNodeExists(tag = tag)
 			onNodeWithTag(tag).performClick()
@@ -673,9 +197,7 @@ class AboutRouteUiTest {
 		}
 
 		assertEquals(expectedLinksByTag.map { (_, link) -> link }, fixture.browserRepository.openedUrls.value)
-		assertEquals(0, navigateCalls)
 		assertEquals(0, openUriCalls)
-		assertEquals(0, shareCalls)
 	}
 
 	private fun ComposeUiTest.waitUntilNodeExists(
@@ -687,57 +209,29 @@ class AboutRouteUiTest {
 		}
 	}
 
-	private fun createAboutViewModel(
-		termsAndConditionsUrl: String,
-		supportUrl: String = "https://tuindice.test/support"
-	): AboutRouteFixture {
-		val appEnvironmentRepository = FakeAppEnvironmentRepository(
-			appEnvironment = AppEnvironment(
-				apiBaseUrl = "https://api.tuindice.test",
-				privacyPolicyUrl = "https://tuindice.test/privacy",
-				termsAndConditionsUrl = termsAndConditionsUrl,
-				supportUrl = supportUrl,
-				debug = true
-			)
-		)
-		val aboutRepository = object : AboutRepository {
-			override suspend fun getVersionDescription(): String = "1.2.3"
-		}
-		val storeUrlRepository = object : StoreUrlRepository {
-			override fun getStoreUrl(): String = "https://store.tuindice.test"
-		}
-
-		val loadVersionUseCase = LoadVersionUseCase(
-			aboutRepository = aboutRepository,
-			reportingRepository = RecordingReportingRepository()
-		)
-		val sendSupportEmailUseCase = SendSupportEmailUseCase(
-			configRepository = FakeConfigRepository(),
-			deviceInfoRepository = FakeDeviceInfoRepository(),
-			reportingRepository = RecordingReportingRepository()
-		)
-		val openStoreUseCase = OpenStoreUseCase(
-			storeUrlRepository = storeUrlRepository,
-			reportingRepository = RecordingReportingRepository()
-		)
+	private fun createAboutViewModel(): AboutRouteFixture {
 		val browserRepository = RecordingBrowserRepository()
-		val openExternalUrlUseCase = OpenExternalUrlUseCase(
-			browserRepository = browserRepository,
-			reportingRepository = RecordingReportingRepository()
-		)
 
 		return AboutRouteFixture(
 			viewModel = AboutViewModel(
 				screenMachine = AboutMachine(
-					loadVersionUseCase = loadVersionUseCase,
-					externalUseCases = AboutExternalUseCases(
-						sendSupportEmail = sendSupportEmailUseCase,
-						openStore = openStoreUseCase,
-						openExternalUrl = openExternalUrlUseCase
+					loadVersionUseCase = LoadVersionUseCase(
+						aboutRepository = object : AboutRepository {
+							override suspend fun getVersionDescription(): String = "1.2.3"
+						},
+						reportingRepository = RecordingReportingRepository()
 					),
-					appEnvironmentRepository = appEnvironmentRepository,
-					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-					assistantUseCases = fakeAboutAssistantUseCases()
+					externalUseCases = AboutExternalUseCases(
+						sendSupportEmail = SendSupportEmailUseCase(
+							configRepository = FakeConfigRepository(),
+							deviceInfoRepository = FakeDeviceInfoRepository(),
+							reportingRepository = RecordingReportingRepository()
+						),
+						openExternalUrl = OpenExternalUrlUseCase(
+							browserRepository = browserRepository,
+							reportingRepository = RecordingReportingRepository()
+						)
+					)
 				),
 				eventPublisher = NoOpEventPublisher
 			),

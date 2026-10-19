@@ -6,6 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class AboutDestination : Destination() {
+	// Settings, pushed over the tab on screen from the avatar in the top bar.
+	@Serializable
+	data object Settings : AboutDestination()
+
+	// «Acerca de TuIndice», pushed from Settings: the version, the license, the developer and the credits.
 	@Serializable
 	data object About : AboutDestination()
 

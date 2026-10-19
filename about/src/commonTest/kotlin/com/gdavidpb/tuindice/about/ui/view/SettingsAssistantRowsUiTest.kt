@@ -11,9 +11,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
-import com.gdavidpb.tuindice.about.ui.model.AboutActions
+import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.testing.noSettingsActions
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -22,25 +22,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class AboutAssistantRowsUiTest {
+class SettingsAssistantRowsUiTest {
 	@Test
 	fun when_assistantIsUnavailable_then_noAssistantRowIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = false)
+				state = Settings.State.Content(identity = null, versionText = "1.2.3", assistantAvailable = false)
 			)
 		}
 
-		assertNodeVisible(AboutUiTags.UsageDataConsentToggle)
-		assertTrue(onAllNodesWithTag(AboutUiTags.AssistantConsentSwitch).fetchSemanticsNodes().isEmpty())
-		assertTrue(onAllNodesWithTag(AboutUiTags.AssistantMemoryItem).fetchSemanticsNodes().isEmpty())
+		assertNodeVisible(SettingsUiTags.UsageDataConsentToggle)
+		assertTrue(onAllNodesWithTag(SettingsUiTags.AssistantConsentSwitch).fetchSemanticsNodes().isEmpty())
+		assertTrue(onAllNodesWithTag(SettingsUiTags.AssistantMemoryItem).fetchSemanticsNodes().isEmpty())
 	}
 
 	@Test
 	fun when_assistantIsAvailable_then_switchReflectsTheStoredConsent() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(
+				state = Settings.State.Content(
+					identity = null,
 					versionText = "1.2.3",
 					assistantAvailable = true,
 					assistantConsentGranted = true
@@ -48,8 +49,8 @@ class AboutAssistantRowsUiTest {
 			)
 		}
 
-		scrollToRow(AboutUiTags.AssistantConsentSwitch)
-		onNodeWithTag(AboutUiTags.AssistantConsentSwitch).assertIsOn()
+		scrollToRow(SettingsUiTags.AssistantConsentSwitch)
+		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch).assertIsOn()
 	}
 
 	@Test
@@ -58,13 +59,13 @@ class AboutAssistantRowsUiTest {
 
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true),
+				state = Settings.State.Content(identity = null, versionText = "1.2.3", assistantAvailable = true),
 				onAssistantConsentChange = { granted -> changes += granted }
 			)
 		}
 
-		scrollToRow(AboutUiTags.AssistantConsentSwitch)
-		onNodeWithTag(AboutUiTags.AssistantConsentSwitch)
+		scrollToRow(SettingsUiTags.AssistantConsentSwitch)
+		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch)
 			.assertIsOff()
 			.performClick()
 
@@ -77,13 +78,13 @@ class AboutAssistantRowsUiTest {
 
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true),
+				state = Settings.State.Content(identity = null, versionText = "1.2.3", assistantAvailable = true),
 				onAssistantMemoryClick = { memoryClicks++ }
 			)
 		}
 
-		scrollToRow(AboutUiTags.AssistantMemoryItem)
-		onNodeWithTag(AboutUiTags.AssistantMemoryItem).performClick()
+		scrollToRow(SettingsUiTags.AssistantMemoryItem)
+		onNodeWithTag(SettingsUiTags.AssistantMemoryItem).performClick()
 
 		assertEquals(1, memoryClicks)
 	}
@@ -94,13 +95,13 @@ class AboutAssistantRowsUiTest {
 
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = true),
+				state = Settings.State.Content(identity = null, versionText = "1.2.3", assistantAvailable = true),
 				onAssistantConversationsClick = { conversationsClicks++ }
 			)
 		}
 
-		scrollToRow(AboutUiTags.AssistantConversationsItem)
-		onNodeWithTag(AboutUiTags.AssistantConversationsItem).performClick()
+		scrollToRow(SettingsUiTags.AssistantConversationsItem)
+		onNodeWithTag(SettingsUiTags.AssistantConversationsItem).performClick()
 
 		assertEquals(1, conversationsClicks)
 	}
@@ -109,11 +110,11 @@ class AboutAssistantRowsUiTest {
 	fun when_assistantIsUnavailable_then_noConversationsRowIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantAboutContent(
-				state = About.State.Content(versionText = "1.2.3", assistantAvailable = false)
+				state = Settings.State.Content(identity = null, versionText = "1.2.3", assistantAvailable = false)
 			)
 		}
 
-		assertTrue(onAllNodesWithTag(AboutUiTags.AssistantConversationsItem).fetchSemanticsNodes().isEmpty())
+		assertTrue(onAllNodesWithTag(SettingsUiTags.AssistantConversationsItem).fetchSemanticsNodes().isEmpty())
 	}
 
 	@Test
@@ -121,7 +122,7 @@ class AboutAssistantRowsUiTest {
 		// The rows alone, in a plain column: inside the lazy content the lower row can be out of the viewport, not laid out.
 		setTuIndiceTestContent {
 			Column {
-				AboutAssistantItems(
+				SettingsAssistantItems(
 					consentGranted = true,
 					onConsentChange = {},
 					onMemoryClick = {},
@@ -130,48 +131,33 @@ class AboutAssistantRowsUiTest {
 			}
 		}
 
-		val memoryTop = onNodeWithTag(AboutUiTags.AssistantMemoryItem).fetchSemanticsNode().boundsInRoot.top
-		val conversationsTop = onNodeWithTag(AboutUiTags.AssistantConversationsItem)
+		val memoryTop = onNodeWithTag(SettingsUiTags.AssistantMemoryItem).fetchSemanticsNode().boundsInRoot.top
+		val conversationsTop = onNodeWithTag(SettingsUiTags.AssistantConversationsItem)
 			.fetchSemanticsNode().boundsInRoot.top
 
 		assertTrue(memoryTop < conversationsTop)
 	}
 
 	private fun ComposeUiTest.scrollToRow(tag: String) {
-		onNodeWithTag(AboutUiTags.ContentContainer)
+		onNodeWithTag(SettingsUiTags.ContentContainer)
 			.performScrollToNode(hasTestTag(tag))
 	}
 
 	@Composable
 	private fun AssistantAboutContent(
-		state: About.State.Content,
+		state: Settings.State.Content,
 		onAssistantConsentChange: (granted: Boolean) -> Unit = {},
 		onAssistantMemoryClick: () -> Unit = {},
 		onAssistantConversationsClick: () -> Unit = {}
 	) {
-		AboutContentView(
+		SettingsContentView(
 			state = state,
-			actions = AboutActions(
-				onCreativeCommonsClick = {},
-				onXClick = {},
-				onGithubClick = {},
-				onKotlinClick = {},
-				onComposeClick = {},
-				onFirebaseClick = {},
-				onKoinClick = {},
-				onKtorClick = {},
-				onDstClick = {},
-				onTermsAndConditionsClick = {},
-				onPrivacyPolicyClick = {},
-				onSupportClick = {},
-				onShareAppClick = {},
-				onRateOnPlayStoreClick = {},
-				onContactDeveloperClick = {},
-				onReportBugClick = {},
+			actions = noSettingsActions().copy(
 				onAssistantConsentChange = onAssistantConsentChange,
 				onAssistantMemoryClick = onAssistantMemoryClick,
 				onAssistantConversationsClick = onAssistantConversationsClick
-			)
+			),
+			profilePhoto = {}
 		)
 	}
 }
