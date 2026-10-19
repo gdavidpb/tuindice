@@ -11,4 +11,4 @@ data class PensumComparisonItem(
 	val missingSubjects: List<SubjectRowItem>,
 	val notes: List<String>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

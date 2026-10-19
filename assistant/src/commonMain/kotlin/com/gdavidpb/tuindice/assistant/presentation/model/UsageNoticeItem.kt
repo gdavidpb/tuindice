@@ -11,4 +11,4 @@ data class UsageNoticeItem(
 	val monthText: UiText,
 	// Null when the service does not know when the quota resets.
 	val resetsText: UiText?
-) : ChatComponentItem
+) : SistemaComponentItem

@@ -6,4 +6,4 @@ data class CitationItem(
 	override val opensSheet: Boolean,
 	val sources: List<CitationSourceItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

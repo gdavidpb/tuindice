@@ -11,9 +11,9 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
-// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. The table's rows
-// write it one at a time. The commands that open the sheet write their part before the table takes their outcome, and
-// nothing else writes it from outside the table, so it needs no lock.
+// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. The table's
+// rows write it one at a time. The commands that open the sheet write their part before the table takes their outcome,
+// and nothing else writes it from outside the table, so it needs no lock.
 internal class AssistantChatSession {
 	var openedContext: AssistantScreenContext? = null
 	var conversation: AssistantConversation? = null
@@ -66,8 +66,8 @@ internal class AssistantChatSession {
 		return shown?.text ?: SuggestedQuestions.byId(suggestionId)?.text
 	}
 
-	// The thumbs of [messageId] go back to [previous] when the service refused [rejected], unless the student has rated the
-	// message again since: the newer rating is the one they meant.
+	// The thumbs of [messageId] go back to [previous] when the service refused [rejected], unless the student has rated
+	// the message again since: the newer rating is the one they meant.
 	fun rateRefused(messageId: String, rejected: Boolean, previous: Boolean?) {
 		if (usefulByMessage[messageId] != rejected) return
 
@@ -113,13 +113,6 @@ internal class AssistantChatSession {
 		}
 	}
 
-	internal fun lastUserMessage(): AssistantUserMessage? {
-		return conversation?.items
-			?.filterIsInstance<AssistantConversationItem.User>()
-			?.lastOrNull()
-			?.message
-	}
-
 	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with.
 	internal data class FailedSend(val text: String, val suggestionId: String?, val clientTurnId: String)
 
@@ -132,4 +125,12 @@ internal class AssistantChatSession {
 	internal data class Restriction(val level: StandingLevel?, val untilMillis: Long?, val canAppeal: Boolean) {
 		fun isOver(nowMillis: Long): Boolean = untilMillis != null && nowMillis >= untilMillis
 	}
+}
+
+// The last message the student wrote in the conversation the session observed, if any.
+internal fun AssistantChatSession.lastUserMessage(): AssistantUserMessage? {
+	return conversation?.items
+		?.filterIsInstance<AssistantConversationItem.User>()
+		?.lastOrNull()
+		?.message
 }

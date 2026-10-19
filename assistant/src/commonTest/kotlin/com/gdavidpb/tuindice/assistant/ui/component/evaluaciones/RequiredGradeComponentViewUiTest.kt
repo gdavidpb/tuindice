@@ -34,7 +34,10 @@ class RequiredGradeComponentViewUiTest {
 	fun when_theTargetIsNotReachable_then_thePointsLeftToEvaluateAreTheFigure_andNoRequiredFigureShows() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				RequiredGradeComponentView(item = required(requiredPoints = null, feasible = false).toRequiredGradeItem(), onAction = {})
+				RequiredGradeComponentView(
+					item = required(requiredPoints = null, feasible = false).toRequiredGradeItem(),
+					onAction = {}
+				)
 			}
 
 			onNodeWithContentDescription("Puntos por evaluar: 40").assertIsDisplayed()

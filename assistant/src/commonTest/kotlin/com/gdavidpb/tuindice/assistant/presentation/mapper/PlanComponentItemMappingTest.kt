@@ -30,7 +30,11 @@ class PlanComponentItemMappingTest {
 		).toPlanListItem()
 
 		assertEquals(listOf(EntityRef(EntityKind.TERM, "2026-JAN_MAR")), item.rows.single().link.entityRefs)
-		val subjects = chatCardCountText(2, Res.string.assistant_card_b_count_subject_one, Res.string.assistant_card_b_count_subject_many)
+		val subjects = chatCardCountText(
+            2,
+            Res.string.assistant_card_b_count_subject_one,
+            Res.string.assistant_card_b_count_subject_many
+        )
 		assertEquals(
 			UiText.Resource(
 				Res.string.assistant_card_b_joined,
@@ -81,7 +85,10 @@ class PlanComponentItemMappingTest {
 			)
 		).toPlanComparisonItem()
 
-		assertEquals(UiText.Resource(Res.string.assistant_card_b_plan_unlocks, listOf("IS-201, IS-202")), item.options[0].unlocksText)
+		assertEquals(
+            UiText.Resource(Res.string.assistant_card_b_plan_unlocks, listOf("IS-201, IS-202")),
+            item.options[0].unlocksText
+        )
 		assertNull(item.options[1].unlocksText)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_credits, listOf(9)), item.options[1].summaryText)
 	}

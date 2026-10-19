@@ -6,4 +6,4 @@ data class PlanComparisonItem(
 	override val opensSheet: Boolean,
 	val options: List<PlanOptionItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

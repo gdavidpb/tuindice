@@ -4,11 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
-import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
-import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks
 import kotlin.test.Test

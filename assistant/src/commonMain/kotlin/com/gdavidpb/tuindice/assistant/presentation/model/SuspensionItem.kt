@@ -10,4 +10,4 @@ data class SuspensionItem(
 	// The moment it ends, or that it has no end.
 	val untilText: UiText,
 	val appealable: Boolean
-) : ChatComponentItem
+) : SistemaComponentItem

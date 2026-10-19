@@ -10,4 +10,4 @@ data class PensumProgressItem(
 	val progressFraction: Float,
 	val statusRows: List<CountRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

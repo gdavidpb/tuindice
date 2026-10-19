@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-
 // A piece of an agent message, in display order.
 sealed interface ChatPartItem {
 	data class Text(val text: String) : ChatPartItem

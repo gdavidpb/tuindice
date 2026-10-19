@@ -6,4 +6,4 @@ data class IndexSeriesItem(
 	override val opensSheet: Boolean,
 	val currentFigure: CardFigureItem?,
 	val points: List<IndexPointItem>
-) : ChatComponentItem
+) : RecordComponentItem

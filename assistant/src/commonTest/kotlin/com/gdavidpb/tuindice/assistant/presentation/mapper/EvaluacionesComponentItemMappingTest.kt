@@ -13,8 +13,8 @@ import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
-import tuindice.assistant.generated.resources.assistant_card_b_week
 import tuindice.assistant.generated.resources.assistant_card_b_joined
+import tuindice.assistant.generated.resources.assistant_card_b_week
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -26,8 +26,26 @@ class EvaluacionesComponentItemMappingTest {
 			id = "e1",
 			fallbackText = "Evaluaciones",
 			items = listOf(
-				EvaluationRow("ev-1", "IS-101", "Parcial 1", dateMillis = null, scheduleMode = "fixed", grade = 14.0, maxGrade = 20.0, state = "graded"),
-				EvaluationRow("ev-2", "IS-101", "Parcial 2", dateMillis = null, scheduleMode = "fixed", grade = null, maxGrade = 20.0, state = "pending")
+				EvaluationRow(
+                    "ev-1",
+                    "IS-101",
+                    "Parcial 1",
+                    dateMillis = null,
+                    scheduleMode = "fixed",
+                    grade = 14.0,
+                    maxGrade = 20.0,
+                    state = "graded"
+                ),
+				EvaluationRow(
+                    "ev-2",
+                    "IS-101",
+                    "Parcial 2",
+                    dateMillis = null,
+                    scheduleMode = "fixed",
+                    grade = null,
+                    maxGrade = 20.0,
+                    state = "pending"
+                )
 			)
 		).toEvaluationListItem()
 
@@ -84,7 +102,11 @@ class EvaluacionesComponentItemMappingTest {
 			UiText.Resource(
 				Res.string.assistant_card_b_joined,
 				listOf(
-					chatCardCountText(1, Res.string.assistant_card_b_count_evaluation_one, Res.string.assistant_card_b_count_evaluation_many),
+					chatCardCountText(
+                        1,
+                        Res.string.assistant_card_b_count_evaluation_one,
+                        Res.string.assistant_card_b_count_evaluation_many
+                    ),
 					chatCardPointsText(20.0)
 				)
 			),

@@ -11,4 +11,4 @@ data class TermItem(
 	val rows: List<TermRowItem>,
 	// The link to the record, when the card names its term.
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : RecordComponentItem

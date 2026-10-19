@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
-import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
+import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository

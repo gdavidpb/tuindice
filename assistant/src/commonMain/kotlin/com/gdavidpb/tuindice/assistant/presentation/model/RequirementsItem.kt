@@ -9,4 +9,4 @@ data class RequirementsItem(
 	// Only the sections that have subjects.
 	val sections: List<RequirementSectionItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

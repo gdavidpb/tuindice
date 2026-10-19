@@ -33,7 +33,10 @@ class ConocimientoComponentItemMappingTest {
 			sources = listOf(Citation("Reglamento", "Art. 12", "Texto"))
 		).toCitationItem()
 
-		assertEquals(UiText.Resource(Res.string.assistant_card_b_citation_document, listOf("Reglamento")), withRecord.sources.single().documentText)
+		assertEquals(
+            UiText.Resource(Res.string.assistant_card_b_citation_document, listOf("Reglamento")),
+            withRecord.sources.single().documentText
+        )
 		assertEquals(
 			CardLinkItem(
 				target = NavTarget.RECORD,
@@ -54,7 +57,12 @@ class ConocimientoComponentItemMappingTest {
 			steps = listOf("Abre Evaluaciones", "Toca Agregar"),
 			target = NavTarget.EVALUATIONS_ADD
 		).toHelpItem()
-		val withoutScreen = HelpComponent(id = "k4", fallbackText = "Ayuda", title = "Título", steps = emptyList()).toHelpItem()
+		val withoutScreen = HelpComponent(
+            id = "k4",
+            fallbackText = "Ayuda",
+            title = "Título",
+            steps = emptyList()
+        ).toHelpItem()
 
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_help_step, listOf(2)), help.steps[1].numberText)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_help_open), help.openLink?.text)

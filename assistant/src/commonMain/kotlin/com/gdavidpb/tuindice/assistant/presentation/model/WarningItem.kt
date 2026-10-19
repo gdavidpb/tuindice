@@ -7,4 +7,4 @@ data class WarningItem(
 	override val id: String,
 	override val opensSheet: Boolean,
 	val reasonText: UiText
-) : ChatComponentItem
+) : SistemaComponentItem

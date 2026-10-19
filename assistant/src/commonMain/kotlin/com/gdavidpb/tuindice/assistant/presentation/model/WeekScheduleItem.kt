@@ -8,7 +8,7 @@ data class WeekScheduleItem(
 	override val opensSheet: Boolean,
 	val classesFigure: CardFigureItem,
 	val days: List<ScheduleDayItem>
-) : ChatComponentItem
+) : RecordComponentItem
 
 // One day with classes: its name, and its blocks.
 data class ScheduleDayItem(

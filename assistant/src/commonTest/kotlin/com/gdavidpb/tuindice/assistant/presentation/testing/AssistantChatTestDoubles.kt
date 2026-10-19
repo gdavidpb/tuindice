@@ -10,11 +10,11 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
-import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode

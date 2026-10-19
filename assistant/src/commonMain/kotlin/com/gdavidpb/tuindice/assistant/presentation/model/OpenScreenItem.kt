@@ -10,4 +10,4 @@ data class OpenScreenItem(
 	val target: NavTarget,
 	val entityRefs: List<EntityRef>,
 	val label: String
-) : ChatComponentItem
+) : SistemaComponentItem

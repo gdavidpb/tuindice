@@ -5,4 +5,4 @@ data class SupportItem(
 	override val id: String,
 	override val opensSheet: Boolean,
 	val lines: List<SupportLineItem>
-) : ChatComponentItem
+) : SistemaComponentItem

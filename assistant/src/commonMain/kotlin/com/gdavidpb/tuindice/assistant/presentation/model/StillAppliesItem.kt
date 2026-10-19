@@ -6,4 +6,4 @@ data class StillAppliesItem(
 	override val opensSheet: Boolean,
 	val memoryId: String,
 	val statement: String
-) : ChatComponentItem
+) : SistemaComponentItem

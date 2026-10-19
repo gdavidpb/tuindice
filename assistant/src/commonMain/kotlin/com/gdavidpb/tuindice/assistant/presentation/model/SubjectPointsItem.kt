@@ -6,4 +6,4 @@ data class SubjectPointsItem(
 	override val opensSheet: Boolean,
 	val rows: List<PointsRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

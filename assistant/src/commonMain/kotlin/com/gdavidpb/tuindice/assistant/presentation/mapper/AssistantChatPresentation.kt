@@ -6,9 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
-import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
-import com.gdavidpb.tuindice.assistant.presentation.mapper.restrictionText
-import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatItems
+import com.gdavidpb.tuindice.assistant.presentation.machine.lastUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
@@ -123,14 +121,7 @@ internal fun AssistantChatSession.presentedSuggestions(
 }
 
 internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTexts, nowMillis: Long): List<ChatItem> {
-	return conversation?.toChatItems(
-		texts = texts,
-		useful = usefulByMessage,
-		failedMessages = failedMessages,
-		selections = selectionByDraft,
-		runningIntents = runningIntents,
-		nowMillis = nowMillis
-	) ?: emptyList()
+	return conversation?.toChatItems(texts = texts, session = this, nowMillis = nowMillis) ?: emptyList()
 }
 
 // A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.

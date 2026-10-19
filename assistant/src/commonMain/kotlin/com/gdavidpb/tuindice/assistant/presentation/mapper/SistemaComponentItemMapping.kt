@@ -17,9 +17,9 @@ import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_cooldown_until
+import tuindice.assistant.generated.resources.assistant_support_call
 import tuindice.assistant.generated.resources.assistant_suspension_open_ended
 import tuindice.assistant.generated.resources.assistant_suspension_until
-import tuindice.assistant.generated.resources.assistant_support_call
 import tuindice.assistant.generated.resources.assistant_usage_day
 import tuindice.assistant.generated.resources.assistant_usage_hour
 import tuindice.assistant.generated.resources.assistant_usage_month

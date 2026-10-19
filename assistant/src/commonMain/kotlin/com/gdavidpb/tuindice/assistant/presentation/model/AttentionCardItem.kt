@@ -6,4 +6,4 @@ data class AttentionCardItem(
 	override val opensSheet: Boolean,
 	val count: CardFigureItem,
 	val rows: List<AttentionRowItem>
-) : ChatComponentItem
+) : RecordComponentItem

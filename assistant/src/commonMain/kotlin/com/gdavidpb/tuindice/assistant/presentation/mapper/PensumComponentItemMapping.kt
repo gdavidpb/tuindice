@@ -20,9 +20,6 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
-import tuindice.assistant.generated.resources.assistant_card_b_comparison_career
-import tuindice.assistant.generated.resources.assistant_card_b_comparison_missing
-import tuindice.assistant.generated.resources.assistant_card_b_comparison_pensum
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_description
 import tuindice.assistant.generated.resources.assistant_card_b_fraction

@@ -7,14 +7,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
-import com.gdavidpb.tuindice.assistant.ui.dialog.AssistantComponentSheet as AssistantComponentSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
+import com.gdavidpb.tuindice.assistant.ui.dialog.AssistantComponentSheet as AssistantComponentSheetDialog
 
-// The component sheet bridged to its view model. The sheet opens on the component it names and follows it. A link tapped
-// inside the component is the sheet's to take (OpenNavTarget); any other action the component emits reaches the sheet as
-// Unhandled, which it takes without a change, so the message keeps it.
+// The component sheet bridged to its view model. The sheet opens on the component it names and follows it. A link
+// tapped inside the component is the sheet's to take (OpenNavTarget); any other action the component emits reaches the
+// sheet as Unhandled, which it takes without a change, so the message keeps it.
 @Composable
 fun AssistantComponentSheetRoute(
 	viewModel: AssistantComponentSheetViewModel,

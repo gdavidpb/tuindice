@@ -8,7 +8,7 @@ data class PaceItem(
 	val terms: List<CreditsRowItem>,
 	// Null when the service does not estimate the terms left.
 	val remainingTerms: String?
-) : ChatComponentItem
+) : RecordComponentItem
 
 // The credits of one term.
 data class CreditsRowItem(

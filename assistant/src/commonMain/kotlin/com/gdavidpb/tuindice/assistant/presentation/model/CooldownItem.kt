@@ -9,4 +9,4 @@ data class CooldownItem(
 	val reasonText: UiText,
 	val untilText: UiText,
 	val appealable: Boolean
-) : ChatComponentItem
+) : SistemaComponentItem

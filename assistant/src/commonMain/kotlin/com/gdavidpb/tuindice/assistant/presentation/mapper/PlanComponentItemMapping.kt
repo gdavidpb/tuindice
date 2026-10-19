@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_goal_credits
 import tuindice.assistant.generated.resources.assistant_card_b_count_subject_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_subject_one
 import tuindice.assistant.generated.resources.assistant_card_b_credits

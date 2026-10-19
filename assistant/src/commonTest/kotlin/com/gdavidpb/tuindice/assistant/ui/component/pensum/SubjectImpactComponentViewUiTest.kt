@@ -42,7 +42,9 @@ class SubjectImpactComponentViewUiTest {
 	fun when_theCardNamesTheSubject_then_theLinkOpensItsDetail() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			SubjectImpactComponentView(item = impact(refs = listOf(SUBJECT_REF)).toSubjectImpactItem(), onAction = { actions.add(it) })
+			SubjectImpactComponentView(item = impact(refs = listOf(SUBJECT_REF)).toSubjectImpactItem(), onAction = {
+			    actions.add(it)
+			})
 		}
 
 		onNodeWithText("Ver materia").performClick()

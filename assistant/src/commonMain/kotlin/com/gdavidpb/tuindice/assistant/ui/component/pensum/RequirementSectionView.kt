@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.component.pensum
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.RequirementSectionItem
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView

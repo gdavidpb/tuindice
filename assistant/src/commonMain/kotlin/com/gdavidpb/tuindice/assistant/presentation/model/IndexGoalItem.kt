@@ -10,4 +10,4 @@ data class IndexGoalItem(
 	val feasibilityText: UiText,
 	val targetText: String,
 	val creditsText: String
-) : ChatComponentItem
+) : RecordComponentItem

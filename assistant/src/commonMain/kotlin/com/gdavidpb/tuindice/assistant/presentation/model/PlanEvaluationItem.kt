@@ -18,4 +18,4 @@ data class PlanEvaluationItem(
 	// Null when the clashes are not counted yet, so the row shows only its name.
 	val clashesValueText: String?,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

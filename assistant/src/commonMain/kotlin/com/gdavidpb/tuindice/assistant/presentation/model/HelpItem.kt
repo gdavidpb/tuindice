@@ -8,4 +8,4 @@ data class HelpItem(
 	val steps: List<HelpStepItem>,
 	// Null when the help names no screen.
 	val openLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

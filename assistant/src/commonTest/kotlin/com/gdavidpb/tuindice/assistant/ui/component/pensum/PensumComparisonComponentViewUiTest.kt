@@ -38,7 +38,10 @@ class PensumComparisonComponentViewUiTest {
 	@Test
 	fun when_noSubjectIsMissing_then_itsHeaderIsNotDrawn() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PensumComparisonComponentView(item = comparison(missing = emptyList(), notes = emptyList()).toPensumComparisonItem(), onAction = {})
+			PensumComparisonComponentView(
+				item = comparison(missing = emptyList(), notes = emptyList()).toPensumComparisonItem(),
+				onAction = {}
+			)
 		}
 
 		onNodeWithText("MATERIAS QUE TE FALTAN").assertDoesNotExist()

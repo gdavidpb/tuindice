@@ -6,7 +6,7 @@ data class RecommendedElectivesItem(
 	override val opensSheet: Boolean,
 	val rows: List<ElectiveRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem
 
 // One recommended elective: its code, its name and the reason it is recommended for.
 data class ElectiveRowItem(

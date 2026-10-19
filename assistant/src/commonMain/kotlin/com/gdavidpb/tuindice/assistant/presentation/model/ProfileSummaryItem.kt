@@ -12,4 +12,4 @@ data class ProfileSummaryItem(
 	// Null when the card has no index: the credits are the only figure then.
 	val secondaryFigure: CardFigureItem?,
 	val currentTermLabel: String?
-) : ChatComponentItem
+) : RecordComponentItem

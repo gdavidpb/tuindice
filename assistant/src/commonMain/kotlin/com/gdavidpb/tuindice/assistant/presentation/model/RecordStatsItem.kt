@@ -9,7 +9,7 @@ data class RecordStatsItem(
 	val approvedFigure: CardFigureItem,
 	val counts: List<CountRowItem>,
 	val histogram: List<HistogramBarItem>
-) : ChatComponentItem
+) : RecordComponentItem
 
 // One count of the record, with its label.
 data class CountRowItem(

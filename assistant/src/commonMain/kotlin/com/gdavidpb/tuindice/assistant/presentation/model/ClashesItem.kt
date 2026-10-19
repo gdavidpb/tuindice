@@ -6,4 +6,4 @@ data class ClashesItem(
 	override val opensSheet: Boolean,
 	val countFigure: CardFigureItem,
 	val rows: List<ClashRowItem>
-) : ChatComponentItem
+) : RecordComponentItem

@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.contract
 
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 

@@ -15,4 +15,4 @@ data class SubjectStatsItem(
 	val medianText: String?,
 	val histogram: List<HistogramBarItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

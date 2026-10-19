@@ -111,7 +111,10 @@ class AssistantComponentSheetStateMachineContractTest {
 			AssistantComponentSheet.Action.Open(messageId = "message-1", componentId = "component-1"),
 			AssistantComponentSheet.Action.OpenNavTarget(target = NavTarget.SUMMARY, entityRefs = emptyList()),
 			AssistantComponentSheet.Action.Unhandled(AssistantChat.Action.Send),
-			AssistantComponentSheetInternalEvent.ComponentObserved(messageId = "message-1", item = component().toChatComponentItem(nowMillis = 0L)),
+			AssistantComponentSheetInternalEvent.ComponentObserved(
+                messageId = "message-1",
+                item = component().toChatComponentItem(nowMillis = 0L)
+            ),
 			AssistantComponentSheetInternalEvent.ComponentMissing
 		)
 	}

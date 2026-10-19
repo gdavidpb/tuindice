@@ -7,4 +7,4 @@ data class PlanListItem(
 	val countFigure: CardFigureItem,
 	val rows: List<PlanRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : PensumPlanComponentItem

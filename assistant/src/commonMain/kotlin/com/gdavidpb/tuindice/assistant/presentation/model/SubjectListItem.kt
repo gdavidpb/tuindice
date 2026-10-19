@@ -7,4 +7,4 @@ data class SubjectListItem(
 	val countFigure: CardFigureItem,
 	val rows: List<SubjectRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
@@ -17,10 +18,7 @@ import com.gdavidpb.tuindice.chatcontract.message.Text
 // agent message are not a part of it; they are offered apart.
 internal suspend fun AssistantConversation.toChatItems(
 	texts: AssistantChatTexts,
-	useful: Map<String, Boolean>,
-	failedMessages: Set<String>,
-	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>,
+	session: AssistantChatSession,
 	nowMillis: Long
 ): List<ChatItem> {
 	return items.map { item ->
@@ -28,13 +26,13 @@ internal suspend fun AssistantConversation.toChatItems(
 			is AssistantConversationItem.User -> ChatItem.User(
 				id = item.message.id,
 				text = item.message.text,
-				isFailed = item.message.id in failedMessages
+				isFailed = item.message.id in session.failedMessages
 			)
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
 				id = item.message.id,
-				parts = item.message.toChatParts(texts, this, selections, runningIntents, nowMillis),
-				useful = useful[item.message.id],
+				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents, nowMillis),
+				useful = session.usefulByMessage[item.message.id],
 				copyText = item.message.copyText()
 			)
 		}

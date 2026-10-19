@@ -13,4 +13,4 @@ data class SyncStatusItem(
 	val headlineText: UiText?,
 	val sources: List<SyncSourceItem>,
 	val annulmentCause: String?
-) : ChatComponentItem
+) : RecordComponentItem

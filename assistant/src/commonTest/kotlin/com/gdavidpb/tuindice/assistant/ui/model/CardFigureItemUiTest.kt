@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardIndexFigureItem
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_description
-import tuindice.assistant.generated.resources.Res
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)

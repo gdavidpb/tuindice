@@ -14,4 +14,4 @@ data class RequiredGradeItem(
 	val targetText: UiText,
 	val feasibleText: UiText,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem

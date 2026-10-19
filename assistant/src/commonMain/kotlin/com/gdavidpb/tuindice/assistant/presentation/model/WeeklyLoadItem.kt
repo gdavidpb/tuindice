@@ -7,4 +7,4 @@ data class WeeklyLoadItem(
 	val heavyFigure: CardFigureItem,
 	val weeks: List<WeekLoadRowItem>,
 	val recordLink: CardLinkItem?
-) : ChatComponentItem
+) : AcademicComponentItem
