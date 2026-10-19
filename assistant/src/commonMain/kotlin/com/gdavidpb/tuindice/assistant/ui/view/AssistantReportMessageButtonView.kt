@@ -52,8 +52,7 @@ fun AssistantReportMessageButtonView(
 				isSelected = isReported,
 				selectedIcon = Icons.Filled.Flag,
 				unselectedIcon = Icons.Outlined.Flag,
-				selectedTint = MaterialTheme.colorScheme.error,
-				unselectedTint = MaterialTheme.colorScheme.onSurfaceVariant,
+				tint = if (isReported) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
 				contentDescription = stringResource(
 					if (isReported) Res.string.a11y_assistant_reported else Res.string.a11y_assistant_report
 				)

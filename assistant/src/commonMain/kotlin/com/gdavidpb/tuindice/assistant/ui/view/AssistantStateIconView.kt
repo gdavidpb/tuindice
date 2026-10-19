@@ -16,33 +16,30 @@ import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
 import com.gdavidpb.tuindice.assistant.ui.style.selectionPop
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 
-// The icon of an action that has a chosen state (a thumb, the flag): outlined in the neutral tone, filled in its own
-// tone once chosen. The tint eases and the glyph crossfades in 150 ms, and the icon pops once when it becomes chosen
-// (never on first composition, so a thumb already chosen when the message appears stays still). With animations off
-// it simply swaps.
+// The icon of an action that has a chosen state (a thumb, the flag): outlined once not chosen, filled
+// once chosen, in the [tint] the caller picks for each state. The tint eases and the glyph crossfades
+// in 150 ms, and the icon pops once when it becomes chosen (never on first composition, so a thumb
+// already chosen when the message appears stays still). With animations off it simply swaps.
 @Composable
 internal fun AssistantStateIconView(
 	isSelected: Boolean,
 	selectedIcon: ImageVector,
 	unselectedIcon: ImageVector,
-	selectedTint: Color,
-	unselectedTint: Color,
+	tint: Color,
 	contentDescription: String
 ) {
-	val targetTint = if (isSelected) selectedTint else unselectedTint
-
 	if (!LocalTuIndiceAnimationsEnabled.current) {
 		Icon(
 			imageVector = if (isSelected) selectedIcon else unselectedIcon,
 			contentDescription = contentDescription,
 			modifier = Modifier.size(AssistantMessageActionSizes.Icon),
-			tint = targetTint
+			tint = tint
 		)
 		return
 	}
 
-	val tint by animateColorAsState(
-		targetValue = targetTint,
+	val animatedTint by animateColorAsState(
+		targetValue = tint,
 		animationSpec = tween(AssistantChatMotion.ExitMillis),
 		label = "AssistantStateIconTint"
 	)
@@ -57,7 +54,7 @@ internal fun AssistantStateIconView(
 				imageVector = if (selected) selectedIcon else unselectedIcon,
 				contentDescription = contentDescription,
 				modifier = Modifier.size(AssistantMessageActionSizes.Icon),
-				tint = tint
+				tint = animatedTint
 			)
 		}
 	}

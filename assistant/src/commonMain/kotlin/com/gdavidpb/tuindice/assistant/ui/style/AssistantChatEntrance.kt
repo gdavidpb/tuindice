@@ -1,20 +1,18 @@
 package com.gdavidpb.tuindice.assistant.ui.style
 
 import androidx.compose.animation.core.Animatable
-import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import kotlinx.coroutines.delay
 
 /**
@@ -53,12 +51,12 @@ internal fun Modifier.selectionPop(selected: Boolean): Modifier {
 	if (!LocalTuIndiceAnimationsEnabled.current) return this
 
 	val scale = remember { Animatable(1f) }
-	var wasSelected by remember { mutableStateOf(selected) }
+	val wasSelected = remember { mutableStateOf(selected) }
 
 	LaunchedEffect(selected) {
-		val pops = selected && !wasSelected
+		val pops = selected && !wasSelected.value
 
-		wasSelected = selected
+		wasSelected.value = selected
 		if (pops) {
 			scale.animateTo(
 				targetValue = 1f,

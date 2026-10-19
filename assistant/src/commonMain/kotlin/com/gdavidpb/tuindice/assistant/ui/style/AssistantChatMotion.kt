@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.style
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import kotlin.math.min
 
@@ -31,7 +30,7 @@ object AssistantChatMotion {
 	const val SelectionPopMillis = 260
 	const val PopScale = 1.25f
 
-	/** The text of an answer appears word by word: one word every [WordStepMillis], each fading in over [WordFadeMillis]. */
+	/** An answer's text appears word by word: one word every [WordStepMillis], each fading in over [WordFadeMillis]. */
 	const val WordStepMillis = 30
 	const val WordFadeMillis = 120
 
@@ -74,32 +73,3 @@ internal fun revealStepMillis(wordCount: Int): Float =
 /** How long the reveal of a text of [wordCount] words lasts, from its first word starting to its last one finishing. */
 internal fun revealTotalMillis(wordCount: Int): Float =
 	if (wordCount <= 0) 0f else revealStepMillis(wordCount) * (wordCount - 1) + AssistantChatMotion.WordFadeMillis
-
-/**
- * When each part of an answer starts entering, and when its actions do: the text reveals first, the next part starts
- * as the last word fades in, and every part after it follows [AssistantChatMotion.StaggerMillis] behind the previous.
- */
-internal class AgentEntrancePlan(
-	val partDelays: List<Int>,
-	val actionsDelay: Int
-) {
-	/** The moment the last thing of the answer has finished entering. */
-	val totalMillis: Int = actionsDelay + AssistantChatMotion.MessageEnterMillis
-}
-
-internal fun planAgentEntrance(parts: List<ChatPartItem>): AgentEntrancePlan {
-	var cursor = 0
-	val delays = parts.map { part ->
-		val delay = cursor
-
-		cursor += if (part is ChatPartItem.Text) {
-			val total = revealTotalMillis(wordRanges(part.text).size).toInt()
-			(total - AssistantChatMotion.WordFadeMillis).coerceAtLeast(0) + AssistantChatMotion.StaggerMillis
-		} else {
-			AssistantChatMotion.StaggerMillis
-		}
-		delay
-	}
-
-	return AgentEntrancePlan(partDelays = delays, actionsDelay = cursor)
-}

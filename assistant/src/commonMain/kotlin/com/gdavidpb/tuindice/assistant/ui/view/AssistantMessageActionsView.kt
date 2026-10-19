@@ -64,8 +64,7 @@ fun AssistantMessageActionsView(
 					isSelected = isSelected,
 					selectedIcon = if (isUseful) Icons.Filled.ThumbUp else Icons.Filled.ThumbDown,
 					unselectedIcon = if (isUseful) Icons.Outlined.ThumbUp else Icons.Outlined.ThumbDown,
-					selectedTint = MaterialTheme.colorScheme.inverseSurface,
-					unselectedTint = MaterialTheme.colorScheme.onSurfaceVariant,
+					tint = if (isSelected) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.onSurfaceVariant,
 					contentDescription = stringResource(
 						if (isUseful) Res.string.a11y_assistant_useful else Res.string.a11y_assistant_not_useful
 					)

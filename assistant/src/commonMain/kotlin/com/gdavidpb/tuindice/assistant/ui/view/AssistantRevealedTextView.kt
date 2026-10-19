@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -23,22 +24,23 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import kotlinx.coroutines.delay
 
 // The text of an answer that is typed in: the words appear one after another, each fading in, starting
-// [delayMillis] after it is composed. The whole text is laid out and exposed to accessibility from the first frame; the
-// words that have not appeared are drawn in a transparent colour inside the same string, so nothing reflows while it
-// plays. With [animate] false, or with animations off, it is plain text.
+// [delayMillis] after it is composed, in the colour of [style]. The whole text is laid out and exposed
+// to accessibility from the first frame; the words that have not appeared are drawn in a transparent
+// colour inside the same string, so nothing reflows while it plays. With [animate] false, or with
+// animations off, it is plain text.
 @Composable
 fun AssistantRevealedTextView(
 	text: String,
 	animate: Boolean,
 	modifier: Modifier = Modifier,
 	delayMillis: Int = 0,
-	style: TextStyle = LocalTextStyle.current,
-	color: Color = MaterialTheme.colorScheme.onSurface
+	style: TextStyle = LocalTextStyle.current
 ) {
 	val words = remember(text) { wordRanges(text) }
+	val color = style.color.takeOrElse { MaterialTheme.colorScheme.onSurface }
 
 	if (!animate || !LocalTuIndiceAnimationsEnabled.current || words.isEmpty()) {
-		Text(text = text, modifier = modifier, style = style, color = color)
+		Text(text = text, modifier = modifier, style = style)
 		return
 	}
 
@@ -57,7 +59,6 @@ fun AssistantRevealedTextView(
 	Text(
 		text = revealedText(text = text, words = words, step = step, elapsed = elapsed.value, color = color),
 		modifier = modifier,
-		color = color,
 		style = style
 	)
 }

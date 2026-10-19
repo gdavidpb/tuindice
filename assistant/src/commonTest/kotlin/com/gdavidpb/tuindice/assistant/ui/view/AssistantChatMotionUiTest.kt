@@ -32,12 +32,13 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-// The chat's motion on the test clock. The pixel checks follow AssistantAgentMessageViewUiTest (density 1, a tagged host
-// whose capture is read), and the clock is driven by hand: nothing advances unless the test says so.
+// The chat's motion on the test clock. The pixel checks follow AssistantAgentMessageViewUiTest
+// (density 1, a tagged host whose capture is read), and the clock is driven by hand: nothing advances
+// unless the test says so.
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatMotionUiTest {
 	@Test
-	fun when_animationsAreOff_then_aNewAnswerShowsItsFullTextAndItsActionsAtOnce() = runTuIndiceUiTest {
+	fun when_animationsAreOff_then_aNewAnswerShowsItsTextAndActionsAtOnce() = runTuIndiceUiTest {
 		val state = mutableStateOf(contentState())
 		setConversation(animationsEnabled = false, state = { state.value })
 
@@ -52,7 +53,7 @@ class AssistantChatMotionUiTest {
 	}
 
 	@Test
-	fun when_animationsAreOn_then_aNewAnswerHasItsFullTextFromTheStartAndItsActionsEnterAfterTheReveal() = runTuIndiceUiTest {
+	fun when_animationsAreOn_then_aNewAnswerHasItsFullTextAtOnceAndItsActionsEnterAfterTheReveal() = runTuIndiceUiTest {
 		val state = mutableStateOf(contentState())
 		setConversation(animationsEnabled = true, state = { state.value })
 

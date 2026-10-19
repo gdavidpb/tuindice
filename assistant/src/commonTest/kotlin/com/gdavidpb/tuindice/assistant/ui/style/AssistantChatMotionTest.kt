@@ -32,6 +32,7 @@ class AssistantChatMotionTest {
 
 		assertEquals(0, plan.partDelays[0])
 		assertTrue(plan.partDelays[1] > plan.partDelays[0])
-		assertEquals(plan.partDelays[1] + AssistantChatMotion.StaggerMillis + (revealTotalMillis(1).toInt() - AssistantChatMotion.WordFadeMillis), plan.actionsDelay)
+		// One word: its reveal is only its own fade, which the next part overlaps, so only the stagger remains.
+		assertEquals(plan.partDelays[1] + AssistantChatMotion.StaggerMillis, plan.actionsDelay)
 	}
 }

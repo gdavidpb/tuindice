@@ -38,8 +38,7 @@ fun AssistantAgentMessageView(
 					text = part.text,
 					animate = animateEntrance,
 					delayMillis = plan.partDelays[index],
-					style = MaterialTheme.typography.bodyLarge,
-					color = MaterialTheme.colorScheme.onSurface
+					style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
 				)
 
 				is ChatPartItem.Component -> ChatComponentView(
