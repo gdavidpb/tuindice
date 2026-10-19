@@ -11,7 +11,8 @@
   state and points (`EvaluationStateEngine`, `EvaluationPointsEngine`) and current-term selection (`currentTermOrNull`).
 - `chatcontract`: the chat contract of the assistant (turn request, events, components, intents, memory, insights and
   photo extraction), with no Compose and a `jvm()` target; the backend consumes it as a published artifact
-  (`docs/shared-contracts.md`), like `academiccore`.
+  (`docs/shared-contracts.md`), like `academiccore`. Both are transversal modules the semgrep rule
+  `feature-module-no-cross-import` lets a feature import; the Gradle dependency still goes in the module graph.
 - `persistence`: shared Room database, DAOs, entities, and platform database factories.
 - `testkit`: shared test doubles and helpers for Koin, coroutines, flows, and Compose UI tests.
 - Feature modules:
@@ -27,6 +28,21 @@
   - `assistant`: the academic assistant's chat sheet, its SSE event stream, consent, memory and insights. The app
     executes the intents the student accepts through `maincore/.../data/source/assistant/*`, the adapters to the
     use cases of evaluations and record.
+    - `presentation/machine/AssistantChatMachine.kt` is the chat sheet's machine. It is composed of collaborators built
+      by Koin and passed in its constructor: `AssistantChatTurns` (the conversation and the turns: observe, resume, follow and send),
+      `AssistantChatProposals` (the change proposals of the student's records, the enrollment proof and the plans),
+      `AssistantChatFeedback` (the rating and the report of a message, and the answer about a memory),
+      `AssistantChatAccess` (availability, consent, the status read, and `restrictions`: `AssistantChatRestrictions`,
+      the restriction and its appeal), `AssistantChatNotificationOffer` (the offer of the notification permission in the empty chat) and
+      `AssistantChatTexts`. Its own state is `AssistantChatSession` (what the student did on the sheet) and
+      `AssistantChatDraft` (the text being written);
+      `AssistantChatPresentation.kt` derives the view state from both. The transitions live in
+      `presentation/transition/AssistantChat*Transitions.kt`, one file per state of the table. A new collaborator
+      comes in through the constructor and its binding in `di/`; the machine does not look it up.
+    - `ui/component/<family>/` holds the Composable views of the chat components, grouped by the family of their id
+      (`sistema`, `resumen`, `materias`, `evaluaciones`, `horario`, `pensum`, `plan`, `perfil`, `conocimiento`,
+      `informe`, `nav`), and `ui/component/common/` the pieces they share (cards, chips, figures, links). A component
+      of a new family gets its folder there, not in `ui/view/`.
 
 ## Current Module Dependency Rules
 
