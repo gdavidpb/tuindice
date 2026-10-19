@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,9 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.dialog.TuIndiceModalBottomSheet
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignOutDialog(
 	state: SignOut.State,
@@ -40,10 +38,10 @@ fun SignOutDialog(
 	onSecondaryClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	val sheetState = rememberModalBottomSheetState()
+	val sheetState = rememberTuIndiceSheetState()
 	val isLoggingOut = state is SignOut.State.LoggingOut
 
-	ModalBottomSheet(
+	TuIndiceModalBottomSheet(
 		modifier = Modifier
 			.exposeTestTagsAsResourceId()
 			.testTag(BaseUiTags.ConfirmationDialogSheet),

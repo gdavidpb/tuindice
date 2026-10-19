@@ -5,23 +5,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.dialog.TuIndiceModalBottomSheet
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnrollmentProofFetchingSheet(
 	cancelText: String,
@@ -29,19 +25,15 @@ fun EnrollmentProofFetchingSheet(
 	onDismissRequest: () -> Unit,
 	loadingContent: @Composable () -> Unit
 ) {
-	val nonDismissSheetState = rememberModalBottomSheetState(
-		confirmValueChange = { sheetValue ->
-			sheetValue != SheetValue.Hidden
-		}
-	)
+	val nonDismissSheetState = rememberTuIndiceSheetState(hideable = false)
 
-	ModalBottomSheet(
+	TuIndiceModalBottomSheet(
 		modifier = Modifier
 			.exposeTestTagsAsResourceId()
 			.testTag(EnrollmentProofUiTags.FetchingSheet),
 		sheetState = nonDismissSheetState,
 		onDismissRequest = onDismissRequest,
-		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
+		dismissOnBackPress = false
 	) {
 		Box(
 			modifier = Modifier
