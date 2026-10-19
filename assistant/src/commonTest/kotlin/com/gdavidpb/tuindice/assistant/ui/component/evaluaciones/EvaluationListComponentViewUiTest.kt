@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toEvaluationListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
@@ -24,7 +25,7 @@ class EvaluationListComponentViewUiTest {
 	@Test
 	fun when_evaluationsAreListed_then_theCountIsTheFigure_andEachRowShowsItsGradeAndState() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationListComponentView(component = list(), onAction = {})
+			EvaluationListComponentView(item = list().toEvaluationListItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.list(COMPONENT_ID))
@@ -40,7 +41,7 @@ class EvaluationListComponentViewUiTest {
 	@Test
 	fun when_aRowHasNoDate_then_itsTitleReadsAloneAndTheCardHasNoLinkWithoutANamedRecord() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationListComponentView(component = list(), onAction = {})
+			EvaluationListComponentView(item = list().toEvaluationListItem(), onAction = {})
 		}
 
 		onNodeWithText("Quiz 2").assertIsDisplayed()
@@ -52,7 +53,7 @@ class EvaluationListComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			EvaluationListComponentView(
-				component = list(refs = listOf(EVALUATION_REF)),
+				item = list(refs = listOf(EVALUATION_REF)).toEvaluationListItem(),
 				onAction = { actions.add(it) }
 			)
 		}

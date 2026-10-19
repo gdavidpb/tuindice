@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
+import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
@@ -15,8 +16,10 @@ import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
+import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
 import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SupportComponent
 import com.gdavidpb.tuindice.chatcontract.component.SuspensionComponent
 import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
@@ -24,6 +27,7 @@ import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
+import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
 // The item a component is drawn from. Each catalog gets its items here as it is ported; a component of a catalog not
 // yet ported travels as Unmigrated, and its view draws it from the wire component.
@@ -47,6 +51,10 @@ internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentIt
 		is NextClassComponent -> toNextClassItem(nowMillis = nowMillis)
 		is ClashesComponent -> toClashesItem()
 		is CitationComponent -> toCitationItem()
+		is EvaluationListComponent -> toEvaluationListItem()
+		is SubjectPointsComponent -> toSubjectPointsItem()
+		is WeeklyLoadComponent -> toWeeklyLoadItem()
+		is RequiredGradeComponent -> toRequiredGradeItem()
 		is HelpComponent -> toHelpItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toWeeklyLoadItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.WeekLoad
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
@@ -17,7 +18,7 @@ class WeeklyLoadComponentViewUiTest {
 	@Test
 	fun when_someWeeksAreHeavy_then_theirCountIsTheFigure_andEachWeekReadsItsEvaluationsAndPoints() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			WeeklyLoadComponentView(component = load(), onAction = {})
+			WeeklyLoadComponentView(item = load().toWeeklyLoadItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.load(COMPONENT_ID))
@@ -32,7 +33,7 @@ class WeeklyLoadComponentViewUiTest {
 	@Test
 	fun when_noWeekIsHeavy_then_theFigureIsZero_andNoWeekHasTheChip() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			WeeklyLoadComponentView(component = load(heavy = false), onAction = {})
+			WeeklyLoadComponentView(item = load(heavy = false).toWeeklyLoadItem(), onAction = {})
 		}
 
 		onNodeWithContentDescription("Semanas pesadas: 0").assertIsDisplayed()

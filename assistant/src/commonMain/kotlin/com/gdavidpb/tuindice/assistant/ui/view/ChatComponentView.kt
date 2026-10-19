@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CitationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ClashesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
+import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.HelpItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexGoalItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
@@ -20,8 +21,10 @@ import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PaceItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecordStatsItem
+import com.gdavidpb.tuindice.assistant.presentation.model.RequiredGradeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SimulationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectPointsItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SuspensionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
@@ -29,10 +32,15 @@ import com.gdavidpb.tuindice.assistant.presentation.model.TermItem
 import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WeekScheduleItem
+import com.gdavidpb.tuindice.assistant.presentation.model.WeeklyLoadItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.CitationComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.HelpComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.EvaluationListComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.RequiredGradeComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.SubjectPointsComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.WeeklyLoadComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.ClashesComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.NextClassComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.WeekScheduleComponentView
@@ -55,7 +63,6 @@ import com.gdavidpb.tuindice.assistant.ui.component.sistema.WarningComponentView
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
-import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
@@ -63,14 +70,11 @@ import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
-import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
-import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
-import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
 // One component of an agent message. A component that opens on a sheet adds its «Ver detalle» row, except on its own
 // sheet, where [showsDetailRow] is false.
@@ -117,6 +121,10 @@ private fun ComponentRenderer(
 		is NextClassItem -> NextClassComponentView(item = item)
 		is ClashesItem -> ClashesComponentView(item = item)
 		is HelpItem -> HelpComponentView(item = item, onAction = onAction)
+		is EvaluationListItem -> EvaluationListComponentView(item = item, onAction = onAction)
+		is SubjectPointsItem -> SubjectPointsComponentView(item = item, onAction = onAction)
+		is WeeklyLoadItem -> WeeklyLoadComponentView(item = item, onAction = onAction)
+		is RequiredGradeItem -> RequiredGradeComponentView(item = item, onAction = onAction)
 		is CitationItem -> CitationComponentView(item = item, onAction = onAction)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
 		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
@@ -139,8 +147,7 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		// evaluaciones, materias, pensum and plan: drawn by AcademicCardComponentRenderer
-		is WeeklyLoadComponent, is EvaluationListComponent, is RequiredGradeComponent, is SubjectPointsComponent,
+		// materias, pensum and plan: drawn by AcademicCardComponentRenderer
 		is SubjectStatsComponent, is SubjectListComponent, is RecommendedElectivesComponent,
 		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent, is RequirementsComponent,
 		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent ->
