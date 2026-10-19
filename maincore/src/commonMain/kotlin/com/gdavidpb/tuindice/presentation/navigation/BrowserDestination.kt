@@ -10,7 +10,7 @@ sealed class BrowserDestination : Destination() {
 	data class Browser(
 		val title: String,
 		val url: String
-	) : Destination()
+	) : BrowserDestination()
 
 	@Serializable
 	data class ExternalResourceDialog(
