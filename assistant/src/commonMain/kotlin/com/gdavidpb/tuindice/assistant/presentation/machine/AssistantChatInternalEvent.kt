@@ -61,6 +61,15 @@ sealed interface AssistantChatInternalEvent {
 	// The answers to the student's feedback and appeal, each with the text of its snackbar.
 	data class MessageRated(val message: String) : AssistantChatInternalEvent
 
+	// The service refused the thumbs [rejected] on [messageId]: the thumbs go back to [previous], if the student has not
+	// rated it again since, and the snackbar says so.
+	data class MessageRateFailed(
+		val messageId: String,
+		val rejected: Boolean,
+		val previous: Boolean?,
+		val message: String
+	) : AssistantChatInternalEvent
+
 	data class MessageReported(val message: String) : AssistantChatInternalEvent
 
 	data class MessageReportRejected(val message: String) : AssistantChatInternalEvent

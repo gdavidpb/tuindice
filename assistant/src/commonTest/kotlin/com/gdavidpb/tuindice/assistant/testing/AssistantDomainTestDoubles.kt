@@ -234,7 +234,12 @@ internal class RecordingAssistantFeedbackRepository : AssistantFeedbackRepositor
 	val rated = mutableListOf<MessageFeedback>()
 	val reported = mutableListOf<MessageReport>()
 
+	// The failure every rating breaks with, when a test makes the server refuse it.
+	var rateError: Throwable? = null
+
 	override suspend fun rate(feedback: MessageFeedback) {
+		rateError?.let { error -> throw error }
+
 		rated += feedback
 	}
 

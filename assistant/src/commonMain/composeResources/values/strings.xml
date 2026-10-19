@@ -144,6 +144,7 @@
 	<string name="assistant_chat_sending">Preparando la respuesta…</string>
 	<string name="assistant_chat_message_too_long">Tu mensaje supera los %1$d caracteres.</string>
 	<string name="assistant_chat_rated">Gracias por tu opinión</string>
+	<string name="assistant_chat_rate_failed">No pudimos guardar tu calificación. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_reported">Reporte enviado</string>
 	<string name="assistant_chat_report_too_long">El comentario supera los %1$d caracteres.</string>
 	<string name="assistant_chat_appeal_sent">Enviamos tu apelación.</string>

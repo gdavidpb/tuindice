@@ -65,6 +65,14 @@ internal class AssistantChatSession {
 		return shown?.text ?: SuggestedQuestions.byId(suggestionId)?.text
 	}
 
+	// The thumbs of [messageId] go back to [previous] when the service refused [rejected], unless the student has rated the
+	// message again since: the newer rating is the one they meant.
+	fun rateRefused(messageId: String, rejected: Boolean, previous: Boolean?) {
+		if (usefulByMessage[messageId] != rejected) return
+
+		if (previous == null) usefulByMessage.remove(messageId) else usefulByMessage[messageId] = previous
+	}
+
 	fun selectionOf(intentId: String, mutationId: String): Boolean? = selectionByDraft[intentId to mutationId]
 
 	// The intent the student can confirm now: open in the conversation and not already running.

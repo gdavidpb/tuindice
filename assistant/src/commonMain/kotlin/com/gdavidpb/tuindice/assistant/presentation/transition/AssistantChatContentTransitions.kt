@@ -188,8 +188,10 @@ private fun ContentTransitions.contentMessageRows(
 	}
 
 	on<AssistantChat.Action.RateMessage> { state, action ->
+		val previous = machine.session.usefulByMessage[action.messageId]
+
 		machine.session.usefulByMessage[action.messageId] = action.useful
-		machine.feedback.rate(host = host, messageId = action.messageId, useful = action.useful)
+		machine.feedback.rate(host = host, messageId = action.messageId, useful = action.useful, previous = previous)
 		machine.refreshed(state)
 	}
 
@@ -365,6 +367,13 @@ private fun ContentTransitions.contentOutcomeRows(
 	on<AssistantChatInternalEvent.MessageRated>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state
+	}
+
+	on<AssistantChatInternalEvent.MessageRateFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		machine.session.rateRefused(messageId = event.messageId, rejected = event.rejected, previous = event.previous)
+		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
+		machine.refreshed(state)
 	}
 
 	on<AssistantChatInternalEvent.MessageReported>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {

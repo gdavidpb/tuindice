@@ -5,6 +5,8 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 interface AssistantChatFeedbackTexts {
 	suspend fun rated(): String
 
+	suspend fun rateFailed(): String
+
 	suspend fun reported(): String
 
 	suspend fun reportTooLong(maxLength: Int): String

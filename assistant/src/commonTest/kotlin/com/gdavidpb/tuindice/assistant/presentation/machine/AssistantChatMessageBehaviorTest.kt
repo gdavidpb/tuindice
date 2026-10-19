@@ -54,6 +54,20 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
+	fun rate_refusedByTheService_putsTheThumbsBack_andSaysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
+		viewModel.openAction(null)
+		fixture.feedback.rateError = IllegalStateException("offline")
+
+		viewModel.rateMessageAction("a1", useful = true)
+
+		assertEquals(null, (viewModel.content().items.single() as ChatItem.Agent).useful)
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("rate-failed", snack.message)
+	}
+
+	@Test
 	fun report_sendsTheReason_andConfirmsIt() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))

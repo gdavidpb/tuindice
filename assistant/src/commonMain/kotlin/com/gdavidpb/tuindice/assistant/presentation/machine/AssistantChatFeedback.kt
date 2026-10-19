@@ -22,13 +22,27 @@ class AssistantChatFeedback(
 	private val answerStillAppliesUseCase: AnswerStillAppliesUseCase,
 	private val texts: AssistantChatFeedbackTexts
 ) {
-	fun rate(host: MachineHost<AssistantChat.Effect>, messageId: String, useful: Boolean) {
+	// [previous] is the thumbs the message had before this rating: a refused rating goes back to it.
+	fun rate(host: MachineHost<AssistantChat.Effect>, messageId: String, useful: Boolean, previous: Boolean?) {
 		host.launchMachineJob {
 			val params = RateAssistantMessageParams(messageId = messageId, useful = useful)
 
 			rateAssistantMessageUseCase.execute(params).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(AssistantChatInternalEvent.MessageRated(message = texts.rated()))
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> host.processInternalEvent(
+						AssistantChatInternalEvent.MessageRated(message = texts.rated())
+					)
+
+					is UseCaseState.Error -> host.processInternalEvent(
+						AssistantChatInternalEvent.MessageRateFailed(
+							messageId = messageId,
+							rejected = useful,
+							previous = previous,
+							message = texts.rateFailed()
+						)
+					)
 				}
 			}
 		}
