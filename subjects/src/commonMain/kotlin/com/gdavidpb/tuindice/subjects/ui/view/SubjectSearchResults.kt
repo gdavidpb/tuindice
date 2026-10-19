@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.keyboard.imeBottomPadding
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import org.jetbrains.compose.resources.pluralStringResource
@@ -78,7 +79,8 @@ fun SubjectSearchResults(
 			modifier = Modifier
 				.fillMaxSize()
 				.testTag(SubjectsUiTags.SearchResults),
-			contentPadding = PaddingValues(bottom = 80.dp),
+			// The list runs behind the keyboard; its end leaves room to scroll the last result above it.
+			contentPadding = PaddingValues(bottom = 80.dp + imeBottomPadding()),
 			verticalArrangement = Arrangement.spacedBy(10.dp)
 		) {
 			items(

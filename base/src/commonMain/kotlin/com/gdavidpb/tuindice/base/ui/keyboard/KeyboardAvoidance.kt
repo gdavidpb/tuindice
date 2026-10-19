@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.abs
@@ -87,4 +88,15 @@ fun Modifier.bringRegionIntoViewOnFocus(requester: BringIntoViewRequester): Modi
 	return this
 		.bringIntoViewRequester(requester)
 		.onFocusChanged { state -> hasFocus.value = state.hasFocus }
+}
+
+// The height the keyboard takes, to add at the end of a scrolling list or column as content padding. Scrolling
+// content is not shrunk above the keyboard: imePadding on its container would end it at a hard line with an empty band
+// under it, as if the screen stopped there. It keeps running behind the keyboard, as on iOS, and this padding only lets
+// its last item scroll up above the keyboard. Inputs pinned to the bottom (a composer, a submit bar) keep imePadding.
+@Composable
+fun imeBottomPadding(): Dp {
+	val density = LocalDensity.current
+
+	return with(density) { WindowInsets.ime.getBottom(density).toDp() }
 }

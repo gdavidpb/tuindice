@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
@@ -12,10 +14,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -26,9 +29,9 @@ import kotlinx.coroutines.flow.first
 
 private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
 
-// With the keyboard open the body takes all the height left above it: at 60% the title, the chip, the offer and the
-// suggestions left the composer under the keyboard.
-private const val CHAT_SHEET_TYPING_HEIGHT_FRACTION = 1f
+// While the student types the body takes 90% of the height left above the keyboard: at 60% the title, the chip,
+// the offer and the suggestions pushed the composer out of the sheet.
+private const val CHAT_SHEET_TYPING_HEIGHT_FRACTION = 0.9f
 
 // The chat sheet: the conversation carries the title «Asistente» after the sparkle, without the name of the app; the
 // consent carries its own, with the sparkle too. It opens showing its whole body, composer included. Its notices show
@@ -46,8 +49,10 @@ fun AssistantChatSheet(
 	// (skipPartiallyExpanded = true) ignores a tap on the scrim, measured on the simulator; afterwards the student can
 	// drag the sheet as any other.
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-	val isTyping = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-	val heightFraction = if (isTyping) CHAT_SHEET_TYPING_HEIGHT_FRACTION else CHAT_SHEET_HEIGHT_FRACTION
+	// Typing is read from the focus, not from the keyboard's inset: on iOS the sheet lives in its own layer, which the
+	// system shrinks above the keyboard, and no composition sees the keyboard's height (measured on the simulator).
+	val isTyping = remember { mutableStateOf(false) }
+	val heightFraction = if (isTyping.value) CHAT_SHEET_TYPING_HEIGHT_FRACTION else CHAT_SHEET_HEIGHT_FRACTION
 
 	LaunchedEffect(sheetState) {
 		snapshotFlow { sheetState.currentValue }.first { value -> value == SheetValue.PartiallyExpanded }
@@ -59,6 +64,9 @@ fun AssistantChatSheet(
 			.exposeTestTagsAsResourceId()
 			.testTag(AssistantUiTags.ChatSheet),
 		sheetState = sheetState,
+		// The sheet pads only the top: the body pads the bottom itself (the keyboard, or the home indicator), so the
+		// composer sits right above the keyboard instead of above the sheet's inset and the body's own on top of it.
+		contentWindowInsets = { WindowInsets.safeDrawing.only(WindowInsetsSides.Top) },
 		onDismissRequest = { onAction(AssistantChat.Action.Dismiss) }
 	) {
 		AssistantChatContent(
@@ -68,6 +76,7 @@ fun AssistantChatSheet(
 			snackbarHostState = snackbarHostState,
 			modifier = Modifier
 				.fillMaxWidth()
+				.onFocusChanged { focus -> isTyping.value = focus.hasFocus }
 				.fillMaxHeight(heightFraction)
 				.padding(
 					start = TuIndiceSpacing.Dialog,

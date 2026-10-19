@@ -3,10 +3,16 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -18,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -61,9 +68,21 @@ fun AssistantChatConversationView(
 		}
 	}
 
-	// The column stays above the keyboard (imePadding): the list gives up the room, and the composer keeps its place.
-	// Dragging the list hides the keyboard, as in any scroll container (dismissKeyboardOnScroll).
-	Column(modifier = modifier.fillMaxWidth().imePadding().dismissKeyboardOnScroll(focusManager)) {
+	// The column stays above the keyboard, or above the home indicator when there is none: the list gives up the room,
+	// and the composer keeps its place right above the keyboard. While the composer has the focus the home indicator is
+	// under the keyboard, so only the keyboard counts: on Android its inset, on iOS nothing, because the system has
+	// already shrunk the sheet's layer above it (its inset reads 0 there). Dragging the list hides the keyboard, as in
+	// any scroll container (dismissKeyboardOnScroll).
+	val isTyping = remember { mutableStateOf(false) }
+	val bottomInsets = if (isTyping.value) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.navigationBars)
+
+	Column(
+		modifier = modifier
+			.fillMaxWidth()
+			.onFocusChanged { focus -> isTyping.value = focus.hasFocus }
+			.windowInsetsPadding(bottomInsets.only(WindowInsetsSides.Bottom))
+			.dismissKeyboardOnScroll(focusManager)
+	) {
 		AssistantSheetTitleView(
 			text = stringResource(Res.string.assistant_chat_title),
 			// With the 16 dp that follows every place of the column, 32 dp below it, as below the title of ConfirmationDialog.
