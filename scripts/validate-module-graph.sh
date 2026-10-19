@@ -92,7 +92,7 @@ for module in $registered_modules; do
 done
 
 for module in $(echo "$EXPECTED_GRAPH" | awk -F= 'NF { print $1 }'); do
-	if ! echo "$registered_modules" | grep -qx "$module"; then
+	if ! grep -qx "$module" <<<"$registered_modules"; then
 		echo "FAIL [$module]: present in ${GRAPH_FILE} but not registered in settings.gradle.kts"
 		status=1
 	fi
