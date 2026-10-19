@@ -89,7 +89,8 @@ class AssistantChatComposerViewUiTest {
 		assertTrue(clip.left >= field.left && clip.right <= field.right)
 		assertTrue(clip.top >= field.top && clip.bottom <= field.bottom)
 		assertTrue(clip.center.x > field.center.x)
-		assertTrue(send.left >= field.right)
+		// The send button is inside the field too, after the clip.
+		assertTrue(send.left >= clip.right && send.right <= field.right)
 
 		assertNodeEnabled(AssistantUiTags.PhotoButton)
 		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
@@ -190,6 +191,51 @@ class AssistantChatComposerViewUiTest {
 		waitForIdle()
 
 		assertEquals("", composerText())
+	}
+
+	@Test
+	fun when_theTextIsEmpty_then_theSendButtonIsOff_andInsideTheField() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false),
+				isCameraAvailable = false,
+				onAction = {}
+			)
+		}
+
+		assertNodeDisabled(AssistantUiTags.SendButton)
+		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
+		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
+		assertTrue(send.left >= field.left && send.right <= field.right)
+		assertTrue(send.top >= field.top && send.bottom <= field.bottom)
+	}
+
+	@Test
+	fun when_theTextIsThere_then_theSendButtonIsOn() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = ChatComposerItem(text = "hola", isEnabled = true, isSendEnabled = true),
+				isCameraAvailable = false,
+				onAction = {}
+			)
+		}
+
+		assertNodeEnabled(AssistantUiTags.SendButton)
+	}
+
+	@Test
+	fun when_aTurnCanBeStopped_then_theStopButtonIsInsideTheField() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isStoppable = true),
+				isCameraAvailable = false,
+				onAction = {}
+			)
+		}
+
+		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
+		val stop = onNodeWithTag(AssistantUiTags.StopButton).fetchSemanticsNode().boundsInRoot
+		assertTrue(stop.left >= field.left && stop.right <= field.right)
 	}
 
 	private fun ComposeUiTest.composerText(): String =
