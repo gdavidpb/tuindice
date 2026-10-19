@@ -7,10 +7,3 @@ data class RecommendedElectivesItem(
 	val rows: List<ElectiveRowItem>,
 	val recordLink: CardLinkItem?
 ) : AcademicComponentItem
-
-// One recommended elective: its code, its name and the reason it is recommended for.
-data class ElectiveRowItem(
-	val code: String,
-	val name: String,
-	val reason: String
-)
