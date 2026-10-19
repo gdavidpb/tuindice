@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -41,14 +42,16 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
 				selectedWeekKey = EvaluationsWeekKey.Academic(8),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
-					clickedEvaluationId = evaluationId
-					clickedEvaluationName = evaluationName
-					clickedSubjectCode = subjectCode
-				},
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
+						clickedEvaluationId = evaluationId
+						clickedEvaluationName = evaluationName
+						clickedSubjectCode = subjectCode
+					},
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -84,10 +87,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
 				selectedWeekKey = EvaluationsWeekKey.Academic(8),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -113,10 +118,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weekGroups,
 				selectedWeekKey = EvaluationsWeekKey.Academic(7),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -153,10 +160,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weekGroups,
 				selectedWeekKey = EvaluationsWeekKey.Continuous,
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -187,12 +196,14 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weeks,
 				selectedWeekKey = EvaluationsWeekKey.Academic(10),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				arrivalEvaluationId = arrival,
-				onArrivalTaken = { evaluationId -> taken = evaluationId }
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onEvaluationArrivalTaken = { evaluationId -> taken = evaluationId }
+				),
+				arrivalEvaluationId = arrival
 			)
 		}
 
@@ -225,10 +236,12 @@ class EvaluationsViewUiTest {
 					lazyListState = rememberLazyListState(),
 					weekGroups = weekGroups,
 					selectedWeekKey = EvaluationsWeekKey.Academic(8),
-					onVisibleWeekChange = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {}
+					actions = EvaluationsActions(
+						onWeekClick = {},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {}
+					)
 				)
 			}
 		}

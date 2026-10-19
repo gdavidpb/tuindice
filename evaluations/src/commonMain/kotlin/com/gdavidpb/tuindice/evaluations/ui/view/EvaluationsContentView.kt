@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.a11y_add_evaluation
@@ -35,16 +36,11 @@ import tuindice.evaluations.generated.resources.title_empty_match_evaluations
 @Composable
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
-	onAddEvaluationClick: () -> Unit,
-	onWeekClick: (EvaluationsWeekKey) -> Unit = {},
-	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
-	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
+	actions: EvaluationsActions,
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
-	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
-	onEvaluationArrivalTaken: (evaluationId: String) -> Unit = {}
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	val initialFirstVisibleItemIndex = remember(state.evaluationWeekGroups, state.selectedWeekKey) {
 		state.evaluationWeekGroups.initialFirstVisibleItemIndex(state.selectedWeekKey)
@@ -69,7 +65,7 @@ fun EvaluationsContentView(
 			EvaluationsWeekStripView(
 				items = state.weekItems,
 				selectedWeekKey = state.selectedWeekKey,
-				onWeekSelected = onWeekClick,
+				onWeekSelected = actions.onWeekClick,
 				modifier = Modifier.padding(top = 6.dp)
 			)
 
@@ -78,16 +74,12 @@ fun EvaluationsContentView(
 					lazyListState = lazyColumState,
 					weekGroups = state.evaluationWeekGroups,
 					selectedWeekKey = state.selectedWeekKey,
-					onVisibleWeekChange = onWeekClick,
-					onEvaluationClick = onEvaluationClick,
-					onEvaluationEdit = onEvaluationEdit,
-					onEvaluationDelete = onEvaluationDelete,
+					actions = actions,
 					scrollEnabled = scrollEnabled,
 					openActionsEvaluationId = openActionsEvaluationId,
 					focusEvaluationId = focusEvaluationId,
 					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange,
-					arrivalEvaluationId = state.arrivalEvaluationId,
-					onArrivalTaken = onEvaluationArrivalTaken
+					arrivalEvaluationId = state.arrivalEvaluationId
 				)
 			} else {
 				EvaluationsEmptyMatchView(
@@ -111,7 +103,7 @@ fun EvaluationsContentView(
 			FloatingActionButton(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsAddFab),
 				containerColor = MaterialTheme.colorScheme.primary,
-				onClick = onAddEvaluationClick
+				onClick = actions.onAddEvaluationClick
 			) {
 				Icon(
 					imageVector = Icons.Outlined.Add,

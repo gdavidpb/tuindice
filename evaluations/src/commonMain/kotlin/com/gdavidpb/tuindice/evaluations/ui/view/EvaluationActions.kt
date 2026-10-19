@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
 import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
@@ -36,11 +35,11 @@ private val LeadingActionShape = RoundedCornerShape(
 
 // A row asks the assistant only where the assistant is provided, and then it asks with the row's own context.
 internal fun assistantAskAction(
-	launcher: AssistantLauncher?,
+	onAskAssistant: ((context: AssistantScreenContext) -> Unit)?,
 	context: AssistantScreenContext
-): (() -> Unit)? = launcher?.let { assistant ->
+): (() -> Unit)? = onAskAssistant?.let { ask ->
 	{
-		assistant.launch(context)
+		ask(context)
 	}
 }
 

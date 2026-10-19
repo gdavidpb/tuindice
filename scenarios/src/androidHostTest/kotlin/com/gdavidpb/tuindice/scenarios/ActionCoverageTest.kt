@@ -101,7 +101,7 @@ class ActionCoverageTest {
 	private fun contractActions(): Set<String> =
 		RepoFiles.moduleDirectories().flatMap { module ->
 			File(module, "src/commonMain/kotlin").walkTopDown()
-				.filter { it.isFile && it.extension == "kt" && it.parentFile.path.endsWith("presentation/contract") }
+				.filter { it.isFile && it.extension == "kt" && it.parentFile?.path?.endsWith("presentation/contract") == true }
 				.flatMap { file -> actionsOf(file).map { "${module.name}.${file.nameWithoutExtension}.$it" } }
 				.toList()
 		}.toSet()

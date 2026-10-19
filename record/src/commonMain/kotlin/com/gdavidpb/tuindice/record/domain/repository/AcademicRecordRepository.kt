@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 
 interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
@@ -27,11 +26,9 @@ interface AcademicRecordRepository {
 		}
 	}
 
-	// Defaults: only the real data source owns an outbox; test doubles without one
-	// observe no rejections and acknowledge nothing.
-	suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
-	suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
-	suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+	suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>>
+	suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>>
+	suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>)
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
 	suspend fun updateAcademicRecord(forceRemote: Boolean) {
@@ -49,9 +46,8 @@ interface AcademicRecordRepository {
 	suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand)
 	suspend fun deleteSyntheticTerm(termId: String, mutationId: String? = null)
 
-	// Only a suspend read of the revision exists (the local store is suspend), so the default is null.
-	suspend fun getRecordRevision(): Long? = null
+	suspend fun getRecordRevision(): Long?
 
 	// The terminal results of this repository's writes, as they settle. Nothing is replayed to late subscribers.
-	fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+	fun observeMutationOutcomesFlow(): Flow<MutationOutcome>
 }

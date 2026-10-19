@@ -8,8 +8,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,13 +21,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSelectionBottomSheet
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSubjectDetailBottomSheet
+import com.gdavidpb.tuindice.pensum.ui.model.PensumActions
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 
 @Composable
@@ -38,11 +38,7 @@ fun PensumContentView(
 	showSelectionSheet: Boolean,
 	screenSessionStore: PensumScreenSessionStore,
 	isSummaryCollapsed: Boolean,
-	onSummaryCollapsedToggle: () -> Unit,
-	onSelectionSheetDismiss: () -> Unit,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
-	onPensumContextClick: () -> Unit
+	actions: PensumActions
 ) {
 	val graphColors = pensumGraphColors()
 	val pensumStateKey = "${model.selection.year}-${model.selection.modalityId}"
@@ -148,10 +144,10 @@ fun PensumContentView(
 		PensumSummaryRow(
 			model = model,
 			isCollapsed = isSummaryCollapsed,
-			onSummaryClick = onSummaryCollapsedToggle,
+			onSummaryClick = actions.onSummaryCollapsedToggle,
 			onPensumContextClick = {
 				clearSubjectContext()
-				onPensumContextClick()
+				actions.onPensumContextClick()
 			}
 		)
 		AnimatedVisibility(
@@ -228,8 +224,8 @@ fun PensumContentView(
 	if (showSelectionSheet) {
 		PensumSelectionBottomSheet(
 			model = model,
-			onSelectionApplied = onSelectionApplied,
-			onDismissRequest = onSelectionSheetDismiss
+			onSelectionApplied = actions.onSelectionApplied,
+			onDismissRequest = actions.onSelectionSheetDismiss
 		)
 	}
 
@@ -239,21 +235,24 @@ fun PensumContentView(
 			shouldStartExpanded = shouldOpenDetailExpandedState.value,
 			navigationOriginNodeId = detailNavigationOriginNodeIdState.value,
 			navigationDirection = detailNavigationDirection,
-			onSubjectStatsClick = { subjectCode ->
-				clearSubjectContext()
-				onSubjectStatsClick(subjectCode)
-			},
-			onRelatedSubjectClick = { target ->
-				setDetailNavigationOriginNodeId(target.originNodeId)
-				setDetailNavigationDirectionName(target.direction.name)
-				setFocusedNodeId(target.nodeId)
-				setDetailNodeId(target.nodeId)
-				setShouldOpenDetailExpanded(true)
-				incrementFocusRequestSerial()
-			},
-			onDismissRequest = {
-				clearSubjectDetail()
-			}
+			actions = PensumSubjectDetailActions(
+				onSubjectStatsClick = { subjectCode ->
+					clearSubjectContext()
+					actions.onSubjectStatsClick(subjectCode)
+				},
+				onRelatedSubjectClick = { target ->
+					setDetailNavigationOriginNodeId(target.originNodeId)
+					setDetailNavigationDirectionName(target.direction.name)
+					setFocusedNodeId(target.nodeId)
+					setDetailNodeId(target.nodeId)
+					setShouldOpenDetailExpanded(true)
+					incrementFocusRequestSerial()
+				},
+				onDismissRequest = {
+					clearSubjectDetail()
+				},
+				onAskAssistant = actions.onAskAssistant
+			)
 		)
 	}
 }

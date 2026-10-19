@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.pensum.testing.SAMPLE_CURRENT_NODE_ID
 import com.gdavidpb.tuindice.pensum.testing.SAMPLE_PENSUM_SELECTION_KEY
 import com.gdavidpb.tuindice.pensum.testing.samplePensumScreenModelWithSelectableYears
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -155,11 +156,13 @@ private fun ComposeUiTest.setContentViewContent(
 			showSelectionSheet = showSelectionSheet,
 			screenSessionStore = fixture.screenSessionStore,
 			isSummaryCollapsed = isSummaryCollapsed,
-			onSummaryCollapsedToggle = { events += "summaryToggle" },
-			onSelectionSheetDismiss = { events += "selectionDismiss" },
-			onSubjectStatsClick = { subjectCode -> events += "stats:$subjectCode" },
-			onSelectionApplied = { pensum, modality -> events += "selection:${pensum.year}/${modality.id}" },
-			onPensumContextClick = { events += "pensumContext" }
+			actions = PensumActions(
+				onSummaryCollapsedToggle = { events += "summaryToggle" },
+				onSelectionSheetDismiss = { events += "selectionDismiss" },
+				onSubjectStatsClick = { subjectCode -> events += "stats:$subjectCode" },
+				onSelectionApplied = { pensum, modality -> events += "selection:${pensum.year}/${modality.id}" },
+				onPensumContextClick = { events += "pensumContext" }
+			)
 		)
 	}
 }

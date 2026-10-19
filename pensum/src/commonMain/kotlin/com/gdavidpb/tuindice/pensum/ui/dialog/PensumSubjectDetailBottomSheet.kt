@@ -31,15 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
-import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
@@ -56,13 +55,11 @@ fun PensumSubjectDetailBottomSheet(
 	shouldStartExpanded: Boolean,
 	navigationOriginNodeId: String?,
 	navigationDirection: PensumSubjectDetailNavigationDirection?,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit,
-	onDismissRequest: () -> Unit
+	actions: PensumSubjectDetailActions
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 	val detail = node.detail
-	val assistantLauncher = LocalAssistantLauncher.current
+	val onAskAssistant = actions.onAskAssistant
 	val statsCode = detail.statsCode
 	val hasMoreDetail =
 		detail.fulfilledSubject != null ||
@@ -88,10 +85,10 @@ fun PensumSubjectDetailBottomSheet(
 		negativeText = stringResource(Res.string.pensum_subject_detail_close),
 		onPositiveClick = {
 			if (statsCode != null) {
-				onSubjectStatsClick(statsCode)
+				actions.onSubjectStatsClick(statsCode)
 			}
 		},
-		onDismissRequest = onDismissRequest
+		onDismissRequest = actions.onDismissRequest
 	) {
 		Column(
 			modifier = Modifier
@@ -120,7 +117,7 @@ fun PensumSubjectDetailBottomSheet(
 			// The ask and «Más detalle» read as one group of actions: close together, under the card's spacing.
 			// Each button keeps its 48 dp touch area, which already separates them.
 			Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)) {
-				if (assistantLauncher != null) {
+				if (onAskAssistant != null) {
 					OutlinedButton(
 						modifier = Modifier
 							.fillMaxWidth()
@@ -128,7 +125,7 @@ fun PensumSubjectDetailBottomSheet(
 						colors = ButtonDefaults.outlinedButtonColors(
 							containerColor = pensumGraphColors().panelBackground
 						),
-						onClick = { assistantLauncher.launch(detail.assistantContext) }
+						onClick = { onAskAssistant(detail.assistantContext) }
 					) {
 						Icon(
 							imageVector = rememberAssistantSparkleIcon(),
@@ -196,7 +193,7 @@ fun PensumSubjectDetailBottomSheet(
 					node = node,
 					navigationOriginNodeId = navigationOriginNodeId,
 					navigationDirection = navigationDirection,
-					onRelatedSubjectClick = onRelatedSubjectClick
+					onRelatedSubjectClick = actions.onRelatedSubjectClick
 				)
 			}
 		}

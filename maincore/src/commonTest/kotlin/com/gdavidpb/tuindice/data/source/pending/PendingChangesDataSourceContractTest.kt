@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
@@ -22,6 +23,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -323,6 +325,12 @@ private class FakeAcademicRecordRepository(
 	private val onAcknowledgeTerminallyRejectedMutations: suspend (List<String>) -> Unit = {},
 	private val onDrainPendingMutations: suspend () -> Unit = {}
 ) : AcademicRecordRepository {
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(false)
@@ -361,6 +369,8 @@ private class FakeAcademicRecordRepository(
 private class FakeEvaluationRepository(
 	private val onDrainPendingMutations: suspend () -> Unit = {}
 ) : EvaluationRepository {
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = emptyFlow()
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = flowOf(false)

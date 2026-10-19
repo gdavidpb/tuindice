@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -108,9 +109,11 @@ class RecordTermPagerViewUiTest {
 					termItem(termId = "term-b", attemptId = "attempt-b", arrivalAttemptId = "attempt-b")
 				),
 				selectedTermId = "term-b",
-				onAttemptArrivalTaken = { attemptId -> taken = attemptId },
-				onSelectedTermChange = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
+				actions = RecordActions(
+					onAttemptArrivalTaken = { attemptId -> taken = attemptId },
+					onSelectedTermChange = {},
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				onScrollInProgressChange = {}
 			)
 		}
@@ -126,8 +129,10 @@ class RecordTermPagerViewUiTest {
 			terms = listOf(termItem()),
 			notice = notice,
 			selectedTermId = "historical-term",
-			onSelectedTermChange = {},
-			onAttemptSelectionChange = { _, _, _, _ -> },
+			actions = RecordActions(
+				onSelectedTermChange = {},
+				onAttemptSelectionChange = { _, _, _, _ -> }
+			),
 			onScrollInProgressChange = {}
 		)
 	}

@@ -16,13 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.view.AskAssistantMenuItemView
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptArrivalHighlight
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.a11y_attempt_show_actions
@@ -32,16 +31,15 @@ fun AttemptCardItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
-	onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -> Unit,
+	actions: RecordActions,
 	// The arrival highlight a jump plays on this card, while it plays.
 	arrivalHighlight: AttemptArrivalHighlight? = null
 ) {
 	// A tap on the card opens its actions, as an evaluation's card does: «Preguntar sobre esto» asks the assistant about
 	// this subject. Without a way to reach the assistant the card has no actions and does not take the tap.
-	val assistantLauncher = LocalAssistantLauncher.current
 	val isMenuExpanded = remember { mutableStateOf(false) }
 	val showActionsLabel = stringResource(Res.string.a11y_attempt_show_actions)
-	val actionsModifier = if (assistantLauncher != null) {
+	val actionsModifier = if (actions.onAskAssistant != null) {
 		Modifier
 			.clip(CardDefaults.shape)
 			.clickable(
@@ -79,11 +77,13 @@ fun AttemptCardItemView(
 			AttemptItemView(
 				item = item,
 				gradeState = gradeState,
-				onGradeChange = onGradeChange
+				onGradeChange = { newGrade, newOutcome, isSelected ->
+					actions.onAttemptSelectionChange(item.attemptId, newGrade, newOutcome, isSelected)
+				}
 			)
 		}
 
-		if (assistantLauncher != null) {
+		if (actions.onAskAssistant != null) {
 			DropdownMenu(
 				expanded = isMenuExpanded.value,
 				onDismissRequest = { isMenuExpanded.value = false }
@@ -91,7 +91,7 @@ fun AttemptCardItemView(
 				AskAssistantMenuItemView(
 					onAsk = {
 						isMenuExpanded.value = false
-						assistantLauncher.launch(item.assistantContext)
+						actions.onAskAssistant?.invoke(item.assistantContext)
 					}
 				)
 			}

@@ -16,7 +16,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
@@ -24,6 +23,7 @@ import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
@@ -33,14 +33,7 @@ fun RecordTermPagerView(
 	terms: List<TermItem>,
 	notice: RecordNotice? = null,
 	selectedTermId: String,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
-	onAttemptSelectionChange: (
-		attemptId: String,
-		newGrade: Int?,
-		newOutcome: AttemptOutcome?,
-		isSelected: Boolean
-	) -> Unit,
+	actions: RecordActions,
 	onScrollInProgressChange: (Boolean) -> Unit
 ) {
 	val termIds = remember(terms) {
@@ -69,7 +62,7 @@ fun RecordTermPagerView(
 				val termId = termIds.getOrNull(page) ?: return@collect
 
 				if (termId != selectedTermId) {
-					onSelectedTermChange(termId)
+					actions.onSelectedTermChange(termId)
 				}
 			}
 	}
@@ -90,7 +83,7 @@ fun RecordTermPagerView(
 				),
 			terms = terms,
 			selectedTermId = termIds.getOrNull(pagerState.currentPage) ?: selectedTermId,
-			onTermSelected = onSelectedTermChange
+			onTermSelected = actions.onSelectedTermChange
 		)
 
 		// The notice every page shares (a final annulment has no current term to sit on). Always
@@ -117,8 +110,7 @@ fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
-				onArrivalTaken = onAttemptArrivalTaken,
-				onAttemptSelectionChange = onAttemptSelectionChange,
+				actions = actions,
 				onScrollInProgressChange = { isScrollInProgress ->
 					listScrollInProgress.value = isScrollInProgress
 				}

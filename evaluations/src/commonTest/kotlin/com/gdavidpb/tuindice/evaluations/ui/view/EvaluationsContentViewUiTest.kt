@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -23,10 +24,12 @@ class EvaluationsContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				onAddEvaluationClick = { addClicks++ },
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = { addClicks++ },
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -47,10 +50,12 @@ class EvaluationsContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -68,10 +73,12 @@ class EvaluationsContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
