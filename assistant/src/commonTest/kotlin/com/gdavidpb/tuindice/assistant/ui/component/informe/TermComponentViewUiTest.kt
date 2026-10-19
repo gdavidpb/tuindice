@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toTermItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
@@ -24,7 +25,7 @@ class TermComponentViewUiTest {
 	@Test
 	fun when_theTermHasIndexes_then_theTermIndexIsTheFigure_andTheRowsReadTheirGradesAndResults() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			TermComponentView(component = term(), onAction = {})
+			TermComponentView(item = term().toTermItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.term(COMPONENT_ID))
@@ -43,7 +44,7 @@ class TermComponentViewUiTest {
 	fun when_theCardNamesItsTerm_then_theLinkOpensTheRecordWithItsRefs() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			TermComponentView(component = term(), onAction = { actions.add(it) })
+			TermComponentView(item = term().toTermItem(), onAction = { actions.add(it) })
 		}
 
 		onNodeWithText("Ver en Informe").performClick()
@@ -56,7 +57,7 @@ class TermComponentViewUiTest {
 	@Test
 	fun when_theCardNamesNoTerm_then_thereIsNoLink() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			TermComponentView(component = term(entityRefs = emptyList()), onAction = {})
+			TermComponentView(item = term(entityRefs = emptyList()).toTermItem(), onAction = {})
 		}
 
 		onNodeWithText("Ver en Informe").assertDoesNotExist()

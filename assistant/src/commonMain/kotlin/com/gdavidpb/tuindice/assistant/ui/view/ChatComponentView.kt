@@ -10,17 +10,29 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
+import com.gdavidpb.tuindice.assistant.presentation.model.IndexGoalItem
+import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PaceItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
+import com.gdavidpb.tuindice.assistant.presentation.model.RecordStatsItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SimulationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SuspensionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
+import com.gdavidpb.tuindice.assistant.presentation.model.TermItem
 import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
+import com.gdavidpb.tuindice.assistant.ui.component.informe.IndexGoalComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.informe.IndexSeriesComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.informe.PaceComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.informe.RecordStatsComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.informe.SimulationComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.informe.TermComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.ProfileSummaryComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.SyncStatusComponentView
@@ -37,25 +49,19 @@ import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
-import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
-import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
-import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
-import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
-import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
-import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
@@ -95,6 +101,12 @@ private fun ComponentRenderer(
 	when (item) {
 		is StillAppliesItem -> StillAppliesComponentView(item = item, onAction = onAction)
 		is ProfileSummaryItem -> ProfileSummaryComponentView(item = item)
+		is TermItem -> TermComponentView(item = item, onAction = onAction)
+		is IndexSeriesItem -> IndexSeriesComponentView(item = item)
+		is RecordStatsItem -> RecordStatsComponentView(item = item)
+		is PaceItem -> PaceComponentView(item = item)
+		is SimulationItem -> SimulationComponentView(item = item)
+		is IndexGoalItem -> IndexGoalComponentView(item = item)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
 		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
 		is UsageNoticeItem -> UsageNoticeComponentView(item = item)
@@ -116,9 +128,7 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		// informe/1 and horario/1: their cards are drawn by RecordCardComponentRenderer
-		is TermComponent, is IndexSeriesComponent,
-		is RecordStatsComponent, is PaceComponent, is SimulationComponent, is IndexGoalComponent,
+		// horario/1: its cards are drawn by RecordCardComponentRenderer
 		is WeekScheduleComponent, is NextClassComponent, is ClashesComponent ->
 			RecordCardComponentRenderer(component = component, onAction = onAction)
 

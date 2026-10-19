@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toPaceItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermCredits
@@ -17,7 +18,7 @@ class PaceComponentViewUiTest {
 	@Test
 	fun when_thePaceHasTerms_then_theAverageIsTheFigure_andEachTermShowsItsCredits() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PaceComponentView(component = pace())
+			PaceComponentView(item = pace().toPaceItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.pace(COMPONENT_ID))
@@ -34,7 +35,7 @@ class PaceComponentViewUiTest {
 	@Test
 	fun when_theTermsLeftAreNotEstimated_then_NoRowShowsThem() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PaceComponentView(component = pace(remainingTermsEstimate = null))
+			PaceComponentView(item = pace(remainingTermsEstimate = null).toPaceItem())
 		}
 
 		onNodeWithText("Trimestres restantes estimados").assertDoesNotExist()

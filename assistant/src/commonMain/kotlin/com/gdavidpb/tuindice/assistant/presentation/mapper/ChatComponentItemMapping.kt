@@ -5,12 +5,18 @@ import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
+import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
+import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
+import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
+import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
+import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
 import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import com.gdavidpb.tuindice.chatcontract.component.SupportComponent
-import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.SuspensionComponent
+import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
+import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 
@@ -26,6 +32,12 @@ internal fun ChatComponent.toChatComponentItem(): ChatComponentItem {
 		is WarningComponent -> toWarningItem()
 		is OpenScreenComponent -> toOpenScreenItem()
 		is ProfileSummaryComponent -> toProfileSummaryItem()
+		is TermComponent -> toTermItem()
+		is IndexSeriesComponent -> toIndexSeriesItem()
+		is RecordStatsComponent -> toRecordStatsItem()
+		is PaceComponent -> toPaceItem()
+		is SimulationComponent -> toSimulationItem()
+		is IndexGoalComponent -> toIndexGoalItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()
 

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toIndexSeriesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.IndexPoint
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
@@ -17,7 +18,7 @@ class IndexSeriesComponentViewUiTest {
 	@Test
 	fun when_aSeriesHasTerms_then_theLatestCumulativeIsTheFigure_andTheExtremesAreMarked() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexSeriesComponentView(component = series())
+			IndexSeriesComponentView(item = series().toIndexSeriesItem())
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.indexSeries(COMPONENT_ID))
@@ -34,7 +35,7 @@ class IndexSeriesComponentViewUiTest {
 	@Test
 	fun when_theSeriesHasNoTerms_then_thereIsNoFigure() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexSeriesComponentView(component = series(points = emptyList()))
+			IndexSeriesComponentView(item = series(points = emptyList()).toIndexSeriesItem())
 		}
 
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
