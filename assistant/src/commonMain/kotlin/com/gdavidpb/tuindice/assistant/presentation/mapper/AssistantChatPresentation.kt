@@ -1,10 +1,11 @@
-package com.gdavidpb.tuindice.assistant.presentation.machine
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.assistant.presentation.mapper.restrictionText
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatItems
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions

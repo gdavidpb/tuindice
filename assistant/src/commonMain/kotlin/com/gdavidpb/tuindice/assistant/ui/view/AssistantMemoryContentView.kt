@@ -22,8 +22,6 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_memory_clear_all
 
-private const val CLEAR_ALL_KEY = "assistant_memory_clear_all"
-
 // What the assistant remembers, one row per entry, and «Eliminar todo» at the end, as the destructive action.
 @Composable
 fun AssistantMemoryContentView(
@@ -39,7 +37,7 @@ fun AssistantMemoryContentView(
 		items(items = entries, key = MemoryEntryItem::id) { entry ->
 			AssistantMemoryEntryItemView(entry = entry, onAction = onAction)
 		}
-		item(key = CLEAR_ALL_KEY) {
+		item(key = AssistantUiTags.MemoryClearAll) {
 			OutlinedButton(
 				onClick = { onAction(AssistantMemory.Action.ClearAll) },
 				modifier = Modifier.fillMaxWidth().testTag(AssistantUiTags.MemoryClearAll),

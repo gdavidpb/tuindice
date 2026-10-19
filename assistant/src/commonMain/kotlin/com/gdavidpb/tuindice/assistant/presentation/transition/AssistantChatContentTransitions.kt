@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
-import com.gdavidpb.tuindice.assistant.presentation.machine.runFailed
+import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
