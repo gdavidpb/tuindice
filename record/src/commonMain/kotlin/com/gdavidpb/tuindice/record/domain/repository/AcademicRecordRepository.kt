@@ -9,31 +9,18 @@ import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 
 interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
 	suspend fun observeHasSyncedRecordFlow(): Flow<Boolean>
-	suspend fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord>> {
-		return combine(
-			observeAcademicRecordFlow(),
-			observeHasSyncedRecordFlow()
-		) { record, hasSyncedRecord ->
-			ObservedSyncedSnapshot(
-				value = record,
-				hasSynced = hasSyncedRecord
-			)
-		}
-	}
+	suspend fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord>>
 
 	suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>>
 	suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>>
 	suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>)
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
-	suspend fun updateAcademicRecord(forceRemote: Boolean) {
-		updateAcademicRecord()
-	}
+	suspend fun updateAcademicRecord(forceRemote: Boolean)
 	suspend fun drainPendingMutations()
 	suspend fun upsertAttemptOverride(
 		attemptId: String,

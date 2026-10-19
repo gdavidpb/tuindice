@@ -11,30 +11,14 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 
 interface EvaluationRepository {
 	suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>>
 	suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
-	suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
-		return combine(
-			observeEvaluationsFlow(),
-			observeHasSyncedEvaluationsFlow()
-		) { evaluations, hasSyncedEvaluations ->
-			ObservedSyncedSnapshot(
-				value = evaluations,
-				hasSynced = hasSyncedEvaluations
-			)
-		}
-	}
-	suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
-		return observeEvaluationsSnapshotFlow().first()
-	}
+	suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>>
+	suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>>
 	suspend fun updateEvaluations(): EvaluationsRefreshResult
-	suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
-		return updateEvaluations()
-	}
+	suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult
 	suspend fun drainPendingMutations()
 	suspend fun getEvaluation(eid: String): Evaluation?
 	suspend fun addEvaluation(add: EvaluationAdd)
