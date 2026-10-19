@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.base.data.source.event.CompositeEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingApiDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingSettingsDataSource
+import com.gdavidpb.tuindice.base.data.source.notification.NotificationOfferSettingsDataSource
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.KSafeLegacySecureKeyValueDataSource
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
@@ -39,6 +40,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusReposito
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
@@ -106,6 +108,11 @@ val commonModule = module {
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
 	singleOf(::UsageDataConsentSettingsDataSource) {
 		bind<UsageDataConsentRepository>()
+		bind<SessionMemory>()
+	}
+	// The chat's offer of the notification permission is made once per student on this device.
+	singleOf(::NotificationOfferSettingsDataSource) {
+		bind<NotificationOfferRepository>()
 		bind<SessionMemory>()
 	}
 	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
