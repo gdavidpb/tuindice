@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.LottieResourceAnimationView
@@ -24,7 +28,7 @@ private const val ATOM_FILL_LIGHT = 0xFF785900L
 private const val ATOM_FILL_DARK = 0xFFFABD00L
 
 // The running turn: the 3D atom in the accent tones and the impersonal label that sweeps with light. Both stay still
-// when animations are off.
+// when animations are off. A label that changes crossfades into the next.
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun AssistantProgressView(
@@ -42,10 +46,18 @@ fun AssistantProgressView(
 			testTag = AssistantUiTags.ProgressAtom,
 			fillOverrides = mapOf(ATOM_LAYER_FILL to atomFillColor())
 		)
-		AssistantShimmerLabelView(
-			text = label,
-			testTag = AssistantUiTags.ProgressLabel
-		)
+		if (LocalTuIndiceAnimationsEnabled.current) {
+			// A new label (the turn moves on to its next step) replaces the old one with a crossfade.
+			Crossfade(
+				targetState = label,
+				animationSpec = tween(AssistantChatMotion.SmallEnterMillis),
+				label = "AssistantProgressLabel"
+			) { current ->
+				AssistantShimmerLabelView(text = current, testTag = AssistantUiTags.ProgressLabel)
+			}
+		} else {
+			AssistantShimmerLabelView(text = label, testTag = AssistantUiTags.ProgressLabel)
+		}
 	}
 }
 

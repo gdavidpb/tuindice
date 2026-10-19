@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.style.chatEntrance
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceChatColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -27,10 +28,12 @@ import tuindice.assistant.generated.resources.assistant_chat_user_failed
 private const val BUBBLE_MAX_WIDTH_FRACTION = 0.8f
 
 // The student's message on the right, at most 80 % of the available width. A failed turn adds its error line below.
+// When [animateEntrance] is set (it was sent while the sheet was open) it fades in while rising.
 @Composable
 fun AssistantUserBubbleView(
 	item: ChatItem.User,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	animateEntrance: Boolean = false
 ) {
 	BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
 		val shape = RoundedCornerShape(TuIndiceRadius.Large)
@@ -38,6 +41,7 @@ fun AssistantUserBubbleView(
 		Column(
 			modifier = Modifier
 				.align(Alignment.CenterEnd)
+				.chatEntrance(animateEntrance)
 				.widthIn(max = maxWidth * BUBBLE_MAX_WIDTH_FRACTION),
 			horizontalAlignment = Alignment.End,
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
