@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toRecommendedElectivesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElective
@@ -23,7 +24,7 @@ class RecommendedElectivesComponentViewUiTest {
 	@Test
 	fun when_electivesAreRecommended_then_eachReadsItsCodeNameAndReason() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RecommendedElectivesComponentView(component = electives(), onAction = {})
+			RecommendedElectivesComponentView(item = electives().toRecommendedElectivesItem(), onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Subjects.electives(COMPONENT_ID))
@@ -38,7 +39,7 @@ class RecommendedElectivesComponentViewUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			RecommendedElectivesComponentView(
-				component = electives(refs = listOf(SUBJECT_REF)),
+				item = electives(refs = listOf(SUBJECT_REF)).toRecommendedElectivesItem(),
 				onAction = { actions.add(it) }
 			)
 		}

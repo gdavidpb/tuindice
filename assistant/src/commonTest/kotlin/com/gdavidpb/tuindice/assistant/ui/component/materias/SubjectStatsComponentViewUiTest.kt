@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toSubjectStatsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -17,7 +18,7 @@ class SubjectStatsComponentViewUiTest {
 	fun when_theSubjectHasStatistics_then_itsAverageIsTheFigure_andItsDifficultyMedianAndHistogramShow() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				SubjectStatsComponentView(component = stats(), onAction = {})
+				SubjectStatsComponentView(item = stats().toSubjectStatsItem(), onAction = {})
 			}
 
 			assertNodeVisible(AssistantUiTags.Subjects.stats(COMPONENT_ID))
@@ -36,7 +37,7 @@ class SubjectStatsComponentViewUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				SubjectStatsComponentView(
-					component = stats(average = null, median = null, difficulty = null),
+					item = stats(average = null, median = null, difficulty = null).toSubjectStatsItem(),
 					onAction = {}
 				)
 			}

@@ -10,99 +10,68 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.presentation.mapper.bandText
-import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardFraction
-import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardPercentText
-import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardCompactNumberText
-import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardPercent
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectStatsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardProgressView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
-import com.gdavidpb.tuindice.assistant.ui.model.CardFigure
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
+import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_stats_average_caption
-import tuindice.assistant.generated.resources.assistant_card_b_stats_average_description
 import tuindice.assistant.generated.resources.assistant_card_b_stats_difficulty
 import tuindice.assistant.generated.resources.assistant_card_b_stats_histogram
 import tuindice.assistant.generated.resources.assistant_card_b_stats_median
-import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_caption
-import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_description
 
 // materias.estadisticas/1: the subject is the label, and the average is the figure, with the pass rate beside it. Then
-// the difficulty as a chip, the median, and the grade histogram as bars, one per grade from 1 to 5, as the record stats
-// card draws its own.
+// the difficulty as a chip, the median, and the grade histogram as bars, one per grade from 1 to 5.
 @Composable
 fun SubjectStatsComponentView(
-	component: SubjectStatsComponent,
+	item: SubjectStatsItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val averageFigure = component.average?.toCardCompactNumberText()?.let { average ->
-		CardFigure(
-			value = average,
-			caption = stringResource(Res.string.assistant_card_b_stats_average_caption),
-			contentDescription = stringResource(Res.string.assistant_card_b_stats_average_description, average)
-		)
-	}
-	val passFigure = component.passRate?.toCardPercent()?.let { percent ->
-		val rate = chatCardPercentText(percent).asString()
-
-		CardFigure(
-			value = rate,
-			caption = stringResource(Res.string.assistant_card_b_stats_pass_caption),
-			contentDescription = stringResource(Res.string.assistant_card_b_stats_pass_description, rate)
-		)
-	}
-	val largest = component.histogram.maxOrNull() ?: 0
-
-	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Subjects.stats(component.id))) {
-		CardLabelView(text = component.subjectName)
-		(averageFigure ?: passFigure)?.let { primary ->
-			CardFiguresView(primary = primary, secondary = if (averageFigure != null) passFigure else null)
+	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Subjects.stats(item.id))) {
+		CardLabelView(text = item.subjectName)
+		item.primaryFigure?.let { primary ->
+			CardFiguresView(primary = primary.toCardFigure(), secondary = item.secondaryFigure?.toCardFigure())
 		}
-		bandText(component.difficulty)?.let { difficulty ->
+		item.difficultyText?.let { difficulty ->
 			CardRowView(
 				name = stringResource(Res.string.assistant_card_b_stats_difficulty),
 				trailing = { CardChipView(text = difficulty.asString()) }
 			)
 		}
-		component.median?.let { median ->
+		item.medianText?.let { median ->
 			CardRowView(
 				name = stringResource(Res.string.assistant_card_b_stats_median),
-				trailing = { CardValueView(text = median.toCardCompactNumberText()) }
+				trailing = { CardValueView(text = median) }
 			)
 		}
-		if (component.histogram.isNotEmpty()) {
+		if (item.histogram.isNotEmpty()) {
 			CardLabelView(text = stringResource(Res.string.assistant_card_b_stats_histogram))
-			component.histogram.forEachIndexed { index, count ->
+			item.histogram.forEach { bar ->
 				Row(
 					modifier = Modifier.fillMaxWidth(),
 					horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					Text(
-						text = (index + 1).toString(),
+						text = bar.grade,
 						style = MaterialTheme.typography.bodyMedium,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)
-					CardProgressView(
-						fraction = chatCardFraction(count.toDouble(), largest.toDouble()),
-						modifier = Modifier.weight(1f)
-					)
-					CardValueView(text = count.toString())
+					CardProgressView(fraction = bar.fraction, modifier = Modifier.weight(1f))
+					CardValueView(text = bar.count)
 				}
 			}
 		}
-		CardRecordLinkView(entityRefs = component.entityRefs, onAction = onAction)
+		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 	}
 }

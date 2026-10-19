@@ -20,11 +20,14 @@ import com.gdavidpb.tuindice.assistant.presentation.model.NextClassItem
 import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PaceItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
+import com.gdavidpb.tuindice.assistant.presentation.model.RecommendedElectivesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecordStatsItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RequiredGradeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SimulationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectPointsItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectStatsItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SuspensionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
@@ -50,6 +53,9 @@ import com.gdavidpb.tuindice.assistant.ui.component.informe.PaceComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.RecordStatsComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.SimulationComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.informe.TermComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.materias.RecommendedElectivesComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.materias.SubjectListComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.materias.SubjectStatsComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.nav.OpenScreenComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.ProfileSummaryComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.perfil.SyncStatusComponentView
@@ -69,11 +75,8 @@ import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
-import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
-import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
-import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 
 // One component of an agent message. A component that opens on a sheet adds its «Ver detalle» row, except on its own
@@ -125,6 +128,9 @@ private fun ComponentRenderer(
 		is SubjectPointsItem -> SubjectPointsComponentView(item = item, onAction = onAction)
 		is WeeklyLoadItem -> WeeklyLoadComponentView(item = item, onAction = onAction)
 		is RequiredGradeItem -> RequiredGradeComponentView(item = item, onAction = onAction)
+		is SubjectListItem -> SubjectListComponentView(item = item, onAction = onAction)
+		is SubjectStatsItem -> SubjectStatsComponentView(item = item, onAction = onAction)
+		is RecommendedElectivesItem -> RecommendedElectivesComponentView(item = item, onAction = onAction)
 		is CitationItem -> CitationComponentView(item = item, onAction = onAction)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
 		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
@@ -147,8 +153,7 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		// materias, pensum and plan: drawn by AcademicCardComponentRenderer
-		is SubjectStatsComponent, is SubjectListComponent, is RecommendedElectivesComponent,
+		// pensum and plan: drawn by AcademicCardComponentRenderer
 		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent, is RequirementsComponent,
 		is PlanComparisonComponent, is PlanEvaluationComponent, is PlanListComponent ->
 			AcademicCardComponentRenderer(component = component, onAction = onAction)
