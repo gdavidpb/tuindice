@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewM
 import com.gdavidpb.tuindice.assistant.ui.dialog.AssistantChatSheet
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -42,6 +43,7 @@ fun AssistantChatRoute(
 	val copiedText = stringResource(Res.string.assistant_nav_copied)
 	val deviceInfo = koinInject<DeviceInfoRepository>()
 	val isCameraAvailable = remember { deviceInfo.hasCamera() }
+	val notificationPermission = koinInject<NotificationPermissionRepository>()
 	val uriHandler = LocalUriHandler.current
 
 	// The view model has no initial action: the sheet is opened once, when the route enters.
@@ -79,6 +81,8 @@ fun AssistantChatRoute(
 				runCatching { FileKit.openFilePicker(type = FileKitType.Image) }
 					.getOrNull()
 					?.let { file -> viewModel.dispatch(AssistantChat.Action.AttachPhoto(file)) }
+
+			AssistantChat.Effect.RequestNotificationPermission -> notificationPermission.requestPermission()
 		}
 	}
 

@@ -53,6 +53,9 @@ fun AssistantChatConversationView(
 		content.context?.let { context ->
 			AssistantChatContextChipView(item = context, onAction = onAction)
 		}
+		if (content.notificationOffer) {
+			AssistantNotificationOfferView(onAction = onAction)
+		}
 		LazyColumn(
 			modifier = Modifier.weight(1f).fillMaxWidth().testTag(AssistantUiTags.MessageList),
 			state = listState,

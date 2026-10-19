@@ -32,6 +32,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		contentIntentRows(machine, host)
 		contentObservationRows(machine, host)
 		contentOutcomeRows(machine, host)
+		contentNotificationOfferRows(machine, host)
 	}
 }
 
@@ -249,12 +250,46 @@ private fun ContentTransitions.contentIntentRows(
 	}
 
 	on<AssistantChat.Action.DismissIntent> { state, action ->
-		machine.intents.dismiss(host = host, intentId = action.intentId)
+		machine.proposals.intents.dismiss(host = host, intentId = action.intentId)
 		state
 	}
 
 	on<AssistantChat.Action.ToggleIntentDraft> { state, action ->
 		machine.session.selectionByDraft[action.intentId to action.mutationId] = action.selected
+		machine.refreshed(state)
+	}
+}
+
+// The card of the notification permission. The platform's answer decides whether it shows, once per device: the mark is
+// written when the card shows. Both of its buttons hide it for the rest of the sheet; «Activar avisos» also asks the
+// system for the permission.
+private fun ContentTransitions.contentNotificationOfferRows(
+	machine: AssistantChatMachine,
+	host: MachineHost<AssistantChat.Effect>
+) {
+	on<AssistantChatInternalEvent.NotificationOfferChecked> { state, event ->
+		if (event.needed && state.items.isEmpty() && !machine.session.sending) {
+			machine.session.notificationOfferShown = true
+			machine.notificationOffer.markOffered()
+		}
+
+		machine.refreshed(state)
+	}
+
+	on<AssistantChat.Action.ActivateNotifications>(
+		emits = setOf(AssistantChat.Effect.RequestNotificationPermission::class)
+	) { state, _ ->
+		if (!state.notificationOffer) return@on state
+
+		machine.session.notificationOfferShown = false
+		host.sendEffect(AssistantChat.Effect.RequestNotificationPermission)
+		machine.refreshed(state)
+	}
+
+	on<AssistantChat.Action.DismissNotificationOffer> { state, _ ->
+		if (!state.notificationOffer) return@on state
+
+		machine.session.notificationOfferShown = false
 		machine.refreshed(state)
 	}
 }

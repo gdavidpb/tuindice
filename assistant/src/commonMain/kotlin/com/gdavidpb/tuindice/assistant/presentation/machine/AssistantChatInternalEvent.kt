@@ -74,4 +74,7 @@ sealed interface AssistantChatInternalEvent {
 
 	// A photo was not read: the error says which notice the student sees.
 	data class PhotoRejected(val error: ExtractEvaluationsFromPhotoError?) : AssistantChatInternalEvent
+
+	// The platform's answer to whether the notification permission is offered now, read when the content opens.
+	data class NotificationOfferChecked(val needed: Boolean) : AssistantChatInternalEvent
 }

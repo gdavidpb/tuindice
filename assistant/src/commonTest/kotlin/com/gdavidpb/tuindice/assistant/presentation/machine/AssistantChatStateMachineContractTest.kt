@@ -135,6 +135,8 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.DeclineConsent,
 			AssistantChat.Action.OpenPrivacyPolicy,
 			AssistantChat.Action.Dismiss,
+			AssistantChat.Action.ActivateNotifications,
+			AssistantChat.Action.DismissNotificationOffer,
 			AssistantChat.Action.RequestPhoto(fromCamera = true),
 			AssistantChat.Action.RequestPhoto(fromCamera = false),
 			AssistantChat.Action.AttachPhoto(file = PlatformFile("assistant-plan.jpg"))
@@ -180,7 +182,8 @@ class AssistantChatStateMachineContractTest {
 			AssistantChatInternalEvent.AppealRejected(message = "appeal-failed"),
 			AssistantChatInternalEvent.PhotoExtracted,
 			AssistantChatInternalEvent.PhotoRejected(error = ExtractEvaluationsFromPhotoError.QuotaExhausted(30)),
-			AssistantChatInternalEvent.PhotoRejected(error = null)
+			AssistantChatInternalEvent.PhotoRejected(error = null),
+			AssistantChatInternalEvent.NotificationOfferChecked(needed = true)
 		)
 	}
 }

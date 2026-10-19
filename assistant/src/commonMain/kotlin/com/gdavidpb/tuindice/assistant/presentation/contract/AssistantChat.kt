@@ -44,7 +44,9 @@ object AssistantChat {
 			// A photo of the plan is being read: its progress label shows, and the photo button is off.
 			val isExtracting: Boolean = false,
 			// A message was sent and its first event has not come yet: the progress shows, and nothing can be sent.
-			val isSending: Boolean = false
+			val isSending: Boolean = false,
+			// The empty chat offers the notification permission: the card shows above the conversation.
+			val notificationOffer: Boolean = false
 		) : State()
 	}
 
@@ -93,6 +95,10 @@ object AssistantChat {
 		// The privacy policy link of the consent: the same policy the rest of the app opens.
 		data object OpenPrivacyPolicy : Action()
 		data object Dismiss : Action()
+
+		// The card of the notification permission: «Activar avisos» asks the system for it; «Ahora no» hides the card.
+		data object ActivateNotifications : Action()
+		data object DismissNotificationOffer : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -113,5 +119,8 @@ object AssistantChat {
 		data object OpenCamera : Effect()
 
 		data object OpenPhotoPicker : Effect()
+
+		// The system's request for the notification permission, asked on the student's word from the card.
+		data object RequestNotificationPermission : Effect()
 	}
 }

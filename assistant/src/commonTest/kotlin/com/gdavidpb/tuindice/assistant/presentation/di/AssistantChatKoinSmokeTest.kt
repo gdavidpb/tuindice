@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutation
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantChatTexts
+import com.gdavidpb.tuindice.assistant.presentation.testing.RecordingNotificationOfferRepository
+import com.gdavidpb.tuindice.assistant.presentation.testing.RecordingNotificationPermissionRepository
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantConfigRepository
@@ -26,6 +28,8 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -70,6 +74,8 @@ class AssistantChatKoinSmokeTest {
 				single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 				single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
 				single<ImageEncoderRepository> { RecordingImageEncoderRepository() }
+				single<NotificationOfferRepository> { RecordingNotificationOfferRepository() }
+				single<NotificationPermissionRepository> { RecordingNotificationPermissionRepository(offers = get()) }
 			}
 		) {
 			assertResolves(
