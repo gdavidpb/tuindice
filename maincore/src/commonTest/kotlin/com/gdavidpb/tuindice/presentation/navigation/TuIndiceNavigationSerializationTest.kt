@@ -65,6 +65,7 @@ class TuIndiceNavigationSerializationTest {
 		SummaryDestination.Statistics,
 		SummaryDestination.ShareTermDialog(termKey = null),
 		SummaryDestination.ShareTermDialog(termKey = "2026-JAN_MAR"),
+		SummaryDestination.TermReport(insightId = "term-1:2"),
 		RecordDestination.Record,
 		RecordDestination.CreateSyntheticTerm(termId = "term-1"),
 		RecordDestination.CreateSyntheticTerm(termId = null),

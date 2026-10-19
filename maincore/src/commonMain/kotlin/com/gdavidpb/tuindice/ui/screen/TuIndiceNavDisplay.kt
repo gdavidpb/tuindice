@@ -30,13 +30,13 @@ import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentP
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofEntries
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsEntries
 import com.gdavidpb.tuindice.pensum.presentation.navigation.pensumEntries
+import com.gdavidpb.tuindice.presentation.mapper.toChatEntityRef
+import com.gdavidpb.tuindice.presentation.mapper.toChatNavTarget
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
 import com.gdavidpb.tuindice.presentation.navigation.rememberAssistantNavDependencies
-import com.gdavidpb.tuindice.presentation.navigation.toChatEntityRef
-import com.gdavidpb.tuindice.presentation.navigation.toChatNavTarget
 import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies

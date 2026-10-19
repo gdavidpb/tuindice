@@ -20,19 +20,22 @@ data class MainShellState(
 	val assistantContext: AssistantScreenContext? = null,
 	val isAssistantVisible: Boolean = false
 ) {
-	private val arrangement: Pair<List<TopBarSlot>, List<TopBarAction>>
-		get() = arrangeTopBarActions(
+	// The places of the bar in view, and the actions in its ⋮ menu. The one priority table is in arrangeTopBarActions.
+	// They are worked out once, when the state is made, because the bar reads them on every frame.
+	val inlineActions: List<TopBarSlot>
+
+	val overflowActions: List<TopBarAction>
+
+	init {
+		val arrangement = arrangeTopBarActions(
 			actions = topBarConfig?.actions.orEmpty(),
 			hasAssistant = isAssistantVisible && assistantContext != null,
 			hasViewModeSelector = recordTopBarViewModeState != null
 		)
 
-	// The places of the bar in view, and the actions in its ⋮ menu. The one priority table is in arrangeTopBarActions.
-	val inlineActions: List<TopBarSlot>
-		get() = arrangement.first
-
-	val overflowActions: List<TopBarAction>
-		get() = arrangement.second
+		inlineActions = arrangement.first
+		overflowActions = arrangement.second
+	}
 }
 
 fun ViewState.toMainShellState(isAssistantVisible: Boolean = false): MainShellState = MainShellState(

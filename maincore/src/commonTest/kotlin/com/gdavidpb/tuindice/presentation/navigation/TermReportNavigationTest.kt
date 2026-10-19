@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
+import com.gdavidpb.tuindice.presentation.mapper.toChatNavTarget
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createTestNavigator
 import kotlin.test.Test
