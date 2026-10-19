@@ -51,6 +51,8 @@ class AssistantIntentConfirmer(
 		reportsOutcome: Boolean = true,
 		execute: suspend (args: A, intent: Intent) -> IntentExecution
 	): OutcomeKind {
+		// The session the confirmation belongs to: what it writes after its request is kept only for that session.
+		val sessionMark = conversationRepository.sessionMark()
 		val intent = conversationRepository.currentConversation().openIntents[params.intentId]
 			?: throw AssistantIntentIllegalArgumentException(AssistantIntentError.IntentNotOpen)
 
@@ -59,21 +61,24 @@ class AssistantIntentConfirmer(
 		val editedArgs = params.editedArgs?.takeIf { edited -> narrow(edited) != null }
 
 		if (clock.now().toEpochMilliseconds() > intent.expiresAtMillis) {
-			return closeWithoutRunning(intent, OutcomeKind.EXPIRED)
+			return closeWithoutRunning(intent, OutcomeKind.EXPIRED, sessionMark)
 		}
 
 		val decision = IntentDecision(intentId = intent.id, accepted = true, editedArgs = editedArgs)
 
 		return when (intentRepository.decide(decision)) {
-			IntentDecisionResult.Accepted -> executeAccepted(intent, args, execute, reportsOutcome)
-			IntentDecisionResult.Expired -> closeWithoutRunning(intent, OutcomeKind.EXPIRED)
-			IntentDecisionResult.Conflict -> closeWithoutRunning(intent, OutcomeKind.CONFLICT)
+			IntentDecisionResult.Accepted -> executeAccepted(intent, args, execute, reportsOutcome, sessionMark)
+			IntentDecisionResult.Expired -> closeWithoutRunning(intent, OutcomeKind.EXPIRED, sessionMark)
+			IntentDecisionResult.Conflict -> closeWithoutRunning(intent, OutcomeKind.CONFLICT, sessionMark)
 		}
 	}
 
 	// Sends the outcome reports the server has not taken yet: the ones of earlier confirmations whose send failed.
+	// The reports pending are the current session's: a report of an earlier session is dropped when it is staged.
 	suspend fun flushPendingOutcomes() {
-		outboxRepository.pendingOutcomes().forEach { report -> sendOutcome(report) }
+		val sessionMark = conversationRepository.sessionMark()
+
+		outboxRepository.pendingOutcomes().forEach { report -> sendOutcome(report, sessionMark) }
 	}
 
 	// The proposed args must be of the kind. Edited args of that kind replace them; any other edited args are ignored.
@@ -88,7 +93,8 @@ class AssistantIntentConfirmer(
 		intent: Intent,
 		args: A,
 		execute: suspend (args: A, intent: Intent) -> IntentExecution,
-		reportsOutcome: Boolean
+		reportsOutcome: Boolean,
+		sessionMark: Int
 	): OutcomeKind {
 		val execution = execute(args, intent)
 
@@ -102,18 +108,18 @@ class AssistantIntentConfirmer(
 				itemOutcomes = execution.itemOutcomes
 			)
 
-			sendOutcome(report)
-			if (execution.outcome == OutcomeKind.QUEUED) followQueued(intent, report)
+			sendOutcome(report, sessionMark)
+			if (execution.outcome == OutcomeKind.QUEUED) followQueued(intent, report, sessionMark)
 		}
 
-		conversationRepository.markIntentResolved(intentId = intent.id, outcome = execution.outcome)
+		conversationRepository.markIntentResolved(intent.id, execution.outcome, sessionMark)
 
 		return execution.outcome
 	}
 
 	// The mutations still queued: the ones a batch names as queued, or the single mutation of a queued intent. Once they
 	// settle, the report that ends the intent is sent with their outcomes in place of the queued ones.
-	private fun followQueued(intent: Intent, report: IntentOutcomeReport) {
+	private fun followQueued(intent: Intent, report: IntentOutcomeReport, sessionMark: Int) {
 		val queued = report.itemOutcomes
 			.filter { item -> item.outcome == OutcomeKind.QUEUED }
 			.map { item -> item.mutationId }
@@ -121,11 +127,16 @@ class AssistantIntentConfirmer(
 		if (queued.isEmpty()) return
 
 		queuedMutationsRepository.followQueued(queued, untilMillis = intent.expiresAtMillis) { settled ->
-			settleQueued(intent, report, settled)
+			settleQueued(intent, report, settled, sessionMark)
 		}
 	}
 
-	private suspend fun settleQueued(intent: Intent, report: IntentOutcomeReport, settled: List<MutationOutcome>) {
+	private suspend fun settleQueued(
+		intent: Intent,
+		report: IntentOutcomeReport,
+		settled: List<MutationOutcome>,
+		sessionMark: Int
+	) {
 		val byId = settled.associateBy { item -> item.mutationId }
 		val items = report.itemOutcomes.ifEmpty {
 			report.mutationIds.map { mutationId -> MutationOutcome(mutationId, OutcomeKind.QUEUED) }
@@ -138,9 +149,10 @@ class AssistantIntentConfirmer(
 				detailCode = execution.detailCode,
 				newRevision = execution.newRevision ?: report.newRevision,
 				itemOutcomes = execution.itemOutcomes
-			)
+			),
+			sessionMark
 		)
-		conversationRepository.markIntentResolved(intentId = intent.id, outcome = execution.outcome)
+		conversationRepository.markIntentResolved(intent.id, execution.outcome, sessionMark)
 	}
 
 	// The mutations the run asked for: the marked rows of a batch, the ones of other changing args, or the binding's.
@@ -151,9 +163,9 @@ class AssistantIntentConfirmer(
 	}
 
 	// Nothing ran, so the report names no mutation.
-	private suspend fun closeWithoutRunning(intent: Intent, outcome: OutcomeKind): OutcomeKind {
-		sendOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome))
-		conversationRepository.markIntentResolved(intentId = intent.id, outcome = outcome)
+	private suspend fun closeWithoutRunning(intent: Intent, outcome: OutcomeKind, sessionMark: Int): OutcomeKind {
+		sendOutcome(IntentOutcomeReport(intentId = intent.id, outcome = outcome), sessionMark)
+		conversationRepository.markIntentResolved(intent.id, outcome, sessionMark)
 
 		return outcome
 	}
@@ -161,8 +173,8 @@ class AssistantIntentConfirmer(
 	// The report stays staged until the server settles it: it takes the report, or refuses it for good, and then it
 	// is no longer owed. A report that got no answer stays staged for the next flush, and the intent is resolved here
 	// meanwhile.
-	private suspend fun sendOutcome(report: IntentOutcomeReport) {
-		outboxRepository.stageOutcome(report)
+	private suspend fun sendOutcome(report: IntentOutcomeReport, sessionMark: Int) {
+		outboxRepository.stageOutcome(report, sessionMark)
 
 		val failure = runCatching { intentRepository.reportOutcome(report) }.exceptionOrNull()
 

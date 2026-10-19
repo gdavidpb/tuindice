@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantTermInsight
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -120,5 +122,31 @@ class AssistantInsightsDataSourceTest {
 		}
 
 		assertEquals(HttpStatusCode.NotFound.value, refusal.httpStatus)
+	}
+
+	// The insights a refresh asked for, answered after the session ended, are not kept for the one that follows.
+	@Test
+	fun aRefreshAnsweredAfterTheSessionEndedKeepsNoInsights() = runTest {
+		val getStarted = CompletableDeferred<Unit>()
+		val getAnswer = CompletableDeferred<Unit>()
+		val client = assistantHttpClient {
+			getStarted.complete(Unit)
+			getAnswer.await()
+			jsonAnswer(
+				HttpStatusCode.OK,
+				"""{"items":[{"id":"i1","termKey":"2026-1","kind":"risk","title":"Materia en riesgo",""" +
+						""""body":"Revisa el parcial","entityRefs":[{"kind":"subject","id":"s1"}]}]}"""
+			)
+		}
+		val source = AssistantInsightsDataSource(KtorAssistantApiDataSource(client, RecordingServerDisabledRepository()))
+
+		val refresh = launch { source.refreshInsights() }
+		getStarted.await()
+
+		source.clearSessionMemory()
+		getAnswer.complete(Unit)
+		refresh.join()
+
+		assertEquals(emptyList(), source.observeInsightsFlow().first())
 	}
 }

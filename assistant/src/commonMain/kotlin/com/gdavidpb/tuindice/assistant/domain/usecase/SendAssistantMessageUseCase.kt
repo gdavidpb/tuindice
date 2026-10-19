@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMes
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.domain.usecase.base.ParamsValidator
 import com.gdavidpb.tuindice.chatcontract.component.ChatCatalogs
 import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
@@ -30,13 +29,15 @@ class SendAssistantMessageUseCase(
 	private val turnRepository: AssistantTurnRepository,
 	private val clientStateRepository: AssistantClientStateRepository,
 	private val clock: Clock,
-	override val reportingRepository: ReportingRepository
+	override val reportingRepository: ReportingRepository,
+	override val paramsValidator: SendAssistantMessageParamsValidator
 ) : FlowUseCase<SendAssistantMessageParams, TurnAccepted, SendAssistantMessageError>() {
-	override val paramsValidator: ParamsValidator<SendAssistantMessageParams> = SendAssistantMessageParamsValidator()
-
+	// Built here, not injected: the send use case already takes the limit of constructor parameters the lint allows.
 	override val exceptionHandler: ExceptionHandler<SendAssistantMessageError> = SendAssistantMessageExceptionHandler()
 
 	override suspend fun executeOnBackground(params: SendAssistantMessageParams): Flow<TurnAccepted> = flow {
+		// The session the send starts in: the conversation id the server answers with belongs to it.
+		val sessionMark = conversationRepository.sessionMark()
 		val text = params.text?.trim()?.takeIf { it.isNotEmpty() }
 		val clientTurnId = params.clientTurnId
 
@@ -59,7 +60,7 @@ class SendAssistantMessageUseCase(
 
 		val accepted = turnRepository.sendTurn(request)
 
-		conversationRepository.attachConversation(accepted.conversationId)
+		conversationRepository.attachConversation(accepted.conversationId, sessionMark)
 
 		emit(accepted)
 	}

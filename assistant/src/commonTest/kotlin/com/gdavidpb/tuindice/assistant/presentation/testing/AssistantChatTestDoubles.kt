@@ -88,15 +88,17 @@ internal class ObservedAssistantConversationRepository(
 
 	override fun currentConversation(): AssistantConversation = conversation.value
 
-	override fun attachConversation(conversationId: String) {
+	override fun sessionMark(): Int = 0
+
+	override fun attachConversation(conversationId: String, sessionMark: Int) {
 		conversation.update { current -> current.copy(conversationId = conversationId) }
 	}
 
-	override fun applyEvent(event: AssistantEvent) {
+	override fun applyEvent(event: AssistantEvent, sessionMark: Int) {
 		applied += event
 	}
 
-	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long) {
+	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int) {
 		unconfirmed += turnId
 	}
 
@@ -109,7 +111,7 @@ internal class ObservedAssistantConversationRepository(
 		}
 	}
 
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?) {
+	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
 		conversation.update { current ->
 			val items = current.items + AssistantConversationItem.Agent(message = message, turnId = "")
 			val openIntents = intent?.let { current.openIntents + (it.id to it) } ?: current.openIntents
@@ -118,7 +120,7 @@ internal class ObservedAssistantConversationRepository(
 		}
 	}
 
-	override fun stageOutcome(report: IntentOutcomeReport) {
+	override fun stageOutcome(report: IntentOutcomeReport, sessionMark: Int) {
 		staged[report.intentId] = report
 	}
 
@@ -128,7 +130,7 @@ internal class ObservedAssistantConversationRepository(
 
 	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind) {
+	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
 		conversation.update { current ->
 			current.copy(
 				openIntents = current.openIntents - intentId,

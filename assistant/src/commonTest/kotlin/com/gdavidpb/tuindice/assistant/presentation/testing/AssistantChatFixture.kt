@@ -26,9 +26,11 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCas
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
+import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatAccess
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedback
@@ -154,14 +156,16 @@ internal class AssistantChatFixture(
 				turnRepository = turns,
 				clientStateRepository = clientState,
 				clock = clock,
-				reportingRepository = reporting
+				reportingRepository = reporting,
+				paramsValidator = SendAssistantMessageParamsValidator()
 			),
 			extractEvaluationsFromPhotoUseCase = ExtractEvaluationsFromPhotoUseCase(
 				imageEncoderRepository = imageEncoder,
 				extractionRepository = extraction,
 				conversationRepository = conversation,
 				clock = clock,
-				reportingRepository = reporting
+				reportingRepository = reporting,
+				exceptionHandler = ExtractEvaluationsFromPhotoExceptionHandler()
 			)
 		)
 	}

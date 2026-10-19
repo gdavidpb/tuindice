@@ -51,8 +51,8 @@ class AssistantModuleKoinSmokeTest {
 				AssistantConversationDataSource::class
 			)
 
-			// Availability, consent, insights, memory and conversation keep session state or answer for it.
-			assertEquals(5, getAll<SessionMemory>().size)
+			// Availability, consent, insights and conversation keep session state or answer for it.
+			assertEquals(4, getAll<SessionMemory>().size)
 		}
 	}
 }

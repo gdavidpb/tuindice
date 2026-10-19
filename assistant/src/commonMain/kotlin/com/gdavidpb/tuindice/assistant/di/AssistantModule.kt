@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationDataSour
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationStoreDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantConversationsDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantInsightsDataSource
+import com.gdavidpb.tuindice.assistant.data.source.AssistantIntentOutboxDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantMemoryDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
 import com.gdavidpb.tuindice.assistant.data.source.KtorAssistantApiDataSource
@@ -54,9 +55,11 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCas
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
+import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatAccess
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
@@ -124,12 +127,9 @@ val assistantModule = module {
 		bind<AssistantInsightsRepository>()
 		bind<SessionMemory>()
 	}
-	singleOf(::AssistantMemoryDataSource) {
-		bind<AssistantMemoryRepository>()
-		bind<SessionMemory>()
-	}
+	singleOf(::AssistantMemoryDataSource) { bind<AssistantMemoryRepository>() }
 	singleOf(::AssistantConversationDataSource) { bind<SessionMemory>() }
-	single<AssistantIntentOutboxRepository> { get<AssistantConversationDataSource>().outbox }
+	singleOf(::AssistantIntentOutboxDataSource) { bind<AssistantIntentOutboxRepository>() }
 	singleOf(::AssistantConversationStoreDataSource) { bind<AssistantConversationRepository>() }
 
 	/* Shared helpers and validators, exception handlers */
@@ -141,6 +141,8 @@ val assistantModule = module {
 	factoryOf(::ReportAssistantMessageParamsValidator)
 	factoryOf(::ReportAssistantMessageExceptionHandler)
 	factoryOf(::AssistantIntentExceptionHandler)
+	factoryOf(::SendAssistantMessageParamsValidator)
+	factoryOf(::ExtractEvaluationsFromPhotoExceptionHandler)
 
 	/* Use cases */
 

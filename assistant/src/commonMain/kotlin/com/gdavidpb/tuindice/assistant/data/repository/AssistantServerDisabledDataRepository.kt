@@ -5,5 +5,8 @@ package com.gdavidpb.tuindice.assistant.data.repository
  * until the retry time the server gave.
  */
 interface AssistantServerDisabledDataRepository {
-	fun markServerDisabled(retryAfterSeconds: Int?)
+	/** The session a request is made in: read before the request starts, and given back to [markServerDisabled]. */
+	fun sessionMark(): Int
+
+	fun markServerDisabled(retryAfterSeconds: Int?, sessionMark: Int)
 }

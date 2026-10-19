@@ -22,10 +22,11 @@ class SyncAssistantUseCase(
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, AssistantStatus, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<AssistantStatus> = flow {
+		val consentSessionMark = serverConsentRepository.consentSessionMark()
 		val status = standingRepository.status()
 
 		serverModeRepository.reportServerMode(AssistantMode.fromRemoteValue(status.mode))
-		serverConsentRepository.reconcileConsent(status.consent)
+		serverConsentRepository.reconcileConsent(status.consent, consentSessionMark)
 		confirmer.flushPendingOutcomes()
 
 		emit(status)

@@ -23,5 +23,8 @@ data class AssistantConversationState(
 	val openIntents: Map<String, AssistantOpenIntent> = emptyMap(),
 	val resolvedIntents: Map<String, OutcomeKind> = emptyMap(),
 	// The outbox of the intents: the reports the server has not settled yet.
-	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap()
+	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap(),
+	// Counts the sessions that ended on this device. A write made for an earlier session finds another generation here
+	// and leaves the conversation as it is; the count travels with the state, so the check and the write are one step.
+	val sessionGeneration: Int = 0
 )

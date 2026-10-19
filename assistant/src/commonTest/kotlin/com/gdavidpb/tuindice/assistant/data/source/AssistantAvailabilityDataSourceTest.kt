@@ -22,7 +22,7 @@ class AssistantAvailabilityDataSourceTest {
 	fun serverDisabledHoldsTheAssistantOffUntilTheRetryAfter() = runTest {
 		val source = AssistantAvailabilityDataSource(FakeAssistantConfigRepository(), VirtualClock(testScheduler))
 
-		source.markServerDisabled(60)
+		source.markServerDisabled(60, source.sessionMark())
 
 		assertTrue(source.currentAvailability().serverDisabled)
 
@@ -45,7 +45,7 @@ class AssistantAvailabilityDataSourceTest {
 
 		assertEquals(AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false), seen.last())
 
-		source.markServerDisabled(10)
+		source.markServerDisabled(10, source.sessionMark())
 		runCurrent()
 
 		assertEquals(AssistantAvailability(mode = AssistantMode.ON, serverDisabled = true), seen.last())
@@ -70,7 +70,7 @@ class AssistantAvailabilityDataSourceTest {
 		backgroundScope.launch { source.observeAvailability().collect { seen += it } }
 		runCurrent()
 
-		source.markServerDisabled(30)
+		source.markServerDisabled(30, source.sessionMark())
 		runCurrent()
 
 		assertFalse(seen.last().isVisible)
@@ -79,7 +79,7 @@ class AssistantAvailabilityDataSourceTest {
 	@Test
 	fun clearSessionMemoryLiftsTheWindow() = runTest {
 		val source = AssistantAvailabilityDataSource(FakeAssistantConfigRepository(), VirtualClock(testScheduler))
-		source.markServerDisabled(60)
+		source.markServerDisabled(60, source.sessionMark())
 
 		source.clearSessionMemory()
 
@@ -90,7 +90,7 @@ class AssistantAvailabilityDataSourceTest {
 	fun aMissingRetryAfterHoldsTheAssistantFifteenMinutes() = runTest {
 		val source = AssistantAvailabilityDataSource(FakeAssistantConfigRepository(), VirtualClock(testScheduler))
 
-		source.markServerDisabled(null)
+		source.markServerDisabled(null, source.sessionMark())
 
 		advanceTimeBy(899.seconds)
 
@@ -126,5 +126,17 @@ class AssistantAvailabilityDataSourceTest {
 		runCurrent()
 		assertEquals(AssistantMode.OFF, seen.last().mode)
 		assertEquals(AssistantMode.OFF, source.currentAvailability().mode)
+	}
+
+	// A switch-off the server answered for a session that has ended does not hold the one that follows.
+	@Test
+	fun aSwitchOffAnsweredForAnEndedSessionDoesNotHoldTheNextOne() = runTest {
+		val source = AssistantAvailabilityDataSource(FakeAssistantConfigRepository(), VirtualClock(testScheduler))
+		val mark = source.sessionMark()
+
+		source.clearSessionMemory()
+		source.markServerDisabled(60, mark)
+
+		assertFalse(source.currentAvailability().serverDisabled)
 	}
 }
