@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,13 +48,15 @@ fun AssistantReportMessageButtonView(
 				.size(AssistantMessageActionSizes.Button)
 				.testTag(AssistantUiTags.Message.report(messageId))
 		) {
-			Icon(
-				imageVector = if (isReported) Icons.Filled.Flag else Icons.Outlined.Flag,
+			AssistantStateIconView(
+				isSelected = isReported,
+				selectedIcon = Icons.Filled.Flag,
+				unselectedIcon = Icons.Outlined.Flag,
+				selectedTint = MaterialTheme.colorScheme.error,
+				unselectedTint = MaterialTheme.colorScheme.onSurfaceVariant,
 				contentDescription = stringResource(
 					if (isReported) Res.string.a11y_assistant_reported else Res.string.a11y_assistant_report
-				),
-				modifier = Modifier.size(AssistantMessageActionSizes.Icon),
-				tint = if (isReported) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+				)
 			)
 		}
 		DropdownMenu(

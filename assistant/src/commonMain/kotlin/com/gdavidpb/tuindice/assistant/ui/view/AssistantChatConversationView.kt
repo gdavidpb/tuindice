@@ -13,14 +13,21 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.style.ChatEntranceLedger
+import com.gdavidpb.tuindice.assistant.ui.style.planAgentEntrance
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_sending
@@ -30,6 +37,10 @@ import tuindice.assistant.generated.resources.assistant_photo_reading
 // The conversation, oldest first, under the sheet's title («Asistente» after the sparkle, AssistantSheetTitleView)
 // and the context chip, with the running label, notice, suggestions and composer below. The list follows its
 // last item whenever the conversation changes size.
+//
+// Motion: what arrives while the sheet is open enters with the chat's motion (AssistantChatMotion); what is there when
+// it opens, the history, the chip, the notice, simply is. Each place that comes and goes is an AssistantChatSlotView, which
+// carries its own 16 dp of separation, so the column does not space its children.
 @Composable
 fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
@@ -40,6 +51,16 @@ fun AssistantChatConversationView(
 ) {
 	val listState = rememberLazyListState()
 	val lastItem = content.items.lastOrNull()
+	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
+	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
+
+	// Suggestions that are on screen when the sheet opens are there; they enter chip by chip only once they have gone
+	// away and come back (the guided mode starts with them).
+	var suggestionsHaveGone by remember { mutableStateOf(false) }
+
+	LaunchedEffect(content.suggestions.isEmpty()) {
+		if (content.suggestions.isEmpty()) suggestionsHaveGone = true
+	}
 
 	LaunchedEffect(content.items.size, lastItem) {
 		if (content.items.isNotEmpty()) {
@@ -47,33 +68,60 @@ fun AssistantChatConversationView(
 		}
 	}
 
+	// The suggestions follow the answer that is typing in: they enter when its actions do.
+	val suggestionsLeadMillis = (lastItem as? ChatItem.Agent)
+		?.takeIf { ledger.arrivedAfterOpen(it.id) }
+		?.let { planAgentEntrance(it.parts).actionsDelay }
+		?: 0
+
 	Column(
-		modifier = modifier.fillMaxWidth().imePadding(),
-		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+		modifier = modifier.fillMaxWidth().imePadding()
 	) {
 		AssistantSheetTitleView(
 			text = stringResource(Res.string.assistant_chat_title),
-			// With the column's spacing, 16 dp below it, as below the title of ConfirmationDialog.
+			// With the 16 dp that follows every place of the column, 32 dp below it, as below the title of ConfirmationDialog.
 			modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium).testTag(AssistantUiTags.ChatTitle)
 		)
-		content.context?.let { context ->
-			AssistantChatContextChipView(item = context, onAction = onAction)
+		val shownContext = rememberLastNonNull(content.context)
+
+		AssistantChatSlotView(visible = content.context != null) {
+			shownContext?.let { AssistantChatContextChipView(item = it, onAction = onAction) }
 		}
-		if (content.notificationOffer) {
+		AssistantChatSlotView(visible = content.notificationOffer) {
 			AssistantNotificationOfferView(onAction = onAction)
 		}
 		// The sheet's snackbar floats over the foot of the messages, right above what follows them (the composer, or the
 		// suggestions of the guided mode), so it takes no room in any mode while no notice shows.
-		Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+		Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(top = TuIndiceSpacing.Medium)) {
 			LazyColumn(
 				modifier = Modifier.fillMaxSize().testTag(AssistantUiTags.MessageList),
 				state = listState,
 				verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Large)
 			) {
 				items(items = content.items, key = ChatItem::id) { item ->
+					// Looked up once, when the item is first composed: an item that scrolls back into view is not new.
+					val isNew = remember(item.id) { ledger.isNew(item.id) }
+					// Items that change place (one removed above them) glide to it; the entrance is the view's own, so the
+					// list adds neither a fade in nor a fade out.
+					val itemModifier = if (animationsEnabled) {
+						Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+					} else {
+						Modifier
+					}
+
 					when (item) {
-						is ChatItem.User -> AssistantUserBubbleView(item = item)
-						is ChatItem.Agent -> AssistantAgentMessageView(item = item, onAction = onAction)
+						is ChatItem.User -> AssistantUserBubbleView(
+							item = item,
+							modifier = itemModifier,
+							animateEntrance = isNew
+						)
+
+						is ChatItem.Agent -> AssistantAgentMessageView(
+							item = item,
+							onAction = onAction,
+							modifier = itemModifier,
+							animateEntrance = isNew
+						)
 					}
 				}
 			}
@@ -82,21 +130,35 @@ fun AssistantChatConversationView(
 		// A photo being read and a message being sent have no label of their own in the state: the labels are the view's.
 		val readingLabel = if (content.isExtracting) stringResource(Res.string.assistant_photo_reading) else null
 		val sendingLabel = if (content.isSending) stringResource(Res.string.assistant_chat_sending) else null
+		val progressLabel = content.progressLabel ?: readingLabel ?: sendingLabel
+		val shownLabel = rememberLastNonNull(progressLabel)
 
-		(content.progressLabel ?: readingLabel ?: sendingLabel)?.let { label ->
-			AssistantProgressView(label = label)
+		AssistantChatSlotView(visible = progressLabel != null) {
+			shownLabel?.let { AssistantProgressView(label = it) }
 		}
-		content.notice?.let { notice ->
-			AssistantChatNoticeView(notice = notice, onAction = onAction)
+		val shownNotice = rememberLastNonNull(content.notice)
+
+		AssistantChatSlotView(visible = content.notice != null) {
+			shownNotice?.let { AssistantChatNoticeView(notice = it, onAction = onAction) }
 		}
-		if (content.suggestions.isNotEmpty()) {
-			AssistantChatSuggestionsView(suggestions = content.suggestions, onAction = onAction)
+		val shownSuggestions = rememberLastNonNull(content.suggestions.takeIf { it.isNotEmpty() })
+
+		AssistantChatSlotView(visible = content.suggestions.isNotEmpty(), fadeOnly = true) {
+			shownSuggestions?.let {
+				AssistantChatSuggestionsView(
+					suggestions = it,
+					onAction = onAction,
+					animateEntrance = suggestionsHaveGone,
+					leadMillis = suggestionsLeadMillis
+				)
+			}
 		}
 		if (!content.isGuided) {
 			AssistantChatComposerView(
 				composer = content.composer,
 				isCameraAvailable = isCameraAvailable,
-				onAction = onAction
+				onAction = onAction,
+				modifier = Modifier.padding(top = TuIndiceSpacing.Medium)
 			)
 		}
 	}

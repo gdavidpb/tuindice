@@ -14,7 +14,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -54,7 +53,6 @@ fun AssistantMessageActionsView(
 		}
 		listOf(true, false).forEach { isUseful ->
 			val isSelected = useful == isUseful
-			val tint = if (isSelected) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.onSurfaceVariant
 			IconButton(
 				onClick = { onAction(AssistantChat.Action.RateMessage(messageId, isUseful)) },
 				modifier = Modifier
@@ -62,13 +60,15 @@ fun AssistantMessageActionsView(
 					.testTag(thumbTag(messageId, isUseful))
 					.semantics { selected = isSelected }
 			) {
-				Icon(
-					imageVector = thumbIcon(isUseful = isUseful, isSelected = isSelected),
+				AssistantStateIconView(
+					isSelected = isSelected,
+					selectedIcon = if (isUseful) Icons.Filled.ThumbUp else Icons.Filled.ThumbDown,
+					unselectedIcon = if (isUseful) Icons.Outlined.ThumbUp else Icons.Outlined.ThumbDown,
+					selectedTint = MaterialTheme.colorScheme.inverseSurface,
+					unselectedTint = MaterialTheme.colorScheme.onSurfaceVariant,
 					contentDescription = stringResource(
 						if (isUseful) Res.string.a11y_assistant_useful else Res.string.a11y_assistant_not_useful
-					),
-					modifier = Modifier.size(AssistantMessageActionSizes.Icon),
-					tint = tint
+					)
 				)
 			}
 		}
@@ -78,11 +78,3 @@ fun AssistantMessageActionsView(
 
 private fun thumbTag(messageId: String, isUseful: Boolean): String =
 	if (isUseful) AssistantUiTags.Message.useful(messageId) else AssistantUiTags.Message.notUseful(messageId)
-
-private fun thumbIcon(isUseful: Boolean, isSelected: Boolean): ImageVector =
-	when {
-		isUseful && isSelected -> Icons.Filled.ThumbUp
-		isUseful -> Icons.Outlined.ThumbUp
-		isSelected -> Icons.Filled.ThumbDown
-		else -> Icons.Outlined.ThumbDown
-	}
