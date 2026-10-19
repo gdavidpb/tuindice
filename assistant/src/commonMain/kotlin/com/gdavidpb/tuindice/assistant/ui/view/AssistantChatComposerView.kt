@@ -112,22 +112,3 @@ fun AssistantChatComposerView(
 	)
 }
 
-// The icons at the end of the field, in one row: the photo clip, when the field is on, then the send button. A button
-// added later, such as the microphone, goes in this row, next to the others.
-@Composable
-private fun ComposerEndIcons(
-	composer: ChatComposerItem,
-	isCameraAvailable: Boolean,
-	onAction: (AssistantChat.Action) -> Unit
-) {
-	Row(verticalAlignment = Alignment.Bottom) {
-		if (composer.isEnabled) {
-			AssistantChatPhotoButtonView(
-				isEnabled = composer.isPhotoEnabled,
-				isCameraAvailable = isCameraAvailable,
-				onAction = onAction
-			)
-		}
-		AssistantChatSendButtonView(composer = composer, onAction = onAction)
-	}
-}
