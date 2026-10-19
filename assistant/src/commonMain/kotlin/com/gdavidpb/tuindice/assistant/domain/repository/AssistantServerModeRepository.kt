@@ -7,5 +7,9 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
  * the configuration holds.
  */
 interface AssistantServerModeRepository {
-	fun reportServerMode(mode: AssistantMode)
+	/** The session the caller is in, read before its status is requested. */
+	fun sessionMark(): Int
+
+	/** A mode reported for a session that has ended is dropped: it is the mode of the student who left. */
+	fun reportServerMode(mode: AssistantMode, sessionMark: Int)
 }

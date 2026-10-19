@@ -152,8 +152,10 @@ internal class ObservedAssistantAvailabilityRepository(
 	val availability = MutableStateFlow(initial)
 	private var observed = false
 
+	override fun sessionMark(): Int = 0
+
 	// The mode the server reports with the status decides over the configured one.
-	override fun reportServerMode(mode: AssistantMode) {
+	override fun reportServerMode(mode: AssistantMode, sessionMark: Int) {
 		availability.update { current -> current.copy(mode = mode) }
 	}
 
