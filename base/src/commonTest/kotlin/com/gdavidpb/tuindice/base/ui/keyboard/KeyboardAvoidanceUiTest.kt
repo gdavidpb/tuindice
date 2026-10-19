@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -47,11 +47,11 @@ class KeyboardAvoidanceUiTest {
 			KeyboardTestForm()
 		}
 
-		onNodeWithTag(FieldTag).performClick()
-		onNodeWithTag(FieldTag).assert(isFocused())
+		onNodeWithTag(FIELD_TAG).performClick()
+		onNodeWithTag(FIELD_TAG).assert(isFocused())
 
-		onNodeWithTag(FormTag).performTouchInput { click(Offset(2f, 2f)) }
-		onNodeWithTag(FieldTag).assert(isNotFocused())
+		onNodeWithTag(FORM_TAG).performTouchInput { click(Offset(2f, 2f)) }
+		onNodeWithTag(FIELD_TAG).assert(isNotFocused())
 	}
 
 	// A tap a field takes is not a tap on the background: the background must not clear the focus the field just took.
@@ -61,9 +61,9 @@ class KeyboardAvoidanceUiTest {
 			KeyboardTestForm()
 		}
 
-		onNodeWithTag(FieldTag).performClick()
+		onNodeWithTag(FIELD_TAG).performClick()
 
-		onNodeWithTag(FieldTag).assert(isFocused())
+		onNodeWithTag(FIELD_TAG).assert(isFocused())
 	}
 
 	@Test
@@ -72,12 +72,12 @@ class KeyboardAvoidanceUiTest {
 			KeyboardTestForm()
 		}
 
-		onNodeWithTag(FieldTag).performClick()
-		onNodeWithTag(FieldTag).assert(isFocused())
+		onNodeWithTag(FIELD_TAG).performClick()
+		onNodeWithTag(FIELD_TAG).assert(isFocused())
 
-		onNodeWithTag(FormTag).performTouchInput { swipeUp() }
+		onNodeWithTag(FORM_TAG).performTouchInput { swipeUp() }
 
-		onNodeWithTag(FieldTag).assert(isNotFocused())
+		onNodeWithTag(FIELD_TAG).assert(isNotFocused())
 	}
 
 	// The focus is on something under the fold: the region that holds it is scrolled into view with it, so the focus
@@ -92,7 +92,7 @@ class KeyboardAvoidanceUiTest {
 					.fillMaxSize()
 					.verticalScroll(rememberScrollState())
 			) {
-				Spacer(modifier = Modifier.height(BelowTheFoldDp.dp))
+				Spacer(modifier = Modifier.height(BELOW_THE_FOLD_DP.dp))
 
 				Column(
 					modifier = Modifier
@@ -101,7 +101,7 @@ class KeyboardAvoidanceUiTest {
 				) {
 					Box(
 						modifier = Modifier
-							.testTag(FocusableTag)
+							.testTag(FOCUSABLE_TAG)
 							.size(48.dp)
 							.focusable()
 					)
@@ -109,9 +109,9 @@ class KeyboardAvoidanceUiTest {
 			}
 		}
 
-		onNodeWithTag(FocusableTag).requestFocus()
+		onNodeWithTag(FOCUSABLE_TAG).requestFocus()
 
-		onNodeWithTag(FocusableTag).assertIsDisplayed()
+		onNodeWithTag(FOCUSABLE_TAG).assertIsDisplayed()
 	}
 }
 
@@ -123,7 +123,7 @@ private fun KeyboardTestForm() {
 
 	BoxWithConstraints(
 		modifier = Modifier
-			.testTag(FormTag)
+			.testTag(FORM_TAG)
 			.fillMaxSize()
 			.dismissKeyboardOnTap(focusManager)
 	) {
@@ -143,7 +143,7 @@ private fun KeyboardTestForm() {
 			) {
 				OutlinedTextField(
 					modifier = Modifier
-						.testTag(FieldTag)
+						.testTag(FIELD_TAG)
 						.fillMaxWidth(),
 					value = text,
 					onValueChange = { text = it }
@@ -155,7 +155,7 @@ private fun KeyboardTestForm() {
 	}
 }
 
-private const val FormTag = "keyboard_test_form"
-private const val FieldTag = "keyboard_test_field"
-private const val FocusableTag = "keyboard_test_focusable"
-private const val BelowTheFoldDp = 1_000
+private const val FORM_TAG = "keyboard_test_form"
+private const val FIELD_TAG = "keyboard_test_field"
+private const val FOCUSABLE_TAG = "keyboard_test_focusable"
+private const val BELOW_THE_FOLD_DP = 1_000

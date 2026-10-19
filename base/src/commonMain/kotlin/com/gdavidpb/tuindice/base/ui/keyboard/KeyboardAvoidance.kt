@@ -24,8 +24,9 @@ import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-// The keyboard rule of every surface with a text field (docs/design-system.md, «Teclado»). Compose's insets (imePadding)
-// are the only thing that moves a surface above the keyboard; these modifiers make the rest of it behave the same way.
+// The keyboard rule of every surface with a text field (docs/design-system.md, «Teclado»). Compose's insets
+// (imePadding) are the only thing that moves a surface above the keyboard; these modifiers make the rest of it
+// behave the same way.
 
 // Tapping the background of a form hides the keyboard. A tap that a child takes (a field, a button, a link) is not a
 // tap on the background: the child keeps its focus, and the background does not clear it.
