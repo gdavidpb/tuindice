@@ -1,13 +1,18 @@
 package com.gdavidpb.tuindice.base.ui.dialog
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -18,6 +23,34 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
 class ConfirmationDialogUiTest {
+	// The field of a sheet with a text field, and its positive action, can be taller than the window the keyboard leaves:
+	// the whole body scrolls, so the action stays reachable instead of being cut off.
+	@Test
+	fun when_sheetIsScrollableAndItsBodyIsTallerThanTheWindow_then_thePositiveButtonCanBeScrolledTo() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+				LaunchedEffect(Unit) {
+					sheetState.show()
+				}
+
+				ConfirmationDialog(
+					sheetState = sheetState,
+					titleText = "Cambiar contraseña",
+					positiveText = "Aceptar",
+					negativeText = "Cancelar",
+					dismissOnPositive = false,
+					scrollable = true
+				) {
+					Box(modifier = Modifier.height(900.dp))
+				}
+			}
+
+			onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performScrollTo()
+
+			onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).assertIsDisplayed()
+		}
+
 	@Test
 	fun when_positiveButtonTappedWithoutDismiss_then_invokesPositiveCallback() = runTuIndiceUiTest {
 		var positiveClicks = 0

@@ -61,7 +61,8 @@ fun UpdatePasswordDialog(
 				onConfirmClick()
 		},
 		onDismissRequest = onDismissRequest,
-		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
+		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
+		scrollable = true
 	) {
 		UpdatePasswordIdleView(
 			state = contentState,

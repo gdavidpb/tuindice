@@ -70,7 +70,20 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 - **Error**: `ErrorView` de base (ilustración + título + mensaje + reintentar).
 - **Empty**: `EmptyView` de base (ilustración + título + mensaje + CTA opcional). Summary no tiene estado empty porque un usuario autenticado siempre tiene resumen; su branch `Idle` es transitorio y pinta fondo opaco.
 - **Acción secundaria en estados ilustrados**: `IllustratedMessageView` acepta `isActionOutlined` para pintar la acción como `OutlinedButton` y `isActionEnabled` para deshabilitarla mientras algo sincroniza. Se usa cuando reintentar no es la salida natural (p. ej. nuevo ingreso sin expediente: "Reintentar" en el borde, no la acción primaria). `EmptyView` y `ErrorView` no exponen esos parámetros: un estado que los necesite usa `IllustratedMessageView` directamente.
-- Pantallas con entrada de texto aplican `imePadding()` en su contenedor raíz; `ConfirmationDialog` ya lo aplica para todos los bottom sheets.
+- Pantallas con entrada de texto cumplen la regla de «Teclado», más abajo.
+
+## Teclado
+
+Una sola regla para toda superficie con un campo de texto (pantallas, hojas, diálogos y listas de búsqueda). Quien sube la superficie por encima del teclado es Compose, en las dos plataformas: `imePadding()` y los insets de ventana. En iOS la raíz (`ComposeUIViewController`) usa `onFocusBehavior = OnFocusBehavior.DoNothing`, así que UIKit no desplaza la vista; si no, el teclado se compensaría dos veces. Ningún otro mecanismo sube una pantalla.
+
+- **Contenido desplazable**: toda superficie con campo pone su contenido en un contenedor que se desplaza en vertical y aplica `imePadding()`. Con el teclado abierto el área se achica y el contenido se desplaza; nunca se aplasta. Una pantalla que centra su contenido cuando hay espacio (Ingreso) usa `BoxWithConstraints` + `verticalScroll` + `heightIn(min = maxHeight)` + `Arrangement.Center`: si no cabe, desplaza. Una hoja con campo (`ConfirmationDialog(scrollable = true)`: cambio de contraseña, apelación del asistente) desplaza su cuerpo entero, título, contenido y botones. Las hojas sin campo no se anidan en un segundo desplazamiento (el horario).
+- **Foco visible**: al ganar el foco un campo, se trae a la vista la región que va de ese campo hasta la acción principal que le sigue (`bringRegionIntoViewOnFocus`), y se vuelve a traer cada vez que cambian los insets del teclado mientras la región tiene el foco, porque el teclado achica la vista después del foco.
+- **Cerrar el teclado**: tocar el fondo del formulario lo cierra (`dismissKeyboardOnTap`); un toque que toma un hijo (campo, botón, enlace) no cuenta como toque en el fondo. Arrastrar en vertical un contenedor desplazable también lo cierra (`dismissKeyboardOnScroll`, como el «interactive dismiss» de iOS). Cuenta el arrastre de la persona, leído del puntero: el desplazamiento que hace la pantalla sola al traer un campo o el botón a la vista no lo cierra, y un arrastre más horizontal que vertical (seleccionar texto de un campo) tampoco. Las listas de resultados lo cierran al tocar un resultado.
+- **Acciones del teclado**: el identificador avanza con «Siguiente» (`ImeAction.Next`) hasta la contraseña; la contraseña envía con «Listo» (`ImeAction.Done`) cuando el formulario es válido. El teclado de dígitos (`digitsKeyboardType`) es el numérico en Android, que tiene tecla de acción, y el ASCII en iOS, que tiene dígitos (tecla 123) y tecla de retorno; el teclado numérico de iOS no tiene tecla de retorno.
+- **Campos abajo**: el compositor del asistente queda justo encima del teclado y la lista de mensajes se achica por encima de él.
+- **Búsquedas de materias**: el campo se queda arriba; la lista de resultados termina encima del teclado y se desplaza en el espacio que queda. En «Crear trimestre» el campo va dentro de la lista, con el resto de la pantalla, y es la lista la que termina encima del teclado.
+
+## Navegación y Ajustes
 
 ## Navegación y Ajustes
 

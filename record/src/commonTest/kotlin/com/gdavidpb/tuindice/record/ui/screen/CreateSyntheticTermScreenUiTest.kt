@@ -9,6 +9,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -17,6 +19,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -141,6 +145,30 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
 
 		assertEquals("MA1111", latestQuery)
+	}
+
+	// The list scrolls under the keyboard: a drag over it hides the keyboard, and the search field lets go of the focus.
+	@Test
+	fun when_theListIsDraggedWhileTheSearchFieldHasFocus_then_theFocusLeavesIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(selectedAddSubjectTab = CreateTermAddSubjectTab.Search),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performClick()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(isFocused())
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermContentList).performTouchInput { swipeUp() }
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(isNotFocused())
 	}
 
 	// The view model answers each keystroke later: the answer to a key lands just before the next one.

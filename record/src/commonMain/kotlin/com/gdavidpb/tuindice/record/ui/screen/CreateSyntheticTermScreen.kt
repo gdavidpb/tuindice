@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,10 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
+import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnTap
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
@@ -129,6 +127,8 @@ fun CreateSyntheticTermScreen(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
+			.dismissKeyboardOnScroll(focusManager)
+			.dismissKeyboardOnTap(focusManager)
 			.testTag(RecordUiTags.CreateSyntheticTermScreen)
 	) {
 		LazyColumn(
@@ -136,14 +136,6 @@ fun CreateSyntheticTermScreen(
 				.fillMaxSize()
 				.padding(horizontal = TuIndiceSpacing.Screen)
 				.imePadding()
-				.pointerInput(Unit) {
-					awaitEachGesture {
-						val down = awaitFirstDown(requireUnconsumed = false)
-						awaitTouchSlopOrCancellation(down.id) { _, _ ->
-							dismissKeyboard()
-						}
-					}
-				}
 				.testTag(RecordUiTags.CreateSyntheticTermContentList),
 			state = lazyListState,
 			contentPadding = PaddingValues(

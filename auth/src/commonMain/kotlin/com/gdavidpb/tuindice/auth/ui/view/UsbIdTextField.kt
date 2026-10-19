@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.keyboard.digitsKeyboardType
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
@@ -40,6 +41,9 @@ private val identifierModeTogglePulseSize = 32.dp
  *
  * [isWaiting], [error] and [isError]: see [PasswordTextField]. [errorDescription] is what a screen reader
  * says when the field is in error without showing a message of its own under it.
+ *
+ * In USB ID mode the keyboard is the platform's digits keyboard, with a return key, so [keyboardActions] can move the
+ * student on to the password (see digitsKeyboardType).
  */
 @Composable
 fun UsbIdTextField(
@@ -139,7 +143,7 @@ fun UsbIdTextField(
 			autoCorrectEnabled = false,
 			imeAction = ImeAction.Next,
 			keyboardType = when (identifierMode) {
-				SignInIdentifierMode.UsbId -> KeyboardType.Number
+				SignInIdentifierMode.UsbId -> digitsKeyboardType
 				SignInIdentifierMode.UsbEmail -> KeyboardType.Email
 			}
 		),

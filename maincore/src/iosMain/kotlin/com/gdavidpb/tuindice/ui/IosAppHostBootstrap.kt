@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
@@ -29,7 +30,13 @@ class IosAppHostBootstrap(
 	fun createRootViewController(): UIViewController {
 		startIfNeeded()
 
-		return ComposeUIViewController {
+		// Keyboard avoidance has one owner, Compose's window insets (imePadding), as on Android. The default
+		// (FocusableAboveKeyboard) also shifts the whole view above the keyboard, so the screens were compensated twice.
+		return ComposeUIViewController(
+			configure = {
+				onFocusBehavior = OnFocusBehavior.DoNothing
+			}
+		) {
 			TuIndiceSharedTheme {
 				CompositionLocalProvider(
 					LocalTuIndiceAnimationsEnabled provides (rememberIosSystemAnimationsEnabled() && !debugAnimationsDisabled)
