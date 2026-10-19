@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
-// What a memory is about, as the screen names it. Each name is a MemoryCategory of academiccore (see
-// AssistantMemoryVocabulary); a category this build does not know is OTHER.
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
+
+// What a memory is about, as the screen names it. Each one is a category of MemoryVocabulary; a category this build
+// does not know is OTHER.
 enum class AssistantMemoryCategoryKey {
 	PREFERENCE,
 	INTEREST,
@@ -13,7 +15,15 @@ enum class AssistantMemoryCategoryKey {
 
 	companion object {
 		fun fromWire(category: String): AssistantMemoryCategoryKey {
-			return entries.firstOrNull { key -> key.name == category } ?: OTHER
+			return when (category) {
+				MemoryVocabulary.CATEGORY_PREFERENCE -> PREFERENCE
+				MemoryVocabulary.CATEGORY_INTEREST -> INTEREST
+				MemoryVocabulary.CATEGORY_CAREER_GOAL -> CAREER_GOAL
+				MemoryVocabulary.CATEGORY_TERM -> TERM
+				MemoryVocabulary.CATEGORY_SUBJECT -> SUBJECT
+				MemoryVocabulary.CATEGORY_DATED_RESTRICTION -> DATED_RESTRICTION
+				else -> OTHER
+			}
 		}
 	}
 }
