@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -11,9 +14,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -27,12 +32,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -53,12 +61,15 @@ import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.ui.keyboard.bringRegionIntoViewOnFocus
 import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
 import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnTap
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.sign_in_service_unavailable
+import kotlin.math.roundToInt
 
 @Composable
 fun SignInIdleView(
@@ -124,18 +135,7 @@ fun SignInIdleView(
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.Center
 		) {
-			Box(
-				modifier = Modifier
-					.testTag(AuthUiTags.KeyboardDismissArea)
-					.clickable(
-						interactionSource = remember { MutableInteractionSource() },
-						indication = null,
-						onClick = { focusManager.clearFocus(force = true) }
-					)
-					.padding(vertical = 32.dp)
-			) {
-				AppLogoView(contentDescription = null)
-			}
+			SignInLogoView(onClick = { focusManager.clearFocus(force = true) })
 
 			Column(
 				modifier = Modifier
@@ -345,3 +345,54 @@ private fun SignIn.Rejection?.takeIfFixedUnderTheButton(): SignIn.Rejection? {
 		null -> null
 	}
 }
+
+// The logo above the form. With the keyboard open it shrinks, and its margins with it, so the form, the button and the
+// legal text fit above the keyboard without scrolling the logo under the top bar. The size animates both ways; with
+// animations off it changes at once. Tapping it hides the keyboard, as the rest of the background does.
+@Composable
+private fun SignInLogoView(onClick: () -> Unit) {
+	val density = LocalDensity.current
+	val isKeyboardOpen = WindowInsets.ime.getBottom(density) > 0
+	val animationSpec = if (LocalTuIndiceAnimationsEnabled.current) {
+		tween<Float>(TuIndiceAnimation.StandardMillis)
+	} else {
+		snap()
+	}
+	val scale by animateFloatAsState(
+		targetValue = if (isKeyboardOpen) KEYBOARD_LOGO_SCALE else 1f,
+		animationSpec = animationSpec,
+		label = "SignInLogoScale"
+	)
+
+	Box(
+		modifier = Modifier
+			.testTag(AuthUiTags.KeyboardDismissArea)
+			.clickable(
+				interactionSource = remember { MutableInteractionSource() },
+				indication = null,
+				onClick = onClick
+			)
+			.padding(vertical = LOGO_VERTICAL_PADDING * scale)
+	) {
+		AppLogoView(
+			modifier = Modifier.layout { measurable, constraints ->
+				val placeable = measurable.measure(constraints)
+				val width = (placeable.width * scale).roundToInt()
+				val height = (placeable.height * scale).roundToInt()
+
+				layout(width, height) {
+					placeable.placeWithLayer(x = (width - placeable.width) / 2, y = (height - placeable.height) / 2) {
+						scaleX = scale
+						scaleY = scale
+					}
+				}
+			},
+			contentDescription = null
+		)
+	}
+}
+
+private val LOGO_VERTICAL_PADDING = 32.dp
+
+// About 60 pt instead of 100 with the keyboard open: what the form leaves above an iPhone's keyboard.
+private const val KEYBOARD_LOGO_SCALE = 0.6f
