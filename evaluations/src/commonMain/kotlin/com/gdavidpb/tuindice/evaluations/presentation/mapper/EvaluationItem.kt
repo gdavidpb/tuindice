@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.utils.GradeFormat
 
 fun List<Evaluation>.toEvaluationItemList(
 	mapping: EvaluationItemMapping,
@@ -124,8 +125,8 @@ private fun Evaluation.assistantContextOf(
 		}
 
 		put("points", gradeText)
-		grade?.let { value -> put("grade", value.formatGrade(decimals = 2)) }
-		put("maxGrade", maxGrade.formatGrade(decimals = 2))
+		grade?.let { value -> put("grade", value.formatGrade(decimals = GradeFormat.DECIMALS)) }
+		put("maxGrade", maxGrade.formatGrade(decimals = GradeFormat.DECIMALS))
 		put("state", statusText)
 	}
 )

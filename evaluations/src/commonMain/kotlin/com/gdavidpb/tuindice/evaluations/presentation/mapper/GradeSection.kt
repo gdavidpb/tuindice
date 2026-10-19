@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.utils.GradeFormat
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.label_add_evaluation_grades
@@ -24,8 +25,8 @@ fun EvaluationGradeSectionItem.updated(
 	maxGrade: Double?
 ): EvaluationGradeSectionItem {
 	return copy(
-		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
-		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
+		gradeText = (grade ?: 0.0).formatGrade(decimals = GradeFormat.DECIMALS),
+		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = GradeFormat.DECIMALS),
 		showsGradeChip = shouldShowGradeChip(maxGrade)
 	)
 }
@@ -39,8 +40,8 @@ private fun createEvaluationGradeSectionItem(
 	return EvaluationGradeSectionItem(
 		maxGradeTitleText = maxGradeTitleText,
 		overdueTitleText = overdueTitleText,
-		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
-		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
+		gradeText = (grade ?: 0.0).formatGrade(decimals = GradeFormat.DECIMALS),
+		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = GradeFormat.DECIMALS),
 		showsGradeChip = shouldShowGradeChip(maxGrade)
 	)
 }

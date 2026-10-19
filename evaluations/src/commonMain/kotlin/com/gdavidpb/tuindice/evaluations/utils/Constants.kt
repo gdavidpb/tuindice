@@ -15,3 +15,8 @@ object CooldownTimes {
 	// tab never waits.
 	val COOLDOWN_RETRY_EVALUATIONS = 1.hours.inWholeMilliseconds
 }
+
+object GradeFormat {
+	// The decimals a grade is written with: the grades are read to the hundredth.
+	const val DECIMALS = 2
+}
