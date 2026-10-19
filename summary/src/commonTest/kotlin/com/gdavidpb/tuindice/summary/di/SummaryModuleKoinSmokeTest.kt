@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.di
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
@@ -23,6 +24,7 @@ import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.ShareTermViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableScheduleClockRepository
@@ -94,6 +96,7 @@ private val summaryTestRepositories = module {
 	single<PensumProgressRepository> { ControllablePensumProgressRepository() }
 	single<RecordDataPrerequisiteRepository> { ControllableRecordDataPrerequisiteRepository() }
 	single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
+	single<AssistantInsightsRepository> { ControllableAssistantInsightsRepository() }
 	single<EventPublisher> { NoOpEventPublisher }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 }

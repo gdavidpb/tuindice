@@ -14,5 +14,6 @@ data class StatisticsBarPoint(
 	val value: Float,
 	val tooltip: RichTooltipText,
 	val axisLabel: String,
-	val valueLabel: String? = null
+	val valueLabel: String? = null,
+	val isHighlighted: Boolean = false
 )

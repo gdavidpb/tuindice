@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.repository.ShareBackgroundSelectionRepository
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : SettingsDataRepository, ShareBackgroundSelectionRepository, SessionMemory {
+) : SettingsDataRepository, ShareBackgroundSelectionRepository, TermReportSeenRepository, SessionMemory {
 	private val profilePictureVersion = MutableStateFlow(
 		settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
 	)
@@ -20,6 +21,8 @@ class LocalSettingsDataSource(
 	private val preferredBackgroundId = MutableStateFlow(
 		settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUND_ID)
 	)
+
+	private val seenTermReportIds = MutableStateFlow(readSeenTermReportIds())
 
 	override suspend fun isGetUserOnCooldown(): Boolean {
 		val cooldownTime = settings.getLongOrNull(PreferencesKeys.COOLDOWN_GET_USER) ?: 0L
@@ -53,9 +56,34 @@ class LocalSettingsDataSource(
 		preferredBackgroundId.value = id
 	}
 
+	override fun observeSeenTermReportIds(): Flow<Set<String>> {
+		return seenTermReportIds
+	}
+
+	override suspend fun markTermReportSeen(insightId: String) {
+		val seen = seenTermReportIds.value + insightId
+
+		settings.putString(PreferencesKeys.SEEN_TERM_REPORT_IDS, seen.joinToString(separator = SEEN_IDS_SEPARATOR))
+		seenTermReportIds.value = seen
+	}
+
 	// The mirrors go back to what is stored, which the wipe has just emptied.
 	override suspend fun clearSessionMemory() {
 		profilePictureVersion.value = settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
 		preferredBackgroundId.value = settings.getStringOrNull(PreferencesKeys.SHARE_BACKGROUND_ID)
+		seenTermReportIds.value = readSeenTermReportIds()
+	}
+
+	private fun readSeenTermReportIds(): Set<String> {
+		return settings.getStringOrNull(PreferencesKeys.SEEN_TERM_REPORT_IDS)
+			?.split(SEEN_IDS_SEPARATOR)
+			?.filter { id -> id.isNotEmpty() }
+			?.toSet()
+			.orEmpty()
+	}
+
+	private companion object {
+		// Insight ids are `<termId>:<sequence>`: a comma never appears in one.
+		const val SEEN_IDS_SEPARATOR = ","
 	}
 }

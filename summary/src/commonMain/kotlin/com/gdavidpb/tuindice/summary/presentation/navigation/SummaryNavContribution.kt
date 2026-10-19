@@ -12,6 +12,7 @@ object SummaryNavContribution : TuIndiceNavContribution {
 		builder.subclass(SummaryDestination.ProfilePictureSettingsDialog::class)
 		builder.subclass(SummaryDestination.RemoveProfilePictureConfirmationDialog::class)
 		builder.subclass(SummaryDestination.Statistics::class)
+		builder.subclass(SummaryDestination.TermReport::class)
 		builder.subclass(SummaryDestination.ShareTermDialog::class)
 	}
 }

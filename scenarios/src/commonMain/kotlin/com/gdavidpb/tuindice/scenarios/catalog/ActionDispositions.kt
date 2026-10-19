@@ -26,6 +26,13 @@ object ActionDispositions {
 				"en la build de E2E la apelación está apagada en sombra"
 		),
 		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.ActivateNotifications",
+			reason =
+				"Lanza el diálogo de permiso de notificaciones del sistema, que el E2E no controla; la tarjeta solo se " +
+				"ofrece en Android 13 o posterior sin el permiso (y en iOS con la autorización sin decidir), y ningún " +
+				"escenario fija ese estado del sistema"
+		),
+		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.AttachPhoto",
 			reason =
 				"Abre la cámara o la galería del sistema; se prueba a mano " +
@@ -40,6 +47,12 @@ object ActionDispositions {
 		ActionDisposition.Pending(
 			action = "assistant.AssistantChat.Dismiss",
 			reason = "la hoja se cierra con el gesto del sistema (back en Android; el harness no lo traduce en iOS)"
+		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.DismissNotificationOffer",
+			reason =
+				"La tarjeta solo se ofrece donde el sistema todavía pregunta por el permiso (Android 13 o posterior " +
+				"sin concederlo; iOS con la autorización sin decidir), y ningún escenario fija ese estado del sistema"
 		),
 		ActionDisposition.Internal(
 			action = "assistant.AssistantChat.Open",

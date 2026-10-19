@@ -18,6 +18,7 @@ class E2eSeedBridgeTest {
 		val networks = mutableListOf<Boolean>()
 		val clocks = mutableListOf<Instant>()
 		val seeds = mutableListOf<DebugSessionSeed>()
+		val offers = mutableListOf<Boolean>()
 
 		override fun setAvailabilityNotice(notice: DebugLaunchArguments.AvailabilityNotice) {
 			notices += notice
@@ -33,6 +34,10 @@ class E2eSeedBridgeTest {
 
 		override fun seedSession(seed: DebugSessionSeed) {
 			seeds += seed
+		}
+
+		override fun setNotificationOffered(offered: Boolean) {
+			offers += offered
 		}
 	}
 
@@ -60,6 +65,33 @@ class E2eSeedBridgeTest {
 		assertEquals(1, effects.notices.size)
 		assertEquals(listOf(false), effects.networks)
 		assertEquals(listOf(Instant.parse("2026-10-15T12:00:00Z")), effects.clocks)
+	}
+
+	@Test
+	fun theNotificationOfferIsSetOnAColdStartAfterTheSeed() {
+		val effects = RecordingEffects()
+
+		E2eSeedBridge.applyLaunchArguments(
+			seededExtras + (DebugLaunchArguments.NOTIFICATION_OFFER to "pending"),
+			isColdStart = true,
+			effects = effects
+		)
+
+		assertEquals(listOf(false), effects.offers)
+		assertEquals(1, effects.seeds.size)
+	}
+
+	@Test
+	fun whenTheActivityIsRecreatedTheNotificationOfferIsNotSet() {
+		val effects = RecordingEffects()
+
+		E2eSeedBridge.applyLaunchArguments(
+			mapOf(DebugLaunchArguments.NOTIFICATION_OFFER to "offered"),
+			isColdStart = false,
+			effects = effects
+		)
+
+		assertTrue(effects.offers.isEmpty())
 	}
 
 	@Test

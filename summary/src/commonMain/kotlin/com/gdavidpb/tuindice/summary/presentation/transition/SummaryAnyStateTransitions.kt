@@ -57,11 +57,6 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 			state
 		}
 
-		// The hub is a field of every state, so the one that says it can be any.
-		on<SummaryInternalEvent.HubObserved> { state, event ->
-			state.withHub(hub = event.hub)
-		}
-
 		onTo<SummaryInternalEvent.UserObserved, Summary.State.Content> { state, event ->
 			event.content.copy(
 				sync = state.sync,

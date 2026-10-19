@@ -17,6 +17,7 @@ object E2eCatalog {
 		"maincore" to maincoreScenarios,
 		"coachmarks" to coachmarksScenarios,
 		"summary" to summaryScenarios,
+		"termreport" to termreportScenarios,
 		"record" to recordScenarios,
 		"enrollmentproof" to enrollmentproofScenarios,
 		"pensum" to pensumScenarios,

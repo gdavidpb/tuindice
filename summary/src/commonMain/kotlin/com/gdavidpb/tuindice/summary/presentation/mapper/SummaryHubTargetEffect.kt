@@ -28,5 +28,7 @@ internal fun SummaryHubTarget.toSummaryEffect(): Summary.Effect {
 		SummaryHubTarget.Statistics -> Summary.Effect.NavigateToStatistics
 
 		is SummaryHubTarget.ShareTerm -> Summary.Effect.NavigateToShareTerm(termKey = termKey)
+
+		is SummaryHubTarget.TermReport -> Summary.Effect.NavigateToTermReport(insightId = insightId)
 	}
 }

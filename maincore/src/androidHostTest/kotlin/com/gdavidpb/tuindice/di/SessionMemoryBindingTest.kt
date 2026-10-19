@@ -49,6 +49,8 @@ class SessionMemoryBindingTest {
 					"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
 				"base.data.source.InMemoryRecordAttemptFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",
+				"base.data.source.InMemoryTermReportFocusDataSource",
+				"base.data.source.notification.NotificationOfferSettingsDataSource",
 				"base.data.source.usage.UsageDataConsentSettingsDataSource",
 				"data.source.assistant.AssistantQueuedMutationsDataSource",
 				"data.source.credentials.CredentialsDataSource",
@@ -67,7 +69,8 @@ class SessionMemoryBindingTest {
 				"subjects.data.source.SubjectStatsRoomDataSource",
 				"summary.data.source.LocalSettingsDataSource",
 				"summary.data.source.ProfilePictureImageLoaderDataSource",
-					"summary.data.source.ShareBackgroundSettingsDataSource"
+					"summary.data.source.ShareBackgroundSettingsDataSource",
+				"summary.data.source.TermReportFeedbackDataSource"
 			),
 			bound
 		)

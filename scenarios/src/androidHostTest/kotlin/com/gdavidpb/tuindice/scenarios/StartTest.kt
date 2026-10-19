@@ -38,7 +38,8 @@ class StartTest {
 			mapOf(
 				DebugLaunchArguments.DISABLE_ANIMATIONS to "true",
 				DebugLaunchArguments.NOW to E2eFixtures.Now,
-				DebugLaunchArguments.NETWORK_AVAILABLE to "true"
+				DebugLaunchArguments.NETWORK_AVAILABLE to "true",
+				DebugLaunchArguments.NOTIFICATION_OFFER to DebugLaunchArguments.NOTIFICATION_OFFER_OFFERED
 			),
 			spec.arguments
 		)
@@ -47,6 +48,7 @@ class StartTest {
 		assertNull(parsed.availabilityNotice)
 		assertEquals(true, parsed.animationsDisabled)
 		assertEquals(true, parsed.networkAvailable)
+		assertEquals(true, parsed.notificationOffered)
 	}
 
 	@Test

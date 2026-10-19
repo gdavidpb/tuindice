@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.data.source.device.IosDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
+import com.gdavidpb.tuindice.data.source.notification.IosNotificationPermissionDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.secure.IosSecureKeyValueDataSource
@@ -146,6 +147,7 @@ val iosPlatformModule = module {
 	singleOf(::IosBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::IosFileOpenerDataSource) { bind<FileOpenerRepository>() }
 	singleOf(::IosReviewDataSource) { bind<ReviewRepository>() }
+	singleOf(::IosNotificationPermissionDataSource) { bind<NotificationPermissionRepository>() }
 	singleOf(::IosUpdateDataSource) { bind<UpdateRepository>() }
 	single<IosApplicationDataSource> {
 		IosApplicationDataSource(

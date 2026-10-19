@@ -37,7 +37,8 @@ internal fun List<SummaryStatisticsBarItem>.toStatisticsBarPoints(): List<Statis
 			value = bar.value,
 			tooltip = bar.tooltip.toRichText(),
 			axisLabel = bar.axisLabel.asString(),
-			valueLabel = bar.valueLabel?.asString()
+			valueLabel = bar.valueLabel?.asString(),
+			isHighlighted = bar.isHighlighted
 		)
 	}
 }
@@ -69,6 +70,6 @@ internal fun List<SummaryStatisticsLinePointItem>.toStatisticsLinePoints(): List
 internal fun SummaryStatisticsReferenceItem.toStatisticsReference(): StatisticsReference {
 	return StatisticsReference(
 		value = value,
-		label = label.asString()
+		label = label?.asString()
 	)
 }

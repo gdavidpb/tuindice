@@ -35,6 +35,8 @@ import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
 import com.gdavidpb.tuindice.presentation.navigation.rememberAssistantNavDependencies
+import com.gdavidpb.tuindice.presentation.navigation.toChatEntityRef
+import com.gdavidpb.tuindice.presentation.navigation.toChatNavTarget
 import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies
@@ -110,7 +112,13 @@ fun TuIndiceNavDisplay(
 			shellBindings = shellBindings,
 			navigation = navigator.toSummaryNavDependencies(
 				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
-				onNavigateToRecordAttempt = onNavigateToRecordAttempt
+				onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+				onNavigateToAssistantTarget = { target, entityRefs ->
+					assistantDependencies.onNavigateTo(
+						target.toChatNavTarget(),
+						entityRefs.map { ref -> ref.toChatEntityRef() }
+					)
+				}
 			)
 		)
 

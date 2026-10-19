@@ -15,10 +15,12 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserE
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
+import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.SleepingScheduleClockRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.summary.testing.scheduleNow
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -85,6 +87,20 @@ class SummaryMachineResumeOrderTest {
 	}
 
 	@Test
+	fun theOpeningAsksForTheTermReportsOnce_andAReturnAsksAgain() = runTest {
+		val world = World(this)
+
+		world.process(Summary.Action.ObserveSummary)
+		world.process(Summary.Action.Resumed)
+
+		assertEquals(1, world.insights.refreshCount)
+
+		world.process(Summary.Action.Resumed)
+
+		assertEquals(2, world.insights.refreshCount)
+	}
+
+	@Test
 	fun aReturnBeforeAnyObservation_doesNothing() = runTest {
 		val world = World(this)
 
@@ -98,6 +114,7 @@ class SummaryMachineResumeOrderTest {
 	private class World(private val scope: TestScope) {
 		val clock = SleepingScheduleClockRepository()
 		val hubEvents = mutableListOf<SummaryHubItem>()
+		val insights = ControllableAssistantInsightsRepository()
 		private val reporting = RecordingReportingRepository()
 		private val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 		private val machine = SummaryMachine(
@@ -117,6 +134,7 @@ class SummaryMachineResumeOrderTest {
 				reportingRepository = reporting,
 				exceptionHandler = UploadProfilePictureExceptionHandler(FakeNetworkRepository(isAvailable = true))
 			),
+			termReports = createSummaryTermReports(insights = insights),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reporting,

@@ -46,6 +46,7 @@ fun createSummaryViewModelWithHub(hub: ObserveSummaryHubUseCase): SummaryViewMod
 				reportingRepository = reporting,
 				exceptionHandler = UploadProfilePictureExceptionHandler(network)
 			),
+			termReports = createSummaryTermReports(),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reporting,

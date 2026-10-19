@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.e2e
 
 import android.content.Intent
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.DebugSessionSeed
 import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
@@ -25,6 +26,8 @@ object E2eSeedBridge {
 		fun setFixedNow(instant: Instant)
 
 		fun seedSession(seed: DebugSessionSeed)
+
+		fun setNotificationOffered(offered: Boolean)
 	}
 
 	private class KoinEffects(private val koin: Koin) : Effects {
@@ -53,14 +56,18 @@ object E2eSeedBridge {
 		override fun seedSession(seed: DebugSessionSeed) {
 			runBlocking { koin.seedDebugSession(seed) }
 		}
+
+		override fun setNotificationOffered(offered: Boolean) {
+			koin.get<NotificationOfferRepository>().setOffered(offered)
+		}
 	}
 
 	/**
 	 * Parses the `TUINDICE_E2E_*` extras of the launch intent and applies them.
 	 * Returns the parsed arguments so the activity can read the ones it owns.
 	 *
-	 * The extras are always parsed. The session seed and the availability notice are applied only
-	 * on a cold start ([isColdStart]): the seed clears the session, the settings and the sync
+	 * The extras are always parsed. The session seed, the notification offer and the availability
+	 * notice are applied only on a cold start ([isColdStart]): the seed clears the session, the settings and the sync
 	 * status, so applying it again when the activity is recreated (configuration change, restore
 	 * after the process died) would wipe a scenario in progress. The network override and the
 	 * clock are kept in-process and idempotent, so they are applied every time.
@@ -89,6 +96,8 @@ object E2eSeedBridge {
 
 		if (isColdStart) {
 			arguments.sessionSeed?.let(effects::seedSession)
+			// After the seed, which clears the settings the offer is kept in.
+			arguments.notificationOffered?.let(effects::setNotificationOffered)
 		}
 
 		return arguments

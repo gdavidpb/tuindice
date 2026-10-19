@@ -30,10 +30,10 @@ import kotlinx.coroutines.flow.collect
  */
 class AssistantChatMachine(
 	internal val turns: AssistantChatTurns,
-	internal val intents: AssistantChatIntents,
-	internal val planIntents: AssistantChatPlanIntents,
+	internal val proposals: AssistantChatProposals,
 	internal val feedback: AssistantChatFeedback,
 	internal val access: AssistantChatAccess,
+	internal val notificationOffer: AssistantChatNotificationOffer,
 	internal val texts: AssistantChatTexts
 ) : ScreenMachine<AssistantChat.State, AssistantChat.Effect> {
 	internal val session = AssistantChatSession()
@@ -85,6 +85,13 @@ class AssistantChatMachine(
 	internal suspend fun enterContent(host: MachineHost<AssistantChat.Effect>): AssistantChat.State.Content {
 		turns.observeConversation(host)
 		turns.resumeTurn(host)
+
+		// The platform answers after the content is shown: whether the card of the permission shows is decided then.
+		host.launchMachineJob {
+			host.processInternalEvent(
+				AssistantChatInternalEvent.NotificationOfferChecked(needed = notificationOffer.isOfferNeeded())
+			)
+		}
 
 		val emptyContent = AssistantChat.State.Content(
 			context = session.openedContext?.toChatContextItem(texts),
@@ -160,7 +167,9 @@ class AssistantChatMachine(
 		)
 
 		val params = ConfirmIntentParams(intentId = intentId, editedArgs = editedArgs)
-		val flow = intents.confirmation(intent.args, params) ?: planIntents.confirmation(intent.args, params) ?: return
+		val flow = proposals.intents.confirmation(intent.args, params)
+			?: proposals.planIntents.confirmation(intent.args, params)
+			?: return
 
 		session.runningIntents += intentId
 

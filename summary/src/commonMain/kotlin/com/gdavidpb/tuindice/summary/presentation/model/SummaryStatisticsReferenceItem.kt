@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.summary.presentation.model
 import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
-/** A reference line across a chart, at [value] on its scale, with the [label] written at its end. */
+/** A reference line across a chart, at [value] on its scale, with the [label] written at its end, when it has one. */
 @Immutable
 data class SummaryStatisticsReferenceItem(
 	val value: Float,
-	val label: UiText
+	val label: UiText?
 )

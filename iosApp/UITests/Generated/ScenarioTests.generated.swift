@@ -192,3 +192,8 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_statistics_tooltips() { runScenario("summary-statistics-tooltips") }
     func test_summary_status_dialog() { runScenario("summary-status-dialog") }
 }
+
+final class TermreportScenarioTests: ScenarioTestCase {
+    func test_termreport_open() { runScenario("termreport-open") }
+    func test_termreport_retry() { runScenario("termreport-retry") }
+}

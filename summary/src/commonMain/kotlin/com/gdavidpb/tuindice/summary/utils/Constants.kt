@@ -7,6 +7,8 @@ object PreferencesKeys {
 	const val PROFILE_PICTURE_VERSION = "profilePictureVersion"
 	const val SHARE_BACKGROUND_ID = "shareBackgroundId"
 	const val SHARE_BACKGROUNDS_CATALOG = "shareBackgroundsCatalog"
+	const val SEEN_TERM_REPORT_IDS = "seenTermReportIds"
+	const val TERM_REPORT_FEEDBACKS = "termReportFeedbacks"
 }
 
 object CooldownTimes {

@@ -21,7 +21,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 // the line, above it and on the card's own surface, so a bar that rises behind the label never hides its words.
 @Composable
 fun BoxScope.StatisticsReferenceLine(
-	label: String,
+	label: String?,
 	y: Float,
 	widthDp: Float
 ) {
@@ -43,6 +43,8 @@ fun BoxScope.StatisticsReferenceLine(
 			)
 		)
 	}
+
+	if (label == null) return
 
 	Text(
 		modifier = Modifier

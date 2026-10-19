@@ -26,6 +26,9 @@ private fun AssistantScreenContext.principalText(): String? {
 
 		AssistantScreen.SUBJECT_DETAIL -> joined(field("displayCode"), field("name"))
 
+		// The report's term is the one thing the screen names: the label the summary gives the term.
+		AssistantScreen.TERM_REPORT -> field("termLabel")
+
 		AssistantScreen.EVALUATION_DETAIL -> field("title")?.let { title ->
 			joined(entityId(AssistantEntityKind.SUBJECT), title)
 		}

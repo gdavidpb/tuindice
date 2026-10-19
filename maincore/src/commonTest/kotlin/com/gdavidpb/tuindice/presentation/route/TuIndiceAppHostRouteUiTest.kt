@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryTermReportFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
@@ -53,6 +54,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
@@ -65,6 +67,7 @@ import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
@@ -1414,8 +1417,10 @@ class TuIndiceAppHostRouteUiTest {
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
 		single { StatisticsTopBarActionBus() }
+		single { TermReportTopBarActionBus() }
 		single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
 		single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
+		single<TermReportFocusRepository> { InMemoryTermReportFocusDataSource() }
 	}
 }
 

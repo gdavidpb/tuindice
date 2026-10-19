@@ -85,7 +85,8 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 				Summary.Effect.NavigateToCreateTerm::class,
 				Summary.Effect.NavigateToEvaluations::class,
 				Summary.Effect.NavigateToStatistics::class,
-				Summary.Effect.NavigateToShareTerm::class
+				Summary.Effect.NavigateToShareTerm::class,
+				Summary.Effect.NavigateToTermReport::class
 			)
 		) { state, action ->
 			host.sendEffect(action.target.toSummaryEffect())

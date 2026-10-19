@@ -32,6 +32,7 @@ import tuindice.assistant.generated.resources.assistant_chat_screen_statistics
 import tuindice.assistant.generated.resources.assistant_chat_screen_subject_detail
 import tuindice.assistant.generated.resources.assistant_chat_screen_subject_search
 import tuindice.assistant.generated.resources.assistant_chat_screen_summary
+import tuindice.assistant.generated.resources.assistant_chat_screen_term_report
 import tuindice.assistant.generated.resources.assistant_chat_send_failed
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_cancelled
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_disabled
@@ -58,6 +59,7 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 			AssistantScreen.SUBJECT_DETAIL -> Res.string.assistant_chat_screen_subject_detail
 			AssistantScreen.SUBJECT_SEARCH -> Res.string.assistant_chat_screen_subject_search
 			AssistantScreen.ABOUT -> Res.string.assistant_chat_screen_about
+			AssistantScreen.TERM_REPORT -> Res.string.assistant_chat_screen_term_report
 		}
 	)
 

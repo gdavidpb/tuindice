@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.freezeDebugClock
@@ -44,6 +46,12 @@ class IosAppHostBootstrap(
 		return startIosKoin(hostConfig = hostConfig)
 	}
 
+	// A tap on the push of a term report: the request is kept, and the host opens the report once the student is in the
+	// app.
+	fun openTermReportFromNotification(insightId: String) {
+		startIfNeeded().get<TermReportFocusRepository>().request(insightId)
+	}
+
 	fun applyDebugLaunchArguments(arguments: DebugLaunchArguments) {
 		check(hostConfig.buildVariant == IosBuildVariant.DEBUG) {
 			"Debug launch arguments are only available in debug iOS builds."
@@ -65,6 +73,11 @@ class IosAppHostBootstrap(
 
 		arguments.sessionSeed?.let { seed ->
 			runBlocking { koin.seedDebugSession(seed) }
+		}
+
+		// After the seed, which clears the settings the offer is kept in.
+		arguments.notificationOffered?.let { offered ->
+			koin.get<NotificationOfferRepository>().setOffered(offered)
 		}
 	}
 }

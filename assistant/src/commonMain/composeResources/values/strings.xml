@@ -42,6 +42,10 @@
 	<string name="assistant_consent_privacy">Política de privacidad</string>
 	<string name="assistant_consent_accept">Aceptar</string>
 	<string name="assistant_consent_decline">Ahora no</string>
+	<string name="assistant_notification_offer_title">Avisos de tu informe</string>
+	<string name="assistant_notification_offer_text">Te avisamos cuando tu informe del trimestre esté listo. Tu teléfono te va a pedir permiso para mostrar notificaciones</string>
+	<string name="assistant_notification_offer_later">Ahora no</string>
+	<string name="assistant_notification_offer_activate">Activar avisos</string>
 	<string name="assistant_still_applies_title">¿Sigue aplicando?</string>
 	<string name="assistant_still_applies_yes">Sí, sigue</string>
 	<string name="assistant_still_applies_no">Ya no aplica</string>
@@ -95,6 +99,7 @@
 	<string name="assistant_chat_screen_subject_detail">Materia</string>
 	<string name="assistant_chat_screen_subject_search">Buscar materias</string>
 	<string name="assistant_chat_screen_about">Acerca de</string>
+	<string name="assistant_chat_screen_term_report">Informe del trimestre</string>
 	<string name="assistant_chat_evaluation_type_test">Prueba</string>
 	<string name="assistant_chat_evaluation_type_essay">Ensayo</string>
 	<string name="assistant_chat_evaluation_type_attendance">Asistencia</string>

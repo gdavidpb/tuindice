@@ -1,6 +1,11 @@
 import Foundation
 import UIKit
 import UserNotifications
+#if canImport(maincore)
+import maincore
+#elseif canImport(Maincore)
+import Maincore
+#endif
 #if canImport(FirebaseCore)
 import FirebaseCore
 #endif
@@ -12,14 +17,55 @@ enum TuIndiceFirebaseRuntimeState {
     static var isConfigured = false
 }
 
-final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
+final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // The delegate is set before the app finishes launching, so a tap on a push that starts the app is not missed.
+        UNUserNotificationCenter.current().delegate = self
         configureFirebaseIfNeeded()
         configureRemoteNotifications(application: application)
         return true
+    }
+
+    // A term report that arrives while the app is open is shown as a banner. Any other push keeps its current behaviour:
+    // none is presented in the foreground.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        let data = notification.request.content.userInfo
+
+        #if canImport(maincore) || canImport(Maincore)
+        let push = IosTermReportPush.shared
+        if data[push.typeKey] as? String == push.termReportType {
+            completionHandler([.banner, .list, .sound])
+            return
+        }
+        #endif
+
+        completionHandler([])
+    }
+
+    // A tap on the push of a term report asks the app for that report, which opens once the student is in the app.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let data = response.notification.request.content.userInfo
+
+        #if canImport(maincore) || canImport(Maincore)
+        let push = IosTermReportPush.shared
+        if data[push.typeKey] as? String == push.termReportType,
+           let insightId = data[push.insightIdKey] as? String {
+            TuIndiceAppBootstrap.openTermReport(insightId: insightId)
+        }
+        #endif
+
+        completionHandler()
     }
 
     func application(
@@ -87,12 +133,10 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
         Messaging.messaging().delegate = self
         #endif
 
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .badge, .sound]
-        ) { _, _ in
-            DispatchQueue.main.async {
-                application.registerForRemoteNotifications()
-            }
+        // The push token is registered without the notification permission, which iOS allows. The permission is asked by the
+        // assistant's offer, on the student's word, so the app does not ask for it at launch.
+        DispatchQueue.main.async {
+            application.registerForRemoteNotifications()
         }
     }
 

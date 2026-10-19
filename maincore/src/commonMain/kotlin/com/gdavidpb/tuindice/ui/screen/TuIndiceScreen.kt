@@ -106,6 +106,7 @@ import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
 import tuindice.maincore.generated.resources.a11y_top_bar_statistics_share
+import tuindice.maincore.generated.resources.a11y_top_bar_term_report_share
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.bottom_bar_about
@@ -508,6 +509,8 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_change_pensum)
 		is TopBarAction.StatisticsShareAction ->
 			stringResource(Res.string.a11y_top_bar_statistics_share)
+		is TopBarAction.TermReportShareAction ->
+			stringResource(Res.string.a11y_top_bar_term_report_share)
 		is TopBarAction.AssistantAction ->
 			stringResource(Res.string.a11y_top_bar_assistant)
 	}
@@ -533,6 +536,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 		is TopBarAction.ChangePensumAction ->
 			Icons.Outlined.Tune
 		is TopBarAction.StatisticsShareAction ->
+			ShareIcon
+		is TopBarAction.TermReportShareAction ->
 			ShareIcon
 		is TopBarAction.AssistantAction ->
 			rememberAssistantSparkleIcon()

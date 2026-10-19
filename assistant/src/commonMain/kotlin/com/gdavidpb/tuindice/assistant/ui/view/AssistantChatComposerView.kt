@@ -1,19 +1,24 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.VisualTransformation
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -26,13 +31,15 @@ import tuindice.assistant.generated.resources.assistant_chat_composer_placeholde
 
 private const val COMPOSER_MAX_LINES = 4
 
-// The text field, with the photo clip inside it at its end, and the send button (AssistantChatSendButtonView). The
-// field is off while a restriction holds, and with it the clip; the buttons follow what the presentation says they can
-// do. While a turn can be stopped, the stop button takes the place of the send button.
+// The text keeps 12 dp above and below each line, so one line is as tall as the 48 dp end icons.
+private val LINE_PADDING = TuIndiceSpacing.XLarge
+
+// The field, with the photo clip and the send button inside its end (ComposerEndIcons). The field is off while a
+// restriction holds, and with it the clip; the send button stays, off. While a turn can be stopped, the stop button
+// takes the place of the send button.
 //
-// The send button sits in a box as tall as a one-line field, at the bottom of the row: with one line it is centred on
-// the field, and when the field grows it stays by the last line, where the text is being written, instead of moving
-// to the middle of the field at every new line.
+// The end icons sit at the bottom of the field: with one line they are centred on it, and when the field grows they
+// stay by the last line, where the text is being written.
 //
 // The field keeps its own text (EditableTextFieldState), as every field of the app the machine echoes: on iOS the
 // String overload loses and reorders keys (CMP-7312), and an echo between two keys would undo the second. The text the
@@ -45,42 +52,82 @@ fun AssistantChatComposerView(
 	modifier: Modifier = Modifier
 ) {
 	val field = remember { EditableTextFieldState(composer.text, composer.textRevision) }
+	val interactionSource = remember { MutableInteractionSource() }
+	val textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
 
 	field.syncExternal(composer.text, composer.textRevision)
 
-	Row(
-		modifier = modifier.fillMaxWidth(),
-		verticalAlignment = Alignment.Bottom,
-		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
-	) {
-		OutlinedTextField(
-			value = field.value,
-			onValueChange = { value ->
-				if (field.edit(value)) onAction(AssistantChat.Action.ChangeText(value.text))
-			},
-			modifier = Modifier.weight(1f).testTag(AssistantUiTags.Composer),
-			enabled = composer.isEnabled,
-			placeholder = { Text(text = stringResource(Res.string.assistant_chat_composer_placeholder)) },
-			// The clip is not there while the field is off, so a restriction hides it together with the field.
-			trailingIcon = if (composer.isEnabled) {
-				{
-					AssistantChatPhotoButtonView(
-						isEnabled = composer.isPhotoEnabled,
-						isCameraAvailable = isCameraAvailable,
-						onAction = onAction
+	BasicTextField(
+		value = field.value,
+		onValueChange = { value ->
+			if (field.edit(value)) onAction(AssistantChat.Action.ChangeText(value.text))
+		},
+		modifier = modifier
+			.fillMaxWidth()
+			.defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight)
+			.testTag(AssistantUiTags.Composer),
+		enabled = composer.isEnabled,
+		textStyle = textStyle,
+		cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+		maxLines = COMPOSER_MAX_LINES,
+		interactionSource = interactionSource,
+		decorationBox = { innerTextField ->
+			OutlinedTextFieldDefaults.DecorationBox(
+				value = field.value.text,
+				innerTextField = {
+					Row(verticalAlignment = Alignment.Bottom) {
+						Box(modifier = Modifier.weight(1f).padding(vertical = LINE_PADDING)) {
+							if (field.value.text.isEmpty()) {
+								Text(
+									text = stringResource(Res.string.assistant_chat_composer_placeholder),
+									style = textStyle,
+									color = MaterialTheme.colorScheme.onSurfaceVariant
+								)
+							}
+							innerTextField()
+						}
+						ComposerEndIcons(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
+					}
+				},
+				enabled = composer.isEnabled,
+				singleLine = false,
+				visualTransformation = VisualTransformation.None,
+				interactionSource = interactionSource,
+				container = {
+					OutlinedTextFieldDefaults.Container(
+						enabled = composer.isEnabled,
+						isError = false,
+						interactionSource = interactionSource,
+						shape = RoundedCornerShape(TuIndiceRadius.Large)
 					)
-				}
-			} else {
-				null
-			},
-			shape = RoundedCornerShape(TuIndiceRadius.Large),
-			maxLines = COMPOSER_MAX_LINES
-		)
-		Box(
-			modifier = Modifier.height(OutlinedTextFieldDefaults.MinHeight),
-			contentAlignment = Alignment.Center
-		) {
-			AssistantChatSendButtonView(composer = composer, onAction = onAction)
+				},
+				contentPadding = PaddingValues(
+					start = TuIndiceSpacing.Section,
+					top = TuIndiceSpacing.XSmall,
+					end = TuIndiceSpacing.XSmall,
+					bottom = TuIndiceSpacing.XSmall
+				)
+			)
 		}
+	)
+}
+
+// The icons at the end of the field, in one row: the photo clip, when the field is on, then the send button. A button
+// added later, such as the microphone, goes in this row, next to the others.
+@Composable
+private fun ComposerEndIcons(
+	composer: ChatComposerItem,
+	isCameraAvailable: Boolean,
+	onAction: (AssistantChat.Action) -> Unit
+) {
+	Row(verticalAlignment = Alignment.Bottom) {
+		if (composer.isEnabled) {
+			AssistantChatPhotoButtonView(
+				isEnabled = composer.isPhotoEnabled,
+				isCameraAvailable = isCameraAvailable,
+				onAction = onAction
+			)
+		}
+		AssistantChatSendButtonView(composer = composer, onAction = onAction)
 	}
 }

@@ -32,6 +32,9 @@ internal class AssistantChatSession {
 	var sending = false
 	var sendingTurnId: String? = null
 	var photoExtracting = false
+
+	// The notification card is on this sheet: it shows while the chat is empty and no message is being sent.
+	var notificationOfferShown = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
 	val runningIntents = mutableSetOf<String>()

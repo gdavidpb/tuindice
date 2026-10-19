@@ -37,11 +37,15 @@ internal suspend fun AssistantChatSession.presentedContent(
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
 	val screen = content.context?.context?.toScreenContext()?.screen
 
+	val items = presentedItems(texts)
+
 	return content.copy(
-		items = presentedItems(texts),
+		items = items,
 		progressLabel = if (running) conversation?.activeTurn?.progressLabel else null,
 		isExtracting = extracting,
 		isSending = sending,
+		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
+		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
 		composer = ChatComposerItem(
 			text = draftText,
 			textRevision = draftRevision,

@@ -46,4 +46,11 @@ sealed interface SummaryHubTarget {
 	data class ShareTerm(
 		val termKey: String
 	) : SummaryHubTarget
+
+	/**
+	 * The term report of the insight [insightId], pushed over the hub: the line that offers an unread report leads there.
+	 */
+	data class TermReport(
+		val insightId: String
+	) : SummaryHubTarget
 }

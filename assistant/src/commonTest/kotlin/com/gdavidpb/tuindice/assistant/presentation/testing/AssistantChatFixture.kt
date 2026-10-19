@@ -34,7 +34,9 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatAccess
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatNotificationOffer
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatPlanIntents
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatProposals
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatRestrictions
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
@@ -68,12 +70,15 @@ import kotlinx.coroutines.test.runTest
 
 // The chat machine over the fakes of the ports, with the real use cases and collaborators in between. The clock is
 // fixed so the deadlines of the intents are decided by the test.
-internal class AssistantChatFixture {
+internal class AssistantChatFixture(
+	val notificationOffers: RecordingNotificationOfferRepository = RecordingNotificationOfferRepository()
+) {
 	val texts = FakeAssistantChatTexts()
 	val feedbackTexts = FakeAssistantChatFeedbackTexts()
 	val availability = ObservedAssistantAvailabilityRepository()
 	val conversation = ObservedAssistantConversationRepository()
 	val consent = RecordingAssistantConsentRepository()
+	val notificationPermission = RecordingNotificationPermissionRepository(offers = notificationOffers)
 	val turns = RecordingAssistantTurnRepository()
 	val intents = RecordingAssistantIntentRepository()
 	val gatedIntents = GatedAssistantIntentRepository(intents)
@@ -124,10 +129,16 @@ internal class AssistantChatFixture {
 
 		return AssistantChatMachine(
 			turns = createTurns(turnStream),
-			intents = createIntents(confirmer),
-			planIntents = createPlanIntents(confirmer),
+			proposals = AssistantChatProposals(
+				intents = createIntents(confirmer),
+				planIntents = createPlanIntents(confirmer)
+			),
 			feedback = createFeedback(),
 			access = createAccess(confirmer),
+			notificationOffer = AssistantChatNotificationOffer(
+				permission = notificationPermission,
+				offers = notificationOffers
+			),
 			texts = texts
 		)
 	}
@@ -268,9 +279,11 @@ internal class AssistantChatFixture {
 
 // Runs [block] with a view model on the test dispatchers, whose state and effects are collected from the start.
 @OptIn(ExperimentalCoroutinesApi::class)
-internal fun chatTest(block: suspend TestScope.(AssistantChatFixture, AssistantChatViewModel) -> Unit) = runTest {
+internal fun chatTest(
+	fixture: AssistantChatFixture = AssistantChatFixture(),
+	block: suspend TestScope.(AssistantChatFixture, AssistantChatViewModel) -> Unit
+) = runTest {
 	withUnconfinedTestDispatchers { dispatchers ->
-		val fixture = AssistantChatFixture()
 		val viewModel = fixture.viewModel(dispatchers)
 
 		backgroundScope.launchStateCollector(viewModel.state, testScheduler)

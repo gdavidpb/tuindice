@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -49,10 +51,12 @@ import com.gdavidpb.tuindice.presentation.navigation.openAssistant
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
 import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
+import com.gdavidpb.tuindice.presentation.navigation.showTermReport
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlinx.coroutines.CancellationException
@@ -91,6 +95,7 @@ fun TuIndiceAppHostRoute(
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
+	val termReportTopBarActionBus: TermReportTopBarActionBus = koinInject()
 	val navigatorHolder = remember { mutableStateOf<TuIndiceNavigator?>(null) }
 
 	val showSnackBar: (SnackBarMessage) -> Unit = { message ->
@@ -239,6 +244,8 @@ fun TuIndiceAppHostRoute(
 				navigator.push(AuthDestination.UpdatePasswordDialog)
 			}
 
+			TermReportFocusEffect(navigatorHolder = navigatorHolder)
+
 			TuIndiceScreen(
 				state = state,
 				shellState = shellState,
@@ -273,6 +280,9 @@ fun TuIndiceAppHostRoute(
 
 						is TopBarAction.StatisticsShareAction ->
 							statisticsTopBarActionBus.dispatch(action)
+
+						is TopBarAction.TermReportShareAction ->
+							termReportTopBarActionBus.dispatch(action)
 					}
 				},
 				onRecordViewModeChange = onRecordViewModeChange.value,
@@ -362,4 +372,34 @@ private fun BrowserRepository.openUpdateStoreFallback(
 		if (throwable is CancellationException) throw throwable
 		open(result.fallbackUrl)
 	}
+}
+
+// A tap on the push of a term report opens the report over the summary, once the student is signed in.
+// The request waits until the navigator exists, and it is taken once it is shown.
+@Composable
+private fun TermReportFocusEffect(
+	navigatorHolder: State<TuIndiceNavigator?>,
+	focusRepository: TermReportFocusRepository = koinInject()
+) {
+	val pendingTermReport by remember(focusRepository) { focusRepository.observeRequest() }
+		.collectAsStateWithLifecycle(initialValue = null)
+
+	LaunchedEffect(pendingTermReport) {
+		val insightId = pendingTermReport ?: return@LaunchedEffect
+		val navigator = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
+
+		showPendingTermReport(insightId = insightId, navigator = navigator, focusRepository = focusRepository)
+	}
+}
+
+// Shows the report of [insightId] once the student is signed in, then takes the request: a request is shown once.
+internal suspend fun showPendingTermReport(
+	insightId: String,
+	navigator: TuIndiceNavigator,
+	focusRepository: TermReportFocusRepository
+) {
+	snapshotFlow { navigator.rootMode }.first { rootMode -> rootMode == TuIndiceRootMode.SIGNED_IN }
+
+	navigator.showTermReport(insightId = insightId)
+	focusRepository.consume(insightId)
 }

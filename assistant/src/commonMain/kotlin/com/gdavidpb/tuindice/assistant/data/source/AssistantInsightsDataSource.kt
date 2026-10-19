@@ -20,6 +20,10 @@ class AssistantInsightsDataSource(
 		insights.value = api.getInsights().items.map { item -> item.toAssistantTermInsight() }
 	}
 
+	override suspend fun rateInsight(insightId: String, useful: Boolean) {
+		api.postInsightFeedback(insightId = insightId, useful = useful)
+	}
+
 	// The insights are what the server said about this account, so they go with the session.
 	override suspend fun clearSessionMemory() {
 		insights.value = emptyList()

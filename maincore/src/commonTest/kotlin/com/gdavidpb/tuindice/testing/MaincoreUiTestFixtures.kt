@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantTermInsight
+import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -35,16 +37,21 @@ import com.gdavidpb.tuindice.presentation.machine.MainMachine
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
+import com.gdavidpb.tuindice.summary.domain.repository.TermReportSeenRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportEntryUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
+import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateTermReportsExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
@@ -64,6 +71,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
@@ -95,6 +103,18 @@ fun createSummaryViewModel(
 			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
 				deviceInfoRepository = deviceInfoRepository,
 				reportingRepository = RecordingReportingRepository()
+			),
+			termReports = SummaryTermReports(
+				entry = ObserveTermReportEntryUseCase(
+					insightsRepository = NoTermReportsRepository,
+					seenRepository = NoSeenTermReportsRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				refresh = UpdateTermReportsUseCase(
+					insightsRepository = NoTermReportsRepository,
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = UpdateTermReportsExceptionHandler()
+				)
 			),
 			updateUserUseCase = UpdateUserUseCase(
 				userRepository = userRepository,
@@ -269,4 +289,19 @@ private class FakeUserRepository(
 	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture = profilePicture
 
 	override suspend fun removeProfilePicture() = Unit
+}
+
+// The summary's line of an unread term report has no report to offer in these screens.
+private object NoTermReportsRepository : AssistantInsightsRepository {
+	override fun observeInsightsFlow(): Flow<List<AssistantTermInsight>> = flowOf(emptyList())
+
+	override suspend fun refreshInsights() = Unit
+
+	override suspend fun rateInsight(insightId: String, useful: Boolean) = Unit
+}
+
+private object NoSeenTermReportsRepository : TermReportSeenRepository {
+	override fun observeSeenTermReportIds(): Flow<Set<String>> = flowOf(emptySet())
+
+	override suspend fun markTermReportSeen(insightId: String) = Unit
 }

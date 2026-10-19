@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "01c705af6984b336fc2aed20576ec543:1",
+      "termKey": "2026-JAN_MAR",
+      "kind": "term_end",
+      "title": "Un trimestre con avances",
+      "body": "Cerraste el trimestre con tres materias aprobadas y una reprobada. Revisa las evaluaciones del próximo trimestre y reserva más tiempo para la materia que no aprobaste.",
+      "entityRefs": [
+        {
+          "kind": "term",
+          "id": "01c705af6984b336fc2aed20576ec543"
+        }
+      ],
+      "sections": [
+        {
+          "title": "Un trimestre con avances",
+          "text": "Cerraste el trimestre con tres materias aprobadas y una reprobada."
+        },
+        {
+          "title": "Lo que sigue",
+          "text": "Revisa las evaluaciones del próximo trimestre y reserva más tiempo para la materia que no aprobaste."
+        }
+      ],
+      "nextActions": [
+        {
+          "target": "evaluations",
+          "label": "Ver mis evaluaciones",
+          "entityRefs": []
+        },
+        {
+          "target": "statistics",
+          "label": "Ver estadísticas",
+          "entityRefs": []
+        }
+      ],
+      "createdAtMillis": 1785456000000
+    }
+  ]
+}
