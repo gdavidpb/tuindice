@@ -44,6 +44,7 @@ fun AssistantAppealDialog(
 		positiveEnabled = appealText.value.isNotBlank(),
 		positiveButtonTestTag = AssistantUiTags.AppealSend,
 		onPositiveClick = { onAppeal(appealText.value) },
+			scrollable = true,
 		onDismissRequest = onDismissRequest
 	) {
 		OutlinedTextField(
