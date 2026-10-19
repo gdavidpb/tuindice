@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.assistant.ui.component.common
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.ui.model.chatCardLink
+import com.gdavidpb.tuindice.assistant.presentation.mapper.chatCardLink
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import org.jetbrains.compose.resources.stringResource
 

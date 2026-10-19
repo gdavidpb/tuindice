@@ -9,8 +9,10 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CitationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ClashesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
+import com.gdavidpb.tuindice.assistant.presentation.model.HelpItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexGoalItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.NextClassItem
@@ -29,6 +31,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WeekScheduleItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
+import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.CitationComponentView
+import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.HelpComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.ClashesComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.NextClassComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.horario.WeekScheduleComponentView
@@ -50,10 +54,8 @@ import com.gdavidpb.tuindice.assistant.ui.component.sistema.UsageNoticeComponent
 import com.gdavidpb.tuindice.assistant.ui.component.sistema.WarningComponentView
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
-import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
-import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
@@ -114,6 +116,8 @@ private fun ComponentRenderer(
 		is WeekScheduleItem -> WeekScheduleComponentView(item = item)
 		is NextClassItem -> NextClassComponentView(item = item)
 		is ClashesItem -> ClashesComponentView(item = item)
+		is HelpItem -> HelpComponentView(item = item, onAction = onAction)
+		is CitationItem -> CitationComponentView(item = item, onAction = onAction)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
 		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
 		is UsageNoticeItem -> UsageNoticeComponentView(item = item)
@@ -135,8 +139,7 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		// conocimiento, evaluaciones, materias, pensum and plan: drawn by AcademicCardComponentRenderer
-		is HelpComponent, is CitationComponent,
+		// evaluaciones, materias, pensum and plan: drawn by AcademicCardComponentRenderer
 		is WeeklyLoadComponent, is EvaluationListComponent, is RequiredGradeComponent, is SubjectPointsComponent,
 		is SubjectStatsComponent, is SubjectListComponent, is RecommendedElectivesComponent,
 		is PensumProgressComponent, is PensumComparisonComponent, is SubjectImpactComponent, is RequirementsComponent,

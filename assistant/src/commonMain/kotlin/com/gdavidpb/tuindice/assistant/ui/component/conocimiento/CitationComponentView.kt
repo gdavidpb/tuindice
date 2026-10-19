@@ -7,16 +7,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.CitationItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRecordLinkView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_citation_document
 import tuindice.assistant.generated.resources.assistant_card_b_citation_label
 import tuindice.assistant.generated.resources.assistant_card_b_citation_open
 
@@ -24,17 +23,17 @@ import tuindice.assistant.generated.resources.assistant_card_b_citation_open
 // service brings one, a link to the official document, so the student can read it at the source.
 @Composable
 fun CitationComponentView(
-	component: CitationComponent,
+	item: CitationItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val uriHandler = LocalUriHandler.current
 
-	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Knowledge.citation(component.id))) {
+	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Knowledge.citation(item.id))) {
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_citation_label))
-		component.sources.forEachIndexed { index, source ->
+		item.sources.forEachIndexed { index, source ->
 			CardRowView(
-				code = stringResource(Res.string.assistant_card_b_citation_document, source.document),
+				code = source.documentText.asString(),
 				name = source.article,
 				showsDivider = index > 0
 			)
@@ -50,6 +49,11 @@ fun CitationComponentView(
 				)
 			}
 		}
-		CardRecordLinkView(entityRefs = component.entityRefs, onAction = onAction)
+		item.recordLink?.let { link ->
+			CardLinkView(
+				text = link.text.asString(),
+				onClick = { onAction(AssistantChat.Action.OpenNavTarget(link.target, link.entityRefs)) }
+			)
+		}
 	}
 }

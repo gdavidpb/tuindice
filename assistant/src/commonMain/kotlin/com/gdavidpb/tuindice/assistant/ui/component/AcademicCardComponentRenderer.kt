@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.component
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
-import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.CitationComponentView
-import com.gdavidpb.tuindice.assistant.ui.component.conocimiento.HelpComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.EvaluationListComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.RequiredGradeComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.evaluaciones.SubjectPointsComponentView
@@ -19,9 +17,7 @@ import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanComparisonComponent
 import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanEvaluationComponentView
 import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanListComponentView
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
-import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
-import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
@@ -53,10 +49,9 @@ fun AcademicCardComponentRenderer(
 		is SubjectImpactComponent -> SubjectImpactComponentView(component = component, onAction = onAction)
 		is PensumComparisonComponent -> PensumComparisonComponentView(component = component, onAction = onAction)
 
-		// materias/1, plan/1 and conocimiento/1: drawn by the second half.
+		// materias/1 and plan/1: drawn by the second half.
 		is SubjectListComponent, is SubjectStatsComponent, is RecommendedElectivesComponent,
-		is PlanListComponent, is PlanEvaluationComponent, is PlanComparisonComponent,
-		is CitationComponent, is HelpComponent ->
+		is PlanListComponent, is PlanEvaluationComponent, is PlanComparisonComponent ->
 			SubjectPlanCardComponentRenderer(component = component, onAction = onAction)
 
 		// Only the types of the academic branch reach here, so no other component is drawn.
@@ -76,8 +71,6 @@ private fun SubjectPlanCardComponentRenderer(
 		is PlanListComponent -> PlanListComponentView(component = component, onAction = onAction)
 		is PlanEvaluationComponent -> PlanEvaluationComponentView(component = component, onAction = onAction)
 		is PlanComparisonComponent -> PlanComparisonComponentView(component = component, onAction = onAction)
-		is CitationComponent -> CitationComponentView(component = component, onAction = onAction)
-		is HelpComponent -> HelpComponentView(component = component, onAction = onAction)
 
 		// Only the types of the second half reach here, so no other component is drawn.
 		else -> Unit

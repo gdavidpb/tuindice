@@ -3,9 +3,11 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
+import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
+import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
@@ -44,6 +46,8 @@ internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentIt
 		is WeekScheduleComponent -> toWeekScheduleItem()
 		is NextClassComponent -> toNextClassItem(nowMillis = nowMillis)
 		is ClashesComponent -> toClashesItem()
+		is CitationComponent -> toCitationItem()
+		is HelpComponent -> toHelpItem()
 		is SyncStatusComponent -> toSyncStatusItem()
 		is AttentionComponent -> toAttentionCardItem()
 

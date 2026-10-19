@@ -1,5 +1,7 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
@@ -29,3 +31,10 @@ private fun EntityKind.link(): Pair<NavTarget, StringResource>? =
 		EntityKind.PENSUM -> NavTarget.PENSUM to Res.string.assistant_card_b_link_pensum
 		EntityKind.PLAN -> null
 	}
+
+// The link of a card as the card shows it: the screen of the record it names, and the text of the link.
+internal fun List<EntityRef>.toRecordLinkItem(): CardLinkItem? {
+	val (target, label) = chatCardLink() ?: return null
+
+	return CardLinkItem(target = target, text = UiText.Resource(label), entityRefs = this)
+}

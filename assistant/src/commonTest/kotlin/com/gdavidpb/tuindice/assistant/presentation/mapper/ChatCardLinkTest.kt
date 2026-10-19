@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
