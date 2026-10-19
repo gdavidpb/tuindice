@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.assistant.ui.model
+package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
-import org.jetbrains.compose.resources.StringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_reason_academic_dishonesty
 import tuindice.assistant.generated.resources.assistant_reason_automation
@@ -13,8 +13,8 @@ import tuindice.assistant.generated.resources.assistant_reason_spam
 import tuindice.assistant.generated.resources.assistant_reason_third_party_data
 
 // The sentence that says why the assistant warned, paused or suspended the student.
-fun AbuseReasonCode.textResource(): StringResource =
-	when (this) {
+internal fun AbuseReasonCode.toReasonText(): UiText {
+	val resource = when (this) {
 		AbuseReasonCode.JAILBREAK -> Res.string.assistant_reason_jailbreak
 		AbuseReasonCode.PROMPT_EXTRACTION -> Res.string.assistant_reason_prompt_extraction
 		AbuseReasonCode.HARASSMENT -> Res.string.assistant_reason_harassment
@@ -24,3 +24,6 @@ fun AbuseReasonCode.textResource(): StringResource =
 		AbuseReasonCode.SPAM -> Res.string.assistant_reason_spam
 		AbuseReasonCode.AUTOMATION -> Res.string.assistant_reason_automation
 	}
+
+	return UiText.Resource(resource)
+}

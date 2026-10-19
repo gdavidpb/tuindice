@@ -5,9 +5,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantStillAppliesButtonsView
-import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_still_applies_title
@@ -15,7 +15,7 @@ import tuindice.assistant.generated.resources.assistant_still_applies_title
 // sistema.sigue_aplicando/1: a remembered statement and the two answers to it.
 @Composable
 fun StillAppliesComponentView(
-	component: StillAppliesComponent,
+	item: StillAppliesItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -26,14 +26,14 @@ fun StillAppliesComponentView(
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		Text(
-			text = component.statement,
+			text = item.statement,
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		AssistantStillAppliesButtonsView(
-			memoryId = component.memoryId,
+			memoryId = item.memoryId,
 			onAnswer = { applies ->
-				onAction(AssistantChat.Action.AnswerStillApplies(component.memoryId, applies))
+				onAction(AssistantChat.Action.AnswerStillApplies(item.memoryId, applies))
 			}
 		)
 	}

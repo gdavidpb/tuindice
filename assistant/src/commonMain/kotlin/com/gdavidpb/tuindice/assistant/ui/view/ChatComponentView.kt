@@ -8,6 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CooldownItem
+import com.gdavidpb.tuindice.assistant.presentation.model.OpenScreenItem
+import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SupportItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SuspensionItem
+import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
+import com.gdavidpb.tuindice.assistant.presentation.model.WarningItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
@@ -23,13 +30,11 @@ import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
-import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
-import com.gdavidpb.tuindice.chatcontract.component.OpenScreenComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
@@ -42,18 +47,13 @@ import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
-import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
-import com.gdavidpb.tuindice.chatcontract.component.SupportComponent
-import com.gdavidpb.tuindice.chatcontract.component.SuspensionComponent
 import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
-import com.gdavidpb.tuindice.chatcontract.component.UsageNoticeComponent
-import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
@@ -90,6 +90,14 @@ private fun ComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (item) {
+		is StillAppliesItem -> StillAppliesComponentView(item = item, onAction = onAction)
+		is UsageNoticeItem -> UsageNoticeComponentView(item = item)
+		is CooldownItem -> CooldownComponentView(item = item, onAction = onAction)
+		is SuspensionItem -> SuspensionComponentView(item = item, onAction = onAction)
+		is SupportItem -> SupportComponentView(item = item)
+		is WarningItem -> WarningComponentView(item = item)
+		is OpenScreenItem -> OpenScreenComponentView(item = item, onAction = onAction)
+
 		is ChatComponentItem.Unmigrated -> WireComponentRenderer(component = item.component, onAction = onAction)
 	}
 }
@@ -102,14 +110,6 @@ private fun WireComponentRenderer(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (component) {
-		is StillAppliesComponent -> StillAppliesComponentView(component = component, onAction = onAction)
-		is UsageNoticeComponent -> UsageNoticeComponentView(component = component)
-		is CooldownComponent -> CooldownComponentView(component = component, onAction = onAction)
-		is SuspensionComponent -> SuspensionComponentView(component = component, onAction = onAction)
-		is SupportComponent -> SupportComponentView(component = component)
-		is WarningComponent -> WarningComponentView(component = component)
-		is OpenScreenComponent -> OpenScreenComponentView(component = component, onAction = onAction)
-
 		// perfil/1, informe/1, horario/1 and resumen/1: their cards are drawn by RecordCardComponentRenderer
 		is ProfileSummaryComponent, is SyncStatusComponent, is TermComponent, is IndexSeriesComponent,
 		is RecordStatsComponent, is PaceComponent, is SimulationComponent, is IndexGoalComponent,
@@ -126,5 +126,8 @@ private fun WireComponentRenderer(
 
 		// A component this build does not know shows the text the backend sent with it.
 		is UnknownChatComponent -> ChatFallbackComponentView(fallbackText = component.fallbackText)
+
+		// The catalogs ported to items are drawn from their items, so none of their components arrives here.
+		else -> Unit
 	}
 }
