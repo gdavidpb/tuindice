@@ -44,7 +44,7 @@ object Pensum {
 					entities = listOf(
 						AssistantEntityRef(
 							kind = AssistantEntityKind.PENSUM,
-							id = "${model.careerName}-${model.selection.year}-${model.selection.modalityId}"
+							id = model.pensumId
 						)
 					),
 					filters = emptyMap(),
