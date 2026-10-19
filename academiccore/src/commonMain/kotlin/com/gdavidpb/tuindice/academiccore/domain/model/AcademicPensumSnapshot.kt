@@ -15,10 +15,13 @@ data class AcademicPensumSnapshot(
 	)
 }
 
+// A withdrawn attempt stays out: as in the record's projection, it weighs on nothing, so the pensum reads its subject
+// neither approved nor in progress, whatever result it carries.
 fun AcademicRecord?.toAcademicPensumSnapshot(): AcademicPensumSnapshot {
 	return AcademicPensumSnapshot(
 		attempts = this?.terms.orEmpty().flatMap { term ->
-			term.attempts.mapIndexed { positionInTerm, attempt ->
+			term.attempts.mapIndexedNotNull { positionInTerm, attempt ->
+				if (attempt.withdrawn) return@mapIndexedNotNull null
 				AcademicPensumSnapshot.Attempt(
 					id = attempt.id,
 					subjectCode = attempt.subjectCode,
