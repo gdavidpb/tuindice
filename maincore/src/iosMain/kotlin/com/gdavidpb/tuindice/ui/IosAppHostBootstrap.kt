@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
@@ -72,6 +73,11 @@ class IosAppHostBootstrap(
 
 		arguments.sessionSeed?.let { seed ->
 			runBlocking { koin.seedDebugSession(seed) }
+		}
+
+		// After the seed, which clears the settings the offer is kept in.
+		arguments.notificationOffered?.let { offered ->
+			koin.get<NotificationOfferRepository>().setOffered(offered)
 		}
 	}
 }

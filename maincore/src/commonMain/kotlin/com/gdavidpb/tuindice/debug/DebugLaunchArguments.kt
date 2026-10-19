@@ -11,11 +11,11 @@ import kotlin.time.Instant
  * the keys from here; nothing else spells them. Release builds never read them: Android ships
  * the reader in the debug source set only and the iOS host reads launch arguments under `#if DEBUG`.
  *
- * The session seed and the availability notice are applied on cold start only (`DebugMainActivity`
- * is `singleInstance` and does not handle `onNewIntent`): Android skips them when the activity is
- * recreated or restored after the process died, because the seed clears the session and settings;
- * iOS reads the arguments once per process. The Android extras are parsed every time and every
- * one must be a string (`am start --es`). `MAIN_SECTION` only matters together with a seed and is ignored without one.
+ * The session seed, the notification offer and the availability notice are applied on cold start only
+ * (`DebugMainActivity` is `singleInstance` and does not handle `onNewIntent`): Android skips them when the activity
+ * is recreated or restored after the process died, because the seed clears the session and settings; iOS reads the
+ * arguments once per process. The Android extras are parsed every time and every one must be a string
+ * (`am start --es`). `MAIN_SECTION` only matters together with a seed and is ignored without one.
  * `NOW` freezes the clock the app reads for what it shows by date (see [OverridableClock]); it is
  * applied on every launch, like the network override.
  */
@@ -27,7 +27,9 @@ data class DebugLaunchArguments(
 	val animationsDisabled: Boolean,
 	val fixedNow: Instant?,
 	val availabilityNotice: AvailabilityNotice?,
-	val sessionSeed: DebugSessionSeed?
+	val sessionSeed: DebugSessionSeed?,
+	// Whether the chat's notification offer counts as already made on the device; null when the launch does not say.
+	val notificationOffered: Boolean? = null
 ) {
 	data class AvailabilityNotice(
 		val enabled: Boolean,
@@ -63,6 +65,14 @@ data class DebugLaunchArguments(
 		/** `seen` (default) or `pending`. */
 		const val SEED_COACHMARKS = "TUINDICE_E2E_SEED_COACHMARKS"
 
+		/**
+		 * `offered` (the chat does not show the notification card) or `pending` (it does, in an empty chat). The
+		 * scenarios send `offered` by default; a scenario that needs the card sends `pending`.
+		 */
+		const val NOTIFICATION_OFFER = "TUINDICE_E2E_NOTIFICATION_OFFER"
+		const val NOTIFICATION_OFFER_OFFERED = "offered"
+		const val NOTIFICATION_OFFER_PENDING = "pending"
+
 		const val COACHMARKS_SEEN = "seen"
 		const val COACHMARKS_PENDING = "pending"
 
@@ -84,7 +94,8 @@ data class DebugLaunchArguments(
 			AVAILABILITY_NOTICE_TITLE,
 			AVAILABILITY_NOTICE_MESSAGE,
 			MAIN_SECTION,
-			SEED_COACHMARKS
+			SEED_COACHMARKS,
+			NOTIFICATION_OFFER
 		) + identityKeys
 
 		/**
@@ -115,7 +126,8 @@ data class DebugLaunchArguments(
 				animationsDisabled = present[DISABLE_ANIMATIONS]?.let { parseBoolean(DISABLE_ANIMATIONS, it) } ?: false,
 				fixedNow = present[NOW]?.let(::parseInstant),
 				availabilityNotice = notice,
-				sessionSeed = parseSeed(present)
+				sessionSeed = parseSeed(present),
+				notificationOffered = present[NOTIFICATION_OFFER]?.let(::parseNotificationOffer)
 			)
 		}
 
@@ -162,6 +174,14 @@ data class DebugLaunchArguments(
 				Instant.parse(value)
 			} catch (cause: IllegalArgumentException) {
 				throw IllegalArgumentException("Unsupported instant for $NOW: $value", cause)
+			}
+		}
+
+		private fun parseNotificationOffer(value: String): Boolean {
+			return when (value) {
+				NOTIFICATION_OFFER_OFFERED -> true
+				NOTIFICATION_OFFER_PENDING -> false
+				else -> throw IllegalArgumentException("Unsupported $NOTIFICATION_OFFER: $value")
 			}
 		}
 

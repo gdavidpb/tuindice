@@ -29,7 +29,8 @@ class LaunchArgsParityTest {
 		"animationsDisabled" to (androidDebug to iosKotlin),
 		"fixedNow" to (androidDebug to iosKotlin),
 		"availabilityNotice" to (androidDebug to iosKotlin),
-		"sessionSeed" to (androidDebug to iosKotlin)
+		"sessionSeed" to (androidDebug to iosKotlin),
+		"notificationOffered" to (androidDebug to iosKotlin)
 	)
 
 	@Test

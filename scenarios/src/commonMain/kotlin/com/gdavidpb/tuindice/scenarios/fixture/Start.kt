@@ -75,10 +75,12 @@ sealed interface Start {
 		const val TOKENS_ISSUED = "TokensIssued"
 		val canonicalUsbId = Regex("""\d{2}-\d{5}""")
 
+		// The notification offer is made already: the card of the permission shows in no scenario unless it asks.
 		fun baseArguments(network: Boolean): Map<String, String> = mapOf(
 			DebugLaunchArguments.DISABLE_ANIMATIONS to "true",
 			DebugLaunchArguments.NOW to E2eFixtures.Now,
-			DebugLaunchArguments.NETWORK_AVAILABLE to network.toString()
+			DebugLaunchArguments.NETWORK_AVAILABLE to network.toString(),
+			DebugLaunchArguments.NOTIFICATION_OFFER to DebugLaunchArguments.NOTIFICATION_OFFER_OFFERED
 		)
 	}
 }
