@@ -22,7 +22,7 @@ internal fun rememberExternalUriOpener(
 	val openUriFailedMessage = stringResource(Res.string.snack_open_uri_failed)
 
 	return remember(uriHandler, showSnackBar, mailAppMissingMessage, openUriFailedMessage) {
-		{ uri ->
+		val opener: (String) -> Unit = { uri ->
 			runCatching { uriHandler.openUri(uri) }
 				.recoverCatching { throwable ->
 					val fallbackUri = uri.toStoreWebUri() ?: throw throwable
@@ -38,6 +38,8 @@ internal fun rememberExternalUriOpener(
 				}
 			Unit
 		}
+
+		opener
 	}
 }
 

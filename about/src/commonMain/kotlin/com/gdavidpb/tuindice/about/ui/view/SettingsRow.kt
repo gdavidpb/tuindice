@@ -51,8 +51,8 @@ fun SettingsLinkRow(
 }
 
 /**
- * A row of Settings that does its thing at once (share, rate, sign out), with no chevron. A [isDestructive] row takes the
- * error color of the theme, as the destructive actions do everywhere else.
+ * A row of Settings that does its thing at once (share, rate, sign out), with no chevron. A [isDestructive] row takes
+ * the error color of the theme, as the destructive actions do everywhere else.
  */
 @Composable
 fun SettingsActionRow(

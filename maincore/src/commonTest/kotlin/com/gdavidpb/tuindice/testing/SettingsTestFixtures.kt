@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.RefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
@@ -37,34 +38,19 @@ fun createSettingsViewModel(
 	assistantAvailabilityRepository: AssistantAvailabilityRepository = FakeAssistantAvailabilityRepository()
 ): SettingsViewModel {
 	val reporting = RecordingReportingRepository()
-	val consentRepository = object : AssistantConsentRepository {
-		private val consent = MutableStateFlow(false)
-
-		override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
-
-		override fun isAssistantConsentGranted(): Boolean = consent.value
-
-		override suspend fun setAssistantConsentGranted(granted: Boolean) {
-			consent.value = granted
-		}
-
-		override suspend fun refreshAssistantConsent() = Unit
-	}
-	val conversationsRepository = object : AssistantConversationsRepository {
-		override suspend fun deleteAssistantConversations() = Unit
-	}
-
 	return SettingsViewModel(
 		screenMachine = SettingsMachine(
-			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = object : AboutRepository {
-					override suspend fun getVersionDescription(): String = "1.0.0"
-				},
-				reportingRepository = reporting
-			),
-			observeProfileIdentityUseCase = ObserveProfileIdentityUseCase(
-				profileIdentityRepository = profileIdentityRepository,
-				reportingRepository = reporting
+			contentUseCases = SettingsContentUseCases(
+				loadVersion = LoadVersionUseCase(
+					aboutRepository = object : AboutRepository {
+						override suspend fun getVersionDescription(): String = "1.0.0"
+					},
+					reportingRepository = reporting
+				),
+				observeProfileIdentity = ObserveProfileIdentityUseCase(
+					profileIdentityRepository = profileIdentityRepository,
+					reportingRepository = reporting
+				)
 			),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
@@ -85,29 +71,56 @@ fun createSettingsViewModel(
 					reportingRepository = reporting
 				)
 			),
-			assistantUseCases = SettingsAssistantUseCases(
-				observeAvailability = ObserveAssistantAvailabilityUseCase(
-					assistantAvailabilityRepository = assistantAvailabilityRepository,
-					reportingRepository = reporting
-				),
-				observeConsent = ObserveAssistantConsentUseCase(
-					assistantConsentRepository = consentRepository,
-					reportingRepository = reporting
-				),
-				setConsent = SetAssistantConsentUseCase(
-					assistantConsentRepository = consentRepository,
-					reportingRepository = reporting
-				),
-				refreshConsent = RefreshAssistantConsentUseCase(
-					assistantConsentRepository = consentRepository,
-					reportingRepository = reporting
-				),
-				deleteConversations = DeleteAssistantConversationsUseCase(
-					assistantConversationsRepository = conversationsRepository,
-					reportingRepository = reporting
-				)
-			)
+			assistantUseCases = assistantUseCases(reporting, assistantAvailabilityRepository)
 		),
 		eventPublisher = NoOpEventPublisher
 	)
+}
+
+private fun assistantUseCases(
+	reporting: RecordingReportingRepository,
+	assistantAvailabilityRepository: AssistantAvailabilityRepository
+): SettingsAssistantUseCases {
+	val consentRepository = InMemoryAssistantConsentRepository()
+
+	return SettingsAssistantUseCases(
+		observeAvailability = ObserveAssistantAvailabilityUseCase(
+			assistantAvailabilityRepository = assistantAvailabilityRepository,
+			reportingRepository = reporting
+		),
+		observeConsent = ObserveAssistantConsentUseCase(
+			assistantConsentRepository = consentRepository,
+			reportingRepository = reporting
+		),
+		setConsent = SetAssistantConsentUseCase(
+			assistantConsentRepository = consentRepository,
+			reportingRepository = reporting
+		),
+		refreshConsent = RefreshAssistantConsentUseCase(
+			assistantConsentRepository = consentRepository,
+			reportingRepository = reporting
+		),
+		deleteConversations = DeleteAssistantConversationsUseCase(
+			assistantConversationsRepository = NoOpAssistantConversationsRepository(),
+			reportingRepository = reporting
+		)
+	)
+}
+
+private class InMemoryAssistantConsentRepository : AssistantConsentRepository {
+	private val consent = MutableStateFlow(false)
+
+	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
+
+	override fun isAssistantConsentGranted(): Boolean = consent.value
+
+	override suspend fun setAssistantConsentGranted(granted: Boolean) {
+		consent.value = granted
+	}
+
+	override suspend fun refreshAssistantConsent() = Unit
+}
+
+private class NoOpAssistantConversationsRepository : AssistantConversationsRepository {
+	override suspend fun deleteAssistantConversations() = Unit
 }

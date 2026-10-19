@@ -19,11 +19,11 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
-import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.FakeProfileIdentityRepository
 import com.gdavidpb.tuindice.about.testing.SettingsRouteUnderTest
 import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
@@ -662,13 +662,15 @@ class SettingsRouteUiTest {
 		return SettingsRouteFixture(
 			viewModel = SettingsViewModel(
 				screenMachine = SettingsMachine(
-					loadVersionUseCase = loadVersionUseCase,
+					contentUseCases = SettingsContentUseCases(
+						loadVersion = loadVersionUseCase,
+						observeProfileIdentity = fakeObserveProfileIdentityUseCase(profileIdentityRepository)
+					),
 					externalUseCases = SettingsExternalUseCases(
 						sendSupportEmail = sendSupportEmailUseCase,
 						openStore = openStoreUseCase,
 						openExternalUrl = openExternalUrlUseCase
 					),
-					observeProfileIdentityUseCase = fakeObserveProfileIdentityUseCase(profileIdentityRepository),
 					appEnvironmentRepository = appEnvironmentRepository,
 					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 					assistantUseCases = fakeSettingsAssistantUseCases()

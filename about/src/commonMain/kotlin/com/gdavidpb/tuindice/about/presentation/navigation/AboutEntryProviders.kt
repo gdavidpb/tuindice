@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import com.gdavidpb.tuindice.about.ui.dialog.DeleteAssistantConversationsDialog
-import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
 import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.presentation.navigation.dialogMetadata
@@ -72,14 +71,9 @@ private fun SettingsEntry(
 		LocalShareTextHandler provides shareTextHandler
 	) {
 		SettingsRoute(
-			onNavigateToBrowser = settings.onNavigateToBrowser,
-			onNavigateToAbout = settings.onNavigateToAbout,
-			onNavigateToAssistantMemory = settings.onNavigateToAssistantMemory,
-			onNavigateToDeleteConfirmation = settings.onNavigateToDeleteConfirmation,
-			onSignOutRequest = settings.onSignOutRequest,
+			dependencies = settings,
 			showSnackBar = shellBindings.showSnackBar,
-			viewModel = viewModel,
-			profilePhoto = settings.profilePhoto
+			viewModel = viewModel
 		)
 	}
 }

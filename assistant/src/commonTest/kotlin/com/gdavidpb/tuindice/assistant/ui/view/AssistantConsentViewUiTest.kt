@@ -147,7 +147,8 @@ class AssistantConsentViewUiTest {
 		const val ACCURACY_TEXT = "Puede equivocarse: revisa las cifras importantes en la app antes de decidir."
 		const val PROVIDERS_TEXT = "Tus mensajes se procesan con proveedores externos: Anthropic y Google."
 		const val RETENTION_TEXT = "Guardamos tus mensajes durante 12 meses."
-		const val CONTROL_TEXT = "Puedes apagar el asistente y eliminar tus datos desde Ajustes, tocando tu foto arriba a la derecha."
+		const val CONTROL_TEXT = "Puedes apagar el asistente y eliminar tus datos desde Ajustes, " +
+			"tocando tu foto arriba a la derecha."
 		val LINES = listOf(SCOPE_TEXT, ACCURACY_TEXT, PROVIDERS_TEXT, RETENTION_TEXT, CONTROL_TEXT)
 	}
 }

@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
  * What the host gives Settings: where its rows lead, how it asks for the sign-out flow, and the photo it draws. Grouped
  * so the entries take one parameter instead of a long list of callbacks.
  */
-class SettingsNavDependencies(
+data class SettingsNavDependencies(
 	val onNavigateToBrowser: (title: String, url: String) -> Unit,
 	val onNavigateToAbout: () -> Unit,
 	val onNavigateToAssistantMemory: () -> Unit,

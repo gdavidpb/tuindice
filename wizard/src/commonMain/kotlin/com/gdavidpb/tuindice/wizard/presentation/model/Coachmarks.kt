@@ -15,10 +15,10 @@ import tuindice.wizard.generated.resources.coachmark_record_controls_message
 import tuindice.wizard.generated.resources.coachmark_record_controls_title
 import tuindice.wizard.generated.resources.coachmark_record_message
 import tuindice.wizard.generated.resources.coachmark_record_title
-import tuindice.wizard.generated.resources.coachmark_subject_detail_message
-import tuindice.wizard.generated.resources.coachmark_subject_detail_title
 import tuindice.wizard.generated.resources.coachmark_settings_message
 import tuindice.wizard.generated.resources.coachmark_settings_title
+import tuindice.wizard.generated.resources.coachmark_subject_detail_message
+import tuindice.wizard.generated.resources.coachmark_subject_detail_title
 import tuindice.wizard.generated.resources.coachmark_subject_search_message
 import tuindice.wizard.generated.resources.coachmark_subject_search_title
 import tuindice.wizard.generated.resources.coachmark_summary_message

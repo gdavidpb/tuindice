@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.ObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
 import com.gdavidpb.tuindice.about.presentation.resource.DefaultSettingsTextProvider
 import com.gdavidpb.tuindice.about.presentation.resource.SettingsTextProvider
@@ -18,8 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 
 class SettingsMachine(
-	private val loadVersionUseCase: LoadVersionUseCase,
-	private val observeProfileIdentityUseCase: ObserveProfileIdentityUseCase,
+	private val contentUseCases: SettingsContentUseCases,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val externalUseCases: SettingsExternalUseCases,
@@ -37,7 +34,7 @@ class SettingsMachine(
 
 	internal fun loadVersion(host: MachineHost<Settings.Effect>) {
 		host.launchMachineJob {
-			loadVersionUseCase.execute(Unit).collect { useCaseState ->
+			contentUseCases.loadVersion.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
@@ -136,7 +133,7 @@ class SettingsMachine(
 	// request and the card fills in as soon as the content is up.
 	internal fun startObservation(host: MachineHost<Settings.Effect>) {
 		host.launchMachineJob {
-			observeProfileIdentityUseCase.execute(Unit).collect { useCaseState ->
+			contentUseCases.observeProfileIdentity.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						SettingsInternalEvent.ProfileIdentityObserved(identity = useCaseState.value)

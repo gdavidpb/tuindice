@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 /**
- * A group of Settings: its small title in the accent of the theme, and its rows under it. The accent is `secondary`, the
- * tone of the brand that stays legible as text on both themes (the yellow primary is for fills, not for words).
+ * A group of Settings: its small title in the accent of the theme, and its rows under it. The accent is `secondary`,
+ * the tone of the brand that stays legible as text on both themes (the yellow primary is for fills, not for words).
  */
 @Composable
 fun SettingsSection(

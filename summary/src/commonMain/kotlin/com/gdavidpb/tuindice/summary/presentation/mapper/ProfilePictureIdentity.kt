@@ -16,8 +16,7 @@ fun profilePictureIdentity(url: String): String {
 	return if (stableQuery.isEmpty()) base else "$base?$stableQuery"
 }
 
-
-// The key the image cache keeps a picture under: its identity and its version, so a re-upload behind a stable path still
-// invalidates the cached bitmap while a signature-only rotation keeps hitting it. The summary and the avatar of the
-// shell share it, so the avatar finds the bitmap the summary already loaded.
+// The key the image cache keeps a picture under: its identity and its version, so a re-upload behind a stable path
+// still invalidates the cached bitmap while a signature-only rotation keeps hitting it. The summary and the avatar of
+// the shell share it, so the avatar finds the bitmap the summary already loaded.
 fun profilePictureCacheKey(url: String, version: Int): String = "${profilePictureIdentity(url)}#v$version"

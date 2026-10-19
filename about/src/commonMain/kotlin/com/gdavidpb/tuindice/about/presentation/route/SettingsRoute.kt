@@ -5,25 +5,19 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.navigation.SettingsNavDependencies
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import com.gdavidpb.tuindice.about.ui.model.SettingsActions
 import com.gdavidpb.tuindice.about.ui.screen.SettingsScreen
-import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 
 @Composable
 fun SettingsRoute(
-	onNavigateToBrowser: (title: String, url: String) -> Unit,
-	onNavigateToAbout: () -> Unit,
-	onNavigateToAssistantMemory: () -> Unit,
-	onNavigateToDeleteConfirmation: () -> Unit,
-	onSignOutRequest: () -> Unit,
+	dependencies: SettingsNavDependencies,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: SettingsViewModel,
-	// The picture of the student, drawn by the host: the app keeps one avatar that every screen shares.
-	profilePhoto: @Composable (identity: ProfileIdentity) -> Unit
+	viewModel: SettingsViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val openUri = rememberExternalUriOpener(showSnackBar = showSnackBar)
@@ -31,12 +25,13 @@ fun SettingsRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Settings.Effect.NavigateToBrowser -> onNavigateToBrowser(effect.title, effect.url)
+			is Settings.Effect.NavigateToBrowser -> dependencies.onNavigateToBrowser(effect.title, effect.url)
 			is Settings.Effect.OpenUri -> openUri(effect.uri)
-			is Settings.Effect.NavigateToAbout -> onNavigateToAbout()
-			is Settings.Effect.RequestSignOut -> onSignOutRequest()
-			is Settings.Effect.NavigateToAssistantMemory -> onNavigateToAssistantMemory()
-			is Settings.Effect.NavigateToDeleteAssistantConversationsConfirmation -> onNavigateToDeleteConfirmation()
+			is Settings.Effect.NavigateToAbout -> dependencies.onNavigateToAbout()
+			is Settings.Effect.RequestSignOut -> dependencies.onSignOutRequest()
+			is Settings.Effect.NavigateToAssistantMemory -> dependencies.onNavigateToAssistantMemory()
+			is Settings.Effect.NavigateToDeleteAssistantConversationsConfirmation ->
+				dependencies.onNavigateToDeleteConfirmation()
 			is Settings.Effect.ShowSnackBar -> showSnackBar(SnackBarMessage(message = effect.message))
 			is Settings.Effect.ShareText -> shareTextHandler(subject = effect.subject, text = effect.text)
 		}
@@ -45,7 +40,7 @@ fun SettingsRoute(
 	SettingsScreen(
 		state = viewState,
 		actions = viewModel.toSettingsActions(),
-		profilePhoto = profilePhoto
+		profilePhoto = dependencies.profilePhoto
 	)
 }
 

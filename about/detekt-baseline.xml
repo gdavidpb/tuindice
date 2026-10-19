@@ -26,7 +26,7 @@
     <ID>NoConsecutiveBlankLines:EnvironmentDataRepository.kt$ </ID>
     <ID>NoUnusedImports:AboutContentView.kt$com.gdavidpb.tuindice.about.ui.view.AboutContentView.kt</ID>
     <ID>NoWildcardImports:SendSupportEmailUseCase.kt$import io.ktor.http.*</ID>
-    <ID>TooManyFunctions:AboutMachine.kt$AboutMachine : ScreenMachine</ID>
+    <ID>TooManyFunctions:SettingsMachine.kt$SettingsMachine : ScreenMachine</ID>
     <ID>WildcardImport:SendSupportEmailUseCase.kt$import io.ktor.http.*</ID>
   </CurrentIssues>
 </SmellBaseline>

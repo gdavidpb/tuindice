@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsInternalEvent
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
@@ -133,35 +134,9 @@ class SettingsViewModelContractTest {
 
 	@Test
 	fun machine_survivesSeededRandomWalk() = runTest {
-		// The machine is rebuilt with the same stubs the fixture wires into the
-		// view model, because the walk drives the table directly.
-		val screenMachine = SettingsMachine(
-			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository(),
-				reportingRepository = RecordingReportingRepository()
-			),
-			externalUseCases = SettingsExternalUseCases(
-				sendSupportEmail = SendSupportEmailUseCase(
-					configRepository = FakeConfigRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openStore = OpenStoreUseCase(
-					storeUrlRepository = FakeStoreUrlDataSource(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				openExternalUrl = OpenExternalUrlUseCase(
-					browserRepository = RecordingBrowserRepository(),
-					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			observeProfileIdentityUseCase = fakeObserveProfileIdentityUseCase(),
-			appEnvironmentRepository = FakeAppEnvironmentRepository(),
-			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			assistantUseCases = fakeSettingsAssistantUseCases(),
-			// Fixed texts: the walk runs on the host, where the platform resources of the default ones cannot be read.
-			textProvider = FakeSettingsTextProvider()
-		)
+		// The machine is built with the same stubs the fixture wires into the view model, because the walk drives
+		// the table directly.
+		val screenMachine = createMachine()
 
 		assertMachineRandomWalk(
 			screenMachine = screenMachine,
@@ -202,36 +177,50 @@ class SettingsViewModelContractTest {
 		)
 	}
 
+	private fun createMachine(
+		browserRepository: RecordingBrowserRepository = RecordingBrowserRepository(),
+		profileIdentityRepository: FakeProfileIdentityRepository = FakeProfileIdentityRepository()
+	): SettingsMachine {
+		return SettingsMachine(
+			contentUseCases = SettingsContentUseCases(
+				loadVersion = LoadVersionUseCase(
+					aboutRepository = FakeAboutRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeProfileIdentity = fakeObserveProfileIdentityUseCase(profileIdentityRepository)
+			),
+			externalUseCases = SettingsExternalUseCases(
+				sendSupportEmail = SendSupportEmailUseCase(
+					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openStore = OpenStoreUseCase(
+					storeUrlRepository = FakeStoreUrlDataSource(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				openExternalUrl = OpenExternalUrlUseCase(
+					browserRepository = browserRepository,
+					reportingRepository = RecordingReportingRepository()
+				)
+			),
+			appEnvironmentRepository = FakeAppEnvironmentRepository(),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+			assistantUseCases = fakeSettingsAssistantUseCases(),
+			// Fixed texts: the walk runs on the host, where the platform resources of the default ones cannot be read.
+			textProvider = FakeSettingsTextProvider()
+		)
+	}
+
 	private fun createViewModel(
 		testScheduler: TestCoroutineScheduler,
 		browserRepository: RecordingBrowserRepository = RecordingBrowserRepository(),
 		profileIdentityRepository: FakeProfileIdentityRepository = FakeProfileIdentityRepository()
 	): SettingsViewModel {
 		return SettingsViewModel(
-			screenMachine = SettingsMachine(
-				loadVersionUseCase = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				externalUseCases = SettingsExternalUseCases(
-					sendSupportEmail = SendSupportEmailUseCase(
-						configRepository = FakeConfigRepository(),
-						deviceInfoRepository = FakeDeviceInfoRepository(),
-						reportingRepository = RecordingReportingRepository()
-					),
-					openStore = OpenStoreUseCase(
-						storeUrlRepository = FakeStoreUrlDataSource(),
-						reportingRepository = RecordingReportingRepository()
-					),
-					openExternalUrl = OpenExternalUrlUseCase(
-						browserRepository = browserRepository,
-						reportingRepository = RecordingReportingRepository()
-					)
-				),
-				observeProfileIdentityUseCase = fakeObserveProfileIdentityUseCase(profileIdentityRepository),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				assistantUseCases = fakeSettingsAssistantUseCases()
+			screenMachine = createMachine(
+				browserRepository = browserRepository,
+				profileIdentityRepository = profileIdentityRepository
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))

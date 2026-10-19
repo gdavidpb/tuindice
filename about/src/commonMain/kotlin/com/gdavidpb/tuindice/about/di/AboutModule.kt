@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.SetAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.presentation.machine.AboutExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
@@ -51,6 +52,7 @@ val aboutModule = module {
 	factoryOf(::SetAssistantConsentUseCase)
 	factoryOf(::RefreshAssistantConsentUseCase)
 	factoryOf(::DeleteAssistantConversationsUseCase)
+	factoryOf(::SettingsContentUseCases)
 	factoryOf(::SettingsAssistantUseCases)
 	factoryOf(::SettingsExternalUseCases)
 	factoryOf(::AboutExternalUseCases)

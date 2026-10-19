@@ -299,7 +299,7 @@ private val conformanceChecked = scenario("conformance-checked", "conformance", 
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, !CONSENT_BEFORE)
 }
 
-/** A relaunch restarts the app keeping its session: Settings, left open, is replaced by the summary of a fresh start. */
+/** A relaunch restarts the app keeping its session: Settings, left open, gives way to the summary of a fresh start. */
 private val conformanceRelaunch = scenario("conformance-relaunch", "conformance", canonical()) {
 	account(canonicalAccount.id)
 
@@ -347,8 +347,8 @@ private val conformanceDoubleTapSwipe = scenario("conformance-double-tap-swipe",
 }
 
 /**
- * Elements of the system outside the app: the share surface of Settings is the system's on both platforms, with elements
- * of its own on each (so this scenario holds one branch per platform, the only conformance one that does).
+ * Elements of the system outside the app: the share surface of Settings is the system's on both platforms, with
+ * elements of its own on each (so this scenario holds one branch per platform, the only conformance one that does).
  */
 private val conformanceSystem = scenario("conformance-system", "conformance", canonical()) {
 	account(canonicalAccount.id)

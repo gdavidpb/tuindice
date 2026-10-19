@@ -109,8 +109,14 @@ class SettingsStateMachineContractTest {
 				Settings.Action.OpenAssistantMemory,
 				Settings.Action.RequestDeleteAssistantConversations,
 				Settings.Action.ConfirmDeleteAssistantConversations,
-				SettingsInternalEvent.SettingsVersionLoaded(versionText = "1.0", usageDataCollectionEnabled = false),
-				SettingsInternalEvent.SettingsVersionLoadFailed(versionFallbackText = "Sin versión", usageDataCollectionEnabled = false),
+				SettingsInternalEvent.SettingsVersionLoaded(
+					versionText = "1.0",
+					usageDataCollectionEnabled = false
+				),
+				SettingsInternalEvent.SettingsVersionLoadFailed(
+					versionFallbackText = "Sin versión",
+					usageDataCollectionEnabled = false
+				),
 				SettingsInternalEvent.ProfileIdentityObserved(identity = ANA_PROFILE_IDENTITY),
 				SettingsInternalEvent.SupportEmailUriLoaded(uri = "mailto:soporte@example.test"),
 				SettingsInternalEvent.StoreUriLoaded(uri = "https://example.test/store"),
@@ -126,9 +132,12 @@ class SettingsStateMachineContractTest {
 
 	private fun createMachine(textProvider: SettingsTextProvider = FakeSettingsTextProvider()): SettingsMachine {
 		return SettingsMachine(
-			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository(),
-				reportingRepository = RecordingReportingRepository()
+			contentUseCases = SettingsContentUseCases(
+				loadVersion = LoadVersionUseCase(
+					aboutRepository = FakeAboutRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeProfileIdentity = fakeObserveProfileIdentityUseCase()
 			),
 			externalUseCases = SettingsExternalUseCases(
 				sendSupportEmail = SendSupportEmailUseCase(
@@ -145,7 +154,6 @@ class SettingsStateMachineContractTest {
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			observeProfileIdentityUseCase = fakeObserveProfileIdentityUseCase(),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 			assistantUseCases = fakeSettingsAssistantUseCases(),

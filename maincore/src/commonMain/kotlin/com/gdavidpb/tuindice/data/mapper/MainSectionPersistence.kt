@@ -7,8 +7,8 @@ private const val RECORD_VALUE = "record"
 private const val PENSUM_VALUE = "pensum"
 private const val EVALUATIONS_VALUE = "evaluations"
 
-// «About» was the fifth tab until Settings took its place. The value is still read so a student who closed the app on that
-// tab opens on the summary, the first section, instead of the app failing to read the preference.
+// «About» was the fifth tab until Settings took its place. The value is still read so a student who closed the app on
+// that tab opens on the summary, the first section, instead of the app failing to read the preference.
 private const val LEGACY_ABOUT_VALUE = "about"
 
 fun MainSection.toPersistedName(): String = when (this) {

@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCases
+import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
@@ -17,9 +18,9 @@ import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
-import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -187,9 +188,12 @@ class SettingsAssistantViewModelContractTest {
 		assistantConversations: FakeAssistantConversationsRepository = FakeAssistantConversationsRepository()
 	): SettingsMachine {
 		return SettingsMachine(
-			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository(),
-				reportingRepository = RecordingReportingRepository()
+			contentUseCases = SettingsContentUseCases(
+				loadVersion = LoadVersionUseCase(
+					aboutRepository = FakeAboutRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeProfileIdentity = fakeObserveProfileIdentityUseCase()
 			),
 			externalUseCases = SettingsExternalUseCases(
 				sendSupportEmail = SendSupportEmailUseCase(
@@ -206,7 +210,6 @@ class SettingsAssistantViewModelContractTest {
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			observeProfileIdentityUseCase = fakeObserveProfileIdentityUseCase(),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 			assistantUseCases = SettingsAssistantUseCases(

@@ -64,9 +64,11 @@ object SummaryUiTags {
 	const val ProfilePicturePlaceholderIcon = "summary_profile_picture_placeholder_icon"
 	const val ProfilePicturePreviewImage = "summary_profile_picture_preview_image"
 	const val ProfilePictureContinuityImage = "summary_profile_picture_continuity_image"
+
 	// The round avatar of the shell and of the Settings card: the stored picture over the neutral person icon.
 	const val ProfileAvatarImage = "summary_profile_avatar_image"
 	const val ProfileAvatarFallback = "summary_profile_avatar_fallback"
+
 	const val ProfilePictureEditButton = "summary_profile_picture_edit_button"
 	const val ProfilePictureLoadingIndicator = "summary_profile_picture_loading_indicator"
 	const val ProfilePictureRemoteLoadingIndicator = "summary_profile_picture_remote_loading_indicator"

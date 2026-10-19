@@ -26,9 +26,9 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 /**
  * The round avatar of the student: the stored profile picture over a neutral person icon in the theme colours, which is
- * what shows when there is no picture ([pictureUrl] is blank), while it loads and when it cannot be loaded. It loads the
- * picture through the app-wide image loader under the key the summary uses, so it finds the bitmap the summary already
- * cached instead of asking for it again. It is decorative: whoever holds it gives it a description.
+ * what shows when there is no picture ([pictureUrl] is blank), while it loads and when it cannot be loaded. It loads
+ * the picture through the app-wide image loader under the key the summary uses, so it finds the bitmap the summary
+ * already cached instead of asking for it again. It is decorative: whoever holds it gives it a description.
  */
 @Composable
 fun ProfileAvatarView(
