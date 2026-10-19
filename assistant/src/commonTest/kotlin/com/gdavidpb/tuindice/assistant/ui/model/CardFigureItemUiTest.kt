@@ -4,24 +4,25 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toCardIndexFigureItem
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_description
+import tuindice.assistant.generated.resources.Res
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class ChatCardFigureUiTest {
+class CardFigureItemUiTest {
 	@Test
 	fun when_anIndexIsAFigure_then_itReadsAsItsSentenceWithTheComma() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CardFiguresView(
-				primary = 3.8125.toCardIndexFigure(
+				primary = 3.8125.toCardIndexFigureItem(
 					caption = Res.string.assistant_card_a_term_index_caption,
 					description = Res.string.assistant_card_a_term_index_description
-				)
+				).toCardFigure()
 			)
 		}
 
@@ -34,10 +35,10 @@ class ChatCardFigureUiTest {
 	fun when_anIndexHasNoDecimals_then_itsFourDecimalsAreWritten() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CardFiguresView(
-				primary = 16.0.toCardIndexFigure(
+				primary = 16.0.toCardIndexFigureItem(
 					caption = Res.string.assistant_card_a_term_index_caption,
 					description = Res.string.assistant_card_a_term_index_description
-				)
+				).toCardFigure()
 			)
 		}
 
