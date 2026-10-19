@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -39,12 +40,14 @@ class RecordRtlA11yUiTest {
 			RecordScreen(
 				state = syntheticContentState(),
 				selectedTermId = RtlSyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -70,12 +73,14 @@ class RecordRtlA11yUiTest {
 			RecordScreen(
 				state = syntheticContentState(),
 				selectedTermId = RtlSyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = { createClicks++ },
-				onUpdateSyntheticTermClick = { editedTermId = it },
-				onDeleteSyntheticTermClick = { deletedTermId = it }
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = { createClicks++ },
+					onUpdateSyntheticTermClick = { editedTermId = it },
+					onDeleteSyntheticTermClick = { deletedTermId = it }
+				)
 			)
 		}
 
@@ -95,12 +100,14 @@ class RecordRtlA11yUiTest {
 			RecordScreen(
 				state = syntheticContentState(),
 				selectedTermId = RtlSyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -131,12 +138,14 @@ class RecordRtlA11yUiTest {
 			RecordScreen(
 				state = syntheticContentState(),
 				selectedTermId = RtlSyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				)
 			)
 		}
 

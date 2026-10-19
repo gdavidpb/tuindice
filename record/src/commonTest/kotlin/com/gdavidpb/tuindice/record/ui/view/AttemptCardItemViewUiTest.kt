@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,12 +28,11 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
-import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.testing.attemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptArrivalHighlight
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -52,7 +50,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", subjectCode = "MA2115", isReadOnly = true),
-				onGradeChange = { _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -76,7 +76,9 @@ class AttemptCardItemViewUiTest {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1"),
 				gradeState = remember { mutableIntStateOf(2) },
-				onGradeChange = { _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -93,7 +95,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-				onGradeChange = { _, _, _ -> },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				arrivalHighlight = AttemptArrivalHighlight(
 					trigger = "arrival-1",
 					onFinished = { finished.value = true }
@@ -114,7 +118,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-				onGradeChange = { _, _, _ -> },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				arrivalHighlight = null
 			)
 		}
@@ -131,7 +137,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", gradingMode = GradingMode.QUALITATIVE_PASS_FAIL),
-				onGradeChange = { grade, outcome, isSelected -> reported += Triple(grade, outcome, isSelected) }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected -> reported += Triple(grade, outcome, isSelected) }
+				)
 			)
 		}
 
@@ -149,12 +157,12 @@ class AttemptCardItemViewUiTest {
 			.copy(assistantContext = SubjectContext)
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalAssistantLauncher provides AssistantLauncher { context -> asked += context }) {
-				AttemptCardItemView(
-					item = item,
-					onGradeChange = { _, _, _ -> }
+			AttemptCardItemView(
+				item = item,
+				actions = RecordActions(
+					onAskAssistant = { context -> asked += context }
 				)
-			}
+			)
 		}
 
 		assertNodeHidden(AskAssistantMenuItemTag)
@@ -174,7 +182,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", isReadOnly = true).copy(assistantContext = SubjectContext),
-				onGradeChange = { _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -193,7 +203,9 @@ class AttemptCardItemViewUiTest {
 						.testTag(HostTag)
 						.background(Backdrop),
 					item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-					onGradeChange = { _, _, _ -> },
+					actions = RecordActions(
+						onAttemptSelectionChange = { _, _, _, _ -> }
+					),
 					arrivalHighlight = AttemptArrivalHighlight(
 						trigger = "arrival-1",
 						onFinished = {}

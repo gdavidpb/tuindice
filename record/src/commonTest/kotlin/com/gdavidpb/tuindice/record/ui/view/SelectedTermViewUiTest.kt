@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.record.testing.attemptItem
 import com.gdavidpb.tuindice.record.testing.termItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -38,7 +39,9 @@ class SelectedTermViewUiTest {
 						attemptItem(attemptId = "attempt-2", subjectCode = "FS2211", isReadOnly = true)
 					)
 				),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -62,7 +65,9 @@ class SelectedTermViewUiTest {
 			SelectedTermView(
 				modifier = Modifier.fillMaxSize(),
 				term = termItem(attempts = emptyList()),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -79,8 +84,10 @@ class SelectedTermViewUiTest {
 		setTuIndiceTestContent {
 			SelectedTermView(
 				term = termItem(attempts = attempts, arrivalAttemptId = "attempt-12"),
-				onArrivalTaken = { attemptId -> taken = attemptId },
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptArrivalTaken = { attemptId -> taken = attemptId },
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -96,8 +103,10 @@ class SelectedTermViewUiTest {
 		setTuIndiceTestContent {
 			SelectedTermView(
 				term = termItem(attempts = listOf(attemptItem(attemptId = "attempt-1"))),
-				onArrivalTaken = { attemptId -> taken = attemptId },
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptArrivalTaken = { attemptId -> taken = attemptId },
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -117,9 +126,11 @@ class SelectedTermViewUiTest {
 						attemptItem(attemptId = "attempt-2", subjectCode = "FS2211")
 					)
 				),
-				onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
-					reported += Selection(attemptId, grade, outcome, isSelected)
-				}
+				actions = RecordActions(
+					onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
+						reported += Selection(attemptId, grade, outcome, isSelected)
+					}
+				)
 			)
 		}
 
@@ -157,9 +168,11 @@ class SelectedTermViewUiTest {
 						)
 					)
 				),
-				onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
-					reported += Selection(attemptId, grade, outcome, isSelected)
-				}
+				actions = RecordActions(
+					onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
+						reported += Selection(attemptId, grade, outcome, isSelected)
+					}
+				)
 			)
 		}
 

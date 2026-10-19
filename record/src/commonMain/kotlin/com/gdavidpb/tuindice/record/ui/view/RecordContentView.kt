@@ -2,19 +2,12 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
@@ -22,11 +15,9 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.mapper.takeIfAbovePager
 import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
-import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.dialog.TermSelectionBottomSheet
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_attempt_credits_pattern
@@ -41,16 +32,8 @@ import tuindice.record.generated.resources.term_grade_sum_pattern
 fun RecordContentView(
 	state: Record.State.Content,
 	selectedTermId: String?,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
-	onAttemptSelectionChange: (
-		attemptId: String,
-		newGrade: Int?,
-		newOutcome: AttemptOutcome?,
-		isSelected: Boolean
-	) -> Unit,
+	actions: RecordActions,
 	showTermSelection: Boolean,
-	onDismissTermSelection: () -> Unit,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val termGradeDiffPattern = stringResource(Res.string.term_grade_diff_pattern)
@@ -122,9 +105,7 @@ fun RecordContentView(
 				terms = terms,
 				notice = state.notice?.takeIfAbovePager(),
 				selectedTermId = effectiveSelectedTermId,
-				onSelectedTermChange = onSelectedTermChange,
-				onAttemptArrivalTaken = onAttemptArrivalTaken,
-				onAttemptSelectionChange = onAttemptSelectionChange,
+				actions = actions,
 				onScrollInProgressChange = onScrollInProgressChange
 			)
 		}
@@ -135,8 +116,8 @@ fun RecordContentView(
 			terms = terms,
 			selectedTermId = effectiveSelectedTermId,
 			viewMode = state.viewMode,
-			onTermSelected = onSelectedTermChange,
-			onDismissRequest = onDismissTermSelection
+			onTermSelected = actions.onSelectedTermChange,
+			onDismissRequest = actions.onDismissTermSelection
 		)
 	}
 }

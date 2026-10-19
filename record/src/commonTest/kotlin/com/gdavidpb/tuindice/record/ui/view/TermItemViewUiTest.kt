@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -24,7 +25,9 @@ class TermItemViewUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
 				item = termItem(),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -45,7 +48,9 @@ class TermItemViewUiTest {
 						kind = RecordNoticeKind.AnnulledProvisional
 					)
 				),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -59,7 +64,9 @@ class TermItemViewUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
 				item = termItem(),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 

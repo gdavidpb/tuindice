@@ -11,12 +11,14 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 
 @Composable
@@ -78,32 +80,48 @@ fun RecordRoute(
 		pendingTopBarBanner.value = null
 	}
 
+	val assistantLauncher = LocalAssistantLauncher.current
+	val actions = remember(
+		viewModel,
+		assistantLauncher,
+		selectedTermId,
+		onNavigateToCreateSyntheticTerm,
+		onNavigateToUpdateSyntheticTerm,
+		onNavigateToDeleteSyntheticTermConfirmation,
+		onNavigateToEnrollmentProof
+	) {
+		RecordActions(
+			onSelectedTermChange = { termId ->
+				if (termId != selectedTermId) {
+					viewModel.selectTermAction(termId)
+				}
+			},
+			onRetryClick = viewModel::refreshRecordAction,
+			onAttemptArrivalTaken = viewModel::attemptArrivalTakenAction,
+			onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
+				viewModel.upsertAttemptSelectionAction(
+					attemptId = attemptId,
+					grade = grade,
+					outcome = outcome,
+					commit = isSelected
+				)
+			},
+			onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
+			onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
+			onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
+			onEnrollmentProofClick = onNavigateToEnrollmentProof,
+			onDismissTermSelection = {
+				showTermSelection.value = false
+			},
+			onAskAssistant = assistantLauncher?.let { launcher -> launcher::launch }
+		)
+	}
+
 	RecordScreen(
 		state = viewState,
 		selectedTermId = selectedTermId,
-		onSelectedTermChange = { termId ->
-			if (termId != selectedTermId) {
-				viewModel.selectTermAction(termId)
-			}
-		},
-		onRetryClick = viewModel::refreshRecordAction,
-		onAttemptArrivalTaken = viewModel::attemptArrivalTakenAction,
-		onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
-			viewModel.upsertAttemptSelectionAction(
-				attemptId = attemptId,
-				grade = grade,
-				outcome = outcome,
-				commit = isSelected
-			)
-		},
-		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
-		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
-		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
-		onEnrollmentProofClick = onNavigateToEnrollmentProof,
-		showTermSelection = showTermSelection.value,
-		onDismissTermSelection = {
-			showTermSelection.value = false
-		}
+		actions = actions,
+		showTermSelection = showTermSelection.value
 	)
 }
 

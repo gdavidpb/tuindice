@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -50,12 +51,14 @@ class RecordScreenUiTest {
 					)
 				),
 				selectedTermId = SyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -73,12 +76,14 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = contentState(termKind = TermKind.SYNTHETIC),
 				selectedTermId = SyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = { createClicks++ },
-				onUpdateSyntheticTermClick = { editedTermId = it },
-				onDeleteSyntheticTermClick = { deletedTermId = it }
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = { createClicks++ },
+					onUpdateSyntheticTermClick = { editedTermId = it },
+					onDeleteSyntheticTermClick = { deletedTermId = it }
+				)
 			)
 		}
 
@@ -104,12 +109,14 @@ class RecordScreenUiTest {
 					termKind = TermKind.CURRENT
 				),
 				selectedTermId = "current-term",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -129,15 +136,17 @@ class RecordScreenUiTest {
 					termKind = TermKind.CURRENT
 				),
 				selectedTermId = "current-term",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {},
-				onEnrollmentProofClick = {
-					enrollmentProofClicks++
-				}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {},
+					onEnrollmentProofClick = {
+						enrollmentProofClicks++
+					}
+				)
 			)
 		}
 
@@ -157,10 +166,12 @@ class RecordScreenUiTest {
 					termKind = TermKind.HISTORICAL
 				),
 				selectedTermId = "past-term",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -197,12 +208,14 @@ class RecordScreenUiTest {
 					selectedTermId = "current-2026"
 				),
 				selectedTermId = "current-2026",
-				onSelectedTermChange = { selectedTermId = it },
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {},
+				actions = RecordActions(
+					onSelectedTermChange = { selectedTermId = it },
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				),
 				showTermSelection = true
 			)
 		}
@@ -257,12 +270,14 @@ class RecordScreenUiTest {
 					selectedTermId = "historical-2024"
 				),
 				selectedTermId = "historical-2024",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {},
-				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {},
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {},
+					onUpdateSyntheticTermClick = {},
+					onDeleteSyntheticTermClick = {}
+				),
 				showTermSelection = true
 			)
 		}
@@ -286,10 +301,12 @@ class RecordScreenUiTest {
 					notice = annulment(RecordNoticeKind.AnnulledProvisional)
 				),
 				selectedTermId = "current-term",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -307,10 +324,12 @@ class RecordScreenUiTest {
 					notice = annulment(RecordNoticeKind.AnnulledProvisional)
 				),
 				selectedTermId = SyntheticTermId,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -335,10 +354,12 @@ class RecordScreenUiTest {
 					notice = annulment(RecordNoticeKind.AnnulledFinal)
 				),
 				selectedTermId = "historical-2024",
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -351,10 +372,12 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = resolveRecordEmpty(notice = annulment(RecordNoticeKind.AnnulledFinal)),
 				selectedTermId = null,
-				onSelectedTermChange = {},
-				onRetryClick = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = {},
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
@@ -370,10 +393,12 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = resolveRecordFailed(isNewStudentNoRecord = true),
 				selectedTermId = null,
-				onSelectedTermChange = {},
-				onRetryClick = { retryClicks++ },
-				onAttemptSelectionChange = { _, _, _, _ -> },
-				onCreateSyntheticTermClick = {}
+				actions = RecordActions(
+					onSelectedTermChange = {},
+					onRetryClick = { retryClicks++ },
+					onAttemptSelectionChange = { _, _, _, _ -> },
+					onCreateSyntheticTermClick = {}
+				)
 			)
 		}
 
