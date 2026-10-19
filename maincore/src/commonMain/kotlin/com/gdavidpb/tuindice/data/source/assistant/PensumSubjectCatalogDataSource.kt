@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
  * planned subject carries, as the record's own suggestions take them. A code that is no course of the pensum is absent
  * from the answer, and so is every code while the pensum is not loaded. The pensum is read at the time of the call.
  */
-class PensumSubjectCatalog(
+class PensumSubjectCatalogDataSource(
 	private val pensumRepository: PensumRepository
 ) {
 	suspend fun resolve(subjectCodes: List<String>): Map<String, SyntheticTermSubject> {

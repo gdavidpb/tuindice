@@ -115,7 +115,7 @@ class RecordAssistantProjectionDataSourceTest {
 				reportingRepository = reporting,
 				exceptionHandler = RecordExceptionHandler()
 			),
-			recordIntentRunner = RecordIntentRunner(
+			recordIntentRunner = RecordIntentRunnerDataSource(
 				getRecordRevisionUseCase = GetRecordRevisionUseCase(
 					academicRecordRepository = repository,
 					reportingRepository = reporting

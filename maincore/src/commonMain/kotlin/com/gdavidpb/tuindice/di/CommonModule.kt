@@ -60,10 +60,10 @@ import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepositor
 import com.gdavidpb.tuindice.data.source.assistant.AssistantClientStateDataSource
 import com.gdavidpb.tuindice.data.source.assistant.AssistantQueuedMutationsDataSource
 import com.gdavidpb.tuindice.data.source.assistant.EvaluationsAssistantDataSource
-import com.gdavidpb.tuindice.data.source.assistant.PensumSubjectCatalog
+import com.gdavidpb.tuindice.data.source.assistant.PensumSubjectCatalogDataSource
 import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantPlansDataSource
 import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantProjectionDataSource
-import com.gdavidpb.tuindice.data.source.assistant.RecordIntentRunner
+import com.gdavidpb.tuindice.data.source.assistant.RecordIntentRunnerDataSource
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
@@ -194,8 +194,8 @@ val commonModule = module {
 		bind<AssistantQueuedMutationsRepository>()
 		bind<SessionMemory>()
 	}
-	factoryOf(::PensumSubjectCatalog)
-	factoryOf(::RecordIntentRunner)
+	factoryOf(::PensumSubjectCatalogDataSource)
+	factoryOf(::RecordIntentRunnerDataSource)
 	factoryOf(::EvaluationsAssistantDataSource) { bind<AssistantEvaluationsRepository>() }
 	factoryOf(::RecordAssistantPlansDataSource) { bind<AssistantPlansRepository>() }
 	factoryOf(::RecordAssistantProjectionDataSource) { bind<AssistantProjectionRepository>() }

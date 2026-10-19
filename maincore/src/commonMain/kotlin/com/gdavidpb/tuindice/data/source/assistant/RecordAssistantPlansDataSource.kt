@@ -28,9 +28,9 @@ class RecordAssistantPlansDataSource(
 	private val createSyntheticTermUseCase: CreateSyntheticTermUseCase,
 	private val updateSyntheticTermUseCase: UpdateSyntheticTermUseCase,
 	private val deleteSyntheticTermUseCase: DeleteSyntheticTermUseCase,
-	private val recordIntentRunner: RecordIntentRunner,
+	private val recordIntentRunner: RecordIntentRunnerDataSource,
 	private val academicRecordRepository: AcademicRecordRepository,
-	private val pensumSubjectCatalog: PensumSubjectCatalog
+	private val pensumSubjectCatalog: PensumSubjectCatalogDataSource
 ) : AssistantPlansRepository {
 	override suspend fun create(args: CreatePlanArgs, expectedRevision: Long?): IntentExecution {
 		return guardIntent { createPlan(args, expectedRevision) }
