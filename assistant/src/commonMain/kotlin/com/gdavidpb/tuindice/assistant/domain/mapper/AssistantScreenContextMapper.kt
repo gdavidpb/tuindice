@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.domain.mapper
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantContextDefaults
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
@@ -9,18 +10,14 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.context.ScreenContext
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 
-// The contract's defaults for the locale and the time zone of a screen context.
-private const val CONTEXT_LOCALE = "es-VE"
-private const val CONTEXT_TIME_ZONE = "America/Caracas"
-
 internal fun AssistantScreenContext.toScreenContext(): ScreenContext {
 	return ScreenContext(
 		screen = screen.toScreenId(),
 		entities = entities.map { entity -> entity.toEntityRef() },
 		visibleFields = visibleFields,
 		filters = filters,
-		locale = CONTEXT_LOCALE,
-		timeZone = CONTEXT_TIME_ZONE
+		locale = AssistantContextDefaults.LOCALE,
+		timeZone = AssistantContextDefaults.TIME_ZONE
 	)
 }
 
