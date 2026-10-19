@@ -18,12 +18,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.style.ChatEntranceLedger
 import com.gdavidpb.tuindice.assistant.ui.style.planAgentEntrance
+import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
@@ -49,6 +51,7 @@ fun AssistantChatConversationView(
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 	val listState = rememberLazyListState()
+	val focusManager = LocalFocusManager.current
 	val lastItem = content.items.lastOrNull()
 	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
 
@@ -58,7 +61,9 @@ fun AssistantChatConversationView(
 		}
 	}
 
-	Column(modifier = modifier.fillMaxWidth().imePadding()) {
+	// The column stays above the keyboard (imePadding): the list gives up the room, and the composer keeps its place.
+	// Dragging the list hides the keyboard, as in any scroll container (dismissKeyboardOnScroll).
+	Column(modifier = modifier.fillMaxWidth().imePadding().dismissKeyboardOnScroll(focusManager)) {
 		AssistantSheetTitleView(
 			text = stringResource(Res.string.assistant_chat_title),
 			// With the 16 dp that follows every place of the column, 32 dp below it, as below the title of ConfirmationDialog.
