@@ -28,12 +28,13 @@ import tuindice.assistant.generated.resources.a11y_assistant_not_useful
 import tuindice.assistant.generated.resources.a11y_assistant_useful
 
 // The actions under an agent message, in order: Copiar, the two thumbs, and Reportar. They are small and close together
-// (AssistantMessageActionSizes), so they do not compete with the message; the thumb the student chose is filled and in
-// the accent.
+// (AssistantMessageActionSizes), so they do not compete with the message; the thumb the student chose is filled in the
+// theme's inverse surface, and a reported message shows its flag filled in the error colour.
 @Composable
 fun AssistantMessageActionsView(
 	messageId: String,
 	useful: Boolean?,
+	reported: Boolean,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -53,7 +54,7 @@ fun AssistantMessageActionsView(
 		}
 		listOf(true, false).forEach { isUseful ->
 			val isSelected = useful == isUseful
-			val tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+			val tint = if (isSelected) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.onSurfaceVariant
 			IconButton(
 				onClick = { onAction(AssistantChat.Action.RateMessage(messageId, isUseful)) },
 				modifier = Modifier
@@ -71,7 +72,7 @@ fun AssistantMessageActionsView(
 				)
 			}
 		}
-		AssistantReportMessageButtonView(messageId = messageId, onAction = onAction)
+		AssistantReportMessageButtonView(messageId = messageId, isReported = reported, onAction = onAction)
 	}
 }
 

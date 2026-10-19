@@ -73,7 +73,11 @@ sealed interface AssistantChatInternalEvent {
 		val message: String
 	) : AssistantChatInternalEvent
 
-	data class MessageReported(val message: String) : AssistantChatInternalEvent
+	// The service saved the report of [messageId]: the message shows as reported, and the snackbar says so.
+	data class MessageReported(val messageId: String, val message: String) : AssistantChatInternalEvent
+
+	// The service refused the report, or could not be reached: the message stays as it was, and the snackbar says so.
+	data class MessageReportFailed(val message: String) : AssistantChatInternalEvent
 
 	data class MessageReportRejected(val message: String) : AssistantChatInternalEvent
 

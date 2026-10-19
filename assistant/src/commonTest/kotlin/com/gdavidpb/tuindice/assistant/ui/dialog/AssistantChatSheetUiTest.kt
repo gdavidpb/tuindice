@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.dialog
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -141,8 +143,44 @@ class AssistantChatSheetUiTest {
 		assertTrue(actions.any { it is AssistantChat.Action.Dismiss }, "actions were $actions")
 	}
 
+	@Test
+	fun when_aNoticeIsShown_then_itSitsInsideTheSheetRightAboveTheComposer() = runTuIndiceUiTest {
+		// The route shows the notices through the sheet's host; the test shows one the same way, from a composition.
+		val hostState = SnackbarHostState()
+		val notice = mutableStateOf<String?>(null)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				LaunchedEffect(notice.value) {
+					notice.value?.let { message -> hostState.showSnackbar(message) }
+				}
+				AssistantChatSheet(
+					state = contentState(items = listOf(agentMessage())),
+					onAction = {},
+					snackbarHostState = hostState
+				)
+			}
+		}
+
+		waitForIdle()
+		notice.value = NOTICE_TEXT
+		waitForIdle()
+
+		assertNodeVisible(AssistantUiTags.ChatSnackbar)
+		onNodeWithTag(AssistantUiTags.ChatSnackbarMessage, useUnmergedTree = true)
+			.assertTextEquals(NOTICE_TEXT)
+			.assertIsDisplayed()
+		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
+
+		// Both are in the sheet's own window, so their bounds compare: the notice sits right above the composer.
+		val snackbar = onNodeWithTag(AssistantUiTags.ChatSnackbar).fetchSemanticsNode().boundsInRoot
+		val composer = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
+		assertTrue(snackbar.bottom <= composer.top, "the notice is not above the composer: $snackbar over $composer")
+	}
+
 	private companion object {
 		const val SCRIM_TAP_Y = 20f
 		const val TITLE_TEXT = "Asistente"
+		const val NOTICE_TEXT = "Gracias por tu opinión"
 	}
 }

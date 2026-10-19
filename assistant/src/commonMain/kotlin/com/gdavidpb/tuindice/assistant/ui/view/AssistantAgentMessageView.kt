@@ -45,6 +45,7 @@ fun AssistantAgentMessageView(
 		AssistantMessageActionsView(
 			messageId = item.id,
 			useful = item.useful,
+			reported = item.reported,
 			onAction = onAction
 		)
 	}

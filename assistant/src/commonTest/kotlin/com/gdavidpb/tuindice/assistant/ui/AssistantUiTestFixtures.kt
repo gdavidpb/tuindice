@@ -35,9 +35,16 @@ internal fun contentState(
 internal fun agentMessage(
 	id: String = "message-1",
 	text: String = "Tu promedio es 16,2.",
-	useful: Boolean? = null
+	useful: Boolean? = null,
+	reported: Boolean = false
 ): ChatItem.Agent =
-	ChatItem.Agent(id = id, parts = listOf(ChatPartItem.Text(text)), useful = useful, copyText = text)
+	ChatItem.Agent(
+		id = id,
+		parts = listOf(ChatPartItem.Text(text)),
+		useful = useful,
+		reported = reported,
+		copyText = text
+	)
 
 internal fun contextChip(): ChatContextItem =
 	ChatContextItem(

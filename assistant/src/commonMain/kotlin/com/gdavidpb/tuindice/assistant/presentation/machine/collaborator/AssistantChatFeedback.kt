@@ -63,18 +63,18 @@ class AssistantChatFeedback(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						AssistantChatInternalEvent.MessageReported(message = texts.reported())
+						AssistantChatInternalEvent.MessageReported(messageId = messageId, message = texts.reported())
 					)
 
-					is UseCaseState.Error -> {
+					is UseCaseState.Error -> host.processInternalEvent(
 						if (useCaseState.error == ReportAssistantMessageError.CommentTooLong) {
-							host.processInternalEvent(
-								AssistantChatInternalEvent.MessageReportRejected(
-									message = texts.reportTooLong(AssistantInputLimits.REPORT_COMMENT_MAX_LENGTH)
-								)
+							AssistantChatInternalEvent.MessageReportRejected(
+								message = texts.reportTooLong(AssistantInputLimits.REPORT_COMMENT_MAX_LENGTH)
 							)
+						} else {
+							AssistantChatInternalEvent.MessageReportFailed(message = texts.reportFailed())
 						}
-					}
+					)
 				}
 			}
 		}

@@ -1,15 +1,20 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -30,7 +35,8 @@ fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
 	isCameraAvailable: Boolean = false,
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 	val listState = rememberLazyListState()
 	val lastItem = content.items.lastOrNull()
@@ -56,17 +62,22 @@ fun AssistantChatConversationView(
 		if (content.notificationOffer) {
 			AssistantNotificationOfferView(onAction = onAction)
 		}
-		LazyColumn(
-			modifier = Modifier.weight(1f).fillMaxWidth().testTag(AssistantUiTags.MessageList),
-			state = listState,
-			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Large)
-		) {
-			items(items = content.items, key = ChatItem::id) { item ->
-				when (item) {
-					is ChatItem.User -> AssistantUserBubbleView(item = item)
-					is ChatItem.Agent -> AssistantAgentMessageView(item = item, onAction = onAction)
+		// The sheet's snackbar floats over the foot of the messages, right above what follows them (the composer, or the
+		// suggestions of the guided mode), so it takes no room in any mode while no notice shows.
+		Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+			LazyColumn(
+				modifier = Modifier.fillMaxSize().testTag(AssistantUiTags.MessageList),
+				state = listState,
+				verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Large)
+			) {
+				items(items = content.items, key = ChatItem::id) { item ->
+					when (item) {
+						is ChatItem.User -> AssistantUserBubbleView(item = item)
+						is ChatItem.Agent -> AssistantAgentMessageView(item = item, onAction = onAction)
+					}
 				}
 			}
+			AssistantChatSnackbarView(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
 		}
 		// A photo being read and a message being sent have no label of their own in the state: the labels are the view's.
 		val readingLabel = if (content.isExtracting) stringResource(Res.string.assistant_photo_reading) else null

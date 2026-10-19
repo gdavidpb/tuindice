@@ -84,6 +84,44 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
+	fun report_savedByTheService_marksTheMessageAsReported() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
+		viewModel.openAction(null)
+
+		viewModel.reportMessageAction("a1", AssistantReportReason.INCORRECT, comment = null)
+
+		assertEquals(true, (viewModel.content().items.single() as ChatItem.Agent).reported)
+	}
+
+	@Test
+	fun report_refusedByTheService_leavesTheMessageAsItWas_andSaysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
+		viewModel.openAction(null)
+		fixture.feedback.reportError = IllegalStateException("offline")
+
+		viewModel.reportMessageAction("a1", AssistantReportReason.INCORRECT, comment = null)
+
+		assertEquals(false, (viewModel.content().items.single() as ChatItem.Agent).reported)
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("report-failed", snack.message)
+	}
+
+	@Test
+	fun report_ofAMessageAlreadyReported_isNotSentAgain() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
+		viewModel.openAction(null)
+
+		viewModel.reportMessageAction("a1", AssistantReportReason.INCORRECT, comment = null)
+		viewModel.reportMessageAction("a1", AssistantReportReason.HARMFUL, comment = null)
+
+		assertEquals(1, fixture.feedback.reported.size)
+		assertEquals(1, fixture.effects.size, "only the first report says something")
+	}
+
+	@Test
 	fun navigate_opensTheScreen_andLeavesTheClosingOfTheSheetToTheJump() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
