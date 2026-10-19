@@ -17,8 +17,10 @@ import com.gdavidpb.tuindice.testkit.base.repository.RunningSessionEndRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -78,7 +80,38 @@ class SignOutStateMachineContractTest {
 		}
 	}
 
-	private fun createViewModel(): SignOutViewModel {
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 0,
+			recordCount = 0,
+			evaluationsCount = 0,
+			hasFailedMutations = false
+		)
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				SignOut.Action.Initialize(pendingChanges = pendingChanges),
+				SignOut.Action.ClickSignOut(resolvedPendingChanges = null),
+				SignOut.Action.RetryFlushAndSignOut(pendingChanges = pendingChanges),
+				SignOut.Action.ForceSignOut,
+				SignOutInternalEvent.SignOutInitializedPlain,
+				SignOutInternalEvent.SignOutInitializedPending(pendingChanges = pendingChanges),
+				SignOutInternalEvent.LoggingOutObserved(pendingChanges = null, requiresPasswordUpdate = false),
+				SignOutInternalEvent.PendingChangesFound(pendingChanges = pendingChanges),
+				SignOutInternalEvent.SignOutSucceeded,
+				SignOutInternalEvent.SignOutFailedToPlain(message = "No se pudo cerrar la sesión"),
+				SignOutInternalEvent.FlushFailedObserved(
+					pendingChanges = pendingChanges,
+					requiresPasswordUpdate = false,
+					message = null
+				)
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): SignOutMachine {
 		val pendingChanges = PendingChanges(
 			totalCount = 0,
 			recordCount = 0,
@@ -86,25 +119,29 @@ class SignOutStateMachineContractTest {
 			hasFailedMutations = false
 		)
 
-		return SignOutViewModel(
-			screenMachine = SignOutMachine(
-				confirmSignOutUseCase = ConfirmSignOutUseCase(
-					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
-					reportingRepository = RecordingReportingRepository()
-				),
-				signOutUseCase = SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					sessionEndRepository = RunningSessionEndRepository(),
-					reportingRepository = RecordingReportingRepository()
-				),
-				flushPendingChangesUseCase = FlushPendingChangesUseCase(
-					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
-					reportingRepository = RecordingReportingRepository()
-				)
+		return SignOutMachine(
+			confirmSignOutUseCase = ConfirmSignOutUseCase(
+				pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+				reportingRepository = RecordingReportingRepository()
 			),
+			signOutUseCase = SignOutUseCase(
+				authRepository = RecordingAuthRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				sessionRepository = FakeSessionRepository(),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+				sessionEndRepository = RunningSessionEndRepository(),
+				reportingRepository = RecordingReportingRepository()
+			),
+			flushPendingChangesUseCase = FlushPendingChangesUseCase(
+				pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+	}
+
+	private fun createViewModel(): SignOutViewModel {
+		return SignOutViewModel(
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

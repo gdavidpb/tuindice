@@ -19,8 +19,10 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -80,32 +82,62 @@ class AboutStateMachineContractTest {
 		}
 	}
 
-	private fun createViewModel(): AboutViewModel {
-		return AboutViewModel(
-			screenMachine = AboutMachine(
-				loadVersionUseCase = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				About.Action.LoadVersion,
+				About.Action.OpenUrl(url = "https://example.test"),
+				About.Action.SetUsageDataCollectionEnabled(enabled = true),
+				About.Action.SetAssistantConsent(granted = true),
+				About.Action.RateOnStore,
+				About.Action.RequestDeleteAssistantConversations,
+				About.Action.ConfirmDeleteAssistantConversations,
+				AboutInternalEvent.AboutVersionLoaded(versionText = "1.0", usageDataCollectionEnabled = false),
+				AboutInternalEvent.AboutVersionLoadFailed(versionFallbackText = "Sin versión", usageDataCollectionEnabled = false),
+				AboutInternalEvent.SupportEmailUriLoaded(uri = "mailto:soporte@example.test"),
+				AboutInternalEvent.StoreUriLoaded(uri = "https://example.test/store"),
+				AboutInternalEvent.AssistantAvailabilityObserved(visible = true),
+				AboutInternalEvent.AssistantConsentObserved(granted = true),
+				AboutInternalEvent.AssistantConsentWriteFailed(restoredGranted = false, message = "No se guardó"),
+				AboutInternalEvent.AssistantConversationsDeleted(message = "Borradas"),
+				AboutInternalEvent.AssistantConversationsDeleteFailed(message = "No se borraron")
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): AboutMachine {
+		return AboutMachine(
+			loadVersionUseCase = LoadVersionUseCase(
+				aboutRepository = FakeAboutRepository(),
+				reportingRepository = RecordingReportingRepository()
+			),
+			externalUseCases = AboutExternalUseCases(
+				sendSupportEmail = SendSupportEmailUseCase(
+					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
-				externalUseCases = AboutExternalUseCases(
-					sendSupportEmail = SendSupportEmailUseCase(
-						configRepository = FakeConfigRepository(),
-						deviceInfoRepository = FakeDeviceInfoRepository(),
-						reportingRepository = RecordingReportingRepository()
-					),
-					openStore = OpenStoreUseCase(
-						storeUrlRepository = FakeStoreUrlDataSource(),
-						reportingRepository = RecordingReportingRepository()
-					),
-					openExternalUrl = OpenExternalUrlUseCase(
-						browserRepository = RecordingBrowserRepository(),
-						reportingRepository = RecordingReportingRepository()
-					)
+				openStore = OpenStoreUseCase(
+					storeUrlRepository = FakeStoreUrlDataSource(),
+					reportingRepository = RecordingReportingRepository()
 				),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				assistantUseCases = fakeAboutAssistantUseCases()
+				openExternalUrl = OpenExternalUrlUseCase(
+					browserRepository = RecordingBrowserRepository(),
+					reportingRepository = RecordingReportingRepository()
+				)
 			),
+			appEnvironmentRepository = FakeAppEnvironmentRepository(),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+			assistantUseCases = fakeAboutAssistantUseCases()
+		)
+	}
+
+	private fun createViewModel(): AboutViewModel {
+		return AboutViewModel(
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

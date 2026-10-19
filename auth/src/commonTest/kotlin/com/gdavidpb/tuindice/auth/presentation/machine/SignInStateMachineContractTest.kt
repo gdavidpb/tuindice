@@ -571,6 +571,50 @@ class SignInStateMachineContractTest {
 		return result.toState
 	}
 
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(authRepository = RecordingAuthRepository(), serviceWaitMillis = 0L),
+			sampleEvents = listOf(
+				SignIn.Action.SetUsbId(usbId = "20261234"),
+				SignIn.Action.SetPassword(password = "secreta"),
+				SignIn.Action.TogglePasswordVisibility,
+				SignIn.Action.ToggleIdentifierMode,
+				SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
+				SignIn.Action.ClickSignIn,
+				SignIn.Action.ClickCancelSignIn,
+				SignInInternalEvent.SignInSucceeded,
+				SignInInternalEvent.OutdatedAppDetected,
+				SignInInternalEvent.ServiceWaitElapsed
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(authRepository: RecordingAuthRepository, serviceWaitMillis: Long): SignInMachine {
+		return SignInMachine(
+			signInUseCase = SignInUseCase(
+				authRepository = authRepository,
+				authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
+				messagingRepository = RecordingMessagingRepository(),
+				syncRepository = FakeSyncRepository(),
+				credentialsRepository = FakeCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				settingsRepository = FakeSettingsRepository(),
+				applicationRepository = RecordingApplicationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				paramsValidator = SignInParamsValidator(),
+				exceptionHandler = SignInExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			),
+			configRepository = FakeConfigRepository(),
+			appEnvironmentRepository = FakeAppEnvironmentRepository(),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+		)
+	}
+
 	private fun createFixture(
 		testScheduler: TestCoroutineScheduler? = null,
 		signInThrowable: Throwable? = null,
@@ -583,27 +627,7 @@ class SignInStateMachineContractTest {
 			?: DefaultTuIndiceDispatchers
 
 		val viewModel = SignInViewModel(
-			screenMachine = SignInMachine(
-				signInUseCase = SignInUseCase(
-					authRepository = authRepository,
-					authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
-					messagingRepository = RecordingMessagingRepository(),
-					syncRepository = FakeSyncRepository(),
-					credentialsRepository = FakeCredentialsRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					settingsRepository = FakeSettingsRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					reportingRepository = RecordingReportingRepository(),
-					paramsValidator = SignInParamsValidator(),
-					exceptionHandler = SignInExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				configRepository = FakeConfigRepository(),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
-			),
+			screenMachine = createMachine(authRepository, serviceWaitMillis),
 			eventPublisher = eventPublisher,
 			dispatchers = dispatchers
 		)
