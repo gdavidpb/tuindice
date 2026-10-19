@@ -18,3 +18,9 @@ data class AttemptProjection(
 	@SerialName("enrollment_errors") val enrollmentErrors: List<String>? = null,
 	val withdrawn: Boolean = false
 )
+
+// The rule of a retired attempt, shared by the statistics and the term report: it counts as withdrawn
+// whatever its result.
+fun AttemptProjection.isRetired(): Boolean {
+	return withdrawn || outcome == AttemptOutcome.RETIRED
+}

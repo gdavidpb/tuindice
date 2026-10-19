@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.SubjectOutcomes
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
+import com.gdavidpb.tuindice.academiccore.domain.model.isRetired
 
 /**
  * The statistics of a record's closed terms, read from its academic projection. Current and synthetic terms are left
@@ -81,7 +82,7 @@ object RecordStatisticsEngine {
 	private fun standingOf(history: List<AttemptProjection>): SubjectStanding {
 		val results = history.filter { attempt -> isResult(attempt) }
 		val approval = results.firstOrNull { attempt -> attempt.outcome == AttemptOutcome.APPROVED }
-		val withdrawal = history.firstOrNull { attempt -> isRetired(attempt) }
+		val withdrawal = history.firstOrNull { attempt -> attempt.isRetired() }
 		val state = when {
 			approval != null -> SubjectState.APPROVED
 			results.isNotEmpty() -> SubjectState.FAILED
@@ -107,14 +108,14 @@ object RecordStatisticsEngine {
 		return GradeHistogram(
 			countsByGrade = (1..MAX_SUBJECT_GRADE).associateWith { grade -> gradeCounts[grade] ?: 0 },
 			unreported = attempts.count { attempt ->
-				attempt.outcome == AttemptOutcome.UNREPORTED && !isRetired(attempt)
+				attempt.outcome == AttemptOutcome.UNREPORTED && !attempt.isRetired()
 			}
 		)
 	}
 
 	// A result is what the retake timeline counts. A retired attempt never is, whatever grade it carries.
 	private fun isResult(attempt: AttemptProjection): Boolean {
-		return !isRetired(attempt) && RecordProjectionEngine.countsTowardRetakeTimeline(
+		return !attempt.isRetired() && RecordProjectionEngine.countsTowardRetakeTimeline(
 			attempt.gradingMode,
 			attempt.score,
 			attempt.outcome
@@ -123,10 +124,6 @@ object RecordStatisticsEngine {
 
 	private fun isApprovalResult(attempt: AttemptProjection): Boolean {
 		return isResult(attempt) && attempt.outcome == AttemptOutcome.APPROVED
-	}
-
-	private fun isRetired(attempt: AttemptProjection): Boolean {
-		return attempt.withdrawn || attempt.outcome == AttemptOutcome.RETIRED
 	}
 
 	private enum class SubjectState {
