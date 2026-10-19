@@ -12,9 +12,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
-import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
@@ -102,8 +101,7 @@ class SettingsRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.OpenTerms)
-		onNodeWithTag(SettingsUiTags.OpenTerms).performClick()
+		clickRow(SettingsUiTags.OpenTerms)
 
 		waitUntil(timeoutMillis = 2_000) {
 			navigatedUrl.isNotEmpty()
@@ -197,8 +195,7 @@ class SettingsRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.ShareApp)
-		onNodeWithTag(SettingsUiTags.ShareApp).performClick()
+		clickRow(SettingsUiTags.ShareApp)
 
 		waitUntil(timeoutMillis = 2_000) {
 			subject.isNotEmpty() && text.isNotEmpty()
@@ -259,8 +256,7 @@ class SettingsRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.OpenPrivacy)
-		onNodeWithTag(SettingsUiTags.OpenPrivacy).performClick()
+		clickRow(SettingsUiTags.OpenPrivacy)
 
 		waitUntil(timeoutMillis = 2_000) {
 			navigatedUrl.isNotEmpty()
@@ -326,8 +322,7 @@ class SettingsRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.OpenSupport)
-		onNodeWithTag(SettingsUiTags.OpenSupport).performClick()
+		clickRow(SettingsUiTags.OpenSupport)
 
 		waitUntil(timeoutMillis = 2_000) {
 			navigatedUrl.isNotEmpty()
@@ -393,8 +388,7 @@ class SettingsRouteUiTest {
 			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.RateOnStore)
-		onNodeWithTag(SettingsUiTags.RateOnStore).performClick()
+		clickRow(SettingsUiTags.RateOnStore)
 
 		waitUntil(timeoutMillis = 2_000) {
 			openedUri.isNotEmpty()
@@ -518,15 +512,15 @@ class SettingsRouteUiTest {
 		var navigateCalls = 0
 
 		setTuIndiceTestContent {
-			SettingsRouteUnderTest(
-				onNavigateToBrowser = { _, _ -> navigateCalls++ },
-				viewModel = fixture.viewModel
-			)
+			CompositionLocalProvider(LocalShareTextHandler provides { _, _ -> }) {
+				SettingsRouteUnderTest(
+					onNavigateToBrowser = { _, _ -> navigateCalls++ },
+					viewModel = fixture.viewModel
+				)
+			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.ContentContainer)
-		onNodeWithTag(SettingsUiTags.ContentContainer).performScrollToNode(hasTestTag(SettingsUiTags.OpenX))
-		onNodeWithTag(SettingsUiTags.OpenX).performClick()
+		clickRow(SettingsUiTags.OpenX)
 
 		waitUntil(timeoutMillis = 2_000) {
 			fixture.browserRepository.lastOpenedUrl != null
@@ -542,15 +536,15 @@ class SettingsRouteUiTest {
 		var aboutCalls = 0
 
 		setTuIndiceTestContent {
-			SettingsRouteUnderTest(
-				onNavigateToAbout = { aboutCalls++ },
-				viewModel = fixture.viewModel
-			)
+			CompositionLocalProvider(LocalShareTextHandler provides { _, _ -> }) {
+				SettingsRouteUnderTest(
+					onNavigateToAbout = { aboutCalls++ },
+					viewModel = fixture.viewModel
+				)
+			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.ContentContainer)
-		onNodeWithTag(SettingsUiTags.ContentContainer).performScrollToNode(hasTestTag(SettingsUiTags.OpenAbout))
-		onNodeWithTag(SettingsUiTags.OpenAbout).performClick()
+		clickRow(SettingsUiTags.OpenAbout)
 
 		waitUntil(timeoutMillis = 2_000) { aboutCalls > 0 }
 
@@ -563,15 +557,15 @@ class SettingsRouteUiTest {
 		var signOutRequests = 0
 
 		setTuIndiceTestContent {
-			SettingsRouteUnderTest(
-				onSignOutRequest = { signOutRequests++ },
-				viewModel = fixture.viewModel
-			)
+			CompositionLocalProvider(LocalShareTextHandler provides { _, _ -> }) {
+				SettingsRouteUnderTest(
+					onSignOutRequest = { signOutRequests++ },
+					viewModel = fixture.viewModel
+				)
+			}
 		}
 
-		waitUntilNodeExists(SettingsUiTags.ContentContainer)
-		onNodeWithTag(SettingsUiTags.ContentContainer).performScrollToNode(hasTestTag(SettingsUiTags.SignOut))
-		onNodeWithTag(SettingsUiTags.SignOut).performClick()
+		clickRow(SettingsUiTags.SignOut)
 
 		waitUntil(timeoutMillis = 2_000) { signOutRequests > 0 }
 
@@ -583,7 +577,9 @@ class SettingsRouteUiTest {
 		val fixture = createSettingsViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
 
 		setTuIndiceTestContent {
-			SettingsRouteUnderTest(viewModel = fixture.viewModel)
+			CompositionLocalProvider(LocalShareTextHandler provides { _, _ -> }) {
+				SettingsRouteUnderTest(viewModel = fixture.viewModel)
+			}
 		}
 
 		waitUntilNodeExists(SettingsUiTags.IdentityCard)
@@ -601,13 +597,22 @@ class SettingsRouteUiTest {
 		)
 
 		setTuIndiceTestContent {
-			SettingsRouteUnderTest(viewModel = fixture.viewModel)
+			CompositionLocalProvider(LocalShareTextHandler provides { _, _ -> }) {
+				SettingsRouteUnderTest(viewModel = fixture.viewModel)
+			}
 		}
 
 		waitUntilNodeExists(SettingsUiTags.ContentContainer)
 
 		assertEquals(0, onAllNodesWithTag(SettingsUiTags.IdentityCard).fetchSemanticsNodes().size)
 		waitUntilNodeExists(SettingsUiTags.OpenPrivacy)
+	}
+
+	// The rows below the fold are laid out but not on screen: the list scrolls to the row before it is tapped.
+	private fun ComposeUiTest.clickRow(tag: String) {
+		waitUntilNodeExists(SettingsUiTags.ContentContainer)
+		onNodeWithTag(SettingsUiTags.ContentContainer).performScrollToNode(hasTestTag(tag))
+		onNodeWithTag(tag).performClick()
 	}
 
 	private fun ComposeUiTest.waitUntilNodeExists(
@@ -633,15 +638,12 @@ class SettingsRouteUiTest {
 				debug = true
 			)
 		)
-		val aboutRepository = object : AboutRepository {
-			override suspend fun getVersionDescription(): String = "1.2.3"
-		}
 		val storeUrlRepository = object : StoreUrlRepository {
 			override fun getStoreUrl(): String = "https://store.tuindice.test"
 		}
 
-		val loadVersionUseCase = LoadVersionUseCase(
-			aboutRepository = aboutRepository,
+		val loadVersionNameUseCase = LoadVersionNameUseCase(
+			deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
 			reportingRepository = RecordingReportingRepository()
 		)
 		val sendSupportEmailUseCase = SendSupportEmailUseCase(
@@ -663,7 +665,7 @@ class SettingsRouteUiTest {
 			viewModel = SettingsViewModel(
 				screenMachine = SettingsMachine(
 					contentUseCases = SettingsContentUseCases(
-						loadVersion = loadVersionUseCase,
+						loadVersionName = loadVersionNameUseCase,
 						observeProfileIdentity = fakeObserveProfileIdentityUseCase(profileIdentityRepository)
 					),
 					externalUseCases = SettingsExternalUseCases(

@@ -203,8 +203,9 @@ class SettingsContentViewUiTest {
 			SettingsUiTags.OpenAbout,
 			SettingsUiTags.SignOut
 		)
-		// The column is not lazy, so every row is laid out before any scrolling, and its top says where it sits.
-		val tops = orderedTags.map { tag -> onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.top }
+		// The column is not lazy, so every row is laid out before any scrolling, and its position says where it sits (the
+		// bounds of a row outside the screen are clipped, its position is not).
+		val tops = orderedTags.map { tag -> onNodeWithTag(tag).fetchSemanticsNode().positionInRoot.y }
 
 		assertEquals(tops.sorted(), tops)
 		assertEquals(

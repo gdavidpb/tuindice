@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
@@ -11,8 +11,7 @@ import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsInternalEvent
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
 import com.gdavidpb.tuindice.about.testing.ANA_PROFILE_IDENTITY
-import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
-import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
+import com.gdavidpb.tuindice.about.testing.CURRENT_APP_VERSION_NAME
 import com.gdavidpb.tuindice.about.testing.FakeProfileIdentityRepository
 import com.gdavidpb.tuindice.about.testing.FakeSettingsTextProvider
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
@@ -48,7 +47,7 @@ class SettingsViewModelContractTest {
 		try {
 			viewModel.state.test {
 				val content = awaitUntilState<Settings.State.Content>()
-				assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
+				assertEquals(CURRENT_APP_VERSION_NAME, content.versionText)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -156,7 +155,7 @@ class SettingsViewModelContractTest {
 				Settings.Action.RequestDeleteAssistantConversations,
 				Settings.Action.ConfirmDeleteAssistantConversations,
 				SettingsInternalEvent.SettingsVersionLoaded(
-					versionText = CURRENT_PRODUCTION_VERSION_TEXT,
+					versionText = CURRENT_APP_VERSION_NAME,
 					usageDataCollectionEnabled = false
 				),
 				SettingsInternalEvent.SettingsVersionLoadFailed(
@@ -183,8 +182,8 @@ class SettingsViewModelContractTest {
 	): SettingsMachine {
 		return SettingsMachine(
 			contentUseCases = SettingsContentUseCases(
-				loadVersion = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
+				loadVersionName = LoadVersionNameUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(versionName = CURRENT_APP_VERSION_NAME),
 					reportingRepository = RecordingReportingRepository()
 				),
 				observeProfileIdentity = fakeObserveProfileIdentityUseCase(profileIdentityRepository)

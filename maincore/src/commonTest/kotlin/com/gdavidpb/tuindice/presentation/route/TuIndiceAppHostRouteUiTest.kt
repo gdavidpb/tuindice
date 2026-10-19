@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
@@ -1426,6 +1427,7 @@ class TuIndiceAppHostRouteUiTest {
 		single<ProfileIdentityRepository> { FakeProfileIdentityRepository() }
 		// Settings, which the avatar of the bar opens: the sign-out is reached through it.
 		factory { createSettingsViewModel() }
+		single<ShareTextHandler> { ShareTextHandler { _, _ -> } }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }

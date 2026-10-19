@@ -1,9 +1,8 @@
 package com.gdavidpb.tuindice.testing
 
-import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveProfileIdentityUseCase
@@ -41,10 +40,8 @@ fun createSettingsViewModel(
 	return SettingsViewModel(
 		screenMachine = SettingsMachine(
 			contentUseCases = SettingsContentUseCases(
-				loadVersion = LoadVersionUseCase(
-					aboutRepository = object : AboutRepository {
-						override suspend fun getVersionDescription(): String = "1.0.0"
-					},
+				loadVersionName = LoadVersionNameUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
 					reportingRepository = reporting
 				),
 				observeProfileIdentity = ObserveProfileIdentityUseCase(

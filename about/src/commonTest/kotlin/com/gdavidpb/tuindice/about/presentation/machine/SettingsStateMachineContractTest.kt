@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.machine
 
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.about.presentation.contract.Settings
 import com.gdavidpb.tuindice.about.presentation.resource.SettingsTextProvider
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import com.gdavidpb.tuindice.about.testing.ANA_PROFILE_IDENTITY
-import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeSettingsTextProvider
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
@@ -133,8 +132,8 @@ class SettingsStateMachineContractTest {
 	private fun createMachine(textProvider: SettingsTextProvider = FakeSettingsTextProvider()): SettingsMachine {
 		return SettingsMachine(
 			contentUseCases = SettingsContentUseCases(
-				loadVersion = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
+				loadVersionName = LoadVersionNameUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
 					reportingRepository = RecordingReportingRepository()
 				),
 				observeProfileIdentity = fakeObserveProfileIdentityUseCase()

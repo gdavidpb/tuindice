@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.about.presentation.machine.SettingsAssistantUseCase
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsContentUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsExternalUseCases
 import com.gdavidpb.tuindice.about.presentation.machine.SettingsMachine
-import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
@@ -189,8 +188,8 @@ class SettingsAssistantViewModelContractTest {
 	): SettingsMachine {
 		return SettingsMachine(
 			contentUseCases = SettingsContentUseCases(
-				loadVersion = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository(),
+				loadVersionName = LoadVersionNameUseCase(
+					deviceInfoRepository = FakeDeviceInfoRepository(versionName = "1.2.3"),
 					reportingRepository = RecordingReportingRepository()
 				),
 				observeProfileIdentity = fakeObserveProfileIdentityUseCase()

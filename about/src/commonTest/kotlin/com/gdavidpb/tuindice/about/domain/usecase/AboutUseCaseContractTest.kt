@@ -35,6 +35,19 @@ class AboutUseCaseContractTest {
 	}
 
 	@Test
+	fun loadVersionNameUseCase_emitsLoadingThenTheVersionNumberAlone() = runTest {
+		val useCase = LoadVersionNameUseCase(
+			deviceInfoRepository = FakeDeviceInfoRepository(versionName = "9.9.9", versionCode = 999L),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals("9.9.9", awaitLoadingThenData(this))
+			awaitComplete()
+		}
+	}
+
+	@Test
 	fun observeProfileIdentityUseCase_emitsLoadingThenTheIdentityTheDeviceHolds() = runTest {
 		val identities = FakeProfileIdentityRepository()
 		val useCase = ObserveProfileIdentityUseCase(

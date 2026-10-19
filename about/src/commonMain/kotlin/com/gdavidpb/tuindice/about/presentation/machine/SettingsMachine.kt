@@ -34,7 +34,7 @@ class SettingsMachine(
 
 	internal fun loadVersion(host: MachineHost<Settings.Effect>) {
 		host.launchMachineJob {
-			contentUseCases.loadVersion.execute(Unit).collect { useCaseState ->
+			contentUseCases.loadVersionName.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
