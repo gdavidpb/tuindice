@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.component
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.view.ChatComponentView
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
@@ -99,7 +100,7 @@ class CardComponentDispatchUiTest {
 
 	private fun ComposeUiTest.assertDispatchedTo(component: ChatComponent, tag: String) {
 		setTuIndiceTestContent {
-			ChatComponentView(messageId = MESSAGE_ID, component = component, onAction = {})
+			ChatComponentView(messageId = MESSAGE_ID, item = component.toChatComponentItem(), onAction = {})
 		}
 
 		assertNodeVisible(tag)

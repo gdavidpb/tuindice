@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.assistant.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 
@@ -13,7 +13,7 @@ object AssistantComponentSheet {
 	sealed class State : ViewState {
 		data object Idle : State()
 
-		data class Content(val messageId: String, val component: ChatComponent) : State()
+		data class Content(val messageId: String, val item: ChatComponentItem) : State()
 
 		// The component left the conversation: the sheet closes with Effect.Dismiss.
 		data object Missing : State()

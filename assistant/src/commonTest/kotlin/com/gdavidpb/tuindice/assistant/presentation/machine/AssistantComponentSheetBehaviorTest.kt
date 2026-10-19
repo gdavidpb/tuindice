@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
 import com.gdavidpb.tuindice.assistant.presentation.testing.componentSheetTest
@@ -31,7 +32,7 @@ class AssistantComponentSheetBehaviorTest {
 
 		val content = assertIs<AssistantComponentSheet.State.Content>(viewModel.state.value)
 		assertEquals("message-1", content.messageId)
-		assertEquals(component, content.component)
+		assertEquals(component.toChatComponentItem(), content.item)
 	}
 
 	@Test

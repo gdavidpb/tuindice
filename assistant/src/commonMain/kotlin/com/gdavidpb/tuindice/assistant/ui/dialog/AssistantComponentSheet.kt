@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.view.ChatComponentView
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 
 // One component of an agent message, on a sheet of its own. It shows the component as the message shows it, and closes
 // with a swipe down or a tap outside.
@@ -19,7 +19,7 @@ import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 @Composable
 fun AssistantComponentSheet(
 	messageId: String,
-	component: ChatComponent,
+	item: ChatComponentItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
@@ -32,7 +32,7 @@ fun AssistantComponentSheet(
 	) {
 		ChatComponentView(
 			messageId = messageId,
-			component = component,
+			item = item,
 			onAction = onAction,
 			// The sheet already is the detail: its row would only open the same sheet again.
 			showsDetailRow = false,

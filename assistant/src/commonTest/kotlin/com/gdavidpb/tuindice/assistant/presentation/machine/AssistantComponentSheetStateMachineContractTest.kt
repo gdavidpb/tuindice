@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantComponentSheetFixture
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
@@ -105,7 +106,7 @@ class AssistantComponentSheetStateMachineContractTest {
 		return listOf(
 			AssistantComponentSheet.Action.Open(messageId = "message-1", componentId = "component-1"),
 			AssistantComponentSheet.Action.OpenNavTarget(target = NavTarget.SUMMARY, entityRefs = emptyList()),
-			AssistantComponentSheetInternalEvent.ComponentObserved(messageId = "message-1", component = component()),
+			AssistantComponentSheetInternalEvent.ComponentObserved(messageId = "message-1", item = component().toChatComponentItem()),
 			AssistantComponentSheetInternalEvent.ComponentMissing
 		)
 	}

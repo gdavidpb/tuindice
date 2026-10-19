@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.AcademicCardComponentRenderer
 import com.gdavidpb.tuindice.assistant.ui.component.RecordCardComponentRenderer
@@ -22,7 +23,6 @@ import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
-import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 import com.gdavidpb.tuindice.chatcontract.component.CooldownComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.HelpComponent
@@ -57,37 +57,47 @@ import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
-// One component of an agent message. A SHEET component adds its «Ver detalle» row, except on its own sheet, where
-// [showsDetailRow] is false. Every catalog this build supports has its renderers (sistema, nav, perfil, informe,
-// horario, resumen, evaluaciones, materias, pensum, plan and conocimiento); only a component this build does not
-// know falls back to the text it carries.
+// One component of an agent message. A component that opens on a sheet adds its «Ver detalle» row, except on its own
+// sheet, where [showsDetailRow] is false.
 @Composable
 fun ChatComponentView(
 	messageId: String,
-	component: ChatComponent,
+	item: ChatComponentItem,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier,
 	showsDetailRow: Boolean = true
 ) {
 	Column(
-		modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.Component.root(component.id)),
+		modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.Component.root(item.id)),
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		ComponentRenderer(component = component, onAction = onAction)
+		ComponentRenderer(item = item, onAction = onAction)
 
-		if (showsDetailRow && component.display == ComponentDisplay.SHEET) {
+		if (showsDetailRow && item.opensSheet) {
 			ChatComponentDetailRowView(
 				messageId = messageId,
-				componentId = component.id,
-				onClick = { onAction(AssistantChat.Action.OpenComponentSheet(messageId, component.id)) }
+				componentId = item.id,
+				onClick = { onAction(AssistantChat.Action.OpenComponentSheet(messageId, item.id)) }
 			)
 		}
 	}
 }
 
-// Exhaustive on purpose: a new ChatComponent subclass fails to compile until it has a branch here.
+// Exhaustive on purpose: a new item fails to compile until it has a branch here.
 @Composable
 private fun ComponentRenderer(
+	item: ChatComponentItem,
+	onAction: (AssistantChat.Action) -> Unit
+) {
+	when (item) {
+		is ChatComponentItem.Unmigrated -> WireComponentRenderer(component = item.component, onAction = onAction)
+	}
+}
+
+// The renderers of the catalogs that still take their wire components. Each one leaves this function when its catalog
+// has its items.
+@Composable
+private fun WireComponentRenderer(
 	component: ChatComponent,
 	onAction: (AssistantChat.Action) -> Unit
 ) {

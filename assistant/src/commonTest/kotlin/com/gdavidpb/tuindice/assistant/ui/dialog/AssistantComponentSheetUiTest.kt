@@ -8,6 +8,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
@@ -25,7 +26,7 @@ class AssistantComponentSheetUiTest {
 		setTuIndiceTestContent {
 			AssistantComponentSheet(
 				messageId = MESSAGE_ID,
-				component = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT),
+				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(),
 				onAction = {},
 				onDismissRequest = {}
 			)
@@ -39,12 +40,12 @@ class AssistantComponentSheetUiTest {
 		setTuIndiceTestContent {
 			AssistantComponentSheet(
 				messageId = MESSAGE_ID,
-				component = WarningComponent(
+				item = WarningComponent(
 					id = COMPONENT_ID,
 					fallbackText = FALLBACK_TEXT,
 					display = ComponentDisplay.SHEET,
 					reason = AbuseReasonCode.SPAM
-				),
+				).toChatComponentItem(),
 				onAction = {},
 				onDismissRequest = {}
 			)
@@ -60,7 +61,7 @@ class AssistantComponentSheetUiTest {
 		setTuIndiceTestContent {
 			AssistantComponentSheet(
 				messageId = MESSAGE_ID,
-				component = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT),
+				item = UnknownChatComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT).toChatComponentItem(),
 				onAction = {},
 				onDismissRequest = { dismissals++ }
 			)

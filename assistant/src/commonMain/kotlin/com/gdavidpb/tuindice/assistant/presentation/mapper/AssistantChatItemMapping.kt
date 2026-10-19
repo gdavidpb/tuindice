@@ -58,7 +58,7 @@ private suspend fun AssistantMessage.toChatParts(
 		when (part) {
 			is Text -> ChatPartItem.Text(text = part.text)
 
-			is Component -> ChatPartItem.Component(component = part.component)
+			is Component -> ChatPartItem.Component(item = part.component.toChatComponentItem())
 
 			is IntentPart -> ChatPartItem.IntentCard(
 				card = part.intent.toIntentCardItem(

@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.transition.assistantComponen
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.message.Component
@@ -47,7 +48,7 @@ class AssistantComponentSheetMachine(
 						} else {
 							AssistantComponentSheetInternalEvent.ComponentObserved(
 								messageId = messageId,
-								component = component
+								item = component.toChatComponentItem()
 							)
 						}
 					)

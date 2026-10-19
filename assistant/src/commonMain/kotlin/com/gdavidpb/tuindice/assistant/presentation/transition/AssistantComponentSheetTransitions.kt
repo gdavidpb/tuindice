@@ -23,7 +23,7 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 			AssistantComponentSheetInternalEvent.ComponentObserved,
 			AssistantComponentSheet.State.Content
 		> { _, event ->
-			AssistantComponentSheet.State.Content(messageId = event.messageId, component = event.component)
+			AssistantComponentSheet.State.Content(messageId = event.messageId, item = event.item)
 		}
 
 		onTo<AssistantComponentSheetInternalEvent.ComponentMissing, AssistantComponentSheet.State.Missing>(
@@ -37,7 +37,7 @@ internal fun MachineDefinitionBuilder<AssistantComponentSheet.State>.assistantCo
 
 	from<AssistantComponentSheet.State.Content> {
 		on<AssistantComponentSheetInternalEvent.ComponentObserved> { state, event ->
-			state.copy(component = event.component)
+			state.copy(item = event.item)
 		}
 
 		onTo<AssistantComponentSheetInternalEvent.ComponentMissing, AssistantComponentSheet.State.Missing>(

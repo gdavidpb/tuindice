@@ -42,7 +42,7 @@ fun AssistantComponentSheetRoute(
 	if (content is AssistantComponentSheet.State.Content) {
 		AssistantComponentSheetDialog(
 			messageId = content.messageId,
-			component = content.component,
+			item = content.item,
 			onAction = { action ->
 				if (action is AssistantChat.Action.OpenNavTarget) {
 					viewModel.dispatch(
