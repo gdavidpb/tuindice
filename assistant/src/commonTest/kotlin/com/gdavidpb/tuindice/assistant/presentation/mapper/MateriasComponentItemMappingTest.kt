@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
@@ -11,7 +13,10 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
+import tuindice.assistant.generated.resources.assistant_card_b_band_high
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject
+import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_caption
 import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_caption
 import kotlin.test.Test
@@ -20,7 +25,7 @@ import kotlin.test.assertNull
 
 class MateriasComponentItemMappingTest {
 	@Test
-	fun subjectList_linksEachSubjectToItsOwnScreen_andShowsItsStatusOnlyWhenItHasOne() {
+	fun subjectList_linksEachSubjectToItsOwnScreen_andNamesIt_andShowsItsStatusOnlyWhenItHasOne() {
 		val item = SubjectListComponent(
 			id = "m1",
 			fallbackText = "Materias",
@@ -34,12 +39,16 @@ class MateriasComponentItemMappingTest {
 			CardLinkItem(
 				target = NavTarget.SUBJECTS_DETAIL,
 				text = UiText.Resource(Res.string.assistant_card_b_link_subject),
-				entityRefs = listOf(EntityRef(EntityKind.SUBJECT, "IS-101"))
+				entityRefs = listOf(EntityRef(EntityKind.SUBJECT, "IS-101")),
+				accessibilityText = UiText.Resource(Res.string.assistant_card_b_link_subject_named, listOf("IS-101"))
 			),
 			item.rows[0].link
 		)
-		assertEquals(subjectStatusText("approved"), item.rows[0].statusText)
-		assertNull(item.rows[1].statusText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_outcome_approved), CardChipTone.Approved),
+			item.rows[0].statusChip
+		)
+		assertNull(item.rows[1].statusChip)
 	}
 
 	@Test
@@ -72,7 +81,10 @@ class MateriasComponentItemMappingTest {
 		assertEquals(UiText.Raw("14.50"), both.primaryFigure?.value)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_stats_average_caption), both.primaryFigure?.caption)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_stats_pass_caption), both.secondaryFigure?.caption)
-		assertEquals(bandText("high"), both.difficultyText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_b_band_high), CardChipTone.Neutral),
+			both.difficultyChip
+		)
 		assertEquals(listOf(1f / 3f, 1f), both.histogram.map { bar -> bar.fraction })
 
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_stats_pass_caption), passOnly.primaryFigure?.caption)

@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
-import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CountRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CreditsRowItem
-import com.gdavidpb.tuindice.assistant.presentation.model.HistogramBarItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexGoalItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexPointItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
@@ -17,7 +16,6 @@ import com.gdavidpb.tuindice.assistant.presentation.model.TermRowItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
-import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
@@ -48,7 +46,6 @@ import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_description
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_description
-import tuindice.assistant.generated.resources.assistant_card_b_link_record
 
 // The figure of the term: its index first, and the cumulative index beside it when the term has one too.
 private fun primaryAndSecondary(
@@ -78,16 +75,12 @@ internal fun TermComponent.toTermItem(): TermItem {
 				code = row.subjectCode,
 				name = row.subjectName,
 				gradeText = row.grade?.toString(),
-				outcomeText = if (row.grade == null) attemptOutcomeText(row.outcome) else null,
-				badgeText = attemptBadgeText(row.badge)
+				outcomeChip = if (row.grade == null) attemptOutcomeChip(row.outcome) else null,
+				badgeChip = attemptBadgeChip(row.badge)
 			)
 		},
 		recordLink = if (entityRefs.any { ref -> ref.kind == EntityKind.TERM }) {
-			CardLinkItem(
-				target = NavTarget.RECORD,
-				text = UiText.Resource(Res.string.assistant_card_b_link_record),
-				entityRefs = entityRefs
-			)
+			chatRecordLinkItem(entityRefs = entityRefs, termLabel = termLabel)
 		} else {
 			null
 		}
@@ -109,9 +102,9 @@ internal fun IndexSeriesComponent.toIndexSeriesItem(): IndexSeriesItem {
 				termLabel = point.termLabel,
 				termIndexText = point.termIndex?.toCardIndexText(),
 				cumulativeIndexText = point.cumulativeIndex?.toCardIndexText(),
-				markText = when (point.termId) {
-					bestTermId -> UiText.Resource(Res.string.assistant_card_a_series_best)
-					worstTermId -> UiText.Resource(Res.string.assistant_card_a_series_worst)
+				markChip = when (point.termId) {
+					bestTermId -> chatCardChip(Res.string.assistant_card_a_series_best, CardChipTone.Neutral)
+					worstTermId -> chatCardChip(Res.string.assistant_card_a_series_worst, CardChipTone.Neutral)
 					else -> null
 				}
 			)
@@ -121,7 +114,6 @@ internal fun IndexSeriesComponent.toIndexSeriesItem(): IndexSeriesItem {
 
 internal fun RecordStatsComponent.toRecordStatsItem(): RecordStatsItem {
 	val approvedText = UiText.Raw(approved.toString())
-	val largest = histogram.maxOrNull() ?: 0
 
 	return RecordStatsItem(
 		id = id,
@@ -137,13 +129,7 @@ internal fun RecordStatsComponent.toRecordStatsItem(): RecordStatsItem {
 			Res.string.assistant_card_a_record_first_try to approvedFirstTry,
 			Res.string.assistant_card_a_record_repeated to repeated
 		).map { (label, count) -> CountRowItem(label = UiText.Resource(label), value = count.toString()) },
-		histogram = histogram.mapIndexed { index, count ->
-			HistogramBarItem(
-				grade = (index + 1).toString(),
-				count = count.toString(),
-				fraction = if (largest == 0) 0f else count.toFloat() / largest
-			)
-		}
+		histogram = histogram.toHistogramBarItems()
 	)
 }
 
@@ -182,7 +168,7 @@ internal fun SimulationComponent.toSimulationItem(): SimulationItem {
 		changes = changes.map { change ->
 			SimulatedGradeItem(
 				code = change.subjectCode,
-				outcomeText = attemptOutcomeText(change.outcome) ?: UiText.Empty,
+				outcomeText = attemptOutcomeChip(change.outcome)?.text ?: UiText.Empty,
 				gradeText = change.grade?.toString()
 			)
 		}
@@ -197,9 +183,11 @@ internal fun IndexGoalComponent.toIndexGoalItem(): IndexGoalItem {
 			caption = Res.string.assistant_card_a_goal_caption,
 			description = Res.string.assistant_card_a_goal_description
 		),
-		feasibilityText = UiText.Resource(
-			if (feasible) Res.string.assistant_card_a_goal_feasible else Res.string.assistant_card_a_goal_not_feasible
-		),
+		feasibilityChip = if (feasible) {
+			chatCardChip(Res.string.assistant_card_a_goal_feasible, CardChipTone.Success)
+		} else {
+			chatCardChip(Res.string.assistant_card_a_goal_not_feasible, CardChipTone.Failed)
+		},
 		targetText = targetCumulative.toCardIndexText(),
 		creditsText = credits.toString()
 	)

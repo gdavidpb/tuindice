@@ -6,6 +6,6 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 data class SubjectRowItem(
 	val code: String,
 	val nameText: UiText,
-	val statusText: UiText?,
+	val statusChip: CardChipItem?,
 	val link: CardLinkItem?
 )

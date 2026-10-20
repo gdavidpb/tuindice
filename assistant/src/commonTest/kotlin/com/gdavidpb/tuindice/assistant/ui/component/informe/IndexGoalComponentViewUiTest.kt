@@ -25,7 +25,7 @@ class IndexGoalComponentViewUiTest {
 		onNodeWithContentDescription("Índice necesario en el trimestre: 18.2000").assertIsDisplayed()
 		onNodeWithText("Meta acumulada").assertIsDisplayed()
 		onNodeWithText("17.0000").assertIsDisplayed()
-		onNodeWithText("alcanzable").assertIsDisplayed()
+		onNodeWithText("Alcanzable").assertIsDisplayed()
 		onNodeWithText("Créditos").assertIsDisplayed()
 		onNodeWithText("60").assertIsDisplayed()
 	}
@@ -36,8 +36,8 @@ class IndexGoalComponentViewUiTest {
 			IndexGoalComponentView(item = goal(feasible = false).toIndexGoalItem())
 		}
 
-		onNodeWithText("no alcanzable").assertIsDisplayed()
-		onNodeWithText("alcanzable").assertDoesNotExist()
+		onNodeWithText("No alcanzable").assertIsDisplayed()
+		onNodeWithText("Alcanzable").assertDoesNotExist()
 	}
 
 	private fun goal(feasible: Boolean): IndexGoalComponent =

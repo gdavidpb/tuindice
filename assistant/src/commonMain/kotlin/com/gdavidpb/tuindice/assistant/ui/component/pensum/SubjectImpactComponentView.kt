@@ -6,11 +6,11 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectImpactItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
@@ -31,9 +31,7 @@ fun SubjectImpactComponentView(
 				code = subject.code,
 				name = subject.nameText.asString(),
 				showsDivider = index > 0,
-				trailing = {
-					subject.statusText?.let { text -> CardChipView(text = text.asString()) }
-				}
+				trailing = { CardTrailingView(value = null, chips = listOfNotNull(subject.statusChip)) }
 			)
 		}
 		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }

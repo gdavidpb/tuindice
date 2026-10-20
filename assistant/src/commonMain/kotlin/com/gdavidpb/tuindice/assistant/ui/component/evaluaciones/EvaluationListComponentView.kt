@@ -1,24 +1,19 @@
 package com.gdavidpb.tuindice.assistant.ui.component.evaluaciones
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_evaluations_label
@@ -40,13 +35,7 @@ fun EvaluationListComponentView(
 				name = row.nameText.asString(),
 				showsDivider = index > 0,
 				trailing = {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						CardValueView(text = row.gradeText.asString())
-						row.stateText?.let { text -> CardChipView(text = text.asString()) }
-					}
+					CardTrailingView(value = row.gradeText.asString(), chips = listOfNotNull(row.stateChip))
 				}
 			)
 		}

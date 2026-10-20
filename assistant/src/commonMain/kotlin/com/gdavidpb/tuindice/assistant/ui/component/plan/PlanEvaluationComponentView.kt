@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardSectionLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
@@ -36,29 +37,27 @@ fun PlanEvaluationComponentView(
 		}
 		CardRowView(
 			name = stringResource(Res.string.assistant_card_a_goal_credits),
+			showsDivider = true,
 			trailing = { CardValueView(text = item.creditsText.asString()) }
 		)
 		if (item.pendingRequirements.isNotEmpty()) {
-			CardLabelView(text = stringResource(Res.string.assistant_card_b_plan_pending_requirements))
+			CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_plan_pending_requirements))
 			item.pendingRequirements.forEachIndexed { index, requirement ->
 				CardRowView(name = requirement, showsDivider = index > 0)
 			}
 		}
 		if (item.slotWarnings.isNotEmpty()) {
-			CardLabelView(text = stringResource(Res.string.assistant_card_b_plan_warnings))
+			CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_plan_warnings))
 			item.slotWarnings.forEachIndexed { index, warning ->
 				CardRowView(name = warning, showsDivider = index > 0)
 			}
 		}
 		val clashes = item.clashesValueText
-		if (clashes == null) {
-			CardRowView(name = item.clashesName.asString())
-		} else {
-			CardRowView(
-				name = item.clashesName.asString(),
-				trailing = { CardValueView(text = clashes) }
-			)
-		}
+		CardRowView(
+			name = item.clashesName.asString(),
+			showsDivider = true,
+			trailing = { clashes?.let { value -> CardValueView(text = value) } }
+		)
 		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 	}
 }

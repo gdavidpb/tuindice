@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
-import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_badge_equivalence
 import tuindice.assistant.generated.resources.assistant_card_a_badge_without_effect
@@ -15,33 +16,34 @@ import tuindice.assistant.generated.resources.assistant_card_a_source_unavailabl
 
 // The words of the codes a card brings in place of a word: the result of a subject, its badge and the state of a sync
 // source. The codes are the serial names of AttemptOutcome, AttemptBadge and SyncSourceStatus. A code this build does
-// not know has no word, so the card shows no chip for it.
+// not know has no word, so the card shows no chip for it. The tone of each chip comes from its code.
 
 // The result of a subject. "unreported" has no word here, so a subject without a result shows no chip.
-fun attemptOutcomeText(code: String?): UiText? =
+fun attemptOutcomeChip(code: String?): CardChipItem? =
 	when (code) {
-		"approved" -> UiText.Resource(Res.string.assistant_card_a_outcome_approved)
-		"failed" -> UiText.Resource(Res.string.assistant_card_a_outcome_failed)
-		"retired" -> UiText.Resource(Res.string.assistant_card_a_outcome_retired)
-		"pending" -> UiText.Resource(Res.string.assistant_card_a_outcome_pending)
+		"approved" -> chatCardChip(Res.string.assistant_card_a_outcome_approved, CardChipTone.Approved)
+		"failed" -> chatCardChip(Res.string.assistant_card_a_outcome_failed, CardChipTone.Failed)
+		"retired" -> chatCardChip(Res.string.assistant_card_a_outcome_retired, CardChipTone.Muted)
+		"pending" -> chatCardChip(Res.string.assistant_card_a_outcome_pending, CardChipTone.Current)
 		else -> null
 	}
 
-// The badge of a subject. "none" has no chip.
-fun attemptBadgeText(code: String?): UiText? =
+// The badge of a subject. "none" has no chip; an equivalence is a result that counts, as an approval does.
+fun attemptBadgeChip(code: String?): CardChipItem? =
 	when (code) {
-		"without_effect" -> UiText.Resource(Res.string.assistant_card_a_badge_without_effect)
-		"equivalence" -> UiText.Resource(Res.string.assistant_card_a_badge_equivalence)
+		"without_effect" -> chatCardChip(Res.string.assistant_card_a_badge_without_effect, CardChipTone.Neutral)
+		"equivalence" -> chatCardChip(Res.string.assistant_card_a_badge_equivalence, CardChipTone.Approved)
 		else -> null
 	}
 
-// The state of a sync source, as the row of a source shows it.
-fun syncSourceText(code: String?): UiText? =
+// The state of a sync source, as the row of a source shows it. A source that answered reads in the success tone and one
+// that did not, a problem of the sync, in the error tone, as the sync icon of the Summary; the rest read neutral.
+fun syncSourceChip(code: String?): CardChipItem? =
 	when (code) {
-		"success" -> UiText.Resource(Res.string.assistant_card_a_source_success)
-		"unavailable" -> UiText.Resource(Res.string.assistant_card_a_source_unavailable)
-		"not_attempted" -> UiText.Resource(Res.string.assistant_card_a_source_not_attempted)
-		"not_enrolled" -> UiText.Resource(Res.string.assistant_card_a_source_not_enrolled)
+		"success" -> chatCardChip(Res.string.assistant_card_a_source_success, CardChipTone.Success)
+		"unavailable" -> chatCardChip(Res.string.assistant_card_a_source_unavailable, CardChipTone.Failed)
+		"not_attempted" -> chatCardChip(Res.string.assistant_card_a_source_not_attempted, CardChipTone.Neutral)
+		"not_enrolled" -> chatCardChip(Res.string.assistant_card_a_source_not_enrolled, CardChipTone.Neutral)
 		else -> null
 	}
 

@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,12 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.assistant.presentation.model.IndexPointItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
@@ -59,24 +61,48 @@ fun IndexSeriesComponentView(
 			)
 		}
 		item.points.forEachIndexed { index, point ->
-			CardRowView(
-				name = point.termLabel,
-				showsDivider = index > 0,
-				trailing = {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						point.markText?.let { text -> CardChipView(text = text.asString()) }
-						Box(modifier = Modifier.width(valueColumnWidth), contentAlignment = Alignment.CenterEnd) {
-							point.termIndexText?.let { value -> CardValueView(text = value) }
-						}
-						Box(modifier = Modifier.width(valueColumnWidth), contentAlignment = Alignment.CenterEnd) {
-							point.cumulativeIndexText?.let { value -> CardValueView(text = value) }
-						}
-					}
-				}
-			)
+			IndexSeriesRowView(point = point, showsDivider = index > 0)
+		}
+	}
+}
+
+// One term of the series: its name, and on the right its mark and its two index columns. The columns keep their fixed
+// width, so the row gives its figures the room they need and the name keeps the rest. The row is the card's own, not
+// the kit's, until the series is redesigned with the text sizes.
+@Composable
+private fun IndexSeriesRowView(
+	point: IndexPointItem,
+	showsDivider: Boolean
+) {
+	if (showsDivider) {
+		HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+		Spacer(modifier = Modifier.height(TuIndiceSpacing.Small))
+	}
+
+	Row(
+		modifier = Modifier.fillMaxWidth(),
+		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Text(
+			text = point.termLabel,
+			modifier = Modifier.weight(1f),
+			style = MaterialTheme.typography.bodyMedium,
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			maxLines = 2
+		)
+
+		Row(
+			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			point.markChip?.let { chip -> CardChipView(text = chip.text.asString(), tone = chip.tone) }
+			Box(modifier = Modifier.width(valueColumnWidth), contentAlignment = Alignment.CenterEnd) {
+				point.termIndexText?.let { value -> CardValueView(text = value) }
+			}
+			Box(modifier = Modifier.width(valueColumnWidth), contentAlignment = Alignment.CenterEnd) {
+				point.cumulativeIndexText?.let { value -> CardValueView(text = value) }
+			}
 		}
 	}
 }

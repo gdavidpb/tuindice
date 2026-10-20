@@ -12,6 +12,8 @@ data class NextClassItem(
 	val subjectCode: String,
 	val subjectName: String,
 	val inProgress: Boolean,
+	// The chip that says the class is in progress; null for a class not started yet.
+	val statusChip: CardChipItem?,
 	val dayText: UiText,
 	// Null when the class has no room.
 	val roomText: String?,

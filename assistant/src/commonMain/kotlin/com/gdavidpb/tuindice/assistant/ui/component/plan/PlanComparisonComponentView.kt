@@ -15,8 +15,8 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_plan_comparison_label
 
-// plan.comparacion/1: no figure. One block per candidate plan: its label, its load and its credits, and the subjects it
-// unlocks, in the order the service gives them.
+// plan.comparacion/1: no figure. One block per candidate plan: its label as the title, its load and its credits, and
+// the subjects it unlocks, in the order the service gives them.
 @Composable
 fun PlanComparisonComponentView(
 	item: PlanComparisonItem,
@@ -27,7 +27,7 @@ fun PlanComparisonComponentView(
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_plan_comparison_label))
 		item.options.forEachIndexed { index, option ->
 			CardRowView(
-				code = option.label,
+				title = option.label,
 				name = option.summaryText.asString(),
 				showsDivider = index > 0
 			)

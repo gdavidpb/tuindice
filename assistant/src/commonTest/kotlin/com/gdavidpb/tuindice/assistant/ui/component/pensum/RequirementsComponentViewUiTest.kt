@@ -32,14 +32,14 @@ class RequirementsComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Pensum.requirements(COMPONENT_ID))
 		onNodeWithText("ESTRUCTURAS DE DATOS").assertIsDisplayed()
-		onNodeWithText("REQUISITOS").assertIsDisplayed()
+		onNodeWithText("Requisitos").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I").assertIsDisplayed()
 		onNodeWithText("Aprobada").assertIsDisplayed()
-		onNodeWithText("DESBLOQUEA").assertIsDisplayed()
+		onNodeWithText("Desbloquea").assertIsDisplayed()
 		onNodeWithText("IS-301").assertIsDisplayed()
 		onNodeWithText("Bloqueada").assertIsDisplayed()
-		onNodeWithText("CORREQUISITOS").assertDoesNotExist()
+		onNodeWithText("Correquisitos").assertDoesNotExist()
 		onAllNodesWithText("Ver materia").assertCountEquals(2)
 	}
 

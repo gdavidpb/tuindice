@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
@@ -12,11 +14,14 @@ import com.gdavidpb.tuindice.chatcontract.component.TermSubjectRow
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_badge_equivalence
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
+import tuindice.assistant.generated.resources.assistant_card_b_link_record_named
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -43,15 +48,22 @@ class InformeComponentItemMappingTest {
 			CardLinkItem(
 				target = NavTarget.RECORD,
 				text = UiText.Resource(Res.string.assistant_card_b_link_record),
-				entityRefs = listOf(EntityRef(EntityKind.TERM, "term-1"))
+				entityRefs = listOf(EntityRef(EntityKind.TERM, "term-1")),
+				accessibilityText = UiText.Resource(Res.string.assistant_card_b_link_record_named, listOf("2026-JAN_MAR"))
 			),
 			item.recordLink
 		)
 		assertEquals("15", item.rows[0].gradeText)
-		assertNull(item.rows[0].outcomeText)
+		assertNull(item.rows[0].outcomeChip)
 		assertNull(item.rows[1].gradeText)
-		assertEquals(attemptOutcomeText("pending"), item.rows[1].outcomeText)
-		assertEquals(attemptBadgeText("equivalence"), item.rows[1].badgeText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_outcome_pending), CardChipTone.Current),
+			item.rows[1].outcomeChip
+		)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_badge_equivalence), CardChipTone.Approved),
+			item.rows[1].badgeChip
+		)
 	}
 
 	@Test
@@ -87,9 +99,15 @@ class InformeComponentItemMappingTest {
 			worstTermId = "t1"
 		).toIndexSeriesItem()
 
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_series_worst), item.points[0].markText)
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_series_best), item.points[1].markText)
-		assertNull(item.points[2].markText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_series_worst), CardChipTone.Neutral),
+			item.points[0].markChip
+		)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_series_best), CardChipTone.Neutral),
+			item.points[1].markChip
+		)
+		assertNull(item.points[2].markChip)
 		assertEquals(UiText.Raw(16.2.toCardIndexText()), item.currentFigure?.value)
 	}
 
@@ -125,7 +143,7 @@ class InformeComponentItemMappingTest {
 	}
 
 	@Test
-	fun indexGoal_saysWhetherTheGoalIsReachable() {
+	fun indexGoal_saysWhetherTheGoalIsReachable_inTheSuccessOrTheFailedTone() {
 		val reachable = IndexGoalComponent(
 			id = "g1",
 			fallbackText = "Meta",
@@ -143,7 +161,13 @@ class InformeComponentItemMappingTest {
 			feasible = false
 		).toIndexGoalItem()
 
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_goal_feasible), reachable.feasibilityText)
-		assertEquals(UiText.Resource(Res.string.assistant_card_a_goal_not_feasible), unreachable.feasibilityText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_goal_feasible), CardChipTone.Success),
+			reachable.feasibilityChip
+		)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_goal_not_feasible), CardChipTone.Failed),
+			unreachable.feasibilityChip
+		)
 	}
 }

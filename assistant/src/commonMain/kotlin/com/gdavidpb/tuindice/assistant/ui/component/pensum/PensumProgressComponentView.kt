@@ -15,12 +15,13 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_progress_label
 
 // pensum.avance/1: the share of the credits approved is the figure, with the credits beside it, and a bar of the same
-// share. Then how many subjects are approved, in progress, available and blocked, one row each.
+// share in the approved colour. Then how many subjects are approved, in progress, available and blocked, one row each.
 @Composable
 fun PensumProgressComponentView(
 	item: PensumProgressItem,
@@ -33,7 +34,7 @@ fun PensumProgressComponentView(
 			primary = item.primaryFigure.toCardFigure(),
 			secondary = item.secondaryFigure.toCardFigure()
 		)
-		CardProgressView(fraction = item.progressFraction)
+		CardProgressView(fraction = item.progressFraction, color = AcademicStatusColors.approved())
 		item.statusRows.forEachIndexed { index, row ->
 			CardRowView(
 				name = row.label.asString(),

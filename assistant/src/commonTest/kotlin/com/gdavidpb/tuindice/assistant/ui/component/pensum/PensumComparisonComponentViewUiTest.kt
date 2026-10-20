@@ -29,7 +29,7 @@ class PensumComparisonComponentViewUiTest {
 			onNodeWithText("Ingeniería Industrial").assertIsDisplayed()
 			onNodeWithText("Pensum").assertIsDisplayed()
 			onNodeWithText("2016").assertIsDisplayed()
-			onNodeWithText("MATERIAS QUE TE FALTAN").assertIsDisplayed()
+			onNodeWithText("Materias que te faltan").assertIsDisplayed()
 			onNodeWithText("IS-401").assertIsDisplayed()
 			onNodeWithText("Redes").assertIsDisplayed()
 			onNodeWithText("La materia de laboratorio no cuenta.").assertIsDisplayed()
@@ -44,7 +44,7 @@ class PensumComparisonComponentViewUiTest {
 			)
 		}
 
-		onNodeWithText("MATERIAS QUE TE FALTAN").assertDoesNotExist()
+		onNodeWithText("Materias que te faltan").assertDoesNotExist()
 	}
 
 	private fun comparison(

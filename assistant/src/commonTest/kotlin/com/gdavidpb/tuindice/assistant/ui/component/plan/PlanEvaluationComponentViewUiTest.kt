@@ -26,9 +26,9 @@ class PlanEvaluationComponentViewUiTest {
 		onNodeWithContentDescription("Índice de carga: 0.6000").assertIsDisplayed()
 		onNodeWithText("Créditos").assertIsDisplayed()
 		onNodeWithText("14 UC").assertIsDisplayed()
-		onNodeWithText("REQUISITOS PENDIENTES").assertIsDisplayed()
+		onNodeWithText("Requisitos pendientes").assertIsDisplayed()
 		onNodeWithText("Aprobar Cálculo I").assertIsDisplayed()
-		onNodeWithText("AVISOS DE HORARIO").assertIsDisplayed()
+		onNodeWithText("Avisos de horario").assertIsDisplayed()
 		onNodeWithText("Solo hay 2 bloques libres").assertIsDisplayed()
 		onNodeWithText("Choques sin revisar").assertIsDisplayed()
 	}

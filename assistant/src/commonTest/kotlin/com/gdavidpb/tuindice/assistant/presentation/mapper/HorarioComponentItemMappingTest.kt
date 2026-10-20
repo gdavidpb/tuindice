@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
@@ -9,6 +11,7 @@ import com.gdavidpb.tuindice.chatcontract.component.ScheduleDay
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_minutes
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 import kotlin.test.Test
@@ -30,7 +33,7 @@ class HorarioComponentItemMappingTest {
 
 		val day = item.days.single()
 		assertEquals("", day.blocks.single().room)
-		assertEquals(false, day.blocks.single().hasEvaluation)
+		assertNull(day.blocks.single().evaluationChip)
 	}
 
 	@Test
@@ -56,6 +59,11 @@ class HorarioComponentItemMappingTest {
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_remaining_minutes, listOf(30L)), later.remainingText)
 		assertNull(later.roomText)
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_next_in_progress_label), inProgress.labelText)
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_outcome_pending), CardChipTone.Current),
+			inProgress.statusChip
+		)
+		assertNull(later.statusChip)
 		assertNull(inProgress.remainingText)
 		assertNull(over.remainingText)
 	}

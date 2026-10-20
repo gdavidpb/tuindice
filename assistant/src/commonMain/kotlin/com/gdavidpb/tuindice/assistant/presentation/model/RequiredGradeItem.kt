@@ -12,6 +12,6 @@ data class RequiredGradeItem(
 	val subjectCode: String,
 	val subjectName: String,
 	val targetText: UiText,
-	val feasibleText: UiText,
+	val feasibleChip: CardChipItem,
 	val recordLink: CardLinkItem?
 ) : AcademicComponentItem

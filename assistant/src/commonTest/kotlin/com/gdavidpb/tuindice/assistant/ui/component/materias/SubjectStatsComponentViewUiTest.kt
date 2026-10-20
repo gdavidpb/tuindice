@@ -29,7 +29,7 @@ class SubjectStatsComponentViewUiTest {
 			onNodeWithText("Media").assertIsDisplayed()
 			onNodeWithText("Mediana").assertIsDisplayed()
 			onNodeWithText("15").assertIsDisplayed()
-			onNodeWithText("DISTRIBUCIÓN DE NOTAS").assertIsDisplayed()
+			onNodeWithText("Distribución de notas").assertIsDisplayed()
 		}
 
 	@Test

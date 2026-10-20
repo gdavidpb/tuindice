@@ -1,9 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 
 // A component this build cannot render shows its fallback text, in a card.
 @Composable
@@ -12,10 +11,6 @@ fun ChatFallbackComponentView(
 	modifier: Modifier = Modifier
 ) {
 	AssistantEmbeddedCardView(modifier = modifier) {
-		Text(
-			text = fallbackText,
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
+		CardBodyTextView(text = fallbackText)
 	}
 }

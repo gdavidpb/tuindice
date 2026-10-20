@@ -24,8 +24,8 @@ class WeekScheduleComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Schedule.week(COMPONENT_ID))
 		onNodeWithContentDescription("Clases de la semana: 2").assertIsDisplayed()
-		onNodeWithText("LUNES").assertIsDisplayed()
-		onNodeWithText("MIÉRCOLES").assertIsDisplayed()
+		onNodeWithText("Lunes").assertIsDisplayed()
+		onNodeWithText("Miércoles").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("A-1").assertIsDisplayed()
 		onNodeWithText("8:00–10:00 a. m.").assertIsDisplayed()
@@ -41,7 +41,7 @@ class WeekScheduleComponentViewUiTest {
 		}
 
 		onNodeWithContentDescription("Clases de la semana: 0").assertIsDisplayed()
-		onNodeWithText("MARTES").assertDoesNotExist()
+		onNodeWithText("Martes").assertDoesNotExist()
 	}
 
 	private fun week(days: List<ScheduleDay> = DAYS): WeekScheduleComponent =

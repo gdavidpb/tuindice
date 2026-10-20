@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.assistant.ui.component.pensum
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumComparisonItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardSectionLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
@@ -45,18 +45,12 @@ fun PensumComparisonComponentView(
 			trailing = { CardValueView(text = item.otherPensumLabel) }
 		)
 		if (item.missingSubjects.isNotEmpty()) {
-			CardLabelView(text = stringResource(Res.string.assistant_card_b_comparison_missing))
+			CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_comparison_missing))
 			item.missingSubjects.forEachIndexed { index, subject ->
 				CardRowView(code = subject.code, name = subject.nameText.asString(), showsDivider = index > 0)
 			}
 		}
-		item.notes.forEach { note ->
-			Text(
-				text = note,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurface
-			)
-		}
+		item.notes.forEach { note -> CardBodyTextView(text = note) }
 		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 	}
 }

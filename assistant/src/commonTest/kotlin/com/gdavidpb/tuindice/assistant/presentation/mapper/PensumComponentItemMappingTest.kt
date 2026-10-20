@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
@@ -7,6 +9,8 @@ import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
+import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
 import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks
@@ -52,8 +56,17 @@ class PensumComponentItemMappingTest {
 			),
 			item.sections.map { section -> section.label }
 		)
-		assertEquals(subjectStatusText("approved"), item.sections[0].subjects.single().statusText)
-		assertEquals("IS-101", item.sections[0].subjects.single().link?.entityRefs?.single()?.id)
+		val subject = item.sections[0].subjects.single()
+
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_a_outcome_approved), CardChipTone.Approved),
+			subject.statusChip
+		)
+		assertEquals("IS-101", subject.link?.entityRefs?.single()?.id)
+		assertEquals(
+			UiText.Resource(Res.string.assistant_card_b_link_subject_named, listOf("IS-101")),
+			subject.link?.accessibilityText
+		)
 	}
 
 	@Test
@@ -84,7 +97,7 @@ class PensumComponentItemMappingTest {
 
 		assertEquals(UiText.Raw("40"), item.sharedFigure.value)
 		assertEquals(UiText.Raw("Cálculo I"), item.missingSubjects.single().nameText)
-		assertNull(item.missingSubjects.single().statusText)
+		assertNull(item.missingSubjects.single().statusChip)
 		assertNull(item.missingSubjects.single().link)
 	}
 }

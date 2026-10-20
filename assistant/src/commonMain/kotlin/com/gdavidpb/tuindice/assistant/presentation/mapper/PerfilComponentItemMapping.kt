@@ -78,7 +78,7 @@ internal fun SyncStatusComponent.toSyncStatusItem(): SyncStatusItem {
 				name = source.detail?.let { detail ->
 					UiText.Resource(Res.string.assistant_card_b_joined, listOf(source.name, detail))
 				} ?: UiText.Raw(source.name),
-				stateText = syncSourceText(source.status)
+				stateChip = syncSourceChip(source.status)
 			)
 		},
 		annulmentCause = annulmentCause

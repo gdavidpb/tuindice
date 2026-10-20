@@ -8,17 +8,16 @@ import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
-import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_attention_label
 
-// resumen.atencion/1: how many items need attention, then one row per item. An item links to the screen of the
-// record it names; a kind of record with no screen of its own has no link.
+// resumen.atencion/1: how many items need attention, then one row per item. An item links to the screen of the record
+// it names; a kind of record with no screen of its own has no link.
 @Composable
 fun AttentionComponentView(
 	item: AttentionCardItem,
@@ -30,16 +29,11 @@ fun AttentionComponentView(
 		CardFiguresView(primary = item.count.toCardFigure())
 		item.rows.forEachIndexed { index, row ->
 			CardRowView(
-				code = row.title,
+				title = row.title,
 				name = row.detail,
 				showsDivider = index > 0,
 				trailing = {
-					row.link?.let { link ->
-						CardLinkView(
-							text = link.text.asString(),
-							onClick = { onAction(AssistantChat.Action.OpenNavTarget(link.target, link.entityRefs)) }
-						)
-					}
+					row.link?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
 				}
 			)
 		}

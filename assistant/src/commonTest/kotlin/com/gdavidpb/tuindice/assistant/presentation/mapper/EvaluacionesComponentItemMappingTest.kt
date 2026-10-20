@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
@@ -9,11 +11,13 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectPointsRow
 import com.gdavidpb.tuindice.chatcontract.component.WeekLoad
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_b_chip_heavy
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
+import tuindice.assistant.generated.resources.assistant_card_b_points_description
 import tuindice.assistant.generated.resources.assistant_card_b_week
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,7 +62,7 @@ class EvaluacionesComponentItemMappingTest {
 			item.rows[1].gradeText
 		)
 		assertEquals(UiText.Raw("Parcial 1"), item.rows[0].nameText)
-		assertNull(evaluationStateText("unknown"))
+		assertNull(evaluationStateChip("unknown"))
 	}
 
 	@Test
@@ -113,20 +117,41 @@ class EvaluacionesComponentItemMappingTest {
 			item.weeks.single().detailText
 		)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_week, listOf(3)), item.weeks.single().weekText)
+		assertNull(item.weeks.single().chip)
 	}
 
 	@Test
-	fun subjectPoints_barFillsTheShareOfTheTotalThatIsEvaluated() {
+	fun weeklyLoad_aHeavyWeekIsAWarningChip() {
+		val item = WeeklyLoadComponent(
+			id = "w2",
+			fallbackText = "Carga",
+			weeks = listOf(WeekLoad(week = 4, count = 3, points = 60.0, heavy = true))
+		).toWeeklyLoadItem()
+
+		assertEquals(
+			CardChipItem(UiText.Resource(Res.string.assistant_card_b_chip_heavy), CardChipTone.Warning),
+			item.weeks.single().chip
+		)
+	}
+
+	@Test
+	fun subjectPoints_barSplitsWhatIsEarnedAndWhatIsEvaluatedOverTheTotal_andReadsItsPoints() {
 		val item = SubjectPointsComponent(
 			id = "p1",
 			fallbackText = "Puntos",
 			rows = listOf(SubjectPointsRow("IS-101", "Programación I", earned = 30.0, evaluated = 50.0, total = 100.0))
 		).toSubjectPointsItem()
+		val row = item.rows.single()
 
-		assertEquals(0.5f, item.rows.single().progress)
+		assertEquals(0.3f, row.earnedFraction)
+		assertEquals(0.5f, row.evaluatedFraction)
 		assertEquals(
 			UiText.Resource(Res.string.assistant_card_b_fraction, listOf("30", "50")),
-			item.rows.single().pointsText
+			row.pointsText
+		)
+		assertEquals(
+			UiText.Resource(Res.string.assistant_card_b_points_description, listOf("30", "100", "50")),
+			row.description
 		)
 	}
 }

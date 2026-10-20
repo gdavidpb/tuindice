@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.assistant.ui.component.sistema
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.assistant.presentation.model.UsageNoticeItem
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTitleView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
@@ -18,32 +18,12 @@ fun UsageNoticeComponentView(
 	modifier: Modifier = Modifier
 ) {
 	AssistantEmbeddedCardView(modifier = modifier) {
-		Text(
-			text = stringResource(Res.string.assistant_usage_title),
-			style = MaterialTheme.typography.titleMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
-		Text(
-			text = item.hourText.asString(),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
-		Text(
-			text = item.dayText.asString(),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
-		Text(
-			text = item.monthText.asString(),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurface
-		)
+		CardTitleView(text = stringResource(Res.string.assistant_usage_title))
+		CardBodyTextView(text = item.hourText.asString())
+		CardBodyTextView(text = item.dayText.asString())
+		CardBodyTextView(text = item.monthText.asString())
 		item.resetsText?.let { resetsText ->
-			Text(
-				text = resetsText.asString(),
-				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
+			CardBodyTextView(text = resetsText.asString(), muted = true)
 		}
 	}
 }

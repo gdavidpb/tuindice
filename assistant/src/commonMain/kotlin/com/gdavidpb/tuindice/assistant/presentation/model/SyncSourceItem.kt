@@ -6,5 +6,5 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 // one.
 data class SyncSourceItem(
 	val name: UiText,
-	val stateText: UiText?
+	val stateChip: CardChipItem?
 )

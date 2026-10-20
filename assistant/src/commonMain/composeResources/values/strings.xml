@@ -203,12 +203,13 @@
 	<string name="assistant_card_a_goal_description">Índice necesario en el trimestre: %1$s</string>
 	<string name="assistant_card_a_goal_target">Meta acumulada</string>
 	<string name="assistant_card_a_goal_credits">Créditos</string>
-	<string name="assistant_card_a_goal_feasible">alcanzable</string>
-	<string name="assistant_card_a_goal_not_feasible">no alcanzable</string>
+	<string name="assistant_card_a_goal_feasible">Alcanzable</string>
+	<string name="assistant_card_a_goal_not_feasible">No alcanzable</string>
 	<string name="assistant_card_a_attention_label">Para atender</string>
 	<string name="assistant_card_a_attention_caption">avisos</string>
 	<string name="assistant_card_a_attention_description">Avisos: %1$s</string>
 	<string name="assistant_card_a_link_evaluation">Ver evaluación</string>
+	<string name="assistant_card_a_link_evaluation_named">Ver evaluación %1$s</string>
 	<string name="assistant_card_a_week_label">Horario de la semana</string>
 	<string name="assistant_card_a_week_caption">clases esta semana</string>
 	<string name="assistant_card_a_week_description">Clases de la semana: %1$s</string>
@@ -220,7 +221,6 @@
 	<string name="assistant_card_a_next_day">Día</string>
 	<string name="assistant_card_a_next_room">Aula</string>
 	<string name="assistant_card_a_next_remaining">Cuánto falta</string>
-	<string name="assistant_card_a_next_in_progress">en curso</string>
 	<string name="assistant_card_a_remaining_minutes">%1$d min</string>
 	<string name="assistant_card_a_remaining_hours">%1$d h</string>
 	<string name="assistant_card_a_remaining_day">1 día</string>
@@ -241,13 +241,14 @@
 	<string name="assistant_card_b_points_label">Puntos por materia</string>
 	<string name="assistant_card_b_points_one">%1$s punto</string>
 	<string name="assistant_card_b_points_many">%1$s puntos</string>
+	<string name="assistant_card_b_points_description">%1$s de %2$s puntos ganados, %3$s evaluados</string>
 	<string name="assistant_card_b_count_evaluation_one">%1$d evaluación</string>
 	<string name="assistant_card_b_count_evaluation_many">%1$d evaluaciones</string>
 	<string name="assistant_card_b_load_label">Carga semanal</string>
 	<string name="assistant_card_b_load_caption">semanas pesadas</string>
 	<string name="assistant_card_b_load_description">Semanas pesadas: %1$s</string>
 	<string name="assistant_card_b_week">Semana %1$d</string>
-	<string name="assistant_card_b_chip_heavy">pesada</string>
+	<string name="assistant_card_b_chip_heavy">Pesada</string>
 	<string name="assistant_card_b_required_label">Nota meta</string>
 	<string name="assistant_card_b_required_caption">puntos que faltan para la meta</string>
 	<string name="assistant_card_b_required_description">Puntos que faltan para la meta: %1$s</string>
@@ -295,6 +296,7 @@
 	<string name="assistant_card_b_plans_description">Planes: %1$s</string>
 	<string name="assistant_card_b_count_subject_one">%1$d materia</string>
 	<string name="assistant_card_b_count_subject_many">%1$d materias</string>
+	<string name="assistant_card_b_histogram_grade">Nota %1$s: %2$s</string>
 	<string name="assistant_card_b_plan_band_caption">banda de carga</string>
 	<string name="assistant_card_b_plan_band_description">Banda de carga: %1$s</string>
 	<string name="assistant_card_b_plan_index_caption">índice de carga</string>
@@ -312,7 +314,9 @@
 	<string name="assistant_card_b_help_step">%1$d.</string>
 	<string name="assistant_card_b_help_open">Ir a la pantalla</string>
 	<string name="assistant_card_b_link_subject">Ver materia</string>
+	<string name="assistant_card_b_link_subject_named">Ver materia %1$s</string>
 	<string name="assistant_card_b_link_pensum">Ver pensum</string>
 	<string name="assistant_card_b_link_record">Ver en Informe</string>
+	<string name="assistant_card_b_link_record_named">Ver %1$s en Informe</string>
 	<string name="assistant_card_b_percent">%1$d %2$s</string>
 </resources>

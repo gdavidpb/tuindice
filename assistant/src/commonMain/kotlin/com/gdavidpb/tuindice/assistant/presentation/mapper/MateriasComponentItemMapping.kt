@@ -1,24 +1,18 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
-import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ElectiveRowItem
-import com.gdavidpb.tuindice.assistant.presentation.model.HistogramBarItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecommendedElectivesItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectStatsItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.RecommendedElectivesComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
-import com.gdavidpb.tuindice.chatcontract.context.EntityKind
-import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_credits
 import tuindice.assistant.generated.resources.assistant_card_b_joined
-import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_caption
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_description
 import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_caption
@@ -38,18 +32,13 @@ internal fun SubjectListComponent.toSubjectListItem(): SubjectListItem {
 			contentDescription = UiText.Resource(Res.string.assistant_card_b_subjects_description, listOf(count))
 		),
 		rows = items.map { subject ->
-			val ref = EntityRef(EntityKind.SUBJECT, subject.code)
 			val credits = UiText.Resource(Res.string.assistant_card_b_credits, listOf(subject.credits))
 
 			SubjectRowItem(
 				code = subject.code,
 				nameText = UiText.Resource(Res.string.assistant_card_b_joined, listOf(subject.name, credits)),
-				statusText = subjectStatusText(subject.status),
-				link = CardLinkItem(
-					target = NavTarget.SUBJECTS_DETAIL,
-					text = UiText.Resource(Res.string.assistant_card_b_link_subject),
-					entityRefs = listOf(ref)
-				)
+				statusChip = subjectStatusChip(subject.status),
+				link = chatSubjectLinkItem(subject.code)
 			)
 		},
 		recordLink = entityRefs.toRecordLinkItem()
@@ -75,7 +64,6 @@ internal fun SubjectStatsComponent.toSubjectStatsItem(): SubjectStatsItem {
 			contentDescription = UiText.Resource(Res.string.assistant_card_b_stats_pass_description, listOf(rate))
 		)
 	}
-	val largest = histogram.maxOrNull() ?: 0
 
 	return SubjectStatsItem(
 		id = id,
@@ -83,15 +71,9 @@ internal fun SubjectStatsComponent.toSubjectStatsItem(): SubjectStatsItem {
 		subjectName = subjectName,
 		primaryFigure = averageFigure ?: passFigure,
 		secondaryFigure = if (averageFigure != null) passFigure else null,
-		difficultyText = bandText(difficulty),
+		difficultyChip = bandChip(difficulty),
 		medianText = median?.toCardCompactNumberText(),
-		histogram = histogram.mapIndexed { index, count ->
-			HistogramBarItem(
-				grade = (index + 1).toString(),
-				count = count.toString(),
-				fraction = chatCardFraction(count.toDouble(), largest.toDouble())
-			)
-		},
+		histogram = histogram.toHistogramBarItems(),
 		recordLink = entityRefs.toRecordLinkItem()
 	)
 }

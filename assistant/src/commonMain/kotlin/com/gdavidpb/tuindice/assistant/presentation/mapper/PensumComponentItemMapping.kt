@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
-import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CountRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumComparisonItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumProgressItem
@@ -10,14 +9,11 @@ import com.gdavidpb.tuindice.assistant.presentation.model.RequirementsItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectImpactItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectRowItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
-import com.gdavidpb.tuindice.chatcontract.context.EntityKind
-import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption
@@ -25,7 +21,6 @@ import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_impact_caption
 import tuindice.assistant.generated.resources.assistant_card_b_impact_description
-import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
 import tuindice.assistant.generated.resources.assistant_card_b_progress_available
 import tuindice.assistant.generated.resources.assistant_card_b_progress_blocked
@@ -125,7 +120,7 @@ internal fun PensumComparisonComponent.toPensumComparisonItem(): PensumCompariso
 		otherCareerName = otherCareerName,
 		otherPensumLabel = otherPensumLabel,
 		missingSubjects = missingSubjects.map { subject ->
-			SubjectRowItem(code = subject.code, nameText = UiText.Raw(subject.name), statusText = null, link = null)
+			SubjectRowItem(code = subject.code, nameText = UiText.Raw(subject.name), statusChip = null, link = null)
 		},
 		notes = notes,
 		recordLink = entityRefs.toRecordLinkItem()
@@ -137,15 +132,7 @@ private fun SubjectRef.toSubjectRowItem(withLink: Boolean): SubjectRowItem {
 	return SubjectRowItem(
 		code = code,
 		nameText = UiText.Raw(name),
-		statusText = subjectStatusText(status),
-		link = if (withLink) {
-			CardLinkItem(
-				target = NavTarget.SUBJECTS_DETAIL,
-				text = UiText.Resource(Res.string.assistant_card_b_link_subject),
-				entityRefs = listOf(EntityRef(EntityKind.SUBJECT, code))
-			)
-		} else {
-			null
-		}
+		statusChip = subjectStatusChip(status),
+		link = if (withLink) chatSubjectLinkItem(code) else null
 	)
 }

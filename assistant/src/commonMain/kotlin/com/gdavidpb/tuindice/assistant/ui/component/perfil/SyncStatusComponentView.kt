@@ -7,9 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 
@@ -33,7 +33,7 @@ fun SyncStatusComponentView(
 			CardRowView(
 				name = source.name.asString(),
 				showsDivider = index > 0,
-				trailing = { source.stateText?.let { text -> CardChipView(text = text.asString()) } }
+				trailing = { CardTrailingView(value = null, chips = listOfNotNull(source.stateChip)) }
 			)
 		}
 		item.annulmentCause?.let { cause ->

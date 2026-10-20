@@ -27,7 +27,7 @@ class RequiredGradeComponentViewUiTest {
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I").assertIsDisplayed()
 		onNodeWithText("Meta 15").assertIsDisplayed()
-		onNodeWithText("alcanzable").assertIsDisplayed()
+		onNodeWithText("Alcanzable").assertIsDisplayed()
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class RequiredGradeComponentViewUiTest {
 
 			onNodeWithContentDescription("Puntos por evaluar: 40").assertIsDisplayed()
 			onNodeWithContentDescription("Puntos que faltan para la meta: 25").assertDoesNotExist()
-			onNodeWithText("no alcanzable").assertIsDisplayed()
+			onNodeWithText("No alcanzable").assertIsDisplayed()
 		}
 
 	private fun required(requiredPoints: Double? = 25.0, feasible: Boolean = true): RequiredGradeComponent =

@@ -7,5 +7,5 @@ data class EvaluationRowItem(
 	val code: String,
 	val nameText: UiText,
 	val gradeText: UiText,
-	val stateText: UiText?
+	val stateChip: CardChipItem?
 )

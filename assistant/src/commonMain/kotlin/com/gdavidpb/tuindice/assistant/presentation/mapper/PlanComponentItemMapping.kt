@@ -1,14 +1,12 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
-import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PlanComparisonItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PlanEvaluationItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PlanListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PlanOptionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PlanRowItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PlanComparisonComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanEvaluationComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
@@ -19,7 +17,6 @@ import tuindice.assistant.generated.resources.assistant_card_b_count_subject_man
 import tuindice.assistant.generated.resources.assistant_card_b_count_subject_one
 import tuindice.assistant.generated.resources.assistant_card_b_credits
 import tuindice.assistant.generated.resources.assistant_card_b_joined
-import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import tuindice.assistant.generated.resources.assistant_card_b_plan_band_caption
 import tuindice.assistant.generated.resources.assistant_card_b_plan_band_description
 import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes
@@ -54,10 +51,9 @@ internal fun PlanListComponent.toPlanListItem(): PlanListItem {
 					Res.string.assistant_card_b_joined,
 					listOf(subjects, UiText.Resource(Res.string.assistant_card_b_credits, listOf(plan.credits)))
 				),
-				link = CardLinkItem(
-					target = NavTarget.RECORD,
-					text = UiText.Resource(Res.string.assistant_card_b_link_record),
-					entityRefs = listOf(EntityRef(EntityKind.TERM, plan.termKey))
+				link = chatRecordLinkItem(
+					entityRefs = listOf(EntityRef(EntityKind.TERM, plan.termKey)),
+					termLabel = plan.termLabel
 				)
 			)
 		},

@@ -27,5 +27,3 @@ fun CardFiguresView(
 		secondary?.let { figure -> CardFigureColumn(figure = figure, style = MaterialTheme.typography.titleLarge) }
 	}
 }
-
-internal const val TABULAR_NUMBERS = "tnum"

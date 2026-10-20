@@ -27,7 +27,7 @@ class WeeklyLoadComponentViewUiTest {
 		onNodeWithText("3 evaluaciones · 60 puntos").assertIsDisplayed()
 		onNodeWithText("Semana 43").assertIsDisplayed()
 		onNodeWithText("1 evaluación · 10 puntos").assertIsDisplayed()
-		onNodeWithText("pesada").assertIsDisplayed()
+		onNodeWithText("Pesada").assertIsDisplayed()
 	}
 
 	@Test
@@ -37,7 +37,7 @@ class WeeklyLoadComponentViewUiTest {
 		}
 
 		onNodeWithContentDescription("Semanas pesadas: 0").assertIsDisplayed()
-		onNodeWithText("pesada").assertDoesNotExist()
+		onNodeWithText("Pesada").assertDoesNotExist()
 	}
 
 	private fun load(heavy: Boolean = true): WeeklyLoadComponent =

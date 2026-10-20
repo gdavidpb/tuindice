@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.assistant.ui.component.plan
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -12,6 +10,7 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingColumn
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
@@ -20,8 +19,8 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_plans_label
 
-// plan.lista/1: how many plans there are, then a row per term plan: its term, its subjects and its credits, and a link
-// to the record of that term.
+// plan.lista/1: how many plans there are, then a row per term plan: its term, and on the right its subjects and credits
+// with a link to the record of that term.
 @Composable
 fun PlanListComponentView(
 	item: PlanListItem,
@@ -36,7 +35,7 @@ fun PlanListComponentView(
 				name = plan.termLabel,
 				showsDivider = index > 0,
 				trailing = {
-					Column(horizontalAlignment = Alignment.End) {
+					CardTrailingColumn {
 						CardValueView(text = plan.summaryText.asString())
 						CardLinkItemView(link = plan.link, onAction = onAction)
 					}

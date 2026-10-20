@@ -15,8 +15,8 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_clashes_label
 
-// horario.choques/1: how many clashes the schedule has, then one row per clash with the subjects that meet at the same
-// time, and the day and the hours of the clash.
+// horario.choques/1: how many clashes the schedule has, then one row per clash: the subjects that meet at the same time
+// as its title, and the day and the hours of the clash.
 @Composable
 fun ClashesComponentView(
 	item: ClashesItem,
@@ -27,7 +27,7 @@ fun ClashesComponentView(
 		CardFiguresView(primary = item.countFigure.toCardFigure())
 		item.rows.forEachIndexed { index, clash ->
 			CardRowView(
-				code = clash.codes.asString(),
+				title = clash.codes.asString(),
 				name = clash.dayAndHoursText.asString(),
 				showsDivider = index > 0
 			)

@@ -33,11 +33,13 @@ fun ProfileSummaryComponentView(
 		CardRowView(code = item.careerCode, name = item.careerName, showsDivider = false)
 		CardRowView(
 			name = stringResource(Res.string.assistant_card_a_profile_pensum),
+			showsDivider = true,
 			trailing = { CardValueView(text = item.pensumLabel) }
 		)
 		item.currentTermLabel?.let { term ->
 			CardRowView(
 				name = stringResource(Res.string.assistant_card_a_profile_current_term),
+				showsDivider = true,
 				trailing = { CardValueView(text = term) }
 			)
 		}

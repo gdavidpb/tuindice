@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
+import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation_named
 import tuindice.assistant.generated.resources.assistant_card_a_source_success
 import tuindice.assistant.generated.resources.assistant_card_a_sync_problems
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
@@ -96,7 +97,8 @@ class PerfilResumenComponentItemMappingTest {
 			CardLinkItem(
 				target = NavTarget.EVALUATIONS_DETAIL,
 				text = UiText.Resource(Res.string.assistant_card_a_link_evaluation),
-				entityRefs = listOf(EntityRef(EntityKind.EVALUATION, "e1"))
+				entityRefs = listOf(EntityRef(EntityKind.EVALUATION, "e1")),
+				accessibilityText = UiText.Resource(Res.string.assistant_card_a_link_evaluation_named, listOf("Parcial 2"))
 			),
 			withScreen.link
 		)

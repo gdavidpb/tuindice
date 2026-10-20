@@ -1,31 +1,25 @@
 package com.gdavidpb.tuindice.assistant.ui.component.evaluaciones
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.WeeklyLoadItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_b_chip_heavy
 import tuindice.assistant.generated.resources.assistant_card_b_load_label
 
 // evaluaciones.carga/1: how many weeks are heavy, then a row per week: its number, its evaluations and its points, with
-// a chip on a heavy week. The card links to the record it names, if it names one.
+// the chip of a heavy week. The card links to the record it names, if it names one.
 @Composable
 fun WeeklyLoadComponentView(
 	item: WeeklyLoadItem,
@@ -40,15 +34,7 @@ fun WeeklyLoadComponentView(
 				name = week.weekText.asString(),
 				showsDivider = index > 0,
 				trailing = {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						CardValueView(text = week.detailText.asString())
-						if (week.heavy) {
-							CardChipView(text = stringResource(Res.string.assistant_card_b_chip_heavy))
-						}
-					}
+					CardTrailingView(value = week.detailText.asString(), chips = listOfNotNull(week.chip))
 				}
 			)
 		}

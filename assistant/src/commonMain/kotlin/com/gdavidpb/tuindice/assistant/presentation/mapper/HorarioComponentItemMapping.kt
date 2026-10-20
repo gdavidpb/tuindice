@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ClashRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ClashesItem
@@ -21,12 +22,14 @@ import tuindice.assistant.generated.resources.assistant_card_a_next_caption
 import tuindice.assistant.generated.resources.assistant_card_a_next_description
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
 import tuindice.assistant.generated.resources.assistant_card_a_next_label
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_day
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_days
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_hours
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_minutes
 import tuindice.assistant.generated.resources.assistant_card_a_week_caption
 import tuindice.assistant.generated.resources.assistant_card_a_week_description
+import tuindice.assistant.generated.resources.assistant_card_a_week_evaluation
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 
 private const val MINUTES_PER_HOUR = 60
@@ -55,7 +58,11 @@ internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
 							ScheduleBlockItem(
 								code = block.subjectCode,
 								room = block.room.orEmpty(),
-								hasEvaluation = block.evaluationTitles.isNotEmpty(),
+								evaluationChip = if (block.evaluationTitles.isNotEmpty()) {
+									chatCardChip(Res.string.assistant_card_a_week_evaluation, CardChipTone.Neutral)
+								} else {
+									null
+								},
 								hoursText = (block.startMinute..block.endMinute).toClockRangeText()
 							)
 						}
@@ -85,6 +92,11 @@ internal fun NextClassComponent.toNextClassItem(nowMillis: Long): NextClassItem 
 		subjectCode = subjectCode,
 		subjectName = subjectName,
 		inProgress = inProgress,
+		statusChip = if (inProgress) {
+			chatCardChip(Res.string.assistant_card_a_outcome_pending, CardChipTone.Current)
+		} else {
+			null
+		},
 		dayText = dateMillis.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE),
 		roomText = room?.takeIf { text -> text.isNotBlank() },
 		remainingText = remainingText(minutesLeft = minutesLeft, inProgress = inProgress)

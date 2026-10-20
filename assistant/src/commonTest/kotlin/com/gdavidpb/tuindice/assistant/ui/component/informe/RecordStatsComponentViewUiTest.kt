@@ -30,7 +30,7 @@ class RecordStatsComponentViewUiTest {
 		onNodeWithText("40").assertIsDisplayed()
 		onNodeWithText("Repetidas").assertIsDisplayed()
 		onNodeWithText("8").assertIsDisplayed()
-		onNodeWithText("DISTRIBUCIÓN DE NOTAS").assertIsDisplayed()
+		onNodeWithText("Distribución de notas").assertIsDisplayed()
 	}
 
 	@Test
@@ -39,7 +39,7 @@ class RecordStatsComponentViewUiTest {
 			RecordStatsComponentView(item = stats(histogram = emptyList()).toRecordStatsItem())
 		}
 
-		onNodeWithText("DISTRIBUCIÓN DE NOTAS").assertDoesNotExist()
+		onNodeWithText("Distribución de notas").assertDoesNotExist()
 		onNodeWithText("Reprobadas").assertIsDisplayed()
 	}
 

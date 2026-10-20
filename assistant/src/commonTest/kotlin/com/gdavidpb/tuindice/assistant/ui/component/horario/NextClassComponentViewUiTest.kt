@@ -38,7 +38,7 @@ class NextClassComponentViewUiTest {
 		)
 
 		onNodeWithText("CLASE EN CURSO").assertIsDisplayed()
-		onNodeWithText("en curso").assertIsDisplayed()
+		onNodeWithText("En curso").assertIsDisplayed()
 		onNodeWithText("Cuánto falta").assertDoesNotExist()
 	}
 

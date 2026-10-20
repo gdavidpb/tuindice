@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationRowItem
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
+import tuindice.assistant.generated.resources.assistant_card_b_chip_heavy
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
@@ -27,6 +29,7 @@ import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_load_caption
 import tuindice.assistant.generated.resources.assistant_card_b_load_description
+import tuindice.assistant.generated.resources.assistant_card_b_points_description
 import tuindice.assistant.generated.resources.assistant_card_b_required_caption
 import tuindice.assistant.generated.resources.assistant_card_b_required_description
 import tuindice.assistant.generated.resources.assistant_card_b_required_remaining_caption
@@ -59,7 +62,7 @@ internal fun EvaluationListComponent.toEvaluationListItem(): EvaluationListItem 
 				gradeText = row.grade?.let { value ->
 					UiText.Resource(Res.string.assistant_card_b_fraction, listOf(value.toCardCompactNumberText(), maxGrade))
 				} ?: UiText.Resource(Res.string.assistant_card_b_evaluation_no_grade, listOf(maxGrade)),
-				stateText = evaluationStateText(row.state)
+				stateChip = evaluationStateChip(row.state)
 			)
 		},
 		recordLink = entityRefs.toRecordLinkItem()
@@ -71,14 +74,19 @@ internal fun SubjectPointsComponent.toSubjectPointsItem(): SubjectPointsItem {
 		id = id,
 		opensSheet = opensSheet(),
 		rows = rows.map { row ->
+			val earned = row.earned.toCardCompactNumberText()
+			val evaluated = row.evaluated.toCardCompactNumberText()
+
 			PointsRowItem(
 				code = row.subjectCode,
 				name = row.subjectName,
-				pointsText = UiText.Resource(
-					Res.string.assistant_card_b_fraction,
-					listOf(row.earned.toCardCompactNumberText(), row.evaluated.toCardCompactNumberText())
-				),
-				progress = chatCardFraction(row.evaluated, row.total)
+				pointsText = UiText.Resource(Res.string.assistant_card_b_fraction, listOf(earned, evaluated)),
+				earnedFraction = chatCardFraction(row.earned, row.total),
+				evaluatedFraction = chatCardFraction(row.evaluated, row.total),
+				description = UiText.Resource(
+					Res.string.assistant_card_b_points_description,
+					listOf(earned, row.total.toCardCompactNumberText(), evaluated)
+				)
 			)
 		},
 		recordLink = entityRefs.toRecordLinkItem()
@@ -110,7 +118,7 @@ internal fun WeeklyLoadComponent.toWeeklyLoadItem(): WeeklyLoadItem {
 						chatCardPointsText(week.points)
 					)
 				),
-				heavy = week.heavy
+				chip = if (week.heavy) chatCardChip(Res.string.assistant_card_b_chip_heavy, CardChipTone.Warning) else null
 			)
 		},
 		recordLink = entityRefs.toRecordLinkItem()
@@ -141,9 +149,11 @@ internal fun RequiredGradeComponent.toRequiredGradeItem(): RequiredGradeItem {
 		subjectCode = subjectCode,
 		subjectName = subjectName,
 		targetText = UiText.Resource(Res.string.assistant_card_b_required_target, listOf(targetGrade)),
-		feasibleText = UiText.Resource(
-			if (feasible) Res.string.assistant_card_a_goal_feasible else Res.string.assistant_card_a_goal_not_feasible
-		),
+		feasibleChip = if (feasible) {
+			chatCardChip(Res.string.assistant_card_a_goal_feasible, CardChipTone.Success)
+		} else {
+			chatCardChip(Res.string.assistant_card_a_goal_not_feasible, CardChipTone.Failed)
+		},
 		recordLink = entityRefs.toRecordLinkItem()
 	)
 }
