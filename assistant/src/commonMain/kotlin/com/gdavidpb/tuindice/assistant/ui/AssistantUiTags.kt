@@ -78,6 +78,9 @@ object AssistantUiTags {
 		fun detail(messageId: String, componentId: String): String =
 			"assistant_component_detail_${messageId}_$componentId"
 
+		fun seeAll(messageId: String, componentId: String): String =
+			"assistant_component_see_all_${messageId}_$componentId"
+
 		fun openScreen(componentId: String): String = "assistant_open_screen_$componentId"
 	}
 

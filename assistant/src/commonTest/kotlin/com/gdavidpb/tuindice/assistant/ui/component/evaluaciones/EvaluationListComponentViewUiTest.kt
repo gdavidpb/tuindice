@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.component.evaluaciones
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -23,13 +22,12 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class EvaluationListComponentViewUiTest {
 	@Test
-	fun when_evaluationsAreListed_then_theCountIsTheFigure_andEachRowShowsItsGradeAndState() = runTuIndiceUiTest {
+	fun when_evaluationsAreListed_then_eachRowShowsItsGradeAndState() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationListComponentView(item = list().toEvaluationListItem(), onAction = {})
+			EvaluationListComponentView(item = list().toEvaluationListItem(), rowLimit = null, onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.list(COMPONENT_ID))
-		onNodeWithContentDescription("Evaluaciones: 2").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Parcial 1", substring = true).assertIsDisplayed()
 		onNodeWithText("14/20").assertIsDisplayed()
@@ -41,7 +39,7 @@ class EvaluationListComponentViewUiTest {
 	@Test
 	fun when_aRowHasNoDate_then_itsTitleReadsAloneAndTheCardHasNoLinkWithoutANamedRecord() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationListComponentView(item = list().toEvaluationListItem(), onAction = {})
+			EvaluationListComponentView(item = list().toEvaluationListItem(), rowLimit = null, onAction = {})
 		}
 
 		onNodeWithText("Quiz 2").assertIsDisplayed()
@@ -54,6 +52,7 @@ class EvaluationListComponentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationListComponentView(
 				item = list(refs = listOf(EVALUATION_REF)).toEvaluationListItem(),
+				rowLimit = null,
 				onAction = { actions.add(it) }
 			)
 		}
@@ -63,6 +62,20 @@ class EvaluationListComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.EVALUATIONS_DETAIL, open.target)
 		assertEquals(listOf(EVALUATION_REF), open.entityRefs)
+	}
+
+	@Test
+	fun when_noEvaluationIsListed_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationListComponentView(
+				item = EvaluationListComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, items = emptyList())
+					.toEvaluationListItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("No hay evaluaciones para mostrar").assertIsDisplayed()
 	}
 
 	private fun list(refs: List<EntityRef> = emptyList()): EvaluationListComponent =

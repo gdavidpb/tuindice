@@ -16,12 +16,13 @@ import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_b_citation_empty
 import tuindice.assistant.generated.resources.assistant_card_b_citation_label
 import tuindice.assistant.generated.resources.assistant_card_b_citation_open
 
 // conocimiento.cita/1: no figure. One entry per cited source: its document and article, its excerpt and, when the
 // service brings one, a link to the official document, so the student can read it at the source. The official link
-// leaves the app, and carries the mark that says so.
+// leaves the app, and carries the mark that says so. With no source, a line says so.
 @Composable
 fun CitationComponentView(
 	item: CitationItem,
@@ -32,6 +33,9 @@ fun CitationComponentView(
 
 	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Knowledge.citation(item.id))) {
 		CardLabelView(text = stringResource(Res.string.assistant_card_b_citation_label))
+		if (item.sources.isEmpty()) {
+			CardBodyTextView(text = stringResource(Res.string.assistant_card_b_citation_empty), muted = true)
+		}
 		item.sources.forEachIndexed { index, source ->
 			CardRowView(
 				title = source.documentText.asString(),

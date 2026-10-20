@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.component.horario
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toWeekScheduleItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -23,7 +22,6 @@ class WeekScheduleComponentViewUiTest {
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.week(COMPONENT_ID))
-		onNodeWithContentDescription("Clases de la semana: 2").assertIsDisplayed()
 		onNodeWithText("Lunes").assertIsDisplayed()
 		onNodeWithText("Miércoles").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
@@ -35,12 +33,12 @@ class WeekScheduleComponentViewUiTest {
 	}
 
 	@Test
-	fun when_aDayHasNoClasses_then_itIsLeftOut() = runTuIndiceUiTest {
+	fun when_aDayHasNoClasses_then_itIsLeftOut_andAWeekWithNoClassesSaysSo() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WeekScheduleComponentView(item = week(days = listOf(ScheduleDay(2, emptyList()))).toWeekScheduleItem())
 		}
 
-		onNodeWithContentDescription("Clases de la semana: 0").assertIsDisplayed()
+		onNodeWithText("Sin clases esta semana").assertIsDisplayed()
 		onNodeWithText("Martes").assertDoesNotExist()
 	}
 

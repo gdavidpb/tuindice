@@ -16,8 +16,6 @@ import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_clashes_caption
-import tuindice.assistant.generated.resources.assistant_card_a_clashes_description
 import tuindice.assistant.generated.resources.assistant_card_a_next_caption
 import tuindice.assistant.generated.resources.assistant_card_a_next_description
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
@@ -27,8 +25,7 @@ import tuindice.assistant.generated.resources.assistant_card_a_remaining_day
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_days
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_hours
 import tuindice.assistant.generated.resources.assistant_card_a_remaining_minutes
-import tuindice.assistant.generated.resources.assistant_card_a_week_caption
-import tuindice.assistant.generated.resources.assistant_card_a_week_description
+import tuindice.assistant.generated.resources.assistant_card_a_see_all_clashes
 import tuindice.assistant.generated.resources.assistant_card_a_week_evaluation
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 
@@ -37,16 +34,9 @@ private const val MINUTES_PER_DAY = 1_440
 private const val MILLIS_PER_MINUTE = 60_000L
 
 internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
-	val classes = UiText.Raw(days.sumOf { day -> day.blocks.size }.toString())
-
 	return WeekScheduleItem(
 		id = id,
 		opensSheet = opensSheet(),
-		classesFigure = CardFigureItem(
-			value = classes,
-			caption = UiText.Resource(Res.string.assistant_card_a_week_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_a_week_description, listOf(classes))
-		),
 		// A day outside the week has no name, and a day with no classes has nothing to show.
 		days = days.mapNotNull { day ->
 			scheduleDayText(day.dayOfWeek)
@@ -124,16 +114,9 @@ private fun remainingText(minutesLeft: Long, inProgress: Boolean): UiText? {
 }
 
 internal fun ClashesComponent.toClashesItem(): ClashesItem {
-	val count = UiText.Raw(clashes.size.toString())
-
 	return ClashesItem(
 		id = id,
 		opensSheet = opensSheet(),
-		countFigure = CardFigureItem(
-			value = count,
-			caption = UiText.Resource(Res.string.assistant_card_a_clashes_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_a_clashes_description, listOf(count))
-		),
 		rows = clashes.map { clash ->
 			val hours = (clash.startMinute..clash.endMinute).toClockRangeText()
 			val day = scheduleDayText(clash.dayOfWeek)
@@ -149,6 +132,7 @@ internal fun ClashesComponent.toClashesItem(): ClashesItem {
 					hours
 				}
 			)
-		}
+		},
+		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_clashes, listOf(clashes.size))
 	)
 }

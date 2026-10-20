@@ -18,6 +18,9 @@ import tuindice.assistant.generated.resources.assistant_card_a_badge_equivalence
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
+import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_many
+import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_one
+import tuindice.assistant.generated.resources.assistant_card_a_see_all_terms
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
@@ -109,6 +112,7 @@ class InformeComponentItemMappingTest {
 		)
 		assertNull(item.points[2].markChip)
 		assertEquals(UiText.Raw(16.2.toCardIndexText()), item.currentFigure?.value)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_see_all_terms, listOf(3)), item.seeAllText)
 	}
 
 	@Test
@@ -140,6 +144,33 @@ class InformeComponentItemMappingTest {
 		).toRecordStatsItem()
 
 		assertEquals(listOf(0f, 0f), empty.histogram.map { bar -> bar.fraction })
+	}
+
+	@Test
+	fun recordStats_theApprovedCaptionTakesTheNounOfItsCount() {
+		val one = RecordStatsComponent(
+			id = "r3",
+			fallbackText = "Estadísticas",
+			approved = 1,
+			failed = 0,
+			retired = 0,
+			approvedFirstTry = 1,
+			repeated = 0,
+			histogram = emptyList()
+		).toRecordStatsItem()
+		val many = RecordStatsComponent(
+			id = "r4",
+			fallbackText = "Estadísticas",
+			approved = 10,
+			failed = 0,
+			retired = 0,
+			approvedFirstTry = 8,
+			repeated = 2,
+			histogram = emptyList()
+		).toRecordStatsItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_record_approved_caption_one), one.approvedFigure.caption)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_record_approved_caption_many), many.approvedFigure.caption)
 	}
 
 	@Test

@@ -34,10 +34,12 @@ import tuindice.assistant.generated.resources.assistant_card_a_series_index_head
 import tuindice.assistant.generated.resources.assistant_card_a_series_label
 
 // informe.serie/1: the cumulative index of the latest term as the figure, then a row per term with its index and its
-// cumulative index. The highest and the lowest terms carry a chip.
+// cumulative index. The highest and the lowest terms carry a chip. A conversation draws the latest terms, up to its row
+// limit.
 @Composable
 fun IndexSeriesComponentView(
 	item: IndexSeriesItem,
+	rowLimit: Int?,
 	modifier: Modifier = Modifier
 ) {
 	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Report.indexSeries(item.id))) {
@@ -60,7 +62,9 @@ fun IndexSeriesComponentView(
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}
-		item.points.forEachIndexed { index, point ->
+		// The series runs from the oldest term to the newest, so a cut keeps the last of its terms.
+		val points = rowLimit?.let { limit -> item.points.takeLast(limit) } ?: item.points
+		points.forEachIndexed { index, point ->
 			IndexSeriesRowView(point = point, showsDivider = index > 0)
 		}
 	}

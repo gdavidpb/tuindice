@@ -16,6 +16,7 @@ import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes
 import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes_unchecked
 import tuindice.assistant.generated.resources.assistant_card_b_plan_unlocks
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_plans
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -30,6 +31,7 @@ class PlanComponentItemMappingTest {
 		).toPlanListItem()
 
 		assertEquals(listOf(EntityRef(EntityKind.TERM, "2026-JAN_MAR")), item.rows.single().link.entityRefs)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_see_all_plans, listOf(1)), item.seeAllText)
 		val subjects = chatCardCountText(
             2,
             Res.string.assistant_card_b_count_subject_one,

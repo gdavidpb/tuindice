@@ -55,6 +55,19 @@ class CitationComponentViewUiTest {
 		onNodeWithText(OPEN_LINK).assertDoesNotExist()
 	}
 
+	@Test
+	fun when_noSourceIsCited_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CitationComponentView(
+				item = CitationComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, sources = emptyList())
+					.toCitationItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Sin fuentes para esta respuesta").assertIsDisplayed()
+	}
+
 	private fun citation(url: String?): CitationComponent =
 		CitationComponent(
 			id = COMPONENT_ID,

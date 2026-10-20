@@ -23,31 +23,26 @@ import tuindice.assistant.generated.resources.assistant_card_b_chip_heavy
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
-import tuindice.assistant.generated.resources.assistant_card_b_evaluations_caption
-import tuindice.assistant.generated.resources.assistant_card_b_evaluations_description
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
-import tuindice.assistant.generated.resources.assistant_card_b_load_caption
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_one
 import tuindice.assistant.generated.resources.assistant_card_b_load_description
 import tuindice.assistant.generated.resources.assistant_card_b_points_description
-import tuindice.assistant.generated.resources.assistant_card_b_required_caption
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_one
 import tuindice.assistant.generated.resources.assistant_card_b_required_description
 import tuindice.assistant.generated.resources.assistant_card_b_required_remaining_caption
 import tuindice.assistant.generated.resources.assistant_card_b_required_remaining_description
 import tuindice.assistant.generated.resources.assistant_card_b_required_target
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_evaluations
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_subjects
 import tuindice.assistant.generated.resources.assistant_card_b_week
 
 internal fun EvaluationListComponent.toEvaluationListItem(): EvaluationListItem {
-	val count = UiText.Raw(items.size.toString())
-
 	return EvaluationListItem(
 		id = id,
 		opensSheet = opensSheet(),
-		countFigure = CardFigureItem(
-			value = count,
-			caption = UiText.Resource(Res.string.assistant_card_b_evaluations_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_b_evaluations_description, listOf(count))
-		),
 		rows = items.map { row ->
 			val date = row.dateMillis?.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE)
 			val maxGrade = row.maxGrade.toCardCompactNumberText()
@@ -65,7 +60,8 @@ internal fun EvaluationListComponent.toEvaluationListItem(): EvaluationListItem 
 				stateChip = evaluationStateChip(row.state)
 			)
 		},
-		recordLink = entityRefs.toRecordLinkItem()
+		recordLink = entityRefs.toRecordLinkItem(),
+		seeAllText = UiText.Resource(Res.string.assistant_card_b_see_all_evaluations, listOf(items.size))
 	)
 }
 
@@ -89,19 +85,25 @@ internal fun SubjectPointsComponent.toSubjectPointsItem(): SubjectPointsItem {
 				)
 			)
 		},
-		recordLink = entityRefs.toRecordLinkItem()
+		recordLink = entityRefs.toRecordLinkItem(),
+		seeAllText = UiText.Resource(Res.string.assistant_card_b_see_all_subjects, listOf(rows.size))
 	)
 }
 
 internal fun WeeklyLoadComponent.toWeeklyLoadItem(): WeeklyLoadItem {
-	val heavy = UiText.Raw(weeks.count { week -> week.heavy }.toString())
+	val heavyWeeks = weeks.count { week -> week.heavy }
+	val heavy = UiText.Raw(heavyWeeks.toString())
 
 	return WeeklyLoadItem(
 		id = id,
 		opensSheet = opensSheet(),
 		heavyFigure = CardFigureItem(
 			value = heavy,
-			caption = UiText.Resource(Res.string.assistant_card_b_load_caption),
+			caption = chatCardNounText(
+				count = heavyWeeks,
+				one = Res.string.assistant_card_b_load_caption_one,
+				many = Res.string.assistant_card_b_load_caption_many
+			),
 			contentDescription = UiText.Resource(Res.string.assistant_card_b_load_description, listOf(heavy))
 		),
 		weeks = weeks.map { week ->
@@ -132,11 +134,16 @@ internal fun RequiredGradeComponent.toRequiredGradeItem(): RequiredGradeItem {
 		caption = UiText.Resource(Res.string.assistant_card_b_required_remaining_caption),
 		contentDescription = UiText.Resource(Res.string.assistant_card_b_required_remaining_description, listOf(remaining))
 	)
-	val required = requiredPoints?.toCardCompactNumberText()
-	val requiredFigure = required?.let { value ->
+	val requiredFigure = requiredPoints?.let { points ->
+		val value = UiText.Raw(points.toCardCompactNumberText())
+
 		CardFigureItem(
-			value = UiText.Raw(value),
-			caption = UiText.Resource(Res.string.assistant_card_b_required_caption),
+			value = value,
+			caption = chatCardPointsNounText(
+				points = points,
+				one = Res.string.assistant_card_b_required_caption_one,
+				many = Res.string.assistant_card_b_required_caption_many
+			),
 			contentDescription = UiText.Resource(Res.string.assistant_card_b_required_description, listOf(value))
 		)
 	}
@@ -145,7 +152,7 @@ internal fun RequiredGradeComponent.toRequiredGradeItem(): RequiredGradeItem {
 		id = id,
 		opensSheet = opensSheet(),
 		primaryFigure = requiredFigure ?: remainingFigure,
-		secondaryFigure = if (required != null) remainingFigure else null,
+		secondaryFigure = if (requiredPoints != null) remainingFigure else null,
 		subjectCode = subjectCode,
 		subjectName = subjectName,
 		targetText = UiText.Resource(Res.string.assistant_card_b_required_target, listOf(targetGrade)),

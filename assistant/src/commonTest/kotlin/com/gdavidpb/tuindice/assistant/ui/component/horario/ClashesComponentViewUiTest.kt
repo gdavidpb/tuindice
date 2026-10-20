@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.component.horario
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toClashesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -18,22 +17,21 @@ class ClashesComponentViewUiTest {
 	@Test
 	fun when_thereAreClashes_then_eachShowsItsSubjectsDayAndHours() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ClashesComponentView(item = clashes(listOf(CLASH)).toClashesItem())
+			ClashesComponentView(item = clashes(listOf(CLASH)).toClashesItem(), rowLimit = null)
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.clashes(COMPONENT_ID))
-		onNodeWithContentDescription("Choques de horario: 1").assertIsDisplayed()
 		onNodeWithText("IS-101 · IS-102").assertIsDisplayed()
 		onNodeWithText("Miércoles · 9:00–10:00 a. m.").assertIsDisplayed()
 	}
 
 	@Test
-	fun when_thereAreNoClashes_then_noRowIsShown() = runTuIndiceUiTest {
+	fun when_thereAreNoClashes_then_aLineSaysSo_andNoRowIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ClashesComponentView(item = clashes(emptyList()).toClashesItem())
+			ClashesComponentView(item = clashes(emptyList()).toClashesItem(), rowLimit = null)
 		}
 
-		onNodeWithContentDescription("Choques de horario: 0").assertIsDisplayed()
+		onNodeWithText("No tienes choques de horario").assertIsDisplayed()
 		onNodeWithText("IS-101 · IS-102").assertDoesNotExist()
 	}
 

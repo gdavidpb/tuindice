@@ -4,8 +4,12 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_one
 import tuindice.assistant.generated.resources.assistant_card_b_points_many
 import tuindice.assistant.generated.resources.assistant_card_b_points_one
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_one
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -35,5 +39,24 @@ class ChatCardQuantityTextTest {
 	fun when_pointsAreOne_then_theyTakeTheSingularNoun() {
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_points_one, listOf("1")), chatCardPointsText(1.0))
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_points_many, listOf("12.50")), chatCardPointsText(12.5))
+	}
+
+	@Test
+	fun when_aCaptionCountsOnce_then_itTakesTheSingularNounWithNoNumber() {
+		val one = Res.string.assistant_card_b_load_caption_one
+		val many = Res.string.assistant_card_b_load_caption_many
+
+		assertEquals(UiText.Resource(one), chatCardNounText(count = 1, one = one, many = many))
+		assertEquals(UiText.Resource(many), chatCardNounText(count = 0, one = one, many = many))
+		assertEquals(UiText.Resource(many), chatCardNounText(count = 3, one = one, many = many))
+	}
+
+	@Test
+	fun when_aPointsCaptionIsADecimal_then_onlyExactlyOnePointTakesTheSingularNoun() {
+		val one = Res.string.assistant_card_b_required_caption_one
+		val many = Res.string.assistant_card_b_required_caption_many
+
+		assertEquals(UiText.Resource(one), chatCardPointsNounText(points = 1.0, one = one, many = many))
+		assertEquals(UiText.Resource(many), chatCardPointsNounText(points = 1.5, one = one, many = many))
 	}
 }

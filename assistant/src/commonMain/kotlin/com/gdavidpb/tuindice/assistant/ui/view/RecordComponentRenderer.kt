@@ -32,20 +32,21 @@ import com.gdavidpb.tuindice.assistant.ui.component.resumen.AttentionComponentVi
 @Composable
 internal fun RecordComponentRenderer(
 	item: RecordComponentItem,
+	rowLimit: Int?,
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (item) {
 		is ProfileSummaryItem -> ProfileSummaryComponentView(item = item)
 		is TermItem -> TermComponentView(item = item, onAction = onAction)
-		is IndexSeriesItem -> IndexSeriesComponentView(item = item)
+		is IndexSeriesItem -> IndexSeriesComponentView(item = item, rowLimit = rowLimit)
 		is RecordStatsItem -> RecordStatsComponentView(item = item)
 		is PaceItem -> PaceComponentView(item = item)
 		is SimulationItem -> SimulationComponentView(item = item)
 		is IndexGoalItem -> IndexGoalComponentView(item = item)
 		is WeekScheduleItem -> WeekScheduleComponentView(item = item)
 		is NextClassItem -> NextClassComponentView(item = item)
-		is ClashesItem -> ClashesComponentView(item = item)
+		is ClashesItem -> ClashesComponentView(item = item, rowLimit = rowLimit)
 		is SyncStatusItem -> SyncStatusComponentView(item = item)
-		is AttentionCardItem -> AttentionComponentView(item = item, onAction = onAction)
+		is AttentionCardItem -> AttentionComponentView(item = item, rowLimit = rowLimit, onAction = onAction)
 	}
 }

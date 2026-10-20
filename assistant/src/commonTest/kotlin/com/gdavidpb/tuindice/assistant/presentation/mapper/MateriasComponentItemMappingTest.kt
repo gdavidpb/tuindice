@@ -17,6 +17,8 @@ import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
 import tuindice.assistant.generated.resources.assistant_card_b_band_high
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_electives
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_subjects
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_caption
 import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_caption
 import kotlin.test.Test
@@ -49,6 +51,7 @@ class MateriasComponentItemMappingTest {
 			item.rows[0].statusChip
 		)
 		assertNull(item.rows[1].statusChip)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_see_all_subjects, listOf(2)), item.seeAllText)
 	}
 
 	@Test
@@ -103,5 +106,6 @@ class MateriasComponentItemMappingTest {
 		assertEquals("IS-210", item.rows.single().code)
 		assertEquals("Complementa tu línea", item.rows.single().reason)
 		assertNull(item.recordLink)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_see_all_electives, listOf(1)), item.seeAllText)
 	}
 }

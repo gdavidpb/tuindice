@@ -18,7 +18,7 @@ class IndexSeriesComponentViewUiTest {
 	@Test
 	fun when_aSeriesHasTerms_then_theLatestCumulativeIsTheFigure_andTheExtremesAreMarked() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexSeriesComponentView(item = series().toIndexSeriesItem())
+			IndexSeriesComponentView(item = series().toIndexSeriesItem(), rowLimit = null)
 		}
 
 		assertNodeVisible(AssistantUiTags.Report.indexSeries(COMPONENT_ID))
@@ -33,9 +33,20 @@ class IndexSeriesComponentViewUiTest {
 	}
 
 	@Test
+	fun when_theSeriesHasMoreTermsThanTheLimit_then_itKeepsTheLatestOnes() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			IndexSeriesComponentView(item = series(points = LONGER_POINTS).toIndexSeriesItem(), rowLimit = 2)
+		}
+
+		onNodeWithText("2024 septiembre-diciembre").assertDoesNotExist()
+		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
+		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
+	}
+
+	@Test
 	fun when_theSeriesHasNoTerms_then_thereIsNoFigure() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			IndexSeriesComponentView(item = series(points = emptyList()).toIndexSeriesItem())
+			IndexSeriesComponentView(item = series(points = emptyList()).toIndexSeriesItem(), rowLimit = null)
 		}
 
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
@@ -59,5 +70,8 @@ class IndexSeriesComponentViewUiTest {
 			IndexPoint("2025-SEP_DEC", "2025 septiembre-diciembre", null, 15.1),
 			IndexPoint("2026-JAN_MAR", "2026 enero-marzo", 16.2, 15.8)
 		)
+
+		// Oldest first, as the service sends the series.
+		val LONGER_POINTS = listOf(IndexPoint("2024-SEP_DEC", "2024 septiembre-diciembre", null, 14.0)) + POINTS
 	}
 }

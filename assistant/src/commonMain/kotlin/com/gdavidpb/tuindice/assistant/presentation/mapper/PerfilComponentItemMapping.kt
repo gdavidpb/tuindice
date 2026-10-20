@@ -10,7 +10,8 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_caption
+import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_caption_many
+import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_caption_one
 import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_description
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_description
@@ -26,9 +27,20 @@ internal fun ProfileSummaryComponent.toProfileSummaryItem(): ProfileSummaryItem 
 	val credits = totalCredits?.let { total ->
 		UiText.Resource(Res.string.assistant_card_b_fraction, listOf(approved, total))
 	} ?: UiText.Raw(approved)
+	// Alone, the figure is the count of credits, and its caption takes the noun of that count. Beside its total, the
+	// figure is a fraction, and its caption stays plural, as the total is.
+	val creditsCaption = if (totalCredits == null) {
+		chatCardNounText(
+			count = approvedCredits,
+			one = Res.string.assistant_card_a_profile_credits_caption_one,
+			many = Res.string.assistant_card_a_profile_credits_caption_many
+		)
+	} else {
+		UiText.Resource(Res.string.assistant_card_a_profile_credits_caption_many)
+	}
 	val creditsFigure = CardFigureItem(
 		value = credits,
-		caption = UiText.Resource(Res.string.assistant_card_a_profile_credits_caption),
+		caption = creditsCaption,
 		contentDescription = UiText.Resource(Res.string.assistant_card_a_profile_credits_description, listOf(credits))
 	)
 	val indexFigure = cumulativeIndex?.let { index ->

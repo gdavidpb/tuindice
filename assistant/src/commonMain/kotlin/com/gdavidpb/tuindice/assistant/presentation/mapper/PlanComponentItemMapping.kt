@@ -24,20 +24,12 @@ import tuindice.assistant.generated.resources.assistant_card_b_plan_clashes_unch
 import tuindice.assistant.generated.resources.assistant_card_b_plan_index_caption
 import tuindice.assistant.generated.resources.assistant_card_b_plan_index_description
 import tuindice.assistant.generated.resources.assistant_card_b_plan_unlocks
-import tuindice.assistant.generated.resources.assistant_card_b_plans_caption
-import tuindice.assistant.generated.resources.assistant_card_b_plans_description
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_plans
 
 internal fun PlanListComponent.toPlanListItem(): PlanListItem {
-	val count = UiText.Raw(plans.size.toString())
-
 	return PlanListItem(
 		id = id,
 		opensSheet = opensSheet(),
-		countFigure = CardFigureItem(
-			value = count,
-			caption = UiText.Resource(Res.string.assistant_card_b_plans_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_b_plans_description, listOf(count))
-		),
 		rows = plans.map { plan ->
 			val subjects = chatCardCountText(
 				count = plan.subjectCodes.size,
@@ -57,7 +49,8 @@ internal fun PlanListComponent.toPlanListItem(): PlanListItem {
 				)
 			)
 		},
-		recordLink = entityRefs.toRecordLinkItem()
+		recordLink = entityRefs.toRecordLinkItem(),
+		seeAllText = UiText.Resource(Res.string.assistant_card_b_see_all_plans, listOf(plans.size))
 	)
 }
 

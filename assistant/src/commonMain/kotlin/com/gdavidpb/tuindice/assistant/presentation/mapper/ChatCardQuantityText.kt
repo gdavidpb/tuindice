@@ -25,3 +25,12 @@ fun chatCardPointsText(points: Double): UiText =
 		if (points == 1.0) Res.string.assistant_card_b_points_one else Res.string.assistant_card_b_points_many,
 		listOf(points.toCardCompactNumberText())
 	)
+
+// The noun that the caption of a figure carries, with no number: the figure shows it. [one] is the noun for one,
+// [many] for any other count: «semana pesada» under the figure 1, «semanas pesadas» under the figure 2.
+fun chatCardNounText(count: Int, one: StringResource, many: StringResource): UiText =
+	UiText.Resource(if (count == 1) one else many)
+
+// The same for a figure of points, which can be a decimal: only exactly one point takes the singular.
+fun chatCardPointsNounText(points: Double, one: StringResource, many: StringResource): UiText =
+	UiText.Resource(if (points == 1.0) one else many)

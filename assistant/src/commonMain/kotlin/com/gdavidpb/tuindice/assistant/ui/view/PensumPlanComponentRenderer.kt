@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.assistant.ui.component.plan.PlanListComponentView
 @Composable
 internal fun PensumPlanComponentRenderer(
 	item: PensumPlanComponentItem,
+	rowLimit: Int?,
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (item) {
@@ -29,7 +30,7 @@ internal fun PensumPlanComponentRenderer(
 		is RequirementsItem -> RequirementsComponentView(item = item, onAction = onAction)
 		is SubjectImpactItem -> SubjectImpactComponentView(item = item, onAction = onAction)
 		is PensumComparisonItem -> PensumComparisonComponentView(item = item, onAction = onAction)
-		is PlanListItem -> PlanListComponentView(item = item, onAction = onAction)
+		is PlanListItem -> PlanListComponentView(item = item, rowLimit = rowLimit, onAction = onAction)
 		is PlanEvaluationItem -> PlanEvaluationComponentView(item = item, onAction = onAction)
 		is PlanComparisonItem -> PlanComparisonComponentView(item = item, onAction = onAction)
 	}

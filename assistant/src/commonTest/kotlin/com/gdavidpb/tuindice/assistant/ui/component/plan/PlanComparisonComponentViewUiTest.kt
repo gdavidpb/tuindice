@@ -43,6 +43,15 @@ class PlanComparisonComponentViewUiTest {
 		onNodeWithText("Desbloquea", substring = true).assertDoesNotExist()
 	}
 
+	@Test
+	fun when_noPlanIsCompared_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PlanComparisonComponentView(item = comparison(options = emptyList()).toPlanComparisonItem(), onAction = {})
+		}
+
+		onNodeWithText("No hay planes para comparar").assertIsDisplayed()
+	}
+
 	private fun comparison(
 		options: List<PlanOption> = listOf(
 			PlanOption("Plan A", 14, "Normal", unlocks = listOf("IS-201"), clashes = 0),

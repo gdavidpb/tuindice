@@ -1,10 +1,14 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-// materias.lista/1: how many subjects there are, then a row per subject, with the chip of its status and a link to it.
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
+// materias.lista/1: a row per subject, with the chip of its status and a link to it.
 data class SubjectListItem(
 	override val id: String,
 	override val opensSheet: Boolean,
-	val countFigure: CardFigureItem,
 	val rows: List<SubjectRowItem>,
-	val recordLink: CardLinkItem?
-) : AcademicComponentItem
+	val recordLink: CardLinkItem?,
+	override val seeAllText: UiText
+) : AcademicComponentItem, ChatRowsItem {
+	override val rowCount: Int get() = rows.size
+}

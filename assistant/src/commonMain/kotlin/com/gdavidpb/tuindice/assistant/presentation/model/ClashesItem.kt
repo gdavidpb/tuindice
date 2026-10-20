@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-// horario.choques/1: how many clashes the schedule has, then one row per clash.
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
+// horario.choques/1: one row per clash.
 data class ClashesItem(
 	override val id: String,
 	override val opensSheet: Boolean,
-	val countFigure: CardFigureItem,
-	val rows: List<ClashRowItem>
-) : RecordComponentItem
+	val rows: List<ClashRowItem>,
+	override val seeAllText: UiText
+) : RecordComponentItem, ChatRowsItem {
+	override val rowCount: Int get() = rows.size
+}

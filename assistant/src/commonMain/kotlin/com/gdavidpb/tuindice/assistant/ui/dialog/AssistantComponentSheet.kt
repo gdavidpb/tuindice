@@ -32,8 +32,8 @@ fun AssistantComponentSheet(
 			messageId = messageId,
 			item = item,
 			onAction = onAction,
-			// The sheet already is the detail: its row would only open the same sheet again.
-			showsDetailRow = false,
+			// The sheet already is the detail: it draws every row, and its link would only open the same sheet again.
+			onSheet = true,
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(

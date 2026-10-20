@@ -24,7 +24,7 @@ class SubjectPointsComponentViewUiTest {
 	@Test
 	fun when_subjectsHavePoints_then_eachRowReadsItsEarnedOverItsEvaluatedPoints() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SubjectPointsComponentView(item = points().toSubjectPointsItem(), onAction = {})
+			SubjectPointsComponentView(item = points().toSubjectPointsItem(), rowLimit = null, onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Evaluations.points(COMPONENT_ID))
@@ -41,6 +41,7 @@ class SubjectPointsComponentViewUiTest {
 		setTuIndiceTestContent {
 			SubjectPointsComponentView(
 				item = points(refs = listOf(SUBJECT_REF)).toSubjectPointsItem(),
+				rowLimit = null,
 				onAction = { actions.add(it) }
 			)
 		}
@@ -50,6 +51,30 @@ class SubjectPointsComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
 		assertEquals(listOf(SUBJECT_REF), open.entityRefs)
+	}
+
+	@Test
+	fun when_theListHasMoreRowsThanTheLimit_then_onlyTheLimitIsDrawn() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectPointsComponentView(item = points().toSubjectPointsItem(), rowLimit = 1, onAction = {})
+		}
+
+		onNodeWithText("IS-101").assertIsDisplayed()
+		onNodeWithText("IS-102").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_noSubjectHasPoints_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectPointsComponentView(
+				item = SubjectPointsComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, rows = emptyList())
+					.toSubjectPointsItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Sin puntos registrados todavía").assertIsDisplayed()
 	}
 
 	private fun points(refs: List<EntityRef> = emptyList()): SubjectPointsComponent =

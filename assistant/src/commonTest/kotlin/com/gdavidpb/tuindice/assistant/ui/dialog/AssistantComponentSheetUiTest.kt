@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
+import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectRow
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.WarningComponent
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -56,6 +58,22 @@ class AssistantComponentSheetUiTest {
 	}
 
 	@Test
+	fun when_aListPastTheLimitIsShownOnItsSheet_then_everyRowIsDrawn_andNoLinkSaysHowManyThereAre() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantComponentSheet(
+				messageId = MESSAGE_ID,
+				item = subjects(count = 6).toChatComponentItem(nowMillis = 0L),
+				onAction = {},
+				onDismissRequest = {}
+			)
+		}
+
+		onNodeWithText("IS-106").assertExists()
+		onNodeWithTag(AssistantUiTags.Component.seeAll(MESSAGE_ID, COMPONENT_ID)).assertDoesNotExist()
+		onNodeWithTag(AssistantUiTags.Component.detail(MESSAGE_ID, COMPONENT_ID)).assertDoesNotExist()
+	}
+
+	@Test
 	fun when_theScrimAboveTheSheetIsTapped_then_theSheetAsksToClose() = runTuIndiceUiTest {
 		var dismissals = 0
 		setTuIndiceTestContent {
@@ -74,6 +92,13 @@ class AssistantComponentSheetUiTest {
 
 		assertEquals(1, dismissals)
 	}
+
+	private fun subjects(count: Int): SubjectListComponent =
+		SubjectListComponent(
+			id = COMPONENT_ID,
+			fallbackText = FALLBACK_TEXT,
+			items = (1..count).map { number -> SubjectRow("IS-10$number", "Materia $number", credits = 4) }
+		)
 
 	private companion object {
 		const val SCRIM_TAP_Y = 20f

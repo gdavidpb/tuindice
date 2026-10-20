@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -26,13 +25,12 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class SubjectListComponentViewUiTest {
 	@Test
-	fun when_subjectsAreListed_then_theCountIsTheFigure_andEachRowShowsItsCreditsStatusAndLink() = runTuIndiceUiTest {
+	fun when_subjectsAreListed_then_eachRowShowsItsCreditsStatusAndLink() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SubjectListComponentView(item = list().toSubjectListItem(), onAction = {})
+			SubjectListComponentView(item = list().toSubjectListItem(), rowLimit = null, onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Subjects.list(COMPONENT_ID))
-		onNodeWithContentDescription("Materias: 2").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I · 6 UC").assertIsDisplayed()
 		onNodeWithText("Aprobada").assertIsDisplayed()
@@ -45,7 +43,7 @@ class SubjectListComponentViewUiTest {
 	fun when_aSubjectLinkIsTapped_then_itOpensThatSubjectsDetailWithItsCode() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			SubjectListComponentView(item = list().toSubjectListItem(), onAction = { actions.add(it) })
+			SubjectListComponentView(item = list().toSubjectListItem(), rowLimit = null, onAction = { actions.add(it) })
 		}
 
 		onAllNodesWithText("Ver materia").onFirst().performClick()
@@ -53,6 +51,31 @@ class SubjectListComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
 		assertEquals(listOf(EntityRef(EntityKind.SUBJECT, "IS-101")), open.entityRefs)
+	}
+
+	@Test
+	fun when_theListHasMoreRowsThanTheLimit_then_onlyTheLimitIsDrawn() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectListComponentView(item = list().toSubjectListItem(), rowLimit = 1, onAction = {})
+		}
+
+		onNodeWithText("IS-101").assertIsDisplayed()
+		onNodeWithText("IS-102").assertDoesNotExist()
+		onAllNodesWithText("Ver materia").assertCountEquals(1)
+	}
+
+	@Test
+	fun when_noSubjectIsListed_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectListComponentView(
+				item = SubjectListComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, items = emptyList())
+					.toSubjectListItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("No tienes materias que mostrar").assertIsDisplayed()
 	}
 
 	private fun list(): SubjectListComponent =

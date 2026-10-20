@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -26,13 +25,12 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class PlanListComponentViewUiTest {
 	@Test
-	fun when_plansAreListed_then_theCountIsTheFigure_andEachTermReadsItsSubjectsAndCredits() = runTuIndiceUiTest {
+	fun when_plansAreListed_then_eachTermReadsItsSubjectsAndCredits() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PlanListComponentView(item = plans().toPlanListItem(), onAction = {})
+			PlanListComponentView(item = plans().toPlanListItem(), rowLimit = null, onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Plan.list(COMPONENT_ID))
-		onNodeWithContentDescription("Planes: 2").assertIsDisplayed()
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
 		onNodeWithText("2 materias · 14 UC").assertIsDisplayed()
 		onNodeWithText("2026 abril-junio").assertIsDisplayed()
@@ -44,7 +42,7 @@ class PlanListComponentViewUiTest {
 	fun when_aTermLinkIsTapped_then_itOpensTheRecordOfThatTerm() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			PlanListComponentView(item = plans().toPlanListItem(), onAction = { actions.add(it) })
+			PlanListComponentView(item = plans().toPlanListItem(), rowLimit = null, onAction = { actions.add(it) })
 		}
 
 		onAllNodesWithText("Ver en Informe").onFirst().performClick()
@@ -52,6 +50,19 @@ class PlanListComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.RECORD, open.target)
 		assertEquals(listOf(EntityRef(EntityKind.TERM, "2026-JAN_MAR")), open.entityRefs)
+	}
+
+	@Test
+	fun when_noPlanIsSaved_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PlanListComponentView(
+				item = PlanListComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, plans = emptyList()).toPlanListItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Sin planes guardados").assertIsDisplayed()
 	}
 
 	private fun plans(): PlanListComponent =

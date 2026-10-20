@@ -13,24 +13,17 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectStatsComponent
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_credits
 import tuindice.assistant.generated.resources.assistant_card_b_joined
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_electives
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_subjects
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_caption
 import tuindice.assistant.generated.resources.assistant_card_b_stats_average_description
 import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_caption
 import tuindice.assistant.generated.resources.assistant_card_b_stats_pass_description
-import tuindice.assistant.generated.resources.assistant_card_b_subjects_caption
-import tuindice.assistant.generated.resources.assistant_card_b_subjects_description
 
 internal fun SubjectListComponent.toSubjectListItem(): SubjectListItem {
-	val count = UiText.Raw(items.size.toString())
-
 	return SubjectListItem(
 		id = id,
 		opensSheet = opensSheet(),
-		countFigure = CardFigureItem(
-			value = count,
-			caption = UiText.Resource(Res.string.assistant_card_b_subjects_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_b_subjects_description, listOf(count))
-		),
 		rows = items.map { subject ->
 			val credits = UiText.Resource(Res.string.assistant_card_b_credits, listOf(subject.credits))
 
@@ -41,7 +34,8 @@ internal fun SubjectListComponent.toSubjectListItem(): SubjectListItem {
 				link = chatSubjectLinkItem(subject.code)
 			)
 		},
-		recordLink = entityRefs.toRecordLinkItem()
+		recordLink = entityRefs.toRecordLinkItem(),
+		seeAllText = UiText.Resource(Res.string.assistant_card_b_see_all_subjects, listOf(items.size))
 	)
 }
 
@@ -85,6 +79,7 @@ internal fun RecommendedElectivesComponent.toRecommendedElectivesItem(): Recomme
 		rows = items.map { elective ->
 			ElectiveRowItem(code = elective.code, name = elective.name, reason = elective.reason)
 		},
-		recordLink = entityRefs.toRecordLinkItem()
+		recordLink = entityRefs.toRecordLinkItem(),
+		seeAllText = UiText.Resource(Res.string.assistant_card_b_see_all_electives, listOf(items.size))
 	)
 }

@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-// resumen.atencion/1: how many items need attention, then one row per item.
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
+// resumen.atencion/1: one row per item that needs attention.
 data class AttentionCardItem(
 	override val id: String,
 	override val opensSheet: Boolean,
-	val count: CardFigureItem,
-	val rows: List<AttentionRowItem>
-) : RecordComponentItem
+	val rows: List<AttentionRowItem>,
+	override val seeAllText: UiText
+) : RecordComponentItem, ChatRowsItem {
+	override val rowCount: Int get() = rows.size
+}

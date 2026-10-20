@@ -6,7 +6,7 @@ data class RequirementsItem(
 	override val id: String,
 	override val opensSheet: Boolean,
 	val subjectName: String,
-	// Only the sections that have subjects.
+	// The three sections, empty ones included: an empty section says so in its own line.
 	val sections: List<RequirementSectionItem>,
 	val recordLink: CardLinkItem?
 ) : PensumPlanComponentItem

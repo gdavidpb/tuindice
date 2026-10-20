@@ -10,8 +10,14 @@ import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption_one
+import tuindice.assistant.generated.resources.assistant_card_b_impact_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_impact_caption_one
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
 import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites_empty
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites
 import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks
 import kotlin.test.Test
@@ -38,7 +44,7 @@ class PensumComponentItemMappingTest {
 	}
 
 	@Test
-	fun requirements_leavesOutTheSectionsWithoutSubjects_andLinksEachSubject() {
+	fun requirements_keepsTheThreeSections_andGivesAnEmptyOneItsLine_andLinksEachSubject() {
 		val item = RequirementsComponent(
 			id = "q1",
 			fallbackText = "Requisitos",
@@ -52,9 +58,15 @@ class PensumComponentItemMappingTest {
 		assertEquals(
 			listOf(
 				UiText.Resource(Res.string.assistant_card_b_requirements_prerequisites),
+				UiText.Resource(Res.string.assistant_card_b_requirements_corequisites),
 				UiText.Resource(Res.string.assistant_card_b_requirements_unlocks)
 			),
 			item.sections.map { section -> section.label }
+		)
+		assertEquals(emptyList(), item.sections[1].subjects)
+		assertEquals(
+			UiText.Resource(Res.string.assistant_card_b_requirements_corequisites_empty),
+			item.sections[1].emptyText
 		)
 		val subject = item.sections[0].subjects.single()
 
@@ -81,7 +93,22 @@ class PensumComponentItemMappingTest {
 		).toSubjectImpactItem()
 
 		assertEquals(UiText.Raw("2"), item.termsFigure.value)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_impact_caption_many), item.termsFigure.caption)
 		assertNull(item.chain.single().link)
+	}
+
+	@Test
+	fun impact_theCaptionTakesTheSingularForOneTerm() {
+		val item = SubjectImpactComponent(
+			id = "i2",
+			fallbackText = "Impacto",
+			subjectCode = "IS-101",
+			subjectName = "Programación I",
+			chain = emptyList(),
+			lengthInTerms = 1
+		).toSubjectImpactItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_impact_caption_one), item.termsFigure.caption)
 	}
 
 	@Test
@@ -96,8 +123,23 @@ class PensumComponentItemMappingTest {
 		).toPensumComparisonItem()
 
 		assertEquals(UiText.Raw("40"), item.sharedFigure.value)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_comparison_shared_caption_many), item.sharedFigure.caption)
 		assertEquals(UiText.Raw("Cálculo I"), item.missingSubjects.single().nameText)
 		assertNull(item.missingSubjects.single().statusChip)
 		assertNull(item.missingSubjects.single().link)
+	}
+
+	@Test
+	fun comparison_theCaptionTakesTheSingularForOneSharedCredit() {
+		val item = PensumComparisonComponent(
+			id = "c2",
+			fallbackText = "Comparación",
+			otherCareerName = "Matemática",
+			otherPensumLabel = "2014",
+			sharedCredits = 1,
+			missingSubjects = emptyList()
+		).toPensumComparisonItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_comparison_shared_caption_one), item.sharedFigure.caption)
 	}
 }

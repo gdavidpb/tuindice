@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.AttentionRowItem
-import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
@@ -11,26 +10,18 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import org.jetbrains.compose.resources.StringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_attention_caption
-import tuindice.assistant.generated.resources.assistant_card_a_attention_description
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation_named
+import tuindice.assistant.generated.resources.assistant_card_a_see_all_attention
 import tuindice.assistant.generated.resources.assistant_card_b_link_pensum
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
 
 internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
-	val count = UiText.Raw(items.size.toString())
-
 	return AttentionCardItem(
 		id = id,
 		opensSheet = opensSheet(),
-		count = CardFigureItem(
-			value = count,
-			caption = UiText.Resource(Res.string.assistant_card_a_attention_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_a_attention_description, listOf(count))
-		),
 		rows = items.map { item ->
 			val ref = item.entityRef
 			val link = ref?.kind?.attentionLink()
@@ -51,7 +42,8 @@ internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
 					null
 				}
 			)
-		}
+		},
+		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_attention, listOf(items.size))
 	)
 }
 

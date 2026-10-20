@@ -13,6 +13,9 @@ import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation_named
+import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_caption_many
+import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_caption_one
+import tuindice.assistant.generated.resources.assistant_card_a_see_all_attention
 import tuindice.assistant.generated.resources.assistant_card_a_source_success
 import tuindice.assistant.generated.resources.assistant_card_a_sync_problems
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
@@ -81,6 +84,50 @@ class PerfilResumenComponentItemMappingTest {
 	}
 
 	@Test
+	fun profile_theCreditsCaptionTakesTheNounOfTheCount_unlessTheFigureIsAFraction() {
+		val one = ProfileSummaryComponent(
+			id = "d3",
+			fallbackText = "Perfil",
+			careerCode = "IS",
+			careerName = "Ingeniería de Sistemas",
+			pensumLabel = "2016",
+			cumulativeIndex = null,
+			approvedCredits = 1,
+			totalCredits = null,
+			currentTermLabel = null
+		).toProfileSummaryItem()
+		val many = ProfileSummaryComponent(
+			id = "d4",
+			fallbackText = "Perfil",
+			careerCode = "IS",
+			careerName = "Ingeniería de Sistemas",
+			pensumLabel = "2016",
+			cumulativeIndex = null,
+			approvedCredits = 80,
+			totalCredits = null,
+			currentTermLabel = null
+		).toProfileSummaryItem()
+		val fraction = ProfileSummaryComponent(
+			id = "d5",
+			fallbackText = "Perfil",
+			careerCode = "IS",
+			careerName = "Ingeniería de Sistemas",
+			pensumLabel = "2016",
+			cumulativeIndex = null,
+			approvedCredits = 1,
+			totalCredits = 180,
+			currentTermLabel = null
+		).toProfileSummaryItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_profile_credits_caption_one), one.primaryFigure.caption)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_profile_credits_caption_many), many.primaryFigure.caption)
+		assertEquals(
+			UiText.Resource(Res.string.assistant_card_a_profile_credits_caption_many),
+			fraction.primaryFigure.caption
+		)
+	}
+
+	@Test
 	fun attention_linksOnlyTheKindsThatHaveAScreen() {
 		val item = AttentionComponent(
 			id = "r1",
@@ -104,5 +151,6 @@ class PerfilResumenComponentItemMappingTest {
 		)
 		assertNull(planOnly.link)
 		assertNull(noRef.link)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_see_all_attention, listOf(3)), item.seeAllText)
 	}
 }

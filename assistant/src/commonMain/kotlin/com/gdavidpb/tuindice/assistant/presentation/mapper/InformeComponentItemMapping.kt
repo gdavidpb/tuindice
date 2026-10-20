@@ -32,12 +32,14 @@ import tuindice.assistant.generated.resources.assistant_card_a_pace_caption
 import tuindice.assistant.generated.resources.assistant_card_a_pace_description
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_description
-import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption
+import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_many
+import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_one
 import tuindice.assistant.generated.resources.assistant_card_a_record_approved_description
 import tuindice.assistant.generated.resources.assistant_card_a_record_failed
 import tuindice.assistant.generated.resources.assistant_card_a_record_first_try
 import tuindice.assistant.generated.resources.assistant_card_a_record_repeated
 import tuindice.assistant.generated.resources.assistant_card_a_record_retired
+import tuindice.assistant.generated.resources.assistant_card_a_see_all_terms
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_cumulative_caption
@@ -108,7 +110,8 @@ internal fun IndexSeriesComponent.toIndexSeriesItem(): IndexSeriesItem {
 					else -> null
 				}
 			)
-		}
+		},
+		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_terms, listOf(points.size))
 	)
 }
 
@@ -120,7 +123,11 @@ internal fun RecordStatsComponent.toRecordStatsItem(): RecordStatsItem {
 		opensSheet = opensSheet(),
 		approvedFigure = CardFigureItem(
 			value = approvedText,
-			caption = UiText.Resource(Res.string.assistant_card_a_record_approved_caption),
+			caption = chatCardNounText(
+				count = approved,
+				one = Res.string.assistant_card_a_record_approved_caption_one,
+				many = Res.string.assistant_card_a_record_approved_caption_many
+			),
 			contentDescription = UiText.Resource(Res.string.assistant_card_a_record_approved_description, listOf(approvedText))
 		),
 		counts = listOf(

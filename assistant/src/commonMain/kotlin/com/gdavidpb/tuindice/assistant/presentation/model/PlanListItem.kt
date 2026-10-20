@@ -1,10 +1,14 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-// plan.lista/1: how many plans there are, then a row per term plan.
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
+// plan.lista/1: a row per term plan.
 data class PlanListItem(
 	override val id: String,
 	override val opensSheet: Boolean,
-	val countFigure: CardFigureItem,
 	val rows: List<PlanRowItem>,
-	val recordLink: CardLinkItem?
-) : PensumPlanComponentItem
+	val recordLink: CardLinkItem?,
+	override val seeAllText: UiText
+) : PensumPlanComponentItem, ChatRowsItem {
+	override val rowCount: Int get() = rows.size
+}

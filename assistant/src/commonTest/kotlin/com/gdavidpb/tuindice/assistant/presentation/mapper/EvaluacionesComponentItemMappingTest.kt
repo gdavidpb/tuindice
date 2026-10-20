@@ -17,7 +17,13 @@ import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_load_caption_one
 import tuindice.assistant.generated.resources.assistant_card_b_points_description
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_required_caption_one
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_evaluations
+import tuindice.assistant.generated.resources.assistant_card_b_see_all_subjects
 import tuindice.assistant.generated.resources.assistant_card_b_week
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,6 +69,7 @@ class EvaluacionesComponentItemMappingTest {
 		)
 		assertEquals(UiText.Raw("Parcial 1"), item.rows[0].nameText)
 		assertNull(evaluationStateChip("unknown"))
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_see_all_evaluations, listOf(2)), item.seeAllText)
 	}
 
 	@Test
@@ -143,6 +150,8 @@ class EvaluacionesComponentItemMappingTest {
 		).toSubjectPointsItem()
 		val row = item.rows.single()
 
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_see_all_subjects, listOf(1)), item.seeAllText)
+
 		assertEquals(0.3f, row.earnedFraction)
 		assertEquals(0.5f, row.evaluatedFraction)
 		assertEquals(
@@ -153,5 +162,52 @@ class EvaluacionesComponentItemMappingTest {
 			UiText.Resource(Res.string.assistant_card_b_points_description, listOf("30", "100", "50")),
 			row.description
 		)
+	}
+
+	@Test
+	fun weeklyLoad_theCaptionTakesTheNounOfTheHeavyWeeks() {
+		val one = WeeklyLoadComponent(
+			id = "w3",
+			fallbackText = "Carga",
+			weeks = listOf(WeekLoad(week = 4, count = 3, points = 60.0, heavy = true))
+		).toWeeklyLoadItem()
+		val many = WeeklyLoadComponent(
+			id = "w4",
+			fallbackText = "Carga",
+			weeks = listOf(
+				WeekLoad(week = 4, count = 3, points = 60.0, heavy = true),
+				WeekLoad(week = 5, count = 2, points = 40.0, heavy = true)
+			)
+		).toWeeklyLoadItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_load_caption_one), one.heavyFigure.caption)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_load_caption_many), many.heavyFigure.caption)
+	}
+
+	@Test
+	fun requiredGrade_theCaptionTakesTheNounOfThePoints_andOnlyExactlyOnePointIsSingular() {
+		val one = RequiredGradeComponent(
+			id = "r3",
+			fallbackText = "Meta",
+			subjectCode = "IS-101",
+			subjectName = "Programación I",
+			targetGrade = 15,
+			requiredPoints = 1.0,
+			remainingPoints = 40.0,
+			feasible = true
+		).toRequiredGradeItem()
+		val decimal = RequiredGradeComponent(
+			id = "r4",
+			fallbackText = "Meta",
+			subjectCode = "IS-101",
+			subjectName = "Programación I",
+			targetGrade = 15,
+			requiredPoints = 1.5,
+			remainingPoints = 40.0,
+			feasible = true
+		).toRequiredGradeItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_required_caption_one), one.primaryFigure.caption)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_required_caption_many), decimal.primaryFigure.caption)
 	}
 }

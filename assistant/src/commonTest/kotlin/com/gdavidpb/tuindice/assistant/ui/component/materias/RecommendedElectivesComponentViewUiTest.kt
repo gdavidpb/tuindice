@@ -24,7 +24,7 @@ class RecommendedElectivesComponentViewUiTest {
 	@Test
 	fun when_electivesAreRecommended_then_eachReadsItsCodeNameAndReason() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			RecommendedElectivesComponentView(item = electives().toRecommendedElectivesItem(), onAction = {})
+			RecommendedElectivesComponentView(item = electives().toRecommendedElectivesItem(), rowLimit = null, onAction = {})
 		}
 
 		assertNodeVisible(AssistantUiTags.Subjects.electives(COMPONENT_ID))
@@ -40,6 +40,7 @@ class RecommendedElectivesComponentViewUiTest {
 		setTuIndiceTestContent {
 			RecommendedElectivesComponentView(
 				item = electives(refs = listOf(SUBJECT_REF)).toRecommendedElectivesItem(),
+				rowLimit = null,
 				onAction = { actions.add(it) }
 			)
 		}
@@ -49,6 +50,20 @@ class RecommendedElectivesComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
 		assertEquals(listOf(SUBJECT_REF), open.entityRefs)
+	}
+
+	@Test
+	fun when_noElectiveIsRecommended_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecommendedElectivesComponentView(
+				item = RecommendedElectivesComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, items = emptyList())
+					.toRecommendedElectivesItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("No hay electivas que recomendar ahora").assertIsDisplayed()
 	}
 
 	private fun electives(refs: List<EntityRef> = emptyList()): RecommendedElectivesComponent =

@@ -11,7 +11,8 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 
 // pensum.requisitos/1: the subject is the label. Then one section each for its prerequisites, its corequisites and the
-// subjects it unlocks, and a section with no subjects is not drawn. A subject shows its status and links to its screen.
+// subjects it unlocks, and a section with no subjects says so in its own line. A subject shows its status and links to
+// its screen.
 @Composable
 fun RequirementsComponentView(
 	item: RequirementsItem,

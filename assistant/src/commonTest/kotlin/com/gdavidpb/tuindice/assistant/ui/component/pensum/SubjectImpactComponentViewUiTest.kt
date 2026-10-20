@@ -30,7 +30,7 @@ class SubjectImpactComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Pensum.impact(COMPONENT_ID))
 		onNodeWithText("PROGRAMACIÓN I").assertIsDisplayed()
-		onNodeWithContentDescription("Trimestres que retrasa: 2").assertIsDisplayed()
+		onNodeWithContentDescription("Trimestres de retraso: 2").assertIsDisplayed()
 		onNodeWithText("IS-201").assertIsDisplayed()
 		onNodeWithText("Estructuras de Datos").assertIsDisplayed()
 		onNodeWithText("Disponible").assertIsDisplayed()

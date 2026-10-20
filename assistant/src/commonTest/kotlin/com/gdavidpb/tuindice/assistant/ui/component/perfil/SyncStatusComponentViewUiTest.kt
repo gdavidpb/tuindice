@@ -44,6 +44,15 @@ class SyncStatusComponentViewUiTest {
 	}
 
 	@Test
+	fun when_noSourceIsSynced_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SyncStatusComponentView(item = sync(emptyList()).toSyncStatusItem())
+		}
+
+		onNodeWithText("Sin fuentes sincronizadas todavía").assertIsDisplayed()
+	}
+
+	@Test
 	fun when_theAnnulmentHasACause_then_itIsARow_andTheEnrollmentCodeIsNotShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SyncStatusComponentView(item = sync(FINE_SOURCES, annulmentCause = CAUSE).toSyncStatusItem())

@@ -40,6 +40,19 @@ class WeeklyLoadComponentViewUiTest {
 		onNodeWithText("Pesada").assertDoesNotExist()
 	}
 
+	@Test
+	fun when_thereIsNoWeek_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			WeeklyLoadComponentView(
+				item = WeeklyLoadComponent(id = COMPONENT_ID, fallbackText = FALLBACK_TEXT, weeks = emptyList())
+					.toWeeklyLoadItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("No hay semanas para mostrar").assertIsDisplayed()
+	}
+
 	private fun load(heavy: Boolean = true): WeeklyLoadComponent =
 		WeeklyLoadComponent(
 			id = COMPONENT_ID,

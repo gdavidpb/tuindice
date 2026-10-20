@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.ui.component.resumen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -28,12 +27,12 @@ class AttentionComponentViewUiTest {
 		setTuIndiceTestContent {
 			AttentionComponentView(
 				item = attention(item(EVALUATION_REF, title = "Parcial 2 sin nota")).toAttentionCardItem(),
+				rowLimit = null,
 				onAction = { actions.add(it) }
 			)
 		}
 
 		assertNodeVisible(AssistantUiTags.Summary.attention(COMPONENT_ID))
-		onNodeWithContentDescription("Avisos: 1").assertIsDisplayed()
 		onNodeWithText("Parcial 2 sin nota").assertIsDisplayed()
 		onNodeWithText("Ver evaluación").performClick()
 
@@ -48,6 +47,7 @@ class AttentionComponentViewUiTest {
 		setTuIndiceTestContent {
 			AttentionComponentView(
 				item = attention(item(TERM_REF, title = "Trimestre sin cerrar")).toAttentionCardItem(),
+				rowLimit = null,
 				onAction = { actions.add(it) }
 			)
 		}
@@ -64,6 +64,7 @@ class AttentionComponentViewUiTest {
 		setTuIndiceTestContent {
 			AttentionComponentView(
 				item = attention(item(PLAN_REF, title = "Plan por revisar")).toAttentionCardItem(),
+				rowLimit = null,
 				onAction = {}
 			)
 		}
@@ -71,6 +72,19 @@ class AttentionComponentViewUiTest {
 		onNodeWithText("Plan por revisar").assertIsDisplayed()
 		onNodeWithText("Ver evaluación").assertDoesNotExist()
 		onNodeWithText("Ver en Informe").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_nothingNeedsAttention_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttentionComponentView(
+				item = attention().toAttentionCardItem(),
+				rowLimit = null,
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Nada que atender por ahora").assertIsDisplayed()
 	}
 
 	private fun attention(vararg items: AttentionItem): AttentionComponent =

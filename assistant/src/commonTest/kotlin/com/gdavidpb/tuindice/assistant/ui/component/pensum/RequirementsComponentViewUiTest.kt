@@ -25,7 +25,7 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class RequirementsComponentViewUiTest {
 	@Test
-	fun when_aSubjectHasRequirements_then_eachFilledSectionListsItsSubjectsWithTheirStatus() = runTuIndiceUiTest {
+	fun when_aSubjectHasRequirements_then_eachSectionListsItsSubjectsWithTheirStatus() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RequirementsComponentView(item = requirements().toRequirementsItem(), onAction = {})
 		}
@@ -39,7 +39,8 @@ class RequirementsComponentViewUiTest {
 		onNodeWithText("Desbloquea").assertIsDisplayed()
 		onNodeWithText("IS-301").assertIsDisplayed()
 		onNodeWithText("Bloqueada").assertIsDisplayed()
-		onNodeWithText("Correquisitos").assertDoesNotExist()
+		onNodeWithText("Correquisitos").assertIsDisplayed()
+		onNodeWithText("Sin correquisitos").assertIsDisplayed()
 		onAllNodesWithText("Ver materia").assertCountEquals(2)
 	}
 
@@ -55,6 +56,31 @@ class RequirementsComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
 		assertEquals(listOf(EntityRef(EntityKind.SUBJECT, "IS-101")), open.entityRefs)
+	}
+
+	@Test
+	fun when_everySectionIsEmpty_then_eachKeepsItsLabelAndItsLine() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RequirementsComponentView(
+				item = RequirementsComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					subjectCode = "IS-201",
+					subjectName = "Estructuras de Datos",
+					prerequisites = emptyList(),
+					corequisites = emptyList(),
+					unlocks = emptyList()
+				).toRequirementsItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Requisitos").assertIsDisplayed()
+		onNodeWithText("Sin requisitos").assertIsDisplayed()
+		onNodeWithText("Correquisitos").assertIsDisplayed()
+		onNodeWithText("Sin correquisitos").assertIsDisplayed()
+		onNodeWithText("Desbloquea").assertIsDisplayed()
+		onNodeWithText("No desbloquea ninguna materia").assertIsDisplayed()
 	}
 
 	private fun requirements(): RequirementsComponent =

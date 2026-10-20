@@ -26,17 +26,22 @@ import com.gdavidpb.tuindice.assistant.ui.component.materias.SubjectStatsCompone
 @Composable
 internal fun AcademicComponentRenderer(
 	item: AcademicComponentItem,
+	rowLimit: Int?,
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	when (item) {
 		is HelpItem -> HelpComponentView(item = item, onAction = onAction)
-		is EvaluationListItem -> EvaluationListComponentView(item = item, onAction = onAction)
-		is SubjectPointsItem -> SubjectPointsComponentView(item = item, onAction = onAction)
+		is EvaluationListItem -> EvaluationListComponentView(item = item, rowLimit = rowLimit, onAction = onAction)
+		is SubjectPointsItem -> SubjectPointsComponentView(item = item, rowLimit = rowLimit, onAction = onAction)
 		is WeeklyLoadItem -> WeeklyLoadComponentView(item = item, onAction = onAction)
 		is RequiredGradeItem -> RequiredGradeComponentView(item = item, onAction = onAction)
-		is SubjectListItem -> SubjectListComponentView(item = item, onAction = onAction)
+		is SubjectListItem -> SubjectListComponentView(item = item, rowLimit = rowLimit, onAction = onAction)
 		is SubjectStatsItem -> SubjectStatsComponentView(item = item, onAction = onAction)
-		is RecommendedElectivesItem -> RecommendedElectivesComponentView(item = item, onAction = onAction)
+		is RecommendedElectivesItem -> RecommendedElectivesComponentView(
+			item = item,
+			rowLimit = rowLimit,
+			onAction = onAction
+		)
 		is CitationItem -> CitationComponentView(item = item, onAction = onAction)
 	}
 }
