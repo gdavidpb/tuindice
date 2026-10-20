@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -35,7 +34,6 @@ import tuindice.pensum.generated.resources.pensum_selection_modality
 import tuindice.pensum.generated.resources.pensum_selection_title
 import tuindice.pensum.generated.resources.pensum_selection_version
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PensumSelectionBottomSheet(
 	model: PensumScreenModel,
@@ -46,7 +44,7 @@ fun PensumSelectionBottomSheet(
 	val currentModality = currentPensum?.selectedModality(model.selection.modalityId)
 	if (currentPensum == null || currentModality == null) return
 
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 	val selectedPensumState = remember(currentPensum.id) {
 		mutableStateOf(currentPensum)
 	}

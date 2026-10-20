@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_cancel
@@ -26,13 +25,12 @@ import tuindice.assistant.generated.resources.assistant_chat_appeal_title
 private const val APPEAL_MIN_LINES = 3
 
 // The text the student writes to appeal a restriction, at most AssistantInputLimits.APPEAL_MAX_LENGTH characters.
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantAppealDialog(
 	onAppeal: (text: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 	val appealText = remember { mutableStateOf("") }
 	val maxLength = AssistantInputLimits.APPEAL_MAX_LENGTH
 

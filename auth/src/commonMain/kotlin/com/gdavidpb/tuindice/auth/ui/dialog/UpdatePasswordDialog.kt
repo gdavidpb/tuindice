@@ -1,16 +1,12 @@
 package com.gdavidpb.tuindice.auth.ui.dialog
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.ui.view.UpdatePasswordIdleView
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatePasswordDialog(
 	state: UpdatePassword.State,
@@ -37,11 +33,7 @@ fun UpdatePasswordDialog(
 	val isConfirmEnabled = !isLoading && contentState.password.isNotEmpty()
 	val isLaterEnabled = !isLoading
 
-	val nonDismissSheetState = rememberModalBottomSheetState(
-		confirmValueChange = { sheetValue ->
-			sheetValue != SheetValue.Hidden
-		}
-	)
+	val nonDismissSheetState = rememberTuIndiceSheetState(hideable = false)
 
 	ConfirmationDialog(
 		sheetState = nonDismissSheetState,
@@ -61,7 +53,6 @@ fun UpdatePasswordDialog(
 				onConfirmClick()
 		},
 		onDismissRequest = onDismissRequest,
-		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
 		scrollable = true
 	) {
 		UpdatePasswordIdleView(

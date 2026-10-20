@@ -417,7 +417,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(66 reglas en 17 archivos por área):
+(67 reglas en 17 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo); sin `R.string.` (los textos van en `composeResources`).
@@ -456,7 +456,9 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   los CompositionLocal de acciones (`Local*Launcher`, `Local*Handler`, salvo `LocalUriHandler`) se leen solo en
   `presentation/route/*Route.kt`; en `ui/component` un `when` no cierra con `else -> Unit`;
   las `data class` no privadas de `ui/view` van en `ui/model`; los objetos de tags de `ui/` se llaman `*UiTags` y
-  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`.
+  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`; las hojas son
+  `TuIndiceModalBottomSheet` (`base/ui/dialog`) y ni `ModalBottomSheet` ni `rememberModalBottomSheetState` se usan
+  fuera de base (`material-modal-sheet-only-in-base`).
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").

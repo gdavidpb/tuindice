@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.base.ui.dialog
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -21,7 +19,7 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTestApi::class)
 class ConfirmationDialogUiTest {
 	// The field of a sheet with a text field, and its positive action, can be taller than the window the keyboard leaves:
 	// the whole body scrolls, so the action stays reachable instead of being cut off.
@@ -29,7 +27,7 @@ class ConfirmationDialogUiTest {
 	fun when_sheetIsScrollableAndItsBodyIsTallerThanTheWindow_then_thePositiveButtonCanBeScrolledTo() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+				val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 				LaunchedEffect(Unit) {
 					sheetState.show()
 				}
@@ -56,7 +54,7 @@ class ConfirmationDialogUiTest {
 		var positiveClicks = 0
 
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}
@@ -84,7 +82,7 @@ class ConfirmationDialogUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}
@@ -113,7 +111,7 @@ class ConfirmationDialogUiTest {
 	@Test
 	fun when_positiveIsLoading_then_showsLoaderAndDisablesPositiveButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}
@@ -137,7 +135,7 @@ class ConfirmationDialogUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}
@@ -169,7 +167,7 @@ class ConfirmationDialogUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}
@@ -195,7 +193,7 @@ class ConfirmationDialogUiTest {
 	@Test
 	fun when_customContentProvided_then_displaysInsideSheet() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 			LaunchedEffect(Unit) {
 				sheetState.show()
 			}

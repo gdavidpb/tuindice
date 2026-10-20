@@ -34,6 +34,7 @@ object BaseUiTags {
 	const val ConfirmationDialogPositiveButton = "base_confirmation_dialog_positive_button"
 	const val ConfirmationDialogPositiveLoading = "base_confirmation_dialog_positive_loading"
 	const val ConfirmationDialogEntry = "base_confirmation_dialog_entry"
+	const val ModalBottomSheetScrim = "base_modal_bottom_sheet_scrim"
 	const val ExternalResourceMessage = "base_external_resource_message"
 	const val ExternalResourceUrl = "base_external_resource_url"
 	const val SnackbarContainer = "base_snackbar_container"

@@ -86,3 +86,15 @@ fun SampleComponentExplicitRule(state: SampleState): String {
 		SampleState.Busy -> "busy"
 	}
 }
+
+// material-modal-sheet-only-in-base: la hoja de Material y su estado no se usan fuera de TuIndiceModalBottomSheet.
+fun SampleMaterialSheet(onDismissRequest: () -> Unit): Any {
+	// ruleid: material-modal-sheet-only-in-base
+	val materialState = rememberModalBottomSheetState()
+	// ruleid: material-modal-sheet-only-in-base
+	return ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = materialState) {}
+}
+
+// ok: material-modal-sheet-only-in-base
+fun SampleSharedSheet(onDismissRequest: () -> Unit): Any =
+	TuIndiceModalBottomSheet(onDismissRequest = onDismissRequest) {}
