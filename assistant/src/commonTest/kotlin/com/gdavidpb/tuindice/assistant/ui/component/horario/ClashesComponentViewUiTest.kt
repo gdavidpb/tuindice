@@ -15,14 +15,26 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class ClashesComponentViewUiTest {
 	@Test
-	fun when_thereAreClashes_then_eachShowsItsSubjectsDayAndHours() = runTuIndiceUiTest {
+	fun when_thereAreClashes_then_eachShowsItsSubjectsDayAndBlock() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ClashesComponentView(item = clashes(listOf(CLASH)).toClashesItem(), rowLimit = null)
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.clashes(COMPONENT_ID))
 		onNodeWithText("IS-101 · IS-102").assertIsDisplayed()
-		onNodeWithText("Miércoles · 9:00–10:00 a. m.").assertIsDisplayed()
+		onNodeWithText("Miércoles · bloque 3").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_aClashSpansSeveralBlocks_then_itNamesThemAsAPlural() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ClashesComponentView(
+				item = clashes(listOf(CLASH.copy(startBlock = 3, endBlock = 4, endMinute = 690))).toClashesItem(),
+				rowLimit = null
+			)
+		}
+
+		onNodeWithText("Miércoles · bloques 3-4").assertIsDisplayed()
 	}
 
 	@Test
@@ -45,10 +57,14 @@ class ClashesComponentViewUiTest {
 	private companion object {
 		const val COMPONENT_ID = "component-1"
 		const val FALLBACK_TEXT = "Choques de prueba"
+
+		// Block 3 alone: 9:30 to 10:30, on Wednesday.
 		val CLASH = ScheduleClash(
 			dayOfWeek = 3,
-			startMinute = 540,
-			endMinute = 600,
+			startMinute = 570,
+			endMinute = 630,
+			startBlock = 3,
+			endBlock = 3,
 			subjectCodes = listOf("IS-101", "IS-102")
 		)
 	}

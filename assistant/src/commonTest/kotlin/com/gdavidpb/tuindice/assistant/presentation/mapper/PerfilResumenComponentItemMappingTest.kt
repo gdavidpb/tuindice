@@ -69,7 +69,7 @@ class PerfilResumenComponentItemMappingTest {
 			sources = listOf(SyncSourceRow("Notas", "unavailable")),
 			enrollmentStatus = null,
 			annulmentCause = null
-		).toSyncStatusItem()
+		).toSyncStatusItem(nowMillis = 0L)
 		val fine = SyncStatusComponent(
 			id = "d2",
 			fallbackText = "Sync",
@@ -77,7 +77,7 @@ class PerfilResumenComponentItemMappingTest {
 			sources = listOf(SyncSourceRow("Notas", "success")),
 			enrollmentStatus = null,
 			annulmentCause = null
-		).toSyncStatusItem()
+		).toSyncStatusItem(nowMillis = 0L)
 
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_sync_problems), problem.headlineText)
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_source_success), fine.headlineText)

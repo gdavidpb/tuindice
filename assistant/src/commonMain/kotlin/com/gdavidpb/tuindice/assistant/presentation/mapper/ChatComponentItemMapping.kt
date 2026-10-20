@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 // The item a component is drawn from: the first of the families that takes it, and a component of none of them shows
 // the text it carries. Each family maps its own components in ComponentFamilyMapping.kt.
 internal fun ChatComponent.toChatComponentItem(nowMillis: Long): ChatComponentItem {
-	return toSistemaItem()
+	return toSistemaItem(nowMillis)
 		?: toRecordItem(nowMillis)
 		?: toAcademicItem()
 		?: toPensumPlanItem()

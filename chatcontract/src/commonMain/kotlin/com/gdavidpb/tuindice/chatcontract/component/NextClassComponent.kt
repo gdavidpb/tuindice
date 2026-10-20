@@ -17,7 +17,10 @@ public data class NextClassComponent(
 	public val dayOfWeek: Int,
 	public val startMinute: Int,
 	public val endMinute: Int,
+	public val startBlock: Int,
+	public val endBlock: Int,
 	public val room: String? = null,
+	// The server's reading when the turn ran. A card read later counts the class from the clock instead.
 	public val inProgress: Boolean,
 	public val dateMillis: Long
 ) : ChatComponent

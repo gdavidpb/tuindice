@@ -26,7 +26,7 @@ fun classPlaceItem(
 	classroom: String,
 	clockRange: IntRange?
 ): ClassPlaceItem {
-	val blocks = if (startBlock == endBlock) "$startBlock" else "$startBlock-$endBlock"
+	val blocks = classBlocksText(startBlock, endBlock)
 	val scheduleText = clockRange?.let { range ->
 		UiText.Resource(Res.string.class_place_with_time, listOf(blocks, range.toClockRangeText()))
 	} ?: UiText.Raw(blocks)
@@ -36,6 +36,13 @@ fun classPlaceItem(
 		scheduleText = scheduleText
 	)
 }
+
+/**
+ * The blocks of a class as the app writes them: "1-2" from [startBlock] to [endBlock], or "3" when it is a
+ * single block.
+ */
+fun classBlocksText(startBlock: Int, endBlock: Int): String =
+	if (startBlock == endBlock) "$startBlock" else "$startBlock-$endBlock"
 
 /**
  * The hours of a minutes-of-the-day range on a twelve-hour clock with no zero before the hour: the

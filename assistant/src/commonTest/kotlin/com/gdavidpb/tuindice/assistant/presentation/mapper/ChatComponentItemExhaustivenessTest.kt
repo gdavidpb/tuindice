@@ -234,16 +234,18 @@ class ChatComponentItemExhaustivenessTest {
 					1,
 					listOf(
 						ScheduleBlock(
-							"IS-101",
-							"Programación I",
-							480,
-							600,
-							room = "A-1",
+								"IS-101",
+								"Programación I",
+								startMinute = 450,
+								endMinute = 570,
+								startBlock = 1,
+								endBlock = 2,
+								room = "A-1",
 							evaluationTitles = listOf("Parcial 1")
 						)
 					)
 				),
-				ScheduleDay(3, listOf(ScheduleBlock("IS-102", "Matemática I", 600, 720)))
+				ScheduleDay(3, listOf(ScheduleBlock("IS-102", "Matemática I", 690, 810, 5, 6)))
 			)
 		),
 		NextClassComponent(
@@ -252,8 +254,10 @@ class ChatComponentItemExhaustivenessTest {
 			subjectCode = "IS-101",
 			subjectName = "Programación I",
 			dayOfWeek = 2,
-			startMinute = 480,
-			endMinute = 600,
+			startMinute = 450,
+				endMinute = 570,
+				startBlock = 1,
+				endBlock = 2,
 			room = null,
 			inProgress = false,
 			dateMillis = 1760100000000
@@ -264,7 +268,7 @@ class ChatComponentItemExhaustivenessTest {
 		ClashesComponent(
 			"d11",
 			"Choques de horario",
-			clashes = listOf(ScheduleClash(3, 540, 600, listOf("IS-101", "IS-102")))
+			clashes = listOf(ScheduleClash(3, 570, 630, 3, 3, listOf("IS-101", "IS-102")))
 		),
 		EvaluationListComponent(
 			"d12",

@@ -4,14 +4,16 @@ import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
+import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Instant
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_intent_draft_detail
 
 internal suspend fun Intent.toIntentCardItem(
 	texts: AssistantChatTexts,
@@ -50,19 +52,13 @@ private suspend fun IntentArgs.toDraftItems(
 	}
 }
 
-// The line under a row: its type, its date and its maximum grade, as the student reads them.
-private suspend fun EvaluationDraft.detail(texts: AssistantChatTexts): String {
-	val date = dateMillis?.toDayMonthYear() ?: texts.undated()
-	val parts = listOf(texts.evaluationTypeName(evaluationType), date, texts.maxGrade(maxGrade))
+// The line under a row: its type, its date and its maximum grade, as the student reads them. The date is the one
+// formatDate writes for a day, so it reads as the rest of the app does.
+private suspend fun EvaluationDraft.detail(texts: AssistantChatTexts): UiText {
+	val date = dateMillis?.formatDate(DateTextStyle.DAY_MONTH_YEAR) ?: UiText.Raw(texts.undated())
 
-	return parts.joinToString(separator = " · ")
+	return UiText.Resource(
+		Res.string.assistant_intent_draft_detail,
+		listOf(UiText.Raw(texts.evaluationTypeName(evaluationType)), date, UiText.Raw(texts.maxGrade(maxGrade)))
+	)
 }
-
-// dd/MM/yyyy in the time zone of the device.
-private fun Long.toDayMonthYear(): String {
-	val date = Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-	return "${date.day.twoDigits()}/${(date.month.ordinal + 1).twoDigits()}/${date.year}"
-}
-
-private fun Int.twoDigits(): String = toString().padStart(2, '0')

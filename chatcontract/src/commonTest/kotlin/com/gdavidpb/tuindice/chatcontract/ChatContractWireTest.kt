@@ -239,16 +239,30 @@ class ChatContractWireTest {
 					1,
 					listOf(
 						ScheduleBlock(
-							"IS-101",
-							"Programación I",
-							480,
-							600,
-							room = "A-1",
+								"IS-101",
+								"Programación I",
+								startMinute = 480,
+								endMinute = 600,
+								startBlock = 1,
+								endBlock = 2,
+								room = "A-1",
 							evaluationTitles = listOf("Parcial 1")
 						)
 					)
 				),
-				ScheduleDay(3, listOf(ScheduleBlock("IS-102", "Matemática I", 600, 720)))
+				ScheduleDay(
+					3,
+					listOf(
+						ScheduleBlock(
+							"IS-102",
+							"Matemática I",
+							startMinute = 600,
+							endMinute = 720,
+							startBlock = 3,
+							endBlock = 4
+						)
+					)
+				)
 			)
 		),
 		NextClassComponent(
@@ -259,6 +273,8 @@ class ChatContractWireTest {
 			dayOfWeek = 2,
 			startMinute = 480,
 			endMinute = 600,
+				startBlock = 1,
+				endBlock = 2,
 			room = null,
 			inProgress = false,
 			dateMillis = 1760100000000
@@ -266,7 +282,16 @@ class ChatContractWireTest {
 		ClashesComponent(
 			"d11",
 			"Choques de horario",
-			clashes = listOf(ScheduleClash(3, 540, 600, listOf("IS-101", "IS-102")))
+			clashes = listOf(
+				ScheduleClash(
+					dayOfWeek = 3,
+					startMinute = 510,
+					endMinute = 570,
+					startBlock = 2,
+					endBlock = 2,
+					subjectCodes = listOf("IS-101", "IS-102")
+				)
+			)
 		),
 		EvaluationListComponent(
 			"d12",

@@ -18,6 +18,12 @@ class ClassPlaceTest {
 	private val pm = UiText.Resource(Res.string.date_time_pm)
 
 	@Test
+	fun classBlocksText_ofSeveralBlocks_isTheRange_andOfASingleBlockItsNumber() {
+		assertEquals("1-2", classBlocksText(startBlock = 1, endBlock = 2))
+		assertEquals("3", classBlocksText(startBlock = 3, endBlock = 3))
+	}
+
+	@Test
 	fun classPlaceItem_withARoom_carriesTheRoomAlone() {
 		val place = classPlaceItem(startBlock = 1, endBlock = 2, classroom = "MYS-116", clockRange = null)
 

@@ -26,10 +26,10 @@ class WeekScheduleComponentViewUiTest {
 		onNodeWithText("Miércoles").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("A-1").assertIsDisplayed()
-		onNodeWithText("8:00–10:00 a. m.").assertIsDisplayed()
+		onNodeWithText("1-2 · 7:30–9:30 a. m.").assertIsDisplayed()
 		onNodeWithText("Evaluación").assertIsDisplayed()
 		onNodeWithText("IS-102").assertIsDisplayed()
-		onNodeWithText("10:00 a. m.–12:00 p. m.").assertIsDisplayed()
+		onNodeWithText("5-6 · 11:30 a. m.–1:30 p. m.").assertIsDisplayed()
 	}
 
 	@Test
@@ -60,14 +60,28 @@ class WeekScheduleComponentViewUiTest {
 					ScheduleBlock(
 						subjectCode = "IS-101",
 						subjectName = "Programación I",
-						startMinute = 480,
-						endMinute = 600,
+						startMinute = 450,
+						endMinute = 570,
+						startBlock = 1,
+						endBlock = 2,
 						room = "A-1",
 						evaluationTitles = listOf("Parcial 1")
 					)
 				)
 			),
-			ScheduleDay(3, listOf(ScheduleBlock("IS-102", "Matemática I", 600, 720)))
+			ScheduleDay(
+				3,
+				listOf(
+					ScheduleBlock(
+						subjectCode = "IS-102",
+						subjectName = "Matemática I",
+						startMinute = 690,
+						endMinute = 810,
+						startBlock = 5,
+						endBlock = 6
+					)
+				)
+			)
 		)
 	}
 }

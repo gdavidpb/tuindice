@@ -60,7 +60,7 @@ class SistemaComponentItemMappingTest {
 			fallbackText = "Suspendido",
 			reason = AbuseReasonCode.AUTOMATION,
 			appealable = false
-		).toSuspensionItem()
+		).toSuspensionItem(nowMillis = 0L)
 
 		assertEquals(UiText.Resource(Res.string.assistant_suspension_open_ended), item.untilText)
 		assertEquals(AbuseReasonCode.AUTOMATION.toReasonText(), item.reasonText)
@@ -71,8 +71,8 @@ class SistemaComponentItemMappingTest {
 		val usage = UsageSummary(remainingHour = 9, remainingDay = 39, remainingMonth = 399)
 
 		val known = UsageNoticeComponent("c3", "Te quedan 9", usage = usage, resetsAtMillis = 1760003600000)
-			.toUsageNoticeItem()
-		val unknown = UsageNoticeComponent("c3", "Te quedan 9", usage = usage).toUsageNoticeItem()
+			.toUsageNoticeItem(nowMillis = 0L)
+		val unknown = UsageNoticeComponent("c3", "Te quedan 9", usage = usage).toUsageNoticeItem(nowMillis = 0L)
 
 		assertEquals(UiText.Resource(Res.string.assistant_usage_hour, listOf(9)), known.hourText)
 		assertIs<UiText.Resource>(known.resetsText)

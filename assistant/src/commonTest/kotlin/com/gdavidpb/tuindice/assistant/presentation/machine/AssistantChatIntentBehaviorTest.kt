@@ -15,12 +15,15 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.intentCard
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.toggleIntentDraftAction
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_intent_draft_detail
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -133,7 +136,13 @@ class AssistantChatIntentBehaviorTest {
 
 		val card = viewModel.content().intentCard("i4")
 		assertEquals(listOf(true, true), card.drafts.map { draft -> draft.selected })
-		assertEquals("type:QUIZ · undated · max:20.0", card.drafts.first().detail)
+		assertEquals(
+			UiText.Resource(
+				Res.string.assistant_intent_draft_detail,
+				listOf(UiText.Raw("type:QUIZ"), UiText.Raw("undated"), UiText.Raw("max:20.0"))
+			),
+			card.drafts.first().detail
+		)
 
 		viewModel.toggleIntentDraftAction("i4", "m2", selected = false)
 		assertEquals(listOf(true, false), viewModel.content().intentCard("i4").drafts.map { draft -> draft.selected })

@@ -20,7 +20,7 @@ class SyncStatusComponentViewUiTest {
 	fun when_aSourceIsUnavailable_then_theHeadlineSaysThereAreProblems_andEachSourceReadsItsState() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
-				SyncStatusComponentView(item = sync(SOURCES_WITH_A_PROBLEM).toSyncStatusItem())
+				SyncStatusComponentView(item = sync(SOURCES_WITH_A_PROBLEM).toSyncStatusItem(nowMillis = NOW_MILLIS))
 			}
 
 			assertNodeVisible(AssistantUiTags.Profile.sync(COMPONENT_ID))
@@ -35,7 +35,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_everySourceIsFine_then_theHeadlineSaysAllIsWell() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(item = sync(FINE_SOURCES).toSyncStatusItem())
+			SyncStatusComponentView(item = sync(FINE_SOURCES).toSyncStatusItem(nowMillis = NOW_MILLIS))
 		}
 
 		onNodeWithText("Con problemas").assertDoesNotExist()
@@ -46,7 +46,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_noSourceIsSynced_then_aLineSaysSo() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(item = sync(emptyList()).toSyncStatusItem())
+			SyncStatusComponentView(item = sync(emptyList()).toSyncStatusItem(nowMillis = NOW_MILLIS))
 		}
 
 		onNodeWithText("Sin fuentes sincronizadas todavía").assertIsDisplayed()
@@ -55,7 +55,7 @@ class SyncStatusComponentViewUiTest {
 	@Test
 	fun when_theAnnulmentHasACause_then_itIsARow_andTheEnrollmentCodeIsNotShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(item = sync(FINE_SOURCES, annulmentCause = CAUSE).toSyncStatusItem())
+			SyncStatusComponentView(item = sync(FINE_SOURCES, annulmentCause = CAUSE).toSyncStatusItem(nowMillis = NOW_MILLIS))
 		}
 
 		onNodeWithText(CAUSE).assertIsDisplayed()
@@ -63,12 +63,15 @@ class SyncStatusComponentViewUiTest {
 	}
 
 	@Test
-	fun when_theLastSyncIsKnown_then_TheLabelSaysWhen() = runTuIndiceUiTest {
+	fun when_theLastSyncIsKnown_then_aRowSaysWhen() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			SyncStatusComponentView(item = sync(FINE_SOURCES, lastSyncAtMillis = LAST_SYNC_MILLIS).toSyncStatusItem())
+			SyncStatusComponentView(
+				item = sync(FINE_SOURCES, lastSyncAtMillis = LAST_SYNC_MILLIS).toSyncStatusItem(nowMillis = NOW_MILLIS)
+			)
 		}
 
-		onNodeWithText("ÚLTIMA SINCRONIZACIÓN", substring = true).assertIsDisplayed()
+		onNodeWithText("Última sincronización").assertIsDisplayed()
+		onNodeWithText("hoy a las", substring = true).assertIsDisplayed()
 	}
 
 	private fun sync(
@@ -90,6 +93,7 @@ class SyncStatusComponentViewUiTest {
 		const val FALLBACK_TEXT = "Sincronización de prueba"
 		const val CAUSE = "La universidad anuló tu inscripción de este trimestre."
 		const val LAST_SYNC_MILLIS = 1_760_000_000_000L
+		const val NOW_MILLIS = LAST_SYNC_MILLIS
 
 		val SOURCES_WITH_A_PROBLEM = listOf(
 			SyncSourceRow("Notas", "success"),

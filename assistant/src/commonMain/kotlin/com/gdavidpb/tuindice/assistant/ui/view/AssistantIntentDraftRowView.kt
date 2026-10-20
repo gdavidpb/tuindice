@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.Role
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
@@ -56,7 +57,7 @@ fun AssistantIntentDraftRowView(
 				color = MaterialTheme.colorScheme.onSurface
 			)
 			Text(
-				text = draft.detail,
+				text = draft.detail.asString(),
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)

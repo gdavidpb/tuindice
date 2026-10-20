@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ScheduleBlockItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.assistant.presentation.model.WeekScheduleItem
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
+import com.gdavidpb.tuindice.base.presentation.mapper.classBlocksText
+import com.gdavidpb.tuindice.base.presentation.mapper.classPlaceItem
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.mapper.toClockRangeText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -16,8 +18,12 @@ import com.gdavidpb.tuindice.chatcontract.component.ClashesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NextClassComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_next_caption
-import tuindice.assistant.generated.resources.assistant_card_a_next_description
+import tuindice.assistant.generated.resources.assistant_card_a_clash_block_many
+import tuindice.assistant.generated.resources.assistant_card_a_clash_block_one
+import tuindice.assistant.generated.resources.assistant_card_a_next_caption_many
+import tuindice.assistant.generated.resources.assistant_card_a_next_caption_one
+import tuindice.assistant.generated.resources.assistant_card_a_next_description_many
+import tuindice.assistant.generated.resources.assistant_card_a_next_description_one
 import tuindice.assistant.generated.resources.assistant_card_a_next_in_progress_label
 import tuindice.assistant.generated.resources.assistant_card_a_next_label
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
@@ -45,6 +51,8 @@ internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
 					ScheduleDayItem(
 						name = name,
 						blocks = day.blocks.map { block ->
+							val clock = block.startMinute..block.endMinute
+
 							ScheduleBlockItem(
 								code = block.subjectCode,
 								room = block.room.orEmpty(),
@@ -53,7 +61,13 @@ internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
 								} else {
 									null
 								},
-								hoursText = (block.startMinute..block.endMinute).toClockRangeText()
+								scheduleText = classPlaceItem(
+									startBlock = block.startBlock,
+									endBlock = block.endBlock,
+									classroom = "",
+									clockRange = clock
+								).scheduleText,
+								hoursText = clock.toClockRangeText()
 							)
 						}
 					)
@@ -62,11 +76,27 @@ internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
 	)
 }
 
-// [nowMillis] is the moment the card is read: what is left until the class starts is counted from it.
+// [nowMillis] is the moment the card is read. The class is in progress while that moment falls within its hours, and
+// what is left until it starts is counted from that moment too. The server's reading of the class, made when the turn
+// ran, is not used: a card read later says where the class stands now.
 internal fun NextClassComponent.toNextClassItem(nowMillis: Long): NextClassItem {
 	val start = dateMillis + startMinute * MILLIS_PER_MINUTE
+	val end = dateMillis + endMinute * MILLIS_PER_MINUTE
+	val inProgress = nowMillis in start until end
 	val minutesLeft = (start - nowMillis) / MILLIS_PER_MINUTE
-	val classHours = (startMinute..endMinute).toClockRangeText()
+	val blocks = classBlocksText(startBlock, endBlock)
+	val hours = (startMinute..endMinute).toClockRangeText()
+	val singleBlock = startBlock == endBlock
+	val captionText = if (singleBlock) {
+		Res.string.assistant_card_a_next_caption_one
+	} else {
+		Res.string.assistant_card_a_next_caption_many
+	}
+	val descriptionText = if (singleBlock) {
+		Res.string.assistant_card_a_next_description_one
+	} else {
+		Res.string.assistant_card_a_next_description_many
+	}
 
 	return NextClassItem(
 		id = id,
@@ -74,10 +104,11 @@ internal fun NextClassComponent.toNextClassItem(nowMillis: Long): NextClassItem 
 		labelText = UiText.Resource(
 			if (inProgress) Res.string.assistant_card_a_next_in_progress_label else Res.string.assistant_card_a_next_label
 		),
+		// The figure is the blocks of the class; its caption says the hours they fall in.
 		classFigure = CardFigureItem(
-			value = classHours,
-			caption = UiText.Resource(Res.string.assistant_card_a_next_caption),
-			contentDescription = UiText.Resource(Res.string.assistant_card_a_next_description, listOf(classHours))
+			value = UiText.Raw(blocks),
+			caption = UiText.Resource(captionText, listOf(hours)),
+			contentDescription = UiText.Resource(descriptionText, listOf(blocks, hours))
 		),
 		subjectCode = subjectCode,
 		subjectName = subjectName,
@@ -118,21 +149,32 @@ internal fun ClashesComponent.toClashesItem(): ClashesItem {
 		id = id,
 		opensSheet = opensSheet(),
 		rows = clashes.map { clash ->
-			val hours = (clash.startMinute..clash.endMinute).toClockRangeText()
 			val day = scheduleDayText(clash.dayOfWeek)
+			val blocks = clashBlocksText(clash.startBlock, clash.endBlock)
 
 			ClashRowItem(
 				codes = clash.subjectCodes
 					.map<String, UiText> { code -> UiText.Raw(code) }
 					.reduceOrNull { first, next -> UiText.Resource(Res.string.assistant_card_b_joined, listOf(first, next)) }
 					?: UiText.Empty,
-				dayAndHoursText = if (day != null) {
-					UiText.Resource(Res.string.assistant_card_b_joined, listOf(day, hours))
+				dayAndBlocksText = if (day != null) {
+					UiText.Resource(Res.string.assistant_card_b_joined, listOf(day, blocks))
 				} else {
-					hours
+					blocks
 				}
 			)
 		},
 		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_clashes, listOf(clashes.size))
 	)
+}
+
+// "bloque 3" for a single block and "bloques 3-4" for several, with the blocks as the app writes them.
+private fun clashBlocksText(startBlock: Int, endBlock: Int): UiText {
+	val resource = if (startBlock == endBlock) {
+		Res.string.assistant_card_a_clash_block_one
+	} else {
+		Res.string.assistant_card_a_clash_block_many
+	}
+
+	return UiText.Resource(resource, listOf(classBlocksText(startBlock, endBlock)))
 }

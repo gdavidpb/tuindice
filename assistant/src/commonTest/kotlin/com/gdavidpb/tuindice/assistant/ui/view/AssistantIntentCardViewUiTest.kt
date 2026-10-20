@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
 import com.gdavidpb.tuindice.assistant.ui.intentCard
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -88,7 +89,12 @@ class AssistantIntentCardViewUiTest {
 	@Test
 	fun when_draftIsTapped_then_dispatchesToggleIntentDraftWithTheNewValue() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
-		val draft = IntentDraftItem(mutationId = MUTATION_ID, label = "CI4325", detail = "Parcial 1", selected = true)
+		val draft = IntentDraftItem(
+			mutationId = MUTATION_ID,
+			label = "CI4325",
+			detail = UiText.Raw("Parcial 1"),
+			selected = true
+		)
 		setTuIndiceTestContent {
 			AssistantIntentCardView(card = intentCard(drafts = listOf(draft)), onAction = { actions.add(it) })
 		}

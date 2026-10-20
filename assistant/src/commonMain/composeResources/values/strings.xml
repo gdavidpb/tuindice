@@ -54,11 +54,11 @@
 	<string name="assistant_usage_hour">Esta hora: %1$d</string>
 	<string name="assistant_usage_day">Hoy: %1$d</string>
 	<string name="assistant_usage_month">Este mes: %1$d</string>
-	<string name="assistant_usage_resets">Se renuevan el %1$s</string>
+	<string name="assistant_usage_resets">Se renuevan %1$s</string>
 	<string name="assistant_cooldown_title">El asistente está en pausa</string>
-	<string name="assistant_cooldown_until">Podrás volver a preguntar el %1$s</string>
+	<string name="assistant_cooldown_until">Podrás volver a preguntar %1$s</string>
 	<string name="assistant_suspension_title">El asistente está suspendido para tu cuenta</string>
-	<string name="assistant_suspension_until">Vuelve a estar disponible el %1$s</string>
+	<string name="assistant_suspension_until">Vuelve a estar disponible %1$s</string>
 	<string name="assistant_suspension_open_ended">Por ahora no tiene fecha de fin</string>
 	<string name="assistant_support_title">¿Necesitas apoyo?</string>
 	<string name="assistant_support_call">Llamar al %1$s</string>
@@ -116,17 +116,17 @@
 	<string name="assistant_chat_evaluation_type_other">Otra</string>
 	<string name="assistant_chat_max_grade">máx. %1$s</string>
 	<string name="assistant_chat_undated">Sin fecha</string>
+	<string name="assistant_intent_draft_detail">%1$s · %2$s · %3$s</string>
 	<string name="assistant_chat_guided">El chat abierto está en pausa; puedes usar las preguntas sugeridas</string>
 	<string name="assistant_chat_quota_exhausted">Llegaste al límite de mensajes. Podrás seguir escribiendo más tarde.</string>
 	<string name="assistant_chat_quota_exhausted_wait">Llegaste al límite de mensajes. Podrás seguir escribiendo %1$s.</string>
 	<string name="assistant_chat_wait_minutes">en %1$d min</string>
 	<string name="assistant_chat_wait_under_minute">en menos de un minuto</string>
 	<string name="assistant_chat_restricted_cooldown">Pausamos el asistente por un rato.</string>
-	<!-- The hour ends in «a. m.» or «p. m.», whose period closes the sentence. -->
-	<string name="assistant_chat_restricted_cooldown_today">Pausamos el asistente por un rato. Vuelve a estar disponible a las %1$s</string>
-	<string name="assistant_chat_restricted_cooldown_until">Pausamos el asistente por un rato. Vuelve a estar disponible el %1$s a las %2$s</string>
+	<!-- The moment ends in «a. m.» or «p. m.», whose period closes the sentence: no full stop follows it. -->
+	<string name="assistant_chat_restricted_cooldown_until">Pausamos el asistente por un rato. Podrás volver a preguntar %1$s</string>
 	<string name="assistant_chat_restricted_suspended">Tu acceso al asistente está suspendido.</string>
-	<string name="assistant_chat_restricted_suspended_until">Tu acceso al asistente está suspendido hasta el %1$s.</string>
+	<string name="assistant_chat_restricted_suspended_until">Tu acceso al asistente está suspendido hasta %1$s</string>
 	<string name="assistant_chat_restricted_banned">Tu acceso al asistente está cerrado.</string>
 	<string name="assistant_chat_restricted_default">El asistente no puede responder en este momento.</string>
 	<string name="assistant_chat_turn_failed_transient">No pudimos responder. Inténtalo de nuevo.</string>
@@ -161,7 +161,7 @@
 	<string name="assistant_card_a_profile_pensum">Pensum</string>
 	<string name="assistant_card_a_profile_current_term">Trimestre en curso</string>
 	<string name="assistant_card_a_sync_label">Sincronización</string>
-	<string name="assistant_card_a_sync_last">Última sincronización %1$s</string>
+	<string name="assistant_card_a_sync_last">Última sincronización</string>
 	<string name="assistant_card_a_sync_problems">Con problemas</string>
 	<string name="assistant_card_a_sync_empty">Sin fuentes sincronizadas todavía</string>
 	<string name="assistant_card_a_source_success">Al día</string>
@@ -219,8 +219,10 @@
 	<string name="assistant_card_a_week_evaluation">Evaluación</string>
 	<string name="assistant_card_a_next_label">Próxima clase</string>
 	<string name="assistant_card_a_next_in_progress_label">Clase en curso</string>
-	<string name="assistant_card_a_next_caption">hora de la clase</string>
-	<string name="assistant_card_a_next_description">Hora de la clase: %1$s</string>
+	<string name="assistant_card_a_next_caption_one">bloque · %1$s</string>
+	<string name="assistant_card_a_next_caption_many">bloques · %1$s</string>
+	<string name="assistant_card_a_next_description_one">Bloque %1$s, %2$s</string>
+	<string name="assistant_card_a_next_description_many">Bloques %1$s, %2$s</string>
 	<string name="assistant_card_a_next_day">Día</string>
 	<string name="assistant_card_a_next_room">Aula</string>
 	<string name="assistant_card_a_next_remaining">Cuánto falta</string>
@@ -231,6 +233,8 @@
 	<string name="assistant_card_a_clashes_label">Choques de horario</string>
 	<string name="assistant_card_a_clashes_empty">No tienes choques de horario</string>
 	<string name="assistant_card_a_see_all_clashes">Ver los %1$d choques</string>
+	<string name="assistant_card_a_clash_block_one">bloque %1$s</string>
+	<string name="assistant_card_a_clash_block_many">bloques %1$s</string>
 	<string name="assistant_card_b_evaluations_label">Evaluaciones</string>
 	<string name="assistant_card_b_evaluations_empty">No hay evaluaciones para mostrar</string>
 	<string name="assistant_card_b_see_all_evaluations">Ver las %1$d evaluaciones</string>

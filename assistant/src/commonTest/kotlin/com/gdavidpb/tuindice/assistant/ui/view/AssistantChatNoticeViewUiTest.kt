@@ -70,7 +70,7 @@ class AssistantChatNoticeViewUiTest {
 			)
 		}
 
-		onNodeWithText("Pausamos el asistente por un rato. Vuelve a estar disponible a las 03:05 p. m.")
+		onNodeWithText("Pausamos el asistente por un rato. Podrás volver a preguntar hoy a las 3:05 p. m.")
 			.assertIsDisplayed()
 	}
 
@@ -83,7 +83,7 @@ class AssistantChatNoticeViewUiTest {
 			)
 		}
 
-		onNodeWithText("Pausamos el asistente por un rato. Vuelve a estar disponible el 20 de octubre 2026 a las 09:30 a. m.")
+		onNodeWithText("Pausamos el asistente por un rato. Podrás volver a preguntar el martes 20 de octubre, 9:30 a. m.")
 			.assertIsDisplayed()
 	}
 
@@ -96,7 +96,8 @@ class AssistantChatNoticeViewUiTest {
 			)
 		}
 
-		onNodeWithText("Tu acceso al asistente está suspendido hasta el 20 de octubre 2026.").assertIsDisplayed()
+		onNodeWithText("Tu acceso al asistente está suspendido hasta el martes 20 de octubre, 9:30 a. m.")
+			.assertIsDisplayed()
 	}
 
 	@Test

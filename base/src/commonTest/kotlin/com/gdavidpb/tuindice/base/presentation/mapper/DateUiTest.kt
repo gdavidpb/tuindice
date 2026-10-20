@@ -93,6 +93,35 @@ class DateUiTest {
 		)
 	}
 
+	@Test
+	fun when_styleIsTodayAtClock_then_readsTodayAndTheClockWithoutAZeroBeforeTheHour() = runTuIndiceUiTest {
+		assertDateTexts(
+			"hoy a las 3:05 p. m." to millisOf(hour = 15, minute = 5).formatDate(DateTextStyle.TODAY_AT_CLOCK),
+			"hoy a las 9:07 a. m." to millisOf(hour = 9, minute = 7).formatDate(DateTextStyle.TODAY_AT_CLOCK),
+			"hoy a las 12:30 a. m." to millisOf(hour = 0, minute = 30).formatDate(DateTextStyle.TODAY_AT_CLOCK),
+			"hoy a las 12:00 p. m." to millisOf(hour = 12, minute = 0).formatDate(DateTextStyle.TODAY_AT_CLOCK)
+		)
+	}
+
+	@Test
+	fun when_styleIsWeekdayDayMonthAtClock_then_readsTheDayWithoutAZero() = runTuIndiceUiTest {
+		assertDateTexts(
+			"el viernes 23 de octubre, 6:53 a. m." to millisOf(month = 10, day = 23, hour = 6, minute = 53)
+				.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH_AT_CLOCK),
+			"el jueves 5 de marzo, 9:07 a. m." to millisOf(month = 3, day = 5, hour = 9, minute = 7)
+				.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH_AT_CLOCK)
+		)
+	}
+
+	@Test
+	fun when_styleIsWeekdayDayMonthYearAtClock_then_readsTheYearAfterTheDay() = runTuIndiceUiTest {
+		assertDateText(
+			"el viernes 15 de enero 2027, 3:05 p. m.",
+			millisOf(year = 2027),
+			DateTextStyle.WEEKDAY_DAY_MONTH_YEAR_AT_CLOCK
+		)
+	}
+
 	private fun ComposeUiTest.assertDateText(expected: String, millis: Long, style: DateTextStyle) {
 		assertDateTexts(expected to millis.formatDate(style))
 	}

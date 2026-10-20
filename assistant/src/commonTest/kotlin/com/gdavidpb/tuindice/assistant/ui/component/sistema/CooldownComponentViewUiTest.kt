@@ -58,11 +58,12 @@ class CooldownComponentViewUiTest {
 			reason = AbuseReasonCode.SPAM,
 			untilMillis = UNTIL_MILLIS,
 			appealable = appealable
-		).toCooldownItem()
+		).toCooldownItem(nowMillis = NOW_MILLIS)
 
 	private companion object {
 		const val TITLE = "El asistente está en pausa"
 		const val APPEAL = "Solo hice una pregunta"
 		const val UNTIL_MILLIS = 1_800_000_000_000L
+		const val NOW_MILLIS = 1_799_990_000_000L
 	}
 }

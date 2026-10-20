@@ -16,8 +16,8 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_clashes_empty
 import tuindice.assistant.generated.resources.assistant_card_a_clashes_label
 
-// horario.choques/1: one row per clash: the subjects that meet at the same time as its title, and the day and the hours
-// of the clash. With no clash, a line says so.
+// horario.choques/1: one row per clash: the subjects that meet at the same time as its title, and the day and
+// the blocks of the clash. With no clash, a line says so.
 @Composable
 fun ClashesComponentView(
 	item: ClashesItem,
@@ -32,7 +32,7 @@ fun ClashesComponentView(
 		item.rows.visibleRows(rowLimit).forEachIndexed { index, clash ->
 			CardRowView(
 				title = clash.codes.asString(),
-				name = clash.dayAndHoursText.asString(),
+				name = clash.dayAndBlocksText.asString(),
 				showsDivider = index > 0
 			)
 		}

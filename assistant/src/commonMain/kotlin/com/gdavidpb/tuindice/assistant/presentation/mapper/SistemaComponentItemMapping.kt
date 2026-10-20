@@ -34,7 +34,7 @@ internal fun StillAppliesComponent.toStillAppliesItem(): StillAppliesItem {
 	)
 }
 
-internal fun UsageNoticeComponent.toUsageNoticeItem(): UsageNoticeItem {
+internal fun UsageNoticeComponent.toUsageNoticeItem(nowMillis: Long): UsageNoticeItem {
 	return UsageNoticeItem(
 		id = id,
 		opensSheet = opensSheet(),
@@ -42,24 +42,24 @@ internal fun UsageNoticeComponent.toUsageNoticeItem(): UsageNoticeItem {
 		dayText = UiText.Resource(Res.string.assistant_usage_day, listOf(usage.remainingDay)),
 		monthText = UiText.Resource(Res.string.assistant_usage_month, listOf(usage.remainingMonth)),
 		resetsText = resetsAtMillis?.let { millis ->
-			UiText.Resource(Res.string.assistant_usage_resets, listOf(millis.toChatDateText()))
+			UiText.Resource(Res.string.assistant_usage_resets, listOf(millis.toChatDateText(nowMillis)))
 		}
 	)
 }
 
-internal fun CooldownComponent.toCooldownItem(): CooldownItem {
+internal fun CooldownComponent.toCooldownItem(nowMillis: Long): CooldownItem {
 	return CooldownItem(
 		id = id,
 		opensSheet = opensSheet(),
 		reasonText = reason.toReasonText(),
-		untilText = UiText.Resource(Res.string.assistant_cooldown_until, listOf(untilMillis.toChatDateText())),
+		untilText = UiText.Resource(Res.string.assistant_cooldown_until, listOf(untilMillis.toChatDateText(nowMillis))),
 		appealable = appealable
 	)
 }
 
-internal fun SuspensionComponent.toSuspensionItem(): SuspensionItem {
+internal fun SuspensionComponent.toSuspensionItem(nowMillis: Long): SuspensionItem {
 	val untilText = untilMillis?.let { millis ->
-		UiText.Resource(Res.string.assistant_suspension_until, listOf(millis.toChatDateText()))
+		UiText.Resource(Res.string.assistant_suspension_until, listOf(millis.toChatDateText(nowMillis)))
 	} ?: UiText.Resource(Res.string.assistant_suspension_open_ended)
 
 	return SuspensionItem(

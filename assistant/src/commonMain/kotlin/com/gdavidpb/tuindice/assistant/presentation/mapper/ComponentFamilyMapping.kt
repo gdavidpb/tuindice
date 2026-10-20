@@ -42,12 +42,12 @@ import com.gdavidpb.tuindice.chatcontract.component.WeekScheduleComponent
 import com.gdavidpb.tuindice.chatcontract.component.WeeklyLoadComponent
 
 // The SistemaComponent items: the components of their catalogs, or null for a component of another family.
-internal fun ChatComponent.toSistemaItem(): SistemaComponentItem? {
+internal fun ChatComponent.toSistemaItem(nowMillis: Long): SistemaComponentItem? {
 	return when (this) {
 		is StillAppliesComponent -> toStillAppliesItem()
-		is UsageNoticeComponent -> toUsageNoticeItem()
-		is CooldownComponent -> toCooldownItem()
-		is SuspensionComponent -> toSuspensionItem()
+		is UsageNoticeComponent -> toUsageNoticeItem(nowMillis)
+		is CooldownComponent -> toCooldownItem(nowMillis)
+		is SuspensionComponent -> toSuspensionItem(nowMillis)
 		is SupportComponent -> toSupportItem()
 		is WarningComponent -> toWarningItem()
 		is OpenScreenComponent -> toOpenScreenItem()
@@ -69,7 +69,7 @@ internal fun ChatComponent.toRecordItem(nowMillis: Long): RecordComponentItem? {
 		is WeekScheduleComponent -> toWeekScheduleItem()
 		is NextClassComponent -> toNextClassItem(nowMillis = nowMillis)
 		is ClashesComponent -> toClashesItem()
-		is SyncStatusComponent -> toSyncStatusItem()
+		is SyncStatusComponent -> toSyncStatusItem(nowMillis)
 		is AttentionComponent -> toAttentionCardItem()
 
 		else -> null

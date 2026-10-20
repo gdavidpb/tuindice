@@ -77,6 +77,9 @@
 	<string name="date_short_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
 	<string name="date_day_short_month">%1$s %2$s.</string>
 	<string name="date_month_year">%1$s %2$s</string>
+	<string name="date_today_at_clock">hoy a las %1$s</string>
+	<string name="date_weekday_day_month_at_clock">el %1$s %2$s de %3$s, %4$s</string>
+	<string name="date_weekday_day_month_year_at_clock">el %1$s %2$s de %3$s %4$s, %5$s</string>
 	<string name="class_place_with_time">%1$s · %2$s</string>
 	<string name="class_time_range_same_period">%1$s–%2$s %3$s</string>
 	<string name="class_time_range">%1$s %2$s–%3$s %4$s</string>

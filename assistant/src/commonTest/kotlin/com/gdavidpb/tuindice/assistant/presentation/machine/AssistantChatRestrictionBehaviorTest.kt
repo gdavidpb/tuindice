@@ -27,7 +27,6 @@ import kotlinx.datetime.toInstant
 import org.jetbrains.compose.resources.StringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_restricted_banned
-import tuindice.assistant.generated.resources.assistant_chat_restricted_cooldown_today
 import tuindice.assistant.generated.resources.assistant_chat_restricted_cooldown_until
 import tuindice.assistant.generated.resources.assistant_chat_restricted_suspended
 import tuindice.assistant.generated.resources.assistant_chat_restricted_suspended_until
@@ -46,8 +45,8 @@ class AssistantChatRestrictionBehaviorTest {
 		openWith(fixture, viewModel, AbuseStanding(level = StandingLevel.COOLDOWN, untilMillis = THIS_AFTERNOON))
 
 		val message = viewModel.restrictedMessage()
-		assertEquals(Res.string.assistant_chat_restricted_cooldown_today, message.resource)
-		assertEquals(1, message.args.size)
+		assertEquals(Res.string.assistant_chat_restricted_cooldown_until, message.resource)
+		assertEquals(listOf<Any>(THIS_AFTERNOON.formatDate(DateTextStyle.TODAY_AT_CLOCK)), message.args)
 		assertFalse(viewModel.content().composer.isEnabled)
 	}
 
@@ -57,8 +56,8 @@ class AssistantChatRestrictionBehaviorTest {
 
 		val message = viewModel.restrictedMessage()
 		assertEquals(Res.string.assistant_chat_restricted_cooldown_until, message.resource)
-		assertEquals(TWO_DAYS_LATER.formatDate(DateTextStyle.DAY_MONTH_YEAR), message.args.first())
-		assertEquals(2, message.args.size)
+		assertEquals(TWO_DAYS_LATER.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH_AT_CLOCK), message.args.first())
+		assertEquals(1, message.args.size)
 	}
 
 	@Test
@@ -67,7 +66,7 @@ class AssistantChatRestrictionBehaviorTest {
 
 		val message = viewModel.restrictedMessage()
 		assertEquals(Res.string.assistant_chat_restricted_suspended_until, message.resource)
-		assertEquals(listOf<Any>(TWO_DAYS_LATER.formatDate(DateTextStyle.DAY_MONTH_YEAR)), message.args)
+		assertEquals(listOf<Any>(TWO_DAYS_LATER.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH_AT_CLOCK)), message.args)
 	}
 
 	@Test

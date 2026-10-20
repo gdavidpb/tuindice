@@ -4,8 +4,6 @@ import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ProfileSummaryItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncSourceItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SyncStatusItem
-import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
-import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.ProfileSummaryComponent
 import com.gdavidpb.tuindice.chatcontract.component.SyncStatusComponent
@@ -16,8 +14,6 @@ import tuindice.assistant.generated.resources.assistant_card_a_profile_credits_d
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_description
 import tuindice.assistant.generated.resources.assistant_card_a_source_success
-import tuindice.assistant.generated.resources.assistant_card_a_sync_label
-import tuindice.assistant.generated.resources.assistant_card_a_sync_last
 import tuindice.assistant.generated.resources.assistant_card_a_sync_problems
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
@@ -65,19 +61,13 @@ internal fun ProfileSummaryComponent.toProfileSummaryItem(): ProfileSummaryItem 
 	)
 }
 
-internal fun SyncStatusComponent.toSyncStatusItem(): SyncStatusItem {
-	val lastSync = lastSyncAtMillis?.let { millis ->
-		UiText.Resource(
-			Res.string.assistant_card_a_sync_last,
-			listOf(millis.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE))
-		)
-	}
+internal fun SyncStatusComponent.toSyncStatusItem(nowMillis: Long): SyncStatusItem {
 	val hasProblem = sources.any { source -> isSyncProblem(source.status) }
 
 	return SyncStatusItem(
 		id = id,
 		opensSheet = opensSheet(),
-		labelText = lastSync ?: UiText.Resource(Res.string.assistant_card_a_sync_label),
+		lastSyncText = lastSyncAtMillis?.toChatDateText(nowMillis),
 		headlineText = if (sources.isEmpty()) {
 			null
 		} else {

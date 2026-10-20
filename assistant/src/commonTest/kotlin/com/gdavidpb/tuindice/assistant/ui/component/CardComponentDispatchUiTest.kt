@@ -198,7 +198,7 @@ class CardComponentDispatchUiTest {
 	private fun weekSchedule() = WeekScheduleComponent(
 		id = COMPONENT_ID,
 		fallbackText = FALLBACK_TEXT,
-		days = listOf(ScheduleDay(1, listOf(ScheduleBlock("IS-101", "Programación I", 480, 600))))
+		days = listOf(ScheduleDay(1, listOf(ScheduleBlock("IS-101", "Programación I", 450, 570, 1, 2))))
 	)
 
 	private fun nextClass() = NextClassComponent(
@@ -207,8 +207,10 @@ class CardComponentDispatchUiTest {
 		subjectCode = "IS-101",
 		subjectName = "Programación I",
 		dayOfWeek = 2,
-		startMinute = 480,
-		endMinute = 600,
+		startMinute = 450,
+			endMinute = 570,
+			startBlock = 1,
+			endBlock = 2,
 		room = null,
 		inProgress = false,
 		dateMillis = DATE_MILLIS
@@ -217,7 +219,7 @@ class CardComponentDispatchUiTest {
 	private fun clashes() = ClashesComponent(
 		id = COMPONENT_ID,
 		fallbackText = FALLBACK_TEXT,
-		clashes = listOf(ScheduleClash(3, 540, 600, listOf("IS-101", "IS-102")))
+		clashes = listOf(ScheduleClash(3, 570, 630, 3, 3, listOf("IS-101", "IS-102")))
 	)
 
 	private companion object {
