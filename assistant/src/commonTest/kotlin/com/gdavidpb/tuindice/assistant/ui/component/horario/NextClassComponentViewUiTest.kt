@@ -40,9 +40,9 @@ class NextClassComponentViewUiTest {
 	}
 
 	@Test
-	fun when_theServerSaysInProgressButTheClockIsOver_then_itIsNotInProgress() = runTuIndiceUiTest {
+	fun when_theClockSaysTheClassIsOver_then_itIsNotInProgress() = runTuIndiceUiTest {
 		showNextClass(
-			nextClass(serverSaysInProgress = true),
+			nextClass(),
 			nowMillis = DAY_START_MILLIS + (START_MINUTE + 3 * MINUTES_PER_HOUR) * MILLIS_PER_MINUTE
 		)
 
@@ -76,7 +76,7 @@ class NextClassComponentViewUiTest {
 		}
 	}
 
-	private fun nextClass(serverSaysInProgress: Boolean = false): NextClassComponent =
+	private fun nextClass(): NextClassComponent =
 		NextClassComponent(
 			id = COMPONENT_ID,
 			fallbackText = FALLBACK_TEXT,
@@ -88,7 +88,6 @@ class NextClassComponentViewUiTest {
 			startBlock = 1,
 			endBlock = 2,
 			room = "A-1",
-			inProgress = serverSaysInProgress,
 			dateMillis = DAY_START_MILLIS
 		)
 

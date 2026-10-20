@@ -32,6 +32,12 @@ object ActionDispositions {
 				"escenario fija ese estado del sistema"
 		),
 		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.OpenExternalLink",
+			reason =
+				"Abre un enlace o un teléfono con el sistema, que lo lleva al navegador o al marcador, fuera de la app: " +
+				"el escenario no puede comprobar lo que abre el sistema, y si no se abre, el chat lo dice en su aviso"
+		),
+		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.AttachPhoto",
 			reason =
 				"Abre la cámara o la galería del sistema; se prueba a mano " +

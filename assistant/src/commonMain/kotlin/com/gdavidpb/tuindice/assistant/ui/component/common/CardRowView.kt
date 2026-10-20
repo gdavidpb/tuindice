@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.component.common
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,15 +19,32 @@ import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 
-// One detail row of a chat card: its [code] (a subject code, drawn as the app draws one) or its [title] (a bold text
-// that is not a code, such as the title of a warning or a plan), its [name] in the muted tone, and the [trailing]
-// figures and chips on the right. A text takes up to two lines and never ends in an ellipsis. The trailing side takes
-// at most half the row, so it wraps onto a second line before it takes the room of the name. A row after the first has
-// a hairline divider above it, with a little air under it.
+// One detail row of a chat card: its [code], drawn as the app draws a subject code, or its [codes], and its [title], a
+// bold text that is not a code (the title of a warning or a plan). Its [name] is in the muted tone, and the [trailing]
+// figures and chips are on the right. A text takes up to two lines and never ends in an ellipsis. The trailing side
+// takes at most half the row, so it wraps onto a second line before it takes the room of the name. A row after the
+// first has a hairline divider above it, with a little air under it.
 @Composable
 fun CardRowView(
 	name: String,
 	code: String? = null,
+	title: String? = null,
+	showsDivider: Boolean = false,
+	trailing: (@Composable () -> Unit)? = null
+) = CardRowView(
+	name = name,
+	codes = listOfNotNull(code),
+	title = title,
+	showsDivider = showsDivider,
+	trailing = trailing
+)
+
+// The row of several subject codes, as the subjects of a clash: one code chip each, in order. The chips wrap onto a
+// second line before they take the room of the name.
+@Composable
+fun CardRowView(
+	name: String,
+	codes: List<String>,
 	title: String? = null,
 	showsDivider: Boolean = false,
 	trailing: (@Composable () -> Unit)? = null
@@ -50,7 +68,14 @@ fun CardRowView(
 					horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					code?.let { subjectCode -> SubjectCodeChip(subjectCode = subjectCode) }
+					if (codes.isNotEmpty()) {
+						FlowRow(
+							horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small),
+							verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
+						) {
+							codes.forEach { subjectCode -> SubjectCodeChip(subjectCode = subjectCode) }
+						}
+					}
 
 					Column(modifier = Modifier.weight(1f)) {
 						title?.let { text ->

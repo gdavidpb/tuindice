@@ -58,6 +58,7 @@ class SyncStatusComponentViewUiTest {
 			SyncStatusComponentView(item = sync(FINE_SOURCES, annulmentCause = CAUSE).toSyncStatusItem(nowMillis = NOW_MILLIS))
 		}
 
+		onNodeWithText("Matrícula anulada").assertIsDisplayed()
 		onNodeWithText(CAUSE).assertIsDisplayed()
 		onNodeWithText("enrolled").assertDoesNotExist()
 	}

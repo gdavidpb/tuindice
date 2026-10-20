@@ -94,6 +94,10 @@ object AssistantChat {
 
 		// The privacy policy link of the consent: the same policy the rest of the app opens.
 		data object OpenPrivacyPolicy : Action()
+
+		// A link of a card that leaves the app: the system opens it, and a link that does not open says so.
+		class OpenExternalLink(val url: String) : Action()
+
 		data object Dismiss : Action()
 
 		// The card of the notification permission: «Activar avisos» asks the system for it; «Ahora no» hides the card.

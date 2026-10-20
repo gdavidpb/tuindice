@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_chat_open_link_failed
 import tuindice.assistant.generated.resources.assistant_nav_copied
 
 // The chat sheet bridged to its view model. The sheet opens with the context of the screen it came from. Its dismissal
@@ -43,6 +44,7 @@ fun AssistantChatRoute(
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val copiedText = stringResource(Res.string.assistant_nav_copied)
+	val openLinkFailedText = stringResource(Res.string.assistant_chat_open_link_failed)
 	val deviceInfo = koinInject<DeviceInfoRepository>()
 	val isCameraAvailable = remember { deviceInfo.hasCamera() }
 	val notificationPermission = koinInject<NotificationPermissionRepository>()
@@ -76,7 +78,9 @@ fun AssistantChatRoute(
 
 			is AssistantChat.Effect.NavigateTo -> dependencies.onNavigateTo(effect.target, effect.entityRefs)
 
-			is AssistantChat.Effect.OpenUrl -> runCatching { uriHandler.openUri(effect.url) }
+			is AssistantChat.Effect.OpenUrl ->
+				runCatching { uriHandler.openUri(effect.url) }
+					.onFailure { showSnackBar(openLinkFailedText) }
 
 			AssistantChat.Effect.OpenEnrollmentProof -> dependencies.onOpenEnrollmentProof()
 

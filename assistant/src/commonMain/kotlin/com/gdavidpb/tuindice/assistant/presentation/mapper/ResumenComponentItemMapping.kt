@@ -5,17 +5,11 @@ import com.gdavidpb.tuindice.assistant.presentation.model.AttentionRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CardLinkItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
-import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
-import org.jetbrains.compose.resources.StringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation
 import tuindice.assistant.generated.resources.assistant_card_a_link_evaluation_named
 import tuindice.assistant.generated.resources.assistant_card_a_see_all_attention
-import tuindice.assistant.generated.resources.assistant_card_b_link_pensum
-import tuindice.assistant.generated.resources.assistant_card_b_link_record
-import tuindice.assistant.generated.resources.assistant_card_b_link_subject
 import tuindice.assistant.generated.resources.assistant_card_b_link_subject_named
 
 internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
@@ -24,7 +18,7 @@ internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
 		opensSheet = opensSheet(),
 		rows = items.map { item ->
 			val ref = item.entityRef
-			val link = ref?.kind?.attentionLink()
+			val link = ref?.kind?.link()
 
 			AttentionRowItem(
 				title = item.title,
@@ -45,17 +39,6 @@ internal fun AttentionComponent.toAttentionCardItem(): AttentionCardItem {
 		},
 		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_attention, listOf(items.size))
 	)
-}
-
-// The screen an item opens, and the text of its link, by the kind of the record it names.
-private fun EntityKind.attentionLink(): Pair<NavTarget, StringResource>? {
-	return when (this) {
-		EntityKind.EVALUATION -> NavTarget.EVALUATIONS_DETAIL to Res.string.assistant_card_a_link_evaluation
-		EntityKind.SUBJECT -> NavTarget.SUBJECTS_DETAIL to Res.string.assistant_card_b_link_subject
-		EntityKind.TERM, EntityKind.ATTEMPT -> NavTarget.RECORD to Res.string.assistant_card_b_link_record
-		EntityKind.PENSUM -> NavTarget.PENSUM to Res.string.assistant_card_b_link_pensum
-		EntityKind.PLAN -> null
-	}
 }
 
 // What a screen reader says for the link of an item, naming the record it opens: the evaluation by its title, the

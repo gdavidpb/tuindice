@@ -24,7 +24,7 @@ class PlanEvaluationComponentViewUiTest {
 		onNodeWithText("2026 ENERO-MARZO").assertIsDisplayed()
 		onNodeWithContentDescription("Banda de carga: Normal").assertIsDisplayed()
 		onNodeWithContentDescription("Índice de carga: 0.6000").assertIsDisplayed()
-		onNodeWithText("Créditos").assertIsDisplayed()
+		onNodeWithText("Créditos del plan").assertIsDisplayed()
 		onNodeWithText("14 UC").assertIsDisplayed()
 		onNodeWithText("Requisitos pendientes").assertIsDisplayed()
 		onNodeWithText("Aprobar Cálculo I").assertIsDisplayed()
@@ -49,10 +49,37 @@ class PlanEvaluationComponentViewUiTest {
 		onNodeWithContentDescription("Índice de carga: 0.6000").assertDoesNotExist()
 	}
 
+	@Test
+	fun when_noRequirementIsPending_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PlanEvaluationComponentView(
+				item = evaluation(pending = emptyList()).toPlanEvaluationItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Requisitos pendientes").assertIsDisplayed()
+		onNodeWithText("Sin requisitos pendientes").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_thereAreNoWarnings_then_theWarningsSectionIsLeftOut() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PlanEvaluationComponentView(
+				item = evaluation(warnings = emptyList()).toPlanEvaluationItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Avisos de horario").assertDoesNotExist()
+	}
+
 	private fun evaluation(
 		loadBand: String = "Normal",
 		loadIndex: Double? = 0.6,
-		clashes: Int = 0
+		clashes: Int = 0,
+		pending: List<String> = listOf("Aprobar Cálculo I"),
+		warnings: List<String> = listOf("Solo hay 2 bloques libres")
 	): PlanEvaluationComponent =
 		PlanEvaluationComponent(
 			id = COMPONENT_ID,
@@ -62,8 +89,8 @@ class PlanEvaluationComponentViewUiTest {
 			loadBand = loadBand,
 			loadIndex = loadIndex,
 			clashes = clashes,
-			pendingRequirements = listOf("Aprobar Cálculo I"),
-			slotWarnings = listOf("Solo hay 2 bloques libres")
+			pendingRequirements = pending,
+			slotWarnings = warnings
 		)
 
 	private companion object {

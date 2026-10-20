@@ -44,6 +44,18 @@ class CardRowViewUiTest {
 		assertTrue(name > row * 0.6f, "the name is ${name}px of a ${row}px row")
 	}
 
+	@Test
+	fun when_aRowHasSeveralCodes_then_eachIsAChip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CardRowView(codes = listOf("IS-101", "IS-102"), name = "Miércoles · bloque 3")
+		}
+		waitForIdle()
+
+		onNodeWithText("IS-101").assertIsDisplayed()
+		onNodeWithText("IS-102").assertIsDisplayed()
+		onNodeWithText("Miércoles · bloque 3").assertIsDisplayed()
+	}
+
 	private companion object {
 		const val ROW_TAG = "card_row"
 		const val ROW_WIDTH_DP = 300

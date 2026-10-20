@@ -30,9 +30,9 @@ class EvaluationListComponentViewUiTest {
 		assertNodeVisible(AssistantUiTags.Evaluations.list(COMPONENT_ID))
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Parcial 1", substring = true).assertIsDisplayed()
-		onNodeWithText("14/20").assertIsDisplayed()
+		onNodeWithText("14 / 20").assertIsDisplayed()
 		onNodeWithText("Calificada").assertIsDisplayed()
-		onNodeWithText("— /20").assertIsDisplayed()
+		onNodeWithText("— / 20").assertIsDisplayed()
 		onNodeWithText("Pendiente").assertIsDisplayed()
 	}
 

@@ -26,8 +26,8 @@ class IndexGoalComponentViewUiTest {
 		onNodeWithText("Meta acumulada").assertIsDisplayed()
 		onNodeWithText("17.0000").assertIsDisplayed()
 		onNodeWithText("Alcanzable").assertIsDisplayed()
-		onNodeWithText("Créditos").assertIsDisplayed()
-		onNodeWithText("60").assertIsDisplayed()
+		onNodeWithText("Créditos del trimestre").assertIsDisplayed()
+		onNodeWithText("60 UC").assertIsDisplayed()
 	}
 
 	@Test

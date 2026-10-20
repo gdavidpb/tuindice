@@ -25,7 +25,7 @@ fun List<EntityRef>.chatCardLink(): Pair<NavTarget, StringResource>? {
 }
 
 // The screen a kind of record opens, and the text of its link. Null for a kind with no screen of its own.
-private fun EntityKind.link(): Pair<NavTarget, StringResource>? =
+internal fun EntityKind.link(): Pair<NavTarget, StringResource>? =
 	when (this) {
 		EntityKind.EVALUATION -> NavTarget.EVALUATIONS_DETAIL to Res.string.assistant_card_a_link_evaluation
 		EntityKind.SUBJECT -> NavTarget.SUBJECTS_DETAIL to Res.string.assistant_card_b_link_subject

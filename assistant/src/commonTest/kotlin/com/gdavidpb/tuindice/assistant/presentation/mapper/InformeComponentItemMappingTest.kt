@@ -8,8 +8,10 @@ import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
 import com.gdavidpb.tuindice.chatcontract.component.IndexPoint
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
+import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
+import com.gdavidpb.tuindice.chatcontract.component.TermCredits
 import com.gdavidpb.tuindice.chatcontract.component.TermSubjectRow
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
@@ -17,12 +19,19 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_badge_equivalence
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
+import tuindice.assistant.generated.resources.assistant_card_a_no_value
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
+import tuindice.assistant.generated.resources.assistant_card_a_pace_caption
 import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_many
 import tuindice.assistant.generated.resources.assistant_card_a_record_approved_caption_one
 import tuindice.assistant.generated.resources.assistant_card_a_see_all_terms
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
+import tuindice.assistant.generated.resources.assistant_card_a_series_no_value
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_best_description
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_description
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_worst_description
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
+import tuindice.assistant.generated.resources.assistant_card_b_credits
 import tuindice.assistant.generated.resources.assistant_card_b_link_record
 import tuindice.assistant.generated.resources.assistant_card_b_link_record_named
 import kotlin.test.Test
@@ -56,9 +65,9 @@ class InformeComponentItemMappingTest {
 			),
 			item.recordLink
 		)
-		assertEquals("15", item.rows[0].gradeText)
+		assertEquals(UiText.Raw("15"), item.rows[0].valueText)
 		assertNull(item.rows[0].outcomeChip)
-		assertNull(item.rows[1].gradeText)
+		assertNull(item.rows[1].valueText)
 		assertEquals(
 			CardChipItem(UiText.Resource(Res.string.assistant_card_a_outcome_pending), CardChipTone.Current),
 			item.rows[1].outcomeChip
@@ -67,6 +76,24 @@ class InformeComponentItemMappingTest {
 			CardChipItem(UiText.Resource(Res.string.assistant_card_a_badge_equivalence), CardChipTone.Approved),
 			item.rows[1].badgeChip
 		)
+	}
+
+	@Test
+	fun term_aSubjectWithNeitherAGradeNorAResult_readsADash() {
+		val item = TermComponent(
+			id = "t2",
+			fallbackText = "Trimestre",
+			entityRefs = emptyList(),
+			termId = "term-1",
+			termLabel = "2026-JAN_MAR",
+			termIndex = null,
+			cumulativeIndex = null,
+			credits = 4,
+			rows = listOf(TermSubjectRow("a3", "IS-103", "Química", 4, grade = null, outcome = "unreported"))
+		).toTermItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_no_value), item.rows.single().valueText)
+		assertNull(item.rows.single().outcomeChip)
 	}
 
 	@Test
@@ -113,6 +140,41 @@ class InformeComponentItemMappingTest {
 		assertNull(item.points[2].markChip)
 		assertEquals(UiText.Raw(16.2.toCardIndexText()), item.currentFigure?.value)
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_see_all_terms, listOf(3)), item.seeAllText)
+	}
+
+	@Test
+	fun indexSeries_readsEachRowAsASentence_andAMissingIndexAsNoData() {
+		val item = IndexSeriesComponent(
+			id = "s2",
+			fallbackText = "Serie",
+			points = listOf(
+				IndexPoint("t1", "2025-SEP_DIC", 15.0, 15.0),
+				IndexPoint("t2", "2026-JAN_MAR", 17.5, 16.2),
+				IndexPoint("t3", "2026-APR_JUN", null, null)
+			),
+			bestTermId = "t2",
+			worstTermId = "t1"
+		).toIndexSeriesItem()
+		val noValue = UiText.Resource(Res.string.assistant_card_a_series_no_value)
+
+		assertEquals(
+			UiText.Resource(
+				Res.string.assistant_card_a_series_row_worst_description,
+				listOf("2025-SEP_DIC", 15.0.toCardIndexText(), 15.0.toCardIndexText())
+			),
+			item.points[0].description
+		)
+		assertEquals(
+			UiText.Resource(
+				Res.string.assistant_card_a_series_row_best_description,
+				listOf("2026-JAN_MAR", 17.5.toCardIndexText(), 16.2.toCardIndexText())
+			),
+			item.points[1].description
+		)
+		assertEquals(
+			UiText.Resource(Res.string.assistant_card_a_series_row_description, listOf("2026-APR_JUN", noValue, noValue)),
+			item.points[2].description
+		)
 	}
 
 	@Test
@@ -174,6 +236,20 @@ class InformeComponentItemMappingTest {
 	}
 
 	@Test
+	fun pace_countsEachTermInUC_andTheAverageIsNamedInUC() {
+		val item = PaceComponent(
+			id = "p1",
+			fallbackText = "Ritmo",
+			creditsPerTerm = listOf(TermCredits("2025-SEP_DIC", 16)),
+			averageCredits = 16.0,
+			remainingTermsEstimate = 3
+		).toPaceItem()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_credits, listOf(16)), item.terms.single().credits)
+		assertEquals(UiText.Resource(Res.string.assistant_card_a_pace_caption), item.averageFigure.caption)
+	}
+
+	@Test
 	fun indexGoal_saysWhetherTheGoalIsReachable_inTheSuccessOrTheFailedTone() {
 		val reachable = IndexGoalComponent(
 			id = "g1",
@@ -196,6 +272,7 @@ class InformeComponentItemMappingTest {
 			CardChipItem(UiText.Resource(Res.string.assistant_card_a_goal_feasible), CardChipTone.Success),
 			reachable.feasibilityChip
 		)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_credits, listOf(12)), reachable.creditsText)
 		assertEquals(
 			CardChipItem(UiText.Resource(Res.string.assistant_card_a_goal_not_feasible), CardChipTone.Failed),
 			unreachable.feasibilityChip

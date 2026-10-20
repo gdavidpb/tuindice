@@ -29,7 +29,7 @@ fun AssistantIntentReceiptView(
 	Text(
 		text = stringResource(outcome.labelResource()),
 		modifier = modifier.testTag(AssistantUiTags.Intent.receipt(intentId)),
-		style = MaterialTheme.typography.bodyLarge,
+		style = MaterialTheme.typography.bodyMedium,
 		color = MaterialTheme.colorScheme.onSurfaceVariant
 	)
 }

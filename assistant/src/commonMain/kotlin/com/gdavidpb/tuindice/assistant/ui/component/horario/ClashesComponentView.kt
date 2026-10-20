@@ -31,7 +31,7 @@ fun ClashesComponentView(
 		}
 		item.rows.visibleRows(rowLimit).forEachIndexed { index, clash ->
 			CardRowView(
-				title = clash.codes.asString(),
+				codes = clash.codes,
 				name = clash.dayAndBlocksText.asString(),
 				showsDivider = index > 0
 			)

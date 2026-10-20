@@ -134,6 +134,7 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.AcceptConsent,
 			AssistantChat.Action.DeclineConsent,
 			AssistantChat.Action.OpenPrivacyPolicy,
+			AssistantChat.Action.OpenExternalLink(url = "https://example.com"),
 			AssistantChat.Action.Dismiss,
 			AssistantChat.Action.ActivateNotifications,
 			AssistantChat.Action.DismissNotificationOffer,

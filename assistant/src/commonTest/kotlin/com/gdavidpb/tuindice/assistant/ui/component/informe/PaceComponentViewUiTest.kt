@@ -23,11 +23,11 @@ class PaceComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.pace(COMPONENT_ID))
 		onNodeWithText("RITMO DE CRÉDITOS").assertIsDisplayed()
-		onNodeWithContentDescription("Créditos por trimestre: 15.0").assertIsDisplayed()
+		onNodeWithContentDescription("UC por trimestre: 15.0").assertIsDisplayed()
 		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
-		onNodeWithText("14").assertIsDisplayed()
+		onNodeWithText("14 UC").assertIsDisplayed()
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
-		onNodeWithText("16").assertIsDisplayed()
+		onNodeWithText("16 UC").assertIsDisplayed()
 		onNodeWithText("Trimestres restantes estimados").assertIsDisplayed()
 		onNodeWithText("4").assertIsDisplayed()
 	}
@@ -39,6 +39,22 @@ class PaceComponentViewUiTest {
 		}
 
 		onNodeWithText("Trimestres restantes estimados").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_thereIsNoTerm_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PaceComponentView(
+				item = PaceComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					creditsPerTerm = emptyList(),
+					averageCredits = 0.0
+				).toPaceItem()
+			)
+		}
+
+		onNodeWithText("No hay trimestres para mostrar").assertIsDisplayed()
 	}
 
 	private fun pace(remainingTermsEstimate: Int? = 4): PaceComponent =

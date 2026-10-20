@@ -40,6 +40,24 @@ class SimulationComponentViewUiTest {
 		onNodeWithText("Aprobada").assertDoesNotExist()
 	}
 
+	@Test
+	fun when_noGradeIsSimulated_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SimulationComponentView(
+				item = SimulationComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					termId = "2026-JAN_MAR",
+					termIndex = null,
+					cumulativeIndex = null,
+					changes = emptyList()
+				).toSimulationItem()
+			)
+		}
+
+		onNodeWithText("Sin materias simuladas").assertIsDisplayed()
+	}
+
 	private fun simulation(outcome: String? = "approved"): SimulationComponent =
 		SimulationComponent(
 			id = COMPONENT_ID,

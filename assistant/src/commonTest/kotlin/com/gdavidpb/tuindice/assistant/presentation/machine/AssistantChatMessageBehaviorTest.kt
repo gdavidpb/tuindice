@@ -148,6 +148,17 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
+	fun externalLink_opensTheLinkWithTheSystem() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(null)
+
+		viewModel.dispatch(AssistantChat.Action.OpenExternalLink(url = "https://example.com/reglamento"))
+
+		val open = fixture.effects.single() as AssistantChat.Effect.OpenUrl
+		assertEquals("https://example.com/reglamento", open.url)
+	}
+
+	@Test
 	fun dismiss_closesTheSheet() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)

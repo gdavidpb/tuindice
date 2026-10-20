@@ -17,8 +17,8 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_week_empty
 import tuindice.assistant.generated.resources.assistant_card_a_week_label
 
-// horario.semana/1: each day with its class blocks: the code and the room of each, its blocks and hours, and the chip
-// where an evaluation falls. With no class this week, a line says so.
+// horario.semana/1: each day with its class blocks: the code, the name and the room of each, its blocks and hours,
+// and the chip where an evaluation falls. With no class this week, a line says so.
 @Composable
 fun WeekScheduleComponentView(
 	item: WeekScheduleItem,
@@ -34,7 +34,7 @@ fun WeekScheduleComponentView(
 			day.blocks.forEachIndexed { index, block ->
 				CardRowView(
 					code = block.code,
-					name = block.room,
+					name = block.nameText.asString(),
 					showsDivider = index > 0,
 					trailing = {
 						CardTrailingView(

@@ -6,17 +6,23 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectImpactItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardSectionLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import org.jetbrains.compose.resources.stringResource
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_b_impact_empty
+import tuindice.assistant.generated.resources.assistant_card_b_impact_label
 
-// pensum.impacto/1: the subject is the label, and the terms it delays are the figure. Then the chain of subjects that
-// depend on it, in the order the service gives them, each with its status.
+// pensum.impacto/1: the subject is the label, and the terms it delays are the figure. Then the subjects it blocks, in
+// the order the service gives them, each with its status. With none, a line says so.
 @Composable
 fun SubjectImpactComponentView(
 	item: SubjectImpactItem,
@@ -26,6 +32,10 @@ fun SubjectImpactComponentView(
 	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Pensum.impact(item.id))) {
 		CardLabelView(text = item.subjectName)
 		CardFiguresView(primary = item.termsFigure.toCardFigure())
+		CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_impact_label))
+		if (item.chain.isEmpty()) {
+			CardBodyTextView(text = stringResource(Res.string.assistant_card_b_impact_empty), muted = true)
+		}
 		item.chain.forEachIndexed { index, subject ->
 			CardRowView(
 				code = subject.code,

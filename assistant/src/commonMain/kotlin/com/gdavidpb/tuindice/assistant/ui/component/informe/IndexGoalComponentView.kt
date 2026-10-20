@@ -11,14 +11,15 @@ import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingView
 import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_card_a_goal_credits
 import tuindice.assistant.generated.resources.assistant_card_a_goal_label
 import tuindice.assistant.generated.resources.assistant_card_a_goal_target
+import tuindice.assistant.generated.resources.assistant_card_a_goal_term_credits
 
-// informe.meta/1: the term index the goal needs as the figure, then the cumulative goal with its chip, and the credits
-// the goal counts.
+// informe.meta/1: the term index the goal needs as the figure, then the cumulative goal with its chip, and the
+// credits of the term the goal counts.
 @Composable
 fun IndexGoalComponentView(
 	item: IndexGoalItem,
@@ -32,9 +33,9 @@ fun IndexGoalComponentView(
 			trailing = { CardTrailingView(value = item.targetText, chips = listOf(item.feasibilityChip)) }
 		)
 		CardRowView(
-			name = stringResource(Res.string.assistant_card_a_goal_credits),
+			name = stringResource(Res.string.assistant_card_a_goal_term_credits),
 			showsDivider = true,
-			trailing = { CardTrailingView(value = item.creditsText, chips = emptyList()) }
+			trailing = { CardTrailingView(value = item.creditsText.asString(), chips = emptyList()) }
 		)
 	}
 }

@@ -41,8 +41,19 @@ class HorarioComponentItemMappingTest {
 		).toWeekScheduleItem()
 
 		val day = item.days.single()
-		assertEquals("", day.blocks.single().room)
+		assertEquals(UiText.Raw("Programación I"), day.blocks.single().nameText)
 		assertNull(day.blocks.single().evaluationChip)
+	}
+
+	@Test
+	fun weekSchedule_namesTheSubject_andItsRoomAfterIt_whenTheBlockHasARoom() {
+		val row = WeekScheduleComponent(
+			id = "h1",
+			fallbackText = "Semana",
+			days = listOf(ScheduleDay(dayOfWeek = 1, blocks = listOf(block(room = "A-1"))))
+		).toWeekScheduleItem().days.single().blocks.single()
+
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_joined, listOf("Programación I", "A-1")), row.nameText)
 	}
 
 	@Test
@@ -81,8 +92,8 @@ class HorarioComponentItemMappingTest {
 	}
 
 	@Test
-	fun nextClass_isNotInProgressByTheReadingOfTheServer_whenTheClockSaysItIsOver() {
-		val item = nextClass(serverSaysInProgress = true)
+	fun nextClass_isNotInProgress_whenTheClockSaysItIsOver() {
+		val item = nextClass()
 			.toNextClassItem(nowMillis = DAY_START_MILLIS + (END_MINUTE + 60) * MILLIS_PER_MINUTE)
 
 		assertEquals(false, item.inProgress)
@@ -115,7 +126,7 @@ class HorarioComponentItemMappingTest {
 	}
 
 	@Test
-	fun clashes_joinTheCodesOfTheSubjectsThatMeet_andNameTheBlockOfTheClash() {
+	fun clashes_listTheCodesOfTheSubjectsThatMeet_andNameTheBlockOfTheClash() {
 		val item = ClashesComponent(
 			id = "h3",
 			fallbackText = "Choques",
@@ -133,7 +144,7 @@ class HorarioComponentItemMappingTest {
 
 		val row = item.rows.single()
 		assertEquals(
-			UiText.Resource(Res.string.assistant_card_b_joined, listOf(UiText.Raw("IS-101"), UiText.Raw("IS-102"))),
+			listOf("IS-101", "IS-102"),
 			row.codes
 		)
 		assertEquals(UiText.Resource(Res.string.assistant_card_a_see_all_clashes, listOf(1)), item.seeAllText)
@@ -181,8 +192,7 @@ class HorarioComponentItemMappingTest {
 		startBlock: Int = 1,
 		endBlock: Int = 2,
 		startMinute: Int = START_MINUTE,
-		endMinute: Int = END_MINUTE,
-		serverSaysInProgress: Boolean = false
+		endMinute: Int = END_MINUTE
 	): NextClassComponent =
 		NextClassComponent(
 			id = "h2",
@@ -195,7 +205,6 @@ class HorarioComponentItemMappingTest {
 			startBlock = startBlock,
 			endBlock = endBlock,
 			room = "  ",
-			inProgress = serverSaysInProgress,
 			dateMillis = DAY_START_MILLIS
 		)
 

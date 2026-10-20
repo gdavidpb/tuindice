@@ -21,10 +21,12 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_career
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_label
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_missing
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_missing_empty
 import tuindice.assistant.generated.resources.assistant_card_b_comparison_pensum
 
 // pensum.comparacion/1: the credits the two pensums share are the figure. Then the career and the pensum compared, the
-// subjects still missing, and the notes the service gives, in rows and nothing more than the service brings.
+// subjects still missing, and the notes the service gives, in rows and nothing more than the service brings. With no
+// subject missing, a line says so.
 @Composable
 fun PensumComparisonComponentView(
 	item: PensumComparisonItem,
@@ -44,11 +46,12 @@ fun PensumComparisonComponentView(
 			showsDivider = true,
 			trailing = { CardValueView(text = item.otherPensumLabel) }
 		)
-		if (item.missingSubjects.isNotEmpty()) {
-			CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_comparison_missing))
-			item.missingSubjects.forEachIndexed { index, subject ->
-				CardRowView(code = subject.code, name = subject.nameText.asString(), showsDivider = index > 0)
-			}
+		CardSectionLabelView(text = stringResource(Res.string.assistant_card_b_comparison_missing))
+		if (item.missingSubjects.isEmpty()) {
+			CardBodyTextView(text = stringResource(Res.string.assistant_card_b_comparison_missing_empty), muted = true)
+		}
+		item.missingSubjects.forEachIndexed { index, subject ->
+			CardRowView(code = subject.code, name = subject.nameText.asString(), showsDivider = index > 0)
 		}
 		item.notes.forEach { note -> CardBodyTextView(text = note) }
 		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }

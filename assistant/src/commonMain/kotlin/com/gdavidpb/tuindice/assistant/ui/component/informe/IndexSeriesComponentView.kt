@@ -13,12 +13,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexPointItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IndexSeriesItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardChipView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardFiguresView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
@@ -30,12 +35,13 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_series_cumulative_header
+import tuindice.assistant.generated.resources.assistant_card_a_series_empty
 import tuindice.assistant.generated.resources.assistant_card_a_series_index_header
 import tuindice.assistant.generated.resources.assistant_card_a_series_label
 
 // informe.serie/1: the cumulative index of the latest term as the figure, then a row per term with its index and its
 // cumulative index. The highest and the lowest terms carry a chip. A conversation draws the latest terms, up to its row
-// limit.
+// limit. With no term, a line says so.
 @Composable
 fun IndexSeriesComponentView(
 	item: IndexSeriesItem,
@@ -45,46 +51,65 @@ fun IndexSeriesComponentView(
 	AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Report.indexSeries(item.id))) {
 		CardLabelView(text = stringResource(Res.string.assistant_card_a_series_label))
 		item.currentFigure?.let { figure -> CardFiguresView(primary = figure.toCardFigure()) }
-		Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-			Text(
-				text = stringResource(Res.string.assistant_card_a_series_index_header),
-				modifier = Modifier.width(valueColumnWidth),
-				textAlign = TextAlign.End,
-				style = MaterialTheme.typography.labelSmall,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
-			Spacer(modifier = Modifier.width(TuIndiceSpacing.Small))
-			Text(
-				text = stringResource(Res.string.assistant_card_a_series_cumulative_header),
-				modifier = Modifier.width(valueColumnWidth),
-				textAlign = TextAlign.End,
-				style = MaterialTheme.typography.labelSmall,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
-		}
 		// The series runs from the oldest term to the newest, so a cut keeps the last of its terms.
 		val points = rowLimit?.let { limit -> item.points.takeLast(limit) } ?: item.points
-		points.forEachIndexed { index, point ->
-			IndexSeriesRowView(point = point, showsDivider = index > 0)
+		if (points.isEmpty()) {
+			CardBodyTextView(text = stringResource(Res.string.assistant_card_a_series_empty), muted = true)
+		} else {
+			SeriesHeaderRowView()
+			points.forEachIndexed { index, point ->
+				IndexSeriesRowView(point = point, showsDivider = index > 0)
+			}
 		}
 	}
 }
 
-// One term of the series: its name, and on the right its mark and its two index columns. The columns keep their fixed
-// width, so the row gives its figures the room they need and the name keeps the rest. The row is the card's own, not
-// the kit's, until the series is redesigned with the text sizes.
+// The headers of the two index columns. They are decorative: a screen reader reads each row as a sentence that
+// names its own figures, so the headers are not read out.
+@Composable
+private fun SeriesHeaderRowView() {
+	val valueColumnWidth = valueColumnWidth()
+
+	Row(
+		modifier = Modifier.fillMaxWidth().clearAndSetSemantics { },
+		horizontalArrangement = Arrangement.End
+	) {
+		Text(
+			text = stringResource(Res.string.assistant_card_a_series_index_header),
+			modifier = Modifier.width(valueColumnWidth),
+			textAlign = TextAlign.End,
+			style = MaterialTheme.typography.labelSmall,
+			color = MaterialTheme.colorScheme.onSurfaceVariant
+		)
+		Spacer(modifier = Modifier.width(TuIndiceSpacing.Small))
+		Text(
+			text = stringResource(Res.string.assistant_card_a_series_cumulative_header),
+			modifier = Modifier.width(valueColumnWidth),
+			textAlign = TextAlign.End,
+			style = MaterialTheme.typography.labelSmall,
+			color = MaterialTheme.colorScheme.onSurfaceVariant
+		)
+	}
+}
+
+// One term of the series: its name, and on the right its mark and its two index columns. The columns keep their width,
+// so the row gives its figures the room they need and the name keeps the rest. A screen reader hears the row as one
+// sentence that names the term and its two indexes.
 @Composable
 private fun IndexSeriesRowView(
 	point: IndexPointItem,
 	showsDivider: Boolean
 ) {
+	val valueColumnWidth = valueColumnWidth()
+	val description = point.description.asString()
+
 	if (showsDivider) {
 		HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 		Spacer(modifier = Modifier.height(TuIndiceSpacing.Small))
 	}
 
 	Row(
-		modifier = Modifier.fillMaxWidth(),
+		modifier = Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = description },
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
 		verticalAlignment = Alignment.CenterVertically
 	) {
@@ -111,5 +136,9 @@ private fun IndexSeriesRowView(
 	}
 }
 
-// The width of each index column, so that the figures of every term line up under their headers.
-private val valueColumnWidth = 68.dp
+// The width of each index column, so that the figures of every term line up under their headers. It is written in text
+// units, so it grows with the size of the letters the student reads at, as the figures do.
+@Composable
+private fun valueColumnWidth(): Dp = with(LocalDensity.current) { VALUE_COLUMN_WIDTH_SP.sp.toDp() }
+
+private const val VALUE_COLUMN_WIDTH_SP = 68

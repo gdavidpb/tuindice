@@ -259,7 +259,6 @@ class ChatComponentItemExhaustivenessTest {
 				startBlock = 1,
 				endBlock = 2,
 			room = null,
-			inProgress = false,
 			dateMillis = 1760100000000
 		),
 	)

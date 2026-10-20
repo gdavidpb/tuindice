@@ -35,7 +35,7 @@ class AssistantAppealDialogUiTest {
 
 		assertNodeVisible(AssistantUiTags.AppealText)
 		onNodeWithTag(AssistantUiTags.AppealText).performTextInput(APPEAL)
-		onNodeWithTag(AssistantUiTags.AppealCounter).assertTextEquals("$APPEAL_LENGTH/500")
+		onNodeWithTag(AssistantUiTags.AppealCounter).assertTextEquals("$APPEAL_LENGTH / 500")
 		assertNodeEnabled(AssistantUiTags.AppealSend)
 		onNodeWithTag(AssistantUiTags.AppealSend).performClick()
 

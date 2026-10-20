@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-// The credits of one term.
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
+// The credits of one term, in UC.
 data class CreditsRowItem(
 	val label: String,
-	val credits: String
+	val credits: UiText
 )

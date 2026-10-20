@@ -36,7 +36,7 @@ class PensumComparisonComponentViewUiTest {
 		}
 
 	@Test
-	fun when_noSubjectIsMissing_then_itsHeaderIsNotDrawn() = runTuIndiceUiTest {
+	fun when_noSubjectIsMissing_then_aLineSaysSo() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumComparisonComponentView(
 				item = comparison(missing = emptyList(), notes = emptyList()).toPensumComparisonItem(),
@@ -44,7 +44,8 @@ class PensumComparisonComponentViewUiTest {
 			)
 		}
 
-		onNodeWithText("Materias que te faltan").assertDoesNotExist()
+		onNodeWithText("Materias que te faltan").assertIsDisplayed()
+		onNodeWithText("No te faltan materias").assertIsDisplayed()
 	}
 
 	private fun comparison(

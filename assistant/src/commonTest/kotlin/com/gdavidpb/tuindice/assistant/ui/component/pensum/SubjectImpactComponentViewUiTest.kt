@@ -30,6 +30,7 @@ class SubjectImpactComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Pensum.impact(COMPONENT_ID))
 		onNodeWithText("PROGRAMACIÓN I").assertIsDisplayed()
+		onNodeWithText("Materias que bloquea").assertIsDisplayed()
 		onNodeWithContentDescription("Trimestres de retraso: 2").assertIsDisplayed()
 		onNodeWithText("IS-201").assertIsDisplayed()
 		onNodeWithText("Estructuras de Datos").assertIsDisplayed()
@@ -52,6 +53,26 @@ class SubjectImpactComponentViewUiTest {
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
 		assertEquals(listOf(SUBJECT_REF), open.entityRefs)
+	}
+
+	@Test
+	fun when_theSubjectBlocksNothing_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectImpactComponentView(
+				item = SubjectImpactComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					subjectCode = "IS-101",
+					subjectName = "Programación I",
+					chain = emptyList(),
+					lengthInTerms = 0
+				).toSubjectImpactItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Materias que bloquea").assertIsDisplayed()
+		onNodeWithText("No bloquea ninguna materia").assertIsDisplayed()
 	}
 
 	private fun impact(refs: List<EntityRef> = emptyList()): SubjectImpactComponent =

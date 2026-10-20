@@ -29,7 +29,7 @@ internal fun SistemaComponentRenderer(
 		is UsageNoticeItem -> UsageNoticeComponentView(item = item)
 		is CooldownItem -> CooldownComponentView(item = item, onAction = onAction)
 		is SuspensionItem -> SuspensionComponentView(item = item, onAction = onAction)
-		is SupportItem -> SupportComponentView(item = item)
+		is SupportItem -> SupportComponentView(item = item, onAction = onAction)
 		is WarningItem -> WarningComponentView(item = item)
 		is OpenScreenItem -> OpenScreenComponentView(item = item, onAction = onAction)
 	}

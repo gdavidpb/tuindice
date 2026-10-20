@@ -63,6 +63,50 @@ class TermComponentViewUiTest {
 		onNodeWithText("Ver en Informe").assertDoesNotExist()
 	}
 
+	@Test
+	fun when_aSubjectHasNoGradeAndNoResult_then_itsGradeReadsADash() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermComponentView(
+				item = TermComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					termId = "2026-JAN_MAR",
+					termLabel = "2026 enero-marzo",
+					termIndex = null,
+					cumulativeIndex = null,
+					credits = 4,
+					rows = listOf(TermSubjectRow("attempt-3", "IS-103", "Química", 4, grade = null, outcome = "unreported")),
+					entityRefs = emptyList()
+				).toTermItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("—").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theTermHasNoSubject_then_aLineSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermComponentView(
+				item = TermComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					termId = "2026-JAN_MAR",
+					termLabel = "2026 enero-marzo",
+					termIndex = null,
+					cumulativeIndex = null,
+					credits = 0,
+					rows = emptyList(),
+					entityRefs = emptyList()
+				).toTermItem(),
+				onAction = {}
+			)
+		}
+
+		onNodeWithText("Sin materias en este trimestre").assertIsDisplayed()
+	}
+
 	private fun term(entityRefs: List<EntityRef> = listOf(TERM_REF)): TermComponent =
 		TermComponent(
 			id = COMPONENT_ID,

@@ -16,7 +16,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class WeekScheduleComponentViewUiTest {
 	@Test
-	fun when_theWeekHasClasses_then_eachDayShowsItsBlocksWithCodeRoomAndHours() = runTuIndiceUiTest {
+	fun when_theWeekHasClasses_then_eachDayShowsItsBlocksWithCodeNameRoomAndHours() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WeekScheduleComponentView(item = week().toWeekScheduleItem())
 		}
@@ -25,7 +25,8 @@ class WeekScheduleComponentViewUiTest {
 		onNodeWithText("Lunes").assertIsDisplayed()
 		onNodeWithText("Miércoles").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
-		onNodeWithText("A-1").assertIsDisplayed()
+		onNodeWithText("Programación I · A-1").assertIsDisplayed()
+		onNodeWithText("Matemática I").assertIsDisplayed()
 		onNodeWithText("1-2 · 7:30–9:30 a. m.").assertIsDisplayed()
 		onNodeWithText("Evaluación").assertIsDisplayed()
 		onNodeWithText("IS-102").assertIsDisplayed()

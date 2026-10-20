@@ -55,7 +55,7 @@ internal fun WeekScheduleComponent.toWeekScheduleItem(): WeekScheduleItem {
 
 							ScheduleBlockItem(
 								code = block.subjectCode,
-								room = block.room.orEmpty(),
+								nameText = scheduleBlockNameText(subjectName = block.subjectName, room = block.room),
 								evaluationChip = if (block.evaluationTitles.isNotEmpty()) {
 									chatCardChip(Res.string.assistant_card_a_week_evaluation, CardChipTone.Neutral)
 								} else {
@@ -153,10 +153,7 @@ internal fun ClashesComponent.toClashesItem(): ClashesItem {
 			val blocks = clashBlocksText(clash.startBlock, clash.endBlock)
 
 			ClashRowItem(
-				codes = clash.subjectCodes
-					.map<String, UiText> { code -> UiText.Raw(code) }
-					.reduceOrNull { first, next -> UiText.Resource(Res.string.assistant_card_b_joined, listOf(first, next)) }
-					?: UiText.Empty,
+				codes = clash.subjectCodes,
 				dayAndBlocksText = if (day != null) {
 					UiText.Resource(Res.string.assistant_card_b_joined, listOf(day, blocks))
 				} else {
@@ -177,4 +174,16 @@ private fun clashBlocksText(startBlock: Int, endBlock: Int): UiText {
 	}
 
 	return UiText.Resource(resource, listOf(classBlocksText(startBlock, endBlock)))
+}
+
+// The name of a block's subject, with its room after it, joined as the card joins two texts. A block with no room reads
+// its name alone, and a block with no name reads its room.
+private fun scheduleBlockNameText(subjectName: String, room: String?): UiText {
+	val roomName = room?.takeIf { text -> text.isNotBlank() }
+
+	return when {
+		roomName == null -> UiText.Raw(subjectName)
+		subjectName.isBlank() -> UiText.Raw(roomName)
+		else -> UiText.Resource(Res.string.assistant_card_b_joined, listOf(subjectName, roomName))
+	}
 }

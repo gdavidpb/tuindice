@@ -21,7 +21,8 @@ class ClashesComponentViewUiTest {
 		}
 
 		assertNodeVisible(AssistantUiTags.Schedule.clashes(COMPONENT_ID))
-		onNodeWithText("IS-101 · IS-102").assertIsDisplayed()
+		onNodeWithText("IS-101").assertIsDisplayed()
+		onNodeWithText("IS-102").assertIsDisplayed()
 		onNodeWithText("Miércoles · bloque 3").assertIsDisplayed()
 	}
 
@@ -44,7 +45,7 @@ class ClashesComponentViewUiTest {
 		}
 
 		onNodeWithText("No tienes choques de horario").assertIsDisplayed()
-		onNodeWithText("IS-101 · IS-102").assertDoesNotExist()
+		onNodeWithText("IS-101").assertDoesNotExist()
 	}
 
 	private fun clashes(items: List<ScheduleClash>): ClashesComponent =

@@ -212,7 +212,6 @@ class CardComponentDispatchUiTest {
 			startBlock = 1,
 			endBlock = 2,
 		room = null,
-		inProgress = false,
 		dateMillis = DATE_MILLIS
 	)
 

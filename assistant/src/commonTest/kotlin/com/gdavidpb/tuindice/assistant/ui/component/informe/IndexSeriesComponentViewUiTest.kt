@@ -24,12 +24,8 @@ class IndexSeriesComponentViewUiTest {
 		assertNodeVisible(AssistantUiTags.Report.indexSeries(COMPONENT_ID))
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
 		onNodeWithContentDescription("Índice acumulado: 15.8000").assertIsDisplayed()
-		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
-		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
-		onNodeWithText("16.2000").assertIsDisplayed()
-		onNodeWithText("15.1000").assertIsDisplayed()
-		onNodeWithText("Más alto").assertIsDisplayed()
-		onNodeWithText("Más bajo").assertIsDisplayed()
+		onNodeWithContentDescription(WORST_ROW).assertIsDisplayed()
+		onNodeWithContentDescription(BEST_ROW).assertIsDisplayed()
 	}
 
 	@Test
@@ -39,8 +35,8 @@ class IndexSeriesComponentViewUiTest {
 		}
 
 		onNodeWithText("2024 septiembre-diciembre").assertDoesNotExist()
-		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
-		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
+		onNodeWithContentDescription(WORST_ROW).assertIsDisplayed()
+		onNodeWithContentDescription(BEST_ROW).assertIsDisplayed()
 	}
 
 	@Test
@@ -50,6 +46,7 @@ class IndexSeriesComponentViewUiTest {
 		}
 
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
+		onNodeWithText("No hay trimestres para mostrar").assertIsDisplayed()
 		onNodeWithContentDescription("Índice acumulado: 15.8000").assertDoesNotExist()
 	}
 
@@ -65,6 +62,10 @@ class IndexSeriesComponentViewUiTest {
 	private companion object {
 		const val COMPONENT_ID = "component-1"
 		const val FALLBACK_TEXT = "Serie de prueba"
+
+		// A term with no index yet reads «sin dato»; the best and the worst term read their mark.
+		const val WORST_ROW = "2025 septiembre-diciembre: índice sin dato, acumulado 15.1000, más bajo"
+		const val BEST_ROW = "2026 enero-marzo: índice 16.2000, acumulado 15.8000, más alto"
 
 		val POINTS = listOf(
 			IndexPoint("2025-SEP_DEC", "2025 septiembre-diciembre", null, 15.1),

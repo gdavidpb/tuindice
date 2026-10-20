@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -111,35 +108,30 @@ class ChatComponentViewUiTest {
 
 	@Test
 	fun when_supportIsShown_then_eachLineShowsItsContact() = runTuIndiceUiTest {
-		val openedUris = mutableListOf<String>()
+		val actions = mutableListOf<AssistantChat.Action>()
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(
-				LocalUriHandler provides object : UriHandler {
-					override fun openUri(uri: String) {
-						openedUris += uri
-					}
-				}
-			) {
-				ChatComponentView(
-					messageId = MESSAGE_ID,
-					item = SupportComponent(
-						id = COMPONENT_ID,
-						fallbackText = FALLBACK_TEXT,
-						lines = listOf(
-							SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
-							SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
-						)
-					).toChatComponentItem(nowMillis = 0L),
-					onAction = {}
-				)
-			}
+			ChatComponentView(
+				messageId = MESSAGE_ID,
+				item = SupportComponent(
+					id = COMPONENT_ID,
+					fallbackText = FALLBACK_TEXT,
+					lines = listOf(
+						SupportLine(label = SUPPORT_LABEL, phone = SUPPORT_PHONE),
+						SupportLine(label = SUPPORT_LABEL, url = SUPPORT_URL)
+					)
+				).toChatComponentItem(nowMillis = 0L),
+				onAction = { action -> actions.add(action) }
+			)
 		}
 
 		onNodeWithText("Llamar al $SUPPORT_PHONE").assertIsDisplayed().performClick()
 		onNodeWithText("Ver la página").assertIsDisplayed().performClick()
 
-		assertEquals(listOf("tel:+582122222222", SUPPORT_URL), openedUris)
+		assertEquals(
+			listOf("tel:+582122222222", SUPPORT_URL),
+			actions.map { action -> assertIs<AssistantChat.Action.OpenExternalLink>(action).url }
+		)
 	}
 
 	private fun subjects(count: Int, display: ComponentDisplay = ComponentDisplay.INLINE): SubjectListComponent =

@@ -15,11 +15,13 @@ import com.gdavidpb.tuindice.assistant.presentation.model.TermItem
 import com.gdavidpb.tuindice.assistant.presentation.model.TermRowItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.IndexGoalComponent
+import com.gdavidpb.tuindice.chatcontract.component.IndexPoint
 import com.gdavidpb.tuindice.chatcontract.component.IndexSeriesComponent
 import com.gdavidpb.tuindice.chatcontract.component.PaceComponent
 import com.gdavidpb.tuindice.chatcontract.component.RecordStatsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SimulationComponent
 import com.gdavidpb.tuindice.chatcontract.component.TermComponent
+import com.gdavidpb.tuindice.chatcontract.component.TermSubjectRow
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_cumulative_caption
@@ -28,6 +30,7 @@ import tuindice.assistant.generated.resources.assistant_card_a_goal_caption
 import tuindice.assistant.generated.resources.assistant_card_a_goal_description
 import tuindice.assistant.generated.resources.assistant_card_a_goal_feasible
 import tuindice.assistant.generated.resources.assistant_card_a_goal_not_feasible
+import tuindice.assistant.generated.resources.assistant_card_a_no_value
 import tuindice.assistant.generated.resources.assistant_card_a_pace_caption
 import tuindice.assistant.generated.resources.assistant_card_a_pace_description
 import tuindice.assistant.generated.resources.assistant_card_a_profile_index_caption
@@ -41,6 +44,10 @@ import tuindice.assistant.generated.resources.assistant_card_a_record_repeated
 import tuindice.assistant.generated.resources.assistant_card_a_record_retired
 import tuindice.assistant.generated.resources.assistant_card_a_see_all_terms
 import tuindice.assistant.generated.resources.assistant_card_a_series_best
+import tuindice.assistant.generated.resources.assistant_card_a_series_no_value
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_best_description
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_description
+import tuindice.assistant.generated.resources.assistant_card_a_series_row_worst_description
 import tuindice.assistant.generated.resources.assistant_card_a_series_worst
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_cumulative_caption
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_cumulative_description
@@ -48,6 +55,7 @@ import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_
 import tuindice.assistant.generated.resources.assistant_card_a_simulation_index_description
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_caption
 import tuindice.assistant.generated.resources.assistant_card_a_term_index_description
+import tuindice.assistant.generated.resources.assistant_card_b_credits
 
 // The figure of the term: its index first, and the cumulative index beside it when the term has one too.
 private fun primaryAndSecondary(
@@ -72,15 +80,7 @@ internal fun TermComponent.toTermItem(): TermItem {
 		termLabel = termLabel,
 		primaryFigure = primary,
 		secondaryFigure = secondary,
-		rows = rows.map { row ->
-			TermRowItem(
-				code = row.subjectCode,
-				name = row.subjectName,
-				gradeText = row.grade?.toString(),
-				outcomeChip = if (row.grade == null) attemptOutcomeChip(row.outcome) else null,
-				badgeChip = attemptBadgeChip(row.badge)
-			)
-		},
+		rows = rows.map { row -> row.toTermRowItem() },
 		recordLink = if (entityRefs.any { ref -> ref.kind == EntityKind.TERM }) {
 			chatRecordLinkItem(entityRefs = entityRefs, termLabel = termLabel)
 		} else {
@@ -100,16 +100,7 @@ internal fun IndexSeriesComponent.toIndexSeriesItem(): IndexSeriesItem {
 			description = Res.string.assistant_card_a_profile_index_description
 		),
 		points = points.map { point ->
-			IndexPointItem(
-				termLabel = point.termLabel,
-				termIndexText = point.termIndex?.toCardIndexText(),
-				cumulativeIndexText = point.cumulativeIndex?.toCardIndexText(),
-				markChip = when (point.termId) {
-					bestTermId -> chatCardChip(Res.string.assistant_card_a_series_best, CardChipTone.Neutral)
-					worstTermId -> chatCardChip(Res.string.assistant_card_a_series_worst, CardChipTone.Neutral)
-					else -> null
-				}
-			)
+			point.toIndexPointItem(isBest = point.termId == bestTermId, isWorst = point.termId == worstTermId)
 		},
 		seeAllText = UiText.Resource(Res.string.assistant_card_a_see_all_terms, listOf(points.size))
 	)
@@ -151,7 +142,12 @@ internal fun PaceComponent.toPaceItem(): PaceItem {
 			caption = UiText.Resource(Res.string.assistant_card_a_pace_caption),
 			contentDescription = UiText.Resource(Res.string.assistant_card_a_pace_description, listOf(average))
 		),
-		terms = creditsPerTerm.map { term -> CreditsRowItem(label = term.termLabel, credits = term.credits.toString()) },
+		terms = creditsPerTerm.map { term ->
+			CreditsRowItem(
+				label = term.termLabel,
+				credits = UiText.Resource(Res.string.assistant_card_b_credits, listOf(term.credits))
+			)
+		},
 		remainingTerms = remainingTermsEstimate?.toString()
 	)
 }
@@ -196,8 +192,51 @@ internal fun IndexGoalComponent.toIndexGoalItem(): IndexGoalItem {
 			chatCardChip(Res.string.assistant_card_a_goal_not_feasible, CardChipTone.Failed)
 		},
 		targetText = targetCumulative.toCardIndexText(),
-		creditsText = credits.toString()
+		creditsText = UiText.Resource(Res.string.assistant_card_b_credits, listOf(credits))
 	)
 }
 
 private const val AVERAGE_DECIMALS = 1
+
+// A subject of a term: its grade, or when it has none, the chip of its result. A subject with neither reads a dash, so
+// its row never ends in an empty space.
+private fun TermSubjectRow.toTermRowItem(): TermRowItem {
+	val outcomeChip = if (grade == null) attemptOutcomeChip(outcome) else null
+
+	return TermRowItem(
+		code = subjectCode,
+		name = subjectName,
+		valueText = when {
+			grade != null -> UiText.Raw(grade.toString())
+			outcomeChip == null -> UiText.Resource(Res.string.assistant_card_a_no_value)
+			else -> null
+		},
+		outcomeChip = outcomeChip,
+		badgeChip = attemptBadgeChip(badge)
+	)
+}
+
+// One term of the series: its index and its cumulative index, the sentence a screen reader says for it, and the chip of
+// the best or the worst term. A missing index reads as no data in that sentence.
+private fun IndexPoint.toIndexPointItem(isBest: Boolean, isWorst: Boolean): IndexPointItem {
+	val noValue = UiText.Resource(Res.string.assistant_card_a_series_no_value)
+	val indexText = termIndex?.toCardIndexText()
+	val cumulativeText = cumulativeIndex?.toCardIndexText()
+	val descriptionText = when {
+		isBest -> Res.string.assistant_card_a_series_row_best_description
+		isWorst -> Res.string.assistant_card_a_series_row_worst_description
+		else -> Res.string.assistant_card_a_series_row_description
+	}
+
+	return IndexPointItem(
+		termLabel = termLabel,
+		termIndexText = indexText,
+		cumulativeIndexText = cumulativeText,
+		description = UiText.Resource(descriptionText, listOf(termLabel, indexText ?: noValue, cumulativeText ?: noValue)),
+		markChip = when {
+			isBest -> chatCardChip(Res.string.assistant_card_a_series_best, CardChipTone.Neutral)
+			isWorst -> chatCardChip(Res.string.assistant_card_a_series_worst, CardChipTone.Neutral)
+			else -> null
+		}
+	)
+}

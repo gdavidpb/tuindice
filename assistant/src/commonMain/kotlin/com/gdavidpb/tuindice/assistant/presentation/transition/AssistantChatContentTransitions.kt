@@ -31,6 +31,15 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		contentPhotoRows(machine, host)
 		contentMessageRows(machine, host)
 		contentIntentRows(machine, host)
+
+		// A link of a card that leaves the app: the system opens it, as it opens the privacy policy.
+		on<AssistantChat.Action.OpenExternalLink>(
+			emits = setOf(AssistantChat.Effect.OpenUrl::class)
+		) { state, action ->
+			host.sendEffect(AssistantChat.Effect.OpenUrl(url = action.url))
+			state
+		}
+
 		contentObservationRows(machine, host)
 		contentOutcomeRows(machine, host)
 		contentFeedbackRows(machine, host)
