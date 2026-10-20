@@ -67,6 +67,6 @@ private fun SendOrStopButton(
 	}
 }
 
-// The disabled tones of the Material controls: a faded surface and a faded content colour.
-internal const val OFF_CIRCLE_ALPHA = 0.12f
-internal const val OFF_ARROW_ALPHA = 0.38f
+// The off tones of the send button: the accent and its content colour, faded (owner's choice over Material's grey).
+internal const val OFF_CIRCLE_ALPHA = 0.35f
+internal const val OFF_ARROW_ALPHA = 0.55f

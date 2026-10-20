@@ -95,14 +95,7 @@ fun AssistantChatComposerView(
 				singleLine = false,
 				visualTransformation = VisualTransformation.None,
 				interactionSource = interactionSource,
-				container = {
-					OutlinedTextFieldDefaults.Container(
-						enabled = composer.isEnabled,
-						isError = false,
-						interactionSource = interactionSource,
-						shape = RoundedCornerShape(TuIndiceRadius.Large)
-					)
-				},
+				container = { ComposerContainer(enabled = composer.isEnabled, interactionSource = interactionSource) },
 				contentPadding = PaddingValues(
 					start = TuIndiceSpacing.Section,
 					top = TuIndiceSpacing.XSmall,
@@ -121,3 +114,18 @@ private fun composerTextStyle(): TextStyle =
 		color = MaterialTheme.colorScheme.onSurface,
 		lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 	)
+
+// The field's outline: a neutral border, focused or not, because the accent belongs to the send button, not the field.
+@Composable
+private fun ComposerContainer(enabled: Boolean, interactionSource: MutableInteractionSource) {
+	OutlinedTextFieldDefaults.Container(
+		enabled = enabled,
+		isError = false,
+		interactionSource = interactionSource,
+		colors = OutlinedTextFieldDefaults.colors(
+			focusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+			unfocusedBorderColor = MaterialTheme.colorScheme.outline
+		),
+		shape = RoundedCornerShape(TuIndiceRadius.Large)
+	)
+}

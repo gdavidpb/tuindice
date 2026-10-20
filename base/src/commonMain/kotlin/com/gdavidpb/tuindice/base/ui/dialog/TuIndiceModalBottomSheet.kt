@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
@@ -214,8 +215,10 @@ private fun BoxScope.TuIndiceSheetSurface(
 				onDragStopped = { velocity -> sheetState.settle(velocity) }
 			),
 		shape = BottomSheetDefaults.ExpandedShape,
+		// No tonal elevation: in this theme it tints the sheet with the accent (amber in dark), and the sheets were never
+		// tinted. The colour is the sheet container's, flat.
 		color = BottomSheetDefaults.ContainerColor,
-		tonalElevation = BottomSheetDefaults.Elevation
+		tonalElevation = 0.dp
 	) {
 		Column(modifier = Modifier.fillMaxWidth()) {
 			Box(

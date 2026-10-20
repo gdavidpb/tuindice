@@ -27,11 +27,12 @@ internal fun ComposerCircleButton(
 	onClick: () -> Unit,
 	tag: String
 ) {
+	// Off, the button keeps the accent but faded, as if seen through: it reads as the same button, not yet ready.
 	val circle = composerTone(
-		if (isOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_CIRCLE_ALPHA)
+		if (isOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = OFF_CIRCLE_ALPHA)
 	)
 	val arrow = composerTone(
-		if (isOn) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_ARROW_ALPHA)
+		if (isOn) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary.copy(alpha = OFF_ARROW_ALPHA)
 	)
 
 	IconButton(
