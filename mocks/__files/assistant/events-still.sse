@@ -1,6 +1,6 @@
 data: {"type":"run_started","seq":1,"turnId":"turn-still"}
 
-data: {"type":"message_completed","seq":2,"turnId":"turn-still","message":{"id":"msg-still","parts":[{"type":"text","text":"Recordé tu meta."},{"type":"component","component":{"type":"sistema.sigue_aplicando/1","id":"cmp-still-1","fallbackText":"¿Sigue aplicando?","display":"inline","entityRefs":[],"memoryId":"mem-1","statement":"Tu meta es un índice de 16"}}],"createdAtMillis":1792065600000}}
+data: {"type":"message_completed","seq":2,"turnId":"turn-still","message":{"id":"msg-still","parts":[{"type":"text","text":"Recordé tu meta."},{"type":"component","component":{"type":"sistema.sigue_aplicando/1","id":"cmp-still-1","fallbackText":"¿Sigue aplicando?","display":"inline","entityRefs":[],"memoryId":"mem-1","statement":"Tu meta es un índice de 4.5"}}],"createdAtMillis":1792065600000}}
 
 data: {"type":"run_finished","seq":3,"turnId":"turn-still"}
 

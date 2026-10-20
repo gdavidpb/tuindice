@@ -59,6 +59,7 @@ Toda la app usa la misma combinación de tonos. Antes de elegir una superficie, 
 - Acción primaria: `Button`.
 - Acción secundaria: `OutlinedButton`.
 - Acción terciaria/inline: `TextButton`.
+- Ir a otra pantalla desde una cabecera o el pie de una tarjeta: `TuIndiceChevronLink` (texto gris con flecha y área de 48 dp), el enlace de las cabeceras del Resumen y de las tarjetas del chat; no un botón.
 - Acción destructiva: colores de `error`/`errorContainer` sobre el componente que corresponda.
 - Spinners dentro de botones usan `LocalContentColor.current`, nunca un color literal.
 - **Menú ⋮ de la barra superior** (`TopAppBarOverflowMenuView`, `base/.../ui/view/TopAppBarOverflowMenuView.kt`): las acciones que no caben en línea van en un menú que se abre desde el ⋮. Cada ítem toma como texto la descripción de su acción, así que quien pasa acciones de overflow debe darle texto a todas; una acción sin texto no se dibuja.
@@ -211,7 +212,7 @@ Comportamiento:
 
 - **Burbuja del estudiante**: a la derecha, con un ancho máximo del 80 % y un borde de 1 dp. Usa `TuIndiceChatColors.chatUserBubble()` y `chatUserBubbleOutline()`: `#E5E4DD` con borde `#D3D1C8` en claro, y `#2A2A26` con borde `#3D3A33` en oscuro. Es la **excepción documentada** a la regla de dos tonos: sube al tono de arriba para que el mensaje propio se distinga de la respuesta, que va sin fondo.
 - **Respuestas del agente**: sin burbuja, a todo el ancho del contenido. Bajo cada respuesta van, en este orden, **Copiar**, los pulgares «útil» y «no útil», y **Reportar**.
-- **Tarjetas**: las que el chat muestra (fuentes, pasos, citas) son `surfaceVariant` con borde de 1 dp `outlineVariant`, como cualquier tarjeta de la app.
+- **Tarjetas**: las que el chat muestra (fuentes, pasos, citas) son `surfaceVariant` con borde de 1 dp `outlineVariant`, como cualquier tarjeta de la app. Su anatomía y sus reglas están en «Tarjetas del chat».
 - **Ámbar solo en controles**: `primary` va en los botones y en los controles, nunca como fondo de un bloque de texto ni de una tarjeta.
 - **Sin nombre ni ícono del asistente dentro del chat**: los mensajes del agente no llevan etiqueta ni destello.
 - **Destello**: `rememberAssistantSparkleIcon()` (`base/.../ui/icon/AssistantSparkleIcon.kt`), una estrella de cuatro puntas, va solo en la cabecera de las pestañas y en las acciones «Preguntar». Se dibuja con su propio color, así que `Icon` lleva `tint = Color.Unspecified`: `#785900` en claro y `#FABD00` en oscuro, los mismos tonos del átomo de carga.
@@ -227,6 +228,22 @@ Comportamiento:
   - **Pulgares y bandera**: el tinte cambia en 150 ms y el glifo (contorno ↔ relleno) hace un fundido cruzado de 150 ms; al pasar a elegido o reportado el ícono da un salto de escala 1 → 1,25 → 1 en 260 ms (`SelectionPopMillis`, `PopScale`). Nunca se anima en la primera composición: un pulgar ya elegido al aparecer el mensaje queda quieto.
   - **Campo de escribir**: enviar ↔ detener hace un fundido cruzado de 150 ms, y los tonos del botón (encendido/apagado) se interpolan en 150 ms. La tarjeta de una intención que se resuelve cambia de alto (`animateContentSize`) y su zona de estado (acciones → recibo) hace un fundido cruzado de 200 ms. Los mensajes que cambian de lugar en la lista se deslizan (`Modifier.animateItem`), sin fundido propio.
   - **Etiqueta de progreso**: entra con fundido en 200 ms y sale en 150 ms; si el texto cambia, hace un fundido cruzado; el brillo que la barre sigue igual.
+
+## Tarjetas del chat
+
+Las 36 tarjetas que el asistente muestra (`assistant/.../ui/component/**`) se arman con un kit común en `assistant/.../ui/component/common/`; ninguna tarjeta reimplementa una pieza del kit. Decisiones del dueño del 2026-10-19 y 20, tras la auditoría de UI/UX de las tarjetas.
+
+- **Etiqueta** (`CardLabelView`): la primera línea de la tarjeta, en mayúsculas pequeñas; se anuncia como encabezado con el texto original. Los subtítulos dentro de una tarjeta (los días del horario, «Distribución de notas», «Requisitos», «Desbloquea») son `CardSectionLabelView`, en `titleSmall` y en frase normal, nunca una segunda etiqueta.
+- **Título y texto** (`CardTitleView`, `CardBodyTextView`): las tarjetas de sistema, la ayuda, la cita y la propuesta. Advertencia, pausa y suspensión llevan ícono y título en el tono de su gravedad (`warning()` para la advertencia, `error` para pausa y suspensión); la tarjeta sigue neutra.
+- **Cifra grande** (`CardFiguresView`): solo para un dato que no es un conteo de las filas de la tarjeta (índice, avance, nota meta, bloques de la próxima clase). Una lista no abre con «2 / materias».
+- **Filas** (`CardRowView`): el código de materia siempre con `SubjectCodeChip` de base, el chip de color de toda la app (un código de carrera no es de materia y va sin chip); el nombre en el tono atenuado; a la derecha el valor y luego los chips (`CardTrailingView`, en ese orden en todas las tarjetas), que nunca ocupan más de la mitad de la fila. **Nada se corta**: un nombre, un título o un valor que no cabe pasa a otra línea, nunca termina en «…» ni se recorta. Una fila que lleva a otra pantalla es tocable entera, con la flecha atenuada al final y el lector diciendo a qué lleva («Ver materia CI5311»).
+- **Chips de estado** (`CardChipView` con `CardChipTone`): teñidos con la paleta académica (texto, borde y fondo suave): Aprobada en `approved()`, En curso en `primary`, Reprobada, Vencida, No alcanzable y una fuente caída en `error`, Alcanzable y Al día en `success()`, Pesada en `warning()`, Retirada, Disponible y Bloqueada en `available()`. Pendiente, Calificada, Evaluación, Más alto o bajo y Dificultad quedan neutros. El tono lo decide el mapper por el código del contrato, nunca la vista por el texto. Mayúscula inicial en todos.
+- **Acciones** (`CardLinkView` sobre `TuIndiceChevronLink` de base): el texto gris con flecha de las cabeceras del Resumen («Ver en Informe ›»), con área táctil de 48 dp; lo que sale de la app («Ver documento oficial», «Llamar al…») lleva el ícono de enlace externo, y si no se puede abrir el chat lo avisa. Los enlaces de pie de tarjeta van alineados al final. «Apelar» es una acción, no un enlace: `TextButton` de acento.
+- **Barras**: siempre `TuIndiceProgressBar` (6 dp). El avance del pensum en `approved()`, los histogramas (`CardHistogramView`) en el azul de datos, y los puntos de una materia con su propio color en dos tonos (`TuIndiceSubjectPointsBar`, la misma barra del Resumen). Una fila del histograma se lee «Nota 4: 16 materias».
+- **Listas**: en la conversación, como mucho 5 filas (`CHAT_CARD_ROW_LIMIT`); si hay más, «Ver las 12 materias ›» abre la hoja del componente con todas y ocupa el lugar de «Ver detalle». El número aparece solo ahí. Una lista vacía lo dice en una línea atenuada («No tienes choques de horario»).
+- **Cifras**: punto decimal (`4.1250`), y una fracción con espacios a ambos lados (`12.50 / 60`, `— / 10`); la cifra y su unidad no se separan de línea. Los créditos de materias y planes en «UC»; los totales de la carrera en «créditos».
+- **Horarios**: por bloques, como el resto de la app (`classPlaceItem`): «1-2 · 7:30–9:30 a. m.», con el bloque en el tono normal y la hora atenuada. En la próxima clase la cifra es el bloque («3-4»); en una fila angosta (choques) va solo el bloque. El contrato trae los bloques junto a los minutos; la app no los recalcula. «En curso» se calcula con la hora de quien mira.
+- **Fechas**: en una frase, completas («Podrás volver a preguntar el viernes 23 de octubre, 6:53 a. m.», «hoy a las …»); en una celda, sin artículo.
 
 ## Terminología
 

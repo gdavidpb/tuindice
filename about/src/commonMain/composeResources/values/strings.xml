@@ -31,10 +31,10 @@
     <string name="settings_about">Acerca de TuIndice\nVersión %1$s, licencias y créditos</string>
     <string name="settings_sign_out">Cerrar sesión</string>
     <string name="settings_identity_carnet">Carnet %1$s</string>
-    <string name="settings_section_assistant">ASISTENTE ACADÉMICO</string>
-    <string name="settings_section_privacy">PRIVACIDAD Y DATOS</string>
-    <string name="settings_section_help">AYUDA</string>
-    <string name="settings_section_app">TUINDICE</string>
+    <string name="settings_section_assistant">Asistente académico</string>
+    <string name="settings_section_privacy">Privacidad y datos</string>
+    <string name="settings_section_help">Ayuda</string>
+    <string name="settings_section_app">TuIndice</string>
     <string name="about_header_developer">Desarrollador</string>
     <string name="about_dev_info">Gerardo Prado\nSantiago, Chile</string>
     <string name="about_source_code">GitHub Repository\nTuIndice</string>

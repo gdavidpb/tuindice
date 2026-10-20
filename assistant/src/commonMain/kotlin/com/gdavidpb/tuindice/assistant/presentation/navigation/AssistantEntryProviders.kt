@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.navigation
 
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
@@ -13,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.ui.dialog.ClearAssistantMemoryDialog
 import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.presentation.navigation.dialogMetadata
+import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectNavResultWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -63,6 +66,13 @@ private fun EntryProviderScope<NavKey>.memoryEntry(
 ) {
 	entry<AssistantDestination.Memory> {
 		val viewModel = koinViewModel<AssistantMemoryViewModel>()
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		// The bar of the shell reads its title from the state of the screen on top, as Preferencias does.
+		CollectCurrentEntryValueWithLifecycle(
+			value = viewState,
+			onValue = shellBindings.onViewStateChanged
+		)
 
 		CollectNavResultWithLifecycle<ClearAssistantMemoryConfirmationResult> { result ->
 			when (result) {

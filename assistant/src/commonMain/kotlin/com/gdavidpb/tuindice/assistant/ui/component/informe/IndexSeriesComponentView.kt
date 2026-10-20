@@ -117,8 +117,7 @@ private fun IndexSeriesRowView(
 			text = point.termLabel,
 			modifier = Modifier.weight(1f),
 			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurfaceVariant,
-			maxLines = 2
+			color = MaterialTheme.colorScheme.onSurfaceVariant
 		)
 
 		Row(
