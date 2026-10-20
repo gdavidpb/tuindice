@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.assistant.ui.component.pensum
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toRequirementsItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.hasLinkLabelContaining
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
@@ -41,17 +41,17 @@ class RequirementsComponentViewUiTest {
 		onNodeWithText("Bloqueada").assertIsDisplayed()
 		onNodeWithText("Correquisitos").assertIsDisplayed()
 		onNodeWithText("Sin correquisitos").assertIsDisplayed()
-		onAllNodesWithText("Ver materia").assertCountEquals(2)
+		onAllNodes(hasLinkLabelContaining("Ver materia")).assertCountEquals(2)
 	}
 
 	@Test
-	fun when_aSubjectLinkIsTapped_then_itOpensThatSubjectsDetail() = runTuIndiceUiTest {
+	fun when_aSubjectRowIsTapped_then_itOpensThatSubjectsDetail() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			RequirementsComponentView(item = requirements().toRequirementsItem(), onAction = { actions.add(it) })
 		}
 
-		onAllNodesWithText("Ver materia").onFirst().performClick()
+		onAllNodes(hasLinkLabelContaining("Ver materia")).onFirst().performClick()
 
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)

@@ -72,7 +72,7 @@ class SyncStatusComponentViewUiTest {
 		}
 
 		onNodeWithText("Última sincronización").assertIsDisplayed()
-		onNodeWithText("hoy a las", substring = true).assertIsDisplayed()
+		onNodeWithText("hoy, ", substring = true).assertIsDisplayed()
 	}
 
 	private fun sync(

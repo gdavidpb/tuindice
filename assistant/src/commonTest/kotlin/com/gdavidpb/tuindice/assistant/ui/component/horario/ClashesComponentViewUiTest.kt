@@ -23,7 +23,7 @@ class ClashesComponentViewUiTest {
 		assertNodeVisible(AssistantUiTags.Schedule.clashes(COMPONENT_ID))
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("IS-102").assertIsDisplayed()
-		onNodeWithText("Miércoles · bloque 3").assertIsDisplayed()
+		onNodeWithText("Miércoles · bloque\u00A03").assertIsDisplayed()
 	}
 
 	@Test
@@ -35,7 +35,7 @@ class ClashesComponentViewUiTest {
 			)
 		}
 
-		onNodeWithText("Miércoles · bloques 3-4").assertIsDisplayed()
+		onNodeWithText("Miércoles · bloques\u00A03-4").assertIsDisplayed()
 	}
 
 	@Test

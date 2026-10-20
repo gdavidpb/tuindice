@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.AttentionCardItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowText
 import com.gdavidpb.tuindice.assistant.ui.model.visibleRows
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import org.jetbrains.compose.resources.stringResource
@@ -17,8 +17,9 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_attention_empty
 import tuindice.assistant.generated.resources.assistant_card_a_attention_label
 
-// resumen.atencion/1: one row per item that needs attention. An item links to the screen of the record it names; a kind
-// of record with no screen of its own has no link. With nothing to attend, a line says so.
+// resumen.atencion/1: one row per item that needs attention. An item links to the screen of the record it names, and a
+// tap anywhere on its row opens that screen; a kind of record with no screen of its own has no link. With nothing to
+// attend, a line says so.
 @Composable
 fun AttentionComponentView(
 	item: AttentionCardItem,
@@ -32,13 +33,11 @@ fun AttentionComponentView(
 			CardBodyTextView(text = stringResource(Res.string.assistant_card_a_attention_empty), muted = true)
 		}
 		item.rows.visibleRows(rowLimit).forEachIndexed { index, row ->
-			CardRowView(
-				title = row.title,
-				name = row.detail,
-				showsDivider = index > 0,
-				trailing = {
-					row.link?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
-				}
+			CardLinkRowView(
+				link = row.link,
+				onAction = onAction,
+				text = CardRowText(name = row.detail, title = row.title),
+				showsDivider = index > 0
 			)
 		}
 	}

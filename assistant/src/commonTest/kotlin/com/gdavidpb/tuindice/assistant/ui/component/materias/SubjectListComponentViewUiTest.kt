@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.assistant.ui.component.materias
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toSubjectListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.hasLinkLabelContaining
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.SubjectListComponent
 import com.gdavidpb.tuindice.chatcontract.component.SubjectRow
@@ -32,21 +32,21 @@ class SubjectListComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Subjects.list(COMPONENT_ID))
 		onNodeWithText("IS-101").assertIsDisplayed()
-		onNodeWithText("Programación I · 6 UC").assertIsDisplayed()
+		onNodeWithText("Programación I · 6 UC").assertIsDisplayed()
 		onNodeWithText("Aprobada").assertIsDisplayed()
 		onNodeWithText("IS-102").assertIsDisplayed()
-		onNodeWithText("Matemática I · 8 UC").assertIsDisplayed()
-		onAllNodesWithText("Ver materia").assertCountEquals(2)
+		onNodeWithText("Matemática I · 8 UC").assertIsDisplayed()
+		onAllNodes(hasLinkLabelContaining("Ver materia")).assertCountEquals(2)
 	}
 
 	@Test
-	fun when_aSubjectLinkIsTapped_then_itOpensThatSubjectsDetailWithItsCode() = runTuIndiceUiTest {
+	fun when_aSubjectRowIsTapped_then_itOpensThatSubjectsDetailWithItsCode() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			SubjectListComponentView(item = list().toSubjectListItem(), rowLimit = null, onAction = { actions.add(it) })
 		}
 
-		onAllNodesWithText("Ver materia").onFirst().performClick()
+		onAllNodes(hasLinkLabelContaining("Ver materia")).onFirst().performClick()
 
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.SUBJECTS_DETAIL, open.target)
@@ -61,7 +61,7 @@ class SubjectListComponentViewUiTest {
 
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("IS-102").assertDoesNotExist()
-		onAllNodesWithText("Ver materia").assertCountEquals(1)
+		onAllNodes(hasLinkLabelContaining("Ver materia")).assertCountEquals(1)
 	}
 
 	@Test

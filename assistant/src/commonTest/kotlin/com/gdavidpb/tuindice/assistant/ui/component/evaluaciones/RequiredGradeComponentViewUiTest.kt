@@ -26,7 +26,7 @@ class RequiredGradeComponentViewUiTest {
 		onNodeWithContentDescription("Puntos por evaluar: 40").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I").assertIsDisplayed()
-		onNodeWithText("Meta 15").assertIsDisplayed()
+		onNodeWithText("Meta\u00A015").assertIsDisplayed()
 		onNodeWithText("Alcanzable").assertIsDisplayed()
 	}
 

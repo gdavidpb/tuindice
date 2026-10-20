@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.assistant.ui.component.plan
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toPlanListItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.hasLinkLabelContaining
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.component.PlanListComponent
 import com.gdavidpb.tuindice.chatcontract.component.PlanRow
@@ -32,20 +32,20 @@ class PlanListComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Plan.list(COMPONENT_ID))
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
-		onNodeWithText("2 materias · 14 UC").assertIsDisplayed()
+		onNodeWithText("2 materias · 14 UC").assertIsDisplayed()
 		onNodeWithText("2026 abril-junio").assertIsDisplayed()
-		onNodeWithText("1 materia · 6 UC").assertIsDisplayed()
-		onAllNodesWithText("Ver en Informe").assertCountEquals(2)
+		onNodeWithText("1 materia · 6 UC").assertIsDisplayed()
+		onAllNodes(hasLinkLabelContaining("en Informe")).assertCountEquals(2)
 	}
 
 	@Test
-	fun when_aTermLinkIsTapped_then_itOpensTheRecordOfThatTerm() = runTuIndiceUiTest {
+	fun when_aTermRowIsTapped_then_itOpensTheRecordOfThatTerm() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			PlanListComponentView(item = plans().toPlanListItem(), rowLimit = null, onAction = { actions.add(it) })
 		}
 
-		onAllNodesWithText("Ver en Informe").onFirst().performClick()
+		onAllNodes(hasLinkLabelContaining("en Informe")).onFirst().performClick()
 
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.RECORD, open.target)

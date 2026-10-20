@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatContextItem
@@ -70,3 +73,16 @@ internal fun intentCard(
 		expiresAtMillis = 0L,
 		status = status
 	)
+
+// The link of a row, found by what a screen reader says its tap opens («Ver materia IS-101»): a row has no text of its
+// own for its link, so the tests find it by that label.
+internal fun hasLinkLabel(label: String): SemanticsMatcher =
+	SemanticsMatcher("has the link label «$label»") { node ->
+		node.config.getOrNull(SemanticsActions.OnClick)?.label == label
+	}
+
+// The links whose label names a part of it: «Ver materia» reads for each subject, «en Informe» for each term.
+internal fun hasLinkLabelContaining(part: String): SemanticsMatcher =
+	SemanticsMatcher("has a link label containing «$part»") { node ->
+		node.config.getOrNull(SemanticsActions.OnClick)?.label?.contains(part) == true
+	}

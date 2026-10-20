@@ -25,7 +25,7 @@ class PlanEvaluationComponentViewUiTest {
 		onNodeWithContentDescription("Banda de carga: Normal").assertIsDisplayed()
 		onNodeWithContentDescription("Índice de carga: 0.6000").assertIsDisplayed()
 		onNodeWithText("Créditos del plan").assertIsDisplayed()
-		onNodeWithText("14 UC").assertIsDisplayed()
+		onNodeWithText("14\u00A0UC").assertIsDisplayed()
 		onNodeWithText("Requisitos pendientes").assertIsDisplayed()
 		onNodeWithText("Aprobar Cálculo I").assertIsDisplayed()
 		onNodeWithText("Avisos de horario").assertIsDisplayed()

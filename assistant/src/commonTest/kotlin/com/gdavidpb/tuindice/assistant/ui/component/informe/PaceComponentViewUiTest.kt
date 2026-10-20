@@ -25,9 +25,9 @@ class PaceComponentViewUiTest {
 		onNodeWithText("RITMO DE CRÉDITOS").assertIsDisplayed()
 		onNodeWithContentDescription("UC por trimestre: 15.0").assertIsDisplayed()
 		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
-		onNodeWithText("14 UC").assertIsDisplayed()
+		onNodeWithText("14\u00A0UC").assertIsDisplayed()
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
-		onNodeWithText("16 UC").assertIsDisplayed()
+		onNodeWithText("16\u00A0UC").assertIsDisplayed()
 		onNodeWithText("Trimestres restantes estimados").assertIsDisplayed()
 		onNodeWithText("4").assertIsDisplayed()
 	}

@@ -24,7 +24,7 @@ class SubjectStatsComponentViewUiTest {
 			assertNodeVisible(AssistantUiTags.Subjects.stats(COMPONENT_ID))
 			onNodeWithText("PROGRAMACIÓN I").assertIsDisplayed()
 			onNodeWithContentDescription("Promedio: 14.50").assertIsDisplayed()
-			onNodeWithContentDescription("Tasa de aprobación: 72 %").assertIsDisplayed()
+			onNodeWithContentDescription("Tasa de aprobación: 72\u00A0%").assertIsDisplayed()
 			onNodeWithText("Dificultad").assertIsDisplayed()
 			onNodeWithText("Media").assertIsDisplayed()
 			onNodeWithText("Mediana").assertIsDisplayed()
@@ -42,7 +42,7 @@ class SubjectStatsComponentViewUiTest {
 				)
 			}
 
-			onNodeWithContentDescription("Tasa de aprobación: 72 %").assertIsDisplayed()
+			onNodeWithContentDescription("Tasa de aprobación: 72\u00A0%").assertIsDisplayed()
 			onNodeWithText("Dificultad").assertDoesNotExist()
 			onNodeWithText("Mediana").assertDoesNotExist()
 		}

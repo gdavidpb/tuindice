@@ -1,12 +1,15 @@
 package com.gdavidpb.tuindice.assistant.ui.component.resumen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toAttentionCardItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.hasLinkLabel
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.AttentionItem
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
@@ -22,7 +25,7 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class AttentionComponentViewUiTest {
 	@Test
-	fun when_anItemNamesAnEvaluation_then_itsLinkOpensTheEvaluation() = runTuIndiceUiTest {
+	fun when_anItemNamesAnEvaluation_then_itsRowOpensTheEvaluation() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AttentionComponentView(
@@ -34,7 +37,7 @@ class AttentionComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Summary.attention(COMPONENT_ID))
 		onNodeWithText("Parcial 2 sin nota").assertIsDisplayed()
-		onNodeWithText("Ver evaluación").performClick()
+		onNode(hasLinkLabel("Ver evaluación Parcial 2 sin nota")).performClick()
 
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.EVALUATIONS_DETAIL, open.target)
@@ -42,7 +45,7 @@ class AttentionComponentViewUiTest {
 	}
 
 	@Test
-	fun when_anItemNamesATerm_then_itsLinkOpensTheRecord() = runTuIndiceUiTest {
+	fun when_anItemNamesATerm_then_itsRowOpensTheRecord() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AttentionComponentView(
@@ -52,7 +55,7 @@ class AttentionComponentViewUiTest {
 			)
 		}
 
-		onNodeWithText("Ver en Informe").performClick()
+		onNode(hasLinkLabel("Ver en Informe")).performClick()
 
 		val open = assertIs<AssistantChat.Action.OpenNavTarget>(actions.single())
 		assertEquals(NavTarget.RECORD, open.target)
@@ -60,7 +63,7 @@ class AttentionComponentViewUiTest {
 	}
 
 	@Test
-	fun when_anItemNamesAPlan_then_itHasNoLink() = runTuIndiceUiTest {
+	fun when_anItemNamesAPlan_then_itsRowIsNotATap() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AttentionComponentView(
 				item = attention(item(PLAN_REF, title = "Plan por revisar")).toAttentionCardItem(),
@@ -70,8 +73,7 @@ class AttentionComponentViewUiTest {
 		}
 
 		onNodeWithText("Plan por revisar").assertIsDisplayed()
-		onNodeWithText("Ver evaluación").assertDoesNotExist()
-		onNodeWithText("Ver en Informe").assertDoesNotExist()
+		onAllNodes(hasClickAction()).assertCountEquals(0)
 	}
 
 	@Test

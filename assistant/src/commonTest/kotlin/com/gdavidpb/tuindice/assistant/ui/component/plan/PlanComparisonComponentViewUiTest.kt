@@ -23,10 +23,10 @@ class PlanComparisonComponentViewUiTest {
 		assertNodeVisible(AssistantUiTags.Plan.comparison(COMPONENT_ID))
 		onNodeWithText("COMPARACIÓN DE PLANES").assertIsDisplayed()
 		onNodeWithText("Plan A").assertIsDisplayed()
-		onNodeWithText("Normal · 14 UC").assertIsDisplayed()
+		onNodeWithText("Normal · 14\u00A0UC").assertIsDisplayed()
 		onNodeWithText("Desbloquea IS-201").assertIsDisplayed()
 		onNodeWithText("Plan B").assertIsDisplayed()
-		onNodeWithText("Exigente · 18 UC").assertIsDisplayed()
+		onNodeWithText("Exigente · 18\u00A0UC").assertIsDisplayed()
 	}
 
 	@Test
@@ -39,7 +39,7 @@ class PlanComparisonComponentViewUiTest {
 		}
 
 		onNodeWithText("Plan C").assertIsDisplayed()
-		onNodeWithText("6 UC").assertIsDisplayed()
+		onNodeWithText("6\u00A0UC").assertIsDisplayed()
 		onNodeWithText("Desbloquea", substring = true).assertDoesNotExist()
 	}
 

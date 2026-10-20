@@ -29,7 +29,7 @@ class PensumProgressComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Pensum.progress(COMPONENT_ID))
 		onNodeWithText("AVANCE DEL PENSUM").assertIsDisplayed()
-		onNodeWithContentDescription("Avance del pensum: 47 %").assertIsDisplayed()
+		onNodeWithContentDescription("Avance del pensum: 47\u00A0%").assertIsDisplayed()
 		onNodeWithContentDescription("Créditos aprobados: 70 de 150").assertIsDisplayed()
 		onNodeWithText("Aprobadas").assertIsDisplayed()
 		onNodeWithText("12").assertIsDisplayed()

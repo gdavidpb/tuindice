@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.ui.component.horario
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class WeekScheduleComponentViewUiTest {
@@ -31,6 +33,19 @@ class WeekScheduleComponentViewUiTest {
 		onNodeWithText("Evaluación").assertIsDisplayed()
 		onNodeWithText("IS-102").assertIsDisplayed()
 		onNodeWithText("5-6 · 11:30 a. m.–1:30 p. m.").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_aBlockHasHours_then_theHoursAreTheMutedEndOfTheBlock() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			WeekScheduleComponentView(item = week().toWeekScheduleItem())
+		}
+		waitForIdle()
+
+		val schedule = onNodeWithText("1-2 · 7:30–9:30 a. m.").fetchSemanticsNode().config[SemanticsProperties.Text].single()
+
+		// The muted span starts where the hours do, so the hours are the suffix the card mutes: the block stays in full tone.
+		assertEquals("1-2 · ".length, schedule.spanStyles.single().start)
 	}
 
 	@Test

@@ -23,10 +23,10 @@ class WeeklyLoadComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Evaluations.load(COMPONENT_ID))
 		onNodeWithContentDescription("Semanas pesadas: 1").assertIsDisplayed()
-		onNodeWithText("Semana 42").assertIsDisplayed()
-		onNodeWithText("3 evaluaciones · 60 puntos").assertIsDisplayed()
-		onNodeWithText("Semana 43").assertIsDisplayed()
-		onNodeWithText("1 evaluación · 10 puntos").assertIsDisplayed()
+		onNodeWithText("Semana\u00A042").assertIsDisplayed()
+		onNodeWithText("3\u00A0evaluaciones · 60\u00A0puntos").assertIsDisplayed()
+		onNodeWithText("Semana\u00A043").assertIsDisplayed()
+		onNodeWithText("1\u00A0evaluación · 10\u00A0puntos").assertIsDisplayed()
 		onNodeWithText("Pesada").assertIsDisplayed()
 	}
 

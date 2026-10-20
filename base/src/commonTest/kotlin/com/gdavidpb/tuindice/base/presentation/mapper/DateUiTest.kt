@@ -122,6 +122,31 @@ class DateUiTest {
 		)
 	}
 
+	@Test
+	fun when_cellStyleIsTodayClock_then_readsTodayAndTheClockWithoutAnArticle() = runTuIndiceUiTest {
+		assertDateTexts(
+			"hoy, 3:05 p. m." to millisOf(hour = 15, minute = 5).formatDateCell(DateCellStyle.TODAY_CLOCK),
+			"hoy, 9:07 a. m." to millisOf(hour = 9, minute = 7).formatDateCell(DateCellStyle.TODAY_CLOCK)
+		)
+	}
+
+	@Test
+	fun when_cellStyleIsWeekdayDayMonthClock_then_readsTheDayWithoutAnArticleOrAZero() = runTuIndiceUiTest {
+		assertDateTexts(
+			"jueves 15 de enero, 3:05 p. m." to millisOf().formatDateCell(DateCellStyle.WEEKDAY_DAY_MONTH_CLOCK),
+			"viernes 23 de octubre, 6:53 a. m." to millisOf(month = 10, day = 23, hour = 6, minute = 53)
+				.formatDateCell(DateCellStyle.WEEKDAY_DAY_MONTH_CLOCK)
+		)
+	}
+
+	@Test
+	fun when_cellStyleIsWeekdayDayMonthYearClock_then_readsTheYearAfterTheDayWithoutAnArticle() = runTuIndiceUiTest {
+		assertDateTexts(
+			"viernes 15 de enero 2027, 3:05 p. m." to millisOf(year = 2027)
+				.formatDateCell(DateCellStyle.WEEKDAY_DAY_MONTH_YEAR_CLOCK)
+		)
+	}
+
 	private fun ComposeUiTest.assertDateText(expected: String, millis: Long, style: DateTextStyle) {
 		assertDateTexts(expected to millis.formatDate(style))
 	}

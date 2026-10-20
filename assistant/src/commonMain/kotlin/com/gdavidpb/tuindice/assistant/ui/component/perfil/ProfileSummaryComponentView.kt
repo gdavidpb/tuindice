@@ -30,7 +30,7 @@ fun ProfileSummaryComponentView(
 			primary = item.primaryFigure.toCardFigure(),
 			secondary = item.secondaryFigure?.toCardFigure()
 		)
-		CardRowView(code = item.careerCode, name = item.careerName, showsDivider = false)
+		CardRowView(title = item.careerName, name = item.careerCode, showsDivider = false)
 		CardRowView(
 			name = stringResource(Res.string.assistant_card_a_profile_pensum),
 			showsDivider = true,

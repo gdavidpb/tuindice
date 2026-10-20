@@ -27,7 +27,7 @@ class NextClassComponentViewUiTest {
 		onNodeWithText("Programación I").assertIsDisplayed()
 		onNodeWithText("A-1").assertIsDisplayed()
 		onNodeWithText("Cuánto falta").assertIsDisplayed()
-		onNodeWithText("30 min").assertIsDisplayed()
+		onNodeWithText("30\u00A0min").assertIsDisplayed()
 	}
 
 	@Test
@@ -67,7 +67,7 @@ class NextClassComponentViewUiTest {
 			nowMillis = DAY_START_MILLIS + START_MINUTE * MILLIS_PER_MINUTE - 3 * MINUTES_PER_DAY * MILLIS_PER_MINUTE
 		)
 
-		onNodeWithText("3 días").assertIsDisplayed()
+		onNodeWithText("3\u00A0días").assertIsDisplayed()
 	}
 
 	private fun ComposeUiTest.showNextClass(component: NextClassComponent, nowMillis: Long) {

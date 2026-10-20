@@ -67,7 +67,7 @@ internal fun SyncStatusComponent.toSyncStatusItem(nowMillis: Long): SyncStatusIt
 	return SyncStatusItem(
 		id = id,
 		opensSheet = opensSheet(),
-		lastSyncText = lastSyncAtMillis?.toChatDateText(nowMillis),
+		lastSyncText = lastSyncAtMillis?.toChatCellDateText(nowMillis),
 		headlineText = if (sources.isEmpty()) {
 			null
 		} else {

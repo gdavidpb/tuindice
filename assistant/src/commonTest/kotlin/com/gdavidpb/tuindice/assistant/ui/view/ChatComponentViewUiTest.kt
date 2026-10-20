@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.hasLinkLabelContaining
 import com.gdavidpb.tuindice.assistant.ui.model.CHAT_CARD_ROW_LIMIT
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseReasonCode
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
@@ -75,7 +75,7 @@ class ChatComponentViewUiTest {
 			)
 		}
 
-		onAllNodesWithText("Ver materia").assertCountEquals(CHAT_CARD_ROW_LIMIT)
+		onAllNodes(hasLinkLabelContaining("Ver materia")).assertCountEquals(CHAT_CARD_ROW_LIMIT)
 		onNodeWithText("IS-106").assertDoesNotExist()
 		onNodeWithTag(AssistantUiTags.Component.detail(MESSAGE_ID, COMPONENT_ID)).assertDoesNotExist()
 		onNodeWithTag(AssistantUiTags.Component.seeAll(MESSAGE_ID, COMPONENT_ID))

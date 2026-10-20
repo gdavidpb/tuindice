@@ -14,9 +14,12 @@ import tuindice.base.generated.resources.date_time
 import tuindice.base.generated.resources.date_time_am
 import tuindice.base.generated.resources.date_time_pm
 import tuindice.base.generated.resources.date_today_at_clock
+import tuindice.base.generated.resources.date_today_clock
 import tuindice.base.generated.resources.date_today_time
 import tuindice.base.generated.resources.date_weekday_day_month_at_clock
+import tuindice.base.generated.resources.date_weekday_day_month_clock
 import tuindice.base.generated.resources.date_weekday_day_month_year_at_clock
+import tuindice.base.generated.resources.date_weekday_day_month_year_clock
 import tuindice.base.generated.resources.date_weekday_numeric_date
 import tuindice.base.generated.resources.date_weekday_time
 import tuindice.base.generated.resources.date_yesterday_time
@@ -109,6 +112,36 @@ fun Long.formatDate(style: DateTextStyle): UiText {
 		DateTextStyle.WEEKDAY_DAY_MONTH_YEAR_AT_CLOCK ->
 			UiText.Resource(
 				Res.string.date_weekday_day_month_year_at_clock,
+				listOf(dayName, dayNumber, monthName, year, clock)
+			)
+	}
+}
+
+// The text of a cell of a card, for the moment the style names: see DateCellStyle.
+fun Long.formatDateCell(style: DateCellStyle): UiText {
+	val dateTime = Instant
+		.fromEpochMilliseconds(this)
+		.toLocalDateTime(TimeZone.currentSystemDefault())
+
+	val dayName = dateTime.dayOfWeek.toNameText()
+	val monthName = dateTime.month.toNameText()
+	val dayNumber = dateTime.day.toString()
+	val year = dateTime.year.toString()
+	val clock = dateTime.toClockText()
+
+	return when (style) {
+		DateCellStyle.TODAY_CLOCK ->
+			UiText.Resource(Res.string.date_today_clock, listOf(clock))
+
+		DateCellStyle.WEEKDAY_DAY_MONTH_CLOCK ->
+			UiText.Resource(
+				Res.string.date_weekday_day_month_clock,
+				listOf(dayName, dayNumber, monthName, clock)
+			)
+
+		DateCellStyle.WEEKDAY_DAY_MONTH_YEAR_CLOCK ->
+			UiText.Resource(
+				Res.string.date_weekday_day_month_year_clock,
 				listOf(dayName, dayNumber, monthName, year, clock)
 			)
 	}

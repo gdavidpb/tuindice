@@ -11,10 +11,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 
 // The figure at the end of a row, bold and with tabular numbers so columns of figures line up. It ends the row, and a
-// long one wraps onto a second line instead of pushing the name out of its place. A [mutedSuffix] the text ends with is
-// drawn in the muted tone: the hours that follow the blocks of a class.
+// long one wraps onto as many lines as it needs, without pushing the name out of its place. A [mutedSuffix] the text
+// ends with is drawn in the muted tone and at the regular weight: the hours that follow the blocks of a class.
 @Composable
 fun CardValueView(
 	text: String,
@@ -22,17 +23,20 @@ fun CardValueView(
 	mutedSuffix: String? = null
 ) {
 	Text(
-		text = text.withMutedSuffix(suffix = mutedSuffix, mutedColor = MaterialTheme.colorScheme.onSurfaceVariant),
+		text = text.withMutedSuffix(
+			suffix = mutedSuffix,
+			mutedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Deemphasis)
+		),
 		modifier = modifier,
 		style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = TABULAR_NUMBERS),
 		fontWeight = FontWeight.SemiBold,
 		color = MaterialTheme.colorScheme.onSurface,
-		textAlign = TextAlign.End,
-		maxLines = 2
+		textAlign = TextAlign.End
 	)
 }
 
-// The text with its muted suffix in the muted color. A suffix the text does not end with leaves the text as it is.
+// The text with its muted suffix in the muted color and the regular weight. A suffix the text does not end with leaves
+// the text as it is.
 private fun String.withMutedSuffix(suffix: String?, mutedColor: Color): AnnotatedString {
 	if (suffix.isNullOrEmpty() || !endsWith(suffix)) return AnnotatedString(this)
 
@@ -41,7 +45,7 @@ private fun String.withMutedSuffix(suffix: String?, mutedColor: Color): Annotate
 
 	return buildAnnotatedString {
 		append(lead)
-		withStyle(SpanStyle(color = mutedColor)) { append(suffix) }
+		withStyle(SpanStyle(color = mutedColor, fontWeight = FontWeight.Normal)) { append(suffix) }
 	}
 }
 

@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardTrailingColumn
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkRowView
+import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowText
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.visibleRows
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
@@ -20,8 +20,8 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_plans_empty
 import tuindice.assistant.generated.resources.assistant_card_b_plans_label
 
-// plan.lista/1: a row per term plan: its term, and on the right its subjects and credits with a link to the record of
-// that term. With no plan, a line says so.
+// plan.lista/1: a row per term plan: its term, and on the right its subjects and credits. A row is the link to the
+// record of that term, so a tap anywhere on it opens the record. With no plan, a line says so.
 @Composable
 fun PlanListComponentView(
 	item: PlanListItem,
@@ -35,15 +35,12 @@ fun PlanListComponentView(
 			CardBodyTextView(text = stringResource(Res.string.assistant_card_b_plans_empty), muted = true)
 		}
 		item.rows.visibleRows(rowLimit).forEachIndexed { index, plan ->
-			CardRowView(
-				name = plan.termLabel,
+			CardLinkRowView(
+				link = plan.link,
+				onAction = onAction,
+				text = CardRowText(name = plan.termLabel),
 				showsDivider = index > 0,
-				trailing = {
-					CardTrailingColumn {
-						CardValueView(text = plan.summaryText.asString())
-						CardLinkItemView(link = plan.link, onAction = onAction)
-					}
-				}
+				trailing = { CardValueView(text = plan.summaryText.asString()) }
 			)
 		}
 		item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }

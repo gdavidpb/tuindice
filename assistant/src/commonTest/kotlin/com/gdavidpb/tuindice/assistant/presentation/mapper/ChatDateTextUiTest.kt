@@ -45,6 +45,41 @@ class ChatDateTextUiTest {
 		)
 	}
 
+	@Test
+	fun when_aCellMomentIsOnTheDayItIsRead_then_itSaysTodayAndTheClockWithoutAnArticle() = runTuIndiceUiTest {
+		assertChatCellDate(
+			expected = "hoy, 3:05 p. m.",
+			millis = millisOf(hour = 15, minute = 5),
+			nowMillis = millisOf(hour = 9)
+		)
+	}
+
+	@Test
+	fun when_aCellMomentIsAnotherDay_then_itSaysTheWeekdayAndTheDayWithoutAnArticle() = runTuIndiceUiTest {
+		assertChatCellDate(
+			expected = "viernes 23 de octubre, 6:53 a. m.",
+			millis = millisOf(month = 10, day = 23, hour = 6, minute = 53),
+			nowMillis = millisOf(month = 10, day = 18, hour = 12)
+		)
+	}
+
+	@Test
+	fun when_aCellMomentIsInAnotherYear_then_itSaysTheYearAfterTheDayWithoutAnArticle() = runTuIndiceUiTest {
+		assertChatCellDate(
+			expected = "viernes 15 de enero 2027, 3:05 p. m.",
+			millis = millisOf(year = 2027, hour = 15, minute = 5),
+			nowMillis = millisOf(hour = 12)
+		)
+	}
+
+	private fun ComposeUiTest.assertChatCellDate(expected: String, millis: Long, nowMillis: Long) {
+		setTuIndiceTestContent {
+			Text(text = millis.toChatCellDateText(nowMillis).asString())
+		}
+
+		onNodeWithText(expected).assertIsDisplayed()
+	}
+
 	private fun ComposeUiTest.assertChatDate(expected: String, millis: Long, nowMillis: Long) {
 		setTuIndiceTestContent {
 			Text(text = millis.toChatDateText(nowMillis).asString())
