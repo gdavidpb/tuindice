@@ -4,10 +4,18 @@ import com.gdavidpb.tuindice.assistant.presentation.model.MemoryEntryItem
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_memory_title
 
-// What the assistant remembers about the student, reached from About. The student reads, confirms and deletes it.
+// What the assistant remembers about the student, reached from Preferencias. The student reads and deletes it.
 object AssistantMemory {
-	sealed class State : ViewState {
+	// Every state carries the title of the screen, so the bar says «Memoria del asistente» in all of them.
+	sealed class State(
+		override val topBarTitle: UiText = UiText.Resource(Res.string.assistant_memory_title),
+		override val isTopBarVisible: Boolean = true,
+		override val isBottomBarVisible: Boolean = false
+	) : ViewState {
 		data object Idle : State()
 		data object Loading : State()
 		data class Content(val entries: List<MemoryEntryItem>) : State()

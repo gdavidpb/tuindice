@@ -7,9 +7,9 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemU
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
-import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryCategoryKey
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
+import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryItem
@@ -24,11 +24,12 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
+// The moment the memory screen is read in the tests: 20 October 2026, at noon in UTC.
+internal const val MEMORY_NOW_MILLIS = 1_792_497_600_000L
+
 // The texts are told apart by their values: each answers its own key, so an assertion can say which text the student
 // sees.
 internal class FakeAssistantMemoryTexts : AssistantMemoryTexts {
-	override suspend fun categoryLabel(category: AssistantMemoryCategoryKey): String = "label:${category.name}"
-
 	override suspend fun loadFailed(): String = "load-failed"
 
 	override suspend fun deleted(): String = "deleted"
@@ -92,7 +93,8 @@ internal class AssistantMemoryFixture(items: List<MemoryItem> = emptyList()) {
 			deleteAssistantMemoryItemUseCase = DeleteAssistantMemoryItemUseCase(repository, reporting),
 			clearAssistantMemoryUseCase = ClearAssistantMemoryUseCase(repository, reporting),
 			answerStillAppliesUseCase = AnswerStillAppliesUseCase(repository, reporting),
-			texts = texts
+			texts = texts,
+			clock = FixedClock(nowMillis = MEMORY_NOW_MILLIS)
 		)
 	}
 

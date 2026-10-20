@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import kotlin.time.Clock
 
 /**
  * The memory screen: its states, its transitions and the commands behind them. The list is asked of the server each
@@ -26,7 +27,8 @@ class AssistantMemoryMachine(
 	private val deleteAssistantMemoryItemUseCase: DeleteAssistantMemoryItemUseCase,
 	private val clearAssistantMemoryUseCase: ClearAssistantMemoryUseCase,
 	private val answerStillAppliesUseCase: AnswerStillAppliesUseCase,
-	private val texts: AssistantMemoryTexts
+	private val texts: AssistantMemoryTexts,
+	private val clock: Clock
 ) : ScreenMachine<AssistantMemory.State, AssistantMemory.Effect> {
 	override fun initialState(): AssistantMemory.State = AssistantMemory.State.Idle
 
@@ -47,7 +49,9 @@ class AssistantMemoryMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> {
-						val entries = useCaseState.value.items.toMemoryEntryItems(texts = texts)
+						val entries = useCaseState.value.items.toMemoryEntryItems(
+							nowMillis = clock.now().toEpochMilliseconds()
+						)
 
 						host.processInternalEvent(
 							if (entries.isEmpty()) {

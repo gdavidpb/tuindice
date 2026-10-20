@@ -40,6 +40,7 @@ object BaseUiTags {
 	const val SnackbarContainer = "base_snackbar_container"
 	const val SnackbarMessage = "base_snackbar_message"
 	const val SnackbarActionButton = "base_snackbar_action_button"
+	const val SpanText = "base_span_text"
 
 	const val WheelPickerList = "base_wheel_picker_list"
 	const val EmptyStateAnimation = "base_empty_state_animation"

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.view
+package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -51,8 +51,8 @@ fun SettingsLinkRow(
 }
 
 /**
- * A row of Settings that does its thing at once (share, rate, sign out), with no chevron. A [isDestructive] row takes
- * the error color of the theme, as the destructive actions do everywhere else.
+ * A row that does its thing at once (share, rate, sign out, clear what the assistant remembers), with no chevron. A
+ * [isDestructive] row takes the error color of the theme, as the destructive actions do everywhere else.
  */
 @Composable
 fun SettingsActionRow(
@@ -99,7 +99,7 @@ private fun SettingsRowLayout(
 			modifier = Modifier.size(TuIndiceComponentSizes.Icon)
 		)
 
-		AboutSpanText(
+		TuIndiceSpanText(
 			modifier = Modifier.weight(1f),
 			text = text,
 			color = contentColor

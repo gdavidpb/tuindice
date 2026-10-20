@@ -43,6 +43,8 @@ object AssistantUiTags {
 	const val MemoryEmpty = "assistant_memory_empty"
 	const val MemoryFailed = "assistant_memory_failed"
 	const val MemoryContent = "assistant_memory_content"
+	const val MemoryExplanation = "assistant_memory_explanation"
+	const val MemorySectionTitle = "assistant_memory_section_title"
 	const val MemoryClearAll = "assistant_memory_clear_all"
 	const val ClearAllDialog = "assistant_clear_all_dialog"
 	const val ClearAllConfirm = "assistant_clear_all_confirm"

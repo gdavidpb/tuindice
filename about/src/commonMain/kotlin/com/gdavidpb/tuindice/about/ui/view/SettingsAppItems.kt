@@ -8,6 +8,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.about.ui.model.SettingsActions
 import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
+import com.gdavidpb.tuindice.base.ui.view.SettingsActionRow
+import com.gdavidpb.tuindice.base.ui.view.SettingsLinkRow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res

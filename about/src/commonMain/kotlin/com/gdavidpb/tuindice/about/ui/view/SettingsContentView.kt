@@ -16,6 +16,8 @@ import com.gdavidpb.tuindice.about.ui.model.SettingsActions
 import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.SettingsActionRow
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceSectionHeader
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.settings_section_app
@@ -41,27 +43,35 @@ fun SettingsContentView(
 		}
 
 		if (state.assistantAvailable) {
-			SettingsSection(title = stringResource(Res.string.settings_section_assistant)) {
-				SettingsAssistantItems(
-					consentGranted = state.assistantConsentGranted,
-					onConsentChange = actions.onAssistantConsentChange,
-					onMemoryClick = actions.onAssistantMemoryClick,
-					onConversationsClick = actions.onAssistantConversationsClick
-				)
-			}
+			TuIndiceSectionHeader(
+				text = stringResource(Res.string.settings_section_assistant),
+				modifier = Modifier.testTag(SettingsUiTags.SectionTitle)
+			)
+			SettingsAssistantItems(
+				consentGranted = state.assistantConsentGranted,
+				onConsentChange = actions.onAssistantConsentChange,
+				onMemoryClick = actions.onAssistantMemoryClick,
+				onConversationsClick = actions.onAssistantConversationsClick
+			)
 		}
 
-		SettingsSection(title = stringResource(Res.string.settings_section_privacy)) {
-			SettingsPrivacyItems(state = state, actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.settings_section_privacy),
+			modifier = Modifier.testTag(SettingsUiTags.SectionTitle)
+		)
+		SettingsPrivacyItems(state = state, actions = actions)
 
-		SettingsSection(title = stringResource(Res.string.settings_section_help)) {
-			SettingsHelpItems(actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.settings_section_help),
+			modifier = Modifier.testTag(SettingsUiTags.SectionTitle)
+		)
+		SettingsHelpItems(actions = actions)
 
-		SettingsSection(title = stringResource(Res.string.settings_section_app)) {
-			SettingsAppItems(versionText = state.versionText, actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.settings_section_app),
+			modifier = Modifier.testTag(SettingsUiTags.SectionTitle)
+		)
+		SettingsAppItems(versionText = state.versionText, actions = actions)
 
 		// Leaving is the last thing in the list and the only row in the error color of the theme.
 		Column(modifier = Modifier.padding(top = TuIndiceSpacing.Dialog)) {

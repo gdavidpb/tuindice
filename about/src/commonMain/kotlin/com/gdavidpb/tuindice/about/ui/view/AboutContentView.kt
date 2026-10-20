@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceSectionHeader
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.about_header_developer
@@ -27,23 +28,29 @@ fun AboutContentView(
 			.testTag(AboutUiTags.ContentContainer)
 			.verticalScroll(rememberScrollState())
 	) {
-		AboutHeader(
+		TuIndiceSectionHeader(
 			text = stringResource(Res.string.app_name),
+			modifier = Modifier.testTag(AboutUiTags.HeaderTitle),
 			topPadding = InternalScreenDefaults.TopBarSpacing
-		) {
-			AboutAppItems(versionText = state.versionText, actions = actions)
-		}
+		)
+		AboutAppItems(versionText = state.versionText, actions = actions)
 
-		AboutHeader(text = stringResource(Res.string.about_header_developer)) {
-			AboutDeveloperItems(actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.about_header_developer),
+			modifier = Modifier.testTag(AboutUiTags.HeaderTitle)
+		)
+		AboutDeveloperItems(actions = actions)
 
-		AboutHeader(text = stringResource(Res.string.about_header_libs)) {
-			AboutLibrariesItems(actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.about_header_libs),
+			modifier = Modifier.testTag(AboutUiTags.HeaderTitle)
+		)
+		AboutLibrariesItems(actions = actions)
 
-		AboutHeader(text = stringResource(Res.string.about_header_special_thanks)) {
-			AboutSpecialThanksItems(actions = actions)
-		}
+		TuIndiceSectionHeader(
+			text = stringResource(Res.string.about_header_special_thanks),
+			modifier = Modifier.testTag(AboutUiTags.HeaderTitle)
+		)
+		AboutSpecialThanksItems(actions = actions)
 	}
 }

@@ -27,7 +27,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   `PensumProgressRepository` (`pensum`).
 - `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
   binding/canonicalización de payloads.
-- `about`: pantalla Ajustes (identidad del estudiante, asistente, privacidad, ayuda, compartir y cierre de sesión) y la pantalla «Acerca de TuIndice» (versión, licencia, desarrollador y créditos).
+- `about`: pantalla Preferencias (identidad del estudiante, asistente, privacidad, ayuda, compartir y cierre de sesión) y la pantalla «Acerca de TuIndice» (versión, licencia, desarrollador y créditos).
 - `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre, la carrera y las estadísticas), la pantalla Estadísticas con sus gráficos y la hoja para compartir un trimestre como imagen.
 - `record`: historial académico, cálculos de índice y la hoja Horario (tabla y grilla por bloques, con la marca de las
@@ -39,7 +39,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
 - `wizard`: onboarding progresivo con overlays contextuales sobre pantallas reales de la app.
 - `assistant`: asistente académico (capa de datos: stream de eventos por SSE, API, disponibilidad, consentimiento, insights, memoria y conversación en memoria).
-- `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app: cuatro secciones en la barra inferior (Resumen, Registro, Pensum y Evaluaciones) y el avatar del estudiante al final de la barra superior, que abre Ajustes.
+- `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app: cuatro secciones en la barra inferior (Resumen, Registro, Pensum y Evaluaciones) y el avatar del estudiante al final de la barra superior, que abre Preferencias.
 - `app`: host Android.
 - `iosApp`: host iOS.
 - `testkit`: helpers, dobles compartidos y contrato reutilizable para pruebas.

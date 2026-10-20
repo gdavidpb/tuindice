@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.view
+package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,12 +12,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
-import com.gdavidpb.tuindice.base.ui.view.appendWithBoldMarkers
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
+// The text of a row: its first line is the title, in the medium weight, and the lines after a break are the detail.
 @Composable
-fun AboutSpanText(
+fun TuIndiceSpanText(
 	text: String,
 	modifier: Modifier = Modifier,
 	color: Color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -46,8 +46,8 @@ fun AboutSpanText(
 		color = color,
 		style = MaterialTheme.typography.bodyMedium,
 		modifier = modifier
-			.testTag(AboutUiTags.SpanText)
-			.padding(horizontal = 16.dp)
+			.testTag(BaseUiTags.SpanText)
+			.padding(horizontal = TuIndiceSpacing.Section)
 			.fillMaxWidth()
 	)
 }

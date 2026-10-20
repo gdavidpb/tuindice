@@ -19,14 +19,14 @@
       "items": [
         {
           "id": "mem-1",
-          "category": "OTHER",
+          "category": "PREFERENCE",
           "text": "Prefieres estudiar por la mañana",
           "state": "ACTIVE",
           "createdAtMillis": 1760000000000
         },
         {
           "id": "mem-2",
-          "category": "OTHER",
+          "category": "CAREER_GOAL",
           "text": "Tu meta es un índice de 16",
           "state": "PENDING_CONFIRMATION",
           "createdAtMillis": 1760000000000

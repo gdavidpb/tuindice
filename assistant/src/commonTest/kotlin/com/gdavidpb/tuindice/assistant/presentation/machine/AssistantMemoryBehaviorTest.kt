@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryCategoryKey
 import com.gdavidpb.tuindice.assistant.presentation.testing.answerAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.clearAllAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.confirmClearAllAction
@@ -139,15 +140,15 @@ class AssistantMemoryBehaviorTest {
 	}
 
 	@Test
-	fun when_aCategoryIsKnown_then_itsLabelIsMapped_andAnUnknownOneIsOther() = memoryTest(
+	fun when_aCategoryIsKnown_then_itIsKept_andAnUnknownOneIsOther() = memoryTest(
 		items = listOf(
 			memoryItem(id = "m1", category = "PREFERENCE"),
 			memoryItem(id = "m2", category = "A_KIND_THIS_BUILD_DOES_NOT_KNOW")
 		)
 	) { _, viewModel ->
 		assertEquals(
-			listOf("label:PREFERENCE", "label:OTHER"),
-			viewModel.content().entries.map { entry -> entry.categoryLabel }
+			listOf(AssistantMemoryCategoryKey.PREFERENCE, AssistantMemoryCategoryKey.OTHER),
+			viewModel.content().entries.map { entry -> entry.category }
 		)
 	}
 

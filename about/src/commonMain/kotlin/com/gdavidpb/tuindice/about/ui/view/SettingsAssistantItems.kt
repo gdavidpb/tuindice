@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
 import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
+import com.gdavidpb.tuindice.base.ui.view.SettingsLinkRow
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.settings_assistant_consent

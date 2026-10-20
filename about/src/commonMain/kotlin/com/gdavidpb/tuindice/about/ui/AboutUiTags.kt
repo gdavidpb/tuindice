@@ -4,7 +4,6 @@ object AboutUiTags {
 	const val ContentContainer = "about_content_container"
 	const val HeaderTitle = "about_header_title"
 	const val ItemContainer = "about_item_container"
-	const val SpanText = "about_span_text"
 
 	const val OpenCreativeCommons = "about_open_creative_commons"
 	const val OpenGithub = "about_open_github"

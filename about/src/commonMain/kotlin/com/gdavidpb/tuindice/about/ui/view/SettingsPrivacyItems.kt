@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.gdavidpb.tuindice.about.presentation.contract.Settings
 import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.about.ui.model.SettingsActions
+import com.gdavidpb.tuindice.base.ui.view.SettingsLinkRow
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.settings_privacy_policy

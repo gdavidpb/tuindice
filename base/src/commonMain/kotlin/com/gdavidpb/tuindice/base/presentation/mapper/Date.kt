@@ -5,7 +5,9 @@ package com.gdavidpb.tuindice.base.presentation.mapper
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import kotlinx.datetime.*
 import tuindice.base.generated.resources.Res
+import tuindice.base.generated.resources.date_day_month
 import tuindice.base.generated.resources.date_day_month_year
+import tuindice.base.generated.resources.date_day_month_year_unpadded
 import tuindice.base.generated.resources.date_day_short_month
 import tuindice.base.generated.resources.date_short_weekday_numeric_date
 import tuindice.base.generated.resources.date_time
@@ -27,6 +29,8 @@ enum class DateTextStyle {
 	YESTERDAY_TIME,
 	WEEKDAY_TIME,
 	DAY_MONTH_YEAR,
+	DAY_MONTH,
+	DAY_MONTH_YEAR_UNPADDED,
 	WEEKDAY_NUMERIC_DATE,
 	SHORT_WEEKDAY_NUMERIC_DATE,
 	DAY_SHORT_MONTH,
@@ -68,6 +72,13 @@ fun Long.formatDate(style: DateTextStyle): UiText {
 
 		DateTextStyle.DAY_MONTH_YEAR ->
 			UiText.Resource(Res.string.date_day_month_year, listOf(dayOfMonth, monthName, year))
+
+		// The day without its zero and the month by name, as a sentence says it: "5 de marzo".
+		DateTextStyle.DAY_MONTH ->
+			UiText.Resource(Res.string.date_day_month, listOf(dayNumber, monthName))
+
+		DateTextStyle.DAY_MONTH_YEAR_UNPADDED ->
+			UiText.Resource(Res.string.date_day_month_year_unpadded, listOf(dayNumber, monthName, year))
 
 		DateTextStyle.WEEKDAY_NUMERIC_DATE ->
 			UiText.Resource(

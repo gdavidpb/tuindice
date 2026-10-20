@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
+import com.gdavidpb.tuindice.assistant.presentation.mapper.AssistantMemoryCategoryKey
 import com.gdavidpb.tuindice.assistant.presentation.model.MemoryEntryItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantMemoryFixture
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.testkit.mvi.RecordingMachineHost
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
@@ -95,7 +97,8 @@ class AssistantMemoryStateMachineContractTest {
 		val entry = MemoryEntryItem(
 			id = "m1",
 			text = "Prefiero clases por la mañana",
-			categoryLabel = "label:PREFERENCE",
+			category = AssistantMemoryCategoryKey.PREFERENCE,
+			sinceText = UiText.Raw("Desde el 9 de octubre 2025"),
 			anchorLabel = null,
 			needsConfirmation = false
 		)

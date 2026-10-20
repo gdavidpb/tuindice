@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="top_bar_settings">Ajustes</string>
+	<string name="top_bar_settings">Preferencias</string>
 	<string name="top_bar_about">Acerca de TuIndice</string>
     <string name="app_name">TuIndice</string>
     <string name="about_version">Versión\n%1$s</string>

@@ -23,5 +23,5 @@ internal fun Long.toChatDateText(nowMillis: Long): UiText {
 	return formatDate(style)
 }
 
-private fun Long.toLocalDate(): LocalDate =
+internal fun Long.toLocalDate(): LocalDate =
 	Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault()).date

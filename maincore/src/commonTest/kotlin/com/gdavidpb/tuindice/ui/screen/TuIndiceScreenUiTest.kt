@@ -251,7 +251,7 @@ class TuIndiceScreenUiTest {
 
 			assertNodeVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true)
 			onNodeWithTag(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true)
-				.assertContentDescriptionEquals("Ajustes")
+				.assertContentDescriptionEquals("Preferencias")
 		}
 	}
 
@@ -265,7 +265,7 @@ class TuIndiceScreenUiTest {
 						startDestination = browserStartDestination()
 					),
 					shellState = shellState(
-						topBarTitle = "Ajustes",
+						topBarTitle = "Preferencias",
 						isTopBarVisible = true,
 						isBottomBarVisible = false
 					),
