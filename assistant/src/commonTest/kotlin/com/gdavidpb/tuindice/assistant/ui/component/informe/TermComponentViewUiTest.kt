@@ -30,8 +30,8 @@ class TermComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.term(COMPONENT_ID))
 		onNodeWithText("2026 ENERO-MARZO").assertIsDisplayed()
-		onNodeWithContentDescription("Índice del trimestre: 16,2000").assertIsDisplayed()
-		onNodeWithContentDescription("Acumulado: 15,8000").assertIsDisplayed()
+		onNodeWithContentDescription("Índice del trimestre: 16.2000").assertIsDisplayed()
+		onNodeWithContentDescription("Acumulado: 15.8000").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I").assertIsDisplayed()
 		onNodeWithText("18").assertIsDisplayed()

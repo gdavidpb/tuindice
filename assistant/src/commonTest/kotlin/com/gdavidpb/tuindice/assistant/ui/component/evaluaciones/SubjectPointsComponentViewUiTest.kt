@@ -31,7 +31,7 @@ class SubjectPointsComponentViewUiTest {
 		onNodeWithText("PUNTOS POR MATERIA").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Programación I").assertIsDisplayed()
-		onNodeWithText("12,50/60").assertIsDisplayed()
+		onNodeWithText("12.50/60").assertIsDisplayed()
 		onNodeWithText("8/10").assertIsDisplayed()
 	}
 

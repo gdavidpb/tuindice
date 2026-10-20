@@ -22,9 +22,9 @@ class IndexGoalComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.indexGoal(COMPONENT_ID))
 		onNodeWithText("META DEL ÍNDICE").assertIsDisplayed()
-		onNodeWithContentDescription("Índice necesario en el trimestre: 18,2000").assertIsDisplayed()
+		onNodeWithContentDescription("Índice necesario en el trimestre: 18.2000").assertIsDisplayed()
 		onNodeWithText("Meta acumulada").assertIsDisplayed()
-		onNodeWithText("17,0000").assertIsDisplayed()
+		onNodeWithText("17.0000").assertIsDisplayed()
 		onNodeWithText("alcanzable").assertIsDisplayed()
 		onNodeWithText("Créditos").assertIsDisplayed()
 		onNodeWithText("60").assertIsDisplayed()

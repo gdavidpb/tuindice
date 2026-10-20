@@ -22,7 +22,7 @@ class ProfileSummaryComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Profile.summary(COMPONENT_ID))
 		onNodeWithText("TU PERFIL").assertIsDisplayed()
-		onNodeWithContentDescription("Índice acumulado: 16,4000").assertIsDisplayed()
+		onNodeWithContentDescription("Índice acumulado: 16.4000").assertIsDisplayed()
 		onNodeWithContentDescription("Créditos aprobados: 80/180").assertIsDisplayed()
 		onNodeWithText("IS").assertIsDisplayed()
 		onNodeWithText("Ingeniería de Sistemas").assertIsDisplayed()
@@ -38,7 +38,7 @@ class ProfileSummaryComponentViewUiTest {
 			)
 		}
 
-		onNodeWithContentDescription("Índice acumulado: 16,4000").assertDoesNotExist()
+		onNodeWithContentDescription("Índice acumulado: 16.4000").assertDoesNotExist()
 		onNodeWithContentDescription("Créditos aprobados: 80").assertIsDisplayed()
 		onNodeWithText("Trimestre en curso").assertDoesNotExist()
 	}

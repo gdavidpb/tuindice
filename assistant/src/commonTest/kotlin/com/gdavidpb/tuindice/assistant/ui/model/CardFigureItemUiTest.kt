@@ -26,9 +26,9 @@ class CardFigureItemUiTest {
 			)
 		}
 
-		onNodeWithText("3,8125", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithText("3.8125", useUnmergedTree = true).assertIsDisplayed()
 		onNodeWithText("índice del trimestre", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithContentDescription("Índice del trimestre: 3,8125").assertIsDisplayed()
+		onNodeWithContentDescription("Índice del trimestre: 3.8125").assertIsDisplayed()
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class CardFigureItemUiTest {
 			)
 		}
 
-		onNodeWithText("16,0000", useUnmergedTree = true).assertIsDisplayed()
-		onNodeWithContentDescription("Índice del trimestre: 16,0000").assertIsDisplayed()
+		onNodeWithText("16.0000", useUnmergedTree = true).assertIsDisplayed()
+		onNodeWithContentDescription("Índice del trimestre: 16.0000").assertIsDisplayed()
 	}
 }

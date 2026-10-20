@@ -23,8 +23,8 @@ class SimulationComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.simulation(COMPONENT_ID))
 		onNodeWithText("SIMULACIÓN DEL TRIMESTRE").assertIsDisplayed()
-		onNodeWithContentDescription("Índice del trimestre simulado: 17,0000").assertIsDisplayed()
-		onNodeWithContentDescription("Acumulado simulado: 16,0000").assertIsDisplayed()
+		onNodeWithContentDescription("Índice del trimestre simulado: 17.0000").assertIsDisplayed()
+		onNodeWithContentDescription("Acumulado simulado: 16.0000").assertIsDisplayed()
 		onNodeWithText("IS-101").assertIsDisplayed()
 		onNodeWithText("Aprobada").assertIsDisplayed()
 		onNodeWithText("20").assertIsDisplayed()

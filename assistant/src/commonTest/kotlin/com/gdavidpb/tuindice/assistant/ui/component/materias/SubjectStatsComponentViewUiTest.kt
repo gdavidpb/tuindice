@@ -23,7 +23,7 @@ class SubjectStatsComponentViewUiTest {
 
 			assertNodeVisible(AssistantUiTags.Subjects.stats(COMPONENT_ID))
 			onNodeWithText("PROGRAMACIÓN I").assertIsDisplayed()
-			onNodeWithContentDescription("Promedio: 14,50").assertIsDisplayed()
+			onNodeWithContentDescription("Promedio: 14.50").assertIsDisplayed()
 			onNodeWithContentDescription("Tasa de aprobación: 72 %").assertIsDisplayed()
 			onNodeWithText("Dificultad").assertIsDisplayed()
 			onNodeWithText("Media").assertIsDisplayed()

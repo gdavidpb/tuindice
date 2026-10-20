@@ -9,7 +9,7 @@ import tuindice.assistant.generated.resources.assistant_card_b_points_one
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// Grades, points and counts read as the Evaluations tab reads them, with the decimal comma and the noun in its number.
+// Grades, points and counts read as the Evaluations tab reads them, with the decimal point and the noun in its number.
 class ChatCardQuantityTextTest {
 	@Test
 	fun when_aNumberIsWhole_then_itHasNoDecimals() {
@@ -17,9 +17,9 @@ class ChatCardQuantityTextTest {
 	}
 
 	@Test
-	fun when_aNumberHasDecimals_then_itHasTwoWithTheComma_andTheDigitsPastThemAreCut() {
-		assertEquals("12,50", 12.5.toCardCompactNumberText())
-		assertEquals("12,34", 12.345.toCardCompactNumberText())
+	fun when_aNumberHasDecimals_then_itHasTwoWithThePoint_andTheDigitsPastThemAreCut() {
+		assertEquals("12.50", 12.5.toCardCompactNumberText())
+		assertEquals("12.34", 12.345.toCardCompactNumberText())
 	}
 
 	@Test
@@ -34,6 +34,6 @@ class ChatCardQuantityTextTest {
 	@Test
 	fun when_pointsAreOne_then_theyTakeTheSingularNoun() {
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_points_one, listOf("1")), chatCardPointsText(1.0))
-		assertEquals(UiText.Resource(Res.string.assistant_card_b_points_many, listOf("12,50")), chatCardPointsText(12.5))
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_points_many, listOf("12.50")), chatCardPointsText(12.5))
 	}
 }

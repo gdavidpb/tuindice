@@ -23,11 +23,11 @@ class IndexSeriesComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.indexSeries(COMPONENT_ID))
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
-		onNodeWithContentDescription("Índice acumulado: 15,8000").assertIsDisplayed()
+		onNodeWithContentDescription("Índice acumulado: 15.8000").assertIsDisplayed()
 		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
-		onNodeWithText("16,2000").assertIsDisplayed()
-		onNodeWithText("15,1000").assertIsDisplayed()
+		onNodeWithText("16.2000").assertIsDisplayed()
+		onNodeWithText("15.1000").assertIsDisplayed()
 		onNodeWithText("Más alto").assertIsDisplayed()
 		onNodeWithText("Más bajo").assertIsDisplayed()
 	}
@@ -39,7 +39,7 @@ class IndexSeriesComponentViewUiTest {
 		}
 
 		onNodeWithText("ÍNDICE POR TRIMESTRE").assertIsDisplayed()
-		onNodeWithContentDescription("Índice acumulado: 15,8000").assertDoesNotExist()
+		onNodeWithContentDescription("Índice acumulado: 15.8000").assertDoesNotExist()
 	}
 
 	private fun series(points: List<IndexPoint> = POINTS): IndexSeriesComponent =

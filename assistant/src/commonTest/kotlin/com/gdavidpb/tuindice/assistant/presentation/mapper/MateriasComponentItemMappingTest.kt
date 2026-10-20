@@ -69,7 +69,7 @@ class MateriasComponentItemMappingTest {
 			histogram = emptyList()
 		).toSubjectStatsItem()
 
-		assertEquals(UiText.Raw("14,50"), both.primaryFigure?.value)
+		assertEquals(UiText.Raw("14.50"), both.primaryFigure?.value)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_stats_average_caption), both.primaryFigure?.caption)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_stats_pass_caption), both.secondaryFigure?.caption)
 		assertEquals(bandText("high"), both.difficultyText)

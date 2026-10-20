@@ -18,13 +18,13 @@ class CardCommonViewsUiTest {
 	fun when_figuresAreShown_then_eachReadsAsItsFullSentence() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CardFiguresView(
-				primary = CardFigure("3,8125", "índice del trimestre", "Índice del trimestre: 3,8125"),
-				secondary = CardFigure("3,4521", "acumulado", "Índice acumulado: 3,4521")
+				primary = CardFigure("3.8125", "índice del trimestre", "Índice del trimestre: 3.8125"),
+				secondary = CardFigure("3.4521", "acumulado", "Índice acumulado: 3.4521")
 			)
 		}
 
-		onNodeWithContentDescription("Índice del trimestre: 3,8125").assertIsDisplayed()
-		onNodeWithContentDescription("Índice acumulado: 3,4521").assertIsDisplayed()
+		onNodeWithContentDescription("Índice del trimestre: 3.8125").assertIsDisplayed()
+		onNodeWithContentDescription("Índice acumulado: 3.4521").assertIsDisplayed()
 	}
 
 	@Test

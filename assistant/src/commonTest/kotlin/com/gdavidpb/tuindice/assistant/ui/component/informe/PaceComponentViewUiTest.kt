@@ -23,7 +23,7 @@ class PaceComponentViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.Report.pace(COMPONENT_ID))
 		onNodeWithText("RITMO DE CRÉDITOS").assertIsDisplayed()
-		onNodeWithContentDescription("Créditos por trimestre: 15,0").assertIsDisplayed()
+		onNodeWithContentDescription("Créditos por trimestre: 15.0").assertIsDisplayed()
 		onNodeWithText("2025 septiembre-diciembre").assertIsDisplayed()
 		onNodeWithText("14").assertIsDisplayed()
 		onNodeWithText("2026 enero-marzo").assertIsDisplayed()
