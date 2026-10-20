@@ -181,17 +181,14 @@ class TuIndiceSheetState internal constructor(
 
 		private fun isOpenable(): Boolean =
 			isPositioned && draggableState.offset > draggableState.anchors.positionOf(TuIndiceSheetValue.Expanded)
-
-		private fun dragBy(delta: Float): Float =
-			if (isPositioned) draggableState.dispatchRawDelta(delta) else 0f
 	}
 
 	private val isPositioned: Boolean
 		get() = !draggableState.offset.isNaN()
 
-	// Settles where the sheet was let go: with a fling it goes on in the direction of the fling to the next anchor, and
-	// without one, to the closest.
-	private suspend fun settle(velocity: Float) {
+	// Settles where the sheet was let go, by a drag on it or by its content's nested scroll: with a fling it goes on in
+	// the direction of the fling to the next anchor, so a quick flick down closes it, and without one, to the closest.
+	internal suspend fun settle(velocity: Float) {
 		if (!isPositioned) return
 
 		val target = targetFor(draggableState.requireOffset(), velocity)
@@ -284,3 +281,8 @@ fun rememberTuIndiceSheetState(
 private val SheetVelocityThreshold = 125.dp
 
 private const val UNPOSITIONED_OFFSET_PX = Int.MAX_VALUE / 2
+
+// A drag on the sheet itself (its handle, or content that does not scroll) or what its content leaves of one moves it
+// as far as the anchors allow. Before the first layout there is nothing to move.
+internal fun TuIndiceSheetState.dragBy(delta: Float): Float =
+	if (draggableState.offset.isNaN()) 0f else draggableState.dispatchRawDelta(delta)

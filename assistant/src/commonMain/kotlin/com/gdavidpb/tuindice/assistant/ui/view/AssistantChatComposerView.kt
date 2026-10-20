@@ -18,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.LineHeightStyle
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -53,7 +55,7 @@ fun AssistantChatComposerView(
 ) {
 	val field = remember { EditableTextFieldState(composer.text, composer.textRevision) }
 	val interactionSource = remember { MutableInteractionSource() }
-	val textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface)
+	val textStyle = composerTextStyle()
 
 	field.syncExternal(composer.text, composer.textRevision)
 
@@ -111,3 +113,11 @@ fun AssistantChatComposerView(
 		}
 	)
 }
+
+// The glyphs are centred in their line, so a single line sits in the middle of the field, level with its icons.
+@Composable
+private fun composerTextStyle(): TextStyle =
+	MaterialTheme.typography.bodyLarge.copy(
+		color = MaterialTheme.colorScheme.onSurface,
+		lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
+	)

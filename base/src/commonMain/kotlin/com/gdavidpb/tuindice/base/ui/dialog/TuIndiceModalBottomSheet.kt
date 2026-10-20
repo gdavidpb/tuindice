@@ -5,8 +5,9 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -205,9 +206,12 @@ private fun BoxScope.TuIndiceSheetSurface(
 			.fillMaxWidth()
 			.onSizeChanged { size -> onHeightChanged(size.height.toFloat()) }
 			.offset { IntOffset(x = 0, y = sheetState.offsetPx()) }
-			.anchoredDraggable(
-				state = sheetState.draggableState,
-				orientation = Orientation.Vertical
+			// The drag is read here and settled by the sheet's own rule, the same one the nested scroll uses, so a quick
+			// flick down closes the sheet: the anchored-draggable default settled a short fast flick back where it was.
+			.draggable(
+				state = rememberDraggableState { delta -> sheetState.dragBy(delta) },
+				orientation = Orientation.Vertical,
+				onDragStopped = { velocity -> sheetState.settle(velocity) }
 			),
 		shape = BottomSheetDefaults.ExpandedShape,
 		color = BottomSheetDefaults.ContainerColor,

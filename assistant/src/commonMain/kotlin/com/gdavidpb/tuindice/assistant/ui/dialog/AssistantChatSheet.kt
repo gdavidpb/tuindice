@@ -1,13 +1,10 @@
 package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,9 +54,10 @@ fun AssistantChatSheet(
 			.exposeTestTagsAsResourceId()
 			.testTag(AssistantUiTags.ChatSheet),
 		sheetState = sheetState,
-		// The sheet pads only the top: the body pads the bottom itself, with the keyboard or the home indicator, so the
-		// composer sits right above the keyboard instead of above the sheet's inset and the body's own on top of it.
-		contentWindowInsets = { WindowInsets.safeDrawing.only(WindowInsetsSides.Top) },
+		// The sheet pads nothing: the body pads the bottom itself, with the keyboard or the home indicator, so the composer
+		// sits right above the keyboard, and the sheet never reaches the status bar, so a top inset would only add a gap
+		// under the handle.
+		contentWindowInsets = { WindowInsets(0) },
 		onDismissRequest = { onAction(AssistantChat.Action.Dismiss) }
 	) {
 		// The keyboard's inset is real inside the sheet, so the typing height comes from it, not from the focus.

@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -58,7 +58,7 @@ private fun SendOrStopButton(
 		)
 	} else {
 		ComposerCircleButton(
-			icon = Icons.AutoMirrored.Outlined.Send,
+			icon = Icons.Rounded.ArrowUpward,
 			description = stringResource(Res.string.a11y_assistant_send),
 			isOn = composer.isSendEnabled,
 			onClick = { onAction(AssistantChat.Action.Send) },
