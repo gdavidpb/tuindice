@@ -7,5 +7,7 @@ data class StillAppliesItem(
 	val memoryId: String,
 	val statement: String,
 	// The answer the student gave, once the service saved it: the question keeps its outcome on the sheet.
-	val answer: Boolean? = null
+	val answer: Boolean? = null,
+	// The answer is being saved: the card's buttons wait for it.
+	val isPending: Boolean = false
 ) : SistemaComponentItem

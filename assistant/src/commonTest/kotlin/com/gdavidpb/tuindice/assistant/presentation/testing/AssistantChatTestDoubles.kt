@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
@@ -203,6 +204,20 @@ internal class GatedAssistantIntentRepository(
 
 	override suspend fun reportOutcome(report: IntentOutcomeReport) {
 		delegate.reportOutcome(report)
+	}
+}
+
+// The answer about a memory waits for the test's go-ahead while [gated]: the save stays running until the test says so.
+internal class GatedAssistantMemoryRepository(
+	private val delegate: AssistantMemoryRepository
+) : AssistantMemoryRepository by delegate {
+	var gated = false
+	val release = CompletableDeferred<Unit>()
+
+	override suspend fun answerStillApplies(memoryId: String, applies: Boolean) {
+		if (gated) release.await()
+
+		delegate.answerStillApplies(memoryId, applies)
 	}
 }
 

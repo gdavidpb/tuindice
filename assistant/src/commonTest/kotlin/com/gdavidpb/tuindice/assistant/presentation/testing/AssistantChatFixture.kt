@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
@@ -95,6 +96,7 @@ internal class AssistantChatFixture(
 		consentGranted = { consent.isAssistantConsentGranted() }
 	)
 	val memories = RecordingAssistantMemoryRepository()
+	val gatedMemories = GatedAssistantMemoryRepository(memories)
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
 	val clientState = FakeAssistantClientStateRepository()
 	val imageEncoder = RecordingImageEncoderRepository()
@@ -247,7 +249,8 @@ internal class AssistantChatFixture(
 				paramsValidator = ReportAssistantMessageParamsValidator(),
 				exceptionHandler = ReportAssistantMessageExceptionHandler()
 			),
-			answerStillAppliesUseCase = AnswerStillAppliesUseCase(memories, reporting),
+			answerStillAppliesUseCase = AnswerStillAppliesUseCase(gatedMemories, reporting),
+			getAssistantMemoryUseCase = GetAssistantMemoryUseCase(memories, reporting),
 			texts = feedbackTexts
 		)
 	}

@@ -58,11 +58,14 @@ sealed interface AssistantChatInternalEvent {
 
 	data class EnrollmentProofDelegated(val intentId: String) : AssistantChatInternalEvent
 
-	// The answer about a memory was not saved: the snackbar says so.
-	data class StillAppliesRejected(val message: String) : AssistantChatInternalEvent
-
 	// The service saved the answer to a «¿Sigue aplicando?» question.
 	data class StillAppliesSaved(val memoryId: String, val applies: Boolean) : AssistantChatInternalEvent
+
+	// The service refused the answer about [memoryId]: the state of the memory is read again to tell if it still waits.
+	data class StillAppliesFailed(val memoryId: String) : AssistantChatInternalEvent
+
+	// The states of the memories the service lists, by memory id.
+	data class MemoryStatesLoaded(val states: Map<String, String>) : AssistantChatInternalEvent
 
 	// The answers to the student's feedback and appeal, each with the text of its snackbar.
 	data class MessageRated(val message: String) : AssistantChatInternalEvent

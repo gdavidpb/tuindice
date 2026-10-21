@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 import kotlin.time.Clock
 
@@ -126,16 +127,33 @@ internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTex
 	val items = conversation?.toChatItems(texts = texts, session = this, nowMillis = nowMillis) ?: emptyList()
 
 	return items.map { item ->
-		if (item is ChatItem.Agent) item.copy(parts = item.parts.map { part -> part.withSavedAnswer(answeredMemories) }) else item
+		if (item is ChatItem.Agent) {
+			item.copy(parts = item.parts.map { part -> part.withMemoryAnswer(answeredMemories, memoryStates, pendingMemories) })
+		} else {
+			item
+		}
 	}
 }
 
-// A «¿Sigue aplicando?» question the student already answered keeps the answer it was given.
-internal fun ChatPartItem.withSavedAnswer(answers: Map<String, Boolean>): ChatPartItem {
+// A «¿Sigue aplicando?» question keeps the answer it has: the one the student gave on this sheet, or else the state
+// of its memory in the list read from the server. A memory the list does not have is archived or deleted, so it no
+// longer applies. A question whose answer is being saved is marked as pending.
+internal fun ChatPartItem.withMemoryAnswer(
+	answered: Map<String, Boolean>,
+	states: Map<String, String>?,
+	pending: Set<String>
+): ChatPartItem {
 	val question = (this as? ChatPartItem.Component)?.item as? StillAppliesItem ?: return this
-	val answer = answers[question.memoryId] ?: return this
+	val memoryId = question.memoryId
 
-	return ChatPartItem.Component(question.copy(answer = answer))
+	val answer = answered[memoryId] ?: when {
+		states == null -> null
+		states[memoryId] == MemoryVocabulary.STATE_ACTIVE -> true
+		states[memoryId] == MemoryVocabulary.STATE_PENDING_CONFIRMATION -> null
+		else -> false
+	}
+
+	return ChatPartItem.Component(question.copy(answer = answer, isPending = memoryId in pending))
 }
 
 // A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.

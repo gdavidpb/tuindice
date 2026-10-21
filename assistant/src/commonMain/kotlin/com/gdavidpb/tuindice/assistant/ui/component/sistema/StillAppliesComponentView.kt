@@ -28,6 +28,7 @@ fun StillAppliesComponentView(
 		if (answer == null) {
 			AssistantStillAppliesButtonsView(
 				memoryId = item.memoryId,
+				enabled = !item.isPending,
 				onAnswer = { applies ->
 					onAction(AssistantChat.Action.AnswerStillApplies(item.memoryId, applies))
 				}
@@ -35,7 +36,9 @@ fun StillAppliesComponentView(
 		} else {
 			// Answered: the card keeps the answer the student gave, as an intent card keeps its outcome.
 			CardBodyTextView(
-				text = stringResource(if (answer) Res.string.assistant_still_applies_yes else Res.string.assistant_still_applies_no),
+				text = stringResource(
+					if (answer) Res.string.assistant_still_applies_yes else Res.string.assistant_still_applies_no
+				),
 				muted = true
 			)
 		}

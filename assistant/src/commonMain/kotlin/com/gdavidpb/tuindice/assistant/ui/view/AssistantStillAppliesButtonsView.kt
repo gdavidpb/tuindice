@@ -22,6 +22,7 @@ import tuindice.assistant.generated.resources.assistant_still_applies_yes
 fun AssistantStillAppliesButtonsView(
 	memoryId: String,
 	onAnswer: (applies: Boolean) -> Unit,
+	enabled: Boolean = true,
 	modifier: Modifier = Modifier
 ) {
 	Row(
@@ -30,12 +31,14 @@ fun AssistantStillAppliesButtonsView(
 	) {
 		OutlinedButton(
 			onClick = { onAnswer(false) },
+			enabled = enabled,
 			modifier = Modifier.testTag(AssistantUiTags.Memory.stillAppliesNo(memoryId))
 		) {
 			Text(text = stringResource(Res.string.assistant_still_applies_no))
 		}
 		Button(
 			onClick = { onAnswer(true) },
+			enabled = enabled,
 			modifier = Modifier.testTag(AssistantUiTags.Memory.stillAppliesYes(memoryId))
 		) {
 			Text(text = stringResource(Res.string.assistant_still_applies_yes))

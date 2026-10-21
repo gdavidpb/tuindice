@@ -1,8 +1,11 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
+import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.answerStillAppliesAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.appealAction
@@ -15,14 +18,21 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.openComponentSheetAc
 import com.gdavidpb.tuindice.assistant.presentation.testing.openNavTargetAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.rateMessageAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.reportMessageAction
+import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
+import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
 import com.gdavidpb.tuindice.chatcontract.feedback.ReportReason
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryItem
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
+import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AssistantChatMessageBehaviorTest {
@@ -184,6 +194,7 @@ class AssistantChatMessageBehaviorTest {
 	fun stillApplies_notSaved_saysSo() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
 		fixture.memories.answerError = IllegalStateException("offline")
 
 		viewModel.answerStillAppliesAction("mem1", applies = false)
@@ -201,5 +212,110 @@ class AssistantChatMessageBehaviorTest {
 
 		assertEquals(listOf("mem1" to false), fixture.memories.answers)
 		assertTrue(fixture.effects.isEmpty())
+	}
+
+	@Test
+	fun stillApplies_savedByTheService_keepsTheAnswerOnTheCard() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+
+		viewModel.answerStillAppliesAction("mem1", applies = true)
+
+		val card = viewModel.stillApplies("mem1")
+		assertEquals(true, card.answer)
+		assertEquals(false, card.isPending)
+	}
+
+	@Test
+	fun stillApplies_secondTapWhileTheFirstIsSaved_isNotSentAgain() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		fixture.gatedMemories.gated = true
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+		viewModel.answerStillAppliesAction("mem1", applies = true)
+
+		assertEquals(true, viewModel.stillApplies("mem1").isPending)
+		fixture.gatedMemories.release.complete(Unit)
+		assertEquals(listOf("mem1" to false), fixture.memories.answers)
+	}
+
+	@Test
+	fun stillApplies_refusedWhileTheMemoryStillWaits_isAskedAgainAndSaysSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		fixture.memories.answerError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("still-applies-failed", snack.message)
+		assertNull(viewModel.stillApplies("mem1").answer)
+	}
+
+	@Test
+	fun stillApplies_refusedWhileTheMemoryIsActive_keepsTheAnswerWithoutSayingSo() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_ACTIVE)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		fixture.memories.answerError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+
+		assertTrue(fixture.effects.isEmpty())
+		assertEquals(true, viewModel.stillApplies("mem1").answer)
+	}
+
+	@Test
+	fun stillApplies_observedWithAnActiveMemory_isShownAsStillApplying() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_ACTIVE)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+
+		viewModel.openAction(null)
+
+		assertEquals(true, viewModel.stillApplies("mem1").answer)
+	}
+
+	private fun stillAppliesMessage(memoryId: String): AssistantConversationItem {
+		return agentMessage(
+			"a1",
+			Component(
+				StillAppliesComponent(
+					id = "c1",
+					fallbackText = "¿Sigue aplicando?",
+					memoryId = memoryId,
+					statement = "Prefiere las mañanas"
+				)
+			)
+		)
+	}
+
+	private fun AssistantChatViewModel.stillApplies(memoryId: String): StillAppliesItem {
+		return content().items
+			.filterIsInstance<ChatItem.Agent>()
+			.flatMap { agent -> agent.parts }
+			.filterIsInstance<ChatPartItem.Component>()
+			.mapNotNull { part -> part.item as? StillAppliesItem }
+			.single { card -> card.memoryId == memoryId }
+	}
+
+	private fun memoryList(vararg states: Pair<String, String>): MemoryList {
+		return MemoryList(
+			items = states.map { (id, state) ->
+				MemoryItem(
+					id = id,
+					category = MemoryVocabulary.CATEGORY_PREFERENCE,
+					text = "Prefiere",
+					state = state,
+					createdAtMillis = 0L
+				)
+			}
+		)
 	}
 }

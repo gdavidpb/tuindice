@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.transition
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -11,6 +12,9 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.toWire
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.chatcontract.component.StillAppliesComponent
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
+import com.gdavidpb.tuindice.chatcontract.message.Component
 
 private typealias ContentTransitions = MachineDefinitionBuilder.StateTransitions<
 	AssistantChat.State,
@@ -219,20 +223,15 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
+	// An answer already saved, or still being saved, is not sent again: a second tap on the same memory does nothing.
 	on<AssistantChat.Action.AnswerStillApplies> { state, action ->
+		val session = machine.session
+
+		if (action.memoryId in session.pendingMemories || action.memoryId in session.answeredMemories) return@on state
+
+		session.pendingMemories += action.memoryId
 		machine.feedback.answerStillApplies(host = host, memoryId = action.memoryId, applies = action.applies)
-		state
-	}
-
-	on<AssistantChatInternalEvent.StillAppliesSaved> { state, event ->
-		machine.session.answeredMemories[event.memoryId] = event.applies
 		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.StillAppliesRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
 	}
 
 	on<AssistantChat.Action.Appeal> { state, action ->
@@ -327,6 +326,21 @@ private fun ContentTransitions.contentObservationRows(
 ) {
 	on<AssistantChatInternalEvent.ConversationObserved> { state, event ->
 		machine.session.observe(event.conversation)
+
+		// The card of a memory shows the answer the service keeps for it: the list is read once, when a card still asks.
+		val session = machine.session
+		val asksAboutMemories = session.conversation?.items.orEmpty()
+			.filterIsInstance<AssistantConversationItem.Agent>()
+			.flatMap { item -> item.message.parts }
+			.filterIsInstance<Component>()
+			.mapNotNull { part -> (part.component as? StillAppliesComponent)?.memoryId }
+			.any { memoryId -> memoryId !in session.answeredMemories }
+
+		if (session.memoryStates == null && !session.memoryStatesRequested && asksAboutMemories) {
+			session.memoryStatesRequested = true
+			machine.feedback.loadMemoryStates(host)
+		}
+
 		machine.refreshed(state)
 	}
 
@@ -390,11 +404,39 @@ private fun ContentTransitions.contentOutcomeRows(
 	}
 }
 
-// The answers to the student's feedback and to the appeal: each one shows its snackbar on the sheet.
+// The answers to the student's feedback and to the appeal: each one shows its snackbar on the sheet. The answers to
+// «¿Sigue aplicando?» come back the same way, and so do the states of the memories the service lists.
 private fun ContentTransitions.contentFeedbackRows(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
 ) {
+	on<AssistantChatInternalEvent.StillAppliesSaved> { state, event ->
+		machine.session.pendingMemories -= event.memoryId
+		machine.session.answeredMemories[event.memoryId] = event.applies
+		machine.refreshed(state)
+	}
+
+	// The answer was refused: the state of the memory says whether it still waits, which is what the card shows.
+	on<AssistantChatInternalEvent.StillAppliesFailed> { state, event ->
+		machine.session.pendingMemories -= event.memoryId
+		machine.session.failedAnswers += event.memoryId
+		machine.feedback.loadMemoryStates(host)
+		machine.refreshed(state)
+	}
+
+	// A refused answer whose memory still waits says so; one that was answered, archived or deleted meanwhile does not.
+	on<AssistantChatInternalEvent.MemoryStatesLoaded>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
+		state, event ->
+		machine.session.memoryStates = event.states
+
+		if (machine.session.failedAnswers.any { id -> event.states[id] == MemoryVocabulary.STATE_PENDING_CONFIRMATION }) {
+			host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = machine.feedback.stillAppliesFailedText()))
+		}
+
+		machine.session.failedAnswers.clear()
+		machine.refreshed(state)
+	}
+
 	on<AssistantChatInternalEvent.MessageRated>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
 		state
