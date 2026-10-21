@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
-import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
@@ -28,6 +27,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SHEET_SWIPE_MS = 600L
@@ -80,6 +80,7 @@ private val assistantSmoke = scenario(
 	waitAgentMessage("msg-followup")
 	tap(AssistantUiTags.Message.copy("msg-followup"))
 	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
+	waitVisible(text(Copy.AssistantCopied), Within.Assert)
 	tap(AssistantUiTags.Message.useful("msg-followup"))
 }
 
@@ -115,6 +116,12 @@ private val assistantConfirmDestructiveDelete = scenario(
 	covers("assistant.AssistantChat.ConfirmIntent")
 	account(E2eAccounts.Canonical.id)
 
+	showWeekOfGradedEvaluation()
+	scrollUntilVisible(
+		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
+		Scroll.ContentDown,
+		Within.Action
+	)
 	openAssistant()
 	acceptConsent()
 	sendText("Borra la evaluación")
@@ -123,6 +130,7 @@ private val assistantConfirmDestructiveDelete = scenario(
 	waitVisible(AssistantUiTags.Intent.receipt("intent-delete-1"), Within.Action)
 	tap(AssistantUiTags.Component.openScreen("cmp-delete-nav-1"))
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
+	showWeekOfGradedEvaluation()
 	waitGone(EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value), Within.Action)
 }
 
@@ -141,6 +149,7 @@ private val assistantDismissIntent = scenario(
 	tap(AssistantUiTags.Intent.cancel("intent-add-1"))
 	// The card stays with its outcome: a cancelled proposal reads «Descartado», so the student sees what became of it.
 	waitVisible(text(Copy.AssistantIntentCancelled), Within.Action)
+	waitGone(AssistantUiTags.Intent.cancel("intent-add-1"), Within.Assert)
 }
 
 private val assistantAskAboutEvaluation = scenario(
@@ -152,9 +161,11 @@ private val assistantAskAboutEvaluation = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	val card = EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value)
+	showWeekOfGradedEvaluation()
 	scrollUntilVisible(card, Scroll.ContentDown, Within.Action)
 	tap(card)
 	waitVisible(EvaluationsUiTags.EvaluationSwipeToDismissContainer, Within.Assert)
+	waitVisible(EvaluationsUiTags.EvaluationSwipeAskAction, Within.Action)
 	tap(EvaluationsUiTags.EvaluationSwipeAskAction)
 	acceptConsent()
 	waitVisible(AssistantUiTags.ContextChip, Within.Action)
@@ -192,7 +203,7 @@ private val assistantGuidedSuggestions = scenario(
 	mockState("assistant-turns", "Guided")
 	sendText("Hola guiado")
 	waitVisible(AssistantUiTags.Notice, Within.Action)
-	assertEnabled(AssistantUiTags.Composer, false)
+	waitGone(AssistantUiTags.Composer, Within.Assert)
 	tap(AssistantUiTags.Chat.suggestion("sq.summary.term"))
 	waitAgentMessage("msg-suggestion")
 }
@@ -381,13 +392,14 @@ private val assistantAppealRestriction = scenario(
 	covers("assistant.AssistantChat.Appeal")
 	account(E2eAccounts.Canonical.id)
 
-	// The restricted account has accepted the assistant already: the chat opens on the restriction notice.
+	// In the Restricted state, /status reports the consent accepted: the chat opens on the restriction notice.
 	openAssistant()
 	waitVisible(AssistantUiTags.Notice, Within.Action)
 	tap(AssistantUiTags.AppealAction)
 	enterText(AssistantUiTags.AppealText, "Fue un error de mi parte")
 	tap(AssistantUiTags.AppealSend)
 	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
+	waitVisible(text(Copy.AssistantAppealSent), Within.Assert)
 }
 
 /** The scenarios of the `assistant` module; list every new one here. */
