@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.ShareSheet
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.openAboutFromSettings
+import com.gdavidpb.tuindice.scenarios.shared.openScheduleSheetFromOverflow
 import com.gdavidpb.tuindice.scenarios.shared.openSettings
 import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -419,7 +420,7 @@ private val conformanceSwipeFromElement = scenario(
 
 	openTab(MaincoreUiTags.TuIndiceBottomBarRecordItem, RecordUiTags.ContentContainer)
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
-	tap(BaseUiTags.topBarActionButton(TopBarAction.RecordScheduleAction))
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTitle, Within.Action)
 	swipeFrom(RecordUiTags.ScheduleTitle, SwipeDirection.Down, SWIPE_MS.milliseconds)
 	waitGone(RecordUiTags.ScheduleSheet, Within.Action)

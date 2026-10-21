@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
+import com.gdavidpb.tuindice.scenarios.shared.openScheduleSheetFromOverflow
 import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.scenarios.shared.waitEvaluationsOnTheWeekOfTheClock
@@ -60,8 +61,6 @@ private val queryMa = searches.getValue("ma").query
 private val queryMa1111 = searches.getValue("ma1111").query
 private val queryPr = searches.getValue("pr").query
 private val querySlot = searches.getValue("slot").query
-
-private val scheduleAction = BaseUiTags.topBarActionButton(TopBarAction.RecordScheduleAction)
 
 private fun subjectAction(code: String, action: String) = RecordUiTags.createSyntheticTermSubjectAction(code, action)
 
@@ -139,7 +138,7 @@ private val recordScheduleEvaluationMarks = scenario(
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	tap(RecordUiTags.termChip(E2eFixtures.HubTerm.value))
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
 	waitVisible(text(Copy.ScheduleSubtitleWeek3), Within.Assert)
@@ -166,7 +165,7 @@ private val recordScheduleEvaluationWeekJump = scenario(
 
 	openRecordTab()
 	tap(RecordUiTags.termChip(E2eFixtures.HubTerm.value))
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	tap(RecordUiTags.ScheduleViewWeekTab)
 	waitVisible(RecordUiTags.ScheduleGrid, Within.Action)
@@ -582,7 +581,7 @@ private val recordAnnulledProvisionalSchedule = scenario(
 	waitVisible(RecordUiTags.attemptDetail(primary), Within.Assert)
 	waitVisible(RecordUiTags.attemptEnrollmentError(clashing), Within.Assert)
 	waitGone(RecordUiTags.ScheduleViewSwitch, Within.Assert)
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	waitVisible(RecordUiTags.ScheduleTitle, Within.Assert)
 	waitVisible(RecordUiTags.scheduleTableRow(primary), Within.Assert)
@@ -620,7 +619,7 @@ private val recordScheduleViewRemembered = scenario(
 
 	openRecordTab()
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	// A first visit opens on the table, with the switch next to the title.
 	waitVisible(RecordUiTags.ScheduleViewSwitch, Within.Assert)
@@ -636,7 +635,7 @@ private val recordScheduleViewRemembered = scenario(
 	swipeFrom(RecordUiTags.ScheduleTitle, SwipeDirection.Down, SHEET_SWIPE_MS.milliseconds)
 	waitGone(RecordUiTags.ScheduleSheet, Within.Action)
 	// The view chosen is remembered: the sheet opens again on the week.
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleGrid, Within.Action)
 	waitGone(RecordUiTags.ScheduleTable, Within.Assert)
 	swipeFrom(RecordUiTags.ScheduleTitle, SwipeDirection.Down, SHEET_SWIPE_MS.milliseconds)
@@ -650,13 +649,13 @@ private val recordScheduleViewRemembered = scenario(
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 	signInThroughUi(E2eAccounts.AnnulledProvisional)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
-	confirmCoachmarks(CoachmarkId.Summary)
+	confirmCoachmarks(CoachmarkId.Summary, CoachmarkId.Settings)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	confirmCoachmarks(CoachmarkId.Record, CoachmarkId.RecordControls)
 	tap(RecordUiTags.termChip(E2eFixtures.CurrentTerm.value))
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	waitGone(RecordUiTags.ScheduleGrid, Within.Assert)
 }
@@ -697,7 +696,7 @@ private val recordWithdrawnSubject = scenario(
 	waitVisible(text(Copy.AttemptRetired), Within.Assert)
 	// It carries a schedule in the fixture, and still has no row in the schedule: only what is being taken is
 	// drawn there.
-	tap(scheduleAction)
+	openScheduleSheetFromOverflow()
 	waitVisible(RecordUiTags.ScheduleTable, Within.Action)
 	waitVisible(RecordUiTags.scheduleTableRow(E2eFixtures.PrimaryAttempt.value), Within.Assert)
 	waitGone(RecordUiTags.scheduleTableRow(E2eFixtures.WithdrawnAttempt.value), Within.Assert)
@@ -714,7 +713,8 @@ private val recordAnnulledFinalNotice = scenario(
 	waitVisible(BaseUiTags.NoticeView, Within.Action)
 	waitVisible(text(Copy.EnrollmentAnnulledFinalTitle), Within.Assert)
 	waitVisible(RecordUiTags.TermSelectorRow, Within.Assert)
-	waitGone(scheduleAction, Within.Assert)
+	waitGone(BaseUiTags.topBarActionButton(TopBarAction.RecordScheduleAction), Within.Assert)
+	waitGone(BaseUiTags.TopAppBarOverflowButton, Within.Assert)
 }
 
 /** The scenarios of this module; list every new one here. */
