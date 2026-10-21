@@ -218,12 +218,16 @@ internal class GatedAssistantMemoryRepository(
 	var holdNextList = false
 	val releaseHeldList = CompletableDeferred<Unit>()
 
+	// The failure the held read breaks with when the test releases it, so the read fails after it was asked.
+	var heldListError: Throwable? = null
+
 	override suspend fun listMemories(): MemoryList {
 		val list = delegate.listMemories()
 
 		if (holdNextList) {
 			holdNextList = false
 			releaseHeldList.await()
+			heldListError?.let { error -> throw error }
 		}
 
 		return list

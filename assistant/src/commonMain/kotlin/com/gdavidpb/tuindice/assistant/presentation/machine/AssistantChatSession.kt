@@ -55,8 +55,14 @@ internal class AssistantChatSession {
 	var memoryStatesRead = 0
 	var memoryReadsRequested = 0
 
-	// The ids of the «¿Sigue aplicando?» cards a read already asked covers: a card without one asks for a new read.
+	// The ids of the «¿Sigue aplicando?» cards a read already asked covers: a card without one asks for a new read. A
+	// failed read keeps its cards covered, so the same cards do not ask again on the next observation.
 	val memoryReadCards = mutableSetOf<String>()
+
+	// The last read asked for a new card of each memory: the card waits for it, and its answer is the state that read
+	// brings. A read that failed is in [failedReads]: the card stays open, with its buttons.
+	val coveringReads = mutableMapOf<String, Int>()
+	val failedReads = mutableSetOf<Int>()
 
 	// The answers being saved, and the ones the service refused, by memory: a refused answer waits for the read asked
 	// after its refusal, which says whether the memory still waits for it. The number is that read's.
@@ -155,18 +161,27 @@ internal class AssistantChatSession {
 }
 
 // The answer a «¿Sigue aplicando?» card of [memoryId] shows, null while it still asks. The answer saved on this sheet
-// holds until a read asked after it; then the state of the memory in the list decides.
+// holds over the reads asked before it, unless a new card of the memory asked a read after it. A card whose read has
+// not come back, or failed, still asks; otherwise the state of the memory in the list decides.
 internal fun AssistantChatSession.memoryAnswer(memoryId: String): Boolean? {
 	val saved = answeredMemories[memoryId]
+	val cover = coveringReads[memoryId]
 	val states = memoryStates
 
 	return when {
-		saved != null && memoryStatesRead <= saved.readsBefore -> saved.applies
+		saved != null && memoryStatesRead <= saved.readsBefore && (cover == null || cover <= saved.readsBefore) ->
+			saved.applies
+		cover != null && cover > memoryStatesRead -> null
 		states == null -> null
 		states[memoryId] == null -> false
 		states[memoryId] == MemoryVocabulary.STATE_ACTIVE -> true
 		else -> null
 	}
+}
+
+// A card of [memoryId] waits for the read that covers it: the read was asked, has not come back, and did not fail.
+internal fun AssistantChatSession.awaitsMemoryRead(memoryId: String): Boolean {
+	return coveringReads[memoryId]?.let { cover -> cover > memoryStatesRead && cover !in failedReads } == true
 }
 
 // The number of a new read of the list, asked now.

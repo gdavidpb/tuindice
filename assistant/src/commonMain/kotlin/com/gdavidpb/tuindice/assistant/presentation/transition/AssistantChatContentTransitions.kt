@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
+import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.machine.nextMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
@@ -225,11 +226,13 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
-	// An answer already saved, or still being saved, is not sent again: a second tap on the same memory does nothing.
+	// An answer already saved, still being saved, or waiting for the read that covers its card is not sent again: a second
+	// tap on the same memory does nothing.
 	on<AssistantChat.Action.AnswerStillApplies> { state, action ->
 		val session = machine.session
+		val waiting = action.memoryId in session.pendingMemories || session.awaitsMemoryRead(action.memoryId)
 
-		if (action.memoryId in session.pendingMemories || session.memoryAnswer(action.memoryId) != null) return@on state
+		if (waiting || session.memoryAnswer(action.memoryId) != null) return@on state
 
 		session.pendingMemories += action.memoryId
 		machine.feedback.answerStillApplies(host = host, memoryId = action.memoryId, applies = action.applies)
@@ -329,8 +332,9 @@ private fun ContentTransitions.contentObservationRows(
 	on<AssistantChatInternalEvent.ConversationObserved> { state, event ->
 		machine.session.observe(event.conversation)
 
-		// One read for each new «¿Sigue aplicando?» card, and one only while the cards do not change: a card whose
-		// component id no read has covered yet asks for a read, whatever the state of its memory.
+		// One read for each new «¿Sigue aplicando?» card, whatever the state of its memory: a card whose component id no
+		// read has covered yet asks for a read, which covers the memories of those cards. While the cards do not change,
+		// no read is asked again, and a failed read is not asked again until a new card comes.
 		val session = machine.session
 		val cards = session.conversation?.items.orEmpty()
 			.filterIsInstance<AssistantConversationItem.Agent>()
@@ -340,11 +344,14 @@ private fun ContentTransitions.contentObservationRows(
 				(part.component as? StillAppliesComponent)?.let { card -> card.id to card.memoryId }
 			}
 
-		val uncovered = cards.any { (componentId, _) -> componentId !in session.memoryReadCards }
+		val uncovered = cards.filter { (componentId, _) -> componentId !in session.memoryReadCards }
 
-		if (uncovered) {
+		if (uncovered.isNotEmpty()) {
+			val read = session.nextMemoryRead()
+
 			session.memoryReadCards += cards.map { (componentId, _) -> componentId }
-			machine.feedback.loadMemoryStates(host, read = session.nextMemoryRead())
+			uncovered.forEach { (_, memoryId) -> session.coveringReads[memoryId] = read }
+			machine.feedback.loadMemoryStates(host, read = read)
 		}
 
 		machine.refreshed(state)

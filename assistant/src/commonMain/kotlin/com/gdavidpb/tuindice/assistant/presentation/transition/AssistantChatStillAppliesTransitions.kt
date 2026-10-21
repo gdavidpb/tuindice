@@ -64,15 +64,15 @@ internal fun MachineDefinitionBuilder.StateTransitions<
 		machine.refreshed(state)
 	}
 
-	// A read that failed: the next observation asks again for the cards it did not cover. The refused answers it covers
-	// say so, since the memory may still wait for them.
+	// A read that failed leaves its cards open, with their buttons: no read is asked again until a new card comes or the
+	// sheet opens again. The refused answers this very read was asked for say so, since the memory may still wait.
 	on<AssistantChatInternalEvent.MemoryStatesFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
 		state, event ->
 		val session = machine.session
 
-		if (event.read == session.memoryReadsRequested) session.memoryReadCards.clear()
+		session.failedReads += event.read
 
-		val covered = session.failedAnswers.filterValues { read -> read <= event.read }.keys
+		val covered = session.failedAnswers.filterValues { read -> read == event.read }.keys
 
 		if (covered.isNotEmpty()) {
 			host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = machine.feedback.stillAppliesFailedText()))

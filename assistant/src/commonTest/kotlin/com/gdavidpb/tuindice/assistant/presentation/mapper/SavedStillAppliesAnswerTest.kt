@@ -18,14 +18,14 @@ class SavedStillAppliesAnswerTest {
 
 	@Test
 	fun `the question shows the answer its memory has`() {
-		val result = question.withMemoryAnswer(answer = { memoryId -> memoryId == "m1" }, pending = emptySet())
+		val result = question.withMemoryAnswer(answer = { memoryId -> memoryId == "m1" }, pending = { false })
 
 		assertEquals(answered(answer = true), result)
 	}
 
 	@Test
 	fun `a question whose answer is being saved is marked as pending`() {
-		val result = question.withMemoryAnswer(answer = { null }, pending = setOf("m1"))
+		val result = question.withMemoryAnswer(answer = { null }, pending = { memoryId -> memoryId == "m1" })
 
 		assertEquals(answered(answer = null, isPending = true), result)
 	}
@@ -34,7 +34,7 @@ class SavedStillAppliesAnswerTest {
 	fun `a part that is not a question is left as it is`() {
 		val text = ChatPartItem.Text("Hola")
 
-		assertEquals(text, text.withMemoryAnswer(answer = { true }, pending = setOf("m1")))
+		assertEquals(text, text.withMemoryAnswer(answer = { true }, pending = { memoryId -> memoryId == "m1" }))
 	}
 
 	@Test

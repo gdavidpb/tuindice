@@ -250,7 +250,7 @@ internal class AssistantChatFixture(
 				exceptionHandler = ReportAssistantMessageExceptionHandler()
 			),
 			answerStillAppliesUseCase = AnswerStillAppliesUseCase(gatedMemories, reporting),
-			getAssistantMemoryUseCase = GetAssistantMemoryUseCase(memories, reporting),
+			getAssistantMemoryUseCase = GetAssistantMemoryUseCase(gatedMemories, reporting),
 			texts = feedbackTexts
 		)
 	}

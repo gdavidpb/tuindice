@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
+import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.lastUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
@@ -129,7 +130,12 @@ internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTex
 	return items.map { item ->
 		if (item is ChatItem.Agent) {
 			item.copy(
-				parts = item.parts.map { part -> part.withMemoryAnswer(answer = this::memoryAnswer, pending = pendingMemories) }
+				parts = item.parts.map { part ->
+					part.withMemoryAnswer(
+						answer = this::memoryAnswer,
+						pending = { id -> id in pendingMemories || awaitsMemoryRead(id) }
+					)
+				}
 			)
 		} else {
 			item
@@ -137,14 +143,13 @@ internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTex
 	}
 }
 
-// A «¿Sigue aplicando?» question shows the answer the session gives its memory: the one the student gave on this sheet,
-// or else the state of the memory in the list read from the server (see AssistantChatSession.memoryAnswer). A question
-// whose answer is being saved is marked as pending.
-internal fun ChatPartItem.withMemoryAnswer(answer: (String) -> Boolean?, pending: Set<String>): ChatPartItem {
+// A «¿Sigue aplicando?» question shows the answer the session gives its memory (see AssistantChatSession.memoryAnswer).
+// A question whose answer is being saved, or whose covering read has not come back, shows its buttons waiting.
+internal fun ChatPartItem.withMemoryAnswer(answer: (String) -> Boolean?, pending: (String) -> Boolean): ChatPartItem {
 	val question = (this as? ChatPartItem.Component)?.item as? StillAppliesItem ?: return this
 	val memoryId = question.memoryId
 
-	return ChatPartItem.Component(question.copy(answer = answer(memoryId), isPending = memoryId in pending))
+	return ChatPartItem.Component(question.copy(answer = answer(memoryId), isPending = pending(memoryId)))
 }
 
 // A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.
