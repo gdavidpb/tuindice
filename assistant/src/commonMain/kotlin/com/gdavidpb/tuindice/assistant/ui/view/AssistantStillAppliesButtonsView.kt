@@ -22,8 +22,8 @@ import tuindice.assistant.generated.resources.assistant_still_applies_yes
 fun AssistantStillAppliesButtonsView(
 	memoryId: String,
 	onAnswer: (applies: Boolean) -> Unit,
-	enabled: Boolean = true,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	enabled: Boolean = true
 ) {
 	Row(
 		modifier = modifier.fillMaxWidth(),

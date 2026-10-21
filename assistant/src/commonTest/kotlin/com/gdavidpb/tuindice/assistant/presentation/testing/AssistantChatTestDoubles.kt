@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
 import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.MessagePart
 import kotlinx.coroutines.CompletableDeferred
@@ -208,11 +209,25 @@ internal class GatedAssistantIntentRepository(
 }
 
 // The answer about a memory waits for the test's go-ahead while [gated]: the save stays running until the test says so.
+// The next read of the list [holdNextList] keeps the list it read, and returns when the test says so.
 internal class GatedAssistantMemoryRepository(
 	private val delegate: AssistantMemoryRepository
 ) : AssistantMemoryRepository by delegate {
 	var gated = false
 	val release = CompletableDeferred<Unit>()
+	var holdNextList = false
+	val releaseHeldList = CompletableDeferred<Unit>()
+
+	override suspend fun listMemories(): MemoryList {
+		val list = delegate.listMemories()
+
+		if (holdNextList) {
+			holdNextList = false
+			releaseHeldList.await()
+		}
+
+		return list
+	}
 
 	override suspend fun answerStillApplies(memoryId: String, applies: Boolean) {
 		if (gated) release.await()

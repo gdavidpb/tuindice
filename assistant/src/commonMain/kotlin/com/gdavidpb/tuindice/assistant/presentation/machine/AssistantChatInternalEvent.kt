@@ -64,8 +64,11 @@ sealed interface AssistantChatInternalEvent {
 	// The service refused the answer about [memoryId]: the state of the memory is read again to tell if it still waits.
 	data class StillAppliesFailed(val memoryId: String) : AssistantChatInternalEvent
 
-	// The states of the memories the service lists, by memory id.
-	data class MemoryStatesLoaded(val states: Map<String, String>) : AssistantChatInternalEvent
+	// The states of the memories the service lists, by memory id, as the read number [read] asked them.
+	data class MemoryStatesLoaded(val read: Int, val states: Map<String, String>) : AssistantChatInternalEvent
+
+	// The list of memories could not be read: the read number [read] asked for it.
+	data class MemoryStatesFailed(val read: Int) : AssistantChatInternalEvent
 
 	// The answers to the student's feedback and appeal, each with the text of its snackbar.
 	data class MessageRated(val message: String) : AssistantChatInternalEvent

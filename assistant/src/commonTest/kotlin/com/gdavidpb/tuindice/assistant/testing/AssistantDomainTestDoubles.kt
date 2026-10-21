@@ -264,7 +264,16 @@ internal class RecordingAssistantMemoryRepository : AssistantMemoryRepository {
 	// The failure every answer breaks with, when a test makes the server refuse it.
 	var answerError: Throwable? = null
 
-	override suspend fun listMemories(): MemoryList = memories
+	// How many times the list was read, and the failure every read breaks with, when a test makes the server refuse it.
+	var listCalls = 0
+	var listError: Throwable? = null
+
+	override suspend fun listMemories(): MemoryList {
+		listCalls++
+		listError?.let { error -> throw error }
+
+		return memories
+	}
 
 	override suspend fun deleteMemory(memoryId: String) {
 		deleted += memoryId

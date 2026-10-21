@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.machine.lastUserMessage
+import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
@@ -16,7 +17,6 @@ import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
-import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 import kotlin.time.Clock
 
@@ -128,32 +128,23 @@ internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTex
 
 	return items.map { item ->
 		if (item is ChatItem.Agent) {
-			item.copy(parts = item.parts.map { part -> part.withMemoryAnswer(answeredMemories, memoryStates, pendingMemories) })
+			item.copy(
+				parts = item.parts.map { part -> part.withMemoryAnswer(answer = this::memoryAnswer, pending = pendingMemories) }
+			)
 		} else {
 			item
 		}
 	}
 }
 
-// A «¿Sigue aplicando?» question keeps the answer it has: the one the student gave on this sheet, or else the state
-// of its memory in the list read from the server. A memory the list does not have is archived or deleted, so it no
-// longer applies. A question whose answer is being saved is marked as pending.
-internal fun ChatPartItem.withMemoryAnswer(
-	answered: Map<String, Boolean>,
-	states: Map<String, String>?,
-	pending: Set<String>
-): ChatPartItem {
+// A «¿Sigue aplicando?» question shows the answer the session gives its memory: the one the student gave on this sheet,
+// or else the state of the memory in the list read from the server (see AssistantChatSession.memoryAnswer). A question
+// whose answer is being saved is marked as pending.
+internal fun ChatPartItem.withMemoryAnswer(answer: (String) -> Boolean?, pending: Set<String>): ChatPartItem {
 	val question = (this as? ChatPartItem.Component)?.item as? StillAppliesItem ?: return this
 	val memoryId = question.memoryId
 
-	val answer = answered[memoryId] ?: when {
-		states == null -> null
-		states[memoryId] == MemoryVocabulary.STATE_ACTIVE -> true
-		states[memoryId] == MemoryVocabulary.STATE_PENDING_CONFIRMATION -> null
-		else -> false
-	}
-
-	return ChatPartItem.Component(question.copy(answer = answer, isPending = memoryId in pending))
+	return ChatPartItem.Component(question.copy(answer = answer(memoryId), isPending = memoryId in pending))
 }
 
 // A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.

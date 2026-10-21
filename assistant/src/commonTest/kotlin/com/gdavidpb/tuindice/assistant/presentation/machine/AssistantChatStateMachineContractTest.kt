@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.testkit.mvi.RecordingMachineHost
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
@@ -178,7 +179,8 @@ class AssistantChatStateMachineContractTest {
 			AssistantChatInternalEvent.EnrollmentProofDelegated(intentId = "i1"),
 			AssistantChatInternalEvent.StillAppliesSaved(memoryId = "mem1", applies = true),
 			AssistantChatInternalEvent.StillAppliesFailed(memoryId = "mem1"),
-			AssistantChatInternalEvent.MemoryStatesLoaded(states = mapOf("mem1" to "ACTIVE")),
+			AssistantChatInternalEvent.MemoryStatesLoaded(1, mapOf("m" to MemoryVocabulary.STATE_ACTIVE)),
+			AssistantChatInternalEvent.MemoryStatesFailed(1),
 			AssistantChatInternalEvent.MessageRated(message = "rated"),
 			AssistantChatInternalEvent.MessageReported(messageId = "a1", message = "reported"),
 			AssistantChatInternalEvent.MessageReportFailed(message = "report-failed"),

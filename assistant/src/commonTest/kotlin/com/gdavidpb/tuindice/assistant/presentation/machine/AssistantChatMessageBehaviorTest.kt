@@ -217,6 +217,7 @@ class AssistantChatMessageBehaviorTest {
 	@Test
 	fun stillApplies_savedByTheService_keepsTheAnswerOnTheCard() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
 		viewModel.openAction(null)
 
@@ -230,6 +231,7 @@ class AssistantChatMessageBehaviorTest {
 	@Test
 	fun stillApplies_secondTapWhileTheFirstIsSaved_isNotSentAgain() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
 		viewModel.openAction(null)
 		fixture.gatedMemories.gated = true
@@ -255,6 +257,7 @@ class AssistantChatMessageBehaviorTest {
 		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
 		assertEquals("still-applies-failed", snack.message)
 		assertNull(viewModel.stillApplies("mem1").answer)
+		assertEquals(false, viewModel.stillApplies("mem1").isPending)
 	}
 
 	@Test
@@ -282,12 +285,126 @@ class AssistantChatMessageBehaviorTest {
 		assertEquals(true, viewModel.stillApplies("mem1").answer)
 	}
 
-	private fun stillAppliesMessage(memoryId: String): AssistantConversationItem {
+	@Test
+	fun stillApplies_cardArrivingAfterTheFirstRead_asksForANewRead() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		assertEquals(1, fixture.memories.listCalls)
+
+		fixture.memories.memories = memoryList(
+			"mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION,
+			"mem2" to MemoryVocabulary.STATE_PENDING_CONFIRMATION
+		)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(stillAppliesMessage("mem1"), stillAppliesMessage("mem2", messageId = "a2", componentId = "c2"))
+		)
+
+		assertEquals(2, fixture.memories.listCalls)
+		assertNull(viewModel.stillAppliesCard("c2").answer)
+	}
+
+	@Test
+	fun stillApplies_readThatFailed_isReadAgainOnTheNextObservation() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.listError = IllegalStateException("offline")
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		assertEquals(1, fixture.memories.listCalls)
+
+		fixture.memories.listError = null
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_ACTIVE)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(stillAppliesMessage("mem1"), agentMessage("a2", Text("hola")))
+		)
+
+		assertEquals(2, fixture.memories.listCalls)
+		assertEquals(true, viewModel.stillAppliesCard("c1").answer)
+	}
+
+	@Test
+	fun stillApplies_refusedAndTheRereadFails_saysSoAndEnablesTheButtons() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		fixture.memories.answerError = IllegalStateException("offline")
+		fixture.memories.listError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+
+		val snack = fixture.effects.single() as AssistantChat.Effect.ShowSnackBar
+		assertEquals("still-applies-failed", snack.message)
+		assertNull(viewModel.stillApplies("mem1").answer)
+		assertEquals(false, viewModel.stillApplies("mem1").isPending)
+	}
+
+	@Test
+	fun stillApplies_refusedAndTheMemoryIsGone_saysNoAndSaysNothingMore() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		fixture.memories.memories = memoryList()
+		fixture.memories.answerError = IllegalStateException("offline")
+
+		viewModel.answerStillAppliesAction("mem1", applies = true)
+
+		assertTrue(fixture.effects.isEmpty())
+		assertEquals(false, viewModel.stillApplies("mem1").answer)
+		assertEquals(false, viewModel.stillApplies("mem1").isPending)
+	}
+
+	@Test
+	fun stillApplies_readAnsweredLate_doesNotOverwriteANewerRead() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		fixture.gatedMemories.holdNextList = true
+		viewModel.openAction(null)
+
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_ACTIVE)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(stillAppliesMessage("mem1"), stillAppliesMessage("mem1", messageId = "a2", componentId = "c2"))
+		)
+		assertEquals(true, viewModel.stillAppliesCard("c2").answer)
+
+		// The first read, which saw the memory still waiting, comes back after the newer one.
+		fixture.gatedMemories.releaseHeldList.complete(Unit)
+
+		assertEquals(true, viewModel.stillAppliesCard("c1").answer)
+	}
+
+	@Test
+	fun stillApplies_newCardOfAnAnsweredMemory_asksAgainWhenTheServerStillWaits() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
+		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
+		viewModel.openAction(null)
+		viewModel.answerStillAppliesAction("mem1", applies = true)
+		assertEquals(true, viewModel.stillAppliesCard("c1").answer)
+
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(stillAppliesMessage("mem1"), stillAppliesMessage("mem1", messageId = "a2", componentId = "c2"))
+		)
+
+		assertNull(viewModel.stillAppliesCard("c2").answer)
+		viewModel.answerStillAppliesAction("mem1", applies = false)
+		assertEquals(listOf("mem1" to true, "mem1" to false), fixture.memories.answers)
+		assertEquals(false, viewModel.stillAppliesCard("c2").answer)
+	}
+
+	private fun stillAppliesMessage(
+		memoryId: String,
+		messageId: String = "a1",
+		componentId: String = "c1"
+	): AssistantConversationItem {
 		return agentMessage(
-			"a1",
+			messageId,
 			Component(
 				StillAppliesComponent(
-					id = "c1",
+					id = componentId,
 					fallbackText = "¿Sigue aplicando?",
 					memoryId = memoryId,
 					statement = "Prefiere las mañanas"
@@ -303,6 +420,15 @@ class AssistantChatMessageBehaviorTest {
 			.filterIsInstance<ChatPartItem.Component>()
 			.mapNotNull { part -> part.item as? StillAppliesItem }
 			.single { card -> card.memoryId == memoryId }
+	}
+
+	private fun AssistantChatViewModel.stillAppliesCard(componentId: String): StillAppliesItem {
+		return content().items
+			.filterIsInstance<ChatItem.Agent>()
+			.flatMap { agent -> agent.parts }
+			.filterIsInstance<ChatPartItem.Component>()
+			.mapNotNull { part -> part.item as? StillAppliesItem }
+			.single { card -> card.id == componentId }
 	}
 
 	private fun memoryList(vararg states: Pair<String, String>): MemoryList {

@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 
 // The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
@@ -43,17 +44,24 @@ internal class AssistantChatSession {
 	val reportedMessages = mutableSetOf<String>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
 
-	// The answers to «¿Sigue aplicando?» the service saved on this sheet, by memory.
-	val answeredMemories = mutableMapOf<String, Boolean>()
+	// The answers to «¿Sigue aplicando?» the service saved on this sheet, by memory. [MemoryAnswer.readsBefore] is the
+	// number of the last read asked when the answer was saved: a read asked after it decides the answer again.
+	val answeredMemories = mutableMapOf<String, MemoryAnswer>()
 
-	// The state of each memory the service lists, by memory id; null until the list is read. A memory the list does not
-	// have is archived or deleted. [memoryStatesRequested] keeps the list from being asked again on every observation.
+	// The state of each memory the service lists, by memory id; null until a list is read. A memory the list does not
+	// have is archived or deleted. [memoryStatesRead] is the number of the read that is applied; the reads are numbered
+	// as they are asked, and a read that comes back late does not overwrite a newer one.
 	var memoryStates: Map<String, String>? = null
-	var memoryStatesRequested = false
+	var memoryStatesRead = 0
+	var memoryReadsRequested = 0
 
-	// The answers being saved, and the ones the service refused: a refused answer is checked against the list again.
+	// The ids of the «¿Sigue aplicando?» cards a read already asked covers: a card without one asks for a new read.
+	val memoryReadCards = mutableSetOf<String>()
+
+	// The answers being saved, and the ones the service refused, by memory: a refused answer waits for the read asked
+	// after its refusal, which says whether the memory still waits for it. The number is that read's.
 	val pendingMemories = mutableSetOf<String>()
-	val failedAnswers = mutableSetOf<String>()
+	val failedAnswers = mutableMapOf<String, Int>()
 	val runningIntents = mutableSetOf<String>()
 	val failedMessages = mutableSetOf<String>()
 
@@ -134,6 +142,9 @@ internal class AssistantChatSession {
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
 
+	// A saved answer to a «¿Sigue aplicando?» question, and the number of the last read asked when it was saved.
+	internal data class MemoryAnswer(val applies: Boolean, val readsBefore: Int)
+
 	internal data class Quota(val retryAfterSeconds: Int?)
 
 	// [level], its end [untilMillis] and [canAppeal] are unknown until the standing is read, and the message says so. A
@@ -141,6 +152,28 @@ internal class AssistantChatSession {
 	internal data class Restriction(val level: StandingLevel?, val untilMillis: Long?, val canAppeal: Boolean) {
 		fun isOver(nowMillis: Long): Boolean = untilMillis != null && nowMillis >= untilMillis
 	}
+}
+
+// The answer a «¿Sigue aplicando?» card of [memoryId] shows, null while it still asks. The answer saved on this sheet
+// holds until a read asked after it; then the state of the memory in the list decides.
+internal fun AssistantChatSession.memoryAnswer(memoryId: String): Boolean? {
+	val saved = answeredMemories[memoryId]
+	val states = memoryStates
+
+	return when {
+		saved != null && memoryStatesRead <= saved.readsBefore -> saved.applies
+		states == null -> null
+		states[memoryId] == null -> false
+		states[memoryId] == MemoryVocabulary.STATE_ACTIVE -> true
+		else -> null
+	}
+}
+
+// The number of a new read of the list, asked now.
+internal fun AssistantChatSession.nextMemoryRead(): Int {
+	memoryReadsRequested++
+
+	return memoryReadsRequested
 }
 
 // The last message the student wrote in the conversation the session observed, if any.
