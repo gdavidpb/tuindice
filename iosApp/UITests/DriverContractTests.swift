@@ -61,6 +61,21 @@ final class SettleWatchTests: XCTestCase {
         XCTAssertEqual(watch.reads, 5)
     }
 
+    /// E4 through the sighting that `settle` feeds: an element that is there but unreadable at one read settles and is never gone.
+    func test_an_element_that_is_there_but_unreadable_at_one_read_settles_and_is_never_vanished() {
+        var watch = SettleWatch()
+        XCTAssertNil(watch.feed(.onScreen, frame: a, at: 0))
+        XCTAssertNil(watch.feed(.unreadable, frame: nil, at: 0.1))
+        XCTAssertNil(watch.feed(.onScreen, frame: a, at: 0.2))
+        XCTAssertNil(watch.feed(.onScreen, frame: a, at: 0.3))
+        XCTAssertEqual(watch.feed(.onScreen, frame: a, at: 0.4), .settled, "three equal reads after the unreadable one")
+        XCTAssertEqual(watch.reads, 5)
+        var offScreen = SettleWatch()
+        XCTAssertNotEqual(offScreen.feed(.offScreen, frame: a, at: 0), .vanished, "an element off the screen is not gone")
+        var nothing = SettleWatch()
+        XCTAssertEqual(nothing.feed(.nothing, frame: nil, at: 0), .vanished, "only a read that finds nothing is gone")
+    }
+
     func test_reads_that_keep_failing_end_as_moving_by_reads_and_by_time() {
         var byReads = SettleWatch(requiredEqualReads: 3, maxReads: 4, timeLimit: 100)
         XCTAssertNil(byReads.feedUnreadable(at: 0))
