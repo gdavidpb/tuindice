@@ -1,4 +1,6 @@
 {
+  "scenarioName": "assistant-memories",
+  "newScenarioState": "Answered",
   "request": {
     "method": "POST",
     "urlPathPattern": "/assistant/v1/memories/[^/]+/still-applies",

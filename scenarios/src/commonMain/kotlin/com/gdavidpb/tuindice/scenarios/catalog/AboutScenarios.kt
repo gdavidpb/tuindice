@@ -168,6 +168,10 @@ private val aboutPlatformEdgeTriggers = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openSettingsFromSummary()
+	// Not asserted, and so not in `covers` but a platform edge (ActionDispositions): Gmail's compose screen, with no
+	// account in the emulator, closes itself within ~100 ms of opening (measured 0 of 10 runs on Android in which the
+	// app was seen leaving), and on iOS the app stays in front 3 of 3 times (docs/e2e-mediciones.md, section 3).
+	openPlatformEdgeTriggerAndReturn(SettingsUiTags.ReportBug, leavesTheAppOnAndroid = false)
 	scrollUntilVisible(SettingsUiTags.ShareApp, Scroll.ContentDown, Within.Action)
 	tap(SettingsUiTags.ShareApp)
 	// The sheet must have appeared before it is closed (YE-1): without this a share that opens nothing would pass,
@@ -181,8 +185,8 @@ private val aboutPlatformEdgeTriggers = scenario(
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
 	// none either and is closed by tapping the dimmed area around it, at the height of a row of Settings: the tap
 	// must close the sheet and must not reach the row, so the scenario asserts that the sheet went, that Settings is
-	// still the screen in front (no browser page opened, the app did not go to Safari), and the next step taps the
-	// app and needs it to answer.
+	// still the screen in front (no browser page opened, the app did not go to Safari), and the steps after it tap
+	// the app and need it to answer.
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
@@ -196,10 +200,6 @@ private val aboutPlatformEdgeTriggers = scenario(
 	}
 	returnToSettings()
 	openPlatformEdgeTriggerAndReturn(SettingsUiTags.RateOnStore, leavesTheAppOnAndroid = true)
-	// Not asserted, and so not in `covers` but a platform edge (ActionDispositions): Gmail's compose screen, with no
-	// account in the emulator, closes itself within ~100 ms of opening (measured 0 of 10 runs on Android in which the
-	// app was seen leaving), and on iOS the app stays in front 3 of 3 times (docs/e2e-mediciones.md, section 3).
-	openPlatformEdgeTriggerAndReturn(SettingsUiTags.ReportBug, leavesTheAppOnAndroid = false)
 	// The developer's contact lives in About now.
 	openAboutFromSettings()
 	scrollUntilVisible(AboutUiTags.ContactDeveloper, Scroll.ContentDown, Within.Action)
@@ -220,8 +220,6 @@ private val aboutUsageDataConsent = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openSettingsFromSummary()
-	scrollUntilVisible(SettingsUiTags.RateOnStore, Scroll.ContentDown, Within.Action)
-	waitVisible(SettingsUiTags.RateOnStore, Within.Assert)
 	scrollUntilVisible(SettingsUiTags.UsageDataConsentToggle, Scroll.ContentDown, Within.Action)
 	waitVisible(SettingsUiTags.UsageDataConsentToggle, Within.Assert)
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
@@ -278,7 +276,7 @@ private val aboutAssistantMemoryDelete = scenario(
 }
 
 // A memory waiting for the student's answer shows «¿Sigue aplicando?» in the list; answering it saves the answer
-// and loads the list again.
+// and loads the list again, where the memory no longer asks.
 private val aboutAssistantMemoryStillApplies = scenario(
 	"about-assistant-memory-still-applies",
 	"about",
@@ -291,6 +289,7 @@ private val aboutAssistantMemoryStillApplies = scenario(
 	openAssistantMemory()
 	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Assert)
 	tap(AssistantUiTags.Memory.stillAppliesYes("mem-2"))
+	waitGone(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Action)
 	waitVisible(AssistantUiTags.Memory.entry("mem-2"), Within.Action)
 	waitVisible(AssistantUiTags.Memory.entry("mem-1"), Within.Assert)
 }

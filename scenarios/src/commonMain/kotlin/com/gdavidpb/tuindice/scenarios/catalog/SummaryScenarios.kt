@@ -659,6 +659,7 @@ private val termreportOpen = scenario(
 	tap(BaseUiTags.topBarActionButton(TopBarAction.TermReportShareAction))
 	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
 	waitVisible(ShareTermUiTags.termSelected(REPORT_TERM_KEY), Within.Assert)
+	assertEnabled(SummaryUiTags.ShareTermShareButton, true)
 	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
 	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
 	waitVisible(TermReportUiTags.TermReportContent, Within.Assert)

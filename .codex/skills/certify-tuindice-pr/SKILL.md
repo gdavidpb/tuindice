@@ -114,8 +114,8 @@ E2E and preflight fixes must not alter the product experience to please automati
 - Prefer fixing tests, scenarios, fixtures, mock state, drivers and harness when the failure is instability.
 - Change production UI, copy, layout, navigation, timing, gestures or behavior only for a real regression or an
   explicit request; then state the product rationale and add focused coverage.
-- Never move, hide, resize, reorder, relabel or weaken surfaces to make a scenario pass. A change in how text is
-  typed, or a guard character, is a defect workaround and is not allowed.
+- Never move, hide, resize, reorder, relabel or weaken surfaces, change how the app takes text or add guard characters
+  to pass a scenario. The Android driver may assign text its keymap lacks (accessibility, read back): no IME, no keys.
 - If the only passing path changes the product and the rationale is unclear, stop and ask before committing.
 
 ## Pull request rules

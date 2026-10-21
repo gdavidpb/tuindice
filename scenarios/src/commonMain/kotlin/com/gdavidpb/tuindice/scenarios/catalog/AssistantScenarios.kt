@@ -283,9 +283,9 @@ private val assistantAnswerStillApplies = scenario(
 	openAssistant()
 	acceptConsent()
 	sendText("Recuerda mi promedio")
-	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-1"), Within.Action)
-	tap(AssistantUiTags.Memory.stillAppliesYes("mem-1"))
-	waitGone(AssistantUiTags.Memory.stillAppliesYes("mem-1"), Within.Action)
+	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Action)
+	tap(AssistantUiTags.Memory.stillAppliesYes("mem-2"))
+	waitGone(AssistantUiTags.Memory.stillAppliesYes("mem-2"), Within.Action)
 	// The question keeps the answer the student gave.
 	waitVisible(text(Copy.AssistantStillAppliesYes), Within.Action)
 }
