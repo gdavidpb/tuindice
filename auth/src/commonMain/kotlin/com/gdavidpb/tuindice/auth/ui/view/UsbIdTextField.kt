@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.ui.keyboard.digitsKeyboardType
+import com.gdavidpb.tuindice.base.ui.keyboard.keepsKeyboardOnTap
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
@@ -70,7 +71,9 @@ fun UsbIdTextField(
 	field.syncExternal(usbId, identifierToggleCount to isWaiting)
 
 	OutlinedTextField(
-		modifier = modifier
+		modifier = Modifier
+			.keepsKeyboardOnTap()
+			.then(modifier)
 			.testTag(AuthUiTags.UsbIdTextField)
 			.semantics {
 				contentType = ContentType.Username

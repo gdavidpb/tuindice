@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
+import com.gdavidpb.tuindice.base.ui.keyboard.keepsKeyboardOnTap
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_cancel
@@ -48,7 +49,7 @@ fun AssistantAppealDialog(
 		OutlinedTextField(
 			value = appealText.value,
 			onValueChange = { next -> if (next.length <= maxLength) appealText.value = next },
-			modifier = Modifier.fillMaxWidth().testTag(AssistantUiTags.AppealText),
+			modifier = Modifier.keepsKeyboardOnTap().fillMaxWidth().testTag(AssistantUiTags.AppealText),
 			placeholder = { Text(text = stringResource(Res.string.assistant_chat_appeal_placeholder)) },
 			minLines = APPEAL_MIN_LINES
 		)
