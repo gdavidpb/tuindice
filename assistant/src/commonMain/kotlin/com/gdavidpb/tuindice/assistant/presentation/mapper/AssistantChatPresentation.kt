@@ -10,7 +10,9 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.lastUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
+import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
@@ -121,7 +123,19 @@ internal fun AssistantChatSession.presentedSuggestions(
 }
 
 internal suspend fun AssistantChatSession.presentedItems(texts: AssistantChatTexts, nowMillis: Long): List<ChatItem> {
-	return conversation?.toChatItems(texts = texts, session = this, nowMillis = nowMillis) ?: emptyList()
+	val items = conversation?.toChatItems(texts = texts, session = this, nowMillis = nowMillis) ?: emptyList()
+
+	return items.map { item ->
+		if (item is ChatItem.Agent) item.copy(parts = item.parts.map { part -> part.withSavedAnswer(answeredMemories) }) else item
+	}
+}
+
+// A «¿Sigue aplicando?» question the student already answered keeps the answer it was given.
+internal fun ChatPartItem.withSavedAnswer(answers: Map<String, Boolean>): ChatPartItem {
+	val question = (this as? ChatPartItem.Component)?.item as? StillAppliesItem ?: return this
+	val answer = answers[question.memoryId] ?: return this
+
+	return ChatPartItem.Component(question.copy(answer = answer))
 }
 
 // A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.

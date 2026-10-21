@@ -79,7 +79,7 @@ private val assistantSmoke = scenario(
 	sendText("¿Y mis evaluaciones?")
 	waitAgentMessage("msg-followup")
 	tap(AssistantUiTags.Message.copy("msg-followup"))
-	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
+	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
 	tap(AssistantUiTags.Message.useful("msg-followup"))
 }
 
@@ -104,7 +104,7 @@ private val assistantConfirmAddEvaluation = scenario(
 	waitVisible(AssistantUiTags.Intent.receipt("intent-add-1"), Within.Action)
 	tap(AssistantUiTags.Component.openScreen("cmp-add-nav-1"))
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
-	waitVisible(text(Copy.EvaluationQuizName), Within.Action)
+	waitVisible(text(Copy.EvaluationCompleted), Within.Action)
 }
 
 private val assistantConfirmDestructiveDelete = scenario(
@@ -139,7 +139,8 @@ private val assistantDismissIntent = scenario(
 	sendText("Agrega mi evaluación")
 	waitVisible(AssistantUiTags.Intent.card("intent-add-1"), Within.Action)
 	tap(AssistantUiTags.Intent.cancel("intent-add-1"))
-	waitGone(AssistantUiTags.Intent.card("intent-add-1"), Within.Action)
+	// The card stays with its outcome: a cancelled proposal reads «Descartado», so the student sees what became of it.
+	waitVisible(text(Copy.AssistantIntentCancelled), Within.Action)
 }
 
 private val assistantAskAboutEvaluation = scenario(
@@ -274,6 +275,8 @@ private val assistantAnswerStillApplies = scenario(
 	waitVisible(AssistantUiTags.Memory.stillAppliesYes("mem-1"), Within.Action)
 	tap(AssistantUiTags.Memory.stillAppliesYes("mem-1"))
 	waitGone(AssistantUiTags.Memory.stillAppliesYes("mem-1"), Within.Action)
+	// The question keeps the answer the student gave.
+	waitVisible(text(Copy.AssistantStillAppliesYes), Within.Action)
 }
 
 private val assistantOpenComponentSheet = scenario(
@@ -378,13 +381,13 @@ private val assistantAppealRestriction = scenario(
 	covers("assistant.AssistantChat.Appeal")
 	account(E2eAccounts.Canonical.id)
 
+	// The restricted account has accepted the assistant already: the chat opens on the restriction notice.
 	openAssistant()
-	acceptConsent()
 	waitVisible(AssistantUiTags.Notice, Within.Action)
 	tap(AssistantUiTags.AppealAction)
 	enterText(AssistantUiTags.AppealText, "Fue un error de mi parte")
 	tap(AssistantUiTags.AppealSend)
-	waitVisible(BaseUiTags.SnackbarContainer, Within.Action)
+	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
 }
 
 /** The scenarios of the `assistant` module; list every new one here. */

@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 
 /**
  * `typeKeys` gives the field the focus and injects key events, so the app sees the same input a keyboard would
- * produce; `clearText` assigns the empty text in one accessibility action; `submitTextEntry` injects the Enter key,
- * which a single-line field turns into its IME action.
+ * produce. When the virtual keyboard cannot spell some character of the text (accents, «¿»), the text is assigned to the
+ * field in one accessibility action instead and read back, and no key is injected: the field then holds the text, and
+ * nothing about its keys is proven. `clearText` assigns the empty text the same way; `submitTextEntry` injects the Enter
+ * key, which a single-line field turns into its IME action.
  * Text itself never reaches the driver log (it can be a password): only lengths and counts do.
  *
  * The focus is never given with a touch. A touch lands on a point read from the accessibility tree, and while the
@@ -28,11 +30,14 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 	override fun typeKeys(q: Query, text: String): Boolean {
 		session.log.clearRefusal()
 		injected = 0
-		val events = keyEventsFor(q, text)
-		val before = if (events != null) readBefore(q) else null
+		val spelling = spellingFor(q, text)
+		val before = if (spelling != Spelling.Refused) readBefore(q) else null
 
-		return events != null && before != null &&
-			focus.ensure(q) && unchangedByFocus(q, before) && enter(q, text, events)
+		return before != null && focus.ensure(q) && unchangedByFocus(q, before) && when (spelling) {
+			is Spelling.Keys -> enter(q, text, spelling.events)
+			Spelling.Assign -> assign(q, text)
+			Spelling.Refused -> false
+		}
 	}
 
 	/** What the field holds before anything is done to it; null, with the reason in the driver log, if unreadable. */
@@ -40,19 +45,55 @@ internal class TextInjector(private val session: DeviceSession) : TextEntry {
 		if (it == null) session.log.refuse("typeKeys", "$q: the field's text could not be read before typing")
 	}
 
-	/** The key events that spell [text]; null, with the reason in the driver log, if [q] is absent or no key spells it. */
-	private fun keyEventsFor(q: Query, text: String): Array<KeyEvent>? {
-		val onScreen = session.selectors.find(q) != null
-		val map = runCatching { KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD) }.getOrNull()
-		val events = if (onScreen && map != null) map.getEvents(text.toCharArray()) else null
-
-		if (!onScreen) session.log.refuse("typeKeys", "$q: the field is not on screen")
-		if (onScreen && map == null) session.log.refuse("typeKeys", "$q: the virtual keyboard could not be loaded")
-		if (onScreen && map != null && events == null) {
-			session.log.refuse("typeKeys", "$q: the virtual keyboard cannot produce key events for ${text.length} characters")
+	/**
+	 * How [text] goes into [q]: as key events when the virtual keyboard spells every character, assigned to the field
+	 * when it cannot spell some of them, or refused (with the reason in the driver log) when [q] is absent or no keyboard
+	 * map loads.
+	 */
+	private fun spellingFor(q: Query, text: String): Spelling {
+		if (session.selectors.find(q) == null) {
+			session.log.refuse("typeKeys", "$q: the field is not on screen")
+			return Spelling.Refused
 		}
 
-		return events
+		val map = runCatching { KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD) }.getOrNull()
+		if (map == null) {
+			session.log.refuse("typeKeys", "$q: the virtual keyboard could not be loaded")
+			return Spelling.Refused
+		}
+
+		return map.getEvents(text.toCharArray())?.let { events -> Spelling.Keys(events) } ?: Spelling.Assign
+	}
+
+	/**
+	 * Assigns [text] to the field in one accessibility action and reads it back: the answer is true only when the field
+	 * then holds as many characters as [text]. A secure field reads back masked, so its length is all the driver can
+	 * compare; the interpreter compares the content of the fields it can read. Only the length reaches the driver log.
+	 */
+	private fun assign(q: Query, text: String): Boolean {
+		val field = session.selectors.find(q)
+		val assigned = field != null && runCatching { field.text = text }.isSuccess
+
+		if (!assigned) {
+			session.log.refuse("typeKeys", "$q: the text could not be assigned")
+			return false
+		}
+
+		val held = session.poll(READ_BACK_MS) { readBack(q)?.length == text.length }
+		if (!held) {
+			val now = readBack(q)?.length ?: "no text"
+			session.log.refuse("typeKeys", "$q: the field reads $now after assigning ${text.length} characters")
+			return false
+		}
+
+		session.log.write("typeKeys $q: ${text.length} characters assigned through accessibility; the keyboard cannot spell some")
+		return true
+	}
+
+	private sealed class Spelling {
+		class Keys(val events: Array<KeyEvent>) : Spelling()
+		data object Assign : Spelling()
+		data object Refused : Spelling()
 	}
 
 	/** Asking for the focus must not alter the field: if it holds other text than before, nothing is typed. */

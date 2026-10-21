@@ -270,11 +270,11 @@ private val conformanceScroll = scenario("conformance-scroll", "conformance", ca
 
 	openAbout()
 	waitVisible(AboutUiTags.OpenCreativeCommons, Within.Assert)
-	waitGone(AboutUiTags.OpenKoin, Within.Assert)
-	scrollUntilVisible(AboutUiTags.OpenKoin, Scroll.ContentDown, Within.Action)
+	waitGone(AboutUiTags.OpenDst, Within.Assert)
+	scrollUntilVisible(AboutUiTags.OpenDst, Scroll.ContentDown, Within.Action)
 	waitGone(AboutUiTags.OpenCreativeCommons, Within.Assert)
 	scrollUntilVisible(AboutUiTags.OpenCreativeCommons, Scroll.ContentUp, Within.Action)
-	waitGone(AboutUiTags.OpenKoin, Within.Assert)
+	waitGone(AboutUiTags.OpenDst, Within.Assert)
 }
 
 /** A swipe over the screen with no element to start from moves a list: the last link of About comes into view. */
@@ -282,9 +282,9 @@ private val conformanceSwipeScreen = scenario("conformance-swipe-screen", "confo
 	account(canonicalAccount.id)
 
 	openAbout()
-	waitGone(AboutUiTags.OpenKotlin, Within.Assert)
+	waitGone(AboutUiTags.OpenDst, Within.Assert)
 	swipeScreen(SwipeDirection.Up, SWIPE_MS.milliseconds)
-	waitVisible(AboutUiTags.OpenKotlin, Within.Action)
+	waitVisible(AboutUiTags.OpenDst, Within.Action)
 }
 
 /** The usage-data switch of Settings reads its state and flips with a tap. */

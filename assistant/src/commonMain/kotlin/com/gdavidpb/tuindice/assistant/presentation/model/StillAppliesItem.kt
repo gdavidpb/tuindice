@@ -5,5 +5,7 @@ data class StillAppliesItem(
 	override val id: String,
 	override val opensSheet: Boolean,
 	val memoryId: String,
-	val statement: String
+	val statement: String,
+	// The answer the student gave, once the service saved it: the question keeps its outcome on the sheet.
+	val answer: Boolean? = null
 ) : SistemaComponentItem

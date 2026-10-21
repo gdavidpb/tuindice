@@ -109,9 +109,12 @@ object Copy {
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
 	const val EvaluationNoGrade = "Sin nota"
 	const val EvaluationQuizName = "Quiz"
+	const val EvaluationCompleted = "Completada"
 
 	// assistant
 	const val AssistantReportIncorrect = "Es incorrecto"
+	const val AssistantIntentCancelled = "Descartado"
+	const val AssistantStillAppliesYes = "Sí, sigue"
 
 	// about
 	const val AssistantConversationsDeleted = "Se borraron tus conversaciones con el asistente"
@@ -143,7 +146,10 @@ object Copy {
 		),
 		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
 		CopyBinding.Resource(EvaluationQuizName, "evaluations", "evaluation_quiz"),
+		CopyBinding.Resource(EvaluationCompleted, "evaluations", "evaluation_status_completed"),
 		CopyBinding.Resource(AssistantReportIncorrect, "assistant", "assistant_chat_report_incorrect"),
+		CopyBinding.Resource(AssistantIntentCancelled, "assistant", "assistant_intent_outcome_cancelled"),
+		CopyBinding.Resource(AssistantStillAppliesYes, "assistant", "assistant_still_applies_yes"),
 		CopyBinding.Resource(AssistantConversationsDeleted, "about", "settings_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,

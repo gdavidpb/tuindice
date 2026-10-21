@@ -86,6 +86,10 @@ class AssistantChatFeedback(
 			val params = AnswerStillAppliesParams(memoryId = memoryId, applies = applies)
 
 			answerStillAppliesUseCase.execute(params).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(AssistantChatInternalEvent.StillAppliesSaved(memoryId = memoryId, applies = applies))
+				}
+
 				if (useCaseState is UseCaseState.Error) {
 					host.processInternalEvent(
 						AssistantChatInternalEvent.StillAppliesRejected(message = texts.stillAppliesFailed())

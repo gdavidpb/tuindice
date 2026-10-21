@@ -224,6 +224,11 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
+	on<AssistantChatInternalEvent.StillAppliesSaved> { state, event ->
+		machine.session.answeredMemories[event.memoryId] = event.applies
+		machine.refreshed(state)
+	}
+
 	on<AssistantChatInternalEvent.StillAppliesRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
 		state, event ->
 		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))

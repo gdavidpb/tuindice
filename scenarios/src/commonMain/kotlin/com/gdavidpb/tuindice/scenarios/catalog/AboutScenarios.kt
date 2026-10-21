@@ -227,7 +227,7 @@ private val aboutUsageDataConsent = scenario(
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
 	tap(SettingsUiTags.UsageDataConsentToggle)
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, true)
-	waitVisible(AboutUiTags.ContentContainer, Within.Assert)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 	tap(SettingsUiTags.UsageDataConsentToggle)
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
 	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)

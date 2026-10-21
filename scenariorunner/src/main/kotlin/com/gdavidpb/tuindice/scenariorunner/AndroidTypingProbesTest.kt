@@ -33,6 +33,22 @@ class AndroidTypingProbesTest {
 	}
 
 	/**
+	 * Text the virtual keyboard cannot spell (accents, «¿») is assigned to the field and read back: the field holds as many
+	 * characters as the text (a secure field reads back masked), and no key went in (`keysInjected` is zero).
+	 */
+	@Test
+	fun textTheKeyboardCannotSpellIsAssignedAndReadBack() {
+		val driver = app.begin("accented-assign")
+
+		assertTrue(driver.typeKeys(app.password, ProbeApp.ACCENTED_SAMPLE))
+		assertTrue(
+			"the field holds all ${ProbeApp.ACCENTED_SAMPLE.length} characters",
+			driver.session.poll(READ_MS) { driver.readText(app.password)?.length == ProbeApp.ACCENTED_SAMPLE.length }
+		)
+		assertEquals(0, driver.keysInjected())
+	}
+
+	/**
 	 * ZB-3, the regression probe of the extra character ("v" in the password field): `typeKeys` never touches the screen.
 	 * With the field without the focus, `typeKeys` asks for it with the accessibility click action and logcat has no
 	 * `Clicking on` (the line a touch on a coordinate writes) since the probe began. Red if a click by coordinate returns

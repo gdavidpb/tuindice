@@ -1,6 +1,5 @@
 {
   "scenarioName": "assistant-consent",
-  "requiredScenarioState": "Started",
   "newScenarioState": "Started",
   "request": {
     "method": "PUT",

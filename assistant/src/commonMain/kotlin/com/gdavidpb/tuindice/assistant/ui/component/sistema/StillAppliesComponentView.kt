@@ -10,7 +10,9 @@ import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantStillAppliesButtonsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_still_applies_no
 import tuindice.assistant.generated.resources.assistant_still_applies_title
+import tuindice.assistant.generated.resources.assistant_still_applies_yes
 
 // sistema.sigue_aplicando/1: a remembered statement and the two answers to it.
 @Composable
@@ -22,11 +24,20 @@ fun StillAppliesComponentView(
 	AssistantEmbeddedCardView(modifier = modifier) {
 		CardTitleView(text = stringResource(Res.string.assistant_still_applies_title))
 		CardBodyTextView(text = item.statement)
-		AssistantStillAppliesButtonsView(
-			memoryId = item.memoryId,
-			onAnswer = { applies ->
-				onAction(AssistantChat.Action.AnswerStillApplies(item.memoryId, applies))
-			}
-		)
+		val answer = item.answer
+		if (answer == null) {
+			AssistantStillAppliesButtonsView(
+				memoryId = item.memoryId,
+				onAnswer = { applies ->
+					onAction(AssistantChat.Action.AnswerStillApplies(item.memoryId, applies))
+				}
+			)
+		} else {
+			// Answered: the card keeps the answer the student gave, as an intent card keeps its outcome.
+			CardBodyTextView(
+				text = stringResource(if (answer) Res.string.assistant_still_applies_yes else Res.string.assistant_still_applies_no),
+				muted = true
+			)
+		}
 	}
 }

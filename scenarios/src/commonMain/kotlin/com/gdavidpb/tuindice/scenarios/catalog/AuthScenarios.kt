@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -418,7 +419,8 @@ private val authSignOutCancel = scenario(
 	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
 	waitGone(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	waitVisible(SummaryUiTags.ContentContainer, Within.Assert)
+	// Sign-out lives in Settings: cancelling keeps the student there.
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
 private val authSignOut = scenario(

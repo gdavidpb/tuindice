@@ -42,6 +42,8 @@ internal class AssistantChatSession {
 	// no reasons again. Only a saved report is written here: a refused one leaves the message as it was.
 	val reportedMessages = mutableSetOf<String>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
+	// The answers to «¿Sigue aplicando?» the service saved on this sheet, by memory.
+	val answeredMemories = mutableMapOf<String, Boolean>()
 	val runningIntents = mutableSetOf<String>()
 	val failedMessages = mutableSetOf<String>()
 
