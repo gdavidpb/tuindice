@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.model.AssistantMessageActionSizes
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -59,6 +60,7 @@ fun AssistantReportMessageButtonView(
 			)
 		}
 		DropdownMenu(
+			modifier = Modifier.exposeTestTagsAsResourceId(),
 			expanded = isMenuVisible.value,
 			onDismissRequest = { isMenuVisible.value = false }
 		) {

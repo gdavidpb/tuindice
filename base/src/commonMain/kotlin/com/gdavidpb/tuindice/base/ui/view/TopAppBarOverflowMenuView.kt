@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import org.jetbrains.compose.resources.stringResource
 import tuindice.base.generated.resources.Res
 import tuindice.base.generated.resources.a11y_more_options
@@ -49,6 +50,7 @@ fun TopAppBarOverflowMenuView(
 		}
 
 		DropdownMenu(
+			modifier = Modifier.exposeTestTagsAsResourceId(),
 			expanded = expanded.value,
 			onDismissRequest = {
 				expanded.value = false

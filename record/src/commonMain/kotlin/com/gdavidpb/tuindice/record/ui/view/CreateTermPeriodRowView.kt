@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
@@ -92,7 +93,7 @@ fun CreateTermPeriodRow(
 				}
 
 				DropdownMenu(
-					modifier = Modifier.heightIn(max = TermDropdownMaxHeight),
+					modifier = Modifier.heightIn(max = TermDropdownMaxHeight).exposeTestTagsAsResourceId(),
 					expanded = expanded.value,
 					onDismissRequest = { expanded.value = false }
 				) {

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.view.AskAssistantMenuItemView
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
@@ -84,17 +85,31 @@ fun AttemptCardItemView(
 		}
 
 		if (actions.onAskAssistant != null) {
-			DropdownMenu(
+			AttemptCardMenu(
 				expanded = isMenuExpanded.value,
-				onDismissRequest = { isMenuExpanded.value = false }
-			) {
-				AskAssistantMenuItemView(
-					onAsk = {
-						isMenuExpanded.value = false
-						actions.onAskAssistant?.invoke(item.assistantContext)
-					}
-				)
-			}
+				onDismissRequest = { isMenuExpanded.value = false },
+				onAsk = {
+					isMenuExpanded.value = false
+					actions.onAskAssistant?.invoke(item.assistantContext)
+				}
+			)
 		}
+	}
+}
+
+// The menu of an attempt card, opened by a tap on the card: «Preguntar sobre esto». The menu is a separate window, so
+// its test tags are exposed as resource-ids for the native tests to find it.
+@Composable
+private fun AttemptCardMenu(
+	expanded: Boolean,
+	onDismissRequest: () -> Unit,
+	onAsk: () -> Unit
+) {
+	DropdownMenu(
+		modifier = Modifier.exposeTestTagsAsResourceId(),
+		expanded = expanded,
+		onDismissRequest = onDismissRequest
+	) {
+		AskAssistantMenuItemView(onAsk = onAsk)
 	}
 }

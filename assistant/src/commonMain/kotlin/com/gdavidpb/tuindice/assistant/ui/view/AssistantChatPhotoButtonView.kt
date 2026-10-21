@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -29,8 +30,9 @@ import tuindice.assistant.generated.resources.assistant_photo_pick
 import tuindice.assistant.generated.resources.assistant_photo_take
 
 // The photo button: a clip inside the composer's field, at its end, in a neutral grey circle (the theme's border grey)
-// the size of the send button's, so it does not float loose in the field. It opens a small menu: the camera, when the
-// device has one, and the gallery. It is off while a turn or a photo is being read, and then its circle and clip fade.
+// the size of the send button's, so it does not float loose in the field. Its clip is in the send arrow's colour (the
+// accent's on-colour). It opens a small menu: the camera, when the device has one, and the gallery. It is off while a
+// turn or a photo is being read, and then its circle and clip fade.
 @Composable
 fun AssistantChatPhotoButtonView(
 	isEnabled: Boolean,
@@ -57,12 +59,13 @@ fun AssistantChatPhotoButtonView(
 					imageVector = Icons.Outlined.AttachFile,
 					contentDescription = stringResource(Res.string.assistant_photo_add),
 					modifier = Modifier.size(TuIndiceComponentSizes.IconMedium),
-					tint = MaterialTheme.colorScheme.onSurfaceVariant
+					tint = MaterialTheme.colorScheme.onPrimary
 				)
 			}
 		}
 
 		DropdownMenu(
+			modifier = Modifier.exposeTestTagsAsResourceId(),
 			expanded = menuOpen.value,
 			onDismissRequest = { menuOpen.value = false }
 		) {
