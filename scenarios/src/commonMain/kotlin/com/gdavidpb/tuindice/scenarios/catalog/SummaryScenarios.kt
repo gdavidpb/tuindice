@@ -47,6 +47,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val IOS_SHEET_SWIPE_MS = 600L
 
+// The share sheet is almost as tall as the screen, and a sheet let go without speed settles on its closest anchor
+// (TuIndiceSheetState.targetFor): the drag that closes it has to pass half its height.
+private const val SHARE_SHEET_CLOSE_TRAVEL = 0.7
+
 /**
  * Identifiers of the iOS system surfaces: the photo picker's "Cancelar" button and its "Ordenar y filtrar" button (only
  * there once the library has loaded), the camera's "Dismiss" button and its shutter.
@@ -566,7 +570,7 @@ private val summaryStatisticsShare = scenario("summary-statistics-share", "summa
 	}
 	foreground()
 	waitVisible(SummaryUiTags.ShareTermSheet, Within.Action)
-	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down, travel = SHARE_SHEET_CLOSE_TRAVEL)
 	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
 	waitVisible(SummaryUiTags.StatisticsContent, Within.Assert)
 }
@@ -589,7 +593,7 @@ private val summaryHubShareFinishedTerm = scenario(
 	tap(SummaryUiTags.TermFinishedShare)
 	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
 	waitVisible(ShareTermUiTags.termSelected(E2eFixtures.HubNewestClosedTermKey.value), Within.Assert)
-	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down, travel = SHARE_SHEET_CLOSE_TRAVEL)
 	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Assert)
 }
@@ -612,7 +616,7 @@ private val summaryStatisticsShareWithoutCatalog = scenario(
 	waitVisible(ShareTermUiTags.backgroundSelected(E2eFixtures.ShareBackgroundIncluded.value), Within.Long)
 	waitGone(ShareTermUiTags.background(E2eFixtures.ShareBackgroundSecond.value), Within.Assert)
 	assertEnabled(SummaryUiTags.ShareTermShareButton, true)
-	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down, travel = SHARE_SHEET_CLOSE_TRAVEL)
 	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
 }
 
@@ -660,7 +664,7 @@ private val termreportOpen = scenario(
 	waitVisible(SummaryUiTags.ShareTermSheet, Within.Wait)
 	waitVisible(ShareTermUiTags.termSelected(REPORT_TERM_KEY), Within.Assert)
 	assertEnabled(SummaryUiTags.ShareTermShareButton, true)
-	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down)
+	swipeFrom(BaseUiTags.ConfirmationDialogTitle, SwipeDirection.Down, travel = SHARE_SHEET_CLOSE_TRAVEL)
 	waitGone(SummaryUiTags.ShareTermSheet, Within.Action)
 	waitVisible(TermReportUiTags.TermReportContent, Within.Assert)
 	scrollUntilVisible(TermReportUiTags.termReportThumb(useful = true), Scroll.ContentDown, Within.Long)

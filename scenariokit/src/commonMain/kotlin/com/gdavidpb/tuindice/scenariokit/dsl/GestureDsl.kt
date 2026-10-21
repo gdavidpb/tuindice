@@ -26,15 +26,20 @@ fun StepBuilder.swipeScreen(direction: SwipeDirection, duration: Duration = DEFA
 	swipePoints(fx, fy, direction.dx(travel), direction.dy(travel), duration)
 }
 
-/** Swipes starting at the middle of the element, by a screen fraction. */
-fun StepBuilder.swipeFrom(tag: String, direction: SwipeDirection, duration: Duration = DEFAULT_SWIPE_MS.milliseconds) =
+/** Swipes starting at the middle of the element, by a screen fraction, [travel] (0.4 unless given). */
+fun StepBuilder.swipeFrom(
+	tag: String,
+	direction: SwipeDirection,
+	duration: Duration = DEFAULT_SWIPE_MS.milliseconds,
+	travel: Double = SHORT_TRAVEL
+) =
 	add(
 		Step.Swipe(
 			Query.Tag(tag),
 			MIDDLE,
 			MIDDLE,
-			direction.dx(SHORT_TRAVEL),
-			direction.dy(SHORT_TRAVEL),
+			direction.dx(travel),
+			direction.dy(travel),
 			duration.millis(),
 			site()
 		)
