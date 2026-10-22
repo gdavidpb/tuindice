@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -19,6 +21,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 
 @Composable
 fun EvaluationsWeekStripView(
@@ -44,8 +47,19 @@ fun EvaluationsWeekStripView(
 		?.key
 		?: selectedWeekKey
 
+	// Set by a drag of the page and taken by the page it settles on. A move the strip makes itself clears it, so the
+	// page it settles on is not reported: only a page the student dragged to chooses its week.
+	val isMovedByDrag = remember { mutableStateOf(false) }
+
+	LaunchedEffect(pagerState) {
+		pagerState.interactionSource.interactions
+			.filterIsInstance<DragInteraction.Start>()
+			.collect { isMovedByDrag.value = true }
+	}
+
 	LaunchedEffect(weekItems, selectedWeekIndex) {
 		if (pagerState.currentPage != selectedWeekIndex) {
+			isMovedByDrag.value = false
 			pagerState.animateScrollToPage(selectedWeekIndex)
 		}
 	}
@@ -56,8 +70,11 @@ fun EvaluationsWeekStripView(
 			.filter { (isScrollInProgress, _) -> !isScrollInProgress }
 			.collect { (_, page) ->
 				val weekKey = weekItems.getOrNull(page)?.key ?: return@collect
+				val isDraggedTo = isMovedByDrag.value
 
-				if (weekKey != selectedWeekKey) {
+				isMovedByDrag.value = false
+
+				if (isDraggedTo && weekKey != selectedWeekKey) {
 					onWeekSelected(weekKey)
 				}
 			}

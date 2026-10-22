@@ -3,6 +3,9 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -10,6 +13,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
@@ -23,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.flow.first
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -257,4 +263,107 @@ class EvaluationsViewUiTest {
 		)
 		assertNodeHidden(EvaluationsUiTags.evaluationsWeekHeader(7))
 	}
+
+	@Test
+	fun when_aWeekIsChosenAndTheListIsDraggedBeforeItStandsOnIt_then_theChosenWeekStaysAndItsContentIsInView() =
+		runTuIndiceUiTest {
+			val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4)
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+			val reportedWeeks = mutableListOf<EvaluationsWeekKey>()
+			val isDragArmed = mutableStateOf(false)
+
+			setTuIndiceTestContent {
+				val lazyListState = rememberLazyListState()
+
+				// The week is chosen as soon as the student's drag of the list starts: the list is not on it yet.
+				LaunchedEffect(lazyListState) {
+					snapshotFlow { isDragArmed.value && lazyListState.isScrollInProgress }
+						.first { isDragging -> isDragging }
+
+					chosenWeek.value = EvaluationsWeekKey.Academic(11)
+				}
+
+				EvaluationsView(
+					lazyListState = lazyListState,
+					weekGroups = weeks,
+					selectedWeekKey = chosenWeek.value,
+					actions = EvaluationsActions(
+						onWeekClick = { weekKey ->
+							reportedWeeks += weekKey
+							chosenWeek.value = weekKey
+						},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {}
+					)
+				)
+			}
+
+			waitForIdle()
+
+			runOnIdle {
+				isDragArmed.value = true
+			}
+			onNodeWithTag(EvaluationsUiTags.EvaluationsList).performTouchInput { swipeUp() }
+			waitForIdle()
+
+			assertEquals(emptyList<EvaluationsWeekKey>(), reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+			assertNodeVisible(EvaluationsUiTags.evaluationItemCard("week-11-evaluation-1"))
+
+			val list = onNodeWithTag(EvaluationsUiTags.EvaluationsList).getUnclippedBoundsInRoot()
+			val header = onNodeWithTag(EvaluationsUiTags.evaluationsWeekHeader(11)).getUnclippedBoundsInRoot()
+
+			assertTrue(
+				abs((header.top - list.top).value) < 1f,
+				"the chosen week at ${header.top} is at the top of the list at ${list.top}"
+			)
+		}
+
+	@Test
+	fun when_theChosenWeekIsPlaced_then_aDragOfTheListChoosesTheWeekItShows() = runTuIndiceUiTest {
+		val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4)
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
+		val reportedWeeks = mutableListOf<EvaluationsWeekKey>()
+
+		setTuIndiceTestContent {
+			EvaluationsView(
+				lazyListState = rememberLazyListState(),
+				weekGroups = weeks,
+				selectedWeekKey = chosenWeek.value,
+				actions = EvaluationsActions(
+					onWeekClick = { weekKey ->
+						reportedWeeks += weekKey
+						chosenWeek.value = weekKey
+					},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
+			)
+		}
+
+		waitForIdle()
+		onNodeWithTag(EvaluationsUiTags.EvaluationsList).performTouchInput { swipeUp() }
+		waitForIdle()
+
+		assertTrue(reportedWeeks.isNotEmpty(), "a drag of the placed list chooses the week it shows")
+		assertEquals(reportedWeeks.last(), chosenWeek.value)
+		assertTrue(reportedWeeks.first() != EvaluationsWeekKey.Academic(10), "the drag moved past the chosen week")
+	}
+
+	private fun evaluationWeeksFixture(count: Int, cardsPerWeek: Int): List<EvaluationsWeekGroupItem> =
+		(1..count).map { number ->
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(number),
+				title = "Semana $number",
+				groups = listOf(
+					EvaluationsGroupItem(
+						items = (1..cardsPerWeek).map { index ->
+							evaluationItemFixture(evaluationId = "week-$number-evaluation-$index")
+						}
+					)
+				)
+			)
+		}
 }

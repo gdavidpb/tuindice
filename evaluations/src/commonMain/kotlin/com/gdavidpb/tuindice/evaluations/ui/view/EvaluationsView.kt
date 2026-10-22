@@ -31,8 +31,11 @@ import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -61,6 +64,8 @@ fun EvaluationsView(
 	}
 	val isProgrammaticWeekScroll = remember { mutableStateOf(false) }
 	val hasPositionedSelectedWeek = remember { mutableStateOf(false) }
+	// The week the list stands on, once it has been placed there. Until then the list does not choose a week.
+	val positionedWeek = remember { mutableStateOf<EvaluationsWeekKey?>(null) }
 
 	// The arrival is taken from the content once, here: the content forgets it and the list keeps it
 	// until the highlight has played, so a later visit cannot replay it.
@@ -72,6 +77,7 @@ fun EvaluationsView(
 			lazyListState = lazyListState,
 			isProgrammaticWeekScroll = isProgrammaticWeekScroll,
 			hasPositionedSelectedWeek = hasPositionedSelectedWeek,
+			positionedWeek = positionedWeek,
 			positionedArrival = positionedArrival,
 			highlightedArrival = highlightedArrival
 		)
@@ -90,13 +96,12 @@ fun EvaluationsView(
 	}
 
 	LaunchedEffect(selectedWeekKey, weekHeaderIndexes, arrival.value) {
-		val headerIndex = weekHeaderIndexes[selectedWeekKey] ?: return@LaunchedEffect
-
-		positioning.positionWeek(
+		positioning.placeWeek(
 			weekGroups = weekGroups,
 			weekKey = selectedWeekKey,
-			headerIndex = headerIndex,
-			take = arrival.value
+			headerIndex = weekHeaderIndexes[selectedWeekKey],
+			take = arrival.value,
+			afterGesture = false
 		)
 	}
 
@@ -115,12 +120,26 @@ fun EvaluationsView(
 
 	LaunchedEffect(lazyListState, weekHeaderIndexes, selectedWeekKey) {
 		reportUserWeek(
-			lazyListState = lazyListState,
+			positioning = positioning,
 			weekHeaderIndexes = weekHeaderIndexes,
 			selectedWeekKey = selectedWeekKey,
-			isProgrammaticWeekScroll = isProgrammaticWeekScroll,
 			onVisibleWeekChange = actions.onWeekClick
 		)
+	}
+
+	// A gesture that ends while the chosen week is not placed yet, or that cut its placement short, places it now.
+	LaunchedEffect(lazyListState, weekGroups, weekHeaderIndexes, selectedWeekKey) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.filter { isScrollInProgress -> !isScrollInProgress }
+			.collect {
+				positioning.placeWeek(
+					weekGroups = weekGroups,
+					weekKey = selectedWeekKey,
+					headerIndex = weekHeaderIndexes[selectedWeekKey],
+					take = arrival.value,
+					afterGesture = true
+				)
+			}
 	}
 
 	LazyColumn(
@@ -251,13 +270,53 @@ private class WeekPositioning(
 	val lazyListState: LazyListState,
 	val isProgrammaticWeekScroll: MutableState<Boolean>,
 	val hasPositionedSelectedWeek: MutableState<Boolean>,
+	val positionedWeek: MutableState<EvaluationsWeekKey?>,
 	val positionedArrival: ArrivalCursor,
 	val highlightedArrival: MutableState<EvaluationArrival?>
 ) {
+	// One placement at a time, so the check after a gesture never runs while a placement is still moving the list.
+	private val placements = Mutex()
+
+	// Places the list on the week chosen, and on the arrival when one is pending in it. The week is placed only once
+	// the list stands on its header: a gesture that cuts the placement short leaves it unplaced until the gesture
+	// ends. After a gesture (afterGesture) the list is placed only when the chosen week is not placed yet, so the
+	// selection is never moved by a gesture: the list only follows the chosen week.
+	suspend fun placeWeek(
+		weekGroups: List<EvaluationsWeekGroupItem>,
+		weekKey: EvaluationsWeekKey,
+		headerIndex: Int?,
+		take: EvaluationArrival?,
+		afterGesture: Boolean
+	) {
+		placements.withLock {
+			val isPlaced = positionedWeek.value == weekKey
+			val isArrivalPositioned = take != null && take === positionedArrival.value
+
+			// A gesture never places a week that is placed already, and a restart does not move the list off an arrival
+			// that is positioned already.
+			if (isPlaced && (afterGesture || isArrivalPositioned)) {
+				return
+			}
+
+			if (headerIndex == null) {
+				// The week lists no evaluation: there is nothing to place, so the list stays where it is.
+				positionedWeek.value = weekKey
+				return
+			}
+
+			positionWeek(
+				weekGroups = weekGroups,
+				weekKey = weekKey,
+				headerIndex = headerIndex,
+				take = take
+			)
+		}
+	}
+
 	// Positions the list on the week shown and, when an arrival is pending in it, on its evaluation. An arrival
 	// is pending until the list has been positioned for it; it is marked positioned only once that is done, so
 	// a restart in the middle of the scroll positions it again.
-	suspend fun positionWeek(
+	private suspend fun positionWeek(
 		weekGroups: List<EvaluationsWeekGroupItem>,
 		weekKey: EvaluationsWeekKey,
 		headerIndex: Int,
@@ -274,6 +333,8 @@ private class WeekPositioning(
 		}
 
 		if (take != null && isPending && cardIndex != null) {
+			// The week is not placed while its scroll runs, so a placement cut short leaves it unplaced.
+			positionedWeek.value = null
 			isProgrammaticWeekScroll.value = true
 			try {
 				withTimeoutOrNull(ARRIVAL_POSITION_TIMEOUT_MILLIS) {
@@ -283,9 +344,11 @@ private class WeekPositioning(
 			} finally {
 				isProgrammaticWeekScroll.value = false
 			}
+			positionedWeek.value = weekKey
 			positionedArrival.value = take
 			highlightedArrival.value = take
 		} else if (!lazyListState.isScrollInProgress && lazyListState.firstVisibleItemIndex != headerIndex) {
+			positionedWeek.value = null
 			isProgrammaticWeekScroll.value = true
 			try {
 				if (hasPositionedSelectedWeek.value) {
@@ -297,8 +360,14 @@ private class WeekPositioning(
 			} finally {
 				isProgrammaticWeekScroll.value = false
 			}
+			positionedWeek.value = weekKey
 		} else {
 			hasPositionedSelectedWeek.value = true
+
+			// A gesture still moving the list, short of the header, leaves the week unplaced until the gesture ends.
+			if (lazyListState.firstVisibleItemIndex == headerIndex) {
+				positionedWeek.value = weekKey
+			}
 		}
 	}
 }
@@ -411,24 +480,29 @@ private fun List<EvaluationItem>.countText(
 	return pattern.replace("%1${'$'}d", size.toString())
 }
 
-// Reports the week the user scrolls to, so that the selection follows it. The list's own moves are not reported.
+// Reports the week the user scrolls to, so that the selection follows it. The list's own moves are not reported,
+// and neither is a gesture that starts before the chosen week is placed: the placement after that gesture decides.
+// The selection is only ever chosen by a gesture of the student, once the list has been placed on the chosen week.
 private suspend fun reportUserWeek(
-	lazyListState: LazyListState,
+	positioning: WeekPositioning,
 	weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
 	selectedWeekKey: EvaluationsWeekKey,
-	isProgrammaticWeekScroll: MutableState<Boolean>,
 	onVisibleWeekChange: (EvaluationsWeekKey) -> Unit
 ) {
-	snapshotFlow { lazyListState.firstVisibleItemIndex }
+	snapshotFlow { positioning.lazyListState.firstVisibleItemIndex }
 		.map { index -> weekHeaderIndexes.visibleWeekKey(index) }
 		.distinctUntilChanged()
 		.collect { weekKey ->
-			if (
-				weekKey != null &&
-				weekKey != selectedWeekKey &&
-				lazyListState.isScrollInProgress &&
-				!isProgrammaticWeekScroll.value
-			) {
+			if (weekKey == null || weekKey == selectedWeekKey) {
+				return@collect
+			}
+
+			val isGestureMove = positioning.lazyListState.isScrollInProgress &&
+				!positioning.isProgrammaticWeekScroll.value
+
+			if (isGestureMove && positioning.positionedWeek.value == selectedWeekKey) {
+				// The student's gesture leaves the list on the week it chooses, so that week is the one it is placed on.
+				positioning.positionedWeek.value = weekKey
 				onVisibleWeekChange(weekKey)
 			}
 		}

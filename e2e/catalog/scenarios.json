@@ -19614,7 +19614,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 18
+                        "line": 19
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -19626,7 +19626,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 19
+                        "line": 20
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -19638,7 +19638,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 20
+                        "line": 21
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -19650,7 +19650,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 21
+                        "line": 22
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19878,7 +19878,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 18
+                        "line": 19
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -19890,7 +19890,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 19
+                        "line": 20
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -19902,7 +19902,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 20
+                        "line": 21
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -19914,7 +19914,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 21
+                        "line": 22
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -26867,7 +26867,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -26878,7 +26878,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27077,7 +27089,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "e0930325563ab776",
+            "stepsHash": "e193fcc534454fed",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -27168,7 +27180,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -27179,7 +27191,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27404,7 +27428,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "90822cbad75150ab",
+            "stepsHash": "863219d5a91f5e00",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -27493,7 +27517,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -27504,7 +27528,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -27619,7 +27655,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "bd14a7c373ec07e1",
+            "stepsHash": "3e4841d3bb61c0dc",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -32882,7 +32918,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -32893,7 +32929,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -33066,7 +33114,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -33077,7 +33125,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -33095,7 +33155,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "8d240a6ed93c182b",
+            "stepsHash": "3d72bcd33041dd33",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -33330,7 +33390,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 31
+                        "line": 33
                     },
                     "type": "tap"
                 },
@@ -33341,7 +33401,19 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
-                        "line": 32
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/EvaluationsWeekSteps.kt",
+                        "line": 35
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -33519,7 +33591,7 @@
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "b445edb6b7108f4d",
+            "stepsHash": "74e375ae93dc88f0",
             "tags": [],
             "timeoutSeconds": 180
         },
