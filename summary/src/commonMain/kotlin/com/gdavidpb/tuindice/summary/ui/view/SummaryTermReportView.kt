@@ -41,14 +41,13 @@ fun SummaryTermReportView(
 	modifier: Modifier = Modifier
 ) {
 	SummaryHubCardView(
-		modifier = modifier
-			.fillMaxWidth()
-			.testTag(TermReportUiTags.TermReportEntry),
+		modifier = modifier.fillMaxWidth(),
 		hasBorder = true
 	) {
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
+				.testTag(TermReportUiTags.TermReportEntry)
 				.clickable(
 					role = Role.Button,
 					onClickLabel = stringResource(Res.string.a11y_term_report_entry),

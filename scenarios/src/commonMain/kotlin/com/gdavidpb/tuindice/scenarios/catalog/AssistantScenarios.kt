@@ -7,14 +7,13 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
-import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
-import com.gdavidpb.tuindice.scenariokit.dsl.swipeFrom
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
+import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -28,9 +27,10 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
-import kotlin.time.Duration.Companion.milliseconds
 
-private const val SHEET_SWIPE_MS = 600L
+// A point of the scrim above the chat sheet, which rests lower on the screen: its middle and a tenth from the top.
+private const val SCRIM_ABOVE_SHEET_X = 0.5
+private const val SCRIM_ABOVE_SHEET_Y = 0.1
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
 private fun StepBuilder.openAssistant() {
@@ -335,9 +335,9 @@ private val assistantReopenWithConsent = scenario(
 
 	openAssistant()
 	acceptConsent()
-	// The sheet is dragged down by its title, and the sparkle opens it again: the consent is given, so it opens
-	// straight into the conversation, with the field in view.
-	swipeFrom(AssistantUiTags.ChatTitle, SwipeDirection.Down, SHEET_SWIPE_MS.milliseconds)
+	// The sheet is closed by a tap on the scrim above it, and the sparkle opens it again: the consent is given, so it
+	// opens straight into the conversation, with the field in view.
+	tapAtScreen(SCRIM_ABOVE_SHEET_X, SCRIM_ABOVE_SHEET_Y)
 	waitGone(AssistantUiTags.ChatSheet, Within.Action)
 	openAssistant()
 	waitVisible(AssistantUiTags.Composer, Within.Action)

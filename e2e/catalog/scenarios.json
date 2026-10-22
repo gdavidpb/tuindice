@@ -35076,20 +35076,14 @@
                     "type": "waitVisible"
                 },
                 {
-                    "durationMs": 600,
-                    "dx": 0.0,
-                    "dy": 0.4,
-                    "from": {
-                        "type": "tag",
-                        "value": "assistant_chat_title"
-                    },
                     "fx": 0.5,
-                    "fy": 0.5,
+                    "fy": 0.1,
+                    "q": null,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AssistantScenarios.kt",
                         "line": 340
                     },
-                    "type": "swipe"
+                    "type": "tapAt"
                 },
                 {
                     "q": {
@@ -35140,7 +35134,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "9b8aae5fc903411f",
+            "stepsHash": "136229bdc0df0bf5",
             "tags": [],
             "timeoutSeconds": 180
         },
