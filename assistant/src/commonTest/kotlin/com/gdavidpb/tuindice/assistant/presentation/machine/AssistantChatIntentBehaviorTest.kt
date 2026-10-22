@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
@@ -18,12 +19,16 @@ import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_intent_draft_detail
+import tuindice.assistant.generated.resources.assistant_intent_receipt_added_many
+import tuindice.assistant.generated.resources.assistant_intent_receipt_added_one
+import tuindice.assistant.generated.resources.assistant_intent_receipt_partial
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -168,4 +173,89 @@ class AssistantChatIntentBehaviorTest {
 		assertEquals(false, fixture.intents.decisions.single().accepted)
 		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CANCELLED), viewModel.content().intentCard("i5").status)
 	}
+
+	@Test
+	fun anAdditionThatLandedInFull_receiptsHowManyWereAdded() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val one = additionIntent("i6", rows = 1)
+		val many = additionIntent("i7", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a6", IntentPart(one)), agentMessage("a7", IntentPart(many))),
+			resolvedIntents = mapOf("i6" to OutcomeKind.CONFIRMED, "i7" to OutcomeKind.CONFIRMED),
+			resolvedCounts = mapOf("i6" to IntentResolvedCount(applied = 1, selected = 1), "i7" to IntentResolvedCount(2, 2))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(
+				AssistantIntentOutcome.CONFIRMED,
+				UiText.Resource(Res.string.assistant_intent_receipt_added_one, listOf(1))
+			),
+			viewModel.content().intentCard("i6").status
+		)
+		assertEquals(
+			IntentCardStatus.Resolved(
+				AssistantIntentOutcome.CONFIRMED,
+				UiText.Resource(Res.string.assistant_intent_receipt_added_many, listOf(2))
+			),
+			viewModel.content().intentCard("i7").status
+		)
+	}
+
+	@Test
+	fun anAdditionWithSomeRowsLeftOut_receiptsHowManyLandedOutOfTheMarked() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = additionIntent("i8", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a8", IntentPart(intent))),
+			resolvedIntents = mapOf("i8" to OutcomeKind.CONFIRMED),
+			resolvedCounts = mapOf("i8" to IntentResolvedCount(applied = 1, selected = 2))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(
+				AssistantIntentOutcome.CONFIRMED,
+				UiText.Resource(Res.string.assistant_intent_receipt_partial, listOf(1, 2))
+			),
+			viewModel.content().intentCard("i8").status
+		)
+	}
+
+	@Test
+	fun anAdditionThatDidNotLand_keepsItsOutcomeLabelAndNoReceipt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = additionIntent("i9", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a9", IntentPart(intent))),
+			resolvedIntents = mapOf("i9" to OutcomeKind.FAILED),
+			resolvedCounts = mapOf("i9" to IntentResolvedCount(applied = 0, selected = 2))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.FAILED), viewModel.content().intentCard("i9").status)
+	}
+
+	@Test
+	fun anOutcomeOfAnotherIntentKind_keepsItsOutcomeLabelAndNoReceipt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(id = "i10", args = RememberArgs(statement = "x", category = "y", quote = "z"))
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a10", IntentPart(intent))),
+			resolvedIntents = mapOf("i10" to OutcomeKind.CONFIRMED),
+			resolvedCounts = mapOf("i10" to IntentResolvedCount(applied = 1, selected = 1))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED),
+			viewModel.content().intentCard("i10").status
+		)
+	}
+
+	private fun additionIntent(id: String, rows: Int) = assistantIntent(
+		id = id,
+		args = AddEvaluationsArgs(items = (1..rows).map { index -> assistantDraft("$id-m$index", "Parcial $index") }),
+		mutationIds = (1..rows).map { index -> "$id-m$index" }
+	)
 }

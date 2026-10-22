@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -23,6 +24,8 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_intent_receipt_added_many
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -87,6 +90,25 @@ class AssistantIntentCardViewUiTest {
 	}
 
 	@Test
+	fun when_intentIsResolvedWithAReceipt_then_theReceiptSaysWhatWasAddedInsteadOfTheOutcome() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantIntentCardView(
+				card = intentCard(
+					status = IntentCardStatus.Resolved(
+						outcome = AssistantIntentOutcome.CONFIRMED,
+						receipt = UiText.Resource(Res.string.assistant_intent_receipt_added_many, listOf(2))
+					)
+				),
+				onAction = {}
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Intent.receipt(INTENT_ID))
+		onNodeWithText(ADDED_TEXT).assertIsDisplayed()
+		onAllNodesWithText(RECEIPT_TEXT).assertCountEquals(0)
+	}
+
+	@Test
 	fun when_draftIsTapped_then_dispatchesToggleIntentDraftWithTheNewValue() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		val draft = IntentDraftItem(
@@ -110,5 +132,6 @@ class AssistantIntentCardViewUiTest {
 	private companion object {
 		const val MUTATION_ID = "mutation-1"
 		const val RECEIPT_TEXT = "Listo"
+		const val ADDED_TEXT = "Se agregaron 2 evaluaciones"
 	}
 }

@@ -62,7 +62,8 @@ private fun IntentStatusView(
 	when (val status = card.status) {
 		is IntentCardStatus.Resolved -> AssistantIntentReceiptView(
 			intentId = card.intentId,
-			outcome = status.outcome
+			outcome = status.outcome,
+			receipt = status.receipt
 		)
 
 		IntentCardStatus.Open, IntentCardStatus.Running -> AssistantIntentDetailsView(

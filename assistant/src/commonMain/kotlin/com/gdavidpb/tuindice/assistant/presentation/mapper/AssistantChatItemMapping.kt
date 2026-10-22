@@ -7,12 +7,20 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
+import com.gdavidpb.tuindice.chatcontract.intent.Intent
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_intent_receipt_added_many
+import tuindice.assistant.generated.resources.assistant_intent_receipt_added_one
+import tuindice.assistant.generated.resources.assistant_intent_receipt_partial
 
 // The conversation as the chat shows it: the student's bubbles and the agent's messages. The suggestions of the last
 // agent message are not a part of it; they are offered apart.
@@ -65,7 +73,7 @@ private suspend fun AssistantMessage.toChatParts(
 			is IntentPart -> ChatPartItem.IntentCard(
 				card = part.intent.toIntentCardItem(
 					texts = texts,
-					status = conversation.intentStatus(part.intent.id, runningIntents),
+					status = conversation.intentStatus(part.intent, runningIntents),
 					selections = selections
 				)
 			)
@@ -90,13 +98,40 @@ private fun AssistantMessage.copyText(): String {
 		.joinToString(separator = "\n")
 }
 
-// A resolved intent shows its outcome; one still running shows the progress; any other waits for the student.
-private fun AssistantConversation.intentStatus(intentId: String, runningIntents: Set<String>): IntentCardStatus {
-	val outcome = resolvedIntents[intentId]
+// A resolved intent shows its outcome, and the rows it added when it adds evaluations; one still running shows the
+// progress; any other waits for the student.
+private fun AssistantConversation.intentStatus(intent: Intent, runningIntents: Set<String>): IntentCardStatus {
+	val outcome = resolvedIntents[intent.id]
 
 	return when {
-		outcome != null -> IntentCardStatus.Resolved(outcome.toPresentation())
-		intentId in runningIntents -> IntentCardStatus.Running
+		outcome != null -> IntentCardStatus.Resolved(
+			outcome = outcome.toPresentation(),
+			receipt = addedReceipt(intent, outcome)
+		)
+		intent.id in runningIntents -> IntentCardStatus.Running
 		else -> IntentCardStatus.Open
+	}
+}
+
+// The receipt of an addition of evaluations that landed: all the rows it marked, or some of them. Any other outcome or
+// intent, and an addition whose count is not kept, has no receipt: the outcome's own label reads instead.
+private fun AssistantConversation.addedReceipt(intent: Intent, outcome: OutcomeKind): UiText? {
+	val count = resolvedCounts[intent.id]
+
+	if (intent.args !is AddEvaluationsArgs || outcome != OutcomeKind.CONFIRMED || count == null) return null
+
+	return when {
+		count.applied == count.selected && count.applied > 0 -> chatCardCountText(
+			count = count.applied,
+			one = Res.string.assistant_intent_receipt_added_one,
+			many = Res.string.assistant_intent_receipt_added_many
+		)
+
+		count.applied in 1 until count.selected -> UiText.Resource(
+			resource = Res.string.assistant_intent_receipt_partial,
+			args = listOf(count.applied, count.selected)
+		)
+
+		else -> null
 	}
 }

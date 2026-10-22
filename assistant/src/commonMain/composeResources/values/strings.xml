@@ -32,6 +32,9 @@
 	<string name="assistant_intent_outcome_expired">Venció</string>
 	<string name="assistant_intent_outcome_failed">Falló</string>
 	<string name="assistant_intent_outcome_delegated">Abierto en la app</string>
+	<string name="assistant_intent_receipt_added_one">Se agregó %1$d evaluación</string>
+	<string name="assistant_intent_receipt_added_many">Se agregaron %1$d evaluaciones</string>
+	<string name="assistant_intent_receipt_partial">%1$d de %2$d agregadas</string>
 	<string name="assistant_chat_title">Asistente</string>
 	<string name="assistant_consent_title">Antes de usar el asistente</string>
 	<string name="assistant_consent_failed">No pudimos guardar tu consentimiento. Inténtalo de nuevo.</string>

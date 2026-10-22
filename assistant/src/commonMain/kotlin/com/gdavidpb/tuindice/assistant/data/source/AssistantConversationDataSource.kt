@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.data.model.reduce
 import com.gdavidpb.tuindice.assistant.data.model.withAssistantMessage
 import com.gdavidpb.tuindice.assistant.data.model.withId
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
@@ -72,15 +73,22 @@ class AssistantConversationDataSource : SessionMemory {
 		}
 	}
 
-	// The intent leaves the open ones and keeps the outcome it ended with.
-	fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
+	// The intent leaves the open ones and keeps the outcome it ended with, and the count of its rows when it adds
+	// evaluations.
+	fun markIntentResolved(
+		intentId: String,
+		outcome: OutcomeKind,
+		sessionMark: Int,
+		count: IntentResolvedCount? = null
+	) {
 		conversation.update { current ->
 			if (current.sessionGeneration != sessionMark) {
 				current
 			} else {
 				current.copy(
 					openIntents = current.openIntents - intentId,
-					resolvedIntents = current.resolvedIntents + (intentId to outcome)
+					resolvedIntents = current.resolvedIntents + (intentId to outcome),
+					resolvedCounts = if (count == null) current.resolvedCounts else current.resolvedCounts + (intentId to count)
 				)
 			}
 		}

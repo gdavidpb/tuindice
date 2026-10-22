@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.data.source
 import com.gdavidpb.tuindice.assistant.data.mapper.toAssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
@@ -45,8 +46,13 @@ class AssistantConversationStoreDataSource(
 		store.addAssistantMessage(message, intent, sessionMark)
 	}
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
-		store.markIntentResolved(intentId, outcome, sessionMark)
+	override fun markIntentResolved(
+		intentId: String,
+		outcome: OutcomeKind,
+		sessionMark: Int,
+		count: IntentResolvedCount?
+	) {
+		store.markIntentResolved(intentId, outcome, sessionMark, count)
 	}
 
 	override suspend fun clearConversation() {

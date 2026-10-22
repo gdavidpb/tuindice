@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
@@ -138,11 +139,17 @@ internal class ObservedAssistantConversationRepository(
 
 	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
+	override fun markIntentResolved(
+		intentId: String,
+		outcome: OutcomeKind,
+		sessionMark: Int,
+		count: IntentResolvedCount?
+	) {
 		conversation.update { current ->
 			current.copy(
 				openIntents = current.openIntents - intentId,
-				resolvedIntents = current.resolvedIntents + (intentId to outcome)
+				resolvedIntents = current.resolvedIntents + (intentId to outcome),
+				resolvedCounts = count?.let { current.resolvedCounts + (intentId to it) } ?: current.resolvedCounts
 			)
 		}
 	}
@@ -243,13 +250,16 @@ internal class GatedAssistantMemoryRepository(
 internal fun assistantConversation(
 	items: List<AssistantConversationItem> = emptyList(),
 	openIntents: Map<String, Intent> = emptyMap(),
-	activeTurn: AssistantActiveTurn? = null
+	activeTurn: AssistantActiveTurn? = null,
+	resolvedIntents: Map<String, OutcomeKind> = emptyMap(),
+	resolvedCounts: Map<String, IntentResolvedCount> = emptyMap()
 ): AssistantConversation {
 	return AssistantConversation(
 		conversationId = null,
 		items = items,
 		openIntents = openIntents,
-		resolvedIntents = emptyMap(),
+		resolvedIntents = resolvedIntents,
+		resolvedCounts = resolvedCounts,
 		activeTurn = activeTurn
 	)
 }

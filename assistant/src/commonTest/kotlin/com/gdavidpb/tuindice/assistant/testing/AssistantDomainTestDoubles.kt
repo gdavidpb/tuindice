@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
@@ -139,6 +140,7 @@ internal class RecordingAssistantConversationRepository(
 	val unconfirmed = mutableListOf<String>()
 	val userMessages = mutableListOf<AssistantUserMessage>()
 	val resolved = mutableMapOf<String, OutcomeKind>()
+	val resolvedCounts = mutableMapOf<String, IntentResolvedCount>()
 	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = flowOf(currentConversation())
@@ -180,9 +182,15 @@ internal class RecordingAssistantConversationRepository(
 		assistantMessages += message to intent
 	}
 
-	override fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int) {
+	override fun markIntentResolved(
+		intentId: String,
+		outcome: OutcomeKind,
+		sessionMark: Int,
+		count: IntentResolvedCount?
+	) {
 		calls += "markIntentResolved"
 		resolved[intentId] = outcome
+		count?.let { resolvedCounts[intentId] = it }
 		openIntents = openIntents - intentId
 	}
 

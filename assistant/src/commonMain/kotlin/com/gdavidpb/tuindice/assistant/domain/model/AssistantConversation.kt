@@ -9,5 +9,7 @@ data class AssistantConversation(
 	val items: List<AssistantConversationItem>,
 	val openIntents: Map<String, Intent>,
 	val resolvedIntents: Map<String, OutcomeKind>,
+	// The rows applied and marked of the resolved intents that add evaluations: the receipt says what was added.
+	val resolvedCounts: Map<String, IntentResolvedCount> = emptyMap(),
 	val activeTurn: AssistantActiveTurn?
 )

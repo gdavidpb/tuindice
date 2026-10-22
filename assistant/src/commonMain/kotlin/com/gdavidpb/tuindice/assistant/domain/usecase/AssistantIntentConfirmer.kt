@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.domain.exception.AssistantIntentIllegalAr
 import com.gdavidpb.tuindice.assistant.domain.mapper.toIntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
@@ -112,7 +113,12 @@ class AssistantIntentConfirmer(
 			if (execution.outcome == OutcomeKind.QUEUED) followQueued(intent, report, sessionMark)
 		}
 
-		conversationRepository.markIntentResolved(intent.id, execution.outcome, sessionMark)
+		conversationRepository.markIntentResolved(
+			intent.id,
+			execution.outcome,
+			sessionMark,
+			intent.resolvedCount(execution, selected = executedMutationIds(args, intent).size)
+		)
 
 		return execution.outcome
 	}
@@ -156,7 +162,12 @@ class AssistantIntentConfirmer(
 			),
 			sessionMark
 		)
-		conversationRepository.markIntentResolved(intent.id, execution.outcome, sessionMark)
+		conversationRepository.markIntentResolved(
+			intent.id,
+			execution.outcome,
+			sessionMark,
+			intent.resolvedCount(execution, selected = report.mutationIds.size)
+		)
 	}
 
 	// The mutations the run asked for: the marked rows of a batch, the ones of other changing args, or the binding's.
@@ -194,4 +205,19 @@ class AssistantIntentConfirmer(
 			throw failure
 		}
 	}
+}
+
+// The count of an intent that adds evaluations: the rows it marked, and the ones its run applied. A run that answered
+// without a row of its own applied all the marked rows when it confirmed. Null for any other intent.
+private fun Intent.resolvedCount(execution: IntentExecution, selected: Int): IntentResolvedCount? {
+	if (args !is AddEvaluationsArgs) return null
+
+	val landed = execution.itemOutcomes.count { item -> item.outcome == OutcomeKind.CONFIRMED }
+	val applied = when {
+		execution.itemOutcomes.isNotEmpty() -> landed
+		execution.outcome == OutcomeKind.CONFIRMED -> selected
+		else -> 0
+	}
+
+	return IntentResolvedCount(applied = applied, selected = selected)
 }

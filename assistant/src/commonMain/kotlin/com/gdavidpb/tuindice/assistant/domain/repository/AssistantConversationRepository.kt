@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.domain.repository
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
@@ -35,7 +36,13 @@ interface AssistantConversationRepository {
 	/** Writes a message of the assistant that no turn wrote, such as a photo's proposal, with the intent it carries. */
 	fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int)
 
-	fun markIntentResolved(intentId: String, outcome: OutcomeKind, sessionMark: Int)
+	/** Marks the intent [intentId] resolved with [outcome]. [count] is kept with it when the intent adds evaluations. */
+	fun markIntentResolved(
+		intentId: String,
+		outcome: OutcomeKind,
+		sessionMark: Int,
+		count: IntentResolvedCount? = null
+	)
 
 	/** Forgets the conversation on this device, as when its threads are deleted on the server. */
 	suspend fun clearConversation()

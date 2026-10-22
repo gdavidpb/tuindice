@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
@@ -419,6 +420,7 @@ class AssistantIntentConfirmationTest {
 			final.itemOutcomes
 		)
 		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
+		assertEquals(IntentResolvedCount(applied = 2, selected = 3), conversation.resolvedCounts["i1"])
 		assertTrue(conversation.pendingOutcomes().isEmpty())
 	}
 
@@ -444,12 +446,54 @@ class AssistantIntentConfirmationTest {
 		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), conversation.resolved)
 	}
 
-	private suspend fun confirmAdd() = ConfirmAddEvaluationsIntentUseCase(
+	private suspend fun confirmAdd(editedArgs: IntentArgs? = null) = ConfirmAddEvaluationsIntentUseCase(
 		confirmer = confirmer,
 		evaluationsRepository = evaluations,
 		reportingRepository = reporting,
 		exceptionHandler = handler
-	).execute(ConfirmIntentParams(intentId = "i1")).lastState()
+	).execute(ConfirmIntentParams(intentId = "i1", editedArgs = editedArgs)).lastState()
+
+	@Test
+	fun aBatchWithOneRowMarkedOutOfTwoKeepsTheMarkedAndTheAppliedCount() = runTest {
+		val proposed = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2")))
+		val edited = proposed.copy(items = proposed.items.map { item -> item.copy(selected = item.mutationId == "m1") })
+		openIntent(assistantIntent(args = proposed, mutationIds = listOf("m1", "m2")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+
+		confirmAdd(editedArgs = edited)
+
+		assertEquals(IntentResolvedCount(applied = 1, selected = 1), conversation.resolvedCounts["i1"])
+	}
+
+	@Test
+	fun aBatchWithAFailedRowKeepsHowManyOfItsMarkedRowsLanded() = runTest {
+		val batch = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2"), draft("m3")))
+		openIntent(assistantIntent(args = batch, mutationIds = listOf("m1", "m2", "m3")))
+		evaluations.answer = IntentExecution(
+			outcome = OutcomeKind.CONFIRMED,
+			itemOutcomes = listOf(
+				MutationOutcome("m1", OutcomeKind.CONFIRMED),
+				MutationOutcome("m2", OutcomeKind.FAILED, detailCode = "unhandled"),
+				MutationOutcome("m3", OutcomeKind.CONFIRMED)
+			)
+		)
+
+		confirmAdd()
+
+		assertEquals(IntentResolvedCount(applied = 2, selected = 3), conversation.resolvedCounts["i1"])
+	}
+
+	@Test
+	fun aRemovalKeepsNoCount_becauseOnlyAnAdditionReceiptsWhatItAdded() = runTest {
+		openIntent(assistantIntent(args = RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+
+		ConfirmDeleteEvaluationIntentUseCase(confirmer, evaluations, reporting, handler)
+			.execute(ConfirmIntentParams(intentId = "i1"))
+			.lastState()
+
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
+		assertTrue(conversation.resolvedCounts.isEmpty())
+	}
 
 	private companion object {
 		const val NOW_MILLIS = 1_700_000_000_000L
