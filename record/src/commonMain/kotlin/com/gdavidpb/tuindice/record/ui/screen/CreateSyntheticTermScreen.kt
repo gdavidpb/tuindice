@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -123,24 +122,26 @@ fun CreateSyntheticTermScreen(
 		!state.hasSearchError &&
 		!state.isRefreshingSearch
 
-	Box(
+	// The submit bar sits below the list, not over it. The column takes the IME padding, so the
+	// list shrinks above the keyboard and the bar never covers the focused search field.
+	Column(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.dismissKeyboardOnScroll(focusManager)
 			.dismissKeyboardOnTap(focusManager)
 			.testTag(RecordUiTags.CreateSyntheticTermScreen)
+			.imePadding()
 	) {
 		LazyColumn(
 			modifier = Modifier
-				.fillMaxSize()
+				.weight(1f)
 				.padding(horizontal = TuIndiceSpacing.Screen)
-				.imePadding()
 				.testTag(RecordUiTags.CreateSyntheticTermContentList),
 			state = lazyListState,
 			contentPadding = PaddingValues(
 				top = InternalScreenDefaults.TopBarSpacing,
-				bottom = 116.dp
+				bottom = TuIndiceSpacing.Screen
 			),
 			verticalArrangement = Arrangement.spacedBy(20.dp)
 		) {
@@ -398,10 +399,7 @@ fun CreateSyntheticTermScreen(
 			isEditing = state.isEditing,
 			isSubmitting = state.isSubmitting,
 			submitError = state.submitError,
-			onCreateClick = onCreateClick,
-			modifier = Modifier
-				.align(Alignment.BottomCenter)
-				.imePadding()
+			onCreateClick = onCreateClick
 		)
 	}
 }
