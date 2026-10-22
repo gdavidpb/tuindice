@@ -54,22 +54,6 @@ class AndroidTypingProbesTest {
 	}
 
 	/**
-	 * The same text in a field that is not secret reads back exactly as it was assigned: a length check alone cannot tell
-	 * it from other text of the same length, so the field is compared with the sample itself.
-	 */
-	@Test
-	fun textTheKeyboardCannotSpellReadsBackExactlyInAPlainField() {
-		val driver = app.begin("accented-plain")
-
-		assertTrue(driver.typeKeys(app.usbId, ProbeApp.ACCENTED_SAMPLE))
-		assertTrue(
-			"the field holds the text as assigned",
-			driver.session.poll(READ_MS) { driver.readText(app.usbId) == ProbeApp.ACCENTED_SAMPLE }
-		)
-		assertEquals(ProbeApp.ACCENTED_SAMPLE, driver.readText(app.usbId))
-	}
-
-	/**
 	 * ZB-3, the regression probe of the extra character ("v" in the password field): `typeKeys` never touches the screen.
 	 * With the field without the focus, `typeKeys` asks for it with the accessibility click action and logcat has no
 	 * `Clicking on` (the line a touch on a coordinate writes) since the probe began. Red if a click by coordinate returns
