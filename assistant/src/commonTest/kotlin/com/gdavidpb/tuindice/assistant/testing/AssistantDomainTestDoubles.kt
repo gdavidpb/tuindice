@@ -190,7 +190,11 @@ internal class RecordingAssistantConversationRepository(
 	) {
 		calls += "markIntentResolved"
 		resolved[intentId] = outcome
-		count?.let { resolvedCounts[intentId] = it }
+		if (count == null) {
+			resolvedCounts.remove(intentId)
+		} else {
+			resolvedCounts[intentId] = count
+		}
 		openIntents = openIntents - intentId
 	}
 

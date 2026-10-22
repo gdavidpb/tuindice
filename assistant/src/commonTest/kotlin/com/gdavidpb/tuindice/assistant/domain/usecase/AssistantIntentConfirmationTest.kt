@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
+import com.gdavidpb.tuindice.assistant.domain.mapper.toIntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
@@ -36,6 +37,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AssistantIntentConfirmationTest {
@@ -444,6 +446,78 @@ class AssistantIntentConfirmationTest {
 			intents.reports.last()
 		)
 		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), conversation.resolved)
+	}
+
+	@Test
+	fun anAdditionThatEndedWithoutAnyRowApplied_keepsNoCount() = runTest {
+		for (outcome in listOf(OutcomeKind.CONFLICT, OutcomeKind.EXPIRED, OutcomeKind.REJECTED)) {
+			openIntent(assistantIntent(args = AddEvaluationsArgs(items = listOf(draft("m1")))))
+			evaluations.answer = IntentExecution(outcome = outcome)
+
+			confirmAdd()
+
+			assertEquals(outcome, conversation.resolved["i1"])
+			assertNull(conversation.resolvedCounts["i1"])
+		}
+	}
+
+	@Test
+	fun aBatchWhoseRowsAllFailed_keepsNoneApplied_andItsOutcomeComesFromTheRowsMapper() = runTest {
+		val batch = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2"), draft("m3")))
+		openIntent(assistantIntent(args = batch, mutationIds = listOf("m1", "m2", "m3")))
+		evaluations.answer = checkNotNull(
+			listOf(
+				MutationOutcome("m1", OutcomeKind.FAILED, detailCode = "unhandled"),
+				MutationOutcome("m2", OutcomeKind.FAILED, detailCode = "unhandled"),
+				MutationOutcome("m3", OutcomeKind.FAILED, detailCode = "unhandled")
+			).toIntentExecution()
+		)
+
+		val state = confirmAdd()
+
+		assertEquals(UseCaseState.Data(OutcomeKind.FAILED), state)
+		assertEquals(OutcomeKind.FAILED, conversation.resolved["i1"])
+		assertEquals(IntentResolvedCount(applied = 0, selected = 3), conversation.resolvedCounts["i1"])
+	}
+
+	@Test
+	fun aSingleRowQueuedAndSettledConfirmed_countsOneAppliedOfOneMarked() = runTest {
+		openIntent(assistantIntent(args = AddEvaluationsArgs(items = listOf(draft("m1")))))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.QUEUED)
+
+		confirmAdd()
+		queued.settle(listOf(MutationOutcome("m1", OutcomeKind.CONFIRMED)))
+
+		assertEquals(OutcomeKind.CONFIRMED, conversation.resolved["i1"])
+		assertEquals(IntentResolvedCount(applied = 1, selected = 1), conversation.resolvedCounts["i1"])
+	}
+
+	@Test
+	fun aQueueSettledOnlyInPart_staysQueued_andItsCountIsProvisionalUntilTheRestSettles() = runTest {
+		val batch = AddEvaluationsArgs(items = listOf(draft("m1"), draft("m2"), draft("m3")))
+		openIntent(
+			assistantIntent(
+				args = batch,
+				mutationIds = listOf("m1", "m2", "m3"),
+				expiresAtMillis = NOW_MILLIS + 60_000L
+			)
+		)
+		evaluations.answer = IntentExecution(
+			outcome = OutcomeKind.QUEUED,
+			itemOutcomes = listOf(
+				MutationOutcome("m1", OutcomeKind.CONFIRMED),
+				MutationOutcome("m2", OutcomeKind.QUEUED),
+				MutationOutcome("m3", OutcomeKind.QUEUED)
+			)
+		)
+
+		confirmAdd()
+		assertEquals(IntentResolvedCount(applied = 1, selected = 3), conversation.resolvedCounts["i1"])
+
+		queued.settle(listOf(MutationOutcome("m2", OutcomeKind.CONFIRMED)))
+
+		assertEquals(OutcomeKind.QUEUED, conversation.resolved["i1"])
+		assertEquals(IntentResolvedCount(applied = 2, selected = 3), conversation.resolvedCounts["i1"])
 	}
 
 	private suspend fun confirmAdd(editedArgs: IntentArgs? = null) = ConfirmAddEvaluationsIntentUseCase(

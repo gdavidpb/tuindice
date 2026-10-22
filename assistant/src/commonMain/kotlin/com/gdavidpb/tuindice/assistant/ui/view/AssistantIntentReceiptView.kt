@@ -26,8 +26,8 @@ import tuindice.assistant.generated.resources.assistant_intent_outcome_rejected
 fun AssistantIntentReceiptView(
 	intentId: String,
 	outcome: AssistantIntentOutcome,
-	receipt: UiText? = null,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	receipt: UiText? = null
 ) {
 	val label = receipt?.asString() ?: stringResource(outcome.labelResource())
 

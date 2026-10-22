@@ -149,7 +149,11 @@ internal class ObservedAssistantConversationRepository(
 			current.copy(
 				openIntents = current.openIntents - intentId,
 				resolvedIntents = current.resolvedIntents + (intentId to outcome),
-				resolvedCounts = count?.let { current.resolvedCounts + (intentId to it) } ?: current.resolvedCounts
+				resolvedCounts = if (count == null) {
+					current.resolvedCounts - intentId
+				} else {
+					current.resolvedCounts + (intentId to count)
+				}
 			)
 		}
 	}

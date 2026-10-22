@@ -208,9 +208,12 @@ class AssistantIntentConfirmer(
 }
 
 // The count of an intent that adds evaluations: the rows it marked, and the ones its run applied. A run that answered
-// without a row of its own applied all the marked rows when it confirmed. Null for any other intent.
+// without a row of its own applied all the marked rows when it confirmed. Null for any other intent, and for an outcome
+// that applied no row (a conflict, an expiry or a rejection): there is no count to keep.
 private fun Intent.resolvedCount(execution: IntentExecution, selected: Int): IntentResolvedCount? {
-	if (args !is AddEvaluationsArgs) return null
+	val countedOutcomes = setOf(OutcomeKind.CONFIRMED, OutcomeKind.QUEUED, OutcomeKind.FAILED)
+
+	if (args !is AddEvaluationsArgs || execution.outcome !in countedOutcomes) return null
 
 	val landed = execution.itemOutcomes.count { item -> item.outcome == OutcomeKind.CONFIRMED }
 	val applied = when {

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
 import com.gdavidpb.tuindice.chatcontract.event.MessageCompleted
@@ -148,6 +149,20 @@ class AssistantConversationStoreDataSourceTest {
 			),
 			domain.currentConversation()
 		)
+	}
+
+	@Test
+	fun theDomainConversationExposesTheCountsOfTheResolvedAdditions() = runTest {
+		domain.markIntentResolved(
+			intentId = "i1",
+			outcome = OutcomeKind.CONFIRMED,
+			sessionMark = domain.sessionMark(),
+			count = IntentResolvedCount(applied = 1, selected = 2)
+		)
+
+		val counts = domain.currentConversation().resolvedCounts
+
+		assertEquals(mapOf("i1" to IntentResolvedCount(applied = 1, selected = 2)), counts)
 	}
 
 	@Test

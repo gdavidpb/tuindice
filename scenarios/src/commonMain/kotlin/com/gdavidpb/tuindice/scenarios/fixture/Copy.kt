@@ -116,6 +116,7 @@ object Copy {
 	const val AssistantStillAppliesYes = "Sí, sigue"
 	const val AssistantCopied = "Copiado"
 	const val AssistantAppealSent = "Enviamos tu apelación."
+	const val AssistantReceiptAddedOne = "Se agregó 1 evaluación"
 
 	// about
 	const val AssistantConversationsDeleted = "Se borraron tus conversaciones con el asistente"
@@ -152,6 +153,7 @@ object Copy {
 		CopyBinding.Resource(AssistantStillAppliesYes, "assistant", "assistant_still_applies_yes"),
 		CopyBinding.Resource(AssistantCopied, "assistant", "assistant_nav_copied"),
 		CopyBinding.Resource(AssistantAppealSent, "assistant", "assistant_chat_appeal_sent"),
+		CopyBinding.Resource(AssistantReceiptAddedOne, "assistant", "assistant_intent_receipt_added_one", listOf("1")),
 		CopyBinding.Resource(AssistantConversationsDeleted, "about", "settings_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,

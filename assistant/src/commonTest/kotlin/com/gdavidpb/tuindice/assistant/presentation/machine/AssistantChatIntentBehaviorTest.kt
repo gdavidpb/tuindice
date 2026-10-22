@@ -253,6 +253,76 @@ class AssistantChatIntentBehaviorTest {
 		)
 	}
 
+	@Test
+	fun anAdditionConfirmedWithoutACount_keepsItsOutcomeLabelAndNoReceipt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = additionIntent("i12", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a12", IntentPart(intent))),
+			resolvedIntents = mapOf("i12" to OutcomeKind.CONFIRMED)
+		)
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED),
+			viewModel.content().intentCard("i12").status
+		)
+	}
+
+	@Test
+	fun anAdditionQueuedWithAProvisionalCount_readsQueued_andHasNoReceipt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = additionIntent("i13", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a13", IntentPart(intent))),
+			resolvedIntents = mapOf("i13" to OutcomeKind.QUEUED),
+			resolvedCounts = mapOf("i13" to IntentResolvedCount(applied = 1, selected = 2))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.QUEUED), viewModel.content().intentCard("i13").status)
+	}
+
+	@Test
+	fun anAdditionConfirmedWithNoRowApplied_hasNoReceipt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = additionIntent("i14", rows = 2)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a14", IntentPart(intent))),
+			resolvedIntents = mapOf("i14" to OutcomeKind.CONFIRMED),
+			resolvedCounts = mapOf("i14" to IntentResolvedCount(applied = 0, selected = 2))
+		)
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED),
+			viewModel.content().intentCard("i14").status
+		)
+	}
+
+	@Test
+	fun confirmingAnAdditionWithOneRowUnmarked_receiptsTheRowThatWasAdded() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val batch = AddEvaluationsArgs(items = listOf(assistantDraft("m1", "Parcial 1"), assistantDraft("m2", "Quiz 2")))
+		val intent = assistantIntent(id = "i15", args = batch)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a15", IntentPart(intent))),
+			openIntents = mapOf("i15" to intent)
+		)
+		viewModel.openAction(null)
+
+		viewModel.toggleIntentDraftAction("i15", "m2", selected = false)
+		viewModel.confirmIntentAction("i15")
+
+		assertEquals(
+			IntentCardStatus.Resolved(
+				AssistantIntentOutcome.CONFIRMED,
+				UiText.Resource(Res.string.assistant_intent_receipt_added_one, listOf(1))
+			),
+			viewModel.content().intentCard("i15").status
+		)
+	}
+
 	private fun additionIntent(id: String, rows: Int) = assistantIntent(
 		id = id,
 		args = AddEvaluationsArgs(items = (1..rows).map { index -> assistantDraft("$id-m$index", "Parcial $index") }),

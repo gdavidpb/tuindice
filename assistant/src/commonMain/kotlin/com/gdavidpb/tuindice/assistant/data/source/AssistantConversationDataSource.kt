@@ -88,7 +88,11 @@ class AssistantConversationDataSource : SessionMemory {
 				current.copy(
 					openIntents = current.openIntents - intentId,
 					resolvedIntents = current.resolvedIntents + (intentId to outcome),
-					resolvedCounts = if (count == null) current.resolvedCounts else current.resolvedCounts + (intentId to count)
+					resolvedCounts = if (count == null) {
+						current.resolvedCounts - intentId
+					} else {
+						current.resolvedCounts + (intentId to count)
+					}
 				)
 			}
 		}

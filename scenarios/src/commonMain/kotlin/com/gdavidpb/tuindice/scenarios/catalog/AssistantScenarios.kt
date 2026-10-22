@@ -103,6 +103,7 @@ private val assistantConfirmAddEvaluation = scenario(
 	tap(AssistantUiTags.Intent.draft("intent-add-1", "mut-add-2"))
 	tap(AssistantUiTags.Intent.confirm("intent-add-1"))
 	waitVisible(AssistantUiTags.Intent.receipt("intent-add-1"), Within.Action)
+	waitVisible(text(Copy.AssistantReceiptAddedOne), Within.Assert)
 	tap(AssistantUiTags.Component.openScreen("cmp-add-nav-1"))
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 	waitVisible(text(Copy.EvaluationCompleted), Within.Action)

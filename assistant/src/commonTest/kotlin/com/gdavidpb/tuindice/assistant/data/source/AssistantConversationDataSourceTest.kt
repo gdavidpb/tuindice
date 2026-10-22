@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
 import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
 import com.gdavidpb.tuindice.chatcontract.event.IntentResolved
 import com.gdavidpb.tuindice.chatcontract.event.MessageCompleted
@@ -223,6 +224,55 @@ class AssistantConversationDataSourceTest {
 
 		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
 		assertTrue(outbox.pendingOutcomes().isEmpty())
+	}
+
+	@Test
+	fun theCountOfAResolvedAdditionIsKeptWithItsOutcome() = runTest {
+		val store = AssistantConversationDataSource()
+
+		val count = IntentResolvedCount(applied = 1, selected = 2)
+
+		store.markIntentResolved("i1", OutcomeKind.CONFIRMED, store.sessionMark(), count)
+
+		val state = store.observeConversation().value
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), state.resolvedIntents)
+		assertEquals(mapOf("i1" to IntentResolvedCount(applied = 1, selected = 2)), state.resolvedCounts)
+	}
+
+	@Test
+	fun aResolutionWithoutACountDropsTheCountKeptBefore() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+		store.markIntentResolved("i1", OutcomeKind.QUEUED, mark, IntentResolvedCount(applied = 1, selected = 2))
+
+		store.markIntentResolved("i1", OutcomeKind.CONFLICT, mark, count = null)
+
+		val state = store.observeConversation().value
+		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), state.resolvedIntents)
+		assertTrue(state.resolvedCounts.isEmpty())
+	}
+
+	@Test
+	fun aCountWrittenForAnEndedSessionIsNotKept() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+
+		store.clearSessionMemory()
+		store.markIntentResolved("i1", OutcomeKind.CONFIRMED, mark, IntentResolvedCount(applied = 1, selected = 2))
+
+		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
+	}
+
+	@Test
+	fun clearingTheSessionForgetsItsCounts() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+		store.markIntentResolved("i1", OutcomeKind.CONFIRMED, mark, IntentResolvedCount(applied = 1, selected = 2))
+
+		store.clearSessionMemory()
+
+		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
+		assertTrue(store.observeConversation().value.resolvedCounts.isEmpty())
 	}
 
 	// The same writes made for the session that is running are kept: the fence drops only what has ended.
