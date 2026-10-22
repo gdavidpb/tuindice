@@ -1,12 +1,18 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -321,49 +327,258 @@ class EvaluationsViewUiTest {
 		}
 
 	@Test
-	fun when_theChosenWeekIsPlaced_then_aDragOfTheListChoosesTheWeekItShows() = runTuIndiceUiTest {
-		val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4)
+	fun when_theChosenWeekIsPlaced_then_aDragOfTheListChoosesTheWeeksItShows() = runTuIndiceUiTest {
 		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
-		val reportedWeeks = mutableListOf<EvaluationsWeekKey>()
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+		waitForIdle()
+
+		// The list is on week 10: a long drag forward shows week 11, then week 12, and each is chosen as it shows.
+		runOnIdle { drag.value = DragRequest(steps = FORWARD_STEPS, stepPx = FORWARD_STEP_PX) }
+		waitForIdle()
+
+		assertEquals<List<EvaluationsWeekKey>>(
+			listOf(EvaluationsWeekKey.Academic(11), EvaluationsWeekKey.Academic(12)),
+			host.reportedWeeks
+		)
+		assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+	}
+
+	@Test
+	fun when_aDragCutsThePlacementOfTheChosenWeek_then_theWeekIsPlacedOnReleaseAndTheChoiceStays() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(11) }
+		advanceFrames(2)
+		runOnIdle { drag.value = DragRequest(steps = 5, stepPx = 40f) }
+		advanceFrames(10)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+		assertHeaderAtTopOfList(11)
+	}
+
+	@Test
+	fun when_theChosenWeekIsPlacedAndADragCutsItTwice_then_theWeekIsPlacedAndALaterDragChoosesAgain() =
+		runTuIndiceUiTest {
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+			val drag = mutableStateOf<DragRequest?>(null)
+			val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+			waitForIdle()
+
+			mainClock.autoAdvance = false
+			runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(11) }
+			advanceFrames(2)
+			runOnIdle { drag.value = DragRequest(steps = 4, stepPx = 40f) }
+			advanceFrames(8)
+			advanceFrames(2)
+			runOnIdle { drag.value = DragRequest(steps = 4, stepPx = -40f) }
+			advanceFrames(8)
+			mainClock.autoAdvance = true
+			waitForIdle()
+
+			assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+			assertHeaderAtTopOfList(11)
+
+			runOnIdle { drag.value = DragRequest(steps = FORWARD_STEPS, stepPx = FORWARD_STEP_PX) }
+			waitForIdle()
+
+			assertEquals<List<EvaluationsWeekKey>>(listOf(EvaluationsWeekKey.Academic(12)), host.reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+		}
+
+	@Test
+	fun when_aDragFollowsAChoiceOfAWeekWithoutEvaluations_then_theDragDoesNotRewriteTheChoice() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(9))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4, emptyWeeks = setOf(6))
+		val host = setWeekListHost(weeks, chosenWeek, drag)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { drag.value = DragRequest(steps = 30, stepPx = 25f) }
+		advanceFrames(2)
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(6) }
+		advanceFrames(40)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(6), chosenWeek.value)
+	}
+
+	@Test
+	fun when_theChoiceArrivesAfterTheStudentLeftTheWeek_then_theListDoesNotJumpBackToTheOldWeek() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(
+			weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4),
+			chosenWeek = chosenWeek,
+			drag = drag,
+			applyDelayFrames = CHOICE_DELAY_FRAMES
+		)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		// The student drags back into week 11, and releases before the choice has reached the list.
+		runOnIdle { drag.value = DragRequest(steps = 3, stepPx = -100f) }
+		advanceFrames(CHOICE_DELAY_FRAMES + 6)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals<List<EvaluationsWeekKey>>(listOf(EvaluationsWeekKey.Academic(11)), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+		// Week 11 lists its header at index 50 and its four cards after it; week 12 starts at index 55.
+		assertTrue(host.listState.firstVisibleItemIndex in WEEK_11_HEADER_INDEX until WEEK_12_HEADER_INDEX)
+	}
+
+	@Test
+	fun when_anArrivalIsCutByADrag_then_itIsPlacedOnReleaseAndItsCardIsInView() = runTuIndiceUiTest {
+		val arrival = "week-10-evaluation-12"
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
+		val drag = mutableStateOf<DragRequest?>(null)
+
+		mainClock.autoAdvance = false
+		val host = setWeekListHost(
+			weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 12),
+			chosenWeek = chosenWeek,
+			drag = drag,
+			arrivalEvaluationId = mutableStateOf<String?>(arrival)
+		)
+		advanceFrames(2)
+		runOnIdle { drag.value = DragRequest(steps = 2, stepPx = 30f) }
+		advanceFrames(6)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(listOf(arrival), host.takenArrivals)
+		assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(10), chosenWeek.value)
+		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(arrival))
+	}
+
+	// A drag of the list by the student: a scroll with the user's priority, which cuts any move the list is making.
+	private suspend fun LazyListState.dragBy(steps: Int, stepPx: Float) {
+		scroll(MutatePriority.UserInput) {
+			repeat(steps) {
+				scrollBy(stepPx)
+				withFrameNanos { }
+			}
+		}
+	}
+
+	private fun ComposeUiTest.advanceFrames(count: Int) {
+		repeat(count) { mainClock.advanceTimeByFrame() }
+	}
+
+	private fun ComposeUiTest.assertHeaderAtTopOfList(weekNumber: Int) {
+		val list = onNodeWithTag(EvaluationsUiTags.EvaluationsList).getUnclippedBoundsInRoot()
+		val header = onNodeWithTag(EvaluationsUiTags.evaluationsWeekHeader(weekNumber)).getUnclippedBoundsInRoot()
+
+		assertTrue(
+			abs((header.top - list.top).value) < 1f,
+			"the header of week $weekNumber at ${header.top} is at the top of the list at ${list.top}"
+		)
+	}
+
+	// Sets the list under a host that keeps the chosen week, and returns what the list reported and took. A choice made
+	// by the list is applied after [applyDelayFrames] frames; a drag requested through [drag] is made by the list.
+	private fun ComposeUiTest.setWeekListHost(
+		weeks: List<EvaluationsWeekGroupItem>,
+		chosenWeek: MutableState<EvaluationsWeekKey>,
+		drag: MutableState<DragRequest?>,
+		arrivalEvaluationId: MutableState<String?> = mutableStateOf(null),
+		applyDelayFrames: Int = 0
+	): WeekListHost {
+		val host = WeekListHost(listState = LazyListState())
 
 		setTuIndiceTestContent {
+			val requestedWeek = remember { mutableStateOf<EvaluationsWeekKey?>(null) }
+
+			LaunchedEffect(drag.value) {
+				drag.value?.let { request -> host.listState.dragBy(steps = request.steps, stepPx = request.stepPx) }
+			}
+
+			LaunchedEffect(requestedWeek.value) {
+				val weekKey = requestedWeek.value ?: return@LaunchedEffect
+
+				repeat(applyDelayFrames) { withFrameNanos { } }
+				chosenWeek.value = weekKey
+			}
+
 			EvaluationsView(
-				lazyListState = rememberLazyListState(),
+				lazyListState = host.listState,
 				weekGroups = weeks,
 				selectedWeekKey = chosenWeek.value,
 				actions = EvaluationsActions(
 					onWeekClick = { weekKey ->
-						reportedWeeks += weekKey
-						chosenWeek.value = weekKey
+						host.reportedWeeks += weekKey
+
+						if (applyDelayFrames == 0) {
+							chosenWeek.value = weekKey
+						} else {
+							requestedWeek.value = weekKey
+						}
 					},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
-					onEvaluationDelete = {}
-				)
+					onEvaluationDelete = {},
+					onEvaluationArrivalTaken = { evaluationId -> host.takenArrivals += evaluationId }
+				),
+				arrivalEvaluationId = arrivalEvaluationId.value
 			)
 		}
 
-		waitForIdle()
-		onNodeWithTag(EvaluationsUiTags.EvaluationsList).performTouchInput { swipeUp() }
-		waitForIdle()
-
-		assertTrue(reportedWeeks.isNotEmpty(), "a drag of the placed list chooses the week it shows")
-		assertEquals(reportedWeeks.last(), chosenWeek.value)
-		assertTrue(reportedWeeks.first() != EvaluationsWeekKey.Academic(10), "the drag moved past the chosen week")
+		return host
 	}
 
-	private fun evaluationWeeksFixture(count: Int, cardsPerWeek: Int): List<EvaluationsWeekGroupItem> =
-		(1..count).map { number ->
-			EvaluationsWeekGroupItem(
-				key = EvaluationsWeekKey.Academic(number),
-				title = "Semana $number",
-				groups = listOf(
+	private fun evaluationWeeksFixture(
+		count: Int,
+		cardsPerWeek: Int,
+		emptyWeeks: Set<Int> = emptySet()
+	): List<EvaluationsWeekGroupItem> = (1..count).map { number ->
+		EvaluationsWeekGroupItem(
+			key = EvaluationsWeekKey.Academic(number),
+			title = "Semana $number",
+			groups = if (number in emptyWeeks) {
+				emptyList()
+			} else {
+				listOf(
 					EvaluationsGroupItem(
 						items = (1..cardsPerWeek).map { index ->
 							evaluationItemFixture(evaluationId = "week-$number-evaluation-$index")
 						}
 					)
 				)
-			)
-		}
+			}
+		)
+	}
+
+	// A drag of the list: [steps] scroll steps of [stepPx] pixels, each one frame long.
+	private class DragRequest(
+		val steps: Int,
+		val stepPx: Float
+	)
+
+	// What the list under a host reported and took, and the list itself.
+	private class WeekListHost(
+		val listState: LazyListState,
+		val reportedWeeks: MutableList<EvaluationsWeekKey> = mutableListOf(),
+		val takenArrivals: MutableList<String> = mutableListOf()
+	)
+
+	private companion object {
+		const val FORWARD_STEPS = 60
+		const val FORWARD_STEP_PX = 100f
+		const val CHOICE_DELAY_FRAMES = 5
+		const val WEEK_11_HEADER_INDEX = 50
+		const val WEEK_12_HEADER_INDEX = 55
+	}
 }

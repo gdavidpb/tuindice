@@ -24,8 +24,8 @@ fun StepBuilder.waitEvaluationsOnTheWeekOfTheClock(evaluationId: String) {
 
 /**
  * The graded evaluation of the fixtures is on the week before the last one, and the strip opens on the last one: the
- * frozen clock is past the term's last week. Picking the week before it brings the evaluation's list in: the week
- * is placed, and its card is in view before the step goes on, so a gesture that follows does not move the selection.
+ * frozen clock is past the term's last week. Picking the week before it brings the evaluation's list in: the card
+ * of the evaluation is in view before the step goes on, so the gesture that follows starts on that week.
  */
 fun StepBuilder.showWeekOfGradedEvaluation() {
 	val week = E2eInputs.LastAcademicWeek - 1

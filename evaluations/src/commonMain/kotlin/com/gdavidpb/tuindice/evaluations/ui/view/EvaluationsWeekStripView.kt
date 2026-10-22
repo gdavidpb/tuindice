@@ -48,7 +48,8 @@ fun EvaluationsWeekStripView(
 		?: selectedWeekKey
 
 	// Set by a drag of the page and taken by the page it settles on. A move the strip makes itself clears it, so the
-	// page it settles on is not reported: only a page the student dragged to chooses its week.
+	// page it settles on is not reported: only a page the student dragged to chooses its week. A drag that interrupts
+	// the strip's own move still chooses its week: dragging the strip is choosing a week on purpose.
 	val isMovedByDrag = remember { mutableStateOf(false) }
 
 	LaunchedEffect(pagerState) {
