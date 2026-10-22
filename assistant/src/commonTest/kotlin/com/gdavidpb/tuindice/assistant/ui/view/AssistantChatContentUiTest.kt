@@ -1,17 +1,24 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
+import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
+import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
 import com.gdavidpb.tuindice.assistant.ui.contextChip
 import com.gdavidpb.tuindice.assistant.ui.intentCard
@@ -157,5 +164,78 @@ class AssistantChatContentUiTest {
 		}
 
 		assertNodeVisible(AssistantUiTags.Intent.card(INTENT_ID))
+	}
+
+	@Test
+	fun when_theLastProposalIsTallerThanTheList_then_itsButtonsAreScrolledIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(
+					items = listOf(
+						ChatItem.Agent(
+							id = "proposal-1",
+							parts = listOf(
+								ChatPartItem.Text(LONG_TEXT),
+								ChatPartItem.IntentCard(intentCard())
+							),
+							useful = null,
+							reported = false,
+							copyText = LONG_TEXT
+						)
+					)
+				),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Intent.confirm(INTENT_ID))
+	}
+
+	@Test
+	fun when_theLastMessageIsLongAndHasNoProposal_then_itsStartIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(items = listOf(agentMessage(text = FIRST_TEXT + " " + LONG_TEXT))),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+
+		onNodeWithText(FIRST_TEXT, substring = true).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theLastProposalIsResolvedAndTaller_then_itsOutcomeIsScrolledIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatContent(
+				state = contentState(
+					items = listOf(
+						ChatItem.Agent(
+							id = "proposal-1",
+							parts = listOf(
+								ChatPartItem.Text(LONG_TEXT),
+								ChatPartItem.IntentCard(
+									intentCard(status = IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED))
+								)
+							),
+							useful = null,
+							reported = false,
+							copyText = LONG_TEXT
+						)
+					)
+				),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Intent.receipt(INTENT_ID))
+	}
+
+	private companion object {
+		val CONTAINER_HEIGHT = 300.dp
+		const val FIRST_TEXT = "Encontré 3 evaluaciones."
+		val LONG_TEXT = "Revisa cada una antes de confirmar, porque se agregan a tu historial de evaluaciones. ".repeat(20)
 	}
 }

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
+import com.gdavidpb.tuindice.assistant.presentation.model.endsInIntentCard
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.style.ChatEntranceLedger
 import com.gdavidpb.tuindice.assistant.ui.style.planAgentEntrance
@@ -43,7 +46,8 @@ import tuindice.assistant.generated.resources.assistant_photo_reading
 
 // The conversation, oldest first, under the sheet's title («Asistente» after the sparkle, AssistantSheetTitleView)
 // and the context chip, with the running label, notice, suggestions and composer below. The list follows its
-// last item whenever the conversation changes size.
+// last item whenever the conversation changes size, and a proposal is shown up to its buttons, or its outcome once
+// resolved.
 //
 // Motion: what arrives while the sheet is open enters with the chat's motion (AssistantChatMotion); what is there when
 // it opens, the history, the chip, the notice, simply is. Each place that comes and goes is an AssistantChatSlotView,
@@ -60,10 +64,15 @@ fun AssistantChatConversationView(
 	val focusManager = LocalFocusManager.current
 	val lastItem = content.items.lastOrNull()
 	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
+	// The height of the list's container: the keyboard changes it, and the list follows its last item again.
+	val listHeight = remember { mutableStateOf(0) }
 
-	LaunchedEffect(content.items.size, lastItem) {
+	LaunchedEffect(content.items.size, lastItem, listHeight.value) {
 		if (content.items.isNotEmpty()) {
-			listState.animateScrollToItem(content.items.lastIndex)
+			listState.followLastItem(
+				lastIndex = content.items.lastIndex,
+				showsItsEnd = lastItem?.endsInIntentCard == true
+			)
 		}
 	}
 
@@ -92,7 +101,13 @@ fun AssistantChatConversationView(
 		}
 		// The sheet's snackbar floats over the foot of the messages, right above what follows them (the composer, or the
 		// suggestions of the guided mode), so it takes no room in any mode while no notice shows.
-		Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(top = TuIndiceSpacing.Medium)) {
+		Box(
+			modifier = Modifier
+				.weight(1f)
+				.fillMaxWidth()
+				.padding(top = TuIndiceSpacing.Medium)
+				.onSizeChanged { listHeight.value = it.height }
+		) {
 			AssistantChatMessageListView(
 				items = content.items,
 				ledger = ledger,
@@ -150,6 +165,20 @@ private fun AssistantChatMessageListView(
 			}
 		}
 	}
+}
+
+// Shows the last item from its start. A last item that ends in an intent card is shown up to its end: a proposal up to
+// its buttons, or its outcome once resolved. What of it is still below the list is scrolled too, so the start of such a
+// message may leave the list.
+private suspend fun LazyListState.followLastItem(lastIndex: Int, showsItsEnd: Boolean) {
+	animateScrollToItem(lastIndex)
+	if (!showsItsEnd) return
+
+	val layout = layoutInfo
+	val lastItemInfo = layout.visibleItemsInfo.lastOrNull { it.index == lastIndex }
+	val hiddenBelow = lastItemInfo?.let { it.offset + it.size - layout.viewportEndOffset } ?: 0
+
+	if (hiddenBelow > 0) animateScrollBy(hiddenBelow.toFloat())
 }
 
 // What follows the messages: the running label, the notice and the suggestions, each in a place that comes and goes. A
