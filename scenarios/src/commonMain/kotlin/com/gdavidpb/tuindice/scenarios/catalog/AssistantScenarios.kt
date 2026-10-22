@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
 
 // A point of the scrim above the chat sheet, which rests lower on the screen: its middle and a tenth from the top.
@@ -117,7 +118,7 @@ private val assistantConfirmDestructiveDelete = scenario(
 	covers("assistant.AssistantChat.ConfirmIntent")
 	account(E2eAccounts.Canonical.id)
 
-	showWeekOfGradedEvaluation()
+	showGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
@@ -162,7 +163,7 @@ private val assistantAskAboutEvaluation = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	val card = EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value)
-	showWeekOfGradedEvaluation()
+	showGradedEvaluation()
 	scrollUntilVisible(card, Scroll.ContentDown, Within.Action)
 	tap(card)
 	waitVisible(EvaluationsUiTags.EvaluationSwipeToDismissContainer, Within.Assert)

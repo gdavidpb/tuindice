@@ -24,7 +24,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.closeScheduleSheet
-import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
+import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
@@ -45,7 +45,7 @@ private fun StepBuilder.openAddForm() {
 
 /** Scrolls to the graded evaluation of the fixtures and taps its card to reveal the swipe actions. */
 private fun StepBuilder.revealGradedEvaluationActions(action: String) {
-	showWeekOfGradedEvaluation()
+	showGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
@@ -199,7 +199,7 @@ private val evaluationsGradeFromList = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	openEvaluations(EvaluationsUiTags.EvaluationsContentContainer)
-	showWeekOfGradedEvaluation()
+	showGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
@@ -259,7 +259,7 @@ private val evaluationsSwipeDelete = scenario(
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Long)
-	showWeekOfGradedEvaluation()
+	showGradedEvaluation()
 	scrollUntilVisible(
 		EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value),
 		Scroll.ContentDown,
