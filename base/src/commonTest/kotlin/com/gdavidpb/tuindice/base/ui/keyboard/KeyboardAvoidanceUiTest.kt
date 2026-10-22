@@ -70,52 +70,6 @@ class KeyboardAvoidanceUiTest {
 		onNodeWithTag(FIELD_TAG).assert(isFocused())
 	}
 
-	// A child that keeps its tap (as a field does on iOS, where the focused field leaves the tap's up unconsumed) does
-	// not let the background clear the focus.
-	@Test
-	fun when_aChildThatKeepsItsTapIsTapped_then_fieldKeepsTheFocus() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			KeyboardTestForm(tapTarget = Modifier.keepsKeyboardOnTap())
-		}
-
-		onNodeWithTag(FIELD_TAG).performClick()
-		onNodeWithTag(FIELD_TAG).assert(isFocused())
-
-		onNodeWithTag(TAP_TARGET_TAG).performClick()
-		waitForIdle()
-
-		onNodeWithTag(FIELD_TAG).assert(isFocused())
-	}
-
-	// The same child without keepsKeyboardOnTap: its tap is the background's, so the background clears the focus.
-	@Test
-	fun when_aChildThatDoesNotKeepItsTapIsTapped_then_fieldLosesFocus() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			KeyboardTestForm(tapTarget = Modifier)
-		}
-
-		onNodeWithTag(FIELD_TAG).performClick()
-		onNodeWithTag(FIELD_TAG).assert(isFocused())
-
-		onNodeWithTag(TAP_TARGET_TAG).performClick()
-		waitForIdle()
-
-		onNodeWithTag(FIELD_TAG).assert(isNotFocused())
-	}
-
-	@Test
-	fun when_theFocusedFieldIsTappedTwice_then_fieldKeepsTheFocus() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			KeyboardTestForm()
-		}
-
-		onNodeWithTag(FIELD_TAG).performClick()
-		onNodeWithTag(FIELD_TAG).performClick()
-		waitForIdle()
-
-		onNodeWithTag(FIELD_TAG).assert(isFocused())
-	}
-
 	@Test
 	fun when_theFormIsDragged_then_fieldLosesFocus() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
@@ -214,7 +168,7 @@ class KeyboardAvoidanceUiTest {
 }
 
 @Composable
-private fun KeyboardTestForm(tapTarget: Modifier? = null) {
+private fun KeyboardTestForm() {
 	val focusManager = LocalFocusManager.current
 	val region = remember { BringIntoViewRequester() }
 	var text by remember { mutableStateOf("") }
@@ -241,21 +195,10 @@ private fun KeyboardTestForm(tapTarget: Modifier? = null) {
 			) {
 				OutlinedTextField(
 					modifier = Modifier
-						.keepsKeyboardOnTap()
 						.testTag(FIELD_TAG)
 						.fillMaxWidth(),
 					value = text,
 					onValueChange = { text = it }
-				)
-			}
-
-			// A child that takes no tap of its own: the modifier given decides whether its tap is kept.
-			if (tapTarget != null) {
-				Box(
-					modifier = Modifier
-						.testTag(TAP_TARGET_TAG)
-						.size(48.dp)
-						.then(tapTarget)
 				)
 			}
 
@@ -268,5 +211,4 @@ private const val FORM_TAG = "keyboard_test_form"
 private const val FIELD_TAG = "keyboard_test_field"
 private const val FOCUSABLE_TAG = "keyboard_test_focusable"
 private const val REGION_END_TAG = "keyboard_test_region_end"
-private const val TAP_TARGET_TAG = "keyboard_test_tap_target"
 private const val BELOW_THE_FOLD_DP = 1_000

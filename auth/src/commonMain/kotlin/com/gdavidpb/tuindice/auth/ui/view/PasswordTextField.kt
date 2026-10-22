@@ -24,7 +24,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
-import com.gdavidpb.tuindice.base.ui.keyboard.keepsKeyboardOnTap
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
@@ -58,9 +57,7 @@ fun PasswordTextField(
 	field.syncExternal(password, isWaiting)
 
 	OutlinedTextField(
-		modifier = Modifier
-			.keepsKeyboardOnTap()
-			.then(modifier)
+		modifier = modifier
 			.testTag(AuthUiTags.PasswordTextField)
 			.semantics {
 				contentType = ContentType.Password

@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import com.gdavidpb.tuindice.base.ui.keyboard.keepsKeyboardOnTap
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 
@@ -37,7 +36,7 @@ fun SearchTextField(
 	textStyle: TextStyle = MaterialTheme.typography.bodyLarge
 ) {
 	OutlinedTextField(
-		modifier = Modifier.keepsKeyboardOnTap().then(modifier).fillMaxWidth(),
+		modifier = modifier.fillMaxWidth(),
 		value = fieldState.value,
 		onValueChange = { newValue ->
 			if (fieldState.edit(newValue)) onQueryChange(newValue.text)

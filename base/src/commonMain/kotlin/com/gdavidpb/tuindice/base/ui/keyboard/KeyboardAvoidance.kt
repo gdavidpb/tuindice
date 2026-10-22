@@ -29,8 +29,7 @@ import kotlin.math.abs
 // behave the same way.
 
 // Tapping the background of a form hides the keyboard. A tap that a child takes (a field, a button, a link) is not a
-// tap on the background: the child keeps its focus, and the background does not clear it. A text field marks its own
-// taps as taken with keepsKeyboardOnTap, so a tap on a field that already has the focus does not clear it either.
+// tap on the background: the child keeps its focus, and the background does not clear it.
 fun Modifier.dismissKeyboardOnTap(focusManager: FocusManager): Modifier {
 	return pointerInput(focusManager) {
 		awaitEachGesture {
@@ -38,19 +37,6 @@ fun Modifier.dismissKeyboardOnTap(focusManager: FocusManager): Modifier {
 			val up = waitForUpOrCancellation()
 
 			if (up != null && !up.isConsumed) focusManager.clearFocus(force = true)
-		}
-	}
-}
-
-// A tap on a text field is the field's, so the background around it never takes back the keyboard. On iOS a field
-// that already has the focus leaves the tap's up unconsumed (the native text input takes it), and the background
-// would clear the focus the tap meant to keep. Put first in the field's modifier, it reads the up after the field's
-// own handlers and marks it as taken.
-fun Modifier.keepsKeyboardOnTap(): Modifier {
-	return pointerInput(Unit) {
-		awaitEachGesture {
-			awaitFirstDown(requireUnconsumed = false)
-			waitForUpOrCancellation()?.consume()
 		}
 	}
 }
