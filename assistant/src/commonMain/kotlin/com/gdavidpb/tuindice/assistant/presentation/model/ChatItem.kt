@@ -24,8 +24,8 @@ sealed interface ChatItem {
 	) : ChatItem
 }
 
-// Whether the item is an agent's message that ends in an intent card, in any status: the message is shown up to its
-// card, with the card's buttons while it is open or running, and up to its outcome once it is resolved
+// Whether the item is an agent's message that has an intent card, in any status: the message is shown up to its card,
+// with the card's buttons while it is open or running, and up to its outcome once it is resolved
 // (AssistantIntentCardView).
-internal val ChatItem.endsInIntentCard: Boolean
+internal val ChatItem.hasIntentCard: Boolean
 	get() = this is ChatItem.Agent && parts.any { it is ChatPartItem.IntentCard }

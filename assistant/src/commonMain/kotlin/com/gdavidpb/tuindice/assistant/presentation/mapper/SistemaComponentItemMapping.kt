@@ -28,7 +28,9 @@ import tuindice.assistant.generated.resources.assistant_usage_resets
 internal fun StillAppliesComponent.toStillAppliesItem(): StillAppliesItem {
 	return StillAppliesItem(
 		id = id,
-		opensSheet = opensSheet(),
+		// Always inline, whatever its display says: its answer lives in the chat session, which only applies to the
+		// messages, and the service always sends the card inline.
+		opensSheet = false,
 		memoryId = memoryId,
 		statement = statement
 	)

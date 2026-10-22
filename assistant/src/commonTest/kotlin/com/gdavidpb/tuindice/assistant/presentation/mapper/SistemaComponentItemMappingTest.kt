@@ -23,7 +23,7 @@ import kotlin.test.assertNull
 
 class SistemaComponentItemMappingTest {
 	@Test
-	fun stillApplies_keepsItsMemoryAndStatement_andTheSheetChoice() {
+	fun stillApplies_keepsItsMemoryAndStatement_andIsAlwaysInlineEvenWhenDisplayedAsSheet() {
 		val item = StillAppliesComponent(
 			id = "c2",
 			fallbackText = "¿Sigue aplicando?",
@@ -32,7 +32,7 @@ class SistemaComponentItemMappingTest {
 			statement = "Prefiere las notas por semana"
 		).toStillAppliesItem()
 
-		assertEquals(StillAppliesItem("c2", true, "m1", "Prefiere las notas por semana"), item)
+		assertEquals(StillAppliesItem("c2", false, "m1", "Prefiere las notas por semana"), item)
 	}
 
 	@Test

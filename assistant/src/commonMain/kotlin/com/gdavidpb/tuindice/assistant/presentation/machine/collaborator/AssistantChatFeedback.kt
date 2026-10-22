@@ -107,8 +107,8 @@ class AssistantChatFeedback(
 	// The snackbar text of an answer that was not saved, for the row that reads the memory again.
 	suspend fun stillAppliesFailedText(): String = texts.stillAppliesFailed()
 
-	// Reads the states of the memories the service lists, as the read number [read]. A read that fails says so, and the
-	// card keeps its buttons until a later read tells what its memory is.
+	// Reads the states of the memories the service lists, as the read number [read]. A read that fails leaves its
+	// questions open, with their buttons; the snackbar says so only when a refused answer was waiting for that read.
 	fun loadMemoryStates(host: MachineHost<AssistantChat.Effect>, read: Int) {
 		host.launchMachineJob {
 			getAssistantMemoryUseCase.execute(Unit).collect { useCaseState ->
