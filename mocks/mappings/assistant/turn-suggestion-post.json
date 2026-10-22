@@ -1,6 +1,5 @@
 {
   "scenarioName": "assistant-turns",
-  "priority": 1,
   "request": {
     "method": "POST",
     "urlPath": "/assistant/v1/turns",

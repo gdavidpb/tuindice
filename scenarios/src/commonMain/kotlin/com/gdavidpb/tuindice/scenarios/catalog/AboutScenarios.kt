@@ -229,6 +229,8 @@ private val aboutUsageDataConsent = scenario(
 	tap(SettingsUiTags.UsageDataConsentToggle)
 	assertChecked(SettingsUiTags.UsageDataConsentToggle, false)
 	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
+	scrollUntilVisible(SettingsUiTags.RateOnStore, Scroll.ContentDown, Within.Action)
+	waitVisible(SettingsUiTags.RateOnStore, Within.Assert)
 }
 
 /** From Settings: scrolls to the assistant's memory entry, opens it and waits for its screen. */

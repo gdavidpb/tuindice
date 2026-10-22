@@ -14,6 +14,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -121,11 +122,14 @@ fun EvaluationsView(
 			}
 	}
 
+	// The report reads the latest callback, so a long-lived effect never calls one the screen has replaced.
+	val onWeekClick = rememberUpdatedState(actions.onWeekClick)
+
 	LaunchedEffect(lazyListState, weekHeaderIndexes) {
 		reportUserWeek(
 			positioning = positioning,
 			weekHeaderIndexes = weekHeaderIndexes,
-			onVisibleWeekChange = actions.onWeekClick
+			onVisibleWeekChange = { weekKey -> onWeekClick.value(weekKey) }
 		)
 	}
 
@@ -600,6 +604,8 @@ private suspend fun reportUserWeek(
 // Long enough for any scroll to a week or a card to land; past it the highlight is started where the
 // list stands rather than left waiting.
 private const val ARRIVAL_POSITION_TIMEOUT_MILLIS = 2_000L
+
+// The end padding of the list lets every week header reach the top, so this cap is only a guard in case that changes.
 private const val MAX_PLACEMENT_ATTEMPTS = 3
 private val EvaluationsListBottomPadding = 120.dp
 private const val EvaluationItemContentType = "evaluation_item"

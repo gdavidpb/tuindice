@@ -107,7 +107,8 @@ private val assistantConfirmAddEvaluation = scenario(
 	waitVisible(text(Copy.AssistantReceiptAddedOne), Within.Assert)
 	tap(AssistantUiTags.Component.openScreen("cmp-add-nav-1"))
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
-	waitVisible(text(Copy.EvaluationCompleted), Within.Action)
+	// The added row is on the list with the grade the proposal gave it.
+	waitVisible(text(E2eFixtures.AddedPartialOneGrade.value), Within.Action)
 }
 
 private val assistantConfirmDestructiveDelete = scenario(

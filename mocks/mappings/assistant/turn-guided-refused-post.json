@@ -7,6 +7,12 @@
     "bodyPatterns": [
       {
         "matchesJsonPath": "$.message.text"
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.message.suggestionId",
+          "absent": true
+        }
       }
     ],
     "headers": {

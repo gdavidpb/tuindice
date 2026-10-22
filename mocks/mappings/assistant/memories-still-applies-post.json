@@ -1,5 +1,6 @@
 {
   "scenarioName": "assistant-memories",
+  "requiredScenarioState": "Started",
   "newScenarioState": "Answered",
   "request": {
     "method": "POST",
