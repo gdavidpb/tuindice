@@ -47,7 +47,7 @@ class StatisticsBarUiTest {
 				.height(StatisticsChartDefaults.ChartHeight)
 		) {
 			StatisticsBar(
-				shownFraction = shownFraction,
+				shownFraction = { shownFraction },
 				width = BAR_WIDTH_DP,
 				color = Color.Blue,
 				tag = BAR_TAG

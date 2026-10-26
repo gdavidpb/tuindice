@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -61,11 +62,15 @@ fun TuIndiceProgressBar(
 	gap: Dp = 0.dp,
 	progress: Float = 1f
 ) {
-	TuIndiceProgressBar(
+	ProgressBarSegments(
 		segments = segments,
 		modifier = modifier,
 		gap = gap,
-		progress = { progress }
+		placement = { start, share ->
+			Modifier
+				.offset(x = (start * progress).dp)
+				.width((share * progress).dp)
+		}
 	)
 }
 
@@ -79,6 +84,36 @@ fun TuIndiceProgressBar(
 	modifier: Modifier = Modifier,
 	gap: Dp = 0.dp,
 	progress: () -> Float
+) {
+	ProgressBarSegments(
+		segments = segments,
+		modifier = modifier,
+		gap = gap,
+		placement = { start, share ->
+			// The progress is read where each piece is placed and sized, so a frame of it moves and resizes the pieces
+			// and composes none of them.
+			Modifier
+				.offset { IntOffset(x = (start * progress()).dp.roundToPx(), y = 0) }
+				.layout { measurable, constraints ->
+					val width = constraints.constrainWidth((share * progress()).dp.roundToPx())
+					val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+
+					layout(placeable.width, placeable.height) {
+						placeable.place(0, 0)
+					}
+				}
+		}
+	)
+}
+
+// The track and its segments. [placement] gives the modifier that places and sizes each piece, from where the
+// piece starts and its share of the track. The overloads above differ only in that, so the rest is drawn here once.
+@Composable
+private fun ProgressBarSegments(
+	segments: List<TuIndiceProgressSegment>,
+	modifier: Modifier,
+	gap: Dp,
+	placement: (start: Float, share: Float) -> Modifier
 ) {
 	val shape = RoundedCornerShape(TuIndiceRadius.Full)
 	val pills = gap > 0.dp
@@ -94,20 +129,9 @@ fun TuIndiceProgressBar(
 
 		segments.forEach { segment ->
 			val share = segment.fraction.coerceIn(0f, 1f) * available
-			val segmentStart = start
-			// The progress is read where each piece is placed and sized, so a frame of it moves and resizes the pieces
-			// and composes none of them.
 			val piece = Modifier
 				.align(Alignment.CenterStart)
-				.offset { IntOffset(x = (segmentStart * progress()).dp.roundToPx(), y = 0) }
-				.layout { measurable, constraints ->
-					val width = constraints.constrainWidth((share * progress()).dp.roundToPx())
-					val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
-
-					layout(placeable.width, placeable.height) {
-						placeable.place(0, 0)
-					}
-				}
+				.then(placement(start, share))
 				.fillMaxHeight()
 
 			Box(

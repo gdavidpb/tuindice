@@ -35,19 +35,3 @@ fun BoxScope.StatisticsStackedTrack(
 		progress = progress
 	)
 }
-
-// The same track with its progress given as a number, drawn at that share of the bar.
-@Composable
-fun BoxScope.StatisticsStackedTrack(
-	segments: List<StatisticsSegment>,
-	progress: Float,
-	labels: StatisticsChartLabels,
-	openIndex: MutableState<Int?>
-) {
-	StatisticsStackedTrack(
-		segments = segments,
-		progress = { progress },
-		labels = labels,
-		openIndex = openIndex
-	)
-}

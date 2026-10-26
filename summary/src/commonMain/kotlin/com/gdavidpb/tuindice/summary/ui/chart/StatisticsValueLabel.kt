@@ -19,21 +19,6 @@ import androidx.compose.ui.unit.dp
 // The figure written just above a bar. The bar stands on the baseline, so its top sits the drawn share of the plot
 // above it; the figure's own line lies over that top. It is placed from the same share the bar is drawn with, so it
 // climbs with the bar while the bar grows, and that share is read where the figure is placed, not where it is composed.
-@Composable
-fun BoxScope.StatisticsValueLabel(
-	text: String,
-	tag: String,
-	shownFraction: Float,
-	columnWidth: Float
-) {
-	StatisticsValueLabel(
-		text = text,
-		tag = tag,
-		shownFraction = { shownFraction },
-		columnWidth = columnWidth
-	)
-}
-
 // The figure of [StatisticsValueLabel] with its share read where the figure is placed, so a frame of the growth moves
 // the figure and composes nothing.
 @Composable

@@ -53,7 +53,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
@@ -381,15 +384,15 @@ private fun SignInLogoView(onClick: () -> Unit) {
 	) {
 		AppLogoView(
 			modifier = Modifier.layout { measurable, constraints ->
-				val placeable = measurable.measure(constraints)
+				// The margins above and below the logo are read here, in the layout, so the animation does not compose the
+				// box on each frame. They round the way a padding modifier rounds them, and the logo is measured inside them,
+				// with the constraints less both margins, as a padding measures its content.
+				val verticalPadding = (LOGO_VERTICAL_PADDING * scale).roundToPx()
+				val placeable = measurable.measure(constraints.offset(vertical = -verticalPadding * 2))
 				val width = (placeable.width * scale).roundToInt()
 				val height = (placeable.height * scale).roundToInt()
 
-				// The margins above and below the logo are read here, in the layout, so the animation does not compose the
-				// box on each frame. They round the way a padding modifier rounds them.
-				val verticalPadding = (LOGO_VERTICAL_PADDING * scale).roundToPx()
-
-				layout(width, height + verticalPadding * 2) {
+				layout(constraints.constrainWidth(width), constraints.constrainHeight(height + verticalPadding * 2)) {
 					placeable.placeWithLayer(
 						x = (width - placeable.width) / 2,
 						y = verticalPadding + (height - placeable.height) / 2

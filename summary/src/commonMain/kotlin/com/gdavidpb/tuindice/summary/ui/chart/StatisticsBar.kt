@@ -18,21 +18,6 @@ import androidx.compose.ui.unit.dp
  * The bar of one point of a bar chart: a column that stands on the baseline and rises to [shownFraction] of the plot,
  * rounded at its top and [width] wide, in [color]. The bar keeps the [tag] of its point, so a test finds it.
  */
-@Composable
-fun BoxScope.StatisticsBar(
-	shownFraction: Float,
-	width: Float,
-	color: Color,
-	tag: String
-) {
-	StatisticsBar(
-		shownFraction = { shownFraction },
-		width = width,
-		color = color,
-		tag = tag
-	)
-}
-
 // The bar of [StatisticsBar] with its share read where the bar is laid out, not where it is composed: a bar that grows
 // lays itself out again on each frame of its growth and composes nothing for it.
 @Composable

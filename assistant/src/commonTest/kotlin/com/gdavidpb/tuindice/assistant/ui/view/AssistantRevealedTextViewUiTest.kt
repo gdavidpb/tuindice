@@ -15,6 +15,7 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class AssistantRevealedTextViewUiTest {
+	// A behavior test of the view, not a regression test: the whole text is in the node from the first frame.
 	@Test
 	fun when_textIsRevealing_then_theWholeTextIsThereFromTheFirstFrame() = runTuIndiceUiTest {
 		// The reveal runs on the test clock: its frames go by only when a test advances the clock.

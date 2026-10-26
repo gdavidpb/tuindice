@@ -57,7 +57,7 @@ class StatisticsValueLabelUiTest {
 			StatisticsValueLabel(
 				text = "4.5",
 				tag = LABEL_TAG,
-				shownFraction = shownFraction,
+				shownFraction = { shownFraction },
 				columnWidth = COLUMN_DP
 			)
 		}

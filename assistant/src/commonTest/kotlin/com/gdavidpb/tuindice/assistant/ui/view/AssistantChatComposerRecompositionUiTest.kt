@@ -15,6 +15,8 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+// A behavior test of the view with equal items, not a regression test: the typing regression is covered by
+// AssistantChatComposerBehaviorTest (assertSame).
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatComposerRecompositionUiTest {
 	@Test
