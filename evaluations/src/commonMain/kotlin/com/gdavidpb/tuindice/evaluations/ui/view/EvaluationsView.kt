@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
@@ -189,10 +190,12 @@ fun EvaluationsView(
 					highlighted.evaluationId == evaluation.evaluationId
 				}
 
-				val askAction = assistantAskAction(
-					onAskAssistant = actions.onAskAssistant,
-					context = evaluation.assistantContext
-				)
+				val askAction = remember(actions.onAskAssistant, evaluation.assistantContext) {
+					assistantAskAction(
+						onAskAssistant = actions.onAskAssistant,
+						context = evaluation.assistantContext
+					)
+				}
 
 				EvaluationSwipeToDismiss(
 					modifier = itemModifier.animateItem(
@@ -206,6 +209,7 @@ fun EvaluationsView(
 						onDelete = { actions.onEvaluationDelete(evaluation.evaluationId) }
 					)
 				) { onActionsClick ->
+					ReportComposition("evaluation-row", evaluation.evaluationId)
 					EvaluationItemView(
 						modifier = Modifier.arrivalHighlight(
 							trigger = highlight,
