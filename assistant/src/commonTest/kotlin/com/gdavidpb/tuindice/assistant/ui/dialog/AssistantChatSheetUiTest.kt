@@ -119,7 +119,7 @@ class AssistantChatSheetUiTest {
 		state.value = contentState(context = contextChip())
 		waitForIdle()
 
-		// The body takes 60% of the window: a sheet left half open would push the composer below the screen.
+		// The body takes 90% of the window: a sheet left half open would push the composer below the screen.
 		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
 		onNodeWithTag(AssistantUiTags.SendButton).assertIsDisplayed()
 	}
@@ -135,7 +135,7 @@ class AssistantChatSheetUiTest {
 		}
 
 		waitForIdle()
-		// The body takes 60% of the window, so the top edge is always scrim.
+		// The body takes 90% of the window, so the top edge is always scrim.
 		// The sheet draws in a layer of its own, so there are two roots; a touch on the window goes to the topmost layer.
 		onAllNodes(isRoot())[0].performTouchInput { click(Offset(width / 2f, SCRIM_TAP_Y)) }
 		waitForIdle()

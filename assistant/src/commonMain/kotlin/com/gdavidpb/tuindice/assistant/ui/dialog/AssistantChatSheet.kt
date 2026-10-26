@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.assistant.ui.dialog
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -11,7 +10,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -23,11 +21,13 @@ import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import kotlinx.coroutines.flow.first
 
-private const val CHAT_SHEET_HEIGHT_FRACTION = 0.6f
+// The conversation takes 90% of the height the sheet has, with or without the keyboard: the title, the context, the
+// three suggestions one under the other and the composer fit at once, and the sheet does not jump when the keyboard
+// opens (it took 60% until then, and the suggestions had to go in a row that showed one and a half of them).
+private const val CHAT_SHEET_HEIGHT_FRACTION = 0.9f
 
-// While the student types the body takes 90% of the height left above the keyboard: at 60% the title, the chip,
-// the offer and the suggestions pushed the composer out of the sheet.
-private const val CHAT_SHEET_TYPING_HEIGHT_FRACTION = 0.9f
+// The consent keeps 60%: its text and its buttons fill it, and a taller sheet would only add blank room below them.
+private const val CONSENT_SHEET_HEIGHT_FRACTION = 0.6f
 
 // The chat sheet: the conversation carries the title «Asistente» after the sparkle, without the name of the app; the
 // consent carries its own, with the sparkle too. It opens showing its whole body, composer included. Its notices show
@@ -39,7 +39,7 @@ fun AssistantChatSheet(
 	isCameraAvailable: Boolean = false,
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
-	// The body takes 60% of the window, more than the half a partly expanded sheet shows, so the first time the sheet
+	// The body takes 90% of the window, more than the half a partly expanded sheet shows, so the first time the sheet
 	// settles there it is lifted to show the composer. The half-open state itself stays; afterwards the student can drag
 	// the sheet as any other.
 	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = false)
@@ -60,9 +60,11 @@ fun AssistantChatSheet(
 		contentWindowInsets = { WindowInsets(0) },
 		onDismissRequest = { onAction(AssistantChat.Action.Dismiss) }
 	) {
-		// The keyboard's inset is real inside the sheet, so the typing height comes from it, not from the focus.
-		val isTyping = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-		val heightFraction = if (isTyping) CHAT_SHEET_TYPING_HEIGHT_FRACTION else CHAT_SHEET_HEIGHT_FRACTION
+		val heightFraction = if (state is AssistantChat.State.Content) {
+			CHAT_SHEET_HEIGHT_FRACTION
+		} else {
+			CONSENT_SHEET_HEIGHT_FRACTION
+		}
 
 		AssistantChatContent(
 			state = state,
