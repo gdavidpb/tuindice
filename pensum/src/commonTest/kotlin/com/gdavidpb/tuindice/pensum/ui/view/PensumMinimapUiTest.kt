@@ -84,8 +84,8 @@ private fun ComposeUiTest.setMinimapContent(viewportCenters: MutableList<Offset>
 			PensumMinimap(
 				model = model,
 				edgeRoutes = emptyMap(),
-				scale = 1f,
-				offset = Offset.Zero,
+				scale = { 1f },
+				offset = { Offset.Zero },
 				viewportSizePx = Size(width = 360f, height = 640f),
 				selectedRequirementEdgeIds = emptySet(),
 				selectedUnlockEdgeIds = emptySet(),

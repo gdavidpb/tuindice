@@ -62,8 +62,9 @@ class PensumStickyTermHeaderUiTest {
 			) {
 				PensumStickyTermHeader(
 					terms = stickyHeaderTerms(),
-					scale = StickyTermHeaderShortMinZoom,
-					offsetX = 0f,
+					scale = { StickyTermHeaderShortMinZoom },
+					offsetX = { 0f },
+					shouldUseFullLabels = false,
 					densityScale = density.density,
 					onTermClick = {}
 				)
@@ -86,8 +87,9 @@ class PensumStickyTermHeaderUiTest {
 			) {
 				PensumStickyTermHeader(
 					terms = stickyHeaderTerms(),
-					scale = StickyTermHeaderFullMinZoom,
-					offsetX = 0f,
+					scale = { StickyTermHeaderFullMinZoom },
+					offsetX = { 0f },
+					shouldUseFullLabels = true,
 					densityScale = density.density,
 					onTermClick = {}
 				)

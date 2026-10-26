@@ -1,11 +1,16 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pinch
+import androidx.compose.ui.test.swipe
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.testing.SAMPLE_APPROVED_NODE_ID
@@ -19,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -118,9 +124,66 @@ class PensumGraphCanvasUiTest {
 		)
 		assertTrue(fixture.sessionState.isMinimapToggleVisible)
 	}
+
+	@Test
+	fun when_canvasIsDragged_then_itMovesWithoutRecomposingTheNodeCardsOrTheStickyHeader() = runTuIndiceUiTest {
+		val fixture = GraphCanvasFixture()
+		setGraphCanvasContent(fixture = fixture)
+		waitForIdle()
+		val offsetBefore = fixture.sessionState.canvasOffsetX to fixture.sessionState.canvasOffsetY
+		assertTrue(fixture.compositions.any { name -> name.startsWith("node:") }, "The probe must see the first composition.")
+		assertTrue("header" in fixture.compositions, "The sticky header must show at the initial zoom.")
+		fixture.compositions.clear()
+
+		onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+			swipe(start = center, end = center + Offset(x = -60f, y = -40f), durationMillis = 400)
+		}
+		advanceAnimationsBy((CanvasManualGestureIdleMillis + CanvasSnapDelayMillis + ZoomAnimationMillis * 2).toLong())
+		waitForIdle()
+
+		assertNotEquals(offsetBefore, fixture.sessionState.canvasOffsetX to fixture.sessionState.canvasOffsetY)
+		assertMovedWithoutRecomposingPerFrame(fixture.compositions)
+	}
+
+	@Test
+	fun when_canvasIsPinched_then_itZoomsWithoutRecomposingTheNodeCardsOrTheStickyHeader() = runTuIndiceUiTest {
+		val fixture = GraphCanvasFixture()
+		setGraphCanvasContent(fixture = fixture)
+		waitForIdle()
+		fixture.compositions.clear()
+
+		onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+			pinch(
+				start0 = center + Offset(x = -40f, y = 0f),
+				end0 = center + Offset(x = -90f, y = 0f),
+				start1 = center + Offset(x = 40f, y = 0f),
+				end1 = center + Offset(x = 90f, y = 0f),
+				durationMillis = 400
+			)
+		}
+		advanceAnimationsBy((CanvasManualGestureIdleMillis + CanvasSnapDelayMillis + ZoomAnimationMillis * 2).toLong())
+		waitForIdle()
+
+		assertTrue(
+			actual = checkNotNull(fixture.sessionState.canvasScale) > InitialCanvasZoom,
+			message = "Expected the pinch to store a scale above $InitialCanvasZoom."
+		)
+		assertMovedWithoutRecomposingPerFrame(fixture.compositions)
+	}
+}
+
+// The canvas recomposes at most at the start and at the end of a gesture (to hide and show its overlays), never on
+// its frames, and the node cards and the sticky header never do.
+private fun assertMovedWithoutRecomposingPerFrame(compositions: List<String>) {
+	assertEquals(emptyList(), compositions.filterNot { name -> name == "canvas" })
+	assertTrue(
+		actual = compositions.count { name -> name == "canvas" } <= 2,
+		message = "The canvas recomposed on the gesture's frames: $compositions"
+	)
 }
 
 private class GraphCanvasFixture {
+	val compositions = mutableListOf<String>()
 	val selectedNodeChanges = mutableListOf<String?>()
 	val focusedNodeClicks = mutableListOf<String>()
 	val sessionState = PensumScreenSessionStore.SelectionState()
@@ -133,13 +196,15 @@ private fun ComposeUiTest.setGraphCanvasContent(
 	isSubjectSheetVisible: Boolean = false
 ) {
 	setTuIndiceTestContent {
-		PensumGraphCanvas(
-			model = samplePensumScreenModel(),
-			selectedNodeId = selectedNodeId,
-			onSelectedNodeChange = { nodeId -> fixture.selectedNodeChanges += nodeId },
-			onFocusedNodeClick = { nodeId -> fixture.focusedNodeClicks += nodeId },
-			isSubjectSheetVisible = isSubjectSheetVisible,
-			sessionState = fixture.sessionState
-		)
+		CompositionLocalProvider(LocalPensumCompositionProbe provides { name -> fixture.compositions += name }) {
+			PensumGraphCanvas(
+				model = samplePensumScreenModel(),
+				selectedNodeId = selectedNodeId,
+				onSelectedNodeChange = { nodeId -> fixture.selectedNodeChanges += nodeId },
+				onFocusedNodeClick = { nodeId -> fixture.focusedNodeClicks += nodeId },
+				isSubjectSheetVisible = isSubjectSheetVisible,
+				sessionState = fixture.sessionState
+			)
+		}
 	}
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -37,6 +38,10 @@ fun PensumNodeCard(
 	isUnlockHighlighted: Boolean,
 	modifier: Modifier = Modifier
 ) {
+	val compositionProbe = LocalPensumCompositionProbe.current
+	if (compositionProbe != null) {
+		SideEffect { compositionProbe("node:${node.id}") }
+	}
 	val graphColors = pensumGraphColors()
 	val colors = node.toNodeColors(graphColors)
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
