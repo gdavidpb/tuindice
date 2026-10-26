@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -352,7 +353,12 @@ private fun SignIn.Rejection?.takeIfFixedUnderTheButton(): SignIn.Rejection? {
 @Composable
 private fun SignInLogoView(onClick: () -> Unit) {
 	val density = LocalDensity.current
-	val isKeyboardOpen = WindowInsets.ime.getBottom(density) > 0
+	val ime = WindowInsets.ime
+	// The inset changes on every frame of the keyboard animation. Only the derived state reads it, so the logo composes
+	// when the keyboard opens or closes, not on each of those frames.
+	val isKeyboardOpen by remember(ime, density) {
+		derivedStateOf { ime.getBottom(density) > 0 }
+	}
 	val animationSpec = if (LocalTuIndiceAnimationsEnabled.current) {
 		tween<Float>(TuIndiceAnimation.StandardMillis)
 	} else {
@@ -372,7 +378,6 @@ private fun SignInLogoView(onClick: () -> Unit) {
 				indication = null,
 				onClick = onClick
 			)
-			.padding(vertical = LOGO_VERTICAL_PADDING * scale)
 	) {
 		AppLogoView(
 			modifier = Modifier.layout { measurable, constraints ->
@@ -380,8 +385,15 @@ private fun SignInLogoView(onClick: () -> Unit) {
 				val width = (placeable.width * scale).roundToInt()
 				val height = (placeable.height * scale).roundToInt()
 
-				layout(width, height) {
-					placeable.placeWithLayer(x = (width - placeable.width) / 2, y = (height - placeable.height) / 2) {
+				// The margins above and below the logo are read here, in the layout, so the animation does not compose the
+				// box on each frame. They round the way a padding modifier rounds them.
+				val verticalPadding = (LOGO_VERTICAL_PADDING * scale).roundToPx()
+
+				layout(width, height + verticalPadding * 2) {
+					placeable.placeWithLayer(
+						x = (width - placeable.width) / 2,
+						y = verticalPadding + (height - placeable.height) / 2
+					) {
 						scaleX = scale
 						scaleY = scale
 					}
