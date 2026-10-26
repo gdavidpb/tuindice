@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class MainShellStateTest {
 
@@ -14,7 +15,7 @@ class MainShellStateTest {
 	fun when_theScreenDeclaresAContextAndTheAssistantIsOn_then_theShellLeadsWithTheAssistant() {
 		val shell = pensumScreen().toMainShellState(isAssistantVisible = true)
 
-		assertEquals(pensumContext, shell.assistantContext)
+		assertEquals(true, shell.hasAssistantContext)
 		assertEquals(
 			listOf(TopBarSlot.Assistant, TopBarSlot.Action(TopBarAction.SearchPensumAction)),
 			shell.inlineActions
@@ -28,6 +29,24 @@ class MainShellStateTest {
 
 		assertEquals(listOf(TopBarSlot.Action(TopBarAction.SearchPensumAction)), shell.inlineActions)
 		assertEquals(emptyList(), shell.overflowActions)
+	}
+
+	@Test
+	fun when_theScreenDeclaresNoContext_then_theShellDoesNotLeadWithTheAssistant() {
+		val shell = pensumScreen(context = null).toMainShellState(isAssistantVisible = true)
+
+		assertEquals(false, shell.hasAssistantContext)
+		assertEquals(listOf(TopBarSlot.Action(TopBarAction.SearchPensumAction)), shell.inlineActions)
+		assertEquals(emptyList(), shell.overflowActions)
+	}
+
+	@Test
+	fun when_onlyTheContentOfTheContextChanges_then_theShellIsTheSame() {
+		val shell = pensumScreen().toMainShellState(isAssistantVisible = true)
+		val changed = pensumScreen(context = pensumContextWithFields).toMainShellState(isAssistantVisible = true)
+
+		assertNotEquals(pensumContext, pensumContextWithFields)
+		assertEquals(shell, changed)
 	}
 
 	@Test
@@ -83,10 +102,15 @@ class MainShellStateTest {
 		override val isProfileAvatarVisible: Boolean = declaresAvatar
 	}
 
-	private fun pensumScreen(): ViewState = object : ViewState {
+	private fun pensumScreen(context: AssistantScreenContext? = pensumContext): ViewState = object : ViewState {
 		override val topBarConfig: TopBarConfig = TopBarConfig.Pensum
-		override val assistantContext: AssistantScreenContext = pensumContext
+		override val assistantContext: AssistantScreenContext? = context
 	}
 
 	private val pensumContext = AssistantScreenContext(screen = AssistantScreen.PENSUM)
+
+	private val pensumContextWithFields = AssistantScreenContext(
+		screen = AssistantScreen.PENSUM,
+		visibleFields = mapOf("credits" to "42")
+	)
 }

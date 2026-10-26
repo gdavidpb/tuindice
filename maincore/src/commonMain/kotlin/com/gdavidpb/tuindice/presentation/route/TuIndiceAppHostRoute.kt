@@ -10,6 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -174,9 +175,14 @@ fun TuIndiceAppHostRoute(
 			val latestViewState = remember {
 				mutableStateOf<ViewState?>(null)
 			}
-			val shellState = latestViewState.value
-				?.toMainShellState(isAssistantVisible = assistantAvailability.isVisible)
-				?: MainShellState()
+			// Derived, so the host recomposes only when the shell changes, not on each state of the screen.
+			val shellState by remember {
+				derivedStateOf {
+					latestViewState.value
+						?.toMainShellState(isAssistantVisible = assistantAvailability.isVisible)
+						?: MainShellState()
+				}
+			}
 			val onRecordViewModeChange = remember {
 				mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 			}

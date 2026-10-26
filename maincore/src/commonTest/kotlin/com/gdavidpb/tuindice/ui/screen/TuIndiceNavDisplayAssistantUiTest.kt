@@ -7,8 +7,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -105,7 +103,7 @@ class TuIndiceNavDisplayAssistantUiTest {
 						recordTopBarViewModeState = RecordTopBarViewModeState(
 							selectedMode = RecordViewMode.Projection
 						),
-						assistantContext = AssistantScreenContext(screen = AssistantScreen.RECORD),
+						hasAssistantContext = true,
 						isAssistantVisible = true
 					),
 					onRecordViewModeChange = { }
@@ -157,7 +155,7 @@ class TuIndiceNavDisplayAssistantUiTest {
 		topBarTitle = UiText.Raw("Pensum"),
 		topBarConfig = TopBarConfig.Pensum,
 		isTopBarVisible = true,
-		assistantContext = AssistantScreenContext(screen = AssistantScreen.PENSUM),
+		hasAssistantContext = true,
 		isAssistantVisible = isAssistantVisible
 	)
 

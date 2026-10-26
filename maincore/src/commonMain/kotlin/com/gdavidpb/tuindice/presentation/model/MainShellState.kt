@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.model
 
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
@@ -16,8 +15,9 @@ data class MainShellState(
 	val isBottomBarVisible: Boolean = false,
 	val recordTopBarViewModeState: RecordTopBarViewModeState? = null,
 	val showsTopBarBackButton: Boolean = true,
-	// What the active screen declared for the assistant, and whether the assistant is on.
-	val assistantContext: AssistantScreenContext? = null,
+	// Whether the active screen declared a context for the assistant, and whether the assistant is on.
+	// Only its presence is kept: the content changes with the screen (a scroll), and the shell must not follow it.
+	val hasAssistantContext: Boolean = false,
 	val isAssistantVisible: Boolean = false,
 	val isProfileAvatarVisible: Boolean = false
 ) {
@@ -35,7 +35,7 @@ data class MainShellState(
 	init {
 		val arrangement = arrangeTopBarActions(
 			actions = topBarConfig?.actions.orEmpty(),
-			hasAssistant = isAssistantVisible && assistantContext != null,
+			hasAssistant = isAssistantVisible && hasAssistantContext,
 			hasViewModeSelector = recordTopBarViewModeState != null
 		)
 
@@ -53,7 +53,7 @@ fun ViewState.toMainShellState(isAssistantVisible: Boolean = false): MainShellSt
 		is RecordRouteViewState -> topBarViewModeState
 		else -> null
 	},
-	assistantContext = assistantContext,
+	hasAssistantContext = assistantContext != null,
 	isAssistantVisible = isAssistantVisible,
 	isProfileAvatarVisible = isProfileAvatarVisible
 )
