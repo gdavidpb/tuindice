@@ -4,10 +4,12 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.event.DebugEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.machine.DebugMachineLogDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.data.source.attestation.IosDebugAttestationDataSource
 import com.gdavidpb.tuindice.debug.OverridableClock
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
@@ -39,6 +41,10 @@ val iosDebugVariantModule = module {
 		DebugEventSubscriber(
 			sourceName = "ios-debug"
 		)
+	}
+
+	single<AppStartupTask>(named("iosDebugMachineLogTask")) {
+		DebugMachineLogDataSource()
 	}
 
 	factory<AttestationRepository> {
