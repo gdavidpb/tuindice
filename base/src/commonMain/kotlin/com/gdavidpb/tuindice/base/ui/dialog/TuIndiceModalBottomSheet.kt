@@ -139,9 +139,10 @@ private fun TuIndiceSheetEffects(
 	}
 
 	// A dismissal by the person reaches the caller once the sheet rests hidden, whatever moved it there. The first
-	// value is the one the sheet starts from, not a change.
+	// value is the one the sheet starts from, not a change. It is read where the sheet rests, not where it passes: a
+	// sheet whose content grows passes near its hidden anchor while it moves to the new one, and it was closed for it.
 	LaunchedEffect(sheetState) {
-		snapshotFlow { sheetState.currentValue }.drop(1).collect {
+		snapshotFlow { sheetState.settledValue }.drop(1).collect {
 			if (sheetState.consumeUserDismissal()) currentOnDismissRequest()
 		}
 	}

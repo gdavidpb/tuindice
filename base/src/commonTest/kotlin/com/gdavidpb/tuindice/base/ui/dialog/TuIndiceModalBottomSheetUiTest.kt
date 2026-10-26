@@ -9,7 +9,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -27,6 +29,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.flow.first
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -110,6 +113,38 @@ class TuIndiceModalBottomSheetUiTest {
 		waitForIdle()
 		assertEquals(1, dismissCalls)
 		assertEquals(TuIndiceSheetValue.Hidden, holder.state?.currentValue)
+	}
+
+	@Test
+	fun when_theContentOfAnOpenSheetGrowsMoreThanTwice_then_theSheetIsNotDismissed() = runTuIndiceUiTest {
+		var dismissCalls = 0
+		val holder = StateHolder()
+
+		setTuIndiceTestContent {
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
+			var grown by remember { mutableStateOf(false) }
+			SideEffect { holder.state = sheetState }
+
+			// As the share sheet's card does when its art arrives: the sheet has opened, and its content then takes more
+			// than twice its height, so where it rests is closer to the hidden anchor than to the new open one.
+			LaunchedEffect(sheetState) {
+				snapshotFlow { sheetState.settledValue }.first { value -> value == TuIndiceSheetValue.Expanded }
+				grown = true
+			}
+
+			TuIndiceModalBottomSheet(
+				onDismissRequest = { dismissCalls++ },
+				sheetState = sheetState
+			) {
+				Box(modifier = Modifier.fillMaxWidth().height(if (grown) GROWN_CONTENT_DP.dp else SHORT_CONTENT_DP.dp))
+			}
+		}
+
+		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.settledValue == TuIndiceSheetValue.Expanded }
+		waitForIdle()
+
+		assertEquals(0, dismissCalls)
+		assertEquals(TuIndiceSheetValue.Expanded, holder.state?.settledValue)
 	}
 
 	@Test
@@ -223,6 +258,7 @@ class TuIndiceModalBottomSheetUiTest {
 		const val OPENING_FRAMES = 10
 		const val SHORT_CONTENT_DP = 200
 		const val TALL_CONTENT_DP = 400
+		const val GROWN_CONTENT_DP = 600
 		const val SCRIM_TAP_Y = 20f
 		const val WAIT_MILLIS = 5_000L
 	}

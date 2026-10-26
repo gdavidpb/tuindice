@@ -61,6 +61,11 @@ class TuIndiceSheetState internal constructor(
 	val targetValue: TuIndiceSheetValue
 		get() = draggableState.targetValue
 
+	// The anchor the sheet rests at. Unlike currentValue, the anchor closest to where the sheet is, it does not move
+	// while the sheet moves or its anchors change, so a sheet that grows is not taken for one that went down.
+	val settledValue: TuIndiceSheetValue
+		get() = draggableState.settledValue
+
 	val hasPartiallyExpandedState: Boolean
 		get() = draggableState.anchors.hasPositionFor(TuIndiceSheetValue.PartiallyExpanded)
 
@@ -83,7 +88,7 @@ class TuIndiceSheetState internal constructor(
 
 	// Hides the sheet because the caller asks for it: onDismissRequest is not called for it.
 	suspend fun hide() {
-		if (!hideable || currentValue == TuIndiceSheetValue.Hidden) return
+		if (!hideable || settledValue == TuIndiceSheetValue.Hidden) return
 
 		hideRequestedByCaller = true
 		try {
@@ -92,7 +97,7 @@ class TuIndiceSheetState internal constructor(
 			hideRequestedByCaller = false
 			throw exception
 		}
-		if (currentValue != TuIndiceSheetValue.Hidden) hideRequestedByCaller = false
+		if (settledValue != TuIndiceSheetValue.Hidden) hideRequestedByCaller = false
 	}
 
 	suspend fun expand() {
@@ -105,7 +110,7 @@ class TuIndiceSheetState internal constructor(
 
 	// The person asks for the sheet to go: a tap on the scrim, or the back gesture.
 	internal suspend fun requestDismiss() {
-		if (!hideable || currentValue == TuIndiceSheetValue.Hidden) return
+		if (!hideable || settledValue == TuIndiceSheetValue.Hidden) return
 
 		hideRequestedByCaller = false
 		animateTo(TuIndiceSheetValue.Hidden)
@@ -114,7 +119,7 @@ class TuIndiceSheetState internal constructor(
 	// True when the sheet rests hidden and the caller did not hide it: the person dismissed it, by a tap, a drag, a fling
 	// or the back gesture alike. The caller's hide is consumed here, once it rests.
 	internal fun consumeUserDismissal(): Boolean {
-		val restsHidden = currentValue == TuIndiceSheetValue.Hidden
+		val restsHidden = settledValue == TuIndiceSheetValue.Hidden
 		val isUserDismissal = restsHidden && !hideRequestedByCaller
 
 		if (restsHidden) hideRequestedByCaller = false
