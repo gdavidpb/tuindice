@@ -11,7 +11,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
@@ -57,7 +56,7 @@ fun AssistantRevealedTextView(
 	val elapsed = remember { Animatable(0f) }
 	// Changes once, when the reveal ends: the view recomposes then, and only then, to show the plain text.
 	val isRevealed by remember(total) { derivedStateOf { elapsed.value >= total } }
-	var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+	val layout = remember { mutableStateOf<TextLayoutResult?>(null) }
 
 	LaunchedEffect(Unit) {
 		delay(delayMillis.toLong())
@@ -77,7 +76,7 @@ fun AssistantRevealedTextView(
 		modifier = modifier
 			.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
 			.drawWithCache {
-				val paths = wordPaths(layout = layout, words = words)
+				val paths = wordPaths(layout = layout.value, words = words)
 
 				onDrawWithContent {
 					drawContent()
@@ -85,7 +84,7 @@ fun AssistantRevealedTextView(
 				}
 			},
 		style = style,
-		onTextLayout = { layout = it }
+		onTextLayout = { layout.value = it }
 	)
 }
 
