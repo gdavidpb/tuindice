@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 
 @Composable
@@ -26,9 +26,12 @@ fun PulsingIconHalo(
 	size: Dp = 28.dp,
 	testTag: String? = null
 ) {
+	ReportComposition("pulsing-halo")
+
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val transition = rememberInfiniteTransition(label = "PulsingIconHaloTransition")
-	val scale = if (animationsEnabled) {
+	// The pulse is read in the layer, in draw: each of its frames redraws the halo and composes nothing.
+	val scaleState = if (animationsEnabled) {
 		transition.animateFloat(
 			initialValue = PULSING_ICON_HALO_MIN_SCALE,
 			targetValue = PULSING_ICON_HALO_MAX_SCALE,
@@ -37,11 +40,11 @@ fun PulsingIconHalo(
 				repeatMode = RepeatMode.Reverse
 			),
 			label = "PulsingIconHaloScale"
-		).value
+		)
 	} else {
-		PULSING_ICON_HALO_MIN_SCALE
+		null
 	}
-	val alpha = if (animationsEnabled) {
+	val alphaState = if (animationsEnabled) {
 		transition.animateFloat(
 			initialValue = PULSING_ICON_HALO_MAX_ALPHA,
 			targetValue = PULSING_ICON_HALO_MIN_ALPHA,
@@ -50,17 +53,27 @@ fun PulsingIconHalo(
 				repeatMode = RepeatMode.Reverse
 			),
 			label = "PulsingIconHaloAlpha"
-		).value
+		)
 	} else {
-		PULSING_ICON_HALO_MAX_ALPHA
+		null
 	}
 	val testTagModifier = if (testTag == null) Modifier else Modifier.testTag(testTag)
 
 	Box(
 		modifier = modifier
 			.size(size)
-			.scale(scale)
-			.alpha(alpha)
+			// Two layers, as Modifier.scale and then Modifier.alpha made them: one layer paints the rim differently.
+			.graphicsLayer {
+				// With animations off, the fixed values the halo has always had.
+				val haloScale = scaleState?.value ?: PULSING_ICON_HALO_MIN_SCALE
+				scaleX = haloScale
+				scaleY = haloScale
+			}
+			.graphicsLayer {
+				// Clipped as Modifier.alpha clips.
+				alpha = alphaState?.value ?: PULSING_ICON_HALO_MAX_ALPHA
+				clip = true
+			}
 			.background(
 				color = color,
 				shape = CircleShape

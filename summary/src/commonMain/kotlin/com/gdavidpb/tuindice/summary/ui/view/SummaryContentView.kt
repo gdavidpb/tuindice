@@ -17,13 +17,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
@@ -48,6 +50,8 @@ fun SummaryContentView(
 	onEditProfilePictureClick: () -> Unit,
 	onStatusIconClick: () -> Unit
 ) {
+	ReportComposition("summary-content")
+
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val isStatusRefreshing = isSyncing
@@ -66,6 +70,8 @@ fun SummaryContentView(
 	// were arrives decided in showSyncAttentionHalo.
 	val shouldShowHalo = showSyncAttentionHalo && canOpenStatusDetails
 	val syncRotation = remember { Animatable(0f) }
+	// The icon's layer reads the turn in draw, never in this composition: it reads the flag through this state.
+	val isStatusRefreshingState = rememberUpdatedState(isStatusRefreshing)
 
 	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
 		if (isStatusRefreshing && animationsEnabled) {
@@ -94,14 +100,6 @@ fun SummaryContentView(
 
 			syncRotation.snapTo(0f)
 		}
-	}
-	val statusIconRotation = if (animationsEnabled) {
-		syncStatusIconRotation(
-			isStatusRefreshing = isStatusRefreshing,
-			currentRotation = syncRotation.value
-		)
-	} else {
-		0f
 	}
 
 	Column(
@@ -173,7 +171,16 @@ fun SummaryContentView(
 					Icon(
 						modifier = Modifier
 							.size(20.dp)
-							.rotate(statusIconRotation)
+							.graphicsLayer {
+								rotationZ = if (animationsEnabled) {
+									syncStatusIconRotation(
+										isStatusRefreshing = isStatusRefreshingState.value,
+										currentRotation = syncRotation.value
+									)
+								} else {
+									0f
+								}
+							}
 							.testTag(SummaryUiTags.StatusIcon),
 						imageVector = statusIcon,
 						tint = statusTint,
