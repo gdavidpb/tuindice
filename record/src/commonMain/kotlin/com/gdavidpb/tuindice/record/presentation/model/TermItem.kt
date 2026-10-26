@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class TermItem(
 	val termId: String,
 	val periodYear: Int,

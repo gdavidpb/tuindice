@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -81,10 +82,12 @@ fun RecordRoute(
 	}
 
 	val assistantLauncher = LocalAssistantLauncher.current
+	// The selected term is read on each tap, not kept as a key. A new selection then keeps the same actions, and the
+	// cards of the term on screen do not compose again for it.
+	val currentSelectedTermId by rememberUpdatedState(selectedTermId)
 	val actions = remember(
 		viewModel,
 		assistantLauncher,
-		selectedTermId,
 		onNavigateToCreateSyntheticTerm,
 		onNavigateToUpdateSyntheticTerm,
 		onNavigateToDeleteSyntheticTermConfirmation,
@@ -92,7 +95,7 @@ fun RecordRoute(
 	) {
 		RecordActions(
 			onSelectedTermChange = { termId ->
-				if (termId != selectedTermId) {
+				if (termId != currentSelectedTermId) {
 					viewModel.selectTermAction(termId)
 				}
 			},

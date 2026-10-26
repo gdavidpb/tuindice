@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.base.domain.model.assistant
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Immutable
 data class AssistantScreenContext(
 	val screen: AssistantScreen,
 	val entities: List<AssistantEntityRef> = emptyList(),
