@@ -14,6 +14,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
@@ -30,6 +31,8 @@ fun BoxScope.StatisticsBarColumns(
 	labels: StatisticsChartLabels,
 	openIndex: MutableState<Int?>
 ) {
+	ReportComposition("statistics-bars")
+
 	val dataColor = StatisticsChartDefaults.dataColor()
 	val highlightColor = MaterialTheme.colorScheme.primary
 	val hasSelection = openIndex.value != null
@@ -41,7 +44,9 @@ fun BoxScope.StatisticsBarColumns(
 			val growth = remember { Animatable(0f) }
 			val fraction = StatisticsChartGeometry.barFraction(bar.value, scale)
 			val isOpen = openIndex.value == index
-			val shownFraction = if (animationsEnabled) growth.value else fraction
+			// The growth is read by the bar and its figure where they are laid out, so a frame of it composes no column.
+			val shownFraction: () -> Float = { if (animationsEnabled) growth.value else fraction }
+			val target = remember(index, bar, labels) { labels.targetOf(index, bar.label, bar.tooltip) }
 
 			LaunchedEffect(fraction, animationsEnabled) {
 				if (animationsEnabled) {
@@ -64,7 +69,7 @@ fun BoxScope.StatisticsBarColumns(
 				}
 
 				StatisticsTooltipTarget(
-					target = labels.targetOf(index, bar.label, bar.tooltip),
+					target = target,
 					isOpen = isOpen,
 					onOpenChange = { open -> openIndex.value = if (open) index else null }
 				) {

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,8 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.model.TuIndiceProgressSegment
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
@@ -59,6 +61,25 @@ fun TuIndiceProgressBar(
 	gap: Dp = 0.dp,
 	progress: Float = 1f
 ) {
+	TuIndiceProgressBar(
+		segments = segments,
+		modifier = modifier,
+		gap = gap,
+		progress = { progress }
+	)
+}
+
+/**
+ * The bar of [segments] as the one above, with its [progress] read where the bar is laid out instead of where it is
+ * composed: a chart whose progress changes on every frame moves the bar without composing the bar or its caller.
+ */
+@Composable
+fun TuIndiceProgressBar(
+	segments: List<TuIndiceProgressSegment>,
+	modifier: Modifier = Modifier,
+	gap: Dp = 0.dp,
+	progress: () -> Float
+) {
 	val shape = RoundedCornerShape(TuIndiceRadius.Full)
 	val pills = gap > 0.dp
 	val track = MaterialTheme.colorScheme.outlineVariant
@@ -73,10 +94,20 @@ fun TuIndiceProgressBar(
 
 		segments.forEach { segment ->
 			val share = segment.fraction.coerceIn(0f, 1f) * available
+			val segmentStart = start
+			// The progress is read where each piece is placed and sized, so a frame of it moves and resizes the pieces
+			// and composes none of them.
 			val piece = Modifier
 				.align(Alignment.CenterStart)
-				.offset(x = (start * progress).dp)
-				.width((share * progress).dp)
+				.offset { IntOffset(x = (segmentStart * progress()).dp.roundToPx(), y = 0) }
+				.layout { measurable, constraints ->
+					val width = constraints.constrainWidth((share * progress()).dp.roundToPx())
+					val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+
+					layout(placeable.width, placeable.height) {
+						placeable.place(0, 0)
+					}
+				}
 				.fillMaxHeight()
 
 			Box(
