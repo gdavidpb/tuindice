@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.selected
@@ -96,6 +97,8 @@ fun <T> PeekingSelectorView(
 							scaleX = scale
 							scaleY = scale
 							this.alpha = alpha
+							// The item is one label that does not overlap itself, so each of its draws takes the alpha exactly.
+							compositingStrategy = CompositingStrategy.ModulateAlpha
 						}
 						.semantics {
 							selected = isSelected

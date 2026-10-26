@@ -10,13 +10,19 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PensumProgressRing(progress: Float) {
+	PensumProgressRing(progress = { progress })
+}
+
+// The progress is read where the ring is drawn, so an animated progress redraws the ring without composing it.
+@Composable
+fun PensumProgressRing(progress: () -> Float) {
 	val graphColors = pensumGraphColors()
 	Canvas(modifier = Modifier.size(24.dp)) {
 		drawCircle(color = graphColors.panelBorder, style = Stroke(width = 4.dp.toPx()))
 		drawArc(
 			color = graphColors.approved,
 			startAngle = -90f,
-			sweepAngle = 360f * progress.coerceIn(0f, 1f),
+			sweepAngle = 360f * progress().coerceIn(0f, 1f),
 			useCenter = false,
 			style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
 		)

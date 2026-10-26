@@ -88,7 +88,7 @@ internal fun <T> ShareableTermCardCrossfade(
 				Box(
 					modifier = Modifier
 						.fillMaxSize()
-						.graphicsLayer { alpha = if (card == next) fade.value else 1f }
+						.then(if (card == next) Modifier.graphicsLayer { alpha = fade.value } else Modifier)
 				) {
 					content(card)
 				}

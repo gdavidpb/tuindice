@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.component.common
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -47,6 +50,28 @@ class CardRowViewUiTest {
 
 		// The trailing side is a figure of a few letters, so the name takes what is left of the row, not half of it.
 		assertTrue(name > row * 0.6f, "the name is ${name}px of a ${row}px row")
+	}
+
+	@Test
+	fun when_theTrailingIsWiderThanItsShare_then_itTakesHalfTheRowAndSitsAtItsEnd() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.width(ROW_WIDTH_DP.dp).testTag(ROW_TAG)) {
+				CardRowView(
+					name = LONG_NAME,
+					trailing = {
+						Box(modifier = Modifier.fillMaxWidth().height(TRAILING_HEIGHT_DP.dp).testTag(TRAILING_TAG))
+					}
+				)
+			}
+		}
+		waitForIdle()
+
+		val row = onNodeWithTag(ROW_TAG).fetchSemanticsNode().boundsInRoot
+		val trailing = onNodeWithTag(TRAILING_TAG).fetchSemanticsNode().boundsInRoot
+
+		// The trailing side takes its share of the row at most, and it ends where the row ends.
+		assertEquals(row.width * TRAILING_SHARE, trailing.width, absoluteTolerance = POSITION_TOLERANCE_PX)
+		assertEquals(row.right, trailing.right, absoluteTolerance = POSITION_TOLERANCE_PX)
 	}
 
 	@Test
@@ -99,5 +124,9 @@ class CardRowViewUiTest {
 		const val ROW_WIDTH_DP = 300
 		const val NARROW_WIDTH_DP = 120
 		const val LONG_NAME = "Programación orientada a objetos avanzada, con prácticas de laboratorio"
+		const val TRAILING_TAG = "card_row_trailing"
+		const val TRAILING_HEIGHT_DP = 20
+		const val TRAILING_SHARE = 0.5f
+		const val POSITION_TOLERANCE_PX = 1f
 	}
 }

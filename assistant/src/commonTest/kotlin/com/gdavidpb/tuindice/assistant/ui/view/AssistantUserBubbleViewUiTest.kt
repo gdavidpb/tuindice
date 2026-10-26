@@ -37,6 +37,22 @@ class AssistantUserBubbleViewUiTest {
 	}
 
 	@Test
+	fun when_studentMessageIsLong_then_stopsAtEightyPercentOfTheWidthAndStaysAtTheEnd() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.width(CONTAINER_WIDTH_DP.dp).testTag(CONTAINER_TAG)) {
+				AssistantUserBubbleView(item = ChatItem.User(id = "user-3", text = LONG_TEXT, isFailed = false))
+			}
+		}
+
+		assertNodeVisible(AssistantUiTags.Message.bubble("user-3"))
+		val container = onNodeWithTag(CONTAINER_TAG).fetchSemanticsNode().boundsInRoot
+		val bubble = onNodeWithTag(AssistantUiTags.Message.bubble("user-3")).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(bubble.width <= container.width * MAX_WIDTH_FRACTION, "the bubble is ${bubble.width}px wide")
+		assertTrue(abs(container.right - bubble.right) < ALIGNMENT_TOLERANCE_DP)
+	}
+
+	@Test
 	fun when_turnFailed_then_showsItsErrorLineUnderTheBubble() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantUserBubbleView(item = ChatItem.User(id = "user-2", text = "Hola", isFailed = true))
@@ -52,5 +68,7 @@ class AssistantUserBubbleViewUiTest {
 		const val MAX_WIDTH_FRACTION = 0.8f
 		const val ALIGNMENT_TOLERANCE_DP = 1f
 		const val FAILED_TEXT = "No pudimos enviar tu mensaje."
+		const val LONG_TEXT = "Quisiera saber si puedo cambiar la sección del laboratorio de Física Dos por otra que no " +
+			"choque con mi trabajo de tiempo completo durante el próximo semestre, por favor."
 	}
 }
