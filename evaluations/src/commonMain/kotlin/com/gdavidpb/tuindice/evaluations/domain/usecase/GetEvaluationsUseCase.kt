@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionR
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -109,15 +109,14 @@ class GetEvaluationsUseCase(
 	private suspend fun observeContent(
 		displayContext: EvaluationDisplayContext
 	): Flow<GetEvaluations> {
-		return combine(
-			evaluationRepository.observeEvaluationsSnapshotFlow(),
-			evaluationsSelectionRepository.observeSelectedWeekKey()
-		) { snapshot, selectedWeekKey ->
+		// The selected week is read on each snapshot instead of observed: saving a week must not re-emit the
+		// content, and a snapshot after Empty still carries the last week the user picked.
+		return evaluationRepository.observeEvaluationsSnapshotFlow().map { snapshot ->
 			GetEvaluations.Content(
 				evaluations = snapshot.value.sortedWith(evaluationComparator),
 				hasSyncedEvaluations = snapshot.hasSynced,
 				displayContext = displayContext,
-				selectedWeekKey = selectedWeekKey
+				selectedWeekKey = evaluationsSelectionRepository.observeSelectedWeekKey().first()
 			)
 		}
 	}

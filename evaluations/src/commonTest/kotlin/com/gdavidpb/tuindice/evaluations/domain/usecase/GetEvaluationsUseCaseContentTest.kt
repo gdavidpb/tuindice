@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
@@ -235,6 +236,70 @@ class GetEvaluationsUseCaseContentTest {
 		}
 	}
 
+	// The selection is read on each snapshot instead of observed, so saving a week emits nothing by itself.
+	@Test
+	fun getEvaluationsUseCase_whenTheWeekIsSavedAfterTheFirstEmission_doesNotEmitTheContentAgain() = runTest {
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
+		val useCase = contentUseCaseOver(MutableStateFlow(listOf(DEFAULT_PENDING_EVALUATION)), selectionRepository)
+
+		useCase.execute(Unit).test {
+			assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+
+			selectionRepository.setSelectedWeekKey(SAVED_WEEK_KEY)
+			expectNoEvents()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_whenTheWeekWasSaved_theFirstEmissionCarriesIt() = runTest {
+		val selectionRepository = InMemoryEvaluationsSelectionRepository(initialWeekKey = SAVED_WEEK_KEY)
+		val useCase = contentUseCaseOver(MutableStateFlow(listOf(DEFAULT_PENDING_EVALUATION)), selectionRepository)
+
+		useCase.execute(Unit).test {
+			val first = assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
+			assertEquals(SAVED_WEEK_KEY, first.selectedWeekKey)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_whenTheSnapshotChangesAfterTheWeekIsSaved_carriesTheLatestSavedWeek() = runTest {
+		val evaluations = MutableStateFlow(listOf(DEFAULT_PENDING_EVALUATION))
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
+		val useCase = contentUseCaseOver(evaluations, selectionRepository)
+
+		useCase.execute(Unit).test {
+			assertNull(assertIs<GetEvaluations.Content>(awaitLoadingThenData(this)).selectedWeekKey)
+
+			selectionRepository.setSelectedWeekKey(SAVED_WEEK_KEY)
+			evaluations.value = listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION)
+
+			// The next emission is the snapshot's: saving the week emitted nothing in between.
+			val afterSnapshot = assertIs<GetEvaluations.Content>(
+				assertIs<UseCaseState.Data<GetEvaluations>>(awaitItem()).value
+			)
+			assertEquals(2, afterSnapshot.evaluations.size)
+			assertEquals(SAVED_WEEK_KEY, afterSnapshot.selectedWeekKey)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	private fun contentUseCaseOver(
+		evaluations: MutableStateFlow<List<Evaluation>>,
+		selectionRepository: InMemoryEvaluationsSelectionRepository
+	) = GetEvaluationsUseCase(
+		evaluationRepository = RecordingEvaluationRepository(
+			evaluationsFlow = evaluations,
+			initialEvaluations = evaluations.value
+		),
+		recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+		syncStatusRepository = RecordingSyncStatusRepository(),
+		evaluationsSelectionRepository = selectionRepository,
+		reportingRepository = RecordingReportingRepository(),
+		clock = Clock.System
+	)
+
 	private fun GetEvaluations.Content.listed(): List<Evaluation> {
 		return evaluations.listedUnder(displayContext.attempts)
 	}
@@ -358,3 +423,5 @@ private const val ONE_DAY_MILLIS = 86_400_000L
 private fun EvaluationDisplayContext.toPair(): Pair<Any?, Any?> = currentTerm to attempts
 
 private const val MAX_INTERMEDIATE_EMISSIONS = 4
+
+private const val SAVED_WEEK_KEY = "academic:2026-09-28:5"
