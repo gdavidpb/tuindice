@@ -4,7 +4,6 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.ui.keyboard.imeBottomPadding
+import com.gdavidpb.tuindice.base.ui.keyboard.imeBottomPaddingValues
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import org.jetbrains.compose.resources.pluralStringResource
@@ -80,7 +79,7 @@ fun SubjectSearchResults(
 				.fillMaxSize()
 				.testTag(SubjectsUiTags.SearchResults),
 			// The list runs behind the keyboard; its end leaves room to scroll the last result above it.
-			contentPadding = PaddingValues(bottom = 80.dp + imeBottomPadding()),
+			contentPadding = imeBottomPaddingValues(extraBottom = 80.dp),
 			verticalArrangement = Arrangement.spacedBy(10.dp)
 		) {
 			items(

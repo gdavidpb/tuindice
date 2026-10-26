@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.base.ui.keyboard
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -20,6 +21,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.abs
@@ -90,13 +93,26 @@ fun Modifier.bringRegionIntoViewOnFocus(requester: BringIntoViewRequester): Modi
 		.onFocusChanged { state -> hasFocus.value = state.hasFocus }
 }
 
-// The height the keyboard takes, to add at the end of a scrolling list or column as content padding. Scrolling
+// The padding that ends a scrolling list or column above the keyboard, with [extraBottom] more at its end. Scrolling
 // content is not shrunk above the keyboard: imePadding on its container would end it at a hard line with an empty band
 // under it, as if the screen stopped there. It keeps running behind the keyboard, as on iOS, and this padding only lets
 // its last item scroll up above the keyboard. Inputs pinned to the bottom (a composer, a submit bar) keep imePadding.
+// The keyboard's height is read when the padding is laid out, not in composition: the keyboard moves it on each frame
+// of its animation, and a read in composition would recompose the surface on each of them.
 @Composable
-fun imeBottomPadding(): Dp {
+fun imeBottomPaddingValues(extraBottom: Dp = 0.dp): PaddingValues {
 	val density = LocalDensity.current
+	val ime = WindowInsets.ime
 
-	return with(density) { WindowInsets.ime.getBottom(density).toDp() }
+	return remember(density, ime, extraBottom) {
+		object : PaddingValues {
+			override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
+
+			override fun calculateTopPadding(): Dp = 0.dp
+
+			override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
+
+			override fun calculateBottomPadding(): Dp = extraBottom + with(density) { ime.getBottom(density).toDp() }
+		}
+	}
 }

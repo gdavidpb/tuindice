@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
 import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnTap
-import com.gdavidpb.tuindice.base.ui.keyboard.imeBottomPadding
+import com.gdavidpb.tuindice.base.ui.keyboard.imeBottomPaddingValues
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
@@ -109,7 +109,7 @@ private fun ColumnScope.SubjectSearchPanel(
 					.weight(1f)
 					.dismissKeyboardOnScroll(focusManager)
 					.verticalScroll(rememberScrollState())
-					.padding(bottom = imeBottomPadding())
+					.padding(imeBottomPaddingValues())
 			)
 
 		state.hasRemoteError ->
@@ -118,7 +118,7 @@ private fun ColumnScope.SubjectSearchPanel(
 					.weight(1f)
 					.dismissKeyboardOnScroll(focusManager)
 					.verticalScroll(rememberScrollState())
-					.padding(bottom = imeBottomPadding())
+					.padding(imeBottomPaddingValues())
 			) {
 				SubjectSearchError(
 					onRetryClick = onRetryClick
