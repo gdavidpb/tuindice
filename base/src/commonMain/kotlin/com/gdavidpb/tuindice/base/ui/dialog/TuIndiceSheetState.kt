@@ -146,7 +146,9 @@ class TuIndiceSheetState internal constructor(
 			TuIndiceSheetValue.Expanded at max(topLimitPx, containerHeightPx - sheetHeightPx)
 		}
 
-		val current = currentValue
+		// The sheet keeps the anchor it moves to, not the one it last rested at. A change of height while it opens must
+		// not send it back to the foot of the window, where it waits.
+		val current = targetValue
 		val target = if (anchors.hasPositionFor(current)) current else TuIndiceSheetValue.Expanded
 
 		draggableState.updateAnchors(anchors, target)
