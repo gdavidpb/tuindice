@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -20,6 +19,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
@@ -38,10 +38,7 @@ fun PensumNodeCard(
 	isUnlockHighlighted: Boolean,
 	modifier: Modifier = Modifier
 ) {
-	val compositionProbe = LocalPensumCompositionProbe.current
-	if (compositionProbe != null) {
-		SideEffect { compositionProbe("node:${node.id}") }
-	}
+	ReportComposition("node:${node.id}")
 	val graphColors = pensumGraphColors()
 	val colors = node.toNodeColors(graphColors)
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted

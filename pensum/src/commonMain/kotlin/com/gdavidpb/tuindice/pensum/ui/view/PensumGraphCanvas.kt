@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -37,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -61,6 +59,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
@@ -83,10 +82,6 @@ import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
 
 internal val LocalPensumManualCanvasGestureActiveOverride = compositionLocalOf<Boolean?> { null }
-
-// Tests only: told the name of each part of the canvas that composes (a node card, the sticky header), so a test can
-// tell that moving the canvas does not recompose them. Null in the app.
-internal val LocalPensumCompositionProbe = staticCompositionLocalOf<((String) -> Unit)?> { null }
 
 @Composable
 fun PensumGraphCanvas(
@@ -577,10 +572,7 @@ fun PensumGraphCanvas(
 			!isFitToScreen &&
 			!isSubjectSheetVisible &&
 			!isManualCanvasGestureActive
-		val compositionProbe = LocalPensumCompositionProbe.current
-		if (compositionProbe != null) {
-			SideEffect { compositionProbe("canvas") }
-		}
+		ReportComposition("canvas")
 		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
 		// Derived, so the canvas recomposes only when the header comes or goes, or its labels switch between short and
 		// full, not on every frame of a zoom.

@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pinch
 import androidx.compose.ui.test.swipe
+import com.gdavidpb.tuindice.base.ui.LocalTuIndiceCompositionProbe
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.testing.SAMPLE_APPROVED_NODE_ID
@@ -196,7 +197,7 @@ private fun ComposeUiTest.setGraphCanvasContent(
 	isSubjectSheetVisible: Boolean = false
 ) {
 	setTuIndiceTestContent {
-		CompositionLocalProvider(LocalPensumCompositionProbe provides { name -> fixture.compositions += name }) {
+		CompositionLocalProvider(LocalTuIndiceCompositionProbe provides { name -> fixture.compositions += name }) {
 			PensumGraphCanvas(
 				model = samplePensumScreenModel(),
 				selectedNodeId = selectedNodeId,
