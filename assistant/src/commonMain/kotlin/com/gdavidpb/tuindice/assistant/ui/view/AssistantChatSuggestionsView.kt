@@ -31,34 +31,22 @@ import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import org.jetbrains.compose.resources.stringResource
-import tuindice.assistant.generated.resources.Res
-import tuindice.assistant.generated.resources.assistant_chat_suggestions_intro
 
 // The replies the student can tap instead of typing, one under the other and whole, so each reads complete (a row
-// showed one and a half of the three of a screen). [showsIntro] puts «Puedes preguntarme, por ejemplo:» above them,
-// for the chat that has no messages yet. With [entranceLeadMillis] they come in one after another, 50 ms apart,
-// starting that long after the list is composed (so after the answer they follow); without it they simply are.
+// showed one and a half of the three of a screen); their sparkle and chevron say what they are, with no line above
+// them. With [entranceLeadMillis] they come in one after another, 50 ms apart, starting that long after the list is
+// composed (so after the answer they follow); without it they simply are.
 @Composable
 fun AssistantChatSuggestionsView(
 	suggestions: List<ChatSuggestionItem>,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier,
-	showsIntro: Boolean = false,
 	entranceLeadMillis: Int? = null
 ) {
 	Column(
 		modifier = modifier.fillMaxWidth(),
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		if (showsIntro) {
-			Text(
-				text = stringResource(Res.string.assistant_chat_suggestions_intro),
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				modifier = Modifier.padding(start = TuIndiceSpacing.XSmall)
-			)
-		}
 		suggestions.forEachIndexed { index, suggestion ->
 			// Keyed by id, so a new set of replies enters as new, and one kept from the last set stays as it was.
 			key(suggestion.id) {

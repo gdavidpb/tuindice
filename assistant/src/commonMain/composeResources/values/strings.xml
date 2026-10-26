@@ -36,8 +36,7 @@
 	<string name="assistant_intent_receipt_added_many">Se agregaron %1$d evaluaciones</string>
 	<string name="assistant_intent_receipt_partial">%1$d de %2$d agregadas</string>
 	<string name="assistant_chat_title">Asistente</string>
-	<string name="assistant_chat_context_caption">Sobre esta pantalla</string>
-	<string name="assistant_chat_suggestions_intro">Puedes preguntarme, por ejemplo:</string>
+	<string name="assistant_chat_context_caption">Pregúntame sobre</string>
 	<string name="assistant_consent_title">Antes de usar el asistente</string>
 	<string name="assistant_consent_failed">No pudimos guardar tu consentimiento. Inténtalo de nuevo.</string>
 	<string name="assistant_consent_scope">Responde tus preguntas sobre tu historial académico y solo propone cambios: los hace si tú los confirmas.</string>

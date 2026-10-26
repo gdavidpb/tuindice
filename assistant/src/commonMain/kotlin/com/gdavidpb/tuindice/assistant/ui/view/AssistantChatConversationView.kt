@@ -221,7 +221,6 @@ private fun AssistantChatStatusView(
 			AssistantChatSuggestionsView(
 				suggestions = it,
 				onAction = onAction,
-				showsIntro = content.items.isEmpty(),
 				entranceLeadMillis = suggestionsLeadMillis.takeIf { suggestionsHaveGone.value }
 			)
 		}

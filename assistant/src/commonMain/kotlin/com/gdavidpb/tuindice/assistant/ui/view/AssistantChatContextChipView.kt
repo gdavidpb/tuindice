@@ -41,7 +41,7 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.a11y_assistant_remove_context
 import tuindice.assistant.generated.resources.assistant_chat_context_caption
 
-// The screen the sheet was opened from, as a card the student can remove. A caption above it («Sobre esta pantalla»)
+// The screen the sheet was opened from, as a card the student can remove. A caption above it («Pregúntame sobre»)
 // and the screen's icon inside it say what the card is: the screen the assistant answers about, not a filter. It has
 // the container of the suggestions (AssistantChatSuggestionsView) and their full width, so it reads as part of the chat
 // and not as a message of the student, whose bubbles are rounded and sit at the end.

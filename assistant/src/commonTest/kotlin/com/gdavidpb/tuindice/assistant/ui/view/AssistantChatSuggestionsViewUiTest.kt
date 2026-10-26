@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
@@ -39,28 +40,23 @@ class AssistantChatSuggestionsViewUiTest {
 	}
 
 	@Test
-	fun when_theChatHasNoMessages_then_theIntroSitsAboveTheSuggestions() = runTuIndiceUiTest {
+	fun when_suggestionsAreShown_then_nothingSitsAboveTheFirst() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatSuggestionsView(suggestions = SUGGESTIONS, onAction = {}, showsIntro = true)
+			AssistantChatSuggestionsView(
+				suggestions = SUGGESTIONS,
+				onAction = {},
+				modifier = Modifier.testTag(LIST_TAG)
+			)
 		}
 
-		val intro = onNodeWithText(INTRO_TEXT).fetchSemanticsNode().boundsInRoot
+		val list = onNodeWithTag(LIST_TAG).fetchSemanticsNode().boundsInRoot
 		val first = onNodeWithTag(AssistantUiTags.Chat.suggestion(SUGGESTIONS.first().id)).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(intro.bottom <= first.top)
-	}
-
-	@Test
-	fun when_suggestionsFollowAnAnswer_then_theIntroIsNotShown() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			AssistantChatSuggestionsView(suggestions = SUGGESTIONS, onAction = {})
-		}
-
-		onNodeWithText(INTRO_TEXT).assertDoesNotExist()
+		assertEquals(list.top, first.top)
 	}
 
 	private companion object {
-		const val INTRO_TEXT = "Puedes preguntarme, por ejemplo:"
+		const val LIST_TAG = "suggestions"
 		val SUGGESTIONS = listOf(
 			ChatSuggestionItem(id = "sq.record.last", label = "¿Cómo me fue en el último trimestre?"),
 			ChatSuggestionItem(id = "sq.record.simulate", label = "Simula mis notas de este trimestre"),

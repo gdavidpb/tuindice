@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatContextChipViewUiTest {
 	@Test
-	fun when_theChipIsShown_then_theCaptionSobreEstaPantallaSitsAboveIt() = runTuIndiceUiTest {
+	fun when_theChipIsShown_then_theCaptionPreguntameSobreSitsAboveIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContextChipView(item = contextChip(), onAction = {})
 		}
@@ -57,7 +57,7 @@ class AssistantChatContextChipViewUiTest {
 		onNodeWithTag(AssistantUiTags.ContextChip).fetchSemanticsNode().boundsInRoot
 
 	private companion object {
-		const val CAPTION_TEXT = "Sobre esta pantalla"
+		const val CAPTION_TEXT = "Pregúntame sobre"
 		val START_MARGIN = 12.dp
 		val ICON_SIZE = 20.dp
 		val ICON_GAP = 12.dp
