@@ -140,8 +140,8 @@ class RecordTermChangeCompositionUiTest {
 	private companion object {
 		const val HistoricalTermId = "historical-2025"
 		const val CurrentTermId = "current-2026"
-		const val HistoricalCard = "term-card:attempt-historical"
-		const val CurrentCard = "term-card:attempt-current"
+		const val HistoricalCard = "record-attempt-card:attempt-historical"
+		const val CurrentCard = "record-attempt-card:attempt-current"
 
 		// A cold start of the view model plus the first resource load on the simulator.
 		const val StateTimeoutMillis = 15_000L

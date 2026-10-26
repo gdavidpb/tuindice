@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.ui.LocalTuIndiceCompositionProbe
@@ -26,8 +27,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// The probe names the parts that compose: the record, and each card of a term. A number that animates must compose
-// none of them for its frames, only once for the data that started it.
+// The probe names the parts that compose: the record, each card of a term and the term selector. A number that
+// animates must compose none of them for its frames, only once for the data that started it.
 @OptIn(ExperimentalTestApi::class)
 class RecordContentCompositionUiTest {
 	@Test
@@ -55,21 +56,26 @@ class RecordContentCompositionUiTest {
 		val settled = compositions.countsByName()
 
 		// The average falls from 4 to 2. The new data is composed on the first frame after the change, which also starts
-		// the animation: the record and its card compose once each for it, no more.
+		// the animation: the record, its card and the selector compose once each for it, no more.
 		grade = 2
 		mainClock.advanceTimeByFrame()
 		waitForIdle()
 		val changed = compositions.countsByName()
+		val card = "record-attempt-card:attempt-term-b"
 		assertTrue(
 			changed.getValue("record-content") - settled.getValue("record-content") <= 1,
 			"the record composes once for the new data"
 		)
 		assertTrue(
-			changed.getValue("term-card:attempt-term-b") - settled.getValue("term-card:attempt-term-b") <= 1,
+			changed.getValue(card) - settled.getValue(card) <= 1,
 			"the card composes once for the new data"
 		)
+		assertTrue(
+			changed.getValue("record-term-selector") - settled.getValue("record-term-selector") <= 1,
+			"the selector composes once for the new data"
+		)
 
-		// The number moves over the frames, and none of those frames composes the record or the card.
+		// The number moves over the frames, and none of those frames composes the record, the card or the selector.
 		repeat(4) { mainClock.advanceTimeByFrame() }
 		waitForIdle()
 		val fiveFrames = compositions.countsByName()
@@ -78,8 +84,12 @@ class RecordContentCompositionUiTest {
 		waitForIdle()
 		val animated = compositions.countsByName()
 
-		assertEquals(changed, fiveFrames, "frames two to five compose neither the record nor the card")
-		assertEquals(fiveFrames, animated, "the rest of the animation composes neither the record nor the card")
+		assertEquals(changed, fiveFrames, "frames two to five compose neither the record, the card nor the selector")
+		assertEquals(
+			fiveFrames,
+			animated,
+			"the rest of the animation composes neither the record, the card nor the selector"
+		)
 		onNodeWithText("Δx 2.0000").assertIsDisplayed()
 	}
 
@@ -104,6 +114,73 @@ class RecordContentCompositionUiTest {
 		onNodeWithText("Δx 4.0000").assertIsDisplayed()
 	}
 
+	@Test
+	fun when_aGestureOverridesAGradeInFlight_then_itsAverageAnimatesWithoutRecomposingAnyPart() = runTuIndiceUiTest {
+		val compositions = mutableListOf<String>()
+		val probe: (String) -> Unit = { name -> compositions += name }
+		// The record is the same instance for the whole test, so only the in-flight selection changes.
+		val record = currentTermRecord()
+		var inFlightSelection by mutableStateOf<Record.State.InFlightSelection?>(null)
+		mainClock.autoAdvance = false
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceCompositionProbe provides probe) {
+				Content(state = inFlightContentState(record, inFlightSelection))
+			}
+		}
+
+		// The screen's own start, with its first frame, is counted before the gesture: it is not part of it.
+		waitForIdle()
+		mainClock.advanceTimeByFrame()
+		waitForIdle()
+		val settled = compositions.countsByName()
+		onNodeWithText("Δx 4.0000").assertIsDisplayed()
+
+		// The gesture takes the grade from 4 to 2 while it is in flight: the projection is redone once for it,
+		// and the new numbers compose on the first frame after the change, which also starts the animation.
+		inFlightSelection = Record.State.InFlightSelection(
+			override = AttemptOverride(
+				attemptId = "attempt-term-b",
+				score = AttemptScore.numeric(2),
+				updatedAtMillis = 0L
+			),
+			isCommitted = false
+		)
+		mainClock.advanceTimeByFrame()
+		waitForIdle()
+		val changed = compositions.countsByName()
+		val card = "record-attempt-card:attempt-term-b"
+		assertTrue(
+			changed.getValue("record-content") - settled.getValue("record-content") <= 1,
+			"the record composes once for the new projection"
+		)
+		assertTrue(
+			changed.getValue(card) - settled.getValue(card) <= 1,
+			"the card composes once for the new projection"
+		)
+		assertTrue(
+			changed.getValue("record-term-selector") - settled.getValue("record-term-selector") <= 1,
+			"the selector composes once for the new projection"
+		)
+
+		// The number moves over the frames, and none of those frames composes the record, the card or the selector.
+		repeat(4) { mainClock.advanceTimeByFrame() }
+		waitForIdle()
+		val fiveFrames = compositions.countsByName()
+		onAllNodesWithText("Δx 4.0000").assertCountEquals(0)
+		repeat(60) { mainClock.advanceTimeByFrame() }
+		waitForIdle()
+		val animated = compositions.countsByName()
+
+		assertEquals(changed, fiveFrames, "frames two to five compose neither the record, the card nor the selector")
+		assertEquals(
+			fiveFrames,
+			animated,
+			"the rest of the animation composes neither the record, the card nor the selector"
+		)
+		onNodeWithText("Δx 2.0000").assertIsDisplayed()
+	}
+
 	@Composable
 	private fun Content(state: Record.State.Content) {
 		RecordContentView(
@@ -125,6 +202,32 @@ class RecordContentCompositionUiTest {
 		viewMode = RecordViewMode.Historical,
 		record = AcademicRecord(id = "record", terms = terms),
 		selectedTermId = selectedTermId
+	)
+
+	// The projection with a gesture's selection in flight: the record stays the same, only the selection changes.
+	private fun inFlightContentState(
+		record: AcademicRecord,
+		inFlightSelection: Record.State.InFlightSelection?
+	) = Record.State.Content(
+		viewMode = RecordViewMode.Projection,
+		record = record,
+		selectedTermId = "term-b",
+		inFlightSelection = inFlightSelection
+	)
+
+	// A current term, the one a gesture moves in the projection: a historical term keeps its recorded average there.
+	private fun currentTermRecord() = AcademicRecord(
+		id = "record",
+		terms = listOf(
+			academicTerm(
+				id = "term-b",
+				kind = TermKind.CURRENT,
+				periodYear = 2026,
+				attempts = listOf(
+					academicAttempt(subjectCode = "MA1112", id = "attempt-term-b", score = AttemptScore.numeric(4))
+				)
+			)
+		)
 	)
 
 	// A term with one subject of four credits, graded as given: its average is that grade.

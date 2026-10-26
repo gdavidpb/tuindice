@@ -37,7 +37,7 @@ fun AttemptCardItemView(
 	// The arrival highlight a jump plays on this card, while it plays.
 	arrivalHighlight: AttemptArrivalHighlight? = null
 ) {
-	ReportComposition("term-card", item.attemptId)
+	ReportComposition("record-attempt-card", item.attemptId)
 
 	// A tap on the card opens its actions, as an evaluation's card does: «Preguntar sobre esto» asks the assistant about
 	// this subject. Without a way to reach the assistant the card has no actions and does not take the tap.

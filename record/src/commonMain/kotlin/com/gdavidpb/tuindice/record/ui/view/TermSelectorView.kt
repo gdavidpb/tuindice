@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.view.PeekingSelectorView
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -30,6 +31,8 @@ fun TermSelectorView(
 	selectedTermId: String?,
 	onTermSelected: (termId: String) -> Unit
 ) {
+	ReportComposition("record-term-selector")
+
 	PeekingSelectorView(
 		modifier = modifier
 			.fillMaxWidth()
