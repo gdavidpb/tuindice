@@ -44,6 +44,10 @@ class EvaluationSwipeRecompositionUiTest {
 			onAllNodesWithTag(EvaluationsUiTags.EvaluationSwipeEditAction).fetchSemanticsNodes().isNotEmpty()
 		}
 
+		// The actions appear as the opening tween crosses the threshold, and the tween runs on after that.
+		mainClock.advanceTimeBy(200)
+		waitForIdle()
+
 		val swipeDuringOpen = reports.countOf(swipeReport) - swipeBefore
 		val rowDuringOpen = reports.countOf(rowReport) - rowBefore
 
@@ -76,6 +80,10 @@ class EvaluationSwipeRecompositionUiTest {
 		waitUntil(timeoutMillis = 2_000) {
 			onAllNodesWithTag(EvaluationsUiTags.EvaluationSwipeEditAction).fetchSemanticsNodes().isEmpty()
 		}
+
+		// The actions go as the closing tween crosses the threshold, and the tween runs on after that.
+		mainClock.advanceTimeBy(200)
+		waitForIdle()
 
 		val swipeDuringClose = reports.countOf(swipeReport) - swipeBefore
 		val rowDuringClose = reports.countOf(rowReport) - rowBefore

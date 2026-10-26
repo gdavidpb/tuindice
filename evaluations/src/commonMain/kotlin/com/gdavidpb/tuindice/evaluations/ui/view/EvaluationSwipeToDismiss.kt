@@ -117,23 +117,28 @@ fun EvaluationSwipeToDismiss(
 }
 
 // The drag moves the row's offset with each event, so no event launches a coroutine. A drag that starts while an
-// animation runs takes over from it, and the drag ends by opening or closing the row.
+// animation runs takes over from it, and the drag ends by opening or closing the row. A cancelled drag settles the
+// same way, so the row does not stay half open.
 private fun Modifier.dragToReveal(
 	offset: SwipeOffset,
 	actionsWidthPx: Float,
 	scope: CoroutineScope
-): Modifier = pointerInput(actionsWidthPx) {
+): Modifier = pointerInput(actionsWidthPx, offset) {
+	// Opens the row from half of the actions on and closes it before that, whether the drag ends or is cancelled.
+	fun settle() {
+		offset.animateTo(
+			scope = scope,
+			target = if (offset.value <= -actionsWidthPx / 2f) -actionsWidthPx else 0f
+		)
+	}
+
 	detectHorizontalDragGestures(
 		onDragStart = { offset.cancelAnimation() },
 		onHorizontalDrag = { _, dragAmount ->
 			offset.value = (offset.value + dragAmount).coerceIn(-actionsWidthPx, 0f)
 		},
-		onDragEnd = {
-			offset.animateTo(
-				scope = scope,
-				target = if (offset.value <= -actionsWidthPx / 2f) -actionsWidthPx else 0f
-			)
-		}
+		onDragEnd = { settle() },
+		onDragCancel = { settle() }
 	)
 }
 
