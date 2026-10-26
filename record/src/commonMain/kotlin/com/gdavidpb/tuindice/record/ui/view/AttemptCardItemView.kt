@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.view.AskAssistantMenuItemView
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
@@ -36,6 +37,8 @@ fun AttemptCardItemView(
 	// The arrival highlight a jump plays on this card, while it plays.
 	arrivalHighlight: AttemptArrivalHighlight? = null
 ) {
+	ReportComposition("term-card", item.attemptId)
+
 	// A tap on the card opens its actions, as an evaluation's card does: «Preguntar sobre esto» asks the assistant about
 	// this subject. Without a way to reach the assistant the card has no actions and does not take the tap.
 	val isMenuExpanded = remember { mutableStateOf(false) }

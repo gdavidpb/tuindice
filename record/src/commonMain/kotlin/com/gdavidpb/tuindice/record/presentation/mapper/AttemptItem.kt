@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -16,22 +14,21 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
-@Composable
 fun AttemptProjection.toAttemptItem(
 	isReadOnly: Boolean,
 	texts: RecordMapperTexts,
 	termLabel: String? = null
-): AttemptItem = remember(subjectCode) { CourseCodeColorGenerator.fromCode(subjectCode) }.let { subjectColors ->
+): AttemptItem = CourseCodeColorGenerator.fromCode(subjectCode).let { subjectColors ->
 	val resolvedOutcome = outcome.takeUnless { candidate -> candidate == AttemptOutcome.PENDING }
 	val numericGrade = score.numericValue ?: MIN_SUBJECT_GRADE
 	val gradeText = if (
 		(this.gradingMode == AttemptGradingMode.NUMERIC) &&
-		(
-			(numericGrade != MIN_SUBJECT_GRADE) ||
-				(resolvedOutcome == AttemptOutcome.UNREPORTED)
-			) &&
-		(resolvedOutcome != AttemptOutcome.RETIRED) &&
-		(score !is AttemptScore.Empty || resolvedOutcome == AttemptOutcome.UNREPORTED)
+			(
+				(numericGrade != MIN_SUBJECT_GRADE) ||
+					(resolvedOutcome == AttemptOutcome.UNREPORTED)
+				) &&
+			(resolvedOutcome != AttemptOutcome.RETIRED) &&
+			(score !is AttemptScore.Empty || resolvedOutcome == AttemptOutcome.UNREPORTED)
 	)
 		texts.termAttemptGrade(numericGrade)
 	else

@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.filter
 fun RecordTermPagerView(
 	modifier: Modifier = Modifier,
 	terms: List<TermItem>,
+	texts: RecordMapperTexts,
 	notice: RecordNotice? = null,
 	selectedTermId: String,
 	actions: RecordActions,
@@ -110,6 +112,7 @@ fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
+				texts = texts,
 				actions = actions,
 				onScrollInProgressChange = { isScrollInProgress ->
 					listScrollInProgress.value = isScrollInProgress

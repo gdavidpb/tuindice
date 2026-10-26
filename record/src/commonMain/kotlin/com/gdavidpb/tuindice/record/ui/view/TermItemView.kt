@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.RecordActions
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.record.ui.model.RecordActions
 fun TermItemView(
 	modifier: Modifier = Modifier,
 	item: TermItem,
+	texts: RecordMapperTexts,
 	actions: RecordActions,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
@@ -42,7 +44,8 @@ fun TermItemView(
 			modifier = Modifier
 				.fillMaxWidth()
 				.testTag(RecordUiTags.SelectedTermSummary),
-			item = item
+			item = item,
+			texts = texts
 		)
 
 		SelectedTermView(

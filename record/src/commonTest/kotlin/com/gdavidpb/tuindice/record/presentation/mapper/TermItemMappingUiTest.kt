@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
@@ -14,6 +17,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
+import com.gdavidpb.tuindice.record.ui.view.TermSummaryContent
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -30,15 +34,16 @@ class TermItemMappingUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
-			item = termProjection(
+			val mapped = termProjection(
 				periodAverage = 4.25,
 				cumulativeAverage = 3.5,
 				periodCredits = 12
 			).toTermItem(
 				viewMode = RecordViewMode.Projection,
-				texts = mapperTexts(),
-				highlightColor = Color.Red
+				texts = mapperTexts()
 			)
+			item = mapped
+			TermSummaryContent(item = mapped, texts = mapperTexts())
 		}
 
 		val mapped = assertNotNull(item)
@@ -50,13 +55,20 @@ class TermItemMappingUiTest {
 		assertFalse(mapped.isCurrent)
 		assertTrue(mapped.canDelete)
 		assertTrue(mapped.canEdit)
-		assertEquals("4.25 prom", mapped.gradeText.text)
-		assertEquals("3.5 acum", mapped.gradeSumText.text)
-		assertEquals("12 UC", mapped.creditsText.text)
-		assertNull(mapped.gradeDelta)
-		assertNull(mapped.gradeSumDelta)
-		assertNull(mapped.creditsDelta)
+		assertEquals(4.25f, mapped.gradeTarget)
+		assertEquals(3.5f, mapped.gradeSumTarget)
+		assertEquals(12, mapped.creditsTarget)
+		assertNull(mapped.previousGradeTarget)
+		assertNull(mapped.previousGradeSumTarget)
+		assertNull(mapped.previousCreditsTarget)
 		assertFalse(mapped.attempts.single().isReadOnly)
+
+		// What the summary shows of them, with no change under any of them.
+		onNodeWithText("4.25 prom").assertIsDisplayed()
+		onNodeWithText("3.5 acum").assertIsDisplayed()
+		onNodeWithText("12 UC").assertIsDisplayed()
+		onAllNodesWithText("▲", substring = true).assertCountEquals(0)
+		onAllNodesWithText("▼", substring = true).assertCountEquals(0)
 	}
 
 	@Test
@@ -64,14 +76,13 @@ class TermItemMappingUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
-			item = termProjection(
+			val mapped = termProjection(
 				periodAverage = 4.0,
 				cumulativeAverage = 4.0,
 				periodCredits = 12
 			).toTermItem(
 				viewMode = RecordViewMode.Projection,
 				texts = mapperTexts(),
-				highlightColor = Color.Red,
 				previousTerm = termProjection(
 					id = "term-0",
 					periodYear = 2026,
@@ -80,21 +91,23 @@ class TermItemMappingUiTest {
 					periodCredits = 15
 				)
 			)
+			item = mapped
+			TermSummaryContent(item = mapped, texts = mapperTexts())
 		}
 
 		val mapped = assertNotNull(item)
+		// Each change is measured from the older term's own value.
+		assertEquals(3.5f, mapped.previousGradeTarget)
+		assertEquals(4.0f, mapped.previousGradeSumTarget)
+		assertEquals(15, mapped.previousCreditsTarget)
 
-		val gradeDelta = assertNotNull(mapped.gradeDelta)
-		assertEquals("▲ 0.5000", gradeDelta.text)
-		assertEquals(TermMetricDeltaTone.Positive, gradeDelta.tone)
-
-		val gradeSumDelta = assertNotNull(mapped.gradeSumDelta)
-		assertEquals("0.0000", gradeSumDelta.text)
-		assertEquals(TermMetricDeltaTone.Neutral, gradeSumDelta.tone)
-
-		val creditsDelta = assertNotNull(mapped.creditsDelta)
-		assertEquals("▼ 3", creditsDelta.text)
-		assertEquals(TermMetricDeltaTone.Informational, creditsDelta.tone)
+		onNodeWithText("▲ 0.5000").assertIsDisplayed()
+		onNodeWithText("0.0000").assertIsDisplayed()
+		onNodeWithText("▼ 3").assertIsDisplayed()
+		// Each change takes the tone its sign and size give it.
+		assertEquals(TermMetricDeltaTone.Positive, 0.5f.toTermMetricDelta().tone)
+		assertEquals(TermMetricDeltaTone.Neutral, 0f.toTermMetricDelta().tone)
+		assertEquals(TermMetricDeltaTone.Informational, (-3).toCreditsTermMetricDelta().tone)
 	}
 
 	@Test
@@ -102,14 +115,13 @@ class TermItemMappingUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
-			item = termProjection(
+			val mapped = termProjection(
 				periodAverage = 3.0,
 				cumulativeAverage = 3.5,
 				periodCredits = 12
 			).toTermItem(
 				viewMode = RecordViewMode.Projection,
 				texts = mapperTexts(),
-				highlightColor = Color.Red,
 				previousTerm = termProjection(
 					id = "term-0",
 					periodYear = 2026,
@@ -118,17 +130,18 @@ class TermItemMappingUiTest {
 					periodCredits = 12
 				)
 			)
+			item = mapped
+			TermSummaryContent(item = mapped, texts = mapperTexts())
 		}
 
 		val mapped = assertNotNull(item)
+		assertEquals(3.5f, mapped.previousGradeTarget)
+		assertEquals(12, mapped.previousCreditsTarget)
 
-		val gradeDelta = assertNotNull(mapped.gradeDelta)
-		assertEquals("▼ 0.5000", gradeDelta.text)
-		assertEquals(TermMetricDeltaTone.Negative, gradeDelta.tone)
-
-		val creditsDelta = assertNotNull(mapped.creditsDelta)
-		assertEquals("0", creditsDelta.text)
-		assertEquals(TermMetricDeltaTone.Informational, creditsDelta.tone)
+		onNodeWithText("▼ 0.5000").assertIsDisplayed()
+		onNodeWithText("0").assertIsDisplayed()
+		assertEquals(TermMetricDeltaTone.Negative, (-0.5f).toTermMetricDelta().tone)
+		assertEquals(TermMetricDeltaTone.Informational, 0.toCreditsTermMetricDelta().tone)
 	}
 
 	@Test
@@ -136,20 +149,23 @@ class TermItemMappingUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
-			item = termProjection(
+			val mapped = termProjection(
 				attempts = emptyList()
 			).toTermItem(
 				viewMode = RecordViewMode.Projection,
 				texts = mapperTexts(),
-				highlightColor = Color.Red,
 				previousTerm = termProjection(id = "term-0", periodYear = 2026)
 			)
+			item = mapped
+			TermSummaryContent(item = mapped, texts = mapperTexts())
 		}
 
 		val mapped = assertNotNull(item)
-		assertNull(mapped.gradeDelta)
-		assertNull(mapped.gradeSumDelta)
-		assertNull(mapped.creditsDelta)
+		assertNull(mapped.previousGradeTarget)
+		assertNull(mapped.previousGradeSumTarget)
+		assertNull(mapped.previousCreditsTarget)
+		onAllNodesWithText("▲", substring = true).assertCountEquals(0)
+		onAllNodesWithText("▼", substring = true).assertCountEquals(0)
 	}
 
 	@Test
@@ -161,8 +177,7 @@ class TermItemMappingUiTest {
 				kind = TermKind.CURRENT
 			).toTermItem(
 				viewMode = RecordViewMode.Historical,
-				texts = mapperTexts(),
-				highlightColor = Color.Red
+				texts = mapperTexts()
 			)
 		}
 
@@ -179,7 +194,7 @@ class TermItemMappingUiTest {
 		var items: List<TermItem>? = null
 
 		setTuIndiceTestContent {
-			items = listOf(
+			val mapped = listOf(
 				termProjection(
 					id = "new",
 					periodYear = 2027,
@@ -192,17 +207,18 @@ class TermItemMappingUiTest {
 				)
 			).toTermItemList(
 				viewMode = RecordViewMode.Projection,
-				texts = mapperTexts(),
-				highlightColor = Color.Red
+				texts = mapperTexts()
 			)
+			items = mapped
+			TermSummaryContent(item = mapped.first(), texts = mapperTexts())
 		}
 
 		val mapped = assertNotNull(items)
 		assertEquals(listOf("new", "old"), mapped.map(TermItem::termId))
 
-		val newestDelta = assertNotNull(mapped.first().gradeDelta)
-		assertEquals("▲ 0.5000", newestDelta.text)
-		assertNull(mapped.last().gradeDelta)
+		assertEquals(3.5f, mapped.first().previousGradeTarget)
+		assertNull(mapped.last().previousGradeTarget)
+		onNodeWithText("▲ 0.5000").assertIsDisplayed()
 	}
 
 	private fun mapperTexts(): RecordMapperTexts {

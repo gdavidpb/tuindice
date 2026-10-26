@@ -18,8 +18,10 @@ import com.gdavidpb.tuindice.base.ui.dialog.TuIndiceModalBottomSheet
 import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_selection_mode_historical_description
@@ -32,8 +34,8 @@ fun TermSelectionBottomSheet(
 	terms: List<TermItem>,
 	selectedTermId: String,
 	viewMode: RecordViewMode,
-	onTermSelected: (termId: String) -> Unit,
-	onDismissRequest: () -> Unit
+	texts: RecordMapperTexts,
+	actions: RecordActions
 ) {
 	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 	val termsByYear = terms
@@ -50,7 +52,7 @@ fun TermSelectionBottomSheet(
 			.exposeTestTagsAsResourceId()
 			.testTag(RecordUiTags.TermSelectionSheet),
 		sheetState = sheetState,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = actions.onDismissTermSelection
 	) {
 		Column(
 			modifier = Modifier
@@ -94,11 +96,12 @@ fun TermSelectionBottomSheet(
 					) { term ->
 						TermSelectionTermRowView(
 							term = term,
+							texts = texts,
 							isSelected = term.termId == selectedTermId,
 							selectedContentDescription = selectedContentDescription,
 							onClick = {
-								onTermSelected(term.termId)
-								onDismissRequest()
+								actions.onSelectedTermChange(term.termId)
+								actions.onDismissTermSelection()
 							}
 						)
 					}

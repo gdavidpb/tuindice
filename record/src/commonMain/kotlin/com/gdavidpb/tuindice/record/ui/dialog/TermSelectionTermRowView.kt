@@ -26,9 +26,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.view.AnimatedTermCreditsMetric
+import com.gdavidpb.tuindice.record.ui.view.AnimatedTermGradeMetric
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_selection_kind_current
@@ -38,6 +41,7 @@ import tuindice.record.generated.resources.term_selection_kind_projection
 @Composable
 fun TermSelectionTermRowView(
 	term: TermItem,
+	texts: RecordMapperTexts,
 	isSelected: Boolean,
 	selectedContentDescription: String,
 	onClick: () -> Unit
@@ -112,21 +116,33 @@ fun TermSelectionTermRowView(
 					)
 				}
 
-				Text(
-					text = term.gradeSumText,
-					style = MaterialTheme.typography.labelMedium,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
+				AnimatedTermGradeMetric(
+					target = term.gradeSumTarget,
+					format = texts.termGradeSum,
+					label = "animatedTermGradeSum"
+				) { value, _ ->
+					Text(
+						text = value,
+						style = MaterialTheme.typography.labelMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+				}
 
-				Text(
-					text = term.creditsText,
-					style = MaterialTheme.typography.labelMedium,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
+				AnimatedTermCreditsMetric(
+					target = term.creditsTarget,
+					format = texts.termCredits,
+					label = "animatedTermCredits"
+				) { value, _ ->
+					Text(
+						text = value,
+						style = MaterialTheme.typography.labelMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+				}
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.testing.termItem
 import com.gdavidpb.tuindice.record.testing.textLayout
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.view.rememberRecordMapperTexts
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -30,6 +31,7 @@ class TermSelectionTermRowViewUiTest {
 		setTuIndiceTestContent {
 			TermSelectionTermRowView(
 				term = termItem(termId = "current-2026", kind = TermItemKind.CURRENT),
+				texts = rememberRecordMapperTexts(),
 				isSelected = true,
 				selectedContentDescription = "Trimestre seleccionado",
 				onClick = {}
@@ -56,6 +58,7 @@ class TermSelectionTermRowViewUiTest {
 		setTuIndiceTestContent {
 			TermSelectionTermRowView(
 				term = termItem(termId = "historical-2024", shortNameText = "Ene - Mar 2024"),
+				texts = rememberRecordMapperTexts(),
 				isSelected = false,
 				selectedContentDescription = "Trimestre seleccionado",
 				onClick = {}
@@ -73,10 +76,13 @@ class TermSelectionTermRowViewUiTest {
 	@Test
 	fun when_termsOfEachKindAreListed_then_eachRowNamesItsKind() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
+			val texts = rememberRecordMapperTexts()
+
 			Column {
 				TermItemKind.entries.forEach { kind ->
 					TermSelectionTermRowView(
 						term = termItem(termId = kind.name, kind = kind),
+						texts = texts,
 						isSelected = false,
 						selectedContentDescription = "Trimestre seleccionado",
 						onClick = {}
@@ -103,6 +109,7 @@ class TermSelectionTermRowViewUiTest {
 		setTuIndiceTestContent {
 			TermSelectionTermRowView(
 				term = termItem(termId = "synthetic-2027", kind = TermItemKind.SYNTHETIC),
+				texts = rememberRecordMapperTexts(),
 				isSelected = false,
 				selectedContentDescription = "Trimestre seleccionado",
 				onClick = { clicks++ }

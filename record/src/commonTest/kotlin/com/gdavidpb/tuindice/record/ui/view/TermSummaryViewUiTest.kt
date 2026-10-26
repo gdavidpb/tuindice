@@ -12,10 +12,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
-import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
 import com.gdavidpb.tuindice.record.testing.termItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -31,7 +28,8 @@ class TermSummaryViewUiTest {
 		setTuIndiceTestContent {
 			TermSummaryView(
 				modifier = Modifier.testTag(RecordUiTags.SelectedTermSummary),
-				item = termItem()
+				item = termItem(),
+				texts = rememberRecordMapperTexts()
 			)
 		}
 
@@ -54,17 +52,14 @@ class TermSummaryViewUiTest {
 		var item by mutableStateOf(termItem())
 
 		setTuIndiceTestContent {
-			TermSummaryView(item = item)
+			TermSummaryView(item = item, texts = rememberRecordMapperTexts())
 		}
 
 		onNodeWithText("Δx 4.0000").assertIsDisplayed()
 		onAllNodesWithText("▲", substring = true).assertCountEquals(0)
 
-		// Paging to a newer term: the same view is handed another item.
-		item = termItem().copy(
-			gradeText = AnnotatedString("Δx 4.5000"),
-			gradeDelta = TermMetricDelta(text = "▲ 0.5000", tone = TermMetricDeltaTone.Positive)
-		)
+		// Paging to a newer term: the same view is handed another item, measured against the older one.
+		item = termItem().copy(gradeTarget = 4.5f, previousGradeTarget = 4.0f)
 		waitForIdle()
 
 		onNodeWithText("Δx 4.5000").assertIsDisplayed()
