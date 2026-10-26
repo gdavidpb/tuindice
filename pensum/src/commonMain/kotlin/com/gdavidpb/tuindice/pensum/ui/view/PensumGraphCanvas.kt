@@ -38,7 +38,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -572,7 +571,7 @@ fun PensumGraphCanvas(
 			!isFitToScreen &&
 			!isSubjectSheetVisible &&
 			!isManualCanvasGestureActive
-		ReportComposition("canvas")
+		ReportComposition("pensum-canvas")
 		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
 		// Derived, so the canvas recomposes only when the header comes or goes, or its labels switch between short and
 		// full, not on every frame of a zoom.
@@ -738,7 +737,7 @@ fun PensumGraphCanvas(
 								.offset(x = node.x.dp, y = node.y.dp)
 								.size(width = node.width.dp, height = node.height.dp)
 								.zIndex(if (isNodeDimmed) 0f else 2f)
-								.then(if (isNodeDimmed) Modifier.alpha(DIMMED_NODE_ALPHA) else Modifier)
+								.then(if (isNodeDimmed) Modifier.graphicsLayer { alpha = DIMMED_NODE_ALPHA } else Modifier)
 								.clickable(onClick = onClick)
 								.testTag(PensumUiTags.node(node.id))
 						)

@@ -43,7 +43,7 @@ fun PensumStickyTermHeader(
 	onTermClick: (termId: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	ReportComposition("header")
+	ReportComposition("pensum-header")
 	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
 	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)

@@ -132,8 +132,11 @@ class PensumGraphCanvasUiTest {
 		setGraphCanvasContent(fixture = fixture)
 		waitForIdle()
 		val offsetBefore = fixture.sessionState.canvasOffsetX to fixture.sessionState.canvasOffsetY
-		assertTrue(fixture.compositions.any { name -> name.startsWith("node:") }, "The probe must see the first composition.")
-		assertTrue("header" in fixture.compositions, "The sticky header must show at the initial zoom.")
+		assertTrue(
+			fixture.compositions.any { name -> name.startsWith("pensum-node:") },
+			"The probe must see the first composition."
+		)
+		assertTrue("pensum-header" in fixture.compositions, "The sticky header must show at the initial zoom.")
 		fixture.compositions.clear()
 
 		onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
@@ -173,12 +176,12 @@ class PensumGraphCanvasUiTest {
 	}
 }
 
-// The canvas recomposes at most at the start and at the end of a gesture (to hide and show its overlays), never on
-// its frames, and the node cards and the sticky header never do.
+// The canvas ("pensum-canvas") recomposes at most at the start and at the end of a gesture (to hide and show its
+// overlays), never on its frames, and the node cards ("pensum-node") and the sticky header ("pensum-header") never do.
 private fun assertMovedWithoutRecomposingPerFrame(compositions: List<String>) {
-	assertEquals(emptyList(), compositions.filterNot { name -> name == "canvas" })
+	assertEquals(emptyList(), compositions.filterNot { name -> name == "pensum-canvas" })
 	assertTrue(
-		actual = compositions.count { name -> name == "canvas" } <= 2,
+		actual = compositions.count { name -> name == "pensum-canvas" } <= 2,
 		message = "The canvas recomposed on the gesture's frames: $compositions"
 	)
 }

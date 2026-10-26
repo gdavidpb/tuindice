@@ -38,7 +38,7 @@ fun PensumNodeCard(
 	isUnlockHighlighted: Boolean,
 	modifier: Modifier = Modifier
 ) {
-	ReportComposition("node", node.id)
+	ReportComposition("pensum-node", node.id)
 	val graphColors = pensumGraphColors()
 	val colors = node.toNodeColors(graphColors)
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
