@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // sistema.sigue_aplicando/1: a remembered statement and the two answers to it.
+@Immutable
 data class StillAppliesItem(
 	override val id: String,
 	override val opensSheet: Boolean,

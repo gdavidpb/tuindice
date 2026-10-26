@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // informe.simulacion/1: the index of the simulated term, with the simulated cumulative index beside it, then one row
 // per simulated grade.
+@Immutable
 data class SimulationItem(
 	override val id: String,
 	override val opensSheet: Boolean,

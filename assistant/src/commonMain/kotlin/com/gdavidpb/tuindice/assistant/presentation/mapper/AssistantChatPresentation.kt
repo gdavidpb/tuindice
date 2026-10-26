@@ -37,7 +37,6 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val guided = guidedByMode || guidedByServer
 	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
 	val restricted = restrictionAt(clock.now().toEpochMilliseconds())
-	val composerEnabled = !guided && restricted == null
 	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
 	val screen = content.context?.context?.toScreenContext()?.screen
 
@@ -50,17 +49,31 @@ internal suspend fun AssistantChatSession.presentedContent(
 		isSending = sending,
 		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
-		composer = ChatComposerItem(
-			text = draftText,
-			textRevision = draftRevision,
-			isEnabled = composerEnabled,
-			isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
-			isPhotoEnabled = composerEnabled && !busy && !extracting,
-			isStoppable = stopTarget() != null
-		),
+		composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted),
 		suggestions = if (busy) emptyList() else presentedSuggestions(screen = screen, guided = guided),
 		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
+	)
+}
+
+// The composer: the text the student writes, and what the student can do with it. It takes the draft and the state of
+// the chat only, so a change of the text presents this alone (ChangeText), not the conversation.
+internal fun AssistantChatSession.presentedComposer(
+	draftText: String,
+	draftRevision: Int,
+	restricted: AssistantChatSession.Restriction?
+): ChatComposerItem {
+	val guided = guidedByMode || guidedByServer
+	val busy = isRunning() || sending
+	val composerEnabled = !guided && restricted == null
+
+	return ChatComposerItem(
+		text = draftText,
+		textRevision = draftRevision,
+		isEnabled = composerEnabled,
+		isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
+		isPhotoEnabled = composerEnabled && !busy && !photoExtracting,
+		isStoppable = stopTarget() != null
 	)
 }
 

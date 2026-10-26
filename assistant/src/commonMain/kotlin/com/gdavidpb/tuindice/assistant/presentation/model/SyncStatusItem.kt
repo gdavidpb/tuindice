@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 // perfil.estado_sync/1: the state of the sync as the headline, when it last ran, one row per source with its state, and
 // the cause of an annulment when there is one.
+@Immutable
 data class SyncStatusItem(
 	override val id: String,
 	override val opensSheet: Boolean,

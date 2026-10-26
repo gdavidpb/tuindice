@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // perfil.resumen/1: the cumulative index with the approved credits beside it, then the career, the pensum and the
 // current term.
+@Immutable
 data class ProfileSummaryItem(
 	override val id: String,
 	override val opensSheet: Boolean,

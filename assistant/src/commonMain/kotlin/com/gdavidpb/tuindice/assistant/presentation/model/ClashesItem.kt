@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 // horario.choques/1: one row per clash.
+@Immutable
 data class ClashesItem(
 	override val id: String,
 	override val opensSheet: Boolean,

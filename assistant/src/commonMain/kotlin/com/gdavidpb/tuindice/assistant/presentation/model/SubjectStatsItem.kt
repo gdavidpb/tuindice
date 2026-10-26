@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // materias.estadisticas/1: the subject is the label, the average is the figure with the pass rate beside it, then the
 // difficulty, the median and the grade histogram.
+@Immutable
 data class SubjectStatsItem(
 	override val id: String,
 	override val opensSheet: Boolean,

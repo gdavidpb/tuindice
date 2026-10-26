@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // informe.trimestre/1: the index of the term, with the cumulative index beside it, then a row per subject.
+@Immutable
 data class TermItem(
 	override val id: String,
 	override val opensSheet: Boolean,

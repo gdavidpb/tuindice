@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.machine.nextMemoryRead
+import com.gdavidpb.tuindice.assistant.presentation.mapper.presentedComposer
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toWire
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -62,7 +63,13 @@ private fun ContentTransitions.contentComposerRows(
 		if (!state.composer.isEnabled) return@on state
 
 		machine.draft.setText(action.text)
-		machine.refreshed(state)
+		// Only the text moved: the conversation is the same, so its items keep their instance and only the composer is
+		// presented again. The agent's messages are not composed again while the student types.
+		val restricted = machine.session.restrictionAt(machine.access.restrictions.clock.now().toEpochMilliseconds())
+
+		state.copy(
+			composer = machine.session.presentedComposer(machine.draft.text.value, machine.draft.revision, restricted)
+		)
 	}
 
 	on<AssistantChat.Action.Send> { state, _ ->

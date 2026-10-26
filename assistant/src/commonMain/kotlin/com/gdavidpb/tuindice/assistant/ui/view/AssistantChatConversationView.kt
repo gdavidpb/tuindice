@@ -21,8 +21,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -38,6 +41,9 @@ import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_sending
@@ -64,11 +70,7 @@ fun AssistantChatConversationView(
 	val focusManager = LocalFocusManager.current
 	val lastItem = content.items.lastOrNull()
 	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
-	// The keyboard's bottom inset: when it opens or closes, the list gives up or takes back the room, and follows its last
-	// item again. Other changes of the column's height (a suggestion, a notice) leave the list where it is.
-	val imeBottom = WindowInsets.ime.getBottom(LocalDensity.current)
-
-	LaunchedEffect(content.items.size, lastItem, imeBottom) {
+	LaunchedEffect(content.items.size, lastItem) {
 		if (content.items.isNotEmpty()) {
 			listState.followLastItem(
 				lastIndex = content.items.lastIndex,
@@ -76,6 +78,8 @@ fun AssistantChatConversationView(
 			)
 		}
 	}
+
+	FollowLastItemOnKeyboard(listState = listState, items = content.items)
 
 	// The column stays above the keyboard, or above the home indicator when there is none: the list gives up the room,
 	// and the composer keeps its place right above the keyboard. The keyboard's inset is real inside the sheet, and the
@@ -164,6 +168,33 @@ private fun AssistantChatMessageListView(
 				)
 			}
 		}
+	}
+}
+
+// The list follows its last item as the keyboard opens and closes, in each frame of its animation. The inset is read
+// outside composition, so those frames compose nothing; a follow cancels the one before it. Other changes of the
+// column's height (a suggestion, a notice) leave the list where it is.
+@Composable
+private fun FollowLastItemOnKeyboard(listState: LazyListState, items: List<ChatItem>) {
+	val latestItems by rememberUpdatedState(items)
+	val ime = WindowInsets.ime
+	val density = LocalDensity.current
+
+	// The first value is not followed: the conversation's effect follows it when the conversation is composed.
+	LaunchedEffect(listState) {
+		snapshotFlow { ime.getBottom(density) }
+			.distinctUntilChanged()
+			.drop(1)
+			.collectLatest {
+				val current = latestItems
+
+				if (current.isNotEmpty()) {
+					listState.followLastItem(
+						lastIndex = current.lastIndex,
+						showsItsEnd = current.last().hasIntentCard
+					)
+				}
+			}
 	}
 }
 

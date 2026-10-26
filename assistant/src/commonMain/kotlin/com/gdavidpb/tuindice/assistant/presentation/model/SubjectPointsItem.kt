@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 // evaluaciones.puntos/1: a row per subject with its points earned over the points evaluated so far.
+@Immutable
 data class SubjectPointsItem(
 	override val id: String,
 	override val opensSheet: Boolean,

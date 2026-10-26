@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.style.chatEntrance
 import com.gdavidpb.tuindice.assistant.ui.style.planAgentEntrance
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // The agent's message: full width, with no bubble and no name. Its parts follow in order, then its actions. When
@@ -26,6 +27,8 @@ fun AssistantAgentMessageView(
 	modifier: Modifier = Modifier,
 	animateEntrance: Boolean = false
 ) {
+	// Reported to the composition probe of the tests only: it shows whether a change composes this message again.
+	ReportComposition(name = "agent-message", key = item.id)
 	val plan = remember(item.parts) { planAgentEntrance(item.parts) }
 
 	Column(

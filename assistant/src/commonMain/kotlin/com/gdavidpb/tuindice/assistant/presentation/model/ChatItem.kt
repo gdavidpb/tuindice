@@ -1,10 +1,14 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 // One entry of the conversation.
+@Immutable
 sealed interface ChatItem {
 	val id: String
 
 	// The student's bubble, on the right. [isFailed] when its turn could not start or failed.
+	@Immutable
 	data class User(
 		override val id: String,
 		val text: String,
@@ -12,6 +16,7 @@ sealed interface ChatItem {
 	) : ChatItem
 
 	// The agent's message, full width and without a bubble, with its actions under it.
+	@Immutable
 	data class Agent(
 		override val id: String,
 		val parts: List<ChatPartItem>,
