@@ -53,7 +53,7 @@ fun ViewState.toMainShellState(isAssistantVisible: Boolean = false): MainShellSt
 		is RecordRouteViewState -> topBarViewModeState
 		else -> null
 	},
-	hasAssistantContext = assistantContext != null,
+	hasAssistantContext = hasAssistantContext,
 	isAssistantVisible = isAssistantVisible,
 	isProfileAvatarVisible = isProfileAvatarVisible
 )

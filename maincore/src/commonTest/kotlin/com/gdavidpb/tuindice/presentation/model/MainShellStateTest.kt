@@ -5,6 +5,8 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.record.presentation.model.RecordAssistantDeclaration
+import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -47,6 +49,31 @@ class MainShellStateTest {
 
 		assertNotEquals(pensumContext, pensumContextWithFields)
 		assertEquals(shell, changed)
+	}
+
+	@Test
+	fun when_theShellIsMadeFromTheRecord_then_theRecordContextIsNotProjected() {
+		var projections = 0
+		val record = RecordRouteViewState(
+			isTopBarVisible = true,
+			isBottomBarVisible = true,
+			declaredAssistantContext = RecordAssistantDeclaration {
+				projections += 1
+				AssistantScreenContext(screen = AssistantScreen.RECORD)
+			}
+		)
+
+		val shell = record.toMainShellState(isAssistantVisible = true)
+
+		assertEquals(0, projections, "the shell projected the record's context")
+		assertEquals(true, shell.hasAssistantContext)
+		assertEquals(listOf(TopBarSlot.Assistant), shell.inlineActions)
+
+		// The bar asks for the context on a tap, and the context is projected once.
+		val context = AssistantScreenContext(screen = AssistantScreen.RECORD)
+		assertEquals(context, record.assistantContext)
+		assertEquals(context, record.assistantContext)
+		assertEquals(1, projections)
 	}
 
 	@Test

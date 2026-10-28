@@ -9,22 +9,26 @@ import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.selects.select
 import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome as ItemOutcome
 
 /**
  * Runs the mutations of an intent and answers with one execution. [outcomes] is subscribed before the first mutation
  * runs, because the outcomes are not replayed to a late subscriber. A mutation whose use call fails is FAILED at once,
  * with the name of the error, and nothing is waited for it. The others are waited for up to
- * [MUTATION_OUTCOME_TIMEOUT_MILLIS]; the ones still running then are QUEUED, and [queued] takes them over before this
- * run stops listening, so their outcomes are followed in the session and none is lost in between. The execution follows
- * from how each mutation ended (toIntentExecution), and a batch carries the outcome of each.
+ * [MUTATION_OUTCOME_TIMEOUT_MILLIS], counted from the start of the run, before the first call: the time the calls take
+ * comes out of that wait, and no call is cut short by it. The ones still running when it ends are QUEUED, and [queued]
+ * takes them over before this run stops listening, so their outcomes are followed in the session and none is lost in
+ * between. The execution follows from how each mutation ended (toIntentExecution), and a batch carries the outcome of
+ * each.
  */
 internal suspend fun settleMutations(
 	mutations: List<AssistantMutation>,
@@ -32,19 +36,28 @@ internal suspend fun settleMutations(
 	queued: AssistantQueuedMutationsDataSource
 ): IntentExecution = coroutineScope {
 	val received = Channel<MutationOutcome>(Channel.UNLIMITED)
-	val listener = launch(start = CoroutineStart.UNDISPATCHED) {
-		outcomes.collect { outcome -> received.trySend(outcome) }
+	// Subscribed in the session before the first call, so no outcome that comes after is missed. A run that hands its
+	// mutations over gives this subscription and the channel to the session; a run that does not stops them itself.
+	val listener = queued.listen(outcomes, received)
+	// The budget starts before the first call, so the calls take their time out of it.
+	val budget = launch(start = CoroutineStart.UNDISPATCHED) {
+		delay(MUTATION_OUTCOME_TIMEOUT_MILLIS)
 	}
+
+	var handedOver = false
 
 	try {
 		val refusals = mutations.map { mutation -> mutation to mutation.refusalOrNull() }
 		val awaited = refusals
 			.filter { (_, refusal) -> refusal == null }
 			.mapTo(mutableSetOf()) { (mutation, _) -> mutation.mutationId }
-		val settled = awaitOutcomes(awaited, received)
+		val settled = awaitOutcomes(awaited, received, budget)
 
 		val stillRunning = awaited - settled.keys
-		if (stillRunning.isNotEmpty()) handOver(stillRunning, outcomes, queued, listener, received)
+		if (stillRunning.isNotEmpty()) {
+			handOver(stillRunning, queued, listener, received)
+			handedOver = true
+		}
 
 		refusals
 			.map { (mutation, refusal) ->
@@ -57,48 +70,53 @@ internal suspend fun settleMutations(
 			.toIntentExecution()
 			?: invalidArgs()
 	} finally {
-		listener.cancel()
-		received.close()
+		budget.cancel()
+		// Not handed over: nothing else follows the listener, so it stops here. Handed over: adopt stops it when the
+		// followed mutations end.
+		if (!handedOver) {
+			listener.cancel()
+			received.close()
+		}
 	}
 }
 
-// The session follows [mutationIds] from here: it subscribes before this run stops listening, and then takes the
-// outcomes this run received in between, so every outcome reaches one of the two.
+// The session takes over the channel that the listener feeds, and the listener with it. Nothing is cancelled and
+// nothing is subscribed again, so no outcome falls between two subscriptions. adopt stops the listener at the end.
 private suspend fun handOver(
 	mutationIds: Set<String>,
-	outcomes: Flow<MutationOutcome>,
 	queued: AssistantQueuedMutationsDataSource,
 	listener: Job,
 	received: ReceiveChannel<MutationOutcome>
 ) {
-	queued.adopt(mutationIds, outcomes)
-	listener.cancelAndJoin()
-
-	while (true) {
-		val outcome = received.tryReceive().getOrNull() ?: break
-		if (outcome.mutationId in mutationIds) queued.settle(outcome)
-	}
+	queued.adopt(mutationIds, received.receiveAsFlow().onCompletion { listener.cancel() })
 }
 
-// The outcomes of the awaited mutations as they settle, up to the timeout. The outcomes of other mutations are dropped.
+// The outcomes of the awaited mutations as they settle, until the budget ends. Other mutations' outcomes are dropped.
 private suspend fun awaitOutcomes(
 	awaited: Set<String>,
-	received: ReceiveChannel<MutationOutcome>
+	received: ReceiveChannel<MutationOutcome>,
+	budget: Job
 ): Map<String, MutationOutcome> {
 	val settled = mutableMapOf<String, MutationOutcome>()
-	if (awaited.isEmpty()) return settled
 
-	withTimeoutOrNull(MUTATION_OUTCOME_TIMEOUT_MILLIS) {
-		while (settled.size < awaited.size) {
-			val outcome = received.receive()
+	while (settled.size < awaited.size) {
+		// An outcome that came in while the calls ran is taken first, even when the budget is spent already.
+		val outcome = received.tryReceive().getOrNull() ?: nextOutcomeWithin(received, budget) ?: break
 
-			if (outcome.mutationId in awaited && outcome.mutationId !in settled) {
-				settled[outcome.mutationId] = outcome
-			}
+		if (outcome.mutationId in awaited && outcome.mutationId !in settled) {
+			settled[outcome.mutationId] = outcome
 		}
 	}
 
 	return settled
+}
+
+// The next outcome that comes in, or null when the budget ends first.
+private suspend fun nextOutcomeWithin(received: ReceiveChannel<MutationOutcome>, budget: Job): MutationOutcome? {
+	return select<MutationOutcome?> {
+		received.onReceive { outcome -> outcome }
+		budget.onJoin { null }
+	}
 }
 
 // The detail code the call was refused with, or null when the call ran: its outcome comes on the stream then.

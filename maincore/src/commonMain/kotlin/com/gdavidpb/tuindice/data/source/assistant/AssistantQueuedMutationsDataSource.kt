@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -54,9 +56,15 @@ class AssistantQueuedMutationsDataSource(
 		}
 	}
 
-	/** An outcome of a followed mutation that came before its subscription took over. */
-	internal suspend fun settle(outcome: MutationOutcome) {
-		lock.withLock { followers[outcome.mutationId]?.complete(outcome.toItemOutcome()) }
+	/**
+	 * Subscribes to [outcomes] in the session, before this returns, and feeds each outcome to [received]. A run that may
+	 * hand its mutations over starts it here, so the subscription is never without a listener: [adopt] takes the channel
+	 * and the subscription over together, and whoever ends the follow stops the subscription.
+	 */
+	internal fun listen(outcomes: Flow<MutationOutcome>, received: SendChannel<MutationOutcome>): Job {
+		return sessionCoroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+			outcomes.collect { outcome -> received.trySend(outcome) }
+		}
 	}
 
 	override fun followQueued(

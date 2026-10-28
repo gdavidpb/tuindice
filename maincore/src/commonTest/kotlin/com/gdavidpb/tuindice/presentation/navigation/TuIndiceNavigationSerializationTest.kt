@@ -186,6 +186,7 @@ class TuIndiceNavigationSerializationTest {
 	}.toSet()
 
 	// The serial names of every NavKey the saved-state module registers.
+	@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 	private fun registeredDestinationNames(): Set<String> {
 		val names = mutableSetOf<String>()
 

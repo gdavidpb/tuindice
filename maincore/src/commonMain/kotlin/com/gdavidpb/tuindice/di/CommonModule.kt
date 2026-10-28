@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAcademicCalendarRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
@@ -59,6 +60,7 @@ import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.data.source.assistant.AcademicCalendarAssistantDataSource
 import com.gdavidpb.tuindice.data.source.assistant.AssistantClientStateDataSource
 import com.gdavidpb.tuindice.data.source.assistant.AssistantQueuedMutationsDataSource
 import com.gdavidpb.tuindice.data.source.assistant.EvaluationsAssistantDataSource
@@ -200,6 +202,7 @@ val commonModule = module {
 	factoryOf(::PensumSubjectCatalogDataSource)
 	factoryOf(::RecordIntentRunnerDataSource)
 	factoryOf(::EvaluationsAssistantDataSource) { bind<AssistantEvaluationsRepository>() }
+	factoryOf(::AcademicCalendarAssistantDataSource) { bind<AssistantAcademicCalendarRepository>() }
 	factoryOf(::RecordAssistantPlansDataSource) { bind<AssistantPlansRepository>() }
 	factoryOf(::RecordAssistantProjectionDataSource) { bind<AssistantProjectionRepository>() }
 	factoryOf(::AssistantClientStateDataSource) { bind<AssistantClientStateRepository>() }

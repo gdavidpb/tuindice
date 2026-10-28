@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.testing
 
 import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
+import com.gdavidpb.tuindice.about.domain.usecase.AssistantConsentWriteQueue
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -91,6 +93,7 @@ private fun assistantUseCases(
 		),
 		setConsent = SetAssistantConsentUseCase(
 			assistantConsentRepository = consentRepository,
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reporting
 		),
 		refreshConsent = RefreshAssistantConsentUseCase(
@@ -99,8 +102,10 @@ private fun assistantUseCases(
 		),
 		deleteConversations = DeleteAssistantConversationsUseCase(
 			assistantConversationsRepository = NoOpAssistantConversationsRepository(),
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reporting
-		)
+		),
+		consentWrites = AssistantConsentWriteQueue(sessionCoroutineScope = testSessionCoroutineScope())
 	)
 }
 
