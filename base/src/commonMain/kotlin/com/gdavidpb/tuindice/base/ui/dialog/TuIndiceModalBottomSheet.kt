@@ -4,9 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
@@ -37,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,7 +50,6 @@ import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -73,8 +70,9 @@ import tuindice.base.generated.resources.sheet_pane_title
 // keyboard or the navigation bar, whichever is taller, so inputs sit right above the keyboard. The padding is part of
 // the sheet's height: when the keyboard opens, the sheet rises by the keyboard's height above it, up to the status
 // bar, and a sheet that scrolls shrinks above it. No sheet is drawn above the status bar: a taller one is laid out
-// at the height the window leaves below it, and its content scrolls. Back dismisses a sheet that the person can hide;
-// one that cannot be hidden leaves back to the screen, as it always did.
+// at the height the window leaves below its top inset, the status bar's, read in the sheet's own window, and its
+// content scrolls. Back dismisses a sheet that the person can hide; one that cannot be hidden leaves
+// back to the screen, as it always did.
 @Composable
 fun TuIndiceModalBottomSheet(
 	onDismissRequest: () -> Unit,
@@ -87,19 +85,22 @@ fun TuIndiceModalBottomSheet(
 ) {
 	val scope = rememberCoroutineScope()
 	val measures = remember { TuIndiceSheetMeasures() }
-	val topInsetPx = WindowInsets.statusBars.getTop(LocalDensity.current)
-
-	TuIndiceSheetEffects(
-		sheetState = sheetState,
-		onDismissRequest = onDismissRequest,
-		measures = measures,
-		topInsetPx = topInsetPx
-	)
 
 	Dialog(
 		onDismissRequest = { scope.launch { sheetState.onBack() } },
 		properties = tuIndiceSheetDialogProperties(dismissOnBackPress = sheetState.hideable)
 	) {
+		// Read in the dialog's own window, as the content's insets are: on iOS the screen behind the dialog reports no
+		// insets at all, and a tall sheet whose limit was read there went up to the top edge, under the status bar.
+		val topInsetPx = (LocalTuIndiceSheetTopInsets.current ?: WindowInsets.statusBars).getTop(LocalDensity.current)
+
+		TuIndiceSheetEffects(
+			sheetState = sheetState,
+			onDismissRequest = onDismissRequest,
+			measures = measures,
+			topInsetPx = topInsetPx
+		)
+
 		Box(
 			modifier = Modifier
 				.fillMaxSize()
@@ -120,6 +121,9 @@ fun TuIndiceModalBottomSheet(
 		}
 	}
 }
+
+// The top inset a sheet stays below, when not the status bar's: tests give one, since their window has no status bar.
+internal val LocalTuIndiceSheetTopInsets = staticCompositionLocalOf<WindowInsets?> { null }
 
 // The sizes the anchors are computed from. Writing them lays the sheet out again, and the effects keep the anchors
 // up to date with them.
@@ -222,7 +226,9 @@ private fun BoxScope.TuIndiceSheetSurface(
 	val collapseDescription = stringResource(Res.string.sheet_collapse_description)
 
 	Surface(
-		modifier = modifier
+		modifier = Modifier
+			.sheetPlacement(sheetState)
+			.then(modifier)
 			.align(Alignment.TopCenter)
 			.widthIn(max = BottomSheetDefaults.SheetMaxWidth)
 			.fillMaxWidth()
@@ -249,14 +255,7 @@ private fun BoxScope.TuIndiceSheetSurface(
 					}
 				}
 			}
-			.offset { IntOffset(x = 0, y = sheetState.offsetPx()) }
-			// The drag is read here and settled by the sheet's own rule, the same one the nested scroll uses, so a quick
-			// flick down closes the sheet: the anchored-draggable default settled a short fast flick back where it was.
-			.draggable(
-				state = rememberDraggableState { delta -> sheetState.dragBy(delta) },
-				orientation = Orientation.Vertical,
-				onDragStopped = { velocity -> sheetState.settle(velocity) }
-			),
+			.draggableSheet(sheetState, rememberDraggableState { delta -> sheetState.dragBy(delta) }),
 		shape = BottomSheetDefaults.ExpandedShape,
 		// No tonal elevation: in this theme it tints the sheet with the accent (amber in dark), and the sheets were never
 		// tinted. The colour is the sheet container's, flat.

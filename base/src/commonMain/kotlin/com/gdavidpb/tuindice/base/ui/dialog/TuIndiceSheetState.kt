@@ -80,6 +80,9 @@ class TuIndiceSheetState internal constructor(
 	private val hasAnchors: Boolean
 		get() = draggableState.anchors.size > 0
 
+	// The speed of the gestures on the sheet, read on the window, and whether they moved it.
+	internal val dragVelocity = TuIndiceSheetDragVelocity()
+
 	internal val nestedScrollConnection: NestedScrollConnection = SheetNestedScroll()
 
 	// Opens the sheet at the anchor asked for before its first layout, or else at its half state when it has one, or at
@@ -191,6 +194,9 @@ class TuIndiceSheetState internal constructor(
 	// The content takes what it can of a drag first. What it leaves moves the sheet, and an upward drag opens the sheet
 	// before the content scrolls: the sheet behaves as one more scrollable of the same drag, as it does on iOS.
 	private inner class SheetNestedScroll : NestedScrollConnection {
+		// Set when the sheet took the fling of the gesture before its content.
+		private var flingTaken = false
+
 		override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
 			if (source != NestedScrollSource.UserInput || available.y >= 0f || !isOpenable()) return Offset.Zero
 
@@ -203,17 +209,31 @@ class TuIndiceSheetState internal constructor(
 			return Offset(0f, dragBy(available.y))
 		}
 
+		// A gesture that moved the sheet and left it between its anchors is the sheet's, and so is its fling, at the
+		// finger's speed on the window: the content moves with the sheet, so the speed it read is the finger's relative
+		// to the sheet, which turns upward when the finger slows down before it lets go. The sheet settles here, before
+		// the content flings, and the content's fling leaves it where it settled.
 		override suspend fun onPreFling(available: Velocity): Velocity {
-			if (available.y >= 0f || !isOpenable()) return Velocity.Zero
+			flingTaken = isLeftBetweenAnchors()
+			val velocity = when {
+				flingTaken -> dragVelocity.releaseVelocityPx()
+				available.y < 0f && isOpenable() -> available.y
+				else -> return Velocity.Zero
+			}
 
-			settle(available.y)
+			settle(velocity)
 			return available
 		}
 
 		override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+			if (flingTaken) return Velocity.Zero
+
 			settle(available.y)
 			return available
 		}
+
+		private fun isLeftBetweenAnchors(): Boolean =
+			dragVelocity.sheetMoved && isPositioned && !draggableState.anchors.hasPositionAt(draggableState.offset)
 
 		private fun isOpenable(): Boolean =
 			isPositioned && draggableState.offset > draggableState.anchors.positionOf(TuIndiceSheetValue.Expanded)
@@ -320,8 +340,20 @@ private const val UNPOSITIONED_OFFSET_PX = Int.MAX_VALUE / 2
 
 // A drag on the sheet itself (its handle, or content that does not scroll) or what its content leaves of one moves it
 // as far as the anchors allow. Before the first layout there is nothing to move.
-internal fun TuIndiceSheetState.dragBy(delta: Float): Float =
-	if (draggableState.offset.isNaN()) 0f else draggableState.dispatchRawDelta(delta)
+internal fun TuIndiceSheetState.dragBy(delta: Float): Float {
+	val consumed = if (draggableState.offset.isNaN()) 0f else draggableState.dispatchRawDelta(delta)
+
+	if (consumed != 0f) dragVelocity.sheetMoved = true
+	return consumed
+}
+
+// True when the sheet rests at one of its anchors at this offset.
+private fun DraggableAnchors<TuIndiceSheetValue>.hasPositionAt(offsetPx: Float): Boolean =
+	TuIndiceSheetValue.entries.any { value ->
+		hasPositionFor(value) && abs(positionOf(value) - offsetPx) < ANCHOR_TOLERANCE_PX
+	}
+
+private const val ANCHOR_TOLERANCE_PX = 0.5f
 
 // The expanded anchor of a sheet: its bottom edge rests on the bottom of the window, so the padding its content takes
 // from the keyboard or the navigation bar keeps the content above them, and the sheet rises with the keyboard, up to
