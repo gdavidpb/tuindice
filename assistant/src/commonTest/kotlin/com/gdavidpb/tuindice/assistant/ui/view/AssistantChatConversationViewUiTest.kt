@@ -12,19 +12,24 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
+import com.gdavidpb.tuindice.assistant.ui.contextChip
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 // The list's follow, on the test clock. It moves to its last item when a new one arrives and when the keyboard opens or
@@ -82,8 +87,9 @@ class AssistantChatConversationViewUiTest {
 	fun when_noticeAndSuggestionsDoNotFitWithTheKeyboardOpen_then_theComposerStaysAboveIt() = runTuIndiceUiTest {
 		setShortChatWithKeyboardOpen()
 
-		// Fetching the node fails the test when the notice is not on the screen, which is the existence check.
-		onNodeWithText(OFFER_TITLE).fetchSemanticsNode()
+		// The offer is on the screen, not only in the tree: a region scrolled past it leaves its title zero tall.
+		val offer = onNodeWithText(OFFER_TITLE).fetchSemanticsNode().boundsInRoot
+		assertTrue(offer.height > 0f, "The offer's title is out of the window, at $offer.")
 		val composer = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
 		// The field keeps its full height: a composer squeezed to nothing at the keyboard's edge is not usable either.
 		assertTrue(
@@ -111,6 +117,47 @@ class AssistantChatConversationViewUiTest {
 			suggestion.bottom <= KEYBOARD_TOP_PX,
 			"The last suggestion ends at ${suggestion.bottom}, under the keyboard that starts at $KEYBOARD_TOP_PX."
 		)
+	}
+
+	// A failed turn in a short window with the keyboard open: what the region holds does not fit, and its foot, the
+	// notice with its retry, is shown whole right above the composer, where a tap on the retry retries the turn.
+	@Test
+	fun when_aTurnFailsWithTheKeyboardOpen_then_itsRetryShowsWholeAboveTheComposer() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		val keyboard = FakeKeyboardInsets().apply { bottomPx = SHORT_KEYBOARD_PX }
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalChatKeyboardInsets provides keyboard) {
+				AssistantChatConversationView(
+					content = contentState(
+						items = listOf(ChatItem.User(id = "question", text = "Falla una vez", isFailed = true)),
+						context = contextChip()
+					).copy(notice = ChatNoticeItem.TurnFailed(message = FAILED_MESSAGE, canRetry = true)),
+					onAction = { actions.add(it) },
+					modifier = Modifier.height(SHORT_CONTAINER_DP.dp)
+				)
+			}
+		}
+		waitForIdle()
+
+		val retry = onNodeWithTag(AssistantUiTags.NoticeRetry).fetchSemanticsNode().boundsInRoot
+		val composer = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
+		assertTrue(
+			retry.height >= RETRY_MIN_HEIGHT_PX,
+			"The retry is ${retry.height} tall: the region cuts it, below its button's height."
+		)
+		assertTrue(retry.top >= 0f, "The retry starts at ${retry.top}, above the window.")
+		assertTrue(
+			retry.bottom <= composer.top,
+			"The retry ends at ${retry.bottom}, under the composer that starts at ${composer.top}."
+		)
+		assertTrue(
+			composer.bottom <= KEYBOARD_TOP_PX,
+			"The composer ends at ${composer.bottom}, under the keyboard that starts at $KEYBOARD_TOP_PX."
+		)
+
+		onNodeWithTag(AssistantUiTags.NoticeRetry).performClick()
+
+		assertIs<AssistantChat.Action.RetryTurn>(actions.single())
 	}
 
 	private fun ComposeUiTest.setShortChatWithKeyboardOpen() {
@@ -158,6 +205,10 @@ class AssistantChatConversationViewUiTest {
 
 		// The composer's field is at least 56 dp tall at the density of these tests, which is 1 px per dp.
 		const val COMPOSER_MIN_HEIGHT_PX = 56
+
+		// A text button is at least 40 dp tall, 40 px at the density of these tests.
+		const val RETRY_MIN_HEIGHT_PX = 40
+		const val FAILED_MESSAGE = "No pudimos responder. Inténtalo de nuevo."
 		const val OFFER_TITLE = "Avisos de tu informe"
 		const val LAST_SUGGESTION = "¿Cuál es mi ritmo de créditos?"
 		val SUGGESTIONS = listOf(

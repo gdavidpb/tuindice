@@ -143,6 +143,12 @@ fun AssistantChatConversationView(
 // leave, so a region whose parts fit lays out the way a column does. When they leave none, the parts hold more than the
 // region, and the region scrolls as one: the chip, the notice and the suggestions stay in reach while the composer is
 // pinned under it. The messages keep a minimum then, so they never vanish behind the parts around them.
+//
+// A region with messages follows its end, as the list follows its last item: whenever what it holds or the height it
+// has changes (a notice arrives, the keyboard opens), its foot (the notice and its retry, the running label, the last
+// suggestion) sits whole right above the composer, and what does not fit leaves at the top. Each frame of the keyboard
+// moves it, so it is a jump, not an animation; a scroll of the person's own changes neither, so it is not undone. An
+// empty chat starts at its top instead: the offer of the notifications, which only an empty chat shows, stays in view.
 @Composable
 private fun AssistantChatRegion(
 	hasMessages: Boolean,
@@ -154,6 +160,14 @@ private fun AssistantChatRegion(
 	BoxWithConstraints(modifier = modifier) {
 		val regionHeight = maxHeight
 		val scrollState = rememberScrollState()
+
+		LaunchedEffect(scrollState, hasMessages) {
+			if (!hasMessages) return@LaunchedEffect
+
+			snapshotFlow { scrollState.maxValue }
+				.distinctUntilChanged()
+				.collectLatest { scrollState.scrollTo(it) }
+		}
 
 		Layout(
 			content = {
