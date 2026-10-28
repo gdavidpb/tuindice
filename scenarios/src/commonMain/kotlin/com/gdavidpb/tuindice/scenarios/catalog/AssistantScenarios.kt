@@ -85,6 +85,9 @@ private val assistantSmoke = scenario(
 	tap(AssistantUiTags.Message.copy("msg-followup"))
 	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
 	waitVisible(text(Copy.AssistantCopied), Within.Assert)
+	// The snackbar sits above the composer, over the last message's actions while the keyboard is open: the thumb is
+	// tapped once it has gone, as a person would after reading it.
+	waitGone(AssistantUiTags.ChatSnackbar, Within.Long)
 	tap(AssistantUiTags.Message.useful("msg-followup"))
 	expectRequest("POST", "/assistant/v1/feedback", status = 204)
 }
