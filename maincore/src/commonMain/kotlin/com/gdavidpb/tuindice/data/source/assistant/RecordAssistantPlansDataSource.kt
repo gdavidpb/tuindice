@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.chatcontract.intent.CreatePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.EditPlanArgs
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RemovePlanArgs
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -21,8 +22,9 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.DeleteSyntheticTermPara
 /**
  * The plans of the assistant: the synthetic terms of the record. A plan is found by its term key, and its subjects come
  * from the pensum by their codes. A term that the record does not hold answers REJECTED with `unknown_term`, and a code
- * the pensum does not hold answers REJECTED with `unknown_subject`; neither mutates. The term is read from the
- * repository, which has no side effects: the use cases that look a term up either persist a selection or take an id.
+ * the pensum does not hold answers REJECTED with `unknown_subject`. A pensum that is not loaded answers REJECTED with
+ * `pensum_not_loaded`, since no code can be judged then. None of them mutates. The term is read from the repository,
+ * which has no side effects: the use cases that look a term up either persist a selection or take an id.
  */
 class RecordAssistantPlansDataSource(
 	private val createSyntheticTermUseCase: CreateSyntheticTermUseCase,
@@ -46,10 +48,13 @@ class RecordAssistantPlansDataSource(
 
 	private suspend fun createPlan(args: CreatePlanArgs, expectedRevision: Long?): IntentExecution {
 		val periodCode = enumBySerialName<AcademicTermPeriod>(args.periodCode)
-		val subjects = if (periodCode == null) null else resolveSubjects(args.subjectCodes)
+		// The pensum is read only for a valid period, as before. While it is not loaded, no code can be known or unknown.
+		val resolved = if (periodCode == null) null else pensumSubjectCatalog.resolve(args.subjectCodes)
+		val subjects = resolved?.let { courses -> subjectsOf(args.subjectCodes, courses) }
 
 		return when {
 			periodCode == null -> invalidArgs()
+			resolved == null -> pensumNotLoaded()
 			subjects == null -> unknownSubject()
 			else -> recordIntentRunner.revisionConflictOrNull(expectedRevision)
 				?: recordIntentRunner.runMutation(args.mutationId) {
@@ -74,6 +79,8 @@ class RecordAssistantPlansDataSource(
 		val resolved = pensumSubjectCatalog.resolve(codes.filter { code -> code !in attemptByCode })
 
 		return when {
+			// The pensum judges only the codes the term does not hold yet. While it is not loaded, they are not unknown.
+			resolved == null -> pensumNotLoaded()
 			codes.any { code -> code !in attemptByCode && code !in resolved } -> unknownSubject()
 			else -> {
 				// A subject the term already holds keeps its attempt, its name and its credits. A new one takes the
@@ -110,12 +117,14 @@ class RecordAssistantPlansDataSource(
 		}
 	}
 
-	// The subjects of the codes, from the pensum, in the order of the codes. Null when a code is not a course of it.
-	private suspend fun resolveSubjects(subjectCodes: List<String>): List<SyntheticTermSubject>? {
-		val resolved = pensumSubjectCatalog.resolve(subjectCodes)
+	// The subjects of the codes in order, from the pensum's courses. Null when a code is not one of them.
+	private fun subjectsOf(
+		subjectCodes: List<String>,
+		courses: Map<String, SyntheticTermSubject>
+	): List<SyntheticTermSubject>? {
 		val codes = subjectCodes.map(::normalizeSubjectCode)
 
-		return if (codes.all { code -> code in resolved }) codes.map { code -> resolved.getValue(code) } else null
+		return if (codes.all { code -> code in courses }) codes.map { code -> courses.getValue(code) } else null
 	}
 
 	// The synthetic term of the record that has this key, or null when there is none.
@@ -139,3 +148,7 @@ class RecordAssistantPlansDataSource(
 		)
 	}
 }
+
+// The refusal of an intent that names subjects while the pensum is not loaded. It sits beside its only caller:
+// AssistantIntentSupport is at its function limit.
+private fun pensumNotLoaded(): IntentExecution = IntentExecution(OutcomeKind.REJECTED, DETAIL_PENSUM_NOT_LOADED)

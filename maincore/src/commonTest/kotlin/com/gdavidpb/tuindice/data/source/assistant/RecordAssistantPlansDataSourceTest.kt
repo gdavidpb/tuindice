@@ -115,6 +115,45 @@ class RecordAssistantPlansDataSourceTest {
 	}
 
 	@Test
+	fun create_refusesAPensumThatIsNotLoadedWithoutMutating() = runTest {
+		val repository = FakeRecordRepository(record = recordWith(), revision = 4L)
+
+		val execution = plansSource(repository, pensum = notLoadedPensum())
+			.create(createArgs(subjectCodes = listOf(CALCULUS_CODE)), expectedRevision = 4L)
+
+		// Not unknown: the pensum is not loaded, so the code cannot be judged yet, and the refusal says so.
+		assertEquals(IntentExecution(OutcomeKind.REJECTED, "pensum_not_loaded"), execution)
+		assertEquals(emptyList(), repository.mutations)
+	}
+
+	@Test
+	fun edit_refusesANewSubjectWhileThePensumIsNotLoadedWithoutMutating() = runTest {
+		val repository = FakeRecordRepository(record = recordWith(term()), revision = 4L)
+
+		val execution = plansSource(repository, pensum = notLoadedPensum()).edit(
+			EditPlanArgs(mutationId = "m1", termKey = TERM_KEY, subjectCodes = listOf(CALCULUS_CODE, PHYSICS_CODE)),
+			expectedRevision = 4L
+		)
+
+		assertEquals(IntentExecution(OutcomeKind.REJECTED, "pensum_not_loaded"), execution)
+		assertEquals(emptyList(), repository.mutations)
+	}
+
+	@Test
+	fun edit_keepsTheTermWhileThePensumIsNotLoadedWhenNoNewSubjectIsNamed() = runTest {
+		val repository = FakeRecordRepository(record = recordWith(term()), revision = 4L)
+
+		val execution = plansSource(repository, pensum = notLoadedPensum()).edit(
+			EditPlanArgs(mutationId = "m1", termKey = TERM_KEY, subjectCodes = listOf(CALCULUS_CODE)),
+			expectedRevision = 4L
+		)
+
+		// The only subject is one the term already holds, with its attempt: the pensum is not needed to write it.
+		assertEquals(IntentExecution(OutcomeKind.CONFIRMED, newRevision = 5L), execution)
+		assertEquals(1, repository.updatedTerms.size)
+	}
+
+	@Test
 	fun edit_keepsTheAttemptsTheTermHoldsAndTakesTheOtherSubjectsFromThePensum() = runTest {
 		val repository = FakeRecordRepository(record = recordWith(term()), revision = 4L)
 
@@ -218,6 +257,11 @@ class RecordAssistantPlansDataSourceTest {
 		)
 
 		assertEquals(IntentExecution(OutcomeKind.REJECTED, "term_in_use"), execution)
+	}
+
+	// A pensum the device has not loaded yet: none of its codes can be judged.
+	private fun notLoadedPensum(): PensumRepository {
+		return FakePensumRepository(flowOf(PensumObservation.WaitingForRecordData))
 	}
 
 	private fun plansSource(

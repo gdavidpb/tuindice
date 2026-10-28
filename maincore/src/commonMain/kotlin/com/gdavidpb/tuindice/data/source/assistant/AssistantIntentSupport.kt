@@ -12,6 +12,9 @@ internal const val MUTATION_OUTCOME_TIMEOUT_MILLIS = 10_000L
 // The detail codes the intent ports answer with. The others come from the outcomes and the failures.
 internal const val DETAIL_INVALID_ARGS = "invalid_args"
 internal const val DETAIL_UNKNOWN_SUBJECT = "unknown_subject"
+
+// The pensum that judges the codes is not loaded yet: no code is known or unknown, so the intent is refused.
+internal const val DETAIL_PENSUM_NOT_LOADED = "pensum_not_loaded"
 internal const val DETAIL_UNKNOWN_TERM = "unknown_term"
 internal const val DETAIL_UNKNOWN_EVALUATION = "unknown_evaluation"
 internal const val DETAIL_UNHANDLED = "unhandled"
