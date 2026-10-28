@@ -163,8 +163,7 @@ private val aboutPlatformEdgeTriggers = scenario(
 ) {
 	covers(
 		"about.Settings.ShareApp",
-		"about.Settings.RateOnStore",
-		"about.About.ContactDeveloper"
+		"about.Settings.RateOnStore"
 	)
 	account(E2eAccounts.Canonical.id)
 
@@ -201,13 +200,12 @@ private val aboutPlatformEdgeTriggers = scenario(
 	}
 	returnToSettings()
 	openPlatformEdgeTriggerAndReturn(SettingsUiTags.RateOnStore, leavesTheAppOnAndroid = true)
-	// The developer's contact lives in About now.
+	// The developer's contact lives in About now. Like the bug report, it opens the mail app, which on Android closes
+	// itself at once (see ReportBug above), so it is not asserted but a platform edge (ActionDispositions): the scenario
+	// taps it and checks that About answers when the app is back.
 	openAboutFromSettings()
 	scrollUntilVisible(AboutUiTags.ContactDeveloper, Scroll.ContentDown, Within.Action)
 	tap(AboutUiTags.ContactDeveloper)
-	onPlatform(Platform.Android) {
-		waitBackgrounded()
-	}
 	foreground()
 	returnToAbout()
 }

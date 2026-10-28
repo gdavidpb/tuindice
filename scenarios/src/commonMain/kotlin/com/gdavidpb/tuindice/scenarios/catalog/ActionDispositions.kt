@@ -16,6 +16,14 @@ object ActionDispositions {
 			reason = "arranque de la pantalla"
 		),
 		ActionDisposition.PlatformEdge(
+			action = "about.About.ContactDeveloper",
+			reason =
+				"abre la app de correo como el reporte de un error y, por la misma razón, no hay nada que comprobar " +
+				"después: en Android, Gmail sin cuenta en el emulador cierra su pantalla de redacción en unos 100 ms, " +
+				"y la app no salió del primer plano en 2 de 2 intentos de la evidencia del 2026-10-28. " +
+				"`about-platform-edge-triggers` lo toca y comprueba que Acerca de es usable al volver"
+		),
+		ActionDisposition.PlatformEdge(
 			action = "about.Settings.ReportBug",
 			reason =
 				"el disparador abre la app de correo y no hay nada que el escenario pueda comprobar después: en Android, " +
