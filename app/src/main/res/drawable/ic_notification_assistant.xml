@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The small icon of the term report notification: the assistant's sparkle, the four-point star of
+  base/ui/icon/AssistantSparkleIcon.kt. Android reads only the alpha of a status bar icon and tints it, so the star
+  is a single white layer with no background. Keep the path in sync with SPARKLE_PATH.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12 2Q13.8 10.2 22 12Q13.8 13.8 12 22Q10.2 13.8 2 12Q10.2 10.2 12 2Z" />
+</vector>

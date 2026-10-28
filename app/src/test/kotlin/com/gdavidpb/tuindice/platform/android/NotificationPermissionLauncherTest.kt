@@ -28,11 +28,27 @@ class NotificationPermissionLauncherTest {
 		val launcher = RecordingLauncher()
 		val holder = NotificationPermissionLauncher().apply { attach(launcher) }
 
-		holder.detach()
+		holder.detach(launcher)
 		holder.launch()
 
 		assertEquals(1, launcher.unregistered)
 		assertEquals(emptyList<String>(), launcher.launched)
+	}
+
+	@Test
+	fun detach_ofTheEarlierActivityAfterANewerOneAttached_keepsTheNewerOneOffering() {
+		val earlier = RecordingLauncher()
+		val newer = RecordingLauncher()
+		val holder = NotificationPermissionLauncher().apply {
+			attach(earlier)
+			attach(newer)
+		}
+
+		holder.detach(earlier)
+		holder.launch()
+
+		assertEquals(1, earlier.unregistered)
+		assertEquals(listOf(Manifest.permission.POST_NOTIFICATIONS), newer.launched)
 	}
 
 	private class RecordingLauncher : ActivityResultLauncher<String>() {

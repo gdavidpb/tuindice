@@ -9,6 +9,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activity.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -85,7 +86,7 @@ class TuIndiceMessagingService : FirebaseMessagingService(), KoinComponent {
 		)
 
 		val notification = NotificationCompat.Builder(this, TERM_REPORT_CHANNEL_ID)
-			.setSmallIcon(applicationInfo.icon)
+			.setSmallIcon(R.drawable.ic_notification_assistant)
 			.setContentTitle(title)
 			.setContentText(body)
 			.setAutoCancel(true)

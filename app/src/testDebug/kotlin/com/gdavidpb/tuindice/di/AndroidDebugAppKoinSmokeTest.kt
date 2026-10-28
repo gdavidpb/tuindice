@@ -44,7 +44,7 @@ class AndroidDebugAppKoinSmokeTest {
 		val tasks = debugGraph.declaring(AppStartupTask::class)
 
 		assertEquals(
-			listOf("androidDebugUsageDataCollectionTask", "summaryProfilePictureImageLoaderTask"),
+			listOf("androidDebugMachineLogTask", "androidDebugUsageDataCollectionTask", "summaryProfilePictureImageLoaderTask"),
 			tasks.map { definition -> definition.qualifier?.value }.sortedBy { name -> name.orEmpty() }
 		)
 		assertEquals(tasks.size, getAll<AppStartupTask>().size)

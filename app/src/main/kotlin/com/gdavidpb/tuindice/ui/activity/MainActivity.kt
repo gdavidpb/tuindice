@@ -32,6 +32,9 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 	private val systemAnimationsEnabled = mutableStateOf(true)
 	private val termReportFocus: TermReportFocusRepository by inject()
 	private val notificationPermissionLauncher: NotificationPermissionLauncher by inject()
+
+	// Registered before the activity starts, as the result launcher requires; the chat's offer asks through it.
+	private val notificationPermissionRequest = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 	private var animatorScaleObserver: AnimatorScaleObserver? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,10 +46,7 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 		}
 
 		FileKit.init(this)
-		// Registered before the activity starts, as the result launcher requires; the chat's offer asks through it.
-		notificationPermissionLauncher.attach(
-			registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
-		)
+		notificationPermissionLauncher.attach(notificationPermissionRequest)
 		intent
 			?.takeIf { pushIntent ->
 				shouldOpenTermReportOnCreate(
@@ -105,7 +105,7 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 	}
 
 	override fun onDestroy() {
-		notificationPermissionLauncher.detach()
+		notificationPermissionLauncher.detach(notificationPermissionRequest)
 
 		super.onDestroy()
 	}
@@ -114,13 +114,13 @@ open class MainActivity : ComponentActivity(), KoinComponent {
 	// activity does not ask for the same report again.
 	private fun openTermReportFromPush(pushIntent: Intent) {
 		val extras = pushIntent.extras ?: return
-		val isTermReport = extras.getString(TermReportPush.TYPE_KEY) == TermReportPush.TERM_REPORT_TYPE
-		val insightId = extras.getString(TermReportPush.INSIGHT_ID_KEY)
+		val insightId = termReportInsightIdOrNull(
+			type = extras.getString(TermReportPush.TYPE_KEY),
+			insightId = extras.getString(TermReportPush.INSIGHT_ID_KEY)
+		) ?: return
 
-		if (isTermReport && insightId != null) {
-			termReportFocus.request(insightId)
-			pushIntent.removeExtra(TermReportPush.TYPE_KEY)
-		}
+		termReportFocus.request(insightId)
+		pushIntent.removeExtra(TermReportPush.TYPE_KEY)
 	}
 
 	/** [isColdStart] is false when the activity is recreated or restored after the process died. */
