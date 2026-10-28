@@ -8,4 +8,7 @@ sealed interface ObserveTermReportUseCaseError : UseCaseError {
 
 	// The service could not be asked for the report and the report is not on this device.
 	data object NoConnection : ObserveTermReportUseCaseError
+
+	// The service refused the session, and the report is not on this device.
+	data object SessionEnded : ObserveTermReportUseCaseError
 }

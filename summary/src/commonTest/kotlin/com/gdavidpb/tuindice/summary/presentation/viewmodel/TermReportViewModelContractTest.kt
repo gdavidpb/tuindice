@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.TermReportVoteQueue
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RateTermReportExceptionHandler
@@ -213,9 +215,12 @@ class TermReportViewModelContractTest {
 					exceptionHandler = ObserveTermReportExceptionHandler()
 				),
 				markTermReportSeenUseCase = MarkTermReportSeenUseCase(seen, reporting),
+				sessionCoroutineScope = SessionCoroutineScope(dispatchers = dispatchers),
 				rateTermReportUseCase = RateTermReportUseCase(
 					insightsRepository = insights,
 					feedbackRepository = ControllableTermReportFeedbackRepository(),
+					sessionCoroutineScope = SessionCoroutineScope(dispatchers = dispatchers),
+					termReportVoteQueue = TermReportVoteQueue(),
 					reportingRepository = reporting,
 					exceptionHandler = RateTermReportExceptionHandler()
 				),

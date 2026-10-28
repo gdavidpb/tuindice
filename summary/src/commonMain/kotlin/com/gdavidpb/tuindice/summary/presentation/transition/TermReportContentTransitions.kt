@@ -15,11 +15,9 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransit
 		// The report is read again when the service or the record says something new. The thumb on screen is kept while a
 		// vote of the student is pending; with none pending, the thumb follows the vote the service confirmed.
 		on<TermReportInternalEvent.ReportObserved> { state, event ->
-			val isVotePending = state.feedback != state.report.confirmedFeedback
-
 			state.copy(
 				report = event.report,
-				feedback = if (isVotePending) state.feedback else event.report.confirmedFeedback
+				feedback = if (state.pendingThumb != null) state.feedback else event.report.confirmedFeedback
 			)
 		}
 
@@ -30,14 +28,20 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransit
 		// A report on screen is not taken away by a read that failed: it stays until the student leaves it.
 		on<TermReportInternalEvent.ReportUnavailable> { state, _ -> state }
 
-		// The service refused the thumb the screen shows: the one confirmed comes back. A refusal of a thumb the student has
-		// already moved away from changes nothing on screen.
+		// The service refused the last thumb, the one the screen shows: the one confirmed comes back. A refusal of an earlier
+		// thumb, or of one the student has already moved away from, changes nothing on screen.
 		on<TermReportInternalEvent.FeedbackRejected> { state, event ->
-			if (state.feedback == event.rejected) {
+			if (event.thumb == state.pendingThumb && state.feedback == event.rejected) {
 				state.copy(feedback = state.report.confirmedFeedback)
 			} else {
 				state
 			}
+		}
+
+		// The last vote of the student has ended, accepted or refused: no thumb waits for the service any more. An earlier
+		// vote ending changes nothing.
+		on<TermReportInternalEvent.ThumbSettled> { state, event ->
+			if (event.thumb == state.pendingThumb) state.copy(pendingThumb = null) else state
 		}
 
 		// The thumb is shown as chosen at once, and the service is asked. A tap on the thumb already shown asks nothing.
@@ -45,9 +49,9 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportContentTransit
 			if (state.feedback == action.useful) {
 				state
 			} else {
-				machine.rate(host = host, insightId = state.report.insightId, useful = action.useful)
+				val thumb = machine.rate(host = host, insightId = state.report.insightId, useful = action.useful)
 
-				state.copy(feedback = action.useful)
+				state.copy(feedback = action.useful, pendingThumb = thumb)
 			}
 		}
 

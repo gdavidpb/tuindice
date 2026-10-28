@@ -81,6 +81,9 @@ class ManualRatingsInsightsRepository(
 
 	val requests = mutableListOf<PendingThumb>()
 
+	// How many thumbs the service has been asked for, so that a test can wait for the next one to be sent.
+	val requestCount = MutableStateFlow(0)
+
 	override fun observeInsightsFlow(): Flow<List<AssistantTermInsight>> = insightsFlow
 
 	override suspend fun refreshInsights() = Unit
@@ -89,6 +92,7 @@ class ManualRatingsInsightsRepository(
 		val request = PendingThumb(useful = useful)
 
 		requests += request
+		requestCount.value = requests.size
 
 		request.answer.await()
 	}

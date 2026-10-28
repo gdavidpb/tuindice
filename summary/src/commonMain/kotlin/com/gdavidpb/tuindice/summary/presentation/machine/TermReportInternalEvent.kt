@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCa
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportItem
 
 /**
- * Internal machine inputs: what the observation of the report says now, or the answer to a thumb the service refused.
- * The report arrives already built, since the observation owns the mapping.
+ * Internal machine inputs: what the observation of the report says now, the answer to a thumb the service refused, or
+ * the end of a thumb's vote. The report arrives already built, since the observation owns the mapping.
  */
 sealed interface TermReportInternalEvent {
 	class ReportObserved(
@@ -20,9 +20,16 @@ sealed interface TermReportInternalEvent {
 		val cause: ObserveTermReportUseCaseError?
 	) : TermReportInternalEvent
 
-	// The service refused the thumb [rejected], which was the one on screen: the screen takes it back, unless it has
-	// moved on to another thumb since.
+	// The service refused the thumb [rejected], the vote numbered [thumb]. The screen takes it back only when that vote is
+	// still the last one the student sent, and its thumb is still the one on screen.
 	class FeedbackRejected(
+		val thumb: Int,
 		val rejected: Boolean
+	) : TermReportInternalEvent
+
+	// The vote numbered [thumb] has ended, accepted or refused. Only the last vote the student sent clears the thumb that
+	// waits for it: an earlier vote ending changes nothing.
+	class ThumbSettled(
+		val thumb: Int
 	) : TermReportInternalEvent
 }

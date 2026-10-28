@@ -107,6 +107,29 @@ class ShareableTermCardUiTest {
 		assertEquals(listOf(null, unreachableShareBackground.id, null), reported)
 	}
 
+	// The card leaves the screen while the picture it chose is still on its way: the mark it set must not stay behind,
+	// or the sheet would keep that background loading.
+	@Test
+	fun when_theCardLeavesWhileItsPictureIsOnItsWay_then_itNoLongerMarksAnyBackgroundPending() = runTuIndiceUiTest {
+		val shown = mutableStateOf(true)
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			if (shown.value) {
+				ShareableTermCard(
+					item = termItem(),
+					artwork = unreachableShareBackground.toShareTermArtwork(),
+					onArtworkPending = { artworkId -> reported += artworkId }
+				)
+			}
+		}
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { reported.contains(unreachableShareBackground.id) }
+
+		shown.value = false
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { reported.lastOrNull() == null }
+	}
+
 	@Test
 	fun when_theBundledArtworkIsShown_then_nothingIsReportedPending() = runTuIndiceUiTest {
 		val reported = mutableListOf<String?>()

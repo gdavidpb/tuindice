@@ -121,6 +121,31 @@ class SummaryHubTransitionsTest {
 		assertEquals(line, next.hub.termReport)
 	}
 
+	// The line of the term reports is put and taken by its own entry, in every state; the rest of the hub stays as it is.
+	@Test
+	fun theTermReportEntryObserved_putsAndTakesTheLine_inEveryState() = runTest {
+		val line = SummaryTermReportItem(
+			insightId = "term-1:2",
+			title = UiText.Raw("Tu informe de Abr - Jul 2026"),
+			subtitle = "Cerraste con 4,18",
+			target = SummaryHubTarget.TermReport(insightId = "term-1:2")
+		)
+
+		for (state in states) {
+			val withLine = assertIs<TransitionResult.Transitioned<Summary.State>>(
+				definition.process(state, SummaryInternalEvent.TermReportEntryObserved(entry = line))
+			).toState
+
+			assertEquals(hub.copy(termReport = line), withLine.hub, "the line put in ${state::class.simpleName}")
+
+			val withoutLine = assertIs<TransitionResult.Transitioned<Summary.State>>(
+				definition.process(withLine, SummaryInternalEvent.TermReportEntryObserved(entry = null))
+			).toState
+
+			assertEquals(hub, withoutLine.hub, "the line taken in ${state::class.simpleName}")
+		}
+	}
+
 	@Test
 	fun theUserObserved_fromAnyStateButTheContent_makesTheContentWithTheHubOfTheState() = runTest {
 		val user = SummaryInternalEvent.UserObserved(content = summaryContentState())

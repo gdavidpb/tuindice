@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +76,12 @@ fun ShareableTermCard(
 
 	LaunchedEffect(pendingId) {
 		latestOnArtworkPending.value(pendingId)
+	}
+
+	// A card that leaves the screen while its picture is on its way takes its mark with it: the sheet would keep the
+	// background loading for good.
+	DisposableEffect(Unit) {
+		onDispose { latestOnArtworkPending.value(null) }
 	}
 
 	Box(

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
 import com.gdavidpb.tuindice.summary.domain.model.TermReportObservation
 import com.gdavidpb.tuindice.summary.domain.repository.TermReportFeedbackRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCaseError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateTermReportsUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +48,7 @@ class ObserveTermReportUseCase(
 			// A report that is not in the list, when the list could not be asked for, may just not be read yet.
 			when {
 				insight == null && !params.isRefreshed ->
-					TermReportObservation.Unavailable(ObserveTermReportUseCaseError.NoConnection)
+					TermReportObservation.Unavailable(unavailableCauseOf(params.refreshError))
 
 				reading is SummaryRecordReading.NotReady ->
 					TermReportObservation.Unavailable(ObserveTermReportUseCaseError.RecordNotReady)
@@ -65,6 +66,14 @@ class ObserveTermReportUseCase(
 
 				else -> TermReportObservation.Missing
 			}
+		}
+	}
+
+	// A refused session is told apart from a lost connection: anything else is the connection.
+	private fun unavailableCauseOf(refreshError: UpdateTermReportsUseCaseError?): ObserveTermReportUseCaseError {
+		return when (refreshError) {
+			UpdateTermReportsUseCaseError.SessionEnded -> ObserveTermReportUseCaseError.SessionEnded
+			UpdateTermReportsUseCaseError.NoConnection, null -> ObserveTermReportUseCaseError.NoConnection
 		}
 	}
 

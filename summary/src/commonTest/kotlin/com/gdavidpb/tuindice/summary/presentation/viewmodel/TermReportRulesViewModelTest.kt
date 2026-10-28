@@ -13,13 +13,17 @@ import com.gdavidpb.tuindice.summary.testing.TermReportViewModelOptions
 import com.gdavidpb.tuindice.summary.testing.createTermReportViewModel
 import com.gdavidpb.tuindice.summary.testing.termReportInsight
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.term_report_failed_message
 import tuindice.summary.generated.resources.term_report_failed_record_title
+import tuindice.summary.generated.resources.term_report_failed_session_message
 import tuindice.summary.generated.resources.term_report_failed_title
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -103,6 +107,53 @@ class TermReportRulesViewModelTest {
 			}
 
 			assertEquals(UiText.Resource(Res.string.term_report_failed_title), failed.title)
+			assertEquals(UiText.Resource(Res.string.term_report_failed_message), failed.message)
+		}
+	}
+
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theSessionEndsWhileTheReportIsAsked_then_theFailedSaysTheSessionIsNotActive() = runTest {
+		withMainDispatcher { dispatchers ->
+			val viewModel = createTermReportViewModel(
+				dispatchers = dispatchers,
+				insights = ControllableAssistantInsightsRepository(
+					refreshFailure = clientRequestException(HttpStatusCode.Unauthorized, path = "/insights/v1")
+				)
+			)
+
+			viewModel.openAction(insightId = "term-1:2")
+			val failed = withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<TermReport.State.Failed>().first()
+			}
+
+			assertEquals(UiText.Resource(Res.string.term_report_failed_title), failed.title)
+			assertEquals(UiText.Resource(Res.string.term_report_failed_session_message), failed.message)
+		}
+	}
+
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun when_theSessionEndedAndTheRetryIsAnswered_then_theFailedGivesWayToTheAnswer() = runTest {
+		withMainDispatcher { dispatchers ->
+			val insights = ControllableAssistantInsightsRepository(
+				refreshFailure = clientRequestException(HttpStatusCode.Unauthorized, path = "/insights/v1")
+			)
+			val viewModel = createTermReportViewModel(dispatchers = dispatchers, insights = insights)
+
+			viewModel.openAction(insightId = "term-1:2")
+			val failed = withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<TermReport.State.Failed>().first()
+			}
+			assertEquals(UiText.Resource(Res.string.term_report_failed_session_message), failed.message)
+
+			// The service answers this time, so the reports were refreshed: the report is not there at all.
+			insights.refreshFailure = null
+			viewModel.retryAction()
+
+			withTimeout(TIMEOUT_MILLIS) {
+				viewModel.state.filterIsInstance<TermReport.State.NoReport>().first()
+			}
 		}
 	}
 

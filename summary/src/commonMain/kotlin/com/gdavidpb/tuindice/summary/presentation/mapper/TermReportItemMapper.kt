@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
-import androidx.compose.foundation.layout.size
 import com.gdavidpb.tuindice.academiccore.domain.model.TermStatistic
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade

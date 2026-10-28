@@ -147,6 +147,24 @@ class TermReportItemMapperTest {
 		assertEquals(UiText.Resource(Res.string.term_report_pace_empty), pace.text)
 	}
 
+	@Test
+	fun theBarOfTheReportsTermIsHighlighted_andTheOtherTermsAreNot() {
+		val item = reportWith(
+			paceTerms = listOf(
+				termStatistic(
+					termKey = "2026-JAN_MAR",
+					periodCode = AcademicTermPeriod.JAN_MAR,
+					termOrder = 20261,
+					approvedCredits = 6
+				),
+				termStatistic(termKey = "2026-APR_JUL", approvedCredits = 3)
+			)
+		).toTermReportItem()
+
+		val pace = assertIs<TermReportPaceItem.Data>(item.pace)
+		assertEquals(listOf(false, true), pace.bars.map { bar -> bar.isHighlighted })
+	}
+
 	private fun subject(code: String, outcome: SummaryTermReportOutcome) = SummaryTermReportSubject(
 		subjectCode = code,
 		subjectName = "Materia $code",

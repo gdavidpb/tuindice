@@ -282,6 +282,7 @@
     <string name="term_report_failed_message">Revisa tu conexión y vuelve a intentarlo.</string>
     <string name="term_report_failed_record_title">Tu informe aún no está listo</string>
     <string name="term_report_failed_record_message">Tu informe aparecerá cuando termine de actualizarse tu expediente.</string>
+    <string name="term_report_failed_session_message">No pudimos actualizar tu informe porque tu sesión ya no está activa. Vuelve a entrar e inténtalo de nuevo.</string>
     <string name="term_report_retry">Reintentar</string>
     <string name="a11y_term_report_useful">Útil</string>
     <string name="a11y_term_report_not_useful">No útil</string>

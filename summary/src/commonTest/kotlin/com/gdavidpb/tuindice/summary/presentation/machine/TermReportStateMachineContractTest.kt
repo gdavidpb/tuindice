@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.summary.domain.usecase.MarkTermReportSeenUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveTermReportUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RateTermReportUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.TermReportVoteQueue
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RateTermReportExceptionHandler
@@ -17,6 +18,7 @@ import com.gdavidpb.tuindice.summary.testing.ControllableTermReportSeenRepositor
 import com.gdavidpb.tuindice.summary.testing.ControllableVisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.summary.testing.termReportItemFixture
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
@@ -94,7 +96,8 @@ class TermReportStateMachineContractTest {
 				TermReportInternalEvent.ReportObserved(report = report),
 				TermReportInternalEvent.ReportMissing,
 				TermReportInternalEvent.ReportUnavailable(cause = null),
-				TermReportInternalEvent.FeedbackRejected(rejected = false)
+				TermReportInternalEvent.FeedbackRejected(thumb = 1, rejected = false),
+				TermReportInternalEvent.ThumbSettled(thumb = 1)
 			),
 			coroutineScope = backgroundScope
 		)
@@ -121,9 +124,12 @@ class TermReportStateMachineContractTest {
 				exceptionHandler = ObserveTermReportExceptionHandler()
 			),
 			markTermReportSeenUseCase = MarkTermReportSeenUseCase(ControllableTermReportSeenRepository(), reporting),
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			rateTermReportUseCase = RateTermReportUseCase(
 				insightsRepository = insights,
 				feedbackRepository = ControllableTermReportFeedbackRepository(),
+				sessionCoroutineScope = testSessionCoroutineScope(),
+				termReportVoteQueue = TermReportVoteQueue(),
 				reportingRepository = reporting,
 				exceptionHandler = RateTermReportExceptionHandler()
 			),

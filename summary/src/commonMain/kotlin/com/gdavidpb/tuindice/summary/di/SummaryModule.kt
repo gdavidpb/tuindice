@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.SetShareBackgroundPreference
 import com.gdavidpb.tuindice.summary.domain.usecase.ShareTermImageUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryObservations
 import com.gdavidpb.tuindice.summary.domain.usecase.SummaryTermReports
+import com.gdavidpb.tuindice.summary.domain.usecase.TermReportVoteQueue
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateShareBackgroundsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateTermReportsUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -77,6 +78,8 @@ val summaryModule = module {
 
 	singleOf(::StatisticsTopBarActionBus)
 	singleOf(::TermReportTopBarActionBus)
+	// One queue for the app: the votes of a report go to the service in order, whichever screen sent them.
+	singleOf(::TermReportVoteQueue)
 
 	/* State machines */
 

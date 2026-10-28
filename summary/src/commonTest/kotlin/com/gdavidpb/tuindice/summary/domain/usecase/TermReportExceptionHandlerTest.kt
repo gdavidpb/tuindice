@@ -45,6 +45,44 @@ class TermReportExceptionHandlerTest {
 	}
 
 	@Test
+	fun updateExceptionHandler_mapsARefusedSessionToSessionEnded() {
+		val handler = UpdateTermReportsExceptionHandler()
+
+		assertEquals(
+			UpdateTermReportsUseCaseError.SessionEnded,
+			handler.parseException(clientRequestException(HttpStatusCode.Unauthorized, path = "/insights/v1"))
+		)
+		assertEquals(
+			UpdateTermReportsUseCaseError.SessionEnded,
+			handler.parseException(clientRequestException(HttpStatusCode.Forbidden, path = "/insights/v1"))
+		)
+		assertEquals(
+			UpdateTermReportsUseCaseError.SessionEnded,
+			handler.parseException(clientRequestException(HttpStatusCode.Locked, path = "/insights/v1"))
+		)
+	}
+
+	@Test
+	fun updateExceptionHandler_readsTheStatusBeforeTheMessage() {
+		// A refused session whose body mentions a timeout is still a refused session, not a lost connection.
+		assertEquals(
+			UpdateTermReportsUseCaseError.SessionEnded,
+			UpdateTermReportsExceptionHandler().parseException(
+				clientRequestException(HttpStatusCode.Unauthorized, path = "/insights/v1", message = "timeout")
+			)
+		)
+	}
+
+	@Test
+	fun updateExceptionHandler_leavesOtherRefusalsUnhandled() {
+		assertNull(
+			UpdateTermReportsExceptionHandler().parseException(
+				clientRequestException(HttpStatusCode.Conflict, path = "/insights/v1")
+			)
+		)
+	}
+
+	@Test
 	fun updateExceptionHandler_mapsConnectionToNoConnection() {
 		assertEquals(
 			UpdateTermReportsUseCaseError.NoConnection,

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
@@ -20,15 +21,18 @@ import com.gdavidpb.tuindice.summary.presentation.transition.termReportFailedTra
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportIdleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportLoadingTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.termReportNoReportTransitions
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.launch
 
 class TermReportMachine(
 	private val observeTermReportUseCase: ObserveTermReportUseCase,
 	private val markTermReportSeenUseCase: MarkTermReportSeenUseCase,
 	private val rateTermReportUseCase: RateTermReportUseCase,
-	private val updateTermReportsUseCase: UpdateTermReportsUseCase
+	private val updateTermReportsUseCase: UpdateTermReportsUseCase,
+	private val sessionCoroutineScope: SessionCoroutineScope
 ) : ScreenMachine<TermReport.State, TermReport.Effect> {
 	// The report the screen was opened on: a retry reads it again.
 	private var insightId: String? = null
@@ -36,8 +40,10 @@ class TermReportMachine(
 	// The observation of the report is kept to cancel it when it is started again.
 	private var observationJob: Job? = null
 
-	// The vote in flight. A vote sent while another one is in flight replaces it, so only the last thumb is waited for.
-	private var rateJob: Job? = null
+	// The number of the last thumb sent: each vote is numbered, and the screen knows which one is the last from its state
+	// (see TermReport.State.Content). A thumb a newer one replaces is not cancelled: its flow runs to its end, so the use
+	// case reports its refusal like any other (see FlowUseCase).
+	private var lastThumb = 0
 
 	// The report is marked as seen once, the first time it reaches the screen.
 	private var isMarkedSeen = false
@@ -95,7 +101,12 @@ class TermReportMachine(
 		observationJob = host.launchMachineJob {
 			val refresh = updateTermReportsUseCase.execute(Unit).lastOrNull()
 			val isRefreshed = refresh is UseCaseState.Data
-			val params = ObserveTermReportParams(insightId = reportId, isRefreshed = isRefreshed)
+			val refreshError = (refresh as? UseCaseState.Error)?.error
+			val params = ObserveTermReportParams(
+				insightId = reportId,
+				isRefreshed = isRefreshed,
+				refreshError = refreshError
+			)
 
 			observeTermReportUseCase.execute(params).collect { useCaseState ->
 				when (useCaseState) {
@@ -121,16 +132,27 @@ class TermReportMachine(
 		}
 	}
 
-	// The thumb goes to the service, and the one before it in flight is cancelled. A refusal gives the thumb back to the
-	// screen, when the screen still shows the one refused.
-	internal fun rate(host: MachineHost<TermReport.Effect>, insightId: String, useful: Boolean) {
-		rateJob?.cancel()
-		rateJob = host.launchMachineJob {
+	// The thumb goes to the service after the one before it, of the same report. The screen no longer acts on that
+	// one: a vote the service takes is kept on the device all the same. A refusal gives the thumb back to the screen,
+	// when the screen still shows the one refused.
+	//
+	// The vote starts here, in the session and at once. The thumbs then reach the queue in the order the student gave
+	// them, whatever order the screen's own jobs happen to be scheduled in.
+	// The number of the vote is returned: the screen keeps it as the thumb in flight (see TermReport.State.Content), and
+	// the vote reports its refusal and its end with it.
+	internal fun rate(host: MachineHost<TermReport.Effect>, insightId: String, useful: Boolean): Int {
+		val thumb = ++lastThumb
+
+		sessionCoroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
 			rateTermReportUseCase.execute(RateTermReportParams(insightId = insightId, useful = useful)).collect { state ->
 				if (state is UseCaseState.Error) {
-					host.processInternalEvent(TermReportInternalEvent.FeedbackRejected(rejected = useful))
+					host.processInternalEvent(TermReportInternalEvent.FeedbackRejected(thumb = thumb, rejected = useful))
 				}
 			}
+
+			host.processInternalEvent(TermReportInternalEvent.ThumbSettled(thumb = thumb))
 		}
+
+		return thumb
 	}
 }

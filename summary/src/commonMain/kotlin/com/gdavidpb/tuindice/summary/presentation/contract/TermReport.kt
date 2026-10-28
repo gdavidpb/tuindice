@@ -36,10 +36,13 @@ object TermReport {
 
 		// The thumb the student chose is kept while the report is on screen: it is the one the screen shows as selected.
 		// [feedback] is the thumb the screen shows as chosen: the student's vote, or the one confirmed when there is none
-		// in flight. The share action is in the bar only when the report's term can be shared.
+		// in flight. [pendingThumb] numbers the student's last vote while that vote is in flight: until it ends, the
+		// confirmed thumb does not take over the one on screen. The share action is in the bar only when the report's term
+		// can be shared.
 		data class Content(
 			val report: TermReportItem,
-			val feedback: Boolean? = null
+			val feedback: Boolean? = null,
+			val pendingThumb: Int? = null
 		) : State() {
 			override val topBarConfig: TopBarConfig?
 				get() = if (report.isShareable) TopBarConfig.TermReport else null

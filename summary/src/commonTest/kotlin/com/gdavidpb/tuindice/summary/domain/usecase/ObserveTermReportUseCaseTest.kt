@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.summary.domain.model.TermReportObservation
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ObserveTermReportUseCaseError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateTermReportsUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.ObserveTermReportExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.param.ObserveTermReportParams
 import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
@@ -106,6 +107,54 @@ class ObserveTermReportUseCaseTest {
 				assertIs<UseCaseState.Data<TermReportObservation>>(awaitItem()).value
 			)
 			assertEquals("term-1:2", found.report.insightId)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun aReportMissingAfterASessionEndedUpdate_isUnavailableWithSessionEnded() = runTest {
+		val useCase = createObserveTermReportUseCase(
+			insights = ControllableAssistantInsightsRepository(),
+			record = ControllableVisibleAcademicRecordRepository(record)
+		)
+
+		useCase.execute(
+			ObserveTermReportParams(
+				insightId = "term-1:2",
+				isRefreshed = false,
+				refreshError = UpdateTermReportsUseCaseError.SessionEnded
+			)
+		).test {
+			awaitItem()
+
+			val unavailable = assertIs<TermReportObservation.Unavailable>(
+				assertIs<UseCaseState.Data<TermReportObservation>>(awaitItem()).value
+			)
+			assertEquals(ObserveTermReportUseCaseError.SessionEnded, unavailable.error)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun aReportMissingAfterAConnectionFailedUpdate_isUnavailableWithNoConnection() = runTest {
+		val useCase = createObserveTermReportUseCase(
+			insights = ControllableAssistantInsightsRepository(),
+			record = ControllableVisibleAcademicRecordRepository(record)
+		)
+
+		useCase.execute(
+			ObserveTermReportParams(
+				insightId = "term-1:2",
+				isRefreshed = false,
+				refreshError = UpdateTermReportsUseCaseError.NoConnection
+			)
+		).test {
+			awaitItem()
+
+			val unavailable = assertIs<TermReportObservation.Unavailable>(
+				assertIs<UseCaseState.Data<TermReportObservation>>(awaitItem()).value
+			)
+			assertEquals(ObserveTermReportUseCaseError.NoConnection, unavailable.error)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

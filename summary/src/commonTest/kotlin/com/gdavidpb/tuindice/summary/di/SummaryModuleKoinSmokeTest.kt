@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.AssistantInsightsRepository
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.ShareTermViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.TermReportViewModel
 import com.gdavidpb.tuindice.summary.testing.ControllableAssistantInsightsRepository
 import com.gdavidpb.tuindice.summary.testing.ControllablePensumProgressRepository
 import com.gdavidpb.tuindice.summary.testing.ControllableRecordDataPrerequisiteRepository
@@ -38,6 +40,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.russhwolf.settings.Settings
@@ -67,6 +70,15 @@ class SummaryModuleKoinSmokeTest {
 		summaryTestRepositories
 	) {
 		assertResolves(ShareTermViewModel::class)
+	}
+
+	// The report votes in the session's scope, and its votes queue up in the app's one queue.
+	@Test
+	fun resolvesTermReportViewModel() = withKoinSmokeTest(
+		summaryModule,
+		summaryTestRepositories
+	) {
+		assertResolves(TermReportViewModel::class)
 	}
 
 	// The share sheet's repositories are the real ones, over the doubles of the server and of the settings.
@@ -99,6 +111,7 @@ private val summaryTestRepositories = module {
 	single<AssistantInsightsRepository> { ControllableAssistantInsightsRepository() }
 	single<EventPublisher> { NoOpEventPublisher }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+	single<SessionCoroutineScope> { testSessionCoroutineScope() }
 }
 
 // A server that answers no catalog: the share sheet keeps the list it has, which starts with the app's own background.

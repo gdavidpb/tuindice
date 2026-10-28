@@ -20,5 +20,11 @@ internal fun MachineDefinitionBuilder<TermReport.State>.termReportNoReportTransi
 
 		// A cause that keeps the report from being read says nothing on a screen that already says there is no report.
 		on<TermReportInternalEvent.ReportUnavailable> { state, _ -> state }
+
+		// A refusal says nothing on a screen that already says there is no report: no thumb is shown to take back.
+		on<TermReportInternalEvent.FeedbackRejected> { state, _ -> state }
+
+		// The end of a vote says nothing on a screen that already says there is no report either.
+		on<TermReportInternalEvent.ThumbSettled> { state, _ -> state }
 	}
 }
