@@ -213,7 +213,7 @@ class ToolchainTests(unittest.TestCase):
         ws = Workspace(self, [support.scenario("fix-a")], {"toolchain": {"ios": {"XCODE_VERSION": "26.4"}}})
         result = ws.evidence()
         self.assertEqual(result.code, 3, result.out)
-        self.assertIn("TOOLCHAIN DIFFERS XCODE_VERSION: lock 27.0, actual 26.4", result.out)
+        self.assertIn("TOOLCHAIN DIFFERS XCODE_VERSION: lock 27.1, actual 26.4", result.out)
         self.assertNotIn("ensure-device", [c[1] for c in ws.calls()])
         manifest = ws.manifest()
         self.assertEqual((manifest["toolchain"]["lockMatches"], manifest["outcome"]), (False, "environment_refused"))

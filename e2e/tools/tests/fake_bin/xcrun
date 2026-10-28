@@ -20,7 +20,7 @@ runtime="com.apple.CoreSimulator.SimRuntime.iOS-27-0"
 udid="FAKE-0000-0000-0000-000000000001"
 
 if [[ "${1:-}" == "xcodebuild" ]]; then
-	printf 'Xcode %s\nBuild version %s\n' "${FAKE_XCODE_VERSION:-27.0}" "${FAKE_XCODE_BUILD:-27A266a}"
+	printf 'Xcode %s\nBuild version %s\n' "${FAKE_XCODE_VERSION:-27.1}" "${FAKE_XCODE_BUILD:-27A9275}"
 	exit 0
 fi
 [[ "${1:-}" == "simctl" ]] || { echo "fake xcrun: unsupported $*" >&2; exit 64; }
