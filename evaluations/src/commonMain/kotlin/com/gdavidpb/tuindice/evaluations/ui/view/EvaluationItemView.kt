@@ -1,41 +1,18 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
-import com.gdavidpb.tuindice.base.ui.view.ClassPlaceLines
-import com.gdavidpb.tuindice.base.ui.view.MetadataLine
-import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardElementModifiers
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
+import com.gdavidpb.tuindice.base.ui.view.EvaluationCardView
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -48,28 +25,34 @@ import tuindice.evaluations.generated.resources.label_evaluation_swipe_ask
 import tuindice.evaluations.generated.resources.label_evaluation_swipe_delete
 import tuindice.evaluations.generated.resources.label_evaluation_swipe_edit
 
+// The row of one evaluation in the Evaluations tab: the card that every list of evaluations draws, with the tags, the
+// swipe actions and the grade button of this tab.
 @Composable
 fun EvaluationItemView(
 	modifier: Modifier = Modifier,
 	item: EvaluationItem,
 	actions: EvaluationItemActions
 ) {
-	val metadataColor = when (item.highlightTone) {
-		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
-		else -> MaterialTheme.colorScheme.onSurfaceVariant
-	}
-	val statusColors = statusColors(item.statusTone)
 	val showActionsLabel = stringResource(Res.string.a11y_evaluation_show_actions)
 	val editActionLabel = stringResource(Res.string.label_evaluation_swipe_edit)
 	val deleteActionLabel = stringResource(Res.string.label_evaluation_swipe_delete)
 	val askActionLabel = stringResource(Res.string.label_evaluation_swipe_ask)
+	val registerGradeLabel = stringResource(Res.string.a11y_evaluation_register_grade)
 
-	Card(
-		colors = CardDefaults.cardColors(
-			containerColor = MaterialTheme.colorScheme.surfaceVariant,
-			contentColor = MaterialTheme.colorScheme.onSurface
+	EvaluationCardView(
+		item = EvaluationCardItem(
+			name = item.typeNameText,
+			subjectCode = item.subjectCodeText,
+			dateText = item.dateText.asString(),
+			highlightTone = item.highlightTone.toEvaluationTone(),
+			typeIcon = item.typeIcon,
+			place = item.place,
+			gradeText = if (item.showsGradeAction) item.gradeText else null,
+			statusText = item.statusText,
+			statusTone = item.statusTone.toEvaluationTone()
 		),
-		modifier = Modifier
+		modifier = modifier,
+		cardModifier = Modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 			.clickable(
 				onClickLabel = showActionsLabel,
@@ -98,171 +81,25 @@ fun EvaluationItemView(
 						}
 					}
 				)
-			}
-			.fillMaxWidth()
-			.padding(
-				horizontal = EvaluationCardHorizontalPadding,
-				vertical = EvaluationCardVerticalPadding
-			)
-			// The caller's modifier goes last, inside the margin, so an arrival highlight frames the card
-			// and not the space around it.
-			.then(modifier)
-	) {
-		Box(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(EvaluationCardContentPadding)
-		) {
-			Column {
-				// The state stays on the first line: both chips are as tall as each other, so the state lines up with
-				// the name when they share the line, and with the first line of the name when the subject goes under it.
-				Row(
-					modifier = Modifier.fillMaxWidth(),
-					verticalAlignment = Alignment.Top
-				) {
-					Row(
-						modifier = Modifier
-							.weight(1f),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Icon(
-							modifier = Modifier
-								.testTag(EvaluationsUiTags.EvaluationTypeInlineIcon)
-								.size(18.dp),
-							imageVector = item.typeIcon,
-							tint = MaterialTheme.colorScheme.onBackground,
-							contentDescription = null
-						)
-
-						// The name and the subject share a flow: the subject goes under the name only when it does not
-						// fit beside it, and the name keeps the width that the icon and the state leave it.
-						FlowRow(
-							modifier = Modifier
-								.weight(1f)
-								.padding(start = 8.dp),
-							horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium),
-							verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall),
-							itemVerticalAlignment = Alignment.CenterVertically
-						) {
-							Text(
-								text = item.typeNameText,
-								color = MaterialTheme.colorScheme.onBackground,
-								style = MaterialTheme.typography.titleMedium,
-							)
-
-							SubjectCodeChip(
-								subjectCode = item.subjectCodeText,
-								variant = SubjectCodeChipVariant.Dense,
-								containerColor = item.subjectCodeContainerColor,
-								contentColor = item.subjectCodeColor
-							)
-						}
-					}
-
-					Box(
-						modifier = Modifier
-							.testTag(EvaluationsUiTags.EvaluationStatusChip)
-							.background(
-								color = statusColors.container,
-								shape = RoundedCornerShape(TuIndiceRadius.Small)
-							)
-							.padding(horizontal = 10.dp, vertical = 5.dp)
-					) {
-						Text(
-							text = item.statusText,
-							color = statusColors.content,
-							style = MaterialTheme.typography.labelLarge,
-						)
-					}
-				}
-
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(top = EvaluationMetadataTopPadding),
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					// It takes only what the grade button leaves: the lines wrap inside it instead of squeezing the
-					// button, which keeps the size it has on a row without a place.
-					Column(
-						modifier = Modifier.weight(1f),
-						verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
-					) {
-						MetadataLine(
-							icon = item.dateIcon,
-							text = item.dateText.asString(),
-							color = metadataColor
-						)
-
-						item.place?.let { place ->
-							ClassPlaceLines(
-								modifier = Modifier.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId)),
-								place = place
-							)
-						}
-					}
-
-					if (item.showsGradeAction) {
-						Box(
-							modifier = Modifier
-								.testTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
-								.clickable(
-									onClickLabel = stringResource(Res.string.a11y_evaluation_register_grade),
-									role = Role.Button,
-									onClick = actions.onGradeClick
-								)
-								.border(
-									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-									shape = RoundedCornerShape(TuIndiceRadius.Large)
-								)
-								.padding(
-									horizontal = EvaluationGradeHorizontalPadding,
-									vertical = EvaluationGradeVerticalPadding
-								),
-							contentAlignment = Alignment.Center
-						) {
-							Text(
-								text = item.gradeText,
-								color = MaterialTheme.colorScheme.onSurfaceVariant,
-								style = MaterialTheme.typography.titleMedium,
-								fontWeight = FontWeight.Bold
-							)
-						}
-					}
-				}
-			}
-		}
-	}
+			},
+		elementModifiers = EvaluationCardElementModifiers(
+			typeIcon = Modifier.testTag(EvaluationsUiTags.EvaluationTypeInlineIcon),
+			place = Modifier.testTag(EvaluationsUiTags.evaluationPlace(item.evaluationId)),
+			grade = Modifier
+				.testTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
+				.clickable(
+					onClickLabel = registerGradeLabel,
+					role = Role.Button,
+					onClick = actions.onGradeClick
+				),
+			status = Modifier.testTag(EvaluationsUiTags.EvaluationStatusChip)
+		)
+	)
 }
 
-private val EvaluationCardHorizontalPadding = 16.dp
-private val EvaluationCardVerticalPadding = 6.dp
-private val EvaluationCardContentPadding = 14.dp
-private val EvaluationMetadataTopPadding = 8.dp
-private val EvaluationGradeHorizontalPadding = 20.dp
-private val EvaluationGradeVerticalPadding = 8.dp
-
-private data class StatusColors(
-	val container: Color,
-	val content: Color
-)
-
-@Composable
-private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
-	return when (tone) {
-		EvaluationHighlightTone.Success -> StatusColors(
-			container = MaterialTheme.colorScheme.surfaceDim,
-			content = MaterialTheme.colorScheme.onSurface
-		)
-
-		EvaluationHighlightTone.Error -> StatusColors(
-			container = MaterialTheme.colorScheme.errorContainer,
-			content = MaterialTheme.colorScheme.onErrorContainer
-		)
-
-		EvaluationHighlightTone.Neutral -> StatusColors(
-			container = MaterialTheme.colorScheme.surfaceDim,
-			content = MaterialTheme.colorScheme.onSurface
-		)
+private fun EvaluationHighlightTone.toEvaluationTone(): EvaluationTone =
+	when (this) {
+		EvaluationHighlightTone.Success -> EvaluationTone.Success
+		EvaluationHighlightTone.Error -> EvaluationTone.Error
+		EvaluationHighlightTone.Neutral -> EvaluationTone.Neutral
 	}
-}
