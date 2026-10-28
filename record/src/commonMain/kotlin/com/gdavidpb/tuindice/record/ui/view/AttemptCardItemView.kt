@@ -87,13 +87,14 @@ fun AttemptCardItemView(
 			)
 		}
 
-		if (actions.onAskAssistant != null) {
+		val onAskAssistant = actions.onAskAssistant
+		if (onAskAssistant != null) {
 			AttemptCardMenu(
 				expanded = isMenuExpanded.value,
 				onDismissRequest = { isMenuExpanded.value = false },
 				onAsk = {
 					isMenuExpanded.value = false
-					actions.onAskAssistant?.invoke(item.assistantContext)
+					onAskAssistant(item.assistantContext)
 				}
 			)
 		}

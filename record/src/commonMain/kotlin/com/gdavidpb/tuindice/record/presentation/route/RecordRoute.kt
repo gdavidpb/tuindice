@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.RecordAssistantDeclaration
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -142,7 +143,9 @@ internal fun Record.State.toRouteViewState(): ViewState {
 		},
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
-		assistantContext = assistantContext,
+		// Every state of the record declares its context (Record.State.assistantContext is not nullable), so the
+		// declaration is made here, and the context is projected only on the bar's tap.
+		declaredAssistantContext = RecordAssistantDeclaration { assistantContext },
 		topBarViewModeState = when (this) {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)

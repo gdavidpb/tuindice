@@ -5,6 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -76,13 +78,17 @@ class RecordContentCompositionUiTest {
 		)
 
 		// The number moves over the frames, and none of those frames composes the record, the card or the selector.
-		repeat(4) { mainClock.advanceTimeByFrame() }
-		waitForIdle()
+		// Its values pass through the ones between the two grades: a jump from 4 to 2 would show none of them.
+		val shown = mutableListOf<Double>()
+		advanceFrames(4, into = shown)
 		val fiveFrames = compositions.countsByName()
 		onAllNodesWithText("Δx 4.0000").assertCountEquals(0)
-		repeat(60) { mainClock.advanceTimeByFrame() }
-		waitForIdle()
+		advanceFrames(60, into = shown)
 		val animated = compositions.countsByName()
+		assertTrue(
+			shown.any { average -> average > 2.0 && average < 4.0 },
+			"the number shows values between the two grades on its way, but it showed $shown"
+		)
 
 		assertEquals(changed, fiveFrames, "frames two to five compose neither the record, the card nor the selector")
 		assertEquals(
@@ -248,5 +254,27 @@ class RecordContentCompositionUiTest {
 		)
 	)
 
+	// Each frame moves the clock on and keeps the averages the term shows on it.
+	private fun ComposeUiTest.advanceFrames(frames: Int, into: MutableList<Double>) {
+		repeat(frames) {
+			mainClock.advanceTimeByFrame()
+			waitForIdle()
+			into += shownAverages()
+		}
+	}
+
+	// The averages the term draws on this frame, read from their text: "Δx 3.5000" is 3.5.
+	private fun ComposeUiTest.shownAverages(): List<Double> = onAllNodesWithText(AverageText, substring = true)
+		.fetchSemanticsNodes()
+		.mapNotNull { node ->
+			val drawn = node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text }
+			AverageValue.find(drawn)?.groupValues?.get(1)?.toDouble()
+		}
+
 	private fun List<String>.countsByName() = groupingBy { it }.eachCount()
+
+	private companion object {
+		const val AverageText = "Δx"
+		val AverageValue = Regex("""Δx (\d+\.\d{4})""")
+	}
 }

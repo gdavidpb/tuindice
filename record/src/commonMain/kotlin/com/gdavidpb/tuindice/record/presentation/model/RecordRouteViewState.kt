@@ -10,8 +10,14 @@ class RecordRouteViewState(
 	override val topBarConfig: TopBarConfig? = null,
 	override val isTopBarVisible: Boolean = false,
 	override val isBottomBarVisible: Boolean = false,
-	// What the record declared for the assistant. The bar reads it from here, so a route state that left it out
-	// would take the assistant off the record's bar.
-	override val assistantContext: AssistantScreenContext? = null,
+	// What the record declared for the assistant, or nothing. The shell reads whether it declared one on each state,
+	// without projecting it. A route state that left it out would take the assistant off the record's bar.
+	private val declaredAssistantContext: RecordAssistantDeclaration? = null,
 	val topBarViewModeState: RecordTopBarViewModeState? = null
-) : ViewState
+) : ViewState {
+	override val hasAssistantContext: Boolean
+		get() = declaredAssistantContext != null
+
+	override val assistantContext: AssistantScreenContext?
+		get() = declaredAssistantContext?.context
+}

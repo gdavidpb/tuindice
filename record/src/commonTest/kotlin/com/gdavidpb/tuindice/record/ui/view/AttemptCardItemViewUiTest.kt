@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
@@ -22,6 +23,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
@@ -192,6 +194,79 @@ class AttemptCardItemViewUiTest {
 		waitForIdle()
 
 		assertNodeHidden(AskAssistantMenuItemTag)
+	}
+
+	@Test
+	fun when_anEditableCardOffersTheAssistant_then_theSliderSetsTheGrade_andTheCardStillAsks() = runTuIndiceUiTest {
+		val reported = mutableListOf<Triple<Int?, AttemptOutcome?, Boolean>>()
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(attemptId = "attempt-1", subjectCode = "MA2115"),
+				gradeState = remember { mutableIntStateOf(4) },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected ->
+						reported += Triple(grade, outcome, isSelected)
+					},
+					onAskAssistant = { }
+				)
+			)
+		}
+
+		// The slider is the card's own control: moving it sets the grade, and the card does not open its question.
+		onNodeWithTag(RecordUiTags.attemptGradeSlider("attempt-1"))
+			.performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(2f) }
+		waitForIdle()
+
+		assertEquals(
+			listOf<Triple<Int?, AttemptOutcome?, Boolean>>(Triple(2, null, false), Triple(2, null, true)),
+			reported
+		)
+		assertNodeHidden(AskAssistantMenuItemTag)
+
+		// A tap on the card's name, outside its controls, still opens the question about the subject.
+		onNodeWithText("MATERIA MA2115").performClick()
+		waitForIdle()
+
+		assertNodeVisible(AskAssistantMenuItemTag)
+	}
+
+	@Test
+	fun when_anEditableStatusCardOffersTheAssistant_then_theSelectorChooses_andTheCardStillAsks() = runTuIndiceUiTest {
+		val reported = mutableListOf<Triple<Int?, AttemptOutcome?, Boolean>>()
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(
+					attemptId = "attempt-1",
+					subjectCode = "MA2115",
+					gradingMode = GradingMode.QUALITATIVE_PASS_FAIL
+				),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected ->
+						reported += Triple(grade, outcome, isSelected)
+					},
+					onAskAssistant = { }
+				)
+			)
+		}
+
+		// The selector is the card's own control: choosing a status reports it, and the card does not open its question.
+		onNodeWithTag(RecordUiTags.attemptStatusSelector("attempt-1")).performClick()
+		onNodeWithTag(RecordUiTags.attemptStatusOption(attemptId = "attempt-1", status = "failed")).performClick()
+		waitForIdle()
+
+		assertEquals(
+			listOf<Triple<Int?, AttemptOutcome?, Boolean>>(Triple(null, AttemptOutcome.FAILED, true)),
+			reported
+		)
+		assertNodeHidden(AskAssistantMenuItemTag)
+
+		// A tap on the card's name, outside its controls, still opens the question about the subject.
+		onNodeWithText("MATERIA MA2115").performClick()
+		waitForIdle()
+
+		assertNodeVisible(AskAssistantMenuItemTag)
 	}
 
 	@Test

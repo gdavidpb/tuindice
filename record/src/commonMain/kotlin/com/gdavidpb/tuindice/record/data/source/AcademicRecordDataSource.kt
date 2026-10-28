@@ -336,9 +336,6 @@ class AcademicRecordDataSource(
 		)
 	}
 
-	// A write that cannot be submitted (no local record, no revision, no such synthetic term) never reaches the
-	// outbox, so nothing else settles it. Whoever named the mutation is waiting for its result: it is rejected
-	// under that id, with the reason as its code. Without a name nobody is waiting, so nothing is published.
 	// The revision a mutation is made against. When the record or its revision is missing, the rejection is
 	// published with the reason and null is returned, so every mutation stops at the same guard.
 	private suspend fun submissionRevision(mutationId: String?): Long? {
@@ -354,6 +351,9 @@ class AcademicRecordDataSource(
 		return null
 	}
 
+	// A write that cannot be submitted (no local record, no revision, no such synthetic term) never reaches the
+	// outbox, so nothing else settles it. Whoever named the mutation is waiting for its result: it is rejected
+	// under that id, with the reason as its code. Without a name nobody is waiting, so nothing is published.
 	private suspend fun publishUnsubmittedRejection(mutationId: String?, detailCode: String) {
 		if (mutationId == null) return
 
