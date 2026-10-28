@@ -672,9 +672,8 @@ while IFS= read -r module; do
 			if module_is_kmp "$module"; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:detekt"
-				if [[ "$module" != "testkit" ]]; then
-					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
-				fi
+				# testkit has host tests of its own, so it runs them like the other KMP modules. Its iOS tests stay out: it has none.
+				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
 				append_ios_test_task ":${module}:compileKotlinIosSimulatorArm64"
 				if [[ "$module" != "testkit" ]]; then
 					append_ios_test_task ":${module}:iosSimulatorArm64Test"
