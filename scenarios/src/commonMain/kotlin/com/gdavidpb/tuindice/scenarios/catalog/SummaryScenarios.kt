@@ -635,10 +635,14 @@ private const val REPORT_TERM_KEY = "2026-JAN_MAR"
 private val reportAtLaunch = listOf(MockState("assistant-insights", "ReportPresent"))
 private val reportAtRetry = listOf(MockState("assistant-insights", "ReportPresentRetry"))
 
-/** On the hub of Summary, taps the line of the report, which the hub shows once the service has answered. */
+/**
+ * On the hub of Summary, taps the line of the report, which the hub shows once the service has answered. The line sits
+ * at the top of the hub, under the profile, so the step waits for it there: a scroll before it arrives would leave it
+ * above the screen, as it did on iOS.
+ */
 private fun StepBuilder.openTermReportFromHub() {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	scrollUntilVisible(TermReportUiTags.TermReportEntry, Scroll.ContentDown, Within.Long)
+	waitVisible(TermReportUiTags.TermReportEntry, Within.Long)
 	tap(TermReportUiTags.TermReportEntry)
 }
 
