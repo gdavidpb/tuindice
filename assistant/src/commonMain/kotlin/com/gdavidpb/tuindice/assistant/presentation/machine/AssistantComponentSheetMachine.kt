@@ -2,27 +2,33 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
+import com.gdavidpb.tuindice.assistant.presentation.mapper.EvaluationWeeksContext
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantComponentSheetTransitions
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlin.time.Clock
 
 /**
  * The sheet of one component of the conversation. It reads the conversation store and follows it while it is open; it
- * closes when the component leaves the store. It keeps nothing of its own: the store is the source of the component.
+ * closes when the component leaves the store. It keeps nothing of its own: the store is the source of the component,
+ * and the current term is the source of the weeks an evaluations sheet is grouped by.
  */
 class AssistantComponentSheetMachine(
 	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase,
+	private val getAssistantAcademicCalendarUseCase: GetAssistantAcademicCalendarUseCase,
 	private val clock: Clock
 ) : ScreenMachine<AssistantComponentSheet.State, AssistantComponentSheet.Effect> {
 	override fun initialState(): AssistantComponentSheet.State = AssistantComponentSheet.State.Idle
@@ -48,14 +54,28 @@ class AssistantComponentSheetMachine(
 						if (component == null) {
 							AssistantComponentSheetInternalEvent.ComponentMissing
 						} else {
+							val nowMillis = clock.now().toEpochMilliseconds()
+
 							AssistantComponentSheetInternalEvent.ComponentObserved(
 								messageId = messageId,
-								item = component.toChatComponentItem(nowMillis = clock.now().toEpochMilliseconds())
+								item = component.toChatComponentItem(
+									nowMillis = nowMillis,
+									weeks = weeksContext(nowMillis = nowMillis)
+								)
 							)
 						}
 					)
 				}
 		}
+	}
+
+	// The weeks an evaluations sheet is grouped by: the current term's calendar, and today. Null when the app has no
+	// current term, and then the sheet lists every row.
+	private suspend fun weeksContext(nowMillis: Long): EvaluationWeeksContext? {
+		val calendar = (getAssistantAcademicCalendarUseCase.execute(Unit).last() as? UseCaseState.Data)?.value
+			?: return null
+
+		return EvaluationWeeksContext(calendar = calendar, today = nowMillis.toLocalDate())
 	}
 }
 

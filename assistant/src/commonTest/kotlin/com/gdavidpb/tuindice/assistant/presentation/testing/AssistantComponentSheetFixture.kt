@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.assistant.presentation.testing
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
+import com.gdavidpb.tuindice.assistant.testing.FakeAssistantAcademicCalendarRepository
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
@@ -28,6 +30,10 @@ internal class AssistantComponentSheetFixture(initial: AssistantConversation = e
 	val machine: AssistantComponentSheetMachine by lazy {
 		AssistantComponentSheetMachine(
 			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
+			getAssistantAcademicCalendarUseCase = GetAssistantAcademicCalendarUseCase(
+				calendarRepository = FakeAssistantAcademicCalendarRepository(),
+				reportingRepository = reporting
+			),
 			clock = FixedClock(nowMillis = 0L)
 		)
 	}

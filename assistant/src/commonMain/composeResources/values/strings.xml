@@ -14,6 +14,7 @@
 	<string name="assistant_chat_composer_placeholder">Escribe tu pregunta</string>
 	<string name="assistant_chat_user_failed">No pudimos enviar tu mensaje.</string>
 	<string name="assistant_chat_component_detail">Ver detalle</string>
+	<string name="assistant_chat_part_not_shown">Parte de la respuesta no se pudo mostrar.</string>
 	<string name="assistant_chat_report_incorrect">Es incorrecto</string>
 	<string name="assistant_chat_report_inappropriate">Es inapropiado</string>
 	<string name="assistant_chat_report_harmful">Es dañino</string>
@@ -148,6 +149,9 @@
 	<string name="assistant_chat_turn_failed_other">Algo salió mal al responder. Inténtalo de nuevo.</string>
 	<string name="assistant_chat_turn_failed_other_final">Algo salió mal al responder.</string>
 	<string name="assistant_chat_send_failed">No pudimos enviar tu mensaje. Inténtalo de nuevo.</string>
+	<string name="assistant_chat_confirm_failed">No pudimos completar la acción. Inténtalo de nuevo.</string>
+	<string name="assistant_chat_dismiss_failed">No pudimos descartar la propuesta. Inténtalo de nuevo.</string>
+	<string name="assistant_chat_intent_confirming">Se está confirmando</string>
 	<string name="assistant_chat_open_link_failed">No se pudo abrir el enlace</string>
 	<string name="assistant_photo_add">Agregar evaluaciones desde una foto</string>
 	<string name="assistant_photo_take">Tomar foto</string>
@@ -260,10 +264,13 @@
 	<string name="assistant_card_b_evaluations_empty">No hay evaluaciones para mostrar</string>
 	<string name="assistant_card_b_see_all_evaluations">Ver las %1$d evaluaciones</string>
 	<string name="assistant_card_b_fraction">%1$s / %2$s</string>
-	<string name="assistant_card_b_evaluation_no_grade">— / %1$s</string>
-	<string name="assistant_card_b_evaluation_graded">Calificada</string>
-	<string name="assistant_card_b_evaluation_pending">Pendiente</string>
-	<string name="assistant_card_b_evaluation_overdue">Vencida</string>
+	<string name="assistant_card_b_evaluation_no_grade">-- / %1$s</string>
+	<string name="assistant_card_b_evaluation_score">%1$s / %2$s</string>
+	<string name="assistant_card_b_evaluation_no_date">Evaluación continua</string>
+	<string name="assistant_card_b_evaluations_continuous">Continuas</string>
+	<string name="assistant_card_b_evaluation_graded">Completada</string>
+	<string name="assistant_card_b_evaluation_pending">Programada</string>
+	<string name="assistant_card_b_evaluation_overdue">Sin nota</string>
 	<string name="assistant_card_b_evaluation_continuous">Continua</string>
 	<string name="assistant_card_b_joined">%1$s · %2$s</string>
 	<string name="assistant_card_b_points_label">Puntos por materia</string>

@@ -11,14 +11,16 @@ import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 
 /**
  * The answers to «¿Sigue aplicando?» and the memory states the service lists. A saved answer is kept; a refused one
- * waits for the read asked after its refusal, and the snackbar says so only when the memory still waits.
+ * waits for the read asked after its refusal, and the snackbar says so only when the memory still waits. The content
+ * and the consent apply these outcomes alike; [present] shows them when the sheet is on the content.
  */
-internal fun MachineDefinitionBuilder.StateTransitions<
+internal fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
 	AssistantChat.State,
-	AssistantChat.State.Content
->.contentStillAppliesRows(
+	S
+>.stillAppliesOutcomeRows(
 	machine: AssistantChatMachine,
-	host: MachineHost<AssistantChat.Effect>
+	host: MachineHost<AssistantChat.Effect>,
+	present: suspend (S) -> S
 ) {
 	on<AssistantChatInternalEvent.StillAppliesSaved> { state, event ->
 		val session = machine.session
@@ -28,7 +30,7 @@ internal fun MachineDefinitionBuilder.StateTransitions<
 			applies = event.applies,
 			readsBefore = session.memoryReadsRequested
 		)
-		machine.refreshed(state)
+		present(state)
 	}
 
 	// The answer was refused: the answer waits for the read asked now, which says whether its memory still waits. The
@@ -39,13 +41,14 @@ internal fun MachineDefinitionBuilder.StateTransitions<
 
 		session.failedAnswers[event.memoryId] = read
 		machine.feedback.loadMemoryStates(host, read = read)
-		machine.refreshed(state)
+		present(state)
 	}
 
 	// A read that comes back after a newer one does not overwrite it. A refused answer the read covers says so when its
 	// memory still waits for it; one that was answered, archived or deleted meanwhile does not.
-	on<AssistantChatInternalEvent.MemoryStatesLoaded>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
+	on<AssistantChatInternalEvent.MemoryStatesLoaded>(
+		emits = setOf(AssistantChat.Effect.ShowSnackBar::class)
+	) { state, event ->
 		val session = machine.session
 
 		if (event.read > session.memoryStatesRead) {
@@ -61,13 +64,14 @@ internal fun MachineDefinitionBuilder.StateTransitions<
 
 		session.failedAnswers -= covered
 		session.pendingMemories -= covered
-		machine.refreshed(state)
+		present(state)
 	}
 
 	// A read that failed leaves its cards open, with their buttons: no read is asked again until a new card comes or the
 	// sheet opens again. The refused answers this very read was asked for say so, since the memory may still wait.
-	on<AssistantChatInternalEvent.MemoryStatesFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
+	on<AssistantChatInternalEvent.MemoryStatesFailed>(
+		emits = setOf(AssistantChat.Effect.ShowSnackBar::class)
+	) { state, event ->
 		val session = machine.session
 
 		session.failedReads += event.read
@@ -80,6 +84,6 @@ internal fun MachineDefinitionBuilder.StateTransitions<
 
 		session.failedAnswers -= covered
 		session.pendingMemories -= covered
-		machine.refreshed(state)
+		present(state)
 	}
 }

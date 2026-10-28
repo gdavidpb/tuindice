@@ -21,7 +21,8 @@ import kotlin.time.Clock
 
 /**
  * Starts a turn with the user's message, stored before the request leaves, so a failed send keeps it for a retry. The
- * message is stored under the client turn id of the params, which is the id the request carries.
+ * message is stored under the client turn id of the params, which is the id the request carries. A retry also takes the
+ * question it replaces out of the conversation, in the same send and before its own question is stored.
  */
 class SendAssistantMessageUseCase(
 	private val conversationRepository: AssistantConversationRepository,
@@ -41,12 +42,15 @@ class SendAssistantMessageUseCase(
 		val text = params.text?.trim()?.takeIf { it.isNotEmpty() }
 		val clientTurnId = params.clientTurnId
 
+		// A retry's question takes the question it replaces out in the same write that stores it, so the two are one step.
 		conversationRepository.addUserMessage(
 			AssistantUserMessage(
 				id = clientTurnId,
 				text = text.orEmpty(),
 				createdAtMillis = clock.now().toEpochMilliseconds()
-			)
+			),
+			replacesMessageId = params.replacesMessageId,
+			replacesSessionMark = params.replacesSessionMark
 		)
 
 		val request = TurnRequest(

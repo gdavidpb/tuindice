@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.assistant.data.repository
 
-import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+import com.gdavidpb.tuindice.assistant.data.model.AssistantStreamEvent
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -8,5 +8,5 @@ import kotlinx.coroutines.flow.Flow
  * connections give up before either: the turn's result is then unknown, and no event stands in for it.
  */
 interface AssistantEventsDataRepository {
-	fun events(turnId: String, afterSeq: Long): Flow<AssistantEvent>
+	fun events(turnId: String, afterSeq: Long): Flow<AssistantStreamEvent>
 }

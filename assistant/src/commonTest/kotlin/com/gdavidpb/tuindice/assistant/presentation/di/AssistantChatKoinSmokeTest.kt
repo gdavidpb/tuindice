@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
@@ -34,6 +35,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.russhwolf.settings.Settings
@@ -76,6 +78,7 @@ class AssistantChatKoinSmokeTest {
 				single<ImageEncoderRepository> { RecordingImageEncoderRepository() }
 				single<NotificationOfferRepository> { RecordingNotificationOfferRepository() }
 				single<NotificationPermissionRepository> { RecordingNotificationPermissionRepository(offers = get()) }
+				single<SessionCoroutineScope> { testSessionCoroutineScope() }
 			}
 		) {
 			assertResolves(

@@ -18,7 +18,9 @@ object AssistantMemory {
 	) : ViewState {
 		data object Idle : State()
 		data object Loading : State()
-		data class Content(val entries: List<MemoryEntryItem>) : State()
+
+		// [deleting] holds the ids whose delete is on its way: until it ends, the entry is listed and is not asked again.
+		data class Content(val entries: List<MemoryEntryItem>, val deleting: Set<String> = emptySet()) : State()
 		data object Empty : State()
 		data class Failed(val message: String) : State()
 	}

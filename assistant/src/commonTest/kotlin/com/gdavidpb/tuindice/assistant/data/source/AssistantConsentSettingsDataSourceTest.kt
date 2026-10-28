@@ -10,7 +10,11 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,6 +22,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AssistantConsentSettingsDataSourceTest {
 
 	@Test
@@ -219,5 +224,119 @@ class AssistantConsentSettingsDataSourceTest {
 		assertFailsWith<AssistantApiException> { source.refreshAssistantConsent() }
 
 		assertTrue(source.assistantConsentGranted.value)
+	}
+
+	// A refresh that read the consent before a write landed does not store its answer: the write is the newer word.
+	@Test
+	fun aRefreshAnsweredAfterAWriteLandedDoesNotOverwriteIt() = runTest {
+		val settings = FakeSettings()
+		val refreshStarted = CompletableDeferred<Unit>()
+		val refreshAnswer = CompletableDeferred<Unit>()
+		var gets = 0
+		val client = assistantHttpClient { call ->
+			if (call.method == HttpMethod.Get) {
+				gets++
+
+				if (gets == 1) {
+					// The refresh's own read: it is answered only after the write below has landed.
+					refreshStarted.complete(Unit)
+					refreshAnswer.await()
+					jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":true}""")
+				} else {
+					jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":false}""")
+				}
+			} else {
+				jsonAnswer(HttpStatusCode.OK, """{"version":1,"accepted":false,"acceptedAtMillis":1700000000000}""")
+			}
+		}
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+		)
+
+		val refresh = launch { source.refreshAssistantConsent() }
+		refreshStarted.await()
+
+		source.setAssistantConsentGranted(false)
+		refreshAnswer.complete(Unit)
+		refresh.join()
+
+		assertFalse(source.isAssistantConsentGranted())
+		assertFalse(source.assistantConsentGranted.value)
+		assertEquals(false, settings.getBooleanOrNull("assistantConsentGranted"))
+	}
+
+	// Two sets in a row: the second starts while the first waits for its answer. The server applies each decision when it
+	// answers, so the second one must read the version the first one leaves. The device keeps the word of the last set.
+	@Test
+	fun aSetStartedWhileAnotherWaitsKeepsTheWordOfTheLastSet() = runTest {
+		val settings = FakeSettings()
+		var serverVersion = 1
+		var serverAccepted = false
+		var puts = 0
+		val putStarted = CompletableDeferred<Unit>()
+		val putAnswer = CompletableDeferred<Unit>()
+		val client = assistantHttpClient(engineDispatcher = Dispatchers.Unconfined) { call ->
+			if (call.method == HttpMethod.Get) {
+				jsonAnswer(HttpStatusCode.OK, """{"version":$serverVersion,"accepted":$serverAccepted}""")
+			} else {
+				val accepted = (call.body as? TextContent)?.text?.contains("\"accepted\":true") == true
+				puts++
+
+				if (puts == 1) {
+					putStarted.complete(Unit)
+					putAnswer.await()
+				}
+
+				serverVersion += 1
+				serverAccepted = accepted
+				jsonAnswer(
+					HttpStatusCode.OK,
+					"""{"version":$serverVersion,"accepted":$serverAccepted,"acceptedAtMillis":1700000000000}"""
+				)
+			}
+		}
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+		)
+
+		val first = launch { source.setAssistantConsentGranted(true) }
+		putStarted.await()
+
+		val last = launch { source.setAssistantConsentGranted(false) }
+		runCurrent()
+
+		putAnswer.complete(Unit)
+		joinAll(first, last)
+
+		assertEquals(false, settings.getBooleanOrNull("assistantConsentGranted"))
+		assertFalse(source.assistantConsentGranted.value)
+	}
+
+	// A status the server answered before a set landed is older than the set's consent: the reconcile keeps the set's.
+	@Test
+	fun aReconciledStatusReadBeforeASetLandedDoesNotOverwriteIt() = runTest {
+		val settings = FakeSettings()
+		val client = assistantHttpClient { call ->
+			if (call.method == HttpMethod.Get) {
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":false}""")
+			} else {
+				jsonAnswer(HttpStatusCode.OK, """{"version":2,"accepted":true,"acceptedAtMillis":1700000000000}""")
+			}
+		}
+		val source = AssistantConsentSettingsDataSource(
+			settings,
+			KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+		)
+		// The mark is taken before the status is requested; the student's set lands before the status is applied.
+		val mark = source.consentSessionMark()
+		val statusRead = ConsentStatus(version = 2, accepted = false)
+
+		source.setAssistantConsentGranted(true)
+		source.reconcileConsent(statusRead, mark)
+
+		assertTrue(source.isAssistantConsentGranted())
+		assertEquals(true, settings.getBooleanOrNull("assistantConsentGranted"))
 	}
 }

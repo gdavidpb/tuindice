@@ -109,7 +109,7 @@ class AssistantMemoryStateMachineContractTest {
 			AssistantMemoryInternalEvent.LoadFailed(message = "load-failed"),
 			AssistantMemoryInternalEvent.EntryDeleted(memoryId = "m1", message = "deleted"),
 			AssistantMemoryInternalEvent.LastEntryDeleted(memoryId = "m1", message = "deleted"),
-			AssistantMemoryInternalEvent.EntryDeleteFailed(message = "delete-failed"),
+			AssistantMemoryInternalEvent.EntryDeleteFailed(memoryId = "m1", message = "delete-failed"),
 			AssistantMemoryInternalEvent.StillAppliesAnswered,
 			AssistantMemoryInternalEvent.StillAppliesFailed(message = "answer-failed"),
 			AssistantMemoryInternalEvent.MemoryCleared(message = "cleared"),

@@ -10,11 +10,17 @@ import com.gdavidpb.tuindice.assistant.testing.lastState
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AssistantStandingUseCasesTest {
 	private val standing = RecordingAssistantStandingRepository()
 	private val consent = RecordingAssistantConsentRepository()
@@ -61,8 +67,26 @@ class AssistantStandingUseCasesTest {
 
 	@Test
 	fun theConsentIsGrantedThroughTheConsentPortOfTheBase() = runTest {
-		AcceptAssistantConsentUseCase(consent, reporting).execute(true).dataValues()
+		AcceptAssistantConsentUseCase(consent, testSessionCoroutineScope(), reporting).execute(true).dataValues()
 
 		assertEquals(listOf(true), consent.changes)
+	}
+
+	// The caller leaves while the server answers the consent: the write belongs to the session, so it is not cut short.
+	@Test
+	fun aCallerThatLeavesWhileTheConsentIsWrittenDoesNotCutTheWriteShort() = runTest {
+		val answer = CompletableDeferred<Unit>()
+		consent.gate = answer
+		val caller = launch {
+			AcceptAssistantConsentUseCase(consent, testSessionCoroutineScope(), reporting).execute(true).collect {}
+		}
+		runCurrent()
+
+		caller.cancel()
+		answer.complete(Unit)
+		runCurrent()
+
+		assertEquals(listOf(true), consent.changes)
+		assertTrue(consent.isAssistantConsentGranted())
 	}
 }

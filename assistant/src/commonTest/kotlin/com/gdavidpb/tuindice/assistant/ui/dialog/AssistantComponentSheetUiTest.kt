@@ -7,6 +7,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -93,6 +94,21 @@ class AssistantComponentSheetUiTest {
 		assertEquals(1, dismissals)
 	}
 
+	// The sheet draws every row of a long list; the rows that do not fit are reached by scrolling the sheet.
+	@Test
+	fun when_aListHasMoreRowsThanTheSheetShows_then_itsLastRowScrollsIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantComponentSheet(
+				messageId = MESSAGE_ID,
+				item = subjects(count = LONG_LIST_COUNT).toChatComponentItem(nowMillis = 0L),
+				onAction = {},
+				onDismissRequest = {}
+			)
+		}
+
+		onNodeWithText(LAST_ROW_CODE).performScrollTo().assertIsDisplayed()
+	}
+
 	private fun subjects(count: Int): SubjectListComponent =
 		SubjectListComponent(
 			id = COMPONENT_ID,
@@ -102,6 +118,8 @@ class AssistantComponentSheetUiTest {
 
 	private companion object {
 		const val SCRIM_TAP_Y = 20f
+		const val LONG_LIST_COUNT = 40
+		const val LAST_ROW_CODE = "IS-1040"
 		const val MESSAGE_ID = "message-1"
 		const val COMPONENT_ID = "component-1"
 		const val FALLBACK_TEXT = "Tu semestre va bien encaminado."

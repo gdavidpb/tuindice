@@ -50,11 +50,15 @@ fun AssistantChatSuggestionsView(
 		suggestions.forEachIndexed { index, suggestion ->
 			// Keyed by id, so a new set of replies enters as new, and one kept from the last set stays as it was.
 			key(suggestion.id) {
+				// Decided once, when the reply comes on screen. A reply on screen when the sheet opens must not start its
+				// entrance as it leaves: it would turn invisible at once, not fade out with the rest of the list.
+				val enters = remember { entranceLeadMillis != null }
+
 				AssistantChatSuggestionView(
 					suggestion = suggestion,
 					onAction = onAction,
 					modifier = Modifier.chatEntrance(
-						enabled = entranceLeadMillis != null,
+						enabled = enters,
 						delayMillis = (entranceLeadMillis ?: 0) + index * AssistantChatMotion.SuggestionStaggerMillis,
 						durationMillis = AssistantChatMotion.SmallEnterMillis,
 						rise = AssistantChatMotion.SuggestionRise

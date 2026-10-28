@@ -8,15 +8,18 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.Component
 import com.gdavidpb.tuindice.chatcontract.message.IntentPart
+import com.gdavidpb.tuindice.chatcontract.message.MessagePart
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
+import com.gdavidpb.tuindice.chatcontract.message.UnknownMessagePart
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_intent_receipt_added_many
 import tuindice.assistant.generated.resources.assistant_intent_receipt_added_one
@@ -39,7 +42,7 @@ internal suspend fun AssistantConversation.toChatItems(
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
 				id = item.message.id,
-				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents, nowMillis),
+				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents.keys, nowMillis),
 				useful = session.usefulByMessage[item.message.id],
 				reported = item.message.id in session.reportedMessages,
 				copyText = item.message.copyText()
@@ -64,7 +67,7 @@ private suspend fun AssistantMessage.toChatParts(
 	runningIntents: Set<String>,
 	nowMillis: Long
 ): List<ChatPartItem> {
-	return parts.mapNotNull { part ->
+	val shown = parts.mapNotNull { part ->
 		when (part) {
 			is Text -> ChatPartItem.Text(text = part.text)
 
@@ -82,6 +85,19 @@ private suspend fun AssistantMessage.toChatParts(
 			else -> null
 		}
 	}
+
+	// A part this build cannot show in full is left out or shown with its fallback text. One notice closes the
+	// message, however many such parts it has.
+	if (parts.none { part -> part.isNotShown() }) return shown
+
+	return shown + ChatPartItem.Text(text = texts.partNotShown())
+}
+
+// A part this build cannot show in full: a part of a type it does not know, or a component of one.
+private fun MessagePart.isNotShown(): Boolean {
+	val component = (this as? Component)?.component
+
+	return this is UnknownMessagePart || component is UnknownChatComponent
 }
 
 // The text the student copies: the texts of the message and the fallback of its components, in order.
@@ -98,8 +114,8 @@ private fun AssistantMessage.copyText(): String {
 		.joinToString(separator = "\n")
 }
 
-// A resolved intent shows its outcome, and the rows it added when it adds evaluations; one still running shows the
-// progress; any other waits for the student.
+// A resolved intent shows its outcome and the rows it added. One resolved with an outcome this build does not know is
+// closed, with no label. One still running shows the progress; any other waits for the student.
 private fun AssistantConversation.intentStatus(intent: Intent, runningIntents: Set<String>): IntentCardStatus {
 	val outcome = resolvedIntents[intent.id]
 
@@ -108,6 +124,7 @@ private fun AssistantConversation.intentStatus(intent: Intent, runningIntents: S
 			outcome = outcome.toPresentation(detailCode = resolvedDetails[intent.id]),
 			receipt = addedReceipt(intent, outcome)
 		)
+		intent.id in unknownOutcomeIntents -> IntentCardStatus.Closed
 		intent.id in runningIntents -> IntentCardStatus.Running
 		else -> IntentCardStatus.Open
 	}

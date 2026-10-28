@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -48,6 +49,9 @@ internal class ServerAssistantMemoryRepository(items: List<MemoryItem> = emptyLi
 	var deleteFails = false
 	var answerFails = false
 	var clearFails = false
+
+	// The delete waits for the test's go-ahead while the gate is set: the request stays on its way until it is completed.
+	var deleteGate: CompletableDeferred<Unit>? = null
 	val deleted = mutableListOf<String>()
 	val answers = mutableListOf<Pair<String, Boolean>>()
 	var clears = 0
@@ -59,7 +63,10 @@ internal class ServerAssistantMemoryRepository(items: List<MemoryItem> = emptyLi
 	}
 
 	override suspend fun deleteMemory(memoryId: String) {
+		deleteGate?.await()
 		check(!deleteFails) { "delete failed" }
+		// A memory the server no longer keeps is not there to delete, so a second delete of it fails.
+		check(items.any { item -> item.id == memoryId }) { "memory not found" }
 
 		deleted += memoryId
 		items = items.filterNot { item -> item.id == memoryId }

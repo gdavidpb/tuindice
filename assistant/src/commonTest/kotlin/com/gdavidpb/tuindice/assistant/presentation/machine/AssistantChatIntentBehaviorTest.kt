@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
@@ -34,6 +35,7 @@ import tuindice.assistant.generated.resources.assistant_intent_receipt_added_one
 import tuindice.assistant.generated.resources.assistant_intent_receipt_partial
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AssistantChatIntentBehaviorTest {
@@ -100,6 +102,8 @@ class AssistantChatIntentBehaviorTest {
 	@Test
 	fun anExpiredEnrollmentProof_opensNoFlow_andIsResolvedAsExpired() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		// The server judges the deadline: it answers the intent expired, and no flow opens.
+		fixture.intents.answer = IntentDecisionResult.Expired
 		val intent = assistantIntent(id = "i4", args = RequestEnrollmentProofArgs, expiresAtMillis = 1L)
 			.copy(risk = IntentRisk.CREDENTIAL)
 		fixture.conversation.conversation.value = assistantConversation(
@@ -360,6 +364,78 @@ class AssistantChatIntentBehaviorTest {
 			),
 			viewModel.content().intentCard("i15").status
 		)
+	}
+
+	// A confirmation the service did not take says so, and the card keeps its buttons for a new try.
+	@Test
+	fun aConfirmationThatFails_saysConfirmFailed_andTheCardKeepsItsButtons() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(
+			id = "i1",
+			args = RememberArgs(statement = "Trabajo de noche", category = "rutina", quote = "de noche")
+		)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a1", IntentPart(intent))),
+			openIntents = mapOf("i1" to intent)
+		)
+		fixture.intents.decideError = IllegalStateException("offline")
+		viewModel.openAction(null)
+
+		viewModel.confirmIntentAction("i1")
+
+		val content = viewModel.content()
+		assertEquals(ChatNoticeItem.TurnFailed(message = "confirm-failed", canRetry = false), content.notice)
+		assertEquals(IntentCardStatus.Open, content.intentCard("i1").status)
+	}
+
+	@Test
+	fun aDismissalThatFails_saysDismissFailed() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(
+			id = "i1",
+			args = RememberArgs(statement = "Trabajo de noche", category = "rutina", quote = "de noche")
+		)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a1", IntentPart(intent))),
+			openIntents = mapOf("i1" to intent)
+		)
+		fixture.intents.decideError = IllegalStateException("offline")
+		viewModel.openAction(null)
+
+		viewModel.dismissIntentAction("i1")
+
+		assertEquals(ChatNoticeItem.TurnFailed(message = "dismiss-failed", canRetry = false), viewModel.content().notice)
+	}
+
+	// A confirmation that runs says so on its card, and the card is running: a dismissal is not sent meanwhile, so the
+	// decision the confirmation takes is the only one.
+	@Test
+	fun aConfirmationThatRuns_saysItIsConfirming_andADismissalIsNotSent() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(
+			id = "i1",
+			args = RememberArgs(statement = "Trabajo de noche", category = "rutina", quote = "de noche")
+		)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a1", IntentPart(intent))),
+			openIntents = mapOf("i1" to intent)
+		)
+		fixture.gatedIntents.gated = true
+		viewModel.openAction(null)
+
+		viewModel.confirmIntentAction("i1")
+		viewModel.dismissIntentAction("i1")
+
+		val running = viewModel.content().intentCard("i1")
+		assertEquals(IntentCardStatus.Running, running.status)
+		assertEquals("confirming", running.runningLabel)
+
+		fixture.gatedIntents.release.complete(Unit)
+
+		assertEquals(listOf(true), fixture.intents.decisions.map { decision -> decision.accepted })
+		val resolved = viewModel.content().intentCard("i1")
+		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.CONFIRMED), resolved.status)
+		assertNull(resolved.runningLabel)
 	}
 
 	private fun additionIntent(id: String, rows: Int) = assistantIntent(

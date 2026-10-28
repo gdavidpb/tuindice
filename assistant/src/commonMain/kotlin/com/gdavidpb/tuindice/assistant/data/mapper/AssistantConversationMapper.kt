@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
+import com.gdavidpb.tuindice.chatcontract.message.UnknownMessagePart
 
 internal fun AssistantConversationState.toAssistantConversation(): AssistantConversation {
 	return AssistantConversation(
@@ -17,7 +18,9 @@ internal fun AssistantConversationState.toAssistantConversation(): AssistantConv
 		resolvedIntents = resolvedIntents,
 		resolvedDetails = resolvedDetails,
 		resolvedCounts = resolvedCounts,
-		activeTurn = lastTurnId?.let { turnId -> turns[turnId] }?.toAssistantActiveTurn()
+		unknownOutcomeIntents = unknownOutcomeIntents,
+		activeTurn = lastTurnId?.let { turnId -> turns[turnId] }?.toAssistantActiveTurn(),
+		sessionMark = sessionGeneration
 	)
 }
 
@@ -39,8 +42,16 @@ private fun AssistantConversationState.conversationItems(): List<AssistantConver
 	return ordered + unnamed
 }
 
+// A message with a part this build cannot show in full gets the part a message with an unknown part has, so the chat
+// shows its notice. The part is added only when the message does not carry one already.
 private fun AssistantConversationState.agentItem(message: AssistantMessage): AssistantConversationItem.Agent {
-	return AssistantConversationItem.Agent(message = message, turnId = messageTurnIds[message.id].orEmpty())
+	val shown = if (message.id in unreadableMessages && message.parts.none { it is UnknownMessagePart }) {
+		message.copy(parts = message.parts + UnknownMessagePart)
+	} else {
+		message
+	}
+
+	return AssistantConversationItem.Agent(message = shown, turnId = messageTurnIds[message.id].orEmpty())
 }
 
 private fun AssistantTurnState.toAssistantActiveTurn(): AssistantActiveTurn {

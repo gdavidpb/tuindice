@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantChatFixture
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
+import com.gdavidpb.tuindice.assistant.presentation.testing.appealAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
 import com.gdavidpb.tuindice.assistant.presentation.testing.changeTextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
@@ -16,6 +20,7 @@ import com.gdavidpb.tuindice.assistant.testing.assistantStatus
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
@@ -140,6 +145,8 @@ class AssistantChatRestrictionBehaviorTest {
 		assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice)
 		fixture.clock.nowMillis = NOON + 2 * MINUTE
 		fixture.standing.answer = assistantStatus()
+		// The end has passed; the suggestions come back with the next change of the conversation, and the student picks one.
+		fixture.conversation.conversation.value = studentMessageOnly()
 		fixture.turns.events = listOf(RunFinished(seq = 1, turnId = "t1"))
 		val readsBefore = fixture.standing.statusReads
 
@@ -155,6 +162,8 @@ class AssistantChatRestrictionBehaviorTest {
 	fun aSendAfterTheEnd_whoseStandingGivesANewEnd_keepsTheChatPaused() = chatTest { fixture, viewModel ->
 		openWith(fixture, viewModel, AbuseStanding(level = StandingLevel.COOLDOWN, untilMillis = NOON + MINUTE))
 		fixture.clock.nowMillis = NOON + 2 * MINUTE
+		// The end has passed; the suggestions come back with the next change of the conversation, and the student picks one.
+		fixture.conversation.conversation.value = studentMessageOnly()
 		fixture.standing.answer = assistantStatus().copy(
 			standing = AbuseStanding(level = StandingLevel.SUSPENDED, untilMillis = TWO_DAYS_LATER)
 		)
@@ -164,6 +173,65 @@ class AssistantChatRestrictionBehaviorTest {
 
 		assertEquals(Res.string.assistant_chat_restricted_suspended_until, viewModel.restrictedMessage().resource)
 		assertFalse(viewModel.content().composer.isEnabled)
+	}
+
+	// An appeal the network did not take reads as not sent: its text is not the one that says the length is wrong.
+	@Test
+	fun anAppealThatFailsOnTheNetwork_saysItWasNotSent_notThatTheLengthIsWrong() = chatTest { fixture, viewModel ->
+		openWith(
+			fixture,
+			viewModel,
+			AbuseStanding(level = StandingLevel.SUSPENDED, untilMillis = TWO_DAYS_LATER, appealable = true)
+		)
+		fixture.appeals.appealFailure = IllegalStateException("offline")
+
+		viewModel.appealAction("revisen")
+
+		assertEquals("appeal-not-sent", snackBarOf(fixture))
+	}
+
+	@Test
+	fun anAppealTooLong_saysTheLengthItCanHave() = chatTest { fixture, viewModel ->
+		openWith(
+			fixture,
+			viewModel,
+			AbuseStanding(level = StandingLevel.SUSPENDED, untilMillis = TWO_DAYS_LATER, appealable = true)
+		)
+
+		viewModel.appealAction("x".repeat(AbuseAppeal.MAX_LENGTH + 1))
+
+		assertEquals("appeal-failed:${AbuseAppeal.MAX_LENGTH}", snackBarOf(fixture))
+	}
+
+	// Once the appeal is sent, the notice does not offer to send it again.
+	@Test
+	fun anAppealSent_hidesTheAppealOffer() = chatTest { fixture, viewModel ->
+		openWith(
+			fixture,
+			viewModel,
+			AbuseStanding(level = StandingLevel.SUSPENDED, untilMillis = TWO_DAYS_LATER, appealable = true)
+		)
+		assertTrue(assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice).canAppeal)
+
+		viewModel.appealAction("revisen")
+
+		assertFalse(assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice).canAppeal)
+	}
+
+	// A restriction in force offers no suggestion, neither in the chat nor in its sheet; once it lifts, they return.
+	@Test
+	fun aRestrictionInForce_offersNoSuggestions_andTheyReturnWhenItLifts() = chatTest { fixture, viewModel ->
+		openWith(fixture, viewModel, AbuseStanding(level = StandingLevel.COOLDOWN, untilMillis = NOON + MINUTE))
+		assertTrue(viewModel.content().suggestions.isEmpty())
+
+		fixture.clock.nowMillis = NOON + 2 * MINUTE
+		fixture.conversation.conversation.value = studentMessageOnly()
+
+		assertTrue(viewModel.content().suggestions.isNotEmpty())
+	}
+
+	private fun snackBarOf(fixture: AssistantChatFixture): String {
+		return fixture.effects.filterIsInstance<AssistantChat.Effect.ShowSnackBar>().single().message
 	}
 
 	private suspend fun openWith(
@@ -182,6 +250,16 @@ class AssistantChatRestrictionBehaviorTest {
 	}
 
 	private fun noArgs(resource: StringResource): UiText.Resource = UiText.Resource(resource)
+
+	// The student's own message and no answer of the agent yet: a conversation that differs from the empty one, so the
+	// store emits it, and in which the questions of the screen are the suggestions.
+	private fun studentMessageOnly() = assistantConversation(
+		items = listOf(
+			AssistantConversationItem.User(
+				AssistantUserMessage(id = "client-1", text = "hola", createdAtMillis = 1L)
+			)
+		)
+	)
 
 	private companion object {
 		const val MINUTE = 60_000L

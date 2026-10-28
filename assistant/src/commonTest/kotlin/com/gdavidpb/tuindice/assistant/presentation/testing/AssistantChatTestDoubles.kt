@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.assistant.presentation.testing
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnFailure
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
@@ -11,12 +13,16 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRe
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantMemoryRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantServerModeRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantTurnRepository
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatIntentTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatPartTexts
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
@@ -24,10 +30,19 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
+import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
+import com.gdavidpb.tuindice.chatcontract.event.IntentResolved
+import com.gdavidpb.tuindice.chatcontract.event.MessageCompleted
+import com.gdavidpb.tuindice.chatcontract.event.Progress
+import com.gdavidpb.tuindice.chatcontract.event.RunError
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
+import com.gdavidpb.tuindice.chatcontract.event.RunFinished
+import com.gdavidpb.tuindice.chatcontract.event.RunStarted
+import com.gdavidpb.tuindice.chatcontract.event.UnknownAssistantEvent
 import com.gdavidpb.tuindice.chatcontract.intent.EvaluationDraft
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
@@ -36,14 +51,29 @@ import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.MessagePart
+import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
+import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 
+internal object FakeAssistantChatPartTexts : AssistantChatPartTexts {
+	override suspend fun partNotShown(): String = "part-not-shown"
+}
+
+internal object FakeAssistantChatIntentTexts : AssistantChatIntentTexts {
+	override suspend fun confirmFailed(): String = "confirm-failed"
+
+	override suspend fun dismissFailed(): String = "dismiss-failed"
+}
+
 // The texts are told apart by their values, so an assertion can say which notice the student sees.
-internal class FakeAssistantChatTexts : AssistantChatTexts {
+internal class FakeAssistantChatTexts :
+	AssistantChatTexts,
+	AssistantChatPartTexts by FakeAssistantChatPartTexts,
+	AssistantChatIntentTexts by FakeAssistantChatIntentTexts {
 	override suspend fun screenName(screen: AssistantScreen): String = "screen:${screen.name}"
 
 	override suspend fun evaluationTypeName(evaluationType: String): String = "type:$evaluationType"
@@ -61,6 +91,8 @@ internal class FakeAssistantChatTexts : AssistantChatTexts {
 	}
 
 	override suspend fun sendFailed(): String = "send-failed"
+
+	override suspend fun intentConfirming(): String = "confirming"
 
 	override suspend fun messageTooLong(maxLength: Int): String = "too-long:$maxLength"
 }
@@ -81,6 +113,8 @@ internal class FakeAssistantChatFeedbackTexts : AssistantChatFeedbackTexts {
 	override suspend fun appealSent(): String = "appeal-sent"
 
 	override suspend fun appealFailed(maxLength: Int): String = "appeal-failed:$maxLength"
+
+	override suspend fun appealNotSent(): String = "appeal-not-sent"
 }
 
 // A conversation the test changes: the store's observation emits each change, as the store does.
@@ -97,26 +131,49 @@ internal class ObservedAssistantConversationRepository(
 
 	override fun currentConversation(): AssistantConversation = conversation.value
 
-	override fun sessionMark(): Int = 0
+	// The session the conversation shows, as the store reports it: a test that moves it moves the marks the writes carry.
+	override fun sessionMark(): Int = conversation.value.sessionMark
 
 	override fun attachConversation(conversationId: String, sessionMark: Int) {
 		conversation.update { current -> current.copy(conversationId = conversationId) }
 	}
 
+	// The events of the turns are written as the store writes them, so the sheet shows the conversation the turns made.
 	override fun applyEvent(event: AssistantEvent, sessionMark: Int) {
 		applied += event
+		conversation.update { current -> current.reducedBy(event) }
 	}
 
 	override fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int) {
 		unconfirmed += turnId
+		conversation.update { current -> current.unconfirmedBy(turnId, lastSeq) }
 	}
 
-	// Idempotent by id, as the store is: a message that comes again, such as a retry's, is not written twice.
-	override fun addUserMessage(message: AssistantUserMessage) {
-		conversation.update { current ->
-			val written = current.items.any { item -> item is AssistantConversationItem.User && item.message.id == message.id }
+	// Idempotent by id, as the store is: a message that comes again, such as a retry's, is not written twice. A retry
+	// takes the question it replaces out in the same write, as the store does, unless its session has ended. Each
+	// replacement is recorded with the session it was decided in, so a test can say which session a retry took.
+	val replacements = mutableListOf<Pair<String, Int>>()
 
-			if (written) current else current.copy(items = current.items + AssistantConversationItem.User(message))
+	override fun addUserMessage(message: AssistantUserMessage, replacesMessageId: String?, replacesSessionMark: Int?) {
+		val replaced = replacesMessageId?.takeIf { replacesSessionMark == sessionMark() }
+
+		if (replacesMessageId != null && replacesSessionMark != null) {
+			replacements += replacesMessageId to replacesSessionMark
+		}
+
+		conversation.update { current ->
+			val kept = if (replaced == null) {
+				current
+			} else {
+				current.copy(
+					items = current.items.filterNot { item ->
+						item is AssistantConversationItem.User && item.message.id == replaced
+					}
+				)
+			}
+			val written = kept.items.any { item -> item is AssistantConversationItem.User && item.message.id == message.id }
+
+			if (written) kept else kept.copy(items = kept.items + AssistantConversationItem.User(message))
 		}
 	}
 
@@ -133,11 +190,29 @@ internal class ObservedAssistantConversationRepository(
 		staged[report.intentId] = report
 	}
 
-	override fun clearOutcome(intentId: String) {
-		staged.remove(intentId)
+	// Clears the report only when it is still the one staged for its intent, as the store does.
+	override fun clearOutcome(report: IntentOutcomeReport) {
+		if (staged[report.intentId] == report) staged.remove(report.intentId)
 	}
 
 	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
+
+	// The intents whose confirmation runs, claimed as the store claims them: a second confirmation of one is refused.
+	private val confirming = mutableSetOf<String>()
+
+	override fun claimConfirmation(intentId: String, sessionMark: Int): Boolean {
+		val claimable = sessionMark == this.sessionMark() &&
+			intentId in conversation.value.openIntents &&
+			intentId !in confirming
+
+		if (claimable) confirming += intentId
+
+		return claimable
+	}
+
+	override fun releaseConfirmation(intentId: String, sessionMark: Int) {
+		if (sessionMark == this.sessionMark()) confirming -= intentId
+	}
 
 	override fun markIntentResolved(
 		intentId: String,
@@ -200,6 +275,99 @@ internal fun emptyAssistantConversation(): AssistantConversation {
 	)
 }
 
+// The store's reduction of an event over the last turn it saw: an event at or below the seq of its turn is already in,
+// and a turn the conversation has not seen becomes the last turn.
+internal fun AssistantConversation.reducedBy(event: AssistantEvent): AssistantConversation {
+	val known = activeTurn?.takeIf { turn -> turn.turnId == event.turnId }
+	val applied = event !is UnknownAssistantEvent && (known == null || event.seq > known.lastSeq)
+
+	if (!applied) return this
+
+	val turn = (known ?: AssistantActiveTurn(event.turnId, event.seq, null, AssistantTurnPhase.RUNNING))
+		.afterEvent(event)
+	val withTurn = copy(activeTurn = turn)
+
+	return when (event) {
+		is MessageCompleted -> withTurn.copy(items = items.withAgentMessage(event.message, event.turnId))
+
+		is IntentProposed -> withTurn.copy(openIntents = openIntents + (event.intent.id to event.intent))
+
+		// An intent the conversation already resolved keeps the outcome it got.
+		is IntentResolved -> withTurn.copy(
+			openIntents = openIntents - event.intentId,
+			resolvedIntents = if (event.intentId in resolvedIntents) {
+				resolvedIntents
+			} else {
+				resolvedIntents + (event.intentId to event.outcome)
+			}
+		)
+
+		else -> withTurn
+	}
+}
+
+// How a turn stands after [event]: an unconfirmed turn that delivers an event which is not its final one runs again.
+private fun AssistantActiveTurn.afterEvent(event: AssistantEvent): AssistantActiveTurn {
+	val isFinal = event is RunFinished || event is RunError
+	val resumed = if (status == AssistantTurnPhase.UNCONFIRMED && !isFinal) {
+		copy(status = AssistantTurnPhase.RUNNING)
+	} else {
+		this
+	}
+
+	val changed = when (event) {
+		is RunStarted -> resumed.copy(progressLabel = null, status = AssistantTurnPhase.RUNNING, failure = null)
+
+		is Progress -> resumed.copy(progressLabel = event.label)
+
+		is RunFinished -> resumed.copy(progressLabel = null, status = AssistantTurnPhase.FINISHED)
+
+		is RunError -> resumed.copy(
+			progressLabel = null,
+			status = AssistantTurnPhase.FAILED,
+			failure = AssistantTurnFailure(
+				code = event.code,
+				retryable = event.retryable,
+				retryAfterSeconds = event.retryAfterSeconds
+			)
+		)
+
+		else -> resumed
+	}
+
+	return changed.copy(lastSeq = event.seq)
+}
+
+// The result of a turn the store did not see end is unconfirmed; a turn that is not running keeps its end.
+internal fun AssistantConversation.unconfirmedBy(turnId: String, lastSeq: Long): AssistantConversation {
+	val turn = activeTurn?.takeIf { active -> active.turnId == turnId }
+
+	return when {
+		turn == null -> copy(
+			activeTurn = AssistantActiveTurn(turnId, lastSeq, null, AssistantTurnPhase.UNCONFIRMED)
+		)
+
+		turn.status == AssistantTurnPhase.RUNNING -> copy(
+			activeTurn = turn.copy(progressLabel = null, status = AssistantTurnPhase.UNCONFIRMED)
+		)
+
+		else -> this
+	}
+}
+
+// A message that comes again replaces the one it has, in the place it has.
+private fun List<AssistantConversationItem>.withAgentMessage(
+	message: AssistantMessage,
+	turnId: String
+): List<AssistantConversationItem> {
+	val item = AssistantConversationItem.Agent(message = message, turnId = turnId)
+	val index = indexOfFirst { existing ->
+		existing is AssistantConversationItem.Agent && existing.message.id == message.id
+	}
+
+	return if (index < 0) this + item else toMutableList().also { items -> items[index] = item }
+}
+
 internal fun agentMessage(id: String, vararg parts: MessagePart): AssistantConversationItem {
 	return AssistantConversationItem.Agent(
 		message = AssistantMessage(id = id, parts = parts.toList(), createdAtMillis = 0),
@@ -222,6 +390,34 @@ internal class GatedAssistantIntentRepository(
 
 	override suspend fun reportOutcome(report: IntentOutcomeReport) {
 		delegate.reportOutcome(report)
+	}
+}
+
+// The appeal fails with the failure a test sets, as the service can refuse it; the standing is the delegate's.
+internal class FailingAppealStandingRepository(
+	private val delegate: AssistantStandingRepository
+) : AssistantStandingRepository by delegate {
+	var appealFailure: Throwable? = null
+
+	override suspend fun appeal(appeal: AbuseAppeal) {
+		appealFailure?.let { failure -> throw failure }
+
+		delegate.appeal(appeal)
+	}
+}
+
+// The send waits for the test's go-ahead while [gated]: the request stays on its way until the test releases it. The
+// rest of the turn repository is the delegate's.
+internal class GatedAssistantTurnRepository(
+	private val delegate: AssistantTurnRepository
+) : AssistantTurnRepository by delegate {
+	var gated = false
+	val release = CompletableDeferred<Unit>()
+
+	override suspend fun sendTurn(request: TurnRequest): TurnAccepted {
+		if (gated) release.await()
+
+		return delegate.sendTurn(request)
 	}
 }
 

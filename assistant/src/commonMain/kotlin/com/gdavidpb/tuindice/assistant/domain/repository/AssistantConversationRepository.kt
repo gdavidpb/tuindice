@@ -31,7 +31,16 @@ interface AssistantConversationRepository {
 	 */
 	fun markTurnUnconfirmed(turnId: String, lastSeq: Long, sessionMark: Int)
 
-	fun addUserMessage(message: AssistantUserMessage)
+	/**
+	 * Stores the question the student sent. A retry passes the question it replaces: that question leaves the
+	 * conversation in the same write, so the question of the retry is never kept next to the one it replaces. A
+	 * question the conversation does not hold leaves it as it is, and so does a retry decided for a session that ended.
+	 */
+	fun addUserMessage(
+		message: AssistantUserMessage,
+		replacesMessageId: String? = null,
+		replacesSessionMark: Int? = null
+	)
 
 	/** Writes a message of the assistant that no turn wrote, such as a photo's proposal, with the intent it carries. */
 	fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int)

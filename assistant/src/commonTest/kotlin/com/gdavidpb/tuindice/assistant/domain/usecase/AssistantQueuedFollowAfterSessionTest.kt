@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantIntentOutboxDataSour
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
-import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
@@ -19,6 +18,7 @@ import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,9 +38,10 @@ class AssistantQueuedFollowAfterSessionTest {
 	private val confirmer = AssistantIntentConfirmer(
 		conversationRepository = conversation,
 		intentRepository = intents,
-		clock = FixedClock(nowMillis = NOW_MILLIS),
 		outboxRepository = outbox,
-		queuedMutationsRepository = queued
+		queuedMutationsRepository = queued,
+		sessionCoroutineScope = testSessionCoroutineScope(),
+		reportingRepository = reporting
 	)
 
 	// The student confirms an edit, and the server takes it as queued: the mutation is followed past that answer.
@@ -90,7 +91,14 @@ class AssistantQueuedFollowAfterSessionTest {
 		assertTrue(outbox.pendingOutcomes().isEmpty())
 	}
 
-	private companion object {
-		const val NOW_MILLIS = 1_700_000_000_000L
+	// A queued mutation that settles at once leaves its intent with the outcome it settled with: the queued mark comes
+	// first, so the settle that lands inside the follow is not overwritten by it.
+	@Test
+	fun aQueuedMutationSettledAtOnceEndsItsIntentWithTheOutcomeItSettledWith() = runTest {
+		queued.settleOnFollow = listOf(MutationOutcome(mutationId = "m1", outcome = OutcomeKind.CONFIRMED))
+
+		confirmQueuedEdit()
+
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), store.observeConversation().value.resolvedIntents)
 	}
 }

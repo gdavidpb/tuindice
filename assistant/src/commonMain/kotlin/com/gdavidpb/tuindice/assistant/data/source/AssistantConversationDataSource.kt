@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.assistant.data.source
 
 import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
+import com.gdavidpb.tuindice.assistant.data.model.AssistantStreamEvent
 import com.gdavidpb.tuindice.assistant.data.model.markUnconfirmed
 import com.gdavidpb.tuindice.assistant.data.model.reduce
+import com.gdavidpb.tuindice.assistant.data.model.reduceOwn
 import com.gdavidpb.tuindice.assistant.data.model.withAssistantMessage
 import com.gdavidpb.tuindice.assistant.data.model.withId
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
@@ -54,13 +56,22 @@ class AssistantConversationDataSource : SessionMemory {
 		}
 	}
 
-	// Idempotent by id: a message that comes again is not written twice.
-	fun addUserMessage(message: AssistantUserMessage) {
+	// Idempotent by id: a message that comes again is not written twice. A retry takes the question it replaces out in the
+	// same write, when the session the retry was decided in is the one the conversation is in. The check and the removal
+	// are one step, as every write of the store is, so a session that has ended leaves the question as it is.
+	fun addUserMessage(
+		message: AssistantUserMessage,
+		replacesMessageId: String? = null,
+		replacesSessionMark: Int? = null
+	) {
 		conversation.update { current ->
-			if (current.userMessages.any { it.id == message.id }) {
-				current
+			val replaced = replacesMessageId?.takeIf { replacesSessionMark == current.sessionGeneration }
+			val kept = if (replaced == null) current else current.withoutUserMessage(replaced)
+
+			if (kept.userMessages.any { it.id == message.id }) {
+				kept
 			} else {
-				current.copy(userMessages = current.userMessages + message, order = current.order.withId(message.id))
+				kept.copy(userMessages = kept.userMessages + message, order = kept.order.withId(message.id))
 			}
 		}
 	}
@@ -99,7 +110,8 @@ class AssistantConversationDataSource : SessionMemory {
 						current.resolvedCounts - intentId
 					} else {
 						current.resolvedCounts + (intentId to count)
-					}
+					},
+					confirming = current.confirming - intentId
 				)
 			}
 		}
@@ -115,4 +127,20 @@ class AssistantConversationDataSource : SessionMemory {
 	override suspend fun clearSessionMemory() {
 		conversation.update { current -> AssistantConversationState(sessionGeneration = current.sessionGeneration + 1) }
 	}
+}
+
+// The app's own events of a stream write the conversation as the contract's events do, and only in the session the turn
+// was followed in: a write made after that session ended leaves the conversation as it is.
+internal fun AssistantConversationDataSource.applyOwn(event: AssistantStreamEvent.Own, sessionMark: Int) {
+	updateConversation { current ->
+		if (current.sessionGeneration != sessionMark) current else current.reduceOwn(event)
+	}
+}
+
+// The question leaves the state, with its place in the order. A question the state does not hold leaves it as it is.
+private fun AssistantConversationState.withoutUserMessage(messageId: String): AssistantConversationState {
+	return copy(
+		userMessages = userMessages.filterNot { message -> message.id == messageId },
+		order = order.filterNot { id -> id == messageId }
+	)
 }

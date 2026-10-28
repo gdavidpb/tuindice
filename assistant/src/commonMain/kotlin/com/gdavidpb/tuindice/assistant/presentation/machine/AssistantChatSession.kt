@@ -4,12 +4,14 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
+import kotlinx.coroutines.Job
 
 // The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
 // observed; the rest is what the student did on the sheet and what the outcomes of their requests left. The table's
@@ -22,12 +24,28 @@ internal class AssistantChatSession {
 	var guidedByServer = false
 	var lastFailedSend: FailedSend? = null
 	var turnFailure: TurnFailure? = null
+
+	// The notice of a photo that was not read. It is the photo's own: a text turn's failure is not a photo's, and the
+	// other way round. It shows when no text turn has failed.
+	var photoFailure: TurnFailure? = null
 	var quota: Quota? = null
 	var restriction: Restriction? = null
 	var pendingFailedText: String? = null
 
-	// The suggestion of the turn that was accepted last: a run that fails keeps it for the retry.
-	var followedSuggestionId: String? = null
+	// What each accepted turn answers, as it was sent: its text, the suggestion it was picked from and its client turn id.
+	// The retry of a turn sends that message again, whichever message the student wrote after it.
+	val sentByTurn = mutableMapOf<String, FailedSend>()
+
+	// The message waiting for the recovery of the unconfirmed answer before it (see sendNewMessage); null when none waits.
+	var pendingSend: PendingSend? = null
+
+	// The failure of the answer a new message waited for, when that answer ended with a RunError. Its notice keeps the
+	// retry of that answer for as long as the last failed send is that answer's (see presentedNotice).
+	var recoveredFailure: RecoveredFailure? = null
+
+	// The unconfirmed turn the conversation showed at its last observation, if any: a turn is offered its retry when it
+	// starts being unconfirmed, and it is not offered again on each observation while it stays so.
+	var observedUnconfirmedTurnId: String? = null
 
 	// A send is on its way from the moment it starts until the first event of its turn, or its failure. The turn it was
 	// accepted as is known from its acceptance, so a stop can reach it before its first event.
@@ -68,7 +86,9 @@ internal class AssistantChatSession {
 	// after its refusal, which says whether the memory still waits for it. The number is that read's.
 	val pendingMemories = mutableSetOf<String>()
 	val failedAnswers = mutableMapOf<String, Int>()
-	val runningIntents = mutableSetOf<String>()
+
+	// The intents whose confirmation runs, each with the job that runs it: an intent is marked while its job is active.
+	val runningIntents = mutableMapOf<String, Job>()
 	val failedMessages = mutableSetOf<String>()
 
 	// The restriction that holds at [nowMillis]: one whose end has passed no longer stops the chat, and the next send
@@ -127,7 +147,12 @@ internal class AssistantChatSession {
 		conversation = observed
 
 		// The first event of the sent turn, or its end, is what the conversation shows of it: the send is over then.
-		if (sending && sendingTurnId != null && observed.activeTurn?.turnId == sendingTurnId) sending = false
+		// A retry of an unconfirmed turn is over with its own first event or its end, not with the turn already shown.
+		val shownTurn = observed.activeTurn?.takeIf { turn ->
+			turn.turnId == sendingTurnId && turn.status != AssistantTurnPhase.UNCONFIRMED
+		}
+
+		if (sending && shownTurn != null) sending = false
 
 		val pending = pendingFailedText
 		val last = lastUserMessage()
@@ -137,16 +162,40 @@ internal class AssistantChatSession {
 			pendingFailedText = null
 		}
 
-		// A turn whose result is unknown is retried with the message it answers, under the id that message was sent with.
-		if (observed.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED && last != null) {
-			lastFailedSend = FailedSend(text = last.text, suggestionId = followedSuggestionId, clientTurnId = last.id)
+		// A turn whose result is unknown is retried with the message it answers. The conversation is observed again while it
+		// stays unconfirmed, as a message written meanwhile is stored: that does not offer the retry again, so a refusal
+		// that came after keeps its own retry.
+		val unconfirmedTurnId = observed.activeTurn?.takeIf { turn -> turn.status == AssistantTurnPhase.UNCONFIRMED }?.turnId
+
+		if (unconfirmedTurnId != null && unconfirmedTurnId != observedUnconfirmedTurnId) {
+			failedSendOf(unconfirmedTurnId)?.let { failed -> lastFailedSend = failed }
 		}
+
+		observedUnconfirmedTurnId = unconfirmedTurnId
 	}
 
-	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with.
-	internal data class FailedSend(val text: String, val suggestionId: String?, val clientTurnId: String)
+	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with. The
+	// answer of a run that failed is a turn of its own: [runEnded] marks that failure, and its retry is a new request.
+	internal data class FailedSend(
+		val text: String,
+		val suggestionId: String?,
+		val clientTurnId: String,
+		val runEnded: Boolean = false
+	)
+
+	// A message waiting for the recovery of the unconfirmed turn [turnId]. [restoreText] is what the composer
+	// takes back when the message is not sent.
+	internal data class PendingSend(
+		val turnId: String,
+		val params: SendAssistantMessageParams,
+		val restoreText: String?
+	)
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
+
+	// The failure of the answer [clientTurnId] that ended with a RunError, when a new message waited for it: the
+	// question of that answer is what its retry sends again.
+	internal data class RecoveredFailure(val clientTurnId: String, val failure: TurnFailure)
 
 	// A saved answer to a «¿Sigue aplicando?» question, and the number of the last read asked when it was saved.
 	internal data class MemoryAnswer(val applies: Boolean, val readsBefore: Int)
@@ -198,3 +247,25 @@ internal fun AssistantChatSession.lastUserMessage(): AssistantUserMessage? {
 		?.lastOrNull()
 		?.message
 }
+
+// The message the turn [turnId] answers, as it was sent. A turn this sheet did not send has no record: the last
+// message the conversation has is the one it answers, as the turn was sent before the sheet was opened.
+internal fun AssistantChatSession.failedSendOf(turnId: String): AssistantChatSession.FailedSend? {
+	return sentByTurn[turnId] ?: lastUserMessage()?.let { last ->
+		AssistantChatSession.FailedSend(text = last.text, suggestionId = null, clientTurnId = last.id)
+	}
+}
+
+// The follow of the sent turn [turnId] ended without its final event: the result of the turn is unknown, as the store
+// shows it, and the send that waited for it is over. Its retry is offered again, as an unconfirmed turn offers it,
+// with the message the turn answers, as it was sent. A send that turnAccepted already answered is not waiting here.
+internal fun AssistantChatSession.endSendUnconfirmed(turnId: String) {
+	if (!sending || sendingTurnId != turnId) return
+
+	sending = false
+
+	sentByTurn[turnId]?.let { sent -> lastFailedSend = sent }
+}
+
+// A send waits while a message is on its way, a turn runs or a photo is read; a suggestion and a retry wait too.
+internal fun AssistantChatSession.sendIsBusy(): Boolean = sending || isRunning() || photoExtracting

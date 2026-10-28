@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 import com.gdavidpb.tuindice.assistant.domain.usecase.CancelAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
@@ -18,39 +17,29 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunError
+import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 
 /**
- * The conversation and the turns: the observation, the resumption and the follow of a turn, and the send. Each command
+ * The turns: the resumption and the follow of a turn, its recovery, and the send. Each command
  * reports its outcome to the machine as an internal event; what the outcome means is the machine's to decide.
  */
 class AssistantChatTurns(
-	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase,
+	private val conversation: AssistantChatConversation,
 	private val resumeAssistantTurnUseCase: ResumeAssistantTurnUseCase,
 	private val followAssistantTurnUseCase: FollowAssistantTurnUseCase,
 	private val sendAssistantMessageUseCase: SendAssistantMessageUseCase,
 	private val extractEvaluationsFromPhotoUseCase: ExtractEvaluationsFromPhotoUseCase,
 	private val cancelAssistantTurnUseCase: CancelAssistantTurnUseCase
 ) {
-	private var conversationJob: Job? = null
 	private var turnJob: Job? = null
 	private var photoJob: Job? = null
 
-	// Started once per sheet: a second observer would feed the same machine twice.
+	// The conversation is observed by its collaborator, which starts the observation once per sheet.
 	fun observeConversation(host: MachineHost<AssistantChat.Effect>) {
-		if (conversationJob?.isActive == true) return
-
-		conversationJob = host.launchMachineJob {
-			observeAssistantConversationUseCase.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						AssistantChatInternalEvent.ConversationObserved(conversation = useCaseState.value)
-					)
-				}
-			}
-		}
+		conversation.observe(host)
 	}
 
 	// The turn that was running when the sheet opened is followed again from the seq it had reached.
@@ -67,10 +56,44 @@ class AssistantChatTurns(
 		turnJob?.cancel()
 		turnJob = host.launchMachineJob {
 			val params = FollowAssistantTurnParams(turnId = turnId, afterSeq = afterSeq)
+			var finished = false
 
 			followAssistantTurnUseCase.execute(params).collect { useCaseState ->
+				val event = (useCaseState as? UseCaseState.Data)?.value
+
+				if (event is RunFinished || event is RunError) finished = true
+
 				reportTurnState(host, useCaseState)
 			}
+
+			// A follow that ends without the turn's final event, whether the stream closed or broke, leaves the turn's result
+			// unknown: the send that waits for it is told.
+			if (!finished) host.processInternalEvent(AssistantChatInternalEvent.TurnStreamClosed(turnId = turnId))
+		}
+	}
+
+	// Follows the unconfirmed turn [turnId] again, from the seq it reached, as the resumption does, to learn its
+	// result. Its final event confirms the turn; a stream that ends or breaks before it leaves the turn unconfirmed.
+	fun recoverTurn(host: MachineHost<AssistantChat.Effect>, turnId: String) {
+		turnJob?.cancel()
+		turnJob = host.launchMachineJob {
+			var confirmed = false
+
+			resumeAssistantTurnUseCase.execute(Unit).collect { useCaseState ->
+				val event = (useCaseState as? UseCaseState.Data)?.value
+
+				if (event is RunFinished || event is RunError) confirmed = true
+
+				reportTurnState(host, useCaseState)
+			}
+
+			host.processInternalEvent(
+				if (confirmed) {
+					AssistantChatInternalEvent.TurnRecovered(turnId = turnId)
+				} else {
+					AssistantChatInternalEvent.TurnNotRecovered(turnId = turnId)
+				}
+			)
 		}
 	}
 
@@ -90,7 +113,9 @@ class AssistantChatTurns(
 						AssistantChatInternalEvent.TurnAccepted(
 							turnId = useCaseState.value.turnId,
 							lastSeq = useCaseState.value.lastSeq,
-							suggestionId = suggestionId
+							suggestionId = suggestionId,
+							text = sentText,
+							clientTurnId = params.clientTurnId
 						)
 					)
 
@@ -127,7 +152,7 @@ class AssistantChatTurns(
 	}
 
 	fun stop() {
-		conversationJob?.cancel()
+		conversation.stop()
 		turnJob?.cancel()
 		photoJob?.cancel()
 	}
@@ -145,7 +170,11 @@ class AssistantChatTurns(
 
 				if (event is RunError) {
 					host.processInternalEvent(
-						AssistantChatInternalEvent.TurnRunFailed(code = event.code, retryable = event.retryable)
+						AssistantChatInternalEvent.TurnRunFailed(
+							turnId = event.turnId,
+							code = event.code,
+							retryable = event.retryable
+						)
 					)
 				}
 			}
@@ -154,36 +183,36 @@ class AssistantChatTurns(
 			is UseCaseState.Error -> Unit
 		}
 	}
+}
 
-	// The two outcomes a turn's send has keep their own rows, so a photo shows the same screens as a message does.
-	private fun ExtractEvaluationsFromPhotoError?.toPhotoEvent(): AssistantChatInternalEvent {
-		return when (this) {
-			is ExtractEvaluationsFromPhotoError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
+// The two outcomes a turn's send has keep their own rows, so a photo shows the same screens as a message does.
+private fun ExtractEvaluationsFromPhotoError?.toPhotoEvent(): AssistantChatInternalEvent {
+	return when (this) {
+		is ExtractEvaluationsFromPhotoError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
 
-			ExtractEvaluationsFromPhotoError.ConsentRequired -> AssistantChatInternalEvent.SendConsentRequired
+		ExtractEvaluationsFromPhotoError.ConsentRequired -> AssistantChatInternalEvent.SendConsentRequired
 
-			else -> AssistantChatInternalEvent.PhotoRejected(error = this)
-		}
+		else -> AssistantChatInternalEvent.PhotoRejected(error = this)
 	}
+}
 
-	private fun SendAssistantMessageError?.toSendEvent(
-		sentText: String,
-		restoreText: String?,
-		suggestionId: String?,
-		clientTurnId: String
-	): AssistantChatInternalEvent {
-		return when (this) {
-			is SendAssistantMessageError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
+private fun SendAssistantMessageError?.toSendEvent(
+	sentText: String,
+	restoreText: String?,
+	suggestionId: String?,
+	clientTurnId: String
+): AssistantChatInternalEvent {
+	return when (this) {
+		is SendAssistantMessageError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
 
-			SendAssistantMessageError.ConsentRequired -> AssistantChatInternalEvent.SendConsentRequired
+		SendAssistantMessageError.ConsentRequired -> AssistantChatInternalEvent.SendConsentRequired
 
-			else -> AssistantChatInternalEvent.SendRejected(
-				error = this,
-				sentText = sentText,
-				restoreText = restoreText,
-				suggestionId = suggestionId,
-				clientTurnId = clientTurnId
-			)
-		}
+		else -> AssistantChatInternalEvent.SendRejected(
+			error = this,
+			sentText = sentText,
+			restoreText = restoreText,
+			suggestionId = suggestionId,
+			clientTurnId = clientTurnId
+		)
 	}
 }

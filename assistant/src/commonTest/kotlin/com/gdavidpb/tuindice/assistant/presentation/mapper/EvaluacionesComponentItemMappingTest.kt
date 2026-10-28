@@ -17,7 +17,9 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_chip_heavy
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_many
 import tuindice.assistant.generated.resources.assistant_card_b_count_evaluation_one
+import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_date
 import tuindice.assistant.generated.resources.assistant_card_b_evaluation_no_grade
+import tuindice.assistant.generated.resources.assistant_card_b_evaluation_score
 import tuindice.assistant.generated.resources.assistant_card_b_fraction
 import tuindice.assistant.generated.resources.assistant_card_b_joined
 import tuindice.assistant.generated.resources.assistant_card_b_load_caption_many
@@ -63,7 +65,7 @@ class EvaluacionesComponentItemMappingTest {
 		).toEvaluationListItem()
 
 		assertEquals(
-			UiText.Resource(Res.string.assistant_card_b_fraction, listOf("14", "20")),
+			UiText.Resource(Res.string.assistant_card_b_evaluation_score, listOf("14", "20")),
 			item.rows[0].gradeText
 		)
 		assertEquals(
@@ -188,7 +190,7 @@ class EvaluacionesComponentItemMappingTest {
 	}
 
 	@Test
-	fun evaluationList_aRowKeepsItsDateApartFromItsTitle_andAnUndatedOneHasNoDate() {
+	fun evaluationList_aRowKeepsItsDateApartFromItsTitle_andAnUndatedOneReadsContinuous() {
 		val dateMillis = 1_760_000_000_000L
 		val item = EvaluationListComponent(
 			id = "e3",
@@ -218,8 +220,11 @@ class EvaluacionesComponentItemMappingTest {
 		).toEvaluationListItem()
 
 		assertEquals("Parcial 3", item.rows[0].title)
-		assertEquals(dateMillis.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE), item.rows[0].dateText)
-		assertNull(item.rows[1].dateText)
+		assertEquals(
+			UiText.Capitalized(dateMillis.formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)),
+			item.rows[0].dateText
+		)
+		assertEquals(UiText.Resource(Res.string.assistant_card_b_evaluation_no_date), item.rows[1].dateText)
 	}
 
 	@Test

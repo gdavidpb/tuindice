@@ -157,4 +157,31 @@ class AssistantAvailabilityDataSourceTest {
 		assertEquals(AssistantMode.ON, seen.last().mode)
 		assertEquals(AssistantMode.ON, source.currentAvailability().mode)
 	}
+
+	// The chat sheet subscribes again right after the server's mode was applied: the configuration has not changed, so the
+	// server's word stays. A change of the configuration is a new word on the mode, and the availability follows it.
+	@Test
+	fun aNewSubscriptionKeepsTheModeTheServerReported() = runTest {
+		val config = FakeAssistantConfigRepository(AssistantMode.OFF)
+		val source = AssistantAvailabilityDataSource(config, VirtualClock(testScheduler))
+		val firstSheet = backgroundScope.launch { source.observeAvailability().collect {} }
+		runCurrent()
+
+		source.reportServerMode(AssistantMode.GUIDED, source.sessionMark())
+		firstSheet.cancel()
+
+		val seen = mutableListOf<AssistantAvailability>()
+		backgroundScope.launch { source.observeAvailability().collect { seen += it } }
+		runCurrent()
+
+		// While it subscribes, the sheet sees only the server's word: nothing the configuration holds reaches it.
+		assertEquals(listOf(AssistantMode.GUIDED), seen.map { it.mode })
+		assertEquals(AssistantMode.GUIDED, seen.last().mode)
+		assertEquals(AssistantMode.GUIDED, source.currentAvailability().mode)
+
+		config.setMode(AssistantMode.ON)
+		runCurrent()
+
+		assertEquals(AssistantMode.ON, seen.last().mode)
+	}
 }

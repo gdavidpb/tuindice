@@ -90,7 +90,7 @@ class AssistantMemoryMachine(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						AssistantMemoryInternalEvent.EntryDeleteFailed(message = texts.deleteFailed())
+						AssistantMemoryInternalEvent.EntryDeleteFailed(memoryId = memoryId, message = texts.deleteFailed())
 					)
 				}
 			}

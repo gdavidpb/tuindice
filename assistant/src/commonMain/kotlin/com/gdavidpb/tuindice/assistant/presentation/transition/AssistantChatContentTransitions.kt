@@ -10,8 +10,12 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.machine.nextMemoryRead
+import com.gdavidpb.tuindice.assistant.presentation.machine.retryFailedSend
+import com.gdavidpb.tuindice.assistant.presentation.machine.sendIsBusy
+import com.gdavidpb.tuindice.assistant.presentation.machine.sendNewMessage
+import com.gdavidpb.tuindice.assistant.presentation.machine.turnNotRecovered
+import com.gdavidpb.tuindice.assistant.presentation.machine.turnRecovered
 import com.gdavidpb.tuindice.assistant.presentation.mapper.presentedComposer
-import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toWire
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
@@ -35,6 +39,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		onExit { machine.leaveContent() }
 
 		contentComposerRows(machine, host)
+		contentSendRows(machine, host)
 		contentPhotoRows(machine, host)
 		contentMessageRows(machine, host)
 		contentIntentRows(machine, host)
@@ -48,9 +53,14 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 		}
 
 		contentObservationRows(machine, host)
-		contentOutcomeRows(machine, host)
-		contentStillAppliesRows(machine, host)
-		contentFeedbackRows(machine, host)
+		contentConsentRows()
+
+		// The outcomes of the jobs the content started are the ones the consent takes too (see the outcome rows), and each
+		// one is presented here.
+		sendOutcomeRows(machine = machine, host = host) { state -> machine.refreshed(state) }
+		intentOutcomeRows(machine = machine, host = host) { state -> machine.refreshed(state) }
+		feedbackOutcomeRows(machine = machine, host = host) { state -> machine.refreshed(state) }
+		stillAppliesOutcomeRows(machine = machine, host = host) { state -> machine.refreshed(state) }
 		contentNotificationOfferRows(machine, host)
 	}
 }
@@ -72,12 +82,29 @@ private fun ContentTransitions.contentComposerRows(
 		)
 	}
 
+	on<AssistantChat.Action.RemoveContext> { state, _ -> machine.refreshed(state.copy(context = null)) }
+
+	// The student stops the turn that runs or is being sent. A turn that has no stop target has nothing to stop.
+	on<AssistantChat.Action.CancelTurn> { state, _ ->
+		val turnId = machine.session.stopTarget() ?: return@on state
+
+		machine.turns.cancel(host = host, turnId = turnId)
+		machine.refreshed(state)
+	}
+}
+
+// The rows that start a text turn: the send, a suggestion and a retry. They wait for the same conditions: no message on
+// its way, no turn running, and no photo being read.
+private fun ContentTransitions.contentSendRows(
+	machine: AssistantChatMachine,
+	host: MachineHost<AssistantChat.Effect>
+) {
 	on<AssistantChat.Action.Send> { state, _ ->
 		if (!state.composer.isSendEnabled) return@on state
 
 		val draftText = machine.draft.text.value
 
-		machine.startTurn(
+		machine.sendNewMessage(
 			host = host,
 			params = SendAssistantMessageParams(
 				text = draftText.trim(),
@@ -92,9 +119,9 @@ private fun ContentTransitions.contentComposerRows(
 	on<AssistantChat.Action.PickSuggestion> { state, action ->
 		val text = machine.session.suggestionText(action.suggestionId)
 
-		if (text == null || machine.session.isRunning()) return@on state
+		if (text == null || machine.session.sendIsBusy()) return@on state
 
-		machine.startTurn(
+		machine.sendNewMessage(
 			host = host,
 			params = SendAssistantMessageParams(
 				text = text,
@@ -106,31 +133,25 @@ private fun ContentTransitions.contentComposerRows(
 		machine.refreshed(state)
 	}
 
-	on<AssistantChat.Action.RemoveContext> { state, _ -> machine.refreshed(state.copy(context = null)) }
-
 	on<AssistantChat.Action.RetryTurn> { state, _ ->
 		val failed = machine.session.lastFailedSend
 
-		if (failed == null || machine.session.isRunning()) return@on state
+		if (failed == null || machine.session.sendIsBusy()) return@on state
 
-		machine.startTurn(
-			host = host,
-			params = SendAssistantMessageParams(
-				text = failed.text,
-				suggestionId = failed.suggestionId,
-				screenContext = state.context?.context,
-				clientTurnId = failed.clientTurnId
-			),
-			draftText = null
-		)
+		machine.retryFailedSend(host = host, failed = failed, context = state.context?.context)
 		machine.refreshed(state)
 	}
 
-	// The student stops the turn that runs or is being sent. A turn that has no stop target has nothing to stop.
-	on<AssistantChat.Action.CancelTurn> { state, _ ->
-		val turnId = machine.session.stopTarget() ?: return@on state
+	// The answer to a message that was unconfirmed is recovered first: the message that waits for it is sent once
+	// the answer is confirmed, and is not sent when it is not. The recovery is stopped with the content, so its
+	// outcome comes here only.
+	on<AssistantChatInternalEvent.TurnRecovered> { state, event ->
+		machine.turnRecovered(host = host, event = event)
+		machine.refreshed(state)
+	}
 
-		machine.turns.cancel(host = host, turnId = turnId)
+	on<AssistantChatInternalEvent.TurnNotRecovered> { state, event ->
+		machine.turnNotRecovered(event = event)
 		machine.refreshed(state)
 	}
 }
@@ -154,7 +175,7 @@ private fun ContentTransitions.contentPhotoRows(
 	on<AssistantChat.Action.AttachPhoto> { state, action ->
 		if (!state.composer.isPhotoEnabled) return@on state
 
-		machine.session.turnFailure = null
+		machine.session.photoFailure = null
 		machine.session.photoExtracting = true
 		machine.turns.extractPhoto(host = host, file = action.file, context = state.context?.context)
 		machine.refreshed(state)
@@ -171,8 +192,9 @@ private fun ContentTransitions.contentPhotoRows(
 	}
 }
 
-// A photo that was not read. Its notices are the turn's: the quota, the guided mode, a restriction, or a failure the
-// student can see. A photo has no text to send again, so its failure is never retryable.
+// A photo that was not read. Its notices are its own: the quota, the guided mode, a restriction, or a failure the
+// student can see. A photo has no text to send again, so its failure is never retryable. It never marks the failure
+// of a text turn: the failure of a text turn keeps its notice and its retry.
 private suspend fun AssistantChatMachine.photoRejected(
 	host: MachineHost<AssistantChat.Effect>,
 	event: AssistantChatInternalEvent.PhotoRejected
@@ -189,9 +211,13 @@ private suspend fun AssistantChatMachine.photoRejected(
 			access.restrictions.restrictionStatus(host)
 		}
 
-		ExtractEvaluationsFromPhotoError.GuidedOnly -> session.guidedByServer = true
+		// As a refused text send does, the status is read again: the service says the chat is guided now.
+		ExtractEvaluationsFromPhotoError.GuidedOnly -> {
+			session.guidedByServer = true
+			access.refreshStatus(host)
+		}
 
-		else -> session.turnFailure = AssistantChatSession.TurnFailure(
+		else -> session.photoFailure = AssistantChatSession.TurnFailure(
 			message = texts.sendFailed(),
 			retryable = false
 		)
@@ -332,6 +358,8 @@ private fun ContentTransitions.contentNotificationOfferRows(
 	}
 }
 
+// The conversation the store observes while the content is shown, and the access to it: these rows exist on the content
+// only, since the conversation is not observed while the sheet asks for the consent.
 private fun ContentTransitions.contentObservationRows(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -368,107 +396,11 @@ private fun ContentTransitions.contentObservationRows(
 		machine.session.modeSaid(guided = event.guided)
 		machine.refreshed(state)
 	}
-
-	on<AssistantChatInternalEvent.TurnAccepted> { state, event ->
-		machine.turnAccepted(host = host, event = event)
-		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.TurnRunFailed> { state, event ->
-		machine.session.runFailed(texts = machine.texts, event = event)
-		machine.refreshed(state)
-	}
-
-	// The standing read after a refusal. A standing that no longer restricts releases the chat; one that could not be
-	// read keeps the restriction, with no level or end known.
-	on<AssistantChatInternalEvent.RestrictionChecked> { state, event ->
-		val standing = event.standing
-
-		if (standing != null) machine.session.restriction = machine.access.restrictions.restrictionOf(standing)
-
-		machine.refreshed(state)
-	}
 }
 
-private fun ContentTransitions.contentOutcomeRows(
-	machine: AssistantChatMachine,
-	host: MachineHost<AssistantChat.Effect>
-) {
-	on<AssistantChatInternalEvent.SendRejected> { state, event ->
-		machine.sendRejected(host = host, event = event)
-		machine.refreshed(state)
-	}
-
-	onTo<AssistantChatInternalEvent.SendDisabled, AssistantChat.State.Unavailable>(
-		emits = setOf(AssistantChat.Effect.Dismiss::class)
-	) { _, _ ->
-		host.sendEffect(AssistantChat.Effect.Dismiss)
-		AssistantChat.State.Unavailable
-	}
-
+// A send the service answers with a consent asks the student for it: the sheet shows the consent.
+private fun ContentTransitions.contentConsentRows() {
 	onTo<AssistantChatInternalEvent.SendConsentRequired, AssistantChat.State.ConsentRequired> { _, _ ->
 		AssistantChat.State.ConsentRequired
-	}
-
-	on<AssistantChatInternalEvent.IntentConfirmFinished> { state, event ->
-		machine.session.runningIntents -= event.intentId
-		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.EnrollmentProofDelegated>(
-		emits = setOf(AssistantChat.Effect.OpenEnrollmentProof::class)
-	) { state, event ->
-		machine.session.runningIntents -= event.intentId
-		host.sendEffect(AssistantChat.Effect.OpenEnrollmentProof)
-		machine.refreshed(state)
-	}
-}
-
-// The answers to the student's feedback and to the appeal: each one shows its snackbar on the sheet.
-private fun ContentTransitions.contentFeedbackRows(
-	machine: AssistantChatMachine,
-	host: MachineHost<AssistantChat.Effect>
-) {
-	on<AssistantChatInternalEvent.MessageRated>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
-	}
-
-	on<AssistantChatInternalEvent.MessageRateFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		machine.session.rateRefused(messageId = event.messageId, rejected = event.rejected, previous = event.previous)
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		machine.refreshed(state)
-	}
-
-	// The report is marked here, and only here: a saved report is the only one that changes the message.
-	on<AssistantChatInternalEvent.MessageReported>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		machine.session.reportedMessages += event.messageId
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.MessageReportFailed>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
-	}
-
-	on<AssistantChatInternalEvent.MessageReportRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
-	}
-
-	on<AssistantChatInternalEvent.AppealSent>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) { state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
-	}
-
-	on<AssistantChatInternalEvent.AppealRejected>(emits = setOf(AssistantChat.Effect.ShowSnackBar::class)) {
-		state, event ->
-		host.sendEffect(AssistantChat.Effect.ShowSnackBar(message = event.message))
-		state
 	}
 }

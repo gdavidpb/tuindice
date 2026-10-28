@@ -38,8 +38,12 @@ class AssistantConversationStoreDataSource(
 		store.markUnconfirmed(turnId, lastSeq, sessionMark)
 	}
 
-	override fun addUserMessage(message: AssistantUserMessage) {
-		store.addUserMessage(message)
+	override fun addUserMessage(
+		message: AssistantUserMessage,
+		replacesMessageId: String?,
+		replacesSessionMark: Int?
+	) {
+		store.addUserMessage(message, replacesMessageId, replacesSessionMark)
 	}
 
 	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {

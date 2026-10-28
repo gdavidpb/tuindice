@@ -24,16 +24,29 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-// The app's client fails error answers by itself (expectSuccess) and resolves paths against the API root.
-internal fun assistantHttpClient(handler: MockRequestHandler): HttpClient {
-	val config = MockEngineConfig().apply { addHandler(handler) }
+// The app's client fails error answers by itself (expectSuccess), and resolves paths against the
+// API root. A test that orders its requests with the coroutines passes [engineDispatcher], so the
+// engine answers on the test's own dispatcher.
+internal fun assistantHttpClient(
+	engineDispatcher: CoroutineDispatcher? = null,
+	handler: MockRequestHandler
+): HttpClient {
+	val config = MockEngineConfig().apply {
+		addHandler(handler)
+		dispatcher = engineDispatcher
+	}
 
 	return HttpClient(SseCapableMockEngine(config)) {
 		expectSuccess = true
@@ -133,7 +146,13 @@ internal class FakeAssistantConfigRepository(
 
 	private val modes = MutableStateFlow(mode)
 
-	override fun observeAssistantMode(): Flow<AssistantMode> = modes
+	// As the real source does, a subscriber receives the mode through a channel, after the call that subscribes: the first
+	// value is not handed over by that call, and a value the configuration holds meanwhile reaches the subscriber later.
+	override fun observeAssistantMode(): Flow<AssistantMode> = channelFlow {
+		launch(start = CoroutineStart.UNDISPATCHED) {
+			modes.collect { mode -> send(mode) }
+		}
+	}.distinctUntilChanged()
 
 	fun setMode(mode: AssistantMode) {
 		modes.value = mode

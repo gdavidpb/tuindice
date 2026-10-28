@@ -19,6 +19,7 @@ import tuindice.assistant.generated.resources.assistant_chat_evaluation_type_tes
 import tuindice.assistant.generated.resources.assistant_chat_evaluation_type_workshop
 import tuindice.assistant.generated.resources.assistant_chat_evaluation_type_written_work
 import tuindice.assistant.generated.resources.assistant_chat_guided
+import tuindice.assistant.generated.resources.assistant_chat_intent_confirming
 import tuindice.assistant.generated.resources.assistant_chat_max_grade
 import tuindice.assistant.generated.resources.assistant_chat_message_too_long
 import tuindice.assistant.generated.resources.assistant_chat_quota_exhausted
@@ -47,7 +48,10 @@ import tuindice.assistant.generated.resources.assistant_chat_wait_minutes
 import tuindice.assistant.generated.resources.assistant_chat_wait_under_minute
 
 // The chat texts read from the module's compose resources: the app's binding of AssistantChatTexts.
-class AssistantChatResourceTexts : AssistantChatTexts {
+class AssistantChatResourceTexts :
+	AssistantChatTexts,
+	AssistantChatPartTexts by AssistantChatPartResourceTexts(),
+	AssistantChatIntentTexts by AssistantChatIntentResourceTexts() {
 	override suspend fun screenName(screen: AssistantScreen): String = getString(
 		when (screen) {
 			AssistantScreen.SUMMARY -> Res.string.assistant_chat_screen_summary
@@ -100,6 +104,8 @@ class AssistantChatResourceTexts : AssistantChatTexts {
 	)
 
 	override suspend fun sendFailed(): String = getString(Res.string.assistant_chat_send_failed)
+
+	override suspend fun intentConfirming(): String = getString(Res.string.assistant_chat_intent_confirming)
 
 	override suspend fun messageTooLong(maxLength: Int): String {
 		return getString(Res.string.assistant_chat_message_too_long, maxLength)

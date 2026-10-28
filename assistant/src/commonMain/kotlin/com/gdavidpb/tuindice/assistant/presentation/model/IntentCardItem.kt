@@ -16,5 +16,7 @@ data class IntentCardItem(
 	// The rows of a batch the student can unmark before confirming; empty for any other intent.
 	val drafts: List<IntentDraftItem>,
 	val expiresAtMillis: Long,
-	val status: IntentCardStatus
+	val status: IntentCardStatus,
+	// The text the card shows while its confirmation runs; null when it does not run.
+	val runningLabel: String? = null
 )

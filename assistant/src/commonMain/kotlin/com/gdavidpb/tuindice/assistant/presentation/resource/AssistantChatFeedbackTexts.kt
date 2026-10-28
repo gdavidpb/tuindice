@@ -17,5 +17,9 @@ interface AssistantChatFeedbackTexts {
 
 	suspend fun appealSent(): String
 
+	// The length the appeal must keep: the text of a refusal for a length the appeal does not have.
 	suspend fun appealFailed(maxLength: Int): String
+
+	// The appeal did not reach the service: a network or a server failure, which says nothing about its length.
+	suspend fun appealNotSent(): String
 }

@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.Assista
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatProposals
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.mapper.presentedContent
+import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
@@ -113,12 +116,27 @@ class AssistantChatMachine(
 	}
 
 	// Leaving the content stops what observed it: the conversation and the turn are no longer followed, and a send that
-	// was waiting for its first event is no longer waited for.
+	// was waiting for its first event is no longer waited for. A photo still being read is no longer waited for either:
+	// its reading was stopped with the sheet, so the sheet does not show it as read when it comes back.
 	internal fun leaveContent() {
 		turns.stop()
 
 		session.sending = false
 		session.sendingTurnId = null
+		session.photoExtracting = false
+
+		// A message waiting for the recovery of its answer is dropped with it, and the recovery is stopped as well. Its text
+		// goes back to the composer, unless the student has written there meanwhile, as a recovery that does not confirm
+		// gives it back.
+		if (draft.text.value.isEmpty()) session.pendingSend?.restoreText?.let(draft::replace)
+		session.pendingSend = null
+
+		// The content that opens again offers the retry of its unconfirmed turn again, as its first observation does.
+		session.observedUnconfirmedTurnId = null
+
+		// A confirmation that has ended has no work left, so its mark goes. One still running keeps its mark: its outcome
+		// reaches the sheet in whichever state the sheet is then.
+		session.runningIntents.entries.removeAll { (_, job) -> !job.isActive }
 	}
 
 	internal suspend fun refreshed(content: AssistantChat.State.Content): AssistantChat.State.Content {
@@ -131,24 +149,18 @@ class AssistantChatMachine(
 		)
 	}
 
-	// Starts a turn with the message of [params]. [draftText] is the draft the send takes its text from and clears;
-	// null leaves it. A new message carries its own client turn id; a retry carries the one of the send it retries,
-	// so the server answers with the same turn.
+	// Starts a turn with the message of [params]: the one path every send takes. [draftText] is the draft the
+	// send takes its text from and clears; null leaves it. [restoreText] is the text a refused send gives back,
+	// the draft's text by default. A new message carries its own client turn id. A retry of a refused or
+	// unconfirmed send carries the id of that send, so the server answers with the same turn; a retry of a run
+	// that failed is a new request (see retryFailedSend).
 	internal fun startTurn(
 		host: MachineHost<AssistantChat.Effect>,
 		params: SendAssistantMessageParams,
-		draftText: String?
+		draftText: String?,
+		restoreText: String? = draftText
 	) {
-		session.turnFailure = null
-		session.sending = true
-		session.sendingTurnId = null
-
-		// A restriction whose end has passed is read again from the server, which releases it or gives its new end;
-		// the send goes meanwhile, and the server refuses it if the restriction still holds.
-		if (session.restriction != null && session.restrictionAt(access.restrictions.nowMillis()) == null) {
-			session.restriction = null
-			access.restrictions.restrictionStatus(host)
-		}
+		beginSend(host)
 
 		if (draftText != null) draft.replace("")
 
@@ -156,7 +168,7 @@ class AssistantChatMachine(
 			host = host,
 			params = params,
 			sentText = params.text.orEmpty(),
-			restoreText = draftText,
+			restoreText = restoreText,
 			suggestionId = params.suggestionId
 		)
 	}
@@ -175,9 +187,8 @@ class AssistantChatMachine(
 		val params = ConfirmIntentParams(intentId = intentId, editedArgs = editedArgs)
 		val flow = proposals.confirmation(intent.args, params) ?: return
 
-		session.runningIntents += intentId
-
-		host.launchMachineJob {
+		// The mark is the job that runs the confirmation: the intent shows as running while that job is active.
+		session.runningIntents[intentId] = host.launchMachineJob {
 			flow.collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
@@ -191,8 +202,14 @@ class AssistantChatMachine(
 						}
 					)
 
+					// An intent that is not open here (another run holds it) keeps its card as it is. Any other failure says the
+					// send failed, and the card goes back to its buttons.
 					is UseCaseState.Error -> host.processInternalEvent(
-						AssistantChatInternalEvent.IntentConfirmFinished(intentId = intentId)
+						if (useCaseState.error == AssistantIntentError.IntentNotOpen) {
+							AssistantChatInternalEvent.IntentConfirmFinished(intentId = intentId)
+						} else {
+							AssistantChatInternalEvent.IntentConfirmFailed(intentId = intentId)
+						}
 					)
 				}
 			}
@@ -218,13 +235,14 @@ class AssistantChatMachine(
 			)
 		}
 
-		// A text that was not sent stays in the composer, where the student can send it again.
+		// A text that was not sent stays in the composer, where the student can send it again. It does not replace what the
+		// student started writing while the send waited.
 		val keepsText = notSent ||
 			error is SendAssistantMessageError.QuotaExhausted ||
 			error == SendAssistantMessageError.TurnInProgress ||
 			error == SendAssistantMessageError.GuidedOnly
 
-		if (keepsText) event.restoreText?.let(draft::replace)
+		if (keepsText && draft.text.value.isEmpty()) event.restoreText?.let(draft::replace)
 
 		when (error) {
 			is SendAssistantMessageError.QuotaExhausted -> {
@@ -259,20 +277,53 @@ class AssistantChatMachine(
 		}
 	}
 
-	// The turn was accepted: whatever failed before is past, and the turn is followed from its first event.
-	internal fun turnAccepted(
+	// The turn was accepted: whatever failed before is past, and the turn is followed from its first event. The retry of a
+	// failed send takes its failure with it; another message accepted leaves the failed one with its mark and its retry.
+	internal suspend fun turnAccepted(
 		host: MachineHost<AssistantChat.Effect>,
 		event: AssistantChatInternalEvent.TurnAccepted
 	) {
-		// The retry was accepted: its message is no longer failed, and the turn is followed from its first event.
-		session.lastFailedSend?.let { failed -> session.failedMessages -= failed.clientTurnId }
-		session.lastFailedSend = null
+		val retried = session.lastFailedSend?.takeIf { failed -> failed.clientTurnId == event.clientTurnId }
+
+		if (retried != null) {
+			session.failedMessages -= retried.clientTurnId
+			session.lastFailedSend = null
+		}
+
 		session.turnFailure = null
+		session.photoFailure = null
 		session.quota = null
 		session.restriction = null
 		session.pendingFailedText = null
-		session.followedSuggestionId = event.suggestionId
+		// The message the turn answers is kept under the turn, as it was sent: the retry of the turn sends it again.
+		session.sentByTurn[event.turnId] = AssistantChatSession.FailedSend(
+			text = event.text,
+			suggestionId = event.suggestionId,
+			clientTurnId = event.clientTurnId
+		)
 		session.sendingTurnId = event.turnId
+
+		// A turn the store already holds as ended is accepted as it is: the store writes nothing for it, so no event comes to
+		// say the send is over. The answer is the end the turn has, the failure it ended with, or the finish of the turn.
+		val ended = session.conversation?.activeTurn?.takeIf { active ->
+			active.turnId == event.turnId &&
+				(active.status == AssistantTurnPhase.FAILED || active.status == AssistantTurnPhase.FINISHED)
+		}
+
+		if (ended != null) {
+			session.sending = false
+
+			ended.failure?.let { failure ->
+				session.runFailed(
+					texts = texts,
+					event = AssistantChatInternalEvent.TurnRunFailed(
+						turnId = event.turnId,
+						code = failure.code,
+						retryable = failure.retryable
+					)
+				)
+			}
+		}
 
 		turns.followTurn(host = host, turnId = event.turnId, afterSeq = event.lastSeq)
 	}

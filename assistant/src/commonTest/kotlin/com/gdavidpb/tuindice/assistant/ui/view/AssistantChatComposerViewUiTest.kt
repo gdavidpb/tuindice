@@ -12,9 +12,11 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -71,7 +73,7 @@ class AssistantChatComposerViewUiTest {
 	}
 
 	@Test
-	fun when_theComposerIsOn_then_theClipIsInsideTheField_atItsEnd_andOpensThePhotoMenu() = runTuIndiceUiTest {
+	fun when_theComposerIsOn_then_theClipIsInsideTheField_atItsStart_andOpensThePhotoMenu() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
 				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true),
@@ -88,9 +90,14 @@ class AssistantChatComposerViewUiTest {
 		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
 		assertTrue(clip.left >= field.left && clip.right <= field.right)
 		assertTrue(clip.top >= field.top && clip.bottom <= field.bottom)
-		assertTrue(clip.center.x > field.center.x)
-		// The send button is inside the field too, after the clip.
+		// The clip's 48 dp touch target sits 4 dp in from the start of the field. The tag is on the 40 dp icon button,
+		// centred in that target, so the button itself starts 4 dp further in.
+		assertEquals(with(density) { 8.dp.toPx() }, clip.left - field.left, absoluteTolerance = PIXEL_TOLERANCE)
+		// The send button is inside the field too, at its end, after the clip.
 		assertTrue(send.left >= clip.right && send.right <= field.right)
+		// The text starts 12 dp after the clip's 38 dp circle, which sits 1 dp inside the 40 dp button.
+		val text = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+		assertEquals(with(density) { 11.dp.toPx() }, text.left - clip.right, absoluteTolerance = PIXEL_TOLERANCE)
 
 		assertNodeEnabled(AssistantUiTags.PhotoButton)
 		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
@@ -124,6 +131,29 @@ class AssistantChatComposerViewUiTest {
 
 		assertNodeHidden(AssistantUiTags.PhotoButton)
 		assertNodeVisible(AssistantUiTags.SendButton)
+	}
+
+	@Test
+	fun when_theFieldIsOff_then_theTextDoesNotMove() = runTuIndiceUiTest {
+		var composer by mutableStateOf(
+			ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true)
+		)
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = composer,
+				isCameraAvailable = true,
+				onAction = {}
+			)
+		}
+
+		// The clip is there, and the text starts after it; then the field turns off and the clip goes.
+		val textWithClip = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
+		composer = composer.copy(isEnabled = false)
+		waitForIdle()
+
+		assertNodeHidden(AssistantUiTags.PhotoButton)
+		val textWithoutClip = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
+		assertEquals(textWithClip, textWithoutClip, absoluteTolerance = PIXEL_TOLERANCE)
 	}
 
 	@Test
@@ -244,6 +274,7 @@ class AssistantChatComposerViewUiTest {
 	private companion object {
 		const val STOP_DESCRIPTION = "Detener respuesta"
 		const val PHOTO_DESCRIPTION = "Agregar evaluaciones desde una foto"
+		const val PLACEHOLDER = "Escribe tu pregunta"
 		const val PIXEL_TOLERANCE = 1f
 	}
 }

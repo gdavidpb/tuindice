@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.usecase.AppealAssistantRestrictionUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantAppealError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
@@ -70,12 +71,20 @@ class AssistantChatRestrictions(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						AssistantChatInternalEvent.AppealRejected(
-							message = feedbackTexts.appealFailed(AbuseAppeal.MAX_LENGTH)
-						)
+						AssistantChatInternalEvent.AppealRejected(message = appealRejectedText(useCaseState.error))
 					)
 				}
 			}
+		}
+	}
+
+	// The appeal's length is what a refusal of its length says. Any other refusal, a network failure among them, reads as
+	// the appeal not sent: the text of a length is not the reason.
+	private suspend fun appealRejectedText(error: AssistantAppealError?): String {
+		return when (error) {
+			AssistantAppealError.Empty, AssistantAppealError.TooLong -> feedbackTexts.appealFailed(AbuseAppeal.MAX_LENGTH)
+
+			else -> feedbackTexts.appealNotSent()
 		}
 	}
 }

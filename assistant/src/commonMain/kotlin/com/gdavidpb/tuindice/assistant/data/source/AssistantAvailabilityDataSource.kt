@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlin.time.Clock
@@ -83,14 +83,24 @@ class AssistantAvailabilityDataSource(
 		}
 	}
 
-	// The configuration's changes and the server's reports both move the mode, and the flow follows the last of them.
+	// The configuration's changes and the server's reports both move the mode, and the flow follows the last of them. A
+	// subscription reads the configuration it already holds, so it moves nothing: the server's word stays until the
+	// configuration changes.
 	private fun modeFlow(): Flow<AssistantMode> {
 		return merge(
-			configRepository.observeAssistantMode().onEach { mode ->
-				state.update { current -> current.copy(configuredMode = mode, reportedMode = mode) }
-			},
+			followConfiguration(),
 			state.map { current -> current.reportedMode }.filterNotNull()
 		).distinctUntilChanged()
+	}
+
+	// Moves the state with every mode the configuration holds, and emits none of them: the flow emits only what the
+	// state reports.
+	private fun followConfiguration(): Flow<Nothing> = flow {
+		configRepository.observeAssistantMode().collect { mode ->
+			state.update { current ->
+				if (mode == current.configuredMode) current else current.copy(configuredMode = mode, reportedMode = mode)
+			}
+		}
 	}
 
 	// Reads true while the window lasts. A timer lowers the flag at its deadline, and a new window restarts it.

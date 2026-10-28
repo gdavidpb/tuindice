@@ -77,10 +77,10 @@ internal fun ChatComponent.toRecordItem(nowMillis: Long): RecordComponentItem? {
 }
 
 // The AcademicComponent items: the components of their catalogs, or null for a component of another family.
-internal fun ChatComponent.toAcademicItem(): AcademicComponentItem? {
+internal fun ChatComponent.toAcademicItem(weeks: EvaluationWeeksContext? = null): AcademicComponentItem? {
 	return when (this) {
 		is CitationComponent -> toCitationItem()
-		is EvaluationListComponent -> toEvaluationListItem()
+		is EvaluationListComponent -> toEvaluationListItem(weeks)
 		is SubjectPointsComponent -> toSubjectPointsItem()
 		is WeeklyLoadComponent -> toWeeklyLoadItem()
 		is RequiredGradeComponent -> toRequiredGradeItem()

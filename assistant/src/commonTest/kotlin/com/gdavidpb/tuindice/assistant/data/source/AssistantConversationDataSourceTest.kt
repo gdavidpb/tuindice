@@ -165,6 +165,21 @@ class AssistantConversationDataSourceTest {
 		assertEquals(mapOf("i2" to OutcomeKind.CONFIRMED, "i1" to OutcomeKind.CANCELLED), state.resolvedIntents)
 	}
 
+	// A proposal that comes again for an intent the student already resolved does not open the intent once more.
+	@Test
+	fun aProposalOfAnIntentTheStudentResolvedDoesNotOpenItAgain() = runTest {
+		val store = AssistantConversationDataSource()
+		store.apply(IntentProposed(seq = 1, turnId = "t1", messageId = "m1", intent = intent), store.sessionMark())
+		store.markIntentResolved(intentId = "i1", outcome = OutcomeKind.CONFIRMED, store.sessionMark())
+
+		store.apply(IntentProposed(seq = 2, turnId = "t1", messageId = "m1", intent = intent), store.sessionMark())
+
+		val state = store.observeConversation().value
+
+		assertTrue(state.openIntents.isEmpty())
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), state.resolvedIntents)
+	}
+
 	@Test
 	fun clearSessionMemoryEmptiesTheConversation() = runTest {
 		val store = AssistantConversationDataSource()
@@ -313,5 +328,45 @@ class AssistantConversationDataSourceTest {
 
 		assertEquals("c1", store.observeConversation().value.conversationId)
 		assertEquals(listOf("i1"), outbox.pendingOutcomes().map { report -> report.intentId })
+	}
+
+	// The question a retry replaces leaves the conversation in the write that stores the retry's question, with its place
+	// in the order; the other questions stay.
+	@Test
+	fun aRetryReplacesItsQuestion_andTheOtherQuestionsStay() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+
+		store.addUserMessage(AssistantUserMessage(id = "q1", text = "hola", createdAtMillis = 1L))
+		store.addUserMessage(AssistantUserMessage(id = "q2", text = "adiós", createdAtMillis = 2L))
+
+		store.addUserMessage(
+			AssistantUserMessage(id = "r1", text = "hola", createdAtMillis = 3L),
+			replacesMessageId = "q1",
+			replacesSessionMark = mark
+		)
+
+		val conversation = store.observeConversation().value
+		assertEquals(listOf("q2", "r1"), conversation.userMessages.map { message -> message.id })
+		assertEquals(listOf("q2", "r1"), conversation.order)
+	}
+
+	// A retry decided for a session that has ended leaves the question it replaces in the conversation, and stores its
+	// own.
+	@Test
+	fun aRetryDecidedForAnEndedSession_leavesTheQuestionItReplacesAsItIs() = runTest {
+		val store = AssistantConversationDataSource()
+		val staleMark = store.sessionMark()
+
+		store.clearSessionMemory()
+		store.addUserMessage(AssistantUserMessage(id = "q1", text = "hola", createdAtMillis = 1L))
+
+		store.addUserMessage(
+			AssistantUserMessage(id = "r1", text = "hola", createdAtMillis = 2L),
+			replacesMessageId = "q1",
+			replacesSessionMark = staleMark
+		)
+
+		assertEquals(listOf("q1", "r1"), store.observeConversation().value.userMessages.map { message -> message.id })
 	}
 }

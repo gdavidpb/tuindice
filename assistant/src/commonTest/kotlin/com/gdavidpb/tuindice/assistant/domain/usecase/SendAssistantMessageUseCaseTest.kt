@@ -181,6 +181,31 @@ class SendAssistantMessageUseCaseTest {
 		assertEquals(UseCaseState.Error<SendAssistantMessageError>(null), send(text = "Hola"))
 	}
 
+	// A retry takes the question it replaces out in the write that stores its own: the two are one step, so the question
+	// of the retry is never kept next to the one it replaces.
+	@Test
+	fun aRetryReplacesItsQuestion_inOneWrite_thatStoresItsOwn() = runTest {
+		useCase().execute(
+			SendAssistantMessageParams(text = "Hola", suggestionId = null, screenContext = null, clientTurnId = "failed-1")
+		).lastState()
+		calls.clear()
+
+		useCase().execute(
+			SendAssistantMessageParams(
+				text = "Hola",
+				suggestionId = null,
+				screenContext = null,
+				clientTurnId = "retry-1",
+				replacesMessageId = "failed-1",
+				replacesSessionMark = 0
+			)
+		).lastState()
+
+		assertEquals(listOf("addUserMessage", "sendTurn", "attachConversation"), calls)
+		assertEquals(listOf("retry-1"), conversation.userMessages.map { message -> message.id })
+		assertEquals(listOf("failed-1" to 0), conversation.replacements)
+	}
+
 	private companion object {
 		const val NOW_MILLIS = 1_700_000_000_000L
 	}

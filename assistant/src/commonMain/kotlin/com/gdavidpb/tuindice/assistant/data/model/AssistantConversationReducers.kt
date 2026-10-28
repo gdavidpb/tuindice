@@ -17,13 +17,9 @@ import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 internal fun AssistantConversationState.reduce(event: AssistantEvent): AssistantConversationState {
 	val known = turns[event.turnId]
 
-	if (event is UnknownAssistantEvent || (known != null && event.seq <= known.lastSeq)) return this
+	if (event is UnknownAssistantEvent || known.alreadyApplied(event.seq)) return this
 
-	val current = (known ?: AssistantTurnState(event.turnId, event.seq)).resumedBy(event)
-	val seen = copy(
-		turns = turns + (event.turnId to current.copy(lastSeq = event.seq)),
-		lastTurnId = event.turnId
-	)
+	val seen = advancedBy(event.turnId, event.seq, isFinal = event is RunFinished || event is RunError)
 
 	return when (event) {
 		is RunStarted -> seen.updateTurn(event.turnId) { turn ->
@@ -41,16 +37,7 @@ internal fun AssistantConversationState.reduce(event: AssistantEvent): Assistant
 			order = seen.order.withId(event.message.id)
 		)
 
-		is IntentProposed -> {
-			val open = AssistantOpenIntent(
-				intentId = event.intent.id,
-				turnId = event.turnId,
-				messageId = event.messageId,
-				intent = event.intent
-			)
-
-			seen.copy(openIntents = seen.openIntents + (open.intentId to open))
-		}
+		is IntentProposed -> seen.proposedBy(event)
 
 		is IntentResolved -> seen.resolvedBy(event)
 
@@ -73,6 +60,18 @@ internal fun AssistantConversationState.reduce(event: AssistantEvent): Assistant
 		// Dropped before this point; the branch keeps the when exhaustive.
 		is UnknownAssistantEvent -> this
 	}
+}
+
+// A proposal of an intent the student already resolved does not open it again: the intent stays resolved.
+private fun AssistantConversationState.proposedBy(event: IntentProposed): AssistantConversationState {
+	val open = AssistantOpenIntent(
+		intentId = event.intent.id,
+		turnId = event.turnId,
+		messageId = event.messageId,
+		intent = event.intent
+	)
+
+	return if (event.intent.id in resolvedIntents) this else copy(openIntents = openIntents + (open.intentId to open))
 }
 
 // The server closes a proposal another one replaced. An intent the app already resolved here (the student decided it
@@ -106,9 +105,7 @@ internal fun AssistantConversationState.markUnconfirmed(turnId: String, lastSeq:
 }
 
 // An unconfirmed turn that delivers an event that is not its final one is running again.
-private fun AssistantTurnState.resumedBy(event: AssistantEvent): AssistantTurnState {
-	val isFinal = event is RunFinished || event is RunError
-
+internal fun AssistantTurnState.resumedBy(isFinal: Boolean): AssistantTurnState {
 	return if (status == AssistantTurnStatus.UNCONFIRMED && !isFinal) copy(status = AssistantTurnStatus.RUNNING) else this
 }
 
@@ -119,12 +116,17 @@ private fun AssistantConversationState.updateTurn(
 	return copy(turns = turns + (turnId to update(turns.getValue(turnId))))
 }
 
-// A proposal written outside a turn, as a photo's is, belongs to no turn: its open intent carries an empty turn id.
+// A proposal written outside a turn, as a photo's is, belongs to no turn: its open intent carries an empty turn id. An
+// intent the student already resolved stays resolved: a message that comes again does not open it once more.
 internal fun AssistantConversationState.withAssistantMessage(
 	message: AssistantMessage,
 	intent: Intent?
 ): AssistantConversationState {
-	val open = intent?.let { AssistantOpenIntent(intentId = it.id, turnId = "", messageId = message.id, intent = it) }
+	val open = intent
+		?.takeUnless { resolvedIntent -> resolvedIntent.id in resolvedIntents }
+		?.let { openIntent ->
+			AssistantOpenIntent(intentId = openIntent.id, turnId = "", messageId = message.id, intent = openIntent)
+		}
 
 	return copy(
 		messages = messages.withMessage(message),

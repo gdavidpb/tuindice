@@ -9,6 +9,7 @@ import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.concurrent.Volatile
@@ -26,10 +27,21 @@ class AssistantConsentSettingsDataSource(
 	// (and the wipe that follows removes it) or finds the new epoch and writes nothing.
 	private val writeGate = Mutex()
 
+	// The sets run one at a time, from the read of the version to the stored answer. A set that starts while another waits
+	// for its answer reads the version that answer is about to replace, and whichever answer lands last would win: the
+	// device would keep the word of the first set, not of the last. This lock is held during the requests, which is what
+	// writeGate must never be; it is not writeGate.
+	private val setMutex = Mutex()
+
 	// Bumped by clearSessionMemory. A request remembers the one it started in: if it differs when the answer arrives,
 	// the account that asked is gone and the answer must leave no trace.
 	@Volatile
 	private var sessionEpoch: Int = 0
+
+	// Counts the changes of the consent on this device, under writeGate: a store and a wipe of the session both move it. A
+	// refresh stores what it read only if nothing changed while it read, and a status stores only if nothing changed since
+	// the mark it was read under: a change is the newer word on the consent.
+	private val consentVersion = MutableStateFlow(0)
 
 	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
 
@@ -40,27 +52,41 @@ class AssistantConsentSettingsDataSource(
 	// answer belongs to the account that is leaving and is not kept.
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
 		val epoch = sessionEpoch
-		val version = api.getConsent().version
-		val status = api.putConsent(ConsentDecision(version = version, accepted = granted))
 
-		storeIfSameSession(epoch, status)
+		setMutex.withLock {
+			// A set that waited behind another one sends nothing when the session ended meanwhile: the account left.
+			if (epoch != sessionEpoch) return@withLock
+
+			val version = api.getConsent().version
+			val status = api.putConsent(ConsentDecision(version = version, accepted = granted))
+
+			storeIfSameSession(epoch, status)
+		}
 	}
 
 	// A reinstall, a new device and a sign-out all leave the device without the consent the server still holds; this
-	// reads it for the screens that show the consent before the chat has been opened.
+	// reads it for the screens that show the consent before the chat has been opened. An answer read before a store
+	// landed is older than that store, so it is not kept.
 	override suspend fun refreshAssistantConsent() {
 		val epoch = sessionEpoch
+		val versionBefore = consentVersion.value
 		val status = api.getConsent()
 
-		storeIfSameSession(epoch, status)
+		writeGate.withLock {
+			if (epoch == sessionEpoch && consentVersion.value == versionBefore) store(status)
+		}
 	}
 
-	// The session mark is taken before the status is requested: a status that lands after the session ended is dropped.
-	override fun consentSessionMark(): Int = sessionEpoch
+	// The mark is the version of the consent, read before the status is requested: a status that lands after the session
+	// ended, or after the device changed its consent, is older than that change and is dropped.
+	override fun consentSessionMark(): Int = consentVersion.value
 
-	// The consent the server reports is the one the device keeps, whatever the device held before.
+	// The consent the server reports is the one the device keeps, whatever the device held before, unless the device
+	// changed its consent since the mark was taken: that change is the newer word.
 	override suspend fun reconcileConsent(status: ConsentStatus, consentSessionMark: Int) {
-		storeIfSameSession(consentSessionMark, status)
+		writeGate.withLock {
+			if (consentSessionMark == consentVersion.value) store(status)
+		}
 	}
 
 	private suspend fun storeIfSameSession(epoch: Int, status: ConsentStatus) {
@@ -72,6 +98,7 @@ class AssistantConsentSettingsDataSource(
 	private fun store(status: ConsentStatus) {
 		settings.putBoolean(CONSENT_GRANTED_KEY, status.accepted)
 		consent.value = status.accepted
+		consentVersion.update { version -> version + 1 }
 	}
 
 	// The stored consent goes with the rest of the data. The mirror follows it, so the assistant stops with the session.
@@ -79,6 +106,7 @@ class AssistantConsentSettingsDataSource(
 	override suspend fun clearSessionMemory() {
 		writeGate.withLock {
 			sessionEpoch += 1
+			consentVersion.update { version -> version + 1 }
 			consent.value = readStoredConsent()
 		}
 	}

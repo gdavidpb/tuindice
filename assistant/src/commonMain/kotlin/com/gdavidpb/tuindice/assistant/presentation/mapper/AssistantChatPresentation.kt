@@ -7,8 +7,9 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
-import com.gdavidpb.tuindice.assistant.presentation.machine.lastUserMessage
+import com.gdavidpb.tuindice.assistant.presentation.machine.failedSendOf
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
+import com.gdavidpb.tuindice.assistant.presentation.machine.sendIsBusy
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
@@ -33,7 +34,8 @@ internal suspend fun AssistantChatSession.presentedContent(
 ): AssistantChat.State.Content {
 	val running = isRunning()
 	val extracting = photoExtracting
-	val busy = running || sending
+	// The criterion of the actions that send (PickSuggestion, RetryTurn): a photo being read counts too.
+	val busy = sendIsBusy()
 	val guided = guidedByMode || guidedByServer
 	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
 	val restricted = restrictionAt(clock.now().toEpochMilliseconds())
@@ -50,7 +52,8 @@ internal suspend fun AssistantChatSession.presentedContent(
 		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
 		composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted),
-		suggestions = if (busy) emptyList() else presentedSuggestions(screen = screen, guided = guided),
+		// A restriction in force offers no suggestion, in the chat and in its sheet alike; they return once it lifts.
+		suggestions = if (busy || restricted != null) emptyList() else presentedSuggestions(screen = screen, guided = guided),
 		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
 	)
@@ -71,7 +74,7 @@ internal fun AssistantChatSession.presentedComposer(
 		text = draftText,
 		textRevision = draftRevision,
 		isEnabled = composerEnabled,
-		isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy,
+		isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy && !photoExtracting,
 		isPhotoEnabled = composerEnabled && !busy && !photoExtracting,
 		isStoppable = stopTarget() != null
 	)
@@ -87,6 +90,12 @@ internal suspend fun AssistantChatSession.presentedNotice(
 ): ChatNoticeItem? {
 	val exhausted = quota
 	val failure = turnFailure
+	val photo = photoFailure
+	// A retry is offered only while no send is busy: RetryTurn is refused meanwhile, so a retry offered then does nothing.
+	val busy = sendIsBusy()
+	// The answer that failed keeps its notice, with the retry of that answer, for as long as the last failed send is its
+	// own.
+	val answer = recoveredFailure?.takeIf { recovered -> lastFailedSend?.clientTurnId == recovered.clientTurnId }
 
 	return when {
 		restricted != null -> ChatNoticeItem.Restricted(
@@ -100,15 +109,25 @@ internal suspend fun AssistantChatSession.presentedNotice(
 
 		guided -> ChatNoticeItem.Guided(message = texts.guided())
 
-		conversation?.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED -> ChatNoticeItem.TurnFailed(
+		// While a send is on its way, the notice of the unconfirmed turn is not shown: the retry waits for the send.
+		conversation?.activeTurn?.status == AssistantTurnPhase.UNCONFIRMED && !sending -> ChatNoticeItem.TurnFailed(
 			message = texts.turnFailure(RunErrorCode.TRANSIENT, retryable = true),
-			canRetry = lastFailedSend != null
+			canRetry = lastFailedSend != null && !busy
 		)
 
 		failure != null -> ChatNoticeItem.TurnFailed(
 			message = failure.message,
-			canRetry = failure.retryable && lastFailedSend != null
+			canRetry = failure.retryable && lastFailedSend != null && !busy
 		)
+
+		answer != null -> ChatNoticeItem.TurnFailed(
+			message = answer.failure.message,
+			canRetry = answer.failure.retryable && !busy
+		)
+
+		// A photo that was not read shows its own notice, once no text turn has failed: a failure of a text turn keeps its
+		// notice and its retry.
+		photo != null -> ChatNoticeItem.TurnFailed(message = photo.message, canRetry = false)
 
 		else -> null
 	}
@@ -165,24 +184,32 @@ internal fun ChatPartItem.withMemoryAnswer(answer: (String) -> Boolean?, pending
 	return ChatPartItem.Component(question.copy(answer = answer(memoryId), isPending = pending(memoryId)))
 }
 
-// A turn that ended with a RunError: the student's last message is the one to retry, and it reads as failed.
+// A turn that ended with a RunError: the message it answers is the one to retry, and it reads as failed. Its retry
+// is a new request (see retryFailedSend).
+// A RunError of another turn than the one the sheet sent is not the failure of that send: it shows nothing.
 internal suspend fun AssistantChatSession.runFailed(
 	texts: AssistantChatTexts,
 	event: AssistantChatInternalEvent.TurnRunFailed
 ) {
-	val last = lastUserMessage()
+	val sentTurnId = sendingTurnId
 
-	if (last != null) {
-		failedMessages += last.id
-		lastFailedSend = AssistantChatSession.FailedSend(
-			text = last.text,
-			suggestionId = followedSuggestionId,
-			clientTurnId = last.id
-		)
-	}
+	if (sentTurnId != null && event.turnId != sentTurnId) return
 
-	turnFailure = AssistantChatSession.TurnFailure(
+	val failure = AssistantChatSession.TurnFailure(
 		message = texts.turnFailure(event.code, event.retryable),
 		retryable = event.retryable
 	)
+	val failed = failedSendOf(event.turnId)?.copy(runEnded = true)
+
+	if (failed != null) {
+		failedMessages += failed.clientTurnId
+		lastFailedSend = failed
+	}
+
+	// The answer a new message waits for: the new message goes on, and the notice keeps the retry of this answer.
+	if (failed != null && pendingSend?.turnId == event.turnId) {
+		recoveredFailure = AssistantChatSession.RecoveredFailure(clientTurnId = failed.clientTurnId, failure = failure)
+	} else {
+		turnFailure = failure
+	}
 }

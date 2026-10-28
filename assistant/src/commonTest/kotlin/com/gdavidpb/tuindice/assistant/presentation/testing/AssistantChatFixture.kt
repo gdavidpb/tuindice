@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMes
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatConversation
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatNotificationOffer
@@ -64,6 +65,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,7 +76,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 // The chat machine over the fakes of the ports, with the real use cases and collaborators in between. The clock is
-// fixed so the deadlines of the intents are decided by the test.
+// fixed so the times the turns, the photos and the restrictions read are decided by the test.
 internal class AssistantChatFixture(
 	val notificationOffers: RecordingNotificationOfferRepository = RecordingNotificationOfferRepository()
 ) {
@@ -85,6 +87,7 @@ internal class AssistantChatFixture(
 	val consent = RecordingAssistantConsentRepository()
 	val notificationPermission = RecordingNotificationPermissionRepository(offers = notificationOffers)
 	val turns = RecordingAssistantTurnRepository()
+	val gatedTurns = GatedAssistantTurnRepository(turns)
 	val intents = RecordingAssistantIntentRepository()
 	val gatedIntents = GatedAssistantIntentRepository(intents)
 	val evaluations = RecordingAssistantEvaluationsRepository()
@@ -95,6 +98,7 @@ internal class AssistantChatFixture(
 		configuredMode = { availability.availability.value.mode.name.lowercase() },
 		consentGranted = { consent.isAssistantConsentGranted() }
 	)
+	val appeals = FailingAppealStandingRepository(standing)
 	val memories = RecordingAssistantMemoryRepository()
 	val gatedMemories = GatedAssistantMemoryRepository(memories)
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
@@ -106,16 +110,31 @@ internal class AssistantChatFixture(
 
 	private val reporting = RecordingReportingRepository()
 
-	// Fixed, and moved by a test that lets a deadline or the end of a restriction pass.
+	// Fixed, and moved by a test that lets the end of a restriction pass.
 	val clock = FixedClock(nowMillis = NOW_MILLIS)
 
 	val machine: AssistantChatMachine by lazy { createMachine() }
 
+	// The dispatchers the sheet runs on: a sheet opened again runs on the same ones.
+	private var sheetDispatchers: TuIndiceDispatchers? = null
+
 	fun viewModel(dispatchers: TuIndiceDispatchers): AssistantChatViewModel {
+		sheetDispatchers = dispatchers
+
 		return AssistantChatViewModel(
 			screenMachine = machine,
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers
+		)
+	}
+
+	// A sheet opened again over the same conversation: a new machine, as a new sheet has, on the store the sheet before
+	// left.
+	fun reopenedViewModel(): AssistantChatViewModel {
+		return AssistantChatViewModel(
+			screenMachine = createMachine(),
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = checkNotNull(sheetDispatchers)
 		)
 	}
 
@@ -128,9 +147,10 @@ internal class AssistantChatFixture(
 		val confirmer = AssistantIntentConfirmer(
 			conversationRepository = conversation,
 			intentRepository = gatedIntents,
-			clock = clock,
 			outboxRepository = conversation,
-			queuedMutationsRepository = RecordingAssistantQueuedMutationsRepository()
+			queuedMutationsRepository = RecordingAssistantQueuedMutationsRepository(),
+			sessionCoroutineScope = testSessionCoroutineScope(),
+			reportingRepository = reporting
 		)
 
 		return AssistantChatMachine(
@@ -151,13 +171,15 @@ internal class AssistantChatFixture(
 
 	private fun createTurns(turnStream: AssistantTurnStream): AssistantChatTurns {
 		return AssistantChatTurns(
-			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
+			conversation = AssistantChatConversation(
+				observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting)
+			),
 			resumeAssistantTurnUseCase = ResumeAssistantTurnUseCase(turnStream, conversation, reporting),
 			followAssistantTurnUseCase = FollowAssistantTurnUseCase(turnStream, reporting),
 			cancelAssistantTurnUseCase = CancelAssistantTurnUseCase(turns, reporting),
 			sendAssistantMessageUseCase = SendAssistantMessageUseCase(
 				conversationRepository = conversation,
-				turnRepository = turns,
+				turnRepository = gatedTurns,
 				clientStateRepository = clientState,
 				clock = clock,
 				reportingRepository = reporting,
@@ -179,7 +201,13 @@ internal class AssistantChatFixture(
 
 	private fun createIntents(confirmer: AssistantIntentConfirmer): AssistantChatIntents {
 		return AssistantChatIntents(
-			dismissAssistantIntentUseCase = DismissAssistantIntentUseCase(gatedIntents, conversation, reporting),
+			dismissAssistantIntentUseCase = DismissAssistantIntentUseCase(
+				gatedIntents,
+				conversation,
+				reporting,
+				conversation,
+				testSessionCoroutineScope()
+			),
 			delegateEnrollmentProofIntentUseCase = DelegateEnrollmentProofIntentUseCase(
 				confirmer = confirmer,
 				reportingRepository = reporting,
@@ -267,7 +295,7 @@ internal class AssistantChatFixture(
 		return AssistantChatAccess(
 			availabilityRepository = availability,
 			consentRepository = consent,
-			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, reporting),
+			acceptAssistantConsentUseCase = AcceptAssistantConsentUseCase(consent, testSessionCoroutineScope(), reporting),
 			syncAssistantUseCase = syncAssistantUseCase,
 			appEnvironmentRepository = appEnvironment,
 			restrictions = createRestrictions(syncAssistantUseCase)
@@ -278,7 +306,7 @@ internal class AssistantChatFixture(
 		return AssistantChatRestrictions(
 			syncAssistantUseCase = syncAssistantUseCase,
 			appealAssistantRestrictionUseCase = AppealAssistantRestrictionUseCase(
-				standingRepository = standing,
+				standingRepository = appeals,
 				reportingRepository = reporting,
 				paramsValidator = AppealAssistantRestrictionParamsValidator(),
 				exceptionHandler = AssistantAppealExceptionHandler()

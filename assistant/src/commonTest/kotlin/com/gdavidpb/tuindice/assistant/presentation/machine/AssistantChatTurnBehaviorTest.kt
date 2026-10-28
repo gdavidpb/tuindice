@@ -123,7 +123,9 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.sendMessageAction()
 		assertEquals(ChatNoticeItem.TurnFailed(message = "send-failed", canRetry = true), viewModel.content().notice)
 
+		// The retry is answered by a turn that finishes: its final event comes after the accepted turn.
 		fixture.turns.sendError = null
+		fixture.turns.events = listOf(RunFinished(seq = 1, turnId = "t1"))
 		viewModel.retryTurnAction()
 
 		assertEquals(listOf("hola", "hola"), fixture.turns.requests.map { request -> request.message.text })
@@ -172,6 +174,107 @@ class AssistantChatTurnBehaviorTest {
 		val request = fixture.turns.requests.single()
 		assertEquals("client-1", request.clientTurnId)
 		assertEquals("hola", request.message.text)
+	}
+
+	// The retry of an unconfirmed turn sends the message that turn answers, as it was sent. A message the student writes
+	// while the turn is still unconfirmed is stored as the last message, and the retry does not send that one.
+	@Test
+	fun aRetryOfAnUnconfirmedTurn_resendsItsOwnMessage_notTheOneStoredAfterIt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		viewModel.openAction(null)
+		viewModel.pickSuggestionAction("s1")
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		fixture.conversation.addUserMessage(AssistantUserMessage(id = "client-2", text = "adiós", createdAtMillis = 2L))
+		viewModel.retryTurnAction()
+
+		assertEquals(2, fixture.turns.requests.size)
+		val sent = fixture.turns.requests.first()
+		val retried = fixture.turns.requests.last()
+		assertEquals("Sí, quiero verlo", retried.message.text)
+		assertEquals("s1", retried.message.suggestionId)
+		assertEquals(sent.clientTurnId, retried.clientTurnId)
+	}
+
+	// A message the server refused keeps its own retry: the conversation observed again does not hand the retry to the
+	// answer before it, so the retry sends the refused message with its suggestion. A new message waits for the answer
+	// before it to be recovered, so that answer is confirmed before the message is refused.
+	@Test
+	fun aRefusedMessage_keepsItsRetry_afterTheUnconfirmedAnswerIsRecovered() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(
+						listOf(
+							SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo"),
+							SuggestedReply(id = "s2", label = "No", text = "No, gracias")
+						)
+					)
+				)
+			)
+		)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		viewModel.openAction(null)
+		viewModel.pickSuggestionAction("s1")
+
+		// The answer to «Sí, quiero verlo» is recovered first: its final event comes, and «No, gracias» is sent after it.
+		fixture.turns.scriptedFollows.add(listOf(RunFinished(seq = 1, turnId = "t1")))
+		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
+		viewModel.pickSuggestionAction("s2")
+
+		fixture.conversation.conversation.value = fixture.conversation.conversation.value.copy(conversationId = "c2")
+		fixture.turns.sendError = null
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t2", conversationId = "c1", lastSeq = 0)
+		viewModel.retryTurnAction()
+
+		val retried = fixture.turns.requests.last()
+		assertEquals("No, gracias", retried.message.text)
+		assertEquals("s2", retried.message.suggestionId)
+	}
+
+	// While an unconfirmed turn is retried, its notice is not shown and its retry is not offered: the send is on its way.
+	@Test
+	fun aRetryOfAnUnconfirmedTurn_offersNoNotice_whileTheSendIsOnItsWay() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				AssistantConversationItem.User(
+					AssistantUserMessage(id = "client-1", text = "hola", createdAtMillis = 1L)
+				)
+			),
+			activeTurn = AssistantActiveTurn(
+				turnId = "t1",
+				lastSeq = 3,
+				progressLabel = null,
+				status = AssistantTurnPhase.UNCONFIRMED
+			)
+		)
+		viewModel.openAction(null)
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		fixture.gatedTurns.gated = true
+		viewModel.retryTurnAction()
+
+		val during = viewModel.content()
+		assertTrue(during.isSending)
+		assertNull(during.notice)
+
+		fixture.gatedTurns.release.complete(Unit)
+
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
 	}
 
 	@Test
@@ -273,6 +376,8 @@ class AssistantChatTurnBehaviorTest {
 	@Test
 	fun stopIsOfferedWhileATurnRuns_andStoppingItAsksTheServerToCancelIt() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		// The turn keeps running: its stream stays open, as a running turn's does, until its final event.
+		fixture.turns.holdEvents = true
 		fixture.conversation.conversation.value = assistantConversation(
 			activeTurn = AssistantActiveTurn(
 				turnId = "t1",
@@ -450,6 +555,8 @@ class AssistantChatTurnBehaviorTest {
 	@Test
 	fun progressLabel_isTheLabelOfTheRunningTurn_andClearsWhenItEnds() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		// The turn keeps running: its stream stays open, as a running turn's does, until its final event.
+		fixture.turns.holdEvents = true
 		fixture.conversation.conversation.value = assistantConversation(
 			activeTurn = AssistantActiveTurn(
 				turnId = "t1",
@@ -485,5 +592,125 @@ class AssistantChatTurnBehaviorTest {
 
 		assertNull(viewModel.content().context)
 		assertNull(fixture.turns.requests.single().screenContext)
+	}
+
+	// A send that another message's acceptance does not answer keeps its failure, and the retry it can get.
+	@Test
+	fun aFailedSend_keepsItsMark_whenAnotherMessageIsAccepted() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		fixture.turns.sendError = null
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t2", conversationId = "c1", lastSeq = 0)
+		fixture.turns.events = listOf(RunFinished(seq = 1, turnId = "t2"))
+		viewModel.changeTextAction("adiós")
+		viewModel.sendMessageAction()
+
+		val bubbles = viewModel.content().bubbles()
+		assertEquals(listOf("hola", "adiós"), bubbles.map { bubble -> bubble.text })
+		assertEquals(listOf(true, false), bubbles.map { bubble -> bubble.isFailed })
+	}
+
+	// The text a refused send gives back is not written over what the student types while the send waits.
+	@Test
+	fun aRefusedSend_doesNotOverwriteWhatTheStudentTypesWhileItWaits() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.TURN_IN_PROGRESS, null, "busy")
+		fixture.gatedTurns.gated = true
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		viewModel.changeTextAction("nuevo")
+		fixture.gatedTurns.release.complete(Unit)
+
+		assertEquals("nuevo", viewModel.content().composer.text)
+	}
+
+	@Test
+	fun aPickedSuggestion_isNotSent_whileAnotherSendIsOnItsWay() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("¿Quieres ver tu promedio?"),
+					Suggestions(listOf(SuggestedReply(id = "s1", label = "Sí", text = "Sí, quiero verlo")))
+				)
+			)
+		)
+		fixture.gatedTurns.gated = true
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		viewModel.pickSuggestionAction("s1")
+		fixture.gatedTurns.release.complete(Unit)
+
+		assertEquals(listOf("hola"), fixture.turns.requests.map { request -> request.message.text })
+	}
+
+	@Test
+	fun aRetry_isNotSent_whileAnotherSendIsOnItsWay() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		fixture.turns.sendError = null
+		fixture.gatedTurns.gated = true
+		viewModel.changeTextAction("otra")
+		viewModel.sendMessageAction()
+
+		viewModel.retryTurnAction()
+		fixture.gatedTurns.release.complete(Unit)
+
+		assertEquals(listOf("hola", "otra"), fixture.turns.requests.map { request -> request.message.text })
+	}
+
+	// A stream that closes before the turn's final event leaves the turn's result unknown: the send ends with the notice
+	// of an unconfirmed turn, and its retry stays allowed, as many times as the student asks.
+	@Test
+	fun aStreamThatClosesBeforeItsFinalEvent_failsTheSend_andAllowsARetry() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		viewModel.retryTurnAction()
+
+		assertFalse(viewModel.content().isSending)
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		viewModel.retryTurnAction()
+
+		assertEquals(listOf("hola", "hola", "hola"), fixture.turns.requests.map { request -> request.message.text })
+	}
+
+	// A connection that breaks before the turn's final event ends the send the same way.
+	@Test
+	fun aBrokenConnectionBeforeTheFinalEvent_failsTheSend_andAllowsARetry() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		fixture.turns.streamError = IllegalStateException("connection lost")
+		viewModel.openAction(null)
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		viewModel.retryTurnAction()
+
+		assertFalse(viewModel.content().isSending)
+		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
+
+		viewModel.retryTurnAction()
+
+		assertEquals(listOf("hola", "hola", "hola"), fixture.turns.requests.map { request -> request.message.text })
 	}
 }

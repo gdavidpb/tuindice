@@ -30,7 +30,8 @@ internal suspend fun Intent.toIntentCardItem(
 		cancelLabel = cancelLabel,
 		drafts = args.toDraftItems(texts, id, selections),
 		expiresAtMillis = expiresAtMillis,
-		status = status
+		status = status,
+		runningLabel = if (status == IntentCardStatus.Running) texts.intentConfirming() else null
 	)
 }
 

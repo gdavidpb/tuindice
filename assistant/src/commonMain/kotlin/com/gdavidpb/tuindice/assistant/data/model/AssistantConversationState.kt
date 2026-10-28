@@ -29,6 +29,12 @@ data class AssistantConversationState(
 	val resolvedDetails: Map<String, String> = emptyMap(),
 	// The outbox of the intents: the reports the server has not settled yet.
 	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap(),
+	// The intents whose confirmation runs: they are taken until the run settles them, so a second run of one is refused.
+	val confirming: Set<String> = emptySet(),
+	// Messages with a part this build cannot show in full, such as an intent it cannot read: they show its notice once.
+	val unreadableMessages: Set<String> = emptySet(),
+	// The intents resolved with an outcome this build does not know: their cards close with no outcome label.
+	val unknownOutcomeIntents: Set<String> = emptySet(),
 	// Counts the sessions that ended on this device. A write made for an earlier session finds another generation here
 	// and leaves the conversation as it is; the count travels with the state, so the check and the write are one step.
 	val sessionGeneration: Int = 0

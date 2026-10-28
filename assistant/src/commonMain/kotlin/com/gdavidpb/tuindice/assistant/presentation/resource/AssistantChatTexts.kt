@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 // The texts of the chat as ready strings. The machine reads them through this port, so its rows can run on the host,
 // where the compose resources cannot be read. The app binds the resource-backed implementation.
-interface AssistantChatTexts {
+interface AssistantChatTexts : AssistantChatPartTexts, AssistantChatIntentTexts {
 	suspend fun screenName(screen: AssistantScreen): String
 
 	suspend fun evaluationTypeName(evaluationType: String): String
@@ -22,6 +22,9 @@ interface AssistantChatTexts {
 	suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String
 
 	suspend fun sendFailed(): String
+
+	// The label of an intent card while its confirmation runs.
+	suspend fun intentConfirming(): String
 
 	suspend fun messageTooLong(maxLength: Int): String
 }

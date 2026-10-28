@@ -5,11 +5,11 @@ import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
 import com.gdavidpb.tuindice.assistant.testing.FAR_FUTURE_MILLIS
-import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepository
@@ -35,15 +35,21 @@ import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AssistantIntentConfirmationTest {
 	private val calls = mutableListOf<String>()
-	private val clock = FixedClock(nowMillis = NOW_MILLIS)
 	private val intents = RecordingAssistantIntentRepository(calls)
 	private val conversation = RecordingAssistantConversationRepository(calls)
 	private val evaluations = RecordingAssistantEvaluationsRepository(calls)
@@ -51,7 +57,17 @@ class AssistantIntentConfirmationTest {
 	private val projections = RecordingAssistantProjectionRepository(calls)
 	private val reporting = RecordingReportingRepository()
 	private val queued = RecordingAssistantQueuedMutationsRepository(calls)
-	private val confirmer = AssistantIntentConfirmer(conversation, intents, clock, conversation, queued)
+	private val sessionScope = testSessionCoroutineScope()
+	private val confirmer = AssistantIntentConfirmer(
+		conversationRepository = conversation,
+		intentRepository = intents,
+		outboxRepository = conversation,
+		queuedMutationsRepository = queued,
+		sessionCoroutineScope = sessionScope,
+		reportingRepository = reporting
+	)
+
+	private fun dismiss() = DismissAssistantIntentUseCase(intents, conversation, reporting, conversation, sessionScope)
 	private val handler = AssistantIntentExceptionHandler()
 
 	private fun openIntent(intent: Intent) {
@@ -197,21 +213,17 @@ class AssistantIntentConfirmationTest {
 		assertTrue(evaluations.received.isEmpty())
 	}
 
+	// The deadline is the server's to judge: an intent whose deadline the phone's clock has passed is still decided by the
+	// server, and it runs when the server takes it.
 	@Test
-	fun anIntentPastItsDeadlineIsReportedExpiredWithoutDecidingOrRunning() = runTest {
-		openIntent(
-			assistantIntent(
-				args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1"),
-				expiresAtMillis = NOW_MILLIS - 1
-			)
-		)
+	fun anIntentPastItsDeadlineOnThePhone_isStillDecidedByTheServer() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")
+		openIntent(assistantIntent(args = args, expiresAtMillis = NOW_MILLIS - 1))
 
-		assertEquals(UseCaseState.Data(OutcomeKind.EXPIRED), confirmEdit())
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
 
-		assertTrue(intents.decisions.isEmpty())
-		assertTrue(evaluations.received.isEmpty())
-		assertEquals(listOf(IntentOutcomeReport(intentId = "i1", outcome = OutcomeKind.EXPIRED)), intents.reports)
-		assertEquals(mapOf("i1" to OutcomeKind.EXPIRED), conversation.resolved)
+		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = true)), intents.decisions)
+		assertEquals(listOf<Any>(args), evaluations.received)
 	}
 
 	@Test
@@ -359,7 +371,7 @@ class AssistantIntentConfirmationTest {
 	fun aDismissedIntentIsDeclinedAndClosedAsCancelledWithoutAnOutcomeReport() = runTest {
 		openIntent(assistantIntent(args = RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
 
-		DismissAssistantIntentUseCase(intents, conversation, reporting).execute("i1").dataValues()
+		dismiss().execute("i1").dataValues()
 
 		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = false)), intents.decisions)
 		assertTrue(intents.reports.isEmpty())
@@ -583,6 +595,207 @@ class AssistantIntentConfirmationTest {
 
 		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
 		assertTrue(conversation.resolvedCounts.isEmpty())
+	}
+
+	@Test
+	fun aDismissTheServerAnswersExpiredClosesTheIntentAsExpiredNotAsCancelled() = runTest {
+		openIntent(assistantIntent(args = RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		intents.answer = IntentDecisionResult.Expired
+
+		dismiss().execute("i1").dataValues()
+
+		assertEquals(mapOf("i1" to OutcomeKind.EXPIRED), conversation.resolved)
+		assertTrue(intents.reports.isEmpty())
+	}
+
+	@Test
+	fun aDismissTheServerAnswersInConflictClosesTheIntentAsConflictNotAsCancelled() = runTest {
+		openIntent(assistantIntent(args = RemoveEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		intents.answer = IntentDecisionResult.Conflict
+
+		dismiss().execute("i1").dataValues()
+
+		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), conversation.resolved)
+	}
+
+	// The session ends while the server decides: the intent is not run, and nothing is written for the account that left.
+	@Test
+	fun aSessionThatEndsWhileTheServerDecidesRunsNothingAndWritesNothing() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		intents.onDecide = { conversation.endSession() }
+
+		val state = confirmEdit()
+
+		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = true)), intents.decisions)
+		assertEquals(UseCaseState.Data(OutcomeKind.CANCELLED), state)
+		assertTrue(evaluations.received.isEmpty())
+		assertTrue(queued.followed.isEmpty())
+		assertTrue(intents.reports.isEmpty())
+		assertTrue(conversation.resolved.isEmpty())
+	}
+
+	// A run that fails answers nothing: the intent stays open, and a confirmation after the failure runs it.
+	@Test
+	fun aConfirmationWhoseRunFailsLeavesTheIntentToBeConfirmedAgain() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		evaluations.error = IllegalStateException("boom")
+
+		assertEquals(UseCaseState.Error<AssistantIntentError>(null), confirmEdit())
+
+		evaluations.error = null
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
+		assertEquals(2, evaluations.received.size)
+	}
+
+	// The sheet closes while the evaluation waits for its outcome, and the intent is confirmed again while the
+	// first run still waits: the run goes on for the session, and the second confirmation finds the intent
+	// taken. One run, one report.
+	@Test
+	fun aConfirmationTheSheetLeavesWhileItWaitsRunsTheIntentOnlyOnce() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		val release = CompletableDeferred<Unit>()
+		val port = GatedEvaluations(gate = release)
+		val useCase = ConfirmEditEvaluationIntentUseCase(confirmer, port, reporting, handler)
+		val sheet = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
+		runCurrent()
+
+		sheet.cancelAndJoin()
+		port.gate = null
+		val reopened = useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState()
+
+		assertEquals(1, port.calls)
+		assertEquals(UseCaseState.Error(AssistantIntentError.IntentNotOpen), reopened)
+		assertEquals(1, intents.decisions.size)
+
+		release.complete(Unit)
+
+		assertEquals(listOf(OutcomeKind.CONFIRMED), intents.reports.map { report -> report.outcome })
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
+	}
+
+	// Discarding an intent while its confirmation runs must not close it: the run holds the intent, and the server
+	// has already taken the accept, so the decline never reaches it.
+	@Test
+	fun aDiscardWhileTheConfirmationRunsDoesNotCloseTheIntent() = runTest {
+		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
+		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
+		val release = CompletableDeferred<Unit>()
+		val port = GatedEvaluations(gate = release)
+		val useCase = ConfirmEditEvaluationIntentUseCase(confirmer, port, reporting, handler)
+		val sheet = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
+		runCurrent()
+
+		dismiss().execute("i1").dataValues()
+
+		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = true)), intents.decisions)
+		assertEquals(emptyMap<String, OutcomeKind>(), conversation.resolved)
+
+		release.complete(Unit)
+		sheet.join()
+
+		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
+	}
+
+	// A confirmation that comes while a discard goes on is refused: the discard holds the intent, and it closes it.
+	@Test
+	fun aConfirmationWhileADiscardGoesOnIsRefusedAndTheDiscardClosesTheIntent() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		var refused: UseCaseState<*, *>? = null
+		intents.onDecide = {
+			intents.onDecide = {}
+			refused = confirmEdit()
+		}
+
+		dismiss().execute("i1").dataValues()
+
+		assertEquals(UseCaseState.Error(AssistantIntentError.IntentNotOpen), refused)
+		assertTrue(evaluations.received.isEmpty())
+		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = false)), intents.decisions)
+		assertEquals(mapOf("i1" to OutcomeKind.CANCELLED), conversation.resolved)
+	}
+
+	// A discard that fails answers nothing and leaves the intent open: its claim goes with it, so a confirmation runs it.
+	@Test
+	fun aDiscardThatFailsLeavesTheIntentToBeConfirmedAgain() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		intents.decideError = IllegalStateException("offline")
+
+		val dismissed = dismiss()
+			.execute("i1")
+			.lastState()
+
+		assertTrue(dismissed is UseCaseState.Error<*>)
+
+		intents.decideError = null
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
+		assertEquals(1, evaluations.received.size)
+	}
+
+	// Leaving the screen in the middle of a discard does not stop it: the decline is sent, the intent closes, and the
+	// claim goes with the run.
+	@Test
+	fun aDiscardLeftInTheMiddleStillDeclinesClosesTheIntentAndReleasesIt() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		val answered = CompletableDeferred<Unit>()
+		intents.onDecide = { answered.await() }
+		val screen = launch { dismiss().execute("i1").lastState() }
+		runCurrent()
+
+		screen.cancelAndJoin()
+		answered.complete(Unit)
+
+		assertEquals(listOf(IntentDecision(intentId = "i1", accepted = false)), intents.decisions)
+		assertEquals(mapOf("i1" to OutcomeKind.CANCELLED), conversation.resolved)
+		assertTrue(conversation.confirming.isEmpty())
+	}
+
+	// A discard left in the middle that then fails releases its claim: the intent stays open, and a confirmation runs it.
+	@Test
+	fun aDiscardLeftInTheMiddleThatFailsReleasesTheIntentToBeConfirmed() = runTest {
+		openIntent(assistantIntent(args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1")))
+		val answered = CompletableDeferred<Unit>()
+		intents.onDecide = {
+			answered.await()
+			error("lost")
+		}
+		val screen = launch { dismiss().execute("i1").lastState() }
+		runCurrent()
+
+		screen.cancelAndJoin()
+		answered.complete(Unit)
+
+		assertTrue(conversation.confirming.isEmpty())
+		assertEquals(emptyMap<String, OutcomeKind>(), conversation.resolved)
+
+		intents.onDecide = {}
+		evaluations.answer = IntentExecution(outcome = OutcomeKind.CONFIRMED)
+
+		assertEquals(UseCaseState.Data(OutcomeKind.CONFIRMED), confirmEdit())
+	}
+
+	// A port whose calls wait for the gate while it is set, as a mutation waits for its outcome.
+	private class GatedEvaluations(var gate: CompletableDeferred<Unit>?) : AssistantEvaluationsRepository {
+		var calls = 0
+
+		override suspend fun add(args: AddEvaluationsArgs): IntentExecution = settle()
+
+		override suspend fun edit(args: EditEvaluationArgs, expectedRevision: Long?): IntentExecution = settle()
+
+		override suspend fun remove(args: RemoveEvaluationArgs, expectedRevision: Long?): IntentExecution = settle()
+
+		private suspend fun settle(): IntentExecution {
+			calls++
+			gate?.await()
+
+			return IntentExecution(outcome = OutcomeKind.CONFIRMED)
+		}
 	}
 
 	private companion object {

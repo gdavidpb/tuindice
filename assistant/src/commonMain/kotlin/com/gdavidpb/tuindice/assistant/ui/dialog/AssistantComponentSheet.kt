@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.assistant.ui.dialog
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -34,8 +36,10 @@ fun AssistantComponentSheet(
 			onAction = onAction,
 			// The sheet already is the detail: it draws every row, and its link would only open the same sheet again.
 			onSheet = true,
+			// A long list scrolls within the sheet: the rows past the first ones are reached by scrolling.
 			modifier = Modifier
 				.fillMaxWidth()
+				.verticalScroll(rememberScrollState())
 				.padding(
 					start = TuIndiceSpacing.Dialog,
 					end = TuIndiceSpacing.Dialog,

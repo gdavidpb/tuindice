@@ -10,7 +10,9 @@ data class EvaluationListItem(
 	override val opensSheet: Boolean,
 	val rows: List<EvaluationRowItem>,
 	val recordLink: CardLinkItem?,
-	override val seeAllText: UiText
+	override val seeAllText: UiText,
+	// The weeks the sheet is grouped by; null when the app has no current term, and then the sheet lists every row.
+	val weeks: EvaluationWeeksItem? = null
 ) : AcademicComponentItem, ChatRowsItem {
 	override val rowCount: Int get() = rows.size
 }

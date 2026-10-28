@@ -29,7 +29,11 @@ private fun MemoryContentRows.deleteRows(
 	host: MachineHost<AssistantMemory.Effect>
 ) {
 	on<AssistantMemory.Action.DeleteEntry> { state, action ->
-		if (state.entries.none { entry -> entry.id == action.memoryId }) return@on state
+		// A delete on its way is not asked again: the entry stays listed until it ends, and a second request would find it
+		// gone and tell the student it failed.
+		if (action.memoryId in state.deleting || state.entries.none { entry -> entry.id == action.memoryId }) {
+			return@on state
+		}
 
 		// The row decides whether the delete empties the list: the only row listed is the last one.
 		machine.delete(
@@ -37,15 +41,23 @@ private fun MemoryContentRows.deleteRows(
 			memoryId = action.memoryId,
 			isLast = state.entries.size == 1
 		)
-		state
+		state.copy(deleting = state.deleting + action.memoryId)
 	}
 
-	on<AssistantMemoryInternalEvent.EntryDeleted>(
+	// The list is read when the delete ends: a delete that leaves it empty leaves the state empty, whichever delete was
+	// asked first. Its target is the state the list becomes.
+	onTo<AssistantMemoryInternalEvent.EntryDeleted, AssistantMemory.State>(
 		emits = setOf(AssistantMemory.Effect.ShowSnackBar::class)
 	) { state, event ->
 		host.sendEffect(AssistantMemory.Effect.ShowSnackBar(message = event.message))
 
-		state.copy(entries = state.entries.filterNot { entry -> entry.id == event.memoryId })
+		val remaining = state.entries.filterNot { entry -> entry.id == event.memoryId }
+
+		if (remaining.isEmpty()) {
+			AssistantMemory.State.Empty
+		} else {
+			state.copy(entries = remaining, deleting = state.deleting - event.memoryId)
+		}
 	}
 
 	onTo<AssistantMemoryInternalEvent.LastEntryDeleted, AssistantMemory.State.Empty>(
@@ -61,7 +73,7 @@ private fun MemoryContentRows.deleteRows(
 	) { state, event ->
 		host.sendEffect(AssistantMemory.Effect.ShowSnackBar(message = event.message))
 
-		state
+		state.copy(deleting = state.deleting - event.memoryId)
 	}
 }
 

@@ -109,5 +109,5 @@ private fun DrawScope.eraseHiddenWords(paths: List<Path>, elapsed: Float, step: 
 
 // How far the word at [index] has faded in at [elapsed] milliseconds of the reveal: 0 before it starts, 1 once it
 // is fully visible.
-private fun wordAlpha(elapsed: Float, index: Int, step: Float): Float =
+internal fun wordAlpha(elapsed: Float, index: Int, step: Float): Float =
 	((elapsed - index * step) / AssistantChatMotion.WordFadeMillis).coerceIn(0f, 1f)

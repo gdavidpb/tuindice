@@ -146,7 +146,8 @@ class AssistantConversationStoreDataSourceTest {
 				items = emptyList(),
 				openIntents = emptyMap(),
 				resolvedIntents = emptyMap(),
-				activeTurn = null
+				activeTurn = null,
+				sessionMark = domain.sessionMark()
 			),
 			domain.currentConversation()
 		)

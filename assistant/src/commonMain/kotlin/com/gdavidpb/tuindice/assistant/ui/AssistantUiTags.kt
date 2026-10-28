@@ -147,6 +147,18 @@ object AssistantUiTags {
 	object Evaluations {
 		fun list(componentId: String): String = "assistant_card_b_evaluations_list_$componentId"
 
+		// The strip of weeks a sheet of evaluations is grouped by: the strip, the label and the dot of each week, the chip
+		// that picks a week, and the page that holds its days.
+		const val WeekStrip = "assistant_evaluations_week_strip"
+
+		const val WeekLabel = "assistant_evaluations_week_label"
+
+		const val WeekCurrentIndicator = "assistant_evaluations_week_current_indicator"
+
+		fun weekChip(tagSuffix: String): String = "assistant_evaluations_week_chip_$tagSuffix"
+
+		fun weekPage(tagSuffix: String): String = "assistant_evaluations_week_page_$tagSuffix"
+
 		fun points(componentId: String): String = "assistant_card_b_evaluations_points_$componentId"
 
 		fun load(componentId: String): String = "assistant_card_b_evaluations_load_$componentId"

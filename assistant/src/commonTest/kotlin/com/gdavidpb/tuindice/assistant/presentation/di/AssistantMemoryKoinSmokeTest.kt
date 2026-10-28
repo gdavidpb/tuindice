@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.di
 
 import com.gdavidpb.tuindice.assistant.di.assistantModule
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAcademicCalendarRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachi
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantMemoryTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
+import com.gdavidpb.tuindice.assistant.testing.FakeAssistantAcademicCalendarRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantConfigRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeSettings
@@ -66,6 +68,7 @@ class AssistantMemoryKoinSmokeTest {
 				single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 				single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 				single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
+				single<AssistantAcademicCalendarRepository> { FakeAssistantAcademicCalendarRepository() }
 			}
 		) {
 			assertResolves(

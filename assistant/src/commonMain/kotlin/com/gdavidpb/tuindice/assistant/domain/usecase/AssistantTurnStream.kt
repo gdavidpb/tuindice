@@ -57,7 +57,7 @@ class AssistantTurnStream(
 	): Throwable? {
 		var failure: Throwable? = null
 
-		turnRepository.turnEvents(turnId = turnId, afterSeq = progress.lastSeq)
+		turnRepository.turnEvents(turnId = turnId, afterSeq = progress.lastSeq, sessionMark = marks.conversation)
 			.catch { cause ->
 				if (cause is CancellationException) throw cause
 

@@ -9,6 +9,7 @@ import tuindice.assistant.generated.resources.assistant_chat_rated
 import tuindice.assistant.generated.resources.assistant_chat_report_failed
 import tuindice.assistant.generated.resources.assistant_chat_report_too_long
 import tuindice.assistant.generated.resources.assistant_chat_reported
+import tuindice.assistant.generated.resources.assistant_chat_send_failed
 import tuindice.assistant.generated.resources.assistant_chat_still_applies_failed
 
 // The feedback snackbars read from the module's compose resources: the app's binding of AssistantChatFeedbackTexts.
@@ -32,4 +33,7 @@ class AssistantChatFeedbackResourceTexts : AssistantChatFeedbackTexts {
 	override suspend fun appealFailed(maxLength: Int): String {
 		return getString(Res.string.assistant_chat_appeal_failed, maxLength)
 	}
+
+	// The chat's failed-send text: the appeal is sent as a message is, so a failure to reach the service reads the same.
+	override suspend fun appealNotSent(): String = getString(Res.string.assistant_chat_send_failed)
 }

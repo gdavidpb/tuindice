@@ -22,12 +22,14 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_intent_uses_credential
 
-// The part of an open or running intent: what it will do, the rows the student may unmark, and its actions.
+// The part of an open or running intent: what it will do, the rows the student may unmark, and its actions. A card
+// closed without an outcome keeps the first two and shows no actions (showsActions is false).
 @Composable
 fun AssistantIntentDetailsView(
 	card: IntentCardItem,
 	onAction: (AssistantChat.Action) -> Unit,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	showsActions: Boolean = true
 ) {
 	val isOpen = card.status == IntentCardStatus.Open
 
@@ -62,10 +64,17 @@ fun AssistantIntentDetailsView(
 			)
 		}
 		if (card.status == IntentCardStatus.Running) {
+			card.runningLabel?.let { label ->
+				Text(
+					text = label,
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant
+				)
+			}
 			LinearProgressIndicator(
 				modifier = Modifier.fillMaxWidth().testTag(AssistantUiTags.Intent.progress(card.intentId))
 			)
 		}
-		AssistantIntentActionsView(card = card, onAction = onAction)
+		if (showsActions) AssistantIntentActionsView(card = card, onAction = onAction)
 	}
 }

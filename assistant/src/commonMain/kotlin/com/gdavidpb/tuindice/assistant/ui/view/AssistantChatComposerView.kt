@@ -4,9 +4,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
@@ -33,15 +36,19 @@ import tuindice.assistant.generated.resources.assistant_chat_composer_placeholde
 
 private const val COMPOSER_MAX_LINES = 4
 
-// The text keeps 12 dp above and below each line, so one line is as tall as the 48 dp end icons.
+// The text keeps 12 dp above and below each line, so one line is as tall as the 48 dp icons at its two ends.
 private val LINE_PADDING = TuIndiceSpacing.XLarge
 
-// The field, with the photo clip and the send button inside its end (ComposerEndIcons). The field is off while a
-// restriction holds, and with it the clip; the send button stays, off. While a turn can be stopped, the stop button
-// takes the place of the send button.
+// The text starts 12 dp after the clip's circle. The circle sits centred in the clip's 48 dp touch target, so the text
+// is padded by those 12 dp less the room the target leaves around the circle.
+private val TEXT_START_PADDING = TuIndiceSpacing.XLarge - (TuIndiceComponentSizes.IconButton - SEND_CIRCLE_SIZE) / 2
+
+// The field: the photo clip at its start, where the text begins (ComposerStartIcon), and the send button at its end
+// (ComposerEndIcons). The field is off while a restriction holds, and with it the clip; the send button stays, off.
+// While a turn can be stopped, the stop button takes the place of the send button.
 //
-// The end icons sit at the bottom of the field: with one line they are centred on it, and when the field grows they
-// stay by the last line, where the text is being written.
+// The icons sit at the bottom of the field: with one line they are centred on it, and when the field grows they stay
+// by the last line, where the text is being written.
 //
 // The field keeps its own text (EditableTextFieldState), as every field of the app the machine echoes: on iOS the
 // String overload loses and reorders keys (CMP-7312), and an echo between two keys would undo the second. The text the
@@ -78,7 +85,13 @@ fun AssistantChatComposerView(
 				value = field.value.text,
 				innerTextField = {
 					Row(verticalAlignment = Alignment.Bottom) {
-						Box(modifier = Modifier.weight(1f).padding(vertical = LINE_PADDING)) {
+						ComposerStartIcon(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
+						// The text starts close after the clip (see TEXT_START_PADDING).
+						Box(
+							modifier = Modifier
+								.weight(1f)
+								.padding(start = TEXT_START_PADDING, top = LINE_PADDING, bottom = LINE_PADDING)
+						) {
 							if (field.value.text.isEmpty()) {
 								Text(
 									text = stringResource(Res.string.assistant_chat_composer_placeholder),
@@ -88,7 +101,7 @@ fun AssistantChatComposerView(
 							}
 							innerTextField()
 						}
-						ComposerEndIcons(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
+						ComposerEndIcons(composer = composer, onAction = onAction)
 					}
 				},
 				enabled = composer.isEnabled,
@@ -97,7 +110,7 @@ fun AssistantChatComposerView(
 				interactionSource = interactionSource,
 				container = { ComposerContainer(enabled = composer.isEnabled, interactionSource = interactionSource) },
 				contentPadding = PaddingValues(
-					start = TuIndiceSpacing.Section,
+					start = TuIndiceSpacing.XSmall,
 					top = TuIndiceSpacing.XSmall,
 					end = TuIndiceSpacing.XSmall,
 					bottom = TuIndiceSpacing.XSmall
@@ -114,6 +127,26 @@ private fun composerTextStyle(): TextStyle =
 		color = MaterialTheme.colorScheme.onSurface,
 		lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 	)
+
+// The photo clip, at the start of the field, where the text begins. While the field is off there is no clip, but its
+// place stays, so the text does not move when the clip comes or goes.
+@Composable
+private fun ComposerStartIcon(
+	composer: ChatComposerItem,
+	isCameraAvailable: Boolean,
+	onAction: (AssistantChat.Action) -> Unit
+) {
+	if (composer.isEnabled) {
+		AssistantChatPhotoButtonView(
+			isEnabled = composer.isPhotoEnabled,
+			isCameraAvailable = isCameraAvailable,
+			onAction = onAction
+		)
+	} else {
+		// Where the clip would be: the 48 dp touch target of an icon button, so the text stays where it is.
+		Spacer(modifier = Modifier.size(TuIndiceComponentSizes.IconButton))
+	}
+}
 
 // The field's outline: a neutral border, focused or not, because the accent belongs to the send button, not the field.
 @Composable

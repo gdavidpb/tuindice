@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.deleteAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.memoryItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.memoryTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.retryAction
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,6 +73,35 @@ class AssistantMemoryBehaviorTest {
 		viewModel.deleteAction(memoryId = "m1")
 
 		assertEquals(AssistantMemory.State.Empty, viewModel.state.value)
+	}
+
+	// Two deletes in flight at once: each reads the list before the other is gone; when both end, the list is empty.
+	@Test
+	fun when_twoEntriesAreDeletedAtOnce_then_isEmpty() = memoryTest(
+		items = listOf(memoryItem(id = "m1"), memoryItem(id = "m2")),
+		configure = { deleteGate = CompletableDeferred() }
+	) { fixture, viewModel ->
+		viewModel.deleteAction(memoryId = "m1")
+		viewModel.deleteAction(memoryId = "m2")
+
+		fixture.repository.deleteGate?.complete(Unit)
+
+		assertEquals(AssistantMemory.State.Empty, viewModel.state.value)
+	}
+
+	// A second tap on an entry whose delete is on its way asks the server nothing more, so the student is told once.
+	@Test
+	fun when_theSameEntryIsDeletedTwice_then_itIsAskedOnceAndToldOnce() = memoryTest(
+		items = listOf(memoryItem(id = "m1"), memoryItem(id = "m2")),
+		configure = { deleteGate = CompletableDeferred() }
+	) { fixture, viewModel ->
+		viewModel.deleteAction(memoryId = "m1")
+		viewModel.deleteAction(memoryId = "m1")
+
+		fixture.repository.deleteGate?.complete(Unit)
+
+		assertEquals(listOf("m1"), fixture.repository.deleted)
+		assertEquals(listOf("deleted"), fixture.snackBars())
 	}
 
 	@Test

@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseC
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
@@ -33,9 +34,15 @@ class AssistantChatIntents(
 	private val confirmEditEvaluationIntentUseCase: ConfirmEditEvaluationIntentUseCase,
 	private val confirmDeleteEvaluationIntentUseCase: ConfirmDeleteEvaluationIntentUseCase
 ) {
+	// A dismissal another run holds is not sent, and it is not a failure: only a dismissal that did not reach the service
+	// says so.
 	fun dismiss(host: MachineHost<AssistantChat.Effect>, intentId: String) {
 		host.launchMachineJob {
-			dismissAssistantIntentUseCase.execute(intentId).collect()
+			dismissAssistantIntentUseCase.execute(intentId).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Error) {
+					host.processInternalEvent(AssistantChatInternalEvent.IntentDismissFailed)
+				}
+			}
 		}
 	}
 

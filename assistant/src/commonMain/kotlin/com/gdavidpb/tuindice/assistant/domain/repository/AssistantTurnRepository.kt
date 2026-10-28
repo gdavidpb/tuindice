@@ -13,8 +13,11 @@ interface AssistantTurnRepository {
 
 	suspend fun cancelTurn(turnId: String)
 
-	/** The events of [turnId] from [afterSeq] on. The flow completes after the final event of the turn. */
-	fun turnEvents(turnId: String, afterSeq: Long): Flow<AssistantEvent>
+	/**
+	 * The events of [turnId] from [afterSeq] on. The flow completes after the final event of the turn. The events the data
+	 * layer writes into the conversation itself are written for the session [sessionMark] and are not part of the flow.
+	 */
+	fun turnEvents(turnId: String, afterSeq: Long, sessionMark: Int): Flow<AssistantEvent>
 
 	suspend fun deleteConversations()
 }

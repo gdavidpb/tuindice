@@ -50,9 +50,11 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantProjectionRepos
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.russhwolf.settings.Settings
@@ -69,9 +71,7 @@ class AssistantDomainKoinSmokeTest {
 	fun resolvesEveryUseCaseAndItsRepositoriesWithTheMaincorePortsFaked() = withKoinSmokeTest(
 		assistantModule,
 		module {
-			single<HttpClient> {
-				assistantHttpClient { respond(content = "", status = HttpStatusCode.NoContent) }
-			}
+			single<HttpClient> { assistantHttpClient { respond(content = "", status = HttpStatusCode.NoContent) } }
 			single<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
 				assistantHttpClient { respond(content = "", status = HttpStatusCode.NoContent) }
 			}
@@ -84,6 +84,7 @@ class AssistantDomainKoinSmokeTest {
 			single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 			single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 			single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
+			single<SessionCoroutineScope> { testSessionCoroutineScope() }
 		}
 	) {
 		assertResolves(

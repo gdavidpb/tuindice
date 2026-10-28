@@ -8,16 +8,20 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
 // The consent the student gives before the chat opens. A refused acceptance keeps the sheet here, with its error, and
 // the student can accept again. The privacy policy opens outside the app and leaves the consent as it was.
+// The outcomes of the jobs the content started reach the consent too: the session takes each one, and the consent
+// keeps its state.
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatConsentRequiredTransitions(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
 ) {
 	from<AssistantChat.State.ConsentRequired> {
 		consentRows(machine, host)
+		consentOutcomeRows(machine, host)
 	}
 
 	from<AssistantChat.State.ConsentFailed> {
 		consentRows(machine, host)
+		consentOutcomeRows(machine, host)
 	}
 }
 
@@ -49,4 +53,19 @@ private fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
 	onTo<AssistantChatInternalEvent.ConsentAcceptFailed, AssistantChat.State.ConsentFailed> { _, _ ->
 		AssistantChat.State.ConsentFailed
 	}
+}
+
+// The outcomes of the content's jobs on the consent: each one is applied to the session as it is on the content, and
+// the consent keeps its state. Nothing is presented here; the content presents the session when it opens.
+private fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
+	AssistantChat.State,
+	S
+>.consentOutcomeRows(
+	machine: AssistantChatMachine,
+	host: MachineHost<AssistantChat.Effect>
+) {
+	sendOutcomeRows(machine = machine, host = host) { state -> state }
+	intentOutcomeRows(machine = machine, host = host) { state -> state }
+	feedbackOutcomeRows(machine = machine, host = host) { state -> state }
+	stillAppliesOutcomeRows(machine = machine, host = host) { state -> state }
 }

@@ -30,10 +30,14 @@ sealed interface AssistantChatInternalEvent {
 
 	data class ConversationObserved(val conversation: AssistantConversation) : AssistantChatInternalEvent
 
-	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content.
+	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content. The
+	// message accepted is the one the turn answers, as it was sent: its text, its suggestion and the client turn id it was
+	// sent with, so the retry of the turn sends that message again, and another message is told apart by its id.
 	data class TurnAccepted(
 		val turnId: String,
 		val lastSeq: Long,
+		val text: String,
+		val clientTurnId: String,
 		val suggestionId: String? = null
 	) : AssistantChatInternalEvent
 
@@ -49,12 +53,32 @@ sealed interface AssistantChatInternalEvent {
 		val clientTurnId: String
 	) : AssistantChatInternalEvent
 
-	// The turn followed to its end with a RunError, or its stream broke.
-	data class TurnRunFailed(val code: RunErrorCode, val retryable: Boolean) : AssistantChatInternalEvent
+	// The turn [turnId] followed to its end with a RunError, or its stream broke.
+	data class TurnRunFailed(
+		val turnId: String,
+		val code: RunErrorCode,
+		val retryable: Boolean
+	) : AssistantChatInternalEvent
+
+	// The follow of the sent turn [turnId] ended without the turn's final event: the result of the turn is unknown.
+	data class TurnStreamClosed(val turnId: String) : AssistantChatInternalEvent
+
+	// The unconfirmed answer [turnId] was recovered: its final event came, so the message that waited for it is sent.
+	data class TurnRecovered(val turnId: String) : AssistantChatInternalEvent
+
+	// The unconfirmed answer [turnId] was not recovered: its stream ended or broke before the final event, so the message
+	// that waited for it is not sent.
+	data class TurnNotRecovered(val turnId: String) : AssistantChatInternalEvent
 
 	data class RestrictionChecked(val standing: AbuseStanding?) : AssistantChatInternalEvent
 
 	data class IntentConfirmFinished(val intentId: String) : AssistantChatInternalEvent
+
+	// The confirmation of [intentId] failed for a reason the student can act on: its notice says the send failed.
+	data class IntentConfirmFailed(val intentId: String) : AssistantChatInternalEvent
+
+	// The dismissal did not reach the service: its notice says the send failed, and the card keeps its buttons.
+	data object IntentDismissFailed : AssistantChatInternalEvent
 
 	data class EnrollmentProofDelegated(val intentId: String) : AssistantChatInternalEvent
 

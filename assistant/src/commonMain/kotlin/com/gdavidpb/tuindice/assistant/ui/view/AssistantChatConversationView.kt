@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,11 +29,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.hasIntentCard
@@ -50,10 +57,15 @@ import tuindice.assistant.generated.resources.assistant_chat_sending
 import tuindice.assistant.generated.resources.assistant_chat_title
 import tuindice.assistant.generated.resources.assistant_photo_reading
 
+// The keyboard's insets, which the list follows as the keyboard opens and closes. Null, the default, is the keyboard's
+// own; a test provides its own, to open and close the keyboard on the test clock.
+internal val LocalChatKeyboardInsets = staticCompositionLocalOf<WindowInsets?> { null }
+
 // The conversation, oldest first, under the sheet's title («Asistente» after the sparkle, AssistantSheetTitleView)
 // and the context chip, with the running label, notice, suggestions and composer below. The list follows its
-// last item whenever the conversation changes size or the keyboard opens or closes, and a proposal is shown up to its
-// buttons, or its outcome once resolved.
+// last item when a new one arrives, or another one ends the conversation, and when the keyboard opens or closes. A
+// change inside an item leaves the list where it is. A proposal that arrives is shown up to its buttons, or its
+// outcome once resolved.
 //
 // Motion: what arrives while the sheet is open enters with the chat's motion (AssistantChatMotion); what is there when
 // it opens, the history, the chip, the notice, simply is. Each place that comes and goes is an AssistantChatSlotView,
@@ -68,9 +80,10 @@ fun AssistantChatConversationView(
 ) {
 	val listState = rememberLazyListState()
 	val focusManager = LocalFocusManager.current
+	val keyboard = LocalChatKeyboardInsets.current ?: WindowInsets.ime
 	val lastItem = content.items.lastOrNull()
 	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
-	LaunchedEffect(content.items.size, lastItem) {
+	LaunchedEffect(followKeyOf(content.items)) {
 		if (content.items.isNotEmpty()) {
 			listState.followLastItem(
 				lastIndex = content.items.lastIndex,
@@ -79,16 +92,18 @@ fun AssistantChatConversationView(
 		}
 	}
 
-	FollowLastItemOnKeyboard(listState = listState, items = content.items)
+	FollowLastItemOnKeyboard(listState = listState, items = content.items, ime = keyboard)
 
-	// The column stays above the keyboard, or above the home indicator when there is none: the list gives up the room,
-	// and the composer keeps its place right above the keyboard. The keyboard's inset is real inside the sheet, and the
-	// sheet pads only its top, so this is the only bottom inset of the conversation. Dragging the list hides the keyboard,
-	// as in any scroll container (dismissKeyboardOnScroll).
+	// The column stays above the keyboard, or above the home indicator when there is none. Its title sits at the top and
+	// its composer at the foot; what lies between them is the region of the conversation, which takes the height they
+	// leave. So the composer keeps its place right above the keyboard, and the region scrolls when what it holds does not
+	// fit. The keyboard's inset is real inside the sheet, and the sheet pads only its top, so this is the only bottom
+	// inset of the conversation. Dragging the list hides the keyboard, as in any scroll container
+	// (dismissKeyboardOnScroll).
 	Column(
 		modifier = modifier
 			.fillMaxWidth()
-			.windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars).only(WindowInsetsSides.Bottom))
+			.windowInsetsPadding(keyboard.union(WindowInsets.navigationBars).only(WindowInsetsSides.Bottom))
 			.dismissKeyboardOnScroll(focusManager)
 	) {
 		AssistantSheetTitleView(
@@ -96,31 +111,23 @@ fun AssistantChatConversationView(
 			// With the 16 dp that follows every place of the column, 32 dp below it, as below the title of ConfirmationDialog.
 			modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium).testTag(AssistantUiTags.ChatTitle)
 		)
-		val shownContext = rememberLastNonNull(content.context)
-
-		AssistantChatSlotView(visible = content.context != null) {
-			shownContext?.let { AssistantChatContextChipView(item = it, onAction = onAction) }
-		}
-		AssistantChatSlotView(visible = content.notificationOffer) {
-			AssistantNotificationOfferView(onAction = onAction)
-		}
-		// The sheet's snackbar floats over the foot of the messages, right above what follows them (the composer, or the
-		// suggestions of the guided mode), so it takes no room in any mode while no notice shows.
-		Box(
+		AssistantChatRegion(
+			hasMessages = content.items.isNotEmpty(),
 			modifier = Modifier
 				.weight(1f)
-				.fillMaxWidth()
-				.padding(top = TuIndiceSpacing.Medium)
-		) {
-			AssistantChatMessageListView(
-				items = content.items,
-				ledger = ledger,
-				listState = listState,
-				onAction = onAction
-			)
-			AssistantChatSnackbarView(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
-		}
-		AssistantChatStatusView(content = content, ledger = ledger, onAction = onAction)
+				.fillMaxWidth(),
+			above = { AssistantChatAboveMessages(content = content, onAction = onAction) },
+			messages = {
+				AssistantChatMessagesPlace(
+					content = content,
+					ledger = ledger,
+					listState = listState,
+					snackbarHostState = snackbarHostState,
+					onAction = onAction
+				)
+			},
+			below = { AssistantChatStatusView(content = content, ledger = ledger, onAction = onAction) }
+		)
 		if (!content.isGuided) {
 			AssistantChatComposerView(
 				composer = content.composer,
@@ -131,6 +138,98 @@ fun AssistantChatConversationView(
 		}
 	}
 }
+
+// The region from the context chip down to the last suggestion. The messages take the height that the parts around them
+// leave, so a region whose parts fit lays out the way a column does. When they leave none, the parts hold more than the
+// region, and the region scrolls as one: the chip, the notice and the suggestions stay in reach while the composer is
+// pinned under it. The messages keep a minimum then, so they never vanish behind the parts around them.
+@Composable
+private fun AssistantChatRegion(
+	hasMessages: Boolean,
+	above: @Composable () -> Unit,
+	messages: @Composable () -> Unit,
+	below: @Composable () -> Unit,
+	modifier: Modifier = Modifier
+) {
+	BoxWithConstraints(modifier = modifier) {
+		val regionHeight = maxHeight
+		val scrollState = rememberScrollState()
+
+		Layout(
+			content = {
+				Column { above() }
+				messages()
+				Column { below() }
+			},
+			modifier = Modifier
+				.fillMaxWidth()
+				.verticalScroll(scrollState)
+		) { measurables, constraints ->
+			val width = constraints.maxWidth
+			// The height of the region comes from the box around it: a scrolling layout is measured without a height limit.
+			val top = measurables[0].measure(Constraints(maxWidth = width))
+			val bottom = measurables[2].measure(Constraints(maxWidth = width))
+			val remaining = regionHeight.roundToPx() - top.height - bottom.height
+			val messagesHeight = when {
+				remaining >= 0 -> remaining
+				hasMessages -> MinimumMessagesHeight.roundToPx()
+				else -> 0
+			}
+			val middle = measurables[1].measure(Constraints.fixed(width, messagesHeight))
+			val height = top.height + middle.height + bottom.height
+
+			layout(width, height) {
+				top.place(x = 0, y = 0)
+				middle.place(x = 0, y = top.height)
+				bottom.place(x = 0, y = top.height + middle.height)
+			}
+		}
+	}
+}
+
+// The places above the messages: the context chip, and the offer of the notifications while the chat shows it.
+@Composable
+private fun AssistantChatAboveMessages(
+	content: AssistantChat.State.Content,
+	onAction: (AssistantChat.Action) -> Unit
+) {
+	val shownContext = rememberLastNonNull(content.context)
+
+	AssistantChatSlotView(visible = content.context != null) {
+		shownContext?.let { AssistantChatContextChipView(item = it, onAction = onAction) }
+	}
+	AssistantChatSlotView(visible = content.notificationOffer) {
+		AssistantNotificationOfferView(onAction = onAction)
+	}
+}
+
+// The messages, with the sheet's snackbar floating over their foot: it sits right above what follows the messages,
+// so it takes no room in any mode while no notice shows.
+@Composable
+private fun AssistantChatMessagesPlace(
+	content: AssistantChat.State.Content,
+	ledger: ChatEntranceLedger,
+	listState: LazyListState,
+	snackbarHostState: SnackbarHostState,
+	onAction: (AssistantChat.Action) -> Unit
+) {
+	Box(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(top = TuIndiceSpacing.Medium)
+	) {
+		AssistantChatMessageListView(
+			items = content.items,
+			ledger = ledger,
+			listState = listState,
+			onAction = onAction
+		)
+		AssistantChatSnackbarView(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+	}
+}
+
+// The least the messages keep when the parts around them fill the region: a conversation with messages stays in reach.
+private val MinimumMessagesHeight = 160.dp
 
 @Composable
 private fun AssistantChatMessageListView(
@@ -175,13 +274,12 @@ private fun AssistantChatMessageListView(
 // outside composition, so those frames compose nothing; a follow cancels the one before it. Other changes of the
 // column's height (a suggestion, a notice) leave the list where it is.
 @Composable
-private fun FollowLastItemOnKeyboard(listState: LazyListState, items: List<ChatItem>) {
+private fun FollowLastItemOnKeyboard(listState: LazyListState, items: List<ChatItem>, ime: WindowInsets) {
 	val latestItems by rememberUpdatedState(items)
-	val ime = WindowInsets.ime
 	val density = LocalDensity.current
 
 	// The first value is not followed: the conversation's effect follows it when the conversation is composed.
-	LaunchedEffect(listState) {
+	LaunchedEffect(listState, ime) {
 		snapshotFlow { ime.getBottom(density) }
 			.distinctUntilChanged()
 			.drop(1)
@@ -211,6 +309,10 @@ private suspend fun LazyListState.followLastItem(lastIndex: Int, showsItsEnd: Bo
 
 	if (hiddenBelow > 0) animateScrollBy(hiddenBelow.toFloat())
 }
+
+// What the list follows its last item by: how many items there are, and which one is last. A change inside an item
+// keeps both, so it does not move the list; a new item, or another one at the end, changes them.
+internal fun followKeyOf(items: List<ChatItem>): Pair<Int, String?> = items.size to items.lastOrNull()?.id
 
 // What follows the messages: the running label, the notice and the suggestions, each in a place that comes and goes. A
 // photo being read and a message being sent have no label of their own in the state: the labels are the view's.

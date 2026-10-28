@@ -20,7 +20,7 @@ sealed interface AssistantMemoryInternalEvent {
 
 	data class LastEntryDeleted(val memoryId: String, val message: String) : AssistantMemoryInternalEvent
 
-	data class EntryDeleteFailed(val message: String) : AssistantMemoryInternalEvent
+	data class EntryDeleteFailed(val memoryId: String, val message: String) : AssistantMemoryInternalEvent
 
 	// The outcomes of an answer: it was saved and the list is loaded again, or it was refused.
 	data object StillAppliesAnswered : AssistantMemoryInternalEvent

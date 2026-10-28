@@ -45,6 +45,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemU
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -66,6 +67,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatConversation
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatIntents
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatNotificationOffer
@@ -151,6 +153,7 @@ val assistantModule = module {
 	/* Use cases */
 
 	factoryOf(::ObserveAssistantConversationUseCase)
+	factoryOf(::GetAssistantAcademicCalendarUseCase)
 	factoryOf(::SendAssistantMessageUseCase)
 	factoryOf(::ExtractEvaluationsFromPhotoUseCase)
 	factoryOf(::FollowAssistantTurnUseCase)
@@ -182,6 +185,7 @@ val assistantModule = module {
 
 	viewModelOf(::AssistantChatViewModel)
 	factoryOf(::AssistantChatMachine)
+	factoryOf(::AssistantChatConversation)
 	factoryOf(::AssistantChatTurns)
 	factoryOf(::AssistantChatIntents)
 	factoryOf(::AssistantChatPlanIntents)

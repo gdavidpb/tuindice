@@ -70,6 +70,9 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -91,14 +94,22 @@ internal class RecordingAssistantTurnRepository(
 
 	// When set, a follow delivers nothing and stays open, as a stream waiting for its first event does.
 	var holdEvents = false
+
+	// When set, a follow delivers its events and then stays open, as the stream of a turn that still runs does.
+	var holdAfterEvents = false
 	val requests = mutableListOf<TurnRequest>()
 	val cancelled = mutableListOf<String>()
 	val followed = mutableListOf<Pair<String, Long>>()
 	var conversationsDeleted = 0
 
+	// The requests and the follows in the order they were made, as "send:<text>" and "follow:<turnId>": a test checks what
+	// was sent after what was followed. The shared [calls] log stays what the other ports write to.
+	val order = mutableListOf<String>()
+
 	override suspend fun sendTurn(request: TurnRequest): TurnAccepted {
 		calls += "sendTurn"
 		requests += request
+		order += "send:${request.message.text}"
 		sendError?.let { error -> throw error }
 
 		return acceptedTurn
@@ -109,8 +120,9 @@ internal class RecordingAssistantTurnRepository(
 		cancelled += turnId
 	}
 
-	override fun turnEvents(turnId: String, afterSeq: Long): Flow<AssistantEvent> {
+	override fun turnEvents(turnId: String, afterSeq: Long, sessionMark: Int): Flow<AssistantEvent> {
 		followed += turnId to afterSeq
+		order += "follow:$turnId"
 
 		val answer = scriptedFollows.removeFirstOrNull() ?: events
 
@@ -120,6 +132,8 @@ internal class RecordingAssistantTurnRepository(
 			if (holdEvents) awaitCancellation()
 
 			emitAll(answer.asFlow())
+
+			if (holdAfterEvents) awaitCancellation()
 		}
 	}
 
@@ -156,7 +170,31 @@ internal class RecordingAssistantConversationRepository(
 		)
 	}
 
-	override fun sessionMark(): Int = 0
+	// The session the conversation is in. [endSession] ends it, as a sign-out does: a write made for the one that ended is
+	// refused, like the store refuses it.
+	private var session = 0
+
+	// The intents whose confirmation runs, claimed the way the store claims them.
+	val confirming = mutableSetOf<String>()
+
+	// Ending the session takes its conversation with it, its claims included.
+	fun endSession() {
+		session += 1
+		confirming.clear()
+	}
+
+	override fun sessionMark(): Int = session
+
+	override fun claimConfirmation(intentId: String, sessionMark: Int): Boolean {
+		if (sessionMark != session || intentId !in openIntents || intentId in confirming) return false
+
+		confirming += intentId
+		return true
+	}
+
+	override fun releaseConfirmation(intentId: String, sessionMark: Int) {
+		if (sessionMark == session) confirming -= intentId
+	}
 
 	override fun attachConversation(conversationId: String, sessionMark: Int) {
 		calls += "attachConversation"
@@ -173,8 +211,19 @@ internal class RecordingAssistantConversationRepository(
 		unconfirmed += turnId
 	}
 
-	override fun addUserMessage(message: AssistantUserMessage) {
+	// A retry takes the question it replaces out in the write that stores its own, as the store does, unless the session
+	// the retry was decided in has ended. Each replacement is recorded with the session it was decided in.
+	val replacements = mutableListOf<Pair<String, Int>>()
+
+	override fun addUserMessage(message: AssistantUserMessage, replacesMessageId: String?, replacesSessionMark: Int?) {
 		calls += "addUserMessage"
+
+		if (replacesMessageId != null && replacesSessionMark != null) {
+			replacements += replacesMessageId to replacesSessionMark
+
+			if (replacesSessionMark == session) userMessages.removeAll { stored -> stored.id == replacesMessageId }
+		}
+
 		userMessages += message
 	}
 
@@ -190,7 +239,10 @@ internal class RecordingAssistantConversationRepository(
 		count: IntentResolvedCount?,
 		detailCode: String?
 	) {
+		if (sessionMark != session) return
+
 		calls += "markIntentResolved"
+		confirming -= intentId
 		resolved[intentId] = outcome
 		if (count == null) {
 			resolvedCounts.remove(intentId)
@@ -211,8 +263,9 @@ internal class RecordingAssistantConversationRepository(
 		staged[report.intentId] = report
 	}
 
-	override fun clearOutcome(intentId: String) {
-		staged.remove(intentId)
+	// Clears the report only when it is still the one staged for its intent, as the store does.
+	override fun clearOutcome(report: IntentOutcomeReport) {
+		if (staged[report.intentId] == report) staged.remove(report.intentId)
 	}
 
 	override fun pendingOutcomes(): List<IntentOutcomeReport> = staged.values.toList()
@@ -234,18 +287,26 @@ internal class RecordingAssistantIntentRepository(
 	val decisions = mutableListOf<IntentDecision>()
 	val reports = mutableListOf<IntentOutcomeReport>()
 
+	// Runs when the server takes the decision, so a test can end the session, or start another use case, while it decides.
+	var onDecide: suspend () -> Unit = {}
+
 	override suspend fun decide(decision: IntentDecision): IntentDecisionResult {
 		calls += "decide"
 		decisions += decision
 		decideError?.let { error -> throw error }
+		onDecide()
 
 		return answer
 	}
+
+	// Runs when the server is asked for an outcome, before it answers: a test holds the answer, or refuses it, from here.
+	var onReport: suspend (IntentOutcomeReport) -> Unit = {}
 
 	// A report the server does not take is not recorded as sent.
 	override suspend fun reportOutcome(report: IntentOutcomeReport) {
 		calls += "reportOutcome"
 		reportError?.let { error -> throw error }
+		onReport(report)
 
 		reports += report
 	}
@@ -267,7 +328,11 @@ internal class RecordingAssistantFeedbackRepository : AssistantFeedbackRepositor
 	// The failure every report breaks with, when a test makes the server refuse it. A refused report is not kept.
 	var reportError: Throwable? = null
 
+	// Holds a report until the test releases it: the service answers while the sheet goes on.
+	var reportGate: CompletableDeferred<Unit>? = null
+
 	override suspend fun report(report: MessageReport) {
+		reportGate?.await()
 		reportError?.let { error -> throw error }
 
 		reported += report
@@ -330,8 +395,12 @@ internal class RecordingAssistantStandingRepository(
 	var statusReads = 0
 		private set
 
+	// Holds the reads of the status until the test releases them: the server answers late, while the sheet goes on.
+	var gate: CompletableDeferred<Unit>? = null
+
 	override suspend fun status(): AssistantStatus {
 		statusReads++
+		gate?.await()
 		failure?.let { error -> throw error }
 
 		if (explicit) return answer
@@ -401,6 +470,10 @@ internal class RecordingAssistantQueuedMutationsRepository(
 	val followed = mutableListOf<Pair<List<String>, Long>>()
 	private val waiting = mutableListOf<suspend (List<MutationOutcome>) -> Unit>()
 
+	// The outcomes the follow hands over before it returns: the mutations were settled already when the intent asked to
+	// follow them, and the session can settle them on another thread while the intent is still being marked.
+	var settleOnFollow: List<MutationOutcome>? = null
+
 	override fun followQueued(
 		mutationIds: List<String>,
 		untilMillis: Long,
@@ -409,6 +482,11 @@ internal class RecordingAssistantQueuedMutationsRepository(
 		calls += "followQueued"
 		followed += mutationIds to untilMillis
 		waiting += onSettled
+		settleOnFollow?.let { outcomes ->
+			val settle: suspend () -> Unit = { onSettled(outcomes) }
+
+			settle.startCoroutine(Continuation(EmptyCoroutineContext) { })
+		}
 	}
 
 	suspend fun settle(outcomes: List<MutationOutcome>) {
@@ -464,11 +542,15 @@ internal class RecordingAssistantConsentRepository : AssistantConsentRepository,
 	// The failure every change breaks with, when a test makes the server refuse it.
 	var failure: Throwable? = null
 
+	// Holds a change until the test completes it: the server is still answering while the change waits.
+	var gate: CompletableDeferred<Unit>? = null
+
 	override val assistantConsentGranted: StateFlow<Boolean> = consent.asStateFlow()
 
 	override fun isAssistantConsentGranted(): Boolean = consent.value
 
 	override suspend fun setAssistantConsentGranted(granted: Boolean) {
+		gate?.await()
 		failure?.let { error -> throw error }
 
 		changes += granted

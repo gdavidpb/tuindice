@@ -146,6 +146,8 @@ class AssistantChatSuggestionBehaviorTest {
 	@Test
 	fun runningTurn_hidesTheSuggestions() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		// The turn keeps running: its stream stays open, as a running turn's does, until its final event.
+		fixture.turns.holdEvents = true
 		fixture.conversation.conversation.value = assistantConversation(
 			activeTurn = AssistantActiveTurn(
 				turnId = "t1",

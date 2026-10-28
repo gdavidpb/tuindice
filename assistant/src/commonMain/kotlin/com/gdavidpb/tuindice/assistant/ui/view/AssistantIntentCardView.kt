@@ -70,5 +70,12 @@ private fun IntentStatusView(
 			card = card,
 			onAction = onAction
 		)
+
+		// A card closed without an outcome keeps what it proposed and loses its actions; no outcome label takes their place.
+		IntentCardStatus.Closed -> AssistantIntentDetailsView(
+			card = card,
+			onAction = onAction,
+			showsActions = false
+		)
 	}
 }
