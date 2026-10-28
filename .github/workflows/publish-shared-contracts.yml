@@ -67,12 +67,13 @@ jobs:
           printf 'Publishing shared contracts %s.\n' "$declared_version"
           printf 'publish=true\n' >> "$GITHUB_OUTPUT"
 
-      - name: Set up Java
+      # The same iOS environment as the preflight and the production builds (one action, so they cannot drift): Xcode
+      # 26.5, Java 21, Gradle and the iOS caches. The contracts publish their iOS targets too, so they need that Xcode.
+      - name: Set up iOS build environment
         if: steps.version.outputs.publish == 'true'
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        uses: ./.github/actions/setup-ios-build
         with:
-          distribution: temurin
-          java-version: "21"
+          cache-device-framework: "false"
 
       - name: Authenticate to Google Cloud
         if: steps.version.outputs.publish == 'true'

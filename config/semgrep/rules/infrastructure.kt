@@ -69,3 +69,13 @@ class SampleStatelessDataSource(
 		return result
 	}
 }
+
+// ruleid: data-source-memory-is-session-memory
+private class SamplePrivateCacheHolder : SampleCacheRepository {
+	private var cachedValue: String? = null
+}
+
+// ok: data-source-memory-is-session-memory
+private class SamplePrivateStatelessHolder : SampleCacheRepository {
+	private val writeMutex = Mutex()
+}

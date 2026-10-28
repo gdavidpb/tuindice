@@ -20,10 +20,6 @@ iosApp/Pods/
 **/src/androidInstrumentedTest/
 **/src/iosTest/
 
-# Las pruebas de contrato de máquinas se escanean: state-machine-contract-test-complete exige en ellas la llamada al
-# diagrama Mermaid y al recorrido aleatorio. El resto de pruebas sigue excluido.
-!**/src/commonTest/**/*StateMachineContractTest.kt
-
 # Local QA infrastructure, not app architecture.
 e2e/
 mocks/

@@ -417,7 +417,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(67 reglas en 17 archivos por área):
+(68 reglas en 18 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo); sin `R.string.` (los textos van en `composeResources`).
@@ -459,6 +459,9 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`; las hojas son
   `TuIndiceModalBottomSheet` (`base/ui/dialog`) y ni `ModalBottomSheet` ni `rememberModalBottomSheetState` se usan
   fuera de base (`material-modal-sheet-only-in-base`).
+- `dropdown-menu`: en `commonMain`, cada `DropdownMenu` expone sus etiquetas de prueba con
+  `exposeTestTagsAsResourceId()` en su `modifier`; sin eso sus ítems no llegan a las pruebas nativas de Android
+  (UI Automator) por su id de recurso.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").

@@ -58,7 +58,7 @@ expected = set(filter(None, os.environ["EXPECTED_RULE_IDS"].split(",")))
 fired = set()
 control_findings = []
 # Controles negativos: piezas que el ruleset exime por path o por patrón (*Control.kt prueba las exenciones de ruta).
-CONTROL_SUFFIXES = ("Draft.kt", "FakeDispatchers.kt", "IosPlatformModule.kt", "Control.kt", "AndroidTinkSecureKeyValueDataSource.kt", "ObserveSessionInvalidationUseCase.kt", "PensumGraphCanvas.kt", "AcademicWeekEngine.kt")
+CONTROL_SUFFIXES = ("Draft.kt", "FakeDispatchers.kt", "IosPlatformModule.kt", "Control.kt", "AndroidSecureAeadProvider.kt", "ObserveSessionInvalidationUseCase.kt", "PensumGraphCanvas.kt", "AcademicWeekEngine.kt")
 for result in data["results"]:
     rule_id = result["check_id"].split(".")[-1]
     fired.add(rule_id)
@@ -81,8 +81,33 @@ print(f"[semgrep] generality check OK ({len(expected)} reglas disparan; controle
 }
 
 run_scan() {
+	local status=0
+
 	echo "[semgrep] scanning repository"
-	semgrep --config "$RULES_DIR" --error --quiet .
+	semgrep --config "$RULES_DIR" --error --quiet . || status=1
+
+	# The repo scan skips the test source sets (.semgrepignore), so the rules judge production code only. The one rule
+	# that reads tests, state-machine-contract-test-complete, runs on every *StateMachineContractTest.kt as explicit
+	# targets: explicit targets are scanned even when the ignore excludes them, and no other rule sees them.
+	local contract_tests=()
+	local contract_test
+	while IFS= read -r contract_test; do
+		contract_tests+=("$contract_test")
+	done < <(
+		find . \( -path ./.git -o -path ./graphify-out -o -path ./config/semgrep -o -path ./iosApp/Pods -o -name build -o -name .gradle \) -prune \
+			-o -name '*StateMachineContractTest.kt' -print | sed 's#^\./##' | LC_ALL=C sort
+	)
+	if [[ ${#contract_tests[@]} -eq 0 ]]; then
+		echo "[semgrep] no *StateMachineContractTest.kt found: the contract rule would check nothing" >&2
+		exit 1
+	fi
+	echo "[semgrep] scanning ${#contract_tests[@]} state machine contract tests"
+	semgrep --config "$RULES_DIR/state-machine-contracts.yaml" --error --quiet "${contract_tests[@]}" || status=1
+
+	if [[ $status -ne 0 ]]; then
+		echo "[semgrep] scan found issues" >&2
+		return 1
+	fi
 	echo "[semgrep] scan clean"
 }
 

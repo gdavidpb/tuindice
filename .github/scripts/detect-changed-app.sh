@@ -52,6 +52,8 @@ E2E_CONTRACT_TOUCHED=false
 VOCABULARY_GATE_REQUIRED=false
 DETEKT_CONFIG_TOUCHED=false
 SEMGREP_CONFIG_TOUCHED=false
+ENGINE_USECASE_GATE_TOUCHED=false
+TESTKIT_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
 HAS_RELEASE_IMPACT=false
 REQUIRES_E2E_CERTIFICATION=false
@@ -165,6 +167,51 @@ is_kmp_test_source_file() {
 # e2e/scripts/shared/layout.env and feed the fingerprint script too).
 is_kmp_runtime_source_or_build_file() {
 	[[ "$(e2e_platform_for_kmp_file "$1" "$2")" != "none" ]]
+}
+
+# The modules whose *StateMachineContractTest exports diagrams: the ones whose *ToMermaid tests scripts/dump-machine-diagrams.sh
+# runs. Read from the tracked tests, so a new contract module is covered without editing the detector.
+machine_contract_modules() {
+	git ls-files -- '*/src/commonTest/*StateMachineContractTest.kt' \
+		| cut -d/ -f1 \
+		| LC_ALL=C sort -u \
+		| while IFS= read -r module; do
+			if module_is_kmp "$module"; then
+				printf '%s\n' "$module"
+			fi
+		done
+}
+
+# The modules that consume testkit: each declares project(":testkit") in the commonTest source set of its build file.
+#
+# Criterion, written here so the scheduling below can be read against it:
+# - the dependency is test scope, so module-graph.txt (main scope only) does not record it, and a change to testkit would
+#   otherwise reach none of its consumers;
+# - a consumer is a tracked module that is KMP and is not testkit itself, whose build file declares testkit inside a
+#   commonTest block (the block opens with `val commonTest by ...`, `getByName("commonTest")` or `commonTest {` and closes
+#   when its brace depth returns to zero);
+# - the list is read from the build files, so a new consumer is covered without editing the detector.
+testkit_consumers() {
+	local build_file module declares
+	while IFS= read -r build_file; do
+		module="${build_file%%/*}"
+		[[ "$module" != "testkit" ]] || continue
+		module_is_kmp "$module" || continue
+		declares="$(awk '
+			/^[ \t]*(val[ \t]+commonTest[ \t]+by|getByName\("commonTest"\)|commonTest[ \t]*\{)/ { inblock = 1; depth = 0 }
+			inblock {
+				if ($0 ~ /project\(":testkit"\)/) hit = 1
+				opened = $0
+				closed = $0
+				depth += gsub(/\{/, "{", opened) - gsub(/\}/, "}", closed)
+				if (depth <= 0) inblock = 0
+			}
+			END { print hit + 0 }
+		' "$build_file")"
+		if [[ "$declares" == "1" ]]; then
+			printf '%s\n' "$module"
+		fi
+	done < <(git ls-files -- '*/build.gradle.kts')
 }
 
 append_ios_test_task() {
@@ -288,7 +335,8 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
-		config/detekt/*|.editorconfig|*/detekt-baseline.xml)
+		config/detekt/*|.editorconfig|*/detekt-baseline.xml|scripts/verify-detekt-baselines-shrink.sh)
+			# The baseline gate (verifyDetektBaselinesShrink) is the script itself: changing it runs the same checks.
 			# Solo afecta análisis estático: corre detekt completo sin marcar
 			# impacto de runtime ni suites E2E.
 			DETEKT_CONFIG_TOUCHED=true
@@ -420,6 +468,34 @@ classify_changed_file() {
 			esac
 			return 0
 			;;
+		scripts/verify-engine-and-usecase-tests.sh)
+			# The gate verifyEngineAndUseCaseTests runs. It is scheduled with any module change, so a change to the script
+			# alone must run it too, or CI never checks that change.
+			ENGINE_USECASE_GATE_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		scripts/verify-common-ui-test-density.sh)
+			# verifyCommonUiTestDensity runs this gate, and verifyCommonUiGate depends on it.
+			append_unique_line "$ANDROID_TASKS_FILE" "verifyCommonUiTestDensity"
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		scripts/generate-common-ui-matrix.sh)
+			# refreshCommonUiMatrix runs the generator, which rewrites docs/testing/common-ui-matrix.md.
+			append_unique_line "$ANDROID_TASKS_FILE" "refreshCommonUiMatrix"
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		scripts/dump-machine-diagrams.sh)
+			# Test tooling: it runs the *ToMermaid export tests of the modules that own a contract test, so their host tests
+			# check a change to it. No Gradle task runs the script itself.
+			while IFS= read -r module; do
+				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
+			done < <(machine_contract_modules)
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		scripts/module-graph.txt|scripts/validate-module-graph.sh)
 			CI_CONFIG_TOUCHED=true
 			MODULE_GRAPH_TOUCHED=true
@@ -541,6 +617,10 @@ classify_changed_file() {
 	fi
 
 	HAS_RELEVANT_CHANGES=true
+
+	if [[ "$top_level" == "testkit" ]]; then
+		TESTKIT_TOUCHED=true
+	fi
 
 	if is_kmp_test_source_file "$top_level" "$file"; then
 		append_changed_test_module "$top_level"
@@ -678,6 +758,12 @@ while IFS= read -r module; do
 				if [[ "$module" != "testkit" ]]; then
 					append_ios_test_task ":${module}:iosSimulatorArm64Test"
 				fi
+				if [[ "$module" == "chatcontract" || "$module" == "academiccore" ]]; then
+					# The JVM target of the shared contracts is consumed by the backend (tuindice-api): it is compiled here, and its
+					# jvmTest runs the commonTest on the JVM. The verifySharedHostTests aggregate runs the same jvmTest.
+					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileKotlinJvm"
+					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:jvmTest"
+				fi
 				if [[ "$module" == "scenarios" ]]; then
 					# Product modules own the UI tags the catalog is generated from, so a change in any module that
 					# reaches the scenarios must compare the generated artifacts with the versioned ones (the test task
@@ -688,6 +774,21 @@ while IFS= read -r module; do
 			;;
 	esac
 done <"$IMPACTED_MODULES_FILE"
+
+# A change to testkit runs the host tests of its consumers (testkit_consumers, criterion above). The validators of
+# MachineTableAssertions are enforced by those host tests (see verifySharedHostTests), and no module-graph entry links the
+# two. Only testAndroidHostTest is scheduled: the iOS tasks of the consumers stay with their own changes.
+if [[ "$TESTKIT_TOUCHED" == "true" ]]; then
+	consumers_found=false
+	while IFS= read -r consumer; do
+		[[ -n "$consumer" ]] || continue
+		consumers_found=true
+		append_unique_line "$ANDROID_TASKS_FILE" ":${consumer}:testAndroidHostTest"
+	done < <(testkit_consumers)
+	if [[ "$consumers_found" != "true" ]]; then
+		warn "No module declares testkit in its commonTest: a change to testkit would run no consumer host test."
+	fi
+fi
 
 if [[ "$E2E_CONTRACT_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eContract"
@@ -719,7 +820,7 @@ if [[ "$DETEKT_CONFIG_TOUCHED" == "true" ]]; then
 fi
 
 # Every domain engine has its test and every use case new since the base has one: any module change can add either.
-if [[ -s "$IMPACTED_MODULES_FILE" ]]; then
+if [[ -s "$IMPACTED_MODULES_FILE" || "$ENGINE_USECASE_GATE_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyEngineAndUseCaseTests"
 fi
 

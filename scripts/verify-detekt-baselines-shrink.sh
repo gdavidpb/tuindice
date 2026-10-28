@@ -5,8 +5,9 @@
 # they only shrink: an entry that is not in the base is a new accepted finding, and the total of entries per file never
 # goes up. The one allowed change of an entry is a re-key: detekt builds the ID from the signature of the code, so a
 # finding whose signature changed gets a new ID although it is the same finding. Those pairs are declared in
-# config/detekt/baseline-rekeys.txt as "old => new", one per line, and the reviewer reads them in the diff. A new ID
-# is accepted only when its pair is declared and the old ID disappears from the same file.
+# config/detekt/baseline-rekeys.txt as "old => new", one per line, and the reviewer reads them in the diff. A key can be
+# re-keyed again by a later change, so the pairs form chains (A => B, B => C): a new ID is accepted only when a chain of
+# declared pairs leads from an ID that disappears from the same file to it. The chain is the same finding, not new ones.
 #
 # Usage: scripts/verify-detekt-baselines-shrink.sh [base-ref]
 #   base-ref: the branch to take the merge-base from. Default: origin/production, or production without an origin.
@@ -77,8 +78,8 @@ def ids_of(path):
     return Counter((element.text or "").strip() for element in tree.iter("ID"))
 
 # old => new pairs, one per line; '#' starts a comment.
-rekeys = {}
-rekeys_lines = []
+successors = {}
+rekeys_pairs = []
 if rekeys_path and os.path.exists(rekeys_path):
     for number, raw in enumerate(open(rekeys_path, encoding="utf-8"), start=1):
         line = raw.strip()
@@ -88,8 +89,23 @@ if rekeys_path and os.path.exists(rekeys_path):
             print(f"FAIL [config/detekt/baseline-rekeys.txt:{number}]: expected 'old => new', got: {line}")
             sys.exit(1)
         old, new = (part.strip() for part in line.split("=>", 1))
-        rekeys.setdefault(new, []).append(old)
-        rekeys_lines.append(line)
+        successors.setdefault(old, []).append(new)
+        rekeys_pairs.append((old, new))
+
+# Keys reached from a key by following the declared pairs (at least one step).
+reach_cache = {}
+
+def reachable(key):
+    if key not in reach_cache:
+        seen = set()
+        pending = [key]
+        while pending:
+            for following in successors.get(pending.pop(), []):
+                if following not in seen:
+                    seen.add(following)
+                    pending.append(following)
+        reach_cache[key] = seen
+    return reach_cache[key]
 
 baselines = [line.strip() for line in open(baselines_file, encoding="utf-8") if line.strip()]
 failures = []
@@ -108,16 +124,20 @@ for baseline in baselines:
     removed = base - current
     for new_id, count in added.items():
         for _ in range(count):
-            pair_olds = [old for old in rekeys.get(new_id, []) if removed[old] > 0]
-            if pair_olds:
-                removed[pair_olds[0]] -= 1
+            # A new ID is a re-key of a removed entry when a chain of declared pairs leads from that entry to it.
+            origins = [old for old in sorted(removed) if removed[old] > 0 and new_id in reachable(old)]
+            if origins:
+                removed[origins[0]] -= 1
                 continue
             failures.append(f"[{baseline}] new entry not in {base_label}: {new_id}")
 
 current_by_baseline = {b: ids_of(os.path.join(root, b)) for b in baselines}
-for entry in rekeys_lines:
-    old, new = (part.strip() for part in entry.split("=>", 1))
-    if not any(new in ids for ids in current_by_baseline.values()):
+current_keys = set()
+for ids in current_by_baseline.values():
+    current_keys.update(ids)
+for _, new in rekeys_pairs:
+    # Every declared step must lead to an entry of a baseline: the new key itself, or the steps that follow it.
+    if new not in current_keys and not (reachable(new) & current_keys):
         failures.append(f"[config/detekt/baseline-rekeys.txt] the new key of a re-key is not in any baseline: {new}")
 
 if failures:
@@ -127,5 +147,5 @@ if failures:
     sys.exit(1)
 
 print(f"OK: detekt baselines only shrink against {base_label} ({len(baselines)} baselines, {checked_entries} entries, "
-      f"{len(rekeys_lines)} declared re-keys).")
+      f"{len(rekeys_pairs)} declared re-keys).")
 PY

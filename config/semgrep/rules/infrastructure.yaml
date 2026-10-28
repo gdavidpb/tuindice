@@ -60,7 +60,8 @@ rules:
       del proceso o del dispositivo y debe sobrevivir a la sesión, exclúyelo aquí con su razón.
     # Desde la cabecera de la clase hasta su primer miembro con estado, sin pasar por la palabra
     # SessionMemory (que estaría en la lista de supertipos) ni por el cierre de la clase.
-    pattern-regex: '(?s)^(?:internal\s+)?class\s+\w+(?:(?!\bSessionMemory\b|^\}).)*?^\t(?:@Volatile\s+)?private\s+(?:var\s+\w+|val\s+\w+\s*=\s*(?:MutableStateFlow|mutable(?:Map|List|Set)Of)\b)'
+    # La cabecera admite las clases privadas: un holder privado de un data source también guarda estado.
+    pattern-regex: '(?s)^(?:(?:internal|private)\s+)?class\s+\w+(?:(?!\bSessionMemory\b|^\}).)*?^\t(?:@Volatile\s+)?private\s+(?:var\s+\w+|val\s+\w+\s*=\s*(?:MutableStateFlow|mutable(?:Map|List|Set)Of)\b)'
     paths:
       include:
         - '**/src/commonMain/**/data/source/**'
@@ -76,8 +77,6 @@ rules:
         - '**/data/source/attestation/PlayIntegrityDataSource.kt'
         - '**/data/source/update/PlayUpdateDataSource.kt'
         - '**/data/source/usage/UsageDataCollectionDataSource.kt'
-        # El AEAD en caché se descarta en su propio clear(), que el borrado ya invoca.
-        - '**/data/source/secure/AndroidTinkSecureKeyValueDataSource.kt'
         # La espera que piden los servicios de la universidad vale para el dispositivo: olvidarla
         # al borrar datos (el ingreso sobre datos de otra cuenta también borra) la saltaría.
         - '**/data/source/AuthRetryWindowDataSource.kt'
@@ -90,6 +89,11 @@ rules:
         - '**/data/source/**/Debug*.kt'
         - '**/data/source/**/FileKitDebug*.kt'
         - '**/data/source/usage/InMemoryUsageDataConsentRepository.kt'
+        # Caché del cifrador de Tink (cachedAead): estado del dispositivo, no de la cuenta, y sin datos del estudiante.
+        # Guarda el cifrador derivado de la clave maestra del Keystore del dispositivo. No sobrevive al cierre de sesión:
+        # el borrado que llama el cierre de sesión (ApplicationRepository.clearData -> secureStore.clear) anula esa caché,
+        # el keyset y la clave maestra, y la caché se reconstruye en el siguiente uso. SessionMemory solo repetiría ese borrado.
+        - 'app/src/main/kotlin/com/gdavidpb/tuindice/data/source/secure/AndroidTinkSecureKeyValueDataSource.kt'
     metadata:
       area: infrastructure
       referencia: 'README.md § Memoria de sesión'
