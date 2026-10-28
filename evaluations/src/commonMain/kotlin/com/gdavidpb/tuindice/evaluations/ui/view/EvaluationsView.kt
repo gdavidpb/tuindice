@@ -36,6 +36,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -145,6 +146,25 @@ fun EvaluationsView(
 					weekHeaderIndexes = weekHeaderIndexes,
 					take = arrival.value
 				)
+			}
+	}
+
+	// Once the list comes to rest, the week the host shows settles the reports the list left behind: a gesture that
+	// goes to another week and back may leave one for the week it went through, and the host may have merged the
+	// selections on the way, so no change of the selection reaches the list. Only the week the list stands on settles.
+	// Clearing them at rest is safe: the reports are sent before the list comes to rest, and the screen's
+	// machine handles them on the main thread ahead of the frames that end the gesture, so by then a selection
+	// that still equals the week the list stands on has taken them all in.
+	val restingWeekKey = rememberUpdatedState(selectedWeekKey)
+
+	LaunchedEffect(lazyListState, positioning) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.distinctUntilChanged()
+			// The first value is the state the list has when the effect starts, and it is not an end of anything.
+			.drop(1)
+			.filter { isScrollInProgress -> !isScrollInProgress }
+			.collect {
+				positioning.settleReports(restingWeekKey.value)
 			}
 	}
 
@@ -348,6 +368,14 @@ private class WeekPositioning(
 		}
 	}
 
+	// Clears the reports the list left behind, once it rests. Only a selection on the week the list stands on clears
+	// them: any other selection may still have a report on its way to take in.
+	fun settleReports(restingWeek: EvaluationsWeekKey) {
+		if (restingWeek == positionedWeek.value) {
+			unconfirmedWeeks.clear()
+		}
+	}
+
 	// Drops the report of [weekKey] and the ones before it, and tells whether the list had reported it. A selection of
 	// the week the list stands on settles every report: the host may merge the selections on their way (B, C, B arriving
 	// as B), and a report left behind would take a later tap on its week for the list's own.
@@ -369,10 +397,6 @@ private class WeekPositioning(
 		return isPlacedWithoutHeader && weekHeaderIndexes[placedWeek] != null
 	}
 
-	private fun isArrivalPending(take: EvaluationArrival?): Boolean {
-		return take != null && take !== positionedArrival.value
-	}
-
 	private fun setPlaced(weekKey: EvaluationsWeekKey, isWithoutHeader: Boolean = false) {
 		hasPositionedSelectedWeek.value = true
 		isPlacedWithoutHeader = isWithoutHeader
@@ -388,7 +412,7 @@ private class WeekPositioning(
 	) {
 		if (headerIndex == null) {
 			// The week lists no evaluation: there is nothing to place, so the list stays where it stands.
-			if (isArrivalPending(take)) {
+			if (take != null) {
 				positionedArrival.value = take
 			}
 
@@ -409,7 +433,7 @@ private class WeekPositioning(
 		headerIndex: Int,
 		take: EvaluationArrival?
 	) {
-		val isArrivalPending = isArrivalPending(take)
+		val isArrivalPending = take != null && take !== positionedArrival.value
 		val cardIndex = take?.takeIf { isArrivalPending }?.let { pending ->
 			weekGroups.cardIndexIn(weekKey, pending.evaluationId, headerIndex)
 		}

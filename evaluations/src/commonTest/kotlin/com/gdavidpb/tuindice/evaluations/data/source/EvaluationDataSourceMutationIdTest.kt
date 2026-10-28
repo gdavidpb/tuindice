@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -31,6 +32,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationDataSourceMutationIdTest {
 	@Test
 	fun addEvaluation_withAnExternalMutationId_usesItForTheRowTheRequestAndTheOutcome() = runTest {

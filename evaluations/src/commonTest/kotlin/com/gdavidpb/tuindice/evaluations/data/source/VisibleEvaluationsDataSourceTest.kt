@@ -40,6 +40,7 @@ import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,6 +52,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class VisibleEvaluationsDataSourceTest {
 	@Test
 	fun observeVisibleEvaluationsFlow_deliversWhatTheTabObserves_withSyncedFlag() = runTest {

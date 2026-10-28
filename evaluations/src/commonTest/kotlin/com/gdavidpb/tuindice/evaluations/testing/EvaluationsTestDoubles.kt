@@ -33,6 +33,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.evaluations.data.source.SelectedWeekWriter
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
@@ -41,13 +42,17 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
+import com.gdavidpb.tuindice.evaluations.domain.model.SelectedWeekPick
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
+import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys
+import com.gdavidpb.tuindice.evaluations.utils.SelectedWeekOrder
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -669,13 +674,89 @@ class FakeSettingsDataSource(
 class InMemoryEvaluationsSelectionRepository(
 	initialWeekKey: String? = null
 ) : EvaluationsSelectionRepository {
-	private val selectedWeekKey = MutableStateFlow(initialWeekKey)
-
-	override fun observeSelectedWeekKey(): Flow<String?> = selectedWeekKey
-
-	override suspend fun setSelectedWeekKey(weekKey: String) {
-		selectedWeekKey.value = weekKey
+	private val settings = FakeSettings().apply {
+		initialWeekKey?.let { weekKey -> putString(PreferencesKeys.SELECTED_EVALUATIONS_WEEK, weekKey) }
 	}
+	private val selectedWeekWriter = SelectedWeekWriter(settings = settings)
+
+	override fun observeSelectedWeekKey(): Flow<String?> = selectedWeekWriter.observeSelectedWeekKey()
+
+	override suspend fun saveSelectedWeekPick(pick: SelectedWeekPick) {
+		selectedWeekWriter.save(pick = pick)
+	}
+
+	// Seeds the week the store holds, as if a save had written it before the test started.
+	suspend fun setSelectedWeekKey(weekKey: String) {
+		saveSelectedWeekPick(pick = SelectedWeekPick(order = SelectedWeekOrder.next(), weekKey = weekKey))
+	}
+}
+
+// The settings of a test: the values a platform keeps, in memory, with the same answers for a key that is missing.
+internal class FakeSettings : Settings {
+	private val values = mutableMapOf<String, Any>()
+
+	override val keys: Set<String> get() = values.keys
+	override val size: Int get() = values.size
+
+	override fun clear() {
+		values.clear()
+	}
+
+	override fun remove(key: String) {
+		values.remove(key)
+	}
+
+	override fun hasKey(key: String): Boolean = key in values
+
+	override fun putInt(key: String, value: Int) {
+		values[key] = value
+	}
+
+	override fun getInt(key: String, defaultValue: Int): Int = values[key] as? Int ?: defaultValue
+
+	override fun getIntOrNull(key: String): Int? = values[key] as? Int
+
+	override fun putLong(key: String, value: Long) {
+		values[key] = value
+	}
+
+	override fun getLong(key: String, defaultValue: Long): Long = values[key] as? Long ?: defaultValue
+
+	override fun getLongOrNull(key: String): Long? = values[key] as? Long
+
+	override fun putString(key: String, value: String) {
+		values[key] = value
+	}
+
+	override fun getString(key: String, defaultValue: String): String = values[key] as? String ?: defaultValue
+
+	override fun getStringOrNull(key: String): String? = values[key] as? String
+
+	override fun putFloat(key: String, value: Float) {
+		values[key] = value
+	}
+
+	override fun getFloat(key: String, defaultValue: Float): Float = values[key] as? Float ?: defaultValue
+
+	override fun getFloatOrNull(key: String): Float? = values[key] as? Float
+
+	override fun putDouble(key: String, value: Double) {
+		values[key] = value
+	}
+
+	override fun getDouble(key: String, defaultValue: Double): Double = values[key] as? Double ?: defaultValue
+
+	override fun getDoubleOrNull(key: String): Double? = values[key] as? Double
+
+	override fun putBoolean(key: String, value: Boolean) {
+		values[key] = value
+	}
+
+	override fun getBoolean(key: String, defaultValue: Boolean): Boolean {
+		return values[key] as? Boolean ?: defaultValue
+	}
+
+	override fun getBooleanOrNull(key: String): Boolean? = values[key] as? Boolean
 }
 
 class FakeIdentifierRepository(

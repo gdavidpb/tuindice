@@ -10,8 +10,9 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.model.WeekStripDayItem
+import com.gdavidpb.tuindice.base.ui.view.WeekDayView
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -27,8 +28,8 @@ class EvaluationWeekDayViewUiTest {
 	@Test
 	fun when_dayIsRendered_then_readsItsWeekdayOverItsDayNumber() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationWeekDayView(
-				item = EvaluationWeekDayItem(
+			WeekDayView(
+				item = WeekStripDayItem(
 					weekdayText = UiText.Raw("MIÉ"),
 					dayText = "21",
 					isSelected = true,
@@ -56,9 +57,14 @@ class EvaluationWeekDayViewUiTest {
 		setTuIndiceTestContent {
 			Row(modifier = Modifier.fillMaxWidth()) {
 				week.days.forEach { day ->
-					EvaluationWeekDayView(
+					WeekDayView(
 						modifier = Modifier.weight(1f),
-						item = day
+						item = WeekStripDayItem(
+							weekdayText = day.weekdayText,
+							dayText = day.dayText,
+							isSelected = day.isSelected,
+							hasEvaluations = day.hasEvaluations
+						)
 					)
 				}
 			}
@@ -85,7 +91,7 @@ class EvaluationWeekDayViewUiTest {
 	@Test
 	fun when_theDayChanges_then_readsTheNewWeekdayAndDayNumber() = runTuIndiceUiTest {
 		val itemState = mutableStateOf(
-			EvaluationWeekDayItem(
+			WeekStripDayItem(
 				weekdayText = UiText.Raw("LUN"),
 				dayText = "18",
 				isSelected = false,
@@ -94,14 +100,14 @@ class EvaluationWeekDayViewUiTest {
 		)
 
 		setTuIndiceTestContent {
-			EvaluationWeekDayView(item = itemState.value)
+			WeekDayView(item = itemState.value)
 		}
 
 		onNodeWithText("LUN").assertIsDisplayed()
 		onNodeWithText("18").assertIsDisplayed()
 
 		runOnIdle {
-			itemState.value = EvaluationWeekDayItem(
+			itemState.value = WeekStripDayItem(
 				weekdayText = UiText.Raw("MAR"),
 				dayText = "19",
 				isSelected = true,

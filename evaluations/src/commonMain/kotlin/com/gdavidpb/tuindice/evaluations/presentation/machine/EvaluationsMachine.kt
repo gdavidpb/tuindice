@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.evaluations.domain.mapper.listedUnder
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
+import com.gdavidpb.tuindice.evaluations.domain.model.SelectedWeekPick
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
@@ -52,6 +53,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAt
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsWeekFocusTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.utils.SelectedWeekOrder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.datetime.LocalDate
@@ -328,8 +330,11 @@ class EvaluationsMachine(
 		// An academic week is saved with the Monday that opens week 1; without it there is nothing to save.
 		val storageValue = weekKey.toStorageValue(weekOneStart = weekOneStart) ?: return
 
+		// The pick takes its order here, where it is made: the save keeps the pick made last, whichever machine made it.
+		val pick = SelectedWeekPick(order = SelectedWeekOrder.next(), weekKey = storageValue)
+
 		host.launchMachineJob {
-			setSelectedWeekUseCase.execute(storageValue).collect()
+			setSelectedWeekUseCase.execute(pick).collect()
 		}
 	}
 

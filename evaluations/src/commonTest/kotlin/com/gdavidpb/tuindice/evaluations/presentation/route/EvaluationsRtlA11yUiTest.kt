@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -220,7 +221,8 @@ class EvaluationsRtlA11yUiTest {
 				),
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					sessionCoroutineScope = testSessionCoroutineScope()
 				),
 				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = Clock.System

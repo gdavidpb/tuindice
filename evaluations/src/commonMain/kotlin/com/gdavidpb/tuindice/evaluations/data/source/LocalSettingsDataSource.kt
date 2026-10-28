@@ -1,22 +1,18 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
-import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
+import com.gdavidpb.tuindice.evaluations.domain.model.SelectedWeekPick
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.utils.CooldownTimes
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
-	private val settings: Settings
-) : SettingsDataRepository, EvaluationsSelectionRepository, SessionMemory {
-	private val selectedWeekKey = MutableStateFlow(
-		settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
-	)
-
+	private val settings: Settings,
+	private val selectedWeekWriter: SelectedWeekWriter
+) : SettingsDataRepository, EvaluationsSelectionRepository {
 	override suspend fun isGetEvaluationsOnCooldown(): Boolean {
 		val cooldownTime = settings.getLongOrNull(PreferencesKeys.COOLDOWN_GET_EVALUATIONS) ?: 0L
 
@@ -30,16 +26,10 @@ class LocalSettingsDataSource(
 	}
 
 	override fun observeSelectedWeekKey(): Flow<String?> {
-		return selectedWeekKey
+		return selectedWeekWriter.observeSelectedWeekKey()
 	}
 
-	override suspend fun setSelectedWeekKey(weekKey: String) {
-		settings.putString(PreferencesKeys.SELECTED_EVALUATIONS_WEEK, weekKey)
-		selectedWeekKey.value = weekKey
-	}
-
-	// The mirror goes back to what is stored, which the wipe has just emptied.
-	override suspend fun clearSessionMemory() {
-		selectedWeekKey.value = settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
+	override suspend fun saveSelectedWeekPick(pick: SelectedWeekPick) {
+		selectedWeekWriter.save(pick = pick)
 	}
 }

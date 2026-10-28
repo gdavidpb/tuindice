@@ -12,9 +12,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.base.ui.model.WeekSelectorTags
+import com.gdavidpb.tuindice.base.ui.view.WeekSelectorItemView
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -33,9 +32,11 @@ class EvaluationWeekSelectorItemViewUiTest {
 		val selectedState = mutableStateOf(false)
 
 		setTuIndiceTestContent {
-			EvaluationWeekSelectorItemView(
-				item = weekItem(isCurrent = false),
-				isSelected = selectedState.value
+			WeekSelectorItemView(
+				labelText = UiText.Raw(WEEK_LABEL),
+				isCurrent = false,
+				isSelected = selectedState.value,
+				tags = WEEK_SELECTOR_TAGS
 			)
 		}
 
@@ -53,13 +54,17 @@ class EvaluationWeekSelectorItemViewUiTest {
 	fun when_weekIsCurrent_then_itsMarkTakesRoomBesideTheLabel() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			Column {
-				EvaluationWeekSelectorItemView(
-					item = weekItem(isCurrent = false),
-					isSelected = true
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = false,
+					isSelected = true,
+					tags = WEEK_SELECTOR_TAGS
 				)
-				EvaluationWeekSelectorItemView(
-					item = weekItem(isCurrent = true),
-					isSelected = true
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = true,
+					isSelected = true,
+					tags = WEEK_SELECTOR_TAGS
 				)
 			}
 		}
@@ -77,15 +82,17 @@ class EvaluationWeekSelectorItemViewUiTest {
 	fun when_currentMarkIsNotShown_then_theCurrentWeekIsLaidOutLikeAnyOther() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			Column {
-				EvaluationWeekSelectorItemView(
-					item = weekItem(isCurrent = false),
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = false,
 					isSelected = false,
-					showCurrentIndicator = false
+					tags = WEEK_SELECTOR_TAGS
 				)
-				EvaluationWeekSelectorItemView(
-					item = weekItem(isCurrent = true),
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = false,
 					isSelected = false,
-					showCurrentIndicator = false
+					tags = WEEK_SELECTOR_TAGS
 				)
 			}
 		}
@@ -97,23 +104,19 @@ class EvaluationWeekSelectorItemViewUiTest {
 
 	@Test
 	fun when_aDayOfTheWeekIsToday_then_theWeekCountsAsCurrentByDefault() = runTuIndiceUiTest {
-		val weekWithToday = EvaluationsWeekItem(
-			key = EvaluationsWeekKey.Academic(8),
-			labelText = WEEK_LABEL,
-			days = listOf(
-				EvaluationWeekDayItem(UiText.Raw("JUE"), "21", isSelected = true, hasEvaluations = false)
-			)
-		)
-
 		setTuIndiceTestContent {
 			Column {
-				EvaluationWeekSelectorItemView(
-					item = weekItem(isCurrent = false),
-					isSelected = false
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = false,
+					isSelected = false,
+					tags = WEEK_SELECTOR_TAGS
 				)
-				EvaluationWeekSelectorItemView(
-					item = weekWithToday,
-					isSelected = false
+				WeekSelectorItemView(
+					labelText = UiText.Raw(WEEK_LABEL),
+					isCurrent = true,
+					isSelected = false,
+					tags = WEEK_SELECTOR_TAGS
 				)
 			}
 		}
@@ -137,18 +140,17 @@ class EvaluationWeekSelectorItemViewUiTest {
 		assertTrue(distance <= LAYOUT_TOLERANCE, "$message: expected $expected, was $actual")
 	}
 
-	private fun weekItem(isCurrent: Boolean) = EvaluationsWeekItem(
-		key = EvaluationsWeekKey.Academic(8),
-		labelText = WEEK_LABEL,
-		days = emptyList(),
-		isCurrent = isCurrent
-	)
-
 	private companion object {
 		const val WEEK_LABEL = "Semana 8"
 
 		// The dot (8 dp) and the gap that separates it from the label (8 dp).
 		val CURRENT_MARK_ROOM = 16.dp
 		val LAYOUT_TOLERANCE = 1.dp
+
+		// Las mismas etiquetas que la pestaña de Evaluaciones da a su tira: la prueba las busca por ellas.
+		val WEEK_SELECTOR_TAGS = WeekSelectorTags(
+			label = EvaluationsUiTags.EvaluationsWeekLabel,
+			currentIndicator = EvaluationsUiTags.EvaluationsWeekCurrentIndicator
+		)
 	}
 }

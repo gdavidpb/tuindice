@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.utils.extension.formatCompactGrade
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.utils.GradeFormat
@@ -178,14 +179,6 @@ fun EvaluationType.asIcon() = when (this) {
 
 private fun EvaluationType.asString(typeLabels: Map<EvaluationType, String>) =
 	typeLabels.getValue(this)
-
-private fun Double.formatCompactGrade(): String {
-	return if (this == toInt().toDouble()) {
-		formatGrade(decimals = 0)
-	} else {
-		formatGrade(decimals = GradeFormat.DECIMALS)
-	}
-}
 
 @Composable
 fun EvaluationType.asString() = when (this) {

@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlinx.coroutines.flow.flow
@@ -424,7 +425,8 @@ class EvaluationsRouteUiTest {
 				),
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					sessionCoroutineScope = testSessionCoroutineScope()
 				),
 				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = Clock.System

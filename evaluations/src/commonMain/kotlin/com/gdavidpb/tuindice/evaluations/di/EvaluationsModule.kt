@@ -55,6 +55,8 @@ private const val EVALUATIONS_MUTATION_STORE_QUALIFIER = "evaluationsMutationSto
 private const val EVALUATIONS_MUTATION_ENGINE_QUALIFIER = "evaluationsMutationEngine"
 
 val evaluationsModule = module {
+	includes(evaluationsSelectionModule)
+
 	/* View models */
 
 	viewModelOf(::EvaluationsViewModel)
@@ -133,7 +135,6 @@ val evaluationsModule = module {
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
 		bind<EvaluationsSelectionRepository>()
-		bind<SessionMemory>()
 	}
 
 	/* Exception handlers */

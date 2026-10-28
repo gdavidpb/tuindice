@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ class ObserveEvaluationMutationOutcomesUseCaseTest {
 	}
 
 	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
 	fun executeOnBackground_emitsWhatTheRepositoryPublishes() = runTest {
 		val outcomes = MutableSharedFlow<MutationOutcome>(extraBufferCapacity = 8)
 		val repository = object : EvaluationRepository by RecordingEvaluationRepository() {

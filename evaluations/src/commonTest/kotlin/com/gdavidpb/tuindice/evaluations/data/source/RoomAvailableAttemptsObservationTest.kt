@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationDisplayContex
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ import kotlin.test.assertTrue
  * terms or the attempts changed" and the attempts are read again from both, so a write that changes
  * them together never shows the new term over the old attempts.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class RoomAvailableAttemptsObservationTest {
 	private var terms = listOf(term(id = "t1", order = 20261))
 	private var attempts = listOf(attempt(id = "a1", termId = "t1", code = "INF-101"))
