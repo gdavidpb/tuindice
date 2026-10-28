@@ -1,0 +1,78 @@
+[
+  {
+    "type": "evaluaciones.agregar/1",
+    "items": [
+      {
+        "mutationId": "mut-1",
+        "reference": "Parcial 1",
+        "attemptId": "attempt-1",
+        "subjectCode": "IS-101",
+        "termId": "2026-JAN_MAR",
+        "evaluationType": "QUIZ",
+        "scheduleMode": "dated",
+        "dateMillis": 1761000000000,
+        "grade": 15.5,
+        "maxGrade": 20.0,
+        "selected": true
+      }
+    ],
+    "source": "manual"
+  },
+  {
+    "type": "evaluaciones.editar/1",
+    "mutationId": "mut-2",
+    "evaluationId": "eval-1",
+    "grade": 18.0,
+    "evaluationType": "QUIZ"
+  },
+  {
+    "type": "evaluaciones.borrar/1",
+    "mutationId": "mut-3",
+    "evaluationId": "eval-1"
+  },
+  {
+    "type": "plan.crear/1",
+    "mutationId": "mut-4",
+    "periodYear": 2026,
+    "periodCode": "JAN_MAR",
+    "subjectCodes": ["IS-101"]
+  },
+  {
+    "type": "plan.editar/1",
+    "mutationId": "mut-5",
+    "termKey": "2026-JAN_MAR",
+    "subjectCodes": ["IS-101", "IS-102"]
+  },
+  {
+    "type": "plan.borrar/1",
+    "mutationId": "mut-6",
+    "termKey": "2026-JAN_MAR"
+  },
+  {
+    "type": "informe.proyeccion/1",
+    "mutationId": "mut-7",
+    "attemptId": "attempt-1",
+    "grade": 14,
+    "outcome": "approved",
+    "clear": false
+  },
+  {
+    "type": "comprobante.pedir/1"
+  },
+  {
+    "type": "memoria.recordar/1",
+    "statement": "Quiere aprobar MA2115 este trimestre",
+    "category": "SUBJECT",
+    "quote": "aprobar Mate IV",
+    "anchorKind": "ATTEMPT",
+    "anchorRef": "attempt-1",
+    "anchorDate": "2026-12-11"
+  },
+  {
+    "type": "memoria.recordar/1",
+    "statement": "Prefiere las notas por trimestre",
+    "category": "PREFERENCE",
+    "quote": "mejor por trimestre",
+    "replacesMemoryId": "memory-1"
+  }
+]

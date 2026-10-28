@@ -65,6 +65,71 @@ class TermInsightWireTest {
 	}
 
 	@Test
+	fun anActionTowardAScreenThisBuildDoesNotKnowIsLeftOutAndTheReportArrives() {
+		val text = """
+			{"items":[{"id":"term-1:3","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste","body":"Aprobaste.",
+			"nextActions":[
+				{"target":"record.projection","label":"Proyectar tu índice","entityRefs":[]},
+				{"target":"plan.create","label":"Planear el trimestre","entityRefs":[]},
+				{"target":"share_term","label":"Compartir tu trimestre","entityRefs":[{"kind":"term","id":"term-1"}]}
+			]}]}
+		""".trimIndent()
+
+		val report = ChatContract.json.decodeFromString(TermInsights.serializer(), text).items.single()
+
+		assertEquals(
+			listOf(
+				InsightAction(NavTarget.RECORD_PROJECTION, "Proyectar tu índice"),
+				InsightAction(NavTarget.SHARE_TERM, "Compartir tu trimestre", listOf(term))
+			),
+			report.nextActions
+		)
+	}
+
+	@Test
+	fun anActionWithAnEntityKindThisBuildDoesNotKnowIsLeftOutToo() {
+		val text = """
+			{"id":"term-1:3","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste","body":"Aprobaste.",
+			"nextActions":[
+				{"target":"share_term","label":"Compartir","entityRefs":[{"kind":"course","id":"c-1"}]},
+				{"target":"record","label":"Ver tu récord"}
+			]}
+		""".trimIndent()
+
+		val decoded = ChatContract.json.decodeFromString(TermInsight.serializer(), text)
+
+		assertEquals(listOf(InsightAction(NavTarget.RECORD, "Ver tu récord")), decoded.nextActions)
+	}
+
+	// A report whose every action this build cannot read still arrives: it keeps its text and shows no buttons.
+	@Test
+	fun aReportWhoseActionsAreAllUnknownArrivesWithoutThem() {
+		val text = """
+			{"items":[{"id":"term-1:4","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste","body":"Aprobaste.",
+			"nextActions":[{"target":"plan.create","label":"Planear el trimestre","entityRefs":[]}]}]}
+		""".trimIndent()
+
+		val report = ChatContract.json.decodeFromString(TermInsights.serializer(), text).items.single()
+
+		assertEquals("Cerraste", report.title)
+		assertEquals(emptyList(), report.nextActions)
+	}
+
+	// Actions written as null leave the report without buttons, and the report still arrives with its text.
+	@Test
+	fun aReportWhoseActionsAreNullArrivesWithoutThem() {
+		val text = """
+			{"items":[{"id":"term-1:5","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste","body":"Aprobaste.",
+			"nextActions":null}]}
+		""".trimIndent()
+
+		val report = ChatContract.json.decodeFromString(TermInsights.serializer(), text).items.single()
+
+		assertEquals("Cerraste", report.title)
+		assertEquals(emptyList(), report.nextActions)
+	}
+
+	@Test
 	fun feedbackRequestIsTheUsefulFlag() {
 		val request = InsightFeedbackRequest(useful = true)
 		val encoded = ChatContract.json.encodeToString(InsightFeedbackRequest.serializer(), request)

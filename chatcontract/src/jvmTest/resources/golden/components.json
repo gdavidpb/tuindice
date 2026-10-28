@@ -1,0 +1,158 @@
+[
+  {
+    "type": "sistema.advertencia/1",
+    "id": "c4",
+    "fallbackText": "Advertencia",
+    "display": "inline",
+    "entityRefs": [],
+    "reason": "spam"
+  },
+  {
+    "type": "nav.abrir/1",
+    "id": "c8",
+    "fallbackText": "Ver evaluaciones",
+    "display": "sheet",
+    "entityRefs": [{ "kind": "evaluation", "id": "eval-1" }],
+    "target": "evaluations",
+    "label": "Ver evaluaciones"
+  },
+  {
+    "type": "perfil.resumen/1",
+    "id": "d1",
+    "fallbackText": "Perfil",
+    "display": "inline",
+    "entityRefs": [],
+    "careerCode": "IS",
+    "careerName": "Ingeniería de Sistemas",
+    "pensumLabel": "2016",
+    "cumulativeIndex": 16.4,
+    "approvedCredits": 80,
+    "totalCredits": 180,
+    "currentTermLabel": "2026-JAN_MAR"
+  },
+  {
+    "type": "horario.semana/1",
+    "id": "d9",
+    "fallbackText": "Horario de la semana",
+    "display": "inline",
+    "entityRefs": [],
+    "days": [
+      {
+        "dayOfWeek": 1,
+        "blocks": [
+          {
+            "subjectCode": "IS-101",
+            "subjectName": "Programación I",
+            "startMinute": 480,
+            "endMinute": 600,
+            "startBlock": 1,
+            "endBlock": 2,
+            "room": "A-1",
+            "evaluationTitles": ["Parcial 1"]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "evaluaciones.lista/1",
+    "id": "d12",
+    "fallbackText": "Evaluaciones",
+    "display": "inline",
+    "entityRefs": [],
+    "items": [
+      {
+        "evaluationId": "eval-1",
+        "subjectCode": "IS-101",
+        "title": "Parcial 1",
+        "dateMillis": 1760100000000,
+        "scheduleMode": "dated",
+        "grade": 15.5,
+        "maxGrade": 20.0,
+        "state": "graded"
+      },
+      {
+        "evaluationId": "eval-2",
+        "subjectCode": "IS-102",
+        "title": "Quiz 2",
+        "scheduleMode": "undated",
+        "maxGrade": 10.0,
+        "state": "pending"
+      }
+    ]
+  },
+  {
+    "type": "resumen.atencion/1",
+    "id": "d16",
+    "fallbackText": "Atención",
+    "display": "inline",
+    "entityRefs": [],
+    "items": [
+      {
+        "kind": "evaluation",
+        "title": "Parcial 2 mañana",
+        "detail": "IS-101",
+        "entityRef": { "kind": "evaluation", "id": "eval-2" }
+      },
+      {
+        "kind": "sync",
+        "title": "Notas desactualizadas",
+        "detail": "Sincroniza para verlas"
+      }
+    ]
+  },
+  {
+    "type": "pensum.avance/1",
+    "id": "d17",
+    "fallbackText": "Avance del pensum",
+    "display": "inline",
+    "entityRefs": [],
+    "approvedCredits": 80,
+    "totalCredits": 180,
+    "approved": 20,
+    "inProgress": 4,
+    "available": 6,
+    "blocked": 10
+  },
+  {
+    "type": "materias.lista/1",
+    "id": "d21",
+    "fallbackText": "Materias",
+    "display": "inline",
+    "entityRefs": [],
+    "items": [
+      { "code": "IS-101", "name": "Programación I", "credits": 6, "status": "approved" },
+      { "code": "IS-102", "name": "Matemática I", "credits": 8 }
+    ]
+  },
+  {
+    "type": "plan.lista/1",
+    "id": "d24",
+    "fallbackText": "Planes",
+    "display": "inline",
+    "entityRefs": [],
+    "plans": [
+      {
+        "termKey": "2026-JAN_MAR",
+        "termLabel": "2026 enero-marzo",
+        "subjectCodes": ["IS-101", "IS-102"],
+        "credits": 14
+      }
+    ]
+  },
+  {
+    "type": "conocimiento.cita/1",
+    "id": "d27",
+    "fallbackText": "Fuentes",
+    "display": "inline",
+    "entityRefs": [],
+    "sources": [
+      {
+        "document": "Reglamento",
+        "article": "Art. 12",
+        "excerpt": "Los cupos se asignan por orden de inscripción.",
+        "url": "https://example.com/r"
+      }
+    ]
+  }
+]

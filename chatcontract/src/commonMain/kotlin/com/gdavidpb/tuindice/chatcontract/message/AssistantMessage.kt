@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class AssistantMessage(
 	public val id: String,
+	@Serializable(with = MessagePartsSerializer::class)
 	public val parts: List<MessagePart>,
 	public val createdAtMillis: Long
 )

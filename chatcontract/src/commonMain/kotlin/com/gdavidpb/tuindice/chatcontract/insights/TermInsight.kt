@@ -24,6 +24,7 @@ public data class TermInsight(
 	public val body: String,
 	public val entityRefs: List<EntityRef> = emptyList(),
 	public val sections: List<InsightSection> = emptyList(),
+	@Serializable(with = InsightActionsSerializer::class)
 	public val nextActions: List<InsightAction> = emptyList(),
 	public val createdAtMillis: Long = 0L
 )
