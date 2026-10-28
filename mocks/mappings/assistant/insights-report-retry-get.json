@@ -20,6 +20,7 @@
     "fixedDelayMilliseconds": 1500
   },
   "metadata": {
-    "fastDelayMilliseconds": 1500
+    "fastDelayMilliseconds": 1500,
+    "nota": "Mismo cuerpo que insights-report-get.json. Se conserva porque el estado ReportPresentRetry lo activa el escenario summary-termreport-retry (scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt); sin este mapping, en ese estado el GET de insights no casa."
   }
 }

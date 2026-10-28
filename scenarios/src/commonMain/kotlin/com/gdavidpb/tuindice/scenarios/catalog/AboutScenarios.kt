@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertChecked
+import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
@@ -183,13 +184,13 @@ private val aboutPlatformEdgeTriggers = scenario(
 	}
 	foreground()
 	// Android's chooser has no cancel or close button and goes when the app is brought back. iOS's share sheet has
-	// none either and is closed by tapping the dimmed area around it, at the height of a row of Settings: the tap
-	// must close the sheet and must not reach the row, so the scenario asserts that the sheet went, that Settings is
-	// still the screen in front (no browser page opened, the app did not go to Safari), and the steps after it tap
-	// the app and need it to answer.
+	// none either and is closed by tapping the dimmed area around it, over the middle of the top bar of Settings, where
+	// no row lies: the tap must close the sheet and open nothing, so the scenario asserts that the sheet went, that
+	// Settings is still the screen in front (no browser page opened, the app did not go to Safari), and the steps after
+	// it tap the app and need it to answer.
 	onPlatform(Platform.Ios) {
 		waitVisible(system(ShareSheet.IOS_ELEMENT), Within.Action)
-		tapAtScreen(ShareSheet.DISMISS_X, ShareSheet.DISMISS_Y)
+		tapAtScreen(ShareSheet.SETTINGS_DISMISS_X, ShareSheet.SETTINGS_DISMISS_Y)
 		waitGone(system(ShareSheet.IOS_ELEMENT), Within.Action)
 		waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 		waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
@@ -254,8 +255,10 @@ private val aboutAssistantConsentToggle = scenario(
 	assertChecked(SettingsUiTags.AssistantConsentSwitch, false)
 	tap(SettingsUiTags.AssistantConsentSwitch)
 	assertChecked(SettingsUiTags.AssistantConsentSwitch, true)
+	expectRequest("PUT", "/assistant/v1/consent", status = 200)
 	tap(SettingsUiTags.AssistantConsentSwitch)
 	assertChecked(SettingsUiTags.AssistantConsentSwitch, false)
+	expectRequest("PUT", "/assistant/v1/consent", status = 200, atLeast = 2)
 }
 
 private val aboutAssistantMemoryDelete = scenario(

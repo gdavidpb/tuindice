@@ -1,4 +1,5 @@
 {
+  "priority": 1,
   "scenarioName": "assistant-turns",
   "requiredScenarioState": "Disabled",
   "request": {
@@ -25,5 +26,8 @@
       "message": "El asistente está apagado por ahora",
       "retryAfterSeconds": 600
     }
+  },
+  "metadata": {
+    "nota": "priority 1: en Disabled, un turno con texto y sugerencia casa también con turn-suggestion-post.json, que no declara prioridad (5). Sin prioridad, WireMock desempataba por orden de carga y respondía 202; con esta prioridad el rechazo gana siempre (503)."
   }
 }

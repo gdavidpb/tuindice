@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
+import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
@@ -29,9 +30,11 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
 
-// A point of the scrim above the chat sheet, which rests lower on the screen: its middle and a tenth from the top.
+// A point of the scrim above the chat sheet. The sheet fills the bottom nine tenths of the screen, so the scrim is
+// the top tenth, less the drag handle: the point lies under the status bar (about 7 % of the screen on notched
+// iPhones) and above the sheet's edge (about 9 %), at 8 % from the top.
 private const val SCRIM_ABOVE_SHEET_X = 0.5
-private const val SCRIM_ABOVE_SHEET_Y = 0.1
+private const val SCRIM_ABOVE_SHEET_Y = 0.08
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
 private fun StepBuilder.openAssistant() {
@@ -83,6 +86,7 @@ private val assistantSmoke = scenario(
 	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
 	waitVisible(text(Copy.AssistantCopied), Within.Assert)
 	tap(AssistantUiTags.Message.useful("msg-followup"))
+	expectRequest("POST", "/assistant/v1/feedback", status = 204)
 }
 
 private val assistantConfirmAddEvaluation = scenario(
@@ -272,6 +276,7 @@ private val assistantReportMessage = scenario(
 	waitAgentMessage("msg-report")
 	tap(AssistantUiTags.Message.report("msg-report"))
 	tap(text(Copy.AssistantReportIncorrect))
+	expectRequest("POST", "/assistant/v1/reports", status = 204)
 	waitGone(text(Copy.AssistantReportIncorrect), Within.Action)
 }
 
@@ -334,6 +339,7 @@ private val assistantReopenWithConsent = scenario(
 	"assistant",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
+	covers("assistant.AssistantChat.Dismiss")
 	account(E2eAccounts.Canonical.id)
 
 	openAssistant()

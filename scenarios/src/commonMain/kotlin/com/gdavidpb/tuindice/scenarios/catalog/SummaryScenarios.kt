@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
+import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
@@ -669,7 +670,8 @@ private val termreportOpen = scenario(
 	waitVisible(TermReportUiTags.TermReportContent, Within.Assert)
 	scrollUntilVisible(TermReportUiTags.termReportThumb(useful = true), Scroll.ContentDown, Within.Long)
 	tap(TermReportUiTags.termReportThumb(useful = true))
-	waitVisible(TermReportUiTags.termReportThumb(useful = true), Within.Assert)
+	// The vote goes to the insight of the report the mock serves (`mocks/__files/assistant/insights-report.json`).
+	expectRequest("POST", "/assistant/v1/insights/01c705af6984b336fc2aed20576ec543:1/feedback", status = 204)
 	// Last, because the button leaves the report: the first next action opens the evaluations, as the chat does.
 	scrollUntilVisible(TermReportUiTags.termReportNextAction(0), Scroll.ContentDown, Within.Long)
 	tap(TermReportUiTags.termReportNextAction(0))

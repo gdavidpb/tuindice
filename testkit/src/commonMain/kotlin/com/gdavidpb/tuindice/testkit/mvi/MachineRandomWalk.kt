@@ -14,7 +14,9 @@ import kotlin.test.fail
  * drawn from [sampleEvents] by a seeded — hence reproducible — random walk.
  *
  * The coverage floor [minRowCoverage] is measured over the rows of the table minus [unreachableRows], each of which
- * must name a row of the table. A visit to an excluded row is not counted.
+ * must name a row of the table. A visit to an excluded row is not counted by the floor, but it is not silent either:
+ * the report names it ([MachineWalkReport.visitedUnreachableRows]) and the walk prints a warning, since its exclusion
+ * is stale.
  *
  * On every accepted step it asserts the row contract the engine enforces at runtime:
  * the produced state is an instance of the declared target (internal rows must keep the
@@ -122,25 +124,42 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 
 	val reachableRows = machine.table.indices.filterNot { row -> row in excludedRows }
 	val visitedReachable = reachableRows.filter { row -> row in visitedRows }
+	val visitedUnreachable = excludedRows.filter { row -> row in visitedRows }.map { row -> rowName(machine.table[row]) }
+	val stale = warnAboutStaleExclusions(seed = seed, visitedUnreachable = visitedUnreachable)
 	val report = MachineWalkReport(
 		steps = steps,
 		accepted = accepted,
 		rejected = rejected,
 		visitedRows = visitedReachable.size,
 		totalRows = reachableRows.size,
-		finalStateName = state::class.simpleName
+		finalStateName = state::class.simpleName,
+		visitedUnreachableRows = visitedUnreachable
 	)
 
-	val unvisited = reachableRows.filterNot { row -> row in visitedRows }.map { row ->
-		val spec = machine.table[row]
-		"${spec.from?.simpleName ?: "any"}/${spec.on.simpleName}"
-	}
+	val unvisited = reachableRows.filterNot { row -> row in visitedRows }.map { row -> rowName(machine.table[row]) }
 	assertTrue(
 		report.rowCoverage >= minRowCoverage,
 		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} reachable rows " +
 			"(${report.rowCoverage}; ${excludedRows.size} unreachable rows excluded), below the required $minRowCoverage; " +
-			"not visited: $unvisited — extend sampleEvents or steps, or lower the expectation deliberately"
+			"not visited: $unvisited — extend sampleEvents or steps, or lower the expectation deliberately$stale"
 	)
 
 	return report
+}
+
+private fun rowName(spec: TransitionSpec<*>): String = "${spec.from?.simpleName ?: "any"}/${spec.on.simpleName}"
+
+/**
+ * The rows declared unreachable that the walk visited anyway: their exclusion is stale, so the floor is measured
+ * without rows the walk reaches. It warns on the way out and returns the note the floor's message appends; nothing
+ * when empty.
+ */
+private fun warnAboutStaleExclusions(seed: Long, visitedUnreachable: List<String>): String {
+	if (visitedUnreachable.isEmpty()) return ""
+
+	val note = "the walk visited rows declared unreachable, whose exclusion is stale: $visitedUnreachable"
+
+	println("[testkit] WARNING random walk (seed=$seed): $note; remove them from unreachableRows")
+
+	return "; $note"
 }
