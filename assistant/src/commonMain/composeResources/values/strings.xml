@@ -28,6 +28,7 @@
 	<string name="assistant_intent_outcome_queued">En cola</string>
 	<string name="assistant_intent_outcome_conflict">Hubo un conflicto</string>
 	<string name="assistant_intent_outcome_rejected">Rechazado</string>
+	<string name="assistant_intent_outcome_pensum_not_loaded">El pensum aún no está cargado; inténtalo en un momento</string>
 	<string name="assistant_intent_outcome_cancelled">Descartado</string>
 	<string name="assistant_intent_outcome_expired">Venció</string>
 	<string name="assistant_intent_outcome_failed">Falló</string>

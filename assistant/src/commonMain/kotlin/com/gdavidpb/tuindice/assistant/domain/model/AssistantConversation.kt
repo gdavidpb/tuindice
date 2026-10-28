@@ -9,6 +9,8 @@ data class AssistantConversation(
 	val items: List<AssistantConversationItem>,
 	val openIntents: Map<String, Intent>,
 	val resolvedIntents: Map<String, OutcomeKind>,
+	// The detail codes of the intents the app resolved, by intent id: a refusal keeps the reason it was given.
+	val resolvedDetails: Map<String, String> = emptyMap(),
 	// The rows applied and marked of the resolved intents that add evaluations: the receipt says what was added.
 	val resolvedCounts: Map<String, IntentResolvedCount> = emptyMap(),
 	val activeTurn: AssistantActiveTurn?

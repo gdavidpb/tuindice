@@ -18,6 +18,7 @@ import tuindice.assistant.generated.resources.assistant_intent_outcome_conflict
 import tuindice.assistant.generated.resources.assistant_intent_outcome_delegated
 import tuindice.assistant.generated.resources.assistant_intent_outcome_expired
 import tuindice.assistant.generated.resources.assistant_intent_outcome_failed
+import tuindice.assistant.generated.resources.assistant_intent_outcome_pensum_not_loaded
 import tuindice.assistant.generated.resources.assistant_intent_outcome_queued
 import tuindice.assistant.generated.resources.assistant_intent_outcome_rejected
 
@@ -45,6 +46,7 @@ private fun AssistantIntentOutcome.labelResource(): StringResource =
 		AssistantIntentOutcome.QUEUED -> Res.string.assistant_intent_outcome_queued
 		AssistantIntentOutcome.CONFLICT -> Res.string.assistant_intent_outcome_conflict
 		AssistantIntentOutcome.REJECTED -> Res.string.assistant_intent_outcome_rejected
+		AssistantIntentOutcome.PENSUM_NOT_LOADED -> Res.string.assistant_intent_outcome_pensum_not_loaded
 		AssistantIntentOutcome.CANCELLED -> Res.string.assistant_intent_outcome_cancelled
 		AssistantIntentOutcome.EXPIRED -> Res.string.assistant_intent_outcome_expired
 		AssistantIntentOutcome.FAILED -> Res.string.assistant_intent_outcome_failed

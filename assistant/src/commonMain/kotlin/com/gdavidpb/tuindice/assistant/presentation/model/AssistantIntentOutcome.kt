@@ -6,6 +6,9 @@ enum class AssistantIntentOutcome {
 	QUEUED,
 	CONFLICT,
 	REJECTED,
+
+	// A refusal because the student's pensum is not loaded yet: the card says so, not the refusal's own label.
+	PENSUM_NOT_LOADED,
 	CANCELLED,
 	EXPIRED,
 	FAILED,

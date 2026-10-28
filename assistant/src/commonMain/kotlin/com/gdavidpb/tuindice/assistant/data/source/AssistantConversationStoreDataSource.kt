@@ -50,9 +50,10 @@ class AssistantConversationStoreDataSource(
 		intentId: String,
 		outcome: OutcomeKind,
 		sessionMark: Int,
-		count: IntentResolvedCount?
+		count: IntentResolvedCount?,
+		detailCode: String?
 	) {
-		store.markIntentResolved(intentId, outcome, sessionMark, count)
+		store.markIntentResolved(intentId, outcome, sessionMark, count, detailCode)
 	}
 
 	override suspend fun clearConversation() {

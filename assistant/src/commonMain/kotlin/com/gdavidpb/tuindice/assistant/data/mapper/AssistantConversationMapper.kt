@@ -15,6 +15,7 @@ internal fun AssistantConversationState.toAssistantConversation(): AssistantConv
 		items = conversationItems(),
 		openIntents = openIntents.mapValues { (_, open) -> open.intent },
 		resolvedIntents = resolvedIntents,
+		resolvedDetails = resolvedDetails,
 		resolvedCounts = resolvedCounts,
 		activeTurn = lastTurnId?.let { turnId -> turns[turnId] }?.toAssistantActiveTurn()
 	)

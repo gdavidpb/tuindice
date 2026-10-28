@@ -105,7 +105,7 @@ private fun AssistantConversation.intentStatus(intent: Intent, runningIntents: S
 
 	return when {
 		outcome != null -> IntentCardStatus.Resolved(
-			outcome = outcome.toPresentation(),
+			outcome = outcome.toPresentation(detailCode = resolvedDetails[intent.id]),
 			receipt = addedReceipt(intent, outcome)
 		)
 		intent.id in runningIntents -> IntentCardStatus.Running

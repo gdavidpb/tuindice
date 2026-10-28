@@ -141,6 +141,7 @@ internal class RecordingAssistantConversationRepository(
 	val userMessages = mutableListOf<AssistantUserMessage>()
 	val resolved = mutableMapOf<String, OutcomeKind>()
 	val resolvedCounts = mutableMapOf<String, IntentResolvedCount>()
+	val resolvedDetails = mutableMapOf<String, String>()
 	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = flowOf(currentConversation())
@@ -186,7 +187,8 @@ internal class RecordingAssistantConversationRepository(
 		intentId: String,
 		outcome: OutcomeKind,
 		sessionMark: Int,
-		count: IntentResolvedCount?
+		count: IntentResolvedCount?,
+		detailCode: String?
 	) {
 		calls += "markIntentResolved"
 		resolved[intentId] = outcome
@@ -194,6 +196,11 @@ internal class RecordingAssistantConversationRepository(
 			resolvedCounts.remove(intentId)
 		} else {
 			resolvedCounts[intentId] = count
+		}
+		if (detailCode == null) {
+			resolvedDetails.remove(intentId)
+		} else {
+			resolvedDetails[intentId] = detailCode
 		}
 		openIntents = openIntents - intentId
 	}

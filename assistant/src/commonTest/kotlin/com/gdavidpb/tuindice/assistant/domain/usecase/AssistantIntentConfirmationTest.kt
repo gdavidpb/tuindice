@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.mapper.toIntentExecution
+import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
@@ -256,6 +257,21 @@ class AssistantIntentConfirmationTest {
 			intents.reports
 		)
 		assertEquals(mapOf("i1" to OutcomeKind.FAILED), conversation.resolved)
+	}
+
+	@Test
+	fun aPlanRefusedWhileThePensumIsNotLoaded_keepsItsDetailWithTheIntentItResolves() = runTest {
+		val args = CreatePlanArgs(mutationId = "m2", periodYear = 2026, periodCode = "1", subjectCodes = listOf("CI5311"))
+		openIntent(assistantIntent(args = args))
+		plans.answer = IntentExecution(outcome = OutcomeKind.REJECTED, detailCode = DETAIL_PENSUM_NOT_LOADED)
+
+		val state = ConfirmCreatePlanIntentUseCase(confirmer, plans, reporting, handler)
+			.execute(ConfirmIntentParams(intentId = "i1"))
+			.lastState()
+
+		assertEquals(UseCaseState.Data(OutcomeKind.REJECTED), state)
+		assertEquals(mapOf("i1" to OutcomeKind.REJECTED), conversation.resolved)
+		assertEquals(mapOf("i1" to DETAIL_PENSUM_NOT_LOADED), conversation.resolvedDetails)
 	}
 
 	@Test

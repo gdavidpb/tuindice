@@ -36,12 +36,16 @@ interface AssistantConversationRepository {
 	/** Writes a message of the assistant that no turn wrote, such as a photo's proposal, with the intent it carries. */
 	fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int)
 
-	/** Marks the intent [intentId] resolved with [outcome]. [count] is kept with it when the intent adds evaluations. */
+	/**
+	 * Marks the intent [intentId] resolved with [outcome]. [count] is kept with it when the intent adds evaluations, and
+	 * [detailCode] when the app resolved it with a detail, such as the reason of a refusal.
+	 */
 	fun markIntentResolved(
 		intentId: String,
 		outcome: OutcomeKind,
 		sessionMark: Int,
-		count: IntentResolvedCount? = null
+		count: IntentResolvedCount? = null,
+		detailCode: String? = null
 	)
 
 	/** Forgets the conversation on this device, as when its threads are deleted on the server. */

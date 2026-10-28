@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantIntentOutcome
@@ -18,6 +20,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.toggleIntentDraftAct
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
+import com.gdavidpb.tuindice.chatcontract.intent.CreatePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.IntentRisk
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.RememberArgs
@@ -234,6 +237,42 @@ class AssistantChatIntentBehaviorTest {
 		viewModel.openAction(null)
 
 		assertEquals(IntentCardStatus.Resolved(AssistantIntentOutcome.FAILED), viewModel.content().intentCard("i9").status)
+	}
+
+	@Test
+	fun aPlanRefusedWhileThePensumIsNotLoaded_isResolvedAsPensumNotLoaded() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.plans.answer = IntentExecution(outcome = OutcomeKind.REJECTED, detailCode = DETAIL_PENSUM_NOT_LOADED)
+		val args = CreatePlanArgs(mutationId = "m12", periodYear = 2026, periodCode = "1", subjectCodes = listOf("CI5311"))
+		val intent = assistantIntent(id = "i12", args = args)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a12", IntentPart(intent))),
+			openIntents = mapOf("i12" to intent)
+		)
+		viewModel.openAction(null)
+
+		viewModel.confirmIntentAction("i12")
+
+		assertEquals(
+			IntentCardStatus.Resolved(AssistantIntentOutcome.PENSUM_NOT_LOADED),
+			viewModel.content().intentCard("i12").status
+		)
+	}
+
+	@Test
+	fun aRefusalOfAnotherDetail_keepsItsRejectedLabel() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		val intent = assistantIntent(id = "i13", args = RememberArgs(statement = "x", category = "y", quote = "z"))
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a13", IntentPart(intent))),
+			resolvedIntents = mapOf("i13" to OutcomeKind.REJECTED)
+		).copy(resolvedDetails = mapOf("i13" to "unknown_subject"))
+		viewModel.openAction(null)
+
+		assertEquals(
+			IntentCardStatus.Resolved(AssistantIntentOutcome.REJECTED),
+			viewModel.content().intentCard("i13").status
+		)
 	}
 
 	@Test

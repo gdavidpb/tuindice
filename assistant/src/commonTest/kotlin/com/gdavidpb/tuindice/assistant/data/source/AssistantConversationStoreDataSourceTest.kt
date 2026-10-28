@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
@@ -163,6 +164,18 @@ class AssistantConversationStoreDataSourceTest {
 		val counts = domain.currentConversation().resolvedCounts
 
 		assertEquals(mapOf("i1" to IntentResolvedCount(applied = 1, selected = 2)), counts)
+	}
+
+	@Test
+	fun theDomainConversationExposesTheDetailsOfTheRefusals() = runTest {
+		domain.markIntentResolved(
+			intentId = "i1",
+			outcome = OutcomeKind.REJECTED,
+			sessionMark = domain.sessionMark(),
+			detailCode = DETAIL_PENSUM_NOT_LOADED
+		)
+
+		assertEquals(mapOf("i1" to DETAIL_PENSUM_NOT_LOADED), domain.currentConversation().resolvedDetails)
 	}
 
 	@Test

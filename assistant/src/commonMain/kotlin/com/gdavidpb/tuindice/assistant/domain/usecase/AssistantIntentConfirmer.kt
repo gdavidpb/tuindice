@@ -117,7 +117,8 @@ class AssistantIntentConfirmer(
 			intent.id,
 			execution.outcome,
 			sessionMark,
-			intent.resolvedCount(execution, selected = executedMutationIds(args, intent).size)
+			intent.resolvedCount(execution, selected = executedMutationIds(args, intent).size),
+			detailCode = execution.detailCode
 		)
 
 		return execution.outcome
@@ -166,7 +167,8 @@ class AssistantIntentConfirmer(
 			intent.id,
 			execution.outcome,
 			sessionMark,
-			intent.resolvedCount(execution, selected = report.mutationIds.size)
+			intent.resolvedCount(execution, selected = report.mutationIds.size),
+			detailCode = execution.detailCode
 		)
 	}
 

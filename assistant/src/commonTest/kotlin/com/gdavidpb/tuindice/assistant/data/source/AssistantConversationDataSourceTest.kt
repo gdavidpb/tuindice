@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
 import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
 import com.gdavidpb.tuindice.chatcontract.event.IntentResolved
@@ -250,6 +251,31 @@ class AssistantConversationDataSourceTest {
 		val state = store.observeConversation().value
 		assertEquals(mapOf("i1" to OutcomeKind.CONFLICT), state.resolvedIntents)
 		assertTrue(state.resolvedCounts.isEmpty())
+	}
+
+	@Test
+	fun theDetailOfARefusalIsKeptWithItsOutcome_andAResolutionWithoutOneDropsIt() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+
+		store.markIntentResolved("i1", OutcomeKind.REJECTED, mark, detailCode = DETAIL_PENSUM_NOT_LOADED)
+
+		assertEquals(mapOf("i1" to DETAIL_PENSUM_NOT_LOADED), store.observeConversation().value.resolvedDetails)
+
+		store.markIntentResolved("i1", OutcomeKind.CONFLICT, mark)
+
+		assertTrue(store.observeConversation().value.resolvedDetails.isEmpty())
+	}
+
+	@Test
+	fun aDetailWrittenForAnEndedSessionIsNotKept() = runTest {
+		val store = AssistantConversationDataSource()
+		val mark = store.sessionMark()
+
+		store.clearSessionMemory()
+		store.markIntentResolved("i1", OutcomeKind.REJECTED, mark, detailCode = DETAIL_PENSUM_NOT_LOADED)
+
+		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
 	}
 
 	@Test

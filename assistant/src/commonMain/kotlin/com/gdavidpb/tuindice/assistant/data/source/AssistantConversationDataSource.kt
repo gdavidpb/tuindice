@@ -74,12 +74,14 @@ class AssistantConversationDataSource : SessionMemory {
 	}
 
 	// The intent leaves the open ones and keeps the outcome it ended with, and the count of its rows when it adds
-	// evaluations.
+	// evaluations. It keeps the detail it ended with too, when the app gave it one: a resolution without one drops
+	// the detail kept before, as it drops the count.
 	fun markIntentResolved(
 		intentId: String,
 		outcome: OutcomeKind,
 		sessionMark: Int,
-		count: IntentResolvedCount? = null
+		count: IntentResolvedCount? = null,
+		detailCode: String? = null
 	) {
 		conversation.update { current ->
 			if (current.sessionGeneration != sessionMark) {
@@ -88,6 +90,11 @@ class AssistantConversationDataSource : SessionMemory {
 				current.copy(
 					openIntents = current.openIntents - intentId,
 					resolvedIntents = current.resolvedIntents + (intentId to outcome),
+					resolvedDetails = if (detailCode == null) {
+						current.resolvedDetails - intentId
+					} else {
+						current.resolvedDetails + (intentId to detailCode)
+					},
 					resolvedCounts = if (count == null) {
 						current.resolvedCounts - intentId
 					} else {

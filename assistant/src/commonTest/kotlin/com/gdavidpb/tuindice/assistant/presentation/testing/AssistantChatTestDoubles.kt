@@ -143,7 +143,8 @@ internal class ObservedAssistantConversationRepository(
 		intentId: String,
 		outcome: OutcomeKind,
 		sessionMark: Int,
-		count: IntentResolvedCount?
+		count: IntentResolvedCount?,
+		detailCode: String?
 	) {
 		conversation.update { current ->
 			current.copy(
@@ -153,6 +154,11 @@ internal class ObservedAssistantConversationRepository(
 					current.resolvedCounts - intentId
 				} else {
 					current.resolvedCounts + (intentId to count)
+				},
+				resolvedDetails = if (detailCode == null) {
+					current.resolvedDetails - intentId
+				} else {
+					current.resolvedDetails + (intentId to detailCode)
 				}
 			)
 		}

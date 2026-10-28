@@ -25,6 +25,8 @@ data class AssistantConversationState(
 	val resolvedIntents: Map<String, OutcomeKind> = emptyMap(),
 	// The rows applied and marked of the resolved intents that add evaluations, by intent id.
 	val resolvedCounts: Map<String, IntentResolvedCount> = emptyMap(),
+	// The detail codes of the intents the app resolved, by intent id: a refusal keeps the reason it was given.
+	val resolvedDetails: Map<String, String> = emptyMap(),
 	// The outbox of the intents: the reports the server has not settled yet.
 	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap(),
 	// Counts the sessions that ended on this device. A write made for an earlier session finds another generation here
