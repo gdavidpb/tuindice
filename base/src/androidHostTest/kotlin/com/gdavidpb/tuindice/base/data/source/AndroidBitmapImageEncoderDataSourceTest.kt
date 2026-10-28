@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.base.data.source
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.test.runTest
@@ -10,12 +7,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.ByteArrayOutputStream
-import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -134,7 +128,7 @@ class AndroidBitmapImageEncoderDataSourceTest {
 		expectedWidth: Int,
 		expectedHeight: Int
 	) {
-		val decodedImage = assertNotNull(BitmapFactory.decodeByteArray(content, 0, content.size))
+		val decodedImage = decodeImage(content)
 
 		try {
 			assertEquals(expectedWidth, decodedImage.width)
@@ -144,42 +138,10 @@ class AndroidBitmapImageEncoderDataSourceTest {
 		}
 	}
 
-	private fun createPngBytes(width: Int, height: Int): ByteArray {
-		val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-		try {
-			bitmap.eraseColor(Color.rgb(TEST_COLOR_RED, TEST_COLOR_GREEN, TEST_COLOR_BLUE))
-
-			val output = ByteArrayOutputStream()
-			check(bitmap.compress(Bitmap.CompressFormat.PNG, PNG_QUALITY, output)) {
-				"Expected a PNG-encoded image for tests."
-			}
-
-			return output.toByteArray()
-		} finally {
-			bitmap.recycle()
-		}
-	}
-
-	private fun createInputFile(
-		prefix: String,
-		extension: String,
-		content: ByteArray
-	): File {
-		return File.createTempFile("${prefix}_", ".$extension").apply {
-			writeBytes(content)
-			deleteOnExit()
-		}
-	}
-
 	private companion object {
 		const val JPEG_MIME_TYPE = "image/jpeg"
 		const val MAX_BYTES = 1_048_576
 		const val TINY_MAX_BYTES = 16
-		const val PNG_QUALITY = 100
-		const val TEST_COLOR_RED = 68
-		const val TEST_COLOR_GREEN = 119
-		const val TEST_COLOR_BLUE = 153
 
 		val defaultSpec = ImageEncodingSpec(maxDimensionPx = 1024, maxBytes = MAX_BYTES, jpegQuality = 85)
 		val smallDimensionSpec = ImageEncodingSpec(maxDimensionPx = 256, maxBytes = MAX_BYTES, jpegQuality = 70)

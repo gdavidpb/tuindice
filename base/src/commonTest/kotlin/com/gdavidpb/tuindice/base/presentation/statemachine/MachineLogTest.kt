@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.presentation.statemachine
 
+import androidx.lifecycle.viewModelScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -9,8 +10,10 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -84,6 +87,90 @@ class MachineLogTest {
 		assertLogged("rejected action Reset in Started")
 	}
 
+	@Test
+	fun when_aTransitionFails_then_itsFailureIsLogged() = runTest {
+		MachineLog.sink = { line -> lines.value += line }
+
+		withMainDispatcher { dispatchers ->
+			val viewModel = LogTestViewModel(dispatchers = dispatchers)
+			val stateJob = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.failAction()
+
+				awaitLogLine("failed action Fail in Idle")
+			} finally {
+				stateJob.cancel()
+			}
+		}
+
+		assertTrue(
+			lines.value.any { line ->
+				line.startsWith("[$MACHINE] failed action Fail in Idle: ") && FAILURE_MESSAGE in line
+			},
+			"Missing the failure of the transition in ${lines.value}"
+		)
+	}
+
+	@Test
+	fun when_aJobCompletes_then_itsEndIsLogged() = runTest {
+		MachineLog.sink = { line -> lines.value += line }
+
+		withMainDispatcher { dispatchers ->
+			val viewModel = LogTestViewModel(dispatchers = dispatchers)
+			val stateJob = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.quickAction()
+
+				awaitLogLine("job 1 done")
+			} finally {
+				stateJob.cancel()
+			}
+		}
+
+		assertLogged("job 1 started in Idle")
+		assertLogged("job 1 done")
+	}
+
+	@Test
+	fun when_theViewModelIsCleared_then_itsJobsEndAndTheClearingIsLogged() = runTest {
+		MachineLog.sink = { line -> lines.value += line }
+
+		withMainDispatcher { dispatchers ->
+			val viewModel = LogTestViewModel(dispatchers = dispatchers)
+			val stateJob = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.startAction(label = "first")
+				awaitLogLine("-> Started")
+
+				viewModel.closeForTest()
+				awaitLogLine("job 1 cancelled")
+			} finally {
+				stateJob.cancel()
+			}
+		}
+
+		assertLogged("cleared in Started")
+		assertLogged("job 1 cancelled")
+	}
+
+	private suspend fun awaitLogLine(fragment: String) {
+		withTimeout(TIMEOUT_MILLIS) {
+			lines.first { written -> written.any { line -> fragment in line } }
+		}
+	}
+
 	private fun assertLogged(message: String) {
 		val expected = "[$MACHINE] $message"
 
@@ -97,6 +184,10 @@ class MachineLogTest {
 	}
 }
 
+// The failing transition throws a CancellationException, which ends the machine's coroutine quietly.
+// Any other exception would reach the uncaught-exception handler of viewModelScope instead, and fail the test scope.
+private const val FAILURE_MESSAGE = "transition failed on purpose"
+
 private class LogTestMachine : ScreenMachine<LogTestState, LogTestEffect> {
 	override fun initialState(): LogTestState = LogTestState.Idle
 
@@ -109,6 +200,15 @@ private class LogTestMachine : ScreenMachine<LogTestState, LogTestEffect> {
 					host.launchMachineJob { awaitCancellation() }
 					host.sendEffect(LogTestEffect.Begun)
 					LogTestState.Started(label = action.label)
+				}
+
+				on<LogTestAction.Quick> { state, _ ->
+					host.launchMachineJob { }
+					state
+				}
+
+				onTo<LogTestAction.Fail, LogTestState.Idle> { _, _ ->
+					throw CancellationException(FAILURE_MESSAGE)
 				}
 			}
 		}
@@ -135,6 +235,20 @@ private class LogTestViewModel(
 	fun resetAction() {
 		sendAction(LogTestAction.Reset())
 	}
+
+	fun quickAction() {
+		sendAction(LogTestAction.Quick())
+	}
+
+	fun failAction() {
+		sendAction(LogTestAction.Fail())
+	}
+
+	// Clears the view model as its owner does: the machine logs the clearing, then its scope ends, and with it its jobs.
+	fun closeForTest() {
+		onCleared()
+		viewModelScope.cancel()
+	}
 }
 
 private sealed class LogTestState : ViewState {
@@ -147,6 +261,10 @@ private sealed class LogTestAction : ViewAction {
 
 	// Not a data class: the log names it by its class instead of printing its address.
 	class Reset : LogTestAction()
+
+	class Quick : LogTestAction()
+
+	class Fail : LogTestAction()
 }
 
 private sealed class LogTestEffect : ViewEffect {

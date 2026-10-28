@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 // The state of a TuIndiceModalBottomSheet: where it rests, and how a drag, a fling or a call moves it between its
@@ -50,10 +49,15 @@ class TuIndiceSheetState internal constructor(
 	// after that no drag can drop it to Hidden.
 	private var hasOpened = false
 
+	// True while the opening animation runs: a hide asked for then ends the opening and slides the sheet out.
+	private var opening = false
+
+	// An anchor asked for before the sheet had any anchors: its opening takes it as the target.
+	private var requestedValue: TuIndiceSheetValue? = null
+
 	// The measurements the anchors were last computed from.
 	private var containerHeightPx = 0f
 	private var sheetHeightPx = 0f
-	private var topLimitPx = 0f
 
 	val currentValue: TuIndiceSheetValue
 		get() = draggableState.currentValue
@@ -72,23 +76,40 @@ class TuIndiceSheetState internal constructor(
 	val hasExpandedState: Boolean
 		get() = draggableState.anchors.hasPositionFor(TuIndiceSheetValue.Expanded)
 
+	// Before the first layout the sheet has no anchors at all.
+	private val hasAnchors: Boolean
+		get() = draggableState.anchors.size > 0
+
 	internal val nestedScrollConnection: NestedScrollConnection = SheetNestedScroll()
 
-	// Opens the sheet at its half state when it has one, or at its content's height.
+	// Opens the sheet at the anchor asked for before its first layout, or else at its half state when it has one, or at
+	// its content's height.
 	suspend fun show() {
 		awaitAnchors()
 		hideRequestedByCaller = false
-		animateTo(if (hasPartiallyExpandedState) TuIndiceSheetValue.PartiallyExpanded else TuIndiceSheetValue.Expanded)
 
-		if (!hasOpened) {
-			hasOpened = true
-			applyAnchors()
+		val target = requestedValue?.takeIf { value -> draggableState.anchors.hasPositionFor(value) }
+			?: if (hasPartiallyExpandedState) TuIndiceSheetValue.PartiallyExpanded else TuIndiceSheetValue.Expanded
+		requestedValue = null
+
+		opening = true
+		try {
+			animateTo(target)
+		} finally {
+			opening = false
+
+			// However the opening ends, the sheet has opened: a sheet that is not hideable no longer needs its Hidden anchor.
+			if (!hasOpened) {
+				hasOpened = true
+				applyAnchors()
+			}
 		}
 	}
 
-	// Hides the sheet because the caller asks for it: onDismissRequest is not called for it.
+	// Hides the sheet because the caller asks for it: onDismissRequest is not called for it. A sheet still opening
+	// has its opening ended, and slides out.
 	suspend fun hide() {
-		if (!hideable || settledValue == TuIndiceSheetValue.Hidden) return
+		if (!hideable || (settledValue == TuIndiceSheetValue.Hidden && !opening)) return
 
 		hideRequestedByCaller = true
 		try {
@@ -100,12 +121,20 @@ class TuIndiceSheetState internal constructor(
 		if (settledValue != TuIndiceSheetValue.Hidden) hideRequestedByCaller = false
 	}
 
+	// Before the first layout there are no anchors yet, so the request waits for the opening,
+	// which takes it as its target.
 	suspend fun expand() {
-		if (hasExpandedState) animateTo(TuIndiceSheetValue.Expanded)
+		when {
+			hasExpandedState -> animateTo(TuIndiceSheetValue.Expanded)
+			!hasAnchors -> requestedValue = TuIndiceSheetValue.Expanded
+		}
 	}
 
 	suspend fun partialExpand() {
-		if (hasPartiallyExpandedState) animateTo(TuIndiceSheetValue.PartiallyExpanded)
+		when {
+			hasPartiallyExpandedState -> animateTo(TuIndiceSheetValue.PartiallyExpanded)
+			!hasAnchors -> requestedValue = TuIndiceSheetValue.PartiallyExpanded
+		}
 	}
 
 	// The person asks for the sheet to go: a tap on the scrim, or the back gesture.
@@ -126,12 +155,12 @@ class TuIndiceSheetState internal constructor(
 		return isUserDismissal
 	}
 
-	// The anchors follow the window and the sheet's measured height. The half anchor exists only when the content is
-	// taller than half the window; the expanded anchor never goes above the top inset.
-	internal fun updateAnchors(containerHeightPx: Float, sheetHeightPx: Float, topLimitPx: Float) {
+	// The anchors follow the window and the sheet's measured height, limited to the window below the status bar. The
+	// half anchor exists only when the content is taller than half the window, and the expanded anchor rests its bottom
+	// edge on the window's bottom, or on the status bar's bottom when the sheet is that tall.
+	internal fun updateAnchors(containerHeightPx: Float, sheetHeightPx: Float, topInsetPx: Float) {
 		this.containerHeightPx = containerHeightPx
-		this.sheetHeightPx = sheetHeightPx
-		this.topLimitPx = topLimitPx
+		this.sheetHeightPx = limitedSheetHeightPx(containerHeightPx, sheetHeightPx, topInsetPx)
 
 		applyAnchors()
 	}
@@ -148,7 +177,7 @@ class TuIndiceSheetState internal constructor(
 
 			if (hasPartiallyExpanded) TuIndiceSheetValue.PartiallyExpanded at halfOffsetPx
 
-			TuIndiceSheetValue.Expanded at max(topLimitPx, containerHeightPx - sheetHeightPx)
+			TuIndiceSheetValue.Expanded at expandedAnchorPx(containerHeightPx, sheetHeightPx)
 		}
 
 		// The sheet keeps the anchor it moves to, not the one it last rested at. A change of height while it opens must
@@ -293,3 +322,15 @@ private const val UNPOSITIONED_OFFSET_PX = Int.MAX_VALUE / 2
 // as far as the anchors allow. Before the first layout there is nothing to move.
 internal fun TuIndiceSheetState.dragBy(delta: Float): Float =
 	if (draggableState.offset.isNaN()) 0f else draggableState.dispatchRawDelta(delta)
+
+// The expanded anchor of a sheet: its bottom edge rests on the bottom of the window, so the padding its content takes
+// from the keyboard or the navigation bar keeps the content above them, and the sheet rises with the keyboard, up to
+// the status bar. The sheet's height is the limited one, so the anchor never goes above the status bar.
+internal fun expandedAnchorPx(containerHeightPx: Float, sheetHeightPx: Float): Float =
+	containerHeightPx - sheetHeightPx
+
+// The height a sheet takes: the height it measures, but no more than the window leaves below its top inset, the
+// status bar's, so a sheet is never drawn under the status bar. A taller sheet is laid out at that height, and its
+// content scrolls within it.
+internal fun limitedSheetHeightPx(containerHeightPx: Float, sheetHeightPx: Float, topInsetPx: Float): Float =
+	minOf(sheetHeightPx, (containerHeightPx - topInsetPx).coerceAtLeast(0f))

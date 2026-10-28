@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.WeekSelectorTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
@@ -26,7 +28,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 // the week holds today. The tags name the label and the dot for the screen that shows the strip.
 @Composable
 fun WeekSelectorItemView(
-	labelText: String,
+	labelText: UiText,
 	isCurrent: Boolean,
 	isSelected: Boolean,
 	tags: WeekSelectorTags,
@@ -41,7 +43,7 @@ fun WeekSelectorItemView(
 			modifier = Modifier
 				.weight(1f, fill = false)
 				.testTag(tags.label),
-			text = labelText,
+			text = labelText.asString(),
 			style = MaterialTheme.typography.titleLarge,
 			fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
 			color = if (isSelected) {

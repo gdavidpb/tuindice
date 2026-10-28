@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardElementModifiers
@@ -41,7 +42,9 @@ fun EvaluationCardView(
 	item: EvaluationCardItem,
 	modifier: Modifier = Modifier,
 	cardModifier: Modifier = Modifier,
-	elementModifiers: EvaluationCardElementModifiers = EvaluationCardElementModifiers()
+	elementModifiers: EvaluationCardElementModifiers = EvaluationCardElementModifiers(),
+	// The list's gutter at the card's sides. A screen that already keeps its own margin, as a sheet does, passes none.
+	horizontalMargin: Dp = EvaluationCardHorizontalPadding
 ) {
 	Card(
 		colors = CardDefaults.cardColors(
@@ -51,7 +54,7 @@ fun EvaluationCardView(
 		modifier = cardModifier
 			.fillMaxWidth()
 			.padding(
-				horizontal = EvaluationCardHorizontalPadding,
+				horizontal = horizontalMargin,
 				vertical = EvaluationCardVerticalPadding
 			)
 			// The caller's modifier goes last, inside the margin, so an arrival highlight frames the card

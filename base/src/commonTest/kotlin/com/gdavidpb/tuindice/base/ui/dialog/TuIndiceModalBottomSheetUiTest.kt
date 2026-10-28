@@ -15,7 +15,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isRoot
@@ -250,6 +254,51 @@ class TuIndiceModalBottomSheetUiTest {
 
 		assertEquals(0, dismissCalls)
 		assertEquals(TuIndiceSheetValue.Expanded, holder.state?.currentValue)
+	}
+
+	@Test
+	fun when_sheetIsShown_then_itExposesItsPaneTitleAndItsDismissAndExpandActions() = runTuIndiceUiTest {
+		val holder = StateHolder()
+
+		setTuIndiceTestContent {
+			val sheetState = rememberTuIndiceSheetState()
+			SideEffect { holder.state = sheetState }
+
+			TuIndiceModalBottomSheet(
+				modifier = Modifier.testTag(SURFACE_TAG),
+				onDismissRequest = {},
+				sheetState = sheetState
+			) {
+				Box(modifier = Modifier.fillMaxWidth().height(TALL_CONTENT_DP.dp))
+			}
+		}
+
+		// A sheet taller than half the window opens half open: it can be dismissed and expanded from there.
+		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.PartiallyExpanded }
+		onNodeWithTag(SURFACE_TAG).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.PaneTitle))
+		onNodeWithTag(SURFACE_TAG).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
+		onNodeWithTag(SURFACE_TAG).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
+	}
+
+	@Test
+	fun when_sheetCannotBeHidden_then_itExposesNoDismissAction() = runTuIndiceUiTest {
+		val holder = StateHolder()
+
+		setTuIndiceTestContent {
+			val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true, hideable = false)
+			SideEffect { holder.state = sheetState }
+
+			TuIndiceModalBottomSheet(
+				modifier = Modifier.testTag(SURFACE_TAG),
+				onDismissRequest = {},
+				sheetState = sheetState
+			) {
+				Text(text = CONTENT_TEXT)
+			}
+		}
+
+		waitUntil(timeoutMillis = WAIT_MILLIS) { holder.state?.currentValue == TuIndiceSheetValue.Expanded }
+		onNodeWithTag(SURFACE_TAG).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
 	}
 
 	private companion object {

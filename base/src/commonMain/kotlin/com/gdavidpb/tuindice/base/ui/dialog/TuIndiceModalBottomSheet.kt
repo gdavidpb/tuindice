@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -42,10 +42,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -55,14 +60,21 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import tuindice.base.generated.resources.Res
+import tuindice.base.generated.resources.sheet_collapse_description
+import tuindice.base.generated.resources.sheet_dismiss_description
+import tuindice.base.generated.resources.sheet_expand_description
+import tuindice.base.generated.resources.sheet_pane_title
 
 // The bottom sheet of the app: every sheet is one, and no other code draws Material's ModalBottomSheet. It holds its
 // own Dialog, which covers the whole window, so the sheet's surface reaches the bottom edge of the screen, behind the
 // keyboard, and the keyboard's rounded corners show the sheet's colour. The content is padded at the bottom by the
 // keyboard or the navigation bar, whichever is taller, so inputs sit right above the keyboard. The padding is part of
-// the sheet's height: when the keyboard opens, the sheet rises by the keyboard's height above it, and a sheet that
-// scrolls shrinks above it. Back dismisses a sheet that the person can hide; one that cannot be hidden leaves back to
-// the screen, as it always did.
+// the sheet's height: when the keyboard opens, the sheet rises by the keyboard's height above it, up to the status
+// bar, and a sheet that scrolls shrinks above it. No sheet is drawn above the status bar: a taller one is laid out
+// at the height the window leaves below it, and its content scrolls. Back dismisses a sheet that the person can hide;
+// one that cannot be hidden leaves back to the screen, as it always did.
 @Composable
 fun TuIndiceModalBottomSheet(
 	onDismissRequest: () -> Unit,
@@ -75,13 +87,13 @@ fun TuIndiceModalBottomSheet(
 ) {
 	val scope = rememberCoroutineScope()
 	val measures = remember { TuIndiceSheetMeasures() }
-	val topLimitPx = WindowInsets.safeDrawing.getTop(LocalDensity.current).toFloat()
+	val topInsetPx = WindowInsets.statusBars.getTop(LocalDensity.current)
 
 	TuIndiceSheetEffects(
 		sheetState = sheetState,
 		onDismissRequest = onDismissRequest,
 		measures = measures,
-		topLimitPx = topLimitPx
+		topInsetPx = topInsetPx
 	)
 
 	Dialog(
@@ -99,7 +111,7 @@ fun TuIndiceModalBottomSheet(
 			)
 
 			TuIndiceSheetSurface(
-				modifier = modifier,
+				modifier = modifier.belowTopInset(topInsetPx),
 				sheetState = sheetState,
 				contentWindowInsets = contentWindowInsets(),
 				onHeightChanged = { heightPx -> measures.sheetHeightPx = heightPx },
@@ -123,7 +135,7 @@ private fun TuIndiceSheetEffects(
 	sheetState: TuIndiceSheetState,
 	onDismissRequest: () -> Unit,
 	measures: TuIndiceSheetMeasures,
-	topLimitPx: Float
+	topInsetPx: Int
 ) {
 	val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
@@ -147,9 +159,9 @@ private fun TuIndiceSheetEffects(
 		}
 	}
 
-	LaunchedEffect(sheetState, containerHeightPx, sheetHeightPx, topLimitPx) {
+	LaunchedEffect(sheetState, containerHeightPx, sheetHeightPx, topInsetPx) {
 		if (containerHeightPx > 0f && sheetHeightPx > 0f) {
-			sheetState.updateAnchors(containerHeightPx, sheetHeightPx, topLimitPx)
+			sheetState.updateAnchors(containerHeightPx, sheetHeightPx, topInsetPx.toFloat())
 		}
 	}
 }
@@ -191,7 +203,9 @@ private fun TuIndiceSheetScrim(
 }
 
 // The sheet itself, at the anchor its state is at, with its drag handle and its content. Its surface is as tall as
-// its content and padded by the window insets, and it reaches the bottom of the window.
+// its content, but no taller than the window below the status bar, and padded by the window insets. It reaches the
+// bottom of the window. A screen reader meets it as a pane with its title, and with the actions that close it,
+// expand it or collapse it, as Material's sheet offered them.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BoxScope.TuIndiceSheetSurface(
@@ -201,12 +215,40 @@ private fun BoxScope.TuIndiceSheetSurface(
 	onHeightChanged: (Float) -> Unit,
 	content: @Composable ColumnScope.() -> Unit
 ) {
+	val scope = rememberCoroutineScope()
+	val title = stringResource(Res.string.sheet_pane_title)
+	val dismissDescription = stringResource(Res.string.sheet_dismiss_description)
+	val expandDescription = stringResource(Res.string.sheet_expand_description)
+	val collapseDescription = stringResource(Res.string.sheet_collapse_description)
+
 	Surface(
 		modifier = modifier
 			.align(Alignment.TopCenter)
 			.widthIn(max = BottomSheetDefaults.SheetMaxWidth)
 			.fillMaxWidth()
 			.onSizeChanged { size -> onHeightChanged(size.height.toFloat()) }
+			.semantics {
+				paneTitle = title
+
+				if (sheetState.hideable) {
+					dismiss(label = dismissDescription) {
+						scope.launch { sheetState.requestDismiss() }
+						true
+					}
+				}
+
+				if (sheetState.currentValue == TuIndiceSheetValue.Expanded && sheetState.hasPartiallyExpandedState) {
+					collapse(label = collapseDescription) {
+						scope.launch { sheetState.partialExpand() }
+						true
+					}
+				} else if (sheetState.currentValue == TuIndiceSheetValue.PartiallyExpanded) {
+					expand(label = expandDescription) {
+						scope.launch { sheetState.expand() }
+						true
+					}
+				}
+			}
 			.offset { IntOffset(x = 0, y = sheetState.offsetPx()) }
 			// The drag is read here and settled by the sheet's own rule, the same one the nested scroll uses, so a quick
 			// flick down closes the sheet: the anchored-draggable default settled a short fast flick back where it was.
@@ -237,6 +279,22 @@ private fun BoxScope.TuIndiceSheetSurface(
 				content = content
 			)
 		}
+	}
+}
+
+// Lays a sheet out in the window below its top inset, the status bar's: a sheet taller than that space is measured at
+// that height, so its expanded anchor keeps its top below the status bar, and its content scrolls within it.
+internal fun Modifier.belowTopInset(topInsetPx: Int): Modifier = layout { measurable, constraints ->
+	val maxHeightPx = (constraints.maxHeight - topInsetPx).coerceAtLeast(0)
+	val placeable = measurable.measure(
+		constraints.copy(
+			minHeight = minOf(constraints.minHeight, maxHeightPx),
+			maxHeight = minOf(constraints.maxHeight, maxHeightPx)
+		)
+	)
+
+	layout(placeable.width, placeable.height) {
+		placeable.place(0, 0)
 	}
 }
 

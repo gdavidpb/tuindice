@@ -187,7 +187,7 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 						MachineLog.write(name) {
 							"${fromState.logName()} + $inputKind ${input.event.logText()} -> ${toState.logName()}"
 						}
-						if (toState != fromState) MachineLog.write(name) { "state ${toState.logText()}" }
+						if (MachineLog.sink != null && toState != fromState) MachineLog.write(name) { "state ${toState.logText()}" }
 
 						eventPublisher.publish(
 							AppEvent.Transition(

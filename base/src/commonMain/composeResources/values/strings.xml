@@ -90,4 +90,8 @@
 	<string name="class_time_range">%1$s %2$s–%3$s %4$s</string>
 	<string name="assistant_ask_about_this">Preguntar sobre esto</string>
 	<string name="a11y_more_options">Más opciones</string>
+	<string name="sheet_pane_title">Hoja inferior</string>
+	<string name="sheet_dismiss_description">Cerrar hoja inferior</string>
+	<string name="sheet_expand_description">Expandir hoja inferior</string>
+	<string name="sheet_collapse_description">Contraer hoja inferior</string>
 </resources>
