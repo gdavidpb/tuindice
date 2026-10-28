@@ -78,6 +78,17 @@ class EvaluationListComponentViewUiTest {
 		onNodeWithText("No hay evaluaciones para mostrar").assertIsDisplayed()
 	}
 
+	@Test
+	fun when_theChatCardIsCompact_then_itShowsItsFirstRowsWithTheStateReadInItsTone() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationListComponentView(item = list().toEvaluationListItem(), rowLimit = 1, onAction = {})
+		}
+
+		onNodeWithText("Parcial 1", substring = true).assertIsDisplayed()
+		onNodeWithText("Calificada").assertIsDisplayed()
+		onNodeWithText("Quiz 2").assertDoesNotExist()
+	}
+
 	private fun list(refs: List<EntityRef> = emptyList()): EvaluationListComponent =
 		EvaluationListComponent(
 			id = COMPONENT_ID,

@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
+import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
+import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
+import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
@@ -182,6 +185,68 @@ class EvaluacionesComponentItemMappingTest {
 
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_load_caption_one), one.heavyFigure.caption)
 		assertEquals(UiText.Resource(Res.string.assistant_card_b_load_caption_many), many.heavyFigure.caption)
+	}
+
+	@Test
+	fun evaluationList_aRowKeepsItsDateApartFromItsTitle_andAnUndatedOneHasNoDate() {
+		val dateMillis = 1_760_000_000_000L
+		val item = EvaluationListComponent(
+			id = "e3",
+			fallbackText = "Evaluaciones",
+			items = listOf(
+				EvaluationRow(
+					evaluationId = "ev-3",
+					subjectCode = "IS-101",
+					title = "Parcial 3",
+					dateMillis = dateMillis,
+					scheduleMode = "fixed",
+					grade = null,
+					maxGrade = 20.0,
+					state = "pending"
+				),
+				EvaluationRow(
+					evaluationId = "ev-4",
+					subjectCode = "IS-101",
+					title = "Quiz 4",
+					dateMillis = null,
+					scheduleMode = "fixed",
+					grade = null,
+					maxGrade = 10.0,
+					state = "pending"
+				)
+			)
+		).toEvaluationListItem()
+
+		assertEquals("Parcial 3", item.rows[0].title)
+		assertEquals(dateMillis.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE), item.rows[0].dateText)
+		assertNull(item.rows[1].dateText)
+	}
+
+	@Test
+	fun evaluationList_theStateReadsInItsToneAsTheEvaluationsTabDrawsIt_andAnUnknownOneHasNoState() {
+		val item = EvaluationListComponent(
+			id = "e4",
+			fallbackText = "Evaluaciones",
+			items = listOf("graded", "completed", "overdue", "pending", "continuous", "unknown").map { state ->
+				EvaluationRow(
+					evaluationId = "ev-$state",
+					subjectCode = "IS-101",
+					title = "Parcial",
+					dateMillis = null,
+					scheduleMode = "fixed",
+					grade = null,
+					maxGrade = 20.0,
+					state = state
+				)
+			}
+		).toEvaluationListItem()
+
+		assertEquals(EvaluationTone.Success, item.rows[0].status?.tone)
+		assertEquals(EvaluationTone.Success, item.rows[1].status?.tone)
+		assertEquals(EvaluationTone.Error, item.rows[2].status?.tone)
+		assertEquals(EvaluationTone.Neutral, item.rows[3].status?.tone)
+		assertEquals(EvaluationTone.Neutral, item.rows[4].status?.tone)
+		assertNull(item.rows[5].status)
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
 import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationRowItem
+import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationStatusItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PointsRowItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RequiredGradeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SubjectPointsItem
@@ -49,6 +50,8 @@ internal fun EvaluationListComponent.toEvaluationListItem(): EvaluationListItem 
 
 			EvaluationRowItem(
 				code = row.subjectCode,
+				title = row.title,
+				dateText = date,
 				nameText = if (date == null) {
 					UiText.Raw(row.title)
 				} else {
@@ -57,7 +60,9 @@ internal fun EvaluationListComponent.toEvaluationListItem(): EvaluationListItem 
 				gradeText = row.grade?.let { value ->
 					UiText.Resource(Res.string.assistant_card_b_fraction, listOf(value.toCardCompactNumberText(), maxGrade))
 				} ?: UiText.Resource(Res.string.assistant_card_b_evaluation_no_grade, listOf(maxGrade)),
-				stateChip = evaluationStateChip(row.state)
+				status = evaluationStateChip(row.state)?.let { chip ->
+					EvaluationStatusItem(text = chip.text, tone = evaluationStateTone(row.state))
+				}
 			)
 		},
 		recordLink = entityRefs.toRecordLinkItem(),

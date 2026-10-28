@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.CardChipItem
 import com.gdavidpb.tuindice.assistant.presentation.model.CardChipTone
+import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_approved
 import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
@@ -29,6 +30,15 @@ fun evaluationStateChip(code: String?): CardChipItem? =
 		"pending" -> chatCardChip(Res.string.assistant_card_b_evaluation_pending, CardChipTone.Neutral)
 		"overdue" -> chatCardChip(Res.string.assistant_card_b_evaluation_overdue, CardChipTone.Failed)
 		else -> null
+	}
+
+// The tone of an evaluation's state, drawn as the Evaluations tab draws it: a completed one is a success, an overdue
+// one is an error, and the others have no verdict and read neutral. The rows use this tone, not the chip's own.
+fun evaluationStateTone(code: String?): EvaluationTone =
+	when (code) {
+		"graded", "completed" -> EvaluationTone.Success
+		"overdue" -> EvaluationTone.Error
+		else -> EvaluationTone.Neutral
 	}
 
 // The status of a subject in the pensum: approved, in progress, available or blocked.
