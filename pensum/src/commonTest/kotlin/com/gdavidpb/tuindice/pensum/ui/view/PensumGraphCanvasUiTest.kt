@@ -174,6 +174,56 @@ class PensumGraphCanvasUiTest {
 		)
 		assertMovedWithoutRecomposingPerFrame(fixture.compositions)
 	}
+
+	@Test
+	fun when_fingerMovesOnTheCanvas_then_overlaysStayHiddenWhileEachSignalRestartsTheIdleWindow() =
+		runTuIndiceUiTest {
+			setGraphCanvasContent(fixture = GraphCanvasFixture())
+			waitForIdle()
+			mainClock.autoAdvance = false
+
+			onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+				down(center)
+				moveBy(Offset(x = 60f, y = 0f))
+			}
+			advanceAnimationsBy((CanvasOverlayAnimationMillis + 100).toLong())
+			assertNodeHidden(PensumUiTags.ZoomIn)
+			assertNodeHidden(PensumUiTags.CanvasLegend)
+
+			// This signal, at about 300 ms, restarts the window: the first one would have ended at about 330 ms,
+			// so at about 500 ms the controls are still hidden.
+			onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+				moveBy(Offset(x = 20f, y = 0f))
+			}
+			advanceAnimationsBy(200L)
+			assertNodeHidden(PensumUiTags.ZoomIn)
+			assertNodeHidden(PensumUiTags.CanvasLegend)
+
+			onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+				up()
+			}
+		}
+
+	@Test
+	fun when_fingerRestsAfterMovingForTheIdleWindow_then_controlsReturnWhileTheFingerIsStillDown() =
+		runTuIndiceUiTest {
+			setGraphCanvasContent(fixture = GraphCanvasFixture())
+			waitForIdle()
+			mainClock.autoAdvance = false
+
+			onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+				down(center)
+				moveBy(Offset(x = 60f, y = 0f))
+			}
+			// No signal follows the move, so the idle window ends while the finger is still down.
+			advanceAnimationsBy((CanvasManualGestureIdleMillis + CanvasOverlayAnimationMillis + 100).toLong())
+			assertNodeVisible(PensumUiTags.ZoomIn)
+			assertNodeVisible(PensumUiTags.CanvasLegend)
+
+			onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+				up()
+			}
+		}
 }
 
 // The canvas ("pensum-canvas") recomposes at most at the start and at the end of a gesture (to hide and show its
@@ -200,7 +250,10 @@ private fun ComposeUiTest.setGraphCanvasContent(
 	isSubjectSheetVisible: Boolean = false
 ) {
 	setTuIndiceTestContent {
-		CompositionLocalProvider(LocalTuIndiceCompositionProbe provides { name -> fixture.compositions += name }) {
+		CompositionLocalProvider(
+			LocalTuIndiceCompositionProbe provides { name -> fixture.compositions += name },
+			LocalPensumCanvasClockMillis provides { mainClock.currentTime }
+		) {
 			PensumGraphCanvas(
 				model = samplePensumScreenModel(),
 				selectedNodeId = selectedNodeId,

@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.pensum.ui.model.PensumActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
+import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumCanvasClockMillis
 import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
 import com.gdavidpb.tuindice.pensum.ui.view.PensumGraphCanvas
 import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
@@ -651,11 +652,13 @@ class PensumScreenUiTest {
 	@Test
 	fun when_pinchStartsOnSubjectNode_then_canvasZooms() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PensumGraphCanvas(
-				model = samplePensumModel(),
-				selectedNodeId = null,
-				onSelectedNodeChange = {}
-			)
+			CompositionLocalProvider(LocalPensumCanvasClockMillis provides { mainClock.currentTime }) {
+				PensumGraphCanvas(
+					model = samplePensumModel(),
+					selectedNodeId = null,
+					onSelectedNodeChange = {}
+				)
+			}
 		}
 
 		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
@@ -792,12 +795,14 @@ fun when_pensumCanvasIsRecreated_then_viewportMinimapAndFiltersAreRestored() = r
 
 	setTuIndiceTestContent {
 		if (isMountedState.value) {
-			PensumGraphCanvas(
-				model = samplePensumModel(),
-				selectedNodeId = null,
-				onSelectedNodeChange = {},
-				sessionState = sessionState
-			)
+			CompositionLocalProvider(LocalPensumCanvasClockMillis provides { mainClock.currentTime }) {
+				PensumGraphCanvas(
+					model = samplePensumModel(),
+					selectedNodeId = null,
+					onSelectedNodeChange = {},
+					sessionState = sessionState
+				)
+			}
 		}
 	}
 

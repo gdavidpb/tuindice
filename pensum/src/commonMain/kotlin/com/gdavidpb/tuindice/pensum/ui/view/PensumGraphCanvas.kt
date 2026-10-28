@@ -67,6 +67,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,8 +80,17 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
 internal val LocalPensumManualCanvasGestureActiveOverride = compositionLocalOf<Boolean?> { null }
+
+private val canvasClockOrigin = TimeSource.Monotonic.markNow()
+
+private fun monotonicCanvasMillis(): Long = canvasClockOrigin.elapsedNow().inWholeMilliseconds
+
+// The clock, in milliseconds, that a gesture's idle window reads. A UI test replaces it with the clock of its own
+// timeline, so the countdown and the test's time move together.
+internal val LocalPensumCanvasClockMillis = compositionLocalOf<() -> Long> { ::monotonicCanvasMillis }
 
 @Composable
 fun PensumGraphCanvas(
@@ -156,10 +166,19 @@ fun PensumGraphCanvas(
 	val readOffsetX = remember(viewport) { { viewport.offsetX.floatValue } }
 	val readOffset = remember(viewport) { { viewport.offset } }
 	var canvasSnapJob by remember(graphKey) { mutableStateOf<Job?>(null) }
-	var manualGestureIdleJob by remember(graphKey) { mutableStateOf<Job?>(null) }
 	var isDetectedManualCanvasGestureActive by remember(graphKey) { mutableStateOf(false) }
 	val manualCanvasGestureActiveOverride = LocalPensumManualCanvasGestureActiveOverride.current
 	val isManualCanvasGestureActive = manualCanvasGestureActiveOverride ?: isDetectedManualCanvasGestureActive
+	// One idle window per graph: a gesture's overlays hide on its first touch signal and return once the signals stop.
+	val canvasClockMillis = LocalPensumCanvasClockMillis.current
+	val manualCanvasGestureIdleWindow = remember(graphKey, canvasClockMillis) {
+		ManualCanvasGestureIdleWindow(
+			scope = coroutineScope,
+			idleMillis = CanvasManualGestureIdleMillis.toLong(),
+			nowMillis = canvasClockMillis,
+			onOverlaysHiddenChange = { isHidden -> isDetectedManualCanvasGestureActive = isHidden }
+		)
+	}
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -277,23 +296,6 @@ fun PensumGraphCanvas(
 	fun setActiveStatusFilters(filters: Set<PensumNodeStatusType>) {
 		activeStatusFilters = filters
 		activeSessionState.activeStatusFilterNames = filters.map { type -> type.name }.toSet()
-	}
-
-	// A gesture hides the overlays when it starts and shows them again a moment after the fingers lift: the two ends of
-	// the gesture set the state, not each of its touch events.
-	fun startManualCanvasGesture() {
-		manualGestureIdleJob?.cancel()
-		manualGestureIdleJob = null
-		isDetectedManualCanvasGestureActive = true
-	}
-
-	fun endManualCanvasGesture() {
-		manualGestureIdleJob?.cancel()
-		manualGestureIdleJob = coroutineScope.launch {
-			delay(CanvasManualGestureIdleMillis.milliseconds)
-			isDetectedManualCanvasGestureActive = false
-			manualGestureIdleJob = null
-		}
 	}
 
 	fun toggleStatusFilter(type: PensumNodeStatusType) {
@@ -628,17 +630,17 @@ fun PensumGraphCanvas(
 						},
 						onGestureStart = {
 							canvasSnapJob?.cancel()
-							startManualCanvasGesture()
+							manualCanvasGestureIdleWindow.signal()
 							revealMinimapToggle()
 						},
 						onGestureEnd = {
-							endManualCanvasGesture()
 							scheduleViewportSnap(
 								scaleValue = scale.floatValue,
 								offset = viewport.offset
 							)
 						},
 						onGesture = { centroid, pan, zoom ->
+							manualCanvasGestureIdleWindow.signal()
 							val oldScale = scale.value
 							val rawScale = oldScale * zoom
 							val shouldSnapToFit = fitStateScale <= oldScale &&
@@ -851,6 +853,41 @@ fun PensumGraphCanvas(
 				onClearStatusFilters = { clearStatusFilters() },
 				modifier = Modifier
 			)
+		}
+	}
+}
+
+// The idle window of a manual canvas gesture. The overlays hide on the gesture's first touch signal and come back once
+// idleMillis have passed since the last signal, even while the fingers stay down. A signal only stamps its instant: the
+// first signal of a window launches the one countdown, which sleeps for the time left after the last stamp. A gesture
+// therefore costs one coroutine, however many signals it carries.
+internal class ManualCanvasGestureIdleWindow(
+	private val scope: CoroutineScope,
+	private val idleMillis: Long,
+	private val nowMillis: () -> Long,
+	private val onOverlaysHiddenChange: (isHidden: Boolean) -> Unit
+) {
+	private var lastSignalMillis = 0L
+	private var isCountingDown = false
+
+	fun signal() {
+		lastSignalMillis = nowMillis()
+		onOverlaysHiddenChange(true)
+		if (isCountingDown) return
+
+		isCountingDown = true
+		scope.launch {
+			awaitIdle()
+			isCountingDown = false
+			onOverlaysHiddenChange(false)
+		}
+	}
+
+	private suspend fun awaitIdle() {
+		var millisLeft = lastSignalMillis + idleMillis - nowMillis()
+		while (millisLeft > 0L) {
+			delay(millisLeft)
+			millisLeft = lastSignalMillis + idleMillis - nowMillis()
 		}
 	}
 }
