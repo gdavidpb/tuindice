@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.about.testing.FakeProfileIdentityRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -54,6 +55,7 @@ class AboutModuleKoinSmokeTest {
 			single<AssistantConversationsRepository> { FakeAssistantConversationsRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			single { SessionCoroutineScope(dispatchers = get(), reportingRepository = get()) }
 		}
 	) {
 		assertResolves(SettingsViewModel::class)

@@ -19,9 +19,8 @@ internal fun MachineDefinitionBuilder<Settings.State>.settingsContentTransitions
 			state.copy(usageDataCollectionEnabled = action.enabled)
 		}
 
-		// The assistant rows render with content only, like the usage toggle. The switch
-		// moves at once and the write runs in the command; the observed value then
-		// converges to what the store holds.
+		// The assistant rows render with content only, like the usage toggle. The switch moves at once, and the write
+		// is queued right here, so the writes keep the order of the moves.
 		on<Settings.Action.SetAssistantConsent> { state, action ->
 			machine.setAssistantConsent(host = host, granted = action.granted)
 
@@ -36,17 +35,21 @@ internal fun MachineDefinitionBuilder<Settings.State>.settingsContentTransitions
 			state.copy(assistantAvailable = event.visible)
 		}
 
+		// The store's consent reaches the switch only while no consent write is queued or running (see
+		// SettingsMachine.startObservation), so the switch takes the value the event carries. A move made after the
+		// queue drained and before this event arrived has queued a write already: the switch keeps that move, and the
+		// store's value comes again once that write ends.
 		on<SettingsInternalEvent.AssistantConsentObserved> { state, event ->
-			state.copy(assistantConsentGranted = event.granted)
+			if (machine.assistantConsentWritesPending()) state else state.copy(assistantConsentGranted = event.granted)
 		}
 
-		// A failed write puts the switch back where the store has it and says so.
+		// A failed write is told to the student. The switch goes back to the store's value once the queue has drained.
 		on<SettingsInternalEvent.AssistantConsentWriteFailed>(
 			emits = setOf(Settings.Effect.ShowSnackBar::class)
 		) { state, event ->
 			host.sendEffect(Settings.Effect.ShowSnackBar(message = event.message))
 
-			state.copy(assistantConsentGranted = event.restoredGranted)
+			state
 		}
 	}
 }

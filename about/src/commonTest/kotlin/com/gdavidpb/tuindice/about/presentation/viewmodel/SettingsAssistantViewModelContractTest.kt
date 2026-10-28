@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantAvailabilityUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ObserveAssistantConsentUseCase
@@ -17,6 +16,8 @@ import com.gdavidpb.tuindice.about.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.fakeAssistantConsentWriteQueue
+import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
 import com.gdavidpb.tuindice.about.testing.fakeSetAssistantConsentUseCase
@@ -29,6 +30,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -118,13 +120,21 @@ class SettingsAssistantViewModelContractTest {
 	}
 
 	@Test
-	fun setAssistantConsent_movesTheSwitchAndStoresTheChoice() = runTest {
-		val assistantConsent = FakeAssistantConsentRepository(granted = false)
+	fun setAssistantConsent_movesTheSwitchAtOnceAndStoresTheChoiceWhenTheWriteEnds() = runTest {
+		val writeGate = CompletableDeferred<Unit>()
+		val assistantConsent = FakeAssistantConsentRepository(granted = false, writeGate = writeGate)
 		val viewModel = createViewModel(testScheduler = testScheduler, assistantConsent = assistantConsent)
 		backgroundScope.launchStateCollector(flow = viewModel.state, testScheduler = testScheduler)
 		testScheduler.advanceUntilIdle()
 
 		viewModel.dispatchAction(Settings.Action.SetAssistantConsent(granted = true))
+		testScheduler.advanceUntilIdle()
+
+		// The switch answers at once, while the write is still in flight and the store has not heard of the choice.
+		assertTrue(assertIs<Settings.State.Content>(viewModel.state.value).assistantConsentGranted)
+		assertFalse(assistantConsent.isAssistantConsentGranted())
+
+		writeGate.complete(Unit)
 		testScheduler.advanceUntilIdle()
 
 		assertTrue(assistantConsent.isAssistantConsentGranted())
@@ -222,10 +232,8 @@ class SettingsAssistantViewModelContractTest {
 				),
 				setConsent = fakeSetAssistantConsentUseCase(assistantConsent),
 				refreshConsent = fakeRefreshAssistantConsentUseCase(assistantConsent),
-				deleteConversations = DeleteAssistantConversationsUseCase(
-					assistantConversationsRepository = assistantConversations,
-					reportingRepository = RecordingReportingRepository()
-				)
+				deleteConversations = fakeDeleteAssistantConversationsUseCase(assistantConversations),
+				consentWrites = fakeAssistantConsentWriteQueue()
 			)
 		)
 	}

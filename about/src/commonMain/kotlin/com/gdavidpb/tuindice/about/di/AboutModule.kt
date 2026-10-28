@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.about.di
 
 import com.gdavidpb.tuindice.about.data.source.AboutDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
+import com.gdavidpb.tuindice.about.domain.usecase.AssistantConsentWriteQueue
 import com.gdavidpb.tuindice.about.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionNameUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.presentation.viewmodel.SettingsViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -52,6 +54,7 @@ val aboutModule = module {
 	factoryOf(::ObserveAssistantAvailabilityUseCase)
 	factoryOf(::ObserveAssistantConsentUseCase)
 	factoryOf(::SetAssistantConsentUseCase)
+	singleOf(::AssistantConsentWriteQueue)
 	factoryOf(::RefreshAssistantConsentUseCase)
 	factoryOf(::DeleteAssistantConversationsUseCase)
 	factoryOf(::SettingsContentUseCases)

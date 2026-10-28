@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.about.presentation.route
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsOff
@@ -27,6 +30,7 @@ import com.gdavidpb.tuindice.about.testing.FakeAssistantConsentRepository
 import com.gdavidpb.tuindice.about.testing.FakeAssistantConversationsRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.about.testing.SettingsRouteUnderTest
+import com.gdavidpb.tuindice.about.testing.fakeAssistantConsentWriteQueue
 import com.gdavidpb.tuindice.about.testing.fakeDeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.about.testing.fakeObserveProfileIdentityUseCase
 import com.gdavidpb.tuindice.about.testing.fakeRefreshAssistantConsentUseCase
@@ -134,6 +138,11 @@ class SettingsAssistantRouteUiTest {
 		}
 
 		assertEquals(listOf(EXPECTED_CONSENT_FAILED_MESSAGE), messages)
+		// The failure is told while the write runs; the switch takes the store's value once the write has ended.
+		waitUntil(timeoutMillis = 2_000) {
+			onNodeWithTag(SettingsUiTags.AssistantConsentSwitch)
+				.fetchSemanticsNode().config.getOrNull(SemanticsProperties.ToggleableState) == ToggleableState.Off
+		}
 		onNodeWithTag(SettingsUiTags.AssistantConsentSwitch).assertIsOff()
 	}
 
@@ -283,7 +292,8 @@ class SettingsAssistantRouteUiTest {
 					),
 					setConsent = fakeSetAssistantConsentUseCase(assistantConsent),
 					refreshConsent = fakeRefreshAssistantConsentUseCase(assistantConsent),
-					deleteConversations = fakeDeleteAssistantConversationsUseCase(assistantConversations)
+					deleteConversations = fakeDeleteAssistantConversationsUseCase(assistantConversations),
+					consentWrites = fakeAssistantConsentWriteQueue()
 				)
 			),
 			eventPublisher = NoOpEventPublisher

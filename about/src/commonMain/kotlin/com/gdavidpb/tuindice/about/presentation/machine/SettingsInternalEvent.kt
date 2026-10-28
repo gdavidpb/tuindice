@@ -40,7 +40,6 @@ sealed interface SettingsInternalEvent {
 	) : SettingsInternalEvent
 
 	data class AssistantConsentWriteFailed(
-		val restoredGranted: Boolean,
 		val message: String
 	) : SettingsInternalEvent
 

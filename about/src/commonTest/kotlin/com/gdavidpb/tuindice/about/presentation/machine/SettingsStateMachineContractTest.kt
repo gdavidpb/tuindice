@@ -121,7 +121,7 @@ class SettingsStateMachineContractTest {
 				SettingsInternalEvent.StoreUriLoaded(uri = "https://example.test/store"),
 				SettingsInternalEvent.AssistantAvailabilityObserved(visible = true),
 				SettingsInternalEvent.AssistantConsentObserved(granted = true),
-				SettingsInternalEvent.AssistantConsentWriteFailed(restoredGranted = false, message = "No se guardó"),
+				SettingsInternalEvent.AssistantConsentWriteFailed(message = "No se guardó"),
 				SettingsInternalEvent.AssistantConversationsDeleted(message = "Borradas"),
 				SettingsInternalEvent.AssistantConversationsDeleteFailed(message = "No se borraron")
 			),

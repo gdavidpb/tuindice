@@ -12,8 +12,8 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 
 class SettingsMachine(
 	private val contentUseCases: SettingsContentUseCases,
@@ -154,13 +154,17 @@ class SettingsMachine(
 			}
 		}
 
+		// The store's consent reaches the switch only while no consent write is queued or running: until then the store
+		// may not hold the student's last move yet, and the switch keeps that move. Once the queue has drained, the
+		// store's value goes to every screen, including one opened during a write, so none is left with a stale value.
 		host.launchMachineJob {
-			assistantUseCases.observeConsent.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						SettingsInternalEvent.AssistantConsentObserved(granted = useCaseState.value)
-					)
-				}
+			combine(
+				assistantUseCases.observeConsent.execute(Unit),
+				assistantUseCases.consentWrites.writeEnds
+			) { useCaseState, _ ->
+				if (useCaseState is UseCaseState.Data && !assistantConsentWritesPending()) useCaseState.value else null
+			}.filterNotNull().collect { granted ->
+				host.processInternalEvent(SettingsInternalEvent.AssistantConsentObserved(granted = granted))
 			}
 		}
 	}
@@ -174,21 +178,19 @@ class SettingsMachine(
 		}
 	}
 
-	internal fun setAssistantConsent(host: MachineHost<Settings.Effect>, granted: Boolean) {
-		host.launchMachineJob {
+	// Whether a consent write is queued or running now.
+	internal fun assistantConsentWritesPending(): Boolean = assistantUseCases.consentWrites.hasPendingWrites
+
+	// The write joins the queue in the transition that moves the switch, so the writes reach the store in the order of
+	// the moves, whichever of their coroutines starts first. It runs in the session rather than in the screen's job, so
+	// leaving Preferences does not cut it short. A failure is told as it happens; the switch takes the store's value once
+	// the queue has drained (see startObservation), which is how a failed move goes back.
+	internal suspend fun setAssistantConsent(host: MachineHost<Settings.Effect>, granted: Boolean) {
+		assistantUseCases.consentWrites.enqueue {
 			assistantUseCases.setConsent.execute(granted).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Error) {
-					// The failed write left the store as it was, so the value to restore is
-					// the one the store holds now, not the one the switch was moved to.
-					val restoredGranted = assistantUseCases.observeConsent.execute(Unit)
-						.mapNotNull { storedState -> (storedState as? UseCaseState.Data)?.value }
-						.first()
-
 					host.processInternalEvent(
-						SettingsInternalEvent.AssistantConsentWriteFailed(
-							restoredGranted = restoredGranted,
-							message = textProvider.assistantConsentFailed()
-						)
+						SettingsInternalEvent.AssistantConsentWriteFailed(message = textProvider.assistantConsentFailed())
 					)
 				}
 			}

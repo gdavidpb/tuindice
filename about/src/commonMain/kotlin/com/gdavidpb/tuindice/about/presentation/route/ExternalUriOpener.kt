@@ -36,7 +36,6 @@ internal fun rememberExternalUriOpener(
 						)
 					)
 				}
-			Unit
 		}
 
 		opener
