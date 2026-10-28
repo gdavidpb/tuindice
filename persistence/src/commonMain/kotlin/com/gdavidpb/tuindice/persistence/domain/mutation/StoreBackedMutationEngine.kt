@@ -200,16 +200,16 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		return outboxStore.getPendingMutation(scopeKey, mutationId)
 	}
 
-	// Acknowledge-and-forget for a parked envelope: removes it without running the spec,
-	// with the same version bookkeeping as a Drop resolution so stale-snapshot fences hold.
+	// Removes a row without running its spec, because its owner decides so: a reconciliation found it aimed at
+	// something the record no longer has, or a parked row was acknowledged. That is a cancellation, so it goes through
+	// deletePendingMutation, under writeGate: it publishes CANCELLED for a row whose result was still pending, and
+	// nothing for a FailedTerminal one, whose result was published when it failed. Whoever follows the mutation is
+	// settled at once, instead of waiting for its limit.
 	suspend fun discardMutation(
 		scopeKey: ScopeKey,
 		mutationId: String
 	) {
-		val mutation = outboxStore.getPendingMutation(scopeKey, mutationId) ?: return
-		outboxStore.deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
-		forgetMutationVersion(mutation)
-		advanceMutationVersion()
+		deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
 	}
 
 	/** A newer revision is known: the rows still waiting should expect it (see the store). */
@@ -321,8 +321,12 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			val mutation = outboxStore.getPendingMutation(scopeKey, mutationId)
 
 			outboxStore.deletePendingMutation(scopeKey, mutationId)
-			mutation?.let { deleted -> forgetMutationVersion(deleted) }
-			advanceMutationVersion()
+			// Only a row that was there moves the version: a delete that finds nothing changes nothing, and moving the
+			// version anyway would make a snapshot in flight drop its copy for no reason.
+			mutation?.let { deleted ->
+				forgetMutationVersion(deleted)
+				advanceMutationVersion()
+			}
 
 			// A terminal row was published when it ended.
 			mutation?.takeIf { deleted -> deleted.status != PendingMutationStatus.FailedTerminal }
@@ -401,13 +405,16 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			rebaseAttempts += 1
 			currentMutation = step.mutation
 
-			// The rebase is a verdict on a row the wipe may have taken meanwhile: saving it would
-			// bring the row back for the account that left. Not saved, the next attempt finds the
-			// session changed at its first check and ends without sending.
+			// The rebase is a verdict on a row the wipe may have taken meanwhile, or one that a newer mutation of the
+			// same subject replaced while the failure was resolved: saving it would bring the row back for the account that
+			// left, or over the newer mutation. Not saved, the next attempt finds the session changed or the row replaced at
+			// its first check and ends without sending.
 			writeIfCurrent(epoch) {
-				outboxStore.savePendingMutation(currentMutation)
-				currentMutation.expectedRevision?.let { revision ->
-					advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+				if (shouldApplyMutation(currentMutation)) {
+					outboxStore.savePendingMutation(currentMutation)
+					currentMutation.expectedRevision?.let { revision ->
+						advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+					}
 				}
 			}
 		}
@@ -442,9 +449,15 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 				} else {
 					val aligned = stored.copy(precondition = precondition)
 
+					// Saved only while the row is still this mutation: a row replaced while the precondition was awaited is
+					// settled already, and saving it would bring it back. Not saved, the execution ends here without sending.
 					val saved = writeIfCurrent(epoch) {
-						outboxStore.savePendingMutation(aligned)
-						true
+						if (shouldApplyMutation(stored)) {
+							outboxStore.savePendingMutation(aligned)
+							true
+						} else {
+							false
+						}
 					} == true
 
 					if (saved) aligned else null
@@ -543,11 +556,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			// A resolver that cannot even decide is treated like an exhausted retry: the row
 			// survives as Failed so the drain requeue backoff owns the next attempt, and the
 			// pass keeps draining instead of aborting on a poison row. Anything else would
-			// either lose the mutation or re-send it at full drain cadence forever.
+			// either lose the mutation or re-send it at full drain cadence forever. A row that a newer mutation of the same
+			// subject replaced while the resolver ran is not saved again.
 			writeIfCurrent(epoch) {
-				outboxStore.savePendingMutation(
-					mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
-				)
+				if (shouldApplyMutation(mutation)) {
+					outboxStore.savePendingMutation(
+						mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
+					)
+				}
 			}
 
 			return terminalStep(throwable, execution.propagateTerminalErrors)
@@ -585,11 +601,18 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		rebaseAttempts: Int,
 		resolution: MutationFailureResolution<ScopeKey, Command>
 	): ExecutionStep<ScopeKey, Command> {
+		// The verdict writes the row only while it is still this mutation. A row replaced or deleted while the failure was
+		// being resolved was settled then (SUPERSEDED or CANCELLED was published): the verdict neither brings it back nor
+		// publishes a second result for it. Checked under writeGate, where the row cannot change meanwhile.
+		val rowIsCurrent = shouldApplyMutation(mutation)
+
 		return when (resolution) {
 			is MutationFailureResolution.Defer -> {
-				outboxStore.savePendingMutation(
-					mutation.retried(lastError = resolution.lastError ?: throwable.message)
-				)
+				if (rowIsCurrent) {
+					outboxStore.savePendingMutation(
+						mutation.retried(lastError = resolution.lastError ?: throwable.message)
+					)
+				}
 
 				ExecutionStep.Done(UpdaterResult.Success.Untyped(Unit))
 			}
@@ -597,10 +620,12 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			is MutationFailureResolution.Drop -> {
 				val outcome = failureOutcome(execution.syncSpec, mutation, throwable)
 
-				outboxStore.deletePendingMutation(
-					scopeKey = mutation.scopeKey,
-					mutationId = mutation.mutationId
-				)
+				if (rowIsCurrent) {
+					outboxStore.deletePendingMutation(
+						scopeKey = mutation.scopeKey,
+						mutationId = mutation.mutationId
+					)
+				}
 				forgetMutationVersion(mutation)
 				advanceMutationVersion()
 
@@ -610,7 +635,9 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			is MutationFailureResolution.Fail -> {
 				val outcome = failureOutcome(execution.syncSpec, mutation, throwable)
 
-				outboxStore.savePendingMutation(mutation.failedTerminally(throwable.message))
+				if (rowIsCurrent) {
+					outboxStore.savePendingMutation(mutation.failedTerminally(throwable.message))
+				}
 
 				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors, outcome)
 			}
@@ -655,13 +682,17 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			null
 		}
 
-		outboxStore.savePendingMutation(
-			if (isTerminal) {
-				parked.failedTerminally(throwable.message)
-			} else {
-				parked.failed(throwable.message)
-			}
-		)
+		// Saved only while the row is still this mutation: a replaced or deleted one was settled already, and saving it
+		// would bring it back (see applyResolution).
+		if (shouldApplyMutation(mutation)) {
+			outboxStore.savePendingMutation(
+				if (isTerminal) {
+					parked.failedTerminally(throwable.message)
+				} else {
+					parked.failed(throwable.message)
+				}
+			)
+		}
 
 		return terminalStep(throwable, execution.propagateTerminalErrors, outcome)
 	}
