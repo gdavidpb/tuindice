@@ -13,12 +13,14 @@ import com.gdavidpb.tuindice.assistant.ui.model.toCardFigure
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_profile_career
 import tuindice.assistant.generated.resources.assistant_card_a_profile_current_term
 import tuindice.assistant.generated.resources.assistant_card_a_profile_label
 import tuindice.assistant.generated.resources.assistant_card_a_profile_pensum
 
-// perfil.resumen/1: the cumulative index, with the approved credits beside it, then the career, the pensum and the
-// current term. A figure the card does not bring is left out, and the credits take its place.
+// perfil.resumen/1: the cumulative index, with the approved credits beside it, then the career by its name (its
+// code tells the student nothing), the pensum and the current term. A figure the card does not bring is left out, and
+// the credits take its place.
 @Composable
 fun ProfileSummaryComponentView(
 	item: ProfileSummaryItem,
@@ -30,7 +32,11 @@ fun ProfileSummaryComponentView(
 			primary = item.primaryFigure.toCardFigure(),
 			secondary = item.secondaryFigure?.toCardFigure()
 		)
-		CardRowView(title = item.careerName, name = item.careerCode, showsDivider = false)
+		CardRowView(
+			name = stringResource(Res.string.assistant_card_a_profile_career),
+			showsDivider = false,
+			trailing = { CardValueView(text = item.careerName) }
+		)
 		CardRowView(
 			name = stringResource(Res.string.assistant_card_a_profile_pensum),
 			showsDivider = true,

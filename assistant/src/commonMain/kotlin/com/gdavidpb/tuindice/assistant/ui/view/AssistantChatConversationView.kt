@@ -238,7 +238,7 @@ private fun AssistantChatMessagesPlace(
 			listState = listState,
 			onAction = onAction
 		)
-		AssistantChatScrollToEndButton(
+		AssistantChatScrollToEndButtonView(
 			listState = listState,
 			modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = TuIndiceSpacing.Small)
 		)

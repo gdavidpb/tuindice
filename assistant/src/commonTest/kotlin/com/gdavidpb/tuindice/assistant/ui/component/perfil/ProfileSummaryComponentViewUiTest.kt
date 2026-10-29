@@ -24,7 +24,9 @@ class ProfileSummaryComponentViewUiTest {
 		onNodeWithText("TU PERFIL").assertIsDisplayed()
 		onNodeWithContentDescription("Índice acumulado: 16.4000").assertIsDisplayed()
 		onNodeWithContentDescription("Créditos aprobados: 80\u00A0/\u00A0180").assertIsDisplayed()
-		onNodeWithText("IS").assertIsDisplayed()
+		// The career shows by its name only: its code tells the student nothing.
+		onNodeWithText("IS").assertDoesNotExist()
+		onNodeWithText("Carrera").assertIsDisplayed()
 		onNodeWithText("Ingeniería de Sistemas").assertIsDisplayed()
 		onNodeWithText("2016").assertIsDisplayed()
 		onNodeWithText("2026-JAN_MAR").assertIsDisplayed()

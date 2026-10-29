@@ -52,7 +52,6 @@ internal fun ProfileSummaryComponent.toProfileSummaryItem(): ProfileSummaryItem 
 	return ProfileSummaryItem(
 		id = id,
 		opensSheet = opensSheet(),
-		careerCode = careerCode,
 		careerName = careerName,
 		pensumLabel = pensumLabel,
 		primaryFigure = indexFigure ?: creditsFigure,

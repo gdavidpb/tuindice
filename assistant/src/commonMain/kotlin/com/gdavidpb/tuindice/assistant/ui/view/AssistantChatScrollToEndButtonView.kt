@@ -46,7 +46,7 @@ import tuindice.assistant.generated.resources.a11y_assistant_scroll_to_end
 // once that end is in view. Whether the list can go further down is a derived state, so a scroll recomposes the button
 // only when that changes. With animations off it is there or not, at once.
 @Composable
-internal fun AssistantChatScrollToEndButton(
+fun AssistantChatScrollToEndButtonView(
 	listState: LazyListState,
 	modifier: Modifier = Modifier
 ) {
