@@ -279,7 +279,7 @@ gh auth status
 gh pr create --base production --head "$(git branch --show-current)" --title "<title>" --body "<body>"
 ```
 
-If `gh auth status` fails use the GitHub connector. Create a ready-for-review PR, not a draft. Title: concise
+If `gh auth status` fails use the GitHub connector. Keep the PR a draft while evidence runs, since the preflight workflow skips drafts, and mark it ready for review once every platform is `current`. Title: concise
 product or change title, no `Codex`. Body: summary of user-visible or workflow changes, verification commands,
 evidence outcome with the certified SHA and platform verdicts, notable fix loops. Afterwards verify base
 `production`, head branch, not draft, head SHA equal to the certified SHA.

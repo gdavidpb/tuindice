@@ -58,7 +58,7 @@ bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`.
    or `e2eEvidenceAndroid` / `e2eEvidenceIos` for one platform.
 7. On a non-zero exit read the run's `summary.txt` and follow "Failure handling" and "Stop conditions".
 8. After the final push, rerun the helper: every required platform is `current`.
-9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
+9. Keep the PR against `production` a draft while evidence runs (CI skips drafts); mark it ready when all are `current`.
 10. Stop the devices: `python3 e2e/scripts/shared/e2e.py stop-devices` (`--platform <p>` for one).
 11. Deliver the Spanish store-copy proposal, in a marketing tone, in the session (runbook section 8), never in the PR body.
 12. Close with a short retrospective grounded in what happened; apply the maintenance rules below.
@@ -120,7 +120,7 @@ E2E and preflight fixes must not alter the product experience to please automati
 
 ## Pull request rules
 
-- Base `production`, head the current `feat/*`, not draft, title without `Codex`.
+- Base `production`, head the current `feat/*`, ready for review once certified, title without `Codex`.
 - Body: summary, verification commands, evidence outcome (certified SHA, platforms, verdicts), notable fix loops.
 - Prefer the GitHub connector when `gh auth status` fails; otherwise `gh pr create`.
 
