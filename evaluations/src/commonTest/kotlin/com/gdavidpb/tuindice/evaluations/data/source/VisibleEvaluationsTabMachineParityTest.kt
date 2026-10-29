@@ -29,8 +29,10 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,6 +49,7 @@ import kotlin.time.ExperimentalTime
 // machine. The machine reads its texts (week labels) from the Compose resources, which the Android
 // host does not have, so this class is left out of testAndroidHostTest (the root build file lists
 // it) and runs where the resources exist: the iOS simulator tests.
+@OptIn(ExperimentalCoroutinesApi::class)
 class VisibleEvaluationsTabMachineParityTest {
 	// The tab is the real machine: what is compared is what it leaves in its content state after it
 	// observed the repository through its use case and mapped what it saw, not a filter applied by hand.
@@ -145,7 +148,8 @@ private class TabMachine(
 		),
 		setSelectedWeekUseCase = SetSelectedWeekUseCase(
 			evaluationsSelectionRepository = selectionRepository,
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			sessionCoroutineScope = testSessionCoroutineScope()
 		),
 		weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 		clock = Clock.System

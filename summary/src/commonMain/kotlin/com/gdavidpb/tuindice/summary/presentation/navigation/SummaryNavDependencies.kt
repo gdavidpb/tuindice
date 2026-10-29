@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
 import androidx.compose.runtime.Stable
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantNavTarget
 
 /**
  * Where Summary leads: the screens its lines lead to, the Schedule sheet, the forms and the password sheet. The
@@ -15,5 +17,10 @@ class SummaryNavDependencies(
 	// The Schedule sheet, over Summary.
 	val onOpenSchedule: () -> Unit = {},
 	// The form, on the tab it belongs to.
-	val onOpenForm: (form: SummaryForm) -> Unit = {}
+	val onOpenForm: (form: SummaryForm) -> Unit = {},
+	// The screen a button of "Qué sigue" in the term report opens, with the records it needs: the chat's own jump.
+	val onNavigateToAssistantTarget: (
+		target: AssistantNavTarget,
+		entityRefs: List<AssistantEntityRef>
+	) -> Unit = { _, _ -> }
 )

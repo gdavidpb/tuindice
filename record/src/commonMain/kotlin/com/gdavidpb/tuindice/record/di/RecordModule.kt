@@ -30,9 +30,12 @@ import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRe
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetRecordRevisionUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetTermKeyUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordMutationOutcomesUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
@@ -97,6 +100,9 @@ val recordModule = module {
 	factoryOf(::CreateSyntheticTermUseCase)
 	factoryOf(::UpdateSyntheticTermUseCase)
 	factoryOf(::LoadSyntheticTermEditSeedUseCase)
+	factoryOf(::GetRecordRevisionUseCase)
+	factoryOf(::GetTermKeyUseCase)
+	factoryOf(::ObserveRecordMutationOutcomesUseCase)
 
 	/* Repositories */
 

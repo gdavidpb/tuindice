@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecord
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
 import com.gdavidpb.tuindice.summary.domain.mapper.buildSummaryHub
 import com.gdavidpb.tuindice.summary.domain.mapper.recordReadingOf
+import com.gdavidpb.tuindice.summary.domain.mapper.summaryRecordStateOf
 import com.gdavidpb.tuindice.summary.domain.model.SummaryHub
 import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordReading
-import com.gdavidpb.tuindice.summary.domain.model.SummaryRecordState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -60,7 +60,7 @@ class ObserveSummaryHubUseCase(
 	// depend on the clock, so they are kept out of the combination above: a minute that passes reads only the day.
 	private fun observeRecordReading(): Flow<SummaryRecordReading> {
 		return combine(observeRecord(), observeRecordPrerequisite()) { record, prerequisite ->
-			recordStateOf(record = record, prerequisite = prerequisite)
+			summaryRecordStateOf(record = record, prerequisite = prerequisite)
 		}
 			.distinctUntilChanged()
 			.map { recordState -> recordReadingOf(recordState) }
@@ -68,14 +68,6 @@ class ObserveSummaryHubUseCase(
 
 	// What the hub reads of the record: a ready one has the week and the term. A new student the university has no record
 	// for yet has no term yet, which is not an error; any other state of the record leaves only the career.
-	private fun recordStateOf(record: AcademicRecord?, prerequisite: RecordDataPrerequisiteState): SummaryRecordState {
-		return when {
-			record != null && prerequisite.isReady -> SummaryRecordState.Ready(record)
-			prerequisite.isNewStudentWithoutRecord -> SummaryRecordState.NewStudentWithoutRecord
-			else -> SummaryRecordState.NotReady
-		}
-	}
-
 	private fun observeRecord(): Flow<AcademicRecord?> {
 		return visibleAcademicRecordRepository.observeVisibleAcademicRecordFlow().catch { throwable ->
 			reportHandledException(throwable)

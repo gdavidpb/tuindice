@@ -186,6 +186,27 @@ class UpdateSyntheticTermUseCaseTest {
 		assertEquals(emptyList(), repository.updatedTerms)
 	}
 
+	@Test
+	fun execute_propagatesTheRequestedMutationIdToTheCommand() = runTest {
+		val repository = repositoryWithSyntheticTerm()
+		val useCase = createUseCase(repository)
+
+		useCase.execute(
+			createParams(
+				subjects = listOf(syntheticSubject(subjectCode = "MA1112", attemptId = "syn-1-MA1112"))
+			).copy(mutationId = "external-update")
+		).test {
+			assertEquals("syn-1", awaitLoadingThenData(this))
+
+			awaitComplete()
+		}
+
+		assertEquals(
+			listOf<String?>("external-update"),
+			repository.updatedTerms.map(SyntheticTermUpdateCommand::mutationId)
+		)
+	}
+
 	private fun repositoryWithSyntheticTerm(): ControllableAcademicRecordRepository {
 		return ControllableAcademicRecordRepository(
 			initialRecord = AcademicRecord(

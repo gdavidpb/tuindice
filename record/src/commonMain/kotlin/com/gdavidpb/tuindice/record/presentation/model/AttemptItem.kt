@@ -1,10 +1,14 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 
+@Immutable
 data class AttemptItem(
 	val attemptId: String,
 	val subjectCode: String,
@@ -21,5 +25,7 @@ data class AttemptItem(
 	val isReadOnly: Boolean,
 	val detailText: String? = null,
 	val enrollmentErrorText: String? = null,
-	val isWithdrawn: Boolean = false
+	val isWithdrawn: Boolean = false,
+	// What a question about this subject is asked with, from its card.
+	val assistantContext: AssistantScreenContext = AssistantScreenContext(screen = AssistantScreen.RECORD)
 )

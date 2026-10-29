@@ -19,16 +19,18 @@
 	<string name="bottom_bar_record">Informe</string>
 	<string name="bottom_bar_pensum">Pensum</string>
 	<string name="bottom_bar_evaluations">Evaluaciones</string>
-	<string name="bottom_bar_about">Acerca de</string>
 	<string name="browser_error_title">No pudimos cargar la página</string>
 	<string name="browser_error_message">Comprueba tu conexión e intenta de nuevo.</string>
 	<string name="browser_error_retry">Reintentar</string>
 	<string name="a11y_navigate_back">Volver</string>
-	<string name="a11y_top_bar_sign_out">Cerrar sesión</string>
 	<string name="a11y_top_bar_enrollment_proof">Ver comprobante</string>
 	<string name="a11y_top_bar_record_term_selection">Ver todos los trimestres</string>
 	<string name="a11y_top_bar_record_schedule">Ver horario</string>
 	<string name="a11y_top_bar_search_pensum">Buscar materias</string>
 	<string name="a11y_top_bar_change_pensum">Cambiar pensum</string>
 	<string name="a11y_top_bar_statistics_share">Compartir un trimestre</string>
+	<string name="a11y_top_bar_term_report_share">Compartir este trimestre</string>
+	<string name="a11y_top_bar_assistant">Pregúntale a TuIndice</string>
+	<string name="a11y_top_bar_settings">Preferencias</string>
+	<string name="term_report_channel_name">Informes del trimestre</string>
 </resources>

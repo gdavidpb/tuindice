@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -31,6 +32,8 @@ fun StatisticsStackedBar(
 	labels: StatisticsChartLabels,
 	modifier: Modifier = Modifier
 ) {
+	ReportComposition("statistics-stacked")
+
 	val openIndex = remember { mutableStateOf<Int?>(null) }
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val growth = remember { Animatable(0f) }
@@ -41,7 +44,8 @@ fun StatisticsStackedBar(
 		}
 	}
 
-	val progress = if (animationsEnabled) growth.value else 1f
+	// The growth is read by the track where it is laid out, so a frame of it composes neither the bar nor its targets.
+	val progress: () -> Float = { if (animationsEnabled) growth.value else 1f }
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -52,7 +56,9 @@ fun StatisticsStackedBar(
 			.testTag(SummaryUiTags.statisticsChart(labels.key))
 			.semantics { contentDescription = labels.summary }
 	) {
-		val spans = StatisticsStackGeometry.segmentSpans(segments.map { segment -> segment.value }, maxWidth.value)
+		val spans = remember(segments, maxWidth) {
+			StatisticsStackGeometry.segmentSpans(segments.map { segment -> segment.value }, maxWidth.value)
+		}
 
 		StatisticsStackedTrack(
 			segments = segments,

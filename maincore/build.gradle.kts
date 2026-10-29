@@ -50,6 +50,9 @@ kotlin {
 				implementation(project(":subjects"))
 				implementation(project(":wizard"))
 				implementation(project(":pensum"))
+				implementation(project(":assistant"))
+				implementation(project(":chatcontract"))
+				implementation(project(":academiccore"))
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
 				implementation(libs.koin.core.viewmodel)
@@ -86,4 +89,9 @@ kotlin {
 			}
 		}
 	}
+}
+
+// The app host reads the name of the term report notification channel from these resources, so the accessors are public.
+compose.resources {
+	publicResClass = true
 }

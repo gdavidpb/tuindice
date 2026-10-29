@@ -9,6 +9,9 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
+import com.gdavidpb.tuindice.evaluations.data.source.SelectedWeekWriter
+import com.gdavidpb.tuindice.evaluations.domain.model.SelectedWeekPick
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
@@ -27,15 +30,21 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsIllustrat
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.testing.FakeSettings
 import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
+import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -59,6 +68,7 @@ import kotlin.time.ExperimentalTime
  * same anchor, is replaced by the default when the Monday that opens week 1 moves, and is saved
  * together with that Monday.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationsWeekTransitionsTest {
 	private val selectionRepository = InMemoryEvaluationsSelectionRepository()
 	private val weekFocus = InMemoryEvaluationsWeekFocusDataSource()
@@ -77,7 +87,8 @@ class EvaluationsWeekTransitionsTest {
 
 	private fun machine(
 		weekFocusRepository: EvaluationsWeekFocusRepository = weekFocus,
-		observedRepository: RecordingEvaluationRepository = RecordingEvaluationRepository()
+		observedRepository: RecordingEvaluationRepository = RecordingEvaluationRepository(),
+		selectionRepository: EvaluationsSelectionRepository = this.selectionRepository
 	) = EvaluationsMachine(
 		getEvaluationsUseCase = withReporting { reporting ->
 			GetEvaluationsUseCase(
@@ -106,7 +117,8 @@ class EvaluationsWeekTransitionsTest {
 		},
 		setSelectedWeekUseCase = SetSelectedWeekUseCase(
 			evaluationsSelectionRepository = selectionRepository,
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			sessionCoroutineScope = testSessionCoroutineScope()
 		),
 		weekFocusRepository = weekFocusRepository,
 		clock = Clock.System
@@ -319,6 +331,47 @@ class EvaluationsWeekTransitionsTest {
 		assertNull(selectionRepository.observeSelectedWeekKey().first())
 	}
 
+	// The student picks week 3 and then week 5 while the save of week 3 is still on its way. That first save is held
+	// before it reaches the writer, so the save of week 5 lands first and the held one lands last: the week left saved
+	// is the last pick made, whatever the order the saves land in.
+	@Test
+	fun twoPicksInARow_leaveTheLastOneSaved() = runTest {
+		val store = HeldFirstSaveSelectionRepository()
+		val definition = machine(selectionRepository = store).define(host(scope = this))
+		val state = content(selected = EvaluationsWeekKey.Academic(1), weekOneStart = FIRST_ANCHOR)
+		val pickWeek3 = Evaluations.Action.SelectWeek(EvaluationsWeekKey.Academic(3))
+		val pickWeek5 = Evaluations.Action.SelectWeek(EvaluationsWeekKey.Academic(5))
+
+		val afterFirstPick = state.after(definition, pickWeek3)
+		advanceUntilIdle()
+
+		val afterSecondPick = afterFirstPick.after(definition, pickWeek5)
+		store.releaseHeldSave()
+		advanceUntilIdle()
+
+		assertEquals(EvaluationsWeekKey.Academic(5), assertIs<Evaluations.State.Content>(afterSecondPick).selectedWeekKey)
+		assertEquals("academic:2026-09-28:5", store.savedWeekKey)
+	}
+
+	// Two machines, one per screen, save through the same store: the last pick made is the one left saved, whichever
+	// machine made it. The first save is held before it reaches the writer, so the second pick lands before it.
+	@Test
+	fun twoMachinesOverOneStore_theLastPickIsTheOneSaved() = runTest {
+		val store = HeldFirstSaveSelectionRepository()
+		val firstScreen = machine(selectionRepository = store).define(host(scope = this))
+		val secondScreen = machine(selectionRepository = store).define(host(scope = this))
+		val state = content(selected = EvaluationsWeekKey.Academic(1), weekOneStart = FIRST_ANCHOR)
+
+		state.after(firstScreen, Evaluations.Action.SelectWeek(EvaluationsWeekKey.Academic(3)))
+		advanceUntilIdle()
+
+		state.after(secondScreen, Evaluations.Action.SelectWeek(EvaluationsWeekKey.Academic(5)))
+		store.releaseHeldSave()
+		advanceUntilIdle()
+
+		assertEquals("academic:2026-09-28:5", store.savedWeekKey)
+	}
+
 	@Test
 	fun aWeekFocus_selectsTheWeekTheListFilesTheMondayUnder_heldToTheWeeksOfTheTerm() = runTest {
 		val definition = definitionWith()
@@ -444,6 +497,36 @@ class EvaluationsWeekTransitionsTest {
 		runCurrent()
 
 		assertEquals(1, requests.subscriptionCount.value)
+	}
+
+	// A selection store whose first save waits until the test releases it, as a slow store does. The week it keeps
+	// is the one of the last pick made, whichever save lands last.
+	private class HeldFirstSaveSelectionRepository : EvaluationsSelectionRepository {
+		private val heldSave = CompletableDeferred<Unit>()
+		private var isFirstSaveSeen = false
+
+		private val settings = FakeSettings()
+
+		// The saves go through the writer the data source uses, so the double exercises the real order of the saves.
+		private val selectedWeekWriter = SelectedWeekWriter(settings = settings)
+
+		val savedWeekKey: String?
+			get() = settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
+
+		override fun observeSelectedWeekKey(): Flow<String?> = selectedWeekWriter.observeSelectedWeekKey()
+
+		override suspend fun saveSelectedWeekPick(pick: SelectedWeekPick) {
+			if (!isFirstSaveSeen) {
+				isFirstSaveSeen = true
+				heldSave.await()
+			}
+
+			selectedWeekWriter.save(pick = pick)
+		}
+
+		fun releaseHeldSave() {
+			heldSave.complete(Unit)
+		}
 	}
 
 	private companion object {

@@ -10,4 +10,5 @@ internal object SummaryStatisticsChartKey {
 	const val Subjects = "subjects"
 	const val Grades = "grades"
 	const val Pace = "pace"
+	const val TermReportPaceChart = "term_report_pace"
 }

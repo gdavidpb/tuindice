@@ -1,7 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -19,6 +23,7 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.testing.recordMapperTexts
+import com.gdavidpb.tuindice.record.ui.view.TermSummaryContent
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -51,24 +56,27 @@ class TermItemUiTest {
 	}
 
 	@Test
-	fun when_aTermIsMapped_then_itsThreeValuesCarryTheHighlightTheyWereGiven() = runTuIndiceUiTest {
+	fun when_aTermIsShown_then_itsThreeValuesCarryThePrimaryColorOfTheTheme() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
-			item = termProjection().toTermItem(
+			val mapped = termProjection().toTermItem(
 				viewMode = RecordViewMode.Projection,
-				texts = recordMapperTexts(),
-				highlightColor = Color.Magenta
+				texts = recordMapperTexts()
 			)
+			item = mapped
+			MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(primary = Color.Magenta)) {
+				TermSummaryContent(item = mapped, texts = recordMapperTexts())
+			}
 		}
 
 		val mapped = assertNotNull(item)
-
-		listOf(mapped.gradeText, mapped.gradeSumText, mapped.creditsText).forEach { value ->
-			assertEquals(Color.Magenta, value.spanStyles.single().item.color, "the highlight of \"${value.text}\"")
-		}
 		assertEquals("Sep - Dic 2026", mapped.shortNameText)
 		assertNull(mapped.notice)
+
+		listOf("4.0 prom", "3.5 acum", "12 UC").forEach { value ->
+			assertEquals(Color.Magenta, highlightOf(value), "the highlight of \"$value\"")
+		}
 	}
 
 	@Test
@@ -83,7 +91,6 @@ class TermItemUiTest {
 			).toTermItemList(
 				viewMode = RecordViewMode.Projection,
 				texts = recordMapperTexts(),
-				highlightColor = Color.Red,
 				notice = notice
 			)
 		}
@@ -102,7 +109,6 @@ class TermItemUiTest {
 			item = termProjection(kind = TermKind.CURRENT).toTermItem(
 				viewMode = RecordViewMode.Projection,
 				texts = recordMapperTexts(),
-				highlightColor = Color.Red,
 				notice = annulment(RecordNoticeKind.AnnulledFinal)
 			)
 		}
@@ -119,8 +125,7 @@ class TermItemUiTest {
 			setTuIndiceTestContent {
 				item = termProjection(kind = TermKind.HISTORICAL).toTermItem(
 					viewMode = RecordViewMode.Projection,
-					texts = recordMapperTexts(),
-					highlightColor = Color.Red
+					texts = recordMapperTexts()
 				)
 			}
 
@@ -140,8 +145,7 @@ class TermItemUiTest {
 		setTuIndiceTestContent {
 			item = termProjection(kind = TermKind.SYNTHETIC).toTermItem(
 				viewMode = RecordViewMode.Historical,
-				texts = recordMapperTexts(),
-				highlightColor = Color.Red
+				texts = recordMapperTexts()
 			)
 		}
 
@@ -151,6 +155,12 @@ class TermItemUiTest {
 		assertTrue(mapped.canDelete)
 		assertFalse(mapped.canEdit)
 		assertTrue(mapped.attempts.single().isReadOnly)
+	}
+
+	// The color of the highlight a shown value carries: the span of the text the screen draws.
+	private fun ComposeUiTest.highlightOf(value: String): Color {
+		val text = onNodeWithText(value).fetchSemanticsNode().config[SemanticsProperties.Text].single()
+		return text.spanStyles.single().item.color
 	}
 
 	private fun annulment(kind: RecordNoticeKind): RecordNotice = recordNotice(

@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsEx
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -25,11 +26,13 @@ class EvaluationsScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = Evaluations.State.Loading,
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 
@@ -41,11 +44,13 @@ class EvaluationsScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = evaluationsContentState(),
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 
@@ -59,11 +64,13 @@ class EvaluationsScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = Evaluations.State.Failed(message = "Comprueba tu conexión"),
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = { retryClicks++ }
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = { retryClicks++ }
+				)
 			)
 		}
 
@@ -80,11 +87,13 @@ class EvaluationsScreenUiTest {
 					state = Evaluations.State.RecordDataUnavailable(
 						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = false)
 					),
-					onAddEvaluationClick = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {},
-					onRetryClick = {}
+					actions = EvaluationsActions(
+						onAddEvaluationClick = {},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {},
+						onRetryClick = {}
+					)
 				)
 			}
 
@@ -104,11 +113,13 @@ class EvaluationsScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = Evaluations.State.Empty(),
-				onAddEvaluationClick = { addClicks++ },
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = { addClicks++ },
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 
@@ -124,11 +135,13 @@ class EvaluationsScreenUiTest {
 				state = Evaluations.State.NoAttempts(
 					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm)
 				),
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 
@@ -146,11 +159,13 @@ class EvaluationsScreenUiTest {
 					state = Evaluations.State.NoAttempts(
 						explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.EnrollmentUnavailable)
 					),
-					onAddEvaluationClick = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {},
-					onRetryClick = {}
+					actions = EvaluationsActions(
+						onAddEvaluationClick = {},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {},
+						onRetryClick = {}
+					)
 				)
 			}
 
@@ -170,11 +185,13 @@ class EvaluationsScreenUiTest {
 				state = Evaluations.State.NoAttempts(
 					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NotEnrolled)
 				),
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 
@@ -190,11 +207,13 @@ class EvaluationsScreenUiTest {
 					state = Evaluations.State.RecordDataUnavailable(
 						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = true)
 					),
-					onAddEvaluationClick = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {},
-					onRetryClick = {}
+					actions = EvaluationsActions(
+						onAddEvaluationClick = {},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {},
+						onRetryClick = {}
+					)
 				)
 			}
 
@@ -211,11 +230,13 @@ class EvaluationsScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = evaluationsContentState(),
-				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				onRetryClick = {}
+				actions = EvaluationsActions(
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
 			)
 		}
 

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.event.DebugEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.machine.DebugMachineLogDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataSource
@@ -40,6 +41,10 @@ val androidDebugVariantModule = module {
 
 	single<AppStartupTask>(named("androidDebugUsageDataCollectionTask")) {
 		NoOpUsageDataCollectionDataSource
+	}
+
+	single<AppStartupTask>(named("androidDebugMachineLogTask")) {
+		DebugMachineLogDataSource()
 	}
 
 	single<EventSubscriber>(named("androidDebugEventSubscriber")) {

@@ -39,8 +39,10 @@ dependencies {
 	kover(project(":about"))
 	kover(project(":academiccore"))
 	kover(project(":app"))
+	kover(project(":assistant"))
 	kover(project(":auth"))
 	kover(project(":base"))
+	kover(project(":chatcontract"))
 	kover(project(":enrollmentproof"))
 	kover(project(":evaluations"))
 	kover(project(":maincore"))
@@ -161,8 +163,12 @@ tasks.register("verifySharedCompilation") {
 		":about:compileKotlinIosSimulatorArm64",
 		":academiccore:compileAndroidMain",
 		":academiccore:compileKotlinIosSimulatorArm64",
+		":academiccore:compileKotlinJvm",
 		":base:compileAndroidMain",
 		":base:compileKotlinIosSimulatorArm64",
+		":chatcontract:compileAndroidMain",
+		":chatcontract:compileKotlinIosSimulatorArm64",
+		":chatcontract:compileKotlinJvm",
 		":testkit:compileAndroidMain",
 		":testkit:compileKotlinIosSimulatorArm64",
 		":scenariokit:compileAndroidMain",
@@ -187,6 +193,8 @@ tasks.register("verifySharedCompilation") {
 		":summary:compileKotlinIosSimulatorArm64",
 		":subjects:compileAndroidMain",
 		":subjects:compileKotlinIosSimulatorArm64",
+		":assistant:compileAndroidMain",
+		":assistant:compileKotlinIosSimulatorArm64",
 		":pensum:compileAndroidMain",
 		":pensum:compileKotlinIosSimulatorArm64",
 		":wizard:compileAndroidMain",
@@ -200,8 +208,10 @@ tasks.register("verifySharedTests") {
 
 	dependsOn(
 		":about:iosSimulatorArm64Test",
+		":assistant:iosSimulatorArm64Test",
 		":academiccore:iosSimulatorArm64Test",
 		":base:iosSimulatorArm64Test",
+		":chatcontract:iosSimulatorArm64Test",
 		":testkit:iosSimulatorArm64Test",
 		":scenariokit:iosSimulatorArm64Test",
 		":enrollmentproof:iosSimulatorArm64Test",
@@ -224,8 +234,12 @@ tasks.register("verifySharedHostTests") {
 
 	dependsOn(
 		":about:testAndroidHostTest",
+		":assistant:testAndroidHostTest",
 		":academiccore:testAndroidHostTest",
+		":academiccore:jvmTest",
 		":base:testAndroidHostTest",
+		":chatcontract:testAndroidHostTest",
+		":chatcontract:jvmTest",
 		":testkit:testAndroidHostTest",
 		":scenariokit:testAndroidHostTest",
 		":scenarios:testAndroidHostTest",
@@ -245,6 +259,7 @@ tasks.register("verifySharedHostTests") {
 
 private val commonUiModules = listOf(
 	"about",
+	"assistant",
 	"base",
 	"enrollmentproof",
 	"evaluations",
@@ -305,6 +320,22 @@ tasks.register<Exec>("verifyModuleGraph") {
 	group = "verification"
 	description = "Validates module project dependencies against the agreed architecture graph."
 	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
+}
+
+// The branch base the baseline and test checks compare against: the merge-base of HEAD and this ref. Empty means
+// origin/production, or production without an origin.
+val verificationBaselineRef: String = providers.gradleProperty("baselineRef").getOrElse("")
+
+tasks.register<Exec>("verifyDetektBaselinesShrink") {
+	group = "verification"
+	description = "Fails when a detekt baseline grows against the branch base (-PbaselineRef= overrides origin/production)."
+	commandLine("bash", "${rootDir}/scripts/verify-detekt-baselines-shrink.sh", verificationBaselineRef)
+}
+
+tasks.register<Exec>("verifyEngineAndUseCaseTests") {
+	group = "verification"
+	description = "Fails when a domain engine has no test named after it, or a use case new since the base has no test."
+	commandLine("bash", "${rootDir}/scripts/verify-engine-and-usecase-tests.sh", verificationBaselineRef)
 }
 
 // The E2E tasks live in a file outside the E2E fingerprint; see its header.

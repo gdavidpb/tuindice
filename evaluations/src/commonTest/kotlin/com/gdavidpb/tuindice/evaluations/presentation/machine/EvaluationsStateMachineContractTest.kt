@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepo
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
@@ -205,7 +206,8 @@ class EvaluationsStateMachineContractTest {
 			),
 			setSelectedWeekUseCase = SetSelectedWeekUseCase(
 				evaluationsSelectionRepository = selectionRepository,
-				reportingRepository = reportingRepository
+				reportingRepository = reportingRepository,
+				sessionCoroutineScope = testSessionCoroutineScope()
 			),
 			weekFocusRepository = weekFocusRepository,
 			clock = Clock.System
@@ -403,7 +405,8 @@ class EvaluationsStateMachineContractTest {
 				),
 				setSelectedWeekUseCase = SetSelectedWeekUseCase(
 					evaluationsSelectionRepository = selectionRepository,
-					reportingRepository = reportingRepository
+					reportingRepository = reportingRepository,
+					sessionCoroutineScope = testSessionCoroutineScope()
 				),
 				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = Clock.System

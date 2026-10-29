@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
-import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -28,11 +28,12 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.confirmCoachmarks
+import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
-import com.gdavidpb.tuindice.wizard.ui.CoachmarkUiTags
 
 /**
  * The mock scenario that answers 503 to the dated evaluation while it is in [MOCK_UNAVAILABLE], the state the
@@ -49,14 +50,12 @@ private const val MOCK_AVAILABLE = "Available"
 private val cleanArguments = Start.Clean().toLaunchSpec().arguments
 
 /**
- * A fresh install shows exactly one coachmark over the summary the first time it opens (the summary's own,
- * see `eligibleCoachmarkIds`): wait for it, confirm it, wait for it to leave, then the summary.
+ * A fresh install shows two coachmarks over the summary the first time it opens (the summary's own and the one that
+ * points at the avatar of Settings, see `eligibleCoachmarkIds`): each is confirmed in turn, then the summary.
  */
 private fun StepBuilder.reachSummaryAfterSignIn() {
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
-	waitVisible(CoachmarkUiTags.currentCoachmark(CoachmarkId.Summary), Within.Action)
-	tap(CoachmarkUiTags.ConfirmButton)
-	waitGone(CoachmarkUiTags.Bubble, Within.Action)
+	confirmCoachmarks(CoachmarkId.Summary, CoachmarkId.Settings)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 }
 
@@ -98,8 +97,7 @@ private fun StepBuilder.addPendingEvaluation(withDate: Boolean) {
 private fun StepBuilder.openSignOutFromSummary() {
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 }
 
 /** The password sheet that opens when sign-out finds the stored password outdated, with the password typed. */
@@ -418,11 +416,11 @@ private val authSignOutCancel = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
 	waitGone(BaseUiTags.ConfirmationDialogSheet, Within.Action)
-	waitVisible(SummaryUiTags.ContentContainer, Within.Assert)
+	// Sign-out lives in Settings: cancelling keeps the student there.
+	waitVisible(SettingsUiTags.ContentContainer, Within.Assert)
 }
 
 private val authSignOut = scenario(
@@ -431,14 +429,13 @@ private val authSignOut = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	tags("smoke")
-	covers("auth.SignOut.ClickSignOut")
+	covers("auth.SignOut.ClickSignOut", "about.Settings.RequestSignOut")
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 }

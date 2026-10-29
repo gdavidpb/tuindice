@@ -13,10 +13,8 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
+import com.gdavidpb.tuindice.pensum.ui.model.PensumActions
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumLoadingView
@@ -33,13 +31,8 @@ import tuindice.pensum.generated.resources.pensum_record_unavailable_title
 @Composable
 fun PensumScreen(
 	state: Pensum.State,
-	onRetryClick: () -> Unit,
 	showSelectionSheet: Boolean,
-	onSummaryCollapsedToggle: () -> Unit = {},
-	onSelectionSheetDismiss: () -> Unit,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
-	onPensumContextClick: () -> Unit = {},
+	actions: PensumActions,
 	screenSessionStore: PensumScreenSessionStore? = null
 ) {
 	val graphColors = pensumGraphColors()
@@ -67,23 +60,19 @@ fun PensumScreen(
 					)
 					is Pensum.State.Content -> PensumContentView(
 						model = targetState.model,
-					isRefreshing = targetState.isRefreshing,
-					localDataMessage = targetState.localDataMessage,
-					showSelectionSheet = showSelectionSheet,
-					screenSessionStore = activeScreenSessionStore,
-					isSummaryCollapsed = targetState.isSummaryCollapsed,
-						onSummaryCollapsedToggle = onSummaryCollapsedToggle,
-						onSelectionSheetDismiss = onSelectionSheetDismiss,
-						onSubjectStatsClick = onSubjectStatsClick,
-						onSelectionApplied = onSelectionApplied,
-						onPensumContextClick = onPensumContextClick
+						isRefreshing = targetState.isRefreshing,
+						localDataMessage = targetState.localDataMessage,
+						showSelectionSheet = showSelectionSheet,
+						screenSessionStore = activeScreenSessionStore,
+						isSummaryCollapsed = targetState.isSummaryCollapsed,
+						actions = actions
 					)
 					is Pensum.State.Failed ->
 						ErrorView(
 							title = stringResource(Res.string.pensum_failed_title),
 							message = targetState.message.asString(),
 							retryText = stringResource(Res.string.pensum_failed_retry),
-							onRetryClick = onRetryClick,
+							onRetryClick = actions.onRetryClick,
 							headerContent = { ErrorStateAnimationView() }
 						)
 				}

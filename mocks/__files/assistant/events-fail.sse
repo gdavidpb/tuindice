@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-fail"}
+
+data: {"type":"progress","seq":2,"turnId":"turn-fail","tool":"pensum","label":"Revisando tu pensum"}
+
+data: {"type":"run_error","seq":3,"turnId":"turn-fail","code":"transient","retryable":true}
+

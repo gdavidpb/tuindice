@@ -88,7 +88,7 @@ internal class SyntheticTermCommandValidator(
 			.filter { term -> term.kind.isHistorical || term.kind.isCurrent }
 			.flatMap { term ->
 				term.attempts.filter { attempt ->
-					attempt.academicOutcome == AttemptOutcome.APPROVED
+					!attempt.withdrawn && attempt.academicOutcome == AttemptOutcome.APPROVED
 				}
 			}
 			.map { attempt -> attempt.subjectCode.uppercase() }

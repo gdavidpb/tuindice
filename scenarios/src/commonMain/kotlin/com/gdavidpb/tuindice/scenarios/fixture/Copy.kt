@@ -108,6 +108,21 @@ object Copy {
 	const val EvaluationsNotEnrolledTitle = "No estás inscrito en este trimestre"
 	const val EvaluationsNoSubjectsTitle = "Sin trimestre en curso"
 	const val EvaluationNoGrade = "Sin nota"
+	const val EvaluationCompleted = "Completada"
+
+	// assistant
+	const val AssistantReportIncorrect = "Es incorrecto"
+	const val AssistantIntentCancelled = "Descartado"
+	const val AssistantStillAppliesYes = "Sí, sigue"
+	const val AssistantCopied = "Copiado"
+	const val AssistantAppealSent = "Enviamos tu apelación."
+	const val AssistantReceiptAddedOne = "Se agregó 1 evaluación"
+
+	/** The state the chat card writes for an evaluation the service calls pending, when it draws the service's values. */
+	const val AssistantEvaluationPending = "Programada"
+
+	// about
+	const val AssistantConversationsDeleted = "Se borraron tus conversaciones con el asistente"
 
 	// base: where a class meets, as an evaluation inherits it: the room on a line of its own, the schedule under it
 	const val RoomMys116 = "MYS-116"
@@ -135,6 +150,15 @@ object Copy {
 			listOf("Sep - Dic 2026", "3")
 		),
 		CopyBinding.Resource(EvaluationNoGrade, "evaluations", "evaluation_status_overdue"),
+		CopyBinding.Resource(EvaluationCompleted, "evaluations", "evaluation_status_completed"),
+		CopyBinding.Resource(AssistantReportIncorrect, "assistant", "assistant_chat_report_incorrect"),
+		CopyBinding.Resource(AssistantIntentCancelled, "assistant", "assistant_intent_outcome_cancelled"),
+		CopyBinding.Resource(AssistantStillAppliesYes, "assistant", "assistant_still_applies_yes"),
+		CopyBinding.Resource(AssistantCopied, "assistant", "assistant_nav_copied"),
+		CopyBinding.Resource(AssistantAppealSent, "assistant", "assistant_chat_appeal_sent"),
+		CopyBinding.Resource(AssistantReceiptAddedOne, "assistant", "assistant_intent_receipt_added_one", listOf("1")),
+		CopyBinding.Resource(AssistantEvaluationPending, "assistant", "assistant_card_b_evaluation_pending"),
+		CopyBinding.Resource(AssistantConversationsDeleted, "about", "settings_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,
 			"evaluations",

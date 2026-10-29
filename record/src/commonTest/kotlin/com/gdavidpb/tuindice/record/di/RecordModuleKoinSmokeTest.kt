@@ -10,12 +10,15 @@ import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -23,6 +26,8 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
+import com.gdavidpb.tuindice.record.domain.usecase.GetRecordRevisionUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordMutationOutcomesUseCase
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.testing.ControllableVisibleEvaluationsRepository
@@ -31,6 +36,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.dsl.module
@@ -61,9 +67,66 @@ class RecordModuleKoinSmokeTest {
 		assertResolves(RecordViewModel::class)
 		assertResolves(ScheduleViewModel::class)
 	}
+
+	@Test
+	fun resolvesGetRecordRevisionUseCase() = withKoinSmokeTest(
+		recordModule,
+		recordSmokeDependencies()
+	) {
+		assertResolves(GetRecordRevisionUseCase::class)
+	}
+
+	@Test
+	fun resolvesObserveRecordMutationOutcomesUseCase() = withKoinSmokeTest(
+		recordModule,
+		recordSmokeDependencies()
+	) {
+		assertResolves(ObserveRecordMutationOutcomesUseCase::class)
+	}
+}
+
+// The bindings resolvesRecordViewModel declares, for the tests that resolve the use cases the module adds.
+private fun recordSmokeDependencies() = module {
+	single<AcademicRecordRepository> { StubAcademicRecordRepository() }
+	single<RecordSelectionRepository> { StubRecordSelectionRepository() }
+	single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
+	single<ReportingRepository> { RecordingReportingRepository() }
+	single<SyncStatusRepository> { FakeSyncStatusRepository() }
+	single<EventPublisher> { NoOpEventPublisher }
+	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+	single<Clock> { Clock.System }
+	// Bound by the evaluations module in the app.
+	single<VisibleEvaluationsRepository> { ControllableVisibleEvaluationsRepository() }
+	// Bound by maincore's common module in the app.
+	factory<ScheduleClockRepository> { ScheduleClockDataSource(clock = get()) }
+	single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
 }
 
 private class StubAcademicRecordRepository : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(false)
@@ -77,16 +140,17 @@ private class StubAcademicRecordRepository : AcademicRecordRepository {
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) = Unit
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }
 
 private class StubRecordSelectionRepository : RecordSelectionRepository {

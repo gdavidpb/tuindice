@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,14 +37,17 @@ internal val ShareableTermCardSize = DpSize(width = 360.dp, height = 540.dp)
  * artwork takes the place of the one on screen only once it has loaded, so the card never goes bare meanwhile, and the
  * term waits for it too; one that cannot be loaded gives way to the one the app ships with, credit and all.
  * [onArtReady] is called once the artwork on screen is drawn: at once for the one the app ships with, and when a remote
- * artwork has loaded, or has failed and the card has turned to the one the app ships with.
+ * artwork has loaded, or has failed and the card has turned to the one the app ships with. [onArtworkPending] is told
+ * the id of the chosen artwork while the card still waits for its picture, and null once the card wears it or the one
+ * it fell back to, so the sheet can mark the background on its way.
  */
 @Composable
 fun ShareableTermCard(
 	item: ShareableTermCardItem,
 	artwork: ShareTermArtwork,
 	modifier: Modifier = Modifier,
-	onArtReady: () -> Unit = {}
+	onArtReady: () -> Unit = {},
+	onArtworkPending: (artworkId: String?) -> Unit = {}
 ) {
 	val description = stringResource(Res.string.a11y_share_term_card)
 	val platformContext = LocalPlatformContext.current
@@ -52,6 +56,9 @@ fun ShareableTermCard(
 	val latestArtwork = rememberUpdatedState(artwork)
 	val latestItem = rememberUpdatedState(item)
 	val shown = remember { mutableStateOf(ShareableTermCardShown.initial(term = item, chosen = artwork)) }
+	val latestOnArtworkPending = rememberUpdatedState(onArtworkPending)
+	// The chosen artwork while the card has not settled on it yet: its picture is still on its way.
+	val pendingId = artwork.id.takeIf { shown.value.settledFor != artwork }
 
 	LaunchedEffect(item) {
 		shown.value = shown.value.showingTerm(term = item, chosen = latestArtwork.value)
@@ -65,6 +72,16 @@ fun ShareableTermCard(
 			resolved = artwork.shownAfter(loaded = loaded),
 			term = latestItem.value
 		)
+	}
+
+	LaunchedEffect(pendingId) {
+		latestOnArtworkPending.value(pendingId)
+	}
+
+	// A card that leaves the screen while its picture is on its way takes its mark with it: the sheet would keep the
+	// background loading for good.
+	DisposableEffect(Unit) {
+		onDispose { latestOnArtworkPending.value(null) }
 	}
 
 	Box(

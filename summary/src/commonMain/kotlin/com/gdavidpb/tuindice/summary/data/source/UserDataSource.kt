@@ -1,14 +1,15 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.utils.ProfilePictureEncoding
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.exists
@@ -24,7 +25,7 @@ class UserDataSource(
 	private val remoteDataSource: RemoteDataRepository,
 	private val settingsDataSource: SettingsDataRepository,
 	private val profilePictureInputDataSource: ProfilePictureInputDataRepository,
-	private val pictureEncoderDataSource: PictureEncoderDataRepository
+	private val imageEncoderRepository: ImageEncoderRepository
 ) : UserRepository {
 	override suspend fun observeUserFlow(): Flow<User> {
 		// The picture version rides along with the observed user so a re-upload that
@@ -53,7 +54,7 @@ class UserDataSource(
 		val normalizedFile = profilePictureInputDataSource.normalizeInput(file = file)
 
 		try {
-			val encodedImage = pictureEncoderDataSource.encodePicture(file = normalizedFile)
+			val encodedImage = imageEncoderRepository.encode(file = normalizedFile, spec = ProfilePictureEncoding.SPEC)
 
 			return remoteDataSource.uploadProfilePicture(
 				content = encodedImage.content,

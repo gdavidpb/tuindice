@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
-import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -23,6 +22,7 @@ import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.openCurrentEnrollmentProof
+import com.gdavidpb.tuindice.scenarios.shared.openSignOutFromSettings
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.time.Duration
@@ -194,8 +194,7 @@ private val enrollmentproofSavedCopyGoneAfterSignOut = scenario(
 	waitVisible(RecordUiTags.ContentContainer, Within.Action)
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
-	tap(BaseUiTags.topBarActionButton(TopBarAction.SignOutAction))
-	waitVisible(AuthUiTags.SignOutMessageText, Within.Action)
+	openSignOutFromSettings()
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Wait)
 	relaunch(seeded(E2eAccounts.Canonical).arguments)

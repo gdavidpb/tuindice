@@ -6,17 +6,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.RecordAssistantDeclaration
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 
 @Composable
@@ -78,32 +82,50 @@ fun RecordRoute(
 		pendingTopBarBanner.value = null
 	}
 
+	val assistantLauncher = LocalAssistantLauncher.current
+	// The selected term is read on each tap, not kept as a key. A new selection then keeps the same actions, and the
+	// cards of the term on screen do not compose again for it.
+	val currentSelectedTermId by rememberUpdatedState(selectedTermId)
+	val actions = remember(
+		viewModel,
+		assistantLauncher,
+		onNavigateToCreateSyntheticTerm,
+		onNavigateToUpdateSyntheticTerm,
+		onNavigateToDeleteSyntheticTermConfirmation,
+		onNavigateToEnrollmentProof
+	) {
+		RecordActions(
+			onSelectedTermChange = { termId ->
+				if (termId != currentSelectedTermId) {
+					viewModel.selectTermAction(termId)
+				}
+			},
+			onRetryClick = viewModel::refreshRecordAction,
+			onAttemptArrivalTaken = viewModel::attemptArrivalTakenAction,
+			onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
+				viewModel.upsertAttemptSelectionAction(
+					attemptId = attemptId,
+					grade = grade,
+					outcome = outcome,
+					commit = isSelected
+				)
+			},
+			onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
+			onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
+			onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
+			onEnrollmentProofClick = onNavigateToEnrollmentProof,
+			onDismissTermSelection = {
+				showTermSelection.value = false
+			},
+			onAskAssistant = assistantLauncher?.let { launcher -> launcher::launch }
+		)
+	}
+
 	RecordScreen(
 		state = viewState,
 		selectedTermId = selectedTermId,
-		onSelectedTermChange = { termId ->
-			if (termId != selectedTermId) {
-				viewModel.selectTermAction(termId)
-			}
-		},
-		onRetryClick = viewModel::refreshRecordAction,
-		onAttemptArrivalTaken = viewModel::attemptArrivalTakenAction,
-		onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
-			viewModel.upsertAttemptSelectionAction(
-				attemptId = attemptId,
-				grade = grade,
-				outcome = outcome,
-				commit = isSelected
-			)
-		},
-		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
-		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
-		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
-		onEnrollmentProofClick = onNavigateToEnrollmentProof,
-		showTermSelection = showTermSelection.value,
-		onDismissTermSelection = {
-			showTermSelection.value = false
-		}
+		actions = actions,
+		showTermSelection = showTermSelection.value
 	)
 }
 
@@ -121,6 +143,9 @@ internal fun Record.State.toRouteViewState(): ViewState {
 		},
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
+		// Every state of the record declares its context (Record.State.assistantContext is not nullable), so the
+		// declaration is made here, and the context is projected only on the bar's tap.
+		declaredAssistantContext = RecordAssistantDeclaration { assistantContext },
 		topBarViewModeState = when (this) {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)

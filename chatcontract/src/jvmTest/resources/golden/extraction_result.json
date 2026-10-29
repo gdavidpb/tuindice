@@ -1,0 +1,39 @@
+[
+  {
+    "message": "Encontré 1 evaluación.",
+    "intent": {
+      "id": "intent-1",
+      "args": {
+        "type": "evaluaciones.agregar/1",
+        "items": [
+          {
+            "mutationId": "mut-1",
+            "reference": "Parcial 1",
+            "attemptId": "attempt-1",
+            "subjectCode": "IS-101",
+            "termId": "2026-JAN_MAR",
+            "evaluationType": "QUIZ",
+            "scheduleMode": "dated",
+            "dateMillis": 1761000000000,
+            "grade": 15.5,
+            "maxGrade": 20.0,
+            "selected": true
+          }
+        ],
+        "source": "photo"
+      },
+      "title": "Agregar 1 evaluación",
+      "effect": [{ "label": "Nueva evaluación", "detail": "Parcial 1 de IS-101" }],
+      "risk": "normal",
+      "editable": ["grade"],
+      "binding": { "mutationIds": ["mut-1"], "expectedRevision": 12, "argsHash": "hash-1" },
+      "expiresAtMillis": 1760000600000,
+      "status": "proposed",
+      "confirmLabel": "Agregar",
+      "cancelLabel": "Cancelar"
+    }
+  },
+  {
+    "message": "No encontré evaluaciones en la foto."
+  }
+]

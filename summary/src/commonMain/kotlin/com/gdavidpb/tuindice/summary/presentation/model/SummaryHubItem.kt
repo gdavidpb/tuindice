@@ -15,5 +15,6 @@ data class SummaryHubItem(
 	val week: SummaryWeekItem? = null,
 	val term: SummaryTermItem? = null,
 	val career: SummaryCareerItem? = null,
-	val statistics: SummaryStatisticsSectionItem? = null
+	val statistics: SummaryStatisticsSectionItem? = null,
+	val termReport: SummaryTermReportItem? = null
 )

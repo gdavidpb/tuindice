@@ -101,7 +101,7 @@ class ActionCoverageTest {
 	private fun contractActions(): Set<String> =
 		RepoFiles.moduleDirectories().flatMap { module ->
 			File(module, "src/commonMain/kotlin").walkTopDown()
-				.filter { it.isFile && it.extension == "kt" && it.parentFile.path.endsWith("presentation/contract") }
+				.filter { it.isFile && it.extension == "kt" && it.parentFile?.path?.endsWith("presentation/contract") == true }
 				.flatMap { file -> actionsOf(file).map { "${module.name}.${file.nameWithoutExtension}.$it" } }
 				.toList()
 		}.toSet()
@@ -131,8 +131,8 @@ class ActionCoverageTest {
 
 	private companion object {
 		const val MINIMUM_ACTIONS = 100
-		const val INTERNAL_COUNT = 28
-		const val PLATFORM_EDGE_COUNT = 5
+		const val INTERNAL_COUNT = 33
+		const val PLATFORM_EDGE_COUNT = 11
 		const val PENDING_COUNT = 0
 		val actionStart = Regex("""^\s*sealed\s+(class|interface)\s+Action(\s|:|\{|$)""")
 		val declaration = Regex("""^(?:data\s+)?(?:object|class)\s+([A-Za-z_][A-Za-z0-9_]*)""")

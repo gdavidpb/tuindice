@@ -398,3 +398,18 @@ del catálogo (la hace la certificación); la causa del fallo de `keyboard-guard
   sin medición que lo respalde.
 - Los umbrales del chequeo de entorno (`e2e.py env-check`) son provisionales hasta compararlos con los datos de
   `e2e-profile.py --compare`.
+
+## 9. Certificación de 6.9.0 (2026-10-28, `feat/academic-assistant`)
+
+- **Publicación con 403.** `e2e.py publish` salió con 6 en `20261028T205856Z` (Android): «gh: Resource not accessible by personal access
+  token (HTTP 403)». La cuenta activa de `gh` era `melmak20` y la dueña del repo es `gdavidpb`. Con
+  `GH_TOKEN=$(gh auth token --user gdavidpb)` el mismo `publish` publicó `165/165` sobre `08e63f6`.
+- **Contrato del driver de Android.** En `20261028T190310Z-android-evidence-6513636` el contrato falló en `text-entry`:
+  `typeKeys of "7654321" left "" in the field`, y no corrió ningún escenario (exit 3). Tras `e2e.py stop-devices --platform
+  android`, el diagnose de `auth-login-success` y `about-platform-edge-triggers` pasó 2/2, y la evidencia siguiente, 165/165.
+- **Defectos de iOS que el paso 5 habría encontrado antes.** La evidencia se lanzó sin diagnosticar los escenarios
+  cambiados, y tres corridas pararon con exit 5 por defectos de producto que solo aparecían en iOS:
+  `summary-termreport-open` (la hoja medía la velocidad al soltar en su propio marco, y volvía a abrirse;
+  `20261028T192756Z-ios-diagnose-6513636`), el tope bajo la barra de estado (los insets leídos fuera del Dialog valen 0 en
+  iOS; dentro, 186 px), y `assistant-retry-turn` (el aviso del turno fallido quedaba bajo el compositor con el teclado
+  abierto; `20261028T215556Z-ios-evidence-a9a2e56`). Las pruebas de host y Android estaban en verde en los tres casos.

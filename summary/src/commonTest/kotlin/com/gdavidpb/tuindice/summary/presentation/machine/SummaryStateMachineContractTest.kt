@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -97,50 +98,83 @@ class SummaryStateMachineContractTest {
 		}
 	}
 
-	private fun createViewModel(): SummaryViewModel {
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				Summary.Action.ObserveSummary,
+				Summary.Action.RefreshSummary,
+				Summary.Action.TakeProfilePicture,
+				Summary.Action.PickProfilePicture,
+				Summary.Action.OpenProfilePictureSettings,
+				Summary.Action.RemoveProfilePicture,
+				Summary.Action.ConfirmRemoveProfilePicture,
+				Summary.Action.Resumed,
+				SummaryInternalEvent.ObservationFailed(message = "Sin datos"),
+				SummaryInternalEvent.CameraAvailabilityResolved(isCameraAvailable = true),
+				SummaryInternalEvent.RefreshSucceeded,
+				SummaryInternalEvent.RefreshFailed(message = "No se actualizó"),
+				SummaryInternalEvent.ProfilePictureUploadStarted(previewPath = "vista-previa"),
+				SummaryInternalEvent.ProfilePictureUploadSucceeded(message = "Foto lista"),
+				SummaryInternalEvent.ProfilePictureUploadFailed(message = "No se subió"),
+				SummaryInternalEvent.ProfilePictureRemovalStarted,
+				SummaryInternalEvent.ProfilePictureRemovalSucceeded(message = "Foto quitada"),
+				SummaryInternalEvent.ProfilePictureRemovalFailed(message = "No se quitó", clearProfilePicture = true)
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): SummaryMachine {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 		val reportingRepository = RecordingReportingRepository()
 
-		return SummaryViewModel(
-			screenMachine = SummaryMachine(
-				observations = SummaryObservations(
-					user = ObserveUserUseCase(
-						userRepository = userRepository,
-						reportingRepository = reportingRepository
-					),
-					sync = ObserveSyncUseCase(
-						syncStatusRepository = FakeSyncStatusRepository(),
-						syncRepository = FakeSyncRepository(),
-						reportingRepository = reportingRepository
-					),
-					hub = createObserveSummaryHubUseCase()
-				),
-				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
-					deviceInfoRepository = FakeDeviceInfoRepository(),
+		return SummaryMachine(
+			observations = SummaryObservations(
+				user = ObserveUserUseCase(
+					userRepository = userRepository,
 					reportingRepository = reportingRepository
 				),
-				updateUserUseCase = UpdateUserUseCase(
-					userRepository = userRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = UpdateUserExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
+				sync = ObserveSyncUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
+					syncRepository = FakeSyncRepository(),
+					reportingRepository = reportingRepository
 				),
-				uploadProfilePictureUseCase = UploadProfilePictureUseCase(
-					userRepository = userRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = UploadProfilePictureExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
-					userRepository = userRepository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = RemoveProfilePictureExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
+				hub = createObserveSummaryHubUseCase()
+			),
+			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+				deviceInfoRepository = FakeDeviceInfoRepository(),
+				reportingRepository = reportingRepository
+			),
+			updateUserUseCase = UpdateUserUseCase(
+				userRepository = userRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = UpdateUserExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			),
+			uploadProfilePictureUseCase = UploadProfilePictureUseCase(
+				userRepository = userRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = UploadProfilePictureExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			),
+			termReports = createSummaryTermReports(),
+			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
+				userRepository = userRepository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = RemoveProfilePictureExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			)
+		)
+	}
+
+	private fun createViewModel(): SummaryViewModel {
+		return SummaryViewModel(
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

@@ -1,0 +1,32 @@
+{
+  "scenarioName": "assistant-turns",
+  "requiredScenarioState": "Retry",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": {
+          "expression": "$.message.text",
+          "equalTo": "Falla una vez"
+        }
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "turnId": "turn-retry",
+      "conversationId": "conv-1",
+      "lastSeq": 0
+    }
+  }
+}

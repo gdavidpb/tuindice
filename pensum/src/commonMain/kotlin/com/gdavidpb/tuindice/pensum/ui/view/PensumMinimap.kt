@@ -20,12 +20,14 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import kotlin.math.min
 
+// The canvas's scale and offset are read while drawing the viewport's frame, so moving the canvas redraws the minimap
+// without recomposing it.
 @Composable
 fun PensumMinimap(
 	model: PensumScreenModel,
 	edgeRoutes: Map<String, List<Offset>>,
-	scale: Float,
-	offset: Offset,
+	scale: () -> Float,
+	offset: () -> Offset,
 	viewportSizePx: Size,
 	selectedRequirementEdgeIds: Set<String>,
 	selectedUnlockEdgeIds: Set<String>,
@@ -56,14 +58,14 @@ fun PensumMinimap(
 			.background(graphColors.minimapBackground, PensumElementShape)
 			.border(1.dp, graphColors.canvasNeutral, PensumElementShape)
 			.padding(8.dp)
-			.pointerInput(model.canvas, scale) {
+			.pointerInput(model.canvas) {
 				detectTapGestures(
 					onTap = { position ->
 						onViewportCenterChange(position.toCanvasCenter(size))
 					}
 				)
 			}
-			.pointerInput(model.canvas, scale) {
+			.pointerInput(model.canvas) {
 				detectDragGestures(
 					onDragStart = { position ->
 						onViewportCenterChange(position.toCanvasCenter(size))
@@ -132,11 +134,15 @@ fun PensumMinimap(
 			)
 		}
 
-		val visibleCanvasWidth = (viewportSizePx.width / (densityScale * scale)).coerceAtMost(model.canvas.width.toFloat())
-		val visibleCanvasHeight = (viewportSizePx.height / (densityScale * scale)).coerceAtMost(model.canvas.height.toFloat())
-		val visibleCanvasX = (-offset.x / (densityScale * scale))
+		val currentScale = scale()
+		val currentOffset = offset()
+		val visibleCanvasWidth = (viewportSizePx.width / (densityScale * currentScale))
+			.coerceAtMost(model.canvas.width.toFloat())
+		val visibleCanvasHeight = (viewportSizePx.height / (densityScale * currentScale))
+			.coerceAtMost(model.canvas.height.toFloat())
+		val visibleCanvasX = (-currentOffset.x / (densityScale * currentScale))
 			.coerceIn(0f, (model.canvas.width.toFloat() - visibleCanvasWidth).coerceAtLeast(0f))
-		val visibleCanvasY = (-offset.y / (densityScale * scale))
+		val visibleCanvasY = (-currentOffset.y / (densityScale * currentScale))
 			.coerceIn(0f, (model.canvas.height.toFloat() - visibleCanvasHeight).coerceAtLeast(0f))
 
 		drawRect(

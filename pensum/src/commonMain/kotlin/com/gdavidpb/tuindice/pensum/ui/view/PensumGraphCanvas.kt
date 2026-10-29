@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.pensum.ui.view
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -31,16 +30,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -56,7 +58,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
@@ -65,6 +67,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.PensumGraphColors
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,8 +80,17 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
 internal val LocalPensumManualCanvasGestureActiveOverride = compositionLocalOf<Boolean?> { null }
+
+private val canvasClockOrigin = TimeSource.Monotonic.markNow()
+
+private fun monotonicCanvasMillis(): Long = canvasClockOrigin.elapsedNow().inWholeMilliseconds
+
+// The clock, in milliseconds, that a gesture's idle window reads. A UI test replaces it with the clock of its own
+// timeline, so the countdown and the test's time move together.
+internal val LocalPensumCanvasClockMillis = compositionLocalOf<() -> Long> { ::monotonicCanvasMillis }
 
 @Composable
 fun PensumGraphCanvas(
@@ -111,9 +123,14 @@ fun PensumGraphCanvas(
 			rerouteSpacing = edgeRouteRerouteSpacing
 		)
 	}
-	val edgeRoutesPx = remember(graphKey, edgeRoutes, densityScale) {
-		edgeRoutes.map { (edgeId, route) ->
-			edgeId to route.map { point -> Offset(point.x * densityScale, point.y * densityScale) }
+	val edgeCornerRadiusPx = with(density) { EdgeCornerRadius.toPx() }
+	val arrowHeadLengthPx = with(density) { ArrowHeadLength.toPx() }
+	// Each edge's line and arrowhead are built once per route, not on every draw of the edges.
+	val edgeShapes = remember(graphKey, edgeRoutes, densityScale, edgeCornerRadiusPx, arrowHeadLengthPx) {
+		edgeRoutes.mapNotNull { (edgeId, route) ->
+			val routePx = route.map { point -> Offset(point.x * densityScale, point.y * densityScale) }
+			routePx.toEdgeShape(cornerRadiusPx = edgeCornerRadiusPx, arrowHeadLengthPx = arrowHeadLengthPx)
+				?.let { shape -> edgeId to shape }
 		}.toMap()
 	}
 	var savedScale by remember(graphKey, activeSessionState) { mutableStateOf(activeSessionState.canvasScale) }
@@ -134,14 +151,34 @@ fun PensumGraphCanvas(
 				.toSet()
 		)
 	}
-	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
-	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
-	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
+	val viewport = remember(graphKey) {
+		PensumCanvasViewport(
+			initialScale = savedScale ?: InitialCanvasZoom,
+			initialOffsetX = savedOffsetX ?: 0f,
+			initialOffsetY = savedOffsetY ?: 0f
+		)
+	}
+	val scale = viewport.scale
+	val offsetX = viewport.offsetX
+	val offsetY = viewport.offsetY
+	// Readers of the viewport for the header and the minimap, which read it in layout and draw.
+	val readScale = remember(viewport) { { viewport.scale.floatValue } }
+	val readOffsetX = remember(viewport) { { viewport.offsetX.floatValue } }
+	val readOffset = remember(viewport) { { viewport.offset } }
 	var canvasSnapJob by remember(graphKey) { mutableStateOf<Job?>(null) }
-	var manualGestureIdleJob by remember(graphKey) { mutableStateOf<Job?>(null) }
 	var isDetectedManualCanvasGestureActive by remember(graphKey) { mutableStateOf(false) }
 	val manualCanvasGestureActiveOverride = LocalPensumManualCanvasGestureActiveOverride.current
 	val isManualCanvasGestureActive = manualCanvasGestureActiveOverride ?: isDetectedManualCanvasGestureActive
+	// One idle window per graph: a gesture's overlays hide on its first touch signal and return once the signals stop.
+	val canvasClockMillis = LocalPensumCanvasClockMillis.current
+	val manualCanvasGestureIdleWindow = remember(graphKey, canvasClockMillis) {
+		ManualCanvasGestureIdleWindow(
+			scope = coroutineScope,
+			idleMillis = CanvasManualGestureIdleMillis.toLong(),
+			nowMillis = canvasClockMillis,
+			onOverlaysHiddenChange = { isHidden -> isDetectedManualCanvasGestureActive = isHidden }
+		)
+	}
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -212,9 +249,7 @@ fun PensumGraphCanvas(
 				viewportSizePx = viewportSizePx,
 				panMarginPx = panMarginPx
 			)
-			scale.snapTo(restoredScale)
-			offsetX.snapTo(constrainedOffset.x)
-			offsetY.snapTo(constrainedOffset.y)
+			viewport.snapTo(targetScale = restoredScale, targetOffset = constrainedOffset)
 			saveCanvasViewport(
 				scaleValue = restoredScale,
 				offset = constrainedOffset
@@ -222,58 +257,25 @@ fun PensumGraphCanvas(
 		}
 
 		fun animateCanvasViewport(targetScale: Float, targetOffset: Offset) {
-			coroutineScope.launch {
-				scale.stop()
-				offsetX.stop()
-				offsetY.stop()
-				launch {
-					scale.animateTo(
-						targetValue = targetScale,
-						animationSpec = tween(
-							durationMillis = ZoomAnimationMillis,
-							easing = DecelerateEasing
-						)
-					)
-				}
-				launch {
-					offsetX.animateTo(
-						targetValue = targetOffset.x,
-						animationSpec = tween(
-							durationMillis = ZoomAnimationMillis,
-							easing = DecelerateEasing
-						)
-					)
-				}
-				launch {
-					offsetY.animateTo(
-						targetValue = targetOffset.y,
-						animationSpec = tween(
-							durationMillis = ZoomAnimationMillis,
-							easing = DecelerateEasing
-						)
-					)
-				}
-				saveCanvasViewport(
-					scaleValue = targetScale,
-					offset = targetOffset
-				)
-			}
+			viewport.animateTo(
+				scope = coroutineScope,
+				targetScale = targetScale,
+				targetOffset = targetOffset,
+				durationMillis = ZoomAnimationMillis
+			)
+			saveCanvasViewport(
+				scaleValue = targetScale,
+				offset = targetOffset
+			)
 		}
 
 		fun snapCanvasViewport(targetScale: Float, targetOffset: Offset) {
 			canvasSnapJob?.cancel()
-			coroutineScope.launch {
-				scale.stop()
-				offsetX.stop()
-				offsetY.stop()
-				scale.snapTo(targetScale)
-				offsetX.snapTo(targetOffset.x)
-				offsetY.snapTo(targetOffset.y)
-				saveCanvasViewport(
-					scaleValue = targetScale,
-					offset = targetOffset
-				)
-			}
+			viewport.snapTo(targetScale = targetScale, targetOffset = targetOffset)
+			saveCanvasViewport(
+				scaleValue = targetScale,
+				offset = targetOffset
+			)
 		}
 
 	fun revealMinimapToggle() {
@@ -295,16 +297,6 @@ fun PensumGraphCanvas(
 		activeStatusFilters = filters
 		activeSessionState.activeStatusFilterNames = filters.map { type -> type.name }.toSet()
 	}
-
-	fun markManualCanvasGestureActive() {
-		manualGestureIdleJob?.cancel()
-		isDetectedManualCanvasGestureActive = true
-			manualGestureIdleJob = coroutineScope.launch {
-				delay(CanvasManualGestureIdleMillis.milliseconds)
-				isDetectedManualCanvasGestureActive = false
-				manualGestureIdleJob = null
-			}
-		}
 
 	fun toggleStatusFilter(type: PensumNodeStatusType) {
 		val filters = if (type in activeStatusFilters) {
@@ -581,15 +573,39 @@ fun PensumGraphCanvas(
 			!isFitToScreen &&
 			!isSubjectSheetVisible &&
 			!isManualCanvasGestureActive
+		ReportComposition("pensum-canvas")
 		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
-		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
-			scale = scale.value,
-			isFitToScreen = isFitToScreen
-		)
+		// Derived, so the canvas recomposes only when the header comes or goes, or its labels switch between short and
+		// full, not on every frame of a zoom.
+		val shouldUseFullStickyTermLabels by remember(viewport) {
+			derivedStateOf { viewport.scale.floatValue >= StickyTermHeaderFullMinZoom }
+		}
+		val shouldShowStickyTermHeader by remember(fitStateScale, fitStateOffset, fitTolerancePx) {
+			derivedStateOf {
+				shouldRenderStickyTermHeader(
+					scale = scale.floatValue,
+					isFitToScreen = isFitToScreen
+				)
+			}
+		}
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {
 				hideMinimap()
+			}
+		}
+
+		// The header's click is one remembered lambda that calls the latest focusTerm, so the canvas's recompositions at
+		// the start and end of a gesture hand the header the same parameters and it skips.
+		val latestFocusTerm by rememberUpdatedState<(String) -> Unit> { termId -> focusTerm(termId) }
+		val onStickyTermClick = remember { { termId: String -> latestFocusTerm(termId) } }
+
+		val onNodeClick by rememberUpdatedState<(PensumNodeItem) -> Unit> { node ->
+			if (node.id == selectedNodeId) {
+				onFocusedNodeClick(node.id)
+			} else {
+				onSelectedNodeChange(node.id)
+				centerSelectedNode(node)
 			}
 		}
 
@@ -612,9 +628,19 @@ fun PensumGraphCanvas(
 								onSelectedNodeChange(null)
 							}
 						},
-						onGesture = { centroid, pan, zoom ->
-							markManualCanvasGestureActive()
+						onGestureStart = {
+							canvasSnapJob?.cancel()
+							manualCanvasGestureIdleWindow.signal()
 							revealMinimapToggle()
+						},
+						onGestureEnd = {
+							scheduleViewportSnap(
+								scaleValue = scale.floatValue,
+								offset = viewport.offset
+							)
+						},
+						onGesture = { centroid, pan, zoom ->
+							manualCanvasGestureIdleWindow.signal()
 							val oldScale = scale.value
 							val rawScale = oldScale * zoom
 							val shouldSnapToFit = fitStateScale <= oldScale &&
@@ -642,22 +668,12 @@ fun PensumGraphCanvas(
 								)
 							}
 
-							coroutineScope.launch {
-								scale.stop()
-								offsetX.stop()
-								offsetY.stop()
-								scale.snapTo(newScale)
-								offsetX.snapTo(nextOffset.x)
-								offsetY.snapTo(nextOffset.y)
-								saveCanvasViewport(
-									scaleValue = newScale,
-									offset = nextOffset
-								)
-								scheduleViewportSnap(
-									scaleValue = newScale,
-									offset = nextOffset
-								)
-							}
+							// Set in this frame, without a coroutine per touch event; the snap waits for the gesture's end.
+							viewport.snapTo(targetScale = newScale, targetOffset = nextOffset)
+							saveCanvasViewport(
+								scaleValue = newScale,
+								offset = nextOffset
+							)
 						}
 					)
 				}
@@ -706,32 +722,28 @@ fun PensumGraphCanvas(
 					val isDimmedByFocus = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
 					val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
 					val isNodeDimmed = isDimmedByFocus || isDimmedByFilter
-					PensumNodeCard(
-						node = node,
-						isSelected = node.id == selectedNodeId,
-						isRequirementHighlighted = node.id in focusState.selectedRequirementNodeIds ||
-							(
-								node.id in focusState.selectedUnlockNodeIds &&
-									node.id !in focusState.selectedAvailableUnlockNodeIds
-								),
-						isUnlockHighlighted = isUnlockHighlighted,
-						modifier = Modifier
-							.offset(x = node.x.dp, y = node.y.dp)
-							.size(width = node.width.dp, height = node.height.dp)
-							.zIndex(if (isNodeDimmed) 0f else 2f)
-							.graphicsLayer {
-								alpha = if (isNodeDimmed) 0.34f else 1f
-							}
-							.clickable {
-								if (node.id == selectedNodeId) {
-									onFocusedNodeClick(node.id)
-								} else {
-									onSelectedNodeChange(node.id)
-									centerSelectedNode(node)
-								}
-							}
-							.testTag(PensumUiTags.node(node.id))
-					)
+					// The click is remembered per node, so a recomposition of the canvas hands every card the same
+					// modifier and the cards skip. Only a dimmed card gets a layer of its own, for its alpha.
+					key(node.id) {
+						val onClick = remember(node) { { onNodeClick(node) } }
+						PensumNodeCard(
+							node = node,
+							isSelected = node.id == selectedNodeId,
+							isRequirementHighlighted = node.id in focusState.selectedRequirementNodeIds ||
+								(
+									node.id in focusState.selectedUnlockNodeIds &&
+										node.id !in focusState.selectedAvailableUnlockNodeIds
+									),
+							isUnlockHighlighted = isUnlockHighlighted,
+							modifier = Modifier
+								.offset(x = node.x.dp, y = node.y.dp)
+								.size(width = node.width.dp, height = node.height.dp)
+								.zIndex(if (isNodeDimmed) 0f else 2f)
+								.then(if (isNodeDimmed) Modifier.graphicsLayer { alpha = DIMMED_NODE_ALPHA } else Modifier)
+								.clickable(onClick = onClick)
+								.testTag(PensumUiTags.node(node.id))
+						)
+					}
 					if (node.id == selectedNodeId) {
 						Box(
 							modifier = Modifier
@@ -748,7 +760,7 @@ fun PensumGraphCanvas(
 						.zIndex(1f)
 				) {
 					drawCanvasEdges(
-						edgeRoutes = edgeRoutesPx,
+						edgeShapes = edgeShapes,
 						model = model,
 						graphColors = graphColors,
 						selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
@@ -764,10 +776,11 @@ fun PensumGraphCanvas(
 			if (shouldShowStickyTermHeader) {
 				PensumStickyTermHeader(
 					terms = model.terms,
-					scale = scale.value,
-					offsetX = offsetX.value,
+					scale = readScale,
+					offsetX = readOffsetX,
+					shouldUseFullLabels = shouldUseFullStickyTermLabels,
 					densityScale = density.density,
-					onTermClick = { termId -> focusTerm(termId) },
+					onTermClick = onStickyTermClick,
 					modifier = Modifier.align(Alignment.TopStart)
 				)
 			}
@@ -787,8 +800,8 @@ fun PensumGraphCanvas(
 			PensumMinimap(
 				model = model,
 				edgeRoutes = edgeRoutes,
-				scale = scale.value,
-				offset = Offset(offsetX.value, offsetY.value),
+				scale = readScale,
+				offset = readOffset,
 				viewportSizePx = viewportSizePx,
 				selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
 				selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
@@ -844,54 +857,121 @@ fun PensumGraphCanvas(
 	}
 }
 
+// The idle window of a manual canvas gesture. The overlays hide on the gesture's first touch signal and come back once
+// idleMillis have passed since the last signal, even while the fingers stay down. A signal only stamps its instant: the
+// first signal of a window launches the one countdown, which sleeps for the time left after the last stamp. A gesture
+// therefore costs one coroutine, however many signals it carries.
+internal class ManualCanvasGestureIdleWindow(
+	private val scope: CoroutineScope,
+	private val idleMillis: Long,
+	private val nowMillis: () -> Long,
+	private val onOverlaysHiddenChange: (isHidden: Boolean) -> Unit
+) {
+	private var lastSignalMillis = 0L
+	private var isCountingDown = false
+
+	fun signal() {
+		lastSignalMillis = nowMillis()
+		onOverlaysHiddenChange(true)
+		if (isCountingDown) return
+
+		isCountingDown = true
+		scope.launch {
+			awaitIdle()
+			isCountingDown = false
+			onOverlaysHiddenChange(false)
+		}
+	}
+
+	private suspend fun awaitIdle() {
+		var millisLeft = lastSignalMillis + idleMillis - nowMillis()
+		while (millisLeft > 0L) {
+			delay(millisLeft)
+			millisLeft = lastSignalMillis + idleMillis - nowMillis()
+		}
+	}
+}
+
 private suspend fun PointerInputScope.detectPensumTransformGestures(
 	onTap: (Offset) -> Unit,
+	onGestureStart: () -> Unit,
+	onGestureEnd: () -> Unit,
 	onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
 ) {
 	awaitEachGesture {
 		val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
 		var pastTouchSlop = false
-		var accumulatedZoom = 1f
-		var accumulatedPan = Offset.Zero
 		var maximumPressedPointers = 1
-		var pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+		val pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
 
-		while (pointerEvent.changes.any { pointerChange -> pointerChange.pressed }) {
-			maximumPressedPointers = max(
-				maximumPressedPointers,
-				pointerEvent.changes.count { pointerChange -> pointerChange.pressed }
-			)
-			val zoomChange = pointerEvent.calculateZoom()
-			val panChange = pointerEvent.calculatePan()
-
-			if (!pastTouchSlop) {
-				accumulatedZoom *= zoomChange
-				accumulatedPan += panChange
-				val centroidSize = pointerEvent.calculateCentroidSize(useCurrent = false)
-				val zoomMotion = abs(1 - accumulatedZoom) * centroidSize
-				val panMotion = accumulatedPan.getDistance()
-				if (zoomMotion > viewConfiguration.touchSlop || panMotion > viewConfiguration.touchSlop) {
+		// The end is told even when the gesture is cut short (the detector restarts), so the overlays always come back.
+		try {
+			trackPensumTransformGesture(
+				firstEvent = pointerEvent,
+				onSlopPassed = {
 					pastTouchSlop = true
-				}
-			}
-
+					onGestureStart()
+				},
+				isPastTouchSlop = { pastTouchSlop },
+				onPressedPointers = { pressed -> maximumPressedPointers = max(maximumPressedPointers, pressed) },
+				onGesture = onGesture
+			)
+		} finally {
 			if (pastTouchSlop) {
-				val centroid = pointerEvent.calculateCentroid(useCurrent = false)
-				if (zoomChange != 1f || panChange != Offset.Zero) {
-					onGesture(centroid, panChange, zoomChange)
-				}
-				pointerEvent.changes.forEach { pointerChange ->
-					if (pointerChange.positionChanged()) {
-						pointerChange.consume()
-					}
-				}
+				onGestureEnd()
 			}
-
-			pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
 		}
 
 		if (!pastTouchSlop && maximumPressedPointers == 1) {
 			onTap(down.position)
+		}
+	}
+}
+
+// The touch events of one gesture, until every finger lifts: past the touch slop, each move is a pan and a zoom.
+private suspend fun AwaitPointerEventScope.trackPensumTransformGesture(
+	firstEvent: PointerEvent,
+	onSlopPassed: () -> Unit,
+	isPastTouchSlop: () -> Boolean,
+	onPressedPointers: (Int) -> Unit,
+	onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
+) {
+	var pointerEvent = firstEvent
+	var accumulatedZoom = 1f
+	var accumulatedPan = Offset.Zero
+
+	while (pointerEvent.changes.any { pointerChange -> pointerChange.pressed }) {
+		onPressedPointers(pointerEvent.changes.count { pointerChange -> pointerChange.pressed })
+		val zoomChange = pointerEvent.calculateZoom()
+		val panChange = pointerEvent.calculatePan()
+
+		if (!isPastTouchSlop()) {
+			accumulatedZoom *= zoomChange
+			accumulatedPan += panChange
+			val centroidSize = pointerEvent.calculateCentroidSize(useCurrent = false)
+			val zoomMotion = abs(1 - accumulatedZoom) * centroidSize
+			val panMotion = accumulatedPan.getDistance()
+			if (zoomMotion > viewConfiguration.touchSlop || panMotion > viewConfiguration.touchSlop) {
+				onSlopPassed()
+			}
+		}
+
+		if (isPastTouchSlop()) {
+			val centroid = pointerEvent.calculateCentroid(useCurrent = false)
+			if (zoomChange != 1f || panChange != Offset.Zero) {
+				onGesture(centroid, panChange, zoomChange)
+			}
+			pointerEvent.consumePositionChanges()
+		}
+
+		pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+	}
+}
+
+private fun PointerEvent.consumePositionChanges() {
+	changes.forEach { pointerChange ->
+		if (pointerChange.positionChanged()) {
+			pointerChange.consume()
 		}
 	}
 }
@@ -1003,7 +1083,7 @@ private fun DrawScope.drawCanvasBackground(
 
 
 private fun DrawScope.drawCanvasEdges(
-	edgeRoutes: Map<String, List<Offset>>,
+	edgeShapes: Map<String, PensumEdgeShape>,
 	model: PensumScreenModel,
 	graphColors: PensumGraphColors,
 	selectedRequirementEdgeIds: Set<String>,
@@ -1014,7 +1094,7 @@ private fun DrawScope.drawCanvasEdges(
 	isStatusFilterActive: Boolean
 ) {
 	model.edges.forEach { edge ->
-		val route = edgeRoutes[edge.id] ?: return@forEach
+		val shape = edgeShapes[edge.id] ?: return@forEach
 		if (
 			edge.id in selectedRequirementEdgeIds ||
 			edge.id in selectedUnlockEdgeIds ||
@@ -1027,19 +1107,19 @@ private fun DrawScope.drawCanvasEdges(
 			edge.toNodeId !in statusFilteredNodeIds
 		drawPensumEdge(
 			edge = edge,
-			route = route,
+			shape = shape,
 			graphColors = graphColors,
 			focusTone = if (isFocusActive || isFilteredOut) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
 		)
 	}
 
 	model.edges.forEach { edge ->
-		val route = edgeRoutes[edge.id] ?: return@forEach
+		val shape = edgeShapes[edge.id] ?: return@forEach
 		when (edge.id) {
 			in selectedRequirementEdgeIds -> {
 				drawPensumEdge(
 					edge = edge,
-					route = route,
+					shape = shape,
 					graphColors = graphColors,
 					focusTone = EdgeFocusTone.Requirement
 				)
@@ -1050,7 +1130,7 @@ private fun DrawScope.drawCanvasEdges(
 				-> {
 				drawPensumEdge(
 					edge = edge,
-					route = route,
+					shape = shape,
 					graphColors = graphColors,
 					focusTone = EdgeFocusTone.Requirement
 				)
@@ -1060,7 +1140,7 @@ private fun DrawScope.drawCanvasEdges(
 				-> {
 				drawPensumEdge(
 					edge = edge,
-					route = route,
+					shape = shape,
 					graphColors = graphColors,
 					focusTone = EdgeFocusTone.Unlock
 				)
@@ -1071,11 +1151,10 @@ private fun DrawScope.drawCanvasEdges(
 
 private fun DrawScope.drawPensumEdge(
 	edge: PensumEdgeItem,
-	route: List<Offset>,
+	shape: PensumEdgeShape,
 	graphColors: PensumGraphColors,
 	focusTone: EdgeFocusTone
 ) {
-	if (route.size < 2) return
 	val color = when (focusTone) {
 		EdgeFocusTone.Default -> graphColors.canvasNeutral
 		EdgeFocusTone.Dimmed -> graphColors.canvasNeutral.copy(alpha = 0.18f)
@@ -1099,7 +1178,7 @@ private fun DrawScope.drawPensumEdge(
 		null
 	}
 	drawPath(
-		path = route.toRoundedOrthogonalPath(cornerRadius = EdgeCornerRadius.toPx()),
+		path = shape.line,
 		color = color,
 		style = Stroke(
 			width = strokeWidth.toPx(),
@@ -1107,7 +1186,26 @@ private fun DrawScope.drawPensumEdge(
 			pathEffect = pathEffect
 		)
 	)
-	drawArrowHead(route[route.lastIndex - 1], route.last(), color)
+	drawPath(path = shape.arrowHead, color = color)
+}
+
+// An edge's line and arrowhead, in canvas pixels: built once per route and drawn as they are.
+private class PensumEdgeShape(
+	val line: Path,
+	val arrowHead: Path
+)
+
+// The shape of a route of two points or more; a shorter route has nothing to draw.
+private fun List<Offset>.toEdgeShape(
+	cornerRadiusPx: Float,
+	arrowHeadLengthPx: Float
+): PensumEdgeShape? {
+	if (size < 2) return null
+
+	return PensumEdgeShape(
+		line = toRoundedOrthogonalPath(cornerRadius = cornerRadiusPx),
+		arrowHead = arrowHeadPath(start = this[lastIndex - 1], end = last(), arrowLength = arrowHeadLengthPx)
+	)
 }
 
 private enum class EdgeFocusTone {
@@ -1117,9 +1215,8 @@ private enum class EdgeFocusTone {
 	Unlock
 }
 
-private fun DrawScope.drawArrowHead(start: Offset, end: Offset, color: Color) {
+private fun arrowHeadPath(start: Offset, end: Offset, arrowLength: Float): Path {
 	val angle = atan2(end.y - start.y, end.x - start.x)
-	val arrowLength = ArrowHeadLength.toPx()
 	val arrowAngle = PI.toFloat() / 7f
 	val p1 = Offset(
 		x = end.x - arrowLength * cos(angle - arrowAngle),
@@ -1129,13 +1226,12 @@ private fun DrawScope.drawArrowHead(start: Offset, end: Offset, color: Color) {
 		x = end.x - arrowLength * cos(angle + arrowAngle),
 		y = end.y - arrowLength * sin(angle + arrowAngle)
 	)
-	val path = Path().apply {
+	return Path().apply {
 		moveTo(end.x, end.y)
 		lineTo(p1.x, p1.y)
 		lineTo(p2.x, p2.y)
 		close()
 	}
-	drawPath(path = path, color = color)
 }
 
 private fun Offset.zoomedAround(
@@ -1373,3 +1469,5 @@ private fun constrainCanvasAxisOffset(
 		maximumValue = panMarginPx
 	)
 }
+
+private const val DIMMED_NODE_ALPHA = 0.34f

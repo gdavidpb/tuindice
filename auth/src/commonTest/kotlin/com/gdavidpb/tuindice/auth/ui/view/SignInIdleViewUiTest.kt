@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -14,16 +18,27 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasImeAction
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
@@ -484,6 +499,87 @@ class SignInIdleViewUiTest {
 		waitForIdle()
 
 		assertNodeHidden(AuthUiTags.SignInRejectedMarker)
+	}
+
+	@Test
+	fun when_formIsTallerThanTheWindow_then_signInButtonScrollsIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			// A window the keyboard has shortened: the form cannot fit, so it scrolls instead of being squeezed.
+			Box(modifier = Modifier.height(320.dp)) {
+				SignInView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234"))
+			}
+		}
+
+		onNodeWithTag(AuthUiTags.SignInButton).performScrollTo()
+
+		onNodeWithTag(AuthUiTags.SignInButton).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theUsbIdReturnKeyIsPressed_then_theFocusMovesToThePassword() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(hasImeAction(ImeAction.Next))
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performImeAction()
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).assert(isFocused())
+	}
+
+	// A tap a field takes is not a tap on the background: the form must not clear the focus the field just took.
+	@Test
+	fun when_aFieldIsTapped_then_itTakesTheFocusAndKeepsIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+		waitForIdle()
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(isFocused())
+	}
+
+	@Test
+	fun when_theBackgroundIsTapped_then_theFocusLeavesTheFields() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+		onNodeWithTag(AuthUiTags.SignInIdleContainer).performTouchInput { click(Offset(2f, 2f)) }
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(isNotFocused())
+	}
+
+	@Test
+	fun when_theFormIsDragged_then_theFocusLeavesTheFields() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+		onNodeWithTag(AuthUiTags.SignInIdleContainer).performTouchInput { swipeUp() }
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assert(isNotFocused())
+	}
+
+	// The focused field and the sign-in button after it are brought into view together. The field is already on screen
+	// here, so only the region's request moves the form to show the button under the keyboard.
+	@Test
+	fun when_aFieldIsFocusedAndTheButtonIsBelowTheWindow_then_theButtonIsBroughtIntoView() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			Box(modifier = Modifier.height(320.dp)) {
+				SignInView(state = SignIn.State.Idle(usbId = "12-34567"))
+			}
+		}
+
+		onNodeWithTag(AuthUiTags.SignInButton).assertIsNotDisplayed()
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performClick()
+
+		onNodeWithTag(AuthUiTags.SignInButton).assertIsDisplayed()
 	}
 
 	@Composable

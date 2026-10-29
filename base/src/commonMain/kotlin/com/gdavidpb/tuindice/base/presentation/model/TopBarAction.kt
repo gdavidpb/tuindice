@@ -3,10 +3,6 @@ package com.gdavidpb.tuindice.base.presentation.model
 sealed class TopBarAction(
 	val action: String
 ) {
-	data object SignOutAction : TopBarAction(
-		action = "sign_out"
-	)
-
 	data object FetchEnrollmentProofAction : TopBarAction(
 		action = "enrollment_proof"
 	)
@@ -34,5 +30,20 @@ sealed class TopBarAction(
 	// The Statistics screen offers to share one of its closed terms as an image.
 	data object StatisticsShareAction : TopBarAction(
 		action = "statistics_share"
+	)
+
+	// The term report ("Tu trimestre") shares its term as an image, the sheet of the Statistics screen too.
+	data object TermReportShareAction : TopBarAction(
+		action = "term_report_share"
+	)
+
+	// The assistant's sparkle in the bar: asks the assistant about the screen the bar belongs to.
+	data object AssistantAction : TopBarAction(
+		action = "assistant"
+	)
+
+	// The student's avatar, always the last place of the bar of a main section: opens Settings.
+	data object SettingsAction : TopBarAction(
+		action = "settings"
 	)
 }

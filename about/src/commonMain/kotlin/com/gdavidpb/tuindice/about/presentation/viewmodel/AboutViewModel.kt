@@ -17,30 +17,8 @@ class AboutViewModel(
 	initialAction = About.Action.LoadVersion,
 	dispatchers = dispatchers
 ) {
-	fun openTermsAndConditionsAction() =
-		sendAction(About.Action.OpenTermsAndConditions)
-
-	fun openPrivacyPolicyAction() =
-		sendAction(About.Action.OpenPrivacyPolicy)
-
-	fun openSupportAction() =
-		sendAction(About.Action.OpenSupport)
-
-	fun shareAppAction() =
-		sendAction(About.Action.ShareApp)
-
-	fun rateOnPlayStoreAction() =
-		sendAction(About.Action.RateOnStore)
-
-	fun reportBugAction() =
-		sendAction(About.Action.ReportBug)
-
-	fun contactDeveloperAction() =
-		sendAction(About.Action.ContactDeveloper)
-
-	fun openUrlAction(url: String) =
-		sendAction(About.Action.OpenUrl(url))
-
-	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
-		sendAction(About.Action.SetUsageDataCollectionEnabled(enabled))
+	// The screen sends its actions through this single entry point, so the view model keeps one function
+	// for every action instead of one wrapper per action.
+	fun dispatchAction(action: About.Action) =
+		sendAction(action)
 }

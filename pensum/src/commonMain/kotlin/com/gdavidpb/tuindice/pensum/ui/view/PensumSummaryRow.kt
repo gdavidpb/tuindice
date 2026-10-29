@@ -29,6 +29,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +40,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -98,6 +101,12 @@ fun PensumSummaryRow(
 			)
 		}
 	}
+
+	// The numbers shown are derived from the animated values, so a frame composes the row only when one of them
+	// shows another whole number.
+	val shownPercent by remember { derivedStateOf { (progress.value * 100).roundToInt() } }
+	val shownApprovedCredits by remember { derivedStateOf { approvedCredits.value.roundToInt() } }
+	val shownTotalCredits by remember { derivedStateOf { totalCredits.value.roundToInt() } }
 
 	Column(
 		modifier = Modifier
@@ -173,6 +182,7 @@ fun PensumSummaryRow(
 				)
 			) {
 				Column {
+					ReportComposition("pensum-summary-row")
 					PensumSummaryDivider()
 					Row(
 						modifier = Modifier.fillMaxWidth(),
@@ -188,12 +198,12 @@ fun PensumSummaryRow(
 								verticalAlignment = Alignment.CenterVertically,
 								horizontalArrangement = Arrangement.spacedBy(10.dp)
 							) {
-								PensumProgressRing(progress = progress.value)
+								PensumProgressRing(progress = { progress.value })
 								Column(
 									verticalArrangement = Arrangement.spacedBy(2.dp)
 								) {
 									Text(
-										text = "${(progress.value * 100).roundToInt()}% $progressLabel",
+										text = "$shownPercent% $progressLabel",
 										style = compactTextStyle,
 										fontWeight = FontWeight.SemiBold,
 										color = graphColors.textPrimary,
@@ -201,7 +211,7 @@ fun PensumSummaryRow(
 										overflow = TextOverflow.Ellipsis
 									)
 									Text(
-										text = "${approvedCredits.value.roundToInt()} / ${totalCredits.value.roundToInt()} UC",
+										text = "$shownApprovedCredits / $shownTotalCredits UC",
 										style = compactTextStyle,
 										color = graphColors.textSecondary,
 										maxLines = 1,

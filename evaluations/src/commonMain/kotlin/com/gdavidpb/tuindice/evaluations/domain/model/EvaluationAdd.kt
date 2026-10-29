@@ -12,5 +12,7 @@ data class EvaluationAdd(
 	val scheduleMode: EvaluationScheduleMode,
 	val date: Long?,
 	val grade: Double?,
-	val maxGrade: Double
+	val maxGrade: Double,
+	// The id the mutation is submitted with (the outbox's idempotency key). Generated when absent.
+	val mutationId: String? = null
 )

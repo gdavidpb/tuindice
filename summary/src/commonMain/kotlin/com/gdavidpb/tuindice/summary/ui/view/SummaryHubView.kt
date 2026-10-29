@@ -13,8 +13,8 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.SummaryHubActions
 
 /**
- * What Summary says under the profile, in this order: what needs attention, the week, the term, the
- * career and the statistics. Each is absent when it has nothing to say, and every line leads to the
+ * What Summary says under the profile, in this order: what needs attention, the report of a term not read yet, the
+ * week, the term, the career and the statistics. Each is absent when it has nothing to say, and every line leads to the
  * screen that owns what it says.
  */
 @Composable
@@ -34,6 +34,13 @@ fun SummaryHubView(
 		if (hub.attention.isNotEmpty()) {
 			SummaryAttentionView(
 				items = hub.attention,
+				onItemClick = actions.onTargetClick
+			)
+		}
+
+		hub.termReport?.let { termReport ->
+			SummaryTermReportView(
+				item = termReport,
 				onItemClick = actions.onTargetClick
 			)
 		}

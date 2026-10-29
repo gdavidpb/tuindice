@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseC
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.ObserveEvaluationMutationOutcomesUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -54,6 +55,8 @@ private const val EVALUATIONS_MUTATION_STORE_QUALIFIER = "evaluationsMutationSto
 private const val EVALUATIONS_MUTATION_ENGINE_QUALIFIER = "evaluationsMutationEngine"
 
 val evaluationsModule = module {
+	includes(evaluationsSelectionModule)
+
 	/* View models */
 
 	viewModelOf(::EvaluationsViewModel)
@@ -74,6 +77,7 @@ val evaluationsModule = module {
 	factoryOf(::AddEvaluationUseCase)
 	factoryOf(::GetAvailableAttemptsUseCase)
 	factoryOf(::SetSelectedWeekUseCase)
+	factoryOf(::ObserveEvaluationMutationOutcomesUseCase)
 
 	/* Validators */
 
@@ -131,7 +135,6 @@ val evaluationsModule = module {
 	singleOf(::LocalSettingsDataSource) {
 		bind<SettingsDataRepository>()
 		bind<EvaluationsSelectionRepository>()
-		bind<SessionMemory>()
 	}
 
 	/* Exception handlers */

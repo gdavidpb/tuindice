@@ -8,6 +8,8 @@ import kotlinx.serialization.modules.subclass
 object AboutNavContribution : TuIndiceNavContribution {
 
 	override fun registerNavKeys(builder: PolymorphicModuleBuilder<NavKey>) {
+		builder.subclass(AboutDestination.Settings::class)
 		builder.subclass(AboutDestination.About::class)
+		builder.subclass(AboutDestination.DeleteAssistantConversationsDialog::class)
 	}
 }

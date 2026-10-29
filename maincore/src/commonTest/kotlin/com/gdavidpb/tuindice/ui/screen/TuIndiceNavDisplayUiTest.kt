@@ -28,6 +28,7 @@ class TuIndiceNavDisplayUiTest {
 		withDisplayKoin {
 			setTuIndiceTestContent {
 				TuIndiceNavDisplay(
+					onSignOutRequest = {},
 					navigator = rememberTestNavigator(
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
@@ -52,6 +53,7 @@ class TuIndiceNavDisplayUiTest {
 		withDisplayKoin {
 			setTuIndiceTestContent {
 				TuIndiceNavDisplay(
+					onSignOutRequest = {},
 					navigator = rememberTestNavigator(
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
@@ -77,6 +79,7 @@ class TuIndiceNavDisplayUiTest {
 		withDisplayKoin {
 			setTuIndiceTestContent {
 				TuIndiceNavDisplay(
+					onSignOutRequest = {},
 					navigator = rememberTestNavigator(
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),

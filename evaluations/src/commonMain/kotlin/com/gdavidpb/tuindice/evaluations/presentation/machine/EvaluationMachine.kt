@@ -15,6 +15,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationUs
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationTypePickerItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.snackEvaluationAdded
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.snackEvaluationUpdated
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddSubmitErrorMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEditSubmitErrorMessage
@@ -26,10 +28,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationAnySt
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationContentTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toSelectableDateRange
-import org.jetbrains.compose.resources.getString
-import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.snack_evaluation_added
-import tuindice.evaluations.generated.resources.snack_evaluation_updated
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -166,7 +164,7 @@ class EvaluationMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						EvaluationInternalEvent.SubmitSucceeded(
-							message = getString(Res.string.snack_evaluation_added)
+							message = snackEvaluationAdded()
 						)
 					)
 
@@ -191,7 +189,7 @@ class EvaluationMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						EvaluationInternalEvent.SubmitSucceeded(
-							message = getString(Res.string.snack_evaluation_updated)
+							message = snackEvaluationUpdated()
 						)
 					)
 

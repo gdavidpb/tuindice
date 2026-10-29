@@ -22,19 +22,19 @@ class TopAppBarActionsViewUiTest {
 
 		setTuIndiceTestContent {
 			TopAppBarActionsView(
-				topBarConfig = TopBarConfig.Summary,
+				topBarConfig = TopBarConfig.Pensum,
 				onAction = { action -> selectedAction = action }
 			) { action ->
 				Text(action.action)
 			}
 		}
 
-		val signOutTag = BaseUiTags.topBarActionButton(TopBarAction.SignOutAction)
+		val searchTag = BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction)
 		assertNodeVisible(BaseUiTags.TopAppBarActionsContainer)
-		assertNodeVisible(signOutTag)
+		assertNodeVisible(searchTag)
 
-		onNodeWithTag(signOutTag).performClick()
-		assertEquals(TopBarAction.SignOutAction, selectedAction)
+		onNodeWithTag(searchTag).performClick()
+		assertEquals(TopBarAction.SearchPensumAction, selectedAction)
 	}
 
 	@Test

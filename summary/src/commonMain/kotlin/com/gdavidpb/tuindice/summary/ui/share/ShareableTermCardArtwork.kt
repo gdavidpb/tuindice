@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.summary.ui.share
 
 import coil3.ImageLoader
 import coil3.PlatformContext
+import coil3.annotation.ExperimentalCoilApi
+import coil3.decode.BlackholeDecoder
+import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.crossfade
@@ -35,5 +38,17 @@ internal fun remoteArtRequest(platformContext: PlatformContext, url: String): Im
 		.memoryCacheKey(url)
 		.diskCacheKey(url)
 		.crossfade(false)
+		.build()
+}
+
+// The request that brings the picture of a remote artwork to disk ahead of time, under the keys of [remoteArtRequest],
+// so the card reads it from there later. It is never decoded: what it yields is a stand-in that must not reach memory,
+// where the card would take it for the picture.
+@OptIn(ExperimentalCoilApi::class)
+internal fun remoteArtPrefetchRequest(platformContext: PlatformContext, url: String): ImageRequest {
+	return remoteArtRequest(platformContext = platformContext, url = url)
+		.newBuilder()
+		.memoryCachePolicy(CachePolicy.DISABLED)
+		.decoderFactory(BlackholeDecoder.Factory())
 		.build()
 }

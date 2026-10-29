@@ -1,0 +1,34 @@
+{
+  "scenarioName": "assistant-turns",
+  "requiredScenarioState": "Guided",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.message.text"
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.message.suggestionId",
+          "absent": true
+        }
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "guided_only",
+      "message": "Solo se aceptan preguntas sugeridas"
+    }
+  }
+}

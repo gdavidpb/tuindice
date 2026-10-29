@@ -3,6 +3,9 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -10,6 +13,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
@@ -18,10 +23,12 @@ import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.flow.first
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,14 +48,16 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
 				selectedWeekKey = EvaluationsWeekKey.Academic(8),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
-					clickedEvaluationId = evaluationId
-					clickedEvaluationName = evaluationName
-					clickedSubjectCode = subjectCode
-				},
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
+						clickedEvaluationId = evaluationId
+						clickedEvaluationName = evaluationName
+						clickedSubjectCode = subjectCode
+					},
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -84,10 +93,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
 				selectedWeekKey = EvaluationsWeekKey.Academic(8),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -113,10 +124,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weekGroups,
 				selectedWeekKey = EvaluationsWeekKey.Academic(7),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -153,10 +166,12 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weekGroups,
 				selectedWeekKey = EvaluationsWeekKey.Continuous,
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {}
+				)
 			)
 		}
 
@@ -187,12 +202,14 @@ class EvaluationsViewUiTest {
 				lazyListState = rememberLazyListState(),
 				weekGroups = weeks,
 				selectedWeekKey = EvaluationsWeekKey.Academic(10),
-				onVisibleWeekChange = {},
-				onEvaluationClick = { _, _, _ -> },
-				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				arrivalEvaluationId = arrival,
-				onArrivalTaken = { evaluationId -> taken = evaluationId }
+				actions = EvaluationsActions(
+					onWeekClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onEvaluationArrivalTaken = { evaluationId -> taken = evaluationId }
+				),
+				arrivalEvaluationId = arrival
 			)
 		}
 
@@ -225,10 +242,12 @@ class EvaluationsViewUiTest {
 					lazyListState = rememberLazyListState(),
 					weekGroups = weekGroups,
 					selectedWeekKey = EvaluationsWeekKey.Academic(8),
-					onVisibleWeekChange = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {}
+					actions = EvaluationsActions(
+						onWeekClick = {},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {}
+					)
 				)
 			}
 		}
@@ -243,5 +262,386 @@ class EvaluationsViewUiTest {
 			"the header of the last week at ${header.top} is at the top of the list at ${list.top}"
 		)
 		assertNodeHidden(EvaluationsUiTags.evaluationsWeekHeader(7))
+	}
+
+	@Test
+	fun when_aWeekIsChosenAndTheListIsDraggedBeforeItStandsOnIt_then_theChosenWeekStaysAndItsContentIsInView() =
+		runTuIndiceUiTest {
+			val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4)
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+			val reportedWeeks = mutableListOf<EvaluationsWeekKey>()
+			val isDragArmed = mutableStateOf(false)
+
+			setTuIndiceTestContent {
+				val lazyListState = rememberLazyListState()
+
+				// The week is chosen as soon as the student's drag of the list starts: the list is not on it yet.
+				LaunchedEffect(lazyListState) {
+					snapshotFlow { isDragArmed.value && lazyListState.isScrollInProgress }
+						.first { isDragging -> isDragging }
+
+					chosenWeek.value = EvaluationsWeekKey.Academic(11)
+				}
+
+				EvaluationsView(
+					lazyListState = lazyListState,
+					weekGroups = weeks,
+					selectedWeekKey = chosenWeek.value,
+					actions = EvaluationsActions(
+						onWeekClick = { weekKey ->
+							reportedWeeks += weekKey
+							chosenWeek.value = weekKey
+						},
+						onEvaluationClick = { _, _, _ -> },
+						onEvaluationEdit = {},
+						onEvaluationDelete = {}
+					)
+				)
+			}
+
+			waitForIdle()
+
+			runOnIdle {
+				isDragArmed.value = true
+			}
+			onNodeWithTag(EvaluationsUiTags.EvaluationsList).performTouchInput { swipeUp() }
+			waitForIdle()
+
+			assertEquals(emptyList<EvaluationsWeekKey>(), reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+			assertNodeVisible(EvaluationsUiTags.evaluationItemCard("week-11-evaluation-1"))
+
+			val list = onNodeWithTag(EvaluationsUiTags.EvaluationsList).getUnclippedBoundsInRoot()
+			val header = onNodeWithTag(EvaluationsUiTags.evaluationsWeekHeader(11)).getUnclippedBoundsInRoot()
+
+			assertTrue(
+				abs((header.top - list.top).value) < 1f,
+				"the chosen week at ${header.top} is at the top of the list at ${list.top}"
+			)
+		}
+
+	@Test
+	fun when_theChosenWeekIsPlaced_then_aDragOfTheListChoosesTheWeeksItShows() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+		waitForIdle()
+
+		// The list is on week 10: a long drag forward shows week 11, then week 12, and each is chosen as it shows.
+		runOnIdle { drag.value = DragRequest(steps = FORWARD_STEPS, stepPx = FORWARD_STEP_PX) }
+		waitForIdle()
+
+		assertEquals<List<EvaluationsWeekKey>>(
+			listOf(EvaluationsWeekKey.Academic(11), EvaluationsWeekKey.Academic(12)),
+			host.reportedWeeks
+		)
+		assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+	}
+
+	// A guard: a drag cutting the placement of the chosen week has always left the week to be placed on release; it must
+	// go on doing so.
+	@Test
+	fun when_aDragCutsThePlacementOfTheChosenWeek_then_theWeekIsPlacedOnReleaseAndTheChoiceStays() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(11) }
+		advanceFrames(2)
+		runOnIdle { drag.value = DragRequest(steps = 5, stepPx = 40f) }
+		advanceFrames(10)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+		assertHeaderAtTopOfList(11)
+	}
+
+	@Test
+	fun when_theChosenWeekIsPlacedAndADragCutsItTwice_then_theWeekIsPlacedAndALaterDragChoosesAgain() =
+		runTuIndiceUiTest {
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+			val drag = mutableStateOf<DragRequest?>(null)
+			val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, drag)
+			waitForIdle()
+
+			mainClock.autoAdvance = false
+			runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(11) }
+			advanceFrames(2)
+			runOnIdle { drag.value = DragRequest(steps = 4, stepPx = 40f) }
+			advanceFrames(8)
+			advanceFrames(2)
+			runOnIdle { drag.value = DragRequest(steps = 4, stepPx = -40f) }
+			advanceFrames(8)
+			mainClock.autoAdvance = true
+			waitForIdle()
+
+			assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+			assertHeaderAtTopOfList(11)
+
+			runOnIdle { drag.value = DragRequest(steps = FORWARD_STEPS, stepPx = FORWARD_STEP_PX) }
+			waitForIdle()
+
+			assertEquals<List<EvaluationsWeekKey>>(listOf(EvaluationsWeekKey.Academic(12)), host.reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+		}
+
+	@Test
+	fun when_aDragFollowsAChoiceOfAWeekWithoutEvaluations_then_theDragDoesNotRewriteTheChoice() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(9))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4, emptyWeeks = setOf(6))
+		val host = setWeekListHost(weeks, chosenWeek, drag)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { drag.value = DragRequest(steps = 30, stepPx = 25f) }
+		advanceFrames(2)
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(6) }
+		advanceFrames(40)
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(6), chosenWeek.value)
+	}
+
+	// A guard: the student leaves week 12 for week 11 and releases before the choice of week 11 reaches the list. The list
+	// stays where the student released it, frame after frame, and never goes back toward week 12.
+	@Test
+	fun when_theChoiceArrivesAfterTheStudentLeftTheWeek_then_theListStaysWhereTheStudentReleasedIt() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(12))
+		val drag = mutableStateOf<DragRequest?>(null)
+		val host = setWeekListHost(
+			weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4),
+			chosenWeek = chosenWeek,
+			drag = drag,
+			applyDelayFrames = CHOICE_DELAY_FRAMES
+		)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { drag.value = DragRequest(steps = 3, stepPx = -100f) }
+		advanceFrames(RELEASE_FRAMES)
+
+		assertEquals<List<EvaluationsWeekKey>>(listOf(EvaluationsWeekKey.Academic(11)), host.reportedWeeks)
+		assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+		assertTrue(!host.listState.isScrollInProgress, "the student has released the list")
+
+		val released = host.listState.position()
+
+		repeat(CHOICE_DELAY_FRAMES + 6) {
+			advanceFrames(1)
+			assertEquals(released, host.listState.position())
+		}
+
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertEquals(EvaluationsWeekKey.Academic(11), chosenWeek.value)
+		assertEquals(released, host.listState.position())
+		assertTrue(host.listState.firstVisibleItemIndex in WEEK_11_HEADER_INDEX until WEEK_12_HEADER_INDEX)
+	}
+
+	@Test
+	fun when_theListCrossesTwoWeeksBeforeTheFirstChoiceArrives_then_theListStaysWhereTheStudentReleasedIt() =
+		runTuIndiceUiTest {
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
+			val drag = mutableStateOf<DragRequest?>(null)
+			val host = setWeekListHost(
+				weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 4),
+				chosenWeek = chosenWeek,
+				drag = drag,
+				applyDelayFrames = LONG_CHOICE_DELAY_FRAMES
+			)
+			waitForIdle()
+
+			mainClock.autoAdvance = false
+			runOnIdle { drag.value = DragRequest(steps = TWO_WEEKS_STEPS, stepPx = TWO_WEEKS_STEP_PX) }
+			advanceFrames(TWO_WEEKS_STEPS + RELEASE_FRAMES)
+
+			// Both weeks were crossed and reported, and no choice has reached the list yet.
+			assertEquals<List<EvaluationsWeekKey>>(
+				listOf(EvaluationsWeekKey.Academic(11), EvaluationsWeekKey.Academic(12)),
+				host.reportedWeeks
+			)
+			assertEquals(EvaluationsWeekKey.Academic(10), chosenWeek.value)
+			assertTrue(!host.listState.isScrollInProgress, "the student has released the list")
+
+			val released = host.listState.position()
+
+			// The first choice is applied by now, and so is the second.
+			repeat(LONG_CHOICE_DELAY_FRAMES + 10) {
+				advanceFrames(1)
+				assertEquals(released, host.listState.position())
+			}
+
+			mainClock.autoAdvance = true
+			waitForIdle()
+
+			assertEquals(EvaluationsWeekKey.Academic(12), chosenWeek.value)
+			assertEquals(released, host.listState.position())
+			assertEquals<List<EvaluationsWeekKey>>(
+				listOf(EvaluationsWeekKey.Academic(11), EvaluationsWeekKey.Academic(12)),
+				host.reportedWeeks
+			)
+		}
+
+	@Test
+	fun when_theFirstWeekIsPlacedWithoutAScroll_then_theNextWeekChosenIsReachedByAnAnimation() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(1))
+		val host = setWeekListHost(evaluationWeeksFixture(count = 12, cardsPerWeek = 4), chosenWeek, mutableStateOf(null))
+		waitForIdle()
+
+		// The list already stands on the first header: there was nothing to scroll to, yet the week was placed.
+		assertEquals(0, host.listState.firstVisibleItemIndex)
+
+		mainClock.autoAdvance = false
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(6) }
+
+		val seen = mutableSetOf<Int>()
+
+		repeat(ANIMATION_FRAMES) {
+			advanceFrames(1)
+			seen += host.listState.firstVisibleItemIndex
+		}
+
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertHeaderAtTopOfList(6)
+		assertTrue(seen.any { index -> index in 1 until WEEK_6_HEADER_INDEX }, "the list passed through $seen on its way")
+	}
+
+	// A guard: an arrival that placed the first week made the next change of week animate before, and it must go on so.
+	@Test
+	fun when_anArrivalPlacedTheFirstWeek_then_theNextWeekChosenIsReachedByAnAnimation() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(10))
+		val host = setWeekListHost(
+			weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 12),
+			chosenWeek = chosenWeek,
+			drag = mutableStateOf(null),
+			arrivalEvaluationId = mutableStateOf<String?>("week-10-evaluation-12")
+		)
+		waitForIdle()
+
+		mainClock.autoAdvance = false
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(3) }
+
+		val seen = mutableSetOf<Int>()
+
+		repeat(ANIMATION_FRAMES) {
+			advanceFrames(1)
+			seen += host.listState.firstVisibleItemIndex
+		}
+
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		assertHeaderAtTopOfList(3)
+		assertTrue(
+			seen.any { index -> index in WEEK_3_HEADER_INDEX + 1 until WEEK_10_HEADER_INDEX },
+			"the list passed through $seen on its way"
+		)
+	}
+
+	@Test
+	fun when_aPlacedWeekWithoutEvaluationsGainsThem_then_itIsPlacedOnItsHeader() = runTuIndiceUiTest {
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(6))
+		val weeks = mutableStateOf(evaluationWeeksFixture(count = 12, cardsPerWeek = 4, emptyWeeks = setOf(6)))
+
+		setWeekListHost(weeks = weeks, chosenWeek = chosenWeek, drag = mutableStateOf(null))
+		waitForIdle()
+		assertNodeHidden(EvaluationsUiTags.evaluationsWeekHeader(6))
+
+		runOnIdle { weeks.value = evaluationWeeksFixture(count = 12, cardsPerWeek = 4) }
+		waitForIdle()
+
+		assertHeaderAtTopOfList(6)
+		assertEquals(EvaluationsWeekKey.Academic(6), chosenWeek.value)
+	}
+
+	@Test
+	fun when_anArrivalMeetsAWeekWithoutEvaluations_then_itIsTakenAndNoLaterWeekIsPlacedOnIt() = runTuIndiceUiTest {
+		val arrival = "week-10-evaluation-12"
+		val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(6))
+		val host = setWeekListHost(
+			weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 12, emptyWeeks = setOf(6)),
+			chosenWeek = chosenWeek,
+			drag = mutableStateOf(null),
+			arrivalEvaluationId = mutableStateOf<String?>(arrival)
+		)
+		waitForIdle()
+
+		assertEquals(listOf(arrival), host.takenArrivals)
+
+		// Week 10 is the ninth week with evaluations of the list, and week 6 lists none: its header is item 104.
+		runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(10) }
+		waitForIdle()
+
+		assertEquals(WEEK_10_HEADER_INDEX_OF_TWELVE_CARDS, host.listState.firstVisibleItemIndex)
+		assertEquals(0, host.listState.firstVisibleItemScrollOffset)
+	}
+
+	// A drag cuts the move to the chosen week while it is under way, and the arrival comes during the drag. The arrival is
+	// placed on release, with its card in view, and the choice stays. The cut itself is a guard; the move being under way
+	// to be cut needs the first week to count as placed, so it fails without that.
+	@Test
+	fun when_aDragCutsTheMoveToTheChosenWeekAndAnArrivalComesDuringIt_then_theArrivalIsPlacedOnRelease() =
+		runTuIndiceUiTest {
+			val arrival = "week-10-evaluation-12"
+			val chosenWeek = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(1))
+			val drag = mutableStateOf<DragRequest?>(null)
+			val arrivalEvaluationId = mutableStateOf<String?>(null)
+			val host = setWeekListHost(
+				weeks = evaluationWeeksFixture(count = 12, cardsPerWeek = 12),
+				chosenWeek = chosenWeek,
+				drag = drag,
+				arrivalEvaluationId = arrivalEvaluationId
+			)
+			waitForIdle()
+
+			mainClock.autoAdvance = false
+			runOnIdle { chosenWeek.value = EvaluationsWeekKey.Academic(10) }
+			advanceFrames(MOVE_FRAMES_BEFORE_DRAG)
+
+			// The move to week 10 is under way: the list is neither on week 1 nor on week 10.
+			assertTrue(host.listState.firstVisibleItemIndex in 1 until WEEK_10_HEADER_INDEX, "the list is on its way")
+
+			runOnIdle { drag.value = DragRequest(steps = CUT_DRAG_STEPS, stepPx = CUT_DRAG_STEP_PX) }
+			advanceFrames(2)
+			runOnIdle { arrivalEvaluationId.value = arrival }
+			advanceFrames(CUT_DRAG_STEPS + RELEASE_FRAMES)
+			mainClock.autoAdvance = true
+			waitForIdle()
+
+			assertEquals(listOf(arrival), host.takenArrivals)
+			assertEquals(emptyList<EvaluationsWeekKey>(), host.reportedWeeks)
+			assertEquals(EvaluationsWeekKey.Academic(10), chosenWeek.value)
+			assertNodeVisible(EvaluationsUiTags.evaluationItemCard(arrival))
+		}
+
+	private companion object {
+		const val FORWARD_STEPS = 60
+		const val FORWARD_STEP_PX = 100f
+		const val CHOICE_DELAY_FRAMES = 20
+		const val LONG_CHOICE_DELAY_FRAMES = 40
+		const val RELEASE_FRAMES = 8
+		const val TWO_WEEKS_STEPS = 12
+		const val TWO_WEEKS_STEP_PX = 300f
+		const val ANIMATION_FRAMES = 60
+		const val MOVE_FRAMES_BEFORE_DRAG = 5
+		const val CUT_DRAG_STEPS = 10
+		const val CUT_DRAG_STEP_PX = 20f
+		const val WEEK_3_HEADER_INDEX = 26
+		const val WEEK_6_HEADER_INDEX = 25
+		const val WEEK_10_HEADER_INDEX = 117
+		const val WEEK_11_HEADER_INDEX = 50
+		const val WEEK_12_HEADER_INDEX = 55
+		const val WEEK_10_HEADER_INDEX_OF_TWELVE_CARDS = 104
 	}
 }

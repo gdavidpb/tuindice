@@ -14,6 +14,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -22,14 +23,25 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.view.arrivalHighlight
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationSwipeActions
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -41,16 +53,12 @@ fun EvaluationsView(
 	lazyListState: LazyListState,
 	weekGroups: List<EvaluationsWeekGroupItem>,
 	selectedWeekKey: EvaluationsWeekKey,
-	onVisibleWeekChange: (EvaluationsWeekKey) -> Unit,
-	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
-	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
+	actions: EvaluationsActions,
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
-	arrivalEvaluationId: String? = null,
-	onArrivalTaken: (evaluationId: String) -> Unit = {}
+	arrivalEvaluationId: String? = null
 ) {
 	val singleCountPattern = stringResource(Res.string.evaluation_group_count_one)
 	val manyCountPattern = stringResource(Res.string.evaluation_group_count_many)
@@ -62,6 +70,9 @@ fun EvaluationsView(
 	}
 	val isProgrammaticWeekScroll = remember { mutableStateOf(false) }
 	val hasPositionedSelectedWeek = remember { mutableStateOf(false) }
+	// The week the list stands on, once it has been placed there; null while a placement is pending. While it is null
+	// the list does not choose a week.
+	val positionedWeek = remember { mutableStateOf<EvaluationsWeekKey?>(null) }
 
 	// The arrival is taken from the content once, here: the content forgets it and the list keeps it
 	// until the highlight has played, so a later visit cannot replay it.
@@ -73,6 +84,7 @@ fun EvaluationsView(
 			lazyListState = lazyListState,
 			isProgrammaticWeekScroll = isProgrammaticWeekScroll,
 			hasPositionedSelectedWeek = hasPositionedSelectedWeek,
+			positionedWeek = positionedWeek,
 			positionedArrival = positionedArrival,
 			highlightedArrival = highlightedArrival
 		)
@@ -87,16 +99,14 @@ fun EvaluationsView(
 		val evaluationId = arrivalEvaluationId ?: return@LaunchedEffect
 
 		arrival.value = EvaluationArrival(evaluationId = evaluationId)
-		onArrivalTaken(evaluationId)
+		actions.onEvaluationArrivalTaken(evaluationId)
 	}
 
-	LaunchedEffect(selectedWeekKey, weekHeaderIndexes, arrival.value) {
-		val headerIndex = weekHeaderIndexes[selectedWeekKey] ?: return@LaunchedEffect
-
-		positioning.positionWeek(
+	LaunchedEffect(selectedWeekKey, weekGroups, weekHeaderIndexes, arrival.value) {
+		positioning.placeSelection(
 			weekGroups = weekGroups,
 			weekKey = selectedWeekKey,
-			headerIndex = headerIndex,
+			weekHeaderIndexes = weekHeaderIndexes,
 			take = arrival.value
 		)
 	}
@@ -114,14 +124,48 @@ fun EvaluationsView(
 			}
 	}
 
-	LaunchedEffect(lazyListState, weekHeaderIndexes, selectedWeekKey) {
+	// The report reads the latest callback, so a long-lived effect never calls one the screen has replaced.
+	val onWeekClick = rememberUpdatedState(actions.onWeekClick)
+
+	LaunchedEffect(lazyListState, weekHeaderIndexes) {
 		reportUserWeek(
-			lazyListState = lazyListState,
+			positioning = positioning,
 			weekHeaderIndexes = weekHeaderIndexes,
-			selectedWeekKey = selectedWeekKey,
-			isProgrammaticWeekScroll = isProgrammaticWeekScroll,
-			onVisibleWeekChange = onVisibleWeekChange
+			onVisibleWeekChange = { weekKey -> onWeekClick.value(weekKey) }
 		)
+	}
+
+	// A week left pending by a gesture, or by a placement that the gesture cut short, is placed once the gesture ends.
+	LaunchedEffect(lazyListState, weekGroups, weekHeaderIndexes, selectedWeekKey) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.filter { isScrollInProgress -> !isScrollInProgress }
+			.collect {
+				positioning.placePending(
+					weekGroups = weekGroups,
+					weekKey = selectedWeekKey,
+					weekHeaderIndexes = weekHeaderIndexes,
+					take = arrival.value
+				)
+			}
+	}
+
+	// Once the list comes to rest, the week the host shows settles the reports the list left behind: a gesture that
+	// goes to another week and back may leave one for the week it went through, and the host may have merged the
+	// selections on the way, so no change of the selection reaches the list. Only the week the list stands on settles.
+	// Clearing them at rest is safe: the reports are sent before the list comes to rest, and the screen's
+	// machine handles them on the main thread ahead of the frames that end the gesture, so by then a selection
+	// that still equals the week the list stands on has taken them all in.
+	val restingWeekKey = rememberUpdatedState(selectedWeekKey)
+
+	LaunchedEffect(lazyListState, positioning) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.distinctUntilChanged()
+			// The first value is the state the list has when the effect starts, and it is not an end of anything.
+			.drop(1)
+			.filter { isScrollInProgress -> !isScrollInProgress }
+			.collect {
+				positioning.settleReports(restingWeekKey.value)
+			}
 	}
 
 	LazyColumn(
@@ -166,15 +210,26 @@ fun EvaluationsView(
 					highlighted.evaluationId == evaluation.evaluationId
 				}
 
+				val askAction = remember(actions.onAskAssistant, evaluation.assistantContext) {
+					assistantAskAction(
+						onAskAssistant = actions.onAskAssistant,
+						context = evaluation.assistantContext
+					)
+				}
+
 				EvaluationSwipeToDismiss(
 					modifier = itemModifier.animateItem(
 						fadeInSpec = null,
 						fadeOutSpec = null
 					),
 					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
-					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
-					onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+					actions = EvaluationSwipeActions(
+						onAsk = askAction,
+						onEdit = { actions.onEvaluationEdit(evaluation.evaluationId) },
+						onDelete = { actions.onEvaluationDelete(evaluation.evaluationId) }
+					)
 				) { onActionsClick ->
+					ReportComposition("evaluation-row", evaluation.evaluationId)
 					EvaluationItemView(
 						modifier = Modifier.arrivalHighlight(
 							trigger = highlight,
@@ -186,18 +241,21 @@ fun EvaluationsView(
 							}
 						),
 						item = evaluation,
-						onGradeClick = {
-							if (evaluation.isClickable) {
-								onEvaluationClick(
-									evaluation.evaluationId,
-									evaluation.nameText,
-									evaluation.subjectCodeText
-								)
-							}
-						},
-						onCardClick = onActionsClick,
-						onEditAction = { onEvaluationEdit(evaluation.evaluationId) },
-						onDeleteAction = { onEvaluationDelete(evaluation.evaluationId) }
+						actions = EvaluationItemActions(
+							onGradeClick = {
+								if (evaluation.isClickable) {
+									actions.onEvaluationClick(
+										evaluation.evaluationId,
+										evaluation.nameText,
+										evaluation.subjectCodeText
+									)
+								}
+							},
+							onCardClick = onActionsClick,
+							onEditAction = { actions.onEvaluationEdit(evaluation.evaluationId) },
+							onDeleteAction = { actions.onEvaluationDelete(evaluation.evaluationId) },
+							onAskAssistant = askAction
+						)
 					)
 				}
 			}
@@ -241,54 +299,196 @@ private class WeekPositioning(
 	val lazyListState: LazyListState,
 	val isProgrammaticWeekScroll: MutableState<Boolean>,
 	val hasPositionedSelectedWeek: MutableState<Boolean>,
+	val positionedWeek: MutableState<EvaluationsWeekKey?>,
 	val positionedArrival: ArrivalCursor,
 	val highlightedArrival: MutableState<EvaluationArrival?>
 ) {
-	// Positions the list on the week shown and, when an arrival is pending in it, on its evaluation. An arrival
-	// is pending until the list has been positioned for it; it is marked positioned only once that is done, so
-	// a restart in the middle of the scroll positions it again.
-	suspend fun positionWeek(
+	// One placement at a time, so a placement and the check after a gesture never move the list together.
+	private val placements = Mutex()
+
+	// The weeks that the list reported and the selection has not confirmed yet, in the order they were reported. The
+	// selection lags the list, so several reports can be on their way when the first one arrives.
+	private val unconfirmedWeeks = ArrayDeque<EvaluationsWeekKey>()
+
+	// The selection and the arrival the positioning has seen last, to tell a new one from a run for another reason.
+	private var handledSelection: EvaluationsWeekKey? = null
+	private var handledArrival: EvaluationArrival? = null
+
+	// Placements of the week that ended without the list standing on it, since the selection or the arrival changed.
+	private var failedAttempts = 0
+
+	// Whether the week was placed while it listed no evaluation: it is placed again once it lists one.
+	private var isPlacedWithoutHeader = false
+
+	// The list reported [weekKey] to the selection by a gesture of the student, and stands on it.
+	fun reportWeek(weekKey: EvaluationsWeekKey) {
+		unconfirmedWeeks.addLast(weekKey)
+		isPlacedWithoutHeader = false
+		positionedWeek.value = weekKey
+	}
+
+	// Places the list on the week the selection moved to, or on the arrival taken. A selection that the list reported is
+	// the position of the list itself: it only confirms the report, and the list does not move.
+	suspend fun placeSelection(
 		weekGroups: List<EvaluationsWeekGroupItem>,
 		weekKey: EvaluationsWeekKey,
+		weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
+		take: EvaluationArrival?
+	) {
+		val isNewSelection = weekKey != handledSelection
+		val isNewArrival = take != null && take !== handledArrival
+		val isReportedSelection = isNewSelection && confirmReport(weekKey)
+
+		handledSelection = weekKey
+		handledArrival = take
+
+		if ((isNewSelection && !isReportedSelection) || isNewArrival) {
+			unconfirmedWeeks.clear()
+			failedAttempts = 0
+			isPlacedWithoutHeader = false
+			positionedWeek.value = null
+		}
+
+		placePending(weekGroups, weekKey, weekHeaderIndexes, take)
+	}
+
+	// Places the week that is pending, once the list is still: a week left pending by a gesture, or a week that was
+	// placed without a header and lists an evaluation now.
+	suspend fun placePending(
+		weekGroups: List<EvaluationsWeekGroupItem>,
+		weekKey: EvaluationsWeekKey,
+		weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
+		take: EvaluationArrival?
+	) {
+		placements.withLock {
+			// A placement that waited for another one finds the week placed already, and a gesture moves the list itself.
+			if (isPending(weekHeaderIndexes) && !lazyListState.isScrollInProgress) {
+				placeWeekAt(weekGroups, weekKey, weekHeaderIndexes, weekHeaderIndexes[weekKey], take)
+			}
+		}
+	}
+
+	// Clears the reports the list left behind, once it rests. Only a selection on the week the list stands on clears
+	// them: any other selection may still have a report on its way to take in.
+	fun settleReports(restingWeek: EvaluationsWeekKey) {
+		if (restingWeek == positionedWeek.value) {
+			unconfirmedWeeks.clear()
+		}
+	}
+
+	// Drops the report of [weekKey] and the ones before it, and tells whether the list had reported it. A selection of
+	// the week the list stands on settles every report: the host may merge the selections on their way (B, C, B arriving
+	// as B), and a report left behind would take a later tap on its week for the list's own.
+	private fun confirmReport(weekKey: EvaluationsWeekKey): Boolean {
+		val position = unconfirmedWeeks.indexOf(weekKey)
+
+		if (position >= 0 && weekKey == positionedWeek.value) {
+			unconfirmedWeeks.clear()
+		} else if (position >= 0) {
+			repeat(position + 1) { unconfirmedWeeks.removeFirst() }
+		}
+
+		return position >= 0
+	}
+
+	private fun isPending(weekHeaderIndexes: Map<EvaluationsWeekKey, Int>): Boolean {
+		val placedWeek = positionedWeek.value ?: return true
+
+		return isPlacedWithoutHeader && weekHeaderIndexes[placedWeek] != null
+	}
+
+	private fun setPlaced(weekKey: EvaluationsWeekKey, isWithoutHeader: Boolean = false) {
+		hasPositionedSelectedWeek.value = true
+		isPlacedWithoutHeader = isWithoutHeader
+		positionedWeek.value = weekKey
+	}
+
+	private suspend fun placeWeekAt(
+		weekGroups: List<EvaluationsWeekGroupItem>,
+		weekKey: EvaluationsWeekKey,
+		weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
+		headerIndex: Int?,
+		take: EvaluationArrival?
+	) {
+		if (headerIndex == null) {
+			// The week lists no evaluation: there is nothing to place, so the list stays where it stands.
+			if (take != null) {
+				positionedArrival.value = take
+			}
+
+			setPlaced(weekKey, isWithoutHeader = true)
+		} else {
+			placeOnHeader(weekGroups, weekKey, weekHeaderIndexes, headerIndex, take)
+		}
+	}
+
+	// Scrolls the list onto the header of the week, and onto the arrival's card when one is pending in it. The week is
+	// placed when the list stands on it and the card is in view. A scroll that ends elsewhere is tried again, up to
+	// [MAX_PLACEMENT_ATTEMPTS] times in all, so a header that cannot get there does not place the week without end;
+	// then the week counts as placed where the list stands, and the arrival is taken without its highlight.
+	private suspend fun placeOnHeader(
+		weekGroups: List<EvaluationsWeekGroupItem>,
+		weekKey: EvaluationsWeekKey,
+		weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
 		headerIndex: Int,
 		take: EvaluationArrival?
 	) {
-		val isPending = take != null && take !== positionedArrival.value
-		val cardIndex = take?.takeIf { isPending }?.let { pending ->
+		val isArrivalPending = take != null && take !== positionedArrival.value
+		val cardIndex = take?.takeIf { isArrivalPending }?.let { pending ->
 			weekGroups.cardIndexIn(weekKey, pending.evaluationId, headerIndex)
 		}
 
-		if (take != null && isPending && cardIndex == null) {
-			// The week shown does not list it: nothing to bring into view, and the week is positioned below.
-			positionedArrival.value = take
+		if (!scrollToWeek(headerIndex, cardIndex)) {
+			return
 		}
 
-		if (take != null && isPending && cardIndex != null) {
-			isProgrammaticWeekScroll.value = true
-			try {
+		val isOnWeek = weekHeaderIndexes.visibleWeekKey(lazyListState.firstVisibleItemIndex) == weekKey
+		val isCardInView = cardIndex == null ||
+			lazyListState.layoutInfo.visibleItemsInfo.any { item -> item.index == cardIndex }
+		val isLanded = isOnWeek && isCardInView
+
+		if (!isLanded) {
+			failedAttempts += 1
+		}
+
+		if (isLanded || failedAttempts >= MAX_PLACEMENT_ATTEMPTS) {
+			if (isArrivalPending) {
+				positionedArrival.value = take
+
+				if (isLanded && cardIndex != null) {
+					highlightedArrival.value = take
+				}
+			}
+
+			setPlaced(weekKey)
+		}
+	}
+
+	// Scrolls the list onto the week's header, or onto the arrival's card. Returns false when a gesture cut the scroll
+	// short: the week stays pending, and it is placed once the gesture ends.
+	private suspend fun scrollToWeek(headerIndex: Int, cardIndex: Int?): Boolean {
+		isProgrammaticWeekScroll.value = true
+
+		return try {
+			if (cardIndex != null) {
 				withTimeoutOrNull(ARRIVAL_POSITION_TIMEOUT_MILLIS) {
 					lazyListState.scrollToArrival(weekHeaderIndex = headerIndex, cardIndex = cardIndex)
 				}
-				hasPositionedSelectedWeek.value = true
-			} finally {
-				isProgrammaticWeekScroll.value = false
-			}
-			positionedArrival.value = take
-			highlightedArrival.value = take
-		} else if (!lazyListState.isScrollInProgress && lazyListState.firstVisibleItemIndex != headerIndex) {
-			isProgrammaticWeekScroll.value = true
-			try {
+			} else if (lazyListState.firstVisibleItemIndex != headerIndex) {
 				if (hasPositionedSelectedWeek.value) {
 					lazyListState.animateScrollToItem(headerIndex)
 				} else {
 					lazyListState.scrollToItem(headerIndex)
-					hasPositionedSelectedWeek.value = true
 				}
-			} finally {
-				isProgrammaticWeekScroll.value = false
 			}
-		} else {
-			hasPositionedSelectedWeek.value = true
+
+			true
+		} catch (expectedCancellation: CancellationException) {
+			// A gesture moved the list and cut the scroll short. Any other cancellation belongs to the caller.
+			currentCoroutineContext().ensureActive()
+			false
+		} finally {
+			isProgrammaticWeekScroll.value = false
 		}
 	}
 }
@@ -401,24 +601,29 @@ private fun List<EvaluationItem>.countText(
 	return pattern.replace("%1${'$'}d", size.toString())
 }
 
-// Reports the week the user scrolls to, so that the selection follows it. The list's own moves are not reported.
+// Reports the week that a gesture of the student moves the list to, so that the selection follows it. The list's own
+// moves are not reported, and neither is a gesture on a list that is not placed yet: the placement after the gesture
+// decides. A report places the list on the week it reports, so the selection never goes back to the week it left.
 private suspend fun reportUserWeek(
-	lazyListState: LazyListState,
+	positioning: WeekPositioning,
 	weekHeaderIndexes: Map<EvaluationsWeekKey, Int>,
-	selectedWeekKey: EvaluationsWeekKey,
-	isProgrammaticWeekScroll: MutableState<Boolean>,
 	onVisibleWeekChange: (EvaluationsWeekKey) -> Unit
 ) {
-	snapshotFlow { lazyListState.firstVisibleItemIndex }
+	snapshotFlow { positioning.lazyListState.firstVisibleItemIndex }
 		.map { index -> weekHeaderIndexes.visibleWeekKey(index) }
 		.distinctUntilChanged()
 		.collect { weekKey ->
-			if (
-				weekKey != null &&
-				weekKey != selectedWeekKey &&
-				lazyListState.isScrollInProgress &&
-				!isProgrammaticWeekScroll.value
-			) {
+			val placedWeek = positioning.positionedWeek.value
+
+			if (weekKey == null || placedWeek == null) {
+				return@collect
+			}
+
+			val isGestureMove = positioning.lazyListState.isScrollInProgress &&
+				!positioning.isProgrammaticWeekScroll.value
+
+			if (isGestureMove && weekKey != placedWeek) {
+				positioning.reportWeek(weekKey)
 				onVisibleWeekChange(weekKey)
 			}
 		}
@@ -427,6 +632,9 @@ private suspend fun reportUserWeek(
 // Long enough for any scroll to a week or a card to land; past it the highlight is started where the
 // list stands rather than left waiting.
 private const val ARRIVAL_POSITION_TIMEOUT_MILLIS = 2_000L
+
+// The end padding of the list lets every week header reach the top, so this cap is only a guard in case that changes.
+private const val MAX_PLACEMENT_ATTEMPTS = 3
 private val EvaluationsListBottomPadding = 120.dp
 private const val EvaluationItemContentType = "evaluation_item"
 private const val LAST_WEEK_TAIL_KEY = "evaluations_list_tail"

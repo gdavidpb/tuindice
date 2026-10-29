@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.mapper
 
-import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -23,8 +22,9 @@ fun ViewState.toCoachmarkSurface(visitKey: String): CoachmarkSurface {
 
 private fun ViewState.eligibleCoachmarkIds(): List<CoachmarkId> {
 	return when (this) {
+		// The summary is the first screen of the app, so it also points at the avatar that opens Settings.
 		is Summary.State.Content ->
-			listOf(CoachmarkId.Summary)
+			listOf(CoachmarkId.Summary, CoachmarkId.Settings)
 
 		is Record.State.Content ->
 			listOf(CoachmarkId.Record, CoachmarkId.RecordControls)
@@ -53,9 +53,6 @@ private fun ViewState.eligibleCoachmarkIds(): List<CoachmarkId> {
 
 		is SubjectDetail.State.Content ->
 			listOf(CoachmarkId.SubjectDetail)
-
-		is About.State.Content ->
-			listOf(CoachmarkId.About, CoachmarkId.AboutActions)
 
 		else ->
 			emptyList()

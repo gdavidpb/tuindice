@@ -117,11 +117,6 @@ class AndroidTinkSecureKeyValueDataSource : SecureKeyValueDataRepository {
 	}
 }
 
-internal interface AndroidSecureAeadProvider {
-	fun aead(): Aead
-	fun clear()
-}
-
 private class TinkAndroidSecureAeadProvider(
 	private val context: Context
 ) : AndroidSecureAeadProvider {

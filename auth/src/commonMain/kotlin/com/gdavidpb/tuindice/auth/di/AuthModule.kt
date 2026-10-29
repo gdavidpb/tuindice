@@ -16,6 +16,10 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsV
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.presentation.machine.SignOutMachine
 import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
+import com.gdavidpb.tuindice.auth.presentation.resource.DefaultSignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.DefaultSignInTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInTextProvider
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
@@ -34,6 +38,8 @@ val authModule = module {
 	/* State machines */
 
 	factoryOf(::SignInMachine)
+	factoryOf(::DefaultSignInTextProvider) { bind<SignInTextProvider>() }
+	factoryOf(::DefaultSignInSharedTextProvider) { bind<SignInSharedTextProvider>() }
 	factoryOf(::SignOutMachine)
 	factoryOf(::UpdatePasswordMachine)
 

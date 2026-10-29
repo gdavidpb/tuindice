@@ -2,11 +2,40 @@
 import XCTest
 
 final class AboutScenarioTests: ScenarioTestCase {
+    func test_about_assistant_consent_toggle() { runScenario("about-assistant-consent-toggle") }
+    func test_about_assistant_conversations_delete() { runScenario("about-assistant-conversations-delete") }
+    func test_about_assistant_memory_clear() { runScenario("about-assistant-memory-clear") }
+    func test_about_assistant_memory_delete() { runScenario("about-assistant-memory-delete") }
+    func test_about_assistant_memory_retry() { runScenario("about-assistant-memory-retry") }
+    func test_about_assistant_memory_still_applies() { runScenario("about-assistant-memory-still-applies") }
     func test_about_external_url_links() { runScenario("about-external-url-links") }
     func test_about_internal_browser_links() { runScenario("about-internal-browser-links") }
     func test_about_platform_edge_triggers() { runScenario("about-platform-edge-triggers") }
+    func test_about_settings_identity_and_about() { runScenario("about-settings-identity-and-about") }
     func test_about_smoke() { runScenario("about-smoke") }
     func test_about_usage_data_consent() { runScenario("about-usage-data-consent") }
+}
+
+final class AssistantScenarioTests: ScenarioTestCase {
+    func test_assistant_answer_still_applies() { runScenario("assistant-answer-still-applies") }
+    func test_assistant_appeal_restriction() { runScenario("assistant-appeal-restriction") }
+    func test_assistant_ask_about_evaluation() { runScenario("assistant-ask-about-evaluation") }
+    func test_assistant_ask_about_record_subject() { runScenario("assistant-ask-about-record-subject") }
+    func test_assistant_cancel_turn() { runScenario("assistant-cancel-turn") }
+    func test_assistant_confirm_add_evaluation() { runScenario("assistant-confirm-add-evaluation") }
+    func test_assistant_confirm_destructive_delete() { runScenario("assistant-confirm-destructive-delete") }
+    func test_assistant_consent_privacy_policy() { runScenario("assistant-consent-privacy-policy") }
+    func test_assistant_decline_consent() { runScenario("assistant-decline-consent") }
+    func test_assistant_dismiss_intent() { runScenario("assistant-dismiss-intent") }
+    func test_assistant_evaluations_card() { runScenario("assistant-evaluations-card") }
+    func test_assistant_guided_suggestions() { runScenario("assistant-guided-suggestions") }
+    func test_assistant_open_component_sheet() { runScenario("assistant-open-component-sheet") }
+    func test_assistant_open_screen() { runScenario("assistant-open-screen") }
+    func test_assistant_reopen_with_consent() { runScenario("assistant-reopen-with-consent") }
+    func test_assistant_report_message() { runScenario("assistant-report-message") }
+    func test_assistant_retry_turn() { runScenario("assistant-retry-turn") }
+    func test_assistant_server_disabled() { runScenario("assistant-server-disabled") }
+    func test_assistant_smoke() { runScenario("assistant-smoke") }
 }
 
 final class AuthScenarioTests: ScenarioTestCase {
@@ -31,11 +60,11 @@ final class AuthScenarioTests: ScenarioTestCase {
 }
 
 final class CoachmarksScenarioTests: ScenarioTestCase {
-    func test_coachmarks_about() { runScenario("coachmarks-about") }
     func test_coachmarks_contextual_summary() { runScenario("coachmarks-contextual-summary") }
     func test_coachmarks_evaluations() { runScenario("coachmarks-evaluations") }
     func test_coachmarks_pensum_subjects() { runScenario("coachmarks-pensum-subjects") }
     func test_coachmarks_progressive_record() { runScenario("coachmarks-progressive-record") }
+    func test_coachmarks_settings() { runScenario("coachmarks-settings") }
     func test_coachmarks_synthetic_term() { runScenario("coachmarks-synthetic-term") }
 }
 
@@ -102,10 +131,12 @@ final class MaincoreScenarioTests: ScenarioTestCase {
     func test_maincore_bottom_bar_state() { runScenario("maincore-bottom-bar-state") }
     func test_maincore_browser_external_dialog() { runScenario("maincore-browser-external-dialog") }
     func test_maincore_browser_load_failed_retry() { runScenario("maincore-browser-load-failed-retry") }
+    func test_maincore_settings_avatar() { runScenario("maincore-settings-avatar") }
     func test_maincore_tab_stack_preservation() { runScenario("maincore-tab-stack-preservation") }
 }
 
 final class PensumScenarioTests: ScenarioTestCase {
+    func test_pensum_ask_assistant_subject() { runScenario("pensum-ask-assistant-subject") }
     func test_pensum_current_absent() { runScenario("pensum-current-absent") }
     func test_pensum_detail_navigation() { runScenario("pensum-detail-navigation") }
     func test_pensum_equivalence_fulfilled() { runScenario("pensum-equivalence-fulfilled") }
@@ -166,4 +197,6 @@ final class SummaryScenarioTests: ScenarioTestCase {
     func test_summary_statistics_share_no_catalog() { runScenario("summary-statistics-share-no-catalog") }
     func test_summary_statistics_tooltips() { runScenario("summary-statistics-tooltips") }
     func test_summary_status_dialog() { runScenario("summary-status-dialog") }
+    func test_summary_termreport_open() { runScenario("summary-termreport-open") }
+    func test_summary_termreport_retry() { runScenario("summary-termreport-retry") }
 }

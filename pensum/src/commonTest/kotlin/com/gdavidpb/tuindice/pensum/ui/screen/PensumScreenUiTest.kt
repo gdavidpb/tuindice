@@ -42,9 +42,11 @@ import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteColumnWidth
 import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteConnectorWidth
 import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationStartScrollOffset
 import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationTargetScrollOffset
+import com.gdavidpb.tuindice.pensum.ui.model.PensumActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
+import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumCanvasClockMillis
 import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
 import com.gdavidpb.tuindice.pensum.ui.view.PensumGraphCanvas
 import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
@@ -67,11 +69,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Loading,
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -88,11 +92,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Empty,
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -113,11 +119,13 @@ class PensumScreenUiTest {
 			setTuIndiceTestContent {
 				PensumScreen(
 					state = Pensum.State.RecordDataUnavailable,
-					onRetryClick = {},
-					showSelectionSheet = false,
-					onSelectionSheetDismiss = {},
-					onSubjectStatsClick = {},
-					onSelectionApplied = { _, _ -> }
+					actions = PensumActions(
+						onRetryClick = {},
+						onSelectionSheetDismiss = {},
+						onSubjectStatsClick = {},
+						onSelectionApplied = { _, _ -> }
+					),
+					showSelectionSheet = false
 				)
 			}
 
@@ -141,11 +149,13 @@ class PensumScreenUiTest {
 				state = Pensum.State.Failed(
 					message = UiText.Resource(Res.string.pensum_failed_service_unavailable)
 				),
-				onRetryClick = { retryCount += 1 },
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = { retryCount += 1 },
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -165,12 +175,14 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> },
-				onPensumContextClick = { contextClickCount += 1 }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> },
+					onPensumContextClick = { contextClickCount += 1 }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -195,17 +207,19 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = state.value,
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSummaryCollapsedToggle = {
-					val content = state.value as Pensum.State.Content
-					val nextCollapsed = !content.isSummaryCollapsed
-					state.value = content.copy(isSummaryCollapsed = nextCollapsed)
-					collapsedChanges += nextCollapsed
-				},
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSummaryCollapsedToggle = {
+						val content = state.value as Pensum.State.Content
+						val nextCollapsed = !content.isSummaryCollapsed
+						state.value = content.copy(isSummaryCollapsed = nextCollapsed)
+						collapsedChanges += nextCollapsed
+					},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -240,12 +254,14 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
-				onRetryClick = {},
-				showSelectionSheet = showSelectionSheetState.value,
-				onSelectionSheetDismiss = { showSelectionSheetState.value = false },
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> },
-				onPensumContextClick = { showSelectionSheetState.value = true }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = { showSelectionSheetState.value = false },
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> },
+					onPensumContextClick = { showSelectionSheetState.value = true }
+				),
+				showSelectionSheet = showSelectionSheetState.value
 			)
 		}
 
@@ -267,11 +283,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = { subjectCode -> selectedSubjectCode = subjectCode },
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = { subjectCode -> selectedSubjectCode = subjectCode },
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -313,11 +331,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithFulfilledCourse()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = { subjectCode -> selectedSubjectCode = subjectCode },
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = { subjectCode -> selectedSubjectCode = subjectCode },
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -347,11 +367,13 @@ class PensumScreenUiTest {
 			setTuIndiceTestContent {
 				PensumScreen(
 					state = Pensum.State.Content(model = samplePensumModel()),
-					onRetryClick = {},
-					showSelectionSheet = false,
-					onSelectionSheetDismiss = {},
-					onSubjectStatsClick = {},
-					onSelectionApplied = { _, _ -> }
+					actions = PensumActions(
+						onRetryClick = {},
+						onSelectionSheetDismiss = {},
+						onSubjectStatsClick = {},
+						onSelectionApplied = { _, _ -> }
+					),
+					showSelectionSheet = false
 				)
 			}
 
@@ -380,11 +402,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -453,11 +477,13 @@ class PensumScreenUiTest {
 					model = samplePensumModel(),
 					isRefreshing = true
 				),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -473,11 +499,13 @@ class PensumScreenUiTest {
 					model = samplePensumModel(),
 					isRefreshing = false
 				),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -492,11 +520,13 @@ class PensumScreenUiTest {
 					model = samplePensumModel(),
 					localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_network)
 				),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -513,11 +543,13 @@ class PensumScreenUiTest {
 					isRefreshing = true,
 					localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_network)
 				),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -620,11 +652,13 @@ class PensumScreenUiTest {
 	@Test
 	fun when_pinchStartsOnSubjectNode_then_canvasZooms() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			PensumGraphCanvas(
-				model = samplePensumModel(),
-				selectedNodeId = null,
-				onSelectedNodeChange = {}
-			)
+			CompositionLocalProvider(LocalPensumCanvasClockMillis provides { mainClock.currentTime }) {
+				PensumGraphCanvas(
+					model = samplePensumModel(),
+					selectedNodeId = null,
+					onSelectedNodeChange = {}
+				)
+			}
 		}
 
 		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
@@ -654,11 +688,13 @@ class PensumScreenUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -683,11 +719,13 @@ fun when_pensumScreenIsRecreated_then_subjectContextIsRestored() = runTuIndiceUi
 		if (isMountedState.value) {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
 				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> },
 				screenSessionStore = screenSessionStore
 			)
 		}
@@ -714,11 +752,13 @@ fun when_statusLegendFiltersAreToggled_then_selectionIsMultiSelectAndResettable(
 	setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -755,12 +795,14 @@ fun when_pensumCanvasIsRecreated_then_viewportMinimapAndFiltersAreRestored() = r
 
 	setTuIndiceTestContent {
 		if (isMountedState.value) {
-			PensumGraphCanvas(
-				model = samplePensumModel(),
-				selectedNodeId = null,
-				onSelectedNodeChange = {},
-				sessionState = sessionState
-			)
+			CompositionLocalProvider(LocalPensumCanvasClockMillis provides { mainClock.currentTime }) {
+				PensumGraphCanvas(
+					model = samplePensumModel(),
+					selectedNodeId = null,
+					onSelectedNodeChange = {},
+					sessionState = sessionState
+				)
+			}
 		}
 	}
 
@@ -910,11 +952,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 				state = Pensum.State.Content(
 					model = samplePensumModel().copy(isCurrentFocusVisible = false)
 				),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -928,11 +972,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -948,11 +994,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1000,11 +1048,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1031,11 +1081,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1063,11 +1115,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithPluralSubjectRelations()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1089,11 +1143,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithUnlockOnlyRelations()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1170,11 +1226,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = false
 			)
 		}
 
@@ -1188,11 +1246,13 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
-				onRetryClick = {},
-				showSelectionSheet = true,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				actions = PensumActions(
+					onRetryClick = {},
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				),
+				showSelectionSheet = true
 			)
 		}
 
@@ -1393,6 +1453,7 @@ private fun sampleEdge(
 private fun samplePensumModel(): PensumScreenModel {
 	return PensumScreenModel(
 		careerName = "Ingenieria de Computacion",
+		pensumId = "0800-2019-degree_project",
 		selection = PensumScreenSelection(
 			year = 2019,
 			modalityId = "degree_project"

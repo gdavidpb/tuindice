@@ -2,55 +2,21 @@ package com.gdavidpb.tuindice.testkit.mvi
 
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionSpec
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
- * Machine host that records every capability call instead of routing it to a ViewModel:
- * effects and internal events are captured for assertions, and machine jobs run in the
- * provided scope (use runTest's backgroundScope so they are cancelled with the test).
- */
-class RecordingMachineHost<E : ViewEffect>(
-	private val coroutineScope: CoroutineScope
-) : MachineHost<E> {
-	val sentEffects = mutableListOf<E>()
-	val producedInternalEvents = mutableListOf<Any>()
-
-	override fun sendEffect(effect: E) {
-		sentEffects += effect
-	}
-
-	override fun processInternalEvent(event: Any) {
-		producedInternalEvents += event
-	}
-
-	override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
-		return coroutineScope.launch { block() }
-	}
-}
-
-/** Outcome of [assertMachineRandomWalk], for extra assertions or debugging. */
-class MachineWalkReport(
-	val steps: Int,
-	val accepted: Int,
-	val rejected: Int,
-	val visitedRows: Int,
-	val totalRows: Int,
-	val finalStateName: String?
-) {
-	val rowCoverage: Double
-		get() = if (totalRows == 0) 1.0 else visitedRows.toDouble() / totalRows
-}
-
-/**
  * Model-based smoke over the transition table: drives [screenMachine] with [steps] events
  * drawn from [sampleEvents] by a seeded — hence reproducible — random walk.
+ *
+ * The coverage floor [minRowCoverage] is measured over the rows of the table minus [unreachableRows], each of which
+ * must name a row of the table. A visit to an excluded row is not counted by the floor, but it is not silent either:
+ * the report names it ([MachineWalkReport.visitedUnreachableRows]) and the walk prints a warning, since its exclusion
+ * is stale.
  *
  * On every accepted step it asserts the row contract the engine enforces at runtime:
  * the produced state is an instance of the declared target (internal rows must keep the
@@ -69,12 +35,25 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 	steps: Int = 400,
 	seed: Long = 0x7E57AB1E,
 	feedProducedInternalEvents: Boolean = true,
+	unreachableRows: List<UnreachableRow> = emptyList(),
 	minRowCoverage: Double = 0.0
 ): MachineWalkReport {
 	require(sampleEvents.isNotEmpty()) { "sampleEvents must not be empty" }
 
 	val host = RecordingMachineHost<E>(coroutineScope = coroutineScope)
 	val machine = screenMachine.define(host = host)
+	fun TransitionSpec<S>.isNamedBy(unreachable: UnreachableRow) = from == unreachable.from && on == unreachable.on
+
+	val unnamed = unreachableRows.filterNot { unreachable ->
+		machine.table.any { spec -> spec.isNamedBy(unreachable) }
+	}
+	require(unnamed.isEmpty()) {
+		"unreachableRows must name rows of the table, not: " +
+			unnamed.map { unreachable -> "${unreachable.from?.simpleName ?: "any"}/${unreachable.on.simpleName}" }
+	}
+	val excludedRows = machine.table.indices.filter { row ->
+		unreachableRows.any { unreachable -> machine.table[row].isNamedBy(unreachable) }
+	}
 	val random = Random(seed)
 	val pool = sampleEvents.toMutableList()
 	val visitedRows = mutableSetOf<Int>()
@@ -143,21 +122,44 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 		state = next
 	}
 
+	val reachableRows = machine.table.indices.filterNot { row -> row in excludedRows }
+	val visitedReachable = reachableRows.filter { row -> row in visitedRows }
+	val visitedUnreachable = excludedRows.filter { row -> row in visitedRows }.map { row -> rowName(machine.table[row]) }
+	val stale = warnAboutStaleExclusions(seed = seed, visitedUnreachable = visitedUnreachable)
 	val report = MachineWalkReport(
 		steps = steps,
 		accepted = accepted,
 		rejected = rejected,
-		visitedRows = visitedRows.size,
-		totalRows = machine.table.size,
-		finalStateName = state::class.simpleName
+		visitedRows = visitedReachable.size,
+		totalRows = reachableRows.size,
+		finalStateName = state::class.simpleName,
+		visitedUnreachableRows = visitedUnreachable
 	)
 
+	val unvisited = reachableRows.filterNot { row -> row in visitedRows }.map { row -> rowName(machine.table[row]) }
 	assertTrue(
 		report.rowCoverage >= minRowCoverage,
-		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} rows " +
-			"(${report.rowCoverage}), below the required $minRowCoverage — extend sampleEvents " +
-			"or steps, or lower the expectation deliberately"
+		"Random walk (seed=$seed) visited ${report.visitedRows}/${report.totalRows} reachable rows " +
+			"(${report.rowCoverage}; ${excludedRows.size} unreachable rows excluded), below the required $minRowCoverage; " +
+			"not visited: $unvisited — extend sampleEvents or steps, or lower the expectation deliberately$stale"
 	)
 
 	return report
+}
+
+private fun rowName(spec: TransitionSpec<*>): String = "${spec.from?.simpleName ?: "any"}/${spec.on.simpleName}"
+
+/**
+ * The rows declared unreachable that the walk visited anyway: their exclusion is stale, so the floor is measured
+ * without rows the walk reaches. It warns on the way out and returns the note the floor's message appends; nothing
+ * when empty.
+ */
+private fun warnAboutStaleExclusions(seed: Long, visitedUnreachable: List<String>): String {
+	if (visitedUnreachable.isEmpty()) return ""
+
+	val note = "the walk visited rows declared unreachable, whose exclusion is stale: $visitedUnreachable"
+
+	println("[testkit] WARNING random walk (seed=$seed): $note; remove them from unreachableRows")
+
+	return "; $note"
 }

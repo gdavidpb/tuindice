@@ -1,12 +1,13 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.SummaryStatistics
+import com.gdavidpb.tuindice.summary.presentation.mapper.summaryStatisticsUnavailableMessage
+import com.gdavidpb.tuindice.summary.presentation.mapper.summaryStatisticsUnavailableTitle
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryStatisticsItem
 import com.gdavidpb.tuindice.summary.presentation.transition.statisticsAnyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.statisticsContentTransitions
@@ -14,9 +15,6 @@ import com.gdavidpb.tuindice.summary.presentation.transition.statisticsIdleTrans
 import com.gdavidpb.tuindice.summary.presentation.transition.statisticsLoadingTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.statisticsUnavailableTransitions
 import kotlinx.coroutines.Job
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.summary_statistics_unavailable_message
-import tuindice.summary.generated.resources.summary_statistics_unavailable_title
 
 class SummaryStatisticsMachine(
 	private val observeSummaryHubUseCase: ObserveSummaryHubUseCase
@@ -91,7 +89,7 @@ class SummaryStatisticsMachine(
 // The state of a screen whose record is not ready, with the words that say so.
 internal fun unavailableState(): SummaryStatistics.State.Unavailable {
 	return SummaryStatistics.State.Unavailable(
-		title = UiText.Resource(Res.string.summary_statistics_unavailable_title),
-		message = UiText.Resource(Res.string.summary_statistics_unavailable_message)
+		title = summaryStatisticsUnavailableTitle(),
+		message = summaryStatisticsUnavailableMessage()
 	)
 }

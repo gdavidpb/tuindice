@@ -1,0 +1,6 @@
+{
+  "intentId": "intent-1",
+  "outcome": "confirmed",
+  "mutationIds": ["mut-1"],
+  "newRevision": 13
+}

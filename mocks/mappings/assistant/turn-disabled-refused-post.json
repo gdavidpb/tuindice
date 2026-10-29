@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "assistant-turns",
+  "requiredScenarioState": "Disabled",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.message.text"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "assistant_disabled",
+      "message": "El asistente está apagado por ahora",
+      "retryAfterSeconds": 600
+    }
+  },
+  "metadata": {
+    "nota": "priority 1: en Disabled, un turno con texto y sugerencia casa también con turn-suggestion-post.json, que no declara prioridad (5). Sin prioridad, WireMock desempataba por orden de carga y respondía 202; con esta prioridad el rechazo gana siempre (503)."
+  }
+}

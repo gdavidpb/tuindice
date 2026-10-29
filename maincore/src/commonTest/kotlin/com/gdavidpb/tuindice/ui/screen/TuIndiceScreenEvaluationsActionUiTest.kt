@@ -39,6 +39,7 @@ class TuIndiceScreenEvaluationsActionUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = SummaryDestination.Summary
 					),
@@ -76,6 +77,7 @@ class TuIndiceScreenEvaluationsActionUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = SummaryDestination.Summary
 					),
@@ -114,6 +116,7 @@ class TuIndiceScreenEvaluationsActionUiTest {
 		withScreenKoin {
 			setTuIndiceTestContent {
 				TuIndiceScreen(
+					onSignOutRequest = {},
 					state = Main.State.Content(
 						startDestination = SummaryDestination.Summary
 					),
@@ -181,6 +184,7 @@ class TuIndiceScreenEvaluationsActionUiTest {
 	@Composable
 	private fun ScreenWith(shellState: MainShellState) {
 		TuIndiceScreen(
+			onSignOutRequest = {},
 			state = Main.State.Content(
 				startDestination = SummaryDestination.Summary
 			),

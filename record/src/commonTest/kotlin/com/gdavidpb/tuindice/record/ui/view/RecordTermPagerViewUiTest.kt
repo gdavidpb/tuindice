@@ -9,7 +9,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.presentation.mapper.recordNotice
@@ -18,7 +17,9 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
+import com.gdavidpb.tuindice.record.testing.recordMapperTexts
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -107,10 +108,13 @@ class RecordTermPagerViewUiTest {
 					termItem(termId = "term-a", attemptId = "attempt-a"),
 					termItem(termId = "term-b", attemptId = "attempt-b", arrivalAttemptId = "attempt-b")
 				),
+				texts = recordMapperTexts(),
 				selectedTermId = "term-b",
-				onAttemptArrivalTaken = { attemptId -> taken = attemptId },
-				onSelectedTermChange = {},
-				onAttemptSelectionChange = { _, _, _, _ -> },
+				actions = RecordActions(
+					onAttemptArrivalTaken = { attemptId -> taken = attemptId },
+					onSelectedTermChange = {},
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				onScrollInProgressChange = {}
 			)
 		}
@@ -124,10 +128,13 @@ class RecordTermPagerViewUiTest {
 	private fun TermPager(notice: RecordNotice?) {
 		RecordTermPagerView(
 			terms = listOf(termItem()),
+			texts = recordMapperTexts(),
 			notice = notice,
 			selectedTermId = "historical-term",
-			onSelectedTermChange = {},
-			onAttemptSelectionChange = { _, _, _, _ -> },
+			actions = RecordActions(
+				onSelectedTermChange = {},
+				onAttemptSelectionChange = { _, _, _, _ -> }
+			),
 			onScrollInProgressChange = {}
 		)
 	}
@@ -149,12 +156,12 @@ class RecordTermPagerViewUiTest {
 		termOrder = 1,
 		shortNameText = "ENE-MAR 2024",
 		kind = TermItemKind.HISTORICAL,
-		gradeText = AnnotatedString("Δx 4.0000"),
-		gradeDelta = null,
-		gradeSumText = AnnotatedString("∑x 4.0000"),
-		gradeSumDelta = null,
-		creditsText = AnnotatedString("⦿ 4"),
-		creditsDelta = null,
+		gradeTarget = 4f,
+		gradeSumTarget = 4f,
+		creditsTarget = 4,
+		previousGradeTarget = null,
+		previousGradeSumTarget = null,
+		previousCreditsTarget = null,
 		isCurrent = false,
 		canDelete = false,
 		canEdit = false,

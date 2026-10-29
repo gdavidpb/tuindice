@@ -16,14 +16,17 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.AndroidBitmapImageEncoderDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.session.SessionResidue
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
@@ -44,6 +47,7 @@ import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.notification.AndroidNotificationPermissionDataSource
 import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreAvailabilityDataSource
 import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
@@ -53,13 +57,12 @@ import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
 import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
+import com.gdavidpb.tuindice.platform.android.NotificationPermissionLauncher
 import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
-import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
@@ -192,6 +195,9 @@ val androidPlatformModule = module {
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataRepository>() }
 	singleOf(::PushTokenRotationHandler)
+	// The chat's offer of the notification permission: the launcher is attached by MainActivity while it lives.
+	singleOf(::NotificationPermissionLauncher)
+	singleOf(::AndroidNotificationPermissionDataSource) { bind<NotificationPermissionRepository>() }
 	singleOf(::CurrentActivityDataSource)
 	singleOf(::AndroidPlayCoreEnvironmentDataSource) { bind<PlayCoreEnvironmentDataRepository>() }
 	singleOf(::AndroidPlayCoreAvailabilityDataSource) {
@@ -240,7 +246,7 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
-	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	singleOf(::AndroidBitmapImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	singleOf(::AndroidImageShareDataSource) { bind<ImageShareRepository>() }
 
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
@@ -292,6 +298,22 @@ val androidPlatformModule = module {
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
+			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
+		)
+	}
+
+	single(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
+		createAssistantStreamHttpClient(
+			dependencies = AssistantStreamDependencies(
+				appEnvironmentRepository = get(),
+				configRepository = get(),
+				sessionRepository = get(),
+				sessionRecoveryRepository = get(),
+				sessionCoroutineScope = get(),
+				settingsRepository = get(),
+				outdatedAppEventRepository = get(),
+				logger = createAppKtorLogger()
+			),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)
 	}

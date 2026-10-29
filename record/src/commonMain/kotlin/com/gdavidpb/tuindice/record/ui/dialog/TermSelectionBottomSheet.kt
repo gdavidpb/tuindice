@@ -7,20 +7,21 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.dialog.TuIndiceModalBottomSheet
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_selection_mode_historical_description
@@ -28,16 +29,15 @@ import tuindice.record.generated.resources.term_selection_mode_projection_descri
 import tuindice.record.generated.resources.term_selection_selected_content_description
 import tuindice.record.generated.resources.term_selection_title
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermSelectionBottomSheet(
 	terms: List<TermItem>,
 	selectedTermId: String,
 	viewMode: RecordViewMode,
-	onTermSelected: (termId: String) -> Unit,
-	onDismissRequest: () -> Unit
+	texts: RecordMapperTexts,
+	actions: RecordActions
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true)
 	val termsByYear = terms
 		.sortedByDescending(TermItem::termOrder)
 		.groupBy(TermItem::periodYear)
@@ -47,12 +47,12 @@ fun TermSelectionBottomSheet(
 	}
 	val selectedContentDescription = stringResource(Res.string.term_selection_selected_content_description)
 
-	ModalBottomSheet(
+	TuIndiceModalBottomSheet(
 		modifier = Modifier
 			.exposeTestTagsAsResourceId()
 			.testTag(RecordUiTags.TermSelectionSheet),
 		sheetState = sheetState,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = actions.onDismissTermSelection
 	) {
 		Column(
 			modifier = Modifier
@@ -96,11 +96,12 @@ fun TermSelectionBottomSheet(
 					) { term ->
 						TermSelectionTermRowView(
 							term = term,
+							texts = texts,
 							isSelected = term.termId == selectedTermId,
 							selectedContentDescription = selectedContentDescription,
 							onClick = {
-								onTermSelected(term.termId)
-								onDismissRequest()
+								actions.onSelectedTermChange(term.termId)
+								actions.onDismissTermSelection()
 							}
 						)
 					}

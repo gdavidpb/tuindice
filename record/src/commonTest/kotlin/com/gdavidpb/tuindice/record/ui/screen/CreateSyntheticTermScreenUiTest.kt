@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -9,6 +11,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -17,6 +21,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -32,6 +39,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class CreateSyntheticTermScreenUiTest {
@@ -141,6 +149,68 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
 
 		assertEquals("MA1111", latestQuery)
+	}
+
+	// The list scrolls under the keyboard: a drag over it hides the keyboard, and the search field lets go of the focus.
+	@Test
+	fun when_theListIsDraggedWhileTheSearchFieldHasFocus_then_theFocusLeavesIt() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(selectedAddSubjectTab = CreateTermAddSubjectTab.Search),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performClick()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(isFocused())
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermContentList).performTouchInput { swipeUp() }
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(isNotFocused())
+	}
+
+	// The submit bar has no tag of its own: the list's bottom edge and the submit button stand in for its top edge.
+	// The search field must end inside the list, above that edge.
+	@Test
+	fun when_searchIsOpenAndASubjectIsSelected_then_theSearchFieldEndsAboveTheSubmitBar() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					selectedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4
+						)
+					).toItems()
+				),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {},
+				modifier = Modifier.height(400.dp)
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermContentList)
+			.performScrollToNode(hasTestTag(RecordUiTags.CreateSyntheticTermSearchField))
+
+		val list = onNodeWithTag(RecordUiTags.CreateSyntheticTermContentList).fetchSemanticsNode().boundsInRoot
+		val searchField = onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).fetchSemanticsNode().boundsInRoot
+		val submitButton = onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitButton).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(searchField.bottom <= list.bottom)
+		assertTrue(list.bottom <= submitButton.top)
 	}
 
 	// The view model answers each keystroke later: the answer to a key lands just before the next one.

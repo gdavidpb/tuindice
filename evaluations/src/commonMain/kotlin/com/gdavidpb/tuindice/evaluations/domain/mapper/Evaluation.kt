@@ -20,7 +20,8 @@ fun AddEvaluationParams.toEvaluationAdd(reference: String) = EvaluationAdd(
 	maxGrade = maxGrade!!,
 	scheduleMode = scheduleMode,
 	date = date,
-	type = type!!
+	type = type!!,
+	mutationId = mutationId
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
@@ -29,7 +30,8 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type
+	type = type,
+	mutationId = mutationId
 )
 
 fun EvaluationAdd.toEvaluation(clock: Clock) = Evaluation(

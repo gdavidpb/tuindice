@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
@@ -40,16 +41,23 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.summary.data.source.AndroidImageShareDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.ImageShareRepository
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.pluginOrNull
+import io.ktor.client.plugins.sse.SSE
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -119,6 +127,7 @@ class AndroidAppKoinSmokeTest {
 			SessionInvalidationRepository::class,
 			PensumTopBarActionBus::class,
 			StatisticsTopBarActionBus::class,
+			TermReportTopBarActionBus::class,
 			// The jump to a week of Evaluations that the host asks for from the schedule and from Summary.
 			EvaluationsWeekFocusRepository::class,
 			// The jump to an attempt in Record that the host asks for from Summary.
@@ -142,6 +151,16 @@ class AndroidAppKoinSmokeTest {
 	@Test
 	fun bindsTheImageShareToTheAndroidSheet() = hostGraph.start {
 		assertTrue(get<ImageShareRepository>() is AndroidImageShareDataSource)
+	}
+
+	// The assistant's events come through a client of their own: the platform module builds it under its qualifier, with
+	// the SSE plugin, which the engine must support. The shared client is another one.
+	@Test
+	fun theAssistantStreamClientResolvesUnderItsQualifierWithSse() = hostGraph.start {
+		val stream = get<HttpClient>(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER))
+
+		assertNotSame(get<HttpClient>(), stream)
+		assertNotNull(stream.pluginOrNull(SSE))
 	}
 
 	// Release reads the system clock: nothing in the production graph can freeze it.

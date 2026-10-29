@@ -270,6 +270,25 @@ class SyntheticTermCommandValidatorTest {
 	}
 
 	@Test
+	fun validate_acceptsSubject_whenItsApprovalInCurrentTermWasWithdrawn() {
+		val record = record(
+			academicTerm(
+				id = "current",
+				kind = TermKind.CURRENT,
+				periodYear = 2024,
+				attempts = listOf(
+					academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.APPROVED).copy(withdrawn = true)
+				)
+			)
+		)
+
+		validate(
+			record = record,
+			params = creationParams(subjects = listOf(syntheticSubject("ma1112")))
+		)
+	}
+
+	@Test
 	fun validate_throwsSubjectAlreadyPlanned_whenSubjectExistsInAnotherSyntheticTerm() {
 		val record = record(
 			academicTerm(

@@ -43,6 +43,7 @@ class UpdateSyntheticTermUseCase(
 				termId = termId,
 				periodYear = params.period.periodYear,
 				periodCode = params.period.periodCode,
+				mutationId = params.mutationId,
 				attempts = params.subjects.map { subject ->
 					SyntheticTermUpdateCommand.SyntheticAttemptSeed(
 						attemptId = if (keepsTermIdentity) {

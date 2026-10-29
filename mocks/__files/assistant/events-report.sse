@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-report"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-report","message":{"id":"msg-report","parts":[{"type":"text","text":"Tu promedio acumulado es 15,2."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-report"}
+

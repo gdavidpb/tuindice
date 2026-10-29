@@ -24,4 +24,11 @@ interface AcademicRecordLocalDataRepository {
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun getRecordRevision(): Long?
 	suspend fun saveAcademicRecord(record: VersionedAcademicRecord)
+
+	/**
+	 * Stores [record] unless the stored one is newer. The revision is the server's order for the record: a lower one
+	 * is an older copy of it and is not written. The comparison and the write happen in one transaction, so a write
+	 * that lands in between cannot be overwritten by an older record. Returns whether [record] was written.
+	 */
+	suspend fun replaceAcademicRecordIfNotOlder(record: VersionedAcademicRecord): Boolean
 }

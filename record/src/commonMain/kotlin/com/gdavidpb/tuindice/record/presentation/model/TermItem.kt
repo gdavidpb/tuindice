@@ -1,19 +1,22 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.runtime.Immutable
 
+@Immutable
 data class TermItem(
 	val termId: String,
 	val periodYear: Int,
 	val termOrder: Int,
 	val shortNameText: String,
 	val kind: TermItemKind,
-	val gradeText: AnnotatedString,
-	val gradeDelta: TermMetricDelta?,
-	val gradeSumText: AnnotatedString,
-	val gradeSumDelta: TermMetricDelta?,
-	val creditsText: AnnotatedString,
-	val creditsDelta: TermMetricDelta?,
+	// The values the term's metrics animate toward. The views do the animating, so the mapper only says where they end.
+	val gradeTarget: Float,
+	val gradeSumTarget: Float,
+	val creditsTarget: Int,
+	// The older term's values, set only where this term shows its changes: it has attempts and an older term exists.
+	val previousGradeTarget: Float?,
+	val previousGradeSumTarget: Float?,
+	val previousCreditsTarget: Int?,
 	val isCurrent: Boolean,
 	val canDelete: Boolean,
 	val canEdit: Boolean,

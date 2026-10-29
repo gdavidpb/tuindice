@@ -16,8 +16,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.ScheduleNow
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.VisibleEvaluationsRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
@@ -30,6 +32,8 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -140,6 +144,30 @@ private class FixedVisibleEvaluationsRepository(
 private class FixedAcademicRecordRepository(
 	private val record: AcademicRecord
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = flowOf(record)
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(true)
@@ -150,13 +178,18 @@ private class FixedAcademicRecordRepository(
 
 	override suspend fun drainPendingMutations() = Unit
 
-	override suspend fun upsertAttemptOverride(attemptId: String, score: AttemptScore?, outcome: AttemptOutcome?) = Unit
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		mutationId: String?
+	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) = Unit
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }

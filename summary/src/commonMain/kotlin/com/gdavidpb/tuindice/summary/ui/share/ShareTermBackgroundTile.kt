@@ -36,12 +36,14 @@ private val RingShape = RoundedCornerShape(TuIndiceRadius.Medium + RingWidth)
 
 /**
  * The tile of one background: its short name above its thumbnail, with the ring of the primary colour when it is
- * chosen. The whole tile is one radio button, so a tap on it chooses the background.
+ * chosen, and the mark of [ShareTermThumbnailLoading] over the thumbnail while [isLoading] its picture for the card.
+ * The whole tile is one radio button, so a tap on it chooses the background.
  */
 @Composable
 fun ShareTermBackgroundTile(
 	item: ShareTermBackgroundItem,
-	onClick: () -> Unit
+	onClick: () -> Unit,
+	isLoading: Boolean = false
 ) {
 	Column(
 		modifier = Modifier
@@ -88,6 +90,10 @@ fun ShareTermBackgroundTile(
 					.clip(ThumbShape)
 			) {
 				ShareTermThumbnail(art = item.artwork.art)
+				ShareTermThumbnailLoading(
+					isLoading = isLoading,
+					modifier = Modifier.testTag(ShareTermUiTags.backgroundLoading(item.artwork.id))
+				)
 			}
 		}
 	}

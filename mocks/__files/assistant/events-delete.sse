@@ -1,0 +1,10 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-delete"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-delete","message":{"id":"msg-delete","parts":[{"type":"text","text":"Voy a borrar esa evaluación."},{"type":"component","component":{"type":"nav.abrir/1","id":"cmp-delete-nav-1","fallbackText":"Ver evaluaciones","display":"inline","entityRefs":[],"target":"evaluations","label":"Ver evaluaciones"}},{"type":"intent","intent":{"id":"intent-delete-1","args":{"type":"evaluaciones.borrar/1","mutationId":"mut-delete-1","evaluationId":"741ee22ed3a76b1bbd7deb77e9490435"},"title":"Borrar la evaluación","effect":[{"label":"Se borra","detail":"La evaluación de CI5437 seleccionada"}],"risk":"destructive","binding":{"mutationIds":["mut-delete-1"],"argsHash":"hash-delete-1"},"expiresAtMillis":1792600000000,"status":"proposed","confirmLabel":"Borrar","cancelLabel":"Cancelar"}}],"createdAtMillis":1792065600000}}
+
+data: {"type":"intent_proposed","seq":3,"turnId":"turn-delete","messageId":"msg-delete","intent":{"id":"intent-delete-1","args":{"type":"evaluaciones.borrar/1","mutationId":"mut-delete-1","evaluationId":"741ee22ed3a76b1bbd7deb77e9490435"},"title":"Borrar la evaluación","effect":[{"label":"Se borra","detail":"La evaluación de CI5437 seleccionada"}],"risk":"destructive","binding":{"mutationIds":["mut-delete-1"],"argsHash":"hash-delete-1"},"expiresAtMillis":1792600000000,"status":"proposed","confirmLabel":"Borrar","cancelLabel":"Cancelar"}}
+
+data: {"type":"component_emitted","seq":4,"turnId":"turn-delete","messageId":"msg-delete","component":{"type":"nav.abrir/1","id":"cmp-delete-nav-1","fallbackText":"Ver evaluaciones","display":"inline","entityRefs":[],"target":"evaluations","label":"Ver evaluaciones"}}
+
+data: {"type":"run_finished","seq":5,"turnId":"turn-delete"}
+

@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -390,7 +391,11 @@ class EvaluationsWeekFocusViewModelContractTest {
 					RecordingReportingRepository(),
 					RemoveEvaluationExceptionHandler()
 				),
-				setSelectedWeekUseCase = SetSelectedWeekUseCase(selectionRepository, RecordingReportingRepository()),
+				setSelectedWeekUseCase = SetSelectedWeekUseCase(
+					selectionRepository,
+					RecordingReportingRepository(),
+					sessionCoroutineScope = testSessionCoroutineScope()
+				),
 				weekFocusRepository = weekFocusRepository,
 				clock = FixedClock
 			),

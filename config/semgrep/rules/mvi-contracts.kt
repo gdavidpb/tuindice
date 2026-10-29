@@ -37,3 +37,26 @@ class SampleNoticeHolder {
 	// ok: presentation-no-toplevel-data-class
 	data class SampleNestedNotice(val text: String)
 }
+
+// machine-no-text-resources: la máquina no lee recursos ni construye UiText; llama al mapper (ok).
+class SampleTextMachineRule {
+	fun labelRule(): String {
+		// ruleid: machine-no-text-resources
+		return getString(Res.string.sample_label)
+	}
+
+	fun textRule(): UiText {
+		// ruleid: machine-no-text-resources
+		return UiText.Resource(Res.string.sample_label)
+	}
+
+	fun typeRule(event: SampleInternalEvent): UiText {
+		// ok: machine-no-text-resources
+		return event.label
+	}
+
+	fun mapperRule(): String {
+		// ok: machine-no-text-resources
+		return sampleLabelFromMapper()
+	}
+}

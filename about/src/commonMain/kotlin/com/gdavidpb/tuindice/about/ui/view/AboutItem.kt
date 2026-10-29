@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceSpanText
 
 @Composable
 fun AboutItem(
@@ -54,7 +55,7 @@ fun AboutItem(
 					.scale(scale)
 			)
 
-			AboutSpanText(text = text)
+			TuIndiceSpanText(text = text)
 		}
 	}
 }

@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.ui
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
 import com.gdavidpb.tuindice.debug.freezeDebugClock
@@ -27,7 +30,13 @@ class IosAppHostBootstrap(
 	fun createRootViewController(): UIViewController {
 		startIfNeeded()
 
-		return ComposeUIViewController {
+		// Keyboard avoidance has one owner, Compose's window insets (imePadding), as on Android. The default
+		// (FocusableAboveKeyboard) also shifts the whole view above the keyboard, so the screens were compensated twice.
+		return ComposeUIViewController(
+			configure = {
+				onFocusBehavior = OnFocusBehavior.DoNothing
+			}
+		) {
 			TuIndiceSharedTheme {
 				CompositionLocalProvider(
 					LocalTuIndiceAnimationsEnabled provides (rememberIosSystemAnimationsEnabled() && !debugAnimationsDisabled)
@@ -42,6 +51,12 @@ class IosAppHostBootstrap(
 
 	fun startIfNeeded(): Koin {
 		return startIosKoin(hostConfig = hostConfig)
+	}
+
+	// A tap on the push of a term report: the request is kept, and the host opens the report once the student is in the
+	// app.
+	fun openTermReportFromNotification(insightId: String) {
+		startIfNeeded().get<TermReportFocusRepository>().request(insightId)
 	}
 
 	fun applyDebugLaunchArguments(arguments: DebugLaunchArguments) {
@@ -65,6 +80,11 @@ class IosAppHostBootstrap(
 
 		arguments.sessionSeed?.let { seed ->
 			runBlocking { koin.seedDebugSession(seed) }
+		}
+
+		// After the seed, which clears the settings the offer is kept in.
+		arguments.notificationOffered?.let { offered ->
+			koin.get<NotificationOfferRepository>().setOffered(offered)
 		}
 	}
 }

@@ -1,0 +1,17 @@
+{
+  "scenarioName": "assistant-memories",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "Answered",
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/assistant/v1/memories/[^/]+/still-applies",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 204
+  }
+}

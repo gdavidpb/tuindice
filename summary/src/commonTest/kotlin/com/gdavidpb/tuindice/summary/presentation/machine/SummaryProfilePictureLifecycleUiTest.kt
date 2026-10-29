@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -252,6 +253,7 @@ class SummaryProfilePictureLifecycleUiTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				),
+				termReports = createSummaryTermReports(),
 				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),

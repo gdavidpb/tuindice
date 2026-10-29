@@ -24,6 +24,7 @@ kotlin {
 				implementation(project(":scenariokit"))
 				implementation(project(":about"))
 				implementation(project(":academiccore"))
+				implementation(project(":assistant"))
 				implementation(project(":auth"))
 				implementation(project(":base"))
 				implementation(project(":enrollmentproof"))

@@ -1,0 +1,41 @@
+package com.gdavidpb.tuindice.assistant.data.model
+
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
+import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
+import com.gdavidpb.tuindice.chatcontract.intent.IntentOutcomeReport
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
+
+/**
+ * The active conversation as its turns have built it.
+ * It holds what the user sent, the messages of the assistant with the turn that wrote each one,
+ * the open intents and the outcome of the resolved ones.
+ * [order] holds the ids of the messages in the order they entered the conversation: the order the chat shows, which
+ * follows what happened and not the clocks that stamped the messages.
+ */
+data class AssistantConversationState(
+	val conversationId: String? = null,
+	val userMessages: List<AssistantUserMessage> = emptyList(),
+	val messages: List<AssistantMessage> = emptyList(),
+	val messageTurnIds: Map<String, String> = emptyMap(),
+	val order: List<String> = emptyList(),
+	val turns: Map<String, AssistantTurnState> = emptyMap(),
+	val lastTurnId: String? = null,
+	val openIntents: Map<String, AssistantOpenIntent> = emptyMap(),
+	val resolvedIntents: Map<String, OutcomeKind> = emptyMap(),
+	// The rows applied and marked of the resolved intents that add evaluations, by intent id.
+	val resolvedCounts: Map<String, IntentResolvedCount> = emptyMap(),
+	// The detail codes of the intents the app resolved, by intent id: a refusal keeps the reason it was given.
+	val resolvedDetails: Map<String, String> = emptyMap(),
+	// The outbox of the intents: the reports the server has not settled yet.
+	val outcomesPending: Map<String, IntentOutcomeReport> = emptyMap(),
+	// The intents whose confirmation runs: they are taken until the run settles them, so a second run of one is refused.
+	val confirming: Set<String> = emptySet(),
+	// Messages with a part this build cannot show in full, such as an intent it cannot read: they show its notice once.
+	val unreadableMessages: Set<String> = emptySet(),
+	// The intents resolved with an outcome this build does not know: their cards close with no outcome label.
+	val unknownOutcomeIntents: Set<String> = emptySet(),
+	// Counts the sessions that ended on this device. A write made for an earlier session finds another generation here
+	// and leaves the conversation as it is; the count travels with the state, so the check and the write are one step.
+	val sessionGeneration: Int = 0
+)

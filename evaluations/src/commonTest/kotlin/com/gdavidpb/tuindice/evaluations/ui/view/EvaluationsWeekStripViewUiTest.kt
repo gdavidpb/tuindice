@@ -159,6 +159,37 @@ class EvaluationsWeekStripViewUiTest {
 		onNodeWithText("LUN").assertDoesNotExist()
 	}
 
+	@Test
+	fun when_theStripSettlesOnTheSelectedWeekItMoved_then_nothingIsReported() = runTuIndiceUiTest {
+		val reportedWeeks = mutableListOf<EvaluationsWeekKey>()
+		val selectedWeekState = mutableStateOf<EvaluationsWeekKey>(EvaluationsWeekKey.Academic(7))
+
+		setTuIndiceTestContent {
+			EvaluationsWeekStripView(
+				items = academicWeeks(),
+				selectedWeekKey = selectedWeekState.value,
+				onWeekSelected = { weekKey -> reportedWeeks += weekKey }
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.evaluationsWeekPage(7))
+
+		runOnIdle {
+			selectedWeekState.value = EvaluationsWeekKey.Academic(9)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.evaluationsWeekPage(9))
+		waitUntil(timeoutMillis = SETTLE_TIMEOUT_MILLIS) {
+			onNodeWithTag(EvaluationsUiTags.evaluationsWeekChip(9))
+				.fetchSemanticsNode()
+				.config
+				.getOrNull(SemanticsProperties.Selected) == true
+		}
+		waitForIdle()
+
+		assertEquals(emptyList<EvaluationsWeekKey>(), reportedWeeks)
+	}
+
 	private fun isSelected(selected: Boolean) =
 		SemanticsMatcher.expectValue(SemanticsProperties.Selected, selected)
 

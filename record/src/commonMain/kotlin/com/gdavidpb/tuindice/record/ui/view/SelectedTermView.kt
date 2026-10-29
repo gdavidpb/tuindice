@@ -16,24 +16,18 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptArrivalHighlight
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun SelectedTermView(
 	modifier: Modifier = Modifier,
 	term: TermItem,
-	onArrivalTaken: (attemptId: String) -> Unit = {},
-	onAttemptSelectionChange: (
-		attemptId: String,
-		newGrade: Int?,
-		newOutcome: AttemptOutcome?,
-		isSelected: Boolean
-	) -> Unit,
+	actions: RecordActions,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val lazyListState = rememberLazyListState()
@@ -43,7 +37,7 @@ fun SelectedTermView(
 	val highlighted = rememberAttemptArrival(
 		term = term,
 		lazyListState = lazyListState,
-		onArrivalTaken = onArrivalTaken
+		onArrivalTaken = actions.onAttemptArrivalTaken
 	)
 
 	LaunchedEffect(lazyListState) {
@@ -75,9 +69,7 @@ fun SelectedTermView(
 			AttemptCardItemView(
 				item = attempt,
 				gradeState = gradeState.takeIf { attempt.gradingMode == GradingMode.NUMERIC },
-				onGradeChange = { newGrade, newOutcome, isSelected ->
-					onAttemptSelectionChange(attempt.attemptId, newGrade, newOutcome, isSelected)
-				},
+				actions = actions,
 				arrivalHighlight = AttemptArrivalHighlights(highlighted).of(attempt.attemptId)
 			)
 		}

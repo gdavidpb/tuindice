@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,15 +22,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
+import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
+import com.gdavidpb.tuindice.base.domain.repository.ProfileIdentityRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceClock
@@ -41,13 +50,16 @@ import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
+import com.gdavidpb.tuindice.presentation.navigation.openAssistant
 import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.showEvaluationsWeek
 import com.gdavidpb.tuindice.presentation.navigation.showRecordAttempt
+import com.gdavidpb.tuindice.presentation.navigation.showTermReport
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlinx.coroutines.CancellationException
@@ -76,9 +88,23 @@ fun TuIndiceAppHostRoute(
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val clock = koinInject<Clock>()
+	val assistantAvailabilityRepository = koinInject<AssistantAvailabilityRepository>()
+	// Observed before it is read: until the observation delivers, the assistant counts as off.
+	val assistantAvailability by remember(assistantAvailabilityRepository) {
+		assistantAvailabilityRepository.observeAvailability()
+	}.collectAsStateWithLifecycle(
+		initialValue = AssistantAvailability(mode = AssistantMode.OFF, serverDisabled = false)
+	)
+	val profileIdentityRepository = koinInject<ProfileIdentityRepository>()
+	// The identity the device already holds (no request), for the avatar of the bar. It is null until a user is stored and
+	// again once the session ends, so the avatar of a previous account never stays on screen.
+	val profileIdentity by remember(profileIdentityRepository) {
+		profileIdentityRepository.observeProfileIdentity()
+	}.collectAsStateWithLifecycle(initialValue = null)
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
+	val termReportTopBarActionBus: TermReportTopBarActionBus = koinInject()
 	val navigatorHolder = remember { mutableStateOf<TuIndiceNavigator?>(null) }
 
 	val showSnackBar: (SnackBarMessage) -> Unit = { message ->
@@ -145,8 +171,17 @@ fun TuIndiceAppHostRoute(
 			},
 			viewModel = viewModel
 		) { state ->
-			val shellState = remember {
-				mutableStateOf(MainShellState())
+			// The shell follows the active screen's state and the assistant's availability, so both are read here.
+			val latestViewState = remember {
+				mutableStateOf<ViewState?>(null)
+			}
+			// Derived, so the host recomposes only when the shell changes, not on each state of the screen.
+			val shellState by remember {
+				derivedStateOf {
+					latestViewState.value
+						?.toMainShellState(isAssistantVisible = assistantAvailability.isVisible)
+						?: MainShellState()
+				}
 			}
 			val onRecordViewModeChange = remember {
 				mutableStateOf<((RecordViewMode) -> Unit)?>(null)
@@ -223,17 +258,24 @@ fun TuIndiceAppHostRoute(
 				navigator.push(AuthDestination.UpdatePasswordDialog)
 			}
 
+			TermReportFocusEffect(navigatorHolder = navigatorHolder)
+
 			TuIndiceScreen(
 				state = state,
-				shellState = shellState.value,
+				shellState = shellState,
 				onRetryStartUp = viewModel::startUpAction,
 				onUpdateAppClick = viewModel::updateAppAction,
 				navigator = navigator,
 				snackbarHostState = snackbarHostState,
+				profileIdentity = profileIdentity,
+				onSignOutRequest = viewModel::requestSignOutAction,
 				onAction = { action ->
 					when (action) {
-						is TopBarAction.SignOutAction ->
-							viewModel.requestSignOutAction()
+						is TopBarAction.AssistantAction ->
+							navigator?.openAssistant(latestViewState.value?.assistantContext)
+
+						is TopBarAction.SettingsAction ->
+							navigator?.push(AboutDestination.Settings)
 
 						is TopBarAction.FetchEnrollmentProofAction ->
 							navigator?.push(EnrollmentProofDestination.EnrollmentProofDialog)
@@ -254,6 +296,9 @@ fun TuIndiceAppHostRoute(
 
 						is TopBarAction.StatisticsShareAction ->
 							statisticsTopBarActionBus.dispatch(action)
+
+						is TopBarAction.TermReportShareAction ->
+							termReportTopBarActionBus.dispatch(action)
 					}
 				},
 				onRecordViewModeChange = onRecordViewModeChange.value,
@@ -310,7 +355,7 @@ fun TuIndiceAppHostRoute(
 				onCoachmarkPreviousActionClick = coachmarkOverlayViewModel::previousActionClickAction,
 				onCoachmarkPrimaryActionClick = coachmarkOverlayViewModel::primaryActionClickAction,
 				onViewStateChanged = { viewState ->
-					shellState.value = viewState.toMainShellState()
+					latestViewState.value = viewState
 
 					val routeKey = viewState::class.qualifiedName
 						?: viewState::class.simpleName
@@ -343,4 +388,34 @@ private fun BrowserRepository.openUpdateStoreFallback(
 		if (throwable is CancellationException) throw throwable
 		open(result.fallbackUrl)
 	}
+}
+
+// A tap on the push of a term report opens the report over the summary, once the student is signed in.
+// The request waits until the navigator exists, and it is taken once it is shown.
+@Composable
+private fun TermReportFocusEffect(
+	navigatorHolder: State<TuIndiceNavigator?>,
+	focusRepository: TermReportFocusRepository = koinInject()
+) {
+	val pendingTermReport by remember(focusRepository) { focusRepository.observeRequest() }
+		.collectAsStateWithLifecycle(initialValue = null)
+
+	LaunchedEffect(pendingTermReport) {
+		val insightId = pendingTermReport ?: return@LaunchedEffect
+		val navigator = snapshotFlow { navigatorHolder.value }.filterNotNull().first()
+
+		showPendingTermReport(insightId = insightId, navigator = navigator, focusRepository = focusRepository)
+	}
+}
+
+// Shows the report of [insightId] once the student is signed in, then takes the request: a request is shown once.
+internal suspend fun showPendingTermReport(
+	insightId: String,
+	navigator: TuIndiceNavigator,
+	focusRepository: TermReportFocusRepository
+) {
+	snapshotFlow { navigator.rootMode }.first { rootMode -> rootMode == TuIndiceRootMode.SIGNED_IN }
+
+	navigator.showTermReport(insightId = insightId)
+	focusRepository.consume(insightId)
 }

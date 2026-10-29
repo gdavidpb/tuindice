@@ -9,6 +9,10 @@
 - `academiccore`: shared academic-domain model and projection engine used by academic features. It also holds the pure
   engines: term weeks (`AcademicWeekEngine`), schedule (`AcademicScheduleEngine`, `ScheduleBlockClock`), evaluation
   state and points (`EvaluationStateEngine`, `EvaluationPointsEngine`) and current-term selection (`currentTermOrNull`).
+- `chatcontract`: the chat contract of the assistant (turn request, events, components, intents, memory, insights and
+  photo extraction), with no Compose and a `jvm()` target; the backend consumes it as a published artifact
+  (`docs/shared-contracts.md`), like `academiccore`. Both are transversal modules the semgrep rule
+  `feature-module-no-cross-import` lets a feature import; the Gradle dependency still goes in the module graph.
 - `persistence`: shared Room database, DAOs, entities, and platform database factories.
 - `testkit`: shared test doubles and helpers for Koin, coroutines, flows, and Compose UI tests.
 - Feature modules:
@@ -21,6 +25,24 @@
   - `subjects`
   - `pensum`
   - `wizard`
+  - `assistant`: the academic assistant's chat sheet, its SSE event stream, consent, memory and insights. The app
+    executes the intents the student accepts through `maincore/.../data/source/assistant/*`, the adapters to the
+    use cases of evaluations and record.
+    - `presentation/machine/AssistantChatMachine.kt` is the chat sheet's machine. It is composed of collaborators built
+      by Koin and passed in its constructor: `AssistantChatTurns` (the conversation and the turns: observe, resume, follow and send),
+      `AssistantChatProposals` (the change proposals of the student's records, the enrollment proof and the plans),
+      `AssistantChatFeedback` (the rating and the report of a message, and the answer about a memory),
+      `AssistantChatAccess` (availability, consent, the status read, and `restrictions`: `AssistantChatRestrictions`,
+      the restriction and its appeal), `AssistantChatNotificationOffer` (the offer of the notification permission in the empty chat) and
+      `AssistantChatTexts`. Its own state is `AssistantChatSession` (what the student did on the sheet) and
+      `AssistantChatDraft` (the text being written);
+      `AssistantChatPresentation.kt` derives the view state from both. The transitions live in
+      `presentation/transition/AssistantChat*Transitions.kt`, one file per state of the table. A new collaborator
+      comes in through the constructor and its binding in `di/`; the machine does not look it up.
+    - `ui/component/<family>/` holds the Composable views of the chat components, grouped by the family of their id
+      (`sistema`, `resumen`, `materias`, `evaluaciones`, `horario`, `pensum`, `plan`, `perfil`, `conocimiento`,
+      `informe`, `nav`), and `ui/component/common/` the pieces they share (cards, chips, figures, links). A component
+      of a new family gets its folder there, not in `ui/view/`.
 
 ## Current Module Dependency Rules
 
@@ -28,6 +50,7 @@ These bullets mirror `scripts/module-graph.txt`, the source of truth that `./gra
 
 - `base`: no project dependencies.
 - `academiccore`: no project dependencies.
+- `chatcontract`: no project dependencies.
 - `persistence`: depends on `:academiccore`, `:base`.
 - `about`: depends on `:base`.
 - `auth`: depends on `:base`, `:security`.
@@ -39,12 +62,13 @@ These bullets mirror `scripts/module-graph.txt`, the source of truth that `./gra
 - `subjects`: depends on `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depends on `:base`.
-- `maincore`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
-- `app`: depends on `:about`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
+- `assistant`: depends on `:base`, `:chatcontract`.
+- `maincore`: depends on `:about`, `:academiccore`, `:assistant`, `:auth`, `:base`, `:chatcontract`, `:enrollmentproof`, `:evaluations`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
+- `app`: depends on `:about`, `:assistant`, `:auth`, `:base`, `:chatcontract`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:persistence`, `:record`, `:security`, `:subjects`, `:summary`, and `:wizard`.
 - `testkit`: depends on `:base` and `:security`.
 - `scenariokit`: no project dependencies.
 - `scenariorunner`: depends on `:scenariokit`.
-- `scenarios`: depends on `:about`, `:academiccore`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:record`, `:scenariokit`, `:subjects`, `:summary`, and `:wizard`.
+- `scenarios`: depends on `:about`, `:academiccore`, `:assistant`, `:auth`, `:base`, `:enrollmentproof`, `:evaluations`, `:maincore`, `:pensum`, `:record`, `:scenariokit`, `:subjects`, `:summary`, and `:wizard`.
 
 Default rule: features should point to shared infrastructure, not to each other.
 There is no feature-to-feature exception: `wizard` owns the coachmarks and their overlay, and `maincore` (the composition root) maps each screen's state to its coachmarks (`presentation/mapper/CoachmarkSurface.kt`). The semgrep rule `feature-module-no-cross-import` enforces it.
@@ -132,7 +156,8 @@ Typical shared UI feature module pattern:
 Exceptions:
 
 - `persistence` does not use Compose, adds KSP and Room compiler wiring.
-- `academiccore` is pure shared domain and does not use Compose.
+- `academiccore` is pure shared domain and does not use Compose; it also has a `jvm()` target for the backend.
+- `chatcontract` does not use Compose, has a `jvm()` target and `explicitApi()`, and keeps golden fixtures in `jvmTest`.
 - `base` is also shared UI/infrastructure and exports many shared APIs.
 - `maincore` produces the iOS framework binary and assembles all features.
 - `app` is a plain Android application module, not a KMP module.
@@ -203,6 +228,8 @@ Feature navigation lives inside each feature module, for example:
 - `pensum/.../presentation/navigation/PensumNavigation.kt`
 - `subjects/.../presentation/navigation/SubjectsNavigation.kt`
 - `wizard/.../ui/view/CoachmarkOverlayHost.kt`
+- `assistant/.../presentation/navigation/AssistantNavContribution.kt` (the chat is a `DialogDestination` sheet, opened
+  from the assistant action of the academic tabs' top bar and from «Preguntar sobre esto»)
 
 Shared integration lives in:
 
@@ -246,6 +273,11 @@ iOS-specific services belong in `maincore/src/iosMain`, for example:
 - iOS adapters for browser, device, reporting, review, update, and app info
 
 If a feature needs a new platform capability on iOS, thread it through the existing iOS host capability model instead of inventing a new global access pattern.
+
+Examples the assistant added:
+
+- Remote Config in real time: `ConfigUpdateListener` on Android and `IosRemoteConfigCapability.addRemoteConfigUpdateListener` on iOS, behind `RemoteConfigDataRepository.observeUpdatedKeys()`.
+- The image encoder of the photo of an evaluation plan (`ImageEncoderRepository` in `base`), registered in `androidPlatformModule` and `iosPlatformModule`.
 
 ## Test And Validation Map
 

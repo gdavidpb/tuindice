@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.scenariorunner.driver.GuardVerdict
 import com.gdavidpb.tuindice.scenariorunner.driver.SwipeTrack
 import com.gdavidpb.tuindice.scenariorunner.driver.UiAutomatorScenarioDriver
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -30,6 +31,26 @@ class AndroidTypingProbesTest {
 			app.log("long-typing")
 				.contains("${ProbeApp.SAMPLE_EVENTS} of ${ProbeApp.SAMPLE_EVENTS} key events injected for 30 characters")
 		)
+	}
+
+	/**
+	 * Text the virtual keyboard cannot spell (accents, «¿») is assigned to the field and read back: the field holds as
+	 * many characters as the text (a secure field reads back masked), and no key went in (`keysInjected` is zero).
+	 */
+	@Test
+	fun textTheKeyboardCannotSpellIsAssignedAndReadBack() {
+		val driver = app.begin("accented-assign")
+
+		assertTrue(driver.typeKeys(app.password, ProbeApp.ACCENTED_SAMPLE))
+		assertTrue(
+			"the field holds all ${ProbeApp.ACCENTED_SAMPLE.length} characters",
+			driver.session.poll(READ_MS) { driver.readText(app.password)?.length == ProbeApp.ACCENTED_SAMPLE.length }
+		)
+		assertEquals(0, driver.keysInjected())
+
+		val log = app.log("accented-assign")
+		assertTrue(log.contains("${ProbeApp.ACCENTED_SAMPLE.length} characters assigned through accessibility"))
+		assertFalse(log.contains("ñandú"))
 	}
 
 	/**

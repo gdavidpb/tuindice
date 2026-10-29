@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.pensum.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -17,6 +21,9 @@ object Pensum {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState {
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.PENSUM)
+
 		data object Idle : State()
 
 		data object Loading : State()
@@ -30,7 +37,23 @@ object Pensum {
 			val isRefreshing: Boolean = false,
 			val localDataMessage: UiText? = null,
 			val isSummaryCollapsed: Boolean = false
-		) : State()
+		) : State() {
+			override val assistantContext: AssistantScreenContext
+				get() = AssistantScreenContext(
+					screen = AssistantScreen.PENSUM,
+					entities = listOf(
+						AssistantEntityRef(
+							kind = AssistantEntityKind.PENSUM,
+							id = model.pensumId
+						)
+					),
+					filters = emptyMap(),
+					visibleFields = mapOf(
+						"approvedCredits" to model.approvedCredits.toString(),
+						"totalCredits" to model.totalCredits.toString()
+					)
+				)
+		}
 
 		data class Failed(
 			val message: UiText = UiText.Resource(Res.string.pensum_failed_message)

@@ -9,25 +9,21 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 
 @Composable
 fun TermItemView(
 	modifier: Modifier = Modifier,
 	item: TermItem,
-	onArrivalTaken: (attemptId: String) -> Unit = {},
-	onAttemptSelectionChange: (
-		attemptId: String,
-		newGrade: Int?,
-		newOutcome: AttemptOutcome?,
-		isSelected: Boolean
-	) -> Unit,
+	texts: RecordMapperTexts,
+	actions: RecordActions,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	Column(modifier = modifier.fillMaxSize()) {
@@ -48,7 +44,8 @@ fun TermItemView(
 			modifier = Modifier
 				.fillMaxWidth()
 				.testTag(RecordUiTags.SelectedTermSummary),
-			item = item
+			item = item,
+			texts = texts
 		)
 
 		SelectedTermView(
@@ -56,8 +53,7 @@ fun TermItemView(
 				.fillMaxWidth()
 				.weight(1f),
 			term = item,
-			onArrivalTaken = onArrivalTaken,
-			onAttemptSelectionChange = onAttemptSelectionChange,
+			actions = actions,
 			onScrollInProgressChange = onScrollInProgressChange
 		)
 	}

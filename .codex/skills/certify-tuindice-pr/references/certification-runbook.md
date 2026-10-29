@@ -169,10 +169,10 @@ leftovers of the previous harness and is the owner's command.
 | 0 | Green, and published when publishing was required | Open or update the PR |
 | 1 | Some scenarios failed; greens are kept | Read `summary.txt`, fix by class (`SKILL.md`), push, rerun the helper |
 | 2 | Misuse or a precondition that does not hold: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a test variable set (every evidence run and every `publish` rejects them), an `E2E_MAX_RETRIES` other than the ledger's, a selection that matches nothing. Some are found after the device is prepared or the build is done (including "the checkout changed during the run"), never after publishing | Fix what the message names; nothing is recorded or published from that point |
-| 3 | The environment was refused or could not be recovered, or the `driver-contract` gate failed (no scenario ran; the manifest's `driverContract.failed` names the probes) | Fix the machine (section 6) or the driver, rerun once. A second exit 3 in the session is a stop condition |
+| 3 | The environment was refused or could not be recovered, or the `driver-contract` gate failed (no scenario ran; the manifest's `driverContract.failed` names the probes) | Fix the machine (section 6) or the driver, rerun once; a contract whose text entry left the field empty passed again after `stop-devices --platform android` (`docs/e2e-mediciones.md`, section 9). A second exit 3 in the session is a stop condition |
 | 4 | Budget exhausted; greens are kept | Rerun; it continues with the pending scenarios |
 | 5 | Stopped with a diagnosis: `typed_text_mismatch` or `app_crash` at the first attempt, or the same class twice for a scenario (`environment` included, under the same fingerprint) | Stop |
-| 6 | Green, but publishing failed | Fix `gh` or the push, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`; the ledger is intact |
+| 6 | Green, but publishing failed | Fix `gh` or the push, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`; the ledger is intact. A 403 means the active `gh` account is not the owner: prefix `GH_TOKEN=$(gh auth token --user <owner>)` (section 9 of the measurements) |
 | 7 | A scenario used all its attempts for this fingerprint; refused before touching a device | Stop |
 | 70 | A defect of the harness itself (manifest outcome `harness_error`; traceback in `harness-error.txt`) | Report it; it says nothing about the scenarios |
 | 130, 143 | Interrupted; the manifest was still finalised | Rerun; the ledger kept what finished |
@@ -279,7 +279,7 @@ gh auth status
 gh pr create --base production --head "$(git branch --show-current)" --title "<title>" --body "<body>"
 ```
 
-If `gh auth status` fails use the GitHub connector. Create a ready-for-review PR, not a draft. Title: concise
+If `gh auth status` fails use the GitHub connector. Keep the PR a draft while evidence runs, since the preflight workflow skips drafts, and mark it ready for review once every platform is `current`. Title: concise
 product or change title, no `Codex`. Body: summary of user-visible or workflow changes, verification commands,
 evidence outcome with the certified SHA and platform verdicts, notable fix loops. Afterwards verify base
 `production`, head branch, not draft, head SHA equal to the certified SHA.
@@ -292,7 +292,10 @@ Wrap-up:
    production..HEAD`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 max). End-user
    language in the app's voice; external functionality only (never tests, CI, harness, E2E, refactors, state
    machines, dependencies); new screens, flows, copy and fixes a user would notice. With no user-visible change, say
-   so and propose keeping the current texts.
+   so and propose keeping the current texts. Marketing tone, never a flat inventory: talk to the student as «tú»,
+   lead with the benefit, not the feature. The Promotional Text is one hook about the headline changes. What's New
+   opens with a hook, gives each change a short headline and one or two lively sentences, and closes with a call to
+   update. Every claim is true of the diff: no promise the app does not keep.
 3. Retrospective: a short prioritized list, each item naming a concrete moment of this run (a failure that took
    several rounds, a false lead and the signal that would have prevented it, a rule here that was missing or
    contradicted, a manual step a script could do). No filler. Apply what is mechanical under section 9; what

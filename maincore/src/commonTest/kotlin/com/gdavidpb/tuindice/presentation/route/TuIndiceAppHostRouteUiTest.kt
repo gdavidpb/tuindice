@@ -10,8 +10,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -19,6 +22,7 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryTermReportFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
@@ -37,6 +41,7 @@ import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
@@ -44,6 +49,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.ProfileIdentityRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionEndRepository
@@ -52,9 +58,9 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
-import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
@@ -64,9 +70,13 @@ import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testing.FakeAssistantAvailabilityRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
+import com.gdavidpb.tuindice.testing.FakeProfileIdentityRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
+import com.gdavidpb.tuindice.testing.createSettingsViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -609,15 +619,18 @@ class TuIndiceAppHostRouteUiTest {
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					MaincoreUiTags.TuIndiceTopBarSettingsButton,
 					useUnmergedTree = true
 				).fetchSemanticsNodes().isNotEmpty()
 			}
 
-			onNodeWithTag(
-				BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-				useUnmergedTree = true
-			).performClick()
+			onNodeWithTag(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true).performClick()
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(SettingsUiTags.SignOut).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			onNodeWithTag(SettingsUiTags.SignOut).performScrollTo().performClick()
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(AuthUiTags.SignOutMessageText).fetchSemanticsNodes().isNotEmpty()
@@ -662,15 +675,18 @@ class TuIndiceAppHostRouteUiTest {
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					MaincoreUiTags.TuIndiceTopBarSettingsButton,
 					useUnmergedTree = true
 				).fetchSemanticsNodes().isNotEmpty()
 			}
 
-			onNodeWithTag(
-				BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
-				useUnmergedTree = true
-			).performClick()
+			onNodeWithTag(MaincoreUiTags.TuIndiceTopBarSettingsButton, useUnmergedTree = true).performClick()
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(SettingsUiTags.SignOut).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			onNodeWithTag(SettingsUiTags.SignOut).performScrollTo().performClick()
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(AuthUiTags.SignOutMessageText).fetchSemanticsNodes().isEmpty()
@@ -1186,7 +1202,7 @@ class TuIndiceAppHostRouteUiTest {
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					MaincoreUiTags.TuIndiceTopBarSettingsButton,
 					useUnmergedTree = true
 				).fetchSemanticsNodes().isNotEmpty()
 			}
@@ -1238,7 +1254,7 @@ class TuIndiceAppHostRouteUiTest {
 
 			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(
-					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					MaincoreUiTags.TuIndiceTopBarSettingsButton,
 					useUnmergedTree = true
 				).fetchSemanticsNodes().isNotEmpty()
 			}
@@ -1407,12 +1423,19 @@ class TuIndiceAppHostRouteUiTest {
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
 		single<UpdateRepository> { FakeUpdateRepository() }
+		single<AssistantAvailabilityRepository> { FakeAssistantAvailabilityRepository() }
+		single<ProfileIdentityRepository> { FakeProfileIdentityRepository() }
+		// Settings, which the avatar of the bar opens: the sign-out is reached through it.
+		factory { createSettingsViewModel() }
+		single<ShareTextHandler> { ShareTextHandler { _, _ -> } }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
 		single { StatisticsTopBarActionBus() }
+		single { TermReportTopBarActionBus() }
 		single<EvaluationsWeekFocusRepository> { InMemoryEvaluationsWeekFocusDataSource() }
 		single<RecordAttemptFocusRepository> { InMemoryRecordAttemptFocusDataSource() }
+		single<TermReportFocusRepository> { InMemoryTermReportFocusDataSource() }
 	}
 }
 

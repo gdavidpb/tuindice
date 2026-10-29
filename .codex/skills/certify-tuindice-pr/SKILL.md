@@ -54,13 +54,13 @@ bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`.
 5. Diagnose what the branch changed: `python3 e2e/scripts/shared/e2e.py list --changed-since origin/production`, then
    `python3 e2e/scripts/shared/e2e.py run --platform all --mode diagnose --scenario <ids>`. It needs no clean
    tree and publishes nothing.
-6. Only when the helper says `partial` or `rerun`: `./gradlew e2eEvidence`, or `e2eEvidenceAndroid` /
-   `e2eEvidenceIos` for one platform.
+6. Only after step 5 is green on both platforms, and the helper says `partial` or `rerun`: `./gradlew e2eEvidence`,
+   or `e2eEvidenceAndroid` / `e2eEvidenceIos` for one platform.
 7. On a non-zero exit read the run's `summary.txt` and follow "Failure handling" and "Stop conditions".
 8. After the final push, rerun the helper: every required platform is `current`.
-9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
+9. Keep the PR against `production` a draft while evidence runs (CI skips drafts); mark it ready when all are `current`.
 10. Stop the devices: `python3 e2e/scripts/shared/e2e.py stop-devices` (`--platform <p>` for one).
-11. Deliver the Spanish store-copy proposal in the session (runbook section 8), never in the PR body.
+11. Deliver the Spanish store-copy proposal, in a marketing tone, in the session (runbook section 8), never in the PR body.
 12. Close with a short retrospective grounded in what happened; apply the maintenance rules below.
 
 ## Failure handling by class
@@ -114,13 +114,13 @@ E2E and preflight fixes must not alter the product experience to please automati
 - Prefer fixing tests, scenarios, fixtures, mock state, drivers and harness when the failure is instability.
 - Change production UI, copy, layout, navigation, timing, gestures or behavior only for a real regression or an
   explicit request; then state the product rationale and add focused coverage.
-- Never move, hide, resize, reorder, relabel or weaken surfaces to make a scenario pass. A change in how text is
-  typed, or a guard character, is a defect workaround and is not allowed.
+- Never move, hide, resize, reorder, relabel or weaken surfaces, change how the app takes text or add guard characters
+  to pass a scenario. The Android driver may assign text its keymap lacks (accessibility, read back): no IME, no keys.
 - If the only passing path changes the product and the rationale is unclear, stop and ask before committing.
 
 ## Pull request rules
 
-- Base `production`, head the current `feat/*`, not draft, title without `Codex`.
+- Base `production`, head the current `feat/*`, ready for review once certified, title without `Codex`.
 - Body: summary, verification commands, evidence outcome (certified SHA, platforms, verdicts), notable fix loops.
 - Prefer the GitHub connector when `gh auth status` fails; otherwise `gh pr create`.
 

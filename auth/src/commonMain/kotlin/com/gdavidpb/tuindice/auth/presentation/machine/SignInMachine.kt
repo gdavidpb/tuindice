@@ -5,6 +5,10 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
+import com.gdavidpb.tuindice.auth.presentation.resource.DefaultSignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.DefaultSignInTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInTextProvider
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.loggingInTransitions
@@ -17,17 +21,14 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.getString
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.label_retry
-import tuindice.auth.generated.resources.title_privacy_policy
-import tuindice.auth.generated.resources.title_terms_and_conditions
 
 class SignInMachine(
 	private val signInUseCase: SignInUseCase,
 	private val configRepository: ConfigRepository,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
-	private val usageDataConsentRepository: UsageDataConsentRepository
+	private val usageDataConsentRepository: UsageDataConsentRepository,
+	private val textProvider: SignInTextProvider = DefaultSignInTextProvider(),
+	private val sharedTextProvider: SignInSharedTextProvider = DefaultSignInSharedTextProvider()
 ) : ScreenMachine<SignIn.State, SignIn.Effect> {
 	// Held only to support the mid-flight cancel affordance; the table already
 	// rejects zombie results for every other exit.
@@ -132,6 +133,8 @@ class SignInMachine(
 		}
 
 		val errorMessage = error.toErrorMessage(
+			textProvider = textProvider,
+			sharedTextProvider = sharedTextProvider,
 			identifierMode = state.identifierMode,
 			supportEmail = configRepository.getContactEmail()
 		)
@@ -154,7 +157,7 @@ class SignInMachine(
 				host.sendEffect(
 					SignIn.Effect.ShowRetrySnackBar(
 						message = errorMessage,
-						actionLabel = getString(Res.string.label_retry)
+						actionLabel = sharedTextProvider.retryLabel()
 					)
 				)
 		}
@@ -171,7 +174,7 @@ class SignInMachine(
 	internal suspend fun openTermsAndConditions(host: MachineHost<SignIn.Effect>) {
 		host.sendEffect(
 			SignIn.Effect.NavigateToBrowser(
-				title = getString(Res.string.title_terms_and_conditions),
+				title = sharedTextProvider.termsAndConditionsTitle(),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)
@@ -180,7 +183,7 @@ class SignInMachine(
 	internal suspend fun openPrivacyPolicy(host: MachineHost<SignIn.Effect>) {
 		host.sendEffect(
 			SignIn.Effect.NavigateToBrowser(
-				title = getString(Res.string.title_privacy_policy),
+				title = sharedTextProvider.privacyPolicyTitle(),
 				url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl
 			)
 		)

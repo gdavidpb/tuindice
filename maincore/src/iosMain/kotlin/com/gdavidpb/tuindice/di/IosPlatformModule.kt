@@ -13,9 +13,11 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.FileKitSkiaImageEncoderDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.network.ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
@@ -37,6 +39,7 @@ import com.gdavidpb.tuindice.data.source.device.IosDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
+import com.gdavidpb.tuindice.data.source.notification.IosNotificationPermissionDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.secure.IosSecureKeyValueDataSource
@@ -55,9 +58,7 @@ import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.platform.temporaryStorageRoot
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
-import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.IMAGE_SHARE_DIRECTORY_NAME
 import com.gdavidpb.tuindice.summary.data.source.IosImageShareDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
@@ -146,6 +147,7 @@ val iosPlatformModule = module {
 	singleOf(::IosBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::IosFileOpenerDataSource) { bind<FileOpenerRepository>() }
 	singleOf(::IosReviewDataSource) { bind<ReviewRepository>() }
+	singleOf(::IosNotificationPermissionDataSource) { bind<NotificationPermissionRepository>() }
 	singleOf(::IosUpdateDataSource) { bind<UpdateRepository>() }
 	single<IosApplicationDataSource> {
 		IosApplicationDataSource(
@@ -198,7 +200,7 @@ val iosPlatformModule = module {
 		bind<SessionMemory>()
 		bind<SessionResidue>()
 	}
-	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
+	singleOf(::FileKitSkiaImageEncoderDataSource) { bind<ImageEncoderRepository>() }
 	single<ImageShareRepository> {
 		IosImageShareDataSource(
 			storageDirectory = temporaryStorageRoot().resolve(IMAGE_SHARE_DIRECTORY_NAME),
@@ -230,6 +232,22 @@ val iosPlatformModule = module {
 			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
+			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
+		)
+	}
+
+	single(named(ASSISTANT_STREAM_HTTP_CLIENT_QUALIFIER)) {
+		createAssistantStreamHttpClient(
+			dependencies = AssistantStreamDependencies(
+				appEnvironmentRepository = get<AppEnvironmentRepository>(),
+				configRepository = get<ConfigRepository>(),
+				sessionRepository = get<SessionRepository>(),
+				sessionRecoveryRepository = get(),
+				sessionCoroutineScope = get(),
+				settingsRepository = get(),
+				outdatedAppEventRepository = get(),
+				logger = createAppKtorLogger()
+			),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)
 	}

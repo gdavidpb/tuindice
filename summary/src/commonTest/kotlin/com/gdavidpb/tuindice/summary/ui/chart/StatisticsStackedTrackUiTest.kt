@@ -68,7 +68,7 @@ class StatisticsStackedTrackUiTest {
 		) {
 			StatisticsStackedTrack(
 				segments = segments,
-				progress = 1f,
+				progress = { 1f },
 				labels = StatisticsChartLabels(key = KEY, summary = "Barra", actionLabel = "Abrir"),
 				openIndex = openIndex
 			)

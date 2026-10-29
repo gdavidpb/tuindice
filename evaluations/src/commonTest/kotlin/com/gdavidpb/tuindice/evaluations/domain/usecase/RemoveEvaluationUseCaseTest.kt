@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.RemoveEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.RemoveEvaluationParams
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
@@ -34,7 +35,7 @@ class RemoveEvaluationUseCaseTest {
 			reportingRepository = reportingRepository
 		)
 
-		useCase.execute(DEFAULT_PENDING_EVALUATION.id).test {
+		useCase.execute(RemoveEvaluationParams(evaluationId = DEFAULT_PENDING_EVALUATION.id)).test {
 			assertEquals(Unit, awaitLoadingThenData(this))
 			awaitComplete()
 		}
@@ -64,7 +65,7 @@ class RemoveEvaluationUseCaseTest {
 			reportingRepository = reportingRepository
 		)
 
-		useCase.execute(DEFAULT_PENDING_EVALUATION.id).test {
+		useCase.execute(RemoveEvaluationParams(evaluationId = DEFAULT_PENDING_EVALUATION.id)).test {
 			assertEquals(RemoveEvaluationUseCaseError.NotFound, awaitLoadingThenError(this).error)
 			awaitComplete()
 		}
@@ -85,12 +86,53 @@ class RemoveEvaluationUseCaseTest {
 			reportingRepository = reportingRepository
 		)
 
-		useCase.execute(DEFAULT_PENDING_EVALUATION.id).test {
+		useCase.execute(RemoveEvaluationParams(evaluationId = DEFAULT_PENDING_EVALUATION.id)).test {
 			assertNull(awaitLoadingThenError(this).error)
 			awaitComplete()
 		}
 
 		assertEquals(throwable, reportingRepository.exceptions.single())
+	}
+
+	@Test
+	fun removeEvaluationUseCase_whenMutationIdIsGiven_forwardsItToRepository() = runTest {
+		val evaluationRepository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+		)
+		val useCase = createUseCase(
+			evaluationRepository = evaluationRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(
+			RemoveEvaluationParams(
+				evaluationId = DEFAULT_PENDING_EVALUATION.id,
+				mutationId = EXTERNAL_MUTATION_ID
+			)
+		).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(EXTERNAL_MUTATION_ID, evaluationRepository.removeCalls.single().mutationId)
+	}
+
+	@Test
+	fun removeEvaluationUseCase_whenMutationIdIsAbsent_forwardsNullMutationId() = runTest {
+		val evaluationRepository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+		)
+		val useCase = createUseCase(
+			evaluationRepository = evaluationRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(RemoveEvaluationParams(evaluationId = DEFAULT_PENDING_EVALUATION.id)).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertNull(evaluationRepository.removeCalls.single().mutationId)
 	}
 
 	private fun createUseCase(
@@ -102,3 +144,5 @@ class RemoveEvaluationUseCaseTest {
 		exceptionHandler = RemoveEvaluationExceptionHandler()
 	)
 }
+
+private const val EXTERNAL_MUTATION_ID = "external-mutation-id"

@@ -1,0 +1,25 @@
+{
+  "type": "message_completed",
+  "seq": 3,
+  "turnId": "turn-1",
+  "message": {
+    "id": "msg-1",
+    "parts": [
+      { "type": "text", "text": "Listo, agregué tu evaluación." },
+      {
+        "type": "component",
+        "component": {
+          "type": "nav.abrir/1",
+          "id": "cmp-1",
+          "fallbackText": "Ver evaluaciones",
+          "display": "inline",
+          "entityRefs": [],
+          "target": "evaluations",
+          "label": "Ver evaluaciones"
+        }
+      },
+      { "type": "suggestions", "items": [{ "id": "sug-1", "label": "Ver promedio", "text": "¿Cuál es mi promedio?" }] }
+    ],
+    "createdAtMillis": 1760000000000
+  }
+}

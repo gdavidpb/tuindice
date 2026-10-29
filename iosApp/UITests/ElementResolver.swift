@@ -42,8 +42,10 @@ enum FrameVerdict: Equatable {
     case moving
 }
 
-/// Decides, read by read, whether a frame has stopped moving. It is pure: the caller feeds the frames it reads (`nil`
-/// when the element could not be read any more) with the time of each read, and stops at the first verdict.
+/// Decides, read by read, whether a frame has stopped moving. It is pure: the caller feeds what each read saw, with the time of
+/// that read, and stops at the first verdict. Only a read that finds nothing says the element is gone (`.vanished`); a read that
+/// finds it but cannot use it (unreadable, or with an empty frame or off the screen) is never a verdict of absence (E4): see
+/// `feed(_:frame:at:)`.
 ///
 /// The frame must read the same [requiredEqualReads] times in a row: the accessibility tree of a list that is still
 /// decelerating repeats a frame once or twice before the next one arrives, so two equal reads were seen to hold a tap on a
@@ -65,7 +67,8 @@ struct SettleWatch {
         self.timeLimit = timeLimit
     }
 
-    /// The verdict after the read at [time], or nil when more reads are needed.
+    /// The verdict after the read at [time] of an element on screen with [frame], or nil when more reads are needed. A nil frame is
+    /// a read that found nothing: the element is gone.
     mutating func feed(_ frame: CGRect?, at time: Double) -> FrameVerdict? {
         guard let frame else { return .vanished }
         firstReadAt = firstReadAt ?? time
@@ -87,6 +90,22 @@ struct SettleWatch {
         last = nil
         if reads >= maxReads || time - (firstReadAt ?? time) >= timeLimit { return .moving }
         return nil
+    }
+
+    /// The verdict after one read, by what it saw of the element (E4). An element on screen goes to `feed(_:at:)` with its frame;
+    /// an element that is there but is off the screen or cannot be read goes to `feedUnreadable(at:)`; only a read that found
+    /// nothing is `.vanished`. An on-screen sighting without its frame is read as unreadable: the frame is what the rule needs,
+    /// and the element is still there.
+    mutating func feed(_ sighting: Sighting, frame: CGRect?, at time: Double) -> FrameVerdict? {
+        switch sighting {
+        case .onScreen:
+            guard let frame else { return feedUnreadable(at: time) }
+            return feed(frame, at: time)
+        case .offScreen, .unreadable:
+            return feedUnreadable(at: time)
+        case .nothing:
+            return feed(nil, at: time)
+        }
     }
 }
 
@@ -181,10 +200,11 @@ enum KeyboardReading {
     case unreadable
 }
 
-/// An element whose frame was watched until it was still, or the reason it was not.
+/// An element whose frame was watched until it was still, or the reason it was not. `unseen` counts the reads after the first
+/// that found the element unreadable or off the screen: they say nothing about its being gone.
 enum Placement {
     case settled(ResolvedElement, ElementFacts)
-    case moving(ElementFacts, reads: Int, seconds: Double)
+    case moving(ElementFacts, reads: Int, seconds: Double, unseen: Int)
     case gone(reads: Int)
 }
 
@@ -289,39 +309,52 @@ final class ElementResolver {
         return FrontCheck.isInFront(before: before, wentToBackground: wentToBackground, after: app.state)
     }
 
+    /// What one look saw, as a [Sighting]: an element whose frame is empty or does not meet the screen is `.offScreen`.
+    private func classify(_ outcome: LookupOutcome) -> Sighting {
+        switch outcome {
+        case let .found(_, facts): return facts.frame.isEmpty || !screen.intersects(facts.frame) ? .offScreen : .onScreen
+        case .unreadable: return .unreadable
+        case .absent: return .nothing
+        }
+    }
+
     /// Whether [q] is shown nowhere, with positive evidence: the app is in the foreground and its tree was read in this very
     /// round. An app that is not in the foreground, a tree that cannot be read or an element that exists but cannot be read
     /// prove nothing, and the caller keeps polling.
     func isAbsent(_ q: Query) -> Bool {
         guard isAppInForeground else { return false }
-        let sighting: Sighting
-        switch lookupOutcome(q) {
-        case let .found(_, facts): sighting = facts.frame.isEmpty || !screen.intersects(facts.frame) ? .offScreen : .onScreen
-        case .unreadable: sighting = .unreadable
-        case .absent: sighting = .nothing
-        }
+        let sighting = classify(lookupOutcome(q))
         return AbsenceRule.isAbsent(sighting, treeRead: { (try? app.snapshot()) != nil }, stillInForeground: { isAppFrontNow })
     }
 
     /// The element's facts once its frame is still, so a gesture lands on the element and not on whatever is passing over its
-    /// old place (a sheet sliding in, the form the keyboard pushes up). See [SettleWatch] for the rule. A frame that does not
-    /// settle, or an element that disappears while it is watched, is a [Placement] that says so: the caller refuses the gesture.
+    /// old place (a sheet sliding in, the form the keyboard pushes up). See [SettleWatch] for the rule. Each read after the first
+    /// is classified like `isAbsent` does: an element on screen gives its frame; one that is there but cannot be read or is off
+    /// the screen counts as unseen and is never taken for gone; only a look that finds nothing ends the watch as `.gone`. A frame
+    /// that does not settle is a [Placement] that says so: the caller refuses the gesture.
     func settle(_ q: Query) -> Placement {
         guard let first = visibleFacts(q) else { return .gone(reads: 0) }
         var watch = SettleWatch()
         let began = Monotonic.now
         var last = first
-        var verdict = watch.feed(first.1.frame, at: began)
+        var unseen = 0
+        var verdict = watch.feed(.onScreen, frame: first.1.frame, at: began)
         while verdict == nil {
             Thread.sleep(forTimeInterval: Self.settlePoll)
-            let current = visibleFacts(q)
-            verdict = watch.feed(current?.1.frame, at: Monotonic.now)
-            if let current { last = current }
+            let outcome = lookupOutcome(q)
+            let sighting = classify(outcome)
+            var frame: CGRect?
+            if case let .found(resolved, facts) = outcome, sighting == .onScreen {
+                last = (resolved, facts)
+                frame = facts.frame
+            }
+            if sighting == .offScreen || sighting == .unreadable { unseen += 1 }
+            verdict = watch.feed(sighting, frame: frame, at: Monotonic.now)
         }
         switch verdict! {
         case .settled: return .settled(last.0, last.1)
         case .vanished: return .gone(reads: watch.reads)
-        case .moving: return .moving(last.1, reads: watch.reads, seconds: Monotonic.now - began)
+        case .moving: return .moving(last.1, reads: watch.reads, seconds: Monotonic.now - began, unseen: unseen)
         }
     }
 
@@ -330,8 +363,8 @@ final class ElementResolver {
         switch settle(q) {
         case let .settled(resolved, facts):
             return (resolved, facts)
-        case let .moving(facts, reads, seconds):
-            log.refuse(primitive, "\(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (last \(facts.frame)); gesture refused")
+        case let .moving(facts, reads, seconds, unseen):
+            log.refuse(primitive, "\(q): the frame was still moving after \(reads) reads in \(String(format: "%.1f", seconds)) s (\(unseen) unreadable or off screen) (last \(facts.frame)); gesture refused")
             return nil
         case let .gone(reads):
             log.refuse(primitive, "\(q): the element was \(reads == 0 ? "not visible" : "gone after \(reads) reads of its frame"); gesture refused")

@@ -42,6 +42,7 @@ object EvaluationsUiTags {
 	const val EvaluationDialogConfirmButton = "evaluation_dialog_confirm_button"
 	const val EvaluationDialogDismissButton = "evaluation_dialog_dismiss_button"
 	const val EvaluationSwipeToDismissContainer = "evaluation_swipe_to_dismiss_container"
+	const val EvaluationSwipeAskAction = "evaluation_swipe_ask_action"
 	const val EvaluationSwipeEditAction = "evaluation_swipe_edit_action"
 	const val EvaluationSwipeDeleteAction = "evaluation_swipe_delete_action"
 	const val DeleteEvaluationMessage = "evaluation_delete_confirmation_message"

@@ -7,29 +7,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.ui.model.AboutActions
 import com.gdavidpb.tuindice.about.ui.view.AboutContentView
 import com.gdavidpb.tuindice.about.ui.view.AboutIdleView
 
 @Composable
 fun AboutScreen(
 	state: About.State,
-	onCreativeCommonsClick: () -> Unit,
-	onXClick: () -> Unit,
-	onGithubClick: () -> Unit,
-	onKotlinClick: () -> Unit,
-	onComposeClick: () -> Unit,
-	onFirebaseClick: () -> Unit,
-	onKoinClick: () -> Unit,
-	onKtorClick: () -> Unit,
-	onDstClick: () -> Unit,
-	onTermsAndConditionsClick: () -> Unit,
-	onPrivacyPolicyClick: () -> Unit,
-	onSupportClick: () -> Unit,
-	onShareAppClick: () -> Unit,
-	onRateOnPlayStoreClick: () -> Unit,
-	onContactDeveloperClick: () -> Unit,
-	onReportBugClick: () -> Unit,
-	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
+	actions: AboutActions
 ) {
 	Box(
 		modifier = Modifier
@@ -43,23 +28,7 @@ fun AboutScreen(
 			is About.State.Content ->
 				AboutContentView(
 					state = state,
-					onCreativeCommonsClick = onCreativeCommonsClick,
-					onXClick = onXClick,
-					onGithubClick = onGithubClick,
-					onKotlinClick = onKotlinClick,
-					onComposeClick = onComposeClick,
-					onFirebaseClick = onFirebaseClick,
-					onKoinClick = onKoinClick,
-					onKtorClick = onKtorClick,
-					onDstClick = onDstClick,
-					onTermsAndConditionsClick = onTermsAndConditionsClick,
-					onPrivacyPolicyClick = onPrivacyPolicyClick,
-					onSupportClick = onSupportClick,
-					onShareAppClick = onShareAppClick,
-					onRateOnPlayStoreClick = onRateOnPlayStoreClick,
-					onContactDeveloperClick = onContactDeveloperClick,
-					onReportBugClick = onReportBugClick,
-					onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange
+					actions = actions
 				)
 		}
 	}

@@ -20,13 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
 import com.gdavidpb.tuindice.record.ui.view.RecordEnrollmentProofActionView
@@ -41,21 +41,8 @@ import tuindice.record.generated.resources.record_failed_retry
 fun RecordScreen(
 	state: Record.State,
 	selectedTermId: String?,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onAttemptArrivalTaken: (attemptId: String) -> Unit = {},
-	onRetryClick: () -> Unit,
-	onAttemptSelectionChange: (
-		attemptId: String,
-		newGrade: Int?,
-		newOutcome: AttemptOutcome?,
-		isSelected: Boolean
-	) -> Unit,
-	onCreateSyntheticTermClick: () -> Unit,
-	onUpdateSyntheticTermClick: (termId: String) -> Unit = {},
-	onDeleteSyntheticTermClick: (termId: String) -> Unit = {},
-	onEnrollmentProofClick: () -> Unit = {},
-	showTermSelection: Boolean = false,
-	onDismissTermSelection: () -> Unit = {}
+	actions: RecordActions,
+	showTermSelection: Boolean = false
 ) {
 	val contentScrollInProgress = remember { mutableStateOf(false) }
 	val contentState = state as? Record.State.Content
@@ -80,11 +67,8 @@ fun RecordScreen(
 					RecordContentView(
 						state = targetState,
 						selectedTermId = selectedTermId,
-						onSelectedTermChange = onSelectedTermChange,
-						onAttemptArrivalTaken = onAttemptArrivalTaken,
-						onAttemptSelectionChange = onAttemptSelectionChange,
+						actions = actions,
 						showTermSelection = showTermSelection,
-						onDismissTermSelection = onDismissTermSelection,
 						onScrollInProgressChange = { isScrollInProgress ->
 							contentScrollInProgress.value = isScrollInProgress
 						}
@@ -96,7 +80,7 @@ fun RecordScreen(
 						message = targetState.message.asString(),
 						art = targetState.art,
 						retryText = stringResource(Res.string.record_failed_retry),
-						onRetryClick = onRetryClick
+						onRetryClick = actions.onRetryClick
 					)
 
 				is Record.State.Empty ->
@@ -124,19 +108,19 @@ fun RecordScreen(
 				if (projectionContent != null && projectionContent.isSelectedTermSynthetic) {
 					RecordSyntheticTermActionsView(
 						termId = projectionContent.selectedTermId,
-						onEditClick = onUpdateSyntheticTermClick,
-						onDeleteClick = onDeleteSyntheticTermClick
+						onEditClick = actions.onUpdateSyntheticTermClick,
+						onDeleteClick = actions.onDeleteSyntheticTermClick
 					)
 				}
 
 				if (projectionContent != null && projectionContent.isSelectedTermCurrent) {
-					RecordEnrollmentProofActionView(onClick = onEnrollmentProofClick)
+					RecordEnrollmentProofActionView(onClick = actions.onEnrollmentProofClick)
 				}
 
 				FloatingActionButton(
 					modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermFab),
 					containerColor = MaterialTheme.colorScheme.primary,
-					onClick = onCreateSyntheticTermClick
+					onClick = actions.onCreateSyntheticTermClick
 				) {
 					Icon(
 						imageVector = Icons.Outlined.Add,

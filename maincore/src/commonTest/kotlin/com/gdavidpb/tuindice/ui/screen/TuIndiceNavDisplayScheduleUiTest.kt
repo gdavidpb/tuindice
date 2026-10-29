@@ -143,6 +143,7 @@ class TuIndiceNavDisplayScheduleUiTest {
 		onNavigateToEvaluationsWeek: (weekStart: LocalDate, evaluationId: String) -> Unit = { _, _ -> }
 	) {
 		TuIndiceNavDisplay(
+			onSignOutRequest = {},
 			navigator = navigator,
 			onConfirmExitClick = {},
 			onNavigateToExternalResource = {},

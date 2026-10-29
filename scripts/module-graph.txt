@@ -10,18 +10,20 @@
 # maincore, whose umbrella framework it links.
 about=:base
 academiccore=-
-app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :security :subjects :summary :wizard
+app=:about :assistant :auth :base :chatcontract :enrollmentproof :evaluations :maincore :pensum :persistence :record :security :subjects :summary :wizard
+assistant=:base :chatcontract
 auth=:base :security
 base=-
+chatcontract=-
 enrollmentproof=:base :persistence
 evaluations=:academiccore :base :persistence
-maincore=:about :auth :base :enrollmentproof :evaluations :pensum :persistence :record :security :subjects :summary :wizard
+maincore=:about :academiccore :assistant :auth :base :chatcontract :enrollmentproof :evaluations :pensum :persistence :record :security :subjects :summary :wizard
 pensum=:academiccore :base :persistence
 persistence=:academiccore :base
 record=:academiccore :base :persistence
 scenariokit=-
 scenariorunner=:scenariokit
-scenarios=:about :academiccore :auth :base :enrollmentproof :evaluations :maincore :pensum :record :scenariokit :subjects :summary :wizard
+scenarios=:about :academiccore :assistant :auth :base :enrollmentproof :evaluations :maincore :pensum :record :scenariokit :subjects :summary :wizard
 security=:base
 subjects=:academiccore :base :persistence
 summary=:academiccore :base :persistence

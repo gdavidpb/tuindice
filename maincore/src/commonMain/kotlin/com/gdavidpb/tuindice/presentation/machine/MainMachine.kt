@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.mapper.snackPendingChangesUnavailable
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.mapper.toSessionNoticeText
 import com.gdavidpb.tuindice.presentation.model.PendingSessionEnd
@@ -28,9 +29,6 @@ import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
-import tuindice.maincore.generated.resources.Res
-import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
 
 class MainMachine(
 	private val startUpUseCase: StartUpUseCase,
@@ -156,7 +154,7 @@ class MainMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						MainInternalEvent.SignOutPreparationFailed(
-							message = getString(Res.string.snack_pending_changes_unavailable)
+							message = snackPendingChangesUnavailable()
 						)
 					)
 				}

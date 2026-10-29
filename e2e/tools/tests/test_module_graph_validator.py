@@ -13,6 +13,12 @@ ROOT = os.path.realpath(os.path.join(TESTS, "..", "..", ".."))
 VALIDATOR = os.path.join(ROOT, "scripts", "validate-module-graph.sh")
 
 
+def CACHE_KEY_COVERING(modules):
+    """A cache key script that hashes the build file and the sources of each module, as the real one names them."""
+    inputs = " ".join('"%s/build.gradle.kts" "%s/src"' % (module, module) for module in modules)
+    return "#!/bin/bash\ninputs=(%s)\n" % inputs
+
+
 class ModuleGraphValidatorTests(unittest.TestCase):
     def setUp(self):
         self.dir = os.path.realpath(tempfile.mkdtemp(prefix="e2e-module-graph-"))
@@ -23,6 +29,7 @@ class ModuleGraphValidatorTests(unittest.TestCase):
         self.write("settings.gradle.kts", 'plugins {\n\tid("x") version "1.0.0"\n}\ninclude(\n\t":app",\n\t":base"\n)\n')
         self.write("base/build.gradle.kts", "")
         self.write("app/build.gradle.kts", 'dependencies {\n\timplementation(project(":base"))\n}\n')
+        self.write(".github/scripts/ios-framework-cache-key.sh", CACHE_KEY_COVERING(["maincore"]))
 
     def write(self, relative, text):
         path = os.path.join(self.dir, relative)
@@ -58,6 +65,25 @@ class ModuleGraphValidatorTests(unittest.TestCase):
         code, out = self.validate()
         self.assertEqual(code, 1, out)
         self.assertIn("[app]: depends on a project the graph tooling cannot read", out)
+
+    def test_a_missing_ios_cache_key_script_fails(self):
+        os.remove(os.path.join(self.dir, ".github", "scripts", "ios-framework-cache-key.sh"))
+        code, out = self.validate()
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL [ios-framework-cache-key]: missing", out)
+
+    def test_a_module_maincore_links_must_be_in_the_ios_cache_key(self):
+        self.write("scripts/module-graph.txt", "base=-\nmaincore=:base\napp=:base :maincore\n")
+        self.write("settings.gradle.kts", 'include(\n\t":app",\n\t":base",\n\t":maincore"\n)\n')
+        self.write("maincore/build.gradle.kts", 'dependencies {\n\timplementation(project(":base"))\n}\n')
+        self.write("app/build.gradle.kts", 'dependencies {\n\timplementation(project(":base"))\n\timplementation(project(":maincore"))\n}\n')
+        code, out = self.validate()
+        self.assertEqual(code, 1, out)
+        self.assertIn("base is linked into maincore.framework but base/build.gradle.kts is not hashed", out)
+
+        self.write(".github/scripts/ios-framework-cache-key.sh", CACHE_KEY_COVERING(["maincore", "base"]))
+        code, out = self.validate()
+        self.assertEqual(code, 0, out)
 
 
 if __name__ == "__main__":

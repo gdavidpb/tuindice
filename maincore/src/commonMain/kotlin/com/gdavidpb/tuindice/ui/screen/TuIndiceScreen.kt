@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,17 +21,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.FindInPage
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.Tune
@@ -51,6 +50,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,13 +60,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.ProfileIdentity
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.presentation.navigation.AssistantLauncher
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalAssistantLauncher
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.icon.ShareIcon
+import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -77,13 +81,18 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.presentation.model.TopBarSlot
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
+import com.gdavidpb.tuindice.presentation.navigation.openAssistant
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.ui.view.TopBarAssistantButtonView
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
+import com.gdavidpb.tuindice.ui.view.TopBarProfileButtonView
 import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
+import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId
 import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
 import com.gdavidpb.tuindice.wizard.ui.anchor.coachmarkAnchor
 import com.gdavidpb.tuindice.wizard.ui.view.CoachmarkOverlayHost
@@ -91,16 +100,17 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
+import tuindice.maincore.generated.resources.a11y_top_bar_assistant
 import tuindice.maincore.generated.resources.a11y_top_bar_change_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
 import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
 import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
-import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
+import tuindice.maincore.generated.resources.a11y_top_bar_settings
 import tuindice.maincore.generated.resources.a11y_top_bar_statistics_share
+import tuindice.maincore.generated.resources.a11y_top_bar_term_report_share
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
-import tuindice.maincore.generated.resources.bottom_bar_about
 import tuindice.maincore.generated.resources.bottom_bar_evaluations
 import tuindice.maincore.generated.resources.bottom_bar_pensum
 import tuindice.maincore.generated.resources.bottom_bar_record
@@ -118,7 +128,9 @@ fun TuIndiceScreen(
 	onUpdateAppClick: () -> Unit,
 	navigator: TuIndiceNavigator?,
 	snackbarHostState: SnackbarHostState,
+	profileIdentity: ProfileIdentity? = null,
 	onAction: (action: TopBarAction) -> Unit,
+	onSignOutRequest: () -> Unit,
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
@@ -198,6 +210,14 @@ fun TuIndiceScreen(
 	val contentNavigator = checkNotNull(navigator) {
 		"TuIndiceScreen requires a navigator once Main.State.Content is reached"
 	}
+	val assistantLauncher = remember(contentNavigator, shellState.isAssistantVisible) {
+		if (shellState.isAssistantVisible) {
+			AssistantLauncher { context -> contentNavigator.openAssistant(context) }
+		} else {
+			null
+		}
+	}
+
 	val shouldShowTopBarBackButton =
 		contentNavigator.showsBackButton && shellState.showsTopBarBackButton
 	val topBarBannerBehavior = remember {
@@ -209,6 +229,9 @@ fun TuIndiceScreen(
 	val coachmarkAnchorRegistry = remember {
 		CoachmarkAnchorRegistry()
 	}
+	// The Settings coachmark points at the avatar in the bar; every other one points at the content under it.
+	val activeCoachmarkId = coachmarkOverlayState.activeCoachmark?.id
+	val settingsCoachmarkActive = activeCoachmarkId == CoachmarkId.Settings
 	val showTopBarBanner: (TopBarBannerBehavior) -> Unit = { behavior ->
 		topBarBannerBehavior.value = behavior
 		topBarBannerRequestKey.intValue += 1
@@ -219,8 +242,7 @@ fun TuIndiceScreen(
 			BottomBarConfig.Summary,
 			BottomBarConfig.Record,
 			BottomBarConfig.Pensum,
-			BottomBarConfig.Evaluations,
-			BottomBarConfig.About
+			BottomBarConfig.Evaluations
 		)
 	}
 
@@ -291,27 +313,61 @@ fun TuIndiceScreen(
 										),
 										verticalAlignment = Alignment.CenterVertically
 									) {
-										if (
-											recordTopBarViewModeState != null &&
-											onRecordTopBarViewModeSelected != null
-										) {
-											RecordTopBarViewModeSwitchView(
-												selectedMode = recordTopBarViewModeState.selectedMode,
-												onModeSelected = onRecordTopBarViewModeSelected
+										// The places that lead the bar come first: the assistant, then Record's view switch.
+										// The actions follow them, and the overflow menu closes the row.
+										shellState.inlineActions.forEach { slot ->
+											when (slot) {
+												TopBarSlot.Assistant -> TopBarAssistantButtonView(
+													contentDescription = stringResource(Res.string.a11y_top_bar_assistant),
+													onClick = { onAction(TopBarAction.AssistantAction) }
+												)
+												TopBarSlot.ViewModeSelector -> {
+													if (
+														recordTopBarViewModeState != null &&
+														onRecordTopBarViewModeSelected != null
+													) {
+														RecordTopBarViewModeSwitchView(
+															selectedMode = recordTopBarViewModeState.selectedMode,
+															onModeSelected = onRecordTopBarViewModeSelected
+														)
+													}
+												}
+												is TopBarSlot.Action -> Unit
+											}
+										}
+
+										val inlineTopBarActions = shellState.inlineActions
+											.filterIsInstance<TopBarSlot.Action>()
+											.map { slot -> slot.action }
+
+										if (inlineTopBarActions.isNotEmpty() || shellState.overflowActions.isNotEmpty()) {
+											TopAppBarActionsView(
+												actions = inlineTopBarActions,
+												overflowActions = shellState.overflowActions,
+												onAction = onAction,
+												actionContentDescription = { action -> action.getContentDescription() },
+												actionIconContent = { action ->
+													Icon(
+														imageVector = action.getIcon(),
+														contentDescription = null
+													)
+												}
 											)
 										}
 
-										TopAppBarActionsView(
-											topBarConfig = shellState.topBarConfig,
-											onAction = onAction,
-											actionContentDescription = { action -> action.getContentDescription() },
-											actionIconContent = { action ->
-												Icon(
-													imageVector = action.getIcon(),
-													contentDescription = null
-												)
-											}
-										)
+										// The avatar closes the row of a main section, after the sparkle, the switch, the
+										// actions and the menu. When Settings is the coachmark on screen, the bubble points at it.
+										if (shellState.showsProfileAvatar) {
+											TopBarProfileButtonView(
+												modifier = Modifier.coachmarkAnchor(
+													id = CoachmarkId.Settings.takeIf { settingsCoachmarkActive },
+													registry = coachmarkAnchorRegistry
+												),
+												identity = profileIdentity,
+												contentDescription = stringResource(Res.string.a11y_top_bar_settings),
+												onClick = { onAction(TopBarAction.SettingsAction) }
+											)
+										}
 									}
 								},
 								navigationIcon = {
@@ -407,28 +463,34 @@ fun TuIndiceScreen(
 				}
 			}
 		) { innerPadding ->
-			TuIndiceNavDisplay(
-				navigator = contentNavigator,
-				modifier = Modifier
-					.padding(innerPadding)
-					.coachmarkAnchor(
-						id = coachmarkOverlayState.activeCoachmark?.id,
-						registry = coachmarkAnchorRegistry
-					),
-				onConfirmExitClick = onConfirmExitClick,
-				onNavigateToExternalResource = onNavigateToExternalResource,
-				onOutdatedAppDetected = onOutdatedAppDetected,
-				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
-				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
-				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onBackInterceptorAvailable = onBackInterceptorAvailable,
-				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
-				onNavigateToRecordAttempt = onNavigateToRecordAttempt,
-				showTopBarBanner = showTopBarBanner,
-				onViewStateChanged = onViewStateChanged,
-				showSnackBar = showSnackBar,
-				dismissSnackBar = dismissSnackBar
-			)
+			CompositionLocalProvider(LocalAssistantLauncher provides assistantLauncher) {
+				TuIndiceNavDisplay(
+					navigator = contentNavigator,
+					modifier = Modifier
+						.padding(innerPadding)
+						// What the shell already pads (the bars, the home indicator) is consumed, so a screen's imePadding()
+						// adds only the part of the keyboard that rises above it, not the keyboard's whole height again.
+						.consumeWindowInsets(innerPadding)
+						.coachmarkAnchor(
+							id = activeCoachmarkId.takeUnless { settingsCoachmarkActive },
+							registry = coachmarkAnchorRegistry
+						),
+					onConfirmExitClick = onConfirmExitClick,
+					onSignOutRequest = onSignOutRequest,
+					onNavigateToExternalResource = onNavigateToExternalResource,
+					onOutdatedAppDetected = onOutdatedAppDetected,
+					onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
+					onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+					onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
+					onBackInterceptorAvailable = onBackInterceptorAvailable,
+					onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
+					onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+					showTopBarBanner = showTopBarBanner,
+					onViewStateChanged = onViewStateChanged,
+					showSnackBar = showSnackBar,
+					dismissSnackBar = dismissSnackBar
+				)
+			}
 		}
 
 		CoachmarkOverlayHost(
@@ -453,8 +515,6 @@ fun TuIndiceScreen(
 @Composable
 private fun TopBarAction.getContentDescription(): String {
 	return when (this) {
-		is TopBarAction.SignOutAction ->
-			stringResource(Res.string.a11y_top_bar_sign_out)
 		is TopBarAction.FetchEnrollmentProofAction ->
 			stringResource(Res.string.a11y_top_bar_enrollment_proof)
 		is TopBarAction.RecordTermSelectionAction ->
@@ -470,13 +530,18 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_change_pensum)
 		is TopBarAction.StatisticsShareAction ->
 			stringResource(Res.string.a11y_top_bar_statistics_share)
+		is TopBarAction.TermReportShareAction ->
+			stringResource(Res.string.a11y_top_bar_term_report_share)
+		is TopBarAction.AssistantAction ->
+			stringResource(Res.string.a11y_top_bar_assistant)
+		is TopBarAction.SettingsAction ->
+			stringResource(Res.string.a11y_top_bar_settings)
 	}
 }
 
+@Composable
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
-		is TopBarAction.SignOutAction ->
-			Icons.AutoMirrored.Outlined.Logout
 		is TopBarAction.FetchEnrollmentProofAction ->
 			Icons.Outlined.FindInPage
 		// A term is a stretch of the year and the schedule is a table of blocks: a calendar and a
@@ -493,6 +558,13 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.Outlined.Tune
 		is TopBarAction.StatisticsShareAction ->
 			ShareIcon
+		is TopBarAction.TermReportShareAction ->
+			ShareIcon
+		is TopBarAction.AssistantAction ->
+			rememberAssistantSparkleIcon()
+		// The bar draws the avatar for this one; the icon is what a menu would show if it were ever listed in one.
+		is TopBarAction.SettingsAction ->
+			Icons.Outlined.Person
 	}
 }
 
@@ -508,8 +580,6 @@ private fun bottomBarIcon(
 		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->
 		if (selected) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment
-	BottomBarConfig.About ->
-		if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
 }
 
 @Composable
@@ -518,7 +588,6 @@ private fun bottomBarLabel(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Record -> stringResource(Res.string.bottom_bar_record)
 	BottomBarConfig.Pensum -> stringResource(Res.string.bottom_bar_pensum)
 	BottomBarConfig.Evaluations -> stringResource(Res.string.bottom_bar_evaluations)
-	BottomBarConfig.About -> stringResource(Res.string.bottom_bar_about)
 }
 
 private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
@@ -526,7 +595,6 @@ private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItem
 	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItem
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItem
-	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItem
 }
 
 private fun bottomBarSelectedItemTag(config: BottomBarConfig): String = when (config) {
@@ -534,5 +602,4 @@ private fun bottomBarSelectedItemTag(config: BottomBarConfig): String = when (co
 	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItemSelected
 	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItemSelected
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected
-	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItemSelected
 }

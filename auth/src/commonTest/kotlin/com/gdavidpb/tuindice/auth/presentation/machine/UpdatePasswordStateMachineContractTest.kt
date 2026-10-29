@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
@@ -98,24 +99,43 @@ class UpdatePasswordStateMachineContractTest {
 		assertEquals(null, after.error)
 	}
 
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				UpdatePassword.Action.SetPassword(password = "nueva"),
+				UpdatePassword.Action.TogglePasswordVisibility,
+				UpdatePassword.Action.ClickSignIn,
+				UpdatePasswordInternalEvent.PasswordUpdateSucceeded(message = "Listo"),
+				UpdatePasswordInternalEvent.PasswordUpdateFailed(message = "Revisa tu conexión")
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): UpdatePasswordMachine {
+		return UpdatePasswordMachine(
+			updatePasswordUseCase = UpdatePasswordUseCase(
+				authRepository = RecordingAuthRepository(),
+				sessionRepository = FakeSessionRepository(usbId = "20261234"),
+				syncRepository = FakeSyncRepository(),
+				credentialsRepository = FakeCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				paramsValidator = UpdatePasswordParamsValidator(),
+				exceptionHandler = UpdatePasswordExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			),
+			configRepository = FakeConfigRepository()
+		)
+	}
+
 	private fun createViewModel(): UpdatePasswordViewModel {
 		return UpdatePasswordViewModel(
-			screenMachine = UpdatePasswordMachine(
-				updatePasswordUseCase = UpdatePasswordUseCase(
-					authRepository = RecordingAuthRepository(),
-					sessionRepository = FakeSessionRepository(usbId = "20261234"),
-					syncRepository = FakeSyncRepository(),
-					credentialsRepository = FakeCredentialsRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					reportingRepository = RecordingReportingRepository(),
-					paramsValidator = UpdatePasswordParamsValidator(),
-					exceptionHandler = UpdatePasswordExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				configRepository = FakeConfigRepository()
-			),
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

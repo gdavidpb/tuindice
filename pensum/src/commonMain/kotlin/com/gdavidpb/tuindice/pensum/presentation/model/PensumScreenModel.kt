@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.pensum.presentation.model
 
 data class PensumScreenModel(
 	val careerName: String,
+	// The id the backend knows the shown pensum by: the assistant names the pensum with it.
+	val pensumId: String,
 	val selection: PensumScreenSelection,
 	val pensumOptions: List<PensumOptionItem>,
 	val modalityOptions: List<PensumModalityItem>,

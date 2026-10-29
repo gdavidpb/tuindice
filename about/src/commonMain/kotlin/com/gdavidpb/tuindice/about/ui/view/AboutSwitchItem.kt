@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.ui.view.TuIndiceSpanText
 
 @Composable
 fun AboutSwitchItem(
@@ -51,12 +53,12 @@ fun AboutSwitchItem(
 	) {
 		Image(
 			painter = icon,
-			colorFilter = tint?.let(ColorFilter::tint),
+			colorFilter = tint?.takeIf { it.isSpecified }?.let(ColorFilter::tint),
 			contentDescription = null,
 			modifier = Modifier.size(size)
 		)
 
-		AboutSpanText(
+		TuIndiceSpanText(
 			modifier = Modifier.weight(1f),
 			text = text
 		)

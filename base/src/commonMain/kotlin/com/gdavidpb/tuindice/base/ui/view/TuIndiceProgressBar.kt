@@ -15,8 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.model.TuIndiceProgressSegment
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
@@ -59,6 +62,59 @@ fun TuIndiceProgressBar(
 	gap: Dp = 0.dp,
 	progress: Float = 1f
 ) {
+	ProgressBarSegments(
+		segments = segments,
+		modifier = modifier,
+		gap = gap,
+		placement = { start, share ->
+			Modifier
+				.offset(x = (start * progress).dp)
+				.width((share * progress).dp)
+		}
+	)
+}
+
+/**
+ * The bar of [segments] as the one above, with its [progress] read where the bar is laid out instead of where it is
+ * composed: a chart whose progress changes on every frame moves the bar without composing the bar or its caller.
+ */
+@Composable
+fun TuIndiceProgressBar(
+	segments: List<TuIndiceProgressSegment>,
+	modifier: Modifier = Modifier,
+	gap: Dp = 0.dp,
+	progress: () -> Float
+) {
+	ProgressBarSegments(
+		segments = segments,
+		modifier = modifier,
+		gap = gap,
+		placement = { start, share ->
+			// The progress is read where each piece is placed and sized, so a frame of it moves and resizes the pieces
+			// and composes none of them.
+			Modifier
+				.offset { IntOffset(x = (start * progress()).dp.roundToPx(), y = 0) }
+				.layout { measurable, constraints ->
+					val width = constraints.constrainWidth((share * progress()).dp.roundToPx())
+					val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+
+					layout(placeable.width, placeable.height) {
+						placeable.place(0, 0)
+					}
+				}
+		}
+	)
+}
+
+// The track and its segments. [placement] gives the modifier that places and sizes each piece, from where the
+// piece starts and its share of the track. The overloads above differ only in that, so the rest is drawn here once.
+@Composable
+private fun ProgressBarSegments(
+	segments: List<TuIndiceProgressSegment>,
+	modifier: Modifier,
+	gap: Dp,
+	placement: (start: Float, share: Float) -> Modifier
+) {
 	val shape = RoundedCornerShape(TuIndiceRadius.Full)
 	val pills = gap > 0.dp
 	val track = MaterialTheme.colorScheme.outlineVariant
@@ -75,8 +131,7 @@ fun TuIndiceProgressBar(
 			val share = segment.fraction.coerceIn(0f, 1f) * available
 			val piece = Modifier
 				.align(Alignment.CenterStart)
-				.offset(x = (start * progress).dp)
-				.width((share * progress).dp)
+				.then(placement(start, share))
 				.fillMaxHeight()
 
 			Box(

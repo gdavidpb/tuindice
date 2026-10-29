@@ -14,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
@@ -53,28 +55,27 @@ fun AnimatedPatternBackground(
 		modifier = Modifier
 			.testTag(AuthUiTags.AnimatedPatternBackground)
 			.fillMaxSize()
+			// A layer of its own: a frame of the pattern redraws this layer, not the form drawn above it.
+			.graphicsLayer()
 	) {
 		drawRect(
 			color = backgroundColor
 		)
 
-		val viewportWidth = size.width
-		val viewportHeight = size.height
 		val animatedX = (animatedProgress * tileWidthPx).toInt()
 
-		var drawX = animatedX - tileWidthPx
-		while (drawX < viewportWidth + tileWidthPx) {
-			var drawY = -tileHeightPx
-			while (drawY < viewportHeight + tileHeightPx) {
-				drawImage(
-					image = backgroundBitmap,
-					dstOffset = IntOffset(drawX, drawY),
-					dstSize = IntSize(width = tileWidthPx, height = tileHeightPx),
-					alpha = alpha
-				)
-				drawY += tileHeightPx
-			}
-			drawX += tileWidthPx
+		forEachPatternTile(
+			viewport = size,
+			animatedX = animatedX,
+			tileWidthPx = tileWidthPx,
+			tileHeightPx = tileHeightPx
+		) { drawX, drawY ->
+			drawImage(
+				image = backgroundBitmap,
+				dstOffset = IntOffset(drawX, drawY),
+				dstSize = IntSize(width = tileWidthPx, height = tileHeightPx),
+				alpha = alpha
+			)
 		}
 	}
 }
@@ -110,4 +111,36 @@ internal fun currentPatternProgress(durationMillis: Int): State<Float> {
 		animationsEnabled = LocalTuIndiceAnimationsEnabled.current,
 		durationMillis = durationMillis
 	)
+}
+
+/**
+ * Calls [action] with the top-left corner of every tile that touches the viewport, for the pattern moved [animatedX]
+ * pixels to the right. The pattern repeats every tile, so only the offset within one tile counts. The columns start
+ * one tile left of that offset, or at the left edge when it is zero, and the rows at the top edge. No tile starts past
+ * the right or the bottom edge, so each one is visible and together they cover the whole viewport.
+ */
+internal inline fun forEachPatternTile(
+	viewport: Size,
+	animatedX: Int,
+	tileWidthPx: Int,
+	tileHeightPx: Int,
+	action: (x: Int, y: Int) -> Unit
+) {
+	require(tileWidthPx > 0 && tileHeightPx > 0) { "a tile needs a size to be laid out" }
+
+	// At zero, the column one tile left of the edge ends exactly on the edge, so it is not drawn.
+	val offset = animatedX.mod(tileWidthPx)
+	var drawX = if (offset > 0) offset - tileWidthPx else 0
+
+	while (drawX < viewport.width) {
+		var drawY = 0
+
+		while (drawY < viewport.height) {
+			action(drawX, drawY)
+
+			drawY += tileHeightPx
+		}
+
+		drawX += tileWidthPx
+	}
 }

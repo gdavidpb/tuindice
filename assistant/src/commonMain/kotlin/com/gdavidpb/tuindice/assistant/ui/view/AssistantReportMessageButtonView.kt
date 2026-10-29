@@ -1,0 +1,87 @@
+package com.gdavidpb.tuindice.assistant.ui.view
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
+import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.model.AssistantMessageActionSizes
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.a11y_assistant_report
+import tuindice.assistant.generated.resources.a11y_assistant_reported
+import tuindice.assistant.generated.resources.assistant_chat_report_harmful
+import tuindice.assistant.generated.resources.assistant_chat_report_inappropriate
+import tuindice.assistant.generated.resources.assistant_chat_report_incorrect
+import tuindice.assistant.generated.resources.assistant_chat_report_other
+
+// «Reportar»: a menu with the four reasons. Choosing one reports the message, without a comment. Once the report is
+// saved the flag is filled in the error colour and cannot be tapped again: the message keeps one report.
+@Composable
+fun AssistantReportMessageButtonView(
+	messageId: String,
+	isReported: Boolean,
+	onAction: (AssistantChat.Action) -> Unit,
+	modifier: Modifier = Modifier
+) {
+	val isMenuVisible = remember { mutableStateOf(false) }
+
+	Box(modifier = modifier) {
+		IconButton(
+			onClick = { isMenuVisible.value = true },
+			enabled = !isReported,
+			modifier = Modifier
+				.size(AssistantMessageActionSizes.Button)
+				.testTag(AssistantUiTags.Message.report(messageId))
+		) {
+			AssistantStateIconView(
+				isSelected = isReported,
+				selectedIcon = Icons.Filled.Flag,
+				unselectedIcon = Icons.Outlined.Flag,
+				tint = if (isReported) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+				contentDescription = stringResource(
+					if (isReported) Res.string.a11y_assistant_reported else Res.string.a11y_assistant_report
+				)
+			)
+		}
+		DropdownMenu(
+			modifier = Modifier.exposeTestTagsAsResourceId(),
+			expanded = isMenuVisible.value,
+			onDismissRequest = { isMenuVisible.value = false }
+		) {
+			AssistantReportReason.entries.forEach { reason ->
+				DropdownMenuItem(
+					text = { Text(text = stringResource(reason.labelResource())) },
+					onClick = {
+						isMenuVisible.value = false
+						onAction(AssistantChat.Action.ReportMessage(messageId, reason, comment = null))
+					},
+					modifier = Modifier.testTag(AssistantUiTags.Message.reportReason(messageId, reason))
+				)
+			}
+		}
+	}
+}
+
+private fun AssistantReportReason.labelResource(): StringResource =
+	when (this) {
+		AssistantReportReason.INCORRECT -> Res.string.assistant_chat_report_incorrect
+		AssistantReportReason.INAPPROPRIATE -> Res.string.assistant_chat_report_inappropriate
+		AssistantReportReason.HARMFUL -> Res.string.assistant_chat_report_harmful
+		AssistantReportReason.OTHER -> Res.string.assistant_chat_report_other
+	}

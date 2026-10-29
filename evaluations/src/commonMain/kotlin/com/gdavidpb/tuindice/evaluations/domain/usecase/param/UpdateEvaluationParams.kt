@@ -12,5 +12,7 @@ data class UpdateEvaluationParams(
 	val grade: Double?,
 	val maxGrade: Double?,
 	val date: Long?,
-	val type: EvaluationType?
+	val type: EvaluationType?,
+	// The id the mutation is submitted with (the outbox's idempotency key). Generated when absent.
+	val mutationId: String? = null
 )

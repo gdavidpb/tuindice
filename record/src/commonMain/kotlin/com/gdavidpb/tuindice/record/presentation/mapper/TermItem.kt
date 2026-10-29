@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
@@ -27,18 +25,15 @@ private const val ZERO_DELTA_TEXT = "0.0000"
 private const val UP_DELTA_SYMBOL = "▲"
 private const val DOWN_DELTA_SYMBOL = "▼"
 
-@Composable
 fun List<TermProjection>.toTermItemList(
 	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
-	highlightColor: Color,
 	notice: RecordNotice? = null,
 	arrivalAttemptId: String? = null
 ) = mapIndexed { index, term ->
 	term.toTermItem(
 		viewMode = viewMode,
 		texts = texts,
-		highlightColor = highlightColor,
 		previousTerm = getOrNull(index + 1),
 		notice = notice
 	).copy(
@@ -49,26 +44,12 @@ fun List<TermProjection>.toTermItemList(
 	)
 }
 
-@Composable
 fun TermProjection.toTermItem(
 	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
-	highlightColor: Color,
 	previousTerm: TermProjection? = null,
 	notice: RecordNotice? = null
 ): TermItem {
-	val animatedGrade = animateFloatAsState(
-		targetValue = periodAverage.toFloat(),
-		label = "animatedTermGrade"
-	)
-	val animatedGradeSum = animateFloatAsState(
-		targetValue = cumulativeAverage.toFloat(),
-		label = "animatedTermGradeSum"
-	)
-	val animatedCredits = animateIntAsState(
-		targetValue = periodCredits,
-		label = "animatedTermCredits"
-	)
 	val isCurrent = isCurrentTerm()
 	val canDelete = canDeleteTerm()
 	val shouldShowDeltas = attempts.isNotEmpty()
@@ -79,31 +60,20 @@ fun TermProjection.toTermItem(
 		termOrder = termOrder,
 		shortNameText = toShortNameText(),
 		kind = toTermItemKind(),
-		gradeText = texts
-			.termGrade(animatedGrade.value)
-			.annotatedTermValue(highlightColor),
-		gradeDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedGrade.value - older.periodAverage.toFloat()).toTermMetricDelta()
-		},
-		gradeSumText = texts
-			.termGradeSum(animatedGradeSum.value)
-			.annotatedTermValue(highlightColor),
-		gradeSumDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedGradeSum.value - older.cumulativeAverage.toFloat()).toTermMetricDelta()
-		},
-		creditsText = texts
-			.termCredits(animatedCredits.value)
-			.annotatedTermValue(highlightColor),
-		creditsDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedCredits.value - older.periodCredits).toCreditsTermMetricDelta()
-		},
+		gradeTarget = periodAverage.toFloat(),
+		gradeSumTarget = cumulativeAverage.toFloat(),
+		creditsTarget = periodCredits,
+		previousGradeTarget = previousTerm?.takeIf { shouldShowDeltas }?.periodAverage?.toFloat(),
+		previousGradeSumTarget = previousTerm?.takeIf { shouldShowDeltas }?.cumulativeAverage?.toFloat(),
+		previousCreditsTarget = previousTerm?.takeIf { shouldShowDeltas }?.periodCredits,
 		isCurrent = isCurrent,
 		canDelete = canDelete,
 		canEdit = canEditTerm(viewMode),
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
-				texts = texts
+				texts = texts,
+				termLabel = periodLabel
 			)
 		},
 		// A provisional annulment and stale data describe the current term, so only its page
@@ -136,7 +106,8 @@ internal fun TermProjection.isAttemptReadOnly(viewMode: RecordViewMode): Boolean
 	return (viewMode == RecordViewMode.Historical) || kind.isHistorical
 }
 
-private fun Float.toTermMetricDelta(): TermMetricDelta {
+// The change of a grade against the older term's. The views that animate a grade build their change with it too.
+internal fun Float.toTermMetricDelta(): TermMetricDelta {
 	val magnitudeText = abs(toDouble()).formatGrade(decimals = TERM_DELTA_DECIMALS)
 	return buildTermMetricDelta(
 		magnitudeText = magnitudeText,
@@ -150,7 +121,8 @@ private fun Float.toTermMetricDelta(): TermMetricDelta {
 	)
 }
 
-private fun Int.toCreditsTermMetricDelta(): TermMetricDelta {
+// The change of a credits count against the older term's. The views that animate the credits build it with this too.
+internal fun Int.toCreditsTermMetricDelta(): TermMetricDelta {
 	return buildTermMetricDelta(
 		magnitudeText = abs(this).toString(),
 		tone = TermMetricDeltaTone.Informational,

@@ -6,9 +6,13 @@ import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.presentation.resource.SignInTextProvider
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
+import com.gdavidpb.tuindice.auth.testing.FakeSignInSharedTextProvider
+import com.gdavidpb.tuindice.auth.testing.FakeSignInTextProvider
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -571,6 +575,60 @@ class SignInStateMachineContractTest {
 		return result.toState
 	}
 
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(authRepository = RecordingAuthRepository(), serviceWaitMillis = 0L),
+			sampleEvents = listOf(
+				SignIn.Action.SetUsbId(usbId = "20261234"),
+				SignIn.Action.SetPassword(password = "secreta"),
+				SignIn.Action.TogglePasswordVisibility,
+				SignIn.Action.ToggleIdentifierMode,
+				SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
+				SignIn.Action.ClickSignIn,
+				SignIn.Action.ClickCancelSignIn,
+				SignIn.Action.ClickTermsAndConditions,
+				SignIn.Action.ClickPrivacyPolicy,
+				SignInInternalEvent.SignInSucceeded,
+				SignInInternalEvent.OutdatedAppDetected,
+				SignInInternalEvent.ServiceWaitElapsed,
+				SignInInternalEvent.SignInFailed(error = null)
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(
+		authRepository: RecordingAuthRepository,
+		serviceWaitMillis: Long,
+		textProvider: SignInTextProvider = FakeSignInTextProvider(),
+		sharedTextProvider: SignInSharedTextProvider = FakeSignInSharedTextProvider()
+	): SignInMachine {
+		return SignInMachine(
+			signInUseCase = SignInUseCase(
+				authRepository = authRepository,
+				authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
+				messagingRepository = RecordingMessagingRepository(),
+				syncRepository = FakeSyncRepository(),
+				credentialsRepository = FakeCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				settingsRepository = FakeSettingsRepository(),
+				applicationRepository = RecordingApplicationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				paramsValidator = SignInParamsValidator(),
+				exceptionHandler = SignInExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			),
+			configRepository = FakeConfigRepository(),
+			appEnvironmentRepository = FakeAppEnvironmentRepository(),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+			textProvider = textProvider,
+			sharedTextProvider = sharedTextProvider
+		)
+	}
+
 	private fun createFixture(
 		testScheduler: TestCoroutineScheduler? = null,
 		signInThrowable: Throwable? = null,
@@ -583,27 +641,7 @@ class SignInStateMachineContractTest {
 			?: DefaultTuIndiceDispatchers
 
 		val viewModel = SignInViewModel(
-			screenMachine = SignInMachine(
-				signInUseCase = SignInUseCase(
-					authRepository = authRepository,
-					authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
-					messagingRepository = RecordingMessagingRepository(),
-					syncRepository = FakeSyncRepository(),
-					credentialsRepository = FakeCredentialsRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					settingsRepository = FakeSettingsRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					reportingRepository = RecordingReportingRepository(),
-					paramsValidator = SignInParamsValidator(),
-					exceptionHandler = SignInExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				configRepository = FakeConfigRepository(),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
-			),
+			screenMachine = createMachine(authRepository, serviceWaitMillis),
 			eventPublisher = eventPublisher,
 			dispatchers = dispatchers
 		)

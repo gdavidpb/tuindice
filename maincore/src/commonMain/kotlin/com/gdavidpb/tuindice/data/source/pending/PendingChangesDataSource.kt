@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.chatcontract.context.PendingMutationRef
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -42,6 +43,26 @@ class PendingChangesDataSource(
 					mutation.status == PendingMutationStatus.FailedTerminal.name
 			}
 		)
+	}
+
+	// Every mutation the outbox holds, by id, scope and status: the changes the assistant has not seen confirmed yet.
+	suspend fun getPendingMutationRefs(): List<PendingMutationRef> {
+		val recordMutations = pendingMutationDao.getMutations(
+			storeId = RECORD_MUTATION_STORE_ID,
+			scopeKey = RECORD_MUTATION_SCOPE
+		)
+		val evaluationMutations = pendingMutationDao.getMutations(
+			storeId = EVALUATIONS_MUTATION_STORE_ID,
+			scopeKey = EVALUATIONS_MUTATION_SCOPE
+		)
+
+		return (recordMutations + evaluationMutations).map { mutation ->
+			PendingMutationRef(
+				mutationId = mutation.mutationId,
+				scope = mutation.scopeKey,
+				status = mutation.status
+			)
+		}
 	}
 
 	override suspend fun flushPendingChanges(): FlushPendingChangesResult {

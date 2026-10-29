@@ -256,7 +256,8 @@ private fun termOf(
 		} else {
 			emptyList()
 		},
-		hasSyncedEvaluations = hasSyncedEvaluations
+		hasSyncedEvaluations = hasSyncedEvaluations,
+		termId = term.id
 	)
 }
 

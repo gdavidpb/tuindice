@@ -3,8 +3,10 @@ package com.gdavidpb.tuindice.scenarios.shared
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
 import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
@@ -18,4 +20,26 @@ fun StepBuilder.waitEvaluationsOnTheWeekOfTheClock(evaluationId: String) {
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Wait)
 	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Long)
 	waitVisible(EvaluationsUiTags.evaluationItemCard(evaluationId), Within.Assert)
+}
+
+/**
+ * The graded evaluation of the fixtures is on the week before the last one, and the strip opens on the last one: the
+ * frozen clock is past the term's last week. Picking the week before it brings that week's list in: the chip is tapped
+ * and the week's page is in view. It asks nothing of the evaluation itself, so it also serves after the evaluation
+ * is gone.
+ */
+fun StepBuilder.showWeekOfGradedEvaluation() {
+	val week = E2eInputs.LastAcademicWeek - 1
+
+	tap(EvaluationsUiTags.evaluationsWeekChip(week))
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(week), Within.Action)
+}
+
+/**
+ * The week of the graded evaluation, with the card of the evaluation in view before the step goes on, so the gesture
+ * that follows starts on that week.
+ */
+fun StepBuilder.showGradedEvaluation() {
+	showWeekOfGradedEvaluation()
+	waitVisible(EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value), Within.Action)
 }

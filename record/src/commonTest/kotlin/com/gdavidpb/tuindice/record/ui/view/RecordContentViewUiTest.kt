@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -114,10 +115,12 @@ class RecordContentViewUiTest {
 		RecordContentView(
 			state = state,
 			selectedTermId = state.selectedTermId,
-			onSelectedTermChange = {},
-			onAttemptSelectionChange = { _, _, _, _ -> },
-			showTermSelection = false,
-			onDismissTermSelection = {}
+			actions = RecordActions(
+				onSelectedTermChange = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onDismissTermSelection = {}
+			),
+			showTermSelection = false
 		)
 	}
 

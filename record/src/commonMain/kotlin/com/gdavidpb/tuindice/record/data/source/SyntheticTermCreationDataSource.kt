@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumGraph
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumProgress
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotEligibility
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -18,6 +17,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
+import com.gdavidpb.tuindice.academiccore.domain.model.toAcademicPensumSnapshot
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
@@ -570,31 +570,14 @@ class SyntheticTermCreationDataSource(
 		)
 	}
 
-	private fun AcademicRecord.toAcademicPensumSnapshot(): AcademicPensumSnapshot {
-		return AcademicPensumSnapshot(
-			attempts = terms.flatMap { term ->
-				term.attempts.mapIndexed { index, attempt ->
-					AcademicPensumSnapshot.Attempt(
-						id = attempt.id,
-						subjectCode = attempt.subjectCode,
-						subjectName = attempt.subjectName,
-						credits = attempt.credits,
-						termOrder = term.termOrder,
-						positionInTerm = index,
-						termKind = term.kind,
-						outcome = attempt.academicOutcome
-					)
-				}
-			}
-		)
-	}
-
 	private fun AcademicRecord.pensumStatusDetailBySubjectCode(): Map<String, SyntheticTermSubjectAvailabilityDetail> {
 		return buildMap {
 			terms.forEach { term ->
 				if (term.kind.isSynthetic) return@forEach
 
 				term.attempts.forEach { attempt ->
+					if (attempt.withdrawn) return@forEach
+
 					val matchesPensumStatus = attempt.academicOutcome == AttemptOutcome.APPROVED ||
 						(term.kind.isCurrent && attempt.academicOutcome != AttemptOutcome.APPROVED)
 					if (!matchesPensumStatus) return@forEach

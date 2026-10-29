@@ -1,0 +1,17 @@
+rules:
+  - id: dropdown-menu-exposes-test-tags
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un DropdownMenu de commonMain expone sus etiquetas de prueba en su modifier
+      (exposeTestTagsAsResourceId()). Sin eso, sus ítems no llegan a las pruebas nativas
+      (UI Automator en Android) por su id de recurso, y el menú no se puede verificar.
+    # Regex temperada: DropdownMenu( cuyos argumentos no nombran exposeTestTagsAsResourceId
+    # hasta el ") {" que cierra la llamada.
+    pattern-regex: '\bDropdownMenu\((?:(?!exposeTestTagsAsResourceId)[\s\S])*?\)\s*\{'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: composable-boundary
+      referencia: 'base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarOverflowMenuView.kt'

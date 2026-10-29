@@ -85,6 +85,68 @@ class ShareableTermCardUiTest {
 	}
 
 	@Test
+	fun when_aRemoteArtworkIsChosen_then_itIsReportedPendingUntilTheCardSettlesOnIt() = runTuIndiceUiTest {
+		val background = mutableStateOf(ShareBackground.included)
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			ShareableTermCard(
+				item = termItem(),
+				artwork = background.value.toShareTermArtwork(),
+				onArtworkPending = { artworkId -> reported += artworkId }
+			)
+		}
+		waitForIdle()
+		background.value = unreachableShareBackground
+
+		// The picture cannot be loaded, so the card settles on the bundled one: the wait ends there too.
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) {
+			reported.contains(unreachableShareBackground.id) && reported.last() == null
+		}
+
+		assertEquals(listOf(null, unreachableShareBackground.id, null), reported)
+	}
+
+	// The card leaves the screen while the picture it chose is still on its way: the mark it set must not stay behind,
+	// or the sheet would keep that background loading.
+	@Test
+	fun when_theCardLeavesWhileItsPictureIsOnItsWay_then_itNoLongerMarksAnyBackgroundPending() = runTuIndiceUiTest {
+		val shown = mutableStateOf(true)
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			if (shown.value) {
+				ShareableTermCard(
+					item = termItem(),
+					artwork = unreachableShareBackground.toShareTermArtwork(),
+					onArtworkPending = { artworkId -> reported += artworkId }
+				)
+			}
+		}
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { reported.contains(unreachableShareBackground.id) }
+
+		shown.value = false
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { reported.lastOrNull() == null }
+	}
+
+	@Test
+	fun when_theBundledArtworkIsShown_then_nothingIsReportedPending() = runTuIndiceUiTest {
+		val reported = mutableListOf<String?>()
+
+		setTuIndiceTestContent {
+			ShareableTermCard(
+				item = termItem(),
+				artwork = ShareBackground.included.toShareTermArtwork(),
+				onArtworkPending = { artworkId -> reported += artworkId }
+			)
+		}
+		waitForIdle()
+
+		assertEquals(listOf<String?>(null), reported)
+	}
+
+	@Test
 	fun when_itIsShown_then_itShowsTheTermItsFiguresAndItsCareer() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ShareableTermCard(item = termItem(), artwork = ShareBackground.included.toShareTermArtwork())

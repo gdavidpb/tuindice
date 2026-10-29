@@ -932,6 +932,15 @@ internal class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRe
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		savedRecords += record
 	}
+
+	override suspend fun replaceAcademicRecordIfNotOlder(record: VersionedAcademicRecord): Boolean {
+		val storedRevision = getRecordRevision()
+
+		if (storedRevision != null && record.revision < storedRevision) return false
+
+		saveAcademicRecord(record)
+		return true
+	}
 }
 
 internal class FakeUserLocalDataRepository : LocalDataRepository {

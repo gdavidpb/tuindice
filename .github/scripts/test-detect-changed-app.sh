@@ -52,6 +52,18 @@ assert_file_not_contains_line() {
 	fi
 }
 
+assert_output_not_contains() {
+	local file="$1"
+	local unexpected="$2"
+	local label="$3"
+
+	if grep -Fq "$unexpected" "$file"; then
+		printf 'Expected %s not to contain "%s", got:\n' "$label" "$unexpected" >&2
+		cat "$file" >&2 || true
+		exit 1
+	fi
+}
+
 assert_file_lines() {
 	local file="$1"
 	local label="$2"
@@ -705,7 +717,77 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyDetektBaselinesShrink" "Android tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		gate-detekt-shrink-script)
+			# The baseline gate is the script itself: a PR that only edits it runs the gate instead of an unclassified path.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyDetektBaselinesShrink" "Android tasks"
+			assert_output_not_contains "$output_file" "Unclassified path" "detector output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		gate-engine-usecase-script)
+			# The engine and use case gate runs with any module change: a PR that only edits the script must run it too.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyEngineAndUseCaseTests" "Android tasks"
+			assert_output_not_contains "$output_file" "Unclassified path" "detector output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		chatcontract-jvm)
+			# The JVM target is the artifact the backend consumes: its compilation and its tests run only through the detector.
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "chatcontract" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":chatcontract:compileKotlinJvm" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":chatcontract:jvmTest" "Android tasks"
+			;;
+		engine-usecase-gate)
+			# Every module change runs the engine and use case gate.
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "auth" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyEngineAndUseCaseTests" "Android tasks"
+			;;
+		machine-diagrams-script)
+			# The dump runs the *ToMermaid export tests of the modules that own a contract test: their host tests check a change to it.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":about:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":assistant:testAndroidHostTest" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":base:testAndroidHostTest" "Android tasks"
+			assert_output_not_contains "$output_file" "Unclassified path" "detector output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		common-ui-matrix-script)
+			# refreshCommonUiMatrix runs the generator, and verifyCommonUiGate depends on it.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "refreshCommonUiMatrix" "Android tasks"
+			assert_output_not_contains "$output_file" "Unclassified path" "detector output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		common-ui-density-script)
+			# verifyCommonUiTestDensity runs the density gate, and verifyCommonUiGate depends on it.
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyCommonUiTestDensity" "Android tasks"
+			assert_output_not_contains "$output_file" "Unclassified path" "detector output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		academiccore-jvm)
+			# The JVM target of the shared contracts is consumed by the backend: its compilation and its jvmTest run here only.
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "academiccore" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":academiccore:compileKotlinJvm" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":academiccore:jvmTest" "Android tasks"
+			;;
+		testkit-consumers)
+			# testkit is a test-scope dependency of its consumers, which module-graph.txt does not record: a change to it runs its own
+			# host tests and the host tests of the modules that declare it in their commonTest, read from the build files, and nothing else.
+			assert_file_lines "${temp_dir}/state/impacted-modules.txt" "impacted modules" "testkit"
+			actual_consumers="$(sed -n 's/^:\([^:]*\):testAndroidHostTest$/\1/p' "${temp_dir}/state/android-gradle-tasks.txt" | grep -vx testkit | LC_ALL=C sort -u)"
+			expected_consumers="$(git -C "${REPO_ROOT}" grep -l -F 'project(":testkit")' -- '*/build.gradle.kts' | cut -d/ -f1 | grep -vx testkit | LC_ALL=C sort -u)"
+			if [[ "$actual_consumers" != "$expected_consumers" ]]; then
+				printf 'Expected the testkit consumers to be:\n%s\nGot:\n%s\n' "$expected_consumers" "$actual_consumers" >&2
+				exit 1
+			fi
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":maincore:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":testkit:testAndroidHostTest" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":academiccore:testAndroidHostTest" "Android tasks"
 			;;
 		e2e-catalog|e2e-harness-shared|mocks-all)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -902,6 +984,16 @@ run_detector_fixture scenariokit-appledir-source-set scenariokit/src/appleMain/k
 run_detector_fixture scenarios-ios-source-set scenarios/src/iosMain/kotlin/com/gdavidpb/tuindice/scenarios/Platform.ios.kt
 run_detector_fixture detekt-config config/detekt/detekt.yml
 run_detector_fixture detekt-baseline evaluations/detekt-baseline.xml
+run_detector_fixture gate-detekt-shrink-script scripts/verify-detekt-baselines-shrink.sh
+run_detector_fixture gate-engine-usecase-script scripts/verify-engine-and-usecase-tests.sh
+run_detector_fixture chatcontract-jvm chatcontract/src/commonMain/kotlin/com/gdavidpb/tuindice/chatcontract/ChatContract.kt
+run_detector_fixture chatcontract-jvm chatcontract/src/jvmTest/kotlin/com/gdavidpb/tuindice/chatcontract/GoldenFixturesTest.kt
+run_detector_fixture engine-usecase-gate auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/domain/usecase/Probe.kt
+run_detector_fixture machine-diagrams-script scripts/dump-machine-diagrams.sh
+run_detector_fixture common-ui-matrix-script scripts/generate-common-ui-matrix.sh
+run_detector_fixture common-ui-density-script scripts/verify-common-ui-test-density.sh
+run_detector_fixture academiccore-jvm academiccore/src/commonMain/kotlin/com/gdavidpb/tuindice/academiccore/domain/engine/AcademicScheduleEngine.kt
+run_detector_fixture testkit-consumers testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineTableAssertions.kt
 run_detector_fixture semgrep-config config/semgrep/rules/layering.yaml
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-uitests iosApp/UITests/XCUIScenarioDriver.swift
@@ -956,5 +1048,44 @@ for quote_path in true false; do
 	assert_file_contains_line "$RENAME_SCOPE" "ios,local-certification-suite,ios-host-runtime" "E2E scope of a non-ASCII path with core.quotePath=${quote_path}"
 done
 rm -f "$odd_source"
+
+# The iOS framework cache key lists the inputs of every module the maincore framework links. A module that the framework
+# depends on and the list misses would keep serving a stale framework: the list covers the transitive dependency closure
+# of maincore in scripts/module-graph.txt (each module's build file and its sources).
+python3 - "$REPO_ROOT" <<'PY'
+import re
+import sys
+
+root = sys.argv[1]
+graph = {}
+for raw in open(f"{root}/scripts/module-graph.txt", encoding="utf-8"):
+    line = raw.strip()
+    if not line or line.startswith("#"):
+        continue
+    module, _, deps = line.partition("=")
+    graph[module] = [dep[1:] for dep in deps.split() if dep != "-"]
+
+closure, pending = set(), ["maincore"]
+while pending:
+    module = pending.pop()
+    if module not in closure:
+        closure.add(module)
+        pending.extend(graph.get(module, []))
+
+key_script = open(f"{root}/.github/scripts/ios-framework-cache-key.sh", encoding="utf-8").read()
+block = re.search(r"declare -a cache_inputs=\((.*?)\n\)", key_script, re.DOTALL).group(1)
+inputs = set(re.findall(r'"([^"]+)"', block))
+
+missing = sorted(
+    f"{module}/{part}"
+    for module in closure
+    for part in ("build.gradle.kts", "src")
+    if f"{module}/{part}" not in inputs
+)
+if missing:
+    print("FAIL: the iOS framework cache key does not cover the maincore closure: " + ", ".join(missing))
+    sys.exit(1)
+print(f"OK: the iOS framework cache key covers the {len(closure)} modules of the maincore closure.")
+PY
 
 printf 'Detect changed app shell fixtures passed.\n'

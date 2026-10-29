@@ -13,12 +13,14 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.share_term_background_label
 
 /**
- * The strip of backgrounds under its label, the one the sheet calls «Fondo».
+ * The strip of backgrounds under its label, the one the sheet calls «Fondo», with the one of [loadingId] marked while
+ * the card waits for its picture.
  */
 @Composable
 fun ShareTermBackgroundSection(
 	backgrounds: List<ShareTermBackgroundItem>,
-	onBackgroundClick: (backgroundId: String) -> Unit
+	onBackgroundClick: (backgroundId: String) -> Unit,
+	loadingId: String? = null
 ) {
 	Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
 		Text(
@@ -29,7 +31,8 @@ fun ShareTermBackgroundSection(
 
 		ShareTermBackgroundStrip(
 			backgrounds = backgrounds,
-			onBackgroundClick = onBackgroundClick
+			onBackgroundClick = onBackgroundClick,
+			loadingId = loadingId
 		)
 	}
 }

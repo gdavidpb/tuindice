@@ -61,11 +61,54 @@ class SyncResultLocalDataSourceTest {
 
 		assertEquals(emptyList(), writes)
 	}
+
+	@Test
+	fun saveSyncResult_withARecordOlderThanTheStoredOne_keepsTheStoredRecordAndSkipsTheQueue() = runTest {
+		val writes = mutableListOf<String>()
+		val dataSource = SyncResultLocalDataSource(
+			recordLocalDataSource = RecordingRecordLocalDataRepository(writes, storedRevision = 5L),
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(writes)
+		)
+
+		dataSource.saveSyncResult(SyncResult(record = RECORD.copy(revision = 4L), user = USER))
+
+		assertEquals(listOf("user user-1"), writes)
+	}
+
+	@Test
+	fun saveSyncResult_withARecordAtTheStoredRevision_replacesIt() = runTest {
+		val writes = mutableListOf<String>()
+		val dataSource = SyncResultLocalDataSource(
+			recordLocalDataSource = RecordingRecordLocalDataRepository(writes, storedRevision = 5L),
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(writes)
+		)
+
+		dataSource.saveSyncResult(SyncResult(record = RECORD.copy(revision = 5L), user = USER))
+
+		assertEquals(listOf("record 5", "outbox 5", "user user-1"), writes)
+	}
+
+	@Test
+	fun saveSyncResult_withANewerRecord_replacesIt() = runTest {
+		val writes = mutableListOf<String>()
+		val dataSource = SyncResultLocalDataSource(
+			recordLocalDataSource = RecordingRecordLocalDataRepository(writes, storedRevision = 5L),
+			userLocalDataSource = RecordingUserLocalDataRepository(writes),
+			recordOutboxDataSource = RecordingRecordOutboxDataRepository(writes)
+		)
+
+		dataSource.saveSyncResult(SyncResult(record = RECORD.copy(revision = 6L), user = USER))
+
+		assertEquals(listOf("record 6", "outbox 6", "user user-1"), writes)
+	}
 }
 
 private class RecordingRecordLocalDataRepository(
 	private val writes: MutableList<String>,
-	private val failure: Throwable? = null
+	private val failure: Throwable? = null,
+	private val storedRevision: Long? = null
 ) : AcademicRecordLocalDataRepository {
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = flowOf(null)
 
@@ -75,11 +118,20 @@ private class RecordingRecordLocalDataRepository(
 
 	override suspend fun getAcademicRecord(): AcademicRecord? = null
 
-	override suspend fun getRecordRevision(): Long? = null
+	override suspend fun getRecordRevision(): Long? = storedRevision
 
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		failure?.let { throw it }
 		writes += "record ${record.revision}"
+	}
+
+	override suspend fun replaceAcademicRecordIfNotOlder(record: VersionedAcademicRecord): Boolean {
+		failure?.let { throw it }
+
+		if (storedRevision != null && record.revision < storedRevision) return false
+
+		writes += "record ${record.revision}"
+		return true
 	}
 }
 

@@ -9,7 +9,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -21,6 +24,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExcept
 import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -118,6 +122,34 @@ class CreateSyntheticTermUseCaseTest {
 		assertEquals(emptyList(), repository.addedTerms)
 	}
 
+	@Test
+	fun execute_propagatesTheRequestedMutationIdToTheCommand() = runTest {
+		val repository = RecordingCreateAcademicRecordRepository(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "historical",
+						kind = TermKind.HISTORICAL,
+						attempts = listOf(
+							academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.FAILED)
+						)
+					)
+				)
+			)
+		)
+		val useCase = createUseCase(repository)
+
+		useCase.execute(
+			createParams(subjects = listOf(syntheticSubject("MA1112"))).copy(mutationId = "external-create")
+		).toList()
+
+		assertEquals(
+			listOf<String?>("external-create"),
+			repository.addedTerms.map(SyntheticTermCreationCommand::mutationId)
+		)
+	}
+
 	private fun createUseCase(repository: AcademicRecordRepository): CreateSyntheticTermUseCase {
 		return CreateSyntheticTermUseCase(
 			repository = repository,
@@ -131,6 +163,30 @@ class CreateSyntheticTermUseCaseTest {
 private class RecordingCreateAcademicRecordRepository(
 	private val record: AcademicRecord?
 ) : AcademicRecordRepository {
+	override suspend fun observeAcademicRecordSnapshotFlow() = combine(
+		observeAcademicRecordFlow(),
+		observeHasSyncedRecordFlow()
+	) { record, hasSyncedRecord ->
+		ObservedSyncedSnapshot(
+			value = record,
+			hasSynced = hasSyncedRecord
+		)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
+
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+
+	override suspend fun observeTerminallyRejectedMutationsFlow(): Flow<List<RecordRejection>> = emptyFlow()
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
+
+	override suspend fun getRecordRevision(): Long? = null
+
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = emptyFlow()
+
 	val addedTerms = mutableListOf<SyntheticTermCreationCommand>()
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
@@ -146,10 +202,11 @@ private class RecordingCreateAcademicRecordRepository(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String?
 	) = Unit
 
-	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
+	override suspend fun deleteAttemptOverride(attemptId: String, mutationId: String?) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) {
 		addedTerms += command
@@ -157,7 +214,7 @@ private class RecordingCreateAcademicRecordRepository(
 
 	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
-	override suspend fun deleteSyntheticTerm(termId: String) = Unit
+	override suspend fun deleteSyntheticTerm(termId: String, mutationId: String?) = Unit
 }
 
 private fun createParams(

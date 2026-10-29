@@ -6,7 +6,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
@@ -82,12 +81,12 @@ class TermSelectorViewTest {
 			termOrder = 2027 * 10 + periodCode.sequence,
 			shortNameText = shortNameText,
 			kind = TermItemKind.HISTORICAL,
-			gradeText = AnnotatedString("0.00"),
-			gradeDelta = null,
-			gradeSumText = AnnotatedString("0.00"),
-			gradeSumDelta = null,
-			creditsText = AnnotatedString("0"),
-			creditsDelta = null,
+			gradeTarget = 0f,
+			gradeSumTarget = 0f,
+			creditsTarget = 0,
+			previousGradeTarget = null,
+			previousGradeSumTarget = null,
+			previousCreditsTarget = null,
 			isCurrent = false,
 			canDelete = canDelete,
 			canEdit = canEdit,

@@ -13,6 +13,8 @@ import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.testing.termItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
+import com.gdavidpb.tuindice.record.ui.view.rememberRecordMapperTexts
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -30,8 +32,8 @@ class TermSelectionBottomSheetUiTest {
 				terms = listOf(historical2024(), current2026(), synthetic2026()),
 				selectedTermId = "current-2026",
 				viewMode = RecordViewMode.Projection,
-				onTermSelected = {},
-				onDismissRequest = {}
+				texts = rememberRecordMapperTexts(),
+				actions = RecordActions(onSelectedTermChange = {}, onDismissTermSelection = {})
 			)
 		}
 
@@ -59,8 +61,8 @@ class TermSelectionBottomSheetUiTest {
 				terms = listOf(current2026()),
 				selectedTermId = "current-2026",
 				viewMode = RecordViewMode.Projection,
-				onTermSelected = {},
-				onDismissRequest = {}
+				texts = rememberRecordMapperTexts(),
+				actions = RecordActions(onSelectedTermChange = {}, onDismissTermSelection = {})
 			)
 		}
 
@@ -77,8 +79,8 @@ class TermSelectionBottomSheetUiTest {
 				terms = listOf(historical2024()),
 				selectedTermId = "historical-2024",
 				viewMode = RecordViewMode.Historical,
-				onTermSelected = {},
-				onDismissRequest = {}
+				texts = rememberRecordMapperTexts(),
+				actions = RecordActions(onSelectedTermChange = {}, onDismissTermSelection = {})
 			)
 		}
 
@@ -94,8 +96,8 @@ class TermSelectionBottomSheetUiTest {
 				terms = listOf(current2026(), synthetic2026(), historical2024()),
 				selectedTermId = "synthetic-2026",
 				viewMode = RecordViewMode.Projection,
-				onTermSelected = {},
-				onDismissRequest = {}
+				texts = rememberRecordMapperTexts(),
+				actions = RecordActions(onSelectedTermChange = {}, onDismissTermSelection = {})
 			)
 		}
 
@@ -117,8 +119,11 @@ class TermSelectionBottomSheetUiTest {
 				terms = listOf(current2026(), historical2024()),
 				selectedTermId = "current-2026",
 				viewMode = RecordViewMode.Projection,
-				onTermSelected = { termId -> selected += termId },
-				onDismissRequest = { dismissRequests++ }
+				texts = rememberRecordMapperTexts(),
+				actions = RecordActions(
+					onSelectedTermChange = { termId -> selected += termId },
+					onDismissTermSelection = { dismissRequests++ }
+				)
 			)
 		}
 

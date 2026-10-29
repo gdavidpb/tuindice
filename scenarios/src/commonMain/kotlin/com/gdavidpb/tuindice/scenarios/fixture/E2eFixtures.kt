@@ -101,6 +101,35 @@ object E2eFixtures {
 		declaredIn = listOf("mocks/config/evaluations-base-state.json")
 	)
 
+	/**
+	 * The name the Evaluations tab gives [GradedEvaluation]: its type and its number among the written works of CI5437,
+	 * in capitals. The evaluations list of `mocks/__files/assistant/events-evaluations.sse` titles it «Trabajo escrito»,
+	 * so the chat card shows this name only when it draws the tab's own card.
+	 */
+	val GradedEvaluationName = E2eFixture.derived(
+		"TRABAJO ESCRITO 1",
+		"the name the Evaluations tab gives the only written work of CI5437 in mocks/config/evaluations-base-state.json"
+	)
+
+	/** A graded model of CI5437, completed, which the evaluations list of the assistant names too. */
+	val CompletedEvaluation = E2eFixture(
+		value = "889b858ccf9fa40c60132956e1d29d93",
+		declaredIn = listOf(
+			"mocks/config/evaluations-base-state.json",
+			"mocks/__files/assistant/events-evaluations.sse"
+		)
+	)
+
+	/**
+	 * The grade the added Parcial 1 of `mocks/__files/assistant/events-add.sse` shows in its row: 15.5 of 20 is written
+	 * with two decimals, as the grades of the list are. The row has no reference text (it shows its type and ordinal),
+	 * so the scenario finds it by this grade.
+	 */
+	val AddedPartialOneGrade = E2eFixture.derived(
+		"15.50 / 20",
+		"the grade of Parcial 1 in mocks/__files/assistant/events-add.sse, as the row of the list writes it"
+	)
+
 	/** Subjects of the hub term; the hub tags its rows and its points of attention by code. */
 	val SubjectCi5311 = E2eFixture("CI5311", listOf(SYNC_SUMMARY_HUB))
 	val SubjectCi5437 = E2eFixture("CI5437", listOf(SYNC_SUMMARY_HUB))
@@ -175,6 +204,9 @@ object E2eFixtures {
 		SyntheticDegreeProjectTerm,
 		SyntheticEp1308Attempt,
 		GradedEvaluation,
+		GradedEvaluationName,
+		CompletedEvaluation,
+		AddedPartialOneGrade,
 		HubTerm,
 		HubAttemptCi5311,
 		HubAttemptCi5437,

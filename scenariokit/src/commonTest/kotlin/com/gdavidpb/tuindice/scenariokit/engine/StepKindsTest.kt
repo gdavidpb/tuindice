@@ -203,6 +203,18 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun enterText_whenTheDriverAssignsOtherTextOfTheSameLength_isATypedTextMismatchNotADriverError() {
+		val fake = driver(field to FakeElement(text = ""))
+		fake.typing = { "xbc" }
+		fake.injectedOverride = 0
+
+		val failure = assertFailed(fake.run(enter("abc")), FailureKind.TYPED_TEXT_MISMATCH, stepIndex = 0)
+
+		assertEquals(0, fake.keysInjected())
+		assertEquals("xbc", failure.actual)
+	}
+
+	@Test
 	fun enterText_whenTheDriverRefusesBeforeAnyKeyAndTheFieldChanged_isADriverErrorNotACorruptedText() {
 		val fake = driver(field to FakeElement(text = ""))
 		fake.typing = { "v" }

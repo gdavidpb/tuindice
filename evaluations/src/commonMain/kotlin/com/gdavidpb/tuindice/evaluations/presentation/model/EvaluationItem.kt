@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
@@ -31,5 +32,7 @@ data class EvaluationItem(
 	val showsGradeAction: Boolean,
 	val gradesIcon: ImageVector,
 	val isOverdue: Boolean,
-	val isClickable: Boolean
+	val isClickable: Boolean,
+	// What the assistant is asked with when the student asks about this row. The mapper precomputes it.
+	val assistantContext: AssistantScreenContext
 )

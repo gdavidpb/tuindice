@@ -17,6 +17,7 @@ kotlin {
 	}
 	iosArm64()
 	iosSimulatorArm64()
+	jvm()
 
 	applyDefaultHierarchyTemplate()
 
@@ -31,8 +32,9 @@ kotlin {
 		val commonTest by getting {
 			dependencies {
 				implementation(kotlin("test"))
-				implementation(project(":testkit"))
 			}
 		}
 	}
 }
+
+apply(from = rootProject.file("gradle/shared-contract-publishing.gradle.kts"))

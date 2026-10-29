@@ -6,10 +6,12 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.logging.MachineLog
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.eventName
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -35,6 +37,9 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 	private var lastPublishedState: String? = null
 	private var activeTransitionEmits: Set<KClass<*>>? = null
 
+	// Numbers the machine's jobs in the debug log, so a job's end can be told from another's.
+	private var launchedJobs = 0
+
 	protected abstract val eventPublisher: EventPublisher
 
 	protected abstract val screenMachine: ScreenMachine<S, E>
@@ -47,6 +52,7 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 	val state = viewState
 		.onStart {
+			MachineLog.write(name) { "start in ${viewState.value.logText()}" }
 			eventPublisher.publish(AppEvent.ScreenView(source = name))
 			startMachineLoop()
 			if (initialAction != null) sendAction(initialAction)
@@ -97,12 +103,27 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 			effect = viewEffect.eventName()
 		)
 
+		MachineLog.write(name) { "effect ${viewEffect.logText()}" }
 		eventPublisher.publish(event)
 		effectChannel.trySend(viewEffect)
 	}
 
 	protected fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
-		return viewModelScope.launch(dispatchers.default, block = block)
+		val job = viewModelScope.launch(dispatchers.default, block = block)
+
+		if (MachineLog.sink != null) {
+			val number = ++launchedJobs
+
+			MachineLog.write(name) { "job $number started in ${viewState.value.logName()}" }
+			job.invokeOnCompletion { cause -> MachineLog.write(name) { "job $number ${jobEnd(cause)}" } }
+		}
+
+		return job
+	}
+
+	override fun onCleared() {
+		MachineLog.write(name) { "cleared in ${viewState.value.logName()}" }
+		super.onCleared()
 	}
 
 	private fun machineHost(): MachineHost<E> {
@@ -134,8 +155,10 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 				val fromState = viewState.value
 				val transition = machine.resolve(fromState, input.event)
+				val inputKind = if (input.action != null) "action" else "event"
 
 				if (transition == null) {
+					MachineLog.write(name) { "rejected $inputKind ${input.event.logText()} in ${fromState.logName()}" }
 					eventPublisher.publish(
 						AppEvent.InvalidTransition(
 							source = name,
@@ -147,13 +170,24 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 					activeTransitionEmits = transition.emits
 
 					try {
-						val toState = machine.apply(
-							transition = transition,
-							state = fromState,
-							event = input.event
-						)
+						val toState = runCatching {
+							machine.apply(
+								transition = transition,
+								state = fromState,
+								event = input.event
+							)
+						}.onFailure { failure ->
+							MachineLog.write(name) {
+								"failed $inputKind ${input.event.logText()} in ${fromState.logName()}: $failure"
+							}
+						}.getOrThrow()
 
 						viewState.value = toState
+
+						MachineLog.write(name) {
+							"${fromState.logName()} + $inputKind ${input.event.logText()} -> ${toState.logName()}"
+						}
+						if (MachineLog.sink != null && toState != fromState) MachineLog.write(name) { "state ${toState.logText()}" }
 
 						eventPublisher.publish(
 							AppEvent.Transition(
@@ -184,6 +218,22 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 		eventPublisher.publish(event)
 	}
+}
+
+// The debug log names a state by its class, as the code does; the analytics events use their own lower-case name.
+private fun Any.logName(): String = this::class.simpleName ?: toString()
+
+// An action or event with its data when it has any; one without a data class prints its class, not its address.
+private fun Any.logText(): String {
+	val text = toString()
+
+	return if (text.endsWith("@${hashCode().toUInt().toString(radix = 16)}")) logName() else text
+}
+
+private fun jobEnd(cause: Throwable?): String = when (cause) {
+	null -> "done"
+	is CancellationException -> "cancelled"
+	else -> "failed: $cause"
 }
 
 private data class MachineInput<A>(

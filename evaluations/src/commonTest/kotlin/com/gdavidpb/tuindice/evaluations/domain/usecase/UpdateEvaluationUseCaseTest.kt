@@ -110,6 +110,45 @@ class UpdateEvaluationUseCaseTest {
 		assertEquals(throwable, reportingRepository.exceptions.single())
 	}
 
+	@Test
+	fun updateEvaluationUseCase_whenMutationIdIsGiven_forwardsItToRepository() = runTest {
+		val evaluationRepository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+		)
+		val useCase = createUseCase(
+			evaluationRepository = evaluationRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		val params = validParams(evaluationId = DEFAULT_PENDING_EVALUATION.id).copy(
+			mutationId = EXTERNAL_MUTATION_ID
+		)
+
+		useCase.execute(params).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(EXTERNAL_MUTATION_ID, evaluationRepository.updateCalls.single().mutationId)
+	}
+
+	@Test
+	fun updateEvaluationUseCase_whenMutationIdIsAbsent_forwardsNullMutationId() = runTest {
+		val evaluationRepository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+		)
+		val useCase = createUseCase(
+			evaluationRepository = evaluationRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(validParams(evaluationId = DEFAULT_PENDING_EVALUATION.id)).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertNull(evaluationRepository.updateCalls.single().mutationId)
+	}
+
 	private fun createUseCase(
 		evaluationRepository: RecordingEvaluationRepository,
 		reportingRepository: RecordingReportingRepository
@@ -137,3 +176,4 @@ class UpdateEvaluationUseCaseTest {
 }
 
 private const val ONE_DAY_MILLIS = 86_400_000L
+private const val EXTERNAL_MUTATION_ID = "external-mutation-id"

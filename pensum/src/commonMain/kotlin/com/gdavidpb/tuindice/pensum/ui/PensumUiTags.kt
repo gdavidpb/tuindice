@@ -30,6 +30,7 @@ object PensumUiTags {
 	const val SubjectDetailName = "pensum_subject_detail_name"
 	const val SubjectDetailTermValue = "pensum_subject_detail_term_value"
 	const val SubjectDetailMoreButton = "pensum_subject_detail_more_button"
+	const val SubjectDetailAskAssistant = "pensum_subject_detail_ask_assistant"
 	const val SubjectDetailStatsUnavailable = "pensum_subject_detail_stats_unavailable"
 	const val SubjectDetailRouteContext = "pensum_subject_detail_route_context"
 	const val SubjectDetailSelectedRouteCard = "pensum_subject_detail_selected_route_card"

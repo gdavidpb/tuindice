@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,13 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
+import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnTap
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
@@ -125,30 +122,26 @@ fun CreateSyntheticTermScreen(
 		!state.hasSearchError &&
 		!state.isRefreshingSearch
 
-	Box(
+	// The submit bar sits below the list, not over it. The column takes the IME padding, so the
+	// list shrinks above the keyboard and the bar never covers the focused search field.
+	Column(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
+			.dismissKeyboardOnScroll(focusManager)
+			.dismissKeyboardOnTap(focusManager)
 			.testTag(RecordUiTags.CreateSyntheticTermScreen)
+			.imePadding()
 	) {
 		LazyColumn(
 			modifier = Modifier
-				.fillMaxSize()
+				.weight(1f)
 				.padding(horizontal = TuIndiceSpacing.Screen)
-				.imePadding()
-				.pointerInput(Unit) {
-					awaitEachGesture {
-						val down = awaitFirstDown(requireUnconsumed = false)
-						awaitTouchSlopOrCancellation(down.id) { _, _ ->
-							dismissKeyboard()
-						}
-					}
-				}
 				.testTag(RecordUiTags.CreateSyntheticTermContentList),
 			state = lazyListState,
 			contentPadding = PaddingValues(
 				top = InternalScreenDefaults.TopBarSpacing,
-				bottom = 116.dp
+				bottom = TuIndiceSpacing.Screen
 			),
 			verticalArrangement = Arrangement.spacedBy(20.dp)
 		) {
@@ -406,10 +399,7 @@ fun CreateSyntheticTermScreen(
 			isEditing = state.isEditing,
 			isSubmitting = state.isSubmitting,
 			submitError = state.submitError,
-			onCreateClick = onCreateClick,
-			modifier = Modifier
-				.align(Alignment.BottomCenter)
-				.imePadding()
+			onCreateClick = onCreateClick
 		)
 	}
 }

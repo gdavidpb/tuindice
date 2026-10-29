@@ -119,6 +119,34 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
+    func addRemoteConfigUpdateListener(listener: IosRemoteConfigUpdateListener) -> IosRemoteConfigSubscription {
+        #if canImport(FirebaseRemoteConfig)
+        guard isFirebaseConfigured else {
+            return RemoteConfigSubscription(onCancel: {})
+        }
+
+        let remoteConfig = RemoteConfig.remoteConfig()
+        let registration = remoteConfig.addOnConfigUpdateListener { update, error in
+            if let error {
+                NSLog("%@", "Remote Config real-time update failed: \(error.localizedDescription)")
+                return
+            }
+
+            guard let update else { return }
+
+            remoteConfig.activate { _, _ in
+                listener.onUpdate(updatedKeys: update.updatedKeys)
+            }
+        }
+
+        return RemoteConfigSubscription(onCancel: {
+            registration.remove()
+        })
+        #else
+        return RemoteConfigSubscription(onCancel: {})
+        #endif
+    }
+
     func resolveAttestationKeyId(completionHandler: @escaping (String?, Error?) -> Void) {
         resolveAppAttestKeyId(completionHandler: completionHandler)
     }
@@ -708,6 +736,19 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     private static let appAttestKeyIdKey = "tuindice.app_attest.key_id"
     private static let appAttestAttestationEvidenceMode = "app_attest_attestation"
     private static let appAttestAssertionEvidenceMode = "app_attest_assertion"
+}
+
+private final class RemoteConfigSubscription: NSObject, IosRemoteConfigSubscription {
+    private let onCancel: () -> Void
+
+    init(onCancel: @escaping () -> Void) {
+        self.onCancel = onCancel
+        super.init()
+    }
+
+    func cancel() {
+        onCancel()
+    }
 }
 #else
 final class TuIndicePlatformBridge {}

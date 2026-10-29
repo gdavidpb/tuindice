@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.summary.testing.shareTermMachineOf
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -57,6 +59,22 @@ class ShareTermStateMachineContractTest {
 				"Expected Mermaid export to mention '$fragment':\n$diagram"
 			)
 		}
+	}
+
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = shareTermMachineOf(),
+			sampleEvents = listOf(
+				ShareTerm.Action.ObserveShareTerm(termKey = null),
+				ShareTerm.Action.SelectTerm(termKey = "termino-1"),
+				ShareTerm.Action.SelectBackground(backgroundId = "fondo-1"),
+				ShareTermInternalEvent.ImageShared,
+				ShareTermInternalEvent.ImageShareFailed,
+				ShareTermInternalEvent.TermsUnavailable
+			),
+			coroutineScope = backgroundScope
+		)
 	}
 
 	private fun createViewModel(): ShareTermViewModel {

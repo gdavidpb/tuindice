@@ -11,6 +11,10 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
@@ -239,6 +243,33 @@ class RecordRouteUiTest {
 			assertNull(viewState.topBarConfig, "the actions of $state")
 			assertNull(viewState.topBarViewModeState, "the mode switch of $state")
 			assertEquals(state.topBarTitle, viewState.topBarTitle)
+		}
+	}
+
+	@Test
+	fun when_theStateIsContent_then_theBarCarriesTheContextTheRecordDeclares() {
+		val content = Record.State.Content(
+			viewMode = RecordViewMode.Projection,
+			record = projectionRecord(),
+			selectedTermId = CurrentTermId,
+			hasSelectedTermSchedule = true
+		)
+
+		val viewState = assertIs<RecordRouteViewState>(content.toRouteViewState())
+		val context = assertNotNull(viewState.assistantContext, "the record's bar offers the assistant")
+
+		// The context the bar hands the assistant is the one the content declares: the term on screen and its figures.
+		assertEquals(content.assistantContext, context)
+		assertEquals(AssistantScreen.RECORD, context.screen)
+		assertTrue(AssistantEntityRef(kind = AssistantEntityKind.TERM, id = CurrentTermId) in context.entities)
+	}
+
+	@Test
+	fun when_thereIsNoContentYet_then_theBarStillNamesTheRecordToTheAssistant() {
+		listOf(Record.State.Idle, Record.State.Loading).forEach { state ->
+			val viewState = assertIs<RecordRouteViewState>(state.toRouteViewState())
+
+			assertEquals(AssistantScreenContext(screen = AssistantScreen.RECORD), viewState.assistantContext, "$state")
 		}
 	}
 

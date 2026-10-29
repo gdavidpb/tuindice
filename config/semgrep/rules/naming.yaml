@@ -1,0 +1,24 @@
+# Nombres y estructura de los archivos (regla adaptada de tuindice-api naming-one-public-type-per-file).
+# Fixture homónimo: naming.kt.
+rules:
+  - id: naming-one-public-type-per-file
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Más de un tipo de nivel superior no privado en el archivo. Un tipo público por archivo: el nombre del
+      archivo es el del tipo. Los tipos privados de nivel superior (detalle del archivo) no cuentan, y los
+      subtipos de una sealed anidados dentro de su declaración tampoco (van indentados). Excepciones de la
+      app documentada: los archivos de pruebas (src/*Test, src/test, androidTest; excluidos del escaneo por
+      .semgrepignore). testkit/ no tiene exención: sus dobles van uno por archivo.
+    # (?ms): ^ es inicio de línea y .*? cruza líneas. Solo cuentan declaraciones sin private en columna 0;
+    # las anotaciones de la misma línea se toleran. expect/actual cuentan como tipos.
+    pattern-regex: '(?ms)^(?:@[\w.]+(?:\([^)\n]*\))?\s+)*(?!private\b)(?:(?:public|internal|data|sealed|enum|abstract|open|value|annotation|expect|actual|inline|fun)\s+)*(?:class|interface|object)\s+\w+.*?^(?:@[\w.]+(?:\([^)\n]*\))?\s+)*(?!private\b)(?:(?:public|internal|data|sealed|enum|abstract|open|value|annotation|expect|actual|inline|fun)\s+)*(?:class|interface|object)\s+\w+'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+        - '**/src/androidMain/**'
+        - '**/src/iosMain/**'
+        - '**/src/main/**'
+    metadata:
+      area: naming
+      referencia: 'tuindice-api config/semgrep/rules/naming.yaml (naming-one-public-type-per-file)'

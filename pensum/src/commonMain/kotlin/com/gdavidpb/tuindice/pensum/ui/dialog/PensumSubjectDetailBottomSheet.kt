@@ -8,15 +8,19 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -26,30 +30,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
+import com.gdavidpb.tuindice.base.ui.icon.assistantSparkleTint
+import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailActions
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
-import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_subject_ask_assistant
 import tuindice.pensum.generated.resources.pensum_subject_detail_close
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats_unavailable
 import tuindice.pensum.generated.resources.pensum_subject_detail_title
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
 	shouldStartExpanded: Boolean,
 	navigationOriginNodeId: String?,
 	navigationDirection: PensumSubjectDetailNavigationDirection?,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit,
-	onDismissRequest: () -> Unit
+	actions: PensumSubjectDetailActions
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+	val sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = false)
 	val detail = node.detail
+	val onAskAssistant = actions.onAskAssistant
 	val statsCode = detail.statsCode
 	val hasMoreDetail =
 		detail.fulfilledSubject != null ||
@@ -75,10 +83,10 @@ fun PensumSubjectDetailBottomSheet(
 		negativeText = stringResource(Res.string.pensum_subject_detail_close),
 		onPositiveClick = {
 			if (statsCode != null) {
-				onSubjectStatsClick(statsCode)
+				actions.onSubjectStatsClick(statsCode)
 			}
 		},
-		onDismissRequest = onDismissRequest
+		onDismissRequest = actions.onDismissRequest
 	) {
 		Column(
 			modifier = Modifier
@@ -104,30 +112,55 @@ fun PensumSubjectDetailBottomSheet(
 				)
 			}
 
-			AnimatedVisibility(
-				visible = !isMoreDetailExpandedState.value && hasMoreDetail,
-				enter = fadeIn(
-					animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
-				) + expandVertically(
-					animationSpec = tween(
-						durationMillis = SubjectDetailExpansionDurationMillis,
-						easing = FastOutSlowInEasing
+			// The ask and «Más detalle» read as one group of actions: close together, under the card's spacing.
+			// Each button keeps its 48 dp touch area, which already separates them.
+			Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)) {
+				if (onAskAssistant != null) {
+					OutlinedButton(
+						modifier = Modifier
+							.fillMaxWidth()
+							.testTag(PensumUiTags.SubjectDetailAskAssistant),
+						colors = ButtonDefaults.outlinedButtonColors(
+							containerColor = pensumGraphColors().panelBackground
+						),
+						onClick = { onAskAssistant(detail.assistantContext) }
+					) {
+						Icon(
+							imageVector = rememberAssistantSparkleIcon(),
+							contentDescription = null,
+							modifier = Modifier.size(18.dp),
+							tint = assistantSparkleTint()
+						)
+						Spacer(modifier = Modifier.width(8.dp))
+						Text(text = stringResource(Res.string.pensum_subject_ask_assistant))
+					}
+				}
+
+				AnimatedVisibility(
+					visible = !isMoreDetailExpandedState.value && hasMoreDetail,
+					enter = fadeIn(
+						animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
+					) + expandVertically(
+						animationSpec = tween(
+							durationMillis = SubjectDetailExpansionDurationMillis,
+							easing = FastOutSlowInEasing
+						),
+						expandFrom = Alignment.Top
 					),
-					expandFrom = Alignment.Top
-				),
-				exit = fadeOut(
-					animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
-				) + shrinkVertically(
-					animationSpec = tween(
-						durationMillis = SubjectDetailFadeDurationMillis,
-						easing = FastOutSlowInEasing
-					),
-					shrinkTowards = Alignment.Top
-				)
-			) {
-				PensumSubjectMoreDetailButton(
-					onClick = { isMoreDetailExpandedState.value = true }
-				)
+					exit = fadeOut(
+						animationSpec = tween(durationMillis = SubjectDetailFadeDurationMillis)
+					) + shrinkVertically(
+						animationSpec = tween(
+							durationMillis = SubjectDetailFadeDurationMillis,
+							easing = FastOutSlowInEasing
+						),
+						shrinkTowards = Alignment.Top
+					)
+				) {
+					PensumSubjectMoreDetailButton(
+						onClick = { isMoreDetailExpandedState.value = true }
+					)
+				}
 			}
 
 			AnimatedVisibility(
@@ -158,7 +191,7 @@ fun PensumSubjectDetailBottomSheet(
 					node = node,
 					navigationOriginNodeId = navigationOriginNodeId,
 					navigationDirection = navigationDirection,
-					onRelatedSubjectClick = onRelatedSubjectClick
+					onRelatedSubjectClick = actions.onRelatedSubjectClick
 				)
 			}
 		}

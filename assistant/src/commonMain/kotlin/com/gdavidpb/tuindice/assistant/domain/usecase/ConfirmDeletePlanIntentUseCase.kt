@@ -1,0 +1,27 @@
+package com.gdavidpb.tuindice.assistant.domain.usecase
+
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.param.ConfirmIntentParams
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
+import com.gdavidpb.tuindice.chatcontract.intent.RemovePlanArgs
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
+class ConfirmDeletePlanIntentUseCase(
+	private val confirmer: AssistantIntentConfirmer,
+	private val plansRepository: AssistantPlansRepository,
+	override val reportingRepository: ReportingRepository,
+	override val exceptionHandler: AssistantIntentExceptionHandler
+) : FlowUseCase<ConfirmIntentParams, OutcomeKind, AssistantIntentError>() {
+	override suspend fun executeOnBackground(params: ConfirmIntentParams): Flow<OutcomeKind> = flow {
+		emit(
+			confirmer.confirm(params, narrow = { it as? RemovePlanArgs }) { args, intent ->
+				plansRepository.remove(args, expectedRevision = intent.binding.expectedRevision)
+			}
+		)
+	}
+}

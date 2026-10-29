@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.transition
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
@@ -20,8 +21,10 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryCareerItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryTermReportItem
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
@@ -97,6 +100,50 @@ class SummaryHubTransitionsTest {
 
 		// The table is not empty of rows for these pairs: the check above looked at something.
 		assertTrue(accepted >= states.size * 6, "only $accepted of the pairs were accepted")
+	}
+
+	// The line of an unread term report is read apart from the hub: a reading of the hub keeps the line the state has.
+	@Test
+	fun theHubObserved_keepsTheTermReportLineOfTheState() = runTest {
+		val line = SummaryTermReportItem(
+			insightId = "term-1:2",
+			title = UiText.Raw("Tu informe de Abr - Jul 2026"),
+			subtitle = "Cerraste con 4,18",
+			target = SummaryHubTarget.TermReport(insightId = "term-1:2")
+		)
+		val withLine = summaryContentState(hub = hub.copy(termReport = line))
+		val reading = SummaryInternalEvent.HubObserved(hub = hub)
+
+		val next = assertIs<TransitionResult.Transitioned<Summary.State>>(
+			definition.process(withLine, reading)
+		).toState
+
+		assertEquals(line, next.hub.termReport)
+	}
+
+	// The line of the term reports is put and taken by its own entry, in every state; the rest of the hub stays as it is.
+	@Test
+	fun theTermReportEntryObserved_putsAndTakesTheLine_inEveryState() = runTest {
+		val line = SummaryTermReportItem(
+			insightId = "term-1:2",
+			title = UiText.Raw("Tu informe de Abr - Jul 2026"),
+			subtitle = "Cerraste con 4,18",
+			target = SummaryHubTarget.TermReport(insightId = "term-1:2")
+		)
+
+		for (state in states) {
+			val withLine = assertIs<TransitionResult.Transitioned<Summary.State>>(
+				definition.process(state, SummaryInternalEvent.TermReportEntryObserved(entry = line))
+			).toState
+
+			assertEquals(hub.copy(termReport = line), withLine.hub, "the line put in ${state::class.simpleName}")
+
+			val withoutLine = assertIs<TransitionResult.Transitioned<Summary.State>>(
+				definition.process(withLine, SummaryInternalEvent.TermReportEntryObserved(entry = null))
+			).toState
+
+			assertEquals(hub, withoutLine.hub, "the line taken in ${state::class.simpleName}")
+		}
 	}
 
 	@Test
@@ -188,6 +235,7 @@ class SummaryHubTransitionsTest {
 				reportingRepository = reporting,
 				exceptionHandler = UploadProfilePictureExceptionHandler(network)
 			),
+			termReports = createSummaryTermReports(),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reporting,

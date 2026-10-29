@@ -1,12 +1,17 @@
 package com.gdavidpb.tuindice.persistence.domain.mutation
 
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -49,6 +54,12 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	// removes it) or finds the new epoch and writes nothing: the session cannot end between the
 	// check and the write. Not reentrant, so nothing under it takes it again.
 	private val writeGate = Mutex()
+
+	// The terminal results of the mutations this engine settles, for whoever asked for them. Nothing is replayed:
+	// a subscriber gets the results from the moment it subscribes on. A result is published only after the write
+	// that settles its mutation has ended, never under writeGate.
+	private val mutableOutcomes = MutableSharedFlow<MutationOutcome>(extraBufferCapacity = 64)
+	val outcomes: SharedFlow<MutationOutcome> = mutableOutcomes.asSharedFlow()
 
 	private val runtimeStore: MutableStore<ScopeKey, MutationExecution<ScopeKey, Command, Ack>> =
 		MutableStoreBuilder.from<
@@ -189,16 +200,16 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		return outboxStore.getPendingMutation(scopeKey, mutationId)
 	}
 
-	// Acknowledge-and-forget for a parked envelope: removes it without running the spec,
-	// with the same version bookkeeping as a Drop resolution so stale-snapshot fences hold.
+	// Removes a row without running its spec, because its owner decides so: a reconciliation found it aimed at
+	// something the record no longer has, or a parked row was acknowledged. That is a cancellation, so it goes through
+	// deletePendingMutation, under writeGate: it publishes CANCELLED for a row whose result was still pending, and
+	// nothing for a FailedTerminal one, whose result was published when it failed. Whoever follows the mutation is
+	// settled at once, instead of waiting for its limit.
 	suspend fun discardMutation(
 		scopeKey: ScopeKey,
 		mutationId: String
 	) {
-		val mutation = outboxStore.getPendingMutation(scopeKey, mutationId) ?: return
-		outboxStore.deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
-		forgetMutationVersion(mutation)
-		advanceMutationVersion()
+		deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
 	}
 
 	/** A newer revision is known: the rows still waiting should expect it (see the store). */
@@ -239,7 +250,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		syncSpec: MutationSyncSpec<ScopeKey, Command, Ack>,
 		propagateTerminalErrors: Boolean = true
 	) {
-		outboxStore.replacePendingMutation(mutation)
+		replaceWaitingMutations(mutation)
 		executeMutation(
 			MutationExecution.Execute(
 				mutation = mutation,
@@ -254,7 +265,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		syncSpec: MutationSyncSpec<ScopeKey, Command, Ack>,
 		propagateTerminalErrors: Boolean = false
 	) {
-		outboxStore.replacePendingMutation(mutation)
+		replaceWaitingMutations(mutation)
 		coroutineScope.launch {
 			executeMutation(
 				MutationExecution.Execute(
@@ -304,11 +315,50 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		scopeKey: ScopeKey,
 		mutationId: String
 	) {
-		val mutation = outboxStore.getPendingMutation(scopeKey, mutationId)
+		// Under writeGate, as a confirmation or a verdict is: the row is either still there and is cancelled here,
+		// or it was settled first and its result was published then.
+		val cancelled = writeGate.withLock {
+			val mutation = outboxStore.getPendingMutation(scopeKey, mutationId)
 
-		outboxStore.deletePendingMutation(scopeKey, mutationId)
-		mutation?.let { deleted -> forgetMutationVersion(deleted) }
-		advanceMutationVersion()
+			outboxStore.deletePendingMutation(scopeKey, mutationId)
+			// Only a row that was there moves the version: a delete that finds nothing changes nothing, and moving the
+			// version anyway would make a snapshot in flight drop its copy for no reason.
+			mutation?.let { deleted ->
+				forgetMutationVersion(deleted)
+				advanceMutationVersion()
+			}
+
+			// A terminal row was published when it ended.
+			mutation?.takeIf { deleted -> deleted.status != PendingMutationStatus.FailedTerminal }
+		}
+
+		cancelled?.let { deleted -> publishLocalOutcome(deleted.toOutcome(MutationOutcomeKind.CANCELLED)) }
+	}
+
+	// Publishes a result the engine did not settle by itself: a mutation its caller resolved without sending it.
+	// Nothing checks it and nothing replays it.
+	suspend fun publishLocalOutcome(outcome: MutationOutcome) {
+		mutableOutcomes.emit(outcome)
+	}
+
+	// Replaces the waiting rows that share the replace key of [mutation] with it, and publishes SUPERSEDED for each
+	// row it takes out: nothing else would, since a replaced row that was not executing (a Failed one, or one left by
+	// an earlier session) is never suppressed. Under writeGate, so the read and the replacement are one write: a
+	// confirmation or a verdict that settles one of those rows either ran first (and the row is published here) or
+	// finds it gone. A terminal row is left out: its result was published when it ended.
+	private suspend fun replaceWaitingMutations(mutation: MutationEnvelope<ScopeKey, Command>) {
+		val superseded = writeGate.withLock {
+			val replaced = outboxStore.getMutations(mutation.scopeKey).filter { row ->
+				row.replaceKey == mutation.replaceKey &&
+					row.mutationId != mutation.mutationId &&
+					row.status != PendingMutationStatus.FailedTerminal
+			}
+
+			outboxStore.replacePendingMutation(mutation)
+			replaced
+		}
+
+		superseded.forEach { row -> publishLocalOutcome(row.toOutcome(MutationOutcomeKind.SUPERSEDED)) }
 	}
 
 	private suspend fun executeMutation(
@@ -345,18 +395,26 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 				epoch = epoch
 			)
 
-			if (step !is ExecutionStep.Rebase) return (step as ExecutionStep.Done).result
+			if (step !is ExecutionStep.Rebase) {
+				val done = step as ExecutionStep.Done
+				// Published here, once the write that settled the mutation has ended: never under writeGate.
+				done.outcome?.let { outcome -> publishLocalOutcome(outcome) }
+				return done.result
+			}
 
 			rebaseAttempts += 1
 			currentMutation = step.mutation
 
-			// The rebase is a verdict on a row the wipe may have taken meanwhile: saving it would
-			// bring the row back for the account that left. Not saved, the next attempt finds the
-			// session changed at its first check and ends without sending.
+			// The rebase is a verdict on a row the wipe may have taken meanwhile, or one that a newer mutation of the
+			// same subject replaced while the failure was resolved: saving it would bring the row back for the account that
+			// left, or over the newer mutation. Not saved, the next attempt finds the session changed or the row replaced at
+			// its first check and ends without sending.
 			writeIfCurrent(epoch) {
-				outboxStore.savePendingMutation(currentMutation)
-				currentMutation.expectedRevision?.let { revision ->
-					advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+				if (shouldApplyMutation(currentMutation)) {
+					outboxStore.savePendingMutation(currentMutation)
+					currentMutation.expectedRevision?.let { revision ->
+						advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+					}
 				}
 			}
 		}
@@ -391,9 +449,15 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 				} else {
 					val aligned = stored.copy(precondition = precondition)
 
+					// Saved only while the row is still this mutation: a row replaced while the precondition was awaited is
+					// settled already, and saving it would bring it back. Not saved, the execution ends here without sending.
 					val saved = writeIfCurrent(epoch) {
-						outboxStore.savePendingMutation(aligned)
-						true
+						if (shouldApplyMutation(stored)) {
+							outboxStore.savePendingMutation(aligned)
+							true
+						} else {
+							false
+						}
 					} == true
 
 					if (saved) aligned else null
@@ -423,7 +487,10 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			} == true
 
 			if (confirmed) {
-				ExecutionStep.Done(UpdaterResult.Success.Typed(ack))
+				ExecutionStep.Done(
+					result = UpdaterResult.Success.Typed(ack),
+					outcome = mutation.toOutcome(MutationOutcomeKind.CONFIRMED)
+				)
 			} else {
 				suppressMutation(mutation)
 			}
@@ -489,11 +556,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			// A resolver that cannot even decide is treated like an exhausted retry: the row
 			// survives as Failed so the drain requeue backoff owns the next attempt, and the
 			// pass keeps draining instead of aborting on a poison row. Anything else would
-			// either lose the mutation or re-send it at full drain cadence forever.
+			// either lose the mutation or re-send it at full drain cadence forever. A row that a newer mutation of the same
+			// subject replaced while the resolver ran is not saved again.
 			writeIfCurrent(epoch) {
-				outboxStore.savePendingMutation(
-					mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
-				)
+				if (shouldApplyMutation(mutation)) {
+					outboxStore.savePendingMutation(
+						mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
+					)
+				}
 			}
 
 			return terminalStep(throwable, execution.propagateTerminalErrors)
@@ -531,30 +601,45 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		rebaseAttempts: Int,
 		resolution: MutationFailureResolution<ScopeKey, Command>
 	): ExecutionStep<ScopeKey, Command> {
+		// The verdict writes the row only while it is still this mutation. A row replaced or deleted while the failure was
+		// being resolved was settled then (SUPERSEDED or CANCELLED was published): the verdict neither brings it back nor
+		// publishes a second result for it. Checked under writeGate, where the row cannot change meanwhile.
+		val rowIsCurrent = shouldApplyMutation(mutation)
+
 		return when (resolution) {
 			is MutationFailureResolution.Defer -> {
-				outboxStore.savePendingMutation(
-					mutation.retried(lastError = resolution.lastError ?: throwable.message)
-				)
+				if (rowIsCurrent) {
+					outboxStore.savePendingMutation(
+						mutation.retried(lastError = resolution.lastError ?: throwable.message)
+					)
+				}
 
 				ExecutionStep.Done(UpdaterResult.Success.Untyped(Unit))
 			}
 
 			is MutationFailureResolution.Drop -> {
-				outboxStore.deletePendingMutation(
-					scopeKey = mutation.scopeKey,
-					mutationId = mutation.mutationId
-				)
+				val outcome = failureOutcome(execution.syncSpec, mutation, throwable)
+
+				if (rowIsCurrent) {
+					outboxStore.deletePendingMutation(
+						scopeKey = mutation.scopeKey,
+						mutationId = mutation.mutationId
+					)
+				}
 				forgetMutationVersion(mutation)
 				advanceMutationVersion()
 
-				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors)
+				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors, outcome)
 			}
 
 			is MutationFailureResolution.Fail -> {
-				outboxStore.savePendingMutation(mutation.failedTerminally(throwable.message))
+				val outcome = failureOutcome(execution.syncSpec, mutation, throwable)
 
-				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors)
+				if (rowIsCurrent) {
+					outboxStore.savePendingMutation(mutation.failedTerminally(throwable.message))
+				}
+
+				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors, outcome)
 			}
 
 			is MutationFailureResolution.Retry -> resolveRebase(
@@ -584,21 +669,38 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		// backoff and would otherwise keep losing the same race forever.
 		val exhaustedExecutions = rebasedMutation.rebaseCount + 1
 		val parked = rebasedMutation.copy(rebaseCount = exhaustedExecutions)
+		val isTerminal = exhaustedExecutions >= execution.syncSpec.maxExhaustedExecutions
 
-		outboxStore.savePendingMutation(
-			if (exhaustedExecutions >= execution.syncSpec.maxExhaustedExecutions) {
-				parked.failedTerminally(throwable.message)
-			} else {
-				parked.failed(throwable.message)
-			}
-		)
+		// Only a row parked for good ends here: a Failed one is requeued by a later drain, and its result waits for it.
+		val outcome = if (isTerminal) {
+			endedOutcome(
+				mutation = mutation,
+				kind = MutationOutcomeKind.CONFLICT,
+				detailCode = execution.syncSpec.classifyError(mutation, throwable).name
+			)
+		} else {
+			null
+		}
 
-		return terminalStep(throwable, execution.propagateTerminalErrors)
+		// Saved only while the row is still this mutation: a replaced or deleted one was settled already, and saving it
+		// would bring it back (see applyResolution).
+		if (shouldApplyMutation(mutation)) {
+			outboxStore.savePendingMutation(
+				if (isTerminal) {
+					parked.failedTerminally(throwable.message)
+				} else {
+					parked.failed(throwable.message)
+				}
+			)
+		}
+
+		return terminalStep(throwable, execution.propagateTerminalErrors, outcome)
 	}
 
 	private fun terminalStep(
 		throwable: Throwable,
-		propagate: Boolean
+		propagate: Boolean,
+		outcome: MutationOutcome? = null
 	): ExecutionStep<ScopeKey, Command> {
 		val result = if (propagate) {
 			UpdaterResult.Error.Exception(throwable)
@@ -606,8 +708,49 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			UpdaterResult.Success.Untyped(Unit)
 		}
 
-		return ExecutionStep.Done(result)
+		return ExecutionStep.Done(result, outcome)
 	}
+
+	// The outcome of a mutation that ends here, or null when its row is no longer the one this execution decides: a row
+	// replaced or deleted while its failure was being resolved was already published (SUPERSEDED or CANCELLED). Checked
+	// before the row is written, since the write takes it out.
+	private suspend fun endedOutcome(
+		mutation: MutationEnvelope<ScopeKey, Command>,
+		kind: MutationOutcomeKind,
+		detailCode: String? = null
+	): MutationOutcome? {
+		if (!shouldApplyMutation(mutation)) return null
+
+		return mutation.toOutcome(kind, detailCode)
+	}
+
+	// A conflict or a precondition failure is a CONFLICT, any other failure a REJECTED. The detail is the kind the spec
+	// classified the failure as, not the text of the failure.
+	private suspend fun failureOutcome(
+		syncSpec: MutationSyncSpec<ScopeKey, Command, Ack>,
+		mutation: MutationEnvelope<ScopeKey, Command>,
+		throwable: Throwable
+	): MutationOutcome? {
+		val failure = syncSpec.classifyError(mutation, throwable)
+		val kind = when (failure) {
+			MutationFailureKind.Conflict,
+			MutationFailureKind.PreconditionFailed -> MutationOutcomeKind.CONFLICT
+
+			MutationFailureKind.NotFound,
+			MutationFailureKind.Terminal -> MutationOutcomeKind.REJECTED
+		}
+
+		return endedOutcome(mutation, kind, failure.name)
+	}
+
+	private fun MutationEnvelope<ScopeKey, Command>.toOutcome(
+		kind: MutationOutcomeKind,
+		detailCode: String? = null
+	) = MutationOutcome(
+		mutationId = mutationId,
+		kind = kind,
+		detailCode = detailCode
+	)
 
 	private fun MutationEnvelope<ScopeKey, Command>.retried(
 		lastError: String?
@@ -692,7 +835,9 @@ private sealed interface MutationExecution<ScopeKey : Any, Command : OutboxMutat
 
 private sealed interface ExecutionStep<ScopeKey, Command : OutboxMutation> {
 	class Done<ScopeKey, Command : OutboxMutation>(
-		val result: UpdaterResult
+		val result: UpdaterResult,
+		// The terminal result this step settled, when it settled one (see MutationOutcome).
+		val outcome: MutationOutcome? = null
 	) : ExecutionStep<ScopeKey, Command>
 
 	class Rebase<ScopeKey, Command : OutboxMutation>(

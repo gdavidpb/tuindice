@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,30 +15,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.pensumTermOrdinalLabel
 import kotlin.math.max
+import kotlin.math.roundToInt
 
+// The canvas's scale and offset are read in layout, where each term is placed and sized: panning and zooming move the
+// terms without recomposing the header. The caller says whether the labels are full (a state it derives from the
+// scale), so the header recomposes only when they switch between short and full.
 @Composable
 fun PensumStickyTermHeader(
 	terms: List<PensumTermItem>,
-	scale: Float,
-	offsetX: Float,
+	scale: () -> Float,
+	offsetX: () -> Float,
+	shouldUseFullLabels: Boolean,
 	densityScale: Float,
 	onTermClick: (termId: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	ReportComposition("pensum-header")
 	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
 	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
-	val shouldUseFullLabels = scale >= StickyTermHeaderFullMinZoom
 	val minimumWidthPx = with(density) {
 		if (shouldUseFullLabels) {
 			StickyTermFullLabelMinWidth.toPx()
@@ -57,9 +63,6 @@ fun PensumStickyTermHeader(
 			.testTag(PensumUiTags.StickyTerms)
 	) {
 		terms.forEachIndexed { index, term ->
-			val xPx = offsetX + term.x.toFloat() * densityScale * scale
-			val widthPx = max(term.width.toFloat() * densityScale * scale, minimumWidthPx)
-			val widthDp = with(density) { widthPx.toDp() }
 			val labelHorizontalPadding = if (shouldUseFullLabels) {
 				StickyTermFullLabelHorizontalPadding
 			} else {
@@ -72,8 +75,19 @@ fun PensumStickyTermHeader(
 
 			Surface(
 				modifier = Modifier
-					.offset(x = with(density) { xPx.toDp() })
-					.width(widthDp)
+					.layout { measurable, constraints ->
+						val currentScale = scale()
+						val widthPx = constraints.constrainWidth(
+							max(term.width.toFloat() * densityScale * currentScale, minimumWidthPx).roundToInt()
+						)
+						val placeable = measurable.measure(constraints.copy(minWidth = widthPx, maxWidth = widthPx))
+						layout(placeable.width, placeable.height) {
+							placeable.placeRelative(
+								x = (offsetX() + term.x.toFloat() * densityScale * currentScale).roundToInt(),
+								y = 0
+							)
+						}
+					}
 					.fillMaxHeight()
 					.padding(horizontal = StickyTermOuterHorizontalPadding, vertical = 5.dp)
 					.clickable { onTermClick(term.id) },

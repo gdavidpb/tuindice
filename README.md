@@ -27,7 +27,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   `PensumProgressRepository` (`pensum`).
 - `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
   binding/canonicalización de payloads.
-- `about`: información de app, enlaces y soporte.
+- `about`: pantalla Preferencias (identidad del estudiante, asistente, privacidad, ayuda, compartir y cierre de sesión) y la pantalla «Acerca de TuIndice» (versión, licencia, desarrollador y créditos).
 - `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: hub de Resumen (perfil y foto de perfil, la semana, el trimestre, la carrera y las estadísticas), la pantalla Estadísticas con sus gráficos y la hoja para compartir un trimestre como imagen.
 - `record`: historial académico, cálculos de índice y la hoja Horario (tabla y grilla por bloques, con la marca de las
@@ -38,7 +38,8 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - `subjects`: estadísticas y detalle histórico de una materia.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
 - `wizard`: onboarding progresivo con overlays contextuales sobre pantallas reales de la app.
-- `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
+- `assistant`: asistente académico (capa de datos: stream de eventos por SSE, API, disponibilidad, consentimiento, insights, memoria y conversación en memoria).
+- `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app: cuatro secciones en la barra inferior (Resumen, Registro, Pensum y Evaluaciones) y el avatar del estudiante al final de la barra superior, que abre Preferencias.
 - `app`: host Android.
 - `iosApp`: host iOS.
 - `testkit`: helpers, dobles compartidos y contrato reutilizable para pruebas.
@@ -52,6 +53,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - Los settings no sensibles usan `multiplatform-settings`.
 - Lo sensible usa `KSafe`.
 - `RemoteConfig` se mantiene como configuración remota directa, sin cache local en settings.
+- Las claves de `RemoteConfig` cambian en caliente: `RemoteConfigDataRepository.observeUpdatedKeys()` emite las claves actualizadas (Android con `ConfigUpdateListener` + `activate()`; iOS con `IosRemoteConfigCapability.addRemoteConfigUpdateListener`). Activar una actualización cambia también las demás claves a mitad de sesión. `AssistantConfigDataSource.observeAssistantMode()` se suscribe antes de leer el valor inicial.
 - Existe un patron de smoke tests de Koin por modulo para validar wiring y entry points públicos.
 
 ## Arquitectura
@@ -99,6 +101,8 @@ Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
 - `academiccore`: sin dependencias de proyecto.
+- `chatcontract`: sin dependencias de proyecto; contrato del chat del asistente (eventos, componentes, intenciones),
+  compilado también para JVM y compartido con el backend como artefacto.
 - `persistence`: depende de `:academiccore`, `:base`.
 - `security`: depende de `:base`.
 - `about`: depende de `:base`.
@@ -110,6 +114,7 @@ Dependencias actuales:
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`.
+- `assistant`: depende de `:base` y `:chatcontract`.
 - `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore` y aporta en `androidPlatformModule` los bindings de plataforma
   Android de cada feature, por lo que en el grafo depende de todos los módulos.
@@ -412,19 +417,23 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(57 reglas en 15 archivos por área):
+(68 reglas en 18 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
-  Koin androidx, Firebase directo).
-- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
-  sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de render de
-  Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`.
+  Koin androidx, Firebase directo); sin `R.string.` (los textos van en `composeResources`).
+- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin, ni contrato de
+  cable (`chatcontract`); sin interfaces `*DataSource`; `data/repository` solo interfaces; `presentation` sin tipos de
+  render de Compose (salvo tipos de valor), sin capa `ui` (salvo `ui.model` y `base.ui.style`) ni `persistence`;
+  las interfaces de `domain/repository` no tienen cuerpos por defecto ni getters.
 - `data-source`: en `data/source` no hay interfaces; van en `data/repository` o `domain/repository`.
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
   propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
   directos).
+- `naming`: un tipo público (o interno) de nivel superior por archivo; solo se exime el código de pruebas
+  (adaptada de `tuindice-api`).
+- `state-machine-contracts`: todo `*StateMachineContractTest` llama a `exportToMermaid` y a `assertMachineRandomWalk`.
 - `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature, sin
   `getOrNull()` dentro de `di` (un binding ausente fallaría en silencio).
 - `academiccore`: el lunes de la semana académica se calcula solo con `AcademicWeekEngine.mondayOf`; ningún
@@ -434,15 +443,25 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
 - `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
   `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`; un `Observe*UseCase` lee solo
-  flujos locales (sin repositorios de refresco ni getters `get*`).
+  flujos locales (sin repositorios de refresco ni getters `get*`); el use case no crea sus validadores ni sus
+  manejadores de excepción (se reciben por constructor o por un bundle recibido).
 - `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
   de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
-  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`.
+  extension functions de la tabla; las `data class` no privadas de `machine/` y `contract/` van en `presentation/model`;
+  `machine/` no lee recursos ni construye `UiText` (el texto lo arma `presentation/mapper` o un `*TextProvider` de
+  `presentation/resource` que la máquina recibe).
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`;
+  los CompositionLocal de acciones (`Local*Launcher`, `Local*Handler`, salvo `LocalUriHandler`) se leen solo en
+  `presentation/route/*Route.kt`; en `ui/component` un `when` no cierra con `else -> Unit`;
   las `data class` no privadas de `ui/view` van en `ui/model`; los objetos de tags de `ui/` se llaman `*UiTags` y
-  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`.
+  el estado local de Compose es `val x = remember { mutableStateOf(..) }` leído con `.value`; las hojas son
+  `TuIndiceModalBottomSheet` (`base/ui/dialog`) y ni `ModalBottomSheet` ni `rememberModalBottomSheetState` se usan
+  fuera de base (`material-modal-sheet-only-in-base`).
+- `dropdown-menu`: en `commonMain`, cada `DropdownMenu` expone sus etiquetas de prueba con
+  `exposeTestTagsAsResourceId()` en su `modifier`; sin eso sus ítems no llegan a las pruebas nativas de Android
+  (UI Automator) por su id de recurso.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
   estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
@@ -474,6 +493,8 @@ Ejemplos de comandos usados habitualmente:
 
 ```bash
 ./gradlew --continue --console=plain verifyModuleGraph
+./gradlew --continue --console=plain verifyDetektBaselinesShrink     # -PbaselineRef=<ref> para otra base
+./gradlew --continue --console=plain verifyEngineAndUseCaseTests
 ./gradlew --continue --console=plain :app:compileDebugKotlin
 ./gradlew --continue --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
 ./gradlew --continue --console=plain :evaluations:allTests

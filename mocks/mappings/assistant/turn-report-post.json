@@ -1,0 +1,32 @@
+{
+  "scenarioName": "assistant-turns",
+  "requiredScenarioState": "Started",
+  "request": {
+    "method": "POST",
+    "urlPath": "/assistant/v1/turns",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": {
+          "expression": "$.message.text",
+          "equalTo": "Dame un dato"
+        }
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "turnId": "turn-report",
+      "conversationId": "conv-1",
+      "lastSeq": 0
+    }
+  }
+}

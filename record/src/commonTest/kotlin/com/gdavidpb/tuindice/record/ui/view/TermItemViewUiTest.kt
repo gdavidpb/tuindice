@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.presentation.mapper.recordNotice
@@ -10,7 +9,9 @@ import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
+import com.gdavidpb.tuindice.record.testing.recordMapperTexts
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -24,7 +25,10 @@ class TermItemViewUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
 				item = termItem(),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				texts = recordMapperTexts(),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -45,7 +49,10 @@ class TermItemViewUiTest {
 						kind = RecordNoticeKind.AnnulledProvisional
 					)
 				),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				texts = recordMapperTexts(),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -59,7 +66,10 @@ class TermItemViewUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
 				item = termItem(),
-				onAttemptSelectionChange = { _, _, _, _ -> }
+				texts = recordMapperTexts(),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -73,12 +83,12 @@ class TermItemViewUiTest {
 		termOrder = 1,
 		shortNameText = "SEP-DIC 2026",
 		kind = TermItemKind.CURRENT,
-		gradeText = AnnotatedString("Δx 4.0000"),
-		gradeDelta = null,
-		gradeSumText = AnnotatedString("∑x 4.0000"),
-		gradeSumDelta = null,
-		creditsText = AnnotatedString("⦿ 4"),
-		creditsDelta = null,
+		gradeTarget = 4f,
+		gradeSumTarget = 4f,
+		creditsTarget = 4,
+		previousGradeTarget = null,
+		previousGradeSumTarget = null,
+		previousCreditsTarget = null,
 		isCurrent = true,
 		canDelete = false,
 		canEdit = false,

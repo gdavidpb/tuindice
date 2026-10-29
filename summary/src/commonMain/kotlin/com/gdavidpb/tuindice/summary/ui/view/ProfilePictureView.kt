@@ -18,6 +18,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.gdavidpb.tuindice.summary.presentation.mapper.profilePictureCacheKey
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import org.jetbrains.compose.resources.painterResource
@@ -95,12 +96,19 @@ private fun rememberProfilePictureViewState(
 	val isRemoteImageLoading = remember(display.identity, display.cacheVersion) {
 		mutableStateOf(false)
 	}
-	val presentation = remember(platformContext, display, lastShownImage.value) {
+	// A sync re-signs the URL of the same picture: the layers load the URL the picture started with, so the rotation
+	// neither restarts the remote request nor stacks a continuity layer over a load that was never needed.
+	val requestUrl = rememberProfilePictureRequestUrl(url = display.url, version = display.cacheVersion)
+	val requestDisplay = display.copy(url = requestUrl.url)
+	val presentation = remember(platformContext, requestDisplay, lastShownImage.value) {
 		profilePictureLayerPresentation(
 			platformContext = platformContext,
-			display = display,
+			display = requestDisplay,
 			lastShownImage = lastShownImage,
-			isRemoteImageLoading = isRemoteImageLoading
+			remoteLoad = ProfilePictureRemoteLoad(
+				isLoading = isRemoteImageLoading,
+				onFailed = requestUrl::onLoadFailed
+			)
 		)
 	}
 
@@ -122,6 +130,12 @@ private class ProfilePicturePresentation(
 	val layers: List<ProfilePictureLayer>
 )
 
+// What the remote layer reports: whether it is loading, and that it failed so the newest signed URL can be asked for.
+private class ProfilePictureRemoteLoad(
+	val isLoading: MutableState<Boolean>,
+	val onFailed: () -> Unit
+)
+
 private data class ProfilePictureShownImage(
 	val data: String,
 	val cacheKey: String?
@@ -133,7 +147,7 @@ private class ProfilePictureLayerContext(
 	val remoteCacheKey: String?,
 	val previewImageData: String?,
 	val lastShownImage: MutableState<ProfilePictureShownImage?>,
-	val isRemoteImageLoading: MutableState<Boolean>
+	val remoteLoad: ProfilePictureRemoteLoad
 ) {
 	val continuityImage = lastShownImage.value?.takeIf { shown ->
 		remoteImageData != null && shown.data != remoteImageData && shown.data != previewImageData
@@ -147,7 +161,7 @@ private fun profilePictureLayerPresentation(
 	platformContext: PlatformContext,
 	display: ProfilePictureDisplay,
 	lastShownImage: MutableState<ProfilePictureShownImage?>,
-	isRemoteImageLoading: MutableState<Boolean>
+	remoteLoad: ProfilePictureRemoteLoad
 ): ProfilePicturePresentation {
 	val remoteImageData = display.url.takeIf { it.isNotBlank() }
 	val layerContext = ProfilePictureLayerContext(
@@ -155,10 +169,10 @@ private fun profilePictureLayerPresentation(
 		remoteImageData = remoteImageData,
 		// The cache identity ignores the rotating signed-URL signature and keys on the version so a re-upload behind a stable
 		// path still invalidates the previously cached bitmap, while a signature-only rotation keeps hitting it.
-		remoteCacheKey = remoteImageData?.let { "${display.identity}#v${display.cacheVersion}" },
+		remoteCacheKey = remoteImageData?.let { profilePictureCacheKey(url = display.url, version = display.cacheVersion) },
 		previewImageData = display.localPreviewPath?.takeIf { it.isNotBlank() },
 		lastShownImage = lastShownImage,
-		isRemoteImageLoading = isRemoteImageLoading
+		remoteLoad = remoteLoad
 	)
 
 	return ProfilePicturePresentation(
@@ -200,17 +214,20 @@ private fun ProfilePictureLayerContext.remoteLayer(): ProfilePictureLayer {
 		onState = { state ->
 			when (state) {
 				is AsyncImagePainter.State.Loading ->
-					isRemoteImageLoading.value = true
+					remoteLoad.isLoading.value = true
 
 				is AsyncImagePainter.State.Success -> {
-					isRemoteImageLoading.value = false
+					remoteLoad.isLoading.value = false
 					lastShownImage.value = remoteImageData?.let { data ->
 						ProfilePictureShownImage(data = data, cacheKey = remoteCacheKey)
 					}
 				}
 
-				is AsyncImagePainter.State.Error ->
-					isRemoteImageLoading.value = false
+				is AsyncImagePainter.State.Error -> {
+					remoteLoad.isLoading.value = false
+					// The URL it kept may have expired with nothing cached: the newest one is asked for instead.
+					remoteLoad.onFailed()
+				}
 
 				else -> Unit
 			}

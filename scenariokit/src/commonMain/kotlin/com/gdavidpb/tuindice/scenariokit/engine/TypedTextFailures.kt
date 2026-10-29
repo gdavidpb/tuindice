@@ -12,7 +12,8 @@ internal object TypedTextFailures {
 	 * - a system dialog in front, or the app out of the foreground: the failure stays an assertion, and the refiner
 	 *   turns it into `SYSTEM_DIALOG` or `APP_NOT_RUNNING`;
 	 * - an empty or unreadable field, or one that already holds all the text: an assertion, nothing was typed;
-	 * - no key injected but the field changed (the touch that focused it put something in): `DRIVER_ERROR`;
+	 * - no key injected but the field changed (the touch that focused it put something in, or an accessibility assignment
+ *   of the Android driver came after its read-back of `READ_BACK_MS`): `DRIVER_ERROR`;
 	 * - a field that holds the beginning of the text (a secure field: fewer characters than asked): `DRIVER_ERROR`,
 	 *   "the driver stopped after N of M characters";
 	 * - anything else is text the field holds that nobody sent: `TYPED_TEXT_MISMATCH`.

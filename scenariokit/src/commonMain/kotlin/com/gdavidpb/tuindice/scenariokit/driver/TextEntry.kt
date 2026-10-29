@@ -25,16 +25,20 @@ interface TextEntry {
 	 * changed, type nothing and refuse ("the focus request changed the field" on Android, "the focus touch changed
 	 * the field" on iOS). Neither driver can prove the focus is on the field it was asked for beyond that.
 	 * Android injects the key events of the virtual keyboard, re-stamping each one just before it goes in, stops at
-	 * the first one the system refuses and logs how many entered; text the virtual keyboard cannot spell (accents) is
-	 * refused. iOS waits up to 2 s for the software keyboard after its touch (it does not touch again: a field that
-	 * brings no keyboard is a refusal) and types in chunks of 4 characters through `typeText`.
+	 * the first one the system refuses and logs how many entered. Text the virtual keyboard cannot spell (accents, «¿») is
+	 * not typed: Android assigns the whole text to the field in one accessibility action, replacing its content, and
+	 * answers true when the field changed; the interpreter compares the content, as it does after typed keys. iOS
+	 * waits up to 2 s for the software keyboard after its touch (it does not touch again: a field that brings no
+	 * keyboard is a refusal) and types in chunks of 4 characters through `typeText`.
 	 */
 	fun typeKeys(q: Query, text: String): Boolean
 
 	/**
 	 * How many keys the last [typeKeys] injected (Android counts key events, iOS characters; only zero against
-	 * non-zero is read). Zero with an answer of false means the driver stopped before typing: whatever the field then
-	 * holds was not put there by the text, and the interpreter does not call it a corrupted typing.
+	 * non-zero is read). Zero with an answer of true means the text was assigned to the field, not typed as keys
+	 * (Android, text the keyboard cannot spell): the field changed and no key went in. Zero with an answer of false
+	 * means the driver stopped before typing: whatever the field then holds was not put there by the text, and the
+	 * interpreter does not call it a corrupted typing.
 	 */
 	fun keysInjected(): Int
 

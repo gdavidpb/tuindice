@@ -713,6 +713,31 @@ class StoreBackedMutationEngineTest {
 		assertTrue(snapshotVersion != engine.currentMutationVersion())
 	}
 
+	// A delete that finds no row changes nothing, so it must leave the version alone: a snapshot in flight would
+	// otherwise drop its copy for no reason.
+	@Test
+	fun mutationVersion_whenNoRowIsDeleted_doesNotAdvance() = runTest {
+		val store = InMemoryMutationEnvelopeStore(listOf(testMutationEnvelope(mutationId = "mutation-1", value = 10)))
+		val engine = createEngine(store, this)
+		val versionBefore = engine.currentMutationVersion()
+
+		engine.deletePendingMutation(scopeKey = "record", mutationId = "unknown")
+		engine.discardMutation(scopeKey = "record", mutationId = "unknown")
+
+		assertEquals(versionBefore, engine.currentMutationVersion())
+	}
+
+	@Test
+	fun mutationVersion_whenAStoredRowIsDeleted_advancesOnce() = runTest {
+		val store = InMemoryMutationEnvelopeStore(listOf(testMutationEnvelope(mutationId = "mutation-1", value = 10)))
+		val engine = createEngine(store, this)
+		val versionBefore = engine.currentMutationVersion()
+
+		engine.discardMutation(scopeKey = "record", mutationId = "mutation-1")
+
+		assertEquals(versionBefore + 1, engine.currentMutationVersion())
+	}
+
 	@Test
 	fun drain_whenTheRunningExecutionLeavesTheRowFailedTerminal_doesNotSendItAgain() = runTest {
 		val outcome = drainBehindAnExecutionThatEnds(

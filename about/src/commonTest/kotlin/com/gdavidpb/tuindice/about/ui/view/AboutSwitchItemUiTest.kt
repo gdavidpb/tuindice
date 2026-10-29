@@ -14,6 +14,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -32,12 +33,12 @@ class AboutSwitchItemUiTest {
 				text = "Datos de uso\nComparte datos anonimos",
 				checked = false,
 				onCheckedChange = { checked -> changes += checked },
-				testTag = AboutUiTags.UsageDataConsentToggle
+				testTag = SettingsUiTags.UsageDataConsentToggle
 			)
 		}
 
-		assertNodeVisible(AboutUiTags.UsageDataConsentToggle)
-		onNodeWithTag(AboutUiTags.UsageDataConsentToggle)
+		assertNodeVisible(SettingsUiTags.UsageDataConsentToggle)
+		onNodeWithTag(SettingsUiTags.UsageDataConsentToggle)
 			.assertIsOff()
 			.performClick()
 
@@ -54,11 +55,11 @@ class AboutSwitchItemUiTest {
 				text = "Datos de uso\nComparte datos anonimos",
 				checked = true,
 				onCheckedChange = { checked -> changes += checked },
-				testTag = AboutUiTags.UsageDataConsentToggle
+				testTag = SettingsUiTags.UsageDataConsentToggle
 			)
 		}
 
-		onNodeWithTag(AboutUiTags.UsageDataConsentToggle)
+		onNodeWithTag(SettingsUiTags.UsageDataConsentToggle)
 			.assertIsOn()
 			.performClick()
 
@@ -75,13 +76,13 @@ class AboutSwitchItemUiTest {
 				text = "Datos de uso",
 				checked = checked.value,
 				onCheckedChange = { value -> checked.value = value },
-				testTag = AboutUiTags.UsageDataConsentToggle
+				testTag = SettingsUiTags.UsageDataConsentToggle
 			)
 		}
 
-		onNodeWithTag(AboutUiTags.UsageDataConsentToggle).assertIsOff()
-		onNodeWithTag(AboutUiTags.UsageDataConsentToggle).performClick()
-		onNodeWithTag(AboutUiTags.UsageDataConsentToggle).assertIsOn()
+		onNodeWithTag(SettingsUiTags.UsageDataConsentToggle).assertIsOff()
+		onNodeWithTag(SettingsUiTags.UsageDataConsentToggle).performClick()
+		onNodeWithTag(SettingsUiTags.UsageDataConsentToggle).assertIsOn()
 	}
 
 	@Test

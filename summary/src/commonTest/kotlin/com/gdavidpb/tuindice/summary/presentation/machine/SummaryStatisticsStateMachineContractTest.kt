@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -67,11 +69,28 @@ class SummaryStatisticsStateMachineContractTest {
 		}
 	}
 
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createMachine(),
+			sampleEvents = listOf(
+				SummaryStatistics.Action.ObserveStatistics,
+				SummaryStatistics.Action.Resumed,
+				SummaryStatisticsInternalEvent.StatisticsUnavailable
+			),
+			coroutineScope = backgroundScope
+		)
+	}
+
+	private fun createMachine(): SummaryStatisticsMachine {
+		return SummaryStatisticsMachine(
+			observeSummaryHubUseCase = createObserveSummaryHubUseCase()
+		)
+	}
+
 	private fun createViewModel(): SummaryStatisticsViewModel {
 		return SummaryStatisticsViewModel(
-			screenMachine = SummaryStatisticsMachine(
-				observeSummaryHubUseCase = createObserveSummaryHubUseCase()
-			),
+			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

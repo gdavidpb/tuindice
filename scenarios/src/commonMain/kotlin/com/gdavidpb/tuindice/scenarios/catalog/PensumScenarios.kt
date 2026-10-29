@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
+import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -7,12 +8,14 @@ import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.doubleTap
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
+import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
+import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
@@ -232,6 +235,27 @@ private val pensumEquivalenceFulfilled = scenario(
 	openStatisticsAndGoBack()
 }
 
+// The sheet of a subject offers to ask about it: the button opens the chat, the first time after its consent, with the
+// subject as its context.
+private val pensumAskAssistantSubject = scenario(
+	"pensum-ask-assistant-subject",
+	"pensum",
+	seeded(E2eAccounts.Canonical)
+) {
+	account(E2eAccounts.Canonical.id)
+
+	openPensum()
+	waitVisible(PensumUiTags.node(E2eFixtures.PensumNodeMath1.value), Within.Wait)
+	tap(PensumUiTags.node(E2eFixtures.PensumNodeMath1.value))
+	waitVisible(PensumUiTags.SubjectDetailSheet, Within.Action)
+	scrollUntilVisible(PensumUiTags.SubjectDetailAskAssistant, Scroll.ContentDown, Within.Long)
+	tap(PensumUiTags.SubjectDetailAskAssistant)
+	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
+	tap(AssistantUiTags.ConsentAccept)
+	waitVisible(AssistantUiTags.ChatSheet, Within.Action)
+	waitVisible(AssistantUiTags.ContextChip, Within.Action)
+}
+
 /** The scenarios of this module; list every new one here. */
 val pensumScenarios: List<Scenario> = listOf(
 	pensumSmoke,
@@ -242,5 +266,6 @@ val pensumScenarios: List<Scenario> = listOf(
 	pensumRefreshFailedRetry,
 	pensumRecordUnavailable,
 	pensumCurrentAbsent,
-	pensumEquivalenceFulfilled
+	pensumEquivalenceFulfilled,
+	pensumAskAssistantSubject
 )

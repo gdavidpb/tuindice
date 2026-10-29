@@ -178,6 +178,19 @@ class DebugLaunchArgumentsTest {
 	}
 
 	@Test
+	fun notificationOffer_isParsedStrictly_andAbsentWhenNotSent() {
+		val offered = DebugLaunchArguments.NOTIFICATION_OFFER to DebugLaunchArguments.NOTIFICATION_OFFER_OFFERED
+		val pending = DebugLaunchArguments.NOTIFICATION_OFFER to DebugLaunchArguments.NOTIFICATION_OFFER_PENDING
+
+		assertEquals(true, DebugLaunchArguments.parse(mapOf(offered)).notificationOffered)
+		assertEquals(false, DebugLaunchArguments.parse(mapOf(pending)).notificationOffered)
+		assertEquals(null, DebugLaunchArguments.parse(emptyMap()).notificationOffered)
+		assertFailsWith<IllegalArgumentException> {
+			DebugLaunchArguments.parse(mapOf(DebugLaunchArguments.NOTIFICATION_OFFER to "later"))
+		}
+	}
+
+	@Test
 	fun everyDeclaredConstant_isListedInKeys() {
 		val declared = listOf(
 			DebugLaunchArguments.API_BASE_URL,
@@ -194,7 +207,8 @@ class DebugLaunchArgumentsTest {
 			DebugLaunchArguments.SEED_REFRESH_TOKEN,
 			DebugLaunchArguments.SEED_USB_ID,
 			DebugLaunchArguments.SEED_PASSWORD,
-			DebugLaunchArguments.SEED_COACHMARKS
+			DebugLaunchArguments.SEED_COACHMARKS,
+			DebugLaunchArguments.NOTIFICATION_OFFER
 		)
 
 		assertEquals(declared.toSet(), DebugLaunchArguments.keys.toSet())

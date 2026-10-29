@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.record.testing
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
@@ -34,12 +33,12 @@ fun termItem(
 	termOrder = 20266,
 	shortNameText = shortNameText,
 	kind = kind,
-	gradeText = AnnotatedString("Δx 4.0000"),
-	gradeDelta = null,
-	gradeSumText = AnnotatedString("∑x 3.5000"),
-	gradeSumDelta = null,
-	creditsText = AnnotatedString("⦿ 12"),
-	creditsDelta = null,
+	gradeTarget = 4f,
+	gradeSumTarget = 3.5f,
+	creditsTarget = 12,
+	previousGradeTarget = null,
+	previousGradeSumTarget = null,
+	previousCreditsTarget = null,
 	isCurrent = kind == TermItemKind.CURRENT,
 	canDelete = kind == TermItemKind.SYNTHETIC,
 	canEdit = kind == TermItemKind.SYNTHETIC,

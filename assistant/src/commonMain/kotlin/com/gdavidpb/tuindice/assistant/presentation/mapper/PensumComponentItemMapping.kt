@@ -1,0 +1,152 @@
+package com.gdavidpb.tuindice.assistant.presentation.mapper
+
+import com.gdavidpb.tuindice.assistant.presentation.model.CardFigureItem
+import com.gdavidpb.tuindice.assistant.presentation.model.CountRowItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PensumComparisonItem
+import com.gdavidpb.tuindice.assistant.presentation.model.PensumProgressItem
+import com.gdavidpb.tuindice.assistant.presentation.model.RequirementSectionItem
+import com.gdavidpb.tuindice.assistant.presentation.model.RequirementsItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectImpactItem
+import com.gdavidpb.tuindice.assistant.presentation.model.SubjectRowItem
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.chatcontract.component.PensumComparisonComponent
+import com.gdavidpb.tuindice.chatcontract.component.PensumProgressComponent
+import com.gdavidpb.tuindice.chatcontract.component.RequirementsComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectImpactComponent
+import com.gdavidpb.tuindice.chatcontract.component.SubjectRef
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_card_a_outcome_pending
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_caption_one
+import tuindice.assistant.generated.resources.assistant_card_b_comparison_shared_description
+import tuindice.assistant.generated.resources.assistant_card_b_fraction
+import tuindice.assistant.generated.resources.assistant_card_b_impact_caption_many
+import tuindice.assistant.generated.resources.assistant_card_b_impact_caption_one
+import tuindice.assistant.generated.resources.assistant_card_b_impact_description
+import tuindice.assistant.generated.resources.assistant_card_b_progress_approved
+import tuindice.assistant.generated.resources.assistant_card_b_progress_available
+import tuindice.assistant.generated.resources.assistant_card_b_progress_blocked
+import tuindice.assistant.generated.resources.assistant_card_b_progress_caption
+import tuindice.assistant.generated.resources.assistant_card_b_progress_credits_caption
+import tuindice.assistant.generated.resources.assistant_card_b_progress_credits_description
+import tuindice.assistant.generated.resources.assistant_card_b_progress_description
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_corequisites_empty
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_prerequisites_empty
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks
+import tuindice.assistant.generated.resources.assistant_card_b_requirements_unlocks_empty
+
+internal fun PensumProgressComponent.toPensumProgressItem(): PensumProgressItem {
+	val percent = chatCardPercentText(chatCardPercentOf(approvedCredits, totalCredits))
+	val approved = approvedCredits.toString()
+	val total = totalCredits.toString()
+
+	return PensumProgressItem(
+		id = id,
+		opensSheet = opensSheet(),
+		primaryFigure = CardFigureItem(
+			value = percent,
+			caption = UiText.Resource(Res.string.assistant_card_b_progress_caption),
+			contentDescription = UiText.Resource(Res.string.assistant_card_b_progress_description, listOf(percent))
+		),
+		secondaryFigure = CardFigureItem(
+			value = UiText.Resource(Res.string.assistant_card_b_fraction, listOf(approved, total)),
+			caption = UiText.Resource(Res.string.assistant_card_b_progress_credits_caption),
+			contentDescription = UiText.Resource(
+				Res.string.assistant_card_b_progress_credits_description,
+				listOf(approved, total)
+			)
+		),
+		progressFraction = chatCardFraction(approvedCredits.toDouble(), totalCredits.toDouble()),
+		statusRows = listOf(
+			Res.string.assistant_card_b_progress_approved to this.approved,
+			Res.string.assistant_card_a_outcome_pending to inProgress,
+			Res.string.assistant_card_b_progress_available to available,
+			Res.string.assistant_card_b_progress_blocked to blocked
+		).map { (label, count) -> CountRowItem(label = UiText.Resource(label), value = count.toString()) },
+		recordLink = entityRefs.toRecordLinkItem()
+	)
+}
+
+internal fun RequirementsComponent.toRequirementsItem(): RequirementsItem {
+	return RequirementsItem(
+		id = id,
+		opensSheet = opensSheet(),
+		subjectName = subjectName,
+		sections = listOf(
+			RequirementSectionItem(
+				label = UiText.Resource(Res.string.assistant_card_b_requirements_prerequisites),
+				subjects = prerequisites.map { subject -> subject.toSubjectRowItem(withLink = true) },
+				emptyText = UiText.Resource(Res.string.assistant_card_b_requirements_prerequisites_empty)
+			),
+			RequirementSectionItem(
+				label = UiText.Resource(Res.string.assistant_card_b_requirements_corequisites),
+				subjects = corequisites.map { subject -> subject.toSubjectRowItem(withLink = true) },
+				emptyText = UiText.Resource(Res.string.assistant_card_b_requirements_corequisites_empty)
+			),
+			RequirementSectionItem(
+				label = UiText.Resource(Res.string.assistant_card_b_requirements_unlocks),
+				subjects = unlocks.map { subject -> subject.toSubjectRowItem(withLink = true) },
+				emptyText = UiText.Resource(Res.string.assistant_card_b_requirements_unlocks_empty)
+			)
+		),
+		recordLink = entityRefs.toRecordLinkItem()
+	)
+}
+
+internal fun SubjectImpactComponent.toSubjectImpactItem(): SubjectImpactItem {
+	val terms = lengthInTerms.toString()
+
+	return SubjectImpactItem(
+		id = id,
+		opensSheet = opensSheet(),
+		subjectName = subjectName,
+		termsFigure = CardFigureItem(
+			value = UiText.Raw(terms),
+			caption = chatCardNounText(
+				count = lengthInTerms,
+				one = Res.string.assistant_card_b_impact_caption_one,
+				many = Res.string.assistant_card_b_impact_caption_many
+			),
+			contentDescription = UiText.Resource(Res.string.assistant_card_b_impact_description, listOf(terms))
+		),
+		chain = chain.map { subject -> subject.toSubjectRowItem(withLink = false) },
+		recordLink = entityRefs.toRecordLinkItem()
+	)
+}
+
+internal fun PensumComparisonComponent.toPensumComparisonItem(): PensumComparisonItem {
+	val shared = sharedCredits.toString()
+
+	return PensumComparisonItem(
+		id = id,
+		opensSheet = opensSheet(),
+		sharedFigure = CardFigureItem(
+			value = UiText.Raw(shared),
+			caption = chatCardNounText(
+				count = sharedCredits,
+				one = Res.string.assistant_card_b_comparison_shared_caption_one,
+				many = Res.string.assistant_card_b_comparison_shared_caption_many
+			),
+			contentDescription = UiText.Resource(Res.string.assistant_card_b_comparison_shared_description, listOf(shared))
+		),
+		otherCareerName = otherCareerName,
+		otherPensumLabel = otherPensumLabel,
+		missingSubjects = missingSubjects.map { subject ->
+			SubjectRowItem(code = subject.code, nameText = UiText.Raw(subject.name), statusChip = null, link = null)
+		},
+		notes = notes,
+		recordLink = entityRefs.toRecordLinkItem()
+	)
+}
+
+// A subject as a row of a card: its name, its status, and, when the row links, the screen of the subject.
+private fun SubjectRef.toSubjectRowItem(withLink: Boolean): SubjectRowItem {
+	return SubjectRowItem(
+		code = code,
+		nameText = UiText.Raw(name),
+		statusChip = subjectStatusChip(status),
+		link = if (withLink) chatSubjectLinkItem(code) else null
+	)
+}

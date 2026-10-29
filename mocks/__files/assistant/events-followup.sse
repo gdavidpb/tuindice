@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-followup"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-followup","message":{"id":"msg-followup","parts":[{"type":"text","text":"Tienes una evaluación pendiente esta semana."}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-followup"}
+

@@ -88,6 +88,15 @@ private class FakeAcademicRecordLocalDataRepository(
 	override suspend fun getRecordRevision(): Long? = null
 
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) = Unit
+
+	override suspend fun replaceAcademicRecordIfNotOlder(record: VersionedAcademicRecord): Boolean {
+		val storedRevision = getRecordRevision()
+
+		if (storedRevision != null && record.revision < storedRevision) return false
+
+		saveAcademicRecord(record)
+		return true
+	}
 }
 
 private val DEFAULT_USER = User(

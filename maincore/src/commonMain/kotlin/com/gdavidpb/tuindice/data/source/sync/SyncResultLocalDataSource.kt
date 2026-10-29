@@ -15,10 +15,14 @@ class SyncResultLocalDataSource(
 	private val recordOutboxDataSource: AcademicRecordOutboxDataRepository
 ) : SyncResultLocalDataRepository {
 	override suspend fun saveSyncResult(result: SyncResult) {
-		recordLocalDataSource.saveAcademicRecord(result.record)
-		// The record just replaced may no longer have what the queued edits were aimed at.
-		runCatching { recordOutboxDataSource.reconcileWithConfirmedRecord(result.record) }
-			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+		// A sync fetched before a mutation was confirmed can bring a record older than the stored one. The store keeps
+		// the newer one and says whether it wrote: the comparison and the write are one step there. When nothing was
+		// written, there is nothing new for the queue to reconcile against.
+		if (recordLocalDataSource.replaceAcademicRecordIfNotOlder(result.record)) {
+			// The record just replaced may no longer have what the queued edits were aimed at.
+			runCatching { recordOutboxDataSource.reconcileWithConfirmedRecord(result.record) }
+				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+		}
 		userLocalDataSource.updateUser(result.user)
 	}
 }

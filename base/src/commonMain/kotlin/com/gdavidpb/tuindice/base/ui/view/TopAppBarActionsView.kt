@@ -13,6 +13,10 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
+/**
+ * The top bar of [topBarConfig], with all of its actions inline and no overflow menu. Nothing is drawn without a
+ * config.
+ */
 @Composable
 fun TopAppBarActionsView(
 	topBarConfig: TopBarConfig?,
@@ -20,29 +24,60 @@ fun TopAppBarActionsView(
 	actionContentDescription: @Composable (action: TopBarAction) -> String? = { null },
 	actionIconContent: @Composable (action: TopBarAction) -> Unit
 ) {
+	if (topBarConfig != null) {
+		TopAppBarActionsView(
+			actions = topBarConfig.actions,
+			overflowActions = emptyList(),
+			onAction = onAction,
+			actionContentDescription = actionContentDescription,
+			actionIconContent = actionIconContent
+		)
+	}
+}
+
+/**
+ * Paints [actions] inline and, when [overflowActions] is not empty, the ⋮ menu with them after the inline ones.
+ *
+ * The menu's items take their text from [actionContentDescription], so every overflow action needs a description
+ * (see [TopAppBarOverflowMenuView]).
+ */
+@Composable
+fun TopAppBarActionsView(
+	actions: List<TopBarAction>,
+	overflowActions: List<TopBarAction>,
+	onAction: (action: TopBarAction) -> Unit,
+	actionContentDescription: @Composable (action: TopBarAction) -> String?,
+	actionIconContent: @Composable (action: TopBarAction) -> Unit
+) {
 	val currentOnAction = rememberUpdatedState(onAction)
 
-	if (topBarConfig != null) {
-		Row(modifier = Modifier.testTag(BaseUiTags.TopAppBarActionsContainer)) {
-			topBarConfig.actions.forEach { action ->
-				key(action) {
-					val contentDescription = actionContentDescription(action)
-					IconButton(
-						onClick = {
-							currentOnAction.value(action)
-						},
-						modifier = Modifier
-							.testTag(BaseUiTags.topBarActionButton(action))
-							.semantics {
-								if (contentDescription != null) {
-									this.contentDescription = contentDescription
-								}
+	Row(modifier = Modifier.testTag(BaseUiTags.TopAppBarActionsContainer)) {
+		actions.forEach { action ->
+			key(action) {
+				val contentDescription = actionContentDescription(action)
+				IconButton(
+					onClick = {
+						currentOnAction.value(action)
+					},
+					modifier = Modifier
+						.testTag(BaseUiTags.topBarActionButton(action))
+						.semantics {
+							if (contentDescription != null) {
+								this.contentDescription = contentDescription
 							}
-					) {
-						actionIconContent(action)
-					}
+						}
+				) {
+					actionIconContent(action)
 				}
 			}
+		}
+
+		if (overflowActions.isNotEmpty()) {
+			TopAppBarOverflowMenuView(
+				actions = overflowActions,
+				onAction = { action -> currentOnAction.value(action) },
+				actionContentDescription = actionContentDescription
+			)
 		}
 	}
 }

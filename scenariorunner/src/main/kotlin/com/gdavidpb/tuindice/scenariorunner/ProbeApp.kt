@@ -33,6 +33,9 @@ internal class ProbeApp {
 		private const val LAUNCH_WAIT_MS = 60_000L
 		const val PASSWORD_SAMPLE = "abcdefghijklmnopqrstuvwxyz0123"
 		const val SHORT_SAMPLE = "abc"
+
+		/** Text the virtual keyboard cannot spell: an inverted question mark and accents. */
+		const val ACCENTED_SAMPLE = "¿Cuánto más ñandú?"
 		const val SAMPLE_LENGTH = 30
 		const val SAMPLE_EVENTS = 60
 	}

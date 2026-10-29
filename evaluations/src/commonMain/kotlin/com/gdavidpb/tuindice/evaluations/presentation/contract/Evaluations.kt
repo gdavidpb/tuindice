@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toStorageValue
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
@@ -20,6 +23,10 @@ object Evaluations {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState {
+		// Every state but the content names the screen alone: the week is only known once the content is laid out.
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.EVALUATIONS)
+
 		data object Idle : State()
 
 		data object Loading : State()
@@ -47,6 +54,16 @@ object Evaluations {
 		) : State() {
 			override val topBarConfig: TopBarConfig?
 				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
+
+			// The selected week is named under the key it is saved as, which carries its anchor, so the assistant can
+			// date it. Without an anchor there is no such key, and the week is left out.
+			override val assistantContext: AssistantScreenContext
+				get() = AssistantScreenContext(
+					screen = AssistantScreen.EVALUATIONS,
+					filters = selectedWeekKey.toStorageValue(weekOneStart = weekOneStart)
+						?.let { key -> mapOf("week" to key) }
+						.orEmpty()
+				)
 		}
 
 		// The term has no evaluation yet, but its class schedule may be there to open from the bar.

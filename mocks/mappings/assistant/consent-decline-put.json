@@ -1,0 +1,29 @@
+{
+  "scenarioName": "assistant-consent",
+  "newScenarioState": "Started",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/assistant/v1/consent",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{\"accepted\": false}",
+        "ignoreExtraElements": true
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "version": 2,
+      "accepted": false
+    }
+  }
+}

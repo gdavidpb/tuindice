@@ -5,7 +5,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import tuindice.base.generated.resources.Res
+import tuindice.base.generated.resources.date_day_month
 import tuindice.base.generated.resources.date_day_month_year
+import tuindice.base.generated.resources.date_day_month_year_unpadded
 import tuindice.base.generated.resources.date_day_short_month
 import tuindice.base.generated.resources.date_month_names
 import tuindice.base.generated.resources.date_month_short_names
@@ -35,6 +37,7 @@ class DateTest {
 			UiText.Resource(Res.string.date_yesterday_time, listOf(AFTERNOON_TIME)),
 			THURSDAY_AFTERNOON.formatDate(DateTextStyle.YESTERDAY_TIME)
 		)
+		assertEquals(AFTERNOON_TIME, THURSDAY_AFTERNOON.formatDate(DateTextStyle.TIME))
 	}
 
 	@Test
@@ -70,6 +73,22 @@ class DateTest {
 		assertEquals(
 			UiText.Resource(Res.string.date_day_month_year, listOf("05", MARCH, "2026")),
 			millisOf(month = 3, day = 5).formatDate(DateTextStyle.DAY_MONTH_YEAR)
+		)
+	}
+
+	@Test
+	fun formatDate_dayMonth_describesTheUnpaddedDayAndTheMonthName() {
+		assertEquals(
+			UiText.Resource(Res.string.date_day_month, listOf("5", MARCH)),
+			millisOf(month = 3, day = 5).formatDate(DateTextStyle.DAY_MONTH)
+		)
+	}
+
+	@Test
+	fun formatDate_dayMonthYearUnpadded_describesTheUnpaddedDayTheMonthNameAndTheYear() {
+		assertEquals(
+			UiText.Resource(Res.string.date_day_month_year_unpadded, listOf("5", MARCH, "2026")),
+			millisOf(month = 3, day = 5).formatDate(DateTextStyle.DAY_MONTH_YEAR_UNPADDED)
 		)
 	}
 

@@ -41,17 +41,24 @@ class SessionMemoryBindingTest {
 
 		assertEquals(
 			listOf(
+				"assistant.data.source.AssistantAvailabilityDataSource",
+				"assistant.data.source.AssistantConsentSettingsDataSource",
+				"assistant.data.source.AssistantConversationDataSource",
+				"assistant.data.source.AssistantInsightsDataSource",
 				"base.data.source.InMemoryEvaluationsWeekFocusDataSource",
 				"base.data.source.InMemoryRecordAttemptFocusDataSource",
 				"base.data.source.InMemorySessionDataSource",
+				"base.data.source.InMemoryTermReportFocusDataSource",
+				"base.data.source.notification.NotificationOfferSettingsDataSource",
 				"base.data.source.usage.UsageDataConsentSettingsDataSource",
+				"data.source.assistant.AssistantQueuedMutationsDataSource",
 				"data.source.credentials.CredentialsDataSource",
 				"data.source.session.SessionRecoveryDataSource",
 				"data.source.sync.SyncStatusSettingsDataSource",
 				"enrollmentproof.data.source.FileKitStorageDataSource",
 				"evaluations.data.source.EvaluationDataSource",
-				"evaluations.data.source.LocalSettingsDataSource",
 				"evaluations.data.source.RoomDatabaseDataSource",
+				"evaluations.data.source.SelectedWeekWriter",
 				"pensum.data.source.LocalSettingsDataSource",
 				"pensum.data.source.PensumDataSource",
 				"persistence.domain.mutation.StoreBackedMutationEngine",
@@ -61,7 +68,8 @@ class SessionMemoryBindingTest {
 				"subjects.data.source.SubjectStatsRoomDataSource",
 				"summary.data.source.LocalSettingsDataSource",
 				"summary.data.source.ProfilePictureImageLoaderDataSource",
-					"summary.data.source.ShareBackgroundSettingsDataSource"
+				"summary.data.source.ShareBackgroundSettingsDataSource",
+				"summary.data.source.TermReportFeedbackDataSource"
 			),
 			bound
 		)

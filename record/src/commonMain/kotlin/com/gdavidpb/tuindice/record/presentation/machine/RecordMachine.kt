@@ -23,11 +23,14 @@ import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
+import com.gdavidpb.tuindice.record.domain.usecase.param.DeleteSyntheticTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.recordRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordNotice
+import com.gdavidpb.tuindice.record.presentation.mapper.snackSyntheticTermDeleteFailed
+import com.gdavidpb.tuindice.record.presentation.mapper.snackSyntheticTermDeleted
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordAttemptFocusTransitions
@@ -39,10 +42,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
-import org.jetbrains.compose.resources.getString
-import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.snack_synthetic_term_delete_failed
-import tuindice.record.generated.resources.snack_synthetic_term_deleted
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
@@ -309,19 +308,19 @@ class RecordMachine(
 
 	internal fun deleteSyntheticTerm(host: MachineHost<Record.Effect>, termId: String) {
 		host.launchMachineJob {
-			deleteSyntheticTermUseCase.execute(termId).collect { useCaseState ->
+			deleteSyntheticTermUseCase.execute(DeleteSyntheticTermParams(termId)).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						RecordInternalEvent.SyntheticTermDeleted(
-							message = getString(Res.string.snack_synthetic_term_deleted)
+							message = snackSyntheticTermDeleted()
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						RecordInternalEvent.SyntheticTermDeleteFailed(
-							message = getString(Res.string.snack_synthetic_term_delete_failed),
+							message = snackSyntheticTermDeleteFailed(),
 							navigateToOutdatedCredentials =
 								useCaseState.error == RecordUseCaseError.Unauthorized
 						)

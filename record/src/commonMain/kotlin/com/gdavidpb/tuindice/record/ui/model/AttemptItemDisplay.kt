@@ -7,15 +7,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
-enum class AttemptItemBadge {
-	UNREPORTED,
-	APPROVED,
-	FAILED,
-	RETIRED,
-	WITHOUT_EFFECT,
-	EQUIVALENCE
-}
-
 data class AttemptItemDisplay(
 	val badge: AttemptItemBadge?,
 	val gradeText: String

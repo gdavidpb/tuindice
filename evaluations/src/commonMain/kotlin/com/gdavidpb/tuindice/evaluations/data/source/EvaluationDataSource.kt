@@ -5,6 +5,8 @@ package com.gdavidpb.tuindice.evaluations.data.source
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcome
+import com.gdavidpb.tuindice.base.domain.model.mutation.MutationOutcomeKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
@@ -355,7 +357,8 @@ class EvaluationDataSource(
 			type = add.type.ordinal
 		)
 		val mutation = buildPendingAddMutation(
-			command = equivalentPendingAdd(command) ?: command
+			command = equivalentPendingAdd(command) ?: command,
+			requestedMutationId = add.mutationId
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -371,7 +374,8 @@ class EvaluationDataSource(
 		if (pendingAdd != null) {
 			val rewrittenAdd = (pendingAdd.command as EvaluationMutation.Add).apply(update)
 			val mutation = buildPendingAddMutation(
-				command = rewrittenAdd
+				command = rewrittenAdd,
+				requestedMutationId = update.mutationId
 			)
 			val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 			mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -388,7 +392,8 @@ class EvaluationDataSource(
 		val mutation = buildPendingUpdateMutation(
 			evaluationId = evaluation.id,
 			update = update,
-			expectedRevision = evaluation.revision
+			expectedRevision = evaluation.revision,
+			requestedMutationId = update.mutationId
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -406,6 +411,16 @@ class EvaluationDataSource(
 				scopeKey = EVALUATIONS_MUTATION_SCOPE,
 				mutationId = pendingAdd.mutationId
 			)
+			// The add never reached the server: removing it is settled here, and nothing is sent for the removal.
+			// Only a caller that named the removal is waiting for its result.
+			remove.mutationId?.let { mutationId ->
+				mutationEngine.publishLocalOutcome(
+					MutationOutcome(
+						mutationId = mutationId,
+						kind = MutationOutcomeKind.CONFIRMED
+					)
+				)
+			}
 			return
 		}
 
@@ -413,7 +428,8 @@ class EvaluationDataSource(
 			?: return
 		val mutation = buildPendingRemoveMutation(
 			evaluationId = evaluation.id,
-			expectedRevision = evaluation.revision
+			expectedRevision = evaluation.revision,
+			requestedMutationId = remove.mutationId
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -438,6 +454,9 @@ class EvaluationDataSource(
 			.map { context -> context.toEvaluationDisplayContext() }
 			.distinctUntilChanged()
 	}
+
+	// The engine is this module's alone (its own store), so every outcome it publishes is one of these mutations.
+	override fun observeMutationOutcomesFlow(): Flow<MutationOutcome> = mutationEngine.outcomes
 
 	private fun LocalEvaluationsSnapshot.toObservedSyncedSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
 		return ObservedSyncedSnapshot(
@@ -485,11 +504,12 @@ class EvaluationDataSource(
 	}
 
 	private fun buildPendingAddMutation(
-		command: EvaluationMutation.Add
+		command: EvaluationMutation.Add,
+		requestedMutationId: String?
 	): MutationEnvelope<String, EvaluationMutation> {
 		val now = currentTimeMillis()
 		return MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = requestedMutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = EVALUATIONS_MUTATION_SCOPE,
 			command = command,
 			precondition = MutationPrecondition.None,
@@ -503,11 +523,12 @@ class EvaluationDataSource(
 	private fun buildPendingUpdateMutation(
 		evaluationId: String,
 		update: EvaluationUpdate,
-		expectedRevision: Long
+		expectedRevision: Long,
+		requestedMutationId: String?
 	): MutationEnvelope<String, EvaluationMutation> {
 		val now = currentTimeMillis()
 		return MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = requestedMutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = EVALUATIONS_MUTATION_SCOPE,
 			command = EvaluationMutation.Update(
 				evaluationId = evaluationId,
@@ -527,11 +548,12 @@ class EvaluationDataSource(
 
 	private fun buildPendingRemoveMutation(
 		evaluationId: String,
-		expectedRevision: Long
+		expectedRevision: Long,
+		requestedMutationId: String?
 	): MutationEnvelope<String, EvaluationMutation> {
 		val now = currentTimeMillis()
 		return MutationEnvelope(
-			mutationId = identifierRepository.generateRandomIdentifier(),
+			mutationId = requestedMutationId ?: identifierRepository.generateRandomIdentifier(),
 			scopeKey = EVALUATIONS_MUTATION_SCOPE,
 			command = EvaluationMutation.Remove(evaluationId = evaluationId),
 			precondition = MutationPrecondition.Revision(expectedRevision),

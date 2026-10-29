@@ -13,8 +13,8 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationsActions
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
@@ -31,17 +31,11 @@ import tuindice.evaluations.generated.resources.view_error_title
 @Composable
 fun EvaluationsScreen(
 	state: Evaluations.State,
-	onAddEvaluationClick: () -> Unit,
-	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
-	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
-	onWeekClick: (EvaluationsWeekKey) -> Unit = {},
-	onRetryClick: () -> Unit,
+	actions: EvaluationsActions,
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
 	focusEvaluationId: String? = null,
-	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {},
-	onEvaluationArrivalTaken: (evaluationId: String) -> Unit = {}
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -60,16 +54,11 @@ fun EvaluationsScreen(
 				is Evaluations.State.Content ->
 					EvaluationsContentView(
 						state = targetState,
-						onAddEvaluationClick = onAddEvaluationClick,
-						onWeekClick = onWeekClick,
-						onEvaluationClick = onEvaluationClick,
-						onEvaluationEdit = onEvaluationEdit,
-						onEvaluationDelete = onEvaluationDelete,
+						actions = actions,
 						scrollEnabled = scrollEnabled,
 						openActionsEvaluationId = openActionsEvaluationId,
 						focusEvaluationId = focusEvaluationId,
-						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange,
-						onEvaluationArrivalTaken = onEvaluationArrivalTaken
+						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
 					)
 
 				is Evaluations.State.RecordDataUnavailable ->
@@ -86,7 +75,7 @@ fun EvaluationsScreen(
 						title = stringResource(Res.string.view_error_title),
 						message = targetState.message,
 						retryText = stringResource(Res.string.view_error_retry),
-						onRetryClick = onRetryClick,
+						onRetryClick = actions.onRetryClick,
 						headerContent = {
 							ErrorStateAnimationView()
 						}
@@ -111,7 +100,7 @@ fun EvaluationsScreen(
 						title = stringResource(Res.string.title_empty_evaluations),
 						message = stringResource(Res.string.message_empty_evaluations),
 						actionLabel = stringResource(Res.string.button_add_evaluation),
-						onAddEvaluationClick = onAddEvaluationClick,
+						onAddEvaluationClick = actions.onAddEvaluationClick,
 						headerContent = {
 							EmptyStateAnimationView()
 						}

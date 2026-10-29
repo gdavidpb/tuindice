@@ -3,12 +3,6 @@ package com.gdavidpb.tuindice.base.presentation.model
 sealed class TopBarConfig(
 	val actions: List<TopBarAction>
 ) {
-	data object Summary : TopBarConfig(
-		actions = listOf(
-			TopBarAction.SignOutAction
-		)
-	)
-
 	data object Record : TopBarConfig(
 		actions = listOf(
 			TopBarAction.RecordTermSelectionAction
@@ -40,6 +34,13 @@ sealed class TopBarConfig(
 	data object Statistics : TopBarConfig(
 		actions = listOf(
 			TopBarAction.StatisticsShareAction
+		)
+	)
+
+	// The term of the report can be shared as an image, the way the Statistics screen shares its terms.
+	data object TermReport : TopBarConfig(
+		actions = listOf(
+			TopBarAction.TermReportShareAction
 		)
 	)
 }

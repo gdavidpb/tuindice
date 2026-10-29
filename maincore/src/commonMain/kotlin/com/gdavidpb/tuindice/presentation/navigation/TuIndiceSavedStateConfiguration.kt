@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.navigation
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutNavContribution
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavContribution
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthNavContribution
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavContribution
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofNavContribution
@@ -17,6 +18,7 @@ import kotlinx.serialization.modules.polymorphic
 private val navContributions: List<TuIndiceNavContribution> = listOf(
 	MainNavContribution,
 	AuthNavContribution,
+	AssistantNavContribution,
 	SummaryNavContribution,
 	RecordNavContribution,
 	EvaluationsNavContribution,

@@ -12,10 +12,11 @@ rules:
       include:
         - '**/data/source/**'
       exclude:
-        # Seam de prueba del proveedor AEAD de Tink: la interfaz interna la implementa la clase privada de su mismo
-        # archivo y los tests de app la sustituyen por un fake. No es un contrato de datos, y data/repository exige
-        # el sufijo DataRepository para abstracciones internas reales sobre varios orígenes.
-        - '**/data/source/secure/AndroidTinkSecureKeyValueDataSource.kt'
+        # Seam de prueba del proveedor AEAD de Tink: AndroidSecureAeadProvider es la única interfaz suelta de data/source.
+        # Vive en su propio archivo (naming-one-public-type-per-file); la implementa la clase privada
+        # TinkAndroidSecureAeadProvider y los tests de app la sustituyen por un fake. No es un contrato de datos: data/repository
+        # exige el sufijo DataRepository para abstracciones internas reales sobre varios orígenes.
+        - '**/data/source/secure/AndroidSecureAeadProvider.kt'
     metadata:
       area: data-source
       referencia: 'README.md § Capas por feature > Data'

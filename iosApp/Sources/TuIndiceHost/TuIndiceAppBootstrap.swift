@@ -76,6 +76,13 @@ enum TuIndiceAppBootstrap {
         #endif
     }
 
+    // A tap on the push of a term report: the request is kept by the app, which opens the report once the student is in it.
+    static func openTermReport(insightId: String) {
+        #if canImport(maincore) || canImport(Maincore)
+        appBootstrap.openTermReportFromNotification(insightId: insightId)
+        #endif
+    }
+
     #if canImport(maincore) || canImport(Maincore)
     private static func bundleString(for key: String, defaultValue: String) -> String {
         if let value = launchArgumentString(for: key) {

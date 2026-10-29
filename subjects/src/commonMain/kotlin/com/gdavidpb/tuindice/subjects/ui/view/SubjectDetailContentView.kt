@@ -12,13 +12,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
@@ -34,6 +38,8 @@ fun SubjectDetailContentView(
 	initialScrollOffset: Dp = 0.dp,
 	onChartsVisibilityChange: (Boolean) -> Unit = {}
 ) {
+	ReportComposition("subject-detail")
+
 	val segment = detail.selectedSegment ?: return
 	val density = LocalDensity.current
 	val initialScrollOffsetPx = with(density) {
@@ -41,34 +47,43 @@ fun SubjectDetailContentView(
 	}
 	val chartsEnterThresholdPx = with(density) { 220.dp.roundToPx() }
 	val chartsExitThresholdPx = with(density) { 160.dp.roundToPx() }
+	val currentChartsEnterThresholdPx by rememberUpdatedState(chartsEnterThresholdPx)
+	val currentChartsExitThresholdPx by rememberUpdatedState(chartsExitThresholdPx)
+	val currentOnChartsVisibilityChange by rememberUpdatedState(onChartsVisibilityChange)
 	val scrollState = rememberScrollState(initial = initialScrollOffsetPx)
 	val areChartsVisible = remember(initialScrollOffsetPx) {
 		mutableStateOf(initialScrollOffsetPx >= chartsEnterThresholdPx)
 	}
+	val currentAreChartsVisible by rememberUpdatedState(areChartsVisible)
 
 	LaunchedEffect(initialScrollOffsetPx) {
 		scrollState.scrollTo(initialScrollOffsetPx)
 	}
 
-	LaunchedEffect(scrollState.value, scrollState.maxValue) {
-		val dynamicEnterThresholdPx = minOf(
-			chartsEnterThresholdPx,
-			((scrollState.maxValue * 4) / 5).coerceAtLeast(1)
-		)
-		val dynamicExitThresholdPx = minOf(
-			chartsExitThresholdPx,
-			((dynamicEnterThresholdPx * 7) / 10).coerceAtLeast(0)
-		)
-		val nextChartsVisible = when {
-			areChartsVisible.value && scrollState.value <= dynamicExitThresholdPx -> false
-			!areChartsVisible.value && scrollState.value >= dynamicEnterThresholdPx -> true
-			else -> areChartsVisible.value
-		}
+	// The scroll is read from a snapshot, not in composition: a frame of the scroll composes nothing and restarts
+	// nothing here. The thresholds, the visibility and the callback are read as they are when the scroll changes.
+	LaunchedEffect(scrollState) {
+		snapshotFlow { scrollState.value to scrollState.maxValue }
+			.collect { (value, maxValue) ->
+				val dynamicEnterThresholdPx = minOf(
+					currentChartsEnterThresholdPx,
+					((maxValue * 4) / 5).coerceAtLeast(1)
+				)
+				val dynamicExitThresholdPx = minOf(
+					currentChartsExitThresholdPx,
+					((dynamicEnterThresholdPx * 7) / 10).coerceAtLeast(0)
+				)
+				val nextChartsVisible = when {
+					currentAreChartsVisible.value && value <= dynamicExitThresholdPx -> false
+					!currentAreChartsVisible.value && value >= dynamicEnterThresholdPx -> true
+					else -> currentAreChartsVisible.value
+				}
 
-		if (nextChartsVisible != areChartsVisible.value) {
-			areChartsVisible.value = nextChartsVisible
-			onChartsVisibilityChange(nextChartsVisible)
-		}
+				if (nextChartsVisible != currentAreChartsVisible.value) {
+					currentAreChartsVisible.value = nextChartsVisible
+					currentOnChartsVisibilityChange(nextChartsVisible)
+				}
+			}
 	}
 
 	Column(

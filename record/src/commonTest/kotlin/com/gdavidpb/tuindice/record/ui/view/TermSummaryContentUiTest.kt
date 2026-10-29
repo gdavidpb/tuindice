@@ -6,8 +6,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
-import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
 import com.gdavidpb.tuindice.record.testing.termItem
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -19,7 +17,7 @@ class TermSummaryContentUiTest {
 	@Test
 	fun when_aTermIsSummarized_then_itsThreeMetricsAreNamed_termThenCumulativeThenCredits() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			TermSummaryContent(item = termItem())
+			TermSummaryContent(item = termItem(), texts = rememberRecordMapperTexts())
 		}
 
 		// Each value stands over the name of what it measures.
@@ -52,10 +50,11 @@ class TermSummaryContentUiTest {
 		setTuIndiceTestContent {
 			TermSummaryContent(
 				item = termItem().copy(
-					gradeDelta = TermMetricDelta(text = "▲ 0.5000", tone = TermMetricDeltaTone.Positive),
-					gradeSumDelta = TermMetricDelta(text = "▼ 0.1250", tone = TermMetricDeltaTone.Negative),
-					creditsDelta = TermMetricDelta(text = "▼ 3", tone = TermMetricDeltaTone.Informational)
-				)
+					previousGradeTarget = 3.5f,
+					previousGradeSumTarget = 3.625f,
+					previousCreditsTarget = 15
+				),
+				texts = rememberRecordMapperTexts()
 			)
 		}
 
@@ -79,9 +78,8 @@ class TermSummaryContentUiTest {
 	fun when_onlyOneMetricChanged_then_theOthersShowNoChange_andAllNamesStayOnOneLine() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TermSummaryContent(
-				item = termItem().copy(
-					creditsDelta = TermMetricDelta(text = "▲ 4", tone = TermMetricDeltaTone.Informational)
-				)
+				item = termItem().copy(previousCreditsTarget = 8),
+				texts = rememberRecordMapperTexts()
 			)
 		}
 

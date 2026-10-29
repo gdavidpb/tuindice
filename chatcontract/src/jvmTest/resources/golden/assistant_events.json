@@ -1,0 +1,149 @@
+[
+  {
+    "type": "run_started",
+    "seq": 1,
+    "turnId": "turn-1"
+  },
+  {
+    "type": "progress",
+    "seq": 2,
+    "turnId": "turn-1",
+    "tool": "search",
+    "label": "Buscando tus notas"
+  },
+  {
+    "type": "message_completed",
+    "seq": 3,
+    "turnId": "turn-1",
+    "message": {
+      "id": "msg-1",
+      "parts": [
+        { "type": "text", "text": "Listo" },
+        {
+          "type": "component",
+          "component": {
+            "type": "sistema.sigue_aplicando/1",
+            "id": "c2",
+            "fallbackText": "¿Sigue aplicando?",
+            "display": "inline",
+            "entityRefs": [],
+            "memoryId": "m1",
+            "statement": "Prefiere las notas por semana"
+          }
+        },
+        {
+          "type": "intent",
+          "intent": {
+            "id": "intent-1",
+            "args": {
+              "type": "evaluaciones.agregar/1",
+              "items": [
+                {
+                  "mutationId": "mut-1",
+                  "reference": "Parcial 1",
+                  "attemptId": "attempt-1",
+                  "subjectCode": "IS-101",
+                  "termId": "2026-JAN_MAR",
+                  "evaluationType": "QUIZ",
+                  "scheduleMode": "dated",
+                  "dateMillis": 1761000000000,
+                  "grade": 15.5,
+                  "maxGrade": 20.0,
+                  "selected": true
+                }
+              ],
+              "source": "manual"
+            },
+            "title": "Agregar 1 evaluación",
+            "effect": [{ "label": "Nueva evaluación", "detail": "Parcial 1 de IS-101" }],
+            "risk": "normal",
+            "editable": ["grade"],
+            "binding": { "mutationIds": ["mut-1"], "expectedRevision": 12, "argsHash": "hash-1" },
+            "expiresAtMillis": 1760000600000,
+            "status": "proposed",
+            "confirmLabel": "Agregar",
+            "cancelLabel": "Cancelar"
+          }
+        },
+        {
+          "type": "suggestions",
+          "items": [{ "id": "s1", "label": "Ver promedio", "text": "¿Cuál es mi promedio?" }]
+        }
+      ],
+      "createdAtMillis": 1760000000000
+    }
+  },
+  {
+    "type": "component_emitted",
+    "seq": 4,
+    "turnId": "turn-1",
+    "messageId": "msg-1",
+    "component": {
+      "type": "sistema.advertencia/1",
+      "id": "c4",
+      "fallbackText": "Advertencia",
+      "display": "inline",
+      "entityRefs": [],
+      "reason": "spam"
+    }
+  },
+  {
+    "type": "intent_proposed",
+    "seq": 5,
+    "turnId": "turn-1",
+    "messageId": "msg-1",
+    "intent": {
+      "id": "intent-1",
+      "args": {
+        "type": "evaluaciones.agregar/1",
+        "items": [
+          {
+            "mutationId": "mut-1",
+            "reference": "Parcial 1",
+            "attemptId": "attempt-1",
+            "subjectCode": "IS-101",
+            "termId": "2026-JAN_MAR",
+            "evaluationType": "QUIZ",
+            "scheduleMode": "dated",
+            "dateMillis": 1761000000000,
+            "grade": 15.5,
+            "maxGrade": 20.0,
+            "selected": true
+          }
+        ],
+        "source": "manual"
+      },
+      "title": "Agregar 1 evaluación",
+      "effect": [{ "label": "Nueva evaluación", "detail": "Parcial 1 de IS-101" }],
+      "risk": "normal",
+      "editable": ["grade"],
+      "binding": { "mutationIds": ["mut-1"], "expectedRevision": 12, "argsHash": "hash-1" },
+      "expiresAtMillis": 1760000600000,
+      "status": "proposed",
+      "confirmLabel": "Agregar",
+      "cancelLabel": "Cancelar"
+    }
+  },
+  {
+    "type": "intent_resolved",
+    "seq": 6,
+    "turnId": "turn-1",
+    "intentId": "intent-1",
+    "outcome": "cancelled",
+    "status": "superseded"
+  },
+  {
+    "type": "run_finished",
+    "seq": 7,
+    "turnId": "turn-1",
+    "usage": { "remainingHour": 9, "remainingDay": 39, "remainingMonth": 399 }
+  },
+  {
+    "type": "run_error",
+    "seq": 8,
+    "turnId": "turn-1",
+    "code": "quota_exhausted",
+    "retryable": false,
+    "retryAfterSeconds": 60
+  }
+]

@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.persistence.domain.repository.SharedReadRepository
 // ok: feature-module-no-cross-import
 import com.gdavidpb.tuindice.academiccore.domain.engine.SharedEngine
 // ok: feature-module-no-cross-import
+import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
+// ok: feature-module-no-cross-import
 import com.gdavidpb.tuindice.security.data.source.SecureStore
 // ok: feature-module-no-cross-import
 import com.gdavidpb.tuindice.testkit.koin.assertResolves

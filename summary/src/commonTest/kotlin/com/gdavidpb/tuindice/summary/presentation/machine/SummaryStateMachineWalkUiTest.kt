@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.testing.createObserveSummaryHubUseCase
+import com.gdavidpb.tuindice.summary.testing.createSummaryTermReports
 import com.gdavidpb.tuindice.summary.testing.summaryHubItem
 import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -89,6 +90,7 @@ class SummaryStateMachineWalkUiTest {
 					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			),
+			termReports = createSummaryTermReports(),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = reportingRepository,

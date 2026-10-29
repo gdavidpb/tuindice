@@ -13,7 +13,13 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
+import com.gdavidpb.tuindice.about.presentation.navigation.SettingsNavDependencies
+import com.gdavidpb.tuindice.about.presentation.navigation.aboutDialogEntries
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutEntries
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
+import com.gdavidpb.tuindice.assistant.presentation.navigation.assistantEntries
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthNavDependencies
 import com.gdavidpb.tuindice.auth.presentation.navigation.authEntries
@@ -22,14 +28,18 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofEntries
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsEntries
 import com.gdavidpb.tuindice.pensum.presentation.navigation.pensumEntries
+import com.gdavidpb.tuindice.presentation.mapper.toChatEntityRef
+import com.gdavidpb.tuindice.presentation.mapper.toChatNavTarget
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.navigation.browserEntries
 import com.gdavidpb.tuindice.presentation.navigation.mainEntries
+import com.gdavidpb.tuindice.presentation.navigation.rememberAssistantNavDependencies
 import com.gdavidpb.tuindice.presentation.navigation.toSummaryNavDependencies
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordNavDependencies
@@ -37,6 +47,7 @@ import com.gdavidpb.tuindice.record.presentation.navigation.recordEntries
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.subjects.presentation.navigation.subjectsEntries
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryEntries
+import com.gdavidpb.tuindice.summary.ui.view.ProfileAvatarView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceEntryScopeDecorator
 import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceRetainedSavedStateDecorator
@@ -51,6 +62,7 @@ fun TuIndiceNavDisplay(
 	navigator: TuIndiceNavigator,
 	modifier: Modifier = Modifier.fillMaxSize(),
 	onConfirmExitClick: () -> Unit,
+	onSignOutRequest: () -> Unit,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
 	onUpdatePasswordDismissRequest: () -> Unit = {},
@@ -72,10 +84,18 @@ fun TuIndiceNavDisplay(
 		onBackInterceptorAvailable = onBackInterceptorAvailable
 	)
 
+	val assistantDependencies = rememberAssistantNavDependencies(navigator = navigator)
+
 	val navEntryProvider = entryProvider<NavKey> {
 		mainEntries(
 			navActions = navigator,
 			onConfirmExitClick = onConfirmExitClick
+		)
+
+		assistantEntries(
+			navActions = navigator,
+			shellBindings = shellBindings,
+			dependencies = assistantDependencies
 		)
 
 		authEntries(
@@ -97,7 +117,13 @@ fun TuIndiceNavDisplay(
 			shellBindings = shellBindings,
 			navigation = navigator.toSummaryNavDependencies(
 				onNavigateToEvaluationsWeek = onNavigateToEvaluationsWeek,
-				onNavigateToRecordAttempt = onNavigateToRecordAttempt
+				onNavigateToRecordAttempt = onNavigateToRecordAttempt,
+				onNavigateToAssistantTarget = { target, entityRefs ->
+					assistantDependencies.onNavigateTo(
+						target.toChatNavTarget(),
+						entityRefs.map { ref -> ref.toChatEntityRef() }
+					)
+				}
 			)
 		)
 
@@ -127,10 +153,33 @@ fun TuIndiceNavDisplay(
 
 		aboutEntries(
 			shellBindings = shellBindings,
-			onNavigateToBrowser = { title, url ->
-				navigator.push(BrowserDestination.Browser(title = title, url = url))
-			}
+			settings = SettingsNavDependencies(
+				onNavigateToBrowser = { title, url ->
+					navigator.push(BrowserDestination.Browser(title = title, url = url))
+				},
+				onNavigateToAbout = {
+					navigator.push(AboutDestination.About)
+				},
+				onNavigateToAssistantMemory = {
+					navigator.push(AssistantDestination.Memory)
+				},
+				onNavigateToDeleteConfirmation = {
+					navigator.push(AboutDestination.DeleteAssistantConversationsDialog)
+				},
+				onSignOutRequest = onSignOutRequest,
+				// The photo is the avatar of the top bar, larger: the app draws the student's picture in one place.
+				profilePhoto = { identity ->
+					ProfileAvatarView(
+						modifier = Modifier.testTag(SettingsUiTags.IdentityPhoto),
+						pictureUrl = identity.pictureUrl,
+						pictureVersion = identity.pictureVersion,
+						size = TuIndiceComponentSizes.AvatarLarge
+					)
+				}
+			)
 		)
+
+		aboutDialogEntries(navActions = navigator)
 
 		enrollmentProofEntries(
 			navActions = navigator,

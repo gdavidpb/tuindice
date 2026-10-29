@@ -3,20 +3,14 @@
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
 import com.gdavidpb.tuindice.academiccore.domain.engine.EvaluationStateEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.SubjectGradeScale
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.toLocalDate
-import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-fun Double.toSubjectGrade() = when (roundToInt()) {
-	in 30 until 50 -> 2
-	in 50 until 70 -> 3
-	in 70 until 85 -> 4
-	in 85..Int.MAX_VALUE -> 5
-	else -> 1
-}
+fun Double.toSubjectGrade() = SubjectGradeScale.gradeOf(this)
 
 /** Adapts an evaluation's epoch date and the clock to the device's days and asks the engine. */
 fun computeEvaluationState(

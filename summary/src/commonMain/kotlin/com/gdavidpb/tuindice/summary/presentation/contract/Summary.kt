@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.mapper.summaryAssistantContext
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryHubTarget
 import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
@@ -16,7 +18,6 @@ import tuindice.summary.generated.resources.top_bar_summary
 object Summary {
 	sealed class State(
 		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_summary),
-		override val topBarConfig: TopBarConfig = TopBarConfig.Summary,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true,
 		open val isUserRefreshing: Boolean = false
@@ -30,6 +31,14 @@ object Summary {
 		// state carries it: the user's observation rebuilds the content, and the hub, which has its
 		// own observation, must not be lost when it does.
 		abstract val hub: SummaryHubItem
+
+		// Summary is where the student's photo opens Settings, in every state of the screen.
+		override val isProfileAvatarVisible: Boolean
+			get() = true
+
+		// Only a loaded content knows what the hub shows; every other state describes the screen alone.
+		override val assistantContext: AssistantScreenContext
+			get() = AssistantScreenContext(screen = AssistantScreen.SUMMARY)
 
 		data class Idle(
 			override val sync: SummarySyncItem = SummarySyncItem(),
@@ -54,7 +63,10 @@ object Summary {
 			val syncStatusText: UiText = UiText.Empty,
 			override val sync: SummarySyncItem = SummarySyncItem(),
 			override val hub: SummaryHubItem = SummaryHubItem()
-		) : State(isUserRefreshing = isUserRefreshing)
+		) : State(isUserRefreshing = isUserRefreshing) {
+			override val assistantContext: AssistantScreenContext
+				get() = summaryAssistantContext(this)
+		}
 
 		data class Failed(
 			override val isUserRefreshing: Boolean = false,
@@ -128,6 +140,11 @@ object Summary {
 		// the last term that is over asks for it.
 		class NavigateToShareTerm(
 			val termKey: String
+		) : Effect()
+
+		// The term report of [insightId], pushed over the summary: the line that offers an unread report asks for it.
+		class NavigateToTermReport(
+			val insightId: String
 		) : Effect()
 	}
 }

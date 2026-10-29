@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 
 @Composable
 fun TermSummaryView(
 	modifier: Modifier = Modifier,
-	item: TermItem
+	item: TermItem,
+	texts: RecordMapperTexts
 ) {
 	TermSummaryContent(
 		modifier = modifier
@@ -19,6 +21,7 @@ fun TermSummaryView(
 				horizontal = 16.dp,
 				vertical = 8.dp
 			),
-		item = item
+		item = item,
+		texts = texts
 	)
 }

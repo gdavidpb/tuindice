@@ -10,12 +10,15 @@ import com.gdavidpb.tuindice.base.presentation.navigation.dialogMetadata
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectNavResultWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.model.StatisticsTopBarActionBus
+import com.gdavidpb.tuindice.summary.presentation.model.TermReportTopBarActionBus
 import com.gdavidpb.tuindice.summary.presentation.route.ShareTermRoute
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryStatisticsRoute
+import com.gdavidpb.tuindice.summary.presentation.route.TermReportRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.ShareTermViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryStatisticsViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.TermReportViewModel
 import com.gdavidpb.tuindice.summary.ui.dialog.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.dialog.RemoveProfilePictureConfirmationContentDialog
 import org.koin.compose.koinInject
@@ -32,6 +35,11 @@ fun EntryProviderScope<NavKey>.summaryEntries(
 		navigation = navigation
 	)
 	statisticsEntry(
+		navActions = navActions,
+		shellBindings = shellBindings,
+		navigation = navigation
+	)
+	termReportEntry(
 		navActions = navActions,
 		shellBindings = shellBindings,
 		navigation = navigation
@@ -113,6 +121,34 @@ private fun EntryProviderScope<NavKey>.statisticsEntry(
 			topBarActionBus = topBarActionBus,
 			onNavigateToShareTerm = {
 				navActions.push(SummaryDestination.ShareTermDialog(termKey = null))
+			}
+		)
+	}
+}
+
+// The term report, pushed over the summary. Its share action pushes the sheet that shares its term, over the report.
+private fun EntryProviderScope<NavKey>.termReportEntry(
+	navActions: TuIndiceNavActions,
+	shellBindings: NavShellBindings,
+	navigation: SummaryNavDependencies
+) {
+	entry<SummaryDestination.TermReport> { key ->
+		val viewModel = koinViewModel<TermReportViewModel>()
+		val topBarActionBus = koinInject<TermReportTopBarActionBus>()
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		CollectCurrentEntryValueWithLifecycle(
+			value = viewState,
+			onValue = shellBindings.onViewStateChanged
+		)
+
+		TermReportRoute(
+			insightId = key.insightId,
+			navigation = navigation,
+			viewModel = viewModel,
+			topBarActionBus = topBarActionBus,
+			onNavigateToShareTerm = { termKey ->
+				navActions.push(SummaryDestination.ShareTermDialog(termKey = termKey))
 			}
 		)
 	}

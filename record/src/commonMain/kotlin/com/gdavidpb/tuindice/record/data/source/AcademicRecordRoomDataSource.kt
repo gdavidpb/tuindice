@@ -85,38 +85,58 @@ class AcademicRecordRoomDataSource(
 		}
 	}
 
+	// The stored revision is read in the same transaction that writes the record, so no other write can land between
+	// the comparison and the replacement. Both run under the write mutex, like every other write of this source.
+	override suspend fun replaceAcademicRecordIfNotOlder(record: VersionedAcademicRecord): Boolean {
+		return writeMutex.withLock {
+			transactionRunner.immediate {
+				val storedRevision = getRecordRevision()
+				val isNotOlder = storedRevision == null || record.revision >= storedRevision
+
+				if (isNotOlder) writeVersionedRecord(record)
+
+				isNotOlder
+			}
+		}
+	}
+
 	private suspend fun persistVersionedRecord(record: VersionedAcademicRecord) {
 		transactionRunner.immediate {
-			academicAttemptOverrideDao.deleteAll()
-			academicAttemptDao.deleteAll()
-			academicTermDao.deleteAll()
-			academicRecordDao.deleteAll()
-			academicRecordDao.upsertEntity(
-				AcademicRecordEntity(
-					id = record.record.id,
-					revision = record.revision,
-					updatedAt = currentTimeMillis()
+			writeVersionedRecord(record)
+		}
+	}
+
+	// Runs inside the transaction its caller opened.
+	private suspend fun writeVersionedRecord(record: VersionedAcademicRecord) {
+		academicAttemptOverrideDao.deleteAll()
+		academicAttemptDao.deleteAll()
+		academicTermDao.deleteAll()
+		academicRecordDao.deleteAll()
+		academicRecordDao.upsertEntity(
+			AcademicRecordEntity(
+				id = record.record.id,
+				revision = record.revision,
+				updatedAt = currentTimeMillis()
+			)
+		)
+		academicRecordSyncStateDao.upsertEntity(
+			AcademicRecordSyncStateEntity(hasSynced = true)
+		)
+		academicTermDao.upsertEntities(record.record.terms.map { term ->
+			term.toAcademicTermEntity()
+		})
+		academicAttemptDao.upsertEntities(record.record.terms.flatMap { term ->
+			term.attempts.mapIndexed { index, attempt ->
+				attempt.toAcademicAttemptEntity(
+					termId = term.id,
+					positionInTerm = index
 				)
-			)
-			academicRecordSyncStateDao.upsertEntity(
-				AcademicRecordSyncStateEntity(hasSynced = true)
-			)
-			academicTermDao.upsertEntities(record.record.terms.map { term ->
-				term.toAcademicTermEntity()
-			})
-			academicAttemptDao.upsertEntities(record.record.terms.flatMap { term ->
-				term.attempts.mapIndexed { index, attempt ->
-					attempt.toAcademicAttemptEntity(
-						termId = term.id,
-						positionInTerm = index
-					)
-				}
-			})
-			if (record.record.attemptOverrides.isNotEmpty()) {
-				academicAttemptOverrideDao.upsertEntities(record.record.attemptOverrides.map { override ->
-					override.toAcademicAttemptOverrideEntity()
-				})
 			}
+		})
+		if (record.record.attemptOverrides.isNotEmpty()) {
+			academicAttemptOverrideDao.upsertEntities(record.record.attemptOverrides.map { override ->
+				override.toAcademicAttemptOverrideEntity()
+			})
 		}
 	}
 }

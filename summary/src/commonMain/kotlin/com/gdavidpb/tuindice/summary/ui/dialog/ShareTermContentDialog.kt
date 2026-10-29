@@ -4,15 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.dialog.rememberTuIndiceSheetState
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.summary.presentation.contract.ShareTerm
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -26,7 +25,6 @@ import tuindice.summary.generated.resources.share_term_sheet_title
  * the sheet says what it waits for. The picture that is shared is the card of the choice on screen when the student
  * asks for it, taken once its artwork is there.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareTermContentDialog(
 	state: ShareTerm.State,
@@ -36,7 +34,7 @@ fun ShareTermContentDialog(
 ) {
 	ConfirmationDialog(
 		// Whole from the start: the card and its picker are what the sheet is for, so it does not open half hidden.
-		sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+		sheetState = rememberTuIndiceSheetState(skipPartiallyExpanded = true),
 		titleText = stringResource(Res.string.share_term_sheet_title),
 		onDismissRequest = onDismissRequest
 	) {

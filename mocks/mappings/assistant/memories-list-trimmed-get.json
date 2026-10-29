@@ -1,0 +1,30 @@
+{
+  "scenarioName": "assistant-memories",
+  "requiredScenarioState": "Trimmed",
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/memories",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "id": "mem-2",
+          "category": "CAREER_GOAL",
+          "text": "Tu meta es un índice de 4.5",
+          "state": "PENDING_CONFIRMATION",
+          "createdAtMillis": 1760000000000
+        }
+      ]
+    }
+  }
+}

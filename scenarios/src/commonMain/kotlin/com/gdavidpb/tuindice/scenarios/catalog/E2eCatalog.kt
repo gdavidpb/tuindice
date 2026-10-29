@@ -23,6 +23,7 @@ object E2eCatalog {
 		"subjects" to subjectsScenarios,
 		"evaluations" to evaluationsScenarios,
 		"about" to aboutScenarios,
+		"assistant" to assistantScenarios,
 		"conformance" to conformanceScenarios
 	)
 

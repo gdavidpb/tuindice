@@ -12,9 +12,6 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.CoPresent
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Event
-import androidx.compose.material.icons.outlined.EventAvailable
-import androidx.compose.material.icons.outlined.EventRepeat
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
@@ -27,8 +24,10 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.utils.extension.formatCompactGrade
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
+import com.gdavidpb.tuindice.evaluations.utils.GradeFormat
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -112,16 +111,16 @@ private fun buildEvaluationItemMapping(
 		typeLabel = { type -> type.asString(typeLabels) },
 		gradesCompleted = { grade, maxGrade ->
 			evaluationGradePattern
-				.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
-				.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+				.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = GradeFormat.DECIMALS))
+				.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = GradeFormat.DECIMALS))
 		},
 		gradesPending = { maxGrade ->
 			evaluationPendingGradePattern
-				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = GradeFormat.DECIMALS))
 		},
 		gradesOverdue = { maxGrade ->
 			evaluationNotGradePattern
-				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = GradeFormat.DECIMALS))
 		},
 		scoreGrade = { grade, maxGrade ->
 			val maxGradeText = maxGrade.formatCompactGrade()
@@ -180,14 +179,6 @@ fun EvaluationType.asIcon() = when (this) {
 
 private fun EvaluationType.asString(typeLabels: Map<EvaluationType, String>) =
 	typeLabels.getValue(this)
-
-private fun Double.formatCompactGrade(): String {
-	return if (this == toInt().toDouble()) {
-		formatGrade(decimals = 0)
-	} else {
-		formatGrade(decimals = 2)
-	}
-}
 
 @Composable
 fun EvaluationType.asString() = when (this) {

@@ -10,11 +10,11 @@ import com.gdavidpb.tuindice.base.ui.view.TuIndiceProgressBar
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 // The coloured segments, drawn by the shared progress bar at its height and with its rounded ends. Each one is dimmed
-// while another is open, and each keeps the tag of its index.
+// while another is open, and each keeps the tag of its index. The progress is read by the bar where it is laid out.
 @Composable
 fun BoxScope.StatisticsStackedTrack(
 	segments: List<StatisticsSegment>,
-	progress: Float,
+	progress: () -> Float,
 	labels: StatisticsChartLabels,
 	openIndex: MutableState<Int?>
 ) {

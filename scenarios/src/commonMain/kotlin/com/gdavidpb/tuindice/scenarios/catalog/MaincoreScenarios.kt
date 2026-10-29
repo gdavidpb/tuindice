@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
-import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.about.ui.SettingsUiTags
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
@@ -22,6 +22,8 @@ import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
+import com.gdavidpb.tuindice.scenarios.shared.closeSettings
+import com.gdavidpb.tuindice.scenarios.shared.openSettings
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -74,12 +76,37 @@ private val maincoreBottomBarState = scenario(
 	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected, Within.Assert)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
-	waitVisible(MaincoreUiTags.TuIndiceBottomBarAboutItemSelected, Within.Assert)
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected, Within.Assert)
+}
+
+/**
+ * The student's avatar ends the top bar of Summary, the hub, and opens Settings over it; the back button returns to
+ * Summary, and the bottom bar is not part of Settings. The other sections keep their bar without it.
+ */
+private val maincoreSettingsAvatar = scenario(
+	"maincore-settings-avatar",
+	"maincore",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	account(E2eAccounts.Canonical.id)
+
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	waitVisible(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
+	openSettings()
+	waitGone(MaincoreUiTags.TuIndiceBottomBar, Within.Assert)
+	closeSettings()
+	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
+	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
+	waitVisible(RecordUiTags.ContentContainer, Within.Long)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
+	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
+	waitVisible(PensumUiTags.PensumScreen, Within.Wait)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
+	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
+	waitGone(MaincoreUiTags.TuIndiceTopBarSettingsButton, Within.Assert)
 }
 
 private val maincoreBackStack = scenario(
@@ -91,13 +118,14 @@ private val maincoreBackStack = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
-	tap(AboutUiTags.OpenTerms)
+	openSettings()
+	tap(SettingsUiTags.OpenTerms)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
 	waitVisible(MaincoreUiTags.TuIndiceTopBarBackButton, Within.Assert)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	waitVisible(AboutUiTags.ContentContainer, Within.Action)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
+	closeSettings()
+	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 	tap(MaincoreUiTags.TuIndiceBottomBarPensumItem)
 	waitVisible(PensumUiTags.PensumScreen, Within.Wait)
 	tap(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
@@ -121,13 +149,13 @@ private val maincoreTabStackPreservation = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
+	tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
 	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 	onPlatform(Platform.Android) {
-		tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-		waitVisible(AboutUiTags.ContentContainer, Within.Wait)
+		tap(MaincoreUiTags.TuIndiceBottomBarEvaluationsItem)
+		waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Wait)
 		back()
 		waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 	}
@@ -139,16 +167,15 @@ private val maincoreBrowserExternalDialog = scenario(
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
 	covers(
-		"about.About.OpenPrivacyPolicy",
+		"about.Settings.OpenPrivacyPolicy",
 		"maincore.Browser.NavigateTo",
 		"maincore.Browser.OpenExternalResource"
 	)
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
-	tap(AboutUiTags.OpenPrivacy)
+	openSettings()
+	tap(SettingsUiTags.OpenPrivacy)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Wait)
 	// The container appears before the page inside it has rendered. Both platforms expose the page's text to the
 	// hierarchy, and the page shows its link (`mocks/__files/e2e/privacy.html`): wait for it, then tap it.
@@ -159,8 +186,8 @@ private val maincoreBrowserExternalDialog = scenario(
 	tap(BaseUiTags.ConfirmationDialogNegativeButton)
 	waitVisible(MaincoreUiTags.BrowserContainer, Within.Action)
 	tap(MaincoreUiTags.TuIndiceTopBarBackButton)
-	waitVisible(AboutUiTags.ContentContainer, Within.Action)
-	tap(MaincoreUiTags.TuIndiceBottomBarSummaryItem)
+	waitVisible(SettingsUiTags.ContentContainer, Within.Action)
+	closeSettings()
 	waitVisible(SummaryUiTags.ContentContainer, Within.Wait)
 }
 
@@ -177,10 +204,9 @@ private val maincoreBrowserLoadFailedRetry = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
-	tap(MaincoreUiTags.TuIndiceBottomBarAboutItem)
-	waitVisible(AboutUiTags.ContentContainer, Within.Wait)
+	openSettings()
 	mockState("browser-privacy-page", "Unreachable")
-	tap(AboutUiTags.OpenPrivacy)
+	tap(SettingsUiTags.OpenPrivacy)
 	waitVisible(BaseUiTags.ErrorViewRetryButton, Within.Long)
 	waitGone(MaincoreUiTags.BrowserContainer, Within.Assert)
 	mockState("browser-privacy-page", "Recovered")
@@ -194,6 +220,7 @@ private val maincoreBrowserLoadFailedRetry = scenario(
 val maincoreScenarios: List<Scenario> = listOf(
 	maincoreAppAvailabilityNotice,
 	maincoreBottomBarState,
+	maincoreSettingsAvatar,
 	maincoreBackStack,
 	maincoreTabStackPreservation,
 	maincoreBrowserExternalDialog,

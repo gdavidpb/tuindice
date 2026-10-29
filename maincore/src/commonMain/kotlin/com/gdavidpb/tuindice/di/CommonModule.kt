@@ -1,14 +1,23 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAcademicCalendarRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationCardRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
+import com.gdavidpb.tuindice.base.data.source.AssistantConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.InMemoryTermReportFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
@@ -18,6 +27,7 @@ import com.gdavidpb.tuindice.base.data.source.event.CompositeEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingApiDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.MessagingSettingsDataSource
+import com.gdavidpb.tuindice.base.data.source.notification.NotificationOfferSettingsDataSource
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.KSafeLegacySecureKeyValueDataSource
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
@@ -27,12 +37,14 @@ import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.repository.AssistantConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.EvaluationsWeekFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.NotificationOfferRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordAttemptFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
@@ -43,11 +55,21 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.TermReportFocusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.data.source.assistant.AcademicCalendarAssistantDataSource
+import com.gdavidpb.tuindice.data.source.assistant.AssistantClientStateDataSource
+import com.gdavidpb.tuindice.data.source.assistant.AssistantQueuedMutationsDataSource
+import com.gdavidpb.tuindice.data.source.assistant.EvaluationCardsAssistantDataSource
+import com.gdavidpb.tuindice.data.source.assistant.EvaluationsAssistantDataSource
+import com.gdavidpb.tuindice.data.source.assistant.PensumSubjectCatalogDataSource
+import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantPlansDataSource
+import com.gdavidpb.tuindice.data.source.assistant.RecordAssistantProjectionDataSource
+import com.gdavidpb.tuindice.data.source.assistant.RecordIntentRunnerDataSource
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
@@ -67,6 +89,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsRevalidati
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.binds
@@ -93,7 +116,13 @@ val commonModule = module {
 		bind<UsageDataConsentRepository>()
 		bind<SessionMemory>()
 	}
+	// The chat's offer of the notification permission is made once per student on this device.
+	singleOf(::NotificationOfferSettingsDataSource) {
+		bind<NotificationOfferRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
+	singleOf(::AssistantConfigDataSource) { bind<AssistantConfigRepository>() }
 	single<EventPublisher> {
 		BufferedEventPublisher(
 			usageDataConsentRepository = get(),
@@ -115,6 +144,11 @@ val commonModule = module {
 	// The attempt of Registro a screen asked the host to show: the host writes it, the machine of that tab applies it.
 	singleOf(::InMemoryRecordAttemptFocusDataSource) {
 		bind<RecordAttemptFocusRepository>()
+		bind<SessionMemory>()
+	}
+	// The term report a notification asked the host to open: the host takes it once the student is in the app.
+	singleOf(::InMemoryTermReportFocusDataSource) {
+		bind<TermReportFocusRepository>()
 		bind<SessionMemory>()
 	}
 	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {
@@ -157,6 +191,25 @@ val commonModule = module {
 	singleOf(::SyncResultLocalDataSource) { bind<SyncResultLocalDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
+
+	/* Assistant */
+
+	// The ports the assistant domain declares, filled with the use cases and the data of this app. None of them keeps
+	// memory: each one reads its use cases and mutates through them, so none is a session memory. The one exception is
+	// the follow-up of queued mutations, which outlives the chat for the session and lets go of it when the session ends.
+	singleOf(::AssistantQueuedMutationsDataSource) {
+		bind<AssistantQueuedMutationsRepository>()
+		bind<SessionMemory>()
+	}
+	factoryOf(::PensumSubjectCatalogDataSource)
+	factoryOf(::RecordIntentRunnerDataSource)
+	factoryOf(::EvaluationsAssistantDataSource) { bind<AssistantEvaluationsRepository>() }
+	factoryOf(::AcademicCalendarAssistantDataSource) { bind<AssistantAcademicCalendarRepository>() }
+	factoryOf(::EvaluationCardsAssistantDataSource) { bind<AssistantEvaluationCardRepository>() }
+	factoryOf(::RecordAssistantPlansDataSource) { bind<AssistantPlansRepository>() }
+	factoryOf(::RecordAssistantProjectionDataSource) { bind<AssistantProjectionRepository>() }
+	factoryOf(::AssistantClientStateDataSource) { bind<AssistantClientStateRepository>() }
+
 	single<SyncRepository> {
 		SyncDataSource(
 			settingsDataSource = get<SyncSettingsLocalDataRepository>(),

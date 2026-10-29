@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.awaitCancellation
@@ -744,10 +745,7 @@ private fun createViewModel(
 						reportingRepository = RecordingReportingRepository(),
 						exceptionHandler = RemoveEvaluationExceptionHandler()
 					),
-					setSelectedWeekUseCase = SetSelectedWeekUseCase(
-						evaluationsSelectionRepository = selectionRepository,
-						reportingRepository = RecordingReportingRepository()
-					),
+					setSelectedWeekUseCase = selectedWeekUseCase(selectionRepository),
 				weekFocusRepository = InMemoryEvaluationsWeekFocusDataSource(),
 				clock = clock
 			),
@@ -766,3 +764,10 @@ private fun createViewModel(
 		}
 	}
 }
+
+// The use case of the week selection, built outside the class: the class sits at the LargeClass threshold of detekt.
+private fun selectedWeekUseCase(selectionRepository: EvaluationsSelectionRepository) = SetSelectedWeekUseCase(
+	evaluationsSelectionRepository = selectionRepository,
+	reportingRepository = RecordingReportingRepository(),
+	sessionCoroutineScope = testSessionCoroutineScope()
+)

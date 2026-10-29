@@ -4,6 +4,12 @@
 // domain/**, ui/** y presentation/** se validan aquí juntas (líneas compartidas usan comas).
 package com.gdavidpb.tuindice.sample.domain.usecase
 
+// ui-no-wire-contract-import: la UI no importa el contrato de cable (ruleid); los modelos de presentación sí (ok).
+// ruleid: ui-no-wire-contract-import
+import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
+// ok: ui-no-wire-contract-import
+import com.gdavidpb.tuindice.sample.presentation.model.SampleLabel
+
 // ruleid: domain-no-data-import, ui-no-business-import
 import com.gdavidpb.tuindice.record.data.model.QuarterEntity
 // ruleid: domain-no-data-import, ui-no-business-import
@@ -76,4 +82,26 @@ enum class SampleOrigin { LOCAL, REMOTE }
 // ok: data-repository-interfaces-only
 interface OtherDataRepository {
 	fun read(): String
+}
+
+
+// domain-repository-no-default-bodies: las interfaces de domain/repository no traen cuerpos ni getters.
+interface SampleDefaultsRepository {
+	// ruleid: domain-repository-no-default-bodies
+	fun withBody(): String {
+		return "default"
+	}
+
+	// ruleid: domain-repository-no-default-bodies
+	fun withExpressionBody(): String = "default"
+
+	val computed: String
+		// ruleid: domain-repository-no-default-bodies
+		get() = "default"
+
+	// ok: domain-repository-no-default-bodies
+	fun abstractRead(): String
+
+	// ok: domain-repository-no-default-bodies
+	fun withDefaultParameter(limit: Int = 10): String
 }

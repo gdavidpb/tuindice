@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
@@ -22,11 +23,18 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.testing.attemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptArrivalHighlight
+import com.gdavidpb.tuindice.record.ui.model.RecordActions
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -44,7 +52,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", subjectCode = "MA2115", isReadOnly = true),
-				onGradeChange = { _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -68,7 +78,9 @@ class AttemptCardItemViewUiTest {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1"),
 				gradeState = remember { mutableIntStateOf(2) },
-				onGradeChange = { _, _, _ -> }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
 			)
 		}
 
@@ -85,7 +97,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-				onGradeChange = { _, _, _ -> },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				arrivalHighlight = AttemptArrivalHighlight(
 					trigger = "arrival-1",
 					onFinished = { finished.value = true }
@@ -106,7 +120,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-				onGradeChange = { _, _, _ -> },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				),
 				arrivalHighlight = null
 			)
 		}
@@ -123,7 +139,9 @@ class AttemptCardItemViewUiTest {
 		setTuIndiceTestContent {
 			AttemptCardItemView(
 				item = attemptItem(attemptId = "attempt-1", gradingMode = GradingMode.QUALITATIVE_PASS_FAIL),
-				onGradeChange = { grade, outcome, isSelected -> reported += Triple(grade, outcome, isSelected) }
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected -> reported += Triple(grade, outcome, isSelected) }
+				)
 			)
 		}
 
@@ -135,6 +153,123 @@ class AttemptCardItemViewUiTest {
 	}
 
 	@Test
+	fun when_theCardIsTappedWithTheAssistantOn_then_itOffersToAskAboutTheSubject_withItsContext() = runTuIndiceUiTest {
+		val asked = mutableListOf<AssistantScreenContext>()
+		val item = attemptItem(attemptId = "attempt-1", subjectCode = "MA2115", isReadOnly = true)
+			.copy(assistantContext = SubjectContext)
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = item,
+				actions = RecordActions(
+					onAskAssistant = { context -> asked += context }
+				)
+			)
+		}
+
+		assertNodeHidden(AskAssistantMenuItemTag)
+		onNodeWithTag(RecordUiTags.attemptCard("attempt-1")).performClick()
+		assertNodeVisible(AskAssistantMenuItemTag)
+
+		onNodeWithTag(AskAssistantMenuItemTag).performClick()
+		waitForIdle()
+
+		// The question goes with what the card is about, and the menu closes behind it.
+		assertEquals(listOf(SubjectContext), asked)
+		assertNodeHidden(AskAssistantMenuItemTag)
+	}
+
+	@Test
+	fun when_theCardIsTappedWithoutTheAssistant_then_itOffersNothing() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(attemptId = "attempt-1", isReadOnly = true).copy(assistantContext = SubjectContext),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, _, _, _ -> }
+				)
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.attemptCard("attempt-1")).performClick()
+		waitForIdle()
+
+		assertNodeHidden(AskAssistantMenuItemTag)
+	}
+
+	@Test
+	fun when_anEditableCardOffersTheAssistant_then_theSliderSetsTheGrade_andTheCardStillAsks() = runTuIndiceUiTest {
+		val reported = mutableListOf<Triple<Int?, AttemptOutcome?, Boolean>>()
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(attemptId = "attempt-1", subjectCode = "MA2115"),
+				gradeState = remember { mutableIntStateOf(4) },
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected ->
+						reported += Triple(grade, outcome, isSelected)
+					},
+					onAskAssistant = { }
+				)
+			)
+		}
+
+		// The slider is the card's own control: moving it sets the grade, and the card does not open its question.
+		onNodeWithTag(RecordUiTags.attemptGradeSlider("attempt-1"))
+			.performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(2f) }
+		waitForIdle()
+
+		assertEquals(
+			listOf<Triple<Int?, AttemptOutcome?, Boolean>>(Triple(2, null, false), Triple(2, null, true)),
+			reported
+		)
+		assertNodeHidden(AskAssistantMenuItemTag)
+
+		// A tap on the card's name, outside its controls, still opens the question about the subject.
+		onNodeWithText("MATERIA MA2115").performClick()
+		waitForIdle()
+
+		assertNodeVisible(AskAssistantMenuItemTag)
+	}
+
+	@Test
+	fun when_anEditableStatusCardOffersTheAssistant_then_theSelectorChooses_andTheCardStillAsks() = runTuIndiceUiTest {
+		val reported = mutableListOf<Triple<Int?, AttemptOutcome?, Boolean>>()
+
+		setTuIndiceTestContent {
+			AttemptCardItemView(
+				item = attemptItem(
+					attemptId = "attempt-1",
+					subjectCode = "MA2115",
+					gradingMode = GradingMode.QUALITATIVE_PASS_FAIL
+				),
+				actions = RecordActions(
+					onAttemptSelectionChange = { _, grade, outcome, isSelected ->
+						reported += Triple(grade, outcome, isSelected)
+					},
+					onAskAssistant = { }
+				)
+			)
+		}
+
+		// The selector is the card's own control: choosing a status reports it, and the card does not open its question.
+		onNodeWithTag(RecordUiTags.attemptStatusSelector("attempt-1")).performClick()
+		onNodeWithTag(RecordUiTags.attemptStatusOption(attemptId = "attempt-1", status = "failed")).performClick()
+		waitForIdle()
+
+		assertEquals(
+			listOf<Triple<Int?, AttemptOutcome?, Boolean>>(Triple(null, AttemptOutcome.FAILED, true)),
+			reported
+		)
+		assertNodeHidden(AskAssistantMenuItemTag)
+
+		// A tap on the card's name, outside its controls, still opens the question about the subject.
+		onNodeWithText("MATERIA MA2115").performClick()
+		waitForIdle()
+
+		assertNodeVisible(AskAssistantMenuItemTag)
+	}
+
+	@Test
 	fun when_anArrivalHighlightIsGiven_then_itsBorderLiesOnTheCardsEdge_andNotInTheMarginAroundIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			MaterialTheme(colorScheme = lightColorScheme(primary = Accent, surfaceVariant = CardSurface)) {
@@ -143,7 +278,9 @@ class AttemptCardItemViewUiTest {
 						.testTag(HostTag)
 						.background(Backdrop),
 					item = attemptItem(attemptId = "attempt-1", isReadOnly = true),
-					onGradeChange = { _, _, _ -> },
+					actions = RecordActions(
+						onAttemptSelectionChange = { _, _, _, _ -> }
+					),
 					arrivalHighlight = AttemptArrivalHighlight(
 						trigger = "arrival-1",
 						onFinished = {}
@@ -180,5 +317,14 @@ class AttemptCardItemViewUiTest {
 		val Accent = Color.Red
 		val CardSurface = Color.Blue
 		val Backdrop = Color.White
+		val AskAssistantMenuItemTag = BaseUiTags.askAssistant("menu_item")
+		val SubjectContext = AssistantScreenContext(
+			screen = AssistantScreen.RECORD,
+			entities = listOf(
+				AssistantEntityRef(kind = AssistantEntityKind.ATTEMPT, id = "attempt-1"),
+				AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "MA2115")
+			),
+			visibleFields = mapOf("subjectCode" to "MA2115", "subjectName" to "Materia MA2115")
+		)
 	}
 }
