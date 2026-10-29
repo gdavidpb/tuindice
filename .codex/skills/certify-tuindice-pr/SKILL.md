@@ -54,8 +54,8 @@ bumps, `.codex/**`, `docs/**`, `e2e/tools/**`, `*.md`, the rest of `.github/**`.
 5. Diagnose what the branch changed: `python3 e2e/scripts/shared/e2e.py list --changed-since origin/production`, then
    `python3 e2e/scripts/shared/e2e.py run --platform all --mode diagnose --scenario <ids>`. It needs no clean
    tree and publishes nothing.
-6. Only when the helper says `partial` or `rerun`: `./gradlew e2eEvidence`, or `e2eEvidenceAndroid` /
-   `e2eEvidenceIos` for one platform.
+6. Only after step 5 is green on both platforms, and the helper says `partial` or `rerun`: `./gradlew e2eEvidence`,
+   or `e2eEvidenceAndroid` / `e2eEvidenceIos` for one platform.
 7. On a non-zero exit read the run's `summary.txt` and follow "Failure handling" and "Stop conditions".
 8. After the final push, rerun the helper: every required platform is `current`.
 9. Open or update a non-draft PR against `production` and verify its head SHA equals the certified SHA.
