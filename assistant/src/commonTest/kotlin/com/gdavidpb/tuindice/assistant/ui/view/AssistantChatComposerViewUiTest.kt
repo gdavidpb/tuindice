@@ -73,7 +73,7 @@ class AssistantChatComposerViewUiTest {
 	}
 
 	@Test
-	fun when_theComposerIsOn_then_theClipIsInsideTheField_atItsStart_andOpensThePhotoMenu() = runTuIndiceUiTest {
+	fun when_theComposerIsOn_then_theClipIsInsideTheField_underTheText_andOpensThePhotoMenu() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
 				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true),
@@ -93,11 +93,16 @@ class AssistantChatComposerViewUiTest {
 		// The clip's 48 dp touch target sits 4 dp in from the start of the field. The tag is on the 40 dp icon button,
 		// centred in that target, so the button itself starts 4 dp further in.
 		assertEquals(with(density) { 8.dp.toPx() }, clip.left - field.left, absoluteTolerance = PIXEL_TOLERANCE)
-		// The send button is inside the field too, at its end, after the clip.
+		// The send button is inside the field too, at the end of the clip's row.
 		assertTrue(send.left >= clip.right && send.right <= field.right)
-		// The text starts 12 dp after the clip's 38 dp circle, which sits 1 dp inside the 40 dp button.
+		assertEquals(clip.center.y, send.center.y, absoluteTolerance = PIXEL_TOLERANCE)
+		// The text has the field's width to itself: it starts 12 dp in from the field, above the clip's row.
 		val text = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		assertEquals(with(density) { 11.dp.toPx() }, text.left - clip.right, absoluteTolerance = PIXEL_TOLERANCE)
+		assertEquals(with(density) { 12.dp.toPx() }, text.left - field.left, absoluteTolerance = PIXEL_TOLERANCE)
+		assertTrue(
+			clip.top >= text.bottom,
+			"the clip's row starts at ${clip.top}, above the text that ends at ${text.bottom}"
+		)
 
 		assertNodeEnabled(AssistantUiTags.PhotoButton)
 		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
@@ -157,10 +162,10 @@ class AssistantChatComposerViewUiTest {
 	}
 
 	@Test
-	fun when_theFieldHasOneLine_then_theSendButtonIsCentredOnIt() = runTuIndiceUiTest {
+	fun when_theFieldHasOneLine_then_theSendButtonSitsUnderTheText_atTheEnd() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
-				composer = ChatComposerItem(text = "hola", isEnabled = true, isSendEnabled = true, isPhotoEnabled = true),
+				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true),
 				isCameraAvailable = false,
 				onAction = {}
 			)
@@ -168,12 +173,17 @@ class AssistantChatComposerViewUiTest {
 
 		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
 		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
+		val text = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
-		assertEquals(field.center.y, send.center.y, absoluteTolerance = PIXEL_TOLERANCE)
+		assertTrue(
+			send.top >= text.bottom,
+			"the send button starts at ${send.top}, above the text that ends at ${text.bottom}"
+		)
+		assertTrue(send.left > field.center.x && send.right <= field.right)
 	}
 
 	@Test
-	fun when_theFieldGrows_then_theSendButtonStaysByItsLastLine() = runTuIndiceUiTest {
+	fun when_theFieldGrows_then_theSendButtonStaysInTheRowAtTheBottom() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
 				composer = ChatComposerItem(

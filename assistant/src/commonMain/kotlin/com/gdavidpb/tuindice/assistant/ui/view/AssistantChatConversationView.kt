@@ -337,10 +337,31 @@ private fun AssistantChatStatusView(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	val readingLabel = if (content.isExtracting) stringResource(Res.string.assistant_photo_reading) else null
-	val sendingLabel = if (content.isSending) stringResource(Res.string.assistant_chat_sending) else null
+	// «Preparando la respuesta…» covers the send and then the running turn until its first step has a label of its
+	// own: run_started clears the sending, and the first progress can come half a minute later (seen in production), so
+	// without it the sheet showed nothing but the stop button.
+	val waitingForAnswer = content.isSending || content.composer.isStoppable
+	val sendingLabel = if (waitingForAnswer) stringResource(Res.string.assistant_chat_sending) else null
 	val progressLabel = content.progressLabel ?: readingLabel ?: sendingLabel
 	val shownLabel = rememberLastNonNull(progressLabel)
 	val shownNotice = rememberLastNonNull(content.notice)
+
+	AssistantChatSlotView(visible = progressLabel != null) {
+		shownLabel?.let { AssistantProgressView(label = it) }
+	}
+	AssistantChatSlotView(visible = content.notice != null) {
+		shownNotice?.let { AssistantChatNoticeView(notice = it, onAction = onAction) }
+	}
+	AssistantChatSuggestionsSlotView(content = content, ledger = ledger, onAction = onAction)
+}
+
+// The suggestions after the messages, in a place of their own that comes and goes.
+@Composable
+private fun AssistantChatSuggestionsSlotView(
+	content: AssistantChat.State.Content,
+	ledger: ChatEntranceLedger,
+	onAction: (AssistantChat.Action) -> Unit
+) {
 	val shownSuggestions = rememberLastNonNull(content.suggestions.takeIf { it.isNotEmpty() })
 
 	// Suggestions that are on screen when the sheet opens are there; they enter chip by chip only once they have gone
@@ -357,13 +378,20 @@ private fun AssistantChatStatusView(
 		?.let { planAgentEntrance(it.parts).actionsDelay }
 		?: 0
 
-	AssistantChatSlotView(visible = progressLabel != null) {
-		shownLabel?.let { AssistantProgressView(label = it) }
+	// Once the student writes their own question the suggestions give the conversation their room: they fade and shrink
+	// away while the composer has text, and grow back if it is emptied. Their own entrance stays chip by chip; only the
+	// way back from writing grows the slot.
+	val isWriting = content.composer.text.isNotBlank()
+	val hiddenByWriting = remember { mutableStateOf(false) }
+
+	LaunchedEffect(isWriting, content.suggestions.isEmpty()) {
+		if (isWriting) hiddenByWriting.value = true else if (content.suggestions.isEmpty()) hiddenByWriting.value = false
 	}
-	AssistantChatSlotView(visible = content.notice != null) {
-		shownNotice?.let { AssistantChatNoticeView(notice = it, onAction = onAction) }
-	}
-	AssistantChatSlotView(visible = content.suggestions.isNotEmpty(), fadeOnly = true) {
+
+	AssistantChatSlotView(
+		visible = content.suggestions.isNotEmpty() && !isWriting,
+		fadeOnly = !isWriting && !hiddenByWriting.value
+	) {
 		shownSuggestions?.let {
 			AssistantChatSuggestionsView(
 				suggestions = it,

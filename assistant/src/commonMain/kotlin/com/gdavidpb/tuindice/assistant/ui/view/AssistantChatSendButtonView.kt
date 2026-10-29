@@ -3,9 +3,12 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -50,7 +53,7 @@ private fun SendOrStopButton(
 ) {
 	if (isStoppable) {
 		ComposerCircleButton(
-			icon = Icons.Outlined.Stop,
+			icon = StopSquare,
 			description = stringResource(Res.string.a11y_assistant_stop),
 			isOn = true,
 			onClick = { onAction(AssistantChat.Action.CancelTurn) },
@@ -66,6 +69,34 @@ private fun SendOrStopButton(
 		)
 	}
 }
+
+// Stop: a filled square with softened corners. Material's stop square takes half of its box and read small next to the
+// send arrow, so this one takes two thirds of the same 20 dp box: about 13 dp, as tall as the arrow.
+private const val STOP_VIEWPORT = 24f
+private const val STOP_EDGE_LOW = 4f
+private const val STOP_EDGE_HIGH = 20f
+private const val STOP_CORNER = 2f
+
+private val StopSquare: ImageVector = ImageVector.Builder(
+	name = "AssistantStopSquare",
+	defaultWidth = STOP_VIEWPORT.dp,
+	defaultHeight = STOP_VIEWPORT.dp,
+	viewportWidth = STOP_VIEWPORT,
+	viewportHeight = STOP_VIEWPORT
+).apply {
+	path(fill = SolidColor(Color.Black)) {
+		moveTo(STOP_EDGE_LOW + STOP_CORNER, STOP_EDGE_LOW)
+		horizontalLineTo(STOP_EDGE_HIGH - STOP_CORNER)
+		arcToRelative(STOP_CORNER, STOP_CORNER, 0f, isMoreThanHalf = false, isPositiveArc = true, STOP_CORNER, STOP_CORNER)
+		verticalLineTo(STOP_EDGE_HIGH - STOP_CORNER)
+		arcToRelative(STOP_CORNER, STOP_CORNER, 0f, isMoreThanHalf = false, isPositiveArc = true, -STOP_CORNER, STOP_CORNER)
+		horizontalLineTo(STOP_EDGE_LOW + STOP_CORNER)
+		arcToRelative(STOP_CORNER, STOP_CORNER, 0f, isMoreThanHalf = false, isPositiveArc = true, -STOP_CORNER, -STOP_CORNER)
+		verticalLineTo(STOP_EDGE_LOW + STOP_CORNER)
+		arcToRelative(STOP_CORNER, STOP_CORNER, 0f, isMoreThanHalf = false, isPositiveArc = true, STOP_CORNER, -STOP_CORNER)
+		close()
+	}
+}.build()
 
 // The off tones of the send button: the accent and its content colour, faded (owner's choice over Material's grey).
 internal const val OFF_CIRCLE_ALPHA = 0.35f

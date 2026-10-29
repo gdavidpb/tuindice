@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
@@ -160,6 +161,46 @@ class AssistantChatConversationViewUiTest {
 		assertIs<AssistantChat.Action.RetryTurn>(actions.single())
 	}
 
+	@Test
+	fun when_theStudentWritesTheirOwnQuestion_then_theSuggestionsLeaveAndComeBackWhenTheTextIsCleared() =
+		runTuIndiceUiTest {
+			val content = mutableStateOf(contentState(suggestions = SUGGESTIONS))
+			setTuIndiceTestContent {
+				AssistantChatConversationView(
+					content = content.value,
+					onAction = {},
+					modifier = Modifier.height(CONTAINER_HEIGHT)
+				)
+			}
+			waitForIdle()
+			onNodeWithText(LAST_SUGGESTION).assertIsDisplayed()
+
+			content.value = content.value.copy(composer = content.value.composer.copy(text = TYPED_TEXT))
+			waitForIdle()
+			onNodeWithText(LAST_SUGGESTION).assertDoesNotExist()
+
+			content.value = content.value.copy(composer = content.value.composer.copy(text = ""))
+			waitForIdle()
+			onNodeWithText(LAST_SUGGESTION).assertIsDisplayed()
+		}
+
+	// run_started clears the sending before the turn's first step has a label: the wait still says what is going on.
+	@Test
+	fun when_aTurnRunsWithNoStepLabelYet_then_theWaitingLabelShows() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = contentState(
+					composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isStoppable = true)
+				),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.ProgressLabel, useUnmergedTree = true).assertIsDisplayed()
+	}
+
 	private fun ComposeUiTest.setShortChatWithKeyboardOpen() {
 		val keyboard = FakeKeyboardInsets().apply { bottomPx = SHORT_KEYBOARD_PX }
 
@@ -211,6 +252,7 @@ class AssistantChatConversationViewUiTest {
 		const val FAILED_MESSAGE = "No pudimos responder. Inténtalo de nuevo."
 		const val OFFER_TITLE = "Avisos de tu informe"
 		const val LAST_SUGGESTION = "¿Cuál es mi ritmo de créditos?"
+		const val TYPED_TEXT = "¿Puedo retirar"
 		val SUGGESTIONS = listOf(
 			ChatSuggestionItem(id = "trimestre", label = "¿Cómo voy este trimestre?"),
 			ChatSuggestionItem(id = "atencion", label = "¿Qué necesita mi atención?"),
