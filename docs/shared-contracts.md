@@ -31,7 +31,7 @@ Gradle publica también las variantes Android y Apple de cada módulo. El backen
   `https://us-east1-maven.pkg.dev/tu-indice-usb/tuindice-libs`. Se puede cambiar con
   `-Ptuindice.contracts.repositoryUrl=<url>`.
 - Autenticación: Workload Identity Federation con la cuenta de servicio del secreto
-  `GCP_CONTRACTS_PUBLISHER_SERVICE_ACCOUNT`. El token se obtiene con `gcloud` y vive en la variable
+  `GCP_CONTRACTS_PUBLISHER_SERVICE_ACCOUNT`. El token lo entrega la acción de autenticación (`token_format: access_token`) y vive en la variable
   `ARTIFACT_REGISTRY_TOKEN` solo durante el paso de publicación.
 - Sin `ARTIFACT_REGISTRY_TOKEN` el repositorio remoto no se declara, así que `publishToMavenLocal` funciona sin
   credenciales.
