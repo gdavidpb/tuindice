@@ -14892,7 +14892,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_status_available"
+                        "value": "record_create_synthetic_term_subject_MA1112_status_available"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -14904,7 +14904,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -15376,7 +15376,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 372
+                        "line": 373
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -15388,7 +15388,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 373
+                        "line": 374
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15401,18 +15401,6 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 374
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
                         "line": 375
                     },
                     "timeoutMs": 5000,
@@ -15421,7 +15409,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_search_result_1_subject_MA1121"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -15440,13 +15428,12 @@
                         "line": 377
                     },
                     "timeoutMs": 5000,
-                    "type": "waitVisible"
+                    "type": "waitGone"
                 },
                 {
                     "q": {
-                        "contains": false,
-                        "type": "text",
-                        "value": "Disponible"
+                        "type": "tag",
+                        "value": "record_create_synthetic_term_taken_subjects_toggle"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -15458,20 +15445,20 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_taken_subjects_toggle"
                     },
+                    "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
                         "line": 379
                     },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
+                    "type": "tap"
                 },
                 {
-                    "direction": "contentUp",
+                    "direction": "contentDown",
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_search_field"
+                        "value": "record_create_synthetic_term_subject_MA1121_status_approved"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -15483,11 +15470,61 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_search_clear_button"
+                        "value": "record_create_synthetic_term_search_result_1_subject_MA1121"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
                         "line": 381
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "Aprobada"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 382
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 383
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitGone"
+                },
+                {
+                    "direction": "contentUp",
+                    "q": {
+                        "type": "tag",
+                        "value": "record_create_synthetic_term_search_field"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 384
+                    },
+                    "timeoutMs": 20000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_create_synthetic_term_search_clear_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 385
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -15500,7 +15537,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 382
+                        "line": 386
                     },
                     "type": "tap"
                 },
@@ -15545,7 +15582,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 386
+                        "line": 390
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -15558,7 +15595,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 387
+                        "line": 391
                     },
                     "type": "tap"
                 },
@@ -15570,7 +15607,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 388
+                        "line": 392
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -15582,7 +15619,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 389
+                        "line": 393
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15595,7 +15632,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 390
+                        "line": 394
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15608,7 +15645,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 391
+                        "line": 395
                     },
                     "type": "tap"
                 },
@@ -15620,7 +15657,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 392
+                        "line": 396
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15632,7 +15669,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 393
+                        "line": 397
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15644,7 +15681,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 394
+                        "line": 398
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -15657,7 +15694,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 398
+                        "line": 402
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -15669,7 +15706,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 399
+                        "line": 403
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -15682,7 +15719,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 400
+                        "line": 404
                     },
                     "type": "tap"
                 },
@@ -15727,7 +15764,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 402
+                        "line": 406
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -15740,7 +15777,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 403
+                        "line": 407
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15752,7 +15789,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 404
+                        "line": 408
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15765,7 +15802,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 405
+                        "line": 409
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -15778,7 +15815,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 406
+                        "line": 410
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -15790,13 +15827,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 407
+                        "line": 411
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "2d3f6e0a65a91a6a",
+            "stepsHash": "e23e574dfe7ee258",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -15909,7 +15946,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 421
+                        "line": 425
                     },
                     "type": "tap"
                 },
@@ -15920,7 +15957,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 422
+                        "line": 426
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -15932,7 +15969,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 423
+                        "line": 427
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -15944,7 +15981,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 424
+                        "line": 428
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -16019,7 +16056,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 428
+                        "line": 432
                     },
                     "type": "tap"
                 },
@@ -16030,7 +16067,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 429
+                        "line": 433
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16043,7 +16080,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 430
+                        "line": 434
                     },
                     "type": "tap"
                 },
@@ -16054,7 +16091,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 431
+                        "line": 435
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -16066,7 +16103,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 432
+                        "line": 436
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16079,7 +16116,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 433
+                        "line": 437
                     },
                     "type": "tap"
                 },
@@ -16090,7 +16127,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 434
+                        "line": 438
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16103,7 +16140,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 435
+                        "line": 439
                     },
                     "type": "tap"
                 },
@@ -16114,7 +16151,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 436
+                        "line": 440
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16240,7 +16277,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 463
+                        "line": 467
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16291,7 +16328,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 465
+                        "line": 469
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -16328,7 +16365,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 467
+                        "line": 471
                     },
                     "type": "tap"
                 },
@@ -16342,7 +16379,7 @@
                     "secure": false,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 468
+                        "line": 472
                     },
                     "text": "ec",
                     "type": "enterText"
@@ -16355,7 +16392,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 469
+                        "line": 473
                     },
                     "type": "tap"
                 },
@@ -16366,7 +16403,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 470
+                        "line": 474
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16451,7 +16488,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 473
+                        "line": 477
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -16464,7 +16501,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 475
+                        "line": 479
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -16477,7 +16514,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 476
+                        "line": 480
                     },
                     "type": "tap"
                 },
@@ -16488,7 +16525,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 477
+                        "line": 481
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -16501,7 +16538,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 478
+                        "line": 482
                     },
                     "timeoutMs": 10000,
                     "type": "assertEnabled"
@@ -16552,7 +16589,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 480
+                        "line": 484
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -16601,7 +16638,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 482
+                        "line": 486
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -16614,7 +16651,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 485
+                        "line": 489
                     },
                     "type": "tap"
                 },
@@ -16625,7 +16662,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 486
+                        "line": 490
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16638,7 +16675,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 487
+                        "line": 491
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16651,7 +16688,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 488
+                        "line": 492
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16664,7 +16701,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 489
+                        "line": 493
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -16676,7 +16713,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 490
+                        "line": 494
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16689,14 +16726,14 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 491
+                        "line": 495
                     },
                     "type": "tap"
                 },
                 {
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 492
+                        "line": 496
                     },
                     "type": "submitTextEntry"
                 },
@@ -16708,7 +16745,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 493
+                        "line": 497
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -16754,7 +16791,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 495
+                        "line": 499
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -16763,7 +16800,7 @@
                     "direction": "contentDown",
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -16775,7 +16812,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "requireEnabled": true,
                     "site": {
@@ -16805,7 +16842,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 497
+                        "line": 501
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16850,11 +16887,11 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "MA1121"
+                        "value": "MA1112"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 499
+                        "line": 503
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -16867,7 +16904,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 500
+                        "line": 504
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16880,7 +16917,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 503
+                        "line": 507
                     },
                     "type": "tap"
                 },
@@ -16891,7 +16928,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 504
+                        "line": 508
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16904,7 +16941,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 505
+                        "line": 509
                     },
                     "type": "tap"
                 },
@@ -16915,7 +16952,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 506
+                        "line": 510
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -16927,7 +16964,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 507
+                        "line": 511
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -16940,7 +16977,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 508
+                        "line": 512
                     },
                     "type": "tap"
                 },
@@ -16951,7 +16988,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 509
+                        "line": 513
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -16963,13 +17000,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 510
+                        "line": 514
                     },
                     "timeoutMs": 20000,
                     "type": "waitGone"
                 }
             ],
-            "stepsHash": "8ca74302c27b1f64",
+            "stepsHash": "27d466f8df296af6",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -17026,7 +17063,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 534
+                        "line": 538
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -17039,7 +17076,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 535
+                        "line": 539
                     },
                     "type": "tap"
                 },
@@ -17050,7 +17087,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 536
+                        "line": 540
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -17221,7 +17258,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 542
+                        "line": 546
                     },
                     "timeoutMs": 5000,
                     "type": "assertEnabled"
@@ -17270,7 +17307,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 544
+                        "line": 548
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -17283,7 +17320,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 547
+                        "line": 551
                     },
                     "type": "tap"
                 },
@@ -17294,7 +17331,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 548
+                        "line": 552
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17307,7 +17344,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 549
+                        "line": 553
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17320,14 +17357,14 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 550
+                        "line": 554
                     },
                     "type": "tap"
                 },
                 {
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 551
+                        "line": 555
                     },
                     "type": "submitTextEntry"
                 },
@@ -17339,7 +17376,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 552
+                        "line": 556
                     },
                     "timeoutMs": 10000,
                     "type": "scrollUntilVisible"
@@ -17385,7 +17422,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 554
+                        "line": 558
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -17394,7 +17431,7 @@
                     "direction": "contentDown",
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -17406,7 +17443,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_subject_MA1121_add_button"
+                        "value": "record_create_synthetic_term_subject_MA1112_add_button"
                     },
                     "requireEnabled": true,
                     "site": {
@@ -17471,7 +17508,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 557
+                        "line": 561
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -17480,11 +17517,11 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "MA1121"
+                        "value": "MA1112"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 558
+                        "line": 562
                     },
                     "timeoutMs": 20000,
                     "type": "waitGone"
@@ -17497,7 +17534,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 559
+                        "line": 563
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17509,13 +17546,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 560
+                        "line": 564
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "13d684566ed9f19f",
+            "stepsHash": "3f9710f3cb93d271",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -17605,7 +17642,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 578
+                        "line": 582
                     },
                     "type": "tap"
                 },
@@ -17616,7 +17653,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 579
+                        "line": 583
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17629,7 +17666,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 580
+                        "line": 584
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17641,7 +17678,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 581
+                        "line": 585
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17653,7 +17690,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 582
+                        "line": 586
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17665,7 +17702,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 583
+                        "line": 587
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -17713,7 +17750,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 585
+                        "line": 589
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17725,55 +17762,6 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 586
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 587
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "contains": false,
-                        "type": "text",
-                        "value": "Sec. 1 · MYS-116"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 588
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 589
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "record_schedule_table_clash_722cc2cc935e0aefdc73f9ebf9d2f1b6_2"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
                         "line": 590
                     },
                     "timeoutMs": 5000,
@@ -17782,7 +17770,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd"
+                        "value": "record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -17795,11 +17783,60 @@
                     "q": {
                         "contains": false,
                         "type": "text",
-                        "value": "Sin horario"
+                        "value": "Sec. 1 · MYS-116"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
                         "line": 592
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 593
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_schedule_table_clash_722cc2cc935e0aefdc73f9ebf9d2f1b6_2"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 594
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 595
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "Sin horario"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
+                        "line": 596
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17812,7 +17849,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 593
+                        "line": 597
                     },
                     "type": "tap"
                 },
@@ -17823,7 +17860,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 594
+                        "line": 598
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -17835,7 +17872,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 595
+                        "line": 599
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -17847,7 +17884,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 596
+                        "line": 600
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17860,7 +17897,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 597
+                        "line": 601
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17877,7 +17914,7 @@
                     "fy": 0.5,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 599
+                        "line": 603
                     },
                     "type": "swipe"
                 },
@@ -17888,7 +17925,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 600
+                        "line": 604
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -17900,7 +17937,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 601
+                        "line": 605
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17912,7 +17949,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 602
+                        "line": 606
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -17924,7 +17961,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 603
+                        "line": 607
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -17936,7 +17973,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 604
+                        "line": 608
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18033,7 +18070,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 621
+                        "line": 625
                     },
                     "type": "tap"
                 },
@@ -18080,7 +18117,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 623
+                        "line": 627
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18092,7 +18129,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 625
+                        "line": 629
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -18104,7 +18141,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 626
+                        "line": 630
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18117,7 +18154,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 627
+                        "line": 631
                     },
                     "type": "tap"
                 },
@@ -18128,7 +18165,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 628
+                        "line": 632
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18140,7 +18177,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 629
+                        "line": 633
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18153,7 +18190,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 630
+                        "line": 634
                     },
                     "type": "tap"
                 },
@@ -18164,7 +18201,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 631
+                        "line": 635
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18176,7 +18213,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 632
+                        "line": 636
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18189,7 +18226,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 633
+                        "line": 637
                     },
                     "type": "tap"
                 },
@@ -18200,7 +18237,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 634
+                        "line": 638
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18217,7 +18254,7 @@
                     "fy": 0.5,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 635
+                        "line": 639
                     },
                     "type": "swipe"
                 },
@@ -18228,7 +18265,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 636
+                        "line": 640
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -18276,7 +18313,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 639
+                        "line": 643
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18288,7 +18325,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 640
+                        "line": 644
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18305,7 +18342,7 @@
                     "fy": 0.5,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 641
+                        "line": 645
                     },
                     "type": "swipe"
                 },
@@ -18316,7 +18353,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 642
+                        "line": 646
                     },
                     "timeoutMs": 10000,
                     "type": "waitGone"
@@ -18329,7 +18366,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 645
+                        "line": 649
                     },
                     "type": "tap"
                 },
@@ -18340,7 +18377,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 646
+                        "line": 650
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -18424,7 +18461,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 648
+                        "line": 652
                     },
                     "type": "tap"
                 },
@@ -18435,7 +18472,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 649
+                        "line": 653
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -18560,7 +18597,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 651
+                        "line": 655
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -18644,7 +18681,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 653
+                        "line": 657
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -18657,7 +18694,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 654
+                        "line": 658
                     },
                     "type": "tap"
                 },
@@ -18668,7 +18705,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 655
+                        "line": 659
                     },
                     "timeoutMs": 30000,
                     "type": "waitVisible"
@@ -18753,7 +18790,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 657
+                        "line": 661
                     },
                     "type": "tap"
                 },
@@ -18800,7 +18837,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 659
+                        "line": 663
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18812,7 +18849,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 660
+                        "line": 664
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -18907,7 +18944,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 672
+                        "line": 676
                     },
                     "type": "tap"
                 },
@@ -18918,7 +18955,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 674
+                        "line": 678
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -18930,7 +18967,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 675
+                        "line": 679
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -18943,7 +18980,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 676
+                        "line": 680
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -18955,7 +18992,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 677
+                        "line": 681
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19050,7 +19087,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 689
+                        "line": 693
                     },
                     "type": "tap"
                 },
@@ -19062,7 +19099,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 691
+                        "line": 695
                     },
                     "timeoutMs": 20000,
                     "type": "scrollUntilVisible"
@@ -19075,7 +19112,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 696
+                        "line": 700
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19123,7 +19160,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 700
+                        "line": 704
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -19135,7 +19172,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 701
+                        "line": 705
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19147,7 +19184,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 702
+                        "line": 706
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -19239,7 +19276,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 713
+                        "line": 717
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -19252,7 +19289,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 714
+                        "line": 718
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19264,7 +19301,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 715
+                        "line": 719
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -19276,7 +19313,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 716
+                        "line": 720
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -19288,7 +19325,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
-                        "line": 717
+                        "line": 721
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"

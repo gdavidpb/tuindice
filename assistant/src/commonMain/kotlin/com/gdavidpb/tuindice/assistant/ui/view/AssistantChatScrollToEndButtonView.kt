@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,12 +52,12 @@ fun AssistantChatScrollToEndButtonView(
 	val scope = rememberCoroutineScope()
 	// The list opens at its top and then follows its last message down: the button waits until the list has reached its
 	// end once, so it does not flash while the sheet opens.
-	var hasReachedEnd by remember(listState) { mutableStateOf(false) }
-	val isAwayFromEnd by remember(listState) { derivedStateOf { hasReachedEnd && listState.canScrollForward } }
+	val hasReachedEnd = remember(listState) { mutableStateOf(false) }
+	val isAwayFromEnd by remember(listState) { derivedStateOf { hasReachedEnd.value && listState.canScrollForward } }
 
 	LaunchedEffect(listState) {
 		snapshotFlow { listState.canScrollForward }.first { canScroll -> !canScroll }
-		hasReachedEnd = true
+		hasReachedEnd.value = true
 	}
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 
