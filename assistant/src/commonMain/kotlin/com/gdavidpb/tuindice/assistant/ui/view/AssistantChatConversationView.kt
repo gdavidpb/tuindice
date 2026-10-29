@@ -217,8 +217,8 @@ private fun AssistantChatAboveMessages(
 	}
 }
 
-// The messages, with the sheet's snackbar floating over their foot: it sits right above what follows the messages,
-// so it takes no room in any mode while no notice shows.
+// The messages, with the sheet's snackbar and the button that goes to their end floating over their foot: they sit
+// right above what follows the messages, so they take no room in any mode while they do not show.
 @Composable
 private fun AssistantChatMessagesPlace(
 	content: AssistantChat.State.Content,
@@ -237,6 +237,10 @@ private fun AssistantChatMessagesPlace(
 			ledger = ledger,
 			listState = listState,
 			onAction = onAction
+		)
+		AssistantChatScrollToEndButton(
+			listState = listState,
+			modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = TuIndiceSpacing.Small)
 		)
 		AssistantChatSnackbarView(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
 	}

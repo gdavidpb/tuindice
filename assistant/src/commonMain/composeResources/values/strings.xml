@@ -2,6 +2,7 @@
 <resources>
 	<string name="a11y_assistant_send">Enviar</string>
 	<string name="a11y_assistant_stop">Detener respuesta</string>
+	<string name="a11y_assistant_scroll_to_end">Ir al final de la conversación</string>
 	<string name="a11y_assistant_remove_context">Quitar contexto</string>
 	<string name="a11y_assistant_copy">Copiar</string>
 	<string name="a11y_assistant_useful">Útil</string>

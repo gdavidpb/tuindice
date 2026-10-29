@@ -184,6 +184,30 @@ class AssistantChatConversationViewUiTest {
 			onNodeWithText(LAST_SUGGESTION).assertIsDisplayed()
 		}
 
+	@Test
+	fun when_theListIsAwayFromItsEnd_then_theScrollToEndButtonShows_andTakesItBackToTheEnd() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = conversation(lastUseful = null),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		// The list follows its last message, so it opens at its end and the button is not there.
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).assertDoesNotExist()
+
+		scrollToTop()
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).assertIsDisplayed()
+
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).performClick()
+		waitForIdle()
+
+		onNodeWithText(LAST_TEXT).assertIsDisplayed()
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).assertDoesNotExist()
+	}
+
 	// run_started clears the sending before the turn's first step has a label: the wait still says what is going on.
 	@Test
 	fun when_aTurnRunsWithNoStepLabelYet_then_theWaitingLabelShows() = runTuIndiceUiTest {
