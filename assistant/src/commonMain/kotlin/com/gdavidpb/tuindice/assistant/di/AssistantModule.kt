@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseC
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
@@ -154,6 +155,7 @@ val assistantModule = module {
 
 	factoryOf(::ObserveAssistantConversationUseCase)
 	factoryOf(::GetAssistantAcademicCalendarUseCase)
+	factoryOf(::GetAssistantEvaluationCardsUseCase)
 	factoryOf(::SendAssistantMessageUseCase)
 	factoryOf(::ExtractEvaluationsFromPhotoUseCase)
 	factoryOf(::FollowAssistantTurnUseCase)

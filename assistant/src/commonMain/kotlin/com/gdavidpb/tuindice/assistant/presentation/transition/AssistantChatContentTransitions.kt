@@ -366,6 +366,7 @@ private fun ContentTransitions.contentObservationRows(
 ) {
 	on<AssistantChatInternalEvent.ConversationObserved> { state, event ->
 		machine.session.observe(event.conversation)
+		machine.session.evaluationCards = event.evaluationCards
 
 		// One read for each new «¿Sigue aplicando?» card, whatever the state of its memory: a card whose component id no
 		// read has covered yet asks for a read, which covers the memories of those cards. While the cards do not change,

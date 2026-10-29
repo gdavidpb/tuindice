@@ -42,7 +42,7 @@ internal suspend fun AssistantConversation.toChatItems(
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
 				id = item.message.id,
-				parts = item.message.toChatParts(texts, this, session.selectionByDraft, session.runningIntents.keys, nowMillis),
+				parts = item.message.toChatParts(texts = texts, conversation = this, session = session, nowMillis = nowMillis),
 				useful = session.usefulByMessage[item.message.id],
 				reported = item.message.id in session.reportedMessages,
 				copyText = item.message.copyText()
@@ -63,21 +63,23 @@ internal fun AssistantConversation.lastAgentSuggestions(): List<SuggestedReply> 
 private suspend fun AssistantMessage.toChatParts(
 	texts: AssistantChatTexts,
 	conversation: AssistantConversation,
-	selections: Map<Pair<String, String>, Boolean>,
-	runningIntents: Set<String>,
+	session: AssistantChatSession,
 	nowMillis: Long
 ): List<ChatPartItem> {
 	val shown = parts.mapNotNull { part ->
 		when (part) {
 			is Text -> ChatPartItem.Text(text = part.text)
 
-			is Component -> ChatPartItem.Component(item = part.component.toChatComponentItem(nowMillis))
+			// A list of evaluations draws the ones the device has with the cards of the Evaluations tab.
+			is Component -> ChatPartItem.Component(
+				item = part.component.toChatComponentItem(nowMillis = nowMillis, deviceCards = session.evaluationCards)
+			)
 
 			is IntentPart -> ChatPartItem.IntentCard(
 				card = part.intent.toIntentCardItem(
 					texts = texts,
-					status = conversation.intentStatus(part.intent, runningIntents),
-					selections = selections
+					status = conversation.intentStatus(part.intent, session.runningIntents.keys),
+					selections = session.selectionByDraft
 				)
 			)
 

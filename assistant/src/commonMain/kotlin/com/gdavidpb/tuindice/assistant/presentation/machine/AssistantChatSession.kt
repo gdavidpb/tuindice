@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.mapper.lastAgentSuggestions
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
@@ -20,6 +21,10 @@ import kotlinx.coroutines.Job
 internal class AssistantChatSession {
 	var openedContext: AssistantScreenContext? = null
 	var conversation: AssistantConversation? = null
+
+	// The cards of the Evaluations tab for the evaluations the conversation's lists name, by id, read with each
+	// observation of the conversation: a list draws the ones the device has with them.
+	var evaluationCards: Map<String, EvaluationCardItem> = emptyMap()
 	var guidedByMode = false
 	var guidedByServer = false
 	var lastFailedSend: FailedSend? = null

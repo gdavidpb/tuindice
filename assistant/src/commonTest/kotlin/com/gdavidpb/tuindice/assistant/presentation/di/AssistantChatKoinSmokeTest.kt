@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.di
 
 import com.gdavidpb.tuindice.assistant.di.assistantModule
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantPlansRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantProjectionRepository
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.RecordingNotificatio
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantConfigRepository
+import com.gdavidpb.tuindice.assistant.testing.FakeAssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeSettings
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantPlansRepository
@@ -75,6 +77,7 @@ class AssistantChatKoinSmokeTest {
 				single<AssistantQueuedMutationsRepository> { RecordingAssistantQueuedMutationsRepository() }
 				single<AssistantPlansRepository> { RecordingAssistantPlansRepository() }
 				single<AssistantProjectionRepository> { RecordingAssistantProjectionRepository() }
+				single<AssistantEvaluationCardRepository> { FakeAssistantEvaluationCardRepository() }
 				single<ImageEncoderRepository> { RecordingImageEncoderRepository() }
 				single<NotificationOfferRepository> { RecordingNotificationOfferRepository() }
 				single<NotificationPermissionRepository> { RecordingNotificationPermissionRepository(offers = get()) }

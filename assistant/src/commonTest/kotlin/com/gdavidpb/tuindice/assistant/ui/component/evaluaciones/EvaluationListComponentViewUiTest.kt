@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.assistant.ui.component.evaluaciones
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Quiz
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,6 +14,10 @@ import com.gdavidpb.tuindice.assistant.presentation.mapper.toEvaluationListItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.TermCalendarFixture
 import com.gdavidpb.tuindice.assistant.presentation.testing.millisOf
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.base.presentation.model.ClassPlaceItem
+import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
@@ -85,14 +92,44 @@ class EvaluationListComponentViewUiTest {
 	}
 
 	@Test
-	fun when_theChatCardIsCompact_then_itShowsItsFirstRowsWithTheStateReadInItsTone() = runTuIndiceUiTest {
+	fun when_theChatShowsTheFirstRows_then_theyAreTheEvaluationsTabCards() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationListComponentView(item = list().toEvaluationListItem(), rowLimit = 1, onAction = {})
 		}
 
-		onNodeWithText("Parcial 1", substring = true).assertIsDisplayed()
+		// The chat draws its first rows with the same card as the sheet and the Evaluations tab: the name in capitals,
+		// the subject's chip, the grade over the maximum and the state.
+		onNodeWithText("PARCIAL 1").assertIsDisplayed()
+		onNodeWithText("IS-101").assertIsDisplayed()
+		onNodeWithText("14 / 20").assertIsDisplayed()
 		onNodeWithText("Completada").assertIsDisplayed()
-		onNodeWithText("Quiz 2").assertDoesNotExist()
+		onNodeWithText("QUIZ 2").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_theDeviceHasAnEvaluation_then_theChatAndTheSheetDrawItWithTheEvaluationsTabCard() = runTuIndiceUiTest {
+		val item = list().toEvaluationListItem(deviceCards = mapOf("eval-1" to TAB_CARD))
+		val rowLimit = mutableStateOf<Int?>(1)
+
+		setTuIndiceTestContent {
+			EvaluationListComponentView(item = item, rowLimit = rowLimit.value, onAction = {})
+		}
+
+		// The chat shows the tab's card: its name, its state and its place, not what the chat carries for it.
+		onNodeWithText("QUIZ 1").assertIsDisplayed()
+		onNodeWithText("Sin nota").assertIsDisplayed()
+		onNodeWithText("MYS-116").assertIsDisplayed()
+		onNodeWithText("PARCIAL 1").assertDoesNotExist()
+		onNodeWithText("Completada").assertDoesNotExist()
+
+		rowLimit.value = null
+		waitForIdle()
+
+		// The sheet draws the same card, and the evaluation the device lacks from what the chat carries.
+		onNodeWithText("QUIZ 1").assertIsDisplayed()
+		onNodeWithText("MYS-116").assertIsDisplayed()
+		onNodeWithText("QUIZ 2").assertIsDisplayed()
+		onNodeWithText("Evaluación continua").assertIsDisplayed()
 	}
 
 	@Test
@@ -172,5 +209,18 @@ class EvaluationListComponentViewUiTest {
 		const val FALLBACK_TEXT = "Evaluaciones de prueba"
 		const val DATE_MILLIS = 1_760_000_000_000L
 		val EVALUATION_REF = EntityRef(EntityKind.EVALUATION, "eval-1")
+
+		// The card the Evaluations tab shows for eval-1: a quiz in its class's room whose date passed with no grade.
+		val TAB_CARD = EvaluationCardItem(
+			name = "QUIZ 1",
+			subjectCode = "IS-101",
+			dateText = UiText.Raw("Miércoles 21/01/26"),
+			highlightTone = EvaluationTone.Error,
+			typeIcon = Icons.Outlined.Quiz,
+			place = ClassPlaceItem(room = "MYS-116", scheduleText = UiText.Raw("1-2")),
+			gradeText = "-- / 20",
+			statusText = "Sin nota",
+			statusTone = EvaluationTone.Error
+		)
 	}
 }

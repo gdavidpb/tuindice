@@ -8,12 +8,9 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
-import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardElementModifiers
-import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.base.ui.view.EvaluationCardView
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationCardItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationItemActions
@@ -40,17 +37,7 @@ fun EvaluationItemView(
 	val registerGradeLabel = stringResource(Res.string.a11y_evaluation_register_grade)
 
 	EvaluationCardView(
-		item = EvaluationCardItem(
-			name = item.typeNameText,
-			subjectCode = item.subjectCodeText,
-			dateText = item.dateText.asString(),
-			highlightTone = item.highlightTone.toEvaluationTone(),
-			typeIcon = item.typeIcon,
-			place = item.place,
-			gradeText = if (item.showsGradeAction) item.gradeText else null,
-			statusText = item.statusText,
-			statusTone = item.statusTone.toEvaluationTone()
-		),
+		item = item.toEvaluationCardItem(),
 		modifier = modifier,
 		cardModifier = Modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
@@ -96,10 +83,3 @@ fun EvaluationItemView(
 		)
 	)
 }
-
-private fun EvaluationHighlightTone.toEvaluationTone(): EvaluationTone =
-	when (this) {
-		EvaluationHighlightTone.Success -> EvaluationTone.Success
-		EvaluationHighlightTone.Error -> EvaluationTone.Error
-		EvaluationHighlightTone.Neutral -> EvaluationTone.Neutral
-	}

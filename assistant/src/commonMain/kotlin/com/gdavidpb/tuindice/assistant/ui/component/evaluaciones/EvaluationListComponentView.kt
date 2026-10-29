@@ -1,53 +1,39 @@
 package com.gdavidpb.tuindice.assistant.ui.component.evaluaciones
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationListItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationRowItem
-import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationStatusItem
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationWeekKey
 import com.gdavidpb.tuindice.assistant.presentation.model.EvaluationWeeksItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardBodyTextView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLabelView
 import com.gdavidpb.tuindice.assistant.ui.component.common.CardLinkItemView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardRowView
-import com.gdavidpb.tuindice.assistant.ui.component.common.CardValueView
 import com.gdavidpb.tuindice.assistant.ui.model.visibleRows
-import com.gdavidpb.tuindice.assistant.ui.view.AssistantEmbeddedCardView
 import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.base.ui.model.WeekSelectorTags
 import com.gdavidpb.tuindice.base.ui.model.WeekStripTags
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.EvaluationCardView
 import com.gdavidpb.tuindice.base.ui.view.WeekStripView
-import com.gdavidpb.tuindice.base.ui.view.evaluationToneColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_card_b_evaluations_empty
 import tuindice.assistant.generated.resources.assistant_card_b_evaluations_label
 
-// evaluaciones.lista/1: a row per evaluation. In the chat card the rows are compact: each has its subject, its title,
-// its grade over the maximum and the chip of its state. The sheet of the card shows its rows as the Evaluations tab
-// shows them, one week at a time when the app has a current term, and every row otherwise. The card links to the record
-// it names, if it names one. With no evaluation, a line says so.
+// evaluaciones.lista/1: every evaluation is drawn by the same card as the Evaluations tab, in the chat and in its
+// sheet. The chat shows the first ones; the sheet shows them one week at a time when the app has a current trimestre,
+// and every one otherwise. The list links to the record it names, if it names one. With no evaluation, a line says so.
 @Composable
 fun EvaluationListComponentView(
 	item: EvaluationListItem,
@@ -55,43 +41,16 @@ fun EvaluationListComponentView(
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	// The chat's card is a card of its own. The sheet draws the same list on its own background, as the Evaluations tab
-	// draws its cards on the screen's, so no card wraps the cards of the sheet.
-	if (rowLimit != null) {
-		AssistantEmbeddedCardView(modifier = modifier.testTag(AssistantUiTags.Evaluations.list(item.id))) {
-			CardLabelView(text = stringResource(Res.string.assistant_card_b_evaluations_label))
-			CompactEvaluationRows(item = item, rowLimit = rowLimit)
-			item.recordLink?.let { link -> CardLinkItemView(link = link, onAction = onAction) }
-		}
-	} else {
-		EvaluationSheetList(item = item, onAction = onAction, modifier = modifier)
-	}
+	EvaluationSheetList(item = item, rowLimit = rowLimit, onAction = onAction, modifier = modifier)
 }
 
-// The rows of the chat card: the first ones, each with its grade and the chip of its state.
-@Composable
-private fun CompactEvaluationRows(item: EvaluationListItem, rowLimit: Int) {
-	if (item.rows.isEmpty()) EvaluationEmptyLine()
-
-	item.rows.visibleRows(rowLimit).forEachIndexed { index, row ->
-		CardRowView(
-			code = row.code,
-			name = row.nameText.asString(),
-			showsDivider = index > 0,
-			trailing = {
-				EvaluationRowTrailing(value = row.gradeText.asString(), status = row.status)
-			}
-		)
-	}
-}
-
-// The sheet's list is drawn on the sheet's background, as the Evaluations tab draws its cards on the screen's.
-// The label, the week strip and the cards have no card around them, since a card on a card reads as a box.
-// The sheet keeps its own margin at the sides, so the cards take no gutter of their own and line up with the label,
-// the strip and the link.
+// The list is drawn on the background it sits on, as the Evaluations tab draws its cards on the screen's: the label,
+// the week strip and the cards have no card around them, since a card on a card reads as a box. The chat and the sheet
+// keep their own margin at the sides, so the cards take no gutter of their own and line up with the label and the link.
 @Composable
 private fun EvaluationSheetList(
 	item: EvaluationListItem,
+	rowLimit: Int?,
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier
 ) {
@@ -107,7 +66,9 @@ private fun EvaluationSheetList(
 		Column {
 			val weeks = item.weeks
 
-			if (weeks != null) {
+			if (rowLimit != null) {
+				EvaluationSheetRows(rows = item.rows.visibleRows(rowLimit))
+			} else if (weeks != null) {
 				EvaluationWeeksSheet(rows = item.rows, weeks = weeks)
 			} else {
 				EvaluationSheetRows(rows = item.rows)
@@ -150,24 +111,30 @@ private fun EvaluationWeeksSheet(rows: List<EvaluationRowItem>, weeks: Evaluatio
 	}
 }
 
-// One evaluation of the sheet, drawn by the same card as the Evaluations tab. The chat does not carry the type or the
-// place of an evaluation, so the card has neither a type icon nor a place line.
+// One evaluation, drawn by the same card as the Evaluations tab. An evaluation the device has is drawn with the very
+// card the tab shows for it, type icon and place included. One it does not have is drawn from what the chat carries,
+// which has neither a type nor a place, so its card has no type icon and no place line.
 @Composable
 private fun EvaluationSheetCard(row: EvaluationRowItem) {
-	val tone = row.status?.tone ?: EvaluationTone.Neutral
-
 	EvaluationCardView(
-		item = EvaluationCardItem(
-			// The Evaluations tab writes the name of an evaluation in capitals, and the sheet does the same.
-			name = row.title.uppercase(),
-			subjectCode = row.code,
-			dateText = row.dateText.asString(),
-			highlightTone = tone,
-			gradeText = row.gradeText.asString(),
-			statusText = row.status?.let { status -> status.text.asString() },
-			statusTone = tone
-		),
+		item = row.deviceCard ?: row.chatCard(),
 		horizontalMargin = TuIndiceSpacing.None
+	)
+}
+
+@Composable
+private fun EvaluationRowItem.chatCard(): EvaluationCardItem {
+	val tone = status?.tone ?: EvaluationTone.Neutral
+
+	return EvaluationCardItem(
+		// The Evaluations tab writes the name of an evaluation in capitals, and the sheet does the same.
+		name = title.uppercase(),
+		subjectCode = code,
+		dateText = dateText,
+		highlightTone = tone,
+		gradeText = gradeText.asString(),
+		statusText = status?.let { state -> state.text.asString() },
+		statusTone = tone
 	)
 }
 
@@ -177,54 +144,6 @@ private fun EvaluationEmptyLine(modifier: Modifier = Modifier) {
 		text = stringResource(Res.string.assistant_card_b_evaluations_empty),
 		modifier = modifier,
 		muted = true
-	)
-}
-
-// The grade and the state of a compact row, laid out as the trailing side of a card row is: the grade, then the state
-// chip, centred on each other and wrapping from the end.
-@Composable
-private fun EvaluationRowTrailing(
-	value: String,
-	status: EvaluationStatusItem?
-) {
-	FlowRow(
-		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small, Alignment.End),
-		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
-	) {
-		CardValueView(
-			text = value,
-			modifier = Modifier.align(Alignment.CenterVertically)
-		)
-
-		status?.let { state ->
-			EvaluationStateChip(
-				text = state.text.asString(),
-				tone = state.tone,
-				modifier = Modifier.align(Alignment.CenterVertically)
-			)
-		}
-	}
-}
-
-// The state of a compact row, in the shape of a chat chip and in the tone the Evaluations tab draws the state in.
-@Composable
-private fun EvaluationStateChip(
-	text: String,
-	tone: EvaluationTone,
-	modifier: Modifier = Modifier
-) {
-	val colors = evaluationToneColors(tone)
-
-	Text(
-		text = text,
-		modifier = modifier
-			.background(
-				color = colors.container,
-				shape = RoundedCornerShape(TuIndiceRadius.Large)
-			)
-			.padding(horizontal = TuIndiceSpacing.Medium, vertical = TuIndiceSpacing.XSmall),
-		style = MaterialTheme.typography.labelSmall,
-		color = colors.content
 	)
 }
 

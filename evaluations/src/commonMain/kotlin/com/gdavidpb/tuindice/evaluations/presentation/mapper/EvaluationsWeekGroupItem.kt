@@ -40,7 +40,9 @@ fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItemList(
 	}
 }
 
-private fun List<Evaluation>.toWeeklyEvaluationGroups(
+// The tab's groups by week, before the strip picks the weeks it shows. The assistant reads its cards from them too, so
+// the names keep the numbers the tab gives them.
+internal fun List<Evaluation>.toWeeklyEvaluationGroups(
 	currentTerm: EvaluationTermDescriptor?,
 	attempts: List<EditableAttemptDescriptor>,
 	mapping: EvaluationItemMapping

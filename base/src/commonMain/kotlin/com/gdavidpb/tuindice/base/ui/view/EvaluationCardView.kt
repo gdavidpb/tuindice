@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.EvaluationTone
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardElementModifiers
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.base.ui.model.EvaluationToneColors
@@ -191,7 +192,7 @@ private fun EvaluationCardFooter(
 			item.dateText?.let { text ->
 				MetadataLine(
 					icon = Icons.Outlined.CalendarToday,
-					text = text,
+					text = text.asString(),
 					color = metadataColor
 				)
 			}

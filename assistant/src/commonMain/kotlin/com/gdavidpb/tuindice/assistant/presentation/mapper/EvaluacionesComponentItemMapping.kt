@@ -15,8 +15,10 @@ import com.gdavidpb.tuindice.assistant.presentation.model.WeeklyLoadItem
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.base.utils.extension.formatCompactGrade
 import com.gdavidpb.tuindice.base.utils.toLocalDate
+import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationListComponent
 import com.gdavidpb.tuindice.chatcontract.component.EvaluationRow
 import com.gdavidpb.tuindice.chatcontract.component.RequiredGradeComponent
@@ -48,8 +50,16 @@ import tuindice.assistant.generated.resources.assistant_card_b_see_all_evaluatio
 import tuindice.assistant.generated.resources.assistant_card_b_see_all_subjects
 import tuindice.assistant.generated.resources.assistant_card_b_week
 
-internal fun EvaluationListComponent.toEvaluationListItem(weeks: EvaluationWeeksContext? = null): EvaluationListItem {
-	val rows = items.map { row -> row.toEvaluationRowItem(calendar = weeks?.calendar) }
+// [deviceCards] are the cards of the Evaluations tab for the evaluations the device has, by id (see
+// AssistantEvaluationCardRepository): a row the device has is drawn with the tab's card, and one it lacks with the
+// values the chat carries.
+internal fun EvaluationListComponent.toEvaluationListItem(
+	weeks: EvaluationWeeksContext? = null,
+	deviceCards: Map<String, EvaluationCardItem> = emptyMap()
+): EvaluationListItem {
+	val rows = items.map { row ->
+		row.toEvaluationRowItem(calendar = weeks?.calendar).copy(deviceCard = deviceCards[row.evaluationId])
+	}
 
 	return EvaluationListItem(
 		id = id,
@@ -91,6 +101,14 @@ private fun EvaluationRow.toEvaluationRowItem(calendar: AssistantAcademicCalenda
 		},
 		weekKey = weekKeyIn(calendar = calendar, date = date)
 	)
+}
+
+// The evaluations the lists among [this] components name: the ones whose cards of the Evaluations tab are read for
+// them.
+internal fun List<ChatComponent>.listedEvaluationIds(): Set<String> {
+	return filterIsInstance<EvaluationListComponent>()
+		.flatMap { list -> list.items }
+		.mapTo(LinkedHashSet()) { row -> row.evaluationId }
 }
 
 // The week a row falls in, as the Evaluations tab files it: a continuous evaluation, or one with no date, holds no

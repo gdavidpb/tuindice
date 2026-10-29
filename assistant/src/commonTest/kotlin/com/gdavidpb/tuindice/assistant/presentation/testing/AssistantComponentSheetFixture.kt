@@ -2,11 +2,13 @@ package com.gdavidpb.tuindice.assistant.presentation.testing
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantAcademicCalendarRepository
+import com.gdavidpb.tuindice.assistant.testing.FakeAssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
@@ -21,7 +23,11 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 // The sheet over the conversation store of the test, with the real use case and machine in between.
-internal class AssistantComponentSheetFixture(initial: AssistantConversation = emptyAssistantConversation()) {
+// [evaluationCards] are the cards of the Evaluations tab the device has: none unless a test gives some.
+internal class AssistantComponentSheetFixture(
+	initial: AssistantConversation = emptyAssistantConversation(),
+	val evaluationCards: FakeAssistantEvaluationCardRepository = FakeAssistantEvaluationCardRepository()
+) {
 	val conversation = ObservedAssistantConversationRepository(initial)
 	val effects = mutableListOf<AssistantComponentSheet.Effect>()
 
@@ -32,6 +38,10 @@ internal class AssistantComponentSheetFixture(initial: AssistantConversation = e
 			observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
 			getAssistantAcademicCalendarUseCase = GetAssistantAcademicCalendarUseCase(
 				calendarRepository = FakeAssistantAcademicCalendarRepository(),
+				reportingRepository = reporting
+			),
+			getAssistantEvaluationCardsUseCase = GetAssistantEvaluationCardsUseCase(
+				evaluationCardRepository = evaluationCards,
 				reportingRepository = reporting
 			),
 			clock = FixedClock(nowMillis = 0L)
@@ -51,10 +61,11 @@ internal class AssistantComponentSheetFixture(initial: AssistantConversation = e
 @OptIn(ExperimentalCoroutinesApi::class)
 internal fun componentSheetTest(
 	initial: AssistantConversation = emptyAssistantConversation(),
+	evaluationCards: FakeAssistantEvaluationCardRepository = FakeAssistantEvaluationCardRepository(),
 	block: suspend TestScope.(AssistantComponentSheetFixture, AssistantComponentSheetViewModel) -> Unit
 ) = runTest {
 	withUnconfinedTestDispatchers { dispatchers ->
-		val fixture = AssistantComponentSheetFixture(initial = initial)
+		val fixture = AssistantComponentSheetFixture(initial = initial, evaluationCards = evaluationCards)
 		val viewModel = fixture.viewModel(dispatchers)
 
 		backgroundScope.launchStateCollector(viewModel.state, testScheduler)

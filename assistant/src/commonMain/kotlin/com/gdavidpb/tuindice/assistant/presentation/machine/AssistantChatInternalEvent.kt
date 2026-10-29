@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
@@ -28,7 +29,11 @@ sealed interface AssistantChatInternalEvent {
 	// The consent could not be given: the sheet says so and asks again.
 	data object ConsentAcceptFailed : AssistantChatInternalEvent
 
-	data class ConversationObserved(val conversation: AssistantConversation) : AssistantChatInternalEvent
+	// The conversation the store holds, with the cards of the Evaluations tab for the evaluations its lists name.
+	data class ConversationObserved(
+		val conversation: AssistantConversation,
+		val evaluationCards: Map<String, EvaluationCardItem> = emptyMap()
+	) : AssistantChatInternalEvent
 
 	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content. The
 	// message accepted is the one the turn answers, as it was sent: its text, its suggestion and the client turn id it was

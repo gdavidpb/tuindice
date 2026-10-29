@@ -3,15 +3,19 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.param.GetAssistantEvaluationCardsParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantComponentSheet
 import com.gdavidpb.tuindice.assistant.presentation.mapper.EvaluationWeeksContext
+import com.gdavidpb.tuindice.assistant.presentation.mapper.listedEvaluationIds
 import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantComponentSheetTransitions
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.base.utils.toLocalDate
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.message.Component
@@ -24,11 +28,13 @@ import kotlin.time.Clock
 /**
  * The sheet of one component of the conversation. It reads the conversation store and follows it while it is open; it
  * closes when the component leaves the store. It keeps nothing of its own: the store is the source of the component,
- * and the current term is the source of the weeks an evaluations sheet is grouped by.
+ * the current term is the source of the weeks an evaluations sheet is grouped by, and the Evaluations tab is the source
+ * of the cards its evaluations are drawn with.
  */
 class AssistantComponentSheetMachine(
 	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase,
 	private val getAssistantAcademicCalendarUseCase: GetAssistantAcademicCalendarUseCase,
+	private val getAssistantEvaluationCardsUseCase: GetAssistantEvaluationCardsUseCase,
 	private val clock: Clock
 ) : ScreenMachine<AssistantComponentSheet.State, AssistantComponentSheet.Effect> {
 	override fun initialState(): AssistantComponentSheet.State = AssistantComponentSheet.State.Idle
@@ -60,7 +66,8 @@ class AssistantComponentSheetMachine(
 								messageId = messageId,
 								item = component.toChatComponentItem(
 									nowMillis = nowMillis,
-									weeks = weeksContext(nowMillis = nowMillis)
+									weeks = weeksContext(nowMillis = nowMillis),
+									deviceCards = evaluationCardsOf(component)
 								)
 							)
 						}
@@ -76,6 +83,20 @@ class AssistantComponentSheetMachine(
 			?: return null
 
 		return EvaluationWeeksContext(calendar = calendar, today = nowMillis.toLocalDate())
+	}
+
+	// The cards of the Evaluations tab for the evaluations a list names, as the chat draws them: a row the device has is
+	// drawn with its card, and one it lacks, or every one when the read fails, with what the chat carries.
+	private suspend fun evaluationCardsOf(component: ChatComponent): Map<String, EvaluationCardItem> {
+		val evaluationIds = listOf(component).listedEvaluationIds()
+
+		if (evaluationIds.isEmpty()) return emptyMap()
+
+		val useCaseState = getAssistantEvaluationCardsUseCase
+			.execute(GetAssistantEvaluationCardsParams(evaluationIds = evaluationIds))
+			.last()
+
+		return (useCaseState as? UseCaseState.Data)?.value.orEmpty()
 	}
 }
 

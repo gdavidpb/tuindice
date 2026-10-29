@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.AcademicComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.PensumPlanComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.RecordComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.SistemaComponentItem
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.component.AttentionComponent
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.CitationComponent
@@ -77,10 +78,13 @@ internal fun ChatComponent.toRecordItem(nowMillis: Long): RecordComponentItem? {
 }
 
 // The AcademicComponent items: the components of their catalogs, or null for a component of another family.
-internal fun ChatComponent.toAcademicItem(weeks: EvaluationWeeksContext? = null): AcademicComponentItem? {
+internal fun ChatComponent.toAcademicItem(
+	weeks: EvaluationWeeksContext? = null,
+	deviceCards: Map<String, EvaluationCardItem> = emptyMap()
+): AcademicComponentItem? {
 	return when (this) {
 		is CitationComponent -> toCitationItem()
-		is EvaluationListComponent -> toEvaluationListItem(weeks)
+		is EvaluationListComponent -> toEvaluationListItem(weeks = weeks, deviceCards = deviceCards)
 		is SubjectPointsComponent -> toSubjectPointsItem()
 		is WeeklyLoadComponent -> toWeeklyLoadItem()
 		is RequiredGradeComponent -> toRequiredGradeItem()

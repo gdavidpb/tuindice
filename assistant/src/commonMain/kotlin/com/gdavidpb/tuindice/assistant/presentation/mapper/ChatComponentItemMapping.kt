@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComponentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatFallbackItem
+import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 
@@ -9,11 +10,13 @@ import com.gdavidpb.tuindice.chatcontract.component.ComponentDisplay
 // the text it carries. Each family maps its own components in ComponentFamilyMapping.kt.
 internal fun ChatComponent.toChatComponentItem(
 	nowMillis: Long,
-	weeks: EvaluationWeeksContext? = null
+	weeks: EvaluationWeeksContext? = null,
+	// The cards of the Evaluations tab for the evaluations the device has, by id: see toEvaluationListItem.
+	deviceCards: Map<String, EvaluationCardItem> = emptyMap()
 ): ChatComponentItem {
 	return toSistemaItem(nowMillis)
 		?: toRecordItem(nowMillis)
-		?: toAcademicItem(weeks)
+		?: toAcademicItem(weeks = weeks, deviceCards = deviceCards)
 		?: toPensumPlanItem()
 		?: ChatFallbackItem(id = id, opensSheet = opensSheet(), fallbackText = fallbackText)
 }

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
@@ -47,6 +48,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.Assista
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
+import com.gdavidpb.tuindice.assistant.testing.FakeAssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConsentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
@@ -91,6 +93,9 @@ internal class AssistantChatFixture(
 	val intents = RecordingAssistantIntentRepository()
 	val gatedIntents = GatedAssistantIntentRepository(intents)
 	val evaluations = RecordingAssistantEvaluationsRepository()
+
+	// The cards of the Evaluations tab the device has: none, unless a test sets some before the machine is built.
+	var evaluationCards = FakeAssistantEvaluationCardRepository()
 	val plans = RecordingAssistantPlansRepository()
 	val projection = RecordingAssistantProjectionRepository()
 	val feedback = RecordingAssistantFeedbackRepository()
@@ -172,7 +177,8 @@ internal class AssistantChatFixture(
 	private fun createTurns(turnStream: AssistantTurnStream): AssistantChatTurns {
 		return AssistantChatTurns(
 			conversation = AssistantChatConversation(
-				observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting)
+				observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
+				getAssistantEvaluationCardsUseCase = GetAssistantEvaluationCardsUseCase(evaluationCards, reporting)
 			),
 			resumeAssistantTurnUseCase = ResumeAssistantTurnUseCase(turnStream, conversation, reporting),
 			followAssistantTurnUseCase = FollowAssistantTurnUseCase(turnStream, reporting),
