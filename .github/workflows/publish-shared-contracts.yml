@@ -75,22 +75,24 @@ jobs:
         with:
           cache-device-framework: "false"
 
+      # The macOS runner has no gcloud, so the access token comes from the auth action itself, as the Play upload of
+      # deploy-production.yml takes it.
       - name: Authenticate to Google Cloud
+        id: google-auth
         if: steps.version.outputs.publish == 'true'
         uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_CONTRACTS_PUBLISHER_SERVICE_ACCOUNT }}
+          token_format: access_token
 
       - name: Publish shared contracts
         if: steps.version.outputs.publish == 'true'
+        env:
+          # The Gradle build declares the Artifact Registry repository only when this variable is set.
+          ARTIFACT_REGISTRY_TOKEN: ${{ steps.google-auth.outputs.access_token }}
         run: |
           set -euo pipefail
-
-          # The Gradle build declares the Artifact Registry repository only when this variable is set.
-          artifact_registry_token="$(gcloud auth print-access-token)"
-          printf '::add-mask::%s\n' "$artifact_registry_token"
-          export ARTIFACT_REGISTRY_TOKEN="$artifact_registry_token"
 
           # Not run through run-gradle-with-retry.sh: a retry after a partial upload would publish the same version again.
           ./gradlew --console=plain :academiccore:publish :chatcontract:publish
