@@ -27,7 +27,7 @@ class DiscardSyntheticTermContentDialogUiTest {
 		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
 		onNodeWithTag(BaseUiTags.ConfirmationDialogTitle).assertTextEquals("¿Descartar cambios?")
 		onNodeWithTag(RecordUiTags.DiscardSyntheticTermMessage)
-			.assertTextEquals("Se perderán el periodo y las materias de este trimestre de proyección.")
+			.assertTextEquals("Se perderán este trimestre de proyección y sus materias.")
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).assertTextEquals("Descartar")
 		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).assertTextEquals("Cancelar")
 	}

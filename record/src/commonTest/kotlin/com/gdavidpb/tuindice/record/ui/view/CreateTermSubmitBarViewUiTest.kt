@@ -99,14 +99,14 @@ class CreateTermSubmitBarViewUiTest {
 				canSubmit = true,
 				isEditing = false,
 				isSubmitting = false,
-				submitError = UiText.Raw("Ya existe un trimestre con ese periodo."),
+				submitError = UiText.Raw("Ya existe ese trimestre."),
 				onCreateClick = {}
 			)
 		}
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitError)
 			.assertIsDisplayed()
-			.assertTextEquals("Ya existe un trimestre con ese periodo.")
+			.assertTextEquals("Ya existe ese trimestre.")
 
 		val error = onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitError).getUnclippedBoundsInRoot()
 		val button = onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitButton).getUnclippedBoundsInRoot()

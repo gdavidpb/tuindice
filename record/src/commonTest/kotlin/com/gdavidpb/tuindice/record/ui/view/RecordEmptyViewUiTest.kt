@@ -21,7 +21,7 @@ class RecordEmptyViewUiTest {
 		setTuIndiceTestContent {
 			RecordEmptyView(
 				title = "Informe académico",
-				message = "Cuando tengas periodos académicos disponibles, los verás aquí."
+				message = "Cuando tengas trimestres disponibles, los verás aquí."
 			)
 		}
 
@@ -29,7 +29,7 @@ class RecordEmptyViewUiTest {
 		assertNodeVisible(RecordUiTags.EmptyIllustration)
 		onNodeWithTag(RecordUiTags.EmptyTitle).assertTextEquals("Informe académico")
 		onNodeWithTag(RecordUiTags.EmptyMessage)
-			.assertTextEquals("Cuando tengas periodos académicos disponibles, los verás aquí.")
+			.assertTextEquals("Cuando tengas trimestres disponibles, los verás aquí.")
 
 		val illustration = onNodeWithTag(RecordUiTags.EmptyIllustration).getUnclippedBoundsInRoot()
 		val title = onNodeWithTag(RecordUiTags.EmptyTitle).getUnclippedBoundsInRoot()

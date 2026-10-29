@@ -25,7 +25,7 @@
 	<string name="coachmark_subject_detail_title">Detalle de materia</string>
 	<string name="coachmark_subject_detail_message">Consulta métricas, secciones y disponibilidad para decidir qué cursar o simular.</string>
 	<string name="coachmark_synthetic_term_title">Trimestre de proyección</string>
-	<string name="coachmark_synthetic_term_message">Simula un trimestre con periodo, materias sugeridas o buscadas y una estimación de carga antes de guardarlo.</string>
+	<string name="coachmark_synthetic_term_message">Simula un trimestre: elige cuál, agrega materias sugeridas o buscadas y mira una estimación de carga antes de guardarlo.</string>
 	<string name="coachmark_settings_title">Preferencias</string>
 	<string name="coachmark_settings_message">Tu cuenta, el asistente, tu privacidad y la ayuda están aquí.</string>
 </resources>

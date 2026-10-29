@@ -10,7 +10,7 @@
 	<string name="record_notice_stale_message">Actualizado por última vez el %1$s</string>
 	<string name="record_notice_stale_message_unknown">No pudimos actualizar tu inscripción. Mostramos la última guardada.</string>
 	<string name="record_empty_title">Informe académico</string>
-	<string name="record_empty_message">Cuando tengas periodos académicos disponibles, los verás aquí.</string>
+	<string name="record_empty_message">Cuando tengas trimestres disponibles, los verás aquí.</string>
 	<string name="record_view_mode_toggle_to_historical">Cambiar a Histórico</string>
 	<string name="record_view_mode_toggle_to_projection">Cambiar a Proyección</string>
 	<string name="record_view_mode_state_historical">Modo Histórico: solo trimestres cerrados</string>
@@ -138,7 +138,7 @@
 	<string name="create_term_error_record_unavailable">No pudimos validar tu informe. Intenta de nuevo.</string>
 	<string name="create_term_error_unsupported_period">Ese trimestre solo está disponible como histórico de lectura.</string>
 	<string name="create_term_error_period_in_past">El trimestre seleccionado ya no está disponible.</string>
-	<string name="create_term_error_term_already_exists">Ya existe un trimestre con ese periodo.</string>
+	<string name="create_term_error_term_already_exists">Ya existe ese trimestre.</string>
 	<string name="create_term_error_term_must_be_after_latest">El trimestre debe ser posterior al último registrado.</string>
 	<string name="create_term_error_duplicate_subject">Hay materias repetidas en la selección.</string>
 	<string name="create_term_error_subject_already_approved">Una materia seleccionada ya fue aprobada.</string>
@@ -168,11 +168,11 @@
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_delete">Eliminar</string>
 	<string name="dialog_title_discard_synthetic_term">¿Descartar cambios?</string>
-	<string name="dialog_message_discard_synthetic_term">Se perderán el periodo y las materias de este trimestre de proyección.</string>
+	<string name="dialog_message_discard_synthetic_term">Se perderán este trimestre de proyección y sus materias.</string>
 	<string name="dialog_button_discard">Descartar</string>
 	<string name="create_term_button">Crear</string>
 	<string name="edit_term_button">Modificar</string>
-	<string name="a11y_create_synthetic_term">Crear término de proyección</string>
+	<string name="a11y_create_synthetic_term">Crear trimestre de proyección</string>
 	<string name="a11y_attempt_grade_slider">Nota simulada de %1$s</string>
 	<string name="a11y_attempt_show_actions">Ver acciones</string>
 	<string name="a11y_add_subject">Agregar materia</string>

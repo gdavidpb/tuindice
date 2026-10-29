@@ -121,7 +121,7 @@ class RecordRtlA11yUiTest {
 			.assert(hasContentDescription("Eliminar trimestre"))
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermFab)
 			.assert(hasClickAction())
-			.assert(hasContentDescription("Crear término de proyección"))
+			.assert(hasContentDescription("Crear trimestre de proyección"))
 
 		// The attempt content exposes its subject name as plain text.
 		onNodeWithText("MATEMÁTICAS II").assertExists()
