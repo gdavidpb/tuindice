@@ -321,6 +321,40 @@ private val assistantOpenComponentSheet = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Action)
 }
 
+// The evaluations list draws each evaluation the device has with the Evaluations tab's own card. The service calls
+// the written work of CI5437 pending and titles it «Trabajo escrito»; its date has passed with no grade, so the tab
+// writes it «TRABAJO ESCRITO 1» and «Sin nota», and the chat card does the same rather than «Programada». The scenario
+// starts on the Evaluations tab, so the device has its evaluations before the turn; the tab opens on the last week,
+// which holds neither that name nor a scheduled evaluation.
+private val assistantEvaluationsCard = scenario(
+	"assistant-evaluations-card",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical, section = MainSection.EVALUATIONS).toLaunchSpec()
+) {
+	account(E2eAccounts.Canonical.id)
+
+	val overdue = E2eFixtures.GradedEvaluation.value
+	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Sync)
+	waitVisible(EvaluationsUiTags.EvaluationsWeekStrip, Within.Long)
+	openAssistant()
+	acceptConsent()
+	sendText("Muestra mis evaluaciones de CI5437")
+	waitAgentMessage("msg-evaluations")
+	// The list's second row, the completed model, is not asked for: with the keyboard open it lies under the composer
+	// on the smaller screen.
+	waitVisible(AssistantUiTags.Evaluations.row("cmp-evaluations-1", overdue), Within.Action)
+	waitVisible(text(E2eFixtures.GradedEvaluationName.value), Within.Assert)
+	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
+	waitGone(text(Copy.AssistantEvaluationPending), Within.Assert)
+	// The tab, on the week of that evaluation, shows it the same way.
+	tapAtScreen(SCRIM_ABOVE_SHEET_X, SCRIM_ABOVE_SHEET_Y)
+	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	showWeekOfGradedEvaluation()
+	waitVisible(EvaluationsUiTags.evaluationItemCard(overdue), Within.Action)
+	waitVisible(text(E2eFixtures.GradedEvaluationName.value), Within.Assert)
+	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
+}
+
 private val assistantOpenScreen = scenario(
 	"assistant-open-screen",
 	"assistant",
@@ -429,6 +463,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantReportMessage,
 	assistantAnswerStillApplies,
 	assistantOpenComponentSheet,
+	assistantEvaluationsCard,
 	assistantOpenScreen,
 	assistantReopenWithConsent,
 	assistantAskAboutRecordSubject,

@@ -118,6 +118,9 @@ object Copy {
 	const val AssistantAppealSent = "Enviamos tu apelación."
 	const val AssistantReceiptAddedOne = "Se agregó 1 evaluación"
 
+	/** The state the chat card writes for an evaluation the service calls pending, when it draws the service's values. */
+	const val AssistantEvaluationPending = "Programada"
+
 	// about
 	const val AssistantConversationsDeleted = "Se borraron tus conversaciones con el asistente"
 
@@ -154,6 +157,7 @@ object Copy {
 		CopyBinding.Resource(AssistantCopied, "assistant", "assistant_nav_copied"),
 		CopyBinding.Resource(AssistantAppealSent, "assistant", "assistant_chat_appeal_sent"),
 		CopyBinding.Resource(AssistantReceiptAddedOne, "assistant", "assistant_intent_receipt_added_one", listOf("1")),
+		CopyBinding.Resource(AssistantEvaluationPending, "assistant", "assistant_card_b_evaluation_pending"),
 		CopyBinding.Resource(AssistantConversationsDeleted, "about", "settings_assistant_conversations_deleted"),
 		CopyBinding.Resource(
 			InClassBlocks34,

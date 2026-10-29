@@ -102,6 +102,25 @@ object E2eFixtures {
 	)
 
 	/**
+	 * The name the Evaluations tab gives [GradedEvaluation]: its type and its number among the written works of CI5437,
+	 * in capitals. The evaluations list of `mocks/__files/assistant/events-evaluations.sse` titles it «Trabajo escrito»,
+	 * so the chat card shows this name only when it draws the tab's own card.
+	 */
+	val GradedEvaluationName = E2eFixture.derived(
+		"TRABAJO ESCRITO 1",
+		"the name the Evaluations tab gives the only written work of CI5437 in mocks/config/evaluations-base-state.json"
+	)
+
+	/** A graded model of CI5437, completed, which the evaluations list of the assistant names too. */
+	val CompletedEvaluation = E2eFixture(
+		value = "889b858ccf9fa40c60132956e1d29d93",
+		declaredIn = listOf(
+			"mocks/config/evaluations-base-state.json",
+			"mocks/__files/assistant/events-evaluations.sse"
+		)
+	)
+
+	/**
 	 * The grade the added Parcial 1 of `mocks/__files/assistant/events-add.sse` shows in its row: 15.5 of 20 is written
 	 * with two decimals, as the grades of the list are. The row has no reference text (it shows its type and ordinal),
 	 * so the scenario finds it by this grade.
@@ -185,6 +204,8 @@ object E2eFixtures {
 		SyntheticDegreeProjectTerm,
 		SyntheticEp1308Attempt,
 		GradedEvaluation,
+		GradedEvaluationName,
+		CompletedEvaluation,
 		AddedPartialOneGrade,
 		HubTerm,
 		HubAttemptCi5311,

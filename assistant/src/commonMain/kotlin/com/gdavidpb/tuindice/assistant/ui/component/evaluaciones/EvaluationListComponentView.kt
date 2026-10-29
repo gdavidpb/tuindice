@@ -67,11 +67,11 @@ private fun EvaluationSheetList(
 			val weeks = item.weeks
 
 			if (rowLimit != null) {
-				EvaluationSheetRows(rows = item.rows.visibleRows(rowLimit))
+				EvaluationSheetRows(listId = item.id, rows = item.rows.visibleRows(rowLimit))
 			} else if (weeks != null) {
-				EvaluationWeeksSheet(rows = item.rows, weeks = weeks)
+				EvaluationWeeksSheet(listId = item.id, rows = item.rows, weeks = weeks)
 			} else {
-				EvaluationSheetRows(rows = item.rows)
+				EvaluationSheetRows(listId = item.id, rows = item.rows)
 			}
 		}
 
@@ -83,16 +83,16 @@ private fun EvaluationSheetList(
 
 // The rows of the sheet when the app has no current term: every row, since they cannot be grouped by week.
 @Composable
-private fun EvaluationSheetRows(rows: List<EvaluationRowItem>) {
+private fun EvaluationSheetRows(listId: String, rows: List<EvaluationRowItem>) {
 	if (rows.isEmpty()) EvaluationEmptyLine()
 
-	rows.forEach { row -> EvaluationSheetCard(row = row) }
+	rows.forEach { row -> EvaluationSheetCard(listId = listId, row = row) }
 }
 
 // The sheet when the app has a current term: the strip of the weeks, and the rows of the one week on screen. The sheet
 // opens on the week the grouping chose, and then follows the week the student picks on the strip.
 @Composable
-private fun EvaluationWeeksSheet(rows: List<EvaluationRowItem>, weeks: EvaluationWeeksItem) {
+private fun EvaluationWeeksSheet(listId: String, rows: List<EvaluationRowItem>, weeks: EvaluationWeeksItem) {
 	val selectedKey = remember(weeks.initialKey) { mutableStateOf(weeks.initialKey) }
 
 	WeekStripView(
@@ -107,17 +107,19 @@ private fun EvaluationWeeksSheet(rows: List<EvaluationRowItem>, weeks: Evaluatio
 	if (shown.isEmpty()) {
 		EvaluationEmptyLine()
 	} else {
-		shown.forEach { row -> EvaluationSheetCard(row = row) }
+		shown.forEach { row -> EvaluationSheetCard(listId = listId, row = row) }
 	}
 }
 
 // One evaluation, drawn by the same card as the Evaluations tab. An evaluation the device has is drawn with the very
 // card the tab shows for it, type icon and place included. One it does not have is drawn from what the chat carries,
-// which has neither a type nor a place, so its card has no type icon and no place line.
+// which has neither a type nor a place, so its card has no type icon and no place line. The card is tagged by its list
+// and its evaluation.
 @Composable
-private fun EvaluationSheetCard(row: EvaluationRowItem) {
+private fun EvaluationSheetCard(listId: String, row: EvaluationRowItem) {
 	EvaluationCardView(
 		item = row.deviceCard ?: row.chatCard(),
+		cardModifier = Modifier.testTag(AssistantUiTags.Evaluations.row(listId, row.evaluationId)),
 		horizontalMargin = TuIndiceSpacing.None
 	)
 }

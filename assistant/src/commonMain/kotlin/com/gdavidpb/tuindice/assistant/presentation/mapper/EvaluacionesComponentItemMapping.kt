@@ -79,6 +79,7 @@ private fun EvaluationRow.toEvaluationRowItem(calendar: AssistantAcademicCalenda
 	val maxGradeText = maxGrade.formatCompactGrade()
 
 	return EvaluationRowItem(
+		evaluationId = evaluationId,
 		code = subjectCode,
 		title = title,
 		date = date,

@@ -27,6 +27,7 @@ final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_consent_privacy_policy() { runScenario("assistant-consent-privacy-policy") }
     func test_assistant_decline_consent() { runScenario("assistant-decline-consent") }
     func test_assistant_dismiss_intent() { runScenario("assistant-dismiss-intent") }
+    func test_assistant_evaluations_card() { runScenario("assistant-evaluations-card") }
     func test_assistant_guided_suggestions() { runScenario("assistant-guided-suggestions") }
     func test_assistant_open_component_sheet() { runScenario("assistant-open-component-sheet") }
     func test_assistant_open_screen() { runScenario("assistant-open-screen") }

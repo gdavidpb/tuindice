@@ -1,0 +1,6 @@
+data: {"type":"run_started","seq":1,"turnId":"turn-evaluations"}
+
+data: {"type":"message_completed","seq":2,"turnId":"turn-evaluations","message":{"id":"msg-evaluations","parts":[{"type":"text","text":"Estas son tus evaluaciones de CI5437 en este trimestre."},{"type":"component","component":{"type":"evaluaciones.lista/1","id":"cmp-evaluations-1","fallbackText":"Tus evaluaciones de CI5437 en este trimestre","display":"inline","entityRefs":[],"items":[{"evaluationId":"741ee22ed3a76b1bbd7deb77e9490435","subjectCode":"CI5437","title":"Trabajo escrito","dateMillis":1781107200000,"scheduleMode":"dated","maxGrade":20.0,"state":"pending"},{"evaluationId":"889b858ccf9fa40c60132956e1d29d93","subjectCode":"CI5437","title":"Maqueta","dateMillis":1778083200000,"scheduleMode":"dated","grade":13.0,"maxGrade":15.0,"state":"completed"}]}}],"createdAtMillis":1792065600000}}
+
+data: {"type":"run_finished","seq":3,"turnId":"turn-evaluations"}
+
