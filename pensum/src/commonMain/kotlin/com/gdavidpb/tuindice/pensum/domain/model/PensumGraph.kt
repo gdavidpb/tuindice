@@ -36,7 +36,9 @@ data class PensumGraph(
 		val y: Double,
 		val width: Double,
 		val height: Double,
-		val fulfillmentRules: List<FulfillmentRule>
+		val fulfillmentRules: List<FulfillmentRule>,
+		// COURSE nodes sharing a group are alternatives of one requirement (MA1111 or MA1121).
+		val alternativeGroup: String? = null
 	)
 
 	data class FulfillmentRule(

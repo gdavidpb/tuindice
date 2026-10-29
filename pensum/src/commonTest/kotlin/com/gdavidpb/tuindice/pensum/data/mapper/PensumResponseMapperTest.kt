@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.data.mapper
 
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -14,6 +15,27 @@ class PensumResponseMapperTest {
 		assertEquals(listOf("degree_project", "long_internship"), response.toAvailableModalities().map { modality -> modality.id })
 		assertEquals("computacion-2019-degree-project", response.toGraph().id)
 		assertEquals(listOf("computacion-2019-degree-project"), response.toGraphs().map { graph -> graph.id })
+	}
+
+	@Test
+	fun mapsTheAlternativeGroupOfEachNode_andAnAbsentGroupAsNone() {
+		val json = Json { ignoreUnknownKeys = true }
+		val grouped = json.decodeFromString<GetPensumResponse.Node>(
+			nodeJson(id = "t1-math1-ma1121", code = "MA1121", extra = ""","alternative_group":"0800-2019-t1-math1"""")
+		)
+		val ungrouped = json.decodeFromString<GetPensumResponse.Node>(nodeJson(id = "t1-ec5344", code = "EC5344", extra = ""))
+		val response = sampleResponse()
+		val graph = response.copy(pensum = response.pensum.copy(nodes = listOf(grouped, ungrouped))).toGraph()
+
+		assertEquals(
+			mapOf("t1-math1-ma1121" to "0800-2019-t1-math1", "t1-ec5344" to null),
+			graph.nodes.associate { node -> node.id to node.alternativeGroup }
+		)
+	}
+
+	private fun nodeJson(id: String, code: String, extra: String): String {
+		return """{"id":"$id","node_type":"COURSE","display_code":"$code","subject_code":"$code","name":"$code",""" +
+			""""credits":4,"category":"BASIC","term_id":"T1","x":0.0,"y":0.0,"width":160.0,"height":120.0$extra}"""
 	}
 
 	private fun sampleResponse(): GetPensumResponse {

@@ -49,7 +49,8 @@ private fun PensumGraph.Node.toAcademicPensumNode(): AcademicPensumGraph.Node {
 				minCredits = rule.minCredits,
 				minSubjects = rule.minSubjects
 			)
-		}
+		},
+		alternativeGroup = alternativeGroup
 	)
 }
 

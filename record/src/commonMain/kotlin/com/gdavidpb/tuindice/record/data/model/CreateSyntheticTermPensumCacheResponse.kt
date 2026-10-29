@@ -32,7 +32,8 @@ internal data class CreateSyntheticTermPensumCacheResponse(
 		// Both default: a cache written before rules were read (or by the legacy `pensum` shape)
 		// must still decode, it just resolves no slot or equivalence.
 		@SerialName("category") val category: String? = null,
-		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList()
+		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList(),
+		@SerialName("alternative_group") val alternativeGroup: String? = null
 	)
 
 	@Serializable

@@ -25,12 +25,19 @@ class AcademicPensumStatusEngine {
 		val slotNodes = pensum.nodes.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.SLOT }
 		val fixedCourseSubjectCodes = pensum.fixedCourseSubjectCodes()
 
-		val approvedCourseNodeIds = courseNodes
+		val directlyApprovedCourseNodeIds = courseNodes
 			.filter { node -> node.isApproved(approvedSubjectCodes) }
 			.map(AcademicPensumGraph.Node::id)
 			.toSet()
 		val approvedCourseEquivalenceFulfillments =
-			equivalenceFulfillmentsFor(courseNodes, approvedCourseNodeIds, approvedSubjectCodes, approvedAttempts)
+			equivalenceFulfillmentsFor(courseNodes, directlyApprovedCourseNodeIds, approvedSubjectCodes, approvedAttempts)
+		val approvedAlternativeFulfillments = courseNodes.alternativeFulfillments(
+			matchedNodeIds = directlyApprovedCourseNodeIds,
+			excludedNodeIds = emptySet(),
+			attempts = approvedAttempts,
+			matches = AcademicPensumGraph.Node::matchesAttempt
+		)
+		val approvedCourseNodeIds = directlyApprovedCourseNodeIds + approvedAlternativeFulfillments.keys
 		val approvedSlotFulfillments = slotNodes.assignFulfillments(
 			attempts = approvedAttempts.filter { attempt -> attempt.normalizedSubjectCode() !in fixedCourseSubjectCodes }
 		)
@@ -41,23 +48,27 @@ class AcademicPensumStatusEngine {
 			.toSet()
 		val currentCourseEquivalenceFulfillments =
 			equivalenceFulfillmentsFor(courseNodes, currentCourseNodeIds, currentSubjectCodes, currentAttempts)
+		val currentAlternativeFulfillments = courseNodes.alternativeFulfillments(
+			matchedNodeIds = currentCourseNodeIds,
+			excludedNodeIds = approvedNodeIds,
+			attempts = currentAttempts,
+			matches = AcademicPensumGraph.Node::matchesAttempt
+		)
 		val currentSlotFulfillments = slotNodes
 			.filter { node -> node.id !in approvedNodeIds }
 			.assignFulfillments(
 				attempts = currentAttempts.filter { attempt -> attempt.normalizedSubjectCode() !in fixedCourseSubjectCodes }
 			)
-		val currentNodeIds = currentCourseNodeIds + currentSlotFulfillments.keys
+		val currentNodeIds = currentCourseNodeIds + currentAlternativeFulfillments.keys + currentSlotFulfillments.keys
 
 		val statuses = statusesOf(pensum, approvedNodeIds, currentNodeIds)
-		val approvedCredits = pensum.nodes
-			.filter { node -> statuses[node.id] == AcademicPensumNodeStatus.APPROVED }
-			.sumOf(AcademicPensumGraph.Node::credits)
 
 		return AcademicPensumProgress(
-			approvedCredits = approvedCredits,
+			approvedCredits = pensum.approvedCreditsOf(statuses, directlyApprovedCourseNodeIds),
 			nodeStatuses = statuses,
 			nodeFulfillments = approvedSlotFulfillments + approvedCourseEquivalenceFulfillments +
-				currentSlotFulfillments + currentCourseEquivalenceFulfillments
+				approvedAlternativeFulfillments + currentSlotFulfillments + currentCourseEquivalenceFulfillments +
+				currentAlternativeFulfillments
 		)
 	}
 
@@ -183,6 +194,11 @@ private fun List<AcademicPensumGraph.Node>.courseEquivalenceFulfillments(
 			subjectName = attempt.subjectName
 		)
 	}.toMap()
+}
+
+private fun AcademicPensumGraph.Node.matchesAttempt(attempt: AcademicPensumSnapshot.Attempt): Boolean {
+	val code = attempt.normalizedSubjectCode()
+	return subjectCode.normalizedSubjectCodeOrNull() == code || code in equivalenceCodes()
 }
 
 private fun AcademicPensumSnapshot.Attempt.normalizedSubjectCode(): String {

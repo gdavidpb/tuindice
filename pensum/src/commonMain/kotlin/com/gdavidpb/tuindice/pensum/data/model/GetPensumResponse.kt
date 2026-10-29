@@ -65,7 +65,9 @@ data class GetPensumResponse(
 		@SerialName("y") val y: Double,
 		@SerialName("width") val width: Double,
 		@SerialName("height") val height: Double,
-		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList()
+		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList(),
+		// Nodes sharing a group are alternatives of one requirement; absent in caches written before it.
+		@SerialName("alternative_group") val alternativeGroup: String? = null
 	)
 
 	@Serializable

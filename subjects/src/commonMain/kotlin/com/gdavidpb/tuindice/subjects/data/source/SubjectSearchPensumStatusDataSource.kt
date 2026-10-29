@@ -126,7 +126,8 @@ class SubjectSearchPensumStatusDataSource(
 					slotEligibilityKind = rule.slotEligibilityKind
 				)
 			},
-			category = category
+			category = category,
+			alternativeGroup = alternativeGroup
 		)
 	}
 
