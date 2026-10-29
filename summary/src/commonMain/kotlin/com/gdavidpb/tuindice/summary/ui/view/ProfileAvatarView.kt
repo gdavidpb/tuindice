@@ -39,11 +39,14 @@ fun ProfileAvatarView(
 ) {
 	val platformContext = LocalPlatformContext.current
 	val imageLoader = remember(platformContext) { SingletonImageLoader.get(platformContext) }
-	val request = remember(platformContext, pictureUrl, pictureVersion) {
-		val cacheKey = profilePictureCacheKey(url = pictureUrl, version = pictureVersion)
+	// A sync re-signs the URL of the same picture: the avatar keeps loading the URL it started with, so the rotation does
+	// not restart the request and leave the person icon uncovered while it loads again.
+	val requestUrl = rememberProfilePictureRequestUrl(url = pictureUrl, version = pictureVersion)
+	val request = remember(platformContext, requestUrl.url, pictureVersion) {
+		val cacheKey = profilePictureCacheKey(url = requestUrl.url, version = pictureVersion)
 
 		ImageRequest.Builder(platformContext)
-			.data(pictureUrl)
+			.data(requestUrl.url)
 			.memoryCacheKey(cacheKey)
 			.diskCacheKey(cacheKey)
 			.build()
@@ -73,7 +76,9 @@ fun ProfileAvatarView(
 				model = request,
 				imageLoader = imageLoader,
 				contentDescription = null,
-				contentScale = ContentScale.Crop
+				contentScale = ContentScale.Crop,
+				// The URL it kept may have expired with nothing cached: the newest one is asked for instead.
+				onError = { requestUrl.onLoadFailed() }
 			)
 		}
 	}
