@@ -375,6 +375,7 @@ private val recordSyntheticTermSearchStates = scenario(
 	waitVisible(text(Copy.SubjectStatusAvailable), Within.Assert)
 	waitVisible(subjectAction(ma1112, ACTION_ADD), Within.Assert)
 	waitGone(subjectStatus(ma1121, STATUS_AVAILABLE), Within.Assert)
+	scrollUntilVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Scroll.ContentDown, Within.Wait)
 	waitVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Within.Assert)
 	tap(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle)
 	scrollUntilVisible(subjectStatus(ma1121, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
@@ -387,6 +388,7 @@ private val recordSyntheticTermSearchStates = scenario(
 
 	// "ma1111": a subject already approved hides behind the toggle of the taken subjects.
 	searchSubjects(queryMa1111)
+	scrollUntilVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Scroll.ContentDown, Within.Wait)
 	waitVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Within.Wait)
 	tap(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle)
 	scrollUntilVisible(subjectStatus(ma1111, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
