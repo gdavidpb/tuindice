@@ -282,8 +282,7 @@ class IosDeviceTests(unittest.TestCase):
         box, done = self.ensure()
         self.assertEqual(done.returncode, 0, done.stderr)
         calls = box.calls(box.xcrun)
-        self.assertIn("simctl create TuIndice-E2E com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro "
-            "com.apple.CoreSimulator.SimRuntime.iOS-27-0", calls)
+        self.assertIn(f"simctl create TuIndice-E2E {box.lock['IOS_DEVICE_TYPE_ID']} {box.lock['IOS_RUNTIME_ID']}", calls)
         self.assertLess(calls.index("simctl erase FAKE-0000-0000-0000-000000000001"),
             calls.index("simctl boot FAKE-0000-0000-0000-000000000001"))
         self.assertTrue(done.json["created"] and done.json["bootedByHarness"])
@@ -419,7 +418,9 @@ class IosDeviceTests(unittest.TestCase):
         box = Sandbox(self, "ios")
         lock = os.path.join(box.dir, "ios.lock")
         with open(os.path.join(LOCKS, "ios.lock")) as source, open(lock, "w") as target:
-            target.write(source.read().replace("iOS-27-0", "iOS-99-0"))
+            lock_text = source.read()
+            runtime_line = next(line for line in lock_text.splitlines() if line.startswith("IOS_RUNTIME_ID="))
+            target.write(lock_text.replace(runtime_line, "IOS_RUNTIME_ID=com.apple.CoreSimulator.SimRuntime.iOS-99-0"))
         done = box.run("ensure", E2E_FAKE_LOCK_FILE=lock)
         self.assertEqual(done.returncode, 3)
         self.assertIn("runtime com.apple.CoreSimulator.SimRuntime.iOS-99-0 is not installed", done.stderr)
