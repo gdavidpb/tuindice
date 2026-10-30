@@ -1,7 +1,7 @@
 # iOS toolchain lock. Every key is strict: a difference exits 3 in evidence mode.
 # Changing a value is a deliberate commit and changes the iOS fingerprint.
-XCODE_VERSION=27.1
-XCODE_BUILD=27A9275
+XCODE_VERSION=27.2
+XCODE_BUILD=27B52
 IOS_RUNTIME_ID=com.apple.CoreSimulator.SimRuntime.iOS-27-0
 IOS_RUNTIME_BUILD=24A434
 IOS_DEVICE_TYPE_ID=com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro
