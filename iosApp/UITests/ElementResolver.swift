@@ -257,7 +257,7 @@ final class ElementResolver {
     func lookupOutcome(_ q: Query) -> LookupOutcome {
         if let tag = q as? QueryTag {
             guard isAppInForeground else { return .absent }
-            return firstReadable(in: [app]) { $0.descendants(matching: .any).matching(identifier: tag.value).firstMatch }
+            return preferredReadableMatch(in: [app]) { $0.descendants(matching: .any).matching(identifier: tag.value) }
         }
         if let text = q as? QueryText {
             guard isAppInForeground else { return .absent }
@@ -266,11 +266,11 @@ final class ElementResolver {
                 format: "label \(operatorName) %@ OR value \(operatorName) %@ OR title \(operatorName) %@",
                 text.value, text.value, text.value
             )
-            return firstReadable(in: [app]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
+            return preferredReadableMatch(in: [app]) { $0.descendants(matching: .any).matching(predicate) }
         }
         if let system = q as? QuerySystem {
             let predicate = NSPredicate(format: "label == %@ OR identifier == %@", system.value, system.value)
-            return firstReadable(in: [app, springboard]) { $0.descendants(matching: .any).matching(predicate).firstMatch }
+            return preferredReadableMatch(in: [app, springboard]) { $0.descendants(matching: .any).matching(predicate) }
         }
         return .absent
     }
@@ -388,29 +388,37 @@ final class ElementResolver {
         return owner.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: point.x, dy: point.y))
     }
 
-    private func firstReadable(
+    /// Prefer an on-screen match: `firstMatch` can be an off-screen duplicate in a lazy list even when another match is visible.
+    /// If none is on screen, retain one readable off-screen match so callers can distinguish it from absence.
+    private func preferredReadableMatch(
         in owners: [XCUIApplication],
-        _ query: (XCUIApplication) -> XCUIElement
+        _ query: (XCUIApplication) -> XCUIElementQuery
     ) -> LookupOutcome {
         var unreadable = false
+        var offScreenMatch: (ResolvedElement, ElementFacts)?
         for owner in owners {
             guard owner.state == .runningForeground || owner.state == .runningBackground else { continue }
-            let element = query(owner)
-            guard element.exists else { continue }
-            guard let snapshot = try? element.snapshot() else {
-                unreadable = true
-                continue
+            for element in query(owner).allElementsBoundByIndex {
+                guard element.exists else { continue }
+                guard let snapshot = try? element.snapshot() else {
+                    unreadable = true
+                    continue
+                }
+                let facts = ElementFacts(
+                    type: snapshot.elementType,
+                    frame: snapshot.frame,
+                    isEnabled: snapshot.isEnabled,
+                    value: snapshot.value as? String,
+                    label: snapshot.label,
+                    isSelected: snapshot.isSelected
+                )
+                let match = (ResolvedElement(owner: owner, element: element), facts)
+                if !facts.frame.isEmpty && screen.intersects(facts.frame) { return .found(match.0, match.1) }
+                if offScreenMatch == nil { offScreenMatch = match }
             }
-            let facts = ElementFacts(
-                type: snapshot.elementType,
-                frame: snapshot.frame,
-                isEnabled: snapshot.isEnabled,
-                value: snapshot.value as? String,
-                label: snapshot.label,
-                isSelected: snapshot.isSelected
-            )
-            return .found(ResolvedElement(owner: owner, element: element), facts)
         }
-        return unreadable ? .unreadable : .absent
+        if unreadable { return .unreadable }
+        if let offScreenMatch { return .found(offScreenMatch.0, offScreenMatch.1) }
+        return .absent
     }
 }
