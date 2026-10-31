@@ -379,7 +379,7 @@ private val recordSyntheticTermSearchStates = scenario(
 	waitVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Within.Assert)
 	tap(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle)
 	scrollUntilVisible(subjectStatus(ma1121, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
-	waitVisible(RecordUiTags.createSyntheticTermSearchResult(1, ma1121), Within.Assert)
+	waitVisible(RecordUiTags.createSyntheticTermSubject(ma1121), Within.Assert)
 	waitVisible(text(Copy.SubjectStatusApproved), Within.Assert)
 	waitGone(subjectAction(ma1121, ACTION_ADD), Within.Assert)
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentUp, Within.Wait)

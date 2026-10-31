@@ -15483,7 +15483,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "record_create_synthetic_term_search_result_1_subject_MA1121"
+                        "value": "record_create_synthetic_term_subject_MA1121"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/RecordScenarios.kt",
@@ -15859,7 +15859,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "c1795f8c00f37ed8",
+            "stepsHash": "583c53e62ced7b9d",
             "tags": [],
             "timeoutSeconds": 180
         },
