@@ -185,6 +185,24 @@ class AssistantChatConversationViewUiTest {
 		}
 
 	@Test
+	fun when_guidedModeKeepsARejectedDraft_then_theSuggestionsRemainAvailable() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = contentState(
+					composer = ChatComposerItem(text = TYPED_TEXT, isEnabled = false, isSendEnabled = false),
+					suggestions = SUGGESTIONS,
+					isGuided = true
+				).copy(notice = ChatNoticeItem.Guided(message = GUIDED_NOTICE)),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		onNodeWithText(LAST_SUGGESTION).assertIsDisplayed()
+	}
+
+	@Test
 	fun when_theListIsAwayFromItsEnd_then_theScrollToEndButtonShows_andTakesItBackToTheEnd() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatConversationView(
@@ -274,6 +292,7 @@ class AssistantChatConversationViewUiTest {
 		// A text button is at least 40 dp tall, 40 px at the density of these tests.
 		const val RETRY_MIN_HEIGHT_PX = 40
 		const val FAILED_MESSAGE = "No pudimos responder. Inténtalo de nuevo."
+		const val GUIDED_NOTICE = "El chat abierto está en pausa; puedes usar las preguntas sugeridas"
 		const val OFFER_TITLE = "Avisos de tu informe"
 		const val LAST_SUGGESTION = "¿Cuál es mi ritmo de créditos?"
 		const val TYPED_TEXT = "¿Puedo retirar"

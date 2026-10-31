@@ -385,7 +385,9 @@ private fun AssistantChatSuggestionsSlotView(
 	// Once the student writes their own question the suggestions give the conversation their room: they fade and shrink
 	// away while the composer has text, and grow back if it is emptied. Their own entrance stays chip by chip; only the
 	// way back from writing grows the slot.
-	val isWriting = content.composer.text.isNotBlank()
+	// Guided mode hides the composer, so a draft restored from a guided_only refusal cannot be edited or sent there.
+	// Keep the screen's suggested questions available while that hidden draft is preserved for when the mode returns.
+	val isWriting = !content.isGuided && content.composer.text.isNotBlank()
 	val hiddenByWriting = remember { mutableStateOf(false) }
 
 	LaunchedEffect(isWriting, content.suggestions.isEmpty()) {
