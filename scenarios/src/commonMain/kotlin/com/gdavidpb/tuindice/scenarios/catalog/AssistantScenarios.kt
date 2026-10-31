@@ -13,8 +13,8 @@ import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
-import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.swipePoints
+import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -381,8 +381,8 @@ private val assistantReopenWithConsent = scenario(
 
 	openAssistant()
 	acceptConsent()
-	// Drag down from the handle to close the sheet. Consent is given, so the sparkle reopens straight into the conversation,
-	// with the composer in view.
+	// Drag down from the handle to close the sheet. Consent is given, so the sparkle
+	// reopens straight into the conversation with the composer in view.
 	swipePoints(CHAT_SHEET_HANDLE_X, CHAT_SHEET_HANDLE_Y, 0.0, CHAT_SHEET_DISMISS_DRAG_Y)
 	waitGone(AssistantUiTags.ChatSheet, Within.Action)
 	openAssistant()
