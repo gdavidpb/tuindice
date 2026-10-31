@@ -554,7 +554,8 @@ class SyntheticTermCreationDataSource(
 					slotEligibilityKind = rule.slotEligibilityKind
 				)
 			},
-			category = category
+			category = category,
+			alternativeGroup = alternativeGroup
 		)
 	}
 

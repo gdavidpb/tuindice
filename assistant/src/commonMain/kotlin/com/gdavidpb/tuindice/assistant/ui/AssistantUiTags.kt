@@ -13,6 +13,7 @@ object AssistantUiTags {
 	const val Composer = "assistant_composer"
 	const val StopButton = "assistant_stop_button"
 	const val SendButton = "assistant_send_button"
+	const val ScrollToEndButton = "assistant_scroll_to_end_button"
 	const val PhotoButton = "assistant_photo_button"
 	const val PhotoTake = "assistant_photo_take"
 	const val PhotoPick = "assistant_photo_pick"

@@ -29,7 +29,8 @@ internal data class SubjectSearchPensumCacheResponse(
 		@SerialName("subject_code") val subjectCode: String? = null,
 		@SerialName("credits") val credits: Int = 0,
 		@SerialName("category") val category: String? = null,
-		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList()
+		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList(),
+		@SerialName("alternative_group") val alternativeGroup: String? = null
 	)
 
 	@Serializable

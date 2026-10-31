@@ -99,7 +99,8 @@ private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
 						minCredits = rule.minCredits,
 						minSubjects = rule.minSubjects
 					)
-				}
+				},
+				alternativeGroup = node.alternativeGroup
 			)
 		},
 		edges = edges.map { edge ->

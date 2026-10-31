@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.endSendUnconfirmed
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 // The outcomes of the jobs the content starts: a send, a confirmation, a dismissal, a restriction check, a feedback
 // answer and an answer about a memory. Such a job outlives the content that started it, and the sheet can be on the
@@ -42,6 +43,11 @@ internal fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions
 	}
 
 	on<AssistantChatInternalEvent.TurnRunFailed> { state, event ->
+		if (event.code == RunErrorCode.CANCELLED && machine.session.stopTarget() == event.turnId) {
+			machine.session.cancelledTurnIds += event.turnId
+			if (machine.session.sendingTurnId == event.turnId) machine.session.sending = false
+		}
+
 		machine.session.runFailed(texts = machine.texts, event = event)
 		present(state)
 	}

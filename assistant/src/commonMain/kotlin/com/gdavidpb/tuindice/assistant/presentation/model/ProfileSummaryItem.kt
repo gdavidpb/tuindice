@@ -8,7 +8,6 @@ import androidx.compose.runtime.Immutable
 data class ProfileSummaryItem(
 	override val id: String,
 	override val opensSheet: Boolean,
-	val careerCode: String,
 	val careerName: String,
 	val pensumLabel: String,
 	val primaryFigure: CardFigureItem,

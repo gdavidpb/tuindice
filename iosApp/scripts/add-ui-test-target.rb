@@ -52,7 +52,7 @@ if ui.nil?
 	ui.build_phases.move(phase, 0)
 
 	attributes = (project.root_object.attributes['TargetAttributes'] ||= {})
-	attributes[ui.uuid] = { 'CreatedOnToolsVersion' => '27.0', 'TestTargetID' => app.uuid }
+	attributes[ui.uuid] = { 'CreatedOnToolsVersion' => '27.2', 'TestTargetID' => app.uuid }
 
 	project.save
 	puts "Added target #{TARGET_NAME}."

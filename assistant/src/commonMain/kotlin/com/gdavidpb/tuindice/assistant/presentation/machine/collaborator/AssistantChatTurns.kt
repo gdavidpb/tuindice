@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.RunError
+import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.Job
@@ -144,10 +145,27 @@ class AssistantChatTurns(
 		}
 	}
 
-	// Asks the server to cancel the turn [turnId]. The turn ends with an event of its own, which the conversation shows.
+	// A successful cancellation is terminal for the local stream: the sheet must stop offering Stop before the next event.
 	fun cancel(host: MachineHost<AssistantChat.Effect>, turnId: String) {
+		val turnJobAtRequest = turnJob
+
 		host.launchMachineJob {
-			cancelAssistantTurnUseCase.execute(turnId).collect()
+			cancelAssistantTurnUseCase.execute(turnId).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					if (turnJob === turnJobAtRequest) {
+						turnJobAtRequest?.cancel()
+						turnJob = null
+					}
+
+					host.processInternalEvent(
+						AssistantChatInternalEvent.TurnRunFailed(
+							turnId = turnId,
+							code = RunErrorCode.CANCELLED,
+							retryable = false
+						)
+					)
+				}
+			}
 		}
 	}
 

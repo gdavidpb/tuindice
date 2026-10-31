@@ -138,6 +138,7 @@
   "nodes": [
    {
     "id": "0800-2019-degree_project-t1-math1-ma1111",
+    "alternative_group": "0800-2019-degree_project-t1-math1",
     "node_type": "COURSE",
     "display_code": "MA1111",
     "subject_code": "MA1111",
@@ -153,6 +154,7 @@
    },
    {
     "id": "0800-2019-degree_project-t1-math1-ma1121",
+    "alternative_group": "0800-2019-degree_project-t1-math1",
     "node_type": "COURSE",
     "display_code": "MA1121",
     "subject_code": "MA1121",
@@ -224,6 +226,7 @@
    },
    {
     "id": "0800-2019-degree_project-t2-math2-ma1112",
+    "alternative_group": "0800-2019-degree_project-t2-math2",
     "node_type": "COURSE",
     "display_code": "MA1112",
     "subject_code": "MA1112",
@@ -239,6 +242,7 @@
    },
    {
     "id": "0800-2019-degree_project-t2-math2-ma1122",
+    "alternative_group": "0800-2019-degree_project-t2-math2",
     "node_type": "COURSE",
     "display_code": "MA1122",
     "subject_code": "MA1122",
@@ -314,6 +318,7 @@
    },
    {
     "id": "0800-2019-degree_project-t3-math3-ma1116",
+    "alternative_group": "0800-2019-degree_project-t3-math3",
     "node_type": "COURSE",
     "display_code": "MA1116",
     "subject_code": "MA1116",
@@ -329,6 +334,7 @@
    },
    {
     "id": "0800-2019-degree_project-t3-math3-ma1123",
+    "alternative_group": "0800-2019-degree_project-t3-math3",
     "node_type": "COURSE",
     "display_code": "MA1123",
     "subject_code": "MA1123",

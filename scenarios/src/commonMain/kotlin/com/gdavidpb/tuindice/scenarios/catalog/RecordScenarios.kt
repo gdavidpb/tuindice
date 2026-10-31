@@ -327,8 +327,8 @@ private val recordSyntheticTermSearchStates = scenario(
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
 	waitVisible(RecordUiTags.ContentContainer, Within.Long)
 	openCreateTermScreen()
-	waitVisible(subjectStatus(ma1121, STATUS_AVAILABLE), Within.Wait)
-	waitVisible(subjectAction(ma1121, ACTION_ADD), Within.Assert)
+	waitVisible(subjectStatus(ma1112, STATUS_AVAILABLE), Within.Wait)
+	waitVisible(subjectAction(ma1112, ACTION_ADD), Within.Assert)
 	openSearchTab()
 
 	// "pr": the pensum's priority subjects first, with what each one lets the student do.
@@ -367,22 +367,28 @@ private val recordSyntheticTermSearchStates = scenario(
 	waitVisible(subjectStatus(ab1001, STATUS_NOT_IN_PENSUM), Within.Assert)
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchTab, Scroll.ContentUp, Within.Wait)
 
-	// "ma": the open subjects of the pensum.
+	// "ma": the open subjects of the pensum. MA1121 (Matemáticas I Honor, failed) is the alternative of MA1111
+	// (approved): the group is approved, so it hides behind the toggle of the taken subjects.
 	searchSubjects(queryMa, replace = true)
 	waitVisible(RecordUiTags.createSyntheticTermSearchResult(0, ma1112), Within.Wait)
 	waitVisible(subjectStatus(ma1112, STATUS_AVAILABLE), Within.Assert)
 	waitVisible(text(Copy.SubjectStatusAvailable), Within.Assert)
 	waitVisible(subjectAction(ma1112, ACTION_ADD), Within.Assert)
-	waitVisible(RecordUiTags.createSyntheticTermSearchResult(1, ma1121), Within.Assert)
-	waitVisible(subjectStatus(ma1121, STATUS_AVAILABLE), Within.Assert)
-	waitVisible(text(Copy.SubjectStatusAvailable), Within.Assert)
-	waitVisible(subjectAction(ma1121, ACTION_ADD), Within.Assert)
+	waitGone(subjectStatus(ma1121, STATUS_AVAILABLE), Within.Assert)
+	scrollUntilVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Scroll.ContentDown, Within.Wait)
+	waitVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Within.Assert)
+	tap(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle)
+	scrollUntilVisible(subjectStatus(ma1121, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
+	waitVisible(RecordUiTags.createSyntheticTermSubject(ma1121), Within.Assert)
+	waitVisible(text(Copy.SubjectStatusApproved), Within.Assert)
+	waitGone(subjectAction(ma1121, ACTION_ADD), Within.Assert)
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentUp, Within.Wait)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchClearButton, Within.Action)
 	tap(RecordUiTags.CreateSyntheticTermSearchClearButton)
 
 	// "ma1111": a subject already approved hides behind the toggle of the taken subjects.
 	searchSubjects(queryMa1111)
+	scrollUntilVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Scroll.ContentDown, Within.Wait)
 	waitVisible(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle, Within.Wait)
 	tap(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle)
 	scrollUntilVisible(subjectStatus(ma1111, STATUS_APPROVED), Scroll.ContentDown, Within.Wait)
@@ -455,7 +461,7 @@ private val recordSyntheticTermLifecycle = scenario(
 	account(E2eAccounts.Canonical.id)
 
 	val ec5333 = E2eFixtures.SubjectEc5333.value
-	val ma1121 = E2eFixtures.SubjectMa1121.value
+	val ma1112 = E2eFixtures.SubjectMa1112.value
 	val nextTerm = E2eFixtures.NextTermKey.value
 
 	openRecordTab()
@@ -493,10 +499,10 @@ private val recordSyntheticTermLifecycle = scenario(
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)
-	addSubject(ma1121, Copy.TermSelectedTwo)
+	addSubject(ma1112, Copy.TermSelectedTwo)
 	waitVisible(text(Copy.EditTermButton), Within.Assert)
 	submitTerm()
-	waitVisible(text(ma1121), Within.Wait)
+	waitVisible(text(ma1112), Within.Wait)
 	waitVisible(text(ec5333), Within.Assert)
 
 	// And deleted.
@@ -529,7 +535,7 @@ private val recordSyntheticTermRejected = scenario(
 	account(E2eAccounts.RecordTermRejected.id)
 
 	val ec5333 = E2eFixtures.SubjectEc5333.value
-	val ma1121 = E2eFixtures.SubjectMa1121.value
+	val ma1112 = E2eFixtures.SubjectMa1112.value
 
 	waitVisible(MaincoreUiTags.TuIndiceBottomBarRecordItem, Within.Sync)
 	tap(MaincoreUiTags.TuIndiceBottomBarRecordItem)
@@ -552,10 +558,10 @@ private val recordSyntheticTermRejected = scenario(
 	scrollUntilVisible(RecordUiTags.CreateSyntheticTermSearchField, Scroll.ContentDown, Within.Action)
 	searchSubjects(queryMa, replace = true)
 	waitVisible(RecordUiTags.CreateSyntheticTermSearchResultsTitle, Within.Wait)
-	addSubject(ma1121, Copy.TermSelectedTwo)
+	addSubject(ma1112, Copy.TermSelectedTwo)
 	submitTerm()
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
-	waitGone(text(ma1121), Within.Wait)
+	waitGone(text(ma1112), Within.Wait)
 	waitVisible(text(ec5333), Within.Assert)
 	waitVisible(RecordUiTags.termChip(E2eFixtures.NextTermKey.value), Within.Assert)
 }

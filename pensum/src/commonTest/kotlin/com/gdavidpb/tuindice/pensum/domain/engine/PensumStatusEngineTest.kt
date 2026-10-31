@@ -211,6 +211,30 @@ class PensumStatusEngineTest {
 	}
 
 	@Test
+	fun passesTheAlternativeGroupThroughTheAdapter() {
+		val regular = course("math1", "MA1111", "Matematicas I", credits = 4).copy(alternativeGroup = "t1-math1")
+		val honor = course("math1-honor", "MA1121", "Matematicas I (Honores)", credits = 4)
+			.copy(alternativeGroup = "t1-math1")
+		val physics = course("fs1111", "FS1111", "Fisica I", credits = 3)
+		val result = engine.resolve(
+			pensum = samplePensum(
+				nodes = listOf(regular, honor, physics),
+				edges = listOf(edge("math1", "fs1111"), edge("math1-honor", "fs1111"))
+			),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("MA1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 4, name = "Matematicas I")
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["math1-honor"])
+		assertEquals("MA1111", result.nodeFulfillments.getValue("math1-honor").subjectCode)
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["fs1111"])
+		assertEquals(4, result.approvedCredits)
+	}
+
+	@Test
 	fun doesNotResolveGenericElectiveRulesEvenWhenPrefixesArePresent() {
 		val genericSlot = slot(
 			id = "generic-slot",

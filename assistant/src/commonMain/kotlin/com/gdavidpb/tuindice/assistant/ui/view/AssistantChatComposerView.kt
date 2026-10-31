@@ -1,7 +1,11 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,9 +28,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
+import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -34,21 +42,16 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_chat_composer_placeholder
 
-private const val COMPOSER_MAX_LINES = 4
+private const val COMPOSER_MAX_LINES = 5
 
-// The text keeps 12 dp above and below each line, so one line is as tall as the 48 dp icons at its two ends.
-private val LINE_PADDING = TuIndiceSpacing.XLarge
+// The text keeps 12 dp from the field's edges: the field pads 4 dp (contentPadding) and the text the other 8 dp.
+private val TEXT_PADDING = TuIndiceSpacing.XLarge - TuIndiceSpacing.XSmall
 
-// The text starts 12 dp after the clip's circle. The circle sits centred in the clip's 48 dp touch target, so the text
-// is padded by those 12 dp less the room the target leaves around the circle.
-private val TEXT_START_PADDING = TuIndiceSpacing.XLarge - (TuIndiceComponentSizes.IconButton - SEND_CIRCLE_SIZE) / 2
-
-// The field: the photo clip at its start, where the text begins (ComposerStartIcon), and the send button at its end
-// (ComposerEndIcons). The field is off while a restriction holds, and with it the clip; the send button stays, off.
-// While a turn can be stopped, the stop button takes the place of the send button.
-//
-// The icons sit at the bottom of the field: with one line they are centred on it, and when the field grows they stay
-// by the last line, where the text is being written.
+// The field has two forms. Closed (not focused and empty) it is one compact row: the photo clip at its start
+// (ComposerStartIcon), the placeholder, and the send button at its end (ComposerEndIcons). Open (focused, or with
+// text) the text goes on top, across the whole width, and the clip and the send button go to a row under it, so the
+// text has the field's width to itself. The field is off while a restriction holds, and with it the clip; the send
+// button stays, off. While a turn can be stopped, the stop button takes the place of the send button.
 //
 // The field keeps its own text (EditableTextFieldState), as every field of the app the machine echoes: on iOS the
 // String overload loses and reorders keys (CMP-7312), and an echo between two keys would undo the second. The text the
@@ -63,6 +66,9 @@ fun AssistantChatComposerView(
 	val field = remember { EditableTextFieldState(composer.text, composer.textRevision) }
 	val interactionSource = remember { MutableInteractionSource() }
 	val textStyle = composerTextStyle()
+	val isFocused by interactionSource.collectIsFocusedAsState()
+	// Open while the student is in the field or has text in it; otherwise the field is one compact row.
+	val isOpen = isFocused || composer.text.isNotEmpty()
 
 	field.syncExternal(composer.text, composer.textRevision)
 
@@ -84,43 +90,77 @@ fun AssistantChatComposerView(
 			OutlinedTextFieldDefaults.DecorationBox(
 				value = field.value.text,
 				innerTextField = {
-					Row(verticalAlignment = Alignment.Bottom) {
-						ComposerStartIcon(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
-						// The text starts close after the clip (see TEXT_START_PADDING).
-						Box(
-							modifier = Modifier
-								.weight(1f)
-								.padding(start = TEXT_START_PADDING, top = LINE_PADDING, bottom = LINE_PADDING)
-						) {
-							if (field.value.text.isEmpty()) {
-								Text(
-									text = stringResource(Res.string.assistant_chat_composer_placeholder),
-									style = textStyle,
-									color = MaterialTheme.colorScheme.onSurfaceVariant
-								)
-							}
-							innerTextField()
-						}
-						ComposerEndIcons(composer = composer, onAction = onAction)
-					}
+					ComposerBody(
+						isOpen = isOpen,
+						showsPlaceholder = field.value.text.isEmpty(),
+						startIcon = {
+							ComposerStartIcon(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
+						},
+						endIcons = { ComposerEndIcons(composer = composer, onAction = onAction) },
+						innerTextField = innerTextField
+					)
 				},
 				enabled = composer.isEnabled,
 				singleLine = false,
 				visualTransformation = VisualTransformation.None,
 				interactionSource = interactionSource,
 				container = { ComposerContainer(enabled = composer.isEnabled, interactionSource = interactionSource) },
-				contentPadding = PaddingValues(
-					start = TuIndiceSpacing.XSmall,
-					top = TuIndiceSpacing.XSmall,
-					end = TuIndiceSpacing.XSmall,
-					bottom = TuIndiceSpacing.XSmall
-				)
+				contentPadding = PaddingValues(TuIndiceSpacing.XSmall)
 			)
 		}
 	)
 }
 
-// The glyphs are centred in their line, so a single line sits in the middle of the field, level with its icons.
+// The inside of the field in either form. One structure for both, so the text field keeps its place (and its focus)
+// when the form changes: the icons move from the text's row to the row under it.
+@Composable
+private fun ComposerBody(
+	isOpen: Boolean,
+	showsPlaceholder: Boolean,
+	startIcon: @Composable () -> Unit,
+	endIcons: @Composable () -> Unit,
+	innerTextField: @Composable () -> Unit
+) {
+	Column(modifier = Modifier.animateComposerSize()) {
+		Row(verticalAlignment = Alignment.CenterVertically) {
+			if (!isOpen) startIcon()
+			Box(
+				modifier = Modifier
+					.weight(1f)
+					.padding(
+						start = if (isOpen) TEXT_PADDING else TuIndiceSpacing.Small,
+						top = if (isOpen) TEXT_PADDING else 0.dp,
+						end = TEXT_PADDING
+					)
+			) {
+				if (showsPlaceholder) {
+					Text(
+						text = stringResource(Res.string.assistant_chat_composer_placeholder),
+						style = composerTextStyle(),
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						maxLines = 1
+					)
+				}
+				innerTextField()
+			}
+			if (!isOpen) endIcons()
+		}
+		if (isOpen) {
+			Row(verticalAlignment = Alignment.CenterVertically) {
+				startIcon()
+				Spacer(modifier = Modifier.weight(1f))
+				endIcons()
+			}
+		}
+	}
+}
+
+// The field grows and shrinks between its two forms in 200 ms; with animations off it changes at once.
+@Composable
+private fun Modifier.animateComposerSize(): Modifier =
+	if (LocalTuIndiceAnimationsEnabled.current) animateContentSize(tween(AssistantChatMotion.SmallEnterMillis)) else this
+
+// The glyphs are centred in their line, so the placeholder and the text sit at the same height.
 @Composable
 private fun composerTextStyle(): TextStyle =
 	MaterialTheme.typography.bodyLarge.copy(
@@ -128,8 +168,8 @@ private fun composerTextStyle(): TextStyle =
 		lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 	)
 
-// The photo clip, at the start of the field, where the text begins. While the field is off there is no clip, but its
-// place stays, so the text does not move when the clip comes or goes.
+// The photo clip, at the start of the row under the text. While the field is off there is no clip, but its place
+// stays, so the row keeps its height when the clip comes or goes.
 @Composable
 private fun ComposerStartIcon(
 	composer: ChatComposerItem,
@@ -143,7 +183,7 @@ private fun ComposerStartIcon(
 			onAction = onAction
 		)
 	} else {
-		// Where the clip would be: the 48 dp touch target of an icon button, so the text stays where it is.
+		// Where the clip would be: the 48 dp touch target of an icon button, so the row keeps its height.
 		Spacer(modifier = Modifier.size(TuIndiceComponentSizes.IconButton))
 	}
 }

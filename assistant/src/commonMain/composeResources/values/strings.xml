@@ -2,6 +2,7 @@
 <resources>
 	<string name="a11y_assistant_send">Enviar</string>
 	<string name="a11y_assistant_stop">Detener respuesta</string>
+	<string name="a11y_assistant_scroll_to_end">Ir al final de la conversación</string>
 	<string name="a11y_assistant_remove_context">Quitar contexto</string>
 	<string name="a11y_assistant_copy">Copiar</string>
 	<string name="a11y_assistant_useful">Útil</string>
@@ -173,6 +174,7 @@
 	<string name="assistant_card_a_profile_credits_caption_one">crédito aprobado</string>
 	<string name="assistant_card_a_profile_credits_caption_many">créditos aprobados</string>
 	<string name="assistant_card_a_profile_credits_description">Créditos aprobados: %1$s</string>
+	<string name="assistant_card_a_profile_career">Carrera</string>
 	<string name="assistant_card_a_profile_pensum">Pensum</string>
 	<string name="assistant_card_a_profile_current_term">Trimestre en curso</string>
 	<string name="assistant_card_a_sync_label">Sincronización</string>

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantMemory
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantMemoryContentView
+import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.EmptyView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
@@ -48,7 +49,8 @@ fun AssistantMemoryScreen(
 				) {
 					EmptyView(
 						title = stringResource(Res.string.assistant_memory_empty_title),
-						message = stringResource(Res.string.assistant_memory_empty_message)
+						message = stringResource(Res.string.assistant_memory_empty_message),
+						headerContent = { EmptyStateAnimationView() }
 					)
 				}
 

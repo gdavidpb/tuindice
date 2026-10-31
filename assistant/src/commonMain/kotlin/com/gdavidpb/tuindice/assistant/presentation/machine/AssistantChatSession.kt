@@ -30,6 +30,9 @@ internal class AssistantChatSession {
 	var lastFailedSend: FailedSend? = null
 	var turnFailure: TurnFailure? = null
 
+	// A cancellation the server accepted is terminal for this sheet while its conversation snapshot catches up.
+	val cancelledTurnIds = mutableSetOf<String>()
+
 	// The notice of a photo that was not read. It is the photo's own: a text turn's failure is not a photo's, and the
 	// other way round. It shows when no text turn has failed.
 	var photoFailure: TurnFailure? = null
@@ -100,10 +103,18 @@ internal class AssistantChatSession {
 	// reads the standing again.
 	fun restrictionAt(nowMillis: Long): Restriction? = restriction?.takeUnless { held -> held.isOver(nowMillis) }
 
-	fun isRunning(): Boolean = conversation?.activeTurn?.status == AssistantTurnPhase.RUNNING
+	fun isRunning(): Boolean {
+		val activeTurn = conversation?.activeTurn ?: return false
+
+		return activeTurn.status == AssistantTurnPhase.RUNNING && activeTurn.turnId !in cancelledTurnIds
+	}
 
 	// The turn a stop would cancel: the one that runs, or the one being sent. Null when none can be stopped.
-	fun stopTarget(): String? = if (isRunning()) conversation?.activeTurn?.turnId else sendingTurnId?.takeIf { sending }
+	fun stopTarget(): String? = if (isRunning()) {
+		conversation?.activeTurn?.turnId
+	} else {
+		sendingTurnId?.takeIf { sending && it !in cancelledTurnIds }
+	}
 
 	// The mode the server or the configuration says the assistant is in. Only a mode that says on releases the guided lock
 	// that a refused guided send set: an accepted turn does not.
@@ -149,6 +160,11 @@ internal class AssistantChatSession {
 	}
 
 	fun observe(observed: AssistantConversation) {
+		val activeTurn = observed.activeTurn
+		cancelledTurnIds.removeAll { turnId ->
+			activeTurn?.turnId != turnId || activeTurn.status != AssistantTurnPhase.RUNNING
+		}
+
 		conversation = observed
 
 		// The first event of the sent turn, or its end, is what the conversation shows of it: the send is over then.

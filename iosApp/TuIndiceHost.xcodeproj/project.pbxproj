@@ -263,7 +263,7 @@
 						CreatedOnToolsVersion = 26.2;
 					};
 					D071092B7D6A2412EA045017 = {
-						CreatedOnToolsVersion = 27.0;
+						CreatedOnToolsVersion = 27.2;
 						TestTargetID = A1B2C3D4E5F60708090A1061;
 					};
 				};
